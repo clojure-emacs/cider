@@ -29,6 +29,10 @@
 
 ;;; mode book-keeping
 
+(defun nrepl-face-inheritance-possible-p ()
+   "Return true if the :inherit face attribute is supported."
+   (assq :inherit custom-face-attributes))
+
 (defvar nrepl-mode-hook nil
   "Hook run when entering nrepl-mode.")
 
@@ -41,6 +45,110 @@
     (define-key map (kbd "RET") 'nrepl-send)
     map))
 
+(defgroup nrepl nil
+  "The Read-Eval-Print Loop (*nrepl* buffer)."
+  :prefix "nrepl-")
+
+(defface nrepl-prompt-face
+  (if (nrepl-face-inheritance-possible-p)
+      '((t (:inherit font-lock-keyword-face)))
+    '((((class color) (background light)) (:foreground "Purple"))
+      (((class color) (background dark)) (:foreground "Cyan"))
+      (t (:weight bold))))
+  "Face for the prompt in nREPL."
+  :group 'nrepl)
+
+(defface nrepl-output-face
+  (if (nrepl-face-inheritance-possible-p)
+      '((t (:inherit font-lock-string-face)))
+    '((((class color) (background light)) (:foreground "RosyBrown"))
+      (((class color) (background dark)) (:foreground "LightSalmon"))
+      (t (:slant italic))))
+  "Face for Clojure output in the nREPL."
+  :group 'nrepl)
+
+(defface nrepl-input-face
+  '((t (:bold t)))
+  "Face for previous input in the nREPL."
+  :group 'nrepl)
+
+(defface nrepl-result-face
+  '((t ()))
+  "Face for the result of an evaluation in the nREPL."
+  :group 'nrepl)
+
+(defcustom nrepl-history-file "~/.nrepl-history.eld"
+  "File to save the persistent nREPL history to."
+  :type 'string
+  :group 'nrepl)
+
+(defcustom nrepl-history-size 200
+  "*Maximum number of lines for persistent nREPL history."
+  :type 'integer
+  :group 'nrepl)
+
+;; (defcustom nrepl-history-file-coding-system nrepl-net-coding-system
+;;   "*The coding system for the history file."
+;;   :type 'symbol
+;;   :group 'nrepl)
+
+
+;;;; Stream output
+
+(defmacro* nrepl-with-connection-buffer ((&optional process) &rest body)
+   "Execute BODY in the process-buffer of PROCESS.
+ If PROCESS is not specified, `nrepl-connection-process' is used.
+
+ \(fn (&optional PROCESS) &body BODY))"
+   `(with-current-buffer
+        (process-buffer (or ,process (nrepl-connection-process)
+                            (error "No connection")))
+      ,@body))
+
+(defmacro nrepl-def-connection-var (varname &rest initial-value-and-doc)
+   "Define a connection-local variable.
+ The value of the variable can be read by calling the function of the
+ same name (it must not be accessed directly). The accessor function is
+ setf-able.
+
+ The actual variable bindings are stored buffer-local in the
+ process-buffers of connections. The accessor function refers to
+ the binding for `nrepl-connection-process'."
+   (let ((real-var (intern (format "%s:connlocal" varname))))
+     `(progn
+        ;; Variable
+        (make-variable-buffer-local
+         (defvar ,real-var ,@initial-value-and-doc))
+        ;; Accessor
+        (defun ,varname (&optional process)
+          (nrepl-with-connection-buffer (process) ,real-var))
+        ;; Setf
+        (defsetf ,varname (&optional process) (store)
+          `(nrepl-with-connection-buffer (,process)
+             (setq (\, (quote (\, real-var))) (\, store))
+             (\, store)))
+        '(\, varname))))
+
+(nrepl-def-connection-var
+ nrepl-connection-output-buffer nil
+ "The buffer for the REPL.  May be nil or a dead buffer.")
+
+(make-variable-buffer-local
+ (defvar nrepl-output-start nil
+   "Marker for the start of the output for the evaluation."))
+
+(make-variable-buffer-local
+ (defvar slime-output-end nil
+   "Marker for end of output. New output is inserted at this mark."))
+
+;; dummy defvar for compiler
+(defvar nrepl-read-mode)
+
+(defun nrepl-reading-p ()
+  "True if Lisp is currently reading input from the REPL."
+  (with-current-buffer (nrepl-output-buffer)
+    nrepl-repl-read-mode))
+
 (defvar nrepl-prompt-location nil)
 
 (defvar nrepl-connection-process nil)
@@ -49,9 +157,10 @@
   "Major mode for nrepl interactions."
   (interactive)
   (kill-all-local-variables)
+  (setq major-mode 'nrepl-mode)
   (use-local-map nrepl-mode-map)
-  (setq mode-name "NRepl"
-        major-mode 'nrepl-mode)
+  (setq font-lock-defaults nil)
+  (setq mode-name "NRepl")
   (set-syntax-table nrepl-mode-syntax-table)
   (run-mode-hooks 'nrepl-mode-hook))
 
@@ -67,6 +176,9 @@
   (add-to-list 'received-messages message-string))
 
 (defun nrepl-handle (message))
+
+(defun nrepl-test-filter (process string)
+  (message string))
 
 (defun nrepl-filter (process string)
   (with-current-buffer (process-buffer process)
@@ -100,7 +212,7 @@
 (defun nrepl-send ()
   (interactive)
   (let* ((input (buffer-substring nrepl-prompt-location (point-max)))
-         (message (apply 'format "\d%s%s%s%s\e"
+         (message (apply 'format "d%s%s%s%se"
                          (mapcar 'nrepl-netstring (list "op" "eval"
                                                         "code" input)))))
     (nrepl-write-message "*nrepl-connection*" message)))
@@ -114,18 +226,67 @@
     (set-process-sentinel process 'nrepl-sentinel)
     process))
 
+(defun nrepl-connection ()
+    (interactive "nPort: ")
+    (let ((process (nrepl-connect "localhost" port)))
+      (set (make-variable-buffer-local 'nrepl-connection-process) process)
+      process))
+
+(defun nrepl-output-buffer (&optional noprompt)
+  "Return the output buffer, create it if necessary."
+  (let ((buffer (nrepl-connection-output-buffer)))
+    (or (if (buffer-live-p buffer) buffer)
+        (setf (nrepl-connection-output-buffer)
+              (let ((connection (nrepl-connection)))
+                (with-current-buffer (nrepl-buffer t connection)
+                  (unless (eq major-mode 'nepl-mode) 
+                    (nrepl-mode))
+                  (setq nrepl-buffer-connection connection)
+		  (unless noprompt 
+                    (nrepl-insert-prompt))
+                  (current-buffer)))))))
+
+(defun nrepl-pop-to-buffer (buffer &optional other-window)
+   "Select buffer BUFFER in some window.
+ This is like `pop-to-buffer' but also sets the input focus
+ for (somewhat) better multiframe support."
+   (set-buffer buffer)
+   (let ((old-frame (selected-frame))
+         (window (display-buffer buffer other-window)))
+     (select-window window)
+     ;; select-window doesn't set the input focus
+     (when (and (not (featurep 'xemacs))
+                (>= emacs-major-version 22)
+                (not (eq old-frame (selected-frame))))
+       (select-frame-set-input-focus (window-frame window))))
+   buffer)
+
+(defun nrepl-switch-to-output-buffer ()
+  "Select the output buffer, when possible in an existing window.
+
+Hint: You can use `display-buffer-reuse-frames' and
+`special-display-buffer-names' to customize the frame in which
+the buffer should appear."
+  (interactive)
+  (nrepl-pop-to-buffer (nrepl-output-buffer))
+  (goto-char (point-max)))
+
+;; (defun nrepl (port)
+;;   ;; TODO: prompt for host
+;;   (interactive "nPort: ")
+;;   (switch-to-buffer "*nrepl*") ; TODO: support multiple connections
+;;   (let ((process (nrepl-connect "localhost" port)))
+;;     (set (make-variable-buffer-local 'nrepl-connection-process) process))
+;;   ;; TODO: kill process when buffer is killed
+;;   (make-variable-buffer-local 'nrepl-prompt-location)
+;;   (insert "Welcome to nrepl!")
+;;   (nrepl-insert-prompt)
+;;   (nrepl-mode))
 ;;;###autoload
-(defun nrepl (port)
+(defun nrepl ()
   ;; TODO: prompt for host
-  (interactive "nPort: ")
-  (switch-to-buffer "*nrepl*") ; TODO: support multiple connections
-  (let ((process (nrepl-connect "localhost" port)))
-    (set (make-variable-buffer-local 'nrepl-connection-process) process))
-  ;; TODO: kill process when buffer is killed
-  (make-variable-buffer-local 'nrepl-prompt-location)
-  (insert "Welcome to nrepl!")
-  (nrepl-insert-prompt)
-  (nrepl-mode))
+  (interactive)
+  (nrepl-switch-to-output-buffer))
 
 (provide 'nrepl)
 ;;; nrepl.el ends here
