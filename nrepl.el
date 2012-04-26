@@ -29,7 +29,40 @@
 (require 'thingatpt)
 
 ;;; bencode/bdecode
-;;; https://gist.github.com/2021424
+(defun bdecode-buffer ()
+  "Decode a bencoded string in the current buffer starting at point."
+  (cond ((looking-at "i\\([0-9]+\\)e")
+         (goto-char (match-end 0))
+         (string-to-number (match-string 1)))
+        ((looking-at "\\([0-9]+\\):")
+         (goto-char (match-end 0))
+         (let ((start (point))
+               (end (+ (point) (string-to-number (match-string 1)))))
+           (goto-char end)
+           (buffer-substring-no-properties start end)))
+        ((looking-at "l")
+         (goto-char (match-end 0))
+         (let (result item)
+           (while (setq item (bdecode-buffer))
+             (setq result (cons item result)))
+           (nreverse result)))
+        ((looking-at "d")
+         (goto-char (match-end 0))
+         (let (dict key)
+           (while (setq item (bdecode-buffer))
+             (if key
+                 (setq dict (cons (cons key item) dict)
+                       key nil)
+               (unless (stringp item)
+                 (error "Dictionary keys have to be strings" item))
+               (setq key item)))
+           (cons 'dict (nreverse dict))))
+        ((looking-at "e")
+         (goto-char (match-end 0))
+         nil)
+        (t
+         (error "Cannot decode object" (point)))))
+
 (defun nrepl-bdecode-string (str)
   (string-to-list (str)))
 
@@ -60,6 +93,12 @@
          (nrepl-read-list str))
         (100
          (nrepl-read-dict str)))))
+
+(defun nrepl-decode (str)
+  (with-temp-buffer
+    (save-excursion
+      (insert str))
+    (bdecode-buffer)))
 
 ;;; mode book-keeping
 (defvar nrepl-mode-hook nil
@@ -96,21 +135,24 @@
 
 (setq received-messages nil)
 
-(defun nrepl-decode (message-string)
-  (add-to-list 'received-messages message-string))
-
-(defun nrepl-handle (message))
+(defun nrepl-handle (response)
+  (let ((value (cdr (assoc "value" response)))
+        (ns (cdr (assoc "ns" response))))
+    (with-current-buffer "*nrepl*"
+      (goto-char (point-max))
+      (insert-before-markers (propertize (format "\n%s" value)))
+      (insert-before-markers (propertize (format "\n%s> " ns)))
+      (setq nrepl-prompt-location (point-max)))))
 
 (defun nrepl-filter (process string)
   (with-current-buffer (process-buffer process)
     (goto-char (point-max))
     (insert string)
     (goto-char (point-min))
-    (when (= (string-to-number (thing-at-point 'word))
-             (position-bytes (point-max)))
-      (let ((message (buffer-substring-no-properties (point-min) (point-max))))
-        (delete-region (point-min) (point-max))
-        (nrepl-handle (nrepl-decode message))))))
+    (let ((message (buffer-substring-no-properties (point-min) (point-max))))
+      (delete-region (point-min) (point-max))
+      (add-to-list 'received-messages message)
+      (nrepl-handle (nrepl-decode message)))))
 
 (defun nrepl-sentinel (process message)
   (message "nrepl connection closed: %s" message)
@@ -120,20 +162,21 @@
 
 (defun nrepl-write-message (process message)
   (add-to-list 'sent-messages message)
-  (process-send-string process (nrepl-netstring message)))
+  (process-send-string process message))
 
 ;;; repl interaction
 
 (defun nrepl-insert-prompt ()
-  (goto-char (point-max))
-  (insert (propertize "\n> " 'read-only t))
-  ;; TODO: track prompt location by searching back for read-only
-  (setq nrepl-prompt-location (point-max)))
+  (with-current-buffer "*nrepl*"
+    (goto-char (point-max))
+    (insert-before-markers "\nuser> ")
+    ;; TODO: track prompt location by searching back for read-only
+    (setq nrepl-prompt-location (point-max))))
 
 (defun nrepl-send ()
   (interactive)
   (let* ((input (buffer-substring nrepl-prompt-location (point-max)))
-         (message (apply 'format "\d%s%s%s%s\e"
+         (message (apply 'format "d%s%s%s%se"
                          (mapcar 'nrepl-netstring (list "op" "eval"
                                                         "code" input)))))
     (nrepl-write-message "*nrepl-connection*" message)))
@@ -142,7 +185,8 @@
 
 (defun nrepl-connect (host port)
   (message "Connecting to nrepl on %s:%s..." host port)
-  (let ((process (open-network-stream "nrepl" "*nrepl-connection*" host port)))
+  (let ((process (open-network-stream "nrepl" "*nrepl-connection*" host
+port)))
     (set-process-filter process 'nrepl-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     process))
