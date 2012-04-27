@@ -29,6 +29,22 @@
 (require 'thingatpt)
 
 ;;; bencode/bdecode
+(defun bencode (obj)
+  "Encode an elisp object using bencode."
+  (cond ((integerp obj)
+	 (concat "i" (number-to-string obj) "e"))
+	((stringp obj)
+	 (concat (number-to-string (length obj)) ":" obj))
+	((and (listp obj) (eq (car obj) 'dict))
+	 (concat "d" (mapconcat (lambda (i)
+				  (concat (bencode (car i))
+					  (bencode (cdr i))))
+				(cdr obj) "") "e"))
+	((listp obj)
+	 (concat "l" (mapconcat 'bencode obj "") "e"))
+	(t
+	 (error "Cannot encode object" obj))))
+
 (defun bdecode-buffer ()
   "Decode a bencoded string in the current buffer starting at point."
   (cond ((looking-at "i\\([0-9]+\\)e")
@@ -129,6 +145,20 @@
 
 ;;; communication
 
+(defcustom nrepl-server-command
+  (if (or (locate-file "lein" exec-path) (locate-file "lein.bat" exec-path))
+      "lein repl :headless"
+    "echo \"lein repl :headless\" | $SHELL -l")
+  "The command used to start the nREPL via nrepl-jack-in.
+For a remote nREPL server lein must be in your PATH.  The remote
+proc is launched via sh rather than bash, so it might be necessary
+to specific the full path to it. Localhost is assumed."
+  :type 'string
+  :group 'nrepl-mode)
+
+(defun nrepl-start-server ()
+  (start-process-shell-command "nrepl-server" "*nrepl-server*" "lein2 repl :headless"))
+
 (defun nrepl-netstring (string)
   (let ((size (string-bytes string)))
     (format "%s:%s" size string)))
@@ -181,8 +211,22 @@
                                                         "code" input)))))
     (nrepl-write-message "*nrepl-connection*" message)))
 
-;;; connections
+;;; server
+(defun nrepl-server-filter (process output)
+  (with-current-buffer (process-buffer process)
+    (insert output))
+  (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
+    (let ((port (match-string 1 output)))
+      (process-put process 'port port)
+      (process-put process 'started-p 1)
+      (message (format "nREPL server started on %s" port)))))
 
+(defun nrepl-start-server ()
+  (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*" "lein2 repl :headless")))
+    (set-process-filter process 'nrepl-server-filter)
+    process))
+
+;;; client
 (defun nrepl-connect (host port)
   (message "Connecting to nrepl on %s:%s..." host port)
   (let ((process (open-network-stream "nrepl" "*nrepl-connection*" host
