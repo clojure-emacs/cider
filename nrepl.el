@@ -167,12 +167,15 @@ to specific the full path to it. Localhost is assumed."
 
 (defun nrepl-handle (response)
   (let ((value (cdr (assoc "value" response)))
+        (ns (cdr (assoc "status" response)))
         (ns (cdr (assoc "ns" response))))
-    (with-current-buffer "*nrepl*"
-      (goto-char (point-max))
-      (insert-before-markers (propertize (format "\n%s" value)))
-      (insert-before-markers (propertize (format "\n%s> " ns)))
-      (setq nrepl-prompt-location (point-max)))))
+    ;; if we received a value display it
+    (if value
+        (with-current-buffer "*nrepl*"
+          (goto-char (point-max))
+          (insert-before-markers (propertize (format "\n%s" value) 'read-only 't 'rear-nonsticky 't))
+          (insert-before-markers (propertize (format "\n%s> " ns) 'read-only 't 'rear-nonsticky 't))
+          (setq nrepl-prompt-location (point-max))))))
 
 (defun nrepl-filter (process string)
   (with-current-buffer (process-buffer process)
@@ -197,33 +200,45 @@ to specific the full path to it. Localhost is assumed."
 ;;; repl interaction
 
 (defun nrepl-insert-prompt ()
+  (interactive)
   (with-current-buffer "*nrepl*"
     (goto-char (point-max))
-    (insert-before-markers "\nuser> ")
-    ;; TODO: track prompt location by searching back for read-only
+    (insert-before-markers (propertize "Welcome to nrepl!\nuser> " 'read-only 't 'rear-nonsticky 't))
     (setq nrepl-prompt-location (point-max))))
 
 (defun nrepl-send ()
   (interactive)
-  (let* ((input (buffer-substring nrepl-prompt-location (point-max)))
-         (message (apply 'format "d%s%s%s%se"
-                         (mapcar 'nrepl-netstring (list "op" "eval"
-                                                        "code" input)))))
-    (nrepl-write-message "*nrepl-connection*" message)))
+  (with-current-buffer "*nrepl*"
+    (let* ((input (buffer-substring nrepl-prompt-location (point-max)))
+           (message (apply 'format "d%s%s%s%se"
+                           (mapcar 'nrepl-netstring (list "op" "eval"
+                                                          "code" input)))))
+      (message message)
+      (nrepl-write-message "*nrepl-connection*" message))))
 
 ;;; server
-(defun nrepl-server-filter (process output)
-  (with-current-buffer (process-buffer process)
+(defun make-nrepl-server-filter (&optional start-repl-p)
+  (lambda (process output)
+    (with-current-buffer (process-buffer process)
     (insert output))
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (match-string 1 output)))
-      (process-put process 'port port)
-      (process-put process 'started-p 1)
-      (message (format "nREPL server started on %s" port)))))
+      (message (format "nREPL server started on %s" port))
+      (when start-repl-p
+        (nrepl port))))))
+
+(defun nrepl-server-sentinel (process event)
+  (let ((debug-on-error t))
+    (error "Could not start nREPL server: %s"
+           (let ((b (process-buffer process)))
+             (if (and b (buffer-live-p b))
+                 (with-current-buffer b
+                   (buffer-substring (point-min) (point-max))))))))
 
 (defun nrepl-start-server ()
   (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*" "lein2 repl :headless")))
-    (set-process-filter process 'nrepl-server-filter)
+    (set-process-filter process (make-nrepl-server-filter 1))
+    (set-process-sentinel process 'nrepl-server-sentinel)
     process))
 
 ;;; client
@@ -243,8 +258,6 @@ port)))
   (let ((process (nrepl-connect "localhost" port)))
     (set (make-variable-buffer-local 'nrepl-connection-process) process))
   ;; TODO: kill process when buffer is killed
-  (make-variable-buffer-local 'nrepl-prompt-location)
-  (insert "Welcome to nrepl!")
   (nrepl-insert-prompt)
   (nrepl-mode))
 
