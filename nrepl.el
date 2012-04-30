@@ -176,9 +176,9 @@ to specific the full path to it. Localhost is assumed."
   (interactive)
   (with-current-buffer "*nrepl*"
     (let* ((input (buffer-substring nrepl-prompt-location (point-max)))
-           (message (concat "d" (apply 'concat 
-                                      (mapcar 'nrepl-netstring
-                                               (list "op" "eval"                                                                      "code" input))) "e")))
+           (message (apply 'format "d%s%s%s%se"
+                           (mapcar 'nrepl-netstring (list "op" "eval"
+                                                          "code" input)))))
       (nrepl-write-message "*nrepl-connection*" message))))
 
 ;;; server
