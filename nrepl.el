@@ -28,6 +28,75 @@
 (require 'clojure-mode)
 (require 'thingatpt)
 
+(defun nrepl-face-inheritance-possible-p ()
+   "Return true if the :inherit face attribute is supported."
+   (assq :inherit custom-face-attributes))
+
+(defgroup nrepl nil
+  "Interaction with the Clojure nREPL Server."
+  :prefix "nrepl-"
+  :group 'applications)
+
+(defface nrepl-prompt-face
+  (if (nrepl-face-inheritance-possible-p)
+      '((t (:inherit font-lock-keyword-face)))
+    '((((class color) (background light)) (:foreground "Purple"))
+      (((class color) (background dark)) (:foreground "Cyan"))
+      (t (:weight bold))))
+  "Face for the prompt in the nREPL client."
+  :group 'nrepl)
+
+(defface nrepl-output-face
+  (if (nrepl-face-inheritance-possible-p)
+      '((t (:inherit font-lock-string-face)))
+    '((((class color) (background light)) (:foreground "RosyBrown"))
+      (((class color) (background dark)) (:foreground "LightSalmon"))
+      (t (:slant italic))))
+  "Face for Clojure output in the nREPL client."
+  :group 'nrepl)
+
+(defface nrepl-input-face
+  '((t (:bold t)))
+  "Face for previous input in the nREPL client."
+  :group 'nrepl)
+
+(defface nrepl-result-face
+  '((t ()))
+  "Face for the result of an evaluation in the nREPL client."
+  :group 'nrepl)
+
+(defmacro nrepl-propertize-region (props &rest body)
+   "Execute BODY and add PROPS to all the text it inserts.
+ More precisely, PROPS are added to the region between the point's
+ positions before and after executing BODY."
+   (let ((start (gensym)))
+     `(let ((,start (point)))
+        (prog1 (progn ,@body)
+          (add-text-properties ,start (point) ,props)))))
+
+;; dummy definitions for the compiler
+(defvar nrepl-input-start-mark)
+(defvar nrepl-prompt-start-mark)
+
+(defun nrepl-make-variables-buffer-local (&rest variables)
+  (mapcar #'make-variable-buffer-local variables))
+
+(nrepl-make-variables-buffer-local
+ (defvar nrepl-prompt-start-mark)
+ (defvar nrepl-input-start-mark)
+ (defvar nrepl-old-input-counter 0
+   "Counter used to generate unique `nrepl-old-input' properties.
+This property value must be unique to avoid having adjacent inputs be
+joined together."))
+
+(defun nrepl-reset-markers ()
+  (dolist (markname '(nrepl-output-start
+                      nrepl-output-end
+                      nrepl-prompt-start-mark
+                      nrepl-input-start-mark))
+    (set markname (make-marker))
+    (set-marker (symbol-value markname) (point))))
+
 ;;; bencode/bdecode
 (defun bencode (obj)
   "Encode an elisp object using bencode."
@@ -95,7 +164,7 @@
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "RET") 'nrepl-send)
+    (define-key map (kbd "RET") 'nrepl-return)
     map))
 
 (defvar nrepl-prompt-location nil)
@@ -127,21 +196,72 @@ to specific the full path to it. Localhost is assumed."
 
 (defun nrepl-netstring (string)
   (let ((size (string-bytes string)))
-    (concat (number-to-string size) ":" string)))
+    (format "%s:%s" size string)))
 
 (setq received-messages nil)
 
+(defun nrepl-show-maximum-output ()
+  "Put the end of the buffer at the bottom of the window."
+  (when (eobp)
+    (let ((win (get-buffer-window (current-buffer))))
+      (when win
+        (with-selected-window win
+          (set-window-point win (point-max)) 
+          (recenter -1))))))
+
+(defun nrepl-mark-input-start ()
+  (set-marker nrepl-input-start-mark (point) (current-buffer)))
+
+(defun nrepl-insert-prompt (namespace)
+  "Insert the prompt (before markers!).
+Set point after the prompt.  
+Return the position of the prompt beginning."
+  (goto-char nrepl-input-start-mark)
+  (nrepl-save-marker nrepl-output-start
+    (nrepl-save-marker nrepl-output-end
+      (unless (bolp) (insert-before-markers "\n"))
+      (let ((prompt-start (point))
+            (prompt (format "%s> " namespace)))
+        (nrepl-propertize-region
+         '(face nrepl-prompt-face read-only t intangible t
+                nrepl-prompt t
+                rear-nonsticky (nrepl-prompt read-only face intangible))
+         (insert-before-markers prompt))
+        (set-marker nrepl-prompt-start-mark prompt-start)
+        prompt-start))))
+
+(defmacro nrepl-save-marker (marker &rest body)
+  (let ((pos (gensym "pos")))
+  `(let ((,pos (marker-position ,marker)))
+     (prog1 (progn . ,body)
+       (set-marker ,marker ,pos)))))
+
+(put 'nrepl-save-marker 'lisp-indent-function 1)
+
+(defun nrepl-emit-result (string &optional bol)
+  ;; insert STRING and mark it as evaluation result
+  (with-current-buffer "*nrepl*"
+    (save-excursion
+      (nrepl-save-marker nrepl-output-start
+        (nrepl-save-marker nrepl-output-end
+          (goto-char nrepl-input-start-mark)
+          (when (and bol (not (bolp))) (insert-before-markers "\n"))
+          (nrepl-propertize-region `(face nrepl-result-face
+                                          rear-nonsticky (face))
+            (insert-before-markers string)))))
+    (nrepl-show-maximum-output)))
+
 (defun nrepl-handle (response)
   (let ((value (cdr (assoc "value" response)))
-        (ns (cdr (assoc "status" response)))
+        (status (cdr (assoc "status" response)))
         (ns (cdr (assoc "ns" response))))
     ;; if we received a value display it
-    (if value
+    (when value
         (with-current-buffer "*nrepl*"
-          (goto-char (point-max))
-          (insert-before-markers (propertize (format "\n%s" value) 'read-only 't 'rear-nonsticky 't))
-          (insert-before-markers (propertize (format "\n%s> " ns) 'read-only 't 'rear-nonsticky 't))
-          (setq nrepl-prompt-location (point-max))))))
+          (save-excursion
+            (nrepl-emit-result value t)
+            (nrepl-insert-prompt ns))
+          (nrepl-show-maximum-output)))))
 
 (defun nrepl-filter (process string)
   (with-current-buffer (process-buffer process)
@@ -165,17 +285,121 @@ to specific the full path to it. Localhost is assumed."
 
 ;;; repl interaction
 
-(defun nrepl-insert-prompt ()
-  (interactive)
-  (with-current-buffer "*nrepl*"
+;; (defun nrepl-insert-prompt ()
+;;   (interactive)
+;;   (with-current-buffer "*nrepl*"
+;;     (goto-char (point-max))
+;;     (insert-before-markers (propertize "Welcome to nrepl!\nuser> " 'read-only 't 'rear-nonsticky 't))
+;;     (setq nrepl-prompt-location (point-max))))
+(defun nrepl-in-input-area-p ()
+  t
+  ;;(<= nrepl-input-start-mark (point))
+  )
+
+(defun nrepl-current-input (&optional until-point-p)
+  "Return the current input as string.
+The input is the region from after the last prompt to the end of
+buffer."
+  (buffer-substring-no-properties nrepl-input-start-mark 
+                                  (if until-point-p 
+                                      (point) 
+                                    (point-max))))
+
+(defun nrepl-property-position (text-property &optional object)
+  "Return the first position of TEXT-PROPERTY, or nil."
+  (if (get-text-property 0 text-property object)
+      0
+    (next-single-property-change 0 text-property object)))
+  
+(defun nrepl-mark-input-start ()
+  (set-marker nrepl-input-start-mark (point) (current-buffer)))
+
+(defun nrepl-mark-output-start ()
+  (set-marker nrepl-output-start (point))
+  (set-marker nrepl-output-end (point)))
+
+(defun nrepl-mark-output-end ()
+  (add-text-properties nrepl-output-start nrepl-output-end
+                       '(face nrepl-output-face 
+                         rear-nonsticky (face))))
+
+(defun nrepl-send-string (input)
+  (let* ((message (apply 'format "d%s%s%s%se"
+                         (mapcar 'nrepl-netstring (list "op" "eval"
+                                                        "code" input)))))
+    (nrepl-write-message "*nrepl-connection*" message)))
+
+(defun nrepl-send-input (&optional newline)
+  "Goto to the end of the input and send the current input.
+If NEWLINE is true then add a newline at the end of the input."
+  (unless (nrepl-in-input-area-p)
+    (error "No input at point."))
+  (goto-char (point-max))
+  (let ((end (point))) ; end of input, without the newline
+    (when newline 
+      (insert "\n")
+      (nrepl-show-maximum-output))
+    (let ((inhibit-modification-hooks t))
+      (add-text-properties nrepl-input-start-mark 
+                           (point)
+                           `(repl-old-input
+                             ,(incf nrepl-old-input-counter))))
+    (let ((overlay (make-overlay nrepl-input-start-mark end)))
+      ;; These properties are on an overlay so that they won't be taken
+      ;; by kill/yank.
+      (overlay-put overlay 'read-only t)
+      (overlay-put overlay 'face 'nrepl-input-face)))
+  (let ((input (nrepl-current-input)))
     (goto-char (point-max))
-    (insert-before-markers (propertize "Welcome to nrepl!\nuser> " 'read-only 't 'rear-nonsticky 't))
-    (setq nrepl-prompt-location (point-max))))
+    (nrepl-mark-input-start)
+    (nrepl-mark-output-start)
+    (nrepl-send-string input)))
+
+(defun nrepl-newline-and-indent ()
+  "Insert a newline, then indent the next line.
+Restrict the buffer from the prompt for indentation, to avoid being
+confused by strange characters (like unmatched quotes) appearing
+earlier in the buffer."
+  (interactive)
+  (save-restriction
+    (narrow-to-region nrepl-prompt-start-mark (point-max))
+    (insert "\n")
+    (lisp-indent-line)))
+
+(defun nrepl-input-complete-p (start end)
+   "Return t if the region from START to END contains a complete sexp."
+   (save-excursion
+     (goto-char start)
+     (cond ((looking-at "\\s *['`#]?[(\"]")
+            (ignore-errors
+              (save-restriction
+                (narrow-to-region start end)
+                ;; Keep stepping over blanks and sexps until the end of
+                ;; buffer is reached or an error occurs. Tolerate extra
+                ;; close parens.
+                (loop do (skip-chars-forward " \t\r\n)")
+                      until (eobp)
+                      do (forward-sexp))
+                t)))
+           (t t))))
+
+(defun nrepl-return (&optional end-of-input)
+  "Evaluate the current input string, or insert a newline.  
+Send the current input ony if a whole expression has been entered,
+i.e. the parenthesis are matched. 
+With prefix argument send the input even if the parenthesis are not
+balanced."
+  (interactive "P")
+  (cond
+   ((nrepl-input-complete-p nrepl-input-start-mark (point-max))
+    (nrepl-send-input t))
+   (t
+    (nrepl-newline-and-indent))))
 
 (defun nrepl-send ()
   (interactive)
   (with-current-buffer "*nrepl*"
-    (let* ((input (buffer-substring nrepl-prompt-location (point-max)))
+    (let* ((input (buffer-substring nrepl-input-start-mark (point-max)))
            (message (apply 'format "d%s%s%s%se"
                            (mapcar 'nrepl-netstring (list "op" "eval"
                                                           "code" input)))))
@@ -217,14 +441,14 @@ port)))
 
 ;;;###autoload
 (defun nrepl (port)
-  ;; TODO: prompt for host
   (interactive "nPort: ")
-  (switch-to-buffer "*nrepl*") ; TODO: support multiple connections
+  (switch-to-buffer "*nrepl*")
   (let ((process (nrepl-connect "localhost" port)))
     (set (make-variable-buffer-local 'nrepl-connection-process) process))
-  ;; TODO: kill process when buffer is killed
-  (nrepl-insert-prompt)
-  (nrepl-mode))
+  (nrepl-mode)
+  (with-current-buffer "*nrepl*"
+    (nrepl-reset-markers)
+    (nrepl-insert-prompt "user")))
 
 (provide 'nrepl)
 ;;; nrepl.el ends here
