@@ -23,6 +23,9 @@
 
 ;; This file is part of nrepl
 
+;; To run these tests:
+;;   All tests: M-x ert t
+;;
 ;;; Code:
 
 (eval-when-compile
@@ -30,31 +33,45 @@
 (require 'ert)
 (require 'nrepl)
 
-;; ({:ns "user",
-;;   :value "2",
-;;   :session "a5bf4c75-e32e-4bf5-a7be-65e70cd7da57",
-;;   :id "48e4d93c-0c96-4f6e-bb4e-22a1fabe7143"}
-;;  {:status ["done"],
-;;   :session "a5bf4c75-e32e-4bf5-a7be-65e70cd7da57",
-;;   :id "48e4d93c-0c96-4f6e-bb4e-22a1fabe7143"})
+(ert-deftest test-nrepl-decode-string ()
+  (assert (equal "spam" (nrepl-decode "4:spam"))))
 
-(ert-deftest test-nrepl-bdecode-string ()
-  (assert (equal "spam" (nrepl-bdecode "4:spam"))))
-
-(ert-deftest test-nrepl-bdecode-integer ()
-  (assert (equal 3 (nrepl-bdecode "i3e"))))
+(ert-deftest test-nrepl-decode-integer ()
+  (assert (equal 3 (nrepl-decode "i3e"))))
 
 (ert-deftest test-nrepl-bdecode-list ()
   (assert (equal '("spam" "eggs")
-                 (nrepl-bdecode "l4:spam4:eggse"))))
+                 (nrepl-decode "l4:spam4:eggse"))))
 
 (ert-deftest test-nrepl-bdecode-dict ()
   (assert (equal '(dict ("cow" . "moo") ("spam" . "eggs"))
-                 (nrepl-bdecode  "d3:cow3:moo4:spam4:eggse"))))
+                 (nrepl-decode  "d3:cow3:moo4:spam4:eggse"))))
 
-(ert-deftest test-nrepl-bdecode-nrepl-response ()
+(ert-deftest test-nrepl-decode-nrepl-response-value ()
   (assert (equal '(dict
                    ("ns" . "user")
                    ("session" . "20c51458-911e-47ec-97c2-c509aed95b12")
                    ("value" . "2"))
-                 (nrepl-bdecode "d2:ns4:user7:session36:20c51458-911e-47ec-97c2-c509aed95b125:value1:2ed7:session36:20c51458-911e-47ec-97c2-c509aed95b126:statusl4:doneee"))))
+                 (nrepl-decode "d2:ns4:user7:session36:20c51458-911e-47ec-97c2-c509aed95b125:value1:2e"))))
+
+(ert-deftest test-nrepl-decode-nrepl-response-status ()
+  (assert (equal '(dict
+                   ("session" . "f30dbd69-7095-40c1-8e98-7873ae71a07f")
+                   ("status" "done"))
+                 (nrepl-decode "d7:session36:f30dbd69-7095-40c1-8e98-7873ae71a07f6:statusl4:doneee"))))
+
+(ert-deftest test-nrepl-decode-nrepl-response-err ()
+  (assert (equal '(dict
+                   ("err" . "FileNotFoundException Could not locate seesaw/core__init.class or seesaw/core.clj on classpath:   clojure.lang.RT.load (RT.java:432)\n")
+                   ("session" . "f30dbd69-7095-40c1-8e98-7873ae71a07f"))
+                 (nrepl-decode
+"d3:err133:FileNotFoundException Could not locate seesaw/core__init.class or seesaw/core.clj on classpath:   clojure.lang.RT.load (RT.java:432)\n7:session36:f30dbd69-7095-40c1-8e98-7873ae71a07fe"))))
+
+(ert-deftest test-nrepl-decode-nrepl-response-exception ()
+  (assert (equal '(dict
+                   ("ex" . "class java.io.FileNotFoundException")
+                   ("root-ex" . "class java.io.FileNotFoundException")
+                   ("session" . "f30dbd69-7095-40c1-8e98-7873ae71a07f")
+                   ("status" "eval-error"))
+                 (nrepl-decode
+                  "d2:ex35:class java.io.FileNotFoundException7:root-ex35:class java.io.FileNotFoundException7:session36:f30dbd69-7095-40c1-8e98-7873ae71a07f6:statusl10:eval-erroree"))))

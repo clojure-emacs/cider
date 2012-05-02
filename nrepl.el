@@ -154,6 +154,35 @@ joined together."))
       (insert str))
     (bdecode-buffer)))
 
+(defun nrepl-last-expression ()
+  (buffer-substring-no-properties
+   (save-excursion (backward-sexp) (point))
+   (point)))
+
+(defun nrepl-eval-last-expression ()
+  "Evaluate the expression preceding point."
+  (interactive)
+  (nrepl-interactive-eval (nrepl-last-expression)))
+ 
+  ;;;; Interactive evaluation.
+(defun nrepl-eval-print (string)
+  "Eval STRING in nREPL; insert any output and the result at point."
+  (slime-eval-async `(swank:eval-and-grab-output ,string)
+                    (lambda (result)
+                      (destructuring-bind (output value) result
+                        (insert output value)))))
+
+(defun nrepl-interactive-eval (string)
+  "Read and evaluate STRING and print value in minibuffer.
+ 
+  Note: If a prefix argument is in effect then the result will be
+  inserted in the current buffer."
+  (interactive (list (nrepl-read-from-minibuffer "nREPL Eval: ")))
+  (nrepl-send-string string))
+
+(defun nrepl-display-eval-result (value)
+  (message (format  "%s" value)))
+
 ;;; mode book-keeping
 (defvar nrepl-mode-hook nil
   "Hook run when entering nrepl-mode.")
@@ -165,6 +194,7 @@ joined together."))
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "RET") 'nrepl-return)
+    (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
     map))
 
 (defvar nrepl-prompt-location nil)
@@ -184,8 +214,8 @@ joined together."))
 ;;; communication
 
 (defcustom nrepl-server-command
-  (if (or (locate-file "lein" exec-path) (locate-file "lein.bat" exec-path))
-      "lein repl :headless"
+  (if (or (locate-file "lein2" exec-path) (locate-file "lein2.bat" exec-path))
+      "lein2 repl :headless"
     "echo \"lein repl :headless\" | $SHELL -l")
   "The command used to start the nREPL via nrepl-jack-in.
 For a remote nREPL server lein must be in your PATH.  The remote
@@ -254,15 +284,23 @@ Return the position of the prompt beginning."
 (defun nrepl-handle (response)
   (let ((value (cdr (assoc "value" response)))
         (status (cdr (assoc "status" response)))
-        (ns (cdr (assoc "ns" response))))
+        (ns (cdr (assoc "ns" response)))
+        (err (cdr (assoc "err" response))))
     ;; if we received a value display it
-    (when value
-        (with-current-buffer "*nrepl*"
-          (save-excursion
-            (nrepl-emit-result value t)
-            (nrepl-insert-prompt ns))
-          (nrepl-show-maximum-output)))))
+    (cond (value
+            (with-current-buffer "*nrepl*"
+              (save-excursion
+                (nrepl-emit-result value t)
+                (nrepl-insert-prompt ns))
+              (nrepl-show-maximum-output)))
+          (err
+           (with-current-buffer "*nrepl*"
+              (save-excursion
+                (nrepl-emit-result err t)
+                (nrepl-insert-prompt ns))
+              (nrepl-show-maximum-output))))))
 
+;; TODO: store current namespace on the process
 (defun nrepl-filter (process string)
   (with-current-buffer (process-buffer process)
     (goto-char (point-max))
@@ -411,7 +449,7 @@ balanced."
     (with-current-buffer (process-buffer process)
     (insert output))
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
-    (let ((port (match-string 1 output)))
+    (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
       (when start-repl-p
         (nrepl port))))))
