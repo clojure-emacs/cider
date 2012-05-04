@@ -82,8 +82,16 @@
   (mapcar #'make-variable-buffer-local variables))
 
 (nrepl-make-variables-buffer-local
+ (defvar nrepl-request-continuations '()
+   "List of (ID . FUNCTION) continuations waiting for RPC results.")
+
+ (defvar nrepl-request-counter 0
+   "Continuation serial number counter.")
+ 
  (defvar nrepl-prompt-start-mark)
+ 
  (defvar nrepl-input-start-mark)
+ 
  (defvar nrepl-old-input-counter 0
    "Counter used to generate unique `nrepl-old-input' properties.
 This property value must be unique to avoid having adjacent inputs be
@@ -98,22 +106,6 @@ joined together."))
     (set-marker (symbol-value markname) (point))))
 
 ;;; bencode/bdecode
-(defun bencode (obj)
-  "Encode an elisp object using bencode."
-  (cond ((integerp obj)
-	 (concat "i" (number-to-string obj) "e"))
-	((stringp obj)
-	 (concat (number-to-string (length obj)) ":" obj))
-	((and (listp obj) (eq (car obj) 'dict))
-	 (concat "d" (mapconcat (lambda (i)
-				  (concat (bencode (car i))
-					  (bencode (cdr i))))
-				(cdr obj) "") "e"))
-	((listp obj)
-	 (concat "l" (mapconcat 'bencode obj "") "e"))
-	(t
-	 (error "Cannot encode object" obj))))
-
 (defun bdecode-buffer ()
   "Decode a bencoded string in the current buffer starting at point."
   (cond ((looking-at "i\\([0-9]+\\)e")
@@ -164,14 +156,6 @@ joined together."))
   (interactive)
   (nrepl-interactive-eval (nrepl-last-expression)))
  
-  ;;;; Interactive evaluation.
-(defun nrepl-eval-print (string)
-  "Eval STRING in nREPL; insert any output and the result at point."
-  (slime-eval-async `(swank:eval-and-grab-output ,string)
-                    (lambda (result)
-                      (destructuring-bind (output value) result
-                        (insert output value)))))
-
 (defun nrepl-interactive-eval (string)
   "Read and evaluate STRING and print value in minibuffer.
  
@@ -284,12 +268,14 @@ Return the position of the prompt beginning."
 (defun nrepl-handle (response)
   (let ((value (cdr (assoc "value" response)))
         (status (cdr (assoc "status" response)))
+        (id (cdr (assoc "id" response)))
         (ns (cdr (assoc "ns" response)))
         (err (cdr (assoc "err" response))))
     ;; if we received a value display it
     (cond (value
             (with-current-buffer "*nrepl*"
               (save-excursion
+                (nrepl-emit-result id t)
                 (nrepl-emit-result value t)
                 (nrepl-insert-prompt ns))
               (nrepl-show-maximum-output)))
@@ -322,17 +308,8 @@ Return the position of the prompt beginning."
   (process-send-string process message))
 
 ;;; repl interaction
-
-;; (defun nrepl-insert-prompt ()
-;;   (interactive)
-;;   (with-current-buffer "*nrepl*"
-;;     (goto-char (point-max))
-;;     (insert-before-markers (propertize "Welcome to nrepl!\nuser> " 'read-only 't 'rear-nonsticky 't))
-;;     (setq nrepl-prompt-location (point-max))))
 (defun nrepl-in-input-area-p ()
-  t
-  ;;(<= nrepl-input-start-mark (point))
-  )
+  (<= nrepl-input-start-mark (point)))
 
 (defun nrepl-current-input (&optional until-point-p)
   "Return the current input as string.
@@ -361,10 +338,23 @@ buffer."
                        '(face nrepl-output-face 
                          rear-nonsticky (face))))
 
+;; TODO: store these variables on the connection buffer local
+(defvar nrepl-request-continuations '()
+   "List of (ID . FUNCTION) continuations waiting for RPC results.")
+
+(defvar nrepl-request-counter 0
+                           "Continuation serial number counter.")
+
 (defun nrepl-send-string (input)
-  (let* ((message (apply 'format "d%s%s%s%se"
-                         (mapcar 'nrepl-netstring (list "op" "eval"
-                                                        "code" input)))))
+  (let* ((request-id (number-to-string (incf nrepl-request-counter)))
+         (message (concat
+                   "d"
+                   (apply 'concat
+                          (mapcar 'nrepl-netstring
+                                  (list "op" "eval"
+                                        "id" request-id
+                                        "code" input)))
+                   "e")))
     (nrepl-write-message "*nrepl-connection*" message)))
 
 (defun nrepl-send-input (&optional newline)
@@ -433,15 +423,6 @@ balanced."
     (nrepl-send-input t))
    (t
     (nrepl-newline-and-indent))))
-
-(defun nrepl-send ()
-  (interactive)
-  (with-current-buffer "*nrepl*"
-    (let* ((input (buffer-substring nrepl-input-start-mark (point-max)))
-           (message (apply 'format "d%s%s%s%se"
-                           (mapcar 'nrepl-netstring (list "op" "eval"
-                                                          "code" input)))))
-      (nrepl-write-message "*nrepl-connection*" message))))
 
 ;;; server
 (defun make-nrepl-server-filter (&optional start-repl-p)
