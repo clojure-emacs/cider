@@ -27,10 +27,12 @@
 
 (require 'clojure-mode)
 (require 'thingatpt)
+(eval-when-compile
+  (require 'cl))
 
 (defun nrepl-face-inheritance-possible-p ()
-   "Return true if the :inherit face attribute is supported."
-   (assq :inherit custom-face-attributes))
+  "Return true if the :inherit face attribute is supported."
+  (assq :inherit custom-face-attributes))
 
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
@@ -66,36 +68,42 @@
   :group 'nrepl)
 
 (defmacro nrepl-propertize-region (props &rest body)
-   "Execute BODY and add PROPS to all the text it inserts.
+  "Execute BODY and add PROPS to all the text it inserts.
  More precisely, PROPS are added to the region between the point's
  positions before and after executing BODY."
-   (let ((start (gensym)))
-     `(let ((,start (point)))
-        (prog1 (progn ,@body)
-          (add-text-properties ,start (point) ,props)))))
+  (let ((start (gensym)))
+    `(let ((,start (point)))
+       (prog1 (progn ,@body)
+         (add-text-properties ,start (point) ,props)))))
 
-;; dummy definitions for the compiler
+;; buffer local declarations
 (defvar nrepl-input-start-mark)
+
 (defvar nrepl-prompt-start-mark)
+
+(defvar nrepl-request-continuations '()
+  "List of (ID . FUNCTION) continuations waiting for RPC results.")
+
+(defvar nrepl-request-counter 0
+  "Continuation serial number counter.")
+ 
+(defvar nrepl-old-input-counter 0
+  "Counter used to generate unique `nrepl-old-input' properties.
+This property value must be unique to avoid having adjacent inputs be
+joined together.")
+
+(defvar nrepl-requests (make-hash-table :test 'equal))
 
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
 (nrepl-make-variables-buffer-local
- (defvar nrepl-request-continuations '()
-   "List of (ID . FUNCTION) continuations waiting for RPC results.")
-
- (defvar nrepl-request-counter 0
-   "Continuation serial number counter.")
- 
- (defvar nrepl-prompt-start-mark)
- 
- (defvar nrepl-input-start-mark)
- 
- (defvar nrepl-old-input-counter 0
-   "Counter used to generate unique `nrepl-old-input' properties.
-This property value must be unique to avoid having adjacent inputs be
-joined together."))
+ 'nrepl-input-start-mark
+ 'nrepl-prompt-start-mark
+ 'nrepl-request-counter
+ 'nrepl-request-continuations
+ 'nrepl-requests
+ 'nrepl-old-input-counter)
 
 (defun nrepl-reset-markers ()
   (dolist (markname '(nrepl-output-start
@@ -162,10 +170,10 @@ joined together."))
   Note: If a prefix argument is in effect then the result will be
   inserted in the current buffer."
   (interactive (list (nrepl-read-from-minibuffer "nREPL Eval: ")))
-  (nrepl-send-string string))
+  (nrepl-send-string string 'nrepl-interactive-handler))
 
 (defun nrepl-display-eval-result (value)
-  (message (format  "%s" value)))
+  (message (format "%s" value)))
 
 ;;; mode book-keeping
 (defvar nrepl-mode-hook nil
@@ -184,6 +192,13 @@ joined together."))
 (defvar nrepl-prompt-location nil)
 
 (defvar nrepl-connection-process nil)
+
+(defun clojure-enable-nrepl ()
+  (nrepl-mode)
+  (set (make-local-variable 'slime-find-buffer-package-function)
+       'clojure-find-ns))
+
+(add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
 
 (defun nrepl-mode ()
   "Major mode for nrepl interactions."
@@ -252,7 +267,7 @@ Return the position of the prompt beginning."
 
 (put 'nrepl-save-marker 'lisp-indent-function 1)
 
-(defun nrepl-emit-result (string &optional bol)
+(defun nrepl-emit-result (string ns &optional bol)
   ;; insert STRING and mark it as evaluation result
   (with-current-buffer "*nrepl*"
     (save-excursion
@@ -262,29 +277,34 @@ Return the position of the prompt beginning."
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (nrepl-propertize-region `(face nrepl-result-face
                                           rear-nonsticky (face))
-            (insert-before-markers string)))))
+                                   (insert-before-markers string))))
+      (nrepl-insert-prompt ns))
     (nrepl-show-maximum-output)))
 
-(defun nrepl-handle (response)
-  (let ((value (cdr (assoc "value" response)))
-        (status (cdr (assoc "status" response)))
-        (id (cdr (assoc "id" response)))
-        (ns (cdr (assoc "ns" response)))
-        (err (cdr (assoc "err" response))))
-    ;; if we received a value display it
+(defmacro nrepl-dbind-response (response keys &rest body)
+  `(let ,(loop for key in keys
+               collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
+     ,@body))
+
+(put 'nrepl-dbind-response 'lisp-indent-function 2)
+
+(defun nrepl-handler (response)
+  (nrepl-dbind-response response (value ns err)
     (cond (value
-            (with-current-buffer "*nrepl*"
-              (save-excursion
-                (nrepl-emit-result id t)
-                (nrepl-emit-result value t)
-                (nrepl-insert-prompt ns))
-              (nrepl-show-maximum-output)))
+           (nrepl-emit-result value ns t))
           (err
-           (with-current-buffer "*nrepl*"
-              (save-excursion
-                (nrepl-emit-result err t)
-                (nrepl-insert-prompt ns))
-              (nrepl-show-maximum-output))))))
+           (nrepl-emit-result err ns t)))))
+
+(defun nrepl-interactive-handler (response)
+  (nrepl-dbind-response response (value)
+    (if value
+        (nrepl-display-eval-result value))))
+
+(defun nrepl-dispatch (response)
+  (nrepl-dbind-response response (id)
+    (let ((callback (gethash id nrepl-requests)))
+      (if callback
+          (funcall callback response)))))
 
 ;; TODO: store current namespace on the process
 (defun nrepl-filter (process string)
@@ -295,7 +315,7 @@ Return the position of the prompt beginning."
     (let ((message (buffer-substring-no-properties (point-min) (point-max))))
       (delete-region (point-min) (point-max))
       (add-to-list 'received-messages message)
-      (nrepl-handle (nrepl-decode message)))))
+      (nrepl-dispatch (nrepl-decode message)))))
 
 (defun nrepl-sentinel (process message)
   (message "nrepl connection closed: %s" message)
@@ -345,7 +365,7 @@ buffer."
 (defvar nrepl-request-counter 0
                            "Continuation serial number counter.")
 
-(defun nrepl-send-string (input)
+(defun nrepl-send-string (input callback)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
          (message (concat
                    "d"
@@ -353,8 +373,10 @@ buffer."
                           (mapcar 'nrepl-netstring
                                   (list "op" "eval"
                                         "id" request-id
+                                        "ns" "user"
                                         "code" input)))
                    "e")))
+    (puthash request-id callback nrepl-requests)
     (nrepl-write-message "*nrepl-connection*" message)))
 
 (defun nrepl-send-input (&optional newline)
@@ -370,7 +392,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (let ((inhibit-modification-hooks t))
       (add-text-properties nrepl-input-start-mark 
                            (point)
-                           `(repl-old-input
+                           `(nrepl-old-input
                              ,(incf nrepl-old-input-counter))))
     (let ((overlay (make-overlay nrepl-input-start-mark end)))
       ;; These properties are on an overlay so that they won't be taken
@@ -381,7 +403,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
-    (nrepl-send-string input)))
+    (nrepl-send-string input 'nrepl-handler)))
 
 (defun nrepl-newline-and-indent ()
   "Insert a newline, then indent the next line.

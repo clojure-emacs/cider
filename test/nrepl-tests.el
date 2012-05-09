@@ -1,6 +1,6 @@
 ;;; nrepl-tests.el 
 
-;; Copyright (C) 2007, 2008, 2010 Free Software Foundation, Inc.
+;; Copyright © 2012 Tim King
 
 ;; Author: Tim King
 
@@ -75,3 +75,4 @@
                    ("status" "eval-error"))
                  (nrepl-decode
                   "d2:ex35:class java.io.FileNotFoundException7:root-ex35:class java.io.FileNotFoundException7:session36:f30dbd69-7095-40c1-8e98-7873ae71a07f6:statusl10:eval-erroree"))))
+
