@@ -182,11 +182,16 @@ joined together.")
 (defvar nrepl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
+(defvar nrepl-interaction-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map clojure-mode-map)
+    (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
+    map))
+
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "RET") 'nrepl-return)
-    (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
     map))
 
 (defvar nrepl-prompt-location nil)
@@ -194,11 +199,18 @@ joined together.")
 (defvar nrepl-connection-process nil)
 
 (defun clojure-enable-nrepl ()
-  (nrepl-mode)
-  (set (make-local-variable 'slime-find-buffer-package-function)
+  (nrepl-interaction-mode t)
+  (set (make-local-variable 'nrepl-find-buffer-ns-function)
        'clojure-find-ns))
 
 (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
+
+;;;###autoload
+(define-minor-mode nrepl-interaction-mode
+  "Minor mode for nrepl interactions from a Clojure buffer."
+   nil
+   " nrepl"
+   nrepl-interaction-mode-map)
 
 (defun nrepl-mode ()
   "Major mode for nrepl interactions."
@@ -296,9 +308,11 @@ Return the position of the prompt beginning."
            (nrepl-emit-result err ns t)))))
 
 (defun nrepl-interactive-handler (response)
-  (nrepl-dbind-response response (value)
-    (if value
-        (nrepl-display-eval-result value))))
+  (nrepl-dbind-response response (value err)
+    (cond (value
+           (nrepl-display-eval-result value))
+          (err
+           (nrepl-display-eval-result err)))))
 
 (defun nrepl-dispatch (response)
   (nrepl-dbind-response response (id)
@@ -465,11 +479,13 @@ balanced."
                  (with-current-buffer b
                    (buffer-substring (point-min) (point-max))))))))
 
-(defun nrepl-start-server ()
+;;;###autoload
+(defun nrepl-jack-in ()
+  (interactive)
   (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*" "lein2 repl :headless")))
     (set-process-filter process (make-nrepl-server-filter 1))
     (set-process-sentinel process 'nrepl-server-sentinel)
-    process))
+    (message "Starting nrepl server...")))
 
 ;;; client
 (defun nrepl-connect (host port)
