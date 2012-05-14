@@ -1,4 +1,4 @@
-;;; nrepl.el --- Client for Clojure nrepl protocol -*- lexical-binding: t -*-
+;;; nrepl.el --- Client for Clojure nrepl -*- lexical-binding: t -*-
 
 ;; Copyright © 2012 Phil Hagelberg, Tim King
 
@@ -97,13 +97,17 @@ joined together.")
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
+(defvar nrepl-buffer-ns "user"
+  "Current clojure namespace of this buffer.")
+
 (nrepl-make-variables-buffer-local
  'nrepl-input-start-mark
  'nrepl-prompt-start-mark
  'nrepl-request-counter
  'nrepl-request-continuations
  'nrepl-requests
- 'nrepl-old-input-counter)
+ 'nrepl-old-input-counter
+ 'nrepl-buffer-ns)
 
 (defun nrepl-reset-markers ()
   (dolist (markname '(nrepl-output-start
@@ -154,6 +158,26 @@ joined together.")
       (insert str))
     (bdecode-buffer)))
 
+(defun nrepl-expression-at-point ()
+  "Return the text of the defun at point."
+  (apply #'buffer-substring-no-properties
+         (nrepl-region-for-expression-at-point)))
+
+(defun nrepl-region-for-expression-at-point ()
+   "Return the start and end position of defun at point."
+   (save-excursion
+     (save-match-data
+       (end-of-defun)
+       (let ((end (point)))
+         (beginning-of-defun)
+         (list (point) end)))))
+
+(defun nrepl-eval-expression-at-point ()
+  "Evaluate the current toplevel form."
+  (interactive)
+  (let ((form (nrepl-expression-at-point)))
+    (nrepl-interactive-eval form)))
+
 (defun nrepl-last-expression ()
   (buffer-substring-no-properties
    (save-excursion (backward-sexp) (point))
@@ -164,20 +188,27 @@ joined together.")
   (interactive)
   (nrepl-interactive-eval (nrepl-last-expression)))
  
-(defun nrepl-interactive-eval (string)
-  "Read and evaluate STRING and print value in minibuffer.
- 
-  Note: If a prefix argument is in effect then the result will be
-  inserted in the current buffer."
+(defun nrepl-interactive-eval (form)
+  "Read and evaluate STRING and print value in minibuffer."
   (interactive (list (nrepl-read-from-minibuffer "nREPL Eval: ")))
-  (nrepl-send-string string 'nrepl-interactive-handler))
+  (lexical-let ((buffer (current-buffer)))
+    (nrepl-send-string form nrepl-buffer-ns
+     (lambda (response)
+       (nrepl-dbind-response response (value err ns)
+                             (cond (value
+                                    (if ns
+                                        (with-current-buffer buffer
+                                          (setq nrepl-buffer-ns ns)))
+                                    (nrepl-display-eval-result value))
+                                   (err
+                                    (nrepl-display-eval-result err))))))))
 
 (defun nrepl-display-eval-result (value)
   (message (format "%s" value)))
 
 ;;; mode book-keeping
 (defvar nrepl-mode-hook nil
-  "Hook run when entering nrepl-mode.")
+  "Hook executed when entering nrepl-mode.")
 
 (defvar nrepl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
@@ -185,7 +216,9 @@ joined together.")
 (defvar nrepl-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
+    (define-key map "\e\C-x" 'nrepl-eval-expression-at-point)
     (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
+    (define-key map (kbd "\C-c\C-e") 'nrepl-eval-last-expression)
     map))
 
 (defvar nrepl-mode-map
@@ -194,20 +227,16 @@ joined together.")
     (define-key map (kbd "RET") 'nrepl-return)
     map))
 
-(defvar nrepl-prompt-location nil)
-
 (defvar nrepl-connection-process nil)
 
 (defun clojure-enable-nrepl ()
-  (nrepl-interaction-mode t)
-  (set (make-local-variable 'nrepl-find-buffer-ns-function)
-       'clojure-find-ns))
+  (nrepl-interaction-mode t))
 
 (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
 
 ;;;###autoload
 (define-minor-mode nrepl-interaction-mode
-  "Minor mode for nrepl interactions from a Clojure buffer."
+  "Minor mode for nrepl interaction from a Clojure buffer."
    nil
    " nrepl"
    nrepl-interaction-mode-map)
@@ -238,8 +267,6 @@ to specific the full path to it. Localhost is assumed."
 (defun nrepl-netstring (string)
   (let ((size (string-bytes string)))
     (format "%s:%s" size string)))
-
-(setq received-messages nil)
 
 (defun nrepl-show-maximum-output ()
   "Put the end of the buffer at the bottom of the window."
@@ -282,6 +309,8 @@ Return the position of the prompt beginning."
 (defun nrepl-emit-result (string ns &optional bol)
   ;; insert STRING and mark it as evaluation result
   (with-current-buffer "*nrepl*"
+    (if ns
+        (setq nrepl-buffer-ns ns))
     (save-excursion
       (nrepl-save-marker nrepl-output-start
         (nrepl-save-marker nrepl-output-end
@@ -307,13 +336,6 @@ Return the position of the prompt beginning."
           (err
            (nrepl-emit-result err ns t)))))
 
-(defun nrepl-interactive-handler (response)
-  (nrepl-dbind-response response (value err)
-    (cond (value
-           (nrepl-display-eval-result value))
-          (err
-           (nrepl-display-eval-result err)))))
-
 (defun nrepl-dispatch (response)
   (nrepl-dbind-response response (id)
     (let ((callback (gethash id nrepl-requests)))
@@ -328,17 +350,13 @@ Return the position of the prompt beginning."
     (goto-char (point-min))
     (let ((message (buffer-substring-no-properties (point-min) (point-max))))
       (delete-region (point-min) (point-max))
-      (add-to-list 'received-messages message)
       (nrepl-dispatch (nrepl-decode message)))))
 
 (defun nrepl-sentinel (process message)
   (message "nrepl connection closed: %s" message)
   (kill-buffer (process-buffer process)))
 
-(setq sent-messages nil)
-
 (defun nrepl-write-message (process message)
-  (add-to-list 'sent-messages message)
   (process-send-string process message))
 
 ;;; repl interaction
@@ -379,7 +397,7 @@ buffer."
 (defvar nrepl-request-counter 0
                            "Continuation serial number counter.")
 
-(defun nrepl-send-string (input callback)
+(defun nrepl-send-string (input ns callback)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
          (message (concat
                    "d"
@@ -387,7 +405,7 @@ buffer."
                           (mapcar 'nrepl-netstring
                                   (list "op" "eval"
                                         "id" request-id
-                                        "ns" "user"
+                                        "ns" ns
                                         "code" input)))
                    "e")))
     (puthash request-id callback nrepl-requests)
@@ -417,7 +435,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
-    (nrepl-send-string input 'nrepl-handler)))
+    (nrepl-send-string input nrepl-buffer-ns 'nrepl-handler)))
 
 (defun nrepl-newline-and-indent ()
   "Insert a newline, then indent the next line.
@@ -461,15 +479,13 @@ balanced."
     (nrepl-newline-and-indent))))
 
 ;;; server
-(defun make-nrepl-server-filter (&optional start-repl-p)
-  (lambda (process output)
-    (with-current-buffer (process-buffer process)
+(defun nrepl-server-filter (process output)
+  (with-current-buffer (process-buffer process)
     (insert output))
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
-      (when start-repl-p
-        (nrepl port))))))
+      (nrepl port))))
 
 (defun nrepl-server-sentinel (process event)
   (let ((debug-on-error t))
@@ -480,10 +496,20 @@ balanced."
                    (buffer-substring (point-min) (point-max))))))))
 
 ;;;###autoload
+(defun nrepl-enable-on-existing-clojure-buffers ()
+  (interactive)
+  (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
+  (save-window-excursion
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (eq major-mode 'clojure-mode)
+          (clojure-enable-nrepl))))))
+
+;;;###autoload
 (defun nrepl-jack-in ()
   (interactive)
-  (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*" "lein2 repl :headless")))
-    (set-process-filter process (make-nrepl-server-filter 1))
+  (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*" "lein2 repl :headless"))) 
+   (set-process-filter process 'nrepl-server-filter)
     (set-process-sentinel process 'nrepl-server-sentinel)
     (message "Starting nrepl server...")))
 
@@ -503,6 +529,7 @@ port)))
   (let ((process (nrepl-connect "localhost" port)))
     (set (make-variable-buffer-local 'nrepl-connection-process) process))
   (nrepl-mode)
+  (nrepl-enable-on-existing-clojure-buffers)
   (with-current-buffer "*nrepl*"
     (nrepl-reset-markers)
     (nrepl-insert-prompt "user")))
