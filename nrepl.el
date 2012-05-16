@@ -156,7 +156,10 @@ joined together.")
   (with-temp-buffer
     (save-excursion
       (insert str))
-    (bdecode-buffer)))
+    (let ((result '()))
+      (while (not (eobp))
+        (setq result (cons (bdecode-buffer) result)))
+      (nreverse result))))
 
 (defun nrepl-expression-at-point ()
   "Return the text of the defun at point."
@@ -306,6 +309,19 @@ Return the position of the prompt beginning."
 
 (put 'nrepl-save-marker 'lisp-indent-function 1)
 
+(defun nrepl-emit-output (string &optional bol)
+  ;; insert STRING and mark it as evaluation result
+  (with-current-buffer "*nrepl*"
+    (save-excursion
+      (nrepl-save-marker nrepl-output-start
+        (nrepl-save-marker nrepl-output-end
+          (goto-char nrepl-input-start-mark)
+          (when (and bol (not (bolp))) (insert-before-markers "\n"))
+          (nrepl-propertize-region `(face nrepl-output-face
+                                          rear-nonsticky (face))
+                                   (insert-before-markers string)))))
+    (nrepl-show-maximum-output)))
+
 (defun nrepl-emit-result (string ns &optional bol)
   ;; insert STRING and mark it as evaluation result
   (with-current-buffer "*nrepl*"
@@ -319,7 +335,7 @@ Return the position of the prompt beginning."
           (nrepl-propertize-region `(face nrepl-result-face
                                           rear-nonsticky (face))
                                    (insert-before-markers string))))
-      (nrepl-insert-prompt ns))
+      (nrepl-insert-prompt nrepl-buffer-ns))
     (nrepl-show-maximum-output)))
 
 (defmacro nrepl-dbind-response (response keys &rest body)
@@ -330,8 +346,10 @@ Return the position of the prompt beginning."
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
 
 (defun nrepl-handler (response)
-  (nrepl-dbind-response response (value ns err)
-    (cond (value
+  (nrepl-dbind-response response (ns value err out)
+    (cond (out
+           (nrepl-emit-output out t))
+          (value
            (nrepl-emit-result value ns t))
           (err
            (nrepl-emit-result err ns t)))))
@@ -342,15 +360,10 @@ Return the position of the prompt beginning."
       (if callback
           (funcall callback response)))))
 
-;; TODO: store current namespace on the process
 (defun nrepl-filter (process string)
-  (with-current-buffer (process-buffer process)
-    (goto-char (point-max))
-    (insert string)
-    (goto-char (point-min))
-    (let ((message (buffer-substring-no-properties (point-min) (point-max))))
-      (delete-region (point-min) (point-max))
-      (nrepl-dispatch (nrepl-decode message)))))
+  (let ((responses (nrepl-decode string)))
+    (dolist (response responses)
+            (nrepl-dispatch response))))
 
 (defun nrepl-sentinel (process message)
   (message "nrepl connection closed: %s" message)
