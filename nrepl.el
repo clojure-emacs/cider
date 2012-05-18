@@ -100,6 +100,12 @@ joined together.")
 (defvar nrepl-buffer-ns "user"
   "Current clojure namespace of this buffer.")
 
+(defvar nrepl-input-history '()
+  "History list of strings read from the nREPL buffer.")
+
+(defvar nrepl-input-history-index 0
+  "Current position in the history list.")
+
 (nrepl-make-variables-buffer-local
  'nrepl-input-start-mark
  'nrepl-prompt-start-mark
@@ -107,7 +113,16 @@ joined together.")
  'nrepl-request-continuations
  'nrepl-requests
  'nrepl-old-input-counter
- 'nrepl-buffer-ns)
+ 'nrepl-buffer-ns
+ 'nrepl-input-history
+ 'nrepl-current-input-history-index)
+
+(defun nrepl-add-to-input-history (string)
+  "Add STRING to the input history.
+Empty strings and duplicates are ignored."
+  (unless (or (equal string "")
+              (equal string (car nrepl-input-history)))
+    (push string nrepl-input-history)))
 
 (defun nrepl-reset-markers ()
   (dolist (markname '(nrepl-output-start
@@ -209,6 +224,48 @@ joined together.")
 (defun nrepl-display-eval-result (value)
   (message (format "%s" value)))
 
+;;;;; History
+(defun nrepl-delete-current-input ()
+  "Delete all text after the prompt."
+  (interactive)
+  (delete-region nrepl-input-start-mark (point-max)))
+
+(defun nrepl-replace-input (string)
+  (nrepl-delete-current-input)
+  (insert-and-inherit string))
+
+(defun nrepl-get-next-history-index (direction)
+  (let* ((min-pos -1)
+         (history nrepl-input-history)
+         (len (length history))
+         (next (+ nrepl-input-history-index (if (eq direction 'forward) -1 1))))
+    (cond ((< next 0) -1)
+          ((<= len next) len)
+          (t next))))
+
+(defun nrepl-history-replace (direction)
+  "Replace the current input with the next line in DIRECTION.
+DIRECTION is 'forward' or 'backward' (in the history list)."
+  (let* ((min-pos -1)
+         (max-pos (length nrepl-input-history))
+         (pos (nrepl-get-next-history-index direction))
+         (msg))
+    (cond ((and (< min-pos pos) (< pos max-pos))
+           (nrepl-replace-input (nth pos nrepl-input-history))
+           (setq msg (format "History item: %d" pos)))
+          ((setq msg (cond ((= pos min-pos) "End of history")
+                           ((= pos max-pos) "Beginning of history")))))
+    (message "%s" msg)
+    (setq nrepl-input-history-index pos)))
+
+(defun nrepl-previous-input ()
+  (interactive)
+  (nrepl-history-replace 'backward))
+
+(defun nrepl-next-input ()
+  (interactive)
+  (nrepl-history-replace 'forward))
+
 ;;; mode book-keeping
 (defvar nrepl-mode-hook nil
   "Hook executed when entering nrepl-mode.")
@@ -228,6 +285,10 @@ joined together.")
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "RET") 'nrepl-return)
+    (define-key map "\M-p" 'nrepl-previous-input)
+    (define-key map (kbd "C-<up>") 'nrepl-previous-input)
+    (define-key map "\M-n" 'nrepl-next-input)
+    (define-key map (kbd "C-<down>") 'nrepl-next-input)
     map))
 
 (defvar nrepl-connection-process nil)
@@ -431,6 +492,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (error "No input at point."))
   (goto-char (point-max))
   (let ((end (point))) ; end of input, without the newline
+    (nrepl-add-to-input-history (buffer-substring nrepl-input-start-mark end))
     (when newline 
       (insert "\n")
       (nrepl-show-maximum-output))
@@ -448,6 +510,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
+    (setq nrepl-input-history-index -1)
     (nrepl-send-string input nrepl-buffer-ns 'nrepl-handler)))
 
 (defun nrepl-newline-and-indent ()
