@@ -266,6 +266,23 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (interactive)
   (nrepl-history-replace 'forward))
 
+(defun nrepl-same-line-p (pos1 pos2)
+   "Return t if buffer positions POS1 and POS2 are on the same line."
+   (save-excursion (goto-char (min pos1 pos2))
+                   (<= (max pos1 pos2) (line-end-position))))
+
+(defun nrepl-bol ()
+  "Go to the beginning of line or the prompt."
+  (interactive)
+  (cond ((and (>= (point) nrepl-input-start-mark)
+              (nrepl-same-line-p (point) nrepl-input-start-mark))
+         (goto-char nrepl-input-start-mark))
+        (t (beginning-of-line 1))))
+
+(defun nrepl-at-prompt-start-p ()
+  ;; This will not work on non-current prompts.
+  (= (point) nrepl-input-start-mark))
+
 ;;; mode book-keeping
 (defvar nrepl-mode-hook nil
   "Hook executed when entering nrepl-mode.")
@@ -285,6 +302,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "RET") 'nrepl-return)
+    (define-key map "\C-a" 'nrepl-bol)
+    (define-key map [home] 'nrepl-bol)
     (define-key map "\M-p" 'nrepl-previous-input)
     (define-key map (kbd "C-<up>") 'nrepl-previous-input)
     (define-key map "\M-n" 'nrepl-next-input)
