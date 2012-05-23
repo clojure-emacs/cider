@@ -201,6 +201,25 @@ Empty strings and duplicates are ignored."
    (save-excursion (backward-sexp) (point))
    (point)))
 
+(defun nrepl-eval-print-last-expression ()
+  "Evaluate the expression preceding point and print the result
+into the current buffer."
+  (interactive)
+  (nrepl-interactive-eval-print (nrepl-last-expression)))
+
+(defun nrepl-interactive-eval-print (form)
+  "Evaluate the given form and print value in current buffer."
+  (lexical-let ((buffer (current-buffer)))
+    (nrepl-send-string form nrepl-buffer-ns
+     (lambda (response)
+       (nrepl-dbind-response response (value ns out)
+                             (cond (value
+                                    (if ns
+                                        (with-current-buffer buffer
+                                          (setq nrepl-buffer-ns ns)))
+                                    (insert (format "\n%s" value)))
+                                   (out (insert (format "\n%s" out)))))))))
+
 (defun nrepl-eval-last-expression ()
   "Evaluate the expression preceding point."
   (interactive)
@@ -296,6 +315,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map "\e\C-x" 'nrepl-eval-expression-at-point)
     (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "\C-c\C-e") 'nrepl-eval-last-expression)
+    (define-key map (kbd "\C-c\C-p") 'nrepl-eval-print-last-expression)
     map))
 
 (defvar nrepl-mode-map
@@ -603,9 +623,11 @@ balanced."
 ;;;###autoload
 (defun nrepl-jack-in ()
   (interactive)
-  (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*" "lein2 repl :headless"))) 
-   (set-process-filter process 'nrepl-server-filter)
+  (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*"
+                                              nrepl-server-command))) 
+    (set-process-filter process 'nrepl-server-filter)
     (set-process-sentinel process 'nrepl-server-sentinel)
+    (set-process-coding-system process 'utf-8 'utf-8)
     (message "Starting nrepl server...")))
 
 ;;; client
