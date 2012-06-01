@@ -4,7 +4,7 @@
 
 ;; Author: Phil Hagelberg <technomancy@gmail.com>
 ;; Author: Tim King <kingtim@gmail.com>
-;; URL: http://emacswiki.org/cgi-bin/wiki/NRepl
+;; URL: http://www.github.com/kingtim/nrepl.el
 ;; Version: 1.0.0
 ;; Keywords: languages, lisp
 ;; Package-Requires: ((clojure-mode "1.7"))
@@ -54,7 +54,16 @@
     '((((class color) (background light)) (:foreground "RosyBrown"))
       (((class color) (background dark)) (:foreground "LightSalmon"))
       (t (:slant italic))))
-  "Face for Clojure output in the nREPL client."
+  "Face for output in the nREPL client."
+  :group 'nrepl)
+
+(defface nrepl-error-face
+  (if (nrepl-face-inheritance-possible-p)
+      '((t (:inherit font-lock-string-face)))
+    '((((class color) (background light)) (:foreground "RosyBrown"))
+      (((class color) (background dark)) (:foreground "LightSalmon"))
+      (t (:slant italic))))
+  "Face for errors in the nREPL client."
   :group 'nrepl)
 
 (defface nrepl-input-face
@@ -75,6 +84,8 @@
     `(let ((,start (point)))
        (prog1 (progn ,@body)
          (add-text-properties ,start (point) ,props)))))
+
+(put 'nrepl-propertize-region 'lisp-indent-function 1)
 
 ;; buffer local declarations
 (defvar nrepl-input-start-mark)
@@ -132,7 +143,7 @@ Empty strings and duplicates are ignored."
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
-;;; bencode/bdecode
+;;; bencode
 (defun bdecode-buffer ()
   "Decode a bencoded string in the current buffer starting at point."
   (cond ((looking-at "i\\([0-9]+\\)e")
@@ -147,13 +158,13 @@ Empty strings and duplicates are ignored."
         ((looking-at "l")
          (goto-char (match-end 0))
          (let (result item)
-           (while (setq item (bdecode-buffer))
+           (while (setq item (nrepl-bdecode-buffer))
              (setq result (cons item result)))
            (nreverse result)))
         ((looking-at "d")
          (goto-char (match-end 0))
          (let (dict key)
-           (while (setq item (bdecode-buffer))
+           (while (setq item (nrepl-bdecode-buffer))
              (if key
                  (setq dict (cons (cons key item) dict)
                        key nil)
@@ -173,7 +184,7 @@ Empty strings and duplicates are ignored."
       (insert str))
     (let ((result '()))
       (while (not (eobp))
-        (setq result (cons (bdecode-buffer) result)))
+        (setq result (cons (nrepl-bdecode-buffer) result)))
       (nreverse result))))
 
 (defun nrepl-expression-at-point ()
@@ -212,13 +223,17 @@ into the current buffer."
   (lexical-let ((buffer (current-buffer)))
     (nrepl-send-string form nrepl-buffer-ns
      (lambda (response)
-       (nrepl-dbind-response response (value ns out)
+       (nrepl-dbind-response response (value ns out err status id)
                              (cond (value
                                     (if ns
                                         (with-current-buffer buffer
                                           (setq nrepl-buffer-ns ns)))
                                     (insert (format "\n%s" value)))
-                                   (out (insert (format "\n%s" out)))))))))
+                                   (out (insert (format "\n%s" out)))
+                                   (err (insert (format "\n%s" err)))
+                                   (status
+                                    (if (member "done" status)
+                                        (remhash id nrepl-requests)))))))))
 
 (defun nrepl-eval-last-expression ()
   "Evaluate the expression preceding point."
@@ -231,14 +246,17 @@ into the current buffer."
   (lexical-let ((buffer (current-buffer)))
     (nrepl-send-string form nrepl-buffer-ns
      (lambda (response)
-       (nrepl-dbind-response response (value err ns)
+       (nrepl-dbind-response response (value err ns id status)
                              (cond (value
                                     (if ns
                                         (with-current-buffer buffer
                                           (setq nrepl-buffer-ns ns)))
                                     (nrepl-display-eval-result value))
                                    (err
-                                    (nrepl-display-eval-result err))))))))
+                                    (nrepl-display-eval-result err))
+                                   (status
+                                    (if (member "done" status)
+                                        (remhash id nrepl-requests)))))))))
 
 (defun nrepl-display-eval-result (value)
   (message (format "%s" value)))
@@ -394,10 +412,10 @@ Return the position of the prompt beginning."
       (let ((prompt-start (point))
             (prompt (format "%s> " namespace)))
         (nrepl-propertize-region
-         '(face nrepl-prompt-face read-only t intangible t
-                nrepl-prompt t
-                rear-nonsticky (nrepl-prompt read-only face intangible))
-         (insert-before-markers prompt))
+            '(face nrepl-prompt-face read-only t intangible t
+                   nrepl-prompt t
+                   rear-nonsticky (nrepl-prompt read-only face intangible))
+          (insert-before-markers prompt))
         (set-marker nrepl-prompt-start-mark prompt-start)
         prompt-start))))
 
@@ -410,7 +428,7 @@ Return the position of the prompt beginning."
 (put 'nrepl-save-marker 'lisp-indent-function 1)
 
 (defun nrepl-emit-output (string &optional bol)
-  ;; insert STRING and mark it as evaluation result
+  ;; insert STRING and mark it as output
   (with-current-buffer "*nrepl*"
     (save-excursion
       (nrepl-save-marker nrepl-output-start
@@ -419,7 +437,19 @@ Return the position of the prompt beginning."
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (nrepl-propertize-region `(face nrepl-output-face
                                           rear-nonsticky (face))
-                                   (insert-before-markers string)))))
+            (insert-before-markers string)
+            (when (and (= (point) nrepl-prompt-start-mark)
+                       (not (bolp)))
+              (insert-before-markers "\n")
+              (set-marker nrepl-output-end (1- (point))))))))
+    (nrepl-show-maximum-output)))
+
+(defun nrepl-emit-prompt ()
+  (with-current-buffer "*nrepl*"
+    (save-excursion
+      (nrepl-save-marker nrepl-output-start
+        (nrepl-save-marker nrepl-output-end
+          (nrepl-insert-prompt nrepl-buffer-ns))))
     (nrepl-show-maximum-output)))
 
 (defun nrepl-emit-result (string ns &optional bol)
@@ -434,11 +464,11 @@ Return the position of the prompt beginning."
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (nrepl-propertize-region `(face nrepl-result-face
                                           rear-nonsticky (face))
-                                   (insert-before-markers string))))
-      (nrepl-insert-prompt nrepl-buffer-ns))
+                                   (insert-before-markers string)))))
     (nrepl-show-maximum-output)))
 
 (defmacro nrepl-dbind-response (response keys &rest body)
+  "Destructure an nrepl response dict."
   `(let ,(loop for key in keys
                collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
      ,@body))
@@ -446,24 +476,31 @@ Return the position of the prompt beginning."
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
 
 (defun nrepl-handler (response)
-  (nrepl-dbind-response response (ns value err out)
+  (nrepl-dbind-response response (id ns value err out status)
     (cond (out
            (nrepl-emit-output out t))
           (value
            (nrepl-emit-result value ns t))
           (err
-           (nrepl-emit-result err ns t)))))
+           (nrepl-emit-output err t))
+          (status
+           (if (member "done" status)
+               (progn
+                 (remhash id nrepl-requests)
+                 (nrepl-emit-prompt)))))))
 
 (defun nrepl-dispatch (response)
+  "Dispatch the response to associated callback."
   (nrepl-dbind-response response (id)
     (let ((callback (gethash id nrepl-requests)))
       (if callback
           (funcall callback response)))))
 
 (defun nrepl-filter (process string)
+  "Decode the message(s) and dispatch."
   (let ((responses (nrepl-decode string)))
     (dolist (response responses)
-            (nrepl-dispatch response))))
+      (nrepl-dispatch response))))
 
 (defun nrepl-sentinel (process message)
   (message "nrepl connection closed: %s" message)
@@ -638,6 +675,8 @@ port)))
     (set-process-filter process 'nrepl-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     process))
+
+
 
 ;;;###autoload
 (defun nrepl (port)
