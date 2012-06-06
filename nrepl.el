@@ -144,7 +144,7 @@ Empty strings and duplicates are ignored."
     (set-marker (symbol-value markname) (point))))
 
 ;;; bencode
-(defun bdecode-buffer ()
+(defun nrepl-bdecode-buffer ()
   "Decode a bencoded string in the current buffer starting at point."
   (cond ((looking-at "i\\([0-9]+\\)e")
          (goto-char (match-end 0))
