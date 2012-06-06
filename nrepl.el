@@ -674,6 +674,7 @@ balanced."
 port)))
     (set-process-filter process 'nrepl-filter)
     (set-process-sentinel process 'nrepl-sentinel)
+    (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     process))
 
 
