@@ -7,14 +7,16 @@ A work in progress.
 
 ## Current status
 
-* **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.  This will also enable nprel minor mode on clojure-mode buffers.
+* **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.  This will also enable nrepl minor mode on clojure-mode buffers.
 
-Supported commands:
+Clojure buffer commands:
+
 * **C-x C-e**: Evalulate the form preceding point
 * **C-M-x**: Evaluate the top level form under point
+* **C-c C-p**: Evalulate the form preceding poing and emit results into current buffer
 
 Requirements:
-* Leiningen 2.x.  Has not been tested with Leiningen 1.x yet.
+* Leiningen 2.x.
 * clojure-mode
 
 ## License

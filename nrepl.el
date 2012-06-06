@@ -664,7 +664,7 @@ balanced."
                                               nrepl-server-command))) 
     (set-process-filter process 'nrepl-server-filter)
     (set-process-sentinel process 'nrepl-server-sentinel)
-    (set-process-coding-system process 'utf-8 'utf-8)
+    (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (message "Starting nrepl server...")))
 
 ;;; client
