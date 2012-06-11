@@ -218,6 +218,41 @@ into the current buffer."
   (interactive)
   (nrepl-interactive-eval-print (nrepl-last-expression)))
 
+(defun nrepl-macroexpand-last-expression (pretty)
+  "Evaluate the expression preceding point and print the result
+into the special buffer. Prefix argument forces the pretty-printed output."
+  (interactive "P")
+  (let ((expr (nrepl-last-expression))
+        (command (if pretty "(pprint (macroexpand '%s))"
+                   "(macroexpand '%s)")))
+    (nrepl-initialize-macroexpansion-buffer
+     (lambda ()
+       (nrepl-interactive-eval-print (format command expr))))))
+
+(defun nrepl-initialize-macroexpansion-buffer (print-function &optional buffer)
+  (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer)))
+  (setq buffer-undo-list nil) ; Get rid of undo information from
+                              ; previous expansions.
+  (let ((inhibit-read-only t)
+        (buffer-undo-list t)) ; Make the initial insertion not be undoable.
+    (erase-buffer)
+    (funcall print-function)
+    (goto-char (point-min))
+    (indent-sexp)
+    (font-lock-fontify-buffer)))
+
+(defun nrepl-create-macroexpansion-buffer ()
+  (let ((name "*nREPL Macroexpansion*"))
+    (with-current-buffer (get-buffer-create name)
+      (kill-all-local-variables)
+      (erase-buffer)
+      (set-syntax-table lisp-mode-syntax-table)
+      (current-buffer)
+      (lisp-mode)
+      (nrepl-mode)
+      (setq font-lock-keywords-case-fold-search t)
+      (current-buffer))))
+
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (lexical-let ((buffer (current-buffer)))
@@ -334,6 +369,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "\C-c\C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "\C-c\C-p") 'nrepl-eval-print-last-expression)
+    (define-key map (kbd "\C-c\C-m") 'nrepl-macroexpand-last-expression)
     map))
 
 (defvar nrepl-mode-map
