@@ -1,28 +1,41 @@
 ;;; nrepl.el --- Client for Clojure nrepl -*- lexical-binding: t -*-
-
+;;
+;;;; License
 ;; Copyright © 2012 Phil Hagelberg, Tim King
-
-;; Author: Phil Hagelberg <technomancy@gmail.com>
-;; Author: Tim King <kingtim@gmail.com>
+;; Authors: Tim King <kingtim@gmail.com>
+;;          Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
 ;; Version: 1.0.0
-;; Keywords: languages, lisp
+;; Keywords: languages, clojure, nrepl
 ;; Package-Requires: ((clojure-mode "1.7"))
-
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;;
 ;; This file is not part of GNU Emacs.
-
+;;
 ;;; Commentary:
-
-;; Provides a pure-elisp client to connect to nrepl servers.
-
+;;
+;; Provides an elisp client to connect to nrepl servers.
+;;
 ;;; Installation:
-
+;;
 ;; For now, M-x package-install-file or M-x package-install-from-buffer.
-
+;;
 ;;; Usage:
-
-;; M-x nrepl
-
+;;
+;; M-x nrepl-jack-in
+;;
 ;;; Code:
 
 (require 'clojure-mode)
@@ -218,22 +231,53 @@ into the current buffer."
   (interactive)
   (nrepl-interactive-eval-print (nrepl-last-expression)))
 
+(defun nrepl-handler (buffer)
+  (lambda (response)
+    (nrepl-dbind-response response (id ns value err out status)
+      (cond (out
+             (nrepl-emit-output buffer out t))
+            (value
+             (nrepl-emit-result buffer value ns t))
+            (err
+             (nrepl-emit-output buffer err t))
+            (status
+             (if (member "done" status)
+                 (progn
+                   (remhash id nrepl-requests)
+                   (nrepl-emit-prompt buffer))))))))
+
+(defun nrepl-interactive-eval-print-handler (buffer)
+  (lambda (response)
+    (nrepl-dbind-response response (value ns out err status id)
+      (cond (value
+             (if ns
+                 (with-current-buffer buffer
+                   (setq nrepl-buffer-ns ns)))
+             (insert (format "\n%s" value)))
+            (out (insert (format "\n%s" out)))
+            (err (insert (format "\n%s" err)))
+            (status
+             (if (member "done" status)
+                 (remhash id nrepl-requests)))))))
+
+(defun nrepl-interactive-eval-handler (buffer)
+  (lambda (response)
+    (nrepl-dbind-response response (value err ns id status)
+      (cond (value
+             (if ns
+                 (with-current-buffer buffer
+                   (setq nrepl-buffer-ns ns)))
+             (nrepl-display-eval-result value))
+            (err
+             (nrepl-display-eval-result err))
+            (status
+             (if (member "done" status)
+                 (remhash id nrepl-requests)))))))
+
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given form and print value in current buffer."
-  (lexical-let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
-     (lambda (response)
-       (nrepl-dbind-response response (value ns out err status id)
-                             (cond (value
-                                    (if ns
-                                        (with-current-buffer buffer
-                                          (setq nrepl-buffer-ns ns)))
-                                    (insert (format "\n%s" value)))
-                                   (out (insert (format "\n%s" out)))
-                                   (err (insert (format "\n%s" err)))
-                                   (status
-                                    (if (member "done" status)
-                                        (remhash id nrepl-requests)))))))))
+  (let ((buffer (current-buffer)))
+    (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-print-handler buffer))))
 
 (defun nrepl-eval-last-expression ()
   "Evaluate the expression preceding point."
@@ -243,20 +287,8 @@ into the current buffer."
 (defun nrepl-interactive-eval (form)
   "Read and evaluate STRING and print value in minibuffer."
   (interactive (list (nrepl-read-from-minibuffer "nREPL Eval: ")))
-  (lexical-let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
-     (lambda (response)
-       (nrepl-dbind-response response (value err ns id status)
-                             (cond (value
-                                    (if ns
-                                        (with-current-buffer buffer
-                                          (setq nrepl-buffer-ns ns)))
-                                    (nrepl-display-eval-result value))
-                                   (err
-                                    (nrepl-display-eval-result err))
-                                   (status
-                                    (if (member "done" status)
-                                        (remhash id nrepl-requests)))))))))
+  (let ((buffer (current-buffer)))
+    (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-handler buffer))))
 
 (defun nrepl-display-eval-result (value)
   (message (format "%s" value)))
@@ -333,7 +365,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map "\e\C-x" 'nrepl-eval-expression-at-point)
     (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "\C-c\C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "\C-c\C-p") 'nrepl-eval-print-last-expression)
     map))
 
 (defvar nrepl-mode-map
@@ -342,9 +373,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "RET") 'nrepl-return)
     (define-key map "\C-a" 'nrepl-bol)
     (define-key map [home] 'nrepl-bol)
-    (define-key map "\M-p" 'nrepl-previous-input)
     (define-key map (kbd "C-<up>") 'nrepl-previous-input)
-    (define-key map "\M-n" 'nrepl-next-input)
     (define-key map (kbd "C-<down>") 'nrepl-next-input)
     map))
 
@@ -427,9 +456,9 @@ Return the position of the prompt beginning."
 
 (put 'nrepl-save-marker 'lisp-indent-function 1)
 
-(defun nrepl-emit-output (string &optional bol)
+(defun nrepl-emit-output (buffer string &optional bol)
   ;; insert STRING and mark it as output
-  (with-current-buffer "*nrepl*"
+  (with-current-buffer buffer
     (save-excursion
       (nrepl-save-marker nrepl-output-start
         (nrepl-save-marker nrepl-output-end
@@ -444,17 +473,17 @@ Return the position of the prompt beginning."
               (set-marker nrepl-output-end (1- (point))))))))
     (nrepl-show-maximum-output)))
 
-(defun nrepl-emit-prompt ()
-  (with-current-buffer "*nrepl*"
+(defun nrepl-emit-prompt (buffer)
+  (with-current-buffer buffer
     (save-excursion
       (nrepl-save-marker nrepl-output-start
         (nrepl-save-marker nrepl-output-end
           (nrepl-insert-prompt nrepl-buffer-ns))))
     (nrepl-show-maximum-output)))
 
-(defun nrepl-emit-result (string ns &optional bol)
+(defun nrepl-emit-result (buffer string ns &optional bol)
   ;; insert STRING and mark it as evaluation result
-  (with-current-buffer "*nrepl*"
+  (with-current-buffer buffer
     (if ns
         (setq nrepl-buffer-ns ns))
     (save-excursion
@@ -474,20 +503,6 @@ Return the position of the prompt beginning."
      ,@body))
 
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
-
-(defun nrepl-handler (response)
-  (nrepl-dbind-response response (id ns value err out status)
-    (cond (out
-           (nrepl-emit-output out t))
-          (value
-           (nrepl-emit-result value ns t))
-          (err
-           (nrepl-emit-output err t))
-          (status
-           (if (member "done" status)
-               (progn
-                 (remhash id nrepl-requests)
-                 (nrepl-emit-prompt)))))))
 
 (defun nrepl-dispatch (response)
   "Dispatch the response to associated callback."
@@ -587,7 +602,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
     (setq nrepl-input-history-index -1)
-    (nrepl-send-string input nrepl-buffer-ns 'nrepl-handler)))
+    (nrepl-send-string input nrepl-buffer-ns (nrepl-handler (current-buffer)))))
 
 (defun nrepl-newline-and-indent ()
   "Insert a newline, then indent the next line.
