@@ -225,12 +225,7 @@ Empty strings and duplicates are ignored."
    (save-excursion (backward-sexp) (point))
    (point)))
 
-(defun nrepl-eval-print-last-expression ()
-  "Evaluate the expression preceding point and print the result
-into the current buffer."
-  (interactive)
-  (nrepl-interactive-eval-print (nrepl-last-expression)))
-
+;;;; TODO: abstract out this handler boilerplate
 (defun nrepl-handler (buffer)
   (lambda (response)
     (nrepl-dbind-response response (id ns value err out status)
@@ -248,37 +243,36 @@ into the current buffer."
 
 (defun nrepl-interactive-eval-print-handler (buffer)
   (lambda (response)
-    (nrepl-dbind-response response (value ns out err status id)
+    (nrepl-dbind-response response (value ns status id)
       (cond (value
-             (if ns
-                 (with-current-buffer buffer
-                   (setq nrepl-buffer-ns ns)))
-             (insert (format "\n%s" value)))
-            (out (insert (format "\n%s" out)))
-            (err (insert (format "\n%s" err)))
+             (with-current-buffer buffer
+               (if ns
+                   (setq nrepl-buffer-ns ns))
+               (insert (format "%s" value))))
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
 
 (defun nrepl-interactive-eval-handler (buffer)
   (lambda (response)
-    (nrepl-dbind-response response (value err ns id status)
+    (nrepl-dbind-response response (value ns id status)
       (cond (value
              (if ns
                  (with-current-buffer buffer
                    (setq nrepl-buffer-ns ns)))
              (nrepl-display-eval-result value))
-            (err
-             (nrepl-display-eval-result err))
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
-(defun nrepl-macroexpand-last-expression (pretty)
+
+
+;;;; Macroexpansion
+(defun nrepl-macroexpand-last-expression (&optional prefix)
   "Evaluate the expression preceding point and print the result
-into the special buffer. Prefix argument forces the pretty-printed output."
+into the special buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
   (let ((expr (nrepl-last-expression))
-        (command (if pretty "(pprint (macroexpand '%s))"
+        (command (if prefix "(pprint (macroexpand '%s))"
                    "(macroexpand '%s)")))
     (nrepl-initialize-macroexpansion-buffer
      (lambda ()
@@ -300,6 +294,7 @@ into the special buffer. Prefix argument forces the pretty-printed output."
   (let ((name "*nREPL Macroexpansion*"))
     (with-current-buffer (get-buffer-create name)
       (kill-all-local-variables)
+      (setq buffer-read-only nil)
       (erase-buffer)
       (set-syntax-table lisp-mode-syntax-table)
       (current-buffer)
@@ -308,21 +303,26 @@ into the special buffer. Prefix argument forces the pretty-printed output."
       (setq font-lock-keywords-case-fold-search t)
       (current-buffer))))
 
+
+
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-print-handler buffer))))
+    (nrepl-send-string form nrepl-buffer-ns
+                       (nrepl-interactive-eval-print-handler buffer))))
 
-(defun nrepl-eval-last-expression ()
-  "Evaluate the expression preceding point."
-  (interactive)
-  (nrepl-interactive-eval (nrepl-last-expression)))
- 
 (defun nrepl-interactive-eval (form)
   "Read and evaluate STRING and print value in minibuffer."
   (interactive (list (nrepl-read-from-minibuffer "nREPL Eval: ")))
   (let ((buffer (current-buffer)))
     (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-handler buffer))))
+
+(defun nrepl-eval-last-expression (&optional prefix)
+  "Evaluate the expression preceding point."
+  (interactive "P")
+  (if prefix
+      (nrepl-interactive-eval-print (nrepl-last-expression))
+      (nrepl-interactive-eval (nrepl-last-expression))))
 
 (defun nrepl-display-eval-result (value)
   (message (format "%s" value)))
@@ -399,7 +399,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map "\e\C-x" 'nrepl-eval-expression-at-point)
     (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "\C-c\C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "\C-c\C-p") 'nrepl-eval-print-last-expression)
     (define-key map (kbd "\C-c\C-m") 'nrepl-macroexpand-last-expression)
     map))
 
@@ -733,14 +732,14 @@ port)))
 ;;;###autoload
 (defun nrepl (port)
   (interactive "nPort: ")
-  (switch-to-buffer "*nrepl*")
-  (let ((process (nrepl-connect "localhost" port)))
-    (set (make-variable-buffer-local 'nrepl-connection-process) process))
-  (nrepl-mode)
-  (nrepl-enable-on-existing-clojure-buffers)
-  (with-current-buffer "*nrepl*"
-    (nrepl-reset-markers)
-    (nrepl-insert-prompt "user")))
+  (let ((nrepl-buffer (switch-to-buffer (generate-new-buffer-name "*nrepl*")))
+        (process (nrepl-connect "localhost" port)))
+    (set (make-variable-buffer-local 'nrepl-connection-process) process)
+    (nrepl-mode)
+    (nrepl-enable-on-existing-clojure-buffers)
+    (with-current-buffer nrepl-buffer
+      (nrepl-reset-markers)
+      (nrepl-insert-prompt "user"))))
 
 (provide 'nrepl)
 ;;; nrepl.el ends here
