@@ -267,6 +267,126 @@ Empty strings and duplicates are ignored."
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
+
+(defun nrepl-emit-into-popup-buffer (buffer value)
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t)
+                     (buffer-undo-list t))
+                 (erase-buffer)
+                 (insert (format "%s" value))
+                 (goto-char (point-min))
+                 (indent-sexp)
+                 (font-lock-fontify-buffer))))
+
+(defun nrepl-popup-eval-print-handler (buffer)
+  (lambda (response)
+    (nrepl-dbind-response response (value ns status id)
+      (cond (value
+             (with-current-buffer buffer
+               (if ns
+                   (setq nrepl-buffer-ns ns))
+               (nrepl-emit-into-popup-buffer value)))
+            (status
+             (if (member "done" status)
+                 (remhash id nrepl-requests)))))))
+
+(defun nrepl-popup-eval-pprint-handler (buffer)
+  (lambda (response)
+    (nrepl-dbind-response response (value ns status id)
+      (cond (value
+             (with-current-buffer buffer
+               (if ns
+                   (setq nrepl-buffer-ns ns))))
+            (out
+             (nrepl-emit-into-popup-buffer out))
+            (status
+             (if (member "done" status)
+                 (remhash id nrepl-requests)))))))
+
+;;;; Popup buffers
+(defvar nrepl-popup-restore-data nil
+   "Data needed when closing popup windows.
+ This is used as buffer local variable.
+ The format is (POPUP-WINDOW SELECTED-WINDOW OLD-BUFFER).
+ POPUP-WINDOW is the window used to display the temp buffer.
+ That window may have been reused or freshly created.
+ SELECTED-WINDOW is the window that was selected before displaying
+ the popup buffer.
+ OLD-BUFFER is the buffer that was previously displayed in POPUP-WINDOW.
+ OLD-BUFFER is nil if POPUP-WINDOW was newly created.")
+
+(define-minor-mode nrepl-popup-buffer-mode
+   "Mode for nrepl popup buffers"
+   nil
+   (" nrepl-tmp")
+   '(("q" .  nrepl-popup-buffer-quit-function)))
+
+(make-variable-buffer-local
+ (defvar nrepl-popup-buffer-quit-function 'nrepl-popup-buffer-quit
+   "The function that is used to quit a temporary popup buffer."))
+
+(defun nrepl-popup-buffer-quit-function (&optional kill-buffer-p)
+  "Wrapper to invoke the value of `slime-popup-buffer-quit-function'."
+  (interactive)
+  (funcall nrepl-popup-buffer-quit-function kill-buffer-p))
+
+(defun nrepl-popup-buffer (name select)
+  (with-current-buffer (nrepl-make-popup-buffer name)
+    (setq buffer-read-only t)
+    (set-window-point (nrepl-display-popup-buffer select) (point))
+    (current-buffer)))
+
+(defun nrepl-display-popup-buffer (select)
+  "Display the current buffer.
+ Save the selected-window in a buffer-local variable, so that we
+ can restore it later."
+  (let ((selected-window (selected-window))
+        (old-windows))
+    (walk-windows (lambda (w) (push (cons w (window-buffer w)) old-windows))
+                  nil t)
+    (let ((new-window (display-buffer (current-buffer))))
+      (unless nrepl-popup-restore-data
+        (set (make-local-variable 'nrepl-popup-restore-data)
+             (list new-window
+                   selected-window
+                   (cdr (find new-window old-windows :key #'car)))))
+      (when select
+        (select-window new-window))
+      new-window)))
+
+(defun nrepl-close-popup-window ()
+   (when nrepl-popup-restore-data
+     (destructuring-bind (popup-window selected-window old-buffer)
+         nrepl-popup-restore-data
+       (bury-buffer)
+       (when (eq popup-window (selected-window))
+         (cond ((and (not old-buffer) (not (one-window-p)))
+                (delete-window popup-window))
+               ((and old-buffer (buffer-live-p old-buffer))
+                (set-window-buffer popup-window old-buffer))))
+       (when (window-live-p selected-window)
+         (select-window selected-window))))
+   (kill-local-variable 'nrepl-popup-restore-data))
+
+(defun nrepl-popup-buffer-quit (&optional kill-buffer-p)
+   "Get rid of the current (temp) buffer without asking.
+ Restore the window configuration unless it was changed since we
+ last activated the buffer."
+   (interactive)
+   (let ((buffer (current-buffer)))
+     (nrepl-close-popup-window)
+     (when kill-buffer-p
+       (kill-buffer buffer))))
+
+(defun nrepl-make-popup-buffer (name)
+  "Create a temporary buffer called NAME."
+  (with-current-buffer (get-buffer-create name)
+    (kill-all-local-variables)
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (set-syntax-table lisp-mode-syntax-table)
+    (nrepl-popup-buffer-mode 1)
+    (current-buffer)))
 
 
 ;;;; Macroexpansion
@@ -274,39 +394,29 @@ Empty strings and duplicates are ignored."
   "Evaluate the expression preceding point and print the result
 into the special buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
-  (let ((expr (nrepl-last-expression))
+  (let ((ns nrepl-buffer-ns)
+        (expr (nrepl-last-expression))
         (command (if prefix "(pprint (macroexpand '%s))"
-                   "(macroexpand '%s)")))
-    (nrepl-initialize-macroexpansion-buffer
-     (lambda ()
-       (nrepl-interactive-eval-print (format command expr))))))
+                   "(macroexpand '%s)"))
+        (macroexpansion-buffer (nrepl-initialize-macroexpansion-buffer)))
+    (nrepl-send-string form ns
+                       (nrepl-popup-eval-print-handler macroexpansion-buffer))))
 
-(defun nrepl-initialize-macroexpansion-buffer (print-function &optional buffer)
-  (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer)))
-  (setq buffer-undo-list nil) ; Get rid of undo information from
-                              ; previous expansions.
-  (let ((inhibit-read-only t)
-        (buffer-undo-list t)) ; Make the initial insertion not be undoable.
-    (erase-buffer)
-    (funcall print-function)
-    (goto-char (point-min))
-    (indent-sexp)
-    (font-lock-fontify-buffer)))
+(defun nrepl-initialize-macroexpansion-buffer (&optional buffer)
+  (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer))))
+
+(nrepl-initialize-macroexpansion-buffer (lambda () (progn
+                                                (insert "hi"))))
 
 (defun nrepl-create-macroexpansion-buffer ()
-  (let ((name "*nREPL Macroexpansion*"))
-    (with-current-buffer (get-buffer-create name)
-      (kill-all-local-variables)
-      (setq buffer-read-only nil)
-      (erase-buffer)
-      (set-syntax-table lisp-mode-syntax-table)
-      (current-buffer)
-      (lisp-mode)
-      (nrepl-mode)
-      (setq font-lock-keywords-case-fold-search t)
-      (current-buffer))))
+  (nrepl-popup-buffer "*nREPL Macroexpansion*" t))
 
 
+(defun nrepl-popup-eval-print (form)
+  "Evaluate the given form and print value in current buffer."
+  (let ((buffer (current-buffer)))
+    (nrepl-send-string form nrepl-buffer-ns
+                       (nrepl-popup-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given form and print value in current buffer."
@@ -730,7 +840,7 @@ port)))
 ;;;###autoload
 (defun nrepl (port)
   (interactive "nPort: ")
-  (let ((nrepl-buffer (switch-to-buffer (generate-new-buffer-name "*nrepl*")))
+  (let ((nrepl-buffer (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*")))
         (process (nrepl-connect "localhost" port)))
     (nrepl-mode)
     (nrepl-enable-on-existing-clojure-buffers)
