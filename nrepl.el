@@ -131,6 +131,7 @@ joined together.")
   "Current position in the history list.")
 
 (nrepl-make-variables-buffer-local
+ 'nrepl-connection-process
  'nrepl-input-start-mark
  'nrepl-prompt-start-mark
  'nrepl-request-counter
@@ -182,14 +183,14 @@ Empty strings and duplicates are ignored."
                  (setq dict (cons (cons key item) dict)
                        key nil)
                (unless (stringp item)
-                 (error "Dictionary keys have to be strings" item))
+                 (error "Dictionary keys have to be strings: %s" item))
                (setq key item)))
            (cons 'dict (nreverse dict))))
         ((looking-at "e")
          (goto-char (match-end 0))
          nil)
         (t
-         (error "Cannot decode object" (point)))))
+         (error "Cannot decode object: %d" (point)))))
 
 (defun nrepl-decode (str)
   (with-temp-buffer
@@ -314,8 +315,7 @@ into the special buffer. Prefix argument forces pretty-printed output."
                        (nrepl-interactive-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval (form)
-  "Read and evaluate STRING and print value in minibuffer."
-  (interactive (list (nrepl-read-from-minibuffer "nREPL Eval: ")))
+  "Evaluate the given form and print value in minibuffer."
   (let ((buffer (current-buffer)))
     (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-handler buffer))))
 
@@ -340,8 +340,7 @@ into the special buffer. Prefix argument forces pretty-printed output."
   (insert-and-inherit string))
 
 (defun nrepl-get-next-history-index (direction)
-  (let* ((min-pos -1)
-         (history nrepl-input-history)
+  (let* ((history nrepl-input-history)
          (len (length history))
          (next (+ nrepl-input-history-index (if (eq direction 'forward) -1 1))))
     (cond ((< next 0) -1)
@@ -463,9 +462,6 @@ to specific the full path to it. Localhost is assumed."
         (with-selected-window win
           (set-window-point win (point-max)) 
           (recenter -1))))))
-
-(defun nrepl-mark-input-start ()
-  (set-marker nrepl-input-start-mark (point) (current-buffer)))
 
 (defun nrepl-insert-prompt (namespace)
   "Insert the prompt (before markers!).
@@ -736,10 +732,10 @@ port)))
   (interactive "nPort: ")
   (let ((nrepl-buffer (switch-to-buffer (generate-new-buffer-name "*nrepl*")))
         (process (nrepl-connect "localhost" port)))
-    (set (make-variable-buffer-local 'nrepl-connection-process) process)
     (nrepl-mode)
     (nrepl-enable-on-existing-clojure-buffers)
     (with-current-buffer nrepl-buffer
+      (setq nrepl-connection-process process)
       (nrepl-reset-markers)
       (nrepl-insert-prompt "user"))))
 
