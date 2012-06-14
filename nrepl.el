@@ -285,20 +285,21 @@ Empty strings and duplicates are ignored."
              (with-current-buffer buffer
                (if ns
                    (setq nrepl-buffer-ns ns))
-               (nrepl-emit-into-popup-buffer value)))
+               (nrepl-emit-into-popup-buffer buffer value)))
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
 
 (defun nrepl-popup-eval-pprint-handler (buffer)
   (lambda (response)
-    (nrepl-dbind-response response (value ns status id)
+    (nrepl-dbind-response response (value ns out status id)
       (cond (value
              (with-current-buffer buffer
                (if ns
                    (setq nrepl-buffer-ns ns))))
             (out
-             (nrepl-emit-into-popup-buffer out))
+             (with-current-buffer buffer
+               (nrepl-emit-into-popup-buffer buffer out)))
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
@@ -394,19 +395,20 @@ Empty strings and duplicates are ignored."
   "Evaluate the expression preceding point and print the result
 into the special buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
-  (let ((ns nrepl-buffer-ns)
+  (let* ((ns nrepl-buffer-ns)
         (expr (nrepl-last-expression))
         (command (if prefix "(pprint (macroexpand '%s))"
                    "(macroexpand '%s)"))
+        (form (format command expr))
         (macroexpansion-buffer (nrepl-initialize-macroexpansion-buffer)))
-    (nrepl-send-string form ns
-                       (nrepl-popup-eval-print-handler macroexpansion-buffer))))
+    (if prefix
+        (nrepl-send-string form ns
+                           (nrepl-popup-eval-pprint-handler macroexpansion-buffer))
+        (nrepl-send-string form ns
+                           (nrepl-popup-eval-print-handler macroexpansion-buffer)))))
 
 (defun nrepl-initialize-macroexpansion-buffer (&optional buffer)
   (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer))))
-
-(nrepl-initialize-macroexpansion-buffer (lambda () (progn
-                                                (insert "hi"))))
 
 (defun nrepl-create-macroexpansion-buffer ()
   (nrepl-popup-buffer "*nREPL Macroexpansion*" t))
