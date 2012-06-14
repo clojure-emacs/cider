@@ -214,11 +214,13 @@ Empty strings and duplicates are ignored."
          (beginning-of-defun)
          (list (point) end)))))
 
-(defun nrepl-eval-expression-at-point ()
+(defun nrepl-eval-expression-at-point (&optional prefix)
   "Evaluate the current toplevel form."
-  (interactive)
+  (interactive "P")
   (let ((form (nrepl-expression-at-point)))
-    (nrepl-interactive-eval form)))
+    (if prefix
+        (nrepl-interactive-eval-print form)
+        (nrepl-interactive-eval form))))
 
 (defun nrepl-last-expression ()
   (buffer-substring-no-properties
