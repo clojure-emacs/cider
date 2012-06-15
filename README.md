@@ -13,7 +13,8 @@ Clojure buffer commands:
 
 * **C-x C-e**: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
 * **C-M-x**: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
-* **C-c C-m**: Macroexpand the expression at point once (i.e. macroexpand-1) and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
+* **C-c C-m**: Macroexpand-1 the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
+* **C-c M-m**: Macroexpand the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
 
 Requirements:
 * Leiningen 2.x.
