@@ -391,21 +391,33 @@ Empty strings and duplicates are ignored."
 
 
 ;;;; Macroexpansion
-(defun nrepl-macroexpand-last-expression (&optional prefix)
+(defun nrepl-macroexpand-expr (macroexpand expr pprint-p)
   "Evaluate the expression preceding point and print the result
 into the special buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
   (let* ((ns nrepl-buffer-ns)
-        (expr (nrepl-last-expression))
-        (command (if prefix "(pprint (macroexpand '%s))"
-                   "(macroexpand '%s)"))
-        (form (format command expr))
-        (macroexpansion-buffer (nrepl-initialize-macroexpansion-buffer)))
-    (if prefix
-        (nrepl-send-string form ns
-                           (nrepl-popup-eval-pprint-handler macroexpansion-buffer))
-        (nrepl-send-string form ns
-                           (nrepl-popup-eval-print-handler macroexpansion-buffer)))))
+        (form (format
+               (if pprint-p
+                   "(pprint (%s '%s))"
+                 "(%s '%s)") macroexpand expr))
+        (macroexpansion-buffer (nrepl-initialize-macroexpansion-buffer))
+        (handler (if pprint-p 
+                   #'nrepl-popup-eval-pprint-handler
+                   #'nrepl-popup-eval-print-handler)))
+    (nrepl-send-string form ns
+                       (funcall handler macroexpansion-buffer))))
+
+(defun nrepl-macroexpand-last-expression (&optional prefix)
+  "Evaluate the expression preceding point and print the result
+into the special buffer. Prefix argument forces pretty-printed output."
+  (interactive "P")
+  (nrepl-macroexpand-expr 'macroexpand (nrepl-last-expression) prefix))
+
+(defun nrepl-macroexpand-1-last-expression (&optional prefix)
+  "Evaluate the expression preceding point and print the result
+into the special buffer. Prefix argument forces pretty-printed output."
+  (interactive "P")
+  (nrepl-macroexpand-expr 'macroexpand-1 (nrepl-last-expression) prefix))
 
 (defun nrepl-initialize-macroexpansion-buffer (&optional buffer)
   (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer))))
@@ -509,10 +521,11 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defvar nrepl-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
-    (define-key map "\e\C-x" 'nrepl-eval-expression-at-point)
-    (define-key map (kbd "\C-x\C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "\C-c\C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "\C-c\C-m") 'nrepl-macroexpand-last-expression)
+    (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
+    (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
+    (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
+    (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
+    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-last-expression)
     map))
 
 (defvar nrepl-mode-map
