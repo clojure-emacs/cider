@@ -110,3 +110,17 @@
   applying f to that result and the 2nd item, etc. If coll contains no
   items, returns val and f is not called.
 7:session36:6fc999d0-3795-4d51-85fc-ccca7537ee57ed2:id2:182:ns4:user7:session36:6fc999d0-3795-4d51-85fc-ccca7537ee575:value3:niled2:id2:187:session36:6fc999d0-3795-4d51-85fc-ccca7537ee576:statusl4:doneee"))))
+
+(ert-deftest test-nrepl-decode-nrepl-response-multibyte ()
+  (assert (equal '((dict
+                    ("id" . "42")
+                    ("ns" . "user")
+                    ("session" . "3f586403-ed47-4e4d-b8db-70522054f971")
+                    ("value" . "\"←\""))
+                   (dict
+                    ("id". "42")
+                    ("session" . "3f586403-ed47-4e4d-b8db-70522054f971")
+                    ("status" "done")))
+                 (nrepl-decode
+                  "d2:id2:422:ns4:user7:session36:3f586403-ed47-4e4d-b8db-70522054f9715:value5:\"←\"ed2:id2:427:session36:3f586403-ed47-4e4d-b8db-70522054f9716:statusl4:doneee"))))
+

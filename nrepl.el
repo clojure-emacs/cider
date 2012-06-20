@@ -166,7 +166,7 @@ Empty strings and duplicates are ignored."
         ((looking-at "\\([0-9]+\\):")
          (goto-char (match-end 0))
          (let ((start (point))
-               (end (+ (point) (string-to-number (match-string 1)))))
+               (end (byte-to-position (+ (position-bytes (point)) (string-to-number (match-string 1))))))
            (goto-char end)
            (buffer-substring-no-properties start end)))
         ((looking-at "l")
