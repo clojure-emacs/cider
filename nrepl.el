@@ -258,12 +258,14 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-interactive-eval-handler (buffer)
   (lambda (response)
-    (nrepl-dbind-response response (value ns id status)
+    (nrepl-dbind-response response (value ns id status err)
       (cond (value
              (if ns
                  (with-current-buffer buffer
                    (setq nrepl-buffer-ns ns)))
              (nrepl-display-eval-result value))
+            (err
+             (nrepl-display-eval-result err))
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
@@ -280,19 +282,22 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-popup-eval-print-handler (buffer)
   (lambda (response)
-    (nrepl-dbind-response response (value ns status id)
+    (nrepl-dbind-response response (value ns status id err)
       (cond (value
              (with-current-buffer buffer
                (if ns
                    (setq nrepl-buffer-ns ns))
                (nrepl-emit-into-popup-buffer buffer value)))
+            (err
+             (with-current-buffer buffer
+               (nrepl-emit-into-popup-buffer buffer err)))
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
 
 (defun nrepl-popup-eval-pprint-handler (buffer)
   (lambda (response)
-    (nrepl-dbind-response response (value ns out status id)
+    (nrepl-dbind-response response (value ns out status id err)
       (cond (value
              (with-current-buffer buffer
                (if ns
@@ -300,6 +305,9 @@ Empty strings and duplicates are ignored."
             (out
              (with-current-buffer buffer
                (nrepl-emit-into-popup-buffer buffer out)))
+            (err
+             (with-current-buffer buffer
+               (nrepl-emit-into-popup-buffer buffer err)))
             (status
              (if (member "done" status)
                  (remhash id nrepl-requests)))))))
