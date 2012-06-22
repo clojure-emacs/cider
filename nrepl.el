@@ -289,19 +289,19 @@ Empty strings and duplicates are ignored."
   (nrepl-make-response-handler buffer
                                (lambda (buffer str)
                                  (nrepl-emit-into-popup-buffer buffer str))
-                               nil
+                               '()
                                (lambda (buffer str)
                                  (nrepl-emit-into-popup-buffer buffer str))
-                               nil))
+                               '()))
 
 (defun nrepl-popup-eval-pprint-handler (buffer)
   (nrepl-make-response-handler buffer
-                               nil
+                               '()
                                (lambda (buffer str)
                                  (nrepl-emit-into-popup-buffer buffer str))
                                (lambda (buffer str)
                                  (nrepl-emit-into-popup-buffer buffer str))
-                               nil))
+                               '()))
 
 ;;;; Popup buffers
 (defvar nrepl-popup-restore-data nil
