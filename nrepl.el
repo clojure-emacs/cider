@@ -5,7 +5,7 @@
 ;; Authors: Tim King <kingtim@gmail.com>
 ;;          Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
-;; Version: 1.0.0
+;; Version: 0.0.1
 ;; Keywords: languages, clojure, nrepl
 ;; Package-Requires: ((clojure-mode "1.7"))
 ;;
@@ -538,6 +538,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "RET") 'nrepl-return)
+    (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map "\C-a" 'nrepl-bol)
     (define-key map [home] 'nrepl-bol)
     (define-key map (kbd "C-<up>") 'nrepl-previous-input)
@@ -806,6 +807,16 @@ balanced."
     (nrepl-send-input t))
    (t
     (nrepl-newline-and-indent))))
+
+(defun nrepl-closing-return ()
+  "Evaluate the current input string after closing all open lists."
+  (interactive)
+  (goto-char (point-max))
+  (save-restriction
+    (narrow-to-region nrepl-input-start-mark (point))
+    (while (ignore-errors (save-excursion (backward-up-list 1)) t)
+      (insert ")")))
+  (nrepl-return))
 
 ;;; server
 (defun nrepl-server-filter (process output)
