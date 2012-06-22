@@ -228,81 +228,80 @@ Empty strings and duplicates are ignored."
    (save-excursion (backward-sexp) (point))
    (point)))
 
-;;;; TODO: abstract out this handler boilerplate
-(defun nrepl-handler (buffer)
-  (lambda (response)
-    (nrepl-dbind-response response (id ns value err out status)
-      (cond (out
-             (nrepl-emit-output buffer out t))
-            (value
-             (nrepl-emit-result buffer value ns t))
-            (err
-             (nrepl-emit-output buffer err t))
-            (status
-             (if (member "done" status)
-                 (progn
-                   (remhash id nrepl-requests)
-                   (nrepl-emit-prompt buffer))))))))
+;;; Response handlers
+(defun nrepl-make-response-handler (buffer value-handler stdout-handler stderr-handler done-handler)
+  (lexical-let ((buffer buffer)
+                (value-handler value-handler)
+                (stdout-handler stdout-handler)
+                (stderr-handler stderr-handler)
+                (done-handler done-handler))
+    (lambda (response)
+      (nrepl-dbind-response response (value ns out err status id)
+        (cond (value
+               (with-current-buffer buffer
+                 (if ns
+                     (setq nrepl-buffer-ns ns)))
+               (if value-handler
+                   (funcall value-handler buffer value)))
+              (out
+               (if stdout-handler
+                   (funcall stdout-handler buffer out)))
+              (err
+               (if stderr-handler
+                   (funcall stderr-handler buffer err)))
+              (status
+               (if (member "done" status)
+                   (progn (remhash id nrepl-requests)
+                          (if done-handler
+                              (funcall done-handler buffer))))))))))
 
-(defun nrepl-interactive-eval-print-handler (buffer)
-  (lambda (response)
-    (nrepl-dbind-response response (value ns status id)
-      (cond (value
-             (with-current-buffer buffer
-               (if ns
-                   (setq nrepl-buffer-ns ns))
-               (insert (format "%s" value))))
-            (status
-             (if (member "done" status)
-                 (remhash id nrepl-requests)))))))
+(defun nrepl-handler (buffer)
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (nrepl-emit-result buffer value t))
+                               (lambda (buffer out)
+                                 (nrepl-emit-output buffer out t))
+                               (lambda (buffer err)
+                                 (nrepl-emit-output buffer err t))
+                               (lambda (buffer)
+                                 (nrepl-emit-prompt buffer))))
 
 (defun nrepl-interactive-eval-handler (buffer)
-  (lambda (response)
-    (nrepl-dbind-response response (value ns id status)
-      (cond (value
-             (if ns
-                 (with-current-buffer buffer
-                   (setq nrepl-buffer-ns ns)))
-             (nrepl-display-eval-result value))
-            (status
-             (if (member "done" status)
-                 (remhash id nrepl-requests)))))))
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (message (format "%s" value)))
+                               '()
+                               (lambda (buffer err)
+                                 (message (format "%s" err)))
+                               '()))
 
-(defun nrepl-emit-into-popup-buffer (buffer value)
-  (with-current-buffer buffer
-    (let ((inhibit-read-only t)
-                     (buffer-undo-list t))
-                 (erase-buffer)
-                 (insert (format "%s" value))
-                 (goto-char (point-min))
-                 (indent-sexp)
-                 (font-lock-fontify-buffer))))
+(defun nrepl-interactive-eval-print-handler (buffer)
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (with-current-buffer buffer
+                                   (insert (format "%s" value))))
+                               '()
+                               (lambda (buffer err)
+                                 (message (format "%s" err)))
+                               '()))
 
 (defun nrepl-popup-eval-print-handler (buffer)
-  (lambda (response)
-    (nrepl-dbind-response response (value ns status id)
-      (cond (value
-             (with-current-buffer buffer
-               (if ns
-                   (setq nrepl-buffer-ns ns))
-               (nrepl-emit-into-popup-buffer buffer value)))
-            (status
-             (if (member "done" status)
-                 (remhash id nrepl-requests)))))))
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer str)
+                                 (nrepl-emit-into-popup-buffer buffer str))
+                               nil
+                               (lambda (buffer str)
+                                 (nrepl-emit-into-popup-buffer buffer str))
+                               nil))
 
 (defun nrepl-popup-eval-pprint-handler (buffer)
-  (lambda (response)
-    (nrepl-dbind-response response (value ns out status id)
-      (cond (value
-             (with-current-buffer buffer
-               (if ns
-                   (setq nrepl-buffer-ns ns))))
-            (out
-             (with-current-buffer buffer
-               (nrepl-emit-into-popup-buffer buffer out)))
-            (status
-             (if (member "done" status)
-                 (remhash id nrepl-requests)))))))
+  (nrepl-make-response-handler buffer
+                               nil
+                               (lambda (buffer str)
+                                 (nrepl-emit-into-popup-buffer buffer str))
+                               (lambda (buffer str)
+                                 (nrepl-emit-into-popup-buffer buffer str))
+                               nil))
 
 ;;;; Popup buffers
 (defvar nrepl-popup-restore-data nil
@@ -388,6 +387,16 @@ Empty strings and duplicates are ignored."
     (set-syntax-table lisp-mode-syntax-table)
     (nrepl-popup-buffer-mode 1)
     (current-buffer)))
+
+(defun nrepl-emit-into-popup-buffer (buffer value)
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t)
+          (buffer-undo-list t))
+      (erase-buffer)
+      (insert (format "%s" value))
+      (goto-char (point-min))
+      (indent-sexp)
+      (font-lock-fontify-buffer))))
 
 
 ;;;; Macroexpansion
@@ -449,9 +458,6 @@ into the special buffer. Prefix argument forces pretty-printed output."
   (if prefix
       (nrepl-interactive-eval-print (nrepl-last-expression))
       (nrepl-interactive-eval (nrepl-last-expression))))
-
-(defun nrepl-display-eval-result (value)
-  (message (format "%s" value)))
 
 ;;;;; History
 (defun nrepl-delete-current-input ()
@@ -639,11 +645,9 @@ Return the position of the prompt beginning."
           (nrepl-insert-prompt nrepl-buffer-ns))))
     (nrepl-show-maximum-output)))
 
-(defun nrepl-emit-result (buffer string ns &optional bol)
+(defun nrepl-emit-result (buffer string &optional bol)
   ;; insert STRING and mark it as evaluation result
   (with-current-buffer buffer
-    (if ns
-        (setq nrepl-buffer-ns ns))
     (save-excursion
       (nrepl-save-marker nrepl-output-start
         (nrepl-save-marker nrepl-output-end
