@@ -532,7 +532,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-last-expression)
-    (define-key map (kbd "C-c M-p") 'nrepl-set-ns)
+    (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
+    (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     map))
 
 (defvar nrepl-mode-map
@@ -880,7 +881,7 @@ balanced."
           (insert ";;; output cleared"))))))
 
 (defun nrepl-current-ns ()
-   "Return the ns package in the current context.
+   "Return the ns in the current context.
  If `nrepl-buffer-ns' has a value then return that, otherwise
  search for and read a `ns' form."
    (let ((ns nrepl-buffer-ns))
@@ -890,10 +891,37 @@ balanced."
                 (clojure-find-ns)))
          ns)))
 
+
+(defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
+  (with-current-buffer buffer
+    (unless (eq major-mode 'nrepl-mode)
+      (nrepl-mode))
+    (setq nrepl-buffer-connection connection)
+    (nrepl-reset-markers)
+    (unless noprompt
+      (nrepl-insert-prompt nrepl-buffer-ns))
+    (current-buffer)))
+
+(defun nrepl-repl-buffer (&optional noprompt)
+  "Return the repl buffer, create if necessary."
+  (let ((buffer (get-buffer "*nrepl*")))
+    (or (if (buffer-live-p buffer) buffer)
+        (let ((connection (get-process "*nrepl-connection*")))
+          (nrepl-init-repl-buffer connection (get-buffer-create "*nrepl*"))))))
+
+(defun nrepl-switch-to-repl-buffer ()
+  "Select the repl buffer, when possible in an existing window.
+
+Hint: You can use `display-buffer-reuse-frames' and
+`special-display-buffer-names' to customize the frame in which
+the buffer should appear."
+  (interactive)
+  (pop-to-buffer (nrepl-repl-buffer))
+  (goto-char (point-max)))
+
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to ns."
-  (interactive (list (let ((ns (nrepl-current-ns)))
-                       (read-string "Namespace: " ns nil))))
+  (interactive (list (nrepl-current-ns)))
   (with-current-buffer "*nrepl*"
     (nrepl-send-string (format "(in-ns '%s)" ns) nrepl-buffer-ns (nrepl-handler (current-buffer)))))
 
@@ -951,12 +979,7 @@ port)))
   (interactive "nPort: ")
   (let ((nrepl-buffer (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*")))
         (process (nrepl-connect "localhost" port)))
-    (nrepl-mode)
-    (nrepl-enable-on-existing-clojure-buffers)
-    (with-current-buffer nrepl-buffer
-      (setq nrepl-connection-process process)
-      (nrepl-reset-markers)
-      (nrepl-insert-prompt "user"))))
+    (nrepl-init-repl-buffer process nrepl-buffer)))
 
 (provide 'nrepl)
 ;;; nrepl.el ends here
