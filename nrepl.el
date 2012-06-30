@@ -201,6 +201,16 @@ Empty strings and duplicates are ignored."
         (setq result (cons (nrepl-bdecode-buffer) result)))
       (nreverse result))))
 
+(defun nrepl-eval-region (start end)
+   "Evaluate region."
+   (interactive "r")
+   (nrepl-interactive-eval (buffer-substring-no-properties start end)))
+
+ (defun nrepl-eval-buffer ()
+   "Evaluate the current buffer."
+   (interactive)
+   (nrepl-eval-region (point-min) (point-max)))
+
 (defun nrepl-expression-at-point ()
   "Return the text of the defun at point."
   (apply #'buffer-substring-no-properties
@@ -530,6 +540,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
     (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
+    (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-last-expression)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
