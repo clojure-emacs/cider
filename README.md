@@ -18,6 +18,8 @@ Clojure buffer commands:
 * **C-c M-m**: Macroexpand the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
 * **C-c M-n**: Switch the namespace of the repl buffer to the namespace of the current buffer.
 * **C-c C-z**: Select the repl buffer.
+* **C-c C-k**: Load the current buffer.
+* **C-c C-l**: Load a file.
 
 REPL buffer commands:
 

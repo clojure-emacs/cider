@@ -5,7 +5,7 @@
 ;; Authors: Tim King <kingtim@gmail.com>
 ;;          Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
-;; Version: 0.0.1
+;; Version: 0.1.0
 ;; Keywords: languages, clojure, nrepl
 ;; Package-Requires: ((clojure-mode "1.7"))
 
@@ -545,6 +545,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-last-expression)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
+    (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
+    (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     map))
 
 (defvar nrepl-mode-map
@@ -935,6 +937,29 @@ the buffer should appear."
   (interactive (list (nrepl-current-ns)))
   (with-current-buffer "*nrepl*"
     (nrepl-send-string (format "(in-ns '%s)" ns) nrepl-buffer-ns (nrepl-handler (current-buffer)))))
+
+;; TODO: implement reloading ns
+(defun nrepl-load-file (filename)
+   "Load the clojure file FILENAME."
+   (interactive (list
+                 (read-file-name "Load file: " nil nil
+                                 nil (if (buffer-file-name)
+                                         (file-name-nondirectory
+                                          (buffer-file-name))))))
+   (let ((fn (convert-standard-filename (expand-file-name filename))))
+     (nrepl-interactive-eval (format "(clojure.core/load-file \"%s\")\n" fn))
+     (message "Loading %s..." fn)))
+
+(defun nrepl-load-current-buffer ()
+   "Load current buffer's file."
+   (interactive)
+   (check-parens)
+   (unless buffer-file-name
+     (error "Buffer %s is not associated with a file." (buffer-name)))
+   (when (and (buffer-modified-p)
+              (y-or-n-p (format "Save file %s? " (buffer-file-name))))
+     (save-buffer))
+   (nrepl-load-file (buffer-file-name)))
 
 ;;; server
 (defun nrepl-server-filter (process output)
