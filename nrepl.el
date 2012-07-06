@@ -328,7 +328,7 @@ Empty strings and duplicates are ignored."
 (define-minor-mode nrepl-popup-buffer-mode
    "Mode for nrepl popup buffers"
    nil
-   (" nrepl-tmp")
+   (" nREPL-tmp")
    '(("q" .  nrepl-popup-buffer-quit-function)))
 
 (make-variable-buffer-local
@@ -574,15 +574,15 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (define-minor-mode nrepl-interaction-mode
   "Minor mode for nrepl interaction from a Clojure buffer."
    nil
-   " nrepl"
+   " nREPL"
    nrepl-interaction-mode-map)
 
 (defun nrepl-mode ()
-  "Major mode for nrepl interactions."
+  "Major mode for nREPL interactions."
   (interactive)
   (kill-all-local-variables)
   (use-local-map nrepl-mode-map)
-  (setq mode-name "NRepl"
+  (setq mode-name "nREPL"
         major-mode 'nrepl-mode)
   (set-syntax-table nrepl-mode-syntax-table)
   (run-mode-hooks 'nrepl-mode-hook))
