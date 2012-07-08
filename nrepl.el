@@ -1,7 +1,7 @@
-;;; nrepl.el --- Client for Clojure nrepl -*- lexical-binding: t -*-
+;;; nrepl.el --- Client for Clojure nREPL -*- lexical-binding: t -*-
 
 ;;;; License
-;; Copyright © 2012 Phil Hagelberg, Tim King
+;; Copyright © 2012 Tim King, Phil Hagelberg
 ;; Authors: Tim King <kingtim@gmail.com>
 ;;          Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
@@ -26,7 +26,7 @@
 
 ;;; Commentary:
 
-;; Provides an elisp client to connect to nrepl servers.
+;; Provides an elisp client to connect to Clojure nREPL servers.
 
 ;;; Installation:
 
@@ -105,9 +105,6 @@
 
 (defvar nrepl-prompt-start-mark)
 
-(defvar nrepl-request-continuations '()
-  "List of (ID . FUNCTION) continuations waiting for RPC results.")
-
 (defvar nrepl-request-counter 0
   "Continuation serial number counter.")
  
@@ -118,9 +115,6 @@ joined together.")
 
 (defvar nrepl-requests (make-hash-table :test 'equal))
 
-(defun nrepl-make-variables-buffer-local (&rest variables)
-  (mapcar #'make-variable-buffer-local variables))
-
 (defvar nrepl-buffer-ns "user"
   "Current clojure namespace of this buffer.")
 
@@ -130,12 +124,14 @@ joined together.")
 (defvar nrepl-input-history-index 0
   "Current position in the history list.")
 
+(defun nrepl-make-variables-buffer-local (&rest variables)
+  (mapcar #'make-variable-buffer-local variables))
+
 (nrepl-make-variables-buffer-local
  'nrepl-connection-process
  'nrepl-input-start-mark
  'nrepl-prompt-start-mark
  'nrepl-request-counter
- 'nrepl-request-continuations
  'nrepl-requests
  'nrepl-old-input-counter
  'nrepl-buffer-ns
@@ -157,7 +153,9 @@ Empty strings and duplicates are ignored."
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
-;;; bencode
+;;; Bencode
+;;; Adapted from http://www.emacswiki.org/emacs-en/bencode.el
+;;; and modified to work with utf-8
 (defun nrepl-bdecode-buffer ()
   "Decode a bencoded string in the current buffer starting at point."
   (cond ((looking-at "i\\([0-9]+\\)e")
@@ -678,7 +676,7 @@ Return the position of the prompt beginning."
     (nrepl-show-maximum-output)))
 
 (defmacro nrepl-dbind-response (response keys &rest body)
-  "Destructure an nrepl response dict."
+  "Destructure an nREPL response dict."
   `(let ,(loop for key in keys
                collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
      ,@body))
@@ -996,7 +994,7 @@ the buffer should appear."
     (set-process-filter process 'nrepl-server-filter)
     (set-process-sentinel process 'nrepl-server-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-    (message "Starting nrepl server...")))
+    (message "Starting nREPL server...")))
 
 ;;; client
 (defun nrepl-connect (host port)
