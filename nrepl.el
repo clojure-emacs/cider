@@ -1,13 +1,13 @@
 ;;; nrepl.el --- Client for Clojure nREPL -*- lexical-binding: t -*-
 
-;;;; License
 ;; Copyright © 2012 Tim King, Phil Hagelberg
+;;
 ;; Authors: Tim King <kingtim@gmail.com>
 ;;          Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
 ;; Version: 0.1.0
 ;; Keywords: languages, clojure, nrepl
-;; Package-Requires: ((clojure-mode "1.7"))
+;; Package-Requires: ((clojure-mode "1.11"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -30,7 +30,11 @@
 
 ;;; Installation:
 
-;; For now, M-x package-install-file or M-x package-install-from-buffer.
+;; Available as a package in marmalade-repo.org.
+
+;; (add-to-list 'package-archives
+;;              '("marmalade" . "http://marmalade-repo.org/packages/"))
+;; M-x package-install nrepl
 
 ;;; Usage:
 
@@ -425,16 +429,22 @@ into the special buffer. Prefix argument forces pretty-printed output."
                        (funcall handler macroexpansion-buffer))))
 
 (defun nrepl-macroexpand-last-expression (&optional prefix)
-  "Evaluate the expression preceding point and print the result
-into the special buffer. Prefix argument forces pretty-printed output."
+  "Invoke 'macroexpand' on the expression preceding point and display the result
+in a macroexpansion buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
   (nrepl-macroexpand-expr 'macroexpand (nrepl-last-expression) prefix))
 
 (defun nrepl-macroexpand-1-last-expression (&optional prefix)
-  "Evaluate the expression preceding point and print the result
-into the special buffer. Prefix argument forces pretty-printed output."
+  "Invoke 'macroexpand-1' on the expression preceding point and display the result
+in a macroexpansion buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
   (nrepl-macroexpand-expr 'macroexpand-1 (nrepl-last-expression) prefix))
+
+(defun nrepl-macroexpand-all-last-expression (&optional prefix)
+"Invoke 'clojure.walk/macroexpand-all' on the expression preceding point and display the result
+in a macroexpansion buffer. Prefix argument forces pretty-printed output."
+  (interactive "P")
+  (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-last-expression) prefix))
 
 (defun nrepl-initialize-macroexpansion-buffer (&optional buffer)
   (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer))))
@@ -541,6 +551,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-last-expression)
+    (define-key map (kbd "C-c M-M") 'nrepl-macroexpand-all-last-expression)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
@@ -586,11 +597,17 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;; communication
+(defcustom nrepl-lein-command
+  "lein2"
+  "The command used to execute leiningen 2.x."
+  :type 'string
+  :group 'nrepl-mode)
 
 (defcustom nrepl-server-command
-  (if (or (locate-file "lein2" exec-path) (locate-file "lein2.bat" exec-path))
-      "lein2 repl :headless"
-    "echo \"lein repl :headless\" | $SHELL -l")
+  (if (or (locate-file nrepl-lein-command exec-path)
+          (locate-file (format "%s.bat" nrepl-lein-command) exec-path))
+      (format "%s repl :headless" nrepl-lein-command)
+    (format "echo \"%s repl :headless\" | $SHELL -l" nrepl-lein-command))
   "The command used to start the nREPL via nrepl-jack-in.
 For a remote nREPL server lein must be in your PATH.  The remote
 proc is launched via sh rather than bash, so it might be necessary
@@ -610,6 +627,13 @@ to specific the full path to it. Localhost is assumed."
         (with-selected-window win
           (set-window-point win (point-max)) 
           (recenter -1))))))
+(defmacro nrepl-save-marker (marker &rest body)
+  (let ((pos (gensym "pos")))
+  `(let ((,pos (marker-position ,marker)))
+     (prog1 (progn . ,body)
+       (set-marker ,marker ,pos)))))
+
+(put 'nrepl-save-marker 'lisp-indent-function 1)
 
 (defun nrepl-insert-prompt (namespace)
   "Insert the prompt (before markers!).
@@ -628,14 +652,6 @@ Return the position of the prompt beginning."
           (insert-before-markers prompt))
         (set-marker nrepl-prompt-start-mark prompt-start)
         prompt-start))))
-
-(defmacro nrepl-save-marker (marker &rest body)
-  (let ((pos (gensym "pos")))
-  `(let ((,pos (marker-position ,marker)))
-     (prog1 (progn . ,body)
-       (set-marker ,marker ,pos)))))
-
-(put 'nrepl-save-marker 'lisp-indent-function 1)
 
 (defun nrepl-emit-output (buffer string &optional bol)
   ;; insert STRING and mark it as output
@@ -998,9 +1014,9 @@ the buffer should appear."
 
 ;;; client
 (defun nrepl-connect (host port)
-  (message "Connecting to nrepl on %s:%s..." host port)
+  (message "Connecting to nREPL on %s:%s..." host port)
   (let ((process (open-network-stream "nrepl" "*nrepl-connection*" host
-port)))
+                                      port)))
     (set-process-filter process 'nrepl-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
