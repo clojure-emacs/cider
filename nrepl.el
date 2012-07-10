@@ -214,7 +214,7 @@ Empty strings and duplicates are ignored."
    (nrepl-eval-region (point-min) (point-max)))
 
 (defun nrepl-expression-at-point ()
-  "Return the text of the defun at point."
+  "Return the text of the expr at point."
   (apply #'buffer-substring-no-properties
          (nrepl-region-for-expression-at-point)))
 
@@ -338,7 +338,7 @@ Empty strings and duplicates are ignored."
    "The function that is used to quit a temporary popup buffer."))
 
 (defun nrepl-popup-buffer-quit-function (&optional kill-buffer-p)
-  "Wrapper to invoke the value of `slime-popup-buffer-quit-function'."
+  "Wrapper to invoke the value of `nrepl-popup-buffer-quit-function'."
   (interactive)
   (funcall nrepl-popup-buffer-quit-function kill-buffer-p))
 
@@ -396,7 +396,7 @@ Empty strings and duplicates are ignored."
     (kill-all-local-variables)
     (setq buffer-read-only nil)
     (erase-buffer)
-    (set-syntax-table lisp-mode-syntax-table)
+    (set-syntax-table clojure-mode-syntax-table)
     (nrepl-popup-buffer-mode 1)
     (current-buffer)))
 
@@ -412,7 +412,13 @@ Empty strings and duplicates are ignored."
 
 
 ;;;; Macroexpansion
-(defun nrepl-macroexpand-expr (macroexpand expr pprint-p)
+(define-minor-mode nrepl-macroexpansion-minor-mode
+   "Mode for nrepl macroexpansion buffers"
+   nil
+   (" ")
+   '(("g" .  nrepl-macroexpand-again)))
+
+(defun nrepl-macroexpand-expr (macroexpand expr pprint-p &optional buffer)
   "Evaluate the expression preceding point and print the result
 into the special buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
@@ -421,7 +427,7 @@ into the special buffer. Prefix argument forces pretty-printed output."
                (if pprint-p
                    "(pprint (%s '%s))"
                  "(%s '%s)") macroexpand expr))
-        (macroexpansion-buffer (nrepl-initialize-macroexpansion-buffer))
+        (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer)))
         (handler (if pprint-p 
                    #'nrepl-popup-eval-pprint-handler
                    #'nrepl-popup-eval-print-handler)))
@@ -450,7 +456,9 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
   (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer))))
 
 (defun nrepl-create-macroexpansion-buffer ()
-  (nrepl-popup-buffer "*nREPL Macroexpansion*" t))
+  (with-current-buffer (nrepl-popup-buffer "*nREPL Macroexpansion*" t)
+    (nrepl-macroexpansion-minor-mode 1)
+    (current-buffer)))
 
 
 (defun nrepl-popup-eval-print (form)
@@ -550,8 +558,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
-    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-last-expression)
-    (define-key map (kbd "C-c M-M") 'nrepl-macroexpand-all-last-expression)
+    (define-key map (kbd "C-c C-M") 'nrepl-macroexpand-last-expression)
+    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
