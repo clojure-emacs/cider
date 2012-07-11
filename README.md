@@ -5,9 +5,26 @@ the Clojure networked repl server.
 
 A work in progress.
 
+## Installation
+
+Available on the marmalade repo.
+
+Add this to your ~/.emacs.d/init.el:
+
+```lisp
+(require 'package)
+(add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+```
+
+And then
+* **M-x package-install nrepl
+
 ## Current status
 
 * **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.  This will also enable nrepl minor mode on clojure-mode buffers.
+
 
 Clojure buffer commands:
 
@@ -33,6 +50,7 @@ REPL buffer commands:
 Requirements:
 * Leiningen 2.x.
 * clojure-mode
+* Has only been tested on emacs 24.
 
 ## License
 
