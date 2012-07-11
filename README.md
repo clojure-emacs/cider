@@ -19,7 +19,14 @@ Add this to your ~/.emacs.d/init.el:
 ```
 
 And then
-* <kbd>M-x package-install nrepl</kbd>
+
+```lisp
+(when (not (package-installed-p 'nrepl))
+  (package-install 'nrepl))
+```
+
+or
+    M-x package-install [RET] nrepl [RET]
 
 ## Current status
 
