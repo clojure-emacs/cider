@@ -19,7 +19,7 @@ Add this to your ~/.emacs.d/init.el:
 ```
 
 And then
-* **M-x package-install nrepl**
+* <kbd>M-x package-install nrepl</kbd>
 
 ## Current status
 
