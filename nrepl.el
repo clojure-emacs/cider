@@ -2,8 +2,8 @@
 
 ;; Copyright © 2012 Tim King, Phil Hagelberg
 ;;
-;; Authors: Tim King <kingtim@gmail.com>
-;;          Phil Hagelberg <technomancy@gmail.com>
+;; Author: Tim King <kingtim@gmail.com>
+;;         Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
 ;; Version: 0.1.0
 ;; Keywords: languages, clojure, nrepl
@@ -97,7 +97,7 @@
   "Execute BODY and add PROPS to all the text it inserts.
  More precisely, PROPS are added to the region between the point's
  positions before and after executing BODY."
-  (let ((start (gensym)))
+  (let ((start (make-symbol "start-pos")))
     `(let ((,start (point)))
        (prog1 (progn ,@body)
          (add-text-properties ,start (point) ,props)))))
@@ -128,6 +128,12 @@ joined together.")
 (defvar nrepl-input-history-index 0
   "Current position in the history list.")
 
+(defvar nrepl-output-start nil
+  "Marker for the start of output.")
+
+(defvar nrepl-output-end
+  "Marker for the end of output.")
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
@@ -140,7 +146,9 @@ joined together.")
  'nrepl-old-input-counter
  'nrepl-buffer-ns
  'nrepl-input-history
- 'nrepl-current-input-history-index)
+ 'nrepl-current-input-history-index
+ 'nrepl-output-start
+ 'nrepl-output-end)
 
 (defun nrepl-add-to-input-history (string)
   "Add STRING to the input history.
@@ -635,8 +643,9 @@ to specific the full path to it. Localhost is assumed."
         (with-selected-window win
           (set-window-point win (point-max)) 
           (recenter -1))))))
+
 (defmacro nrepl-save-marker (marker &rest body)
-  (let ((pos (gensym "pos")))
+  (let ((pos (make-symbol "pos")))
   `(let ((,pos (marker-position ,marker)))
      (prog1 (progn . ,body)
        (set-marker ,marker ,pos)))))
@@ -926,12 +935,10 @@ balanced."
                 (clojure-find-ns)))
          ns)))
 
-
 (defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
   (with-current-buffer buffer
     (unless (eq major-mode 'nrepl-mode)
       (nrepl-mode))
-    (setq nrepl-buffer-connection connection)
     (nrepl-reset-markers)
     (unless noprompt
       (nrepl-insert-prompt nrepl-buffer-ns))
