@@ -574,7 +574,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
-    (define-key map (kbd "C-c C-M") 'nrepl-macroexpand-last-expression)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
