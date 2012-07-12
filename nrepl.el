@@ -187,7 +187,7 @@ Empty strings and duplicates are ignored."
            (nreverse result)))
         ((looking-at "d")
          (goto-char (match-end 0))
-         (let (dict key)
+         (let (dict key item)
            (while (setq item (nrepl-bdecode-buffer))
              (if key
                  (setq dict (cons (cons key item) dict)
@@ -249,6 +249,14 @@ Empty strings and duplicates are ignored."
    (point)))
 
 ;;; Response handlers
+(defmacro nrepl-dbind-response (response keys &rest body)
+  "Destructure an nREPL response dict."
+  `(let ,(loop for key in keys
+               collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
+     ,@body))
+
+(put 'nrepl-dbind-response 'lisp-indent-function 2)
+
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler stderr-handler done-handler)
   (lexical-let ((buffer buffer)
                 (value-handler value-handler)
@@ -708,13 +716,7 @@ Return the position of the prompt beginning."
                                    (insert-before-markers string)))))
     (nrepl-show-maximum-output)))
 
-(defmacro nrepl-dbind-response (response keys &rest body)
-  "Destructure an nREPL response dict."
-  `(let ,(loop for key in keys
-               collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
-     ,@body))
 
-(put 'nrepl-dbind-response 'lisp-indent-function 2)
 
 (defun nrepl-dispatch (response)
   "Dispatch the response to associated callback."
