@@ -311,6 +311,29 @@ Empty strings and duplicates are ignored."
         (find-file file-or-buffer))
       (goto-char point))))
 
+(defun nrepl-complete-handler (response)
+  (nrepl-dbind-response response (value ns out err status id)
+    (add-to-list 'rrr response)
+    (when value
+      (setq vvv value)
+      (let ((completions (car (read-from-string value))))
+        (cond ((> (length completions) 1)
+               (message "Completions: %s" (mapconcat 'identity completions " ")))
+              ((= (length completions) 1)
+               (save-excursion
+                 (let ((p (point)))
+                   (search-backward-regexp " ")
+                   (forward-char)
+                   (delete-region p (point))))
+               (insert (car completions) " ")))))))
+
+(defun nrepl-complete ()
+  (interactive)
+  (let ((form (format "(complete.core/completions \"%s\" *ns*)"
+                      (symbol-at-point))))
+    (nrepl-send-string form (nrepl-current-ns)
+                       'nrepl-complete-handler)))
+
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
   "Destructure an nREPL response dict."
@@ -637,6 +660,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "M-.") 'nrepl-jump-to-def)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
+    (define-key map (kbd "M-TAB") 'nrepl-complete)
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
     (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
@@ -655,6 +679,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "M-.") 'nrepl-jump-to-def)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
+    (define-key map (kbd "TAB") 'nrepl-complete)
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
     (define-key map (kbd "C-c C-o") 'nrepl-clear-output)
