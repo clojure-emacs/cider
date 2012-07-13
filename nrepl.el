@@ -44,6 +44,7 @@
 
 (require 'clojure-mode)
 (require 'thingatpt)
+(require 'arc-mode)
 (eval-when-compile
   (require 'cl))
 
