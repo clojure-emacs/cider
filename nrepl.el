@@ -595,7 +595,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
           ((= pos min-pos)
            (nrepl-replace-input "")
            (setq msg "Beginning of history"))
-          ((setq msg "End of history")))
+          ((setq msg "End of history"
+                 pos (1- pos))))
     (message "%s" msg)
     (setq nrepl-input-history-index pos)))
 
