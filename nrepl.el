@@ -644,6 +644,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
+    (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
@@ -1039,6 +1040,24 @@ the buffer should appear."
   (interactive (list (nrepl-current-ns)))
   (with-current-buffer "*nrepl*"
     (nrepl-send-string (format "(in-ns '%s)" ns) nrepl-buffer-ns (nrepl-handler (current-buffer)))))
+
+(defun nrepl-doc-handler (response)
+  (nrepl-dbind-response response (value ns out err status id)
+    (when value
+      (switch-to-buffer "*nrepl doc*")
+      (let ((buffer-read-only nil))
+        (delete-region (point-min) (point-max))
+        (insert (car (read-from-string value)))
+        ;; TODO: create mode for this?
+        (local-set-key (kbd "q") 'bury-buffer)
+        (setq buffer-read-only t)))))
+
+(defun nrepl-doc ()
+  (interactive)
+  ;; TODO: prompt for var name if given prefix arg; do the same with M-.
+  ;; TODO: prompt with ido?
+  (let ((form (format "(with-out-str (clojure.repl/doc %s))" (symbol-at-point))))
+    (nrepl-send-string form (nrepl-current-ns) 'nrepl-doc-handler)))
 
 ;; TODO: implement reloading ns
 (defun nrepl-load-file (filename)
