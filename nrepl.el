@@ -660,6 +660,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map [home] 'nrepl-bol)
     (define-key map (kbd "C-<up>") 'nrepl-previous-input)
     (define-key map (kbd "C-<down>") 'nrepl-next-input)
+    (define-key map (kbd "M-p") 'nrepl-previous-input)
+    (define-key map (kbd "M-n") 'nrepl-next-input)
     map))
 
 (defvar nrepl-connection-process nil)
