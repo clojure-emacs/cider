@@ -134,6 +134,9 @@ joined together.")
 (defvar nrepl-output-end
   "Marker for the end of output.")
 
+(defvar nrepl-jump-stack nil
+  "Stack of locations visited with `nrepl-jump-to-def'.")
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
@@ -247,6 +250,66 @@ Empty strings and duplicates are ignored."
   (buffer-substring-no-properties
    (save-excursion (backward-sexp) (point))
    (point)))
+
+(defun nrepl-find-resource (resource)
+  (cond ((string-match "^file:\\(.+\\)" resource)
+         (find-file (match-string 1 resource)))
+        ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
+         (let* ((jar (match-string 2 resource))
+                (path (match-string 3 resource))
+                (buffer-already-open (get-buffer (file-name-nondirectory jar))))
+           (find-file jar)
+           (goto-char (point-min))
+           (search-forward path)
+           (let ((opened-buffer (current-buffer)))
+             (archive-extract)
+             (when (not buffer-already-open)
+               (kill-buffer opened-buffer)))))
+        (:else (error "Unknown resource path %s" resource))))
+
+(defun nrepl-jump-to-def-for (location)
+  ;; ugh; elisp destructuring doesn't work for vectors
+  (let ((resource (aref location 0))
+        (path (aref location 1))
+        (line (aref location 2)))
+    (if (and path (file-exists-p path))
+        (find-file path)
+      (nrepl-find-resource resource))
+    (goto-char (point-min))
+    (forward-line (1- line))
+    (search-forward-regexp "(def[^\s]* +" nil t)))
+
+(defun nrepl-jump-to-def-handler (buffer)
+  ;; TODO: got to be a simpler way to do this
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (nrepl-jump-to-def-for
+                                  (car (read-from-string value))))
+                               (lambda (buffer out) (message out))
+                               (lambda (buffer err) (message err))
+                               (lambda (buffer))))
+
+(defun nrepl-jump-to-def ()
+  "Jump to the definition of the var at point."
+  (interactive)
+  (push (list (or (buffer-file-name)
+                  (current-buffer)) (point)) nrepl-jump-stack)
+  (let ((form (format "((juxt (comp str clojure.java.io/resource :file)
+                              (comp str clojure.java.io/file :file) :line)
+                        (meta (resolve '%s)))"
+                      (symbol-at-point))))
+    (nrepl-send-string form (nrepl-current-ns)
+                       (nrepl-jump-to-def-handler (current-buffer)))))
+
+(defun nrepl-jump-back ()
+  "Return to the location from which `nrepl-jump-to-def' was invoked."
+  (interactive)
+  (when nrepl-jump-stack
+    (destructuring-bind (file-or-buffer point) (pop nrepl-jump-stack)
+      (if (bufferp file-or-buffer)
+          (switch-to-buffer file-or-buffer)
+        (find-file file-or-buffer))
+      (goto-char point))))
 
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
@@ -569,6 +632,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defvar nrepl-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
+    (define-key map (kbd "M-.") 'nrepl-jump-to-def)
+    (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
     (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
@@ -584,6 +649,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
+    (define-key map (kbd "M-.") 'nrepl-jump-to-def)
+    (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
