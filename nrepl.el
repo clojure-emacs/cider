@@ -314,9 +314,7 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-complete-handler (response)
   (nrepl-dbind-response response (value ns out err status id)
-    (add-to-list 'rrr response)
     (when value
-      (setq vvv value)
       (let ((completions (car (read-from-string value))))
         (cond ((> (length completions) 1)
                (message "Completions: %s" (mapconcat 'identity completions " ")))
