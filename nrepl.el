@@ -311,20 +311,15 @@ Empty strings and duplicates are ignored."
         (find-file file-or-buffer))
       (goto-char point))))
 
-(defun nrepl-complete-handler (response)
+(defun nrepl-complete-handler (beginning-of-symbol response)
   (nrepl-dbind-response response (value ns out err status id)
-    (add-to-list 'rrr response)
     (when value
-      (setq vvv value)
       (let ((completions (car (read-from-string value))))
         (cond ((> (length completions) 1)
                (message "Completions: %s" (mapconcat 'identity completions " ")))
               ((= (length completions) 1)
                (save-excursion
-                 (let ((p (point)))
-                   (search-backward-regexp " ")
-                   (forward-char)
-                   (delete-region p (point))))
+                 (delete-region beginning-of-symbol (point)))
                (insert (car completions) " ")))))))
 
 (defun nrepl-complete ()
@@ -332,7 +327,10 @@ Empty strings and duplicates are ignored."
   (let ((form (format "(complete.core/completions \"%s\" *ns*)"
                       (symbol-at-point))))
     (nrepl-send-string form (nrepl-current-ns)
-                       'nrepl-complete-handler)))
+                       (apply-partially 'nrepl-complete-handler
+                                        (save-excursion
+                                          (backward-sexp)
+                                          (point))))))
 
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
