@@ -45,7 +45,8 @@ Clojure buffer commands:
 * **C-c C-z**: Select the repl buffer.
 * **C-c C-k**: Load the current buffer.
 * **C-c C-l**: Load a file.
-* **M-.**: Jump to the definition of a var.
+* **C-c C-d**: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+* **M-.**: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
 * **M-,**: Return to your pre-jump location.
 
 REPL buffer commands:

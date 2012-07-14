@@ -290,15 +290,15 @@ Empty strings and duplicates are ignored."
                                (lambda (buffer err) (message err))
                                (lambda (buffer))))
 
-(defun nrepl-jump-to-def ()
+(defun nrepl-jump-to-def (var)
   "Jump to the definition of the var at point."
-  (interactive)
+  (interactive (list (nrepl-read-symbol-name "Var: ")))
   (push (list (or (buffer-file-name)
                   (current-buffer)) (point)) nrepl-jump-stack)
   (let ((form (format "((juxt (comp str clojure.java.io/resource :file)
                               (comp str clojure.java.io/file :file) :line)
                         (meta (resolve '%s)))"
-                      (symbol-at-point))))
+                      var)))
     (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-jump-to-def-handler (current-buffer)))))
 
@@ -409,7 +409,7 @@ Empty strings and duplicates are ignored."
                                  (nrepl-emit-into-popup-buffer buffer str))
                                '()))
 
-(defun nrepl-popup-eval-pprint-handler (buffer)
+(defun nrepl-popup-eval-out-handler (buffer)
   (nrepl-make-response-handler buffer
                                '()
                                (lambda (buffer str)
@@ -507,9 +507,7 @@ Empty strings and duplicates are ignored."
   (with-current-buffer buffer
     (let ((inhibit-read-only t)
           (buffer-undo-list t))
-      (erase-buffer)
       (insert (format "%s" value))
-      (goto-char (point-min))
       (indent-sexp)
       (font-lock-fontify-buffer))))
 
@@ -532,7 +530,7 @@ into the special buffer. Prefix argument forces pretty-printed output."
                  "(%s '%s)") macroexpand expr))
         (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer)))
         (handler (if pprint-p 
-                   #'nrepl-popup-eval-pprint-handler
+                   #'nrepl-popup-eval-out-handler
                    #'nrepl-popup-eval-print-handler)))
     (nrepl-send-string form ns
                        (funcall handler macroexpansion-buffer))))
@@ -1067,23 +1065,28 @@ the buffer should appear."
   (with-current-buffer "*nrepl*"
     (nrepl-send-string (format "(in-ns '%s)" ns) nrepl-buffer-ns (nrepl-handler (current-buffer)))))
 
-(defun nrepl-doc-handler (response)
-  (nrepl-dbind-response response (value ns out err status id)
-    (when value
-      (switch-to-buffer "*nrepl doc*")
-      (let ((buffer-read-only nil))
-        (delete-region (point-min) (point-max))
-        (insert (car (read-from-string value)))
-        ;; TODO: create mode for this?
-        (local-set-key (kbd "q") 'bury-buffer)
-        (setq buffer-read-only t)))))
+(defun nrepl-symbol-at-point ()
+  "Return the name of the symbol at point, otherwise nil."
+  (let ((str (thing-at-point 'symbol)))
+    (and str
+         (not (equal str ""))
+         (substring-no-properties str))))
 
-(defun nrepl-doc ()
-  (interactive)
-  ;; TODO: prompt for var name if given prefix arg; do the same with M-.
-  ;; TODO: prompt with ido?
-  (let ((form (format "(with-out-str (clojure.repl/doc %s))" (symbol-at-point))))
-    (nrepl-send-string form (nrepl-current-ns) 'nrepl-doc-handler)))
+(defun nrepl-read-symbol-name (prompt &optional query)
+   "Either read a symbol name or choose the one at point.
+ The user is prompted if a prefix argument is in effect, if there is no
+ symbol at point, or if QUERY is non-nil."
+   (let ((symbol-name (nrepl-symbol-at-point)))
+     (cond ((or current-prefix-arg query (not symbol-name))
+            (read-from-minibuffer prompt symbol-name))
+           (t symbol-name))))
+
+;; TODO: prompt with ido?
+(defun nrepl-doc (symbol)
+  (interactive (list (nrepl-read-symbol-name "Symbol: ")))
+  (let ((form (format "(clojure.repl/doc %s)" symbol))
+        (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
+    (nrepl-send-string form (nrepl-current-ns) (nrepl-popup-eval-out-handler doc-buffer))))
 
 ;; TODO: implement reloading ns
 (defun nrepl-load-file (filename)
