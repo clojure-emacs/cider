@@ -1074,9 +1074,12 @@ the buffer should appear."
 (defvar nrepl-ido-current-ns nil)
 
 (defun nrepl-ido-form (ns)
+  ;; TODO: need smarter trimming logic; can't just trim everything
+  ;; that's more than one dot away since sometimes there isn't an
+  ;; intermediate step between where you are and what you're looking for
   (if (equal "" ns)
       `(seq (into (hash-set) (for [n (all-ns)]
-                                  (re-find (re-pattern "[^\\.]+") (str n)))))
+                                  (str (re-find (re-pattern "[^\\.]+") (str n)) "/"))))
     ;; TODO: should move up with backspace instead of ..
     `(concat (map name (keys (ns-interns (symbol ,ns)))) [".."]
              (for ,(coerce `(n (all-ns)
@@ -1103,14 +1106,17 @@ the buffer should appear."
 (defun nrepl-ido-read-var-handler (callback response)
   (nrepl-dbind-response response (value ns out err status id)
     (when value
+      (setq vvvv value)
       (let* ((targets (car (read-from-string value)))
              (selected (ido-completing-read "Var: " targets nil t)))
+        (setq sss selected)
         (nrepl-ido-select selected targets callback)))))
 
 (defun nrepl-ido-read-var (ns callback)
   ;; Have to be stateful =(
   (setq nrepl-ido-ns ns)
-  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) ns
+  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns))
+                     (if (equal ns "") "user" ns)
                      (apply-partially 'nrepl-ido-read-var-handler callback)))
 
 (defun nrepl-read-symbol-name (prompt &optional query)
@@ -1125,8 +1131,9 @@ symbol at point, or if QUERY is non-nil."
 ;; works
 ;; (nrepl-ido-read-var "user" 'message)
 ;; (nrepl-ido-read-var "clojure.tools.nrepl" 'message)
-;; no-op: (nrepl-ido-read-var "" 'message)
+;; (nrepl-ido-read-var "" 'message)
 ;; breaks: (nrepl-ido-read-var "clojure.core" 'message)
+;; this one is actually a bencode bug; trying to resolve a position out of range
 
 (defun nrepl-doc (symbol)
   (interactive (list (nrepl-read-symbol-name "Symbol: ")))
