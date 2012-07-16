@@ -1070,16 +1070,68 @@ the buffer should appear."
          (not (equal str ""))
          (substring-no-properties str))))
 
+(defvar nrepl-ido-read-var-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "<backspace>") 'nrepl-ido-delete-or-up-ns)
+    (set-keymap-parent map ido-common-completion-map)
+    map))
+
+;; this is horrible, but with async callbacks we can't rely on dynamic scope
+(defvar nrepl-ido-current-ns nil)
+
+(defun nrepl-ido-form (ns)
+  `(concat (map name (keys (ns-interns (symbol ,ns)))) [".."]
+           (for ,(coerce `(n (all-ns)
+                             :let [n (str n)]
+                             :when (re-find (re-pattern (str "^" ,ns "\\.")) n))
+                         'vector)
+                (str n "/"))))
+
+(defun nrepl-ido-up-ns ()
+  (let* ((segments (split-string nrepl-ido-ns "\\."))
+         (up-ns (mapconcat 'identity (butlast segments) ".")))
+    ;; TODO: this does not affect the return value of ido-completing-read
+    (setq ido-text (concat up-ns "/"))
+    (exit-minibuffer)))
+
+(defun nrepl-ido-delete-or-up-ns (count)
+  (interactive "P")
+  (if (= (minibuffer-prompt-end) (point))
+      (nrepl-ido-up-ns)
+    (delete-char (- (prefix-numeric-value count)))))
+
+(defun nrepl-ido-set-map ()
+  ;; apparently this is OK to setq
+  (setq ido-completion-map nrepl-ido-read-var-map))
+
+(defun nrepl-ido-read-var-handler (response)
+  (nrepl-dbind-response response (value ns out err status id)
+    (when value
+      (let* ((ido-setup-hook (cons 'nrepl-ido-set-map ido-setup-hook))
+             (targets (car (read-from-string value)))
+             (selected (ido-completing-read "Var: " targets nil t)))
+        (setq sss selected)
+        ;; TODO: immediate RET gives "" as selected
+        (if (equal "/" (substring selected -1)) ; selected a namespace
+            (nrepl-ido-read-var (substring selected 0 -1))
+          selected)))))
+
+(defun nrepl-ido-read-var (ns)
+  (setq nrepl-ido-ns ns)
+  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) nrepl-ido-ns
+                     'nrepl-ido-read-var-handler))
+
 (defun nrepl-read-symbol-name (prompt &optional query)
    "Either read a symbol name or choose the one at point.
- The user is prompted if a prefix argument is in effect, if there is no
- symbol at point, or if QUERY is non-nil."
+The user is prompted if a prefix argument is in effect, if there is no
+symbol at point, or if QUERY is non-nil."
    (let ((symbol-name (nrepl-symbol-at-point)))
-     (cond ((or current-prefix-arg query (not symbol-name))
-            (read-from-minibuffer prompt symbol-name))
-           (t symbol-name))))
+     (cond ((not (or current-prefix-arg query (not symbol-name))) symbol-name)
+           (ido-mode (nrepl-ido-read-var (nrepl-current-ns)))
+           (t (read-from-minibuffer prompt symbol-name)))))
 
-;; TODO: prompt with ido?
+;; (nrepl-read-symbol-name "Var: " t)
+
 (defun nrepl-doc (symbol)
   (interactive (list (nrepl-read-symbol-name "Symbol: ")))
   (let ((form (format "(clojure.repl/doc %s)" symbol))
