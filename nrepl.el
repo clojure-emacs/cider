@@ -1070,56 +1070,48 @@ the buffer should appear."
          (not (equal str ""))
          (substring-no-properties str))))
 
-(defvar nrepl-ido-read-var-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<backspace>") 'nrepl-ido-delete-or-up-ns)
-    (set-keymap-parent map ido-common-completion-map)
-    map))
-
 ;; this is horrible, but with async callbacks we can't rely on dynamic scope
 (defvar nrepl-ido-current-ns nil)
 
 (defun nrepl-ido-form (ns)
-  `(concat (map name (keys (ns-interns (symbol ,ns)))) [".."]
-           (for ,(coerce `(n (all-ns)
-                             :let [n (str n)]
-                             :when (re-find (re-pattern (str "^" ,ns "\\.")) n))
-                         'vector)
-                (str n "/"))))
+  (if (equal "" ns)
+      `(seq (into (hash-set) (for [n (all-ns)]
+                                  (re-find (re-pattern "[^\\.]+") (str n)))))
+    ;; TODO: should move up with backspace instead of ..
+    `(concat (map name (keys (ns-interns (symbol ,ns)))) [".."]
+             (for ,(coerce `(n (all-ns)
+                               :let [n (str n)]
+                               :when (re-find (re-pattern (str "^" ,ns "\\.[^\\.]+$"))
+                                              n))
+                           'vector)
+                  (str n "/")))))
 
-(defun nrepl-ido-up-ns ()
-  (let* ((segments (split-string nrepl-ido-ns "\\."))
-         (up-ns (mapconcat 'identity (butlast segments) ".")))
-    ;; TODO: this does not affect the return value of ido-completing-read
-    (setq ido-text (concat up-ns "/"))
-    (exit-minibuffer)))
+(defun nrepl-ido-up-ns (ns)
+  (mapconcat 'identity (butlast (split-string ns "\\.")) "."))
 
-(defun nrepl-ido-delete-or-up-ns (count)
-  (interactive "P")
-  (if (= (minibuffer-prompt-end) (point))
-      (nrepl-ido-up-ns)
-    (delete-char (- (prefix-numeric-value count)))))
+(defun nrepl-ido-select (selected targets callback)
+  ;; TODO: immediate RET gives "" as selected for some reason
+  ;; this is an OK workaround though
+  (cond ((equal "" selected)
+         (nrepl-ido-select (car targets) targets callback))
+        ((equal "/" (substring selected -1)) ; selected a namespace
+         (nrepl-ido-read-var (substring selected 0 -1) callback))
+        ((equal ".." selected)
+         (nrepl-ido-read-var (nrepl-ido-up-ns nrepl-ido-ns) callback))
+        (t (funcall callback (concat nrepl-ido-ns "/" selected)))))
 
-(defun nrepl-ido-set-map ()
-  ;; apparently this is OK to setq
-  (setq ido-completion-map nrepl-ido-read-var-map))
-
-(defun nrepl-ido-read-var-handler (response)
+(defun nrepl-ido-read-var-handler (callback response)
   (nrepl-dbind-response response (value ns out err status id)
     (when value
-      (let* ((ido-setup-hook (cons 'nrepl-ido-set-map ido-setup-hook))
-             (targets (car (read-from-string value)))
+      (let* ((targets (car (read-from-string value)))
              (selected (ido-completing-read "Var: " targets nil t)))
-        (setq sss selected)
-        ;; TODO: immediate RET gives "" as selected
-        (if (equal "/" (substring selected -1)) ; selected a namespace
-            (nrepl-ido-read-var (substring selected 0 -1))
-          selected)))))
+        (nrepl-ido-select selected targets callback)))))
 
-(defun nrepl-ido-read-var (ns)
+(defun nrepl-ido-read-var (ns callback)
+  ;; Have to be stateful =(
   (setq nrepl-ido-ns ns)
-  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) nrepl-ido-ns
-                     'nrepl-ido-read-var-handler))
+  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) ns
+                     (apply-partially 'nrepl-ido-read-var-handler callback)))
 
 (defun nrepl-read-symbol-name (prompt &optional query)
    "Either read a symbol name or choose the one at point.
@@ -1130,7 +1122,11 @@ symbol at point, or if QUERY is non-nil."
            (ido-mode (nrepl-ido-read-var (nrepl-current-ns)))
            (t (read-from-minibuffer prompt symbol-name)))))
 
-;; (nrepl-read-symbol-name "Var: " t)
+;; works
+;; (nrepl-ido-read-var "user" 'message)
+;; (nrepl-ido-read-var "clojure.tools.nrepl" 'message)
+;; no-op: (nrepl-ido-read-var "" 'message)
+;; breaks: (nrepl-ido-read-var "clojure.core" 'message)
 
 (defun nrepl-doc (symbol)
   (interactive (list (nrepl-read-symbol-name "Symbol: ")))
