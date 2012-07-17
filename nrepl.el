@@ -57,6 +57,9 @@
   :prefix "nrepl-"
   :group 'applications)
 
+(defvar nrepl-version "0.1.2"
+  "The current nrepl version.")
+
 (defface nrepl-prompt-face
   (if (nrepl-face-inheritance-possible-p)
       '((t (:inherit font-lock-keyword-face)))
@@ -1031,13 +1034,43 @@ balanced."
                 (clojure-find-ns)))
          ns)))
 
+;; Words of inspiration
+(defun nrepl-user-first-name ()
+  (let ((name (if (string= (user-full-name) "")
+                   (user-login-name)
+                 (user-full-name))))
+     (string-match "^[^ ]*" name)
+     (capitalize (match-string 0 name))))
+
+(defvar nrepl-words-of-inspiration
+  `("The best way to predict the future is to invent it. -Alan Kay"
+    "A point of view is worth 80 IQ points. -Alan Kay"
+    "Simple things should be simple, complex things should be possible. -Alan Kay"
+    "Programming is not about typing... it's about thinking. -Rich Hickey"
+    "Take this nREPL, brother, and may it serve you well."
+    ,(format "%s, this could be the start of a beautiful program."
+              (nrepl-user-first-name))))
+
+(defun nrepl-random-words-of-inspiration ()
+   (eval (nth (random (length nrepl-words-of-inspiration))
+              nrepl-words-of-inspiration)))
+
+(defun nrepl-insert-banner (ns)
+  (when (zerop (buffer-size))
+    (let ((welcome (concat "; nREPL " nrepl-version)))
+      (insert welcome)))
+  (goto-char (point-max))
+  (nrepl-mark-output-start)
+  (nrepl-mark-input-start)
+  (nrepl-insert-prompt ns))
+
 (defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
   (with-current-buffer buffer
     (unless (eq major-mode 'nrepl-mode)
       (nrepl-mode))
     (nrepl-reset-markers)
     (unless noprompt
-      (nrepl-insert-prompt nrepl-buffer-ns))
+      (nrepl-insert-banner nrepl-buffer-ns))
     (current-buffer)))
 
 (defun nrepl-repl-buffer (&optional noprompt)
@@ -1154,6 +1187,7 @@ the buffer should appear."
     (set-process-filter process 'nrepl-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
+    (message "Connected.  %s" (nrepl-random-words-of-inspiration))
     process))
 
 
