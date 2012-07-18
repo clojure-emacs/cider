@@ -353,6 +353,7 @@ Empty strings and duplicates are ignored."
         (cond (value
                (with-current-buffer buffer
                  (if ns
+                     ;; TODO: this isn't getting set when it needs to be
                      (setq nrepl-buffer-ns ns)))
                (if value-handler
                    (funcall value-handler buffer value)))
@@ -563,19 +564,20 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
 (defun nrepl-popup-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
+    (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-popup-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
+    (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-interactive-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval (form)
   "Evaluate the given form and print value in minibuffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-handler buffer))))
+    (nrepl-send-string form (nrepl-current-ns)
+                       (nrepl-interactive-eval-handler buffer))))
 
 (defun nrepl-eval-last-expression (&optional prefix)
   "Evaluate the expression preceding point."
@@ -654,6 +656,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 
 (defvar nrepl-interaction-mode-map
   (let ((map (make-sparse-keymap)))
+    ;; TODO: this appears to bind backspace to the non-paredit backspace
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "M-.") 'nrepl-jump-to-def)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
@@ -1074,14 +1077,13 @@ the buffer should appear."
 (defvar nrepl-ido-current-ns nil)
 
 (defun nrepl-ido-form (ns)
-  ;; TODO: need smarter trimming logic; can't just trim everything
-  ;; that's more than one dot away since sometimes there isn't an
-  ;; intermediate step between where you are and what you're looking for
   (if (equal "" ns)
       `(seq (into (hash-set) (for [n (all-ns)]
                                   (str (re-find (re-pattern "[^\\.]+") (str n)) "/"))))
     ;; TODO: should move up with backspace instead of ..
-    `(concat (map name (keys (ns-interns (symbol ,ns)))) [".."]
+    `(concat (if (find-ns (symbol ,ns))
+                 (map name (keys (ns-interns (symbol ,ns)))))
+             [".."]
              (for ,(coerce `(n (all-ns)
                                :let [n (str n)]
                                :when (re-find (re-pattern (str "^" ,ns "\\.[^\\.]+$"))
@@ -1115,8 +1117,7 @@ the buffer should appear."
 (defun nrepl-ido-read-var (ns callback)
   ;; Have to be stateful =(
   (setq nrepl-ido-ns ns)
-  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns))
-                     (if (equal ns "") "user" ns)
+  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) "user"
                      (apply-partially 'nrepl-ido-read-var-handler callback)))
 
 (defun nrepl-read-symbol-name (prompt &optional query)
