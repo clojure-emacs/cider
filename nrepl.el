@@ -369,6 +369,8 @@ Empty strings and duplicates are ignored."
                (if stderr-handler
                    (funcall stderr-handler buffer err)))
               (status
+               (if (member "interrupted" status)
+                   (message "Evaluation interrupted."))
                (if (member "done" status)
                    (progn (remhash id nrepl-requests)
                           (if done-handler
@@ -675,6 +677,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
+    (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     map))
 
 (defvar nrepl-mode-map
@@ -694,9 +697,8 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-<down>") 'nrepl-next-input)
     (define-key map (kbd "M-p") 'nrepl-previous-input)
     (define-key map (kbd "M-n") 'nrepl-next-input)
+    (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     map))
-
-
 
 (defun clojure-enable-nrepl ()
   (nrepl-interaction-mode t))
@@ -1148,6 +1150,38 @@ the buffer should appear."
      (save-buffer))
    (nrepl-load-file (buffer-file-name)))
 
+;;; interrupt
+(defun nrepl-interrupt-handler (buffer)
+  (nrepl-make-response-handler buffer nil nil nil nil))
+
+(defun nrepl-interrupt-request (pending-id)
+  (let* ((request-id (number-to-string (incf nrepl-request-counter)))
+         (session-id (with-current-buffer "*nrepl-connection*" nrepl-session))
+         (message (concat
+                   "d"
+                   (apply 'concat
+                          (mapcar 'nrepl-netstring
+                                  (list "op" "interrupt"
+                                        "interrupt-id" pending-id
+                                        "session" session-id
+                                        "id" request-id)))
+                   "e"))
+         (interrupt-callback (nrepl-interrupt-handler (current-buffer))))
+    (puthash request-id interrupt-callback nrepl-requests)
+    (nrepl-write-message "*nrepl-connection*" message)))
+
+(defun nrepl-hash-keys (hashtable)
+  (let ((keys '()))
+    (maphash (lambda (k v) (setq keys (cons k keys))) hashtable)
+    keys))
+
+(defun nrepl-interrupt ()
+  "Interrupt any pending evaluations."
+  (interactive)
+  (let ((pending-request-ids (nrepl-hash-keys nrepl-requests)))
+    (dolist (request-id pending-request-ids)
+      (nrepl-interrupt-request request-id))))
+
 ;;; server
 (defun nrepl-server-filter (process output)
   (with-current-buffer (process-buffer process)
@@ -1194,7 +1228,7 @@ the buffer should appear."
         (cond (new-session
                (with-current-buffer buffer
                  (setq nrepl-session new-session)
-                 (message "new-session: %s" nrepl-session))))))))
+                 (remhash id nrepl-requests))))))))
 
 (defun nrepl-create-client-session (process)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
