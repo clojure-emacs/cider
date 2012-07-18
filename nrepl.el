@@ -109,6 +109,9 @@
 (put 'nrepl-propertize-region 'lisp-indent-function 1)
 
 ;; buffer local declarations
+(defvar nrepl-session nil
+  "Current nREPL session id.")
+
 (defvar nrepl-input-start-mark)
 
 (defvar nrepl-prompt-start-mark)
@@ -145,7 +148,7 @@ joined together.")
   (mapcar #'make-variable-buffer-local variables))
 
 (nrepl-make-variables-buffer-local
- 'nrepl-connection-process
+ 'nrepl-session
  'nrepl-input-start-mark
  'nrepl-prompt-start-mark
  'nrepl-request-counter
@@ -693,7 +696,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "M-n") 'nrepl-next-input)
     map))
 
-(defvar nrepl-connection-process nil)
+
 
 (defun clojure-enable-nrepl ()
   (nrepl-interaction-mode t))
@@ -898,12 +901,15 @@ buffer."
 
 (defun nrepl-send-string (input ns callback)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
+         (session-id (with-current-buffer "*nrepl-connection*"
+                       nrepl-session))
          (message (concat
                    "d"
                    (apply 'concat
                           (mapcar 'nrepl-netstring
                                   (list "op" "eval"
                                         "id" request-id
+                                        "session" session-id
                                         "ns" ns
                                         "code" input)))
                    "e")))
@@ -1180,6 +1186,29 @@ the buffer should appear."
     (message "Starting nREPL server...")))
 
 ;;; client
+
+(defun nrepl-new-session-handler (buffer)
+  (lexical-let ((buffer buffer))
+    (lambda (response)
+      (nrepl-dbind-response response (id new-session)
+        (cond (new-session
+               (with-current-buffer buffer
+                 (setq nrepl-session new-session)
+                 (message "new-session: %s" nrepl-session))))))))
+
+(defun nrepl-create-client-session (process)
+  (let* ((request-id (number-to-string (incf nrepl-request-counter)))
+         (message (concat
+                   "d"
+                   (apply 'concat
+                          (mapcar 'nrepl-netstring
+                                  (list "id" request-id "op" "clone")))
+                   "e")))
+    (puthash request-id
+             (nrepl-new-session-handler (process-buffer process))
+             nrepl-requests)
+    (nrepl-write-message "*nrepl-connection*" message)))
+
 (defun nrepl-connect (host port)
   (message "Connecting to nREPL on %s:%s..." host port)
   (let ((process (open-network-stream "nrepl" "*nrepl-connection*" host
@@ -1187,6 +1216,7 @@ the buffer should appear."
     (set-process-filter process 'nrepl-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
+    (nrepl-create-client-session process)
     (message "Connected.  %s" (nrepl-random-words-of-inspiration))
     process))
 
