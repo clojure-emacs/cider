@@ -221,6 +221,13 @@ Empty strings and duplicates are ignored."
         (setq result (cons (nrepl-bdecode-buffer) result)))
       (nreverse result))))
 
+(defun nrepl-netstring (string)
+  (let ((size (string-bytes string)))
+    (format "%s:%s" size string)))
+
+(defun nrepl-bencode (message)
+  (concat "d" (apply 'concat (mapcar 'nrepl-netstring message)) "e"))
+
 (defun nrepl-eval-region (start end)
    "Evaluate region."
    (interactive "r")
@@ -741,10 +748,6 @@ to specific the full path to it. Localhost is assumed."
   :type 'string
   :group 'nrepl-mode)
 
-(defun nrepl-netstring (string)
-  (let ((size (string-bytes string)))
-    (format "%s:%s" size string)))
-
 (defun nrepl-show-maximum-output ()
   "Put the end of the buffer at the bottom of the window."
   (when (eobp)
@@ -893,30 +896,35 @@ buffer."
   (add-text-properties nrepl-output-start nrepl-output-end
                        '(face nrepl-output-face 
                          rear-nonsticky (face))))
+
 
-;; TODO: store these variables on the connection buffer local
-(defvar nrepl-request-continuations '()
-   "List of (ID . FUNCTION) continuations waiting for RPC results.")
+;;; server messages
+(defun nrepl-current-session ()
+  (with-current-buffer "*nrepl-connection*"
+    nrepl-session))
 
-(defvar nrepl-request-counter 0
-                           "Continuation serial number counter.")
-
-(defun nrepl-send-string (input ns callback)
+(defun nrepl-send-request (request callback)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
-         (session-id (with-current-buffer "*nrepl-connection*"
-                       nrepl-session))
-         (message (concat
-                   "d"
-                   (apply 'concat
-                          (mapcar 'nrepl-netstring
-                                  (list "op" "eval"
-                                        "id" request-id
-                                        "session" session-id
-                                        "ns" ns
-                                        "code" input)))
-                   "e")))
+         (message (nrepl-bencode (append (list "id" request-id) request))))
     (puthash request-id callback nrepl-requests)
     (nrepl-write-message "*nrepl-connection*" message)))
+
+(defun nrepl-create-client-session (callback)
+  (nrepl-send-request '("op" "clone")
+                      callback))
+
+(defun nrepl-send-interrupt (pending-request-id callback)
+  (nrepl-send-request (list "op" "interrupt"
+                            "session" (nrepl-current-session)
+                            "interrupt-id" pending-request-id)
+                      callback))
+
+(defun nrepl-send-string (input ns callback)
+  (nrepl-send-request (list "op" "eval"
+                            "session" (nrepl-current-session)
+                            "ns" ns
+                            "code" input)
+                      callback))
 
 (defun nrepl-send-input (&optional newline)
   "Goto to the end of the input and send the current input.
@@ -1154,22 +1162,6 @@ the buffer should appear."
 (defun nrepl-interrupt-handler (buffer)
   (nrepl-make-response-handler buffer nil nil nil nil))
 
-(defun nrepl-interrupt-request (pending-id)
-  (let* ((request-id (number-to-string (incf nrepl-request-counter)))
-         (session-id (with-current-buffer "*nrepl-connection*" nrepl-session))
-         (message (concat
-                   "d"
-                   (apply 'concat
-                          (mapcar 'nrepl-netstring
-                                  (list "op" "interrupt"
-                                        "interrupt-id" pending-id
-                                        "session" session-id
-                                        "id" request-id)))
-                   "e"))
-         (interrupt-callback (nrepl-interrupt-handler (current-buffer))))
-    (puthash request-id interrupt-callback nrepl-requests)
-    (nrepl-write-message "*nrepl-connection*" message)))
-
 (defun nrepl-hash-keys (hashtable)
   (let ((keys '()))
     (maphash (lambda (k v) (setq keys (cons k keys))) hashtable)
@@ -1180,7 +1172,7 @@ the buffer should appear."
   (interactive)
   (let ((pending-request-ids (nrepl-hash-keys nrepl-requests)))
     (dolist (request-id pending-request-ids)
-      (nrepl-interrupt-request request-id))))
+      (nrepl-send-interrupt request-id (nrepl-interrupt-handler (current-buffer))))))
 
 ;;; server
 (defun nrepl-server-filter (process output)
@@ -1220,28 +1212,15 @@ the buffer should appear."
     (message "Starting nREPL server...")))
 
 ;;; client
-
 (defun nrepl-new-session-handler (buffer)
   (lexical-let ((buffer buffer))
     (lambda (response)
       (nrepl-dbind-response response (id new-session)
         (cond (new-session
                (with-current-buffer buffer
+                 (message "Connected.  %s" (nrepl-random-words-of-inspiration))
                  (setq nrepl-session new-session)
                  (remhash id nrepl-requests))))))))
-
-(defun nrepl-create-client-session (process)
-  (let* ((request-id (number-to-string (incf nrepl-request-counter)))
-         (message (concat
-                   "d"
-                   (apply 'concat
-                          (mapcar 'nrepl-netstring
-                                  (list "id" request-id "op" "clone")))
-                   "e")))
-    (puthash request-id
-             (nrepl-new-session-handler (process-buffer process))
-             nrepl-requests)
-    (nrepl-write-message "*nrepl-connection*" message)))
 
 (defun nrepl-connect (host port)
   (message "Connecting to nREPL on %s:%s..." host port)
@@ -1250,8 +1229,7 @@ the buffer should appear."
     (set-process-filter process 'nrepl-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-    (nrepl-create-client-session process)
-    (message "Connected.  %s" (nrepl-random-words-of-inspiration))
+    (nrepl-create-client-session (nrepl-new-session-handler (process-buffer process)))
     process))
 
 

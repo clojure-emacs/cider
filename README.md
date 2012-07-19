@@ -39,6 +39,7 @@ Clojure buffer commands:
 * **C-x C-e**: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
 * **C-M-x**: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
 * **C-c C-r**: Evaluate the region and display the result in the echo area.
+* **C-c C-b**: Interrupt any pending evaluations.
 * **C-c C-m**: Invoke macroexpand-1 on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
 * **C-c M-m**: Invoke clojure.walk/macroexpand-all on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
 * **C-c M-n**: Switch the namespace of the repl buffer to the namespace of the current buffer.
@@ -56,6 +57,7 @@ REPL buffer commands:
 * **C-j**: Open a new line and indent.
 * **C-c M-o**: Clear the entire REPL buffer, leaving only a prompt.
 * **C-c C-o**: Remove the output of the previous evaluation from the REPL buffer.
+* **C-c C-b**: Interrupt any pending evaluations.
 
 Requirements:
 * Leiningen 2.x.
