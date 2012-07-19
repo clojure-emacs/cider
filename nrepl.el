@@ -292,7 +292,6 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-jump-to-def (var)
   "Jump to the definition of the var at point."
-  (interactive (list (nrepl-read-symbol-name "Var: ")))
   (push (list (or (buffer-file-name)
                   (current-buffer)) (point)) nrepl-jump-stack)
   (let ((form (format "((juxt (comp str clojure.java.io/resource :file)
@@ -301,6 +300,10 @@ Empty strings and duplicates are ignored."
                       var)))
     (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-jump-to-def-handler (current-buffer)))))
+
+(defun nrepl-jump (query)
+  (interactive "P")
+  (nrepl-read-symbol-name "Symbol: " 'nrepl-jump-to-def query))
 
 (defun nrepl-jump-back ()
   "Return to the location from which `nrepl-jump-to-def' was invoked."
@@ -658,7 +661,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (let ((map (make-sparse-keymap)))
     ;; TODO: this appears to bind backspace to the non-paredit backspace
     (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "M-.") 'nrepl-jump-to-def)
+    (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "M-TAB") 'nrepl-complete)
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
@@ -677,7 +680,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "M-.") 'nrepl-jump-to-def)
+    (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
     (define-key map (kbd "TAB") 'nrepl-complete)
@@ -1117,27 +1120,32 @@ the buffer should appear."
   (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) "user"
                      (apply-partially 'nrepl-ido-read-var-handler callback)))
 
-(defun nrepl-read-symbol-name (prompt &optional query)
+(defun nrepl-read-symbol-name (prompt callback &optional query)
    "Either read a symbol name or choose the one at point.
 The user is prompted if a prefix argument is in effect, if there is no
 symbol at point, or if QUERY is non-nil."
    (let ((symbol-name (nrepl-symbol-at-point)))
-     (cond ((not (or current-prefix-arg query (not symbol-name))) symbol-name)
-           (ido-mode (nrepl-ido-read-var (nrepl-current-ns)))
-           (t (read-from-minibuffer prompt symbol-name)))))
+     (cond ((not (or current-prefix-arg query (not symbol-name)))
+            (funcall callback symbol-name))
+           (ido-mode (nrepl-ido-read-var (nrepl-current-ns) callback))
+           (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
 
-;; works
-;; (nrepl-ido-read-var "user" 'message)
-;; (nrepl-ido-read-var "clojure.tools.nrepl" 'message)
-;; (nrepl-ido-read-var "" 'message)
 ;; breaks: (nrepl-ido-read-var "clojure.core" 'message)
 ;; this one is actually a bencode bug; trying to resolve a position out of range
 
-(defun nrepl-doc (symbol)
-  (interactive (list (nrepl-read-symbol-name "Symbol: ")))
+(defun nrepl-doc-handler (symbol)
   (let ((form (format "(clojure.repl/doc %s)" symbol))
         (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
-    (nrepl-send-string form (nrepl-current-ns) (nrepl-popup-eval-out-handler doc-buffer))))
+    (nrepl-send-string form (nrepl-current-ns)
+                       (nrepl-popup-eval-out-handler doc-buffer))))
+
+(defun nrepl-doc (query)
+  "Open a window with the docstring for the given entry.
+
+Defaults to the symbol at point. With prefix arg or no symbol
+under point, prompts for a var."
+  (interactive "P")
+  (nrepl-read-symbol-name "Symbol: " 'nrepl-doc-handler query))
 
 ;; TODO: implement reloading ns
 (defun nrepl-load-file (filename)
