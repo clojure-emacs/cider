@@ -1077,19 +1077,18 @@ the buffer should appear."
 (defvar nrepl-ido-current-ns nil)
 
 (defun nrepl-ido-form (ns)
-  (if (equal "" ns)
-      `(seq (into (hash-set) (for [n (all-ns)]
-                                  (str (re-find (re-pattern "[^\\.]+") (str n)) "/"))))
-    ;; TODO: should move up with backspace instead of ..
-    `(concat (if (find-ns (symbol ,ns))
-                 (map name (keys (ns-interns (symbol ,ns)))))
-             [".."]
-             (for ,(coerce `(n (all-ns)
-                               :let [n (str n)]
-                               :when (re-find (re-pattern (str "^" ,ns "\\.[^\\.]+$"))
-                                              n))
-                           'vector)
-                  (str n "/")))))
+  `(concat (if (find-ns (symbol ,ns))
+               (map name (keys (ns-interns (symbol ,ns)))))
+           (if (not= "" ,ns) [".."])
+           (->> (all-ns)
+                (map (fn [n]
+                        (re-find (re-pattern (str "^" (if (not= ,ns "")
+                                                          (str ,ns "\\."))
+                                                  "[^\\.]+"))
+                                 (str n))))
+                (filter identity)
+                (map (fn [n] (str n "/")))
+                (into (hash-set)))))
 
 (defun nrepl-ido-up-ns (ns)
   (mapconcat 'identity (butlast (split-string ns "\\.")) "."))
@@ -1108,10 +1107,8 @@ the buffer should appear."
 (defun nrepl-ido-read-var-handler (callback response)
   (nrepl-dbind-response response (value ns out err status id)
     (when value
-      (setq vvvv value)
       (let* ((targets (car (read-from-string value)))
              (selected (ido-completing-read "Var: " targets nil t)))
-        (setq sss selected)
         (nrepl-ido-select selected targets callback)))))
 
 (defun nrepl-ido-read-var (ns callback)
