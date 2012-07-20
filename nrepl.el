@@ -717,7 +717,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
   (define-key map (kbd "C-c C-l") 'nrepl-load-file)
   (define-key map (kbd "C-c C-b") 'nrepl-interrupt))
-  
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.clj\\'" . nrepl-interaction-mode))
 
