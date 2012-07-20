@@ -667,26 +667,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defvar nrepl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
-(defvar nrepl-interaction-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "M-.") 'nrepl-jump-to-def)
-    (define-key map (kbd "M-,") 'nrepl-jump-back)
-    (define-key map (kbd "M-TAB") 'nrepl-complete)
-    (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
-    (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
-    (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
-    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
-    (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
-    (define-key map (kbd "C-c C-d") 'nrepl-doc)
-    (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
-    (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
-    (define-key map (kbd "C-c C-l") 'nrepl-load-file)
-    (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
-    map))
-
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
@@ -707,18 +687,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     map))
 
-(defun clojure-enable-nrepl ()
-  (nrepl-interaction-mode t))
-
-(add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
-
-;;;###autoload
-(define-minor-mode nrepl-interaction-mode
-  "Minor mode for nrepl interaction from a Clojure buffer."
-   nil
-   " nREPL"
-   nrepl-interaction-mode-map)
-
 (defun nrepl-mode ()
   "Major mode for nREPL interactions."
   (interactive)
@@ -728,6 +696,30 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
         major-mode 'nrepl-mode)
   (set-syntax-table nrepl-mode-syntax-table)
   (run-mode-hooks 'nrepl-mode-hook))
+
+;;;###autoload
+(define-derived-mode nrepl-interaction-mode clojure-mode "nREPL-Interaction"
+  "Major mode for nrepl interaction from a Clojure buffer.")
+
+(let ((map nrepl-interaction-mode-map))
+  (define-key map (kbd "M-.") 'nrepl-jump-to-def)
+  (define-key map (kbd "M-,") 'nrepl-jump-back)
+  (define-key map (kbd "M-TAB") 'nrepl-complete)
+  (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
+  (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
+  (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
+  (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
+  (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
+  (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
+  (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
+  (define-key map (kbd "C-c C-d") 'nrepl-doc)
+  (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
+  (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
+  (define-key map (kbd "C-c C-l") 'nrepl-load-file)
+  (define-key map (kbd "C-c C-b") 'nrepl-interrupt))
+  
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.clj\\'" . nrepl-interaction-mode))
 
 ;;; communication
 (defcustom nrepl-lein-command
