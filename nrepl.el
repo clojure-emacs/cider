@@ -328,13 +328,15 @@ Empty strings and duplicates are ignored."
 (defun nrepl-complete-handler (beginning-of-symbol response)
   (nrepl-dbind-response response (value ns out err status id)
     (when value
-      (let ((completions (car (read-from-string value))))
-        (cond ((> (length completions) 1)
-               (message "Completions: %s" (mapconcat 'identity completions " ")))
-              ((= (length completions) 1)
-               (save-excursion
-                 (delete-region beginning-of-symbol (point)))
-               (insert (car completions) " ")))))))
+      (let* ((completions (car (read-from-string value)))
+             (current (buffer-substring beginning-of-symbol (point))))
+        (when completions
+          (save-excursion
+            (delete-region beginning-of-symbol (point)))
+          (insert (try-completion current completions)))
+        (if (= (length completions) 1)
+          (insert " ")
+          (message "Completions: %s" (mapconcat 'identity completions " ")))))))
 
 (defun nrepl-complete ()
   (interactive)
