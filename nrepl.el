@@ -57,7 +57,12 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defvar nrepl-version "0.1.2"
+(defcustom nrepl-connected-hook nil
+  "List of functions to call when connecting to the nREPL server."
+  :type 'hook
+  :group 'nrepl)
+
+(defvar nrepl-version "0.1.2-preview"
   "The current nrepl version.")
 
 (defface nrepl-prompt-face
@@ -748,6 +753,7 @@ to specific the full path to it. Localhost is assumed."
   :type 'string
   :group 'nrepl-mode)
 
+
 (defun nrepl-show-maximum-output ()
   "Put the end of the buffer at the bottom of the window."
   (when (eobp)
@@ -1220,7 +1226,8 @@ the buffer should appear."
                (with-current-buffer buffer
                  (message "Connected.  %s" (nrepl-random-words-of-inspiration))
                  (setq nrepl-session new-session)
-                 (remhash id nrepl-requests))))))))
+                 (remhash id nrepl-requests)
+                 (run-hooks 'nrepl-connected-hook))))))))
 
 (defun nrepl-connect (host port)
   (message "Connecting to nREPL on %s:%s..." host port)
@@ -1233,6 +1240,8 @@ the buffer should appear."
     process))
 
 
+;;;###autoload
+(add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
 
 ;;;###autoload
 (defun nrepl (port)
