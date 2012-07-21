@@ -698,10 +698,10 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;;###autoload
-(define-derived-mode nrepl-interaction-mode clojure-mode "nREPL-Interaction"
+(define-derived-mode clojure-nrepl-mode clojure-mode "Clojure-nREPL"
   "Major mode for nrepl interaction from a Clojure buffer.")
 
-(let ((map nrepl-interaction-mode-map))
+(let ((map clojure-nrepl-mode-map))
   (define-key map (kbd "M-.") 'nrepl-jump-to-def)
   (define-key map (kbd "M-,") 'nrepl-jump-back)
   (define-key map (kbd "M-TAB") 'nrepl-complete)
@@ -719,7 +719,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (define-key map (kbd "C-c C-b") 'nrepl-interrupt))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.clj\\'" . nrepl-interaction-mode))
+(add-to-list 'auto-mode-alist '("\\.clj\\'" . clojure-nrepl-mode))
 
 ;;; communication
 (defcustom nrepl-lein-command
