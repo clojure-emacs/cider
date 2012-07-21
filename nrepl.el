@@ -1208,10 +1208,14 @@ the buffer should appear."
           (clojure-enable-nrepl))))))
 
 ;;;###autoload
-(defun nrepl-jack-in ()
-  (interactive)
-  (let ((process (start-process-shell-command "nrepl-server" "*nrepl-server*"
-                                              nrepl-server-command))) 
+(defun nrepl-jack-in (prompt-project)
+  (interactive "P")
+  (let* ((cmd (if prompt-project
+                  (format "cd %s && %s" (ido-read-directory-name "Project: ")
+                          nrepl-server-command)
+                  nrepl-server-command))
+         (process (start-process-shell-command
+                   "nrepl-server" "*nrepl-server*" cmd)))
     (set-process-filter process 'nrepl-server-filter)
     (set-process-sentinel process 'nrepl-server-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
