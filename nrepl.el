@@ -328,21 +328,27 @@ Empty strings and duplicates are ignored."
 (defun nrepl-complete-handler (beginning-of-symbol response)
   (nrepl-dbind-response response (value ns out err status id)
     (when value
+      (setq vvv value)
       (let* ((completions (car (read-from-string value)))
              (current (buffer-substring beginning-of-symbol (point))))
-        (when completions
+        (if (not completions)
+            (t (message "No match."))
           (save-excursion
             (delete-region beginning-of-symbol (point)))
-          (insert (try-completion current completions)))
-        (if (= (length completions) 1)
-          (insert " ")
-          (message "Completions: %s" (mapconcat 'identity completions " ")))))))
+          (insert (try-completion current completions))
+          (if (= (length completions) 1)
+              (insert " ")
+            (message "Completions: %s"
+                     (mapconcat 'identity completions " "))))))))
 
 (defun nrepl-complete ()
   (interactive)
+  ;; TODO: need a unified way to trigger this loading at connect-time
+  ;; TODO: better error handling if dependency is missing
+  (nrepl-send-string "(require 'complete.core)" "user" 'identity)
   (let ((form (format "(complete.core/completions \"%s\" *ns*)"
                       (symbol-at-point))))
-    (nrepl-send-string form (nrepl-current-ns)
+    (nrepl-send-string form "user";(nrepl-current-ns)
                        (apply-partially 'nrepl-complete-handler
                                         (save-excursion
                                           (backward-sexp)
