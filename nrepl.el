@@ -310,7 +310,6 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-jump-to-def (var)
   "Jump to the definition of the var at point."
-  (interactive (list (nrepl-read-symbol-name "Var: ")))
   (push (list (or (buffer-file-name)
                   (current-buffer)) (point)) nrepl-jump-stack)
   (let ((form (format "((juxt (comp str clojure.java.io/resource :file)
@@ -319,6 +318,10 @@ Empty strings and duplicates are ignored."
                       var)))
     (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-jump-to-def-handler (current-buffer)))))
+
+(defun nrepl-jump (query)
+  (interactive "P")
+  (nrepl-read-symbol-name "Symbol: " 'nrepl-jump-to-def query))
 
 (defun nrepl-jump-back ()
   "Return to the location from which `nrepl-jump-to-def' was invoked."
@@ -371,6 +374,7 @@ Empty strings and duplicates are ignored."
         (cond (value
                (with-current-buffer buffer
                  (if ns
+                     ;; TODO: this isn't getting set when it needs to be
                      (setq nrepl-buffer-ns ns)))
                (if value-handler
                    (funcall value-handler buffer value)))
@@ -583,19 +587,20 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
 (defun nrepl-popup-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
+    (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-popup-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
+    (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-interactive-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval (form)
   "Evaluate the given form and print value in minibuffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-handler buffer))))
+    (nrepl-send-string form (nrepl-current-ns)
+                       (nrepl-interactive-eval-handler buffer))))
 
 (defun nrepl-eval-last-expression (&optional prefix)
   "Evaluate the expression preceding point."
@@ -674,8 +679,9 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 
 (defvar nrepl-interaction-mode-map
   (let ((map (make-sparse-keymap)))
+    ;; TODO: this appears to bind backspace to the non-paredit backspace
     (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "M-.") 'nrepl-jump-to-def)
+    (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "M-TAB") 'nrepl-complete)
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
@@ -695,7 +701,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "M-.") 'nrepl-jump-to-def)
+    (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
     (define-key map (kbd "TAB") 'nrepl-complete)
@@ -1125,21 +1131,76 @@ the buffer should appear."
          (not (equal str ""))
          (substring-no-properties str))))
 
-(defun nrepl-read-symbol-name (prompt &optional query)
-   "Either read a symbol name or choose the one at point.
- The user is prompted if a prefix argument is in effect, if there is no
- symbol at point, or if QUERY is non-nil."
-   (let ((symbol-name (nrepl-symbol-at-point)))
-     (cond ((or current-prefix-arg query (not symbol-name))
-            (read-from-minibuffer prompt symbol-name))
-           (t symbol-name))))
+;; this is horrible, but with async callbacks we can't rely on dynamic scope
+(defvar nrepl-ido-current-ns nil)
 
-;; TODO: prompt with ido?
-(defun nrepl-doc (symbol)
-  (interactive (list (nrepl-read-symbol-name "Symbol: ")))
+(defun nrepl-ido-form (ns)
+  `(concat (if (find-ns (symbol ,ns))
+               (map name (keys (ns-interns (symbol ,ns)))))
+           (if (not= "" ,ns) [".."])
+           (->> (all-ns)
+                (map (fn [n]
+                        (re-find (re-pattern (str "^" (if (not= ,ns "")
+                                                          (str ,ns "\\."))
+                                                  "[^\\.]+"))
+                                 (str n))))
+                (filter identity)
+                (map (fn [n] (str n "/")))
+                (into (hash-set)))))
+
+(defun nrepl-ido-up-ns (ns)
+  (mapconcat 'identity (butlast (split-string ns "\\.")) "."))
+
+(defun nrepl-ido-select (selected targets callback)
+  ;; TODO: immediate RET gives "" as selected for some reason
+  ;; this is an OK workaround though
+  (cond ((equal "" selected)
+         (nrepl-ido-select (car targets) targets callback))
+        ((equal "/" (substring selected -1)) ; selected a namespace
+         (nrepl-ido-read-var (substring selected 0 -1) callback))
+        ((equal ".." selected)
+         (nrepl-ido-read-var (nrepl-ido-up-ns nrepl-ido-ns) callback))
+        (t (funcall callback (concat nrepl-ido-ns "/" selected)))))
+
+(defun nrepl-ido-read-var-handler (callback response)
+  (nrepl-dbind-response response (value ns out err status id)
+    (when value
+      (let* ((targets (car (read-from-string value)))
+             (selected (ido-completing-read "Var: " targets nil t)))
+        (nrepl-ido-select selected targets callback)))))
+
+(defun nrepl-ido-read-var (ns callback)
+  ;; Have to be stateful =(
+  (setq nrepl-ido-ns ns)
+  (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) "user"
+                     (apply-partially 'nrepl-ido-read-var-handler callback)))
+
+(defun nrepl-read-symbol-name (prompt callback &optional query)
+   "Either read a symbol name or choose the one at point.
+The user is prompted if a prefix argument is in effect, if there is no
+symbol at point, or if QUERY is non-nil."
+   (let ((symbol-name (nrepl-symbol-at-point)))
+     (cond ((not (or current-prefix-arg query (not symbol-name)))
+            (funcall callback symbol-name))
+           (ido-mode (nrepl-ido-read-var (nrepl-current-ns) callback))
+           (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
+
+;; breaks: (nrepl-ido-read-var "clojure.core" 'message)
+;; this one is actually a bencode bug; trying to resolve a position out of range
+
+(defun nrepl-doc-handler (symbol)
   (let ((form (format "(clojure.repl/doc %s)" symbol))
         (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
-    (nrepl-send-string form (nrepl-current-ns) (nrepl-popup-eval-out-handler doc-buffer))))
+    (nrepl-send-string form (nrepl-current-ns)
+                       (nrepl-popup-eval-out-handler doc-buffer))))
+
+(defun nrepl-doc (query)
+  "Open a window with the docstring for the given entry.
+
+Defaults to the symbol at point. With prefix arg or no symbol
+under point, prompts for a var."
+  (interactive "P")
+  (nrepl-read-symbol-name "Symbol: " 'nrepl-doc-handler query))
 
 ;; TODO: implement reloading ns
 (defun nrepl-load-file (filename)
