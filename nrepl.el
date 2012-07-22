@@ -265,6 +265,14 @@ Empty strings and duplicates are ignored."
         (nrepl-interactive-eval-print form)
         (nrepl-interactive-eval form))))
 
+(defun nrepl-eval-ns-form ()
+  "Evaluate the current buffer's namespace form."
+  (interactive)
+  (when (clojure-find-ns)
+    (save-excursion
+      (goto-char (match-beginning 0))
+      (nrepl-eval-expression-at-point))))
+
 (defun nrepl-last-expression ()
   (buffer-substring-no-properties
    (save-excursion (backward-sexp) (point))
@@ -682,6 +690,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
+    (define-key map (kbd "C-c C-n") 'nrepl-eval-ns-form)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
