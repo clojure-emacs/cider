@@ -1186,12 +1186,11 @@ the buffer should appear."
 ;;;###autoload
 (defun nrepl-enable-on-existing-clojure-buffers ()
   (interactive)
-  (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
   (save-window-excursion
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
         (when (eq major-mode 'clojure-mode)
-          (clojure-enable-nrepl))))))
+          (clojure-nrepl-mode))))))
 
 ;;;###autoload
 (defun nrepl-jack-in ()
