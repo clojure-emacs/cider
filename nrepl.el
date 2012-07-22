@@ -736,7 +736,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 
 ;;; communication
 (defcustom nrepl-lein-command
-  "lein2"
+  "lein"
   "The command used to execute leiningen 2.x."
   :type 'string
   :group 'nrepl-mode)
