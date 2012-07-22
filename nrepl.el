@@ -835,7 +835,7 @@ Return the position of the prompt beginning."
           (funcall callback response)))))
 
 (defun nrepl-net-decode ()
-  "Decode the data in the current buffer, any remove the processed data from the
+  "Decode the data in the current buffer and remove the processed data from the
 buffer if the decode successful."
   (let* ((start (point-min))
          (end (point-max))
@@ -846,14 +846,13 @@ buffer if the decode successful."
 
 (defun nrepl-net-process-input (process)
   "Process all complete messages.
-Assume that any error during decoding means an incomplete message."
+Assume that any error during decoding indicates an incomplete message."
   (with-current-buffer (process-buffer process)
-    (condition-case data
+    (ignore-errors
         (while (> (buffer-size) 1)
           (let ((responses (nrepl-net-decode)))
             (dolist (response responses)
-              (nrepl-dispatch response))))
-      (error))))
+              (nrepl-dispatch response)))))))
 
 (defun nrepl-net-filter (process string)
   "Decode the message(s) and dispatch."
