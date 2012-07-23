@@ -45,6 +45,7 @@
 (require 'clojure-mode)
 (require 'thingatpt)
 (require 'arc-mode)
+(require 'ansi-color)
 (eval-when-compile
   (require 'cl))
 
@@ -375,7 +376,7 @@ Empty strings and duplicates are ignored."
                 (stderr-handler stderr-handler)
                 (done-handler done-handler))
     (lambda (response)
-      (nrepl-dbind-response response (value ns out err status id)
+      (nrepl-dbind-response response (value ns out err status id ex root-ex)
         (cond (value
                (with-current-buffer buffer
                  (if ns
@@ -391,6 +392,8 @@ Empty strings and duplicates are ignored."
               (status
                (if (member "interrupted" status)
                    (message "Evaluation interrupted."))
+               (if (member "eval-error" status)
+                   (nrepl-err-handler buffer ex root-ex))
                (if (member "done" status)
                    (progn (remhash id nrepl-requests)
                           (if done-handler
@@ -443,6 +446,18 @@ Empty strings and duplicates are ignored."
                                (lambda (buffer str)
                                  (nrepl-emit-into-popup-buffer buffer str))
                                '()))
+
+(defun nrepl-err-handler (buffer ex root-ex)
+  ;; TODO: use pst+ here for colorization. currently breaks bencode.
+  ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
+  (with-current-buffer buffer
+    (nrepl-send-string "(if-let [pst+ (resolve 'clj-stacktrace.repl/pst)]
+                        (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
+                       nrepl-buffer-ns
+                       (nrepl-make-response-handler
+                        (nrepl-popup-buffer "*nREPL error*" t)
+                        nil
+                        'nrepl-emit-into-color-buffer nil nil))))
 
 ;;;; Popup buffers
 (defvar nrepl-popup-restore-data nil
@@ -536,6 +551,14 @@ Empty strings and duplicates are ignored."
       (insert (format "%s" value))
       (indent-sexp)
       (font-lock-fontify-buffer))))
+
+(defun nrepl-emit-into-color-buffer (buffer value)
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t)
+          (buffer-undo-list t))
+      (insert (format "%s" value))
+      (ansi-color-apply-on-region (point-min) (point-max)))
+    (goto-char (point-min))))
 
 
 ;;;; Macroexpansion
