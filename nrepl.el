@@ -339,26 +339,43 @@ Empty strings and duplicates are ignored."
         (find-file file-or-buffer))
       (goto-char point))))
 
-(defun nrepl-complete-handler (beginning-of-symbol response)
-  (nrepl-dbind-response response (value ns out err status id)
-    (when value
-      (let ((completions (car (read-from-string value))))
-        (cond ((> (length completions) 1)
-               (message "Completions: %s" (mapconcat 'identity completions " ")))
-              ((= (length completions) 1)
-               (save-excursion
-                 (delete-region beginning-of-symbol (point)))
-               (insert (car completions) " ")))))))
+
+(defun nrepl-perform-complete (buffer beginning-of-symbol value)
+  (with-current-buffer buffer
+    (let* ((completions (car (read-from-string value)))
+           (current (buffer-substring-no-properties beginning-of-symbol (point))))
+      (if (not completions)
+          (message "No match.")
+        (let ((try (try-completion current completions)))
+          (if (char-or-string-p try)
+              (progn
+                (save-excursion
+                  (delete-region beginning-of-symbol (point)))
+                (insert (try-completion current completions))))
+          (if (= (length completions) 1)
+              (insert " ")
+            (message "Completions: %s"
+                     (mapconcat 'identity completions " "))))))))
+
+(defun nrepl-complete-handler (buffer beginning-of-symbol)
+  (lexical-let ((beginning-of-symbol beginning-of-symbol))
+    (nrepl-make-response-handler buffer
+                                 (lambda (buffer value)
+                                   (nrepl-perform-complete buffer beginning-of-symbol value))
+                                 nil nil nil)))
 
 (defun nrepl-complete ()
   (interactive)
+  ;; TODO: need a unified way to trigger this loading at connect-time
+  ;; TODO: better error handling if dependency is missing
+  (nrepl-send-string "(require 'complete.core)" "user" 'identity)
   (let ((form (format "(complete.core/completions \"%s\" *ns*)"
                       (symbol-at-point))))
-    (nrepl-send-string form (nrepl-current-ns)
-                       (apply-partially 'nrepl-complete-handler
-                                        (save-excursion
-                                          (backward-sexp)
-                                          (point))))))
+    (nrepl-send-string form nrepl-buffer-ns (nrepl-complete-handler
+                                             (current-buffer)
+                                             (save-excursion
+                                               (backward-sexp)
+                                               (point))))))
 
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
@@ -1182,7 +1199,8 @@ the buffer should appear."
   (interactive (list (nrepl-read-symbol-name "Symbol: ")))
   (let ((form (format "(clojure.repl/doc %s)" symbol))
         (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
-    (nrepl-send-string form (nrepl-current-ns) (nrepl-popup-eval-out-handler doc-buffer))))
+    (nrepl-send-string form nrepl-buffer-ns
+                       (nrepl-popup-eval-out-handler doc-buffer))))
 
 ;; TODO: implement reloading ns
 (defun nrepl-load-file (filename)
