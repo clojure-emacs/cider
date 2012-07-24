@@ -64,6 +64,10 @@ Requirements:
 * clojure-mode
 * Has only been tested on emacs 24.
 
+## Contributing
+* Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
+* Please report issues on the [GitHub issue tracker](https://github.com/kingtim/nrepl.el/issues) or the mailing list.
+
 ## License
 
 Copyright © 2012 Tim King, Phil Hagelberg
