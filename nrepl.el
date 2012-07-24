@@ -739,6 +739,10 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     map))
 
+(defun nrepl-enable-if-connected ()
+  (when (get-buffer "*nrepl-connection*")
+    (clojure-nrepl-mode t)))
+
 (defun nrepl-mode ()
   "Major mode for nREPL interactions."
   (interactive)
@@ -1260,6 +1264,7 @@ the buffer should appear."
 ;;;###autoload
 (defun nrepl-enable-on-existing-clojure-buffers ()
   (interactive)
+  (add-hook 'clojure-mode-hook 'nrepl-enable-if-connected)
   (save-window-excursion
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
