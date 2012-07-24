@@ -1,15 +1,14 @@
 # nrepl.el
 
-An Emacs client for [NRepl](https://github.com/clojure/tools.nrepl),
-the Clojure networked repl server.
-
-A work in progress.
+An Emacs client for [nREPL](https://github.com/clojure/tools.nrepl),
+the Clojure networked REPL server.
 
 ## Installation
 
-Available on the marmalade repo.
+Available on the [Marmalade repo](http://marmalade-repo.org/packages/nrepl).
 
-Add this to your ~/.emacs.d/init.el:
+If you're not already using Marmalade, add this to your
+`~/.emacs.d/init.el` and load it with `M-x eval-buffer`.
 
 ```lisp
 (require 'package)
@@ -18,7 +17,7 @@ Add this to your ~/.emacs.d/init.el:
 (package-initialize)
 ```
 
-And then
+And then you can install:
 
 `M-x package-install [RET] nrepl [RET]`
 
@@ -29,12 +28,17 @@ or
   (package-install 'nrepl))
 ```
 
-## Current status
+On Emacs 23 you will need to get [package.el](http://bit.ly/pkg-el23)
+yourself or install manually by placing `nrepl.el` on your `load-path`
+and `require`ing it.
 
-* **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.  This will also enable nrepl minor mode on clojure-mode buffers.
+## Keys
 
+* **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.
+    Prompts for a project root if given a prefix argument.
+* **M-x nrepl**: Connect to an already-running nrepl server.
 
-Clojure buffer commands:
+### Clojure buffer commands:
 
 * **C-x C-e**: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
 * **C-M-x**: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
@@ -50,7 +54,7 @@ Clojure buffer commands:
 * **M-.**: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
 * **M-,**: Return to your pre-jump location.
 
-REPL buffer commands:
+### REPL buffer commands:
 
 * **RET**: Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
 * **C-RET**: Close any unmatched parenthesis and then evaluate the current input in Clojure.  Also bound to M-RET.
@@ -59,10 +63,11 @@ REPL buffer commands:
 * **C-c C-o**: Remove the output of the previous evaluation from the REPL buffer.
 * **C-c C-b**: Interrupt any pending evaluations.
 
-Requirements:
-* Leiningen 2.x.
-* clojure-mode
-* Has only been tested on emacs 24.
+## Requirements:
+
+* [Leiningen](http://leiningen.org) 2.x
+* [clojure-mode](https://github.com/technomancy/clojure-mode)
+* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html)
 
 ## Contributing
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
@@ -70,6 +75,6 @@ Requirements:
 
 ## License
 
-Copyright © 2012 Tim King, Phil Hagelberg
+Copyright © 2012 Tim King, Phil Hagelberg, and contributors.
 
 Distributed under the GNU General Public License, version 3
