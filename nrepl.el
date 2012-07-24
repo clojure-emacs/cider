@@ -339,7 +339,6 @@ Empty strings and duplicates are ignored."
         (find-file file-or-buffer))
       (goto-char point))))
 
-
 (defun nrepl-perform-complete (buffer beginning-of-symbol value)
   (with-current-buffer buffer
     (let* ((completions (car (read-from-string value)))
