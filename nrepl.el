@@ -836,8 +836,6 @@ Return the position of the prompt beginning."
                                    (insert-before-markers string)))))
     (nrepl-show-maximum-output)))
 
-
-
 (defun nrepl-dispatch (response)
   "Dispatch the response to associated callback."
   (nrepl-dbind-response response (id)
@@ -845,11 +843,32 @@ Return the position of the prompt beginning."
       (if callback
           (funcall callback response)))))
 
-(defun nrepl-filter (process string)
+(defun nrepl-net-decode ()
+  "Decode the data in the current buffer and remove the processed data from the
+buffer if the decode successful."
+  (let* ((start (point-min))
+         (end (point-max))
+         (data (buffer-substring start end)))
+    (prog1
+        (nrepl-decode data)
+        (delete-region start end))))
+
+(defun nrepl-net-process-input (process)
+  "Process all complete messages.
+Assume that any error during decoding indicates an incomplete message."
+  (with-current-buffer (process-buffer process)
+    (ignore-errors
+        (while (> (buffer-size) 1)
+          (let ((responses (nrepl-net-decode)))
+            (dolist (response responses)
+              (nrepl-dispatch response)))))))
+
+(defun nrepl-net-filter (process string)
   "Decode the message(s) and dispatch."
-  (let ((responses (nrepl-decode string)))
-    (dolist (response responses)
-      (nrepl-dispatch response))))
+  (with-current-buffer (process-buffer process)
+    (goto-char (point-max))
+    (insert string))
+  (nrepl-net-process-input process))
 
 (defun nrepl-sentinel (process message)
   (message "nrepl connection closed: %s" message)
@@ -1246,7 +1265,7 @@ the buffer should appear."
   (message "Connecting to nREPL on %s:%s..." host port)
   (let ((process (open-network-stream "nrepl" "*nrepl-connection*" host
                                       port)))
-    (set-process-filter process 'nrepl-filter)
+    (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (nrepl-create-client-session (nrepl-new-session-handler (process-buffer process)))
