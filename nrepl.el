@@ -326,7 +326,7 @@ Empty strings and duplicates are ignored."
                               (comp str clojure.java.io/file :file) :line)
                         (meta (resolve '%s)))"
                       var)))
-    (nrepl-send-string form (nrepl-current-ns)
+    (nrepl-send-string form nrepl-buffer-ns
                        (nrepl-jump-to-def-handler (current-buffer)))))
 
 (defun nrepl-jump-back ()
@@ -342,19 +342,27 @@ Empty strings and duplicates are ignored."
 (defun nrepl-complete-handler (beginning-of-symbol response)
   (nrepl-dbind-response response (value ns out err status id)
     (when value
-      (let ((completions (car (read-from-string value))))
-        (cond ((> (length completions) 1)
-               (message "Completions: %s" (mapconcat 'identity completions " ")))
-              ((= (length completions) 1)
-               (save-excursion
-                 (delete-region beginning-of-symbol (point)))
-               (insert (car completions) " ")))))))
+      (setq vvv value)
+      (let* ((completions (car (read-from-string value)))
+             (current (buffer-substring beginning-of-symbol (point))))
+        (if (not completions)
+            (t (message "No match."))
+          (save-excursion
+            (delete-region beginning-of-symbol (point)))
+          (insert (try-completion current completions))
+          (if (= (length completions) 1)
+              (insert " ")
+            (message "Completions: %s"
+                     (mapconcat 'identity completions " "))))))))
 
 (defun nrepl-complete ()
   (interactive)
+  ;; TODO: need a unified way to trigger this loading at connect-time
+  ;; TODO: better error handling if dependency is missing
+  (nrepl-send-string "(require 'complete.core)" "user" 'identity)
   (let ((form (format "(complete.core/completions \"%s\" *ns*)"
                       (symbol-at-point))))
-    (nrepl-send-string form (nrepl-current-ns)
+    (nrepl-send-string form nrepl-buffer-ns
                        (apply-partially 'nrepl-complete-handler
                                         (save-excursion
                                           (backward-sexp)
@@ -1182,7 +1190,8 @@ the buffer should appear."
   (interactive (list (nrepl-read-symbol-name "Symbol: ")))
   (let ((form (format "(clojure.repl/doc %s)" symbol))
         (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
-    (nrepl-send-string form (nrepl-current-ns) (nrepl-popup-eval-out-handler doc-buffer))))
+    (nrepl-send-string form nrepl-buffer-ns
+                       (nrepl-popup-eval-out-handler doc-buffer))))
 
 ;; TODO: implement reloading ns
 (defun nrepl-load-file (filename)
