@@ -63,7 +63,7 @@
   :type 'hook
   :group 'nrepl)
 
-(defvar nrepl-version "0.1.2-preview"
+(defvar nrepl-version "0.1.2"
   "The current nrepl version.")
 
 (defface nrepl-prompt-face
