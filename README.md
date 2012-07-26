@@ -62,7 +62,7 @@ REPL buffer commands:
 Requirements:
 * Leiningen 2.x.
 * clojure-mode
-* Has only been tested on emacs 24.
+* Tested on Emacs 23 and 24.
 
 ## Contributing
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
