@@ -1,9 +1,10 @@
 ;;; nrepl.el --- Client for Clojure nREPL -*- lexical-binding: t -*-
 
-;; Copyright © 2012 Tim King, Phil Hagelberg
+;; Copyright © 2012 Tim King, Phil Hagelberg, Stefan Kamphausen
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
+;;         Stefan Kamphausen <http://www.skamphausen.de>
 ;; URL: http://www.github.com/kingtim/nrepl.el
 ;; Version: 0.1.2
 ;; Keywords: languages, clojure, nrepl
@@ -375,6 +376,29 @@ Empty strings and duplicates are ignored."
                                              (save-excursion
                                                (backward-sexp)
                                                (point))))))
+
+(defun nrepl-eldoc-handler (buffer the-thing)
+  (lexical-let ((thing the-thing))
+    (nrepl-make-response-handler 
+     buffer
+     (lambda (buffer value)
+       (when (not (string-equal value "nil"))
+         (message (format "%s: %s" thing value))))
+       nil nil nil)))
+
+(defun nrepl-eldoc ()
+  "Backend function for eldoc to show argument list in the echo area."
+  ;; TODO: if symbol at point has no arglist, search for function name
+  ;; in surrounding sexp.
+  (let* ((thing (nrepl-symbol-at-point))
+         (form (format "(try
+                         (:arglists 
+                          (meta (resolve (read-string \"%s\"))))
+                         (catch Throwable t nil))" thing)))
+    (when thing
+        (nrepl-send-string form (nrepl-current-ns) 
+                           (nrepl-eldoc-handler (current-buffer)
+                                                thing)))))
 
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
@@ -751,7 +775,9 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 
 ;;;###autoload
 (define-derived-mode clojure-nrepl-mode clojure-mode "Clojure-nREPL"
-  "Major mode for nrepl interaction from a Clojure buffer.")
+  "Major mode for nrepl interaction from a Clojure buffer."
+  (make-local-variable 'eldoc-documentation-function)
+  (setq eldoc-documentation-function 'nrepl-eldoc))
 
 (let ((map clojure-nrepl-mode-map))
   (define-key map (kbd "M-.") 'nrepl-jump-to-def)
