@@ -319,8 +319,6 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-jump-to-def (var)
   "Jump to the definition of the var at point."
-  (push (list (or (buffer-file-name)
-                  (current-buffer)) (point)) nrepl-jump-stack)
   (let ((form (format "((juxt (comp str clojure.java.io/resource :file)
                               (comp str clojure.java.io/file :file) :line)
                         (meta (resolve '%s)))"
@@ -330,6 +328,8 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-jump (query)
   (interactive "P")
+  (push (list (or (buffer-file-name)
+                  (current-buffer)) (point)) nrepl-jump-stack)
   (nrepl-read-symbol-name "Symbol: " 'nrepl-jump-to-def query))
 
 (defun nrepl-jump-back ()
@@ -1261,9 +1261,6 @@ symbol at point, or if QUERY is non-nil."
             (funcall callback symbol-name))
            (ido-mode (nrepl-ido-read-var nrepl-buffer-ns callback))
            (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
-
-;; breaks: (nrepl-ido-read-var "clojure.core" 'message)
-;; this one is actually a bencode bug; trying to resolve a position out of range
 
 (defun nrepl-doc-handler (symbol)
   (let ((form (format "(clojure.repl/doc %s)" symbol))
