@@ -722,25 +722,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defvar nrepl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
-(defvar nrepl-interaction-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "M-.") 'nrepl-jump)
-    (define-key map (kbd "M-,") 'nrepl-jump-back)
-    (define-key map (kbd "M-TAB") 'nrepl-complete)
-    (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
-    (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
-    (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
-    (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
-    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
-    (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
-    (define-key map (kbd "C-c C-d") 'nrepl-doc)
-    (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
-    (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
-    (define-key map (kbd "C-c C-l") 'nrepl-load-file)
-    map))
-
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
