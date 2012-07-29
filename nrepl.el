@@ -390,7 +390,7 @@ Empty strings and duplicates are ignored."
   "Backend function for eldoc to show argument list in the echo area."
   ;; TODO: if symbol at point has no arglist, search for function name
   ;; in surrounding sexp.
-  (let* ((thing (nrepl-symbol-at-point))
+  (let* ((thing (nrepl-operator-before-point))
          (form (format "(try
                          (:arglists 
                           (meta (resolve (read-string \"%s\"))))
@@ -1209,6 +1209,13 @@ the buffer should appear."
     (and str
          (not (equal str ""))
          (substring-no-properties str))))
+
+(defun nrepl-operator-before-point ()
+  (ignore-errors
+    (save-excursion
+      (backward-up-list 1)
+      (down-list 1)
+      (nrepl-symbol-at-point))))
 
 (defun nrepl-read-symbol-name (prompt &optional query)
    "Either read a symbol name or choose the one at point.
