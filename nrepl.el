@@ -377,19 +377,28 @@ Empty strings and duplicates are ignored."
                                                (backward-sexp)
                                                (point))))))
 
+(defun nrepl-eldoc-format-thing (thing)
+  (propertize thing 'face 'font-lock-function-name-face))
+
+(defun nrepl-eldoc-format-arglist (arglist)
+  ;; TODO: find out which arglist variant is in use and which argument
+  ;; is currently under point.  Highlight that argument
+  ;; for now:
+  arglist)
+
 (defun nrepl-eldoc-handler (buffer the-thing)
   (lexical-let ((thing the-thing))
     (nrepl-make-response-handler 
      buffer
      (lambda (buffer value)
        (when (not (string-equal value "nil"))
-         (message (format "%s: %s" thing value))))
+         (message (format "%s: %s" 
+                          (nrepl-eldoc-format-thing thing) 
+                          (nrepl-eldoc-format-arglist value)))))
        nil nil nil)))
 
 (defun nrepl-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
-  ;; TODO: if symbol at point has no arglist, search for function name
-  ;; in surrounding sexp.
   (let* ((thing (nrepl-operator-before-point))
          (form (format "(try
                          (:arglists 
@@ -399,6 +408,11 @@ Empty strings and duplicates are ignored."
         (nrepl-send-string form (nrepl-current-ns) 
                            (nrepl-eldoc-handler (current-buffer)
                                                 thing)))))
+
+(defun nrepl-eldoc-enable-in-current-buffer ()
+  (make-local-variable 'eldoc-documentation-function)
+  (setq eldoc-documentation-function 'nrepl-eldoc)
+  (turn-on-eldoc-mode))
 
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
@@ -771,13 +785,13 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (setq mode-name "nREPL"
         major-mode 'nrepl-mode)
   (set-syntax-table nrepl-mode-syntax-table)
+  (nrepl-eldoc-enable-in-current-buffer)
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;;###autoload
 (define-derived-mode clojure-nrepl-mode clojure-mode "Clojure-nREPL"
   "Major mode for nrepl interaction from a Clojure buffer."
-  (make-local-variable 'eldoc-documentation-function)
-  (setq eldoc-documentation-function 'nrepl-eldoc))
+  (nrepl-eldoc-enable-in-current-buffer))
 
 (let ((map clojure-nrepl-mode-map))
   (define-key map (kbd "M-.") 'nrepl-jump-to-def)
