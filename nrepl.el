@@ -330,10 +330,7 @@ Empty strings and duplicates are ignored."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-jump-to-def query))
 
-(defun nrepl-jump-back ()
-  "Return to the location from which `nrepl-jump-to-def' was invoked."
-  (interactive)
-  (pop-tag-mark))
+(defalias 'nrepl-jump-back 'pop-tag-mark)
 
 (defun nrepl-perform-complete (buffer beginning-of-symbol value)
   (with-current-buffer buffer
