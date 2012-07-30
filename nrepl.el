@@ -132,6 +132,9 @@ joined together.")
 (defvar nrepl-output-end
   "Marker for the end of output.")
 
+(defvar nrepl-sync-response nil
+  "Result of the last sync request.")
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
@@ -146,7 +149,8 @@ joined together.")
  'nrepl-input-history
  'nrepl-current-input-history-index
  'nrepl-output-start
- 'nrepl-output-end)
+ 'nrepl-output-end
+ 'nrepl-sync-response)
 
 (defun nrepl-add-to-input-history (string)
   "Add STRING to the input history.
@@ -1034,6 +1038,42 @@ buffer."
                             "ns" ns
                             "code" input)
                       callback))
+
+(defun nrepl-sync-request-handler (buffer)
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (setq nrepl-sync-response
+                                       (plist-put nrepl-sync-response :value value)))
+                               (lambda (buffer out)
+                                 (let ((so-far (plist-get :stdout nrepl-sync-response)))
+                                   (setq nrepl-sync-response
+                                         (plist-put nrepl-sync-response
+                                                    :stdout (concat so-far out)))))
+                               (lambda (buffer err)
+                                 (let ((so-far (plist-get :stderr nrepl-sync-response)))
+                                   (setq nrepl-sync-response
+                                         (plist-put nrepl-sync-response
+                                                    :stderr (concat so-far err)))))
+                               (lambda (buffer)
+                                 (setq nrepl-sync-response
+                                       (plist-put nrepl-sync-response :done t)))))
+
+(defun nrepl-send-request-sync (request)
+  "Send a request to the backend synchronously (discouraged).
+The result is a plist with keys :value, :stderr and :stdout."
+  (with-current-buffer "*nrepl-connection*"
+    (setq nrepl-sync-response nil)
+    (nrepl-send-request request (nrepl-sync-request-handler (current-buffer)))
+    (while (null nrepl-sync-response)
+      (accept-process-output nil 0 5))
+    nrepl-sync-response))
+
+(defun nrepl-send-string-sync (input ns)
+  (nrepl-send-request-sync (list "op" "eval"
+                                 "session" (nrepl-current-session)
+                                 "ns" ns
+                                 "code" input)))
+
 
 (defun nrepl-send-input (&optional newline)
   "Goto to the end of the input and send the current input.
