@@ -44,6 +44,7 @@
 
 (require 'clojure-mode)
 (require 'thingatpt)
+(require 'etags)
 (require 'arc-mode)
 (require 'ansi-color)
 (eval-when-compile
@@ -146,9 +147,6 @@ joined together.")
 
 (defvar nrepl-output-end
   "Marker for the end of output.")
-
-(defvar nrepl-jump-stack nil
-  "Stack of locations visited with `nrepl-jump-to-def'.")
 
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
@@ -311,6 +309,8 @@ Empty strings and duplicates are ignored."
   ;; TODO: got to be a simpler way to do this
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
+                                 (with-current-buffer buffer
+                                   (ring-insert find-tag-marker-ring (point-marker)))
                                  (nrepl-jump-to-def-for
                                   (car (read-from-string value))))
                                (lambda (buffer out) (message out))
@@ -328,19 +328,9 @@ Empty strings and duplicates are ignored."
 
 (defun nrepl-jump (query)
   (interactive "P")
-  (push (list (or (buffer-file-name)
-                  (current-buffer)) (point)) nrepl-jump-stack)
   (nrepl-read-symbol-name "Symbol: " 'nrepl-jump-to-def query))
 
-(defun nrepl-jump-back ()
-  "Return to the location from which `nrepl-jump-to-def' was invoked."
-  (interactive)
-  (when nrepl-jump-stack
-    (destructuring-bind (file-or-buffer point) (pop nrepl-jump-stack)
-      (if (bufferp file-or-buffer)
-          (switch-to-buffer file-or-buffer)
-        (find-file file-or-buffer))
-      (goto-char point))))
+(defalias 'nrepl-jump-back 'pop-tag-mark)
 
 (defun nrepl-perform-complete (buffer beginning-of-symbol value)
   (with-current-buffer buffer
