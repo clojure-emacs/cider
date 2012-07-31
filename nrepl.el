@@ -464,7 +464,7 @@ Empty strings and duplicates are ignored."
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
                        nrepl-buffer-ns
                        (nrepl-make-response-handler
-                        (nrepl-popup-buffer "*nREPL error*" t)
+                        nil
                         nil
                         'nrepl-emit-into-color-buffer nil nil))))
 
