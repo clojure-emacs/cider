@@ -369,6 +369,43 @@ Empty strings and duplicates are ignored."
                                                (backward-sexp)
                                                (point))))))
 
+(defun nrepl-eldoc-format-thing (thing)
+  (propertize thing 'face 'font-lock-function-name-face))
+
+(defun nrepl-eldoc-format-arglist (arglist)
+  ;; TODO: find out which arglist variant is in use and which argument
+  ;; is currently under point.  Highlight that argument
+  ;; for now:
+  arglist)
+
+(defun nrepl-eldoc-handler (buffer the-thing)
+  (lexical-let ((thing the-thing))
+    (nrepl-make-response-handler 
+     buffer
+     (lambda (buffer value)
+       (when (not (string-equal value "nil"))
+         (message (format "%s: %s" 
+                          (nrepl-eldoc-format-thing thing) 
+                          (nrepl-eldoc-format-arglist value)))))
+       nil nil nil)))
+
+(defun nrepl-eldoc ()
+  "Backend function for eldoc to show argument list in the echo area."
+  (let* ((thing (nrepl-operator-before-point))
+         (form (format "(try
+                         (:arglists 
+                          (meta (resolve (read-string \"%s\"))))
+                         (catch Throwable t nil))" thing)))
+    (when thing
+        (nrepl-send-string form (nrepl-current-ns) 
+                           (nrepl-eldoc-handler (current-buffer)
+                                                thing)))))
+
+(defun nrepl-eldoc-enable-in-current-buffer ()
+  (make-local-variable 'eldoc-documentation-function)
+  (setq eldoc-documentation-function 'nrepl-eldoc)
+  (turn-on-eldoc-mode))
+
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
   "Destructure an nREPL response dict."
@@ -773,6 +810,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (setq mode-name "nREPL"
         major-mode 'nrepl-mode)
   (set-syntax-table nrepl-mode-syntax-table)
+  (nrepl-eldoc-enable-in-current-buffer)
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;; communication
@@ -1232,6 +1270,13 @@ the buffer should appear."
   (setq nrepl-ido-ns ns)
   (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) nrepl-buffer-ns
                      (nrepl-ido-read-var-handler ido-callback (current-buffer))))
+
+(defun nrepl-operator-before-point ()
+  (ignore-errors
+    (save-excursion
+      (backward-up-list 1)
+      (down-list 1)
+      (nrepl-symbol-at-point))))
 
 (defun nrepl-read-symbol-name (prompt callback &optional query)
    "Either read a symbol name or choose the one at point.
