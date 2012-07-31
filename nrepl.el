@@ -1179,8 +1179,10 @@ Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear."
   (interactive)
-  (pop-to-buffer (nrepl-repl-buffer))
-  (goto-char (point-max)))
+  (if (not (get-buffer "*nrepl-connection*"))
+      (message "No active nREPL connection.")
+    (pop-to-buffer (nrepl-repl-buffer))
+    (goto-char (point-max))))
 
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to ns."
