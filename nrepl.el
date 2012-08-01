@@ -1350,12 +1350,15 @@ under point, prompts for a var."
       (nrepl port))))
 
 (defun nrepl-server-sentinel (process event)
-  (let ((debug-on-error t))
-    (error "Could not start nREPL server: %s"
-           (let ((b (process-buffer process)))
-             (if (and b (buffer-live-p b))
-                 (with-current-buffer b
-                   (buffer-substring (point-min) (point-max))))))))
+  (let* ((b (process-buffer process))
+         (problem (if (and b (buffer-live-p b))
+                      (with-current-buffer b
+                        (buffer-substring (point-min) (point-max))))))
+    (when b
+      (kill-buffer b))
+    (if (string-match "Wrong number of arguments to repl task." problem)
+        (error "nrepl.el requires Leiningen 2.x")
+      (error "Could not start nREPL server: %s" problem))))
 
 ;;;###autoload
 (defun nrepl-enable-on-existing-clojure-buffers ()
