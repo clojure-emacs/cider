@@ -424,10 +424,22 @@ Empty strings and duplicates are ignored."
                    (message "Evaluation interrupted."))
                (if (member "eval-error" status)
                    (nrepl-err-handler buffer ex root-ex))
+               (if (member "need-input" status)
+                   (nrepl-need-input buffer))
                (if (member "done" status)
                    (progn (remhash id nrepl-requests)
                           (if done-handler
                               (funcall done-handler buffer))))))))))
+
+(defun nrepl-stdin-handler (buffer)
+  (nrepl-make-response-handler buffer
+                                (lambda (buffer value)
+                                 (nrepl-emit-result buffer value t))
+                                (lambda (buffer out)
+                                  (nrepl-emit-output buffer out t))
+                                (lambda (buffer err)
+                                  (nrepl-emit-output buffer err t))
+                                nil))
 
 (defun nrepl-handler (buffer)
   (nrepl-make-response-handler buffer
@@ -488,6 +500,11 @@ Empty strings and duplicates are ignored."
                         (nrepl-popup-buffer "*nREPL error*" t)
                         nil
                         'nrepl-emit-into-color-buffer nil nil))))
+
+(defun nrepl-need-input (buffer)
+  (with-current-buffer buffer
+    (nrepl-send-stdin (concat (read-from-minibuffer "Stdin: ") "\n")
+                      (nrepl-stdin-handler buffer))))
 
 ;;;; Popup buffers
 (defvar nrepl-popup-restore-data nil
@@ -777,8 +794,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 (defun clojure-enable-nrepl ()
   (nrepl-interaction-mode t))
 
-(add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
-
 ;;;###autoload
 (define-minor-mode nrepl-interaction-mode
   "Minor mode for nrepl interaction from a Clojure buffer."
@@ -999,6 +1014,12 @@ buffer."
 
 (defun nrepl-create-client-session (callback)
   (nrepl-send-request '("op" "clone")
+                      callback))
+
+(defun nrepl-send-stdin (input callback)
+  (nrepl-send-request (list "op" "stdin"
+                            "stdin" input
+                            "session" (nrepl-current-session))
                       callback))
 
 (defun nrepl-send-interrupt (pending-request-id callback)
