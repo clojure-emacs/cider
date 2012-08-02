@@ -50,10 +50,6 @@
 (eval-when-compile
   (require 'cl))
 
-(defun nrepl-face-inheritance-possible-p ()
-  "Return true if the :inherit face attribute is supported."
-  (assq :inherit custom-face-attributes))
-
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
   :prefix "nrepl-"
@@ -68,29 +64,17 @@
   "The current nrepl version.")
 
 (defface nrepl-prompt-face
-  (if (nrepl-face-inheritance-possible-p)
-      '((t (:inherit font-lock-keyword-face)))
-    '((((class color) (background light)) (:foreground "Purple"))
-      (((class color) (background dark)) (:foreground "Cyan"))
-      (t (:weight bold))))
+  '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the nREPL client."
   :group 'nrepl)
 
 (defface nrepl-output-face
-  (if (nrepl-face-inheritance-possible-p)
-      '((t (:inherit font-lock-string-face)))
-    '((((class color) (background light)) (:foreground "RosyBrown"))
-      (((class color) (background dark)) (:foreground "LightSalmon"))
-      (t (:slant italic))))
+  '((t (:inherit font-lock-string-face)))
   "Face for output in the nREPL client."
   :group 'nrepl)
 
 (defface nrepl-error-face
-  (if (nrepl-face-inheritance-possible-p)
-      '((t (:inherit font-lock-string-face)))
-    '((((class color) (background light)) (:foreground "RosyBrown"))
-      (((class color) (background dark)) (:foreground "LightSalmon"))
-      (t (:slant italic))))
+  '((t (:inherit font-lock-string-face)))
   "Face for errors in the nREPL client."
   :group 'nrepl)
 
@@ -368,6 +352,43 @@ Empty strings and duplicates are ignored."
                                              (save-excursion
                                                (backward-sexp)
                                                (point))))))
+
+(defun nrepl-eldoc-format-thing (thing)
+  (propertize thing 'face 'font-lock-function-name-face))
+
+(defun nrepl-eldoc-format-arglist (arglist)
+  ;; TODO: find out which arglist variant is in use and which argument
+  ;; is currently under point.  Highlight that argument
+  ;; for now:
+  arglist)
+
+(defun nrepl-eldoc-handler (buffer the-thing)
+  (lexical-let ((thing the-thing))
+    (nrepl-make-response-handler 
+     buffer
+     (lambda (buffer value)
+       (when (not (string-equal value "nil"))
+         (message (format "%s: %s" 
+                          (nrepl-eldoc-format-thing thing) 
+                          (nrepl-eldoc-format-arglist value)))))
+       nil nil nil)))
+
+(defun nrepl-eldoc ()
+  "Backend function for eldoc to show argument list in the echo area."
+  (let* ((thing (nrepl-operator-before-point))
+         (form (format "(try
+                         (:arglists 
+                          (meta (resolve (read-string \"%s\"))))
+                         (catch Throwable t nil))" thing)))
+    (when thing
+        (nrepl-send-string form (nrepl-current-ns) 
+                           (nrepl-eldoc-handler (current-buffer)
+                                                thing)))))
+
+(defun nrepl-eldoc-enable-in-current-buffer ()
+  (make-local-variable 'eldoc-documentation-function)
+  (setq eldoc-documentation-function 'nrepl-eldoc)
+  (turn-on-eldoc-mode))
 
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
@@ -788,6 +809,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (setq mode-name "nREPL"
         major-mode 'nrepl-mode)
   (set-syntax-table nrepl-mode-syntax-table)
+  (nrepl-eldoc-enable-in-current-buffer)
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;; communication
@@ -1254,6 +1276,13 @@ the buffer should appear."
   (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns)) nrepl-buffer-ns
                      (nrepl-ido-read-var-handler ido-callback (current-buffer))))
 
+(defun nrepl-operator-before-point ()
+  (ignore-errors
+    (save-excursion
+      (backward-up-list 1)
+      (down-list 1)
+      (nrepl-symbol-at-point))))
+
 (defun nrepl-read-symbol-name (prompt callback &optional query)
    "Either read a symbol name or choose the one at point.
 The user is prompted if a prefix argument is in effect, if there is no
@@ -1326,12 +1355,15 @@ under point, prompts for a var."
       (nrepl port))))
 
 (defun nrepl-server-sentinel (process event)
-  (let ((debug-on-error t))
-    (error "Could not start nREPL server: %s"
-           (let ((b (process-buffer process)))
-             (if (and b (buffer-live-p b))
-                 (with-current-buffer b
-                   (buffer-substring (point-min) (point-max))))))))
+  (let* ((b (process-buffer process))
+         (problem (if (and b (buffer-live-p b))
+                      (with-current-buffer b
+                        (buffer-substring (point-min) (point-max))))))
+    (when b
+      (kill-buffer b))
+    (if (string-match "Wrong number of arguments to repl task." problem)
+        (error "nrepl.el requires Leiningen 2.x")
+      (error "Could not start nREPL server: %s" problem))))
 
 ;;;###autoload
 (defun nrepl-enable-on-existing-clojure-buffers ()
