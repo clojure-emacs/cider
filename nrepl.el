@@ -50,10 +50,6 @@
 (eval-when-compile
   (require 'cl))
 
-(defun nrepl-face-inheritance-possible-p ()
-  "Return true if the :inherit face attribute is supported."
-  (assq :inherit custom-face-attributes))
-
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
   :prefix "nrepl-"
@@ -68,29 +64,17 @@
   "The current nrepl version.")
 
 (defface nrepl-prompt-face
-  (if (nrepl-face-inheritance-possible-p)
-      '((t (:inherit font-lock-keyword-face)))
-    '((((class color) (background light)) (:foreground "Purple"))
-      (((class color) (background dark)) (:foreground "Cyan"))
-      (t (:weight bold))))
+  '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the nREPL client."
   :group 'nrepl)
 
 (defface nrepl-output-face
-  (if (nrepl-face-inheritance-possible-p)
-      '((t (:inherit font-lock-string-face)))
-    '((((class color) (background light)) (:foreground "RosyBrown"))
-      (((class color) (background dark)) (:foreground "LightSalmon"))
-      (t (:slant italic))))
+  '((t (:inherit font-lock-string-face)))
   "Face for output in the nREPL client."
   :group 'nrepl)
 
 (defface nrepl-error-face
-  (if (nrepl-face-inheritance-possible-p)
-      '((t (:inherit font-lock-string-face)))
-    '((((class color) (background light)) (:foreground "RosyBrown"))
-      (((class color) (background dark)) (:foreground "LightSalmon"))
-      (t (:slant italic))))
+  '((t (:inherit font-lock-string-face)))
   "Face for errors in the nREPL client."
   :group 'nrepl)
 
