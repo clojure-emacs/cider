@@ -126,6 +126,9 @@ joined together.")
 (defvar nrepl-input-history-index 0
   "Current position in the history list.")
 
+(defvar nrepl-input-history-items-added 0
+  "Variable counting the items added in the current session.")
+
 (defvar nrepl-output-start nil
   "Marker for the start of output.")
 
@@ -144,6 +147,7 @@ joined together.")
  'nrepl-old-input-counter
  'nrepl-buffer-ns
  'nrepl-input-history
+ 'nrepl-input-history-items-added
  'nrepl-current-input-history-index
  'nrepl-output-start
  'nrepl-output-end)
@@ -681,7 +685,8 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
 Empty strings and duplicates are ignored."
   (unless (or (equal string "")
               (equal string (car nrepl-input-history)))
-    (push string nrepl-input-history)))
+    (push string nrepl-input-history)
+    (incf nrepl-input-history-items-added)))
 
 (defun nrepl-delete-current-input ()
   "Delete all text after the prompt."
@@ -726,11 +731,11 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (interactive)
   (nrepl-history-replace 'forward))
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;; working on persistent hist
-;; make sure to move things around later
+;;; persistent history
 (defvar nrepl-history-size 500)
 (defvar nrepl-history-file "~/.nrepl-history.eld")
+
+
 
 (defun nrepl-history-read-filename ()
   "Ask the user which file to use, defaulting `nrepl-history-file`."
@@ -763,7 +768,9 @@ The value of `nrepl-input-history` is set by this function."
   "Write history to FILENAME.
 Currently coding system for writing the contents is hardwired to
 utf-8-unix." 
-  (let* ((mhist (nrepl-histories-merge nrepl-input-history nil))
+  (let* ((mhist (nrepl-histories-merge nrepl-input-history 
+                                       nrepl-input-history-items-added
+                                       (nrepl-history-read filename)))
          ;; newest items are at the beginning of the list, thus 0
          (hist  (subseq mhist 0 (min (length mhist) nrepl-history-size))))
     (unless (file-writable-p filename)
@@ -791,8 +798,13 @@ This function is meant to be used in hooks to avoid lambda
   (nrepl-history-save nrepl-history-file))
 
 ;; SLIME has different semantics and will not save any duplicates.
-(defun nrepl-histories-merge (session-hist file-hist)
-  (append session-hist))
+;; we keep track of how many items were added to the history in the
+;; current session in nrepl-add-to-input-history and merge only the
+;; new items with the current history found in the file, which may
+;; have been changed in the meantime by another session 
+(defun nrepl-histories-merge (session-hist n-added-items file-hist)
+  (append (subseq session-hist 0 n-added-items)
+          file-hist))
 
 ;;;
 (defun nrepl-same-line-p (pos1 pos2)
