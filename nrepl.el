@@ -1146,12 +1146,13 @@ balanced."
 (defun nrepl-current-ns ()
   "Return the ns in the current context.
 Use `nrepl-buffer-ns' when in a repl buffer, otherwise search for
-and read a `ns' form."
+and read a `ns' form. Fall back to \"user\" if none is found."
   (if (equal major-mode 'nrepl-mode)
       nrepl-buffer-ns
     (save-restriction
       (widen)
-      (clojure-find-ns))))
+      (or (clojure-find-ns)
+          "user"))))
 
 ;; Words of inspiration
 (defun nrepl-user-first-name ()
