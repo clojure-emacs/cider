@@ -1315,7 +1315,8 @@ under point, prompts for a var."
                                          (file-name-nondirectory
                                           (buffer-file-name))))))
    (let ((fn (convert-standard-filename (expand-file-name filename))))
-     (nrepl-interactive-eval (format "(clojure.core/load-file \"%s\")\n" fn))
+     (nrepl-interactive-eval
+      (format "(clojure.core/load-file \"%s\")\n(in-ns '%s)\n" fn (nrepl-current-ns)))
      (message "Loading %s..." fn)))
 
 (defun nrepl-load-current-buffer ()
