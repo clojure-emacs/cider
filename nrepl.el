@@ -1003,8 +1003,17 @@ buffer."
 
 ;;; server messages
 (defun nrepl-current-session ()
-  (with-current-buffer "*nrepl-connection*"
-    nrepl-session))
+  (if nrepl-auto-reconnect
+      ;; If the connection buffer cannot be found, attempt synchronously to
+      ;; reconnect and signal an error if that fails.
+      (if (or (get-buffer "*nrepl-connection*") (nrepl-sync-connect))
+	  (with-current-buffer "*nrepl-connection*"
+	    nrepl-session)
+	(error "Could not auto reconnect."))
+
+    (with-current-buffer "*nrepl-connection*"
+      nrepl-session)) )
+
 
 (defun nrepl-send-request (request callback)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
@@ -1411,6 +1420,19 @@ under point, prompts for a var."
     (nrepl-create-client-session (nrepl-new-session-handler (process-buffer process)))
     process))
 
+
+(defun nrepl-sync-connect ()
+  "Attempts to reconnect and waits for ack.
+Silently returns nil on failure to reconnect."
+  (condition-case e
+      (let ((proc (nrepl-connect nrepl-host nrepl-port)))
+	;; Wait for the ack for at most 1 second.
+	(when proc (accept-process-output proc 1 0))
+	proc)
+    (file-error nil) ;; Ignore silently, return nil
+    ))
+
+
 
 ;;;###autoload
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
@@ -1421,6 +1443,17 @@ under point, prompts for a var."
   (let ((nrepl-buffer (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*")))
         (process (nrepl-connect "localhost" port)))
     (nrepl-init-repl-buffer process nrepl-buffer)))
+
+
+(defvar nrepl-host "localhost"
+  "Default value for hostname to connect to.")
+
+(defvar nrepl-port 4006
+  "Default value for port to connect to.")
+
+(defvar nrepl-auto-reconnect nil
+  "Attempt to reconnect automatically if the connection has failed.")
+
 
 (provide 'nrepl)
 ;;; nrepl.el ends here
