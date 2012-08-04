@@ -63,6 +63,15 @@
 (defvar nrepl-version "0.1.3-preview"
   "The current nrepl version.")
 
+(defvar nrepl-host "localhost"
+  "Default value for hostname to connect to.")
+
+(defvar nrepl-port 4006
+  "Default value for port to connect to.")
+
+(defvar nrepl-auto-reconnect nil
+  "Attempt to reconnect automatically if the connection has failed.")
+
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the nREPL client."
@@ -1443,16 +1452,6 @@ Silently returns nil on failure to reconnect."
   (let ((nrepl-buffer (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*")))
         (process (nrepl-connect "localhost" port)))
     (nrepl-init-repl-buffer process nrepl-buffer)))
-
-
-(defvar nrepl-host "localhost"
-  "Default value for hostname to connect to.")
-
-(defvar nrepl-port 4006
-  "Default value for port to connect to.")
-
-(defvar nrepl-auto-reconnect nil
-  "Attempt to reconnect automatically if the connection has failed.")
 
 
 (provide 'nrepl)
