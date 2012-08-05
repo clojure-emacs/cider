@@ -132,6 +132,13 @@ joined together.")
 (defvar nrepl-output-end
   "Marker for the end of output.")
 
+(defcustom nrepl-popup-stacktraces t
+  "Non-nil means pop-up error stacktraces.
+   Nil means do not, useful when in repl"
+  :type 'boolean
+  :group 'nrepl)
+
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
@@ -492,14 +499,21 @@ Empty strings and duplicates are ignored."
 (defun nrepl-err-handler (buffer ex root-ex)
   ;; TODO: use pst+ here for colorization. currently breaks bencode.
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
-  (with-current-buffer buffer
-    (nrepl-send-string "(if-let [pst+ (resolve 'clj-stacktrace.repl/pst)]
+  (if (or nrepl-popup-stacktraces
+          (not (eq 'nrepl-mode 
+                   (cdr (assq 'major-mode 
+                              (buffer-local-variables buffer))))))
+      (with-current-buffer buffer
+        (nrepl-send-string "(if-let [pst+ (resolve 'clj-stacktrace.repl/pst)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
-                       nrepl-buffer-ns
-                       (nrepl-make-response-handler
-                        (nrepl-popup-buffer "*nREPL error*" t)
-                        nil
-                        'nrepl-emit-into-color-buffer nil nil))))
+                           nrepl-buffer-ns
+                           (nrepl-make-response-handler
+                            (nrepl-popup-buffer "*nREPL error*" t)
+                            nil
+                            'nrepl-emit-into-color-buffer nil nil)))
+    ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
+    ;; can pull up with a hotkey only when interested in seeing it?
+    ))
 
 (defun nrepl-need-input (buffer)
   (with-current-buffer buffer
