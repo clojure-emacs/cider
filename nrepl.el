@@ -661,19 +661,20 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
 (defun nrepl-popup-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
+    (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-popup-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given form and print value in current buffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns
+    (nrepl-send-string form (nrepl-current-ns)
                        (nrepl-interactive-eval-print-handler buffer))))
 
 (defun nrepl-interactive-eval (form)
   "Evaluate the given form and print value in minibuffer."
   (let ((buffer (current-buffer)))
-    (nrepl-send-string form nrepl-buffer-ns (nrepl-interactive-eval-handler buffer))))
+    (nrepl-send-string
+     form (nrepl-current-ns) (nrepl-interactive-eval-handler buffer))))
 
 (defun nrepl-eval-last-expression (&optional prefix)
   "Evaluate the expression preceding point."
