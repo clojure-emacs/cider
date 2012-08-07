@@ -381,7 +381,7 @@ Empty strings and duplicates are ignored."
                           (meta (resolve (read-string \"%s\"))))
                          (catch Throwable t nil))" thing)))
     (when thing
-        (nrepl-send-string form (nrepl-current-ns) 
+        (nrepl-send-string form nrepl-buffer-ns
                            (nrepl-eldoc-handler (current-buffer)
                                                 thing)))))
 
