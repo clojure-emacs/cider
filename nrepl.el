@@ -126,6 +126,9 @@ joined together.")
 (defvar nrepl-input-history-index 0
   "Current position in the history list.")
 
+(defvar nrepl-input-history-items-added 0
+  "Variable counting the items added in the current session.")
+
 (defvar nrepl-output-start nil
   "Marker for the start of output.")
 
@@ -144,16 +147,10 @@ joined together.")
  'nrepl-old-input-counter
  'nrepl-buffer-ns
  'nrepl-input-history
+ 'nrepl-input-history-items-added
  'nrepl-current-input-history-index
  'nrepl-output-start
  'nrepl-output-end)
-
-(defun nrepl-add-to-input-history (string)
-  "Add STRING to the input history.
-Empty strings and duplicates are ignored."
-  (unless (or (equal string "")
-              (equal string (car nrepl-input-history)))
-    (push string nrepl-input-history)))
 
 (defun nrepl-reset-markers ()
   (dolist (markname '(nrepl-output-start
@@ -683,6 +680,14 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
       (nrepl-interactive-eval (nrepl-last-expression))))
 
 ;;;;; History
+(defun nrepl-add-to-input-history (string)
+  "Add STRING to the input history.
+Empty strings and duplicates are ignored."
+  (unless (or (equal string "")
+              (equal string (car nrepl-input-history)))
+    (push string nrepl-input-history)
+    (incf nrepl-input-history-items-added)))
+
 (defun nrepl-delete-current-input ()
   "Delete all text after the prompt."
   (interactive)
@@ -726,6 +731,92 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (interactive)
   (nrepl-history-replace 'forward))
 
+;;; persistent history
+(defcustom nrepl-history-size 500
+  "The maximum number of items to keep in the REPL history." 
+  :type 'integer
+  :safe 'integerp
+  :group 'nrepl-mode)
+
+(defcustom nrepl-history-file "~/.nrepl-history.eld"
+  "File to save the persistent REPL history to."
+  :type 'string
+  :safe 'stringp
+  :group 'nrepl-mode)
+
+
+
+
+(defun nrepl-history-read-filename ()
+  "Ask the user which file to use, defaulting `nrepl-history-file`."
+  (read-file-name "Use nREPL history file: "
+                  nrepl-history-file))
+
+(defun nrepl-history-read (filename)
+  "Read history from FILE and return it.
+Does not yet set the input history."
+  (if (file-readable-p filename)
+      (with-temp-buffer 
+        (insert-file-contents filename)
+        (read (current-buffer)))
+    '()))
+
+(defun nrepl-history-load (&optional filename)
+  "Load history from FILENAME into current session.
+FILENAME defaults to the value of `nrepl-history-file` but user
+defined filenames can be used to read special history files.
+
+The value of `nrepl-input-history` is set by this function."
+  (interactive (list (nrepl-history-read-filename)))
+  (let ((f (or filename nrepl-history-file)))
+    ;; TODO: probably need to set nrepl-input-history-index as well.
+    ;; in a fresh connection the newest item in the list is currently
+    ;; not available.  After sending one input, everything seems to work.
+    (setq nrepl-input-history (nrepl-history-read f))))
+
+(defun nrepl-history-write (filename)
+  "Write history to FILENAME.
+Currently coding system for writing the contents is hardwired to
+utf-8-unix." 
+  (let* ((mhist (nrepl-histories-merge nrepl-input-history 
+                                       nrepl-input-history-items-added
+                                       (nrepl-history-read filename)))
+         ;; newest items are at the beginning of the list, thus 0
+         (hist  (subseq mhist 0 (min (length mhist) nrepl-history-size))))
+    (unless (file-writable-p filename)
+      (error (format "History file not writable: %s" filename)))
+    (let ((print-length nil) (print-level nil))
+      (with-temp-file filename
+        ;; TODO: really set cs for output
+        ;; TODO: does cs need to be customizable?
+        (insert ";; -*- coding: utf-8-unix -*-\n")
+        (insert ";; Automatically written history of nREPL session\n")
+        (insert ";; Edit at your own risk\n\n")
+        (prin1 (mapcar #'substring-no-properties hist) (current-buffer))))))
+
+(defun nrepl-history-save (&optional filename)
+  "Save the current nREPL input history to FILENAME.
+FILENAME defaults to the value of `nrepl-history-file`."
+  (interactive (list (nrepl-history-read-filename)))
+  (let* ((file  (or filename nrepl-history-file)))
+    (nrepl-history-write file)))
+
+(defun nrepl-history-just-save ()
+  "Just save the history to `nrepl-history-file`.
+This function is meant to be used in hooks to avoid lambda
+  constructs."
+  (nrepl-history-save nrepl-history-file))
+
+;; SLIME has different semantics and will not save any duplicates.
+;; we keep track of how many items were added to the history in the
+;; current session in nrepl-add-to-input-history and merge only the
+;; new items with the current history found in the file, which may
+;; have been changed in the meantime by another session 
+(defun nrepl-histories-merge (session-hist n-added-items file-hist)
+  (append (subseq session-hist 0 n-added-items)
+          file-hist))
+
+;;;
 (defun nrepl-same-line-p (pos1 pos2)
    "Return t if buffer positions POS1 and POS2 are on the same line."
    (save-excursion (goto-char (min pos1 pos2))
@@ -810,6 +901,11 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
         major-mode 'nrepl-mode)
   (set-syntax-table nrepl-mode-syntax-table)
   (nrepl-eldoc-enable-in-current-buffer)
+  (when nrepl-history-file
+    (nrepl-history-load nrepl-history-file)
+    (make-local-variable 'kill-buffer-hook)
+    (add-hook 'kill-buffer-hook 'nrepl-history-just-save)
+    (add-hook 'kill-emacs-hook 'nrepl-history-just-save))
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;; communication
