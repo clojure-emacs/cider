@@ -732,8 +732,18 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   (nrepl-history-replace 'forward))
 
 ;;; persistent history
-(defvar nrepl-history-size 500)
-(defvar nrepl-history-file "~/.nrepl-history.eld")
+(defcustom nrepl-history-size 500
+  "The maximum number of items to keep in the REPL history." 
+  :type 'integer
+  :safe 'integerp
+  :group 'nrepl-mode)
+
+(defcustom nrepl-history-file "~/.nrepl-history.eld"
+  "File to save the persistent REPL history to."
+  :type 'string
+  :safe 'stringp
+  :group 'nrepl-mode)
+
 
 
 
