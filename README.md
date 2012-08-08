@@ -68,6 +68,7 @@ and `require`ing it.
 * [Leiningen](http://leiningen.org) 2.x
 * [clojure-mode](https://github.com/technomancy/clojure-mode)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html)
+* Tested on Emacs 23 and 24.
 
 ## Contributing
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
@@ -75,6 +76,6 @@ and `require`ing it.
 
 ## License
 
-Copyright © 2012 Tim King, Phil Hagelberg, and contributors.
+Copyright © 2012 Tim King, Phil Hagelberg and contributors.
 
 Distributed under the GNU General Public License, version 3
