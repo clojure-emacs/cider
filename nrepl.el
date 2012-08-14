@@ -503,9 +503,33 @@ joined together.")
                         'nrepl-emit-into-color-buffer nil nil))))
 
 (defun nrepl-need-input (buffer)
-  (with-current-buffer buffer
-    (nrepl-send-stdin (concat (read-from-minibuffer "Stdin: ") "\n")
-                      (nrepl-stdin-handler buffer))))
+  (nrepl-pop-to-stdin-buffer))
+
+(defvar nrepl-pre-stdin-window-configuration nil)
+
+(defun nrepl-pop-to-stdin-buffer ()
+  (let ((buf (get-buffer-create "*nREPL stdin*")))
+    (setq nrepl-pre-stdin-window-configuration (current-window-configuration))
+    (pop-to-buffer buf)
+    (nrepl-stdin-edit-mode)
+    (message "Type C-c C-c to enter.")))
+
+(defun nrepl-stdin-edit-done ()
+  (interactive)
+  (nrepl-send-stdin (concat (buffer-string) "\n")
+                    (nrepl-stdin-handler (get-buffer "*nrepl*")))
+  (kill-buffer)
+  (when nrepl-pre-stdin-window-configuration
+    (set-window-configuration nrepl-pre-stdin-window-configuration)
+    (setq nrepl-pre-stdin-window-configuration nil)))
+
+(defvar nrepl-stdin-edit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'nrepl-stdin-edit-done)
+    map))
+
+(define-derived-mode nrepl-stdin-edit-mode text-mode "nREPL stdin")
+
 
 ;;;; Popup buffers
 (defvar nrepl-popup-restore-data nil
