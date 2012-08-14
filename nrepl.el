@@ -875,6 +875,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "TAB") 'nrepl-complete)
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
+    (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-o") 'nrepl-clear-output)
     (define-key map (kbd "C-c M-o") 'nrepl-clear-buffer)
     (define-key map "\C-a" 'nrepl-bol)
