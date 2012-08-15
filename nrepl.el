@@ -604,6 +604,7 @@ joined together.")
   (with-current-buffer buffer
     (let ((inhibit-read-only t)
           (buffer-undo-list t))
+      (goto-char (point-max))
       (insert (format "%s" value))
       (ansi-color-apply-on-region (point-min) (point-max)))
     (goto-char (point-min))))
