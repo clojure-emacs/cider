@@ -1143,12 +1143,12 @@ buffer."
                                  (setq nrepl-sync-response
                                        (plist-put nrepl-sync-response :value value)))
                                (lambda (buffer out)
-                                 (let ((so-far (plist-get :stdout nrepl-sync-response)))
+                                 (let ((so-far (plist-get nrepl-sync-response :stdout)))
                                    (setq nrepl-sync-response
                                          (plist-put nrepl-sync-response
                                                     :stdout (concat so-far out)))))
                                (lambda (buffer err)
-                                 (let ((so-far (plist-get :stderr nrepl-sync-response)))
+                                 (let ((so-far (plist-get nrepl-sync-response :stderr)))
                                    (setq nrepl-sync-response
                                          (plist-put nrepl-sync-response
                                                     :stderr (concat so-far err)))))
