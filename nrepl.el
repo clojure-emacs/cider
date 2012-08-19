@@ -60,7 +60,7 @@
   :type 'hook
   :group 'nrepl)
 
-(defvar nrepl-version "0.1.3-preview"
+(defvar nrepl-version "0.1.3"
   "The current nrepl version.")
 
 (defface nrepl-prompt-face
@@ -761,9 +761,6 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   :type 'string
   :safe 'stringp
   :group 'nrepl-mode)
-
-
-
 
 (defun nrepl-history-read-filename ()
   "Ask the user which file to use, defaulting `nrepl-history-file`."
