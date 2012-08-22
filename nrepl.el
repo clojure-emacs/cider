@@ -138,6 +138,9 @@ joined together.")
 (defvar nrepl-sync-response nil
   "Result of the last sync request.")
 
+(defvar nrepl-err-handler 'nrepl-default-err-handler
+  "Evaluation error handler")
+
 (defcustom nrepl-popup-stacktraces t
   "Non-nil means pop-up error stacktraces.
    Nil means do not, useful when in repl"
@@ -410,7 +413,7 @@ joined together.")
                (if (member "interrupted" status)
                    (message "Evaluation interrupted."))
                (if (member "eval-error" status)
-                   (nrepl-err-handler buffer ex root-ex))
+                   (funcall nrepl-err-handler buffer ex root-ex))
                (if (member "need-input" status)
                    (nrepl-need-input buffer))
                (if (member "done" status)
@@ -476,7 +479,7 @@ joined together.")
                                  (nrepl-emit-into-popup-buffer buffer str))
                                '()))
 
-(defun nrepl-err-handler (buffer ex root-ex)
+(defun nrepl-default-err-handler (buffer ex root-ex)
   ;; TODO: use pst+ here for colorization. currently breaks bencode.
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (if (or nrepl-popup-stacktraces
@@ -1447,7 +1450,9 @@ under point, prompts for a var."
                                  nil (if (buffer-file-name)
                                          (file-name-nondirectory
                                           (buffer-file-name))))))
-   (let ((fn (convert-standard-filename (expand-file-name filename))))
+   (let ((fn (replace-regexp-in-string
+        "\\\\" "\\\\\\\\"
+	      (convert-standard-filename (expand-file-name filename)))))
      (nrepl-interactive-eval
       (format "(clojure.core/load-file \"%s\")\n(in-ns '%s)\n" fn (nrepl-current-ns)))
      (message "Loading %s..." fn)))
