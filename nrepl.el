@@ -348,15 +348,18 @@ joined together.")
   (let ((form (format "(complete.core/completions \"%s\" *ns*)"
                       (symbol-at-point)))
 	(beginning-of-symbol (ignore-errors (save-excursion (backward-sexp) (point)))))
-    (when beginning-of-symbol
+    (when (and beginning-of-symbol (not (in-string-p)))
       (nrepl-send-string form nrepl-buffer-ns (nrepl-complete-handler
 					       (current-buffer)
 					       beginning-of-symbol))
       ;; FIXME: To make that work correctly, we have to ensure that the complete
       ;; handler has already finished!  The below is a poor-man's approach in
       ;; doing that...
-      (while (not nrepl--completion-done)
-	(sit-for 0.05))
+      (let ((i 0))
+	(while (and (not nrepl--completion-done)
+		    (< i 20))
+	  (setq i (1+ i))
+	  (sit-for 0.05)))
       (let ((completions nrepl--current-completions))
 	(setq nrepl--completion-done nil)
 	completions))))
