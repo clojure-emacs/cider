@@ -328,16 +328,17 @@ joined together.")
   ;; TODO: need a unified way to trigger this loading at connect-time
   ;; TODO: better error handling if dependency is missing
   (nrepl-send-string "(require 'complete.core)" "user" 'identity)
-  (let ((form (format "(complete.core/completions \"%s\" *ns*)"
-                      (symbol-at-point)))
-	;; This might error, for example if point _ is in (_)
-	(beginning-of-symbol (ignore-errors (save-excursion (backward-sexp) (point)))))
-    (when (and beginning-of-symbol (not (in-string-p)))
-      (let ((completions (car (read-from-string
-			       (plist-get (nrepl-send-string-sync form nrepl-buffer-ns)
-					  :value)))))
-	(when completions
-	  (list beginning-of-symbol (point) completions))))))
+  (let ((sap (symbol-at-point)))
+    (when sap
+      (let ((form (format "(complete.core/completions \"%s\" *ns*)" sap))
+	    ;; This might error, for example if point _ is in (_)
+	    (beginning-of-symbol (ignore-errors (save-excursion (backward-sexp) (point)))))
+	(when (and beginning-of-symbol (not (in-string-p)))
+	  (let ((completions (car (read-from-string
+				   (plist-get (nrepl-send-string-sync form nrepl-buffer-ns)
+					      :value)))))
+	    (when completions
+	      (list beginning-of-symbol (point) completions))))))))
 
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
