@@ -28,6 +28,10 @@ or
   (package-install 'nrepl))
 ```
 
+If installation doesn't work try refreshing package list first:
+
+`M-x package-refresh-contents [RET]`
+
 On Emacs 23 you will need to get [package.el](http://bit.ly/pkg-el23)
 yourself or install manually by placing `nrepl.el` on your `load-path`
 and `require`ing it.
