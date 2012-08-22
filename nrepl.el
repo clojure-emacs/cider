@@ -323,42 +323,21 @@ joined together.")
 
 (defalias 'nrepl-jump-back 'pop-tag-mark)
 
-(defun nrepl-perform-complete (buffer beginning-of-symbol value)
-  (with-current-buffer buffer
-    (let* ((completions (car (read-from-string value)))
-           (current (buffer-substring-no-properties beginning-of-symbol (point))))
-      (if (not completions)
-          (message "No match.")
-        (let ((try (try-completion current completions)))
-          (if (char-or-string-p try)
-              (progn
-                (save-excursion
-                  (delete-region beginning-of-symbol (point)))
-                (insert (try-completion current completions))))
-          (if (= (length completions) 1)
-              (insert " ")
-            (message "Completions: %s"
-                     (mapconcat 'identity completions " "))))))))
-
-(defun nrepl-complete-handler (buffer beginning-of-symbol)
-  (lexical-let ((beginning-of-symbol beginning-of-symbol))
-    (nrepl-make-response-handler buffer
-                                 (lambda (buffer value)
-                                   (nrepl-perform-complete buffer beginning-of-symbol value))
-                                 nil nil nil)))
-
-(defun nrepl-complete ()
+(defun nrepl-complete-at-point ()
   (interactive)
   ;; TODO: need a unified way to trigger this loading at connect-time
   ;; TODO: better error handling if dependency is missing
   (nrepl-send-string "(require 'complete.core)" "user" 'identity)
   (let ((form (format "(complete.core/completions \"%s\" *ns*)"
-                      (symbol-at-point))))
-    (nrepl-send-string form nrepl-buffer-ns (nrepl-complete-handler
-                                             (current-buffer)
-                                             (save-excursion
-                                               (backward-sexp)
-                                               (point))))))
+                      (symbol-at-point)))
+	;; This might error, for example if point _ is in (_)
+	(beginning-of-symbol (ignore-errors (save-excursion (backward-sexp) (point)))))
+    (when (and beginning-of-symbol (not (in-string-p)))
+      (let ((completions (car (read-from-string
+			       (plist-get (nrepl-send-string-sync form nrepl-buffer-ns)
+					  :value)))))
+	(when completions
+	  (list beginning-of-symbol (point) completions))))))
 
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
@@ -858,10 +837,9 @@ This function is meant to be used in hooks to avoid lambda
 
 (defvar nrepl-interaction-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
-    (define-key map (kbd "M-TAB") 'nrepl-complete)
+    (define-key map (kbd "M-TAB") 'complete-symbol)
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
     (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
@@ -883,7 +861,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
-    (define-key map (kbd "TAB") 'nrepl-complete)
+    (define-key map (kbd "TAB") 'complete-symbol)
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
@@ -906,7 +884,10 @@ This function is meant to be used in hooks to avoid lambda
   "Minor mode for nrepl interaction from a Clojure buffer."
    nil
    " nREPL"
-   nrepl-interaction-mode-map)
+   nrepl-interaction-mode-map
+   (make-local-variable 'completion-at-point-functions)
+   (add-to-list 'completion-at-point-functions
+		'nrepl-complete-at-point))
 
 (defun nrepl-mode ()
   "Major mode for nREPL interactions."
@@ -915,6 +896,9 @@ This function is meant to be used in hooks to avoid lambda
   (use-local-map nrepl-mode-map)
   (setq mode-name "nREPL"
         major-mode 'nrepl-mode)
+  (make-local-variable 'completion-at-point-functions)
+  (add-to-list 'completion-at-point-functions
+	       'nrepl-complete-at-point)
   (set-syntax-table nrepl-mode-syntax-table)
   (nrepl-eldoc-enable-in-current-buffer)
   (when nrepl-history-file
