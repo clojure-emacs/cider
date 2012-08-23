@@ -330,18 +330,16 @@ joined together.")
   (interactive)
   ;; TODO: need a unified way to trigger this loading at connect-time
   ;; TODO: better error handling if dependency is missing
-  (nrepl-send-string "(require 'complete.core)" "user" 'identity)
   (let ((sap (symbol-at-point)))
-    (when sap
+    (when (and sap (not (in-string-p)))
+      (nrepl-send-string "(require 'complete.core)" "user" 'identity)
       (let ((form (format "(complete.core/completions \"%s\" *ns*)" sap))
-	    ;; This might error, for example if point _ is in (_)
-	    (beginning-of-symbol (ignore-errors (save-excursion (backward-sexp) (point)))))
-	(when (and beginning-of-symbol (not (in-string-p)))
-	  (let ((completions (car (read-from-string
-				   (plist-get (nrepl-send-string-sync form nrepl-buffer-ns)
-					      :value)))))
-	    (when completions
-	      (list beginning-of-symbol (point) completions))))))))
+	    (bounds (bounds-of-thing-at-point 'symbol)))
+	(let ((completions (car (read-from-string
+				 (plist-get (nrepl-send-string-sync form nrepl-buffer-ns)
+					    :value)))))
+	  (when completions
+	    (list (car bounds) (cdr bounds) completions)))))))
 
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
@@ -865,7 +863,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
-    (define-key map (kbd "TAB") 'complete-symbol)
+    (define-key map (kbd "M-TAB") 'complete-symbol)
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
