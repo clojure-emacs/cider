@@ -317,9 +317,10 @@ joined together.")
 
 (defun nrepl-jump-to-def (var)
   "Jump to the definition of the var at point."
-  (let ((form (format "((juxt (comp str clojure.java.io/resource :file)
-                              (comp str clojure.java.io/file :file) :line)
-                        (meta (resolve '%s)))"
+  (let ((form (format "((clojure.core/juxt
+                         (comp clojure.core/str clojure.java.io/resource :file)
+                         (comp clojure.core/str clojure.java.io/file :file) :line)
+                        (clojure.core/meta (clojure.core/resolve '%s)))"
                       var)))
     (nrepl-send-string form nrepl-buffer-ns
                        (nrepl-jump-to-def-handler (current-buffer)))))
@@ -339,7 +340,7 @@ joined together.")
 	(list (car bounds) (cdr bounds)
 	      (completion-table-dynamic
 	       (lambda (str)
-		 (nrepl-send-string "(require 'complete.core)"
+		 (nrepl-send-string "(clojure.core/require 'complete.core)"
 				    "user" 'identity)
 		 (let ((strlst (plist-get
 				(nrepl-send-string-sync
@@ -374,7 +375,9 @@ joined together.")
   (let* ((thing (nrepl-operator-before-point))
          (form (format "(try
                          (:arglists 
-                          (meta (resolve (read-string \"%s\"))))
+                          (clojure.core/meta
+                           (clojure.core/resolve
+                            (clojure.core/read-string \"%s\"))))
                          (catch Throwable t nil))" thing)))
     (when thing
         (nrepl-send-string form nrepl-buffer-ns
@@ -495,7 +498,7 @@ joined together.")
                    (cdr (assq 'major-mode 
                               (buffer-local-variables buffer))))))
       (with-current-buffer buffer
-        (nrepl-send-string "(if-let [pst+ (resolve 'clj-stacktrace.repl/pst+)]
+        (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
                            nrepl-buffer-ns
                            (nrepl-make-response-handler
@@ -628,7 +631,7 @@ into the special buffer. Prefix argument forces pretty-printed output."
   (let* ((ns nrepl-buffer-ns)
         (form (format
                (if pprint-p
-                   "(pprint (%s '%s))"
+                   "(clojure.pprint/pprint (%s '%s))"
                  "(%s '%s)") macroexpand expr))
         (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer)))
         (handler (if pprint-p 
