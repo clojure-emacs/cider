@@ -337,7 +337,7 @@ joined together.")
 		       (nrepl-send-string-sync form nrepl-buffer-ns)
 		       :value)))
 	(when cstring
-	  (let ((completions (and cstring (car (read-from-string cstring))))
+	  (let ((completions (car (read-from-string cstring)))
 		(bounds (bounds-of-thing-at-point 'symbol)))
 	    (when completions
 	      (list (car bounds) (cdr bounds) completions))))))))
