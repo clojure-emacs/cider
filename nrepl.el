@@ -331,16 +331,19 @@ joined together.")
   ;; TODO: better error handling if dependency is missing
   (let ((sap (symbol-at-point)))
     (when (and sap (not (in-string-p)))
-      (nrepl-send-string "(require 'complete.core)" "user" 'identity)
-      (let* ((form (format "(complete.core/completions \"%s\" *ns*)" sap))
-	     (cstring (plist-get
-		       (nrepl-send-string-sync form nrepl-buffer-ns)
-		       :value)))
-	(when cstring
-	  (let ((completions (car (read-from-string cstring)))
-		(bounds (bounds-of-thing-at-point 'symbol)))
-	    (when completions
-	      (list (car bounds) (cdr bounds) completions))))))))
+      (let ((bounds (bounds-of-thing-at-point 'symbol)))
+	(list (car bounds) (cdr bounds)
+	      (completion-table-dynamic
+	       (lambda (str)
+		 (nrepl-send-string "(require 'complete.core)"
+				    "user" 'identity)
+		 (let ((strlst (plist-get
+				(nrepl-send-string-sync
+				 (format "(complete.core/completions \"%s\" *ns*)" str)
+				 nrepl-buffer-ns)
+				:value)))
+		   (when strlst
+		     (car (read-from-string strlst)))))))))))
 
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
