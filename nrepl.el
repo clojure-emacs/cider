@@ -327,19 +327,20 @@ joined together.")
 (defalias 'nrepl-jump-back 'pop-tag-mark)
 
 (defun nrepl-complete-at-point ()
-  (interactive)
   ;; TODO: need a unified way to trigger this loading at connect-time
   ;; TODO: better error handling if dependency is missing
   (let ((sap (symbol-at-point)))
     (when (and sap (not (in-string-p)))
       (nrepl-send-string "(require 'complete.core)" "user" 'identity)
-      (let ((form (format "(complete.core/completions \"%s\" *ns*)" sap))
-	    (bounds (bounds-of-thing-at-point 'symbol)))
-	(let ((completions (car (read-from-string
-				 (plist-get (nrepl-send-string-sync form nrepl-buffer-ns)
-					    :value)))))
-	  (when completions
-	    (list (car bounds) (cdr bounds) completions)))))))
+      (let* ((form (format "(complete.core/completions \"%s\" *ns*)" sap))
+	     (cstring (plist-get
+		       (nrepl-send-string-sync form nrepl-buffer-ns)
+		       :value)))
+	(when cstring
+	  (let ((completions (and cstring (car (read-from-string cstring))))
+		(bounds (bounds-of-thing-at-point 'symbol)))
+	    (when completions
+	      (list (car bounds) (cdr bounds) completions))))))))
 
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
