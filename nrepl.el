@@ -448,7 +448,8 @@ joined together.")
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
                                  (message (format "%s" value)))
-                               '()
+                               (lambda (buffer value)
+                                 (nrepl-emit-interactive-output value))
                                (lambda (buffer err)
                                  (message (format "%s" err)))
                                '()))
@@ -968,6 +969,23 @@ Return the position of the prompt beginning."
           (insert-before-markers prompt))
         (set-marker nrepl-prompt-start-mark prompt-start)
         prompt-start))))
+
+(defun nrepl-emit-interactive-output (string)
+  ;; insert string into repl buffer and mark it as output
+  (with-current-buffer "*nrepl*"
+    (save-excursion
+      (nrepl-save-marker nrepl-output-start
+        (nrepl-save-marker nrepl-output-end
+          (goto-char (1- (nrepl-input-line-beginning-position)))
+          (when (not (bolp)) (insert-before-markers "\n"))
+          (nrepl-propertize-region `(face nrepl-output-face
+                                          rear-nonsticky (face))
+            (insert-before-markers string)
+            (when (and (= (point) nrepl-prompt-start-mark)
+                       (not (bolp)))
+              (insert-before-markers "\n")
+              (set-marker nrepl-output-end (1- (point))))))))
+    (nrepl-show-maximum-output)))
 
 (defun nrepl-emit-output (buffer string &optional bol)
   ;; insert STRING and mark it as output
