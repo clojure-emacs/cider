@@ -489,7 +489,7 @@ joined together.")
                    (cdr (assq 'major-mode 
                               (buffer-local-variables buffer))))))
       (with-current-buffer buffer
-        (nrepl-send-string "(if-let [pst+ (resolve 'clj-stacktrace.repl/pst)]
+        (nrepl-send-string "(if-let [pst+ (resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
                            nrepl-buffer-ns
                            (nrepl-make-response-handler
