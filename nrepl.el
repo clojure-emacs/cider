@@ -47,6 +47,7 @@
 (require 'etags)
 (require 'arc-mode)
 (require 'ansi-color)
+(require 'eldoc)
 (eval-when-compile
   (require 'cl))
 
