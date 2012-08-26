@@ -989,7 +989,7 @@ Return the position of the prompt beginning."
 
 (defun nrepl-emit-interactive-output (string)
   (with-current-buffer "*nrepl*"
-    (nrepl-emit-output-at-pos (current-buffer) string (1- (nrepl-input-line-beginning-position)))))
+    (nrepl-emit-output-at-pos (current-buffer) string (1- (nrepl-input-line-beginning-position)) t)))
 
 (defun nrepl-emit-output (buffer string &optional bol)
   (with-current-buffer buffer
