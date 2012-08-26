@@ -47,6 +47,7 @@
 (require 'etags)
 (require 'arc-mode)
 (require 'ansi-color)
+(require 'eldoc)
 (eval-when-compile
   (require 'cl))
 
@@ -140,6 +141,9 @@ joined together.")
 
 (defvar nrepl-err-handler 'nrepl-default-err-handler
   "Evaluation error handler")
+
+(defvar nrepl-extra-eldoc-commands '("nrepl-complete" "yas/expand")
+  "Extra commands to be added to eldoc's safe commands list.")
 
 (defcustom nrepl-popup-stacktraces t
   "Non-nil means pop-up error stacktraces.
@@ -380,6 +384,7 @@ joined together.")
 (defun nrepl-eldoc-enable-in-current-buffer ()
   (make-local-variable 'eldoc-documentation-function)
   (setq eldoc-documentation-function 'nrepl-eldoc)
+  (apply 'eldoc-add-command nrepl-extra-eldoc-commands)
   (turn-on-eldoc-mode))
 
 ;;; Response handlers
