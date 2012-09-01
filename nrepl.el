@@ -1545,10 +1545,12 @@ under point, prompts for a var."
 (defun nrepl-enable-on-existing-clojure-buffers ()
   (interactive)
   (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
+  (add-hook 'clojurescript-mode-hook 'clojure-enable-nrepl)
   (save-window-excursion
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
-        (when (eq major-mode 'clojure-mode)
+        (when (or (eq major-mode 'clojure-mode)
+                  (eq major-mode 'clojurescript-mode))
           (clojure-enable-nrepl))))))
 
 ;;;###autoload
