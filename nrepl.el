@@ -1574,10 +1574,10 @@ under point, prompts for a var."
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
 
 ;;;###autoload
-(defun nrepl (port)
-  (interactive "nPort: ")
+(defun nrepl (host port)
+  (interactive "MHost: \nnPort: ")
   (let ((nrepl-buffer (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*")))
-        (process (nrepl-connect "localhost" port)))
+        (process (nrepl-connect host port)))
     (nrepl-init-repl-buffer process nrepl-buffer)))
 
 (provide 'nrepl)
