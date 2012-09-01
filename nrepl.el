@@ -1510,7 +1510,7 @@ under point, prompts for a var."
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
-      (nrepl port))))
+      (nrepl "localhost" port))))
 
 (defun nrepl-server-sentinel (process event)
   (let* ((b (process-buffer process))
