@@ -5,7 +5,8 @@ the Clojure networked REPL server.
 
 ## Installation
 
-Available on the [Marmalade repo](http://marmalade-repo.org/packages/nrepl).
+`nrepl.el` is available on the both [Marmalade](http://marmalade-repo.org/packages/nrepl)
+and [MELPA](http://melpa.milkbox.net) repos.
 
 If you're not already using Marmalade, add this to your
 `~/.emacs.d/init.el` and load it with `M-x eval-buffer`.
@@ -14,6 +15,15 @@ If you're not already using Marmalade, add this to your
 (require 'package)
 (add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+```
+
+For MELPA the code you need to add is:
+
+```elisp
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 ```
 
