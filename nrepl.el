@@ -1155,13 +1155,15 @@ buffer."
                             "interrupt-id" pending-request-id)
                       callback))
 
+(defun nrepl-eval-request (input &optional ns)
+  (append (if ns (list "ns" ns))
+          (list
+           "op" "eval"
+           "session" (nrepl-current-session)
+           "code" input)))
+
 (defun nrepl-send-string (input callback &optional ns)
-  (let ((request (append (if ns (list "ns" ns))
-                         (list
-                          "op" "eval"
-                          "session" (nrepl-current-session)
-                          "code" input))))
-    (nrepl-send-request request callback)))
+  (nrepl-send-request (nrepl-eval-request input ns) callback))
 
 (defun nrepl-sync-request-handler (buffer)
   (nrepl-make-response-handler buffer
@@ -1192,12 +1194,8 @@ The result is a plist with keys :value, :stderr and :stdout."
       (accept-process-output nil 0 5))
     nrepl-sync-response))
 
-(defun nrepl-send-string-sync (input ns)
-  (nrepl-send-request-sync (list "op" "eval"
-                                 "session" (nrepl-current-session)
-                                 "ns" ns
-                                 "code" input)))
-
+(defun nrepl-send-string-sync (input &optional ns)
+  (nrepl-send-request-sync (nrepl-eval-request input ns)))
 
 (defun nrepl-send-input (&optional newline)
   "Goto to the end of the input and send the current input.
