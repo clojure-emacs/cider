@@ -331,24 +331,28 @@ joined together.")
 
 (defalias 'nrepl-jump-back 'pop-tag-mark)
 
+(defvar nrepl-completion-fn 'nrepl-completion-complete-core-fn)
+
+(defun nrepl-completion-complete-core-fn (str)
+  "Return a list of completions using complete.core/completions."
+  (nrepl-send-string "(clojure.core/require 'complete.core)" "user" 'identity)
+  (let ((strlst (plist-get
+                 (nrepl-send-string-sync
+                  (format "(complete.core/completions \"%s\" *ns*)" str)
+                  nrepl-buffer-ns)
+                 :value)))
+    (when strlst
+      (car (read-from-string strlst)))))
+
 (defun nrepl-complete-at-point ()
   ;; TODO: need a unified way to trigger this loading at connect-time
   ;; TODO: better error handling if dependency is missing
+  (message "complete-at-point %s" nrepl-completion-fn)
   (let ((sap (symbol-at-point)))
     (when (and sap (not (in-string-p)))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
-	(list (car bounds) (cdr bounds)
-	      (completion-table-dynamic
-	       (lambda (str)
-		 (nrepl-send-string "(clojure.core/require 'complete.core)"
-				    "user" 'identity)
-		 (let ((strlst (plist-get
-				(nrepl-send-string-sync
-				 (format "(complete.core/completions \"%s\" *ns*)" str)
-				 nrepl-buffer-ns)
-				:value)))
-		   (when strlst
-		     (car (read-from-string strlst)))))))))))
+        (list (car bounds) (cdr bounds)
+              (completion-table-dynamic nrepl-completion-fn))))))
 
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
