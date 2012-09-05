@@ -20,7 +20,7 @@ If you're not already using Marmalade, add this to your
 
 For MELPA the code you need to add is:
 
-```elisp
+```lisp
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
