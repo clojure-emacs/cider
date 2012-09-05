@@ -347,7 +347,6 @@ joined together.")
 (defun nrepl-complete-at-point ()
   ;; TODO: need a unified way to trigger this loading at connect-time
   ;; TODO: better error handling if dependency is missing
-  (message "complete-at-point %s" nrepl-completion-fn)
   (let ((sap (symbol-at-point)))
     (when (and sap (not (in-string-p)))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
