@@ -1530,7 +1530,7 @@ under point, prompts for a var."
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
-      (nrepl port))))
+      (nrepl "localhost" port))))
 
 (defun nrepl-server-sentinel (process event)
   (let* ((b (process-buffer process))
@@ -1594,10 +1594,10 @@ under point, prompts for a var."
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
 
 ;;;###autoload
-(defun nrepl (port)
-  (interactive "nPort: ")
+(defun nrepl (host port)
+  (interactive "MHost: \nnPort: ")
   (let ((nrepl-buffer (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*")))
-        (process (nrepl-connect "localhost" port)))
+        (process (nrepl-connect host port)))
     (nrepl-init-repl-buffer process nrepl-buffer)))
 
 (provide 'nrepl)
