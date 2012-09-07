@@ -625,7 +625,7 @@ joined together.")
    "Mode for nrepl macroexpansion buffers"
    nil
    (" ")
-   '(("g" .  nrepl-macroexpand-again)))
+   '(("g" .  nrepl-macroexpand-1-last-expression)))
 
 (defun nrepl-macroexpand-expr (macroexpand expr pprint-p &optional buffer)
   "Evaluate the expression preceding point and print the result
