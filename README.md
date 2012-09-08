@@ -60,6 +60,7 @@ and `require`ing it.
 * **C-c C-b**: Interrupt any pending evaluations.
 * **C-c C-m**: Invoke macroexpand-1 on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
 * **C-c M-m**: Invoke clojure.walk/macroexpand-all on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
+* **C-c C-n**: Eval the ns form.
 * **C-c M-n**: Switch the namespace of the repl buffer to the namespace of the current buffer.
 * **C-c C-z**: Select the repl buffer.
 * **C-c C-k**: Load the current buffer.
@@ -67,6 +68,7 @@ and `require`ing it.
 * **C-c C-d**: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 * **M-.**: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
 * **M-,**: Return to your pre-jump location.
+* **M-TAB**: Complete the symbol at point.
 
 ### REPL buffer commands:
 
@@ -76,6 +78,9 @@ and `require`ing it.
 * **C-c M-o**: Clear the entire REPL buffer, leaving only a prompt.
 * **C-c C-o**: Remove the output of the previous evaluation from the REPL buffer.
 * **C-c C-b**: Interrupt any pending evaluations.
+* **M-p**: Display previous input in history.
+* **M-n**: Dispaly next input in history.
+* **TAB**: Complete symbol at point.
 
 ## Requirements:
 
