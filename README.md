@@ -86,8 +86,7 @@ and `require`ing it.
 
 * [Leiningen](http://leiningen.org) 2.x
 * [clojure-mode](https://github.com/technomancy/clojure-mode)
-* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html)
-* Tested on Emacs 23 and 24.
+* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
 
 ## Contributing
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
