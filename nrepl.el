@@ -30,10 +30,16 @@
 
 ;;; Installation:
 
-;; Available as a package in marmalade-repo.org.
+;; Available as a package in marmalade-repo.org and melpa.milkbox.net.
 
 ;; (add-to-list 'package-archives
 ;;              '("marmalade" . "http://marmalade-repo.org/packages/"))
+;;
+;; or
+;;
+;; (add-to-list 'package-archives
+;;              '("melpa" . "http://melpa.milkbox.net/packages/") t)
+;;
 ;; M-x package-install nrepl
 
 ;;; Usage:
@@ -110,7 +116,7 @@
 
 (defvar nrepl-request-counter 0
   "Continuation serial number counter.")
- 
+
 (defvar nrepl-old-input-counter 0
   "Counter used to generate unique `nrepl-old-input' properties.
 This property value must be unique to avoid having adjacent inputs be
@@ -362,12 +368,12 @@ joined together.")
 
 (defun nrepl-eldoc-handler (buffer the-thing)
   (lexical-let ((thing the-thing))
-    (nrepl-make-response-handler 
+    (nrepl-make-response-handler
      buffer
      (lambda (buffer value)
        (when (not (string-equal value "nil"))
-         (message (format "%s: %s" 
-                          (nrepl-eldoc-format-thing thing) 
+         (message (format "%s: %s"
+                          (nrepl-eldoc-format-thing thing)
                           (nrepl-eldoc-format-arglist value)))))
        nil nil nil)))
 
@@ -375,7 +381,7 @@ joined together.")
   "Backend function for eldoc to show argument list in the echo area."
   (let* ((thing (nrepl-operator-before-point))
          (form (format "(try
-                         (:arglists 
+                         (:arglists
                           (clojure.core/meta
                            (clojure.core/resolve
                             (clojure.core/read-string \"%s\"))))
@@ -498,8 +504,8 @@ joined together.")
   ;; TODO: use pst+ here for colorization. currently breaks bencode.
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (if (or nrepl-popup-stacktraces
-          (not (eq 'nrepl-mode 
-                   (cdr (assq 'major-mode 
+          (not (eq 'nrepl-mode
+                   (cdr (assq 'major-mode
                               (buffer-local-variables buffer))))))
       (with-current-buffer buffer
         (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
@@ -637,7 +643,7 @@ into the special buffer. Prefix argument forces pretty-printed output."
                    "(clojure.pprint/pprint (%s '%s))"
                  "(%s '%s)") macroexpand expr))
         (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer)))
-        (handler (if pprint-p 
+        (handler (if pprint-p
                    #'nrepl-popup-eval-out-handler
                    #'nrepl-popup-eval-print-handler)))
     (nrepl-send-string form
@@ -753,7 +759,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
 
 ;;; persistent history
 (defcustom nrepl-history-size 500
-  "The maximum number of items to keep in the REPL history." 
+  "The maximum number of items to keep in the REPL history."
   :type 'integer
   :safe 'integerp
   :group 'nrepl-mode)
@@ -773,7 +779,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   "Read history from FILE and return it.
 Does not yet set the input history."
   (if (file-readable-p filename)
-      (with-temp-buffer 
+      (with-temp-buffer
         (insert-file-contents filename)
         (read (current-buffer)))
     '()))
@@ -794,8 +800,8 @@ The value of `nrepl-input-history` is set by this function."
 (defun nrepl-history-write (filename)
   "Write history to FILENAME.
 Currently coding system for writing the contents is hardwired to
-utf-8-unix." 
-  (let* ((mhist (nrepl-histories-merge nrepl-input-history 
+utf-8-unix."
+  (let* ((mhist (nrepl-histories-merge nrepl-input-history
                                        nrepl-input-history-items-added
                                        (nrepl-history-read filename)))
          ;; newest items are at the beginning of the list, thus 0
@@ -828,7 +834,7 @@ This function is meant to be used in hooks to avoid lambda
 ;; we keep track of how many items were added to the history in the
 ;; current session in nrepl-add-to-input-history and merge only the
 ;; new items with the current history found in the file, which may
-;; have been changed in the meantime by another session 
+;; have been changed in the meantime by another session
 (defun nrepl-histories-merge (session-hist n-added-items file-hist)
   (append (subseq session-hist 0 n-added-items)
           file-hist))
@@ -910,7 +916,7 @@ This function is meant to be used in hooks to avoid lambda
    nrepl-interaction-mode-map
    (make-local-variable 'completion-at-point-functions)
    (add-to-list 'completion-at-point-functions
-		'nrepl-complete-at-point))
+                'nrepl-complete-at-point))
 
 (defun nrepl-mode ()
   "Major mode for nREPL interactions."
@@ -921,7 +927,7 @@ This function is meant to be used in hooks to avoid lambda
         major-mode 'nrepl-mode)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
-	       'nrepl-complete-at-point)
+               'nrepl-complete-at-point)
   (set-syntax-table nrepl-mode-syntax-table)
   (nrepl-eldoc-enable-in-current-buffer)
   (when nrepl-history-file
@@ -957,7 +963,7 @@ to specific the full path to it. Localhost is assumed."
     (let ((win (get-buffer-window (current-buffer))))
       (when win
         (with-selected-window win
-          (set-window-point win (point-max)) 
+          (set-window-point win (point-max))
           (recenter -1))))))
 
 (defmacro nrepl-save-marker (marker &rest body)
@@ -970,7 +976,7 @@ to specific the full path to it. Localhost is assumed."
 
 (defun nrepl-insert-prompt (namespace)
   "Insert the prompt (before markers!).
-Set point after the prompt.  
+Set point after the prompt.
 Return the position of the prompt beginning."
   (goto-char nrepl-input-start-mark)
   (nrepl-save-marker nrepl-output-start
@@ -1081,9 +1087,9 @@ Assume that any error during decoding indicates an incomplete message."
   "Return the current input as string.
 The input is the region from after the last prompt to the end of
 buffer."
-  (buffer-substring-no-properties nrepl-input-start-mark 
-                                  (if until-point-p 
-                                      (point) 
+  (buffer-substring-no-properties nrepl-input-start-mark
+                                  (if until-point-p
+                                      (point)
                                     (point-max))))
 
 (defun nrepl-previous-prompt ()
@@ -1095,20 +1101,20 @@ buffer."
   "Move forward to the next prompt."
   (interactive)
   (nrepl-find-prompt))
- 
+
 (defun nrepl-find-prompt (&optional backward)
   (let ((origin (point))
         (prop 'nrepl-prompt))
-    (while (progn 
+    (while (progn
              (nrepl-search-property-change prop backward)
              (not (or (nrepl-end-of-proprange-p prop) (bobp) (eobp)))))
     (unless (nrepl-end-of-proprange-p prop)
       (goto-char origin))))
 
 (defun nrepl-search-property-change (prop &optional backward)
-  (cond (backward 
+  (cond (backward
          (goto-char (previous-single-char-property-change (point) prop)))
-        (t 
+        (t
          (goto-char (next-single-char-property-change (point) prop)))))
 
 (defun nrepl-end-of-proprange-p (property)
@@ -1124,7 +1130,7 @@ buffer."
 
 (defun nrepl-mark-output-end ()
   (add-text-properties nrepl-output-start nrepl-output-end
-                       '(face nrepl-output-face 
+                       '(face nrepl-output-face
                          rear-nonsticky (face))))
 
 
@@ -1205,11 +1211,11 @@ If NEWLINE is true then add a newline at the end of the input."
   (goto-char (point-max))
   (let ((end (point))) ; end of input, without the newline
     (nrepl-add-to-input-history (buffer-substring nrepl-input-start-mark end))
-    (when newline 
+    (when newline
       (insert "\n")
       (nrepl-show-maximum-output))
     (let ((inhibit-modification-hooks t))
-      (add-text-properties nrepl-input-start-mark 
+      (add-text-properties nrepl-input-start-mark
                            (point)
                            `(nrepl-old-input
                              ,(incf nrepl-old-input-counter))))
@@ -1254,9 +1260,9 @@ earlier in the buffer."
            (t t))))
 
 (defun nrepl-return (&optional end-of-input)
-  "Evaluate the current input string, or insert a newline.  
+  "Evaluate the current input string, or insert a newline.
 Send the current input ony if a whole expression has been entered,
-i.e. the parenthesis are matched. 
+i.e. the parenthesis are matched.
 With prefix argument send the input even if the parenthesis are not
 balanced."
   (interactive "P")
@@ -1297,7 +1303,7 @@ balanced."
 (defun nrepl-clear-output ()
   "Delete the output inserted since the last input."
   (interactive)
-  (let ((start (save-excursion 
+  (let ((start (save-excursion
                  (nrepl-previous-prompt)
                  (ignore-errors (forward-sexp))
                  (forward-line)
@@ -1488,7 +1494,7 @@ under point, prompts for a var."
                                           (buffer-file-name))))))
    (let ((fn (replace-regexp-in-string
         "\\\\" "\\\\\\\\"
-	      (convert-standard-filename (expand-file-name filename)))))
+              (convert-standard-filename (expand-file-name filename)))))
      (nrepl-eval-load-file
       (format "(clojure.core/load-file \"%s\")\n(in-ns '%s)\n"
               fn (nrepl-find-ns)))
