@@ -48,8 +48,7 @@
 (require 'arc-mode)
 (require 'ansi-color)
 (require 'eldoc)
-(eval-when-compile
-  (require 'cl))
+(require 'cl)
 
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
