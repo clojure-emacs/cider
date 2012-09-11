@@ -1573,16 +1573,23 @@ under point, prompts for a var."
     (message "Starting nREPL server...")))
 
 ;;; client
-(defun nrepl-new-session-handler (buffer)
-  (lexical-let ((buffer buffer))
+(defun nrepl-create-nrepl-buffer (process)
+  (nrepl-init-repl-buffer process
+                          (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*"))))
+
+(defun nrepl-new-session-handler (process &optional create-nrepl-buffer-p)
+  (lexical-let ((process process)
+                (create-nrepl-buffer-p create-nrepl-buffer-p))
     (lambda (response)
       (nrepl-dbind-response response (id new-session)
         (cond (new-session
-               (with-current-buffer buffer
+               (with-current-buffer (process-buffer process)
                  (message "Connected.  %s" (nrepl-random-words-of-inspiration))
                  (setq nrepl-session new-session)
                  (remhash id nrepl-requests)
-                 (run-hooks 'nrepl-connected-hook))))))))
+                 (run-hooks 'nrepl-connected-hook)
+                 (if create-nrepl-buffer-p
+                     (nrepl-create-nrepl-buffer process)))))))))
 
 (defun nrepl-connect (host port)
   (message "Connecting to nREPL on %s:%s..." host port)
@@ -1591,7 +1598,7 @@ under point, prompts for a var."
     (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-    (nrepl-create-client-session (nrepl-new-session-handler (process-buffer process)))
+    (nrepl-create-client-session (nrepl-new-session-handler process t))
     process))
 
 
@@ -1601,9 +1608,7 @@ under point, prompts for a var."
 ;;;###autoload
 (defun nrepl (host port)
   (interactive "MHost: \nnPort: ")
-  (let ((nrepl-buffer (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*")))
-        (process (nrepl-connect host port)))
-    (nrepl-init-repl-buffer process nrepl-buffer)))
+  (nrepl-connect host port))
 
 (provide 'nrepl)
 ;;; nrepl.el ends here
