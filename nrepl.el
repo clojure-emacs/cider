@@ -109,6 +109,10 @@
 (defvar nrepl-session nil
   "Current nREPL session id.")
 
+(defvar nrepl-tooling-session nil
+  "Current nREPL tooling session id.
+To be used for tooling calls (i.e. completion, eldoc, etc)")
+
 (defvar nrepl-input-start-mark)
 
 (defvar nrepl-prompt-start-mark)
@@ -161,6 +165,7 @@ joined together.")
 
 (nrepl-make-variables-buffer-local
  'nrepl-session
+ 'nrepl-tooling-session
  'nrepl-input-start-mark
  'nrepl-prompt-start-mark
  'nrepl-request-counter
@@ -329,7 +334,8 @@ joined together.")
                       var)))
     (nrepl-send-string form
                        (nrepl-jump-to-def-handler (current-buffer))
-                       nrepl-buffer-ns)))
+                       nrepl-buffer-ns
+                       (nrepl-current-tooling-session))))
 
 (defun nrepl-jump (query)
   (interactive "P")
@@ -344,7 +350,8 @@ joined together.")
   (let ((strlst (plist-get
                  (nrepl-send-string-sync
                   (format "(complete.core/completions \"%s\" *ns*)" str)
-                  nrepl-buffer-ns)
+                  nrepl-buffer-ns
+                  (nrepl-current-tooling-session))
                  :value)))
     (when strlst
       (car (read-from-string strlst)))))
@@ -389,7 +396,8 @@ joined together.")
         (nrepl-send-string form
                            (nrepl-eldoc-handler (current-buffer)
                                                 thing)
-                           nrepl-buffer-ns))))
+                           nrepl-buffer-ns
+                           (nrepl-current-tooling-session)))))
 
 (defun nrepl-eldoc-enable-in-current-buffer ()
   (make-local-variable 'eldoc-documentation-function)
@@ -1138,6 +1146,10 @@ buffer."
   (with-current-buffer "*nrepl-connection*"
     nrepl-session))
 
+(defun nrepl-current-tooling-session ()
+  (with-current-buffer "*nrepl-connection*"
+    nrepl-tooling-session))
+
 (defun nrepl-send-request (request callback)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
          (message (nrepl-bencode (append (list "id" request-id) request))))
@@ -1160,15 +1172,15 @@ buffer."
                             "interrupt-id" pending-request-id)
                       callback))
 
-(defun nrepl-eval-request (input &optional ns)
+(defun nrepl-eval-request (input &optional ns session)
   (append (if ns (list "ns" ns))
           (list
            "op" "eval"
-           "session" (nrepl-current-session)
+           "session" (or session (nrepl-current-session))
            "code" input)))
 
-(defun nrepl-send-string (input callback &optional ns)
-  (nrepl-send-request (nrepl-eval-request input ns) callback))
+(defun nrepl-send-string (input callback &optional ns session)
+  (nrepl-send-request (nrepl-eval-request input ns session) callback))
 
 (defun nrepl-sync-request-handler (buffer)
   (nrepl-make-response-handler buffer
@@ -1199,8 +1211,8 @@ The result is a plist with keys :value, :stderr and :stdout."
       (accept-process-output nil 0 5))
     nrepl-sync-response))
 
-(defun nrepl-send-string-sync (input &optional ns)
-  (nrepl-send-request-sync (nrepl-eval-request input ns)))
+(defun nrepl-send-string-sync (input &optional ns session)
+  (nrepl-send-request-sync (nrepl-eval-request input ns session)))
 
 (defun nrepl-send-input (&optional newline)
   "Goto to the end of the input and send the current input.
@@ -1446,7 +1458,8 @@ the buffer should appear."
   (setq nrepl-ido-ns ns)
   (nrepl-send-string (prin1-to-string (nrepl-ido-form nrepl-ido-ns))
                      (nrepl-ido-read-var-handler ido-callback (current-buffer))
-                     nrepl-buffer-ns))
+                     nrepl-buffer-ns
+                     (nrepl-current-tooling-session)))
 
 (defun nrepl-operator-before-point ()
   (ignore-errors
@@ -1470,7 +1483,8 @@ symbol at point, or if QUERY is non-nil."
         (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
     (nrepl-send-string form
                        (nrepl-popup-eval-out-handler doc-buffer)
-                       nrepl-buffer-ns)))
+                       nrepl-buffer-ns
+                       (nrepl-current-tooling-session))))
 
 (defun nrepl-doc (query)
   "Open a window with the docstring for the given entry.
@@ -1577,6 +1591,16 @@ under point, prompts for a var."
   (nrepl-init-repl-buffer process
                           (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*"))))
 
+
+(defun nrepl-new-tooling-session-handler (process)
+  (lexical-let ((process process))
+    (lambda (response)
+      (nrepl-dbind-response response (id new-session)
+        (cond (new-session
+               (with-current-buffer (process-buffer process)
+                 (setq nrepl-tooling-session new-session)
+                 (remhash id nrepl-requests))))))))
+
 (defun nrepl-new-session-handler (process &optional create-nrepl-buffer-p)
   (lexical-let ((process process)
                 (create-nrepl-buffer-p create-nrepl-buffer-p))
@@ -1587,9 +1611,13 @@ under point, prompts for a var."
                  (message "Connected.  %s" (nrepl-random-words-of-inspiration))
                  (setq nrepl-session new-session)
                  (remhash id nrepl-requests)
-                 (run-hooks 'nrepl-connected-hook)
                  (if create-nrepl-buffer-p
-                     (nrepl-create-nrepl-buffer process)))))))))
+                     (nrepl-create-nrepl-buffer process))
+                 (run-hooks 'nrepl-connected-hook))))))))
+
+(defun nrepl-init-client-sessions (process)
+  (nrepl-create-client-session (nrepl-new-session-handler process t))
+  (nrepl-create-client-session (nrepl-new-tooling-session-handler process)))
 
 (defun nrepl-connect (host port)
   (message "Connecting to nREPL on %s:%s..." host port)
@@ -1598,7 +1626,7 @@ under point, prompts for a var."
     (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-    (nrepl-create-client-session (nrepl-new-session-handler process t))
+    (nrepl-init-client-sessions process)
     process))
 
 
