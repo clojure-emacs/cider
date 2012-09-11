@@ -391,7 +391,7 @@ joined together.")
                                                 thing)
                            nrepl-buffer-ns))))
 
-(defun nrepl-eldoc-enable-in-current-buffer ()
+(defun nrepl-turn-on-eldoc-mode ()
   (make-local-variable 'eldoc-documentation-function)
   (setq eldoc-documentation-function 'nrepl-eldoc)
   (apply 'eldoc-add-command nrepl-extra-eldoc-commands)
@@ -928,7 +928,7 @@ This function is meant to be used in hooks to avoid lambda
   (add-to-list 'completion-at-point-functions
 	       'nrepl-complete-at-point)
   (set-syntax-table nrepl-mode-syntax-table)
-  (nrepl-eldoc-enable-in-current-buffer)
+  (nrepl-turn-on-eldoc-mode)
   (when nrepl-history-file
     (nrepl-history-load nrepl-history-file)
     (make-local-variable 'kill-buffer-hook)
