@@ -69,6 +69,11 @@
 (defvar nrepl-version "0.1.4-preview"
   "The current nrepl version.")
 
+(defvar nrepl-connection-buffer " *nrepl-connection*")
+(defvar nrepl-server-buffer " *nrepl-server*")
+(defvar nrepl-nrepl-buffer "*nrepl*")
+(defvar nrepl-error-buffer "*nREPL error*")
+
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the nREPL client."
@@ -510,7 +515,7 @@ joined together.")
         (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
                            (nrepl-make-response-handler
-                            (nrepl-popup-buffer "*nREPL error*" t)
+                            (nrepl-popup-buffer nrepl-error-buffer t)
                             nil
                             'nrepl-emit-into-color-buffer nil nil)))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
@@ -905,7 +910,10 @@ This function is meant to be used in hooks to avoid lambda
     map))
 
 (defun clojure-enable-nrepl ()
-  (nrepl-interaction-mode t))
+  (nrepl-interaction-mode 1))
+
+(defun clojure-disable-nrepl ()
+  (nrepl-interaction-mode -1))
 
 ;;;###autoload
 (define-minor-mode nrepl-interaction-mode
@@ -1009,7 +1017,7 @@ Return the position of the prompt beginning."
     (nrepl-show-maximum-output)))
 
 (defun nrepl-emit-interactive-output (string)
-  (with-current-buffer "*nrepl*"
+  (with-current-buffer nrepl-nrepl-buffer
     (nrepl-emit-output-at-pos (current-buffer) string (1- (nrepl-input-line-beginning-position)) t)))
 
 (defun nrepl-emit-output (buffer string &optional bol)
@@ -1135,14 +1143,14 @@ buffer."
 
 ;;; server messages
 (defun nrepl-current-session ()
-  (with-current-buffer "*nrepl-connection*"
+  (with-current-buffer nrepl-connection-buffer
     nrepl-session))
 
 (defun nrepl-send-request (request callback)
   (let* ((request-id (number-to-string (incf nrepl-request-counter)))
          (message (nrepl-bencode (append (list "id" request-id) request))))
     (puthash request-id callback nrepl-requests)
-    (nrepl-write-message "*nrepl-connection*" message)))
+    (nrepl-write-message nrepl-connection-buffer message)))
 
 (defun nrepl-create-client-session (callback)
   (nrepl-send-request '("op" "clone")
@@ -1192,7 +1200,7 @@ buffer."
 (defun nrepl-send-request-sync (request)
   "Send a request to the backend synchronously (discouraged).
 The result is a plist with keys :value, :stderr and :stdout."
-  (with-current-buffer "*nrepl-connection*"
+  (with-current-buffer nrepl-connection-buffer
     (setq nrepl-sync-response nil)
     (nrepl-send-request request (nrepl-sync-request-handler (current-buffer)))
     (while (null nrepl-sync-response)
@@ -1371,10 +1379,10 @@ balanced."
 
 (defun nrepl-repl-buffer (&optional noprompt)
   "Return the repl buffer, create if necessary."
-  (let ((buffer (get-buffer "*nrepl*")))
+  (let ((buffer (get-buffer nrepl-nrepl-buffer)))
     (or (if (buffer-live-p buffer) buffer)
-        (let ((connection (get-process "*nrepl-connection*")))
-          (nrepl-init-repl-buffer connection (get-buffer-create "*nrepl*"))))))
+        (let ((connection (get-process nrepl-connection-buffer)))
+          (nrepl-init-repl-buffer connection (get-buffer-create nrepl-nrepl-buffer))))))
 
 (defun nrepl-switch-to-repl-buffer ()
   "Select the repl buffer, when possible in an existing window.
@@ -1383,7 +1391,7 @@ Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear."
   (interactive)
-  (if (not (get-buffer "*nrepl-connection*"))
+  (if (not (get-buffer nrepl-connection-buffer))
       (message "No active nREPL connection.")
     (pop-to-buffer (nrepl-repl-buffer))
     (goto-char (point-max))))
@@ -1391,7 +1399,7 @@ the buffer should appear."
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to ns."
   (interactive (list (nrepl-current-ns)))
-  (with-current-buffer "*nrepl*"
+  (with-current-buffer nrepl-nrepl-buffer
     (nrepl-send-string (format "(in-ns '%s)" ns) (nrepl-handler (current-buffer)))))
 
 (defun nrepl-symbol-at-point ()
@@ -1559,23 +1567,54 @@ under point, prompts for a var."
           (clojure-enable-nrepl))))))
 
 ;;;###autoload
-(defun nrepl-jack-in (prompt-project)
+(defun nrepl-disable-on-existing-clojure-buffers ()
+  (interactive)
+  (save-window-excursion
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (or (eq major-mode 'clojure-mode)
+                  (eq major-mode 'clojurescript-mode))
+          (clojure-disable-nrepl))))))
+
+;;;###autoload
+(defun nrepl-jack-in (&optional prompt-project)
   (interactive "P")
   (let* ((cmd (if prompt-project
                   (format "cd %s && %s" (ido-read-directory-name "Project: ")
                           nrepl-server-command)
                   nrepl-server-command))
          (process (start-process-shell-command
-                   "nrepl-server" "*nrepl-server*" cmd)))
+                   "nrepl-server" nrepl-server-buffer cmd)))
     (set-process-filter process 'nrepl-server-filter)
     (set-process-sentinel process 'nrepl-server-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (message "Starting nREPL server...")))
 
+(defun nrepl-quit ()
+  "Quits the nrepl server."
+  (interactive)
+  (dolist (buf-name `(,nrepl-connection-buffer
+		      ,nrepl-server-buffer
+		      ,nrepl-nrepl-buffer
+		      ,nrepl-error-buffer))
+    (when (get-buffer-process buf-name)
+      (delete-process (get-buffer-process buf-name)))
+    (when (get-buffer buf-name)
+      (kill-buffer buf-name)))
+  (nrepl-disable-on-existing-clojure-buffers))
+
+(defun nrepl-restart (&optional prompt-project)
+  "Quit nrepl and restart it.
+If PROMPT-PROJECT is t, then prompt for the project in which to
+restart the server."
+  (interactive)
+  (nrepl-quit)
+  (nrepl-jack-in current-prefix-arg))
+
 ;;; client
 (defun nrepl-create-nrepl-buffer (process)
   (nrepl-init-repl-buffer process
-                          (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*"))))
+                          (switch-to-buffer-other-window (generate-new-buffer-name nrepl-nrepl-buffer))))
 
 (defun nrepl-new-session-handler (process &optional create-nrepl-buffer-p)
   (lexical-let ((process process)
@@ -1593,7 +1632,7 @@ under point, prompts for a var."
 
 (defun nrepl-connect (host port)
   (message "Connecting to nREPL on %s:%s..." host port)
-  (let ((process (open-network-stream "nrepl" "*nrepl-connection*" host
+  (let ((process (open-network-stream "nrepl" nrepl-connection-buffer host
                                       port)))
     (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
