@@ -56,7 +56,7 @@ Enable eldoc in clojure buffers:
 
 ```lisp
 (add-hook 'nrepl-interaction-mode-hook
-  'nrepl-eldoc-enable-in-current-buffer)
+  'nrepl-turn-on-eldoc-mode)
 ```
 
 Stop the error buffer from popping up while working in the REPL
