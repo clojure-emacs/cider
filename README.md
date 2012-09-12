@@ -46,6 +46,32 @@ On Emacs 23 you will need to get [package.el](http://bit.ly/pkg-el23)
 yourself or install manually by placing `nrepl.el` on your `load-path`
 and `require`ing it.
 
+## Configuration
+
+You can certainly use `nrepl.el` without configuring it any further
+but here are some ways other folks are adjusting their `nrepl.el`
+experience.
+
+Enable eldoc in clojure buffers:
+
+```lisp
+(add-hook 'nrepl-interaction-mode-hook
+  'nrepl-eldoc-enable-in-current-buffer)
+```
+
+Stop the error buffer from popping up while working in the REPL
+buffer:
+
+```lisp
+(setq nrepl-popup-stacktraces nil)
+```
+
+Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
+
+```lisp
+(add-to-list 'same-window-buffer-names "*nrepl*") 
+```
+
 ## Keys
 
 * **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.
