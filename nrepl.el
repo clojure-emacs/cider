@@ -905,7 +905,10 @@ This function is meant to be used in hooks to avoid lambda
     map))
 
 (defun clojure-enable-nrepl ()
-  (nrepl-interaction-mode t))
+  (nrepl-interaction-mode 1))
+
+(defun clojure-disable-nrepl ()
+  (nrepl-interaction-mode -1))
 
 ;;;###autoload
 (define-minor-mode nrepl-interaction-mode
@@ -1559,7 +1562,17 @@ under point, prompts for a var."
           (clojure-enable-nrepl))))))
 
 ;;;###autoload
-(defun nrepl-jack-in (prompt-project)
+(defun nrepl-disable-on-existing-clojure-buffers ()
+  (interactive)
+  (save-window-excursion
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (or (eq major-mode 'clojure-mode)
+                  (eq major-mode 'clojurescript-mode))
+          (clojure-disable-nrepl))))))
+
+;;;###autoload
+(defun nrepl-jack-in (&optional prompt-project)
   (interactive "P")
   (let* ((cmd (if prompt-project
                   (format "cd %s && %s" (ido-read-directory-name "Project: ")
@@ -1571,6 +1584,24 @@ under point, prompts for a var."
     (set-process-sentinel process 'nrepl-server-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (message "Starting nREPL server...")))
+
+(defun nrepl-quit ()
+  "Quits the nrepl server."
+  (interactive)
+  (dolist (buf-name '("*nrepl-connection*" "*nrepl-server*" "*nrepl*" "*nREPL error*"))
+    (when (get-buffer-process buf-name)
+      (delete-process (get-buffer-process buf-name)))
+    (when (get-buffer buf-name)
+      (kill-buffer buf-name)))
+  (nrepl-disable-on-existing-clojure-buffers))
+
+(defun nrepl-restart (&optional prompt-project)
+  "Quit nrepl and restart it.
+If PROMPT-PROJECT is t, then prompt for the project in which to
+restart the server."
+  (interactive)
+  (nrepl-quit)
+  (nrepl-jack-in current-prefix-arg))
 
 ;;; client
 (defun nrepl-create-nrepl-buffer (process)
