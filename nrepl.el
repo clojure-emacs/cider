@@ -1587,9 +1587,9 @@ under point, prompts for a var."
                  (message "Connected.  %s" (nrepl-random-words-of-inspiration))
                  (setq nrepl-session new-session)
                  (remhash id nrepl-requests)
-                 (run-hooks 'nrepl-connected-hook)
                  (if create-nrepl-buffer-p
-                     (nrepl-create-nrepl-buffer process)))))))))
+                   (nrepl-create-nrepl-buffer process))
+                 (run-hooks 'nrepl-connected-hook))))))))
 
 (defun nrepl-connect (host port)
   (message "Connecting to nREPL on %s:%s..." host port)
