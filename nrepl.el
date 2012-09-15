@@ -109,6 +109,9 @@
 (defvar nrepl-session nil
   "Current nREPL session id.")
 
+(defvar nrepl-ops nil
+  "Available server operations for this connection.")
+
 (defvar nrepl-input-start-mark)
 
 (defvar nrepl-prompt-start-mark)
@@ -161,6 +164,7 @@ joined together.")
 
 (nrepl-make-variables-buffer-local
  'nrepl-session
+ 'nrepl-ops
  'nrepl-input-start-mark
  'nrepl-prompt-start-mark
  'nrepl-request-counter
@@ -521,6 +525,7 @@ joined together.")
   (with-current-buffer buffer
     (nrepl-send-stdin (concat (read-from-minibuffer "Stdin: ") "\n")
                       (nrepl-stdin-handler buffer))))
+
 
 ;;;; Popup buffers
 (defvar nrepl-popup-restore-data nil
@@ -1573,6 +1578,20 @@ under point, prompts for a var."
     (message "Starting nREPL server...")))
 
 ;;; client
+(defun nrepl-describe-handler (process-buffer)
+  (lexical-let ((buffer process-buffer))
+    (lambda (response)
+      (nrepl-dbind-response response (ops)
+        (cond (ops
+               (with-current-buffer buffer
+                 (setq nrepl-ops ops))))))))
+
+(defun nrepl-describe (process)
+  (let ((buffer (process-buffer process)))
+    (nrepl-send-request (list "op" "describe"
+                              "session" (nrepl-current-session))
+                        (nrepl-describe-handler buffer))))
+
 (defun nrepl-create-nrepl-buffer (process)
   (nrepl-init-repl-buffer process
                           (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*"))))
@@ -1599,6 +1618,7 @@ under point, prompts for a var."
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (nrepl-create-client-session (nrepl-new-session-handler process t))
+    (nrepl-describe-session process)
     process))
 
 
