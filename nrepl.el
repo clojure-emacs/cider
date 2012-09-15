@@ -1202,6 +1202,9 @@ The result is a plist with keys :value, :stderr and :stdout."
 (defun nrepl-send-string-sync (input &optional ns)
   (nrepl-send-request-sync (nrepl-eval-request input ns)))
 
+(defalias 'nrepl-eval 'nrepl-send-string-sync)
+(defalias 'nrepl-eval-async 'nrepl-send-string)
+
 (defun nrepl-send-input (&optional newline)
   "Goto to the end of the input and send the current input.
 If NEWLINE is true then add a newline at the end of the input."
