@@ -1578,7 +1578,12 @@ under point, prompts for a var."
 ;;; client
 (defun nrepl-create-nrepl-buffer (process)
   (nrepl-init-repl-buffer process
-                          (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*"))))
+    (let ((buf (generate-new-buffer-name "*nrepl*")))
+      (switch-to-buffer-other-window buf)
+      buf
+    )
+  )
+)
 
 (defun nrepl-new-session-handler (process &optional create-nrepl-buffer-p)
   (lexical-let ((process process)
