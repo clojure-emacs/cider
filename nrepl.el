@@ -66,7 +66,7 @@
   :type 'hook
   :group 'nrepl)
 
-(defvar nrepl-version "0.1.4-preview"
+(defvar nrepl-version "0.1.4"
   "The current nrepl version.")
 
 (defface nrepl-prompt-face
@@ -1580,10 +1580,7 @@ under point, prompts for a var."
   (nrepl-init-repl-buffer process
     (let ((buf (generate-new-buffer-name "*nrepl*")))
       (switch-to-buffer-other-window buf)
-      buf
-    )
-  )
-)
+      buf)))
 
 (defun nrepl-new-session-handler (process &optional create-nrepl-buffer-p)
   (lexical-let ((process process)
