@@ -1195,8 +1195,9 @@ The result is a plist with keys :value, :stderr and :stdout."
   (with-current-buffer "*nrepl-connection*"
     (setq nrepl-sync-response nil)
     (nrepl-send-request request (nrepl-sync-request-handler (current-buffer)))
-    (while (null nrepl-sync-response)
-      (accept-process-output nil 0 5))
+    (while (or (null nrepl-sync-response)
+               (null (plist-get nrepl-sync-response :done)))
+      (accept-process-output nil 0.005))
     nrepl-sync-response))
 
 (defun nrepl-send-string-sync (input &optional ns)
