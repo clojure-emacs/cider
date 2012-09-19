@@ -1645,4 +1645,9 @@ under point, prompts for a var."
   (nrepl-connect host port))
 
 (provide 'nrepl)
+
+;; Local Variables:
+;; byte-compile-warnings: (not cl-functions)
+;; End:
+
 ;;; nrepl.el ends here
