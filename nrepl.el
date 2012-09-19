@@ -5,7 +5,7 @@
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
-;; Version: 0.1.4
+;; Version: 0.1.5
 ;; Keywords: languages, clojure, nrepl
 ;; Package-Requires: ((clojure-mode "1.11"))
 
@@ -66,7 +66,7 @@
   :type 'hook
   :group 'nrepl)
 
-(defvar nrepl-version "0.1.4-preview"
+(defvar nrepl-version "0.1.5-preview"
   "The current nrepl version.")
 
 (defface nrepl-prompt-face
@@ -399,7 +399,7 @@ joined together.")
                            nrepl-buffer-ns
                            (nrepl-current-tooling-session)))))
 
-(defun nrepl-eldoc-enable-in-current-buffer ()
+(defun nrepl-turn-on-eldoc-mode ()
   (make-local-variable 'eldoc-documentation-function)
   (setq eldoc-documentation-function 'nrepl-eldoc)
   (apply 'eldoc-add-command nrepl-extra-eldoc-commands)
@@ -936,7 +936,7 @@ This function is meant to be used in hooks to avoid lambda
   (add-to-list 'completion-at-point-functions
 	       'nrepl-complete-at-point)
   (set-syntax-table nrepl-mode-syntax-table)
-  (nrepl-eldoc-enable-in-current-buffer)
+  (nrepl-turn-on-eldoc-mode)
   (when nrepl-history-file
     (nrepl-history-load nrepl-history-file)
     (make-local-variable 'kill-buffer-hook)
@@ -1213,6 +1213,9 @@ The result is a plist with keys :value, :stderr and :stdout."
 
 (defun nrepl-send-string-sync (input &optional ns session)
   (nrepl-send-request-sync (nrepl-eval-request input ns session)))
+
+(defalias 'nrepl-eval 'nrepl-send-string-sync)
+(defalias 'nrepl-eval-async 'nrepl-send-string)
 
 (defun nrepl-send-input (&optional newline)
   "Goto to the end of the input and send the current input.
@@ -1589,7 +1592,9 @@ under point, prompts for a var."
 ;;; client
 (defun nrepl-create-nrepl-buffer (process)
   (nrepl-init-repl-buffer process
-                          (switch-to-buffer-other-window (generate-new-buffer-name "*nrepl*"))))
+    (let ((buf (generate-new-buffer-name "*nrepl*")))
+      (switch-to-buffer-other-window buf)
+      buf)))
 
 
 (defun nrepl-new-tooling-session-handler (process)
@@ -1612,7 +1617,7 @@ under point, prompts for a var."
                  (setq nrepl-session new-session)
                  (remhash id nrepl-requests)
                  (if create-nrepl-buffer-p
-                     (nrepl-create-nrepl-buffer process))
+                   (nrepl-create-nrepl-buffer process))
                  (run-hooks 'nrepl-connected-hook))))))))
 
 (defun nrepl-init-client-sessions (process)
