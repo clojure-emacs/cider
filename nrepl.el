@@ -771,7 +771,7 @@ DIRECTION is 'forward' or 'backward' (in the history list)."
   :safe 'integerp
   :group 'nrepl-mode)
 
-(defcustom nrepl-history-file "~/.nrepl-history.eld"
+(defcustom nrepl-history-file nil
   "File to save the persistent REPL history to."
   :type 'string
   :safe 'stringp
