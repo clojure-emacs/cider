@@ -94,7 +94,7 @@ Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
 * **C-c C-d**: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 * **M-.**: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
 * **M-,**: Return to your pre-jump location.
-* **M-TAB**: Complete the symbol at point.
+* **M-TAB**: Complete the symbol at point. (For `auto-complete` integration, see [`ac-nrepl`](https://github.com/purcell/ac-nrepl))
 
 ### REPL buffer commands:
 
