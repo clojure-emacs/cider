@@ -1634,6 +1634,12 @@ restart the server."
   (nrepl-jack-in current-prefix-arg))
 
 ;;; client
+(defun nrepl-op-supported-p (op)
+  "Return t iff the given operation is supported by nREPL server."
+  (with-current-buffer nrepl-connection-buffer
+    (if (and nrepl-ops (assoc op nrepl-ops))
+        t)))
+
 (defun nrepl-describe-handler (process-buffer)
   (lexical-let ((buffer process-buffer))
     (lambda (response)
@@ -1652,7 +1658,6 @@ restart the server."
     (let ((buf (generate-new-buffer-name nrepl-nrepl-buffer)))
       (switch-to-buffer-other-window buf)
       buf)))
-
 
 (defun nrepl-new-tooling-session-handler (process)
   (lexical-let ((process process))
