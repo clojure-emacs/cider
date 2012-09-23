@@ -479,6 +479,19 @@ joined together.")
                                  (message (format "%s" err)))
                                '()))
 
+(defun nrepl-load-file-handler (buffer)
+  (let (current-ns (nrepl-current-ns))
+    (nrepl-make-response-handler buffer
+                                 (lambda (buffer value)
+                                   (message (format "%s" value))
+                                   (with-current-buffer buffer
+                                     (setq nrepl-buffer-ns (clojure-find-ns))))
+                                 (lambda (buffer value)
+                                   (nrepl-emit-interactive-output value))
+                                 (lambda (buffer err)
+                                   (message (format "%s" err)))
+                                 '())))
+
 (defun nrepl-interactive-eval-print-handler (buffer)
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
@@ -704,6 +717,17 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
     (nrepl-send-string form
                        (nrepl-interactive-eval-handler buffer)
                        nrepl-buffer-ns)))
+
+(defun nrepl-send-load-file (file-contents file-path file-name)
+  "Evaluate the given form and print value in minibuffer."
+  (let ((buffer (current-buffer)))
+    (nrepl-send-request (list "op" "load-file"
+                              "session" (nrepl-current-session)
+                              "ns" nrepl-buffer-ns
+                              "file" file-contents
+                              "file-path" file-path
+                              "file-name" file-name)
+                        (nrepl-load-file-handler buffer))))
 
 (defun nrepl-eval-last-expression (&optional prefix)
   "Evaluate the expression preceding point."
@@ -1497,6 +1521,11 @@ under point, prompts for a var."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-doc-handler query))
 
+(defun file-string (file)
+  "Read the contents of a file and return as a string."
+  (with-current-buffer (find-file-noselect file)
+          (buffer-string)))
+
 ;; TODO: implement reloading ns
 (defun nrepl-eval-load-file (form)
   (let ((buffer (current-buffer)))
@@ -1512,9 +1541,10 @@ under point, prompts for a var."
    (let ((fn (replace-regexp-in-string
         "\\\\" "\\\\\\\\"
 	      (convert-standard-filename (expand-file-name filename)))))
-     (nrepl-eval-load-file
-      (format "(clojure.core/load-file \"%s\")\n(in-ns '%s)\n"
-              fn (nrepl-find-ns)))
+
+     (nrepl-send-load-file (file-string filename)
+                           (file-name-directory filename)
+                           (file-name-nondirectory filename))
      (message "Loading %s..." fn)))
 
 (defun nrepl-load-current-buffer ()
