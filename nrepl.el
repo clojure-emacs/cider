@@ -947,8 +947,7 @@ This function is meant to be used in hooks to avoid lambda
   (nrepl-turn-on-eldoc-mode)
   (when nrepl-history-file
     (nrepl-history-load nrepl-history-file)
-    (make-local-variable 'kill-buffer-hook)
-    (add-hook 'kill-buffer-hook 'nrepl-history-just-save)
+    (add-hook 'kill-buffer-hook 'nrepl-history-just-save t t)
     (add-hook 'kill-emacs-hook 'nrepl-history-just-save))
   (run-mode-hooks 'nrepl-mode-hook))
 
@@ -1519,7 +1518,7 @@ under point, prompts for a var."
                                           (buffer-file-name))))))
    (let ((fn (replace-regexp-in-string
         "\\\\" "\\\\\\\\"
-	      (convert-standard-filename (expand-file-name filename)))))
+        (convert-standard-filename (expand-file-name filename)))))
      (nrepl-eval-load-file
       (format "(clojure.core/load-file \"%s\")\n(in-ns '%s)\n"
               fn (nrepl-find-ns)))
