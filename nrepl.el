@@ -66,6 +66,11 @@
   :type 'hook
   :group 'nrepl)
 
+(defcustom nrepl-host "127.0.0.1"
+   "The default hostname (or IP address) to connect to."
+   :type 'string
+   :group 'nrepl)
+
 (defvar nrepl-version "0.1.5-preview"
   "The current nrepl version.")
 
@@ -1703,7 +1708,8 @@ restart the server."
 
 ;;;###autoload
 (defun nrepl (host port)
-  (interactive "MHost: \nnPort: ")
+  (interactive (list (read-from-minibuffer "Host: " nrepl-host)
+                     (read-from-minibuffer "Port: ")))
   (nrepl-connect host port))
 
 (provide 'nrepl)
