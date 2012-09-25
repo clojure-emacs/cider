@@ -69,8 +69,8 @@
 (defvar nrepl-version "0.1.5-preview"
   "The current nrepl version.")
 
-(defvar nrepl-connection-buffer " *nrepl-connection*")
-(defvar nrepl-server-buffer " *nrepl-server*")
+(defvar nrepl-connection-buffer "*nrepl-connection*")
+(defvar nrepl-server-buffer "*nrepl-server*")
 (defvar nrepl-nrepl-buffer "*nrepl*")
 (defvar nrepl-error-buffer "*nREPL error*")
 
