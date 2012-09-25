@@ -1162,8 +1162,12 @@ buffer."
   (with-current-buffer nrepl-connection-buffer
     nrepl-tooling-session))
 
+(defun nrepl-next-request-id ()
+  (with-current-buffer nrepl-connection-buffer
+    (number-to-string (incf nrepl-request-counter))))
+
 (defun nrepl-send-request (request callback)
-  (let* ((request-id (number-to-string (incf nrepl-request-counter)))
+  (let* ((request-id (nrepl-next-request-id))
          (message (nrepl-bencode (append (list "id" request-id) request))))
     (puthash request-id callback nrepl-requests)
     (nrepl-write-message nrepl-connection-buffer message)))
