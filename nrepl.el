@@ -138,9 +138,6 @@ joined together.")
 (defvar nrepl-input-history '()
   "History list of strings read from the nREPL buffer.")
 
-(defvar nrepl-input-history-index 0
-  "Current position in the history list.")
-
 (defvar nrepl-input-history-items-added 0
   "Variable counting the items added in the current session.")
 
@@ -754,7 +751,7 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
   :group 'nrepl)
 
 ;; These two vars contain the state of the last history search.  We
-;; only use them if `nrepl-history-last-command' was 'nrepl-history-replace,
+;; only use them if `last-command' was 'nrepl-history-replace,
 ;; otherwise we reinitialize them.
 
 (defvar nrepl-input-history-position -1
@@ -762,10 +759,6 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
 
 (defvar nrepl-history-pattern nil
   "The regexp most recently used for finding input history.")
-
-(defvar nrepl-history-this-command nil)
-
-(defvar nrepl-history-last-command nil)
 
 (defun nrepl-add-to-input-history (string)
   "Add STRING to the input history.
@@ -783,14 +776,6 @@ Empty strings and duplicates are ignored."
 (defun nrepl-replace-input (string)
   (nrepl-delete-current-input)
   (insert-and-inherit string))
-
-(defun nrepl-get-next-history-index (direction)
-  (let* ((history nrepl-input-history)
-         (len (length history))
-         (next (+ nrepl-input-history-index (if (eq direction 'forward) -1 1))))
-    (cond ((< next 0) -1)
-          ((<= len next) len)
-          (t next))))
 
 (defun nrepl-position-in-history (start-pos direction regexp)
   "Return the position of the history item matching regexp.
@@ -833,17 +818,17 @@ If REGEXP is non-nil, only lines matching REGEXP are considered."
     (message "%s%s" msg (cond ((not regexp) "")
                               (t (format "; current regexp: %s" regexp))))
     (setq nrepl-input-history-position pos)
-    (setq nrepl-history-this-command 'nrepl-history-replace)))
+    (setq this-command 'nrepl-history-replace)))
 
 (defun nrepl-history-search-in-progress-p ()
-  (eq nrepl-history-last-command 'nrepl-history-replace))
+  (eq last-command 'nrepl-history-replace))
 
 (defun nrepl-terminate-history-search ()
-  (setq nrepl-history-last-command nrepl-history-this-command))
+  (setq last-command this-command))
 
 (defun nrepl-previous-input ()
   "Cycle backwards through input history.
-If the `nrepl-history-last-command' was a history navigation command use the
+If the `last-command' was a history navigation command use the
 same search pattern for this command.
 Otherwise use the current input as search pattern."
   (interactive)
@@ -921,7 +906,7 @@ defined filenames can be used to read special history files.
 The value of `nrepl-input-history` is set by this function."
   (interactive (list (nrepl-history-read-filename)))
   (let ((f (or filename nrepl-history-file)))
-    ;; TODO: probably need to set nrepl-input-history-index as well.
+    ;; TODO: probably need to set nrepl-input-history-position as well.
     ;; in a fresh connection the newest item in the list is currently
     ;; not available.  After sending one input, everything seems to work.
     (setq nrepl-input-history (nrepl-history-read f))))
@@ -1373,7 +1358,6 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
-    (setq nrepl-input-history-index -1)
     (nrepl-send-string input (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
 
 (defun nrepl-newline-and-indent ()
