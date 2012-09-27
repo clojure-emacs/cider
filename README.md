@@ -104,7 +104,7 @@ Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
 * **C-c M-o**: Clear the entire REPL buffer, leaving only a prompt.
 * **C-c C-o**: Remove the output of the previous evaluation from the REPL buffer.
 * **C-c C-b**: Interrupt any pending evaluations.
-* **C-<up>, C-<down>**: Goto to previous/next input in history.
+* **C-up, C-down**: Goto to previous/next input in history.
 * **M-p, M-n**: Search the previous/next item in history using the current input
 as search pattern. If M-p/M-n is typed two times in a row, the second invocation
 uses the same search pattern (even if the current input has changed).
