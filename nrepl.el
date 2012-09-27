@@ -336,11 +336,20 @@ joined together.")
 
 (defun nrepl-jump-to-def (var)
   "Jump to the definition of the var at point."
-  (let ((form (format "((clojure.core/juxt
+  (let ((form 
+         (if (string-match ".+/.+" var)
+             ;; var is qualified with ns
+             (format "((clojure.core/juxt
                          (comp clojure.core/str clojure.java.io/resource :file)
                          (comp clojure.core/str clojure.java.io/file :file) :line)
                         (clojure.core/meta (clojure.core/resolve '%s)))"
-                      var)))
+                     var)
+           ;; var is not qualified, use buffer ns
+           (format "((clojure.core/juxt
+                         (comp clojure.core/str clojure.java.io/resource :file)
+                         (comp clojure.core/str clojure.java.io/file :file) :line)
+                        (clojure.core/meta (clojure.core/ns-resolve '%s '%s)))"
+                   (nrepl-current-ns) var))))
     (nrepl-send-string form
                        (nrepl-jump-to-def-handler (current-buffer))
                        nrepl-buffer-ns
