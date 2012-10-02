@@ -540,7 +540,7 @@ joined together.")
         (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
                            (nrepl-make-response-handler
-                            (nrepl-popup-buffer nrepl-error-buffer t)
+                            (nrepl-popup-buffer nrepl-error-buffer)
                             nil
                             'nrepl-emit-into-color-buffer nil nil)))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
@@ -580,13 +580,13 @@ joined together.")
   (interactive)
   (funcall nrepl-popup-buffer-quit-function kill-buffer-p))
 
-(defun nrepl-popup-buffer (name select)
+(defun nrepl-popup-buffer (name &optional select)
   (with-current-buffer (nrepl-make-popup-buffer name)
     (setq buffer-read-only t)
     (set-window-point (nrepl-display-popup-buffer select) (point))
     (current-buffer)))
 
-(defun nrepl-display-popup-buffer (select)
+(defun nrepl-display-popup-buffer (&optional select)
   "Display the current buffer.
  Save the selected-window in a buffer-local variable, so that we
  can restore it later."
