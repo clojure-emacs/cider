@@ -744,7 +744,13 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
   (interactive "P")
   (if prefix
       (nrepl-interactive-eval-print (nrepl-last-expression))
-      (nrepl-interactive-eval (nrepl-last-expression))))
+    (nrepl-interactive-eval (nrepl-last-expression))))
+
+(defun nrepl-eval-print-last-expression ()
+  "Evaluate the expression preceding point and print value into
+  the current buffer"
+  (interactive)
+  (nrepl-interactive-eval-print (nrepl-last-expression)))
 
 ;;;;; History
 (defun nrepl-add-to-input-history (string)
