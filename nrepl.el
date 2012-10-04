@@ -1010,6 +1010,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-o") 'nrepl-clear-output)
     (define-key map (kbd "C-c M-o") 'nrepl-clear-buffer)
+    (define-key map (kbd "C-c C-u") 'nrepl-kill-input)
     (define-key map "\C-a" 'nrepl-bol)
     (define-key map [home] 'nrepl-bol)
     (define-key map (kbd "C-<up>") 'nrepl-backward-input)
@@ -1018,6 +1019,8 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "M-n") 'nrepl-next-input)
     (define-key map (kbd "M-r") 'nrepl-previous-matching-input)
     (define-key map (kbd "M-s") 'nrepl-next-matching-input)
+    (define-key map (kbd "C-c C-n") 'nrepl-next-prompt)
+    (define-key map (kbd "C-c C-p") 'nrepl-previous-prompt)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     map))
 
@@ -1198,6 +1201,13 @@ Assume that any error during decoding indicates an incomplete message."
   (process-send-string process message))
 
 ;;; repl interaction
+(defun nrepl-property-bounds (prop)
+   "Return two the positions of the previous and next changes to PROP.
+ PROP is the name of a text property."
+   (assert (get-text-property (point) prop))
+   (let ((end (next-single-char-property-change (point) prop)))
+     (list (previous-single-char-property-change end prop) end)))
+
 (defun nrepl-in-input-area-p ()
   (<= nrepl-input-start-mark (point)))
 
@@ -1371,6 +1381,14 @@ earlier in the buffer."
     (insert "\n")
     (lisp-indent-line)))
 
+(defun nrepl-kill-input ()
+  "Kill all text from the prompt to point."
+  (interactive)
+  (cond ((< (marker-position nrepl-input-start-mark) (point))
+         (kill-region nrepl-input-start-mark (point)))
+        ((= (point) (marker-position nrepl-input-start-mark))
+         (nrepl-delete-current-input))))
+
 (defun nrepl-input-complete-p (start end)
    "Return t if the region from START to END contains a complete sexp."
    (save-excursion
@@ -1396,10 +1414,45 @@ With prefix argument send the input even if the parenthesis are not
 balanced."
   (interactive "P")
   (cond
+   (end-of-input
+    (nrepl-send-input))
+   ((and (get-text-property (point) 'nrepl-old-input)
+         (< (point) nrepl-input-start-mark))
+    (nrepl-grab-old-input end-of-input)
+    (nrepl-recenter-if-needed))
    ((nrepl-input-complete-p nrepl-input-start-mark (point-max))
     (nrepl-send-input t))
    (t
-    (nrepl-newline-and-indent))))
+    (nrepl-newline-and-indent)
+    (message "[input not complete]"))))
+
+(defun nrepl-recenter-if-needed ()
+  "Make sure that (point) is visible."
+  (unless (pos-visible-in-window-p (point-max))
+    (save-excursion
+      (goto-char (point-max))
+      (recenter -1))))
+
+(defun nrepl-grab-old-input (replace)
+  "Resend the old REPL input at point.  
+If replace is non-nil the current input is replaced with the old
+input; otherwise the new input is appended.  The old input has the
+text property `nrepl-old-input'."
+  (multiple-value-bind (beg end) (nrepl-property-bounds 'nrepl-old-input)
+    (let ((old-input (buffer-substring beg end)) ;;preserve
+          ;;properties, they will be removed later
+          (offset (- (point) beg)))
+      ;; Append the old input or replace the current input
+      (cond (replace (goto-char nrepl-input-start-mark))
+            (t (goto-char (point-max))
+               (unless (eq (char-before) ?\ )
+                 (insert " "))))
+      (delete-region (point) (point-max))
+      (save-excursion 
+        (insert old-input)
+        (when (equal (char-before) ?\n) 
+          (delete-char -1)))
+      (forward-char offset))))
 
 (defun nrepl-closing-return ()
   "Evaluate the current input string after closing all open lists."
