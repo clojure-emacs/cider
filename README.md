@@ -103,9 +103,15 @@ Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
 * **C-j**: Open a new line and indent.
 * **C-c M-o**: Clear the entire REPL buffer, leaving only a prompt.
 * **C-c C-o**: Remove the output of the previous evaluation from the REPL buffer.
+* **C-c C-u**: Kill all text from the prompt to the current point.
 * **C-c C-b**: Interrupt any pending evaluations.
-* **M-p**: Display previous input in history.
-* **M-n**: Dispaly next input in history.
+* **C-up, C-down**: Goto to previous/next input in history.
+* **M-p, M-n**: Search the previous/next item in history using the current input
+as search pattern. If M-p/M-n is typed two times in a row, the second invocation
+uses the same search pattern (even if the current input has changed).
+* **M-s, M-r**: Search forward/reverse through command history with regex.
+* **C-c C-n, C-c C-p**: Move between the current and previous prompts in the REPL buffer. Pressing RET on a line with old input copies that line to the newest prompt.
+
 * **TAB**: Complete symbol at point.
 
 ## Requirements:
