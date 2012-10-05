@@ -1888,7 +1888,7 @@ restart the server."
 ;;;###autoload
 (defun nrepl (host port)
   (interactive (list (read-from-minibuffer "Host: " nrepl-host)
-                     (read-from-minibuffer "Port: ")))
+                     (string-to-number (read-from-minibuffer "Port: "))))
   (nrepl-connect host port))
 
 (provide 'nrepl)
