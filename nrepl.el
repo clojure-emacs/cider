@@ -354,8 +354,6 @@ joined together.")
 
 (defalias 'nrepl-jump-back 'pop-tag-mark)
 
-(defvar nrepl-completion-fn 'nrepl-completion-complete-core-fn)
-
 (defun nrepl-completion-complete-core-fn (str)
   "Return a list of completions using complete.core/completions."
   (let ((strlst (plist-get
@@ -367,12 +365,29 @@ joined together.")
     (when strlst
       (car (read-from-string strlst)))))
 
+(defun nrepl-completion-complete-op-fn (str)
+  "Return a list of completions using the nREPL \"complete\" op."
+  (lexical-let ((strlst (plist-get
+                         (nrepl-send-request-sync
+                          (list "op" "complete"
+                                "session" (nrepl-current-session)
+                                "ns" nrepl-buffer-ns
+                                "symbol" str))
+                         :value)))
+    (when strlst
+      (car strlst))))
+
+(defun nrepl-dispatch-complete-symbol (str)
+  (if (nrepl-op-supported-p "complete")
+      (nrepl-completion-complete-op-fn str)
+    (nrepl-completion-complete-core-fn str)))
+
 (defun nrepl-complete-at-point ()
   (let ((sap (symbol-at-point)))
     (when (and sap (not (in-string-p)))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
-              (completion-table-dynamic nrepl-completion-fn))))))
+              (completion-table-dynamic #'nrepl-dispatch-complete-symbol))))))
 
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
