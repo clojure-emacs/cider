@@ -55,6 +55,7 @@
 (require 'ansi-color)
 (require 'eldoc)
 (require 'cl)
+(require 'paredit)
 
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
@@ -270,9 +271,9 @@ joined together.")
    "Return the start and end position of defun at point."
    (save-excursion
      (save-match-data
-       (end-of-defun)
+       (while (ignore-errors (paredit-forward-up) t))
        (let ((end (point)))
-         (beginning-of-defun)
+         (backward-sexp)
          (list (point) end)))))
 
 (defun nrepl-eval-expression-at-point (&optional prefix)
@@ -1445,7 +1446,7 @@ balanced."
       (recenter -1))))
 
 (defun nrepl-grab-old-input (replace)
-  "Resend the old REPL input at point.  
+  "Resend the old REPL input at point.
 If replace is non-nil the current input is replaced with the old
 input; otherwise the new input is appended.  The old input has the
 text property `nrepl-old-input'."
@@ -1459,9 +1460,9 @@ text property `nrepl-old-input'."
                (unless (eq (char-before) ?\ )
                  (insert " "))))
       (delete-region (point) (point-max))
-      (save-excursion 
+      (save-excursion
         (insert old-input)
-        (when (equal (char-before) ?\n) 
+        (when (equal (char-before) ?\n)
           (delete-char -1)))
       (forward-char offset))))
 
