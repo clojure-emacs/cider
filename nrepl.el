@@ -1734,7 +1734,7 @@ under point, prompts for a var."
 
 (defun nrepl-load-file-op (filename)
   (nrepl-send-load-file (nrepl-file-string filename)
-                        (file-name-directory filename)
+                        filename
                         (file-name-nondirectory filename)))
 
 (defun nrepl-load-file-core (filename)
