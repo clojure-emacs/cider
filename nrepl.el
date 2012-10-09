@@ -371,7 +371,7 @@ joined together.")
   (lexical-let ((strlst (plist-get
                          (nrepl-send-request-sync
                           (list "op" "complete"
-                                "session" (nrepl-current-session)
+                                "session" (nrepl-current-tooling-session)
                                 "ns" nrepl-buffer-ns
                                 "symbol" str))
                          :value)))
