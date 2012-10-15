@@ -448,7 +448,8 @@ joined together.")
                 (stderr-handler stderr-handler)
                 (done-handler done-handler))
     (lambda (response)
-      (nrepl-dbind-response response (value ns out err status id ex root-ex)
+      (nrepl-dbind-response response (value ns out err status id ex root-ex
+                                      session)
         (cond (value
                (with-current-buffer buffer
                  (if ns
@@ -465,7 +466,7 @@ joined together.")
                (if (member "interrupted" status)
                    (message "Evaluation interrupted."))
                (if (member "eval-error" status)
-                   (funcall nrepl-err-handler buffer ex root-ex))
+                   (funcall nrepl-err-handler buffer ex root-ex session))
                (if (member "namespace-not-found" status)
                    (message "Namespace not found."))
                (if (member "need-input" status)
@@ -547,8 +548,7 @@ joined together.")
                                  (nrepl-emit-into-popup-buffer buffer str))
                                '()))
 
-(defun nrepl-default-err-handler (buffer ex root-ex)
-  ;; TODO: use pst+ here for colorization. currently breaks bencode.
+(defun nrepl-default-err-handler (buffer ex root-ex session)
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (if (or nrepl-popup-stacktraces
           (not (eq 'nrepl-mode
@@ -560,7 +560,7 @@ joined together.")
                            (nrepl-make-response-handler
                             (nrepl-popup-buffer nrepl-error-buffer)
                             nil
-                            'nrepl-emit-into-color-buffer nil nil)))
+                            'nrepl-emit-into-color-buffer nil nil) nil session))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
     ;; can pull up with a hotkey only when interested in seeing it?
     ))
