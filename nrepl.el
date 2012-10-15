@@ -62,6 +62,9 @@
   :prefix "nrepl-"
   :group 'applications)
 
+(defvar nrepl-version "0.1.5-preview"
+  "The current nrepl version.")
+
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
   :type 'hook
@@ -72,8 +75,10 @@
    :type 'string
    :group 'nrepl)
 
-(defvar nrepl-version "0.1.5-preview"
-  "The current nrepl version.")
+(defcustom nrepl-port nil
+   "The default port to connect to."
+   :type 'string
+   :group 'nrepl)
 
 (defvar nrepl-connection-buffer "*nrepl-connection*")
 (defvar nrepl-server-buffer "*nrepl-server*")
@@ -1934,8 +1939,8 @@ restart the server."
 
 ;;;###autoload
 (defun nrepl (host port)
-  (interactive (list (read-from-minibuffer "Host: " nrepl-host)
-                     (string-to-number (read-from-minibuffer "Port: "))))
+  (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
+                     (string-to-number (read-string "Port: " nrepl-port nil nrepl-port))))
   (nrepl-connect host port))
 
 (provide 'nrepl)
