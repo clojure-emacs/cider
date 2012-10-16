@@ -437,6 +437,37 @@ joined together.")
   (apply 'eldoc-add-command nrepl-extra-eldoc-commands)
   (turn-on-eldoc-mode))
 
+
+;;; JavaDoc Browsing
+;;; Assumes local-paths are accessible in the VM.
+(defvar nrepl-javadoc-local-paths nil
+ "List of paths to directories with javadoc")
+
+(defun nrepl-javadoc-op (symbol-name)
+  (nrepl-send-op
+   "javadoc"
+   `("symbol" ,symbol-name "ns" ,nrepl-buffer-ns
+     "local-paths" ,(mapconcat #'identity nrepl-javadoc-local-paths " "))
+   (nrepl-make-response-handler
+    (current-buffer)
+    (lambda (buffer url)
+      (if url
+          (browse-url url)
+        (error "No javadoc url for %s" symbol-name)))
+    nil nil nil)))
+
+(defun nrepl-javadoc-handler (symbol-name)
+  (when symbol-name
+    (let ((bounds (bounds-of-thing-at-point 'symbol)))
+      (if (nrepl-op-supported-p "javadoc")
+          (nrepl-javadoc-op symbol-name)
+        (message "No javadoc middleware available")))))
+
+(defun nrepl-javadoc (query)
+  "Browse javadoc on the Java class at point."
+  (interactive "P")
+  (nrepl-read-symbol-name "Javadoc for: " 'nrepl-javadoc-handler query))
+
 ;;; Response handlers
 (defmacro nrepl-dbind-response (response keys &rest body)
   "Destructure an nREPL response dict."
@@ -751,6 +782,16 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
                        (nrepl-interactive-eval-handler buffer)
                        nrepl-buffer-ns)))
 
+(defun nrepl-send-op (op attributes handler)
+  "Send the specified op."
+  (let ((buffer (current-buffer)))
+    (nrepl-send-request (append
+                         (list "op" op
+                               "session" (nrepl-current-session)
+                               "ns" nrepl-buffer-ns)
+                         attributes)
+                        handler)))
+
 (defun nrepl-send-load-file (file-contents file-path file-name)
   "Evaluate the given form and print value in minibuffer."
   (let ((buffer (current-buffer)))
@@ -1028,6 +1069,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
+    (define-key map (kbd "C-c b") 'nrepl-javadoc)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1073,6 +1115,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-n") 'nrepl-next-prompt)
     (define-key map (kbd "C-c C-p") 'nrepl-previous-prompt)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
+    (define-key map (kbd "C-c b") 'nrepl-javadoc)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
