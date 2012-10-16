@@ -359,7 +359,7 @@ joined together.")
   "Return a list of completions using complete.core/completions."
   (let ((strlst (plist-get
                  (nrepl-send-string-sync
-                  (format "(complete.core/completions \"%s\" *ns*)" str)
+                  (format "(require 'complete.core) (complete.core/completions \"%s\" *ns*)" str)
                   nrepl-buffer-ns
                   (nrepl-current-tooling-session))
                  :value)))
