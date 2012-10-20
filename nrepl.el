@@ -5,7 +5,7 @@
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
 ;; URL: http://www.github.com/kingtim/nrepl.el
-;; Version: 0.1.5
+;; Version: 0.1.6
 ;; Keywords: languages, clojure, nrepl
 ;; Package-Requires: ((clojure-mode "1.11"))
 
@@ -62,7 +62,7 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defvar nrepl-version "0.1.5"
+(defvar nrepl-version "0.1.6-preview"
   "The current nrepl version.")
 
 (defcustom nrepl-connected-hook nil
