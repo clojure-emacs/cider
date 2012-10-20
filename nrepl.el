@@ -62,7 +62,7 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defvar nrepl-version "0.1.5-preview"
+(defvar nrepl-version "0.1.5"
   "The current nrepl version.")
 
 (defcustom nrepl-connected-hook nil
