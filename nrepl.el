@@ -1265,12 +1265,20 @@ Return the position of the prompt beginning."
                                    (insert-before-markers string)))))
     (nrepl-show-maximum-output)))
 
+(defun nrepl-default-handler (response)
+  "Default handler which is invoked when no handler is found."
+  (nrepl-dbind-response response (out value)
+    (cond
+     (out
+      (nrepl-emit-interactive-output out)))))
+
 (defun nrepl-dispatch (response)
   "Dispatch the response to associated callback."
   (nrepl-dbind-response response (id)
     (let ((callback (gethash id nrepl-requests)))
       (if callback
-          (funcall callback response)))))
+          (funcall callback response)
+        (nrepl-default-handler response)))))
 
 (defun nrepl-net-decode ()
   "Decode the data in the current buffer and remove the processed data from the
