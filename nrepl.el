@@ -1507,7 +1507,7 @@ earlier in the buffer."
    "Return t if the region from START to END contains a complete sexp."
    (save-excursion
      (goto-char start)
-     (cond ((looking-at "\\s *['`#]?[(\"]")
+     (cond ((looking-at "\\s *[@'`#]?[(\"]")
             (ignore-errors
               (save-restriction
                 (narrow-to-region start end)
