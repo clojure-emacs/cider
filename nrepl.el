@@ -844,6 +844,7 @@ Empty strings and duplicates are ignored."
 (defun nrepl-delete-current-input ()
   "Delete all text after the prompt."
   (interactive)
+  (goto-char (point-max))
   (delete-region nrepl-input-start-mark (point-max)))
 
 (defun nrepl-replace-input (string)
