@@ -1284,6 +1284,7 @@ Useful in hooks."
   " nREPL"
   nrepl-interaction-mode-map
   (make-local-variable 'completion-at-point-functions)
+  (setq nrepl-buffer-ns (nrepl-find-ns))
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point))
 
@@ -1303,7 +1304,7 @@ Useful in hooks."
     (nrepl-history-load nrepl-history-file)
     (add-hook 'kill-buffer-hook 'nrepl-history-just-save t t)
     (add-hook 'kill-emacs-hook 'nrepl-history-just-save))
-
+  (setq nrepl-buffer-ns (nrepl-find-ns))
   (add-hook 'paredit-mode-hook
             (lambda ()
               (when (>= paredit-version 21)
