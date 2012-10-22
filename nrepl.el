@@ -1033,13 +1033,25 @@ This function is meant to be used in hooks to avoid lambda
    (save-excursion (goto-char (min pos1 pos2))
                    (<= (max pos1 pos2) (line-end-position))))
 
-(defun nrepl-bol ()
+(defun nrepl-bol-internal ()
   "Go to the beginning of line or the prompt."
-  (interactive)
   (cond ((and (>= (point) nrepl-input-start-mark)
               (nrepl-same-line-p (point) nrepl-input-start-mark))
          (goto-char nrepl-input-start-mark))
         (t (beginning-of-line 1))))
+
+(defun nrepl-bol ()
+  "Go to the beginning of line or the prompt."
+  (interactive)
+  (deactivate-mark)
+  (nrepl-bol-internal))
+
+(defun nrepl-bol-mark ()
+  "Set the mark and go to the beginning of line or the prompt."
+  (interactive)
+  (unless mark-active
+    (set-mark (point)))
+  (nrepl-bol-internal))
 
 (defun nrepl-at-prompt-start-p ()
   ;; This will not work on non-current prompts.
@@ -1105,8 +1117,10 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-o") 'nrepl-clear-output)
     (define-key map (kbd "C-c M-o") 'nrepl-clear-buffer)
     (define-key map (kbd "C-c C-u") 'nrepl-kill-input)
-    (define-key map "\C-a" 'nrepl-bol)
+    (define-key map (kbd "C-a") 'nrepl-bol)
+    (define-key map (kbd "C-S-a") 'nrepl-bol-mark)
     (define-key map [home] 'nrepl-bol)
+    (define-key map [S-home] 'nrepl-bol-mark)
     (define-key map (kbd "C-<up>") 'nrepl-backward-input)
     (define-key map (kbd "C-<down>") 'nrepl-forward-input)
     (define-key map (kbd "M-p") 'nrepl-previous-input)
