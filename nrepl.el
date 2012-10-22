@@ -1279,7 +1279,8 @@ This function is meant to be used in hooks to avoid lambda
    nrepl-interaction-mode-map
    (make-local-variable 'completion-at-point-functions)
    (add-to-list 'completion-at-point-functions
-                'nrepl-complete-at-point))
+                'nrepl-complete-at-point)
+  (setq nrepl-buffer-ns (nrepl-find-ns)))
 
 (defun nrepl-mode ()
   "Major mode for nREPL interactions."
@@ -1300,6 +1301,7 @@ This function is meant to be used in hooks to avoid lambda
     (nrepl-history-load nrepl-history-file)
     (add-hook 'kill-buffer-hook 'nrepl-history-just-save t t)
     (add-hook 'kill-emacs-hook 'nrepl-history-just-save))
+  (setq nrepl-buffer-ns (nrepl-find-ns))
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;; communication
