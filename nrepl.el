@@ -155,7 +155,7 @@ joined together.")
 (defvar nrepl-output-start nil
   "Marker for the start of output.")
 
-(defvar nrepl-output-end
+(defvar nrepl-output-end nil
   "Marker for the end of output.")
 
 (defvar nrepl-sync-response nil
