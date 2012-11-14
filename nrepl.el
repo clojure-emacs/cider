@@ -1893,20 +1893,15 @@ under point, prompts for a var."
                       (with-current-buffer b
                         (buffer-substring (point-min) (point-max)))
                     "")))
-
     (when b
       (kill-buffer b))
-
     (cond
      ((string-match "^killed" event)
       nil)
-
      ((string-match "^hangup" event)
       (nrepl-quit))
-
      ((string-match "Wrong number of arguments to repl task" problem)
       (error "nrepl.el requires Leiningen 2.x"))
-
      (t (error "Could not start nREPL server: %s" problem)))))
 
 ;;;###autoload
