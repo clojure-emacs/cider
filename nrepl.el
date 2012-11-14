@@ -1891,12 +1891,23 @@ under point, prompts for a var."
   (let* ((b (process-buffer process))
          (problem (if (and b (buffer-live-p b))
                       (with-current-buffer b
-                        (buffer-substring (point-min) (point-max))))))
+                        (buffer-substring (point-min) (point-max)))
+                    "")))
+
     (when b
       (kill-buffer b))
-    (if (string-match "Wrong number of arguments to repl task." problem)
-        (error "nrepl.el requires Leiningen 2.x")
-      (error "Could not start nREPL server: %s" problem))))
+
+    (cond
+     ((string-match "^killed" event)
+      nil)
+
+     ((string-match "^hangup" event)
+      (nrepl-quit))
+
+     ((string-match "Wrong number of arguments to repl task" problem)
+      (error "nrepl.el requires Leiningen 2.x"))
+
+     (t (error "Could not start nREPL server: %s" problem)))))
 
 ;;;###autoload
 (defun nrepl-enable-on-existing-clojure-buffers ()
