@@ -797,7 +797,6 @@ in a macroexpansion buffer. Prefix argument forces pretty-printed output."
   (let ((buffer (current-buffer)))
     (nrepl-send-request (list "op" "load-file"
                               "session" (nrepl-current-session)
-                              "ns" nrepl-buffer-ns
                               "file" file-contents
                               "file-path" file-path
                               "file-name" file-name)
