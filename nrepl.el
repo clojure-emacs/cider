@@ -179,7 +179,7 @@ joined together.")
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
-(defvar nrepl-pretty t)
+(defvar nrepl-pretty nil)
 
 (defun nrepl-pretty-toggle ()
   (interactive)
