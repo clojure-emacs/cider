@@ -1512,7 +1512,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
     (nrepl-send-string
-     (if nrepl-pretty
+     (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-pretty)
       (format "(clojure.pprint/pprint %s)" input)
       input)
      (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
