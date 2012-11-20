@@ -1689,7 +1689,7 @@ text property `nrepl-old-input'."
 
 (defun nrepl-insert-banner (ns)
   (when (zerop (buffer-size))
-    (let ((welcome (concat "; nREPL " (nrepl-version))))
+    (let ((welcome (concat "; nREPL " nrepl-current-version)))
       (insert welcome)))
   (goto-char (point-max))
   (nrepl-mark-output-start)
