@@ -62,8 +62,13 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defvar nrepl-version "0.1.6-preview"
+(defvar nrepl-current-version "0.1.6-preview"
   "The current nrepl version.")
+
+(defun nrepl-version ()
+  "Reports the version of nrepl in use."
+  (interactive)
+  (message "Currently using nREPL version %s" nrepl-current-version))
 
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
@@ -1684,7 +1689,7 @@ text property `nrepl-old-input'."
 
 (defun nrepl-insert-banner (ns)
   (when (zerop (buffer-size))
-    (let ((welcome (concat "; nREPL " nrepl-version)))
+    (let ((welcome (concat "; nREPL " (nrepl-version))))
       (insert welcome)))
   (goto-char (point-max))
   (nrepl-mark-output-start)
