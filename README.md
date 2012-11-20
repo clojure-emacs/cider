@@ -1,9 +1,16 @@
 # nrepl.el
 
-An Emacs client for [nREPL](https://github.com/clojure/tools.nrepl),
-the Clojure networked REPL server.
+`nrepl.el` is an Emacs client for
+[nREPL](https://github.com/clojure/tools.nrepl), the Clojure networked
+REPL server. It's a great alternative to the now deprecated combination
+of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
 ## Installation
+
+### Via package.el
+
+`package.el` is the built-in package manager in Emacs 24+. On Emacs 23
+you will need to get [package.el](http://bit.ly/pkg-el23) yourself if you wish to use it.
 
 `nrepl.el` is available on the both [Marmalade](http://marmalade-repo.org/packages/nrepl)
 and [MELPA](http://melpa.milkbox.net) repos.
@@ -42,35 +49,92 @@ If installation doesn't work try refreshing package list first:
 
 `M-x package-refresh-contents [RET]`
 
-On Emacs 23 you will need to get [package.el](http://bit.ly/pkg-el23)
-yourself or install manually by placing `nrepl.el` on your `load-path`
-and `require`ing it.
+### Via el-get
+
+[el-get](https://github.com/dimitri/el-get) is another popular package manager for Emacs.
+If you're an el-get user just do `M-x el-get-install`.
+
+### Manual
+
+You can install `nrepl.el` manually by placing `nrepl.el` on your `load-path`
+and `require`ing it. Many people favour the folder `~/.emacs.d/vendor`:
+
+```lisp
+(add-to-list 'load-path "~/emacs.d/vendor")
+(require 'nrepl)
+```
+
+Keep in mind that `nrepl.el` depends on `clojure-mode` so you'll have to install
+`clojure-mode` as well.
+
+### Emacs Prelude
+
+`nrepl.el` is comes bundled with
+[Emacs Prelude](https://github.com/bbatsov/prelude). If you're a
+Prelude user you can start using it right away.
 
 ## Configuration
 
-You can certainly use `nrepl.el` without configuring it any further
+You can certainly use `nrepl.el` without configuring it any further,
 but here are some ways other folks are adjusting their `nrepl.el`
 experience.
 
-Enable eldoc in clojure buffers:
+* Enable eldoc in clojure buffers:
 
 ```lisp
 (add-hook 'nrepl-interaction-mode-hook
   'nrepl-turn-on-eldoc-mode)
 ```
 
-Stop the error buffer from popping up while working in the REPL
+* Stop the error buffer from popping up while working in the REPL
 buffer:
 
 ```lisp
 (setq nrepl-popup-stacktraces nil)
 ```
 
-Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
+* Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
 
 ```lisp
 (add-to-list 'same-window-buffer-names "*nrepl*") 
 ```
+
+* If you have
+  [paredit](http://mumble.net/~campbell/emacs/paredit.html) installed
+  you can enabled it like this:
+
+```lisp
+(add-hook 'nrepl-interaction-mode 'paredit-mode)
+```
+
+## Basic Usage
+
+### Launch a nrepl server and client from Emacs
+
+Simply open in Emacs a file belonging to your `lein` project (like
+`foo.clj`) and you type `M-x nrepl-jack-in`. This will start a nREPL with
+all the deps loaded in, plus an `nrepl.el` client connected to it.
+
+Alternative you can use `C-u M-x nrepl-jack-in` to specify the name of
+a lein project, without having to visit any file in it.
+
+### Connect to a running nrepl server
+
+You can go to your project's dir in a terminal and type there:
+
+```bash
+$ lein repl
+```
+
+Afterwards typing `M-x nrepl` will allow you to connect to the running nrepl session.
+
+### Using the nrepl minor mode
+
+`nrepl.el` comes with a handy minor mode (complementing
+`clojure-mode`) that allows you to evaluate code in your Clojure
+source files and load it directly in the repl.  A list of all
+available commands is available in the nREPL menu and in the following
+section of this manual.
 
 ## Keys
 
