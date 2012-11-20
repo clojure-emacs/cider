@@ -1114,7 +1114,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
-    (define-key map (kbd "TAB") 'complete-symbol)
+    (define-key map (kbd "TAB") 'nrepl-indent-and-complete-symbol)
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
@@ -1513,6 +1513,17 @@ earlier in the buffer."
     (narrow-to-region nrepl-prompt-start-mark (point-max))
     (insert "\n")
     (lisp-indent-line)))
+
+(defun nrepl-indent-and-complete-symbol ()
+  "Indent the current line and perform symbol completion.
+First indent the line. If indenting doesn't move point, complete
+the symbol. "
+  (interactive)
+  (let ((pos (point)))
+    (lisp-indent-line)
+    (when (= pos (point))
+      (if (save-excursion (re-search-backward "[^() \n\t\r]+\\=" nil t))
+          (completion-at-point)))))
 
 (defun nrepl-kill-input ()
   "Kill all text from the prompt to point."
