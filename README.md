@@ -99,12 +99,14 @@ buffer:
 (add-to-list 'same-window-buffer-names "*nrepl*") 
 ```
 
-* If you have
-  [paredit](http://mumble.net/~campbell/emacs/paredit.html) installed
-  you can enabled it like this:
-
+* The use of [paredit](http://mumble.net/~campbell/emacs/paredit.html)
+when editing Clojure (or any other Lisp) code is highly
+recommended.  You're probably using it already in your `clojure-mode`
+buffers (if you're not you probably should). You might also want to
+enable `paredit` in the nREPL buffer as well:
+ 
 ```lisp
-(add-hook 'nrepl-interaction-mode 'paredit-mode)
+(add-hook 'nrepl-mode-hook 'paredit-mode)
 ```
 
 ## Basic Usage
