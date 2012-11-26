@@ -111,7 +111,7 @@
   :group 'nrepl)
 
 (defface nrepl-result-face
-  '((t ()))
+  '((t (:inherit font-lock-variable-name-face)))
   "Face for the result of an evaluation in the nREPL client."
   :group 'nrepl)
 
