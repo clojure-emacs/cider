@@ -12,11 +12,13 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 `package.el` is the built-in package manager in Emacs 24+. On Emacs 23
 you will need to get [package.el](http://bit.ly/pkg-el23) yourself if you wish to use it.
 
-`nrepl.el` is available on the both [Marmalade](http://marmalade-repo.org/packages/nrepl)
-and [MELPA](http://melpa.milkbox.net) repos.
+`nrepl.el` is available on both major `package.el` community
+maintained repos -
+[Marmalade](http://marmalade-repo.org/packages/nrepl) and
+[MELPA](http://melpa.milkbox.net).
 
 If you're not already using Marmalade, add this to your
-`~/.emacs.d/init.el` and load it with `M-x eval-buffer`.
+`~/.emacs.d/init.el` (or equivalent) and load it with `M-x eval-buffer`.
 
 ```lisp
 (require 'package)
@@ -34,18 +36,18 @@ For MELPA the code you need to add is:
 (package-initialize)
 ```
 
-And then you can install:
+And then you can install nREPL with the following command:
 
 `M-x package-install [RET] nrepl [RET]`
 
-or
+or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.emacs` or `init.el`):
 
 ```lisp
 (when (not (package-installed-p 'nrepl))
   (package-install 'nrepl))
 ```
 
-If installation doesn't work try refreshing package list first:
+If the installation doesn't work try refreshing the package list:
 
 `M-x package-refresh-contents [RET]`
 
@@ -69,7 +71,7 @@ Keep in mind that `nrepl.el` depends on `clojure-mode` so you'll have to install
 
 ### Emacs Prelude
 
-`nrepl.el` is comes bundled with
+`nrepl.el` comes bundled in
 [Emacs Prelude](https://github.com/bbatsov/prelude). If you're a
 Prelude user you can start using it right away.
 
@@ -99,20 +101,43 @@ buffer:
 (add-to-list 'same-window-buffer-names "*nrepl*") 
 ```
 
-* If you have
-  [paredit](http://mumble.net/~campbell/emacs/paredit.html) installed
-  you can enabled it like this:
+* The use of [paredit](http://mumble.net/~campbell/emacs/paredit.html)
+when editing Clojure(or any other Lisp) code is highly
+recommended. You're probably using it already in your `clojure-mode`
+buffers (if you're not you probably should). You might also want to
+enable `paredit` in nREPL:
 
 ```lisp
-(add-hook 'nrepl-interaction-mode 'paredit-mode)
+(add-hook 'nrepl-mode 'paredit-mode)
 ```
 
 ## Basic Usage
 
+### Setting up a Leiningen project
+
+Before you can use nREPL you'll have to create a Clojure project first.
+
+[Leiningen](http://leiningen.org/) is the de facto standard
+build/project management tool for Clojure.  It has a similar scope to
+the Maven build tool favoured by Java developers (Leiningen actually
+reuses many things from the Maven ecosystem).
+
+nREPL depends on Leiningen 2. Older versions are not supported. Follow
+the installation instructions on Leiningen's web site to get it up and running and afterwards 
+create a project like this:
+
+```bash
+$ lein new demo
+```
+
+At this point you have everything needed to start up nREPL.el.
+
+The two main ways to obtain an nREPL are discussed in the following sections of the manual.
+
 ### Launch a nrepl server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` project (like
-`foo.clj`) and you type `M-x nrepl-jack-in`. This will start a nREPL with
+`foo.clj`) and type `M-x nrepl-jack-in`. This will start a nREPL with
 all the deps loaded in, plus an `nrepl.el` client connected to it.
 
 Alternative you can use `C-u M-x nrepl-jack-in` to specify the name of
@@ -132,7 +157,7 @@ Afterwards typing `M-x nrepl` will allow you to connect to the running nrepl ses
 
 `nrepl.el` comes with a handy minor mode (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure
-source files and load it directly in the repl.  A list of all
+source files and load it directly in the REPL.  A list of all
 available commands is available in the nREPL menu and in the following
 section of this manual.
 
