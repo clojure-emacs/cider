@@ -113,24 +113,27 @@ enable `paredit` in nREPL:
 
 ## Basic Usage
 
-### Setting up a Leiningen project
+The only requirement to use nrepl.el is to have a nrepl server to
+which it may connect. Many Clojurians favour the use of the Leiningen tool 
+to start a nrepl server, but the use of Leiningen is not a prerequisite to use 
+nrepl.el (but it's required if you want to use the `nrepl-jack-in` command).
 
-Before you can use nREPL you'll have to create a Clojure project first.
+### Setting up a Leiningen project (optional)
 
 [Leiningen](http://leiningen.org/) is the de facto standard
 build/project management tool for Clojure.  It has a similar scope to
 the Maven build tool favoured by Java developers (Leiningen actually
 reuses many things from the Maven ecosystem).
 
-nREPL depends on Leiningen 2. Older versions are not supported. Follow
+nrepl.el features a command called `nrepl-jack-in` that will start an nrepl server
+for a particular Leiningen project and connect to it automatically.
+This functionality depends on Leiningen 2. Older versions are not supported. Follow
 the installation instructions on Leiningen's web site to get it up and running and afterwards 
 create a project like this:
 
 ```bash
 $ lein new demo
 ```
-
-At this point you have everything needed to start up nREPL.el.
 
 The two main ways to obtain an nREPL are discussed in the following sections of the manual.
 
@@ -145,13 +148,18 @@ a lein project, without having to visit any file in it.
 
 ### Connect to a running nrepl server
 
-You can go to your project's dir in a terminal and type there:
+You can go to your project's dir in a terminal and type there
+(assuming you're using Leiningen that is):
 
 ```bash
 $ lein repl
 ```
 
-Afterwards typing `M-x nrepl` will allow you to connect to the running nrepl session.
+Alternatively you can start nrepl.el either manually or by the facilities provided by your
+project build tool (Maven, etc).
+
+After you get your nrepl server running go back to Emacs.
+Typing there `M-x nrepl` will allow you to connect to the running nrepl session.
 
 ### Using the nrepl minor mode
 
