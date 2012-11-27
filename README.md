@@ -132,9 +132,9 @@ Afterwards typing `M-x nrepl` will allow you to connect to the running nrepl ses
 
 ### Using the nrepl minor mode
 
-`nrepl.el` comes with a handy minor mode (complementing
-`clojure-mode`) that allows you to evaluate code in your Clojure
-source files and load it directly in the repl.  A list of all
+`nrepl.el` comes with a handy minor mode called `nrepl-interaction-mode` (complementing
+`clojure-mode`) that allows you to evaluate code in your Clojure source 
+files and load it directly in the repl.  A list of all
 available commands is available in the nREPL menu and in the following
 section of this manual.
 
