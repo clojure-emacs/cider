@@ -1172,6 +1172,7 @@ This function is meant to be used in hooks to avoid lambda
   (use-local-map nrepl-mode-map)
   (setq mode-name "nREPL"
         major-mode 'nrepl-mode)
+  (set (make-local-variable 'indent-line-function) 'lisp-indent-line)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point)
