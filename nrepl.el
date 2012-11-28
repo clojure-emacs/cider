@@ -722,40 +722,31 @@ joined together.")
    (" ")
    '(("g" .  nrepl-macroexpand-1-last-expression)))
 
-(defun nrepl-macroexpand-expr (macroexpand expr pprint-p &optional buffer)
-  "Evaluate the expression preceding point and print the result
-into the special buffer. Prefix argument forces pretty-printed output."
-  (interactive "P")
+(defun nrepl-macroexpand-expr (macroexpand expr &optional buffer)
+  "Evaluate the expression preceding point and print the result into the special buffer."
   (let* ((ns nrepl-buffer-ns)
-        (form (format
-               (if pprint-p
-                   "(clojure.pprint/pprint (%s '%s))"
-                 "(%s '%s)") macroexpand expr))
-        (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer)))
-        (handler (if pprint-p
-                   #'nrepl-popup-eval-out-handler
-                   #'nrepl-popup-eval-print-handler)))
+         (form (format
+                "(clojure.pprint/write (%s '%s) :suppress-namespaces true :dispatch clojure.pprint/code-dispatch)"
+                macroexpand expr))
+        (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer))))
     (nrepl-send-string form
-                       (funcall handler macroexpansion-buffer)
+                       (nrepl-popup-eval-out-handler macroexpansion-buffer)
                        ns)))
 
-(defun nrepl-macroexpand-last-expression (&optional prefix)
-  "Invoke 'macroexpand' on the expression preceding point and display the result
-in a macroexpansion buffer. Prefix argument forces pretty-printed output."
-  (interactive "P")
-  (nrepl-macroexpand-expr 'macroexpand (nrepl-last-expression) prefix))
+(defun nrepl-macroexpand-last-expression ()
+  "Invoke 'macroexpand' on the expression preceding point and display the result in a macroexpansion buffer."
+  (interactive)
+  (nrepl-macroexpand-expr 'macroexpand (nrepl-last-expression)))
 
-(defun nrepl-macroexpand-1-last-expression (&optional prefix)
-  "Invoke 'macroexpand-1' on the expression preceding point and display the result
-in a macroexpansion buffer. Prefix argument forces pretty-printed output."
-  (interactive "P")
-  (nrepl-macroexpand-expr 'macroexpand-1 (nrepl-last-expression) prefix))
+(defun nrepl-macroexpand-1-last-expression ()
+  "Invoke 'macroexpand-1' on the expression preceding point and display the result in a macroexpansion buffer."
+  (interactive)
+  (nrepl-macroexpand-expr 'macroexpand-1 (nrepl-last-expression)))
 
-(defun nrepl-macroexpand-all-last-expression (&optional prefix)
-"Invoke 'clojure.walk/macroexpand-all' on the expression preceding point and display the result
-in a macroexpansion buffer. Prefix argument forces pretty-printed output."
-  (interactive "P")
-  (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-last-expression) prefix))
+(defun nrepl-macroexpand-all-last-expression ()
+"Invoke 'clojure.walk/macroexpand-all' on the expression preceding point and display the result in a macroexpansion buffer."
+  (interactive)
+  (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-last-expression)))
 
 (defun nrepl-initialize-macroexpansion-buffer (&optional buffer)
   (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer))))
