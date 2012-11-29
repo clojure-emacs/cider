@@ -18,7 +18,7 @@ maintained repos -
 [MELPA](http://melpa.milkbox.net).
 
 If you're not already using Marmalade, add this to your
-`~/.emacs.d/init.el` (or equivalent) and load it with `M-x eval-buffer`.
+`~/.emacs.d/init.el` (or equivalent) and load it with <kbd>M-x eval-buffer</kbd>.
 
 ```lisp
 (require 'package)
@@ -38,7 +38,7 @@ For MELPA the code you need to add is:
 
 And then you can install nREPL with the following command:
 
-`M-x package-install [RET] nrepl [RET]`
+<kbd>M-x package-install [RET] nrepl [RET]</kbd>
 
 or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.emacs` or `init.el`):
 
@@ -49,12 +49,12 @@ or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.ema
 
 If the installation doesn't work try refreshing the package list:
 
-`M-x package-refresh-contents [RET]`
+<kbd>M-x package-refresh-contents [RET]</kbd>
 
 ### Via el-get
 
 [el-get](https://github.com/dimitri/el-get) is another popular package manager for Emacs.
-If you're an el-get user just do `M-x el-get-install`.
+If you're an el-get user just do <kbd>M-x el-get-install</kbd>.
 
 ### Manual
 
@@ -95,7 +95,7 @@ buffer:
 (setq nrepl-popup-stacktraces nil)
 ```
 
-* Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
+* Make <kbd>C-c C-z</kbd> switch to the `*nrepl*` buffer in the current window:
 
 ```lisp
 (add-to-list 'same-window-buffer-names "*nrepl*") 
@@ -140,10 +140,10 @@ The two main ways to obtain an nREPL are discussed in the following sections of 
 ### Launch a nrepl server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` project (like
-`foo.clj`) and type `M-x nrepl-jack-in`. This will start a nREPL with
+`foo.clj`) and type <kbd>M-x nrepl-jack-in</kbd>. This will start a nREPL with
 all the deps loaded in, plus an `nrepl.el` client connected to it.
 
-Alternative you can use `C-u M-x nrepl-jack-in` to specify the name of
+Alternative you can use <kbd>C-u M-x nrepl-jack-in</kbd> to specify the name of
 a lein project, without having to visit any file in it.
 
 ### Connect to a running nrepl server
@@ -159,7 +159,7 @@ Alternatively you can start nrepl.el either manually or by the facilities provid
 project build tool (Maven, etc).
 
 After you get your nrepl server running go back to Emacs.
-Typing there `M-x nrepl` will allow you to connect to the running nrepl session.
+Typing there <kbd>M-x nrepl</kbd> will allow you to connect to the running nrepl session.
 
 ### Using the nrepl minor mode
 
@@ -171,45 +171,45 @@ section of this manual.
 
 ## Keys
 
-* **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.
+* <kbd>M-x nrepl-jack-in</kbd>: Launch an nrepl server and a repl client.
     Prompts for a project root if given a prefix argument.
-* **M-x nrepl**: Connect to an already-running nrepl server.
+* <kbd>M-x nrepl</kbd>: Connect to an already-running nrepl server.
 
 ### Clojure buffer commands:
 
-* **C-x C-e**: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
-* **C-M-x**: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
-* **C-c C-r**: Evaluate the region and display the result in the echo area.
-* **C-c C-b**: Interrupt any pending evaluations.
-* **C-c C-m**: Invoke macroexpand-1 on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
-* **C-c M-m**: Invoke clojure.walk/macroexpand-all on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
-* **C-c C-n**: Eval the ns form.
-* **C-c M-n**: Switch the namespace of the repl buffer to the namespace of the current buffer.
-* **C-c C-z**: Select the repl buffer.
-* **C-c C-k**: Load the current buffer.
-* **C-c C-l**: Load a file.
-* **C-c C-d**: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
-* **M-.**: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
-* **M-,**: Return to your pre-jump location.
-* **M-TAB**: Complete the symbol at point. (For `auto-complete` integration, see [`ac-nrepl`](https://github.com/purcell/ac-nrepl))
+* <kbd>C-x C-e</kbd>: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
+* <kbd>C-M-x</kbd>: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
+* <kbd>C-c C-r</kbd>: Evaluate the region and display the result in the echo area.
+* <kbd>C-c C-b</kbd>: Interrupt any pending evaluations.
+* <kbd>C-c C-m</kbd>: Invoke macroexpand-1 on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
+* <kbd>C-c M-m</kbd>: Invoke clojure.walk/macroexpand-all on the form preceding point and display result in a macroexpansion buffer. If invoked with a prefix argument, pprint the result.
+* <kbd>C-c C-n</kbd>: Eval the ns form.
+* <kbd>C-c M-n</kbd>: Switch the namespace of the repl buffer to the namespace of the current buffer.
+* <kbd>C-c C-z</kbd>: Select the repl buffer.
+* <kbd>C-c C-k</kbd>: Load the current buffer.
+* <kbd>C-c C-l</kbd>: Load a file.
+* <kbd>C-c C-d</kbd>: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+* <kbd>M-.</kbd>: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
+* <kbd>M-,</kbd>: Return to your pre-jump location.
+* <kbd>M-TAB</kbd>: Complete the symbol at point. (For `auto-complete` integration, see [`ac-nrepl`](https://github.com/purcell/ac-nrepl))
 
 ### REPL buffer commands:
 
-* **RET**: Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
-* **C-RET**: Close any unmatched parenthesis and then evaluate the current input in Clojure.  Also bound to M-RET.
-* **C-j**: Open a new line and indent.
-* **C-c M-o**: Clear the entire REPL buffer, leaving only a prompt.
-* **C-c C-o**: Remove the output of the previous evaluation from the REPL buffer.
-* **C-c C-u**: Kill all text from the prompt to the current point.
-* **C-c C-b**: Interrupt any pending evaluations.
-* **C-up, C-down**: Goto to previous/next input in history.
-* **M-p, M-n**: Search the previous/next item in history using the current input
+* <kbd>RET</kbd>: Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
+* <kbd>C-RET</kbd>: Close any unmatched parenthesis and then evaluate the current input in Clojure.  Also bound to M-RET.
+* <kbd>C-j</kbd>: Open a new line and indent.
+* <kbd>C-c M-o</kbd>: Clear the entire REPL buffer, leaving only a prompt.
+* <kbd>C-c C-o</kbd>: Remove the output of the previous evaluation from the REPL buffer.
+* <kbd>C-c C-u</kbd>: Kill all text from the prompt to the current point.
+* <kbd>C-c C-b</kbd>: Interrupt any pending evaluations.
+* <kbd>C-up, C-down</kbd>: Goto to previous/next input in history.
+* <kbd>M-p, M-n</kbd>: Search the previous/next item in history using the current input
 as search pattern. If M-p/M-n is typed two times in a row, the second invocation
 uses the same search pattern (even if the current input has changed).
-* **M-s, M-r**: Search forward/reverse through command history with regex.
-* **C-c C-n, C-c C-p**: Move between the current and previous prompts in the REPL buffer. Pressing RET on a line with old input copies that line to the newest prompt.
+* <kbd>M-s, M-r</kbd>: Search forward/reverse through command history with regex.
+* <kbd>C-c C-n, C-c C-p</kbd>: Move between the current and previous prompts in the REPL buffer. Pressing RET on a line with old input copies that line to the newest prompt.
 
-* **TAB**: Complete symbol at point.
+* <kbd>TAB</kbd>: Complete symbol at point.
 
 ## Requirements:
 
