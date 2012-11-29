@@ -183,8 +183,8 @@ joined together.")
 
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
   "Selects the command to be invoked by the TAB key. The default option is
-`nrepl-indent-and-complete-symbol`. If you'd like to use the default
-Emacs behavior use `indent-for-tab-command`."
+`nrepl-indent-and-complete-symbol'. If you'd like to use the default
+Emacs behavior use `indent-for-tab-command'."
   :type 'symbol
   :group 'nrepl)
 
