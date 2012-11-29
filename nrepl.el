@@ -699,7 +699,7 @@ If SELECT is non-nil, select the newly created window"
     (let ((new-window (display-buffer (current-buffer))))
       (set-window-point new-window (point))
       (when select
-        (select-window new-window))  
+        (select-window new-window))
       (current-buffer))))
 
 (defun nrepl-popup-buffer-quit (&optional kill-buffer-p)
@@ -2103,16 +2103,24 @@ under point, prompts for a var."
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
-  (let* ((cmd (if prompt-project
-                  (format "cd %s && %s" (ido-read-directory-name "Project: ")
-                          nrepl-server-command)
-                nrepl-server-command))
-         (process (start-process-shell-command
-                   "nrepl-server" nrepl-server-buffer cmd)))
-    (set-process-filter process 'nrepl-server-filter)
-    (set-process-sentinel process 'nrepl-server-sentinel)
-    (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-    (message "Starting nREPL server...")))
+  (when (nrepl-check-for-nrepl-buffer)
+    (let* ((cmd (if prompt-project
+                   (format "cd %s && %s" (ido-read-directory-name "Project: ")
+                           nrepl-server-command)
+                  nrepl-server-command))
+           (process (start-process-shell-command
+                     "nrepl-server" nrepl-server-buffer cmd)))
+      (set-process-filter process 'nrepl-server-filter)
+      (set-process-sentinel process 'nrepl-server-sentinel)
+      (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
+      (message "Starting nREPL server..."))))
+
+(defun nrepl-check-for-nrepl-buffer ()
+  "Check whether `nrepl-nrepl-buffer' already exists.
+If so ask the user for confirmation."
+  (if (get-buffer nrepl-nrepl-buffer)
+      (y-or-n-p "An nREPL buffer already exists. Do you really want to create a new one?")
+    t))
 
 (defun nrepl-quit ()
   "Quit the nrepl server."
@@ -2213,7 +2221,8 @@ restart the server."
 (defun nrepl (host port)
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
                      (string-to-number (read-string "Port: " nrepl-port nil nrepl-port))))
-  (nrepl-connect host port))
+  (when (nrepl-check-for-nrepl-buffer)
+    (nrepl-connect host port)))
 
 (provide 'nrepl)
 
