@@ -720,7 +720,7 @@ joined together.")
    "Mode for nrepl macroexpansion buffers"
    nil
    (" ")
-   '(("g" .  nrepl-macroexpand-1-last-expression)))
+   '(("g" .  nrepl-macroexpand-1)))
 
 (defun nrepl-macroexpand-expr (macroexpand expr &optional buffer)
   "Evaluate the expression preceding point and print the result into the special buffer."
@@ -728,22 +728,19 @@ joined together.")
          (form (format
                 "(clojure.pprint/write (%s '%s) :suppress-namespaces true :dispatch clojure.pprint/code-dispatch)"
                 macroexpand expr))
-        (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer))))
+         (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer))))
     (nrepl-send-string form
                        (nrepl-popup-eval-out-handler macroexpansion-buffer)
                        ns)))
 
-(defun nrepl-macroexpand-last-expression ()
-  "Invoke 'macroexpand' on the expression preceding point and display the result in a macroexpansion buffer."
-  (interactive)
-  (nrepl-macroexpand-expr 'macroexpand (nrepl-last-expression)))
+(defun nrepl-macroexpand-1 (&optional prefix)
+  "Invoke 'macroexpand-1' on the expression preceding point and display the result in a macroexpansion buffer.
+If invoked with a prefix argument, use 'macroexpand' instead of 'macroexpand-1'."
+  (interactive "P")
+  (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
+    (nrepl-macroexpand-expr expander (nrepl-last-expression))))
 
-(defun nrepl-macroexpand-1-last-expression ()
-  "Invoke 'macroexpand-1' on the expression preceding point and display the result in a macroexpansion buffer."
-  (interactive)
-  (nrepl-macroexpand-expr 'macroexpand-1 (nrepl-last-expression)))
-
-(defun nrepl-macroexpand-all-last-expression ()
+(defun nrepl-macroexpand-all ()
 "Invoke 'clojure.walk/macroexpand-all' on the expression preceding point and display the result in a macroexpansion buffer."
   (interactive)
   (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-last-expression)))
@@ -1069,8 +1066,8 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
     (define-key map (kbd "C-c C-n") 'nrepl-eval-ns-form)
-    (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1-last-expression)
-    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all-last-expression)
+    (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
+    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
@@ -1090,8 +1087,8 @@ This function is meant to be used in hooks to avoid lambda
     ["Eval last expression" nrepl-eval-last-expression]
     ["Eval region" nrepl-eval-region]
     ["Eval ns form" nrepl-eval-ns-form]
-    ["Macroexpand-1 last expression" nrepl-macroexpand-1-last-expression]
-    ["Macroexpand-all last expression" nrepl-macroexpand-all-last-expression]
+    ["Macroexpand-1 last expression" nrepl-macroexpand-1]
+    ["Macroexpand-all last expression" nrepl-macroexpand-all]
     ["Set ns" nrepl-set-ns]
     ["Display documentation" nrepl-doc]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
