@@ -111,6 +111,18 @@ enable `paredit` in the nREPL buffer as well:
 (add-hook 'nrepl-mode-hook 'paredit-mode)
 ```
 
+* [RainbowDelimiters](https://github.com/jlr/rainbow-delimiters) is a
+  minor mode which highlights parentheses, brackets, and braces
+  according to their depth. Each successive level is highlighted in a
+  different color. This makes it easy to spot matching delimiters,
+  orient yourself in the code, and tell which statements are at a
+  given depth. Assuming you've already installed RainbowDelimiters you can
+  enable it in nREPL like this:
+  
+```lisp
+(add-hook 'nrepl-mode-hook 'rainbow-delimiters-mode)
+```
+
 ## Basic Usage
 
 The only requirement to use nrepl.el is to have a nrepl server to
