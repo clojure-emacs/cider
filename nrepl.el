@@ -175,11 +175,10 @@ joined together.")
 (defvar nrepl-ops nil
   "Available nREPL server ops (from describe).")
 
-(defcustom nrepl-popup-stacktraces t
-  "Non-nil means pop-up error stacktraces.
-   Nil means do not, useful when in repl"
-  :type 'boolean
-  :group 'nrepl)
+(defcustom nrepl-result-prefix nil
+  "A prefix prepended to form evaluation results."
+  :group 'nrepl
+  :type 'string)
 
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
   "Selects the command to be invoked by the TAB key. The default option is
@@ -1294,7 +1293,8 @@ Return the position of the prompt beginning."
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (nrepl-propertize-region `(face nrepl-result-face
                                           rear-nonsticky (face))
-                                   (insert-before-markers string)))))
+                                   (insert-before-markers
+                                    (concat nrepl-result-prefix string))))))
     (nrepl-show-maximum-output)))
 
 (defun nrepl-default-handler (response)
