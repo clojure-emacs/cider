@@ -181,6 +181,13 @@ joined together.")
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
+  "Selects the command to be invoked by the TAB key. The default option is
+`nrepl-indent-and-complete-symbol'. If you'd like to use the default
+Emacs behavior use `indent-for-tab-command'."
+  :type 'symbol
+  :group 'nrepl)
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
@@ -1096,13 +1103,18 @@ This function is meant to be used in hooks to avoid lambda
     ["Load file" nrepl-load-file]
     ["Interrupt" nrepl-interrupt]))
 
+(defun nrepl-tab ()
+  "Invoked on TAB keystrokes in nrepl-mode buffers."
+  (interactive)
+  (funcall nrepl-tab-command))
+
 (defvar nrepl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "M-.") 'nrepl-jump)
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "RET") 'nrepl-return)
-    (define-key map (kbd "TAB") 'complete-symbol)
+    (define-key map (kbd "TAB") 'nrepl-tab)
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
@@ -1502,6 +1514,17 @@ earlier in the buffer."
     (narrow-to-region nrepl-prompt-start-mark (point-max))
     (insert "\n")
     (lisp-indent-line)))
+
+(defun nrepl-indent-and-complete-symbol ()
+  "Indent the current line and perform symbol completion.
+First indent the line. If indenting doesn't move point, complete
+the symbol. "
+  (interactive)
+  (let ((pos (point)))
+    (lisp-indent-line)
+    (when (= pos (point))
+      (if (save-excursion (re-search-backward "[^() \n\t\r]+\\=" nil t))
+          (completion-at-point)))))
 
 (defun nrepl-kill-input ()
   "Kill all text from the prompt to point."
