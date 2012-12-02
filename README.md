@@ -88,6 +88,18 @@ experience.
   'nrepl-turn-on-eldoc-mode)
 ```
 
+* You can control the <kbd>TAB</kbd> key behavior in the REPL via the
+`nrepl-tab-command` variable.  While the default command
+`nrepl-indent-and-complete-symbol` should be an adequate choice for
+most users, it's very easy to switch to another command if you wish
+to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
+because you're used to completing with <kbd>M-TAB</kbd>) use the
+following snippet:
+
+```lisp
+(setq nrepl-tab-command 'indent-for-tab-command)
+```
+
 * Stop the error buffer from popping up while working in the REPL
 buffer:
 
