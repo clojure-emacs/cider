@@ -232,6 +232,13 @@ uses the same search pattern (even if the current input has changed).
 
 * <kbd>TAB</kbd>: Complete symbol at point.
 
+### Macroexpansion buffer commands:
+
+* <kbd>C-c C-m</kbd>: Invoke macroexpand-1 on the form preceding point and replace the original form with its expansion.  If invoked with a prefix argument, macroexpand is used instead of macroexpand-1.
+* <kbd>C-c M-m</kbd>: Invoke clojure.walk/macroexpand-all on the form preceding point and replace the original form with its expansion.
+* <kbd>g</kbd>: The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
+* <kbd>C-/</kbd>, <kbd>C-x u</kbd>: Undo the last inplace expansion performed in the macroexpansion buffer.
+
 ## Requirements:
 
 * [Leiningen](http://leiningen.org) 2.x
