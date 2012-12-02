@@ -309,6 +309,12 @@ Emacs behavior use `indent-for-tab-command'."
       (goto-char (match-beginning 0))
       (nrepl-eval-expression-at-point))))
 
+(defun nrepl-last-expression-with-bounds ()
+  (let ((start (save-excursion (backward-sexp) (point)))
+        (end (point)))
+    (list (buffer-substring-no-properties start end)
+          (cons (set-marker (make-marker) start) (set-marker (make-marker) end)))))
+
 (defun nrepl-last-expression ()
   (buffer-substring-no-properties
    (save-excursion (backward-sexp) (point))
@@ -723,22 +729,55 @@ Emacs behavior use `indent-for-tab-command'."
 
 
 ;;;; Macroexpansion
-(define-minor-mode nrepl-macroexpansion-minor-mode
-   "Mode for nrepl macroexpansion buffers"
-   nil
-   (" ")
-   '(("g" .  nrepl-macroexpand-1)))
+(defun nrepl-macroexpand-undo (&optional arg)
+   (interactive)
+   (let ((inhibit-read-only t))
+     (undo-only arg)))
 
-(defun nrepl-macroexpand-expr (macroexpand expr &optional buffer)
+(defvar nrepl-last-macroexpand-expression nil
+   "Specifies the last macroexpansion preformed.
+ This variable specifies both what was expanded and the expander.")
+
+(defun nrepl-macroexpand-handler (buffer ns)
+  (lexical-let* ((ns ns))
+    (nrepl-make-response-handler buffer
+                                 nil
+                                 (lambda (buffer str)
+                                   (nrepl-initialize-macroexpansion-buffer str ns))
+                                 nil nil)))
+
+(defun nrepl-macroexpand-inplace-handler (expansion-buffer start end current-point)
+  (lexical-let* ((start start)
+                 (end end)
+                 (current-point current-point))
+    (nrepl-make-response-handler expansion-buffer
+                                 nil
+                                 (lambda (buffer str) (nrepl-redraw-macroexpansion-buffer str buffer start end current-point))
+                                 nil nil)))
+
+(defun nrepl-macroexpand-form (expander expr)
+  (format
+   "(clojure.pprint/write (%s '%s) :suppress-namespaces true :dispatch clojure.pprint/code-dispatch)"
+   expander expr))
+
+(defun nrepl-macroexpand-expr (expander expr &optional buffer)
   "Evaluate the expression preceding point and print the result into the special buffer."
-  (let* ((ns nrepl-buffer-ns)
-         (form (format
-                "(clojure.pprint/write (%s '%s) :suppress-namespaces true :dispatch clojure.pprint/code-dispatch)"
-                macroexpand expr))
-         (macroexpansion-buffer (or buffer (nrepl-initialize-macroexpansion-buffer))))
-    (nrepl-send-string form
-                       (nrepl-popup-eval-out-handler macroexpansion-buffer)
-                       ns)))
+  (let ((form (nrepl-macroexpand-form expander expr)))
+    (setq nrepl-last-macroexpand-expression form)
+    (nrepl-send-string form (nrepl-macroexpand-handler buffer nrepl-buffer-ns) nrepl-buffer-ns)))
+
+(defun nrepl-macroexpand-expr-inplace (expander)
+   "Substitutes the current form at point with its macroexpansion."
+   (interactive)
+   (destructuring-bind (expr bounds) (nrepl-last-expression-with-bounds)
+     (nrepl-send-string (nrepl-macroexpand-form expander expr)
+                        (nrepl-macroexpand-inplace-handler (current-buffer) (car bounds) (cdr bounds) (point))
+                        nrepl-buffer-ns)))
+
+(defun nrepl-macroexpand-again ()
+   "Reperform the last macroexpansion."
+   (interactive)
+   (nrepl-send-string nrepl-last-macroexpand-expression (nrepl-macroexpand-handler (current-buffer) nrepl-buffer-ns) nrepl-buffer-ns))
 
 (defun nrepl-macroexpand-1 (&optional prefix)
   "Invoke 'macroexpand-1' on the expression preceding point and display the result in a macroexpansion buffer.
@@ -747,18 +786,40 @@ If invoked with a prefix argument, use 'macroexpand' instead of 'macroexpand-1'.
   (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
     (nrepl-macroexpand-expr expander (nrepl-last-expression))))
 
+(defun nrepl-macroexpand-1-inplace (&optional prefix)
+  (interactive "P")
+  (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
+    (nrepl-macroexpand-expr-inplace expander)))
+
 (defun nrepl-macroexpand-all ()
 "Invoke 'clojure.walk/macroexpand-all' on the expression preceding point and display the result in a macroexpansion buffer."
   (interactive)
   (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-last-expression)))
 
-(defun nrepl-initialize-macroexpansion-buffer (&optional buffer)
-  (pop-to-buffer (or buffer (nrepl-create-macroexpansion-buffer))))
+(defun nrepl-macroexpand-all-inplace ()
+  (interactive)
+  (nrepl-macroexpand-expr-inplace 'clojure.walk/macroexpand-all))
 
-(defun nrepl-create-macroexpansion-buffer ()
-  (with-current-buffer (nrepl-popup-buffer "*nREPL Macroexpansion*" t)
-    (nrepl-macroexpansion-minor-mode 1)
-    (current-buffer)))
+(defun nrepl-initialize-macroexpansion-buffer (expansion ns)
+  (pop-to-buffer (nrepl-create-macroexpansion-buffer))
+  (setq nrepl-buffer-ns ns)
+  (setq buffer-undo-list nil)
+  (let ((inhibit-read-only t)
+        (buffer-undo-list t))
+    (erase-buffer)
+    (insert (format "%s" expansion))
+    (goto-char (point-min))
+    (font-lock-fontify-buffer)))
+
+(defun nrepl-redraw-macroexpansion-buffer (expansion buffer start end current-point)
+  (with-current-buffer buffer
+    (let ((buffer-read-only nil))
+      (goto-char start)
+      (delete-region start end)
+      (insert (format "%s" expansion))
+      (goto-char start)
+      (indent-sexp)
+      (goto-char current-point))))
 
 
 (defun nrepl-popup-eval-print (form)
@@ -1102,6 +1163,32 @@ This function is meant to be used in hooks to avoid lambda
     ["Load current buffer" nrepl-load-current-buffer]
     ["Load file" nrepl-load-file]
     ["Interrupt" nrepl-interrupt]))
+
+(defvar nrepl-macroexpansion-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "g") 'nrepl-macroexpand-again)
+    (define-key map (kbd "q") 'nrepl-popup-buffer-quit-function)
+    (flet ((redefine-key (from to)
+                         (dolist (mapping (where-is-internal from nrepl-interaction-mode-map))
+                           (define-key map mapping to))))
+      (redefine-key 'nrepl-macroexpand-1 'nrepl-macroexpand-1-inplace)
+      (redefine-key 'nrepl-macroexpand-all 'nrepl-macroexpand-all-inplace)
+      (redefine-key 'advertised-undo 'nrepl-macroexpand-undo)
+      (redefine-key 'undo 'nrepl-macroexpand-undo))
+    map))
+
+(define-minor-mode nrepl-macroexpansion-minor-mode
+   "Minor mode for nrepl macroexpansion."
+   nil
+   " Macroexpand"
+   nrepl-macroexpansion-minor-mode-map)
+
+(defun nrepl-create-macroexpansion-buffer ()
+  (with-current-buffer (nrepl-popup-buffer "*nREPL Macroexpansion*" t)
+    (clojure-mode)
+    (clojure-disable-nrepl)
+    (nrepl-macroexpansion-minor-mode 1)
+    (current-buffer)))
 
 (defun nrepl-tab ()
   "Invoked on TAB keystrokes in nrepl-mode buffers."
