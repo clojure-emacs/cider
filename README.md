@@ -101,6 +101,15 @@ buffer:
 (add-to-list 'same-window-buffer-names "*nrepl*") 
 ```
 
+* Enabling `CamelCase` support for editing commands(like
+`forward-word`, `backward-word`, etc) in nREPL is quite useful since
+we often have to deal with Java class and method names. The built-in
+Emacs minor mode `subword-mode` provides such functionality:
+
+```lisp
+(add-hook 'nrepl-mode-hook 'subword-mode)
+```
+
 * The use of [paredit](http://mumble.net/~campbell/emacs/paredit.html)
 when editing Clojure (or any other Lisp) code is highly
 recommended.  You're probably using it already in your `clojure-mode`
