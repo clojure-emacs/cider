@@ -2087,7 +2087,7 @@ restart the server."
 (defun nrepl-create-nrepl-buffer (process)
   (nrepl-init-repl-buffer process
     (let ((buf (generate-new-buffer-name nrepl-nrepl-buffer)))
-      (switch-to-buffer-other-window buf)
+      (pop-to-buffer buf)
       buf)))
 
 (defun nrepl-new-tooling-session-handler (process)
