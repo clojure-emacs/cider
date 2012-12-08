@@ -219,6 +219,7 @@ section of this manual.
 * <kbd>C-c C-n</kbd>: Eval the ns form.
 * <kbd>C-c M-n</kbd>: Switch the namespace of the repl buffer to the namespace of the current buffer.
 * <kbd>C-c C-z</kbd>: Select the repl buffer.
+* <kbd>C-c M-o</kbd>: Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 * <kbd>C-c C-k</kbd>: Load the current buffer.
 * <kbd>C-c C-l</kbd>: Load a file.
 * <kbd>C-c C-d</kbd>: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
