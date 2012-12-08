@@ -1142,7 +1142,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
-    (define-key map (kbd "C-c b") 'nrepl-javadoc)
+    (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1159,6 +1159,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Macroexpand-all last expression" nrepl-macroexpand-all]
     ["Set ns" nrepl-set-ns]
     ["Display documentation" nrepl-doc]
+    ["Display JavaDoc" nrepl-javadoc]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
     ["Load current buffer" nrepl-load-current-buffer]
     ["Load file" nrepl-load-file]
@@ -1221,7 +1222,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-n") 'nrepl-next-prompt)
     (define-key map (kbd "C-c C-p") 'nrepl-previous-prompt)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
-    (define-key map (kbd "C-c b") 'nrepl-javadoc)
+    (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -1231,6 +1232,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Jump back" nrepl-jump-back]
     ["Complete symbol" complete-symbol]
     ["Display documentation" nrepl-doc]
+    ["Display JavaDoc" nrepl-javadoc]
     ["Clear output" nrepl-clear-output]
     ["Clear buffer" nrepl-clear-buffer]
     ["Kill input" nrepl-kill-input]
