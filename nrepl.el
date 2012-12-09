@@ -1138,6 +1138,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
+    (define-key map (kbd "C-c C-s") 'nrepl-src)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
@@ -1159,6 +1160,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Macroexpand-all last expression" nrepl-macroexpand-all]
     ["Set ns" nrepl-set-ns]
     ["Display documentation" nrepl-doc]
+    ["Display Source" nrepl-src]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
     ["Load current buffer" nrepl-load-current-buffer]
     ["Load file" nrepl-load-file]
@@ -1909,12 +1911,32 @@ symbol at point, or if QUERY is non-nil."
                        nrepl-buffer-ns
                        (nrepl-current-tooling-session))))
 
+
 (defun nrepl-doc (query)
-  "Open a window with the docstring for the given entry.
+  "Open a window with the source for the given entry.
 Defaults to the symbol at point. With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-doc-handler query))
+
+
+(defun nrepl-src-handler (symbol)
+  (let ((form (format "(clojure.repl/source %s)" symbol))
+        (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
+    (nrepl-send-string form
+                       (nrepl-popup-eval-out-handler doc-buffer)
+                       nrepl-buffer-ns
+                       (nrepl-current-tooling-session))))
+
+(defun nrepl-src (query)
+  "Open a window with the source for the given entry.
+Defaults to the symbol at point. With prefix arg or no symbol
+under point, prompts for a var."
+  (interactive "P")
+  (nrepl-read-symbol-name "Symbol: " 'nrepl-src-handler query))
+
+
+
 
 ;; TODO: implement reloading ns
 (defun nrepl-eval-load-file (form)
