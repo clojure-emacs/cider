@@ -1,4 +1,4 @@
-# nrepl.el
+q# nrepl.el
 
 `nrepl.el` is an Emacs client for
 [nREPL](https://github.com/clojure/tools.nrepl), the Clojure networked
@@ -222,6 +222,7 @@ section of this manual.
 * <kbd>C-c C-k</kbd>: Load the current buffer.
 * <kbd>C-c C-l</kbd>: Load a file.
 * <kbd>C-c C-d</kbd>: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+* <kbd>C-c C-s</kbd>: Display the source for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 * <kbd>M-.</kbd>: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
 * <kbd>M-,</kbd>: Return to your pre-jump location.
 * <kbd>M-TAB</kbd>: Complete the symbol at point. (For `auto-complete` integration, see [`ac-nrepl`](https://github.com/purcell/ac-nrepl))
