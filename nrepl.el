@@ -1207,6 +1207,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
+    (define-key map (kbd "C-c C-s") 'nrepl-src)
     (define-key map (kbd "C-c C-o") 'nrepl-clear-output)
     (define-key map (kbd "C-c M-o") 'nrepl-clear-buffer)
     (define-key map (kbd "C-c C-u") 'nrepl-kill-input)
@@ -1233,6 +1234,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Jump back" nrepl-jump-back]
     ["Complete symbol" complete-symbol]
     ["Display documentation" nrepl-doc]
+    ["Display source" nrepl-src]
     ["Clear output" nrepl-clear-output]
     ["Clear buffer" nrepl-clear-buffer]
     ["Kill input" nrepl-kill-input]
@@ -1911,9 +1913,8 @@ symbol at point, or if QUERY is non-nil."
                        nrepl-buffer-ns
                        (nrepl-current-tooling-session))))
 
-
 (defun nrepl-doc (query)
-  "Open a window with the source for the given entry.
+  "Open a window with the docstring for the given entry.
 Defaults to the symbol at point. With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
