@@ -1139,6 +1139,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
+    (define-key map (kbd "C-c M-o") 'nrepl-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
@@ -1160,6 +1161,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Set ns" nrepl-set-ns]
     ["Display documentation" nrepl-doc]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
+    ["Clear REPL" nrepl-find-and-clear-repl-buffer]
     ["Load current buffer" nrepl-load-current-buffer]
     ["Load file" nrepl-load-file]
     ["Interrupt" nrepl-interrupt]))
@@ -1708,6 +1710,15 @@ text property `nrepl-old-input'."
       (goto-char nrepl-input-start-mark))
     (recenter t))
   (run-hooks 'nrepl-clear-buffer-hook))
+
+(defun nrepl-find-and-clear-repl-buffer ()
+  "Finds the `nrepl-nrepl-buffer`, clears it and returns to the
+buffer in which the command was invoked."
+  (interactive)
+  (let ((origin-buffer (current-buffer)))
+    (switch-to-buffer nrepl-nrepl-buffer)
+    (nrepl-clear-buffer)
+    (switch-to-buffer origin-buffer)))
 
 (defun nrepl-input-line-beginning-position ()
   (save-excursion
