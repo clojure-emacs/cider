@@ -223,6 +223,7 @@ section of this manual.
 * <kbd>C-c C-k</kbd>: Load the current buffer.
 * <kbd>C-c C-l</kbd>: Load a file.
 * <kbd>C-c C-d</kbd>: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+* <kbd>C-c C-s</kbd>: Display the source for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 * <kbd>C-c C-j</kbd>: Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 * <kbd>M-.</kbd>: Jump to the definition of a var.  If invoked with a prefix argument, or no symbol is found at point, prompt for a var.
 * <kbd>M-,</kbd>: Return to your pre-jump location.

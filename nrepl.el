@@ -1138,6 +1138,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
     (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
+    (define-key map (kbd "C-c C-s") 'nrepl-src)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'nrepl-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
@@ -1160,6 +1161,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Macroexpand-all last expression" nrepl-macroexpand-all]
     ["Set ns" nrepl-set-ns]
     ["Display documentation" nrepl-doc]
+    ["Display Source" nrepl-src]
     ["Display JavaDoc" nrepl-javadoc]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
     ["Clear REPL" nrepl-find-and-clear-repl-buffer]
@@ -1208,6 +1210,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-<return>") 'nrepl-closing-return)
     (define-key map (kbd "C-j") 'nrepl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
+    (define-key map (kbd "C-c C-s") 'nrepl-src)
     (define-key map (kbd "C-c C-o") 'nrepl-clear-output)
     (define-key map (kbd "C-c M-o") 'nrepl-clear-buffer)
     (define-key map (kbd "C-c C-u") 'nrepl-kill-input)
@@ -1234,6 +1237,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Jump back" nrepl-jump-back]
     ["Complete symbol" complete-symbol]
     ["Display documentation" nrepl-doc]
+    ["Display source" nrepl-src]
     ["Display JavaDoc" nrepl-javadoc]
     ["Clear output" nrepl-clear-output]
     ["Clear buffer" nrepl-clear-buffer]
@@ -1928,6 +1932,21 @@ Defaults to the symbol at point. With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-doc-handler query))
+
+(defun nrepl-src-handler (symbol)
+  (let ((form (format "(clojure.repl/source %s)" symbol))
+        (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
+    (nrepl-send-string form
+                       (nrepl-popup-eval-out-handler doc-buffer)
+                       nrepl-buffer-ns
+                       (nrepl-current-tooling-session))))
+
+(defun nrepl-src (query)
+  "Open a window with the source for the given entry.
+Defaults to the symbol at point. With prefix arg or no symbol
+under point, prompts for a var."
+  (interactive "P")
+  (nrepl-read-symbol-name "Symbol: " 'nrepl-src-handler query))
 
 ;; TODO: implement reloading ns
 (defun nrepl-eval-load-file (form)
