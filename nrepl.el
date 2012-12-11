@@ -191,6 +191,19 @@ Emacs behavior use `indent-for-tab-command'."
 (defun nrepl-make-variables-buffer-local (&rest variables)
   (mapcar #'make-variable-buffer-local variables))
 
+(defvar nrepl-pretty nil)
+
+(defun nrepl-pretty-toggle ()
+  (interactive)
+  (if nrepl-pretty
+      (progn
+       (setq nrepl-pretty nil)
+       (message "nrepl pretty printing now OFF"))
+    (progn
+     (setq nrepl-pretty t)
+     (message "nrepl pretty printing now ON"))))
+
+
 (nrepl-make-variables-buffer-local
  'nrepl-ops
  'nrepl-session
@@ -1159,6 +1172,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Macroexpand-all last expression" nrepl-macroexpand-all]
     ["Set ns" nrepl-set-ns]
     ["Display documentation" nrepl-doc]
+    ["Pretty print" nrepl-pretty-toggle]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
     ["Load current buffer" nrepl-load-current-buffer]
     ["Load file" nrepl-load-file]
@@ -1589,7 +1603,11 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
-    (nrepl-send-string input (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
+    (nrepl-send-string
+     (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-pretty)
+      (format "(clojure.pprint/pprint %s)" input)
+      input)
+     (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
 
 (defun nrepl-newline-and-indent ()
   "Insert a newline, then indent the next line.
