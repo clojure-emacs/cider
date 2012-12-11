@@ -88,7 +88,7 @@
 (defvar nrepl-connection-buffer "*nrepl-connection*")
 (defvar nrepl-server-buffer "*nrepl-server*")
 (defvar nrepl-nrepl-buffer "*nrepl*")
-(defvar nrepl-error-buffer "*nREPL error*")
+(defvar nrepl-error-buffer "*nrepl-error*")
 
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
