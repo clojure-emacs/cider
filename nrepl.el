@@ -416,11 +416,27 @@ Emacs behavior use `indent-for-tab-command'."
 (defun nrepl-eldoc-format-thing (thing)
   (propertize thing 'face 'font-lock-function-name-face))
 
+(defun nrepl-highlight-args (arglist pos)
+  (let* ((rest-pos (position '& arglist))
+         (i 0))
+    (mapconcat
+     (lambda (arg)
+       (let ((argstr (format "%s" arg)))
+         (if (eq arg '&)
+             argstr
+           (prog1
+               (if (or (= (1+ i) pos)
+                       (and rest-pos (> (+ 1 i) rest-pos) (> pos rest-pos)))
+                   (propertize argstr 'face 'eldoc-highlight-function-argument)
+                 argstr)
+             (setq i (1+ i)))))) arglist " ")))
+
+(defun nrepl-highlight-arglist (arglist pos)
+  (concat "[" (nrepl-highlight-args arglist pos) "]"))
+
 (defun nrepl-eldoc-format-arglist (arglist)
-  ;; TODO: find out which arglist variant is in use and which argument
-  ;; is currently under point.  Highlight that argument
-  ;; for now:
-  arglist)
+  (let ((pos 2)) ; TODO: calculate current arg pos
+    (concat "(" (mapconcat (lambda (args) (nrepl-highlight-arglist args pos)) (read arglist) " ") ")")))
 
 (defun nrepl-eldoc-handler (buffer the-thing)
   (lexical-let ((thing the-thing))
