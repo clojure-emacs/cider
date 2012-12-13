@@ -426,32 +426,38 @@ Emacs behavior use `indent-for-tab-command'."
              argstr
            (prog1
                (if (or (= (1+ i) pos)
-                       (and rest-pos (> (+ 1 i) rest-pos) (> pos rest-pos)))
-                   (propertize argstr 'face 'eldoc-highlight-function-argument)
+                       (and rest-pos (> (+ 1 i) rest-pos)
+                            (> pos rest-pos)))
+                   (propertize argstr 'face
+                               'eldoc-highlight-function-argument)
                  argstr)
              (setq i (1+ i)))))) arglist " ")))
 
 (defun nrepl-highlight-arglist (arglist pos)
   (concat "[" (nrepl-highlight-args arglist pos) "]"))
 
-(defun nrepl-eldoc-format-arglist (arglist)
-  (let ((pos 2)) ; TODO: calculate current arg pos
-    (concat "(" (mapconcat (lambda (args) (nrepl-highlight-arglist args pos)) (read arglist) " ") ")")))
+(defun nrepl-eldoc-format-arglist (arglist pos)
+  (concat "("
+          (mapconcat (lambda (args) (nrepl-highlight-arglist args pos))
+                     (read arglist) " ") ")"))
 
-(defun nrepl-eldoc-handler (buffer the-thing)
-  (lexical-let ((thing the-thing))
+(defun nrepl-eldoc-handler (buffer the-thing the-pos)
+  (lexical-let ((thing the-thing)
+                (pos the-pos))
     (nrepl-make-response-handler
      buffer
      (lambda (buffer value)
        (when (not (string-equal value "nil"))
          (message (format "%s: %s"
                           (nrepl-eldoc-format-thing thing)
-                          (nrepl-eldoc-format-arglist value)))))
+                          (nrepl-eldoc-format-arglist value pos)))))
        nil nil nil)))
 
 (defun nrepl-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
-  (let* ((thing (nrepl-operator-before-point))
+  (let* ((fnsyn (eldoc-fnsym-in-current-sexp))
+         (thing (car fnsym))
+         (pos (cadr fnsym))
          (form (format "(try
                          (:arglists
                           (clojure.core/meta
@@ -461,7 +467,7 @@ Emacs behavior use `indent-for-tab-command'."
     (when thing
         (nrepl-send-string form
                            (nrepl-eldoc-handler (current-buffer)
-                                                thing)
+                                                (symbol-name thing) pos)
                            nrepl-buffer-ns
                            (nrepl-current-tooling-session)))))
 
@@ -470,7 +476,6 @@ Emacs behavior use `indent-for-tab-command'."
   (setq eldoc-documentation-function 'nrepl-eldoc)
   (apply 'eldoc-add-command nrepl-extra-eldoc-commands)
   (turn-on-eldoc-mode))
-
 
 ;;; JavaDoc Browsing
 ;;; Assumes local-paths are accessible in the VM.
@@ -1923,6 +1928,8 @@ the buffer should appear."
       (backward-up-list 1)
       (down-list 1)
       (nrepl-symbol-at-point))))
+
+
 
 (defun nrepl-read-symbol-name (prompt callback &optional query)
    "Either read a symbol name or choose the one at point.
