@@ -455,7 +455,7 @@ Emacs behavior use `indent-for-tab-command'."
 
 (defun nrepl-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
-  (let* ((fnsyn (eldoc-fnsym-in-current-sexp))
+  (let* ((fnsym (eldoc-fnsym-in-current-sexp))
          (thing (car fnsym))
          (pos (cadr fnsym))
          (form (format "(try
