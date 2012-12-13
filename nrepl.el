@@ -1850,6 +1850,7 @@ the buffer should appear."
   "Return the name of the symbol at point, otherwise nil."
   (let ((str (thing-at-point 'symbol)))
     (and str
+         (not (equal str (concat (nrepl-find-ns) "> ")))
          (not (equal str ""))
          (substring-no-properties str))))
 
