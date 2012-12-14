@@ -1935,7 +1935,9 @@ under point, prompts for a var."
 
 (defun nrepl-src-handler (symbol)
   (let ((form (format "(clojure.repl/source %s)" symbol))
-        (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
+        (doc-buffer (nrepl-popup-buffer "*nREPL doc*" nil)))
+    (with-current-buffer doc-buffer
+      (clojure-mode))
     (nrepl-send-string form
                        (nrepl-popup-eval-out-handler doc-buffer)
                        nrepl-buffer-ns
