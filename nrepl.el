@@ -1294,6 +1294,8 @@ This function is meant to be used in hooks to avoid lambda
                'nrepl-complete-at-point)
   (set-syntax-table nrepl-mode-syntax-table)
   (nrepl-turn-on-eldoc-mode)
+  (if (fboundp 'hack-dir-local-variables-non-file-buffer)
+      (hack-dir-local-variables-non-file-buffer))
   (when nrepl-history-file
     (nrepl-history-load nrepl-history-file)
     (add-hook 'kill-buffer-hook 'nrepl-history-just-save t t)
