@@ -320,14 +320,23 @@ Emacs behavior use `indent-for-tab-command'."
    (save-excursion (backward-sexp) (point))
    (point)))
 
+(defun nrepl-find-file (filename)
+  "Switch to a buffer visiting filename, removing the any leading slash if on windows.
+Uses `find-file'."
+  (let ((fn (if (and (eq system-type 'windows-nt)
+                     (string-match "^/" filename))
+                (substring filename 1)
+              filename)))
+    (find-file fn)))
+
 (defun nrepl-find-resource (resource)
   (cond ((string-match "^file:\\(.+\\)" resource)
-         (find-file (match-string 1 resource)))
+         (nrepl-find-file (match-string 1 resource)))
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
          (let* ((jar (match-string 2 resource))
                 (path (match-string 3 resource))
                 (buffer-already-open (get-buffer (file-name-nondirectory jar))))
-           (find-file jar)
+           (nrepl-find-file jar)
            (goto-char (point-min))
            (search-forward path)
            (let ((opened-buffer (current-buffer)))
