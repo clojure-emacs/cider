@@ -365,7 +365,11 @@ Emacs behavior use `indent-for-tab-command'."
   (let ((form (format "((clojure.core/juxt
                          (comp clojure.core/str clojure.java.io/resource :file)
                          (comp clojure.core/str clojure.java.io/file :file) :line)
-                        (clojure.core/meta (clojure.core/resolve '%s)))"
+                        (clojure.core/meta (or (clojure.core/resolve '%s '%s)
+                                               (clojure.core/ns-resolve '%s '%s))))"
+                      (nrepl-current-ns)
+                      var
+                      (nrepl-current-ns)
                       var)))
     (nrepl-send-string form
                        (nrepl-jump-to-def-handler (current-buffer))
