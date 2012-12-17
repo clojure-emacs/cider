@@ -1768,7 +1768,8 @@ buffer in which the command was invoked."
         (delete-region start end)
         (save-excursion
           (goto-char start)
-          (insert ";;; output cleared"))))))
+          (insert
+           (propertize ";;; output cleared" 'face 'font-lock-comment-face)))))))
 
 (defun nrepl-find-ns ()
   (or (save-restriction
