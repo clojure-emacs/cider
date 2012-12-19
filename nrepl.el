@@ -457,9 +457,9 @@ Uses `find-file'."
      buffer
      (lambda (buffer value)
        (when (not (string-equal value "nil"))
-         (message (format "%s: %s"
-                          (nrepl-eldoc-format-thing thing)
-                          (nrepl-eldoc-format-arglist value pos)))))
+         (message "%s: %s"
+                  (nrepl-eldoc-format-thing thing)
+                  (nrepl-eldoc-format-arglist value pos))))
        nil nil nil)))
 
 (defun nrepl-eldoc ()
@@ -584,24 +584,24 @@ Uses `find-file'."
 (defun nrepl-interactive-eval-handler (buffer)
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (message (format "%s" value)))
+                                 (message "%s" value))
                                (lambda (buffer value)
                                  (nrepl-emit-interactive-output value))
                                (lambda (buffer err)
-                                 (message (format "%s" err)))
+                                 (message "%s" err))
                                '()))
 
 (defun nrepl-load-file-handler (buffer)
   (let (current-ns (nrepl-current-ns))
     (nrepl-make-response-handler buffer
                                  (lambda (buffer value)
-                                   (message (format "%s" value))
+                                   (message "%s" value)
                                    (with-current-buffer buffer
                                      (setq nrepl-buffer-ns (clojure-find-ns))))
                                  (lambda (buffer value)
                                    (nrepl-emit-interactive-output value))
                                  (lambda (buffer err)
-                                   (message (format "%s" err)))
+                                   (message "%s" err))
                                  '())))
 
 (defun nrepl-interactive-eval-print-handler (buffer)
@@ -611,7 +611,7 @@ Uses `find-file'."
                                    (insert (format "%s" value))))
                                '()
                                (lambda (buffer err)
-                                 (message (format "%s" err)))
+                                 (message "%s" err))
                                '()))
 
 (defun nrepl-popup-eval-print-handler (buffer)
