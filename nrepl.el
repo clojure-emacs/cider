@@ -89,6 +89,9 @@
 (defvar nrepl-server-buffer "*nrepl-server*")
 (defvar nrepl-nrepl-buffer "*nrepl*")
 (defvar nrepl-error-buffer "*nrepl-error*")
+(defvar nrepl-doc-buffer "*nrepl-doc*")
+(defvar nrepl-src-buffer "*nrepl-src*")
+(defvar nrepl-macroexpansion-buffer "*nrepl-macroexpansion*")
 
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
@@ -727,6 +730,7 @@ Uses `find-file'."
    (interactive)
    (let ((buffer (current-buffer)))
      (nrepl-close-popup-window)
+
      (when kill-buffer-p
        (kill-buffer buffer))))
 
@@ -1219,7 +1223,7 @@ This function is meant to be used in hooks to avoid lambda
    nrepl-macroexpansion-minor-mode-map)
 
 (defun nrepl-create-macroexpansion-buffer ()
-  (with-current-buffer (nrepl-popup-buffer "*nREPL Macroexpansion*" t)
+  (with-current-buffer (nrepl-popup-buffer nrepl-macroexpansion-buffer t)
     (clojure-mode)
     (clojure-disable-nrepl)
     (nrepl-macroexpansion-minor-mode 1)
@@ -1955,7 +1959,7 @@ symbol at point, or if QUERY is non-nil."
 
 (defun nrepl-doc-handler (symbol)
   (let ((form (format "(clojure.repl/doc %s)" symbol))
-        (doc-buffer (nrepl-popup-buffer "*nREPL doc*" t)))
+        (doc-buffer (nrepl-popup-buffer nrepl-doc-buffer t)))
     (nrepl-send-string form
                        (nrepl-popup-eval-out-handler doc-buffer)
                        nrepl-buffer-ns
@@ -1970,11 +1974,11 @@ under point, prompts for a var."
 
 (defun nrepl-src-handler (symbol)
   (let ((form (format "(clojure.repl/source %s)" symbol))
-        (doc-buffer (nrepl-popup-buffer "*nREPL doc*" nil)))
-    (with-current-buffer doc-buffer
+        (src-buffer (nrepl-popup-buffer nrepl-src-buffer nil)))
+    (with-current-buffer src-buffer
       (clojure-mode))
     (nrepl-send-string form
-                       (nrepl-popup-eval-out-handler doc-buffer)
+                       (nrepl-popup-eval-out-handler src-buffer)
                        nrepl-buffer-ns
                        (nrepl-current-tooling-session))))
 
@@ -2118,7 +2122,10 @@ under point, prompts for a var."
   (dolist (buf-name `(,nrepl-connection-buffer
                       ,nrepl-server-buffer
                       ,nrepl-nrepl-buffer
-                      ,nrepl-error-buffer))
+                      ,nrepl-error-buffer
+                      ,nrepl-doc-buffer
+                      ,nrepl-src-buffer
+                      ,nrepl-macroexpansion-buffer))
     (when (get-buffer-process buf-name)
       (delete-process (get-buffer-process buf-name)))
     (when (get-buffer buf-name)
