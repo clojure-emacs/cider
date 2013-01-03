@@ -1319,6 +1319,13 @@ This function is meant to be used in hooks to avoid lambda
     (nrepl-history-load nrepl-history-file)
     (add-hook 'kill-buffer-hook 'nrepl-history-just-save t t)
     (add-hook 'kill-emacs-hook 'nrepl-history-just-save))
+
+  (add-hook 'paredit-mode-hook
+            (lambda ()
+              (when (>= paredit-version 21)
+                (define-key nrepl-mode-map "{" 'paredit-open-curly)
+                (define-key nrepl-mode-map "}" 'paredit-close-curly))))
+
   (run-mode-hooks 'nrepl-mode-hook))
 
 ;;; communication
