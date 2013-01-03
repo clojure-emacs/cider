@@ -1217,7 +1217,9 @@ This function is meant to be used in hooks to avoid lambda
     map))
 
 (define-minor-mode nrepl-macroexpansion-minor-mode
-   "Minor mode for nrepl macroexpansion."
+   "Minor mode for nrepl macroexpansion.
+
+\\{nrepl-macroexpansion-minor-mode-map}"
    nil
    " Macroexpand"
    nrepl-macroexpansion-minor-mode-map)
@@ -1286,7 +1288,9 @@ This function is meant to be used in hooks to avoid lambda
 
 ;;;###autoload
 (define-minor-mode nrepl-interaction-mode
-  "Minor mode for nrepl interaction from a Clojure buffer."
+  "Minor mode for nrepl interaction from a Clojure buffer.
+
+\\{nrepl-interaction-mode-map}"
    nil
    " nREPL"
    nrepl-interaction-mode-map
@@ -1295,7 +1299,9 @@ This function is meant to be used in hooks to avoid lambda
                 'nrepl-complete-at-point))
 
 (defun nrepl-mode ()
-  "Major mode for nREPL interactions."
+  "Major mode for nREPL interactions.
+
+\\{nrepl-mode-map}"
   (interactive)
   (kill-all-local-variables)
   (use-local-map nrepl-mode-map)
