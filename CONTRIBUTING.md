@@ -1,9 +1,9 @@
 # Contributing
 
-If you discover issues, have ideas for improvements or new features, or
-want to contribute a new module, please report them to the
-[issue tracker][1] of the repository or submit a pull request. Please,
-try to follow these guidelines when you do so.
+If you discover issues, have ideas for improvements or new features,
+please report them to the [issue tracker][1] of the repository or
+submit a pull request. Please, try to follow these guidelines when you
+do so.
 
 ## Issue reporting
 
