@@ -180,7 +180,8 @@ joined together.")
 
 (defcustom nrepl-popup-stacktraces t
   "Non-nil means pop-up error stacktraces.
-   Nil means do not, useful when in repl"
+Nil means show only an error message in the minibuffer;
+useful when in REPL or you don't care about the stacktraces."
   :type 'boolean
   :group 'nrepl)
 
