@@ -1298,15 +1298,10 @@ This function is meant to be used in hooks to avoid lambda
    (add-to-list 'completion-at-point-functions
                 'nrepl-complete-at-point))
 
-(defun nrepl-mode ()
+(define-derived-mode nrepl-mode fundamental-mode "nREPL"
   "Major mode for nREPL interactions.
 
 \\{nrepl-mode-map}"
-  (interactive)
-  (kill-all-local-variables)
-  (use-local-map nrepl-mode-map)
-  (setq mode-name "nREPL"
-        major-mode 'nrepl-mode)
   (set (make-local-variable 'indent-line-function) 'lisp-indent-line)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
@@ -1324,9 +1319,7 @@ This function is meant to be used in hooks to avoid lambda
             (lambda ()
               (when (>= paredit-version 21)
                 (define-key nrepl-mode-map "{" 'paredit-open-curly)
-                (define-key nrepl-mode-map "}" 'paredit-close-curly))))
-
-  (run-mode-hooks 'nrepl-mode-hook))
+                (define-key nrepl-mode-map "}" 'paredit-close-curly)))))
 
 ;;; communication
 (defcustom nrepl-lein-command
