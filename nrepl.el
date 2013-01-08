@@ -1294,6 +1294,7 @@ This function is meant to be used in hooks to avoid lambda
    " nREPL"
    nrepl-interaction-mode-map
    (make-local-variable 'completion-at-point-functions)
+   (nrepl-turn-on-eldoc-mode)
    (add-to-list 'completion-at-point-functions
                 'nrepl-complete-at-point))
 
