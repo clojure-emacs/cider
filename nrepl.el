@@ -180,7 +180,8 @@ joined together.")
 
 (defcustom nrepl-popup-stacktraces t
   "Non-nil means pop-up error stacktraces.
-   Nil means do not, useful when in repl"
+Nil means show only an error message in the minibuffer;
+useful when in REPL or you don't care about the stacktraces."
   :type 'boolean
   :group 'nrepl)
 
@@ -638,9 +639,7 @@ Uses `find-file'."
 (defun nrepl-default-err-handler (buffer ex root-ex session)
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (if (or nrepl-popup-stacktraces
-          (not (eq 'nrepl-mode
-                   (cdr (assq 'major-mode
-                              (buffer-local-variables buffer))))))
+          (not (member (buffer-local-value 'major-mode buffer) '(nrepl-mode clojure-mode))))
       (with-current-buffer buffer
         (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
