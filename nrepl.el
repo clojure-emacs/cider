@@ -7,7 +7,7 @@
 ;; URL: http://www.github.com/kingtim/nrepl.el
 ;; Version: 0.1.6
 ;; Keywords: languages, clojure, nrepl
-;; Package-Requires: ((clojure-mode "1.11"))
+;; Package-Requires: ((clojure-mode "2.0.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
