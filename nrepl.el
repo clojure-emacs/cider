@@ -337,8 +337,9 @@ Uses `find-file'."
   (cond 
    ((file-exists-p jar) jar)
    ((string-match "^.+\\(\\/.m2.+\\)" jar)
-    (concat (getenv "HOME")  (match-string 1 jar)))
-   (:else jar)))
+    (let ((local-jar (concat (getenv "HOME")  (match-string 1 jar))))
+      (if (file-exists-p local-jar) local-jar jar)))
+   (t jar)))
 
 (defun nrepl-find-resource (resource)
   (cond ((string-match "^file:\\(.+\\)" resource)
