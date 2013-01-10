@@ -333,6 +333,13 @@ Uses `find-file'."
               filename)))
     (find-file fn)))
 
+(defun nrepl-maybe-local-m2-resource (jar)
+  (cond 
+   ((file-exists-p jar) jar)
+   ((string-match "^.+\\(\\/.m2.+\\)" jar)
+    (concat (getenv "HOME")  (match-string 1 jar)))
+   (:else jar)))
+
 (defun nrepl-find-resource (resource)
   (cond ((string-match "^file:\\(.+\\)" resource)
          (nrepl-find-file (match-string 1 resource)))
@@ -340,7 +347,7 @@ Uses `find-file'."
          (let* ((jar (match-string 2 resource))
                 (path (match-string 3 resource))
                 (buffer-already-open (get-buffer (file-name-nondirectory jar))))
-           (nrepl-find-file jar)
+           (nrepl-find-file (nrepl-maybe-local-m2-resource jar))
            (goto-char (point-min))
            (search-forward path)
            (let ((opened-buffer (current-buffer)))
