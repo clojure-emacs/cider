@@ -62,7 +62,7 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defvar nrepl-current-version "0.1.6-preview"
+(defconst nrepl-current-version "0.1.6-preview"
   "The current nrepl version.")
 
 (defun nrepl-version ()
@@ -85,13 +85,13 @@
    :type 'string
    :group 'nrepl)
 
-(defvar nrepl-connection-buffer "*nrepl-connection*")
-(defvar nrepl-server-buffer "*nrepl-server*")
-(defvar nrepl-nrepl-buffer "*nrepl*")
-(defvar nrepl-error-buffer "*nrepl-error*")
-(defvar nrepl-doc-buffer "*nrepl-doc*")
-(defvar nrepl-src-buffer "*nrepl-src*")
-(defvar nrepl-macroexpansion-buffer "*nrepl-macroexpansion*")
+(defconst nrepl-connection-buffer "*nrepl-connection*")
+(defconst nrepl-server-buffer "*nrepl-server*")
+(defconst nrepl-nrepl-buffer "*nrepl*")
+(defconst nrepl-error-buffer "*nrepl-error*")
+(defconst nrepl-doc-buffer "*nrepl-doc*")
+(defconst nrepl-src-buffer "*nrepl-src*")
+(defconst nrepl-macroexpansion-buffer "*nrepl-macroexpansion*")
 
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
