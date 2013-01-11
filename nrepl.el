@@ -347,7 +347,7 @@ Uses `find-file'."
              (archive-extract)
              (when (not buffer-already-open)
                (kill-buffer opened-buffer)))))
-        (:else (error "Unknown resource path %s" resource))))
+        (t (error "Unknown resource path %s" resource))))
 
 (defun nrepl-jump-to-def-for (location)
   ;; ugh; elisp destructuring doesn't work for vectors
