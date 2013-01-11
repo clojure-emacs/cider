@@ -2106,6 +2106,7 @@ under point, prompts for a var."
       (with-current-buffer buffer
         (when (or (eq major-mode 'clojure-mode)
                   (eq major-mode 'clojurescript-mode))
+          (setq nrepl-buffer-ns "user")
           (clojure-disable-nrepl))))))
 
 ;;;###autoload
