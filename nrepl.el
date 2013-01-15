@@ -2063,7 +2063,9 @@ under point, prompts for a var."
 ;;; server
 (defun nrepl-server-filter (process output)
   (with-current-buffer (process-buffer process)
-    (insert output))
+    (save-excursion
+      (goto-char (point-max))
+      (insert output)))
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
