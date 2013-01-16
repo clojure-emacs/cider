@@ -333,38 +333,58 @@ Uses `find-file'."
               filename)))
     (find-file fn)))
 
-(defun nrepl-maybe-local-m2-resource (jar)
-  (cond 
-   ((file-exists-p jar) jar)
-   ((string-match "^.+\\(\\/.m2.+\\)" jar)
+(defun nrepl-local-resource-p (jar)
+  (if (string-match "^.+\\(\\/.m2.+\\)" jar)
     (let ((local-jar (concat (getenv "HOME")  (match-string 1 jar))))
-      (if (file-exists-p local-jar) local-jar jar)))
-   (t jar)))
+      (if (file-exists-p local-jar) local-jar nil))))
 
-(defun nrepl-find-resource (resource)
+(defun nrepl-remote-resource-p (jar remote)
+  (let ((remote-path (concat remote jar)))
+    (if (file-exists-p remote-path)
+	remote-path)))
+
+(defun nrepl-remote-resource-p (jar remote)
+  (let ((remote-path (concat remote jar)))
+    (if (file-exists-p remote-path)
+	remote-path)))
+
+(defun nrepl-find-resource (resource &optional remote)
   (cond ((string-match "^file:\\(.+\\)" resource)
          (nrepl-find-file (match-string 1 resource)))
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
          (let* ((jar (match-string 2 resource))
                 (path (match-string 3 resource))
                 (buffer-already-open (get-buffer (file-name-nondirectory jar))))
-           (nrepl-find-file (nrepl-maybe-local-m2-resource jar))
+	   (cond ((file-exists-p jar) (nrepl-find-file jar))
+		 (buffer-already-open (switch-to-buffer buffer-already-open))
+		 ((nrepl-local-resource-p jar)
+		  (nrepl-find-file (nrepl-local-resource-p jar)))
+		 ((nrepl-remote-resource-p jar remote)
+		  (find-file (nrepl-remote-resource-p jar remote)))
+		 (t (nrepl-find-file jar)))
            (goto-char (point-min))
            (search-forward path)
+	   (message "use M-, to get back")
            (let ((opened-buffer (current-buffer)))
              (archive-extract)
              (when (not buffer-already-open)
-               (kill-buffer opened-buffer)))))
+	       ;; use C-x k to close the definition file and force reloading jar
+               ;(kill-buffer opened-buffer)
+	       ;; use M-, to get back from a definition and avoid reloading jar
+	       (bury-buffer opened-buffer)))))
         (:else (error "Unknown resource path %s" resource))))
 
 (defun nrepl-jump-to-def-for (location)
   ;; ugh; elisp destructuring doesn't work for vectors
-  (let ((resource (aref location 0))
-        (path (aref location 1))
-        (line (aref location 2)))
+  (let* ((resource (aref location 0))
+	 (path (aref location 1))
+	 (line (aref location 2))
+	 (user (aref location 3))
+	 (host (aref location 4))
+	 (remote (concat "/" tramp-default-method ":" user "@" host ":")))
     (if (and path (file-exists-p path))
         (find-file path)
-      (nrepl-find-resource resource))
+	  (nrepl-find-resource resource remote))
     (goto-char (point-min))
     (forward-line (1- line))
     (search-forward-regexp "(def[^\s]* +" nil t)))
@@ -382,11 +402,17 @@ Uses `find-file'."
                                nil))
 
 (defun nrepl-jump-to-def (var)
-  "Jump to the definition of the var at point."
-  (let ((form (format "((clojure.core/juxt
-                         (clojure.core/comp clojure.core/str clojure.java.io/resource :file)
-                         (clojure.core/comp clojure.core/str clojure.java.io/file :file) :line)
-                        (clojure.core/meta (clojure.core/ns-resolve '%s '%s)))"
+  "Jump to the definition of the var at point. Will not jump if definition is undefined"
+  (let ((form (format "(clojure.core/if-let 
+                        [var (clojure.core/resolve '%s '%s)]
+                       (clojure.core/vec 
+                        (clojure.core/concat
+                         ((clojure.core/juxt
+                           (clojure.core/comp clojure.core/str clojure.java.io/resource :file)
+                           (clojure.core/comp clojure.core/str clojure.java.io/file :file) :line)
+                          (clojure.core/meta var))
+                         [(System/getProperty \"user.name\")
+                          (.getHostAddress (java.net.InetAddress/getLocalHost))])))"
                       (nrepl-current-ns) var)))
     (nrepl-send-string form
                        (nrepl-jump-to-def-handler (current-buffer))
