@@ -75,6 +75,11 @@
   :type 'hook
   :group 'nrepl)
 
+(defcustom nrepl-disconnected-hook nil
+  "List of functions to call when disconnected from the nREPL server."
+  :type 'hook
+  :group 'nrepl)
+
 (defcustom nrepl-host "127.0.0.1"
    "The default hostname (or IP address) to connect to."
    :type 'string
@@ -1465,7 +1470,10 @@ Assume that any error during decoding indicates an incomplete message."
 
 (defun nrepl-sentinel (process message)
   (message "nrepl connection closed: %s" message)
-  (kill-buffer (process-buffer process)))
+  (if (equal (process-status process) 'closed)
+      (progn
+        (kill-buffer (process-buffer process))
+        (run-hooks 'nrepl-disconnected-hook))))
 
 (defun nrepl-write-message (process message)
   (process-send-string process message))
@@ -2216,6 +2224,7 @@ restart the server."
 
 ;;;###autoload
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
+(add-hook 'nrepl-disconnected-hook 'nrepl-disable-on-existing-clojure-buffers)
 
 ;;;###autoload
 (defun nrepl (host port)
