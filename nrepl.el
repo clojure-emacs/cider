@@ -57,6 +57,9 @@
 (require 'cl)
 (require 'easymenu)
 
+(eval-when-compile
+  (defvar paredit-version))
+
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
   :prefix "nrepl-"
