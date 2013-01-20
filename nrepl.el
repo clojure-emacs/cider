@@ -279,6 +279,7 @@ you'd like to use the default Emacs behavior use
       (nreverse result))))
 
 (defun nrepl-netstring (string)
+  "Encode string in bencode."
   (let ((size (string-bytes string)))
     (format "%s:%s" size string)))
 
@@ -327,19 +328,22 @@ you'd like to use the default Emacs behavior use
       (nrepl-eval-expression-at-point))))
 
 (defun nrepl-last-expression-with-bounds ()
+  "Return a list containing the last sexp and it's bounds."
   (let ((start (save-excursion (backward-sexp) (point)))
         (end (point)))
     (list (buffer-substring-no-properties start end)
-          (cons (set-marker (make-marker) start) (set-marker (make-marker) end)))))
+          (cons (set-marker (make-marker) start)
+                (set-marker (make-marker) end)))))
 
 (defun nrepl-last-expression ()
+  "Return the last sexp."
   (buffer-substring-no-properties
    (save-excursion (backward-sexp) (point))
    (point)))
 
 (defun nrepl-find-file (filename)
-  "Switch to a buffer visiting filename, removing the any leading slash if on windows.
-Uses `find-file'."
+  "Switch to a buffer visiting FILENAME.
+Removes any leading slash if on Windows.  Uses `find-file'."
   (let ((fn (if (and (eq system-type 'windows-nt)
                      (string-match "^/" filename))
                 (substring filename 1)
@@ -347,6 +351,7 @@ Uses `find-file'."
     (find-file fn)))
 
 (defun nrepl-find-resource (resource)
+  "Find and display RESOURCE."
   (cond ((string-match "^file:\\(.+\\)" resource)
          (nrepl-find-file (match-string 1 resource)))
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
@@ -363,6 +368,7 @@ Uses `find-file'."
         (t (error "Unknown resource path %s" resource))))
 
 (defun nrepl-jump-to-def-for (location)
+  "Jump to LOCATION's definition in the source code."
   ;; ugh; elisp destructuring doesn't work for vectors
   (let ((resource (aref location 0))
         (path (aref location 1))
@@ -387,7 +393,7 @@ Uses `find-file'."
                                nil))
 
 (defun nrepl-jump-to-def (var)
-  "Jump to the definition of the var at point."
+  "Jump to the definition of the VAR at point."
   (let ((form (format "((clojure.core/juxt
                          (clojure.core/comp clojure.core/str clojure.java.io/resource :file)
                          (clojure.core/comp clojure.core/str clojure.java.io/file :file) :line)
@@ -405,7 +411,7 @@ Uses `find-file'."
 (defalias 'nrepl-jump-back 'pop-tag-mark)
 
 (defun nrepl-completion-complete-core-fn (str)
-  "Return a list of completions using complete.core/completions."
+  "Return a list of completions for STR using complete.core/completions."
   (let ((strlst (plist-get
                  (nrepl-send-string-sync
                   (format "(require 'complete.core) (complete.core/completions \"%s\" *ns*)" str)
@@ -416,7 +422,7 @@ Uses `find-file'."
       (car (read-from-string strlst)))))
 
 (defun nrepl-completion-complete-op-fn (str)
-  "Return a list of completions using the nREPL \"complete\" op."
+  "Return a list of completions for STR using the nREPL \"complete\" op."
   (lexical-let ((strlst (plist-get
                          (nrepl-send-request-sync
                           (list "op" "complete"
@@ -506,7 +512,7 @@ Uses `find-file'."
 ;;; JavaDoc Browsing
 ;;; Assumes local-paths are accessible in the VM.
 (defvar nrepl-javadoc-local-paths nil
-  "List of paths to directories with javadoc.")
+  "List of paths to directories with Javadoc.")
 
 (defun nrepl-javadoc-op (symbol-name)
   (nrepl-send-op
@@ -526,10 +532,10 @@ Uses `find-file'."
     (let ((bounds (bounds-of-thing-at-point 'symbol)))
       (if (nrepl-op-supported-p "javadoc")
           (nrepl-javadoc-op symbol-name)
-        (message "No javadoc middleware available")))))
+        (message "No Javadoc middleware available")))))
 
 (defun nrepl-javadoc (query)
-  "Browse javadoc on the Java class at point."
+  "Browse Javadoc on the Java class at point."
   (interactive "P")
   (nrepl-read-symbol-name "Javadoc for: " 'nrepl-javadoc-handler query))
 
@@ -706,7 +712,7 @@ OLD-BUFFER is nil if POPUP-WINDOW was newly created.")
 
 (defun nrepl-display-popup-buffer (&optional select)
   "Display the current buffer.
-Save the selected-window in a buffer-local variable, so that we
+Save the `selected-window' in a buffer-local variable, so that we
 can restore it later."
   (let ((selected-window (selected-window))
         (old-windows))
@@ -758,6 +764,7 @@ last activated the buffer."
     (current-buffer)))
 
 (defun nrepl-emit-into-popup-buffer (buffer value)
+  "Insert VALUE into BUFFER."
   (with-current-buffer buffer
     (let ((inhibit-read-only t)
           (buffer-undo-list t))
@@ -782,7 +789,7 @@ last activated the buffer."
     (undo-only arg)))
 
 (defvar nrepl-last-macroexpand-expression nil
-  "Specifies the last macroexpansion preformed.
+  "Specify the last macroexpansion preformed.
 This variable specifies both what was expanded and the expander.")
 
 (defun nrepl-macroexpand-handler (buffer ns)
@@ -822,7 +829,7 @@ This variable specifies both what was expanded and the expander.")
                        nrepl-buffer-ns)))
 
 (defun nrepl-macroexpand-again ()
-  "Reperform the last macroexpansion."
+  "Repeat the last macroexpansion."
   (interactive)
   (nrepl-send-string nrepl-last-macroexpand-expression (nrepl-macroexpand-handler (current-buffer) nrepl-buffer-ns) nrepl-buffer-ns))
 
@@ -918,8 +925,8 @@ If invoked with a prefix argument, use 'macroexpand' instead of 'macroexpand-1'.
     (nrepl-interactive-eval (nrepl-last-expression))))
 
 (defun nrepl-eval-print-last-expression ()
-  "Evaluate the expression preceding point and print value into
-  the current buffer"
+  "Evaluate the expression preceding point.
+Print its value into the current buffer"
   (interactive)
   (nrepl-interactive-eval-print (nrepl-last-expression)))
 
@@ -1176,7 +1183,7 @@ This function is meant to be used in hooks to avoid lambda
 
 ;;; mode book-keeping
 (defvar nrepl-mode-hook nil
-  "Hook executed when entering nrepl-mode.")
+  "Hook executed when entering `nrepl-mode'.")
 
 (defvar nrepl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
@@ -1257,7 +1264,7 @@ This function is meant to be used in hooks to avoid lambda
     (current-buffer)))
 
 (defun nrepl-tab ()
-  "Invoked on TAB keystrokes in nrepl-mode buffers."
+  "Invoked on TAB keystrokes in `nrepl-mode' buffers."
   (interactive)
   (funcall nrepl-tab-command))
 
@@ -1306,9 +1313,13 @@ This function is meant to be used in hooks to avoid lambda
     ["Interrupt" nrepl-interrupt]))
 
 (defun clojure-enable-nrepl ()
+  "Enable `nrepl-interaction-mode'.
+Useful in hooks."
   (nrepl-interaction-mode 1))
 
 (defun clojure-disable-nrepl ()
+  "Disable `nrepl-interaction-mode'.
+Useful in hooks."
   (nrepl-interaction-mode -1))
 
 ;;;###autoload
@@ -1384,7 +1395,7 @@ to specific the full path to it. Localhost is assumed."
 (put 'nrepl-save-marker 'lisp-indent-function 1)
 
 (defun nrepl-insert-prompt (namespace)
-  "Insert the prompt (before markers!).
+  "Insert the prompt (before markers!), taking into account NAMESPACE.
 Set point after the prompt.
 Return the position of the prompt beginning."
   (goto-char nrepl-input-start-mark)
@@ -1646,7 +1657,7 @@ The result is a plist with keys :value, :stderr and :stdout."
   "Goto to the end of the input and send the current input.
 If NEWLINE is true then add a newline at the end of the input."
   (unless (nrepl-in-input-area-p)
-    (error "No input at point."))
+    (error "No input at point"))
   (goto-char (point-max))
   (let ((end (point))) ; end of input, without the newline
     (nrepl-add-to-input-history (buffer-substring nrepl-input-start-mark end))
@@ -1833,8 +1844,9 @@ buffer in which the command was invoked."
              (nrepl-find-ns))
         ns)))
 
-;; Words of inspiration
+;;; Words of inspiration
 (defun nrepl-user-first-name ()
+  "Find the current user's first name."
   (let ((name (if (string= (user-full-name) "")
                   (user-login-name)
                 (user-full-name))))
@@ -1871,10 +1883,12 @@ buffer in which the command was invoked."
   "Scientifically-proven optimal words of hackerish encouragement.")
 
 (defun nrepl-random-words-of-inspiration ()
+  "Select a random entry from `nrepl-words-of-inspiration'."
   (eval (nth (random (length nrepl-words-of-inspiration))
              nrepl-words-of-inspiration)))
 
 (defun nrepl-insert-banner (ns)
+  "Insert REPL banner, taking into account NS."
   (when (zerop (buffer-size))
     (let ((welcome (concat "; nREPL " nrepl-current-version)))
       (insert (propertize welcome 'face 'font-lock-comment-face))))
@@ -1999,7 +2013,7 @@ symbol at point, or if QUERY is non-nil."
                        (nrepl-current-tooling-session))))
 
 (defun nrepl-doc (query)
-  "Open a window with the docstring for the given entry.
+  "Open a window with the docstring for the given QUERY.
 Defaults to the symbol at point. With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
@@ -2016,7 +2030,7 @@ under point, prompts for a var."
                        (nrepl-current-tooling-session))))
 
 (defun nrepl-src (query)
-  "Open a window with the source for the given entry.
+  "Open a window with the source for the given QUERY.
 Defaults to the symbol at point. With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
@@ -2028,7 +2042,7 @@ under point, prompts for a var."
     (nrepl-send-string form (nrepl-interactive-eval-handler buffer))))
 
 (defun nrepl-file-string (file)
-  "Read the contents of a file and return as a string."
+  "Read the contents of a FILE and return as a string."
   (with-current-buffer (find-file-noselect file)
     (buffer-string)))
 
@@ -2065,7 +2079,7 @@ under point, prompts for a var."
   (interactive)
   (check-parens)
   (unless buffer-file-name
-    (error "Buffer %s is not associated with a file." (buffer-name)))
+    (error "Buffer %s is not associated with a file" (buffer-name)))
   (when (and (buffer-modified-p)
              (y-or-n-p (format "Save file %s? " (buffer-file-name))))
     (save-buffer))
@@ -2112,11 +2126,12 @@ under point, prompts for a var."
      ((string-match "^hangup" event)
       (nrepl-quit))
      ((string-match "Wrong number of arguments to repl task" problem)
-      (error "nrepl.el requires Leiningen 2.x"))
+      (error "Leiningen 2.x is required by nREPL.el"))
      (t (error "Could not start nREPL server: %s" problem)))))
 
 ;;;###autoload
 (defun nrepl-enable-on-existing-clojure-buffers ()
+  "Enable `nrepl-interaction-mode' on existing Clojure buffers."
   (interactive)
   (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
   (add-hook 'clojurescript-mode-hook 'clojure-enable-nrepl)
@@ -2129,6 +2144,7 @@ under point, prompts for a var."
 
 ;;;###autoload
 (defun nrepl-disable-on-existing-clojure-buffers ()
+  "Disable `nrepl-interaction-mode' on existing Clojure buffers."
   (interactive)
   (save-window-excursion
     (dolist (buffer (buffer-list))
@@ -2140,6 +2156,9 @@ under point, prompts for a var."
 
 ;;;###autoload
 (defun nrepl-jack-in (&optional prompt-project)
+  "Start a nREPL server for the current project and connect to it.
+If PROMPT-PROJECT is t, then prompt for the project for which to
+start the server."
   (interactive "P")
   (let* ((cmd (if prompt-project
                   (format "cd %s && %s" (ido-read-directory-name "Project: ")
@@ -2231,6 +2250,7 @@ restart the server."
   (nrepl-create-client-session (nrepl-new-tooling-session-handler process)))
 
 (defun nrepl-connect (host port)
+  "Connect to a running nREPL server running on HOST and PORT."
   (message "Connecting to nREPL on %s:%s..." host port)
   (let ((process (open-network-stream "nrepl" nrepl-connection-buffer host
                                       port)))
