@@ -56,6 +56,7 @@
 (require 'eldoc)
 (require 'cl)
 (require 'easymenu)
+(require 'compile)
 
 (eval-when-compile
   (defvar paredit-version))
@@ -668,13 +669,16 @@ Removes any leading slash if on Windows.  Uses `find-file'."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (if (or nrepl-popup-stacktraces
           (not (member (buffer-local-value 'major-mode buffer) '(nrepl-mode clojure-mode))))
-      (with-current-buffer buffer
-        (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
+      (progn
+        (with-current-buffer buffer
+          (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
-                           (nrepl-make-response-handler
-                            (nrepl-popup-buffer nrepl-error-buffer)
-                            nil
-                            'nrepl-emit-into-color-buffer nil nil) nil session))
+                             (nrepl-make-response-handler
+                              (nrepl-popup-buffer nrepl-error-buffer)
+                              nil
+                              'nrepl-emit-into-color-buffer nil nil) nil session))
+        (with-current-buffer nrepl-error-buffer
+          (compilation-minor-mode +1)))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
     ;; can pull up with a hotkey only when interested in seeing it?
     ))
@@ -1280,12 +1284,14 @@ Useful in hooks."
   "Minor mode for nrepl interaction from a Clojure buffer.
 
 \\{nrepl-interaction-mode-map}"
-  nil
-  " nREPL"
-  nrepl-interaction-mode-map
-  (make-local-variable 'completion-at-point-functions)
-  (add-to-list 'completion-at-point-functions
-               'nrepl-complete-at-point))
+   nil
+   " nREPL"
+   nrepl-interaction-mode-map
+   (make-local-variable 'completion-at-point-functions)
+   (add-to-list 'completion-at-point-functions
+                'nrepl-complete-at-point)
+   (add-to-list 'compilation-error-regexp-alist
+                '("^.+compiling:(\\(.+\\):\\(.+\\))" 1 2)))
 
 (define-derived-mode nrepl-mode fundamental-mode "nREPL"
   "Major mode for nREPL interactions.
