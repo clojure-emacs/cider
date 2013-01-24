@@ -677,18 +677,6 @@ Removes any leading slash if on Windows.  Uses `find-file'."
 
 
 ;;;; Popup buffers
-(defvar nrepl-popup-restore-data nil
-  "Data needed when closing popup windows.
-
-This is used as buffer local variable.
-The format is (POPUP-WINDOW SELECTED-WINDOW OLD-BUFFER).
-POPUP-WINDOW is the window used to display the temp buffer.
-That window may have been reused or freshly created.
-SELECTED-WINDOW is the window that was selected before displaying
-the popup buffer.
-OLD-BUFFER is the buffer that was previously displayed in POPUP-WINDOW.
-OLD-BUFFER is nil if POPUP-WINDOW was newly created.")
-
 (define-minor-mode nrepl-popup-buffer-mode
   "Mode for nrepl popup buffers"
   nil
@@ -705,53 +693,21 @@ OLD-BUFFER is nil if POPUP-WINDOW was newly created.")
   (funcall nrepl-popup-buffer-quit-function kill-buffer-p))
 
 (defun nrepl-popup-buffer (name &optional select)
+  "Create new popup buffer called NAME.
+If SELECT is non-nil, select the newly created window"
   (with-current-buffer (nrepl-make-popup-buffer name)
     (setq buffer-read-only t)
-    (set-window-point (nrepl-display-popup-buffer select) (point))
-    (current-buffer)))
-
-(defun nrepl-display-popup-buffer (&optional select)
-  "Display the current buffer.
-Save the `selected-window' in a buffer-local variable, so that we
-can restore it later."
-  (let ((selected-window (selected-window))
-        (old-windows))
-    (walk-windows (lambda (w) (push (cons w (window-buffer w)) old-windows))
-                  nil t)
     (let ((new-window (display-buffer (current-buffer))))
-      (unless nrepl-popup-restore-data
-        (set (make-local-variable 'nrepl-popup-restore-data)
-             (list new-window
-                   selected-window
-                   (cdr (find new-window old-windows :key #'car)))))
+      (set-window-point new-window (point))
       (when select
-        (select-window new-window))
-      new-window)))
-
-(defun nrepl-close-popup-window ()
-  (when nrepl-popup-restore-data
-    (destructuring-bind (popup-window selected-window old-buffer)
-        nrepl-popup-restore-data
-      (bury-buffer)
-      (when (eq popup-window (selected-window))
-        (cond ((and (not old-buffer) (not (one-window-p)))
-               (delete-window popup-window))
-              ((and old-buffer (buffer-live-p old-buffer))
-               (set-window-buffer popup-window old-buffer))))
-      (when (window-live-p selected-window)
-        (select-window selected-window))))
-  (kill-local-variable 'nrepl-popup-restore-data))
+        (select-window new-window))  
+      (current-buffer))))
 
 (defun nrepl-popup-buffer-quit (&optional kill-buffer-p)
-  "Get rid of the current (temp) buffer without asking.
-Restore the window configuration unless it was changed since we
-last activated the buffer."
+  "Quit the current (temp) window and bury its buffer using `quit-window'.
+If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying it."
   (interactive)
-  (let ((buffer (current-buffer)))
-    (nrepl-close-popup-window)
-
-    (when kill-buffer-p
-      (kill-buffer buffer))))
+  (quit-window kill-buffer-p (selected-window)))
 
 (defun nrepl-make-popup-buffer (name)
   "Create a temporary buffer called NAME."
