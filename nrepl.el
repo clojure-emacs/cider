@@ -100,6 +100,7 @@
 (defconst nrepl-doc-buffer "*nrepl-doc*")
 (defconst nrepl-src-buffer "*nrepl-src*")
 (defconst nrepl-macroexpansion-buffer "*nrepl-macroexpansion*")
+(defconst nrepl-result-buffer "*nrepl-result*")
 
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
@@ -885,6 +886,16 @@ Print its value into the current buffer"
   (interactive)
   (nrepl-interactive-eval-print (nrepl-last-expression)))
 
+(defun nrepl-pprint-eval-last-expression ()
+  "Evaluate the expression preceding point and pprint its value in a popup buffer."
+  (interactive)
+  (let ((form (nrepl-last-expression))
+        (result-buffer (nrepl-popup-buffer nrepl-result-buffer nil)))
+    (nrepl-send-string (format "(clojure.pprint/pprint %s)" form)
+                       (nrepl-popup-eval-out-handler result-buffer)
+                       nrepl-buffer-ns
+                       (nrepl-current-tooling-session))))
+
 ;;;;; History
 
 (defcustom nrepl-wrap-history nil
@@ -1141,6 +1152,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
     (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
+    (define-key map (kbd "C-c C-p") 'nrepl-pprint-eval-last-expression)
     (define-key map (kbd "C-c C-r") 'nrepl-eval-region)
     (define-key map (kbd "C-c C-n") 'nrepl-eval-ns-form)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
@@ -1164,6 +1176,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Complete symbol" complete-symbol]
     ["Eval expression at point" nrepl-eval-expression-at-point]
     ["Eval last expression" nrepl-eval-last-expression]
+    ["Eval last expression in popup buffer" nrepl-pprint-eval-last-expression]
     ["Eval region" nrepl-eval-region]
     ["Eval ns form" nrepl-eval-ns-form]
     ["Macroexpand-1 last expression" nrepl-macroexpand-1]
