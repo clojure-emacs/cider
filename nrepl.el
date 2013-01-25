@@ -699,7 +699,7 @@ If SELECT is non-nil, select the newly created window"
     (let ((new-window (display-buffer (current-buffer))))
       (set-window-point new-window (point))
       (when select
-        (select-window new-window))  
+        (select-window new-window))
       (current-buffer))))
 
 (defun nrepl-popup-buffer-quit (&optional kill-buffer-p)
@@ -1964,9 +1964,10 @@ under point, prompts for a var."
 
 (defun nrepl-src-handler (symbol)
   (let ((form (format "(clojure.repl/source %s)" symbol))
-        (src-buffer (nrepl-popup-buffer nrepl-src-buffer nil)))
+        (src-buffer (nrepl-popup-buffer nrepl-src-buffer t)))
     (with-current-buffer src-buffer
-      (clojure-mode))
+      (clojure-mode)
+      (nrepl-popup-buffer-mode +1))
     (nrepl-send-string form
                        (nrepl-popup-eval-out-handler src-buffer)
                        nrepl-buffer-ns
