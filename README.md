@@ -269,6 +269,6 @@ uses the same search pattern (even if the current input has changed).
 
 ## License
 
-Copyright © 2012 Tim King, Phil Hagelberg and contributors.
+Copyright © 2012-2013 Tim King, Phil Hagelberg and [contributors](https://github.com/kingtim/nrepl.el/contributors).
 
 Distributed under the GNU General Public License, version 3

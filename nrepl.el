@@ -1,6 +1,6 @@
 ;;; nrepl.el --- Client for Clojure nREPL
 
-;; Copyright © 2012 Tim King, Phil Hagelberg
+;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
