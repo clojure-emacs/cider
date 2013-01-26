@@ -93,8 +93,8 @@
   :type 'string
   :group 'nrepl)
 
-(defconst nrepl-connection-buffer "*nrepl-connection*")
-(defconst nrepl-server-buffer "*nrepl-server*")
+(defconst nrepl-connection-buffer " *nrepl-connection*")
+(defconst nrepl-server-buffer " *nrepl-server*")
 (defconst nrepl-nrepl-buffer "*nrepl*")
 (defconst nrepl-error-buffer "*nrepl-error*")
 (defconst nrepl-doc-buffer "*nrepl-doc*")
@@ -1149,6 +1149,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-s") 'nrepl-src)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
+    (define-key map (kbd "C-c M-p") 'nrepl-set-ns-and-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'nrepl-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
@@ -1874,6 +1875,12 @@ the buffer should appear."
   (with-current-buffer nrepl-nrepl-buffer
     (nrepl-send-string (format "(in-ns '%s)" ns) (nrepl-handler (current-buffer)))))
 
+(defun nrepl-set-ns-and-switch-to-repl-buffer ()
+  "Sets the namespace of the *nrepl* buffer to `ns` and switches to it."
+  (interactive)
+  (nrepl-set-ns (nrepl-current-ns))
+  (nrepl-switch-to-repl-buffer))
+
 (defun nrepl-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
   (let ((str (thing-at-point 'symbol)))
@@ -2113,6 +2120,12 @@ start the server."
     (set-process-sentinel process 'nrepl-server-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (message "Starting nREPL server...")))
+
+;;;###autoload
+(defun clj (&optional prompt-project)
+  "Like `nrepl-jack-in`, but faster to type."
+  (interactive "P")
+  (nrepl-jack-in prompt-project))
 
 (defun nrepl-quit ()
   "Quit the nrepl server."
