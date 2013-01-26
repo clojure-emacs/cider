@@ -693,7 +693,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
         (save-excursion
           (goto-char (point-min))
           (forward-line (1- error-line-number))
-          (overlay-put (make-overlay (point)
+          (overlay-put (make-overlay (progn (back-to-indentation) (point))
                                      (progn (move-end-of-line nil) (point)))
                        'face '(:foreground "red" :underline t)))))))
 
