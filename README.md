@@ -219,6 +219,7 @@ section of this manual.
 * <kbd>C-c C-n</kbd>: Eval the ns form.
 * <kbd>C-c M-n</kbd>: Switch the namespace of the repl buffer to the namespace of the current buffer.
 * <kbd>C-c C-z</kbd>: Select the repl buffer.
+* <kbd>C-c M-p</kbd>: Switch the *nrepl* NS to the current buffer and switch to the *nrepl* buffer.
 * <kbd>C-c M-o</kbd>: Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 * <kbd>C-c C-k</kbd>: Load the current buffer.
 * <kbd>C-c C-l</kbd>: Load a file.

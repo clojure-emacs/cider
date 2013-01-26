@@ -1149,6 +1149,7 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-s") 'nrepl-src)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
+    (define-key map (kbd "C-c M-p") 'nrepl-set-ns-and-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'nrepl-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
@@ -1873,6 +1874,12 @@ the buffer should appear."
   (interactive (list (nrepl-current-ns)))
   (with-current-buffer nrepl-nrepl-buffer
     (nrepl-send-string (format "(in-ns '%s)" ns) (nrepl-handler (current-buffer)))))
+
+(defun nrepl-set-ns-and-switch-to-repl-buffer ()
+  "Sets the namespace of the *nrepl* buffer to `ns` and switches to it."
+  (interactive)
+  (nrepl-set-ns (nrepl-current-ns))
+  (nrepl-switch-to-repl-buffer))
 
 (defun nrepl-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
