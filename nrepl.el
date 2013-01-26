@@ -678,10 +678,35 @@ Removes any leading slash if on Windows.  Uses `find-file'."
                               nil
                               'nrepl-emit-into-color-buffer nil nil) nil session))
         (with-current-buffer nrepl-error-buffer
-          (compilation-minor-mode +1)))
+          (compilation-minor-mode +1))
+        (nrepl-highlight-compilation-error-line buffer))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
     ;; can pull up with a hotkey only when interested in seeing it?
     ))
+
+(defun nrepl-highlight-compilation-error-line (buffer)
+  "Highlight compilation error line in BUFFER."
+  (with-current-buffer buffer
+    (let ((error-line-number (nrepl-extract-error-line (nrepl-stacktrace))))
+      (message "Error line is %d" error-line-number)
+      (when (> error-line-number 0)
+        (save-excursion
+          (goto-char (point-min))
+          (forward-line (1- error-line-number))
+          (overlay-put (make-overlay (point)
+                                     (progn (move-end-of-line nil) (point)))
+                       'face '(:foreground "red" :underline t)))))))
+
+(defun nrepl-extract-error-line (stacktrace)
+  "Extract the error line number from STACKTRACE."
+  (string-match "\\.clj:\\([0-9]+\\)" stacktrace)
+  (string-to-number (match-string 1 stacktrace)))
+
+(defun nrepl-stacktrace ()
+  "Retrieve the current stracktrace from the `nrepl-error-buffer'."
+  (sleep-for 0.3)
+  (with-current-buffer nrepl-error-buffer
+    (substring-no-properties (buffer-string))))
 
 (defun nrepl-need-input (buffer)
   (with-current-buffer buffer
@@ -1291,7 +1316,7 @@ Useful in hooks."
    (add-to-list 'completion-at-point-functions
                 'nrepl-complete-at-point)
    (add-to-list 'compilation-error-regexp-alist
-                '("^.+compiling:(\\(.+\\):\\(.+\\))" 1 2)))
+                '("(\\(.+\\):\\(.+\\))" 1 2)))
 
 (define-derived-mode nrepl-mode fundamental-mode "nREPL"
   "Major mode for nREPL interactions.
@@ -2038,6 +2063,7 @@ under point, prompts for a var."
   "Load current buffer's file."
   (interactive)
   (check-parens)
+  (remove-overlays)
   (unless buffer-file-name
     (error "Buffer %s is not associated with a file" (buffer-name)))
   (when (and (buffer-modified-p)
