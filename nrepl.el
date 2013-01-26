@@ -2114,6 +2114,12 @@ start the server."
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (message "Starting nREPL server...")))
 
+;;;###autoload
+(defun clj (&optional prompt-project)
+  "Like `nrepl-jack-in`, but faster to type."
+  (interactive "P")
+  (nrepl-jack-in prompt-project))
+
 (defun nrepl-quit ()
   "Quit the nrepl server."
   (interactive)
