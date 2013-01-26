@@ -704,7 +704,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
 
 (defun nrepl-stacktrace ()
   "Retrieve the current stracktrace from the `nrepl-error-buffer'."
-  (sleep-for 0.3)
+  (sleep-for 0.3) ; ugly hack to account for a race condition
   (with-current-buffer nrepl-error-buffer
     (substring-no-properties (buffer-string))))
 
