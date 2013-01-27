@@ -217,6 +217,10 @@ and it expects `clojure.pprint` to have been required already
     Prompts for a project root if given a prefix argument.
 * <kbd>M-x nrepl</kbd>: Connect to an already-running nrepl server.
 
+While you're in `clojure-mode`, `nrepl-jack-in` is bound for
+convenience to <kbd>C-c M-j</kbd> and `nrepl` is bound to <kbd>C-c
+M-c</kbd>.
+
 ### Clojure buffer commands:
 
 * <kbd>C-x C-e</kbd>: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
