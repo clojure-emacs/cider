@@ -484,11 +484,22 @@ Removes any leading slash if on Windows.  Uses `find-file'."
                   (nrepl-eldoc-format-arglist value pos))))
      nil nil nil)))
 
+(defun nrepl-eldoc-info-in-current-sexp ()
+  (save-excursion
+    (let ((argument-index (1- (eldoc-beginning-of-sexp))))
+      ;; If we are at the beginning of function name, this will be -1.
+      (when (< argument-index 0)
+	(setq argument-index 0))
+      ;; Don't do anything if current word is inside a string.
+      (if (= (or (char-after (1- (point))) 0) ?\")
+	  nil
+	(list (nrepl-symbol-at-point) argument-index)))))
+
 (defun nrepl-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
-  (let* ((fnsym (eldoc-fnsym-in-current-sexp))
-         (thing (car fnsym))
-         (pos (cadr fnsym))
+  (let* ((info (nrepl-eldoc-info-in-current-sexp))
+         (thing (car info))
+         (pos (cadr info))
          (form (format "(try
                          (:arglists
                           (clojure.core/meta
@@ -497,8 +508,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
                          (catch Throwable t nil))" thing)))
     (when thing
       (nrepl-send-string form
-                         (nrepl-eldoc-handler (current-buffer)
-                                              (symbol-name thing) pos)
+                         (nrepl-eldoc-handler (current-buffer) thing pos)
                          nrepl-buffer-ns
                          (nrepl-current-tooling-session)))))
 
