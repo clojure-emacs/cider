@@ -127,6 +127,11 @@
   "Face for the result of an evaluation in the nREPL client."
   :group 'nrepl)
 
+(defface nrepl-error-highlight-face
+  '((t (:inherit font-lock-warning-face :underline t)))
+  "Face used to highlight compilation errors in Clojure buffers."
+  :group 'nrepl)
+
 (defmacro nrepl-propertize-region (props &rest body)
   "Execute BODY and add PROPS to all the text it inserts.
 More precisely, PROPS are added to the region between the point's
@@ -695,7 +700,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
           (forward-line (1- error-line-number))
           (overlay-put (make-overlay (progn (back-to-indentation) (point))
                                      (progn (move-end-of-line nil) (point)))
-                       'face '(:foreground "red" :underline t)))))))
+                       'face 'nrepl-error-highlight-face))))))
 
 (defun nrepl-extract-error-line (stacktrace)
   "Extract the error line number from STACKTRACE."
