@@ -693,7 +693,6 @@ Removes any leading slash if on Windows.  Uses `find-file'."
   "Highlight compilation error line in BUFFER."
   (with-current-buffer buffer
     (let ((error-line-number (nrepl-extract-error-line (nrepl-stacktrace))))
-      (message "Error line is %d" error-line-number)
       (when (> error-line-number 0)
         (save-excursion
           (goto-char (point-min))
