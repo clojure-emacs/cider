@@ -1313,14 +1313,14 @@ Useful in hooks."
   "Minor mode for nrepl interaction from a Clojure buffer.
 
 \\{nrepl-interaction-mode-map}"
-   nil
-   " nREPL"
-   nrepl-interaction-mode-map
-   (make-local-variable 'completion-at-point-functions)
-   (add-to-list 'completion-at-point-functions
-                'nrepl-complete-at-point)
-   (add-to-list 'compilation-error-regexp-alist
-                '("(\\(.+\\):\\(.+\\))" 1 2)))
+  nil
+  " nREPL"
+  nrepl-interaction-mode-map
+  (make-local-variable 'completion-at-point-functions)
+  (add-to-list 'completion-at-point-functions
+               'nrepl-complete-at-point)
+  (add-to-list 'compilation-error-regexp-alist
+               '("(\\(.+\\):\\(.+\\))" 1 2)))
 
 (define-derived-mode nrepl-mode fundamental-mode "nREPL"
   "Major mode for nREPL interactions.
