@@ -264,7 +264,7 @@ uses the same search pattern (even if the current input has changed).
 
 ## Changelog
 
-An extensive changelog is available [here](Changelog.md).
+An extensive changelog is available [here](CHANGELOG.md).
 
 ## Contributing
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
