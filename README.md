@@ -72,6 +72,15 @@ Make **C-c C-z** switch to the `*nrepl*` buffer in the current window:
 (add-to-list 'same-window-buffer-names "*nrepl*") 
 ```
 
+Make the REPL always pretty-print the results of your commands. Note
+that this will not work correctly with forms such as `(def a 1) (def b2)`
+and it expects `clojure.pprint` to have been required already
+(the default in more recent versions of Clojure):
+
+```lisp
+(nrepl-pretty-toggle)
+```
+
 ## Keys
 
 * **M-x nrepl-jack-in**: Launch an nrepl server and a repl client.
