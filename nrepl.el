@@ -201,6 +201,8 @@ you'd like to use the default Emacs behavior use
   :type 'symbol
   :group 'nrepl)
 
+(defvar nrepl-pretty nil)
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   "Make all VARIABLES buffer local."
   (mapcar #'make-variable-buffer-local variables))
@@ -1183,6 +1185,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Display Source" nrepl-src]
     ["Display JavaDoc" nrepl-javadoc]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
+    ["Toggle REPL Pretty Print" nrepl-pretty-toggle]
     ["Clear REPL" nrepl-find-and-clear-repl-buffer]
     ["Load current buffer" nrepl-load-current-buffer]
     ["Load file" nrepl-load-file]
@@ -1612,7 +1615,7 @@ If NEWLINE is true then add a newline at the end of the input."
   (unless (nrepl-in-input-area-p)
     (error "No input at point"))
   (goto-char (point-max))
-  (let ((end (point))) ; end of input, without the newline
+  (let ((end (point)))             ; end of input, without the newline
     (nrepl-add-to-input-history (buffer-substring nrepl-input-start-mark end))
     (when newline
       (insert "\n")
@@ -1627,11 +1630,13 @@ If NEWLINE is true then add a newline at the end of the input."
       ;; by kill/yank.
       (overlay-put overlay 'read-only t)
       (overlay-put overlay 'face 'nrepl-input-face)))
-  (let ((input (nrepl-current-input)))
+  (let* ((input (nrepl-current-input))
+         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-pretty)
+                   (format "(clojure.pprint/pprint %s)" input) input)))
     (goto-char (point-max))
     (nrepl-mark-input-start)
     (nrepl-mark-output-start)
-    (nrepl-send-string input (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
+    (nrepl-send-string form (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
 
 (defun nrepl-newline-and-indent ()
   "Insert a newline, then indent the next line.
@@ -1737,6 +1742,16 @@ text property `nrepl-old-input'."
     (while (ignore-errors (save-excursion (backward-up-list 1)) t)
       (insert ")")))
   (nrepl-return))
+
+(defun nrepl-pretty-toggle ()
+  (interactive)
+  (if nrepl-pretty
+      (progn
+       (setq nrepl-pretty nil)
+       (message "nrepl pretty printing now OFF"))
+    (progn
+     (setq nrepl-pretty t)
+     (message "nrepl pretty printing now ON"))))
 
 (defvar nrepl-clear-buffer-hook)
 
