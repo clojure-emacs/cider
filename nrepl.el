@@ -394,22 +394,38 @@ Removes any leading slash if on Windows.  Uses `find-file'."
 
 (defun nrepl-jump-to-def (var)
   "Jump to the definition of the VAR at point."
-  (let ((form (format "(let [ns-symbol '%s
-                             ns-var    '%s]
+  (let ((form (format "(let [ns-symbol    '%s
+                             ns-var       '%s
+                             ns-file      (clojure.core/comp :file
+                                                             clojure.core/meta
+                                                             clojure.core/second
+                                                             clojure.core/first
+                                                             clojure.core/ns-publics)
+                             resource-str (clojure.core/comp clojure.core/str
+                                                             clojure.java.io/resource
+                                                             ns-file)
+                             file-str     (clojure.core/comp clojure.core/str
+                                                             clojure.java.io/file
+                                                             ns-file)]
                          (cond ((clojure.core/ns-aliases ns-symbol) ns-var)
-                               [((clojure.core/comp clojure.core/str clojure.java.io/resource :file) (meta (second (first (ns-publics ((ns-aliases ns-symbol) ns-var))))))
-                                ((comp #(.getAbsolutePath %%) clojure.java.io/file :file) (meta (second (first (ns-publics ((ns-aliases ns-symbol) ns-var))))))
-                                1]
-
+                               (let [resolved-ns ((clojure.core/ns-aliases ns-symbol) ns-var)]
+                                 [(resource-str resolved-ns)
+                                  (file-str resolved-ns)
+                                  1])
+                        
                                (find-ns ns-var)
-                               [((clojure.core/comp clojure.core/str clojure.java.io/resource :file) (meta (second (first (ns-publics ns-var)))))
-                                ((comp #(.getAbsolutePath %%) clojure.java.io/file :file) (meta (second (first (ns-publics ns-var)))))
+                               [(resource-str ns-var)
+                                (file-str ns-var)
                                 1]
-
+                        
                                (clojure.core/ns-resolve ns-symbol ns-var)
                                ((clojure.core/juxt
-                                 (clojure.core/comp clojure.core/str clojure.java.io/resource :file)
-                                 (clojure.core/comp clojure.core/str clojure.java.io/file :file)
+                                 (clojure.core/comp clojure.core/str
+                                                    clojure.java.io/resource
+                                                    :file)
+                                 (clojure.core/comp clojure.core/str
+                                                    clojure.java.io/file
+                                                    :file)
                                  :line)
                                 (clojure.core/meta (clojure.core/ns-resolve ns-symbol ns-var)))))"
                       (nrepl-current-ns) var)))
