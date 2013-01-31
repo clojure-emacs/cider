@@ -110,7 +110,7 @@ buffer:
 * Make <kbd>C-c C-z</kbd> switch to the `*nrepl*` buffer in the current window:
 
 ```lisp
-(add-to-list 'same-window-buffer-names "*nrepl*") 
+(add-to-list 'same-window-buffer-names "*nrepl*")
 ```
 
 * Enabling `CamelCase` support for editing commands(like
@@ -127,7 +127,7 @@ when editing Clojure (or any other Lisp) code is highly
 recommended.  You're probably using it already in your `clojure-mode`
 buffers (if you're not you probably should). You might also want to
 enable `paredit` in the nREPL buffer as well:
- 
+
 ```lisp
 (add-hook 'nrepl-mode-hook 'paredit-mode)
 ```
@@ -139,7 +139,7 @@ enable `paredit` in the nREPL buffer as well:
   orient yourself in the code, and tell which statements are at a
   given depth. Assuming you've already installed RainbowDelimiters you can
   enable it in nREPL like this:
-  
+
 ```lisp
 (add-hook 'nrepl-mode-hook 'rainbow-delimiters-mode)
 ```
@@ -147,8 +147,8 @@ enable `paredit` in the nREPL buffer as well:
 ## Basic Usage
 
 The only requirement to use nrepl.el is to have a nrepl server to
-which it may connect. Many Clojurians favour the use of the Leiningen tool 
-to start a nrepl server, but the use of Leiningen is not a prerequisite to use 
+which it may connect. Many Clojurians favour the use of the Leiningen tool
+to start a nrepl server, but the use of Leiningen is not a prerequisite to use
 nrepl.el (but it's required if you want to use the `nrepl-jack-in` command).
 
 ### Setting up a Leiningen project (optional)
@@ -161,7 +161,7 @@ reuses many things from the Maven ecosystem).
 nrepl.el features a command called `nrepl-jack-in` that will start an nrepl server
 for a particular Leiningen project and connect to it automatically.
 This functionality depends on Leiningen 2. Older versions are not supported. Follow
-the installation instructions on Leiningen's web site to get it up and running and afterwards 
+the installation instructions on Leiningen's web site to get it up and running and afterwards
 create a project like this:
 
 ```bash
@@ -197,7 +197,7 @@ Typing there <kbd>M-x nrepl</kbd> will allow you to connect to the running nrepl
 ### Using the nrepl minor mode
 
 `nrepl.el` comes with a handy minor mode called `nrepl-interaction-mode` (complementing
-`clojure-mode`) that allows you to evaluate code in your Clojure source 
+`clojure-mode`) that allows you to evaluate code in your Clojure source
 files and load it directly in the repl.  A list of all
 available commands is available in the nREPL menu and in the following
 section of this manual.
@@ -261,6 +261,10 @@ uses the same search pattern (even if the current input has changed).
 * [Leiningen](http://leiningen.org) 2.x
 * [clojure-mode](https://github.com/technomancy/clojure-mode)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
+
+## Changelog
+
+An extensive changelog is available [here](Changelog.md).
 
 ## Contributing
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
