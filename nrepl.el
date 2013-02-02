@@ -2192,6 +2192,19 @@ restart the server."
     (nrepl-send-request (list "op" "describe")
                         (nrepl-describe-handler buffer))))
 
+(defun nrepl-setup-default-namespaces (process)
+  (let ((buffer (process-buffer process)))
+    (with-current-buffer buffer
+      (nrepl-send-string
+       "(use '[clojure.repl :only [doc]])(require 'clojure.pprint)"
+       (nrepl-make-response-handler
+        buffer nil
+        (lambda (buffer out) (message out))
+        (lambda (buffer err) (message err))
+        nil)
+       nrepl-buffer-ns
+       nrepl-tooling-session))))
+
 (defun nrepl-create-nrepl-buffer (process)
   (nrepl-init-repl-buffer
    process
@@ -2206,7 +2219,8 @@ restart the server."
         (cond (new-session
                (with-current-buffer (process-buffer process)
                  (setq nrepl-tooling-session new-session)
-                 (remhash id nrepl-requests))))))))
+                 (remhash id nrepl-requests)
+                 (nrepl-setup-default-namespaces process))))))))
 
 (defun nrepl-new-session-handler (process &optional create-nrepl-buffer-p)
   (lexical-let ((process process)
