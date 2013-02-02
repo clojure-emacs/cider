@@ -1252,6 +1252,8 @@ This function is meant to be used in hooks to avoid lambda
     (define-key map (kbd "C-c C-p") 'nrepl-previous-prompt)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
+    (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
+    (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
