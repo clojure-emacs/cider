@@ -1287,6 +1287,7 @@ Useful in hooks."
   " nREPL"
   nrepl-interaction-mode-map
   (make-local-variable 'completion-at-point-functions)
+  (setq nrepl-buffer-ns (nrepl-find-ns))
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point))
 
@@ -1306,7 +1307,7 @@ Useful in hooks."
     (nrepl-history-load nrepl-history-file)
     (add-hook 'kill-buffer-hook 'nrepl-history-just-save t t)
     (add-hook 'kill-emacs-hook 'nrepl-history-just-save))
-
+  (setq nrepl-buffer-ns (nrepl-find-ns))
   (add-hook 'paredit-mode-hook
             (lambda ()
               (when (>= paredit-version 21)
@@ -1912,7 +1913,8 @@ the buffer should appear."
 
 (defun nrepl-ido-form (ns)
   `(concat (if (find-ns (symbol ,ns))
-               (map name (keys (ns-interns (symbol ,ns)))))
+               (map name (concat (keys (ns-interns (symbol ,ns)))
+                                 (keys (ns-refers (symbol ,ns))))))
            (if (not= "" ,ns) [".."])
            (->> (all-ns)
              (map (fn [n]
@@ -1936,15 +1938,18 @@ the buffer should appear."
          (nrepl-ido-read-var (substring selected 0 -1) callback))
         ((equal ".." selected)
          (nrepl-ido-read-var (nrepl-ido-up-ns nrepl-ido-ns) callback))
-        (t (funcall callback (concat nrepl-ido-ns "/" selected)))))
+        ;; non ido variable selection techniques don't return qualified symbols, so this shouldn't either
+        (t (funcall callback selected))))
 
 (defun nrepl-ido-read-var-handler (ido-callback buffer)
   (lexical-let ((ido-callback ido-callback))
     (nrepl-make-response-handler buffer
                                  (lambda (buffer value)
-                                   (let* ((targets (car (read-from-string value)))
-                                          (selected (ido-completing-read "Var: " targets nil t)))
-                                     (nrepl-ido-select selected targets ido-callback)))
+                                   ;; make sure to eval the callback in the buffer that the symbol was requested from so we get the right namespace
+                                   (with-current-buffer buffer
+                                     (let* ((targets (car (read-from-string value)))
+                                            (selected (ido-completing-read "Var: " targets nil t)))
+                                       (nrepl-ido-select selected targets ido-callback))))
                                  nil nil nil)))
 
 (defun nrepl-ido-read-var (ns ido-callback)
