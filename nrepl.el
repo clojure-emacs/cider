@@ -419,12 +419,12 @@ Removes any leading slash if on Windows.  Uses `find-file'."
                                  [(resource-str resolved-ns)
                                   (file-str resolved-ns)
                                   1])
-                        
+
                                (find-ns ns-var)
                                [(resource-str ns-var)
                                 (file-str ns-var)
                                 1]
-                        
+
                                (clojure.core/ns-resolve ns-symbol ns-var)
                                ((clojure.core/juxt
                                  (clojure.core/comp clojure.core/str
