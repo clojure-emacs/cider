@@ -272,6 +272,10 @@ uses the same search pattern (even if the current input has changed).
 * [clojure-mode](https://github.com/technomancy/clojure-mode)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
 
+## Changelog
+
+An extensive changelog is available [here](CHANGELOG.md).
+
 ## Contributing
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
 * Please report issues on the [GitHub issue tracker](https://github.com/kingtim/nrepl.el/issues) or the mailing list.
