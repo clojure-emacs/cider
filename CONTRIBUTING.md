@@ -22,6 +22,7 @@ do so.
 * Write [good commit messages][3].
 * Use the same coding conventions as the rest of the project.
 * Verify your Emacs Lisp code with `checkdoc` (<kbd>C-c ? d</kbd>).
+* Update the [changelog](CHANGELOG.md) accordingly.
 * Open a [pull request][4] that relates to *only* one subject with a clear title
   and description in grammatically correct, complete sentences.
 
