@@ -202,6 +202,15 @@ files and load it directly in the repl.  A list of all
 available commands is available in the nREPL menu and in the following
 section of this manual.
 
+### Pretty printing in the REPL
+
+Make the REPL always pretty-print the results of your commands. Note
+that this will not work correctly with forms such as `(def a 1) (def b2)`
+and it expects `clojure.pprint` to have been required already
+(the default in more recent versions of Clojure):
+
+<kbd>M-x nrepl-toggle-pretty-printing</kbd>
+
 ## Keys
 
 * <kbd>M-x nrepl-jack-in</kbd>: Launch an nrepl server and a repl client.
