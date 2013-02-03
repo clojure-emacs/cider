@@ -385,8 +385,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
         (find-file path)
       (nrepl-find-resource resource))
     (goto-char (point-min))
-    (forward-line (1- line))
-    (search-forward-regexp "(def[^\s]* +" nil t)))
+    (forward-line (1- line))))
 
 (defun nrepl-jump-to-def-handler (buffer)
   ;; TODO: got to be a simpler way to do this
@@ -402,10 +401,40 @@ Removes any leading slash if on Windows.  Uses `find-file'."
 
 (defun nrepl-jump-to-def (var)
   "Jump to the definition of the VAR at point."
-  (let ((form (format "((clojure.core/juxt
-                         (clojure.core/comp clojure.core/str clojure.java.io/resource :file)
-                         (clojure.core/comp clojure.core/str clojure.java.io/file :file) :line)
-                        (clojure.core/meta (clojure.core/ns-resolve '%s '%s)))"
+  (let ((form (format "(let [ns-symbol    '%s
+                             ns-var       '%s
+                             ns-file      (clojure.core/comp :file
+                                                             clojure.core/meta
+                                                             clojure.core/second
+                                                             clojure.core/first
+                                                             clojure.core/ns-publics)
+                             resource-str (clojure.core/comp clojure.core/str
+                                                             clojure.java.io/resource
+                                                             ns-file)
+                             file-str     (clojure.core/comp clojure.core/str
+                                                             clojure.java.io/file
+                                                             ns-file)]
+                         (cond ((clojure.core/ns-aliases ns-symbol) ns-var)
+                               (let [resolved-ns ((clojure.core/ns-aliases ns-symbol) ns-var)]
+                                 [(resource-str resolved-ns)
+                                  (file-str resolved-ns)
+                                  1])
+                        
+                               (find-ns ns-var)
+                               [(resource-str ns-var)
+                                (file-str ns-var)
+                                1]
+                        
+                               (clojure.core/ns-resolve ns-symbol ns-var)
+                               ((clojure.core/juxt
+                                 (clojure.core/comp clojure.core/str
+                                                    clojure.java.io/resource
+                                                    :file)
+                                 (clojure.core/comp clojure.core/str
+                                                    clojure.java.io/file
+                                                    :file)
+                                 :line)
+                                (clojure.core/meta (clojure.core/ns-resolve ns-symbol ns-var)))))"
                       (nrepl-current-ns) var)))
     (nrepl-send-string form
                        (nrepl-jump-to-def-handler (current-buffer))
