@@ -208,7 +208,12 @@ you'd like to use the default Emacs behavior use
   :type 'symbol
   :group 'nrepl)
 
-(defvar nrepl-pretty nil)
+(defcustom nrepl-use-pretty-printing nil
+  "Control whether the results in REPL are pretty-printed or not.
+The `nrepl-toggle-pretty-printing' command can be used to interactively
+change the setting's value."
+  :type 'boolean
+  :group 'nrepl)
 
 (defun nrepl-make-variables-buffer-local (&rest variables)
   "Make all VARIABLES buffer local."
@@ -1338,6 +1343,7 @@ This function is meant to be used in hooks to avoid lambda
     ["Display documentation" nrepl-doc]
     ["Display source" nrepl-src]
     ["Display JavaDoc" nrepl-javadoc]
+    ["Toggle pretty printing of results" nrepl-toggle-pretty-printing]
     ["Clear output" nrepl-clear-output]
     ["Clear buffer" nrepl-clear-buffer]
     ["Kill input" nrepl-kill-input]
@@ -1707,7 +1713,7 @@ If NEWLINE is true then add a newline at the end of the input."
       (overlay-put overlay 'read-only t)
       (overlay-put overlay 'face 'nrepl-input-face)))
   (let* ((input (nrepl-current-input))
-         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-pretty)
+         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-use-pretty-printing)
                    (format "(clojure.pprint/pprint %s)" input) input)))
     (goto-char (point-max))
     (nrepl-mark-input-start)
@@ -1819,15 +1825,12 @@ text property `nrepl-old-input'."
       (insert ")")))
   (nrepl-return))
 
-(defun nrepl-pretty-toggle ()
+(defun nrepl-toggle-pretty-printing ()
+  "Toggle pretty-printing in the REPL."
   (interactive)
-  (if nrepl-pretty
-      (progn
-       (setq nrepl-pretty nil)
-       (message "nrepl pretty printing now OFF"))
-    (progn
-     (setq nrepl-pretty t)
-     (message "nrepl pretty printing now ON"))))
+  (setq nrepl-use-pretty-printing (not nrepl-use-pretty-printing))
+  (message "Pretty printing in nREPL %s."
+           (if nrepl-use-pretty-printing "enabled" "disabled")))
 
 (defvar nrepl-clear-buffer-hook)
 
@@ -2214,7 +2217,7 @@ start the server."
     (let* ((cmd (if prompt-project
                    (format "cd %s && %s" (ido-read-directory-name "Project: ")
                            nrepl-server-command)
-                nrepl-server-command))
+                  nrepl-server-command))
            (process (start-process-shell-command
                      "nrepl-server" nrepl-server-buffer cmd)))
       (set-process-filter process 'nrepl-server-filter)
