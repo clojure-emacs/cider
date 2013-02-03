@@ -56,6 +56,7 @@
 (require 'eldoc)
 (require 'cl)
 (require 'easymenu)
+(require 'compile)
 
 (eval-when-compile
   (defvar paredit-version))
@@ -125,6 +126,11 @@
 (defface nrepl-result-face
   '((t ()))
   "Face for the result of an evaluation in the nREPL client."
+  :group 'nrepl)
+
+(defface nrepl-error-highlight-face
+  '((t (:inherit font-lock-warning-face :underline t)))
+  "Face used to highlight compilation errors in Clojure buffers."
   :group 'nrepl)
 
 (defmacro nrepl-propertize-region (props &rest body)
@@ -671,16 +677,43 @@ Removes any leading slash if on Windows.  Uses `find-file'."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (if (or nrepl-popup-stacktraces
           (not (member (buffer-local-value 'major-mode buffer) '(nrepl-mode clojure-mode))))
-      (with-current-buffer buffer
-        (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
+      (progn
+        (with-current-buffer buffer
+          (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
-                           (nrepl-make-response-handler
-                            (nrepl-popup-buffer nrepl-error-buffer)
-                            nil
-                            'nrepl-emit-into-color-buffer nil nil) nil session))
+                             (nrepl-make-response-handler
+                              (nrepl-popup-buffer nrepl-error-buffer)
+                              nil
+                              'nrepl-emit-into-color-buffer nil nil) nil session))
+        (with-current-buffer nrepl-error-buffer
+          (compilation-minor-mode +1))
+        (nrepl-highlight-compilation-error-line buffer))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
     ;; can pull up with a hotkey only when interested in seeing it?
     ))
+
+(defun nrepl-highlight-compilation-error-line (buffer)
+  "Highlight compilation error line in BUFFER."
+  (with-current-buffer buffer
+    (let ((error-line-number (nrepl-extract-error-line (nrepl-stacktrace))))
+      (when (> error-line-number 0)
+        (save-excursion
+          (goto-char (point-min))
+          (forward-line (1- error-line-number))
+          (overlay-put (make-overlay (progn (back-to-indentation) (point))
+                                     (progn (move-end-of-line nil) (point)))
+                       'face 'nrepl-error-highlight-face))))))
+
+(defun nrepl-extract-error-line (stacktrace)
+  "Extract the error line number from STACKTRACE."
+  (string-match "\\.clj:\\([0-9]+\\)" stacktrace)
+  (string-to-number (match-string 1 stacktrace)))
+
+(defun nrepl-stacktrace ()
+  "Retrieve the current stracktrace from the `nrepl-error-buffer'."
+  (sleep-for 0.3) ; ugly hack to account for a race condition
+  (with-current-buffer nrepl-error-buffer
+    (substring-no-properties (buffer-string))))
 
 (defun nrepl-need-input (buffer)
   (with-current-buffer buffer
@@ -1301,7 +1334,9 @@ Useful in hooks."
   nrepl-interaction-mode-map
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
-               'nrepl-complete-at-point))
+               'nrepl-complete-at-point)
+  (add-to-list 'compilation-error-regexp-alist
+               '("(\\(.+\\):\\(.+\\))" 1 2)))
 
 (define-derived-mode nrepl-mode fundamental-mode "nREPL"
   "Major mode for nREPL interactions.
@@ -2063,6 +2098,7 @@ under point, prompts for a var."
   "Load current buffer's file."
   (interactive)
   (check-parens)
+  (remove-overlays)
   (unless buffer-file-name
     (error "Buffer %s is not associated with a file" (buffer-name)))
   (when (and (buffer-modified-p)
