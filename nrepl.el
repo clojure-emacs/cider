@@ -340,13 +340,32 @@ change the setting's value."
       (goto-char (match-beginning 0))
       (nrepl-eval-expression-at-point))))
 
-(defun nrepl-last-expression-with-bounds ()
-  "Return a list containing the last sexp and it's bounds."
-  (let ((start (save-excursion (backward-sexp) (point)))
-        (end (point)))
-    (list (buffer-substring-no-properties start end)
-          (cons (set-marker (make-marker) start)
-                (set-marker (make-marker) end)))))
+(defun nrepl-bounds-of-sexp-at-point ()
+  "Return the bounds sexp at point as a pair (or nil)."
+  (or (and (equal (char-after) ?\()
+           (member (char-before) '(?\' ?\, ?\@))
+           ;; hide stuff before ( to avoid quirks with '( etc.
+           (save-restriction
+             (narrow-to-region (point) (point-max))
+             (bounds-of-thing-at-point 'sexp)))
+      (bounds-of-thing-at-point 'sexp)))
+
+(defun nrepl-sexp-at-point ()
+  "Return the sexp at point as a string, otherwise nil."
+  (let ((bounds (nrepl-bounds-of-sexp-at-point)))
+    (if bounds
+        (buffer-substring-no-properties (car bounds)
+                                        (cdr bounds)))))
+
+(defun nrepl-sexp-at-point-with-bounds ()
+  "Return a list containing the sexp at point and its bounds."
+  (let ((bounds (nrepl-bounds-of-sexp-at-point)))
+    (if bounds
+        (let ((start (car bounds))
+              (end (cdr bounds)))
+          (list (buffer-substring-no-properties start end)
+                (cons (set-marker (make-marker) start)
+                      (set-marker (make-marker) end)))))))
 
 (defun nrepl-last-expression ()
   "Return the last sexp."
@@ -858,7 +877,7 @@ This variable specifies both what was expanded and the expander.")
 (defun nrepl-macroexpand-expr-inplace (expander)
   "Substitutes the current form at point with its macroexpansion."
   (interactive)
-  (destructuring-bind (expr bounds) (nrepl-last-expression-with-bounds)
+  (destructuring-bind (expr bounds) (nrepl-sexp-at-point-with-bounds)
     (nrepl-send-string (nrepl-macroexpand-form expander expr)
                        (nrepl-macroexpand-inplace-handler (current-buffer) (car bounds) (cdr bounds) (point))
                        nrepl-buffer-ns)))
@@ -873,7 +892,7 @@ This variable specifies both what was expanded and the expander.")
 If invoked with a prefix argument, use 'macroexpand' instead of 'macroexpand-1'."
   (interactive "P")
   (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
-    (nrepl-macroexpand-expr expander (nrepl-last-expression))))
+    (nrepl-macroexpand-expr expander (nrepl-sexp-at-point))))
 
 (defun nrepl-macroexpand-1-inplace (&optional prefix)
   (interactive "P")
@@ -883,7 +902,7 @@ If invoked with a prefix argument, use 'macroexpand' instead of 'macroexpand-1'.
 (defun nrepl-macroexpand-all ()
   "Invoke 'clojure.walk/macroexpand-all' on the expression preceding point and display the result in a macroexpansion buffer."
   (interactive)
-  (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-last-expression)))
+  (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-sexp-at-point)))
 
 (defun nrepl-macroexpand-all-inplace ()
   (interactive)
