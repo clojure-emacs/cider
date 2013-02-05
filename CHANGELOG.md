@@ -7,5 +7,6 @@
 * Added support for pretty-printing in the REPL buffer.
 * Added a check for the presence of an existing `*nrepl*` buffer before
 creating a new one with `nrepl-jack-in` or `nrepl`.
+* `M-.` learned about namespaces.
 
 ### Bugs fixed
