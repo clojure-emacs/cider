@@ -882,11 +882,14 @@ into the special buffer."
 (defun nrepl-macroexpand-expr-inplace (expander)
   "Substitutes the current form at point with its macroexpansion."
   (interactive)
-  (destructuring-bind (expr bounds) (nrepl-sexp-at-point-with-bounds)
-    (nrepl-send-string (nrepl-macroexpand-form expander expr)
-                       (nrepl-macroexpand-inplace-handler
-                        (current-buffer) (car bounds) (cdr bounds) (point))
-                       nrepl-buffer-ns)))
+  (let ((form-with-bounds (nrepl-sexp-at-point-with-bounds)))
+    (if form-with-bounds
+        (destructuring-bind (expr bounds) form-with-bounds
+            (nrepl-send-string (nrepl-macroexpand-form expander expr)
+                               (nrepl-macroexpand-inplace-handler
+                                (current-buffer)
+                                (car bounds) (cdr bounds) (point))
+                               nrepl-buffer-ns)))))
 
 (defun nrepl-macroexpand-again ()
   "Repeat the last macroexpansion."
@@ -915,7 +918,7 @@ If invoked with a prefix argument, use 'macroexpand' instead of
 preceding point and display the result in a macroexpansion
 buffer."
   (interactive)
-  (nrepl-macroexpand-expr 
+  (nrepl-macroexpand-expr
    'clojure.walk/macroexpand-all (nrepl-sexp-at-point)))
 
 (defun nrepl-macroexpand-all-inplace ()
