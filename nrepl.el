@@ -97,6 +97,8 @@
 (defvar nrepl-connection-buffer nil)
 (defvar nrepl-server-buffer nil)
 (defvar nrepl-nrepl-buffer nil)
+(defvar nrepl-endpoint nil)
+(defvar nrepl-project-dir nil)
 (defconst nrepl-error-buffer "*nrepl-error*")
 (defconst nrepl-doc-buffer "*nrepl-doc*")
 (defconst nrepl-src-buffer "*nrepl-src*")
@@ -223,6 +225,8 @@ change the setting's value."
  'nrepl-connection-buffer
  'nrepl-nrepl-buffer
  'nrepl-server-buffer
+ 'nrepl-endpoint
+ 'nrepl-project-dir
  'nrepl-ops
  'nrepl-session
  'nrepl-tooling-session
@@ -554,11 +558,11 @@ Removes any leading slash if on Windows.  Uses `find-file'."
     (let ((argument-index (1- (eldoc-beginning-of-sexp))))
       ;; If we are at the beginning of function name, this will be -1.
       (when (< argument-index 0)
-	(setq argument-index 0))
+        (setq argument-index 0))
       ;; Don't do anything if current word is inside a string.
       (if (= (or (char-after (1- (point))) 0) ?\")
-	  nil
-	(list (nrepl-symbol-at-point) argument-index)))))
+          nil
+        (list (nrepl-symbol-at-point) argument-index)))))
 
 (defun nrepl-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
@@ -2255,7 +2259,10 @@ under point, prompts for a var."
                 (buffer-name (process-buffer nrepl-process))))
         (with-current-buffer (process-buffer nrepl-process)
           (setq nrepl-server-buffer
-                (buffer-name (process-buffer process))))))))
+                (buffer-name (process-buffer process))
+                nrepl-project-dir
+                (buffer-local-value
+                 'nrepl-project-dir (process-buffer process))))))))
 
 (defun nrepl-server-sentinel (process event)
   (let* ((b (process-buffer process))
@@ -2311,25 +2318,51 @@ under point, prompts for a var."
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
-  (when (nrepl-check-for-nrepl-buffer)
-    (let* ((cmd (if prompt-project
-                   (format "cd %s && %s" (ido-read-directory-name "Project: ")
-                           nrepl-server-command)
-                  nrepl-server-command))
-           (process (start-process-shell-command
-                     "nrepl-server"
-                     (generate-new-buffer-name "*nrepl-server*")
-                     cmd)))
-      (set-process-filter process 'nrepl-server-filter)
-      (set-process-sentinel process 'nrepl-server-sentinel)
-      (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-      (message "Starting nREPL server..."))))
+  (lexical-let* ((project (when prompt-project
+                            (ido-read-directory-name "Project: ")))
+                 (project-dir (nrepl-project-directory-for
+                               (or project (nrepl-current-dir)))))
+    (when (nrepl-check-for-nrepl-buffer nil project-dir)
+      (let* ((cmd (if project
+                      (format "cd %s && %s" project nrepl-server-command)
+                    nrepl-server-command))
+             (process (start-process-shell-command
+                       "nrepl-server"
+                       (generate-new-buffer-name "*nrepl-server*")
+                       cmd)))
+        (set-process-filter process 'nrepl-server-filter)
+        (set-process-sentinel process 'nrepl-server-sentinel)
+        (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
+        (with-current-buffer (process-buffer process)
+          (setq nrepl-project-dir project-dir))
+        (message "Starting nREPL server...")))))
 
-(defun nrepl-check-for-nrepl-buffer ()
+(defun nrepl-current-dir ()
+  (lexical-let ((file-name (buffer-file-name (current-buffer))))
+    (or (when file-name
+          (file-name-directory file-name))
+        list-buffers-directory)))
+
+(defun nrepl-project-directory-for (dir-name)
+  "Return the project directory for the specified dir-name, which may be "
+  (when dir-name
+    (locate-dominating-file dir-name "project.clj")))
+
+(defun nrepl-check-for-nrepl-buffer (endpoint project-directory)
   "Check whether `nrepl-nrepl-buffer' already exists.
 If so ask the user for confirmation."
-  (if (nrepl-current-nrepl-buffer)
-      (y-or-n-p "An nREPL buffer already exists. Do you really want to create a new one?")
+  (if (find-if
+       (lambda (buffer)
+         (lexical-let ((buffer (get-buffer buffer)))
+           (or (and endpoint
+                    (equal endpoint
+                           (buffer-local-value 'nrepl-endpoint buffer)))
+               (and project-directory
+                    (equal project-directory
+                           (buffer-local-value 'nrepl-project-dir buffer))))))
+       nrepl-connection-list)
+      (y-or-n-p
+       "An nREPL buffer already exists. Do you really want to create a new one?")
     t))
 
 (defun nrepl--close-buffer (buffer)
@@ -2451,6 +2484,8 @@ restart the server."
       (nrepl-init-client-sessions process)
       (nrepl-describe-session process))
     (nrepl-make-repl-connection-default (process-buffer process))
+    (with-current-buffer (process-buffer process)
+      (setq nrepl-endpoint `(,host ,port)))
     process))
 
 
@@ -2463,7 +2498,7 @@ restart the server."
 (defun nrepl (host port)
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
                      (string-to-number (read-string "Port: " nrepl-port nil nrepl-port))))
-  (when (nrepl-check-for-nrepl-buffer)
+  (when (nrepl-check-for-nrepl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 
 (provide 'nrepl)
