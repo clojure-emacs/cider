@@ -848,19 +848,22 @@ This variable specifies both what was expanded and the expander.")
 
 (defun nrepl-macroexpand-handler (buffer ns)
   (lexical-let* ((ns ns))
-    (nrepl-make-response-handler buffer
-                                 nil
+    (nrepl-make-response-handler buffer nil
                                  (lambda (buffer str)
-                                   (nrepl-initialize-macroexpansion-buffer str ns))
+                                   (nrepl-initialize-macroexpansion-buffer
+                                    str ns))
                                  nil nil)))
 
-(defun nrepl-macroexpand-inplace-handler (expansion-buffer start end current-point)
+(defun nrepl-macroexpand-inplace-handler
+  (expansion-buffer start end current-point)
   (lexical-let* ((start start)
                  (end end)
                  (current-point current-point))
     (nrepl-make-response-handler expansion-buffer
                                  nil
-                                 (lambda (buffer str) (nrepl-redraw-macroexpansion-buffer str buffer start end current-point))
+                                 (lambda (buffer str)
+                                   (nrepl-redraw-macroexpansion-buffer
+                                    str buffer start end current-point))
                                  nil nil)))
 
 (defun nrepl-macroexpand-form (expander expr)
@@ -869,27 +872,35 @@ This variable specifies both what was expanded and the expander.")
    expander expr))
 
 (defun nrepl-macroexpand-expr (expander expr &optional buffer)
-  "Evaluate the expression preceding point and print the result into the special buffer."
+  "Evaluate the expression preceding point and print the result
+into the special buffer."
   (let ((form (nrepl-macroexpand-form expander expr)))
     (setq nrepl-last-macroexpand-expression form)
-    (nrepl-send-string form (nrepl-macroexpand-handler buffer nrepl-buffer-ns) nrepl-buffer-ns)))
+    (nrepl-send-string form (nrepl-macroexpand-handler buffer nrepl-buffer-ns)
+                       nrepl-buffer-ns)))
 
 (defun nrepl-macroexpand-expr-inplace (expander)
   "Substitutes the current form at point with its macroexpansion."
   (interactive)
   (destructuring-bind (expr bounds) (nrepl-sexp-at-point-with-bounds)
     (nrepl-send-string (nrepl-macroexpand-form expander expr)
-                       (nrepl-macroexpand-inplace-handler (current-buffer) (car bounds) (cdr bounds) (point))
+                       (nrepl-macroexpand-inplace-handler
+                        (current-buffer) (car bounds) (cdr bounds) (point))
                        nrepl-buffer-ns)))
 
 (defun nrepl-macroexpand-again ()
   "Repeat the last macroexpansion."
   (interactive)
-  (nrepl-send-string nrepl-last-macroexpand-expression (nrepl-macroexpand-handler (current-buffer) nrepl-buffer-ns) nrepl-buffer-ns))
+  (nrepl-send-string
+   nrepl-last-macroexpand-expression
+   (nrepl-macroexpand-handler (current-buffer) nrepl-buffer-ns)
+   nrepl-buffer-ns))
 
 (defun nrepl-macroexpand-1 (&optional prefix)
-  "Invoke 'macroexpand-1' on the expression preceding point and display the result in a macroexpansion buffer.
-If invoked with a prefix argument, use 'macroexpand' instead of 'macroexpand-1'."
+  "Invoke 'macroexpand-1' on the expression preceding point and display the
+result in a macroexpansion buffer.
+If invoked with a prefix argument, use 'macroexpand' instead of
+'macroexpand-1'."
   (interactive "P")
   (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
     (nrepl-macroexpand-expr expander (nrepl-sexp-at-point))))
@@ -900,9 +911,12 @@ If invoked with a prefix argument, use 'macroexpand' instead of 'macroexpand-1'.
     (nrepl-macroexpand-expr-inplace expander)))
 
 (defun nrepl-macroexpand-all ()
-  "Invoke 'clojure.walk/macroexpand-all' on the expression preceding point and display the result in a macroexpansion buffer."
+  "Invoke 'clojure.walk/macroexpand-all' on the expression
+preceding point and display the result in a macroexpansion
+buffer."
   (interactive)
-  (nrepl-macroexpand-expr 'clojure.walk/macroexpand-all (nrepl-sexp-at-point)))
+  (nrepl-macroexpand-expr 
+   'clojure.walk/macroexpand-all (nrepl-sexp-at-point)))
 
 (defun nrepl-macroexpand-all-inplace ()
   (interactive)
