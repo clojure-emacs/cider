@@ -41,7 +41,7 @@ creating a new one with `nrepl-jack-in` or `nrepl`.
 * Fix issue #146.  Include "@" in nrepl-input-complete-p.
 * Handle stdout messages that arrive after status "done"
 
-## 0.1.5 / 2013-01-29
+## 0.1.5 / 2012-10-22
 
 ### New features
 
