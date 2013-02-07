@@ -59,3 +59,61 @@ creating a new one with `nrepl-jack-in` or `nrepl`.
 ### Bugs fixed
 
 * Ensure nrepl-eval-sync waits for :done when response is chunked
+
+## 0.1.4 / 2012-09-18
+
+### New features
+
+* Improvements and simplifications for completion (Tassilo Horn)
+* Documentation additions and fixes (Ryan Fowler, Nikita Beloglazov, Bozhidar Batsov, Juha Syrjälä, Philipp Meier)
+* Make completion back-end and error handler configurable (Hugo Duncan)
+* Accept host as well as port on connect (Ken Restivo)
+* Enable nrepl-interaction-mode in clojurescript-mode (Nelson Morris)
+* Emit stdout from interactive evaluations into the repl buffer
+
+### Bugs fixed
+
+* Fix paredit .. don't make clojure-mode-map parent of nrepl-interaction-mode-map (Tassilo Horn)
+* Fixes for ECB interop (Matthew Willson)
+* Namespace qualify tooling calls (Justin Kramer)
+* Eldoc fixes (Jack Moffitt)
+* Fix path quoting in load file for Windows (Philipp Meier)
+* Fix nREPL / Emacs error "Unable to resolve symbol: if-let"
+
+## 0.1.3 / 2012-08-19
+
+### New features
+
+* eldoc support for displaying arglists in the minibuffer (Stefan Kamphausen)
+* persistent repl history (Stefan Kamphausen)
+* fix for jumbled stacktraces (Ryan Fowler)
+* add a doc keybinding for the repl buffer (Ken Restivo)
+* plumbing to support ac-nrepl [https://github.com/purcell/ac-nrepl] (Steve Purcell)
+* stdin support (which also provides support for debug-repl
+  [https://github.com/GeorgeJahad/debug-repl] and limit-break [https://github.com/technomancy/limit-break])
+
+## 0.1.2 / 2012-07-24
+
+### New features
+
+* convert nrepl-interaction-mode into a major mode
+* display stacktrace on eval-error
+* change lein command to `lein`
+* add fn to eval current buffer's ns
+* handle filter messages spanning multiple chunks of output
+* Let nrepl-jack-in accept project dir when given a prefix arg.
+* C-c C-b nrepl-interrupt
+* client session management
+* added words of inspiration + version at startup
+* Add M-n and M-p to nrepl-mode-map.
+* Implement M-.: nrepl-jump-to-def.
+* Implement basic completion.
+* Implement nrepl-doc.
+* Prevent M-p at top of history from pushing position one step further.
+* M-n after end of history should blank out input.
+* Add M-n and M-p to nrepl-mode-map.
+* Implement M-.: nrepl-jump-to-def.
+
+## 0.1.1 / 2012-07-11
+
+* Initial version
