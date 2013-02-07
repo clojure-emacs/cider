@@ -94,8 +94,8 @@
   :type 'string
   :group 'nrepl)
 
-(defconst nrepl-connection-buffer "*nrepl-connection*")
-(defconst nrepl-server-buffer "*nrepl-server*")
+(defconst nrepl-connection-buffer " *nrepl-connection*")
+(defconst nrepl-server-buffer " *nrepl-server*")
 (defconst nrepl-nrepl-buffer "*nrepl*")
 (defconst nrepl-error-buffer "*nrepl-error*")
 (defconst nrepl-doc-buffer "*nrepl-doc*")
