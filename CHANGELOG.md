@@ -4,6 +4,9 @@
 
 ### New features
 
+* Add support for multiple nrepl session.  A single session is closed with
+  `M-x nrepl-close`.  A repl session is made default with
+  `M-x nrepl-make-repl-connection-default`.
 * Added support for pretty-printing in the REPL buffer.
 * Added a check for the presence of an existing `*nrepl*` buffer before
 creating a new one with `nrepl-jack-in` or `nrepl`.

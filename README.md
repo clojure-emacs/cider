@@ -266,6 +266,17 @@ uses the same search pattern (even if the current input has changed).
 * <kbd>g</kbd>: The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
 * <kbd>C-/</kbd>, <kbd>C-x u</kbd>: Undo the last inplace expansion performed in the macroexpansion buffer.
 
+
+### Managing multiple sessions
+
+You can connection to multiple nREPL servers and use `nrepl-jack-in` multiple
+times.  To close a single nREPL session, use `M-x nrepl-close`.  `M-x
+nrepl-quit` closes all sessions.
+
+nrepl.el commands in a clojure buffer use the default connection.  To make a
+connection default, switch to it's repl buffer and use
+`M-x nrepl-make-repl-connection-default`.
+
 ## Requirements:
 
 * [Leiningen](http://leiningen.org) 2.x
