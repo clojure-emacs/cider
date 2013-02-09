@@ -1688,24 +1688,41 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 
 ;;; Log nrepl events
 
-(defvar nrepl-log-events t
-  "*Log protocol events to the *nrepl-events* buffer.")
+(defcustom nrepl-log-events t
+  "*Log protocol events to the *nrepl-events* buffer."
+  :type 'boolean
+  :group 'nrepl)
 
-(defvar nrepl-event-buffer-name "*nrepl-events*"
+(defconst nrepl-event-buffer-name "*nrepl-events*"
   "nREPL event buffer.")
 
+(defconst nrepl-event-buffer-max-size 50000
+  "Maximum size for the nREPL event buffer.  Defaults to 50000
+  characters, which should be an insignificant memory burdon,
+  while providing reasonable history.")
+
+(defconst nrepl-event-buffer-reduce-denominator 4
+  "When the maximum size for the nREPL event buffer is exceed,
+ the size of the buffer is reduced by one over this value.
+ Defaults to 4, so that 1/4 of the buffer is removed, which
+ should ensure the buffer's maximum is reasonably utilised, while
+ limiting the number of buffer shrinking operations.")
+
 (defun nrepl-log-event (msg)
+  "Log the given MSG to the buffer given by
+nrepl-event-buffer-name (default *nrepl-events*)."
   (when nrepl-log-events
     (with-current-buffer (nrepl-events-buffer)
-      (when (> (buffer-size) 50000)
-        (goto-char (/ (buffer-size) 4))
+      (when (> (buffer-size) nrepl-event-buffer-max-size)
+        (goto-char (/ (buffer-size) nrepl-event-buffer-reduce-denominator))
         (re-search-forward "^(" nil t)
-        (delete-region (point-min) (point)))
+        (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
       (pp msg (current-buffer)))))
 
 (defun nrepl-events-buffer ()
-  "Return or create the event log buffer."
+  "Return or create the buffer given by
+nrepl-event-buffer-name (default *nrepl-events*)."
   (or (get-buffer nrepl-event-buffer-name)
       (let ((buffer (get-buffer-create nrepl-event-buffer-name)))
         (with-current-buffer buffer
@@ -1715,7 +1732,8 @@ process buffer and run the hook `nrepl-disconnected-hook'."
         buffer)))
 
 (defun nrepl-log-events (&optional disable)
-  "Turn on event logging to *nrepl-events*.  With a prefix, turn it off."
+  "Turn on event logging to *nrepl-events*.  With a prefix
+argument DISABLE, turn it off."
   (interactive "P")
   (setq nrepl-log-events (not disable)))
 
