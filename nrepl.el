@@ -1637,6 +1637,7 @@ Handles message contained in RESPONSE."
 
 (defun nrepl-dispatch (response)
   "Dispatch the RESPONSE to associated callback."
+  (nrepl-log-event response)
   (nrepl-dbind-response response (id)
     (let ((callback (gethash id nrepl-requests)))
       (if callback
@@ -1684,6 +1685,39 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 (defun nrepl-write-message (process message)
   "Send the PROCESS the MESSAGE."
   (process-send-string process message))
+
+;;; Log nrepl events
+
+(defvar nrepl-log-events t
+  "*Log protocol events to the *nrepl-events* buffer.")
+
+(defvar nrepl-event-buffer-name "*nrepl-events*"
+  "nREPL event buffer.")
+
+(defun nrepl-log-event (msg)
+  (when nrepl-log-events
+    (with-current-buffer (nrepl-events-buffer)
+      (when (> (buffer-size) 50000)
+        (goto-char (/ (buffer-size) 4))
+        (re-search-forward "^(" nil t)
+        (delete-region (point-min) (point)))
+      (goto-char (point-max))
+      (pp msg (current-buffer)))))
+
+(defun nrepl-events-buffer ()
+  "Return or create the event log buffer."
+  (or (get-buffer nrepl-event-buffer-name)
+      (let ((buffer (get-buffer-create nrepl-event-buffer-name)))
+        (with-current-buffer buffer
+          (buffer-disable-undo)
+          (set (make-local-variable 'comment-start) ";")
+          (set (make-local-variable 'comment-end) ""))
+        buffer)))
+
+(defun nrepl-log-events (&optional disable)
+  "Turn on event logging to *nrepl-events*.  With a prefix, turn it off."
+  (interactive "P")
+  (setq nrepl-log-events (not disable)))
 
 ;;; repl interaction
 (defun nrepl-property-bounds (prop)
@@ -1817,6 +1851,7 @@ This is bound for the duration of the handling of that message")
 
 (defun nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK."
+  (nrepl-log-event request)
   (let* ((request-id (nrepl-next-request-id))
          (message (nrepl-bencode (append (list "id" request-id) request))))
     (puthash request-id callback nrepl-requests)
