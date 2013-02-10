@@ -196,9 +196,17 @@ joined together.")
   "Available nREPL server ops (from describe).")
 
 (defcustom nrepl-popup-stacktraces t
-  "Non-nil means pop-up error stacktraces.
-Nil means show only an error message in the minibuffer;
-useful when in REPL or you don't care about the stacktraces."
+  "Non-nil means pop-up error stacktraces for evaluation errors.
+Nil means show only an error message in the minibuffer. See also
+`nrepl-popup-stacktraces-in-repl', which overrides this setting
+for REPL buffers."
+  :type 'boolean
+  :group 'nrepl)
+
+(defcustom nrepl-popup-stacktraces-in-repl nil
+  "Non-nil means pop-up error stacktraces in the REPL buffer.
+Nil means show only an error message in the minibuffer.  This variable
+overrides `nrepl-popup-stacktraces' in REPL buffers."
   :type 'boolean
   :group 'nrepl)
 
@@ -771,8 +779,9 @@ DONE-HANDLER as appropriate."
 (defun nrepl-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
-  (if (or nrepl-popup-stacktraces
-          (not (member (buffer-local-value 'major-mode buffer) '(nrepl-mode clojure-mode))))
+  (let ((replp (equal 'nrepl-mode (buffer-local-value 'major-mode buffer))))
+    (if (or (and nrepl-popup-stacktraces-in-repl replp)
+            (and nrepl-popup-stacktraces (not replp)))
       (progn
         (with-current-buffer buffer
           (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
@@ -786,7 +795,7 @@ DONE-HANDLER as appropriate."
         (nrepl-highlight-compilation-error-line buffer))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
     ;; can pull up with a hotkey only when interested in seeing it?
-    ))
+    )))
 
 (defun nrepl-highlight-compilation-error-line (buffer)
   "Highlight compilation error line in BUFFER."
