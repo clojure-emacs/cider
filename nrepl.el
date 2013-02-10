@@ -2334,6 +2334,7 @@ under point, prompts for a var."
                                 nil (if (buffer-file-name)
                                         (file-name-nondirectory
                                          (buffer-file-name))))))
+  (remove-overlays)
   (nrepl-dispatch-load-file filename)
   (message "Loading %s..." filename))
 
@@ -2341,7 +2342,6 @@ under point, prompts for a var."
   "Load current buffer's file."
   (interactive)
   (check-parens)
-  (remove-overlays)
   (unless buffer-file-name
     (error "Buffer %s is not associated with a file" (buffer-name)))
   (when (and (buffer-modified-p)
