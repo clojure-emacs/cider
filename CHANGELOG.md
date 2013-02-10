@@ -15,6 +15,8 @@ creating a new one with `nrepl-jack-in` or `nrepl`.
 
 ### Bugs fixed
 
+* More accurate matching of filenames in stacktraces.
+
 ## 0.1.6 / 2013-01-29
 
 ### New features

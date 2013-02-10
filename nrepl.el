@@ -1475,6 +1475,14 @@ Useful in hooks."
 Useful in hooks."
   (nrepl-interaction-mode -1))
 
+(defvar nrepl-compilation-regexps '("(\\([^)]+\\):\\([[:digit:]]+\\))" 1 2)
+  "Specifications for matching errors in Clojure stacktraces.
+See `compilation-error-regexp-alist' for help on their format.")
+
+(add-to-list 'compilation-error-regexp-alist-alist
+             (cons 'nrepl nrepl-compilation-regexps))
+(add-to-list 'compilation-error-regexp-alist 'nrepl)
+
 ;;;###autoload
 (define-minor-mode nrepl-interaction-mode
   "Minor mode for nrepl interaction from a Clojure buffer.
@@ -1485,9 +1493,7 @@ Useful in hooks."
   nrepl-interaction-mode-map
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
-               'nrepl-complete-at-point)
-  (add-to-list 'compilation-error-regexp-alist
-               '("(\\(.+\\):\\(.+\\))" 1 2)))
+               'nrepl-complete-at-point))
 
 (define-derived-mode nrepl-mode fundamental-mode "nREPL"
   "Major mode for nREPL interactions.
