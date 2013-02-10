@@ -100,11 +100,17 @@ following snippet:
 (setq nrepl-tab-command 'indent-for-tab-command)
 ```
 
-* Stop the error buffer from popping up while working in the REPL
-buffer:
+* Stop the error buffer from popping up while working in buffers other
+than the REPL:
 
 ```lisp
 (setq nrepl-popup-stacktraces nil)
+```
+
+* Enable error buffer popping also in the REPL:
+
+```lisp
+(setq nrepl-popup-stacktraces-in-repl t)
 ```
 
 * Make <kbd>C-c C-z</kbd> switch to the `*nrepl*` buffer in the current window:

@@ -11,6 +11,7 @@
 * Added a check for the presence of an existing `*nrepl*` buffer before
 creating a new one with `nrepl-jack-in` or `nrepl`.
 * `M-.` learned about namespaces.
+* Added new customization variable `nrepl-popup-stacktraces-in-repl`.
 
 ### Bugs fixed
 
