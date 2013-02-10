@@ -2557,6 +2557,7 @@ restart the server."
                         (nrepl-describe-handler buffer))))
 
 (defun nrepl-setup-default-namespaces (process)
+  "Setup default namespaces for PROCESS."
   (let ((buffer (process-buffer process)))
     (with-current-buffer buffer
       (nrepl-send-string
