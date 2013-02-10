@@ -792,7 +792,8 @@ DONE-HANDLER as appropriate."
                               'nrepl-emit-into-color-buffer nil nil) nil session))
         (with-current-buffer nrepl-error-buffer
           (compilation-minor-mode +1))
-        (nrepl-highlight-compilation-error-line buffer))
+        (unless replp
+          (nrepl-highlight-compilation-error-line buffer)))
     ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
     ;; can pull up with a hotkey only when interested in seeing it?
     )))
