@@ -1,0 +1,9 @@
+language: emacs-lisp
+env:
+  - EMACS=emacs24
+before_script:
+  - export DEBIAN_FRONTEND='noninteractive'
+  - wget ftp://download.tuxfamily.org/user42/checkdoc-batch.el
+script:
+  - echo "starting"
+  - "emacs -batch -l checkdoc-batch.el -f checkdoc-batch-commandline nrepl.el | grep -e 'nrepl.el:[1-9]' && exit 1 || exit 0"
