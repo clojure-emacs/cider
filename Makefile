@@ -9,6 +9,7 @@ ERT_TARGET_NO_BACKTRACE=--eval \
 NREPL_DEPS = stable
 
 CURL=curl --silent
+WGET=wget
 WORK_DIR=$(shell pwd)
 TRAVIS_FILE=.travis.yml
 TEST_DIR=test
@@ -44,7 +45,7 @@ build :
 
 $(TEST_DIR)/lib/$(CHECKDOC_BATCH) :
 	mkdir -p $(TEST_DIR)/lib
-	$(CURL) '$(CHECKDOC_BATCH_URL)' -o $(TEST_DIR)/lib/$(CHECKDOC_BATCH)
+	$(WGET) -O $(TEST_DIR)/lib/$(CHECKDOC_BATCH) '$(CHECKDOC_BATCH_URL)'
 
 $(TEST_DIR)/stable/$(CLOJURE_MODE) :
 	mkdir -p $(TEST_DIR)/stable
