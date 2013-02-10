@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kingtim/nrepl.el.png?branch=master)](https://travis-ci.org/kingtim/nrepl.el)
+
 # nrepl.el
 
 `nrepl.el` is an Emacs client for
