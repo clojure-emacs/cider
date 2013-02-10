@@ -1,9 +1,29 @@
 language: emacs-lisp
+
 env:
-  - EMACS=emacs24
-before_script:
-  - export DEBIAN_FRONTEND='noninteractive'
-  - wget ftp://download.tuxfamily.org/user42/checkdoc-batch.el
+  matrix:
+    - NREPL_DEPS=stable
+    - NREPL_DEPS=latest
+  global:
+    - EMACS=emacs24
+
+install:
+  - if [ "$EMACS" = "emacs24" ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs24 emacs24-el;
+    fi
+  - if [ "$NREPL_DEPS" = "stable" ]; then
+        make downloads-stable;
+    fi
+  - if [ "$NREPL_DEPS" = "latest" ]; then
+        make downloads-latest;
+    fi
+
 script:
-  - echo "starting"
-  - "emacs -batch -l checkdoc-batch.el -f checkdoc-batch-commandline nrepl.el | grep -e 'nrepl.el:[1-9]' && exit 1 || exit 0"
+  - if [ "$NREPL_DEPS" = "latest" ]; then
+        $EMACS --version && make test-latest-no-backtrace checkdoc EMACS=$EMACS;
+    fi
+  - if [ "$NREPL_DEPS" = "stable" ]; then
+        $EMACS --version && make test-no-backtrace checkdoc EMACS=$EMACS;
+    fi
