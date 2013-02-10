@@ -2631,6 +2631,12 @@ restart the server."
   (when (nrepl-check-for-nrepl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 
+;;;###autoload
+(eval-after-load 'clojure-mode
+  '(progn
+     (define-key clojure-mode-map (kbd "C-c M-j") 'nrepl-jack-in)
+     (define-key clojure-mode-map (kbd "C-c M-c") 'nrepl)))
+
 (provide 'nrepl)
 
 ;; Local Variables:
