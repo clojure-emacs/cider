@@ -1869,9 +1869,10 @@ This is bound for the duration of the handling of that message")
 
 (defun nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK."
-  (nrepl-log-event request)
   (let* ((request-id (nrepl-next-request-id))
-         (message (nrepl-bencode (append (list "id" request-id) request))))
+         (request (append (list "id" request-id) request))
+         (message (nrepl-bencode request)))
+    (nrepl-log-event request)
     (puthash request-id callback nrepl-requests)
     (nrepl-write-message (nrepl-current-connection-buffer) message)))
 
