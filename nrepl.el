@@ -2572,7 +2572,8 @@ If so ask the user for confirmation."
   (dolist (buf-name `(,nrepl-error-buffer
                       ,nrepl-doc-buffer
                       ,nrepl-src-buffer
-                      ,nrepl-macroexpansion-buffer))
+                      ,nrepl-macroexpansion-buffer
+                      ,nrepl-event-buffer-name))
     (nrepl--close-buffer buf-name)))
 
 (defun nrepl-close (connection-buffer)
@@ -2595,7 +2596,8 @@ If so ask the user for confirmation."
   (interactive)
   (dolist (connection nrepl-connection-list)
     (when connection
-      (nrepl-close connection))))
+      (nrepl-close connection)))
+  (nrepl-close-ancilliary-buffers))
 
 (defun nrepl-restart (&optional prompt-project)
   "Quit nrepl and restart it.
