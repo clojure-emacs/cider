@@ -197,7 +197,7 @@ joined together.")
 
 (defcustom nrepl-popup-stacktraces t
   "Non-nil means pop-up error stacktraces for evaluation errors.
-Nil means show only an error message in the minibuffer. See also
+Nil means show only an error message in the minibuffer.  See also
 `nrepl-popup-stacktraces-in-repl', which overrides this setting
 for REPL buffers."
   :type 'boolean
@@ -1118,7 +1118,7 @@ Empty strings and duplicates are ignored."
 (defun nrepl-position-in-history (start-pos direction regexp)
   "Return the position of the history item starting at START-POS.
 Search in DIRECTION for REGEXP.
-Return -1 resp. the length of the history if no item matches"
+Return -1 resp the length of the history if no item matches."
   ;; Loop through the history list looking for a matching line
   (let* ((step (ecase direction
                  (forward -1)
@@ -1526,7 +1526,7 @@ Useful in hooks."
   "The command used to start the nREPL via command `nrepl-jack-in'.
 For a remote nREPL server lein must be in your PATH.  The remote
 proc is launched via sh rather than bash, so it might be necessary
-to specific the full path to it. Localhost is assumed."
+to specific the full path to it.  Localhost is assumed."
   :type 'string
   :group 'nrepl-mode)
 
@@ -1933,7 +1933,7 @@ earlier in the buffer."
 
 (defun nrepl-indent-and-complete-symbol ()
   "Indent the current line and perform symbol completion.
-First indent the line. If indenting doesn't move point, complete
+First indent the line.  If indenting doesn't move point, complete
 the symbol."
   (interactive)
   (let ((pos (point)))
@@ -2271,7 +2271,7 @@ if there is no symbol at point, or if QUERY is non-nil."
 
 (defun nrepl-doc (query)
   "Open a window with the docstring for the given QUERY.
-Defaults to the symbol at point. With prefix arg or no symbol
+Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-doc-handler query))
@@ -2290,7 +2290,7 @@ under point, prompts for a var."
 
 (defun nrepl-src (query)
   "Open a window with the source for the given QUERY.
-Defaults to the symbol at point. With prefix arg or no symbol
+Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-src-handler query))
@@ -2493,7 +2493,7 @@ If so ask the user for confirmation."
                            (buffer-local-value 'nrepl-project-dir buffer))))))
        nrepl-connection-list)
       (y-or-n-p
-       "An nREPL buffer already exists. Do you really want to create a new one? ")
+       "An nREPL buffer already exists.  Do you really want to create a new one? ")
     t))
 
 (defun nrepl--close-buffer (buffer)
