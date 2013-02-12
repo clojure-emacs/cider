@@ -106,8 +106,9 @@
 (defconst nrepl-result-buffer "*nrepl-result*")
 
 (defcustom nrepl-hide-special-buffers nil
-  "When true some special buffers like the connection and the server buffer will
-be hidden.")
+  "Control the display of some special buffers in buffer switching commands.
+When true some special buffers like the connection and the server
+buffer will be hidden.")
 
 (defun nrepl-connection-buffer-name ()
   "Obtain the name of the connection buffer."
