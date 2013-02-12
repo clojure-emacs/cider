@@ -240,9 +240,9 @@ M-c</kbd>.
 * <kbd>C-c M-m</kbd>: Invoke clojure.walk/macroexpand-all on the form at point and display the result in a macroexpansion buffer.
 * <kbd>C-c C-n</kbd>: Eval the ns form.
 * <kbd>C-c M-n</kbd>: Switch the namespace of the repl buffer to the namespace of the current buffer.
-* <kbd>C-c C-z</kbd>: Select the repl buffer.
+* <kbd>C-c C-z</kbd>: Select the repl buffer. With a prefix argument - changes the namespace of the REPL buffer to the one of the currently visited source file.
 * <kbd>C-c M-o</kbd>: Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
-* <kbd>C-c C-k</kbd>: Load the current buffer.
+* <kbd>C-c C-k</kbd>: Load the current buffer. Also bound to <kbd>C-c C-c</kbd>.
 * <kbd>C-c C-l</kbd>: Load a file.
 * <kbd>C-c C-d</kbd>: Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 * <kbd>C-c C-s</kbd>: Display the source for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
@@ -259,7 +259,7 @@ M-c</kbd>.
 * <kbd>C-c M-o</kbd>: Clear the entire REPL buffer, leaving only a prompt.
 * <kbd>C-c C-o</kbd>: Remove the output of the previous evaluation from the REPL buffer.
 * <kbd>C-c C-u</kbd>: Kill all text from the prompt to the current point.
-* <kbd>C-c C-b</kbd>: Interrupt any pending evaluations.
+* <kbd>C-c C-b</kbd>: Interrupt any pending evaluations. Also bound to <kbd>C-c C-c</kbd>.
 * <kbd>C-up, C-down</kbd>: Goto to previous/next input in history.
 * <kbd>M-p, M-n</kbd>: Search the previous/next item in history using the current input
 as search pattern. If M-p/M-n is typed two times in a row, the second invocation

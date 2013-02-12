@@ -1356,6 +1356,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'nrepl-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
+    (define-key map (kdb "C-c C-c") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
@@ -1446,6 +1447,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-n") 'nrepl-next-prompt)
     (define-key map (kbd "C-c C-p") 'nrepl-previous-prompt)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
+    (define-key map (kbd "C-c C-c") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
@@ -2173,17 +2175,23 @@ Insert a banner, unless NOPROMPT is non-nil."
           (nrepl-init-repl-buffer
            connection (get-buffer-create "*nrepl*"))))))
 
-(defun nrepl-switch-to-repl-buffer ()
+(defun nrepl-switch-to-repl-buffer (arg)
   "Select the repl buffer, when possible in an existing window.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
-the buffer should appear."
-  (interactive)
+the buffer should appear.
+
+With a prefix ARG sets the name of the repl buffer to the one
+of the current source file."
+  (interactive "P")
   (if (not (get-buffer (nrepl-current-connection-buffer)))
       (message "No active nREPL connection.")
-    (pop-to-buffer (nrepl-repl-buffer))
-    (goto-char (point-max))))
+    (progn
+      (when arg
+        (nrepl-set-ns (nrepl-current-ns))
+      (pop-to-buffer (nrepl-repl-buffer))
+      (goto-char (point-max))))))
 
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to NS."
