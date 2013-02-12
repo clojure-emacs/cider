@@ -105,6 +105,22 @@
 (defconst nrepl-macroexpansion-buffer "*nrepl-macroexpansion*")
 (defconst nrepl-result-buffer "*nrepl-result*")
 
+(defcustom nrepl-hide-special-buffers nil
+  "When true some special buffers like the connection and the server buffer will
+be hidden.")
+
+(defun nrepl-connection-buffer-name ()
+  "Obtain the name of the connection buffer."
+  (if nrepl-hide-special-buffers
+      " *nrepl-connection*"
+    "*nrepl-connection*"))
+
+(defun nrepl-server-buffer-name ()
+  "Obtain the name of the server buffer."
+  (if nrepl-hide-special-buffers
+      " *nrepl-server*"
+    "*nrepl-server*"))
+
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the nREPL client."
@@ -1770,7 +1786,7 @@ This is bound for the duration of the handling of that message")
 
 (defun nrepl-make-connection-buffer ()
   "Create an nREPL connection buffer."
-  (let ((buffer (generate-new-buffer "*nrepl-connection*")))
+  (let ((buffer (generate-new-buffer (nrepl-connection-buffer-name))))
     (with-current-buffer buffer
       (buffer-disable-undo)
       (set (make-local-variable 'kill-buffer-query-functions) nil))
@@ -2464,7 +2480,7 @@ start the server."
                     nrepl-server-command))
              (process (start-process-shell-command
                        "nrepl-server"
-                       (generate-new-buffer-name "*nrepl-server*")
+                       (generate-new-buffer-name (nrepl-server-buffer-name))
                        cmd)))
         (set-process-filter process 'nrepl-server-filter)
         (set-process-sentinel process 'nrepl-server-sentinel)
