@@ -930,7 +930,7 @@ START, END and CURRENT-POINT are used to redraw the expansion."
 (defun nrepl-macroexpand-form (expander expr)
   "Macroexpand, using EXPANDER, the given EXPR."
   (format
-   "(clojure.pprint/write (%s '%s) :suppress-namespaces true :dispatch clojure.pprint/code-dispatch)"
+   "(clojure.pprint/write (%s '%s) :suppress-namespaces false :dispatch clojure.pprint/code-dispatch)"
    expander expr))
 
 (defun nrepl-macroexpand-expr (expander expr &optional buffer)
