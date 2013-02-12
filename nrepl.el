@@ -1356,7 +1356,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'nrepl-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
-    (define-key map (kdb "C-c C-c") 'nrepl-load-current-buffer)
+    (define-key map (kbd "C-c C-c") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
