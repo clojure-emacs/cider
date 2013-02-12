@@ -12,6 +12,9 @@
 creating a new one with `nrepl-jack-in` or `nrepl`.
 * `M-.` learned about namespaces.
 * Added new customization variable `nrepl-popup-stacktraces-in-repl`.
+* Added some convenience keybindings to `clojure-mode` -
+`nrepl-jack-in` is now bound to <kbd>C-c M-j</kbd> and `nrepl` is
+bound to <kbd>C-c M-c</kbd>.
 
 ### Bugs fixed
 
