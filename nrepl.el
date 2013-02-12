@@ -1587,7 +1587,7 @@ If BOL is non-nil insert at the beginning of line."
 
 (defun nrepl-emit-interactive-output (string)
   "Emit STRING as interactive output."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-current-nrepl-buffer)
     (nrepl-emit-output-at-pos
      (current-buffer) string (1- (nrepl-input-line-beginning-position)) t)))
 
@@ -1650,11 +1650,12 @@ Remove the processed data from the buffer if the decode successful."
   "Handle all complete messages from PROCESS.
 Assume that any error during decoding indicates an incomplete message."
   (with-current-buffer (process-buffer process)
-    (ignore-errors
-      (while (> (buffer-size) 1)
-        (let ((responses (nrepl-net-decode)))
-          (dolist (response responses)
-            (nrepl-dispatch response)))))))
+    (let ((nrepl-connection-dispatch (current-buffer)))
+      (ignore-errors
+        (while (> (buffer-size) 1)
+          (let ((responses (nrepl-net-decode)))
+            (dolist (response responses)
+              (nrepl-dispatch response))))))))
 
 (defun nrepl-net-filter (process string)
   "Decode the message(s) from PROCESS contained in STRING and dispatch."
