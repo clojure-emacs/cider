@@ -1637,6 +1637,7 @@ Handles message contained in RESPONSE."
 
 (defun nrepl-dispatch (response)
   "Dispatch the RESPONSE to associated callback."
+  (nrepl-log-event response)
   (nrepl-dbind-response response (id)
     (let ((callback (gethash id nrepl-requests)))
       (if callback
@@ -1684,6 +1685,57 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 (defun nrepl-write-message (process message)
   "Send the PROCESS the MESSAGE."
   (process-send-string process message))
+
+;;; Log nrepl events
+
+(defcustom nrepl-log-events t
+  "*Log protocol events to the *nrepl-events* buffer."
+  :type 'boolean
+  :group 'nrepl)
+
+(defconst nrepl-event-buffer-name "*nrepl-events*"
+  "nREPL event buffer.")
+
+(defconst nrepl-event-buffer-max-size 50000
+  "Maximum size for the nREPL event buffer.  Defaults to 50000
+  characters, which should be an insignificant memory burdon,
+  while providing reasonable history.")
+
+(defconst nrepl-event-buffer-reduce-denominator 4
+  "When the maximum size for the nREPL event buffer is exceed,
+ the size of the buffer is reduced by one over this value.
+ Defaults to 4, so that 1/4 of the buffer is removed, which
+ should ensure the buffer's maximum is reasonably utilised, while
+ limiting the number of buffer shrinking operations.")
+
+(defun nrepl-log-event (msg)
+  "Log the given MSG to the buffer given by
+nrepl-event-buffer-name (default *nrepl-events*)."
+  (when nrepl-log-events
+    (with-current-buffer (nrepl-events-buffer)
+      (when (> (buffer-size) nrepl-event-buffer-max-size)
+        (goto-char (/ (buffer-size) nrepl-event-buffer-reduce-denominator))
+        (re-search-forward "^(" nil t)
+        (delete-region (point-min) (- (point) 1)))
+      (goto-char (point-max))
+      (pp msg (current-buffer)))))
+
+(defun nrepl-events-buffer ()
+  "Return or create the buffer given by
+nrepl-event-buffer-name (default *nrepl-events*)."
+  (or (get-buffer nrepl-event-buffer-name)
+      (let ((buffer (get-buffer-create nrepl-event-buffer-name)))
+        (with-current-buffer buffer
+          (buffer-disable-undo)
+          (set (make-local-variable 'comment-start) ";")
+          (set (make-local-variable 'comment-end) ""))
+        buffer)))
+
+(defun nrepl-log-events (&optional disable)
+  "Turn on event logging to *nrepl-events*.  With a prefix
+argument DISABLE, turn it off."
+  (interactive "P")
+  (setq nrepl-log-events (not disable)))
 
 ;;; repl interaction
 (defun nrepl-property-bounds (prop)
@@ -1818,7 +1870,9 @@ This is bound for the duration of the handling of that message")
 (defun nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK."
   (let* ((request-id (nrepl-next-request-id))
-         (message (nrepl-bencode (append (list "id" request-id) request))))
+         (request (append (list "id" request-id) request))
+         (message (nrepl-bencode request)))
+    (nrepl-log-event request)
     (puthash request-id callback nrepl-requests)
     (nrepl-write-message (nrepl-current-connection-buffer) message)))
 
@@ -2518,7 +2572,8 @@ If so ask the user for confirmation."
   (dolist (buf-name `(,nrepl-error-buffer
                       ,nrepl-doc-buffer
                       ,nrepl-src-buffer
-                      ,nrepl-macroexpansion-buffer))
+                      ,nrepl-macroexpansion-buffer
+                      ,nrepl-event-buffer-name))
     (nrepl--close-buffer buf-name)))
 
 (defun nrepl-close (connection-buffer)
@@ -2541,7 +2596,8 @@ If so ask the user for confirmation."
   (interactive)
   (dolist (connection nrepl-connection-list)
     (when connection
-      (nrepl-close connection))))
+      (nrepl-close connection)))
+  (nrepl-close-ancilliary-buffers))
 
 (defun nrepl-restart (&optional prompt-project)
   "Quit nrepl and restart it.
