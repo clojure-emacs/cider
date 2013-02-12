@@ -4,6 +4,8 @@
 
 ### New features
 
+* Add nrepl-error-buffer-select to control selection of the stacktrace popup
+  window.
 * Add support for multiple nrepl session.  A single session is closed with
   `M-x nrepl-close`.  A repl session is made default with
   `M-x nrepl-make-repl-connection-default`.
