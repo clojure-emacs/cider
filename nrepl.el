@@ -227,6 +227,12 @@ overrides `nrepl-popup-stacktraces' in REPL buffers."
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-error-buffer-select nil
+  "Non-nil means pop-up error stacktraces are selected.
+Nil means the pop-up buffer will not be selected"
+  :type 'boolean
+  :group 'nrepl)
+
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
   "Selects the command to be invoked by the TAB key.
 The default option is `nrepl-indent-and-complete-symbol'.  If
@@ -804,7 +810,8 @@ DONE-HANDLER as appropriate."
           (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
                              (nrepl-make-response-handler
-                              (nrepl-popup-buffer nrepl-error-buffer)
+                              (nrepl-popup-buffer nrepl-error-buffer
+                                                  nrepl-error-buffer-select)
                               nil
                               'nrepl-emit-into-color-buffer nil nil) nil session))
         (with-current-buffer nrepl-error-buffer
@@ -856,6 +863,13 @@ DONE-HANDLER as appropriate."
  (defvar nrepl-popup-buffer-quit-function 'nrepl-popup-buffer-quit
    "The function that is used to quit a temporary popup buffer."))
 
+(defvar nrepl-popup-on-close-data nil
+  "Data used to control actions when closing popup windows.
+It is assigned a buffer local vaule of (POPUP-WINDOW OLD-WINDOW OLD-BUFFER).
+POPUP-WINDOW the window for the popup.
+OLD-WINDOW the window that was current when the popup was displayed.
+OLD-BUFFER the buffer that was in OLD-WINDOW.")
+
 (defun nrepl-popup-buffer-quit-function (&optional kill-buffer-p)
   "Wrapper to invoke the function `nrepl-popup-buffer-quit-function'.
 KILL-BUFFER-P is passed along."
@@ -867,17 +881,41 @@ KILL-BUFFER-P is passed along."
 If SELECT is non-nil, select the newly created window"
   (with-current-buffer (nrepl-make-popup-buffer name)
     (setq buffer-read-only t)
-    (let ((new-window (display-buffer (current-buffer))))
-      (set-window-point new-window (point))
-      (when select
-        (select-window new-window))
-      (current-buffer))))
+    (nrepl-popup-display-buffer (current-buffer) select)))
+
+(defun nrepl-popup-display-buffer (buffer select)
+  "Displays the popup BUFFER.
+If SELECT is non-nil, select the newly created window."
+  (lexical-let ((old-window (selected-window))
+                (old-buffer (window-buffer)))
+    (with-current-buffer buffer
+      (let ((new-window (display-buffer (current-buffer))))
+        (set-window-point new-window (point))
+        (unless nrepl-popup-on-close-data
+          (set (make-local-variable 'nrepl-popup-on-close-data)
+               (list new-window old-window old-buffer)))
+        (when select
+          (select-window new-window))
+        buffer))))
 
 (defun nrepl-popup-buffer-quit (&optional kill-buffer-p)
-  "Quit the current (temp) window and bury its buffer using `quit-window'.
-If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying it."
+  "Quit the current popup window and bury its buffer using `quit-window'.
+If prefix argument KILL-BUFFER-P is non-nil, kill
+the buffer instead of burying it.  If the buffer that raised the
+popup is still visible, then select it."
   (interactive)
-  (quit-window kill-buffer-p (selected-window)))
+  (if nrepl-popup-on-close-data
+      (destructuring-bind (popup-window old-window old-buffer)
+          nrepl-popup-on-close-data
+        (kill-local-variable 'nrepl-popup-on-close-data)
+        (quit-window kill-buffer-p (selected-window))
+        (message "pq %s %s" (eq popup-window (selected-window)) old-buffer)
+        (when (and (eq popup-window (selected-window)) old-buffer)
+          (when (and old-buffer
+                     (window-live-p old-window)
+                     (eq old-buffer (window-buffer old-window)))
+            (select-window old-window))))
+    (quit-window kill-buffer-p (selected-window))))
 
 (defun nrepl-make-popup-buffer (name)
   "Create a temporary buffer called NAME."
