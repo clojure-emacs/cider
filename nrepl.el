@@ -1678,7 +1678,9 @@ process buffer and run the hook `nrepl-disconnected-hook'."
   (message "nrepl connection closed: %s" message)
   (if (equal (process-status process) 'closed)
       (progn
-        (kill-buffer (process-buffer process))
+        (with-current-buffer (process-buffer process)
+          (kill-buffer nrepl-nrepl-buffer)
+          (kill-buffer (current-buffer)))
         (run-hooks 'nrepl-disconnected-hook))))
 
 (defun nrepl-write-message (process message)
