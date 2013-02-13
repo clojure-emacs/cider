@@ -15,6 +15,8 @@ creating a new one with `nrepl-jack-in` or `nrepl`.
 * Added some convenience keybindings to `clojure-mode` -
 `nrepl-jack-in` is now bound to <kbd>C-c M-j</kbd> and `nrepl` is
 bound to <kbd>C-c M-c</kbd>.
+* Added `nrepl-hide-special-buffers` setting to control the display of special
+buffers like `*nrepl-server*` and `*nrepl-connection*`.
 
 ### Bugs fixed
 

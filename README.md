@@ -90,6 +90,18 @@ experience.
   'nrepl-turn-on-eldoc-mode)
 ```
 
+* You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
+from appearing in some buffer switching commands like
+`switch-to-buffer`(<kbd>C-x b</kbd>) like this:
+
+```lisp
+(setq nrepl-hide-special-buffers t)
+```
+
+When using `switch-to-buffer`, pressing <kbd>SPC</kbd> after the command will
+make the hidden buffers visible. They'll always be visible in
+`list-buffers` (<kbd>C-x C-b</kbd>).
+
 * You can control the <kbd>TAB</kbd> key behavior in the REPL via the
 `nrepl-tab-command` variable.  While the default command
 `nrepl-indent-and-complete-symbol` should be an adequate choice for
