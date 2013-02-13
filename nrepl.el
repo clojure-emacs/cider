@@ -1678,7 +1678,10 @@ process buffer and run the hook `nrepl-disconnected-hook'."
   (message "nrepl connection closed: %s" message)
   (if (equal (process-status process) 'closed)
       (progn
-        (kill-buffer (process-buffer process))
+        (with-current-buffer (process-buffer process)
+          (when (get-buffer nrepl-nrepl-buffer)
+            (kill-buffer nrepl-nrepl-buffer))
+          (kill-buffer (current-buffer)))
         (run-hooks 'nrepl-disconnected-hook))))
 
 (defun nrepl-write-message (process message)
@@ -1768,28 +1771,28 @@ This is bound for the duration of the handling of that message")
 (defvar nrepl-connection-list nil
   "A list of connections.")
 
-(defun nrepl-make-connection-buffer ()
-  "Create an nREPL connection buffer."
-  (let ((buffer (generate-new-buffer "*nrepl-connection*")))
-    (with-current-buffer buffer
-      (buffer-disable-undo)
-      (set (make-local-variable 'kill-buffer-query-functions) nil))
-    buffer))
-
 (defun nrepl-current-connection-buffer ()
   "The connection to use for nREPL interaction."
   (or nrepl-connection-dispatch
       nrepl-connection-buffer
-      (car nrepl-connection-list)))
+      (first (nrepl-connection-buffers))))
 
-(defun nrepl-current-nrepl-buffer ()
-  "The current nrepl buffer."
-  (when (nrepl-current-connection-buffer)
-    (buffer-local-value 'nrepl-nrepl-buffer
-                        (get-buffer (nrepl-current-connection-buffer)))))
+(defun nrepl-connection-buffers ()
+  "Clean up dead buffers from the `nrepl-connection-list'.
+Return the connection list."
+  (nrepl--connection-list-purge)
+  nrepl-connection-list)
+
+(defun nrepl--connection-list-purge ()
+  "Clean up dead buffers from the `nrepl-connection-list'."
+  (setq nrepl-connection-list
+        (remove-if (lambda (buffer)
+                     (not (buffer-live-p (get-buffer buffer))))
+                   nrepl-connection-list)))
 
 (defun nrepl-make-repl-connection-default (connection-buffer)
-  "Make the nREPL CONNECTION-BUFFER the default connection."
+  "Make the nREPL CONNECTION-BUFFER the default connection.
+Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
   (interactive (list nrepl-connection-buffer))
   (if connection-buffer
       ;; maintain the connection list in most recently used order
@@ -1797,6 +1800,35 @@ This is bound for the duration of the handling of that message")
         (setq nrepl-connection-list
               (cons buf-name (delq buf-name nrepl-connection-list))))
     (message "Not in an nREPL REPL buffer.")))
+
+(defun nrepl--close-connection-buffer (connection-buffer)
+  "Closes CONNECTION-BUFFER, removing it from `nrepl-connection-list'.
+Also closes associated repl and server buffers."
+  (let ((nrepl-connection-dispatch connection-buffer))
+     (lexical-let ((buffer (get-buffer connection-buffer)))
+       (setq nrepl-connection-list
+             (delq (buffer-name buffer) nrepl-connection-list))
+       (when (buffer-live-p buffer)
+         (dolist (buf-name `(,(buffer-local-value 'nrepl-nrepl-buffer buffer)
+                             ,(buffer-local-value 'nrepl-server-buffer buffer)
+                             ,buffer))
+           (when buf-name
+             (nrepl--close-buffer buf-name)))))))
+
+(defun nrepl-current-nrepl-buffer ()
+  "Return the current nrepl buffer."
+  (when (nrepl-current-connection-buffer)
+    (buffer-local-value 'nrepl-nrepl-buffer
+                        (get-buffer (nrepl-current-connection-buffer)))))
+
+
+(defun nrepl-make-connection-buffer ()
+  "Create an nREPL connection buffer."
+  (let ((buffer (generate-new-buffer "*nrepl-connection*")))
+    (with-current-buffer buffer
+      (buffer-disable-undo)
+      (set (make-local-variable 'kill-buffer-query-functions) nil))
+    buffer))
 
 ;;; server messages
 
@@ -2499,7 +2531,7 @@ If so ask the user for confirmation."
                (and project-directory
                     (equal project-directory
                            (buffer-local-value 'nrepl-project-dir buffer))))))
-       nrepl-connection-list)
+       (nrepl-connection-buffers))
       (y-or-n-p
        "An nREPL buffer already exists.  Do you really want to create a new one? ")
     t))
@@ -2524,17 +2556,8 @@ If so ask the user for confirmation."
 (defun nrepl-close (connection-buffer)
   "Close the nrepl connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
-  (let ((nrepl-connection-dispatch connection-buffer))
-    (lexical-let ((buffer (get-buffer connection-buffer)))
-      (setq nrepl-connection-list
-            (delq (buffer-name buffer) nrepl-connection-list))
-      (when (buffer-live-p buffer)
-        (dolist (buf-name `(,(buffer-local-value 'nrepl-nrepl-buffer buffer)
-                            ,(buffer-local-value 'nrepl-server-buffer buffer)
-                            ,buffer))
-          (when buf-name
-            (nrepl--close-buffer buf-name))))
-      (nrepl-possibly-disable-on-existing-clojure-buffers))))
+  (nrepl--close-connection-buffer connection-buffer)
+  (nrepl-possibly-disable-on-existing-clojure-buffers))
 
 (defun nrepl-quit ()
   "Quit the nrepl server."

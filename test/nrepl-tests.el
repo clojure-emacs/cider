@@ -121,3 +121,52 @@
                     ("status" "done")))
                  (nrepl-decode
                   "d2:id2:422:ns4:user7:session36:3f586403-ed47-4e4d-b8db-70522054f9715:value5:\"←\"ed2:id2:427:session36:3f586403-ed47-4e4d-b8db-70522054f9716:statusl4:doneee"))))
+
+(defmacro nrepl-test-with-two-buffers (buffer-names &rest body)
+  (lexical-let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
+    `(lexical-let (,@(mapcar create buffer-names))
+       (unwind-protect
+           ,@body
+         (mapc 'kill-buffer (list ,@buffer-names))))))
+
+(ert-deftest test-nrepl-make-repl-connection-default ()
+  (lexical-let ((connections (nrepl-connection-buffers)))
+    (nrepl-test-with-two-buffers
+     (a b)
+     (should (get-buffer a))
+     (should (get-buffer b))
+     ;; Add one connection
+     (nrepl-make-repl-connection-default a)
+     (should (equal (append (list (buffer-name a)) connections)
+                    (nrepl-connection-buffers)))
+     (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
+     ;; Add second connection
+     (nrepl-make-repl-connection-default b)
+     (should (equal (append (list (buffer-name b) (buffer-name a)) connections)
+                    (nrepl-connection-buffers)))
+     (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
+
+(ert-deftest test-nrepl-connection-buffers ()
+  (lexical-let ((connections (nrepl-connection-buffers)))
+    (nrepl-test-with-two-buffers
+     (a b)
+     (nrepl-make-repl-connection-default a)
+     (nrepl-make-repl-connection-default b)
+     ;; killing a buffer should see it purged from the connection list
+     (kill-buffer a)
+     (should (equal (append (list (buffer-name b)) connections)
+                    (nrepl-connection-buffers)))
+     (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
+
+(ert-deftest test-nrepl-close ()
+  (lexical-let ((connections (nrepl-connection-buffers)))
+    (nrepl-test-with-two-buffers
+     (a b)
+     (nrepl-make-repl-connection-default a)
+     (nrepl-make-repl-connection-default b)
+     ;; closing a buffer should see it removed from the connection list
+     (nrepl-close a)
+     (should (not (buffer-live-p a)))
+     (should (equal (append (list (buffer-name b)) connections)
+                    (nrepl-connection-buffers)))
+     (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
