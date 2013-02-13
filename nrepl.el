@@ -726,7 +726,10 @@ DONE-HANDLER as appropriate."
                                (lambda (buffer value)
                                  (message "%s" value))
                                (lambda (buffer value)
-                                 (nrepl-emit-interactive-output value))
+                                 (nrepl-emit-interactive-output value)
+                                 (with-current-buffer "*nrepl*"
+                                        (ansi-color-apply-on-region (point-min)
+                                                                    (point-max))))
                                (lambda (buffer err)
                                  (message "%s" err))
                                '()))
@@ -740,7 +743,10 @@ DONE-HANDLER as appropriate."
                                    (with-current-buffer buffer
                                      (setq nrepl-buffer-ns (clojure-find-ns))))
                                  (lambda (buffer value)
-                                   (nrepl-emit-interactive-output value))
+                                   (nrepl-emit-interactive-output value)
+                                   (with-current-buffer "*nrepl*"
+                                          (ansi-color-apply-on-region (point-min)
+                                                                      (point-max))))
                                  (lambda (buffer err)
                                    (message "%s" err))
                                  '())))
