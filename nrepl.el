@@ -1780,7 +1780,14 @@ This is bound for the duration of the handling of that message")
   "The connection to use for nREPL interaction."
   (or nrepl-connection-dispatch
       nrepl-connection-buffer
-      (car nrepl-connection-list)))
+      (nrepl-connection-list-head)))
+
+(defun nrepl-connection-list-head ()
+  (setq nrepl-connection-list
+        (remove-if (lambda (buffer)
+                     (not (buffer-live-p (get-buffer buffer))))
+                   nrepl-connection-list))
+  (car nrepl-connection-list))
 
 (defun nrepl-current-nrepl-buffer ()
   "The current nrepl buffer."
