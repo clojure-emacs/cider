@@ -121,3 +121,16 @@
                     ("status" "done")))
                  (nrepl-decode
                   "d2:id2:422:ns4:user7:session36:3f586403-ed47-4e4d-b8db-70522054f9715:value5:\"←\"ed2:id2:427:session36:3f586403-ed47-4e4d-b8db-70522054f9716:statusl4:doneee"))))
+
+;;;; generic
+(ert-deftest test-nrepl-connection-buffer-name ()
+  (let ((nrepl-hide-special-buffers nil))
+    (should (equal (nrepl-connection-buffer-name) "*nrepl-connection*")))
+  (let ((nrepl-hide-special-buffers t))
+    (should (equal (nrepl-connection-buffer-name) " *nrepl-connection*"))))
+
+(ert-deftest test-nrepl-server-buffer-name ()
+  (let ((nrepl-hide-special-buffers nil))
+    (should (equal (nrepl-server-buffer-name) "*nrepl-server*")))
+  (let ((nrepl-hide-special-buffers t))
+    (should (equal (nrepl-server-buffer-name) " *nrepl-server*"))))
