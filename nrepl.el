@@ -1785,6 +1785,8 @@ This is bound for the duration of the handling of that message")
       (nrepl-connection-list-head)))
 
 (defun nrepl-connection-list-head ()
+  "Return the head of `NREPL-CONNECTION-LIST'.
+Cleans up dead buffers from the connection list."
   (setq nrepl-connection-list
         (remove-if (lambda (buffer)
                      (not (buffer-live-p (get-buffer buffer))))
