@@ -1711,23 +1711,24 @@ process buffer and run the hook `nrepl-disconnected-hook'."
   :group 'nrepl)
 
 (defconst nrepl-event-buffer-name "*nrepl-events*"
-  "nREPL event buffer.")
+  "Event buffer for nREPL message logging.")
 
 (defconst nrepl-event-buffer-max-size 50000
-  "Maximum size for the nREPL event buffer.  Defaults to 50000
-  characters, which should be an insignificant memory burdon,
-  while providing reasonable history.")
+  "Maximum size for the nREPL event buffer.
+Defaults to 50000 characters, which should be an insignificant
+memory burdon, while providing reasonable history.")
 
 (defconst nrepl-event-buffer-reduce-denominator 4
-  "When the maximum size for the nREPL event buffer is exceed,
- the size of the buffer is reduced by one over this value.
- Defaults to 4, so that 1/4 of the buffer is removed, which
- should ensure the buffer's maximum is reasonably utilised, while
- limiting the number of buffer shrinking operations.")
+  "Divisor by which to reduce event buffer size.
+When the maximum size for the nREPL event buffer is exceed, the
+size of the buffer is reduced by one over this value.  Defaults
+to 4, so that 1/4 of the buffer is removed, which should ensure
+the buffer's maximum is reasonably utilised, while limiting the
+number of buffer shrinking operations.")
 
 (defun nrepl-log-event (msg)
-  "Log the given MSG to the buffer given by
-nrepl-event-buffer-name (default *nrepl-events*)."
+  "Log the given MSG to the buffer given by `nrepl-event-buffer-name'.
+The default buffer name is *nrepl-events*."
   (when nrepl-log-events
     (with-current-buffer (nrepl-events-buffer)
       (when (> (buffer-size) nrepl-event-buffer-max-size)
@@ -1738,8 +1739,8 @@ nrepl-event-buffer-name (default *nrepl-events*)."
       (pp msg (current-buffer)))))
 
 (defun nrepl-events-buffer ()
-  "Return or create the buffer given by
-nrepl-event-buffer-name (default *nrepl-events*)."
+  "Return or create the buffer given by `nrepl-event-buffer-name'.
+The default buffer name is *nrepl-events*."
   (or (get-buffer nrepl-event-buffer-name)
       (let ((buffer (get-buffer-create nrepl-event-buffer-name)))
         (with-current-buffer buffer
@@ -1749,8 +1750,8 @@ nrepl-event-buffer-name (default *nrepl-events*)."
         buffer)))
 
 (defun nrepl-log-events (&optional disable)
-  "Turn on event logging to *nrepl-events*.  With a prefix
-argument DISABLE, turn it off."
+  "Turn on event logging to *nrepl-events*.
+With a prefix argument DISABLE, turn it off."
   (interactive "P")
   (setq nrepl-log-events (not disable)))
 
