@@ -15,6 +15,7 @@ creating a new one with `nrepl-jack-in` or `nrepl`.
 * Added some convenience keybindings to `clojure-mode` -
 `nrepl-jack-in` is now bound to <kbd>C-c M-j</kbd> and `nrepl` is
 bound to <kbd>C-c M-c</kbd>.
+* Apply ANSI color codes to output sent to nrepl buffers.
 
 ### Bugs fixed
 
