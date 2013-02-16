@@ -2765,9 +2765,11 @@ restart the server."
                  (remhash id nrepl-requests)
                  (nrepl-setup-default-namespaces process))))))))
 
-(defun nrepl-new-session-handler (process)
-  "Create a new session handler for PROCESS."
-  (lexical-let ((process process))
+(defun nrepl-new-session-handler (process no-repl-p)
+  "Create a new session handler for PROCESS.
+When NO-REPL-P is truthy, suppress creation of a repl buffer."
+  (lexical-let ((process process)
+                (no-repl-p no-repl-p))
     (lambda (response)
       (nrepl-dbind-response response (id new-session)
         (cond (new-session
@@ -2776,23 +2778,26 @@ restart the server."
                  (setq nrepl-session new-session
                        nrepl-connection-buffer (current-buffer))
                  (remhash id nrepl-requests)
-                 (lexical-let ((repl-buffer (nrepl-create-repl-buffer
-                                              process)))
-                   (with-current-buffer repl-buffer
+                 (unless no-repl-p
+                   (lexical-let ((repl-buffer (nrepl-create-repl-buffer
+                                               process)))
+                     (with-current-buffer repl-buffer
                        (setq nrepl-connection-buffer
                              (buffer-name (process-buffer process))))
-                   (with-current-buffer (process-buffer process)
+                     (with-current-buffer (process-buffer process)
                        (setq nrepl-repl-buffer
-                             (buffer-name repl-buffer))))
+                             (buffer-name repl-buffer)))))
                  (run-hooks 'nrepl-connected-hook))))))))
 
-(defun nrepl-init-client-sessions (process)
-  "Initialize client sessions for PROCESS."
-  (nrepl-create-client-session (nrepl-new-session-handler process))
+(defun nrepl-init-client-sessions (process no-repl-p)
+  "Initialize client sessions for PROCESS.
+When NO-REPL-P is truthy, suppress creation of a repl buffer."
+  (nrepl-create-client-session (nrepl-new-session-handler process no-repl-p))
   (nrepl-create-client-session (nrepl-new-tooling-session-handler process)))
 
-(defun nrepl-connect (host port)
-  "Connect to a running nREPL server running on HOST and PORT."
+(defun nrepl-connect (host port &optional no-repl-p)
+  "Connect to a running nREPL server running on HOST and PORT.
+When NO-REPL-P is truthy, suppress creation of a repl buffer."
   (message "Connecting to nREPL on %s:%s..." host port)
   (let ((process (open-network-stream "nrepl"
                                       (nrepl-make-connection-buffer) host
@@ -2801,7 +2806,7 @@ restart the server."
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (let ((nrepl-connection-dispatch (buffer-name (process-buffer process))))
-      (nrepl-init-client-sessions process)
+      (nrepl-init-client-sessions process no-repl-p)
       (nrepl-describe-session process))
     (nrepl-make-repl-connection-default (process-buffer process))
     (with-current-buffer (process-buffer process)
