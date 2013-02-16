@@ -726,10 +726,7 @@ DONE-HANDLER as appropriate."
                                (lambda (buffer value)
                                  (message "%s" value))
                                (lambda (buffer value)
-                                 (nrepl-emit-interactive-output value)
-                                 (with-current-buffer (nrepl-current-nrepl-buffer)
-                                        (ansi-color-apply-on-region (point-min)
-                                                                    (point-max))))
+                                 (nrepl-emit-interactive-output value))
                                (lambda (buffer err)
                                  (message "%s" err))
                                '()))
@@ -743,10 +740,7 @@ DONE-HANDLER as appropriate."
                                    (with-current-buffer buffer
                                      (setq nrepl-buffer-ns (clojure-find-ns))))
                                  (lambda (buffer value)
-                                   (nrepl-emit-interactive-output value)
-                                   (with-current-buffer (nrepl-current-nrepl-buffer)
-                                          (ansi-color-apply-on-region (point-min)
-                                                                      (point-max))))
+                                   (nrepl-emit-interactive-output value))
                                  (lambda (buffer err)
                                    (message "%s" err))
                                  '())))
@@ -1601,8 +1595,10 @@ If BOL is non-nil insert at the beginning of line."
 (defun nrepl-emit-interactive-output (string)
   "Emit STRING as interactive output."
   (with-current-buffer (nrepl-current-nrepl-buffer)
-    (nrepl-emit-output-at-pos
-     (current-buffer) string (1- (nrepl-input-line-beginning-position)) t)))
+    (let ((pos (1- (nrepl-input-line-beginning-position))))
+      (nrepl-emit-output-at-pos (current-buffer) string pos t)
+      (ansi-color-apply-on-region pos (point-max))
+      )))
 
 (defun nrepl-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.
