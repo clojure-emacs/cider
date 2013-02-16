@@ -1521,21 +1521,68 @@ See `compilation-error-regexp-alist' for help on their format.")
 ;;; communication
 (defcustom nrepl-lein-command
   "lein"
-  "The command used to execute leiningen 2.x."
+  "The command used to execute leiningen 2.x. Only used if 
+`nrepl-server-command' is set to 'search."
   :type 'string
   :group 'nrepl-mode)
 
-(defcustom nrepl-server-command
-  (if (or (locate-file nrepl-lein-command exec-path)
-          (locate-file (format "%s.bat" nrepl-lein-command) exec-path))
-      (format "%s repl :headless" nrepl-lein-command)
-    (format "echo \"%s repl :headless\" | eval $SHELL -l" nrepl-lein-command))
-  "The command used to start the nREPL via command `nrepl-jack-in'.
-For a remote nREPL server lein must be in your PATH.  The remote
-proc is launched via sh rather than bash, so it might be necessary
-to specific the full path to it.  Localhost is assumed."
-  :type 'string
+
+(defcustom nrepl-server-command 'search
+  "How to find the command used to start nREPL via `nrepl-jack-in'. 
+
+If 'search look for lein in the `exec-path' or the download path
+from `nrepl-lein-self-install'."
+  :type '(choice (const :tag "Search" search)
+                 (string :tag "Command"))
   :group 'nrepl-mode)
+
+(defun nrepl-fetch-server-command ()
+  "Fetch the server command to launch nrepl. 
+
+See `nrepl-server-command' for details. 
+"
+  (if (eq nrepl-server-command 'search)
+      (let* ((path 
+              (cons user-emacs-directory exec-path))
+             (command         
+              (or (locate-file nrepl-lein-command path)
+                  (locate-file (format "%s.bat" nrepl-lein-command) path))))
+        (when (not command)
+          (error (concat  "Unable to find \"lein\": consider M-x nrepl-lein-self-install,"
+                          "or update `nrepl-server-command'")))
+        (format "%s repl :headless" command))
+    nrepl-server-command))
+
+
+(defvar nrepl-lein-retrieve-shell 
+  "https://raw.github.com/technomancy/leiningen/stable/bin/lein")
+(defvar nrepl-lein-retrieve-batch 
+  "https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat")
+
+(defun nrepl-lein-self-install ()
+  (interactive)
+  (let* ((retrieve
+         (if (equal system-type
+                    'windows-nt)
+             nrepl-lein-retrieve-batch
+           nrepl-lein-retrieve-shell))
+         (lein-command 
+          (if (equal system-type
+                     'windows-nt)
+              "lein.bat"
+            "lein"))
+         (lein-buffer
+          (url-retrieve-synchronously
+           retrieve)))
+    (save-excursion
+      (set-buffer lein-buffer)
+      (search-forward "\n\n")
+      (delete-region (point-min) (point))
+      (write-file (concat user-emacs-directory lein-command))
+      (message "%s" buffer-file-name)
+      (executable-chmod))
+    (shell-command 
+     (format "%s%s self-install" user-emacs-directory lein-command))))
 
 
 (defun nrepl-show-maximum-output ()
@@ -2460,8 +2507,8 @@ start the server."
                                (or project (nrepl-current-dir)))))
     (when (nrepl-check-for-nrepl-buffer nil project-dir)
       (let* ((cmd (if project
-                      (format "cd %s && %s" project nrepl-server-command)
-                    nrepl-server-command))
+                      (format "cd %s && %s" project (nrepl-fetch-server-command))
+                    (nrepl-fetch-server-command)))
              (process (start-process-shell-command
                        "nrepl-server"
                        (generate-new-buffer-name "*nrepl-server*")
