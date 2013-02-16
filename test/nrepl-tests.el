@@ -183,3 +183,46 @@
      (should (equal (append (list (buffer-name b)) connections)
                     (nrepl-connection-buffers)))
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
+
+;;; connection browser
+
+(ert-deftest test-nrepl-connections-buffer ()
+  (with-temp-buffer
+    (lexical-let ((b1 (current-buffer)))
+      (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+      (set (make-local-variable 'nrepl-project-dir) "proj")
+      (with-temp-buffer
+        (lexical-let ((b2 (current-buffer)))
+          (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
+          (let ((nrepl-connection-list
+                 (list (buffer-name b1) (buffer-name b2))))
+            (nrepl-connection-browser)
+            (with-current-buffer "*nrepl-connections*"
+              (should (equal "  Host              Port   Project
+
+* localhost         4005   proj
+  123.123.123.123   4006   \n\n"
+                             (buffer-string)))
+              (goto-char 80)         ; somewhere in the second connection listed
+              (nrepl-connections-make-default)
+              (should (equal (buffer-name b2) (first nrepl-connection-list)))
+              (should (equal "  Host              Port   Project
+
+  localhost         4005   proj
+* 123.123.123.123   4006   \n\n"
+                             (buffer-string)))
+              (goto-char 80)         ; somewhere in the second connection listed
+              (nrepl-connections-close-connection)
+              (should (equal (list (buffer-name b1)) nrepl-connection-list))
+              (should (equal "  Host              Port   Project
+
+* localhost         4005   proj\n\n"
+                             (buffer-string)))
+              (with-temp-buffer
+                (let ((b3 (current-buffer)))
+                  (with-current-buffer b1
+                    (set (make-local-variable 'nrepl-nrepl-buffer) b3))
+                  (with-current-buffer "*nrepl-connections*"
+                    (nrepl-connections-goto-connection)
+                    (should (equal b3 (current-buffer))))))
+              (kill-buffer "*nrepl-connections*"))))))))
