@@ -1573,8 +1573,10 @@ See `nrepl-server-command' for details.
 
 (defvar nrepl-lein-retrieve-shell 
   "https://raw.github.com/technomancy/leiningen/stable/bin/lein")
+
+;; https requires gnutls which doesn't appear to be standard in Emacs24 build.
 (defvar nrepl-lein-retrieve-batch 
-  "https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat")
+  "http://raw.github.com/technomancy/leiningen/stable/bin/lein.bat")
 
 (defun nrepl-lein-self-install ()
   (interactive)
@@ -1591,15 +1593,38 @@ See `nrepl-server-command' for details.
          (lein-buffer
           (url-retrieve-synchronously
            retrieve)))
+    (message "Installing %s..." lein-command)
     (save-excursion
       (set-buffer lein-buffer)
       (search-forward "\n\n")
       (delete-region (point-min) (point))
       (write-file (concat user-emacs-directory lein-command))
-      (message "%s" buffer-file-name)
       (executable-chmod))
-    (shell-command 
-     (format "%s%s self-install" user-emacs-directory lein-command))))
+    (message "Installing %s...done" lein-command)
+    (sit-for 1)
+    (nrepl-lein-self-install-jar)))
+
+(defvar nrepl-lein-home (expand-file-name "~/.lein"))
+(defvar nrepl-lein-version "2.0.0")
+(defvar nrepl-lein-download-url
+  "https://leiningen.s3.amazonaws.com/downloads/leiningen-%s-standalone.jar")
+
+(defvar nrepl-lein-jar
+  (format "%s/self-installs/leiningen-%s-standalone.jar"
+          nrepl-lein-home nrepl-lein-version))
+
+(defun nrepl-lein-self-install-jar ()
+  (message "Installing Leiningen jar. Please wait.")
+  (sit-for 1)
+  (url-retrieve
+   (format nrepl-lein-download-url nrepl-lein-version)
+   'lein-self-install-callback (list nrepl-lein-jar)))
+
+(defun lein-self-install-callback (status lein-jar)
+  (search-forward "\n\n")
+  (write-region (point) (point-max) lein-jar)
+  (message "Leiningen download complete."))
+
 
 
 (defun nrepl-show-maximum-output ()
