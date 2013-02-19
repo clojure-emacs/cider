@@ -1667,8 +1667,10 @@ If BOL is non-nil insert at the beginning of line."
 (defun nrepl-emit-interactive-output (string)
   "Emit STRING as interactive output."
   (with-current-buffer (nrepl-current-nrepl-buffer)
-    (nrepl-emit-output-at-pos
-     (current-buffer) string (1- (nrepl-input-line-beginning-position)) t)))
+    (let ((pos (1- (nrepl-input-line-beginning-position))))
+      (nrepl-emit-output-at-pos (current-buffer) string pos t)
+      (ansi-color-apply-on-region pos (point-max))
+      )))
 
 (defun nrepl-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.

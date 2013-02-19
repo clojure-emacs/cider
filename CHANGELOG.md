@@ -17,6 +17,7 @@ creating a new one with `nrepl-jack-in` or `nrepl`.
 bound to <kbd>C-c M-c</kbd>.
 * Added `nrepl-hide-special-buffers` setting to control the display of special
 buffers like `*nrepl-server*` and `*nrepl-connection*`.
+* Apply ANSI color codes to output sent to nrepl buffers.
 
 ### Bugs fixed
 
@@ -76,7 +77,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 ### New features
 
 * Improvements and simplifications for completion (Tassilo Horn)
-* Documentation additions and fixes (Ryan Fowler, Nikita Beloglazov, Bozhidar Batsov, Juha Syrjälä, Philipp Meier)
+* Documentation additions and fixes (Ryan Fowler, Nikita Beloglazov, Bozhidar Batsov, Juha Syrjl, Philipp Meier)
 * Make completion back-end and error handler configurable (Hugo Duncan)
 * Accept host as well as port on connect (Ken Restivo)
 * Enable nrepl-interaction-mode in clojurescript-mode (Nelson Morris)
