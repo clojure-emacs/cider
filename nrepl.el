@@ -1622,6 +1622,7 @@ See `nrepl-server-command' for details.
 
 (defun lein-self-install-callback (status lein-jar)
   (search-forward "\n\n")
+  (make-directory (file-name-directory lein-jar) t)
   (write-region (point) (point-max) lein-jar)
   (message "Leiningen download complete."))
 
