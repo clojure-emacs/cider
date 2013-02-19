@@ -2565,12 +2565,13 @@ If so ask the user for confirmation."
   (if (find-if
        (lambda (buffer)
          (lexical-let ((buffer (get-buffer buffer)))
-           (or (and endpoint
-                    (equal endpoint
-                           (buffer-local-value 'nrepl-endpoint buffer)))
-               (and project-directory
-                    (equal project-directory
-                           (buffer-local-value 'nrepl-project-dir buffer))))))
+           (when buffer
+             (or (and endpoint
+                      (equal endpoint
+                             (buffer-local-value 'nrepl-endpoint buffer)))
+                 (and project-directory
+                      (equal project-directory
+                             (buffer-local-value 'nrepl-project-dir buffer)))))))
        nrepl-connection-list)
       (y-or-n-p
        "An nREPL buffer already exists.  Do you really want to create a new one? ")
