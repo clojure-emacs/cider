@@ -245,14 +245,14 @@ M-c</kbd>.
 
 * <kbd>C-x C-e</kbd>: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
 * <kbd>C-c C-p</kbd>: Evalulate the form preceding point and display the result in a popup buffer.
-* <kbd>C-M-x</kbd>: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
+* <kbd>C-M-x</kbd>: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer. Also bound to <kbd>C-c C-c</kbd>.
 * <kbd>C-c C-r</kbd>: Evaluate the region and display the result in the echo area.
 * <kbd>C-c C-b</kbd>: Interrupt any pending evaluations.
 * <kbd>C-c C-m</kbd>: Invoke macroexpand-1 on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, macroexpand is used instead of macroexpand-1.
 * <kbd>C-c M-m</kbd>: Invoke clojure.walk/macroexpand-all on the form at point and display the result in a macroexpansion buffer.
 * <kbd>C-c C-n</kbd>: Eval the ns form.
 * <kbd>C-c M-n</kbd>: Switch the namespace of the repl buffer to the namespace of the current buffer.
-* <kbd>C-c C-z</kbd>: Select the repl buffer.
+* <kbd>C-c C-z</kbd>: Select the repl buffer. With a prefix argument - changes the namespace of the REPL buffer to the one of the currently visited source file.
 * <kbd>C-c M-o</kbd>: Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 * <kbd>C-c C-k</kbd>: Load the current buffer.
 * <kbd>C-c C-l</kbd>: Load a file.
@@ -271,7 +271,7 @@ M-c</kbd>.
 * <kbd>C-c M-o</kbd>: Clear the entire REPL buffer, leaving only a prompt.
 * <kbd>C-c C-o</kbd>: Remove the output of the previous evaluation from the REPL buffer.
 * <kbd>C-c C-u</kbd>: Kill all text from the prompt to the current point.
-* <kbd>C-c C-b</kbd>: Interrupt any pending evaluations.
+* <kbd>C-c C-b</kbd>: Interrupt any pending evaluations. Also bound to <kbd>C-c C-c</kbd>.
 * <kbd>C-up, C-down</kbd>: Goto to previous/next input in history.
 * <kbd>M-p, M-n</kbd>: Search the previous/next item in history using the current input
 as search pattern. If M-p/M-n is typed two times in a row, the second invocation
