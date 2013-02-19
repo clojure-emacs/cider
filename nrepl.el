@@ -2032,7 +2032,7 @@ The connections buffer is determined by
   "Extracts a project name from PATH, possibly nil.
 The project name is the final component of PATH if not nil."
   (when path
-    (file-name-base (directory-file-name path))))
+    (file-name-nondirectory (directory-file-name path))))
 
 (defun nrepl--update-connections-display (ewoc connections)
   "Update the connections EWOC to show CONNECTIONS."
