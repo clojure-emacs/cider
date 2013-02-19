@@ -18,6 +18,8 @@ bound to <kbd>C-c M-c</kbd>.
 * Added `nrepl-hide-special-buffers` setting to control the display of special
 buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Apply ANSI color codes to output sent to nrepl buffers.
+* Add a connection browser `nrepl-connection-browser` to allow control of
+  multiple connections.
 
 ### Bugs fixed
 

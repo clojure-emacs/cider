@@ -294,11 +294,16 @@ uses the same search pattern (even if the current input has changed).
 ### Managing multiple sessions
 
 You can connection to multiple nREPL servers and use `nrepl-jack-in` multiple
-times.  To close a single nREPL session, use `M-x nrepl-close`.  `M-x
-nrepl-quit` closes all sessions.
+times.  To close a single nREPL session, use `M-x nrepl-close`.
+`M-x nrepl-quit` closes all sessions.
 
-nrepl.el commands in a clojure buffer use the default connection.  To make a
-connection default, switch to it's repl buffer and use
+nrepl.el commands in a clojure buffer use the default connection.  Use `M-x
+nrepl-connection-browser` to see which connections are active.  From there you
+can switch the default connection used to evaluate expressions in clojure
+buffers using the `d` key.  You can close a connection with `C-k`.  To go to the
+repl for a specific connection, use `RET`.
+
+You can also make the current repl buffer default using
 `M-x nrepl-make-repl-connection-default`.
 
 ## Requirements:

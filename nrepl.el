@@ -54,6 +54,7 @@
 (require 'arc-mode)
 (require 'ansi-color)
 (require 'eldoc)
+(require 'ewoc)
 (require 'cl)
 (require 'easymenu)
 (require 'compile)
@@ -1933,7 +1934,8 @@ Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
       ;; maintain the connection list in most recently used order
       (lexical-let ((buf-name (buffer-name (get-buffer connection-buffer))))
         (setq nrepl-connection-list
-              (cons buf-name (delq buf-name nrepl-connection-list))))
+              (cons buf-name (delq buf-name nrepl-connection-list)))
+        (nrepl--connections-refresh))
     (message "Not in an nREPL REPL buffer.")))
 
 (defun nrepl--close-connection-buffer (connection-buffer)
@@ -1955,6 +1957,133 @@ Also closes associated repl and server buffers."
   (when (nrepl-current-connection-buffer)
     (buffer-local-value 'nrepl-nrepl-buffer
                         (get-buffer (nrepl-current-connection-buffer)))))
+
+;;; Connection browser
+(define-derived-mode nrepl-connections-buffer-mode nrepl-popup-buffer-mode
+  "nREPL-Connections"
+  "nREPL Connections Buffer Mode.
+\\{nrepl-connections-buffer-mode-map}
+\\{nrepl-popup-buffer-mode-map}"
+  (set (make-local-variable 'truncate-lines) t))
+
+(defvar nrepl-connections-buffer-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "d" 'nrepl-connections-make-default)
+    (define-key map "g" 'nrepl-connection-browser)
+    (define-key map (kbd "C-k") 'nrepl-connections-close-connection)
+    (define-key map (kbd "RET") 'nrepl-connections-goto-connection)
+    map))
+
+(defvar nrepl--connection-ewoc)
+(defconst nrepl--connection-browser-buffer-name "*nrepl-connections*")
+
+(defun nrepl-connection-browser ()
+  "Open a browser buffer for nREPL connections."
+  (interactive)
+  (lexical-let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
+    (if buffer
+        (progn
+          (nrepl--connections-refresh-buffer buffer)
+          (unless (get-buffer-window buffer)
+            (select-window (display-buffer buffer))))
+      (nrepl--setup-connection-browser))))
+
+(defun nrepl--connections-refresh ()
+  "Refresh the connections buffer, if the buffer exists.
+The connections buffer is determined by
+`nrepl--connection-browser-buffer-name'"
+  (lexical-let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
+    (when buffer
+      (nrepl--connections-refresh-buffer buffer))))
+
+(defun nrepl--connections-refresh-buffer (buffer)
+  "Refresh the connections BUFFER."
+  (nrepl--update-connections-display
+   (buffer-local-value 'nrepl--connection-ewoc buffer)
+   nrepl-connection-list))
+
+(defun nrepl--setup-connection-browser ()
+  "Create a browser buffer for nREPL connections."
+  (with-current-buffer (get-buffer-create nrepl--connection-browser-buffer-name)
+    (lexical-let ((ewoc (ewoc-create
+                         'nrepl--connection-pp
+                         "  Host              Port   Project\n")))
+      (set (make-local-variable 'nrepl--connection-ewoc) ewoc)
+      (nrepl--update-connections-display ewoc nrepl-connection-list)
+      (setq buffer-read-only t)
+      (nrepl-connections-buffer-mode)
+      (display-buffer (current-buffer)))))
+
+(defun nrepl--connection-pp (connection)
+  "Print an nREPL CONNECTION to the current buffer."
+  (lexical-let* ((buffer-read-only nil)
+                 (buffer (get-buffer connection))
+                 (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
+    (insert
+     (format "%s %-16s %5s   %s"
+             (if (equal connection (first nrepl-connection-list)) "*" " ")
+             (first endpoint)
+             (prin1-to-string (second endpoint))
+             (or (nrepl--project-name
+                  (buffer-local-value 'nrepl-project-dir buffer))
+                 "")))))
+
+(defun nrepl--project-name (path)
+  "Extracts a project name from PATH, possibly nil.
+The project name is the final component of PATH if not nil."
+  (when path
+    (file-name-nondirectory (directory-file-name path))))
+
+(defun nrepl--update-connections-display (ewoc connections)
+  "Update the connections EWOC to show CONNECTIONS."
+  (ewoc-filter ewoc (lambda (n) (member n connections)))
+  (let ((existing))
+    (ewoc-map (lambda (n) (setq existing (cons n existing))) ewoc)
+    (lexical-let ((added (set-difference connections existing)))
+      (mapc (apply-partially 'ewoc-enter-last ewoc) added)
+      (save-excursion (ewoc-refresh ewoc)))))
+
+(defun nrepl--ewoc-apply-at-point (f)
+  "Apply function F to the ewoc node at point.
+F is a function of two arguments, the ewoc and the data at point."
+  (lexical-let* ((ewoc nrepl--connection-ewoc)
+                 (node (and ewoc (ewoc-locate ewoc))))
+    (when node
+      (funcall f ewoc (ewoc-data node)))))
+
+(defun nrepl-connections-make-default ()
+  "Make default the connection at point in the connection browser."
+  (interactive)
+  (save-excursion
+    (nrepl--ewoc-apply-at-point #'nrepl--connections-make-default)))
+
+(defun nrepl--connections-make-default (ewoc data)
+  "Make the connection in EWOC specified by DATA default.
+Refreshes EWOC."
+  (interactive)
+  (nrepl-make-repl-connection-default data)
+  (ewoc-refresh ewoc))
+
+(defun nrepl-connections-close-connection ()
+  "Close connection at point in the connection browser."
+  (interactive)
+  (nrepl--ewoc-apply-at-point #'nrepl--connections-close-connection))
+
+(defun nrepl--connections-close-connection (ewoc data)
+  "Close the connection in EWOC specified by DATA."
+  (nrepl-close (get-buffer data))
+  (nrepl--update-connections-display ewoc nrepl-connection-list))
+
+(defun nrepl-connections-goto-connection ()
+  "Goto connection at point in the connection browser."
+  (interactive)
+  (nrepl--ewoc-apply-at-point #'nrepl--connections-goto-connection))
+
+(defun nrepl--connections-goto-connection (ewoc data)
+  "Goto the repl for the connection in EWOC specified by DATA."
+  (let ((buffer (buffer-local-value 'nrepl-nrepl-buffer (get-buffer data))))
+    (when buffer
+      (select-window (display-buffer buffer)))))
 
 ;;; server messages
 
@@ -2692,7 +2821,8 @@ If so ask the user for confirmation."
   "Close the nrepl connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
   (nrepl--close-connection-buffer connection-buffer)
-  (nrepl-possibly-disable-on-existing-clojure-buffers))
+  (nrepl-possibly-disable-on-existing-clojure-buffers)
+  (nrepl--connections-refresh))
 
 (defun nrepl-quit ()
   "Quit the nrepl server."
@@ -2765,25 +2895,29 @@ restart the server."
                  (remhash id nrepl-requests)
                  (nrepl-setup-default-namespaces process))))))))
 
+(defun nrepl-make-repl (process)
+  "Make a repl for the connection PROCESS."
+  (lexical-let ((connection-buffer (process-buffer process))
+                (nrepl-buffer (nrepl-create-nrepl-buffer process)))
+    (with-current-buffer nrepl-buffer
+      (setq nrepl-connection-buffer (buffer-name connection-buffer)))
+    (with-current-buffer connection-buffer
+      (setq nrepl-nrepl-buffer (buffer-name nrepl-buffer)))))
+
 (defun nrepl-new-session-handler (process)
   "Create a new session handler for PROCESS."
   (lexical-let ((process process))
     (lambda (response)
       (nrepl-dbind-response response (id new-session)
+        (remhash id nrepl-requests)
         (cond (new-session
-               (with-current-buffer (process-buffer process)
-                 (message "Connected.  %s" (nrepl-random-words-of-inspiration))
+               (lexical-let ((connection-buffer (process-buffer process)))
                  (setq nrepl-session new-session
-                       nrepl-connection-buffer (current-buffer))
-                 (remhash id nrepl-requests)
-                 (lexical-let ((nrepl-buffer (nrepl-create-nrepl-buffer
-                                              process)))
-                   (with-current-buffer nrepl-buffer
-                       (setq nrepl-connection-buffer
-                             (buffer-name (process-buffer process))))
-                   (with-current-buffer (process-buffer process)
-                       (setq nrepl-nrepl-buffer
-                             (buffer-name nrepl-buffer))))
+                       nrepl-connection-buffer connection-buffer)
+                 (nrepl-make-repl process)
+                 (nrepl-make-repl-connection-default connection-buffer)
+                 (message "Connected.  %s"
+                          (nrepl-random-words-of-inspiration))
                  (run-hooks 'nrepl-connected-hook))))))))
 
 (defun nrepl-init-client-sessions (process)
@@ -2800,12 +2934,11 @@ restart the server."
     (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
+    (with-current-buffer (process-buffer process)
+      (setq nrepl-endpoint `(,host ,port)))
     (let ((nrepl-connection-dispatch (buffer-name (process-buffer process))))
       (nrepl-init-client-sessions process)
       (nrepl-describe-session process))
-    (nrepl-make-repl-connection-default (process-buffer process))
-    (with-current-buffer (process-buffer process)
-      (setq nrepl-endpoint `(,host ,port)))
     process))
 
 
