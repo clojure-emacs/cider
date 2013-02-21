@@ -1563,8 +1563,12 @@ See `nrepl-server-command' for details.
       (let* ((path 
               (cons user-emacs-directory exec-path))
              (command         
-              (or (locate-file nrepl-lein-command path)
-                  (locate-file (format "%s.bat" nrepl-lein-command) path))))
+              (if (equal system-type 'windows-nt)
+                  (or
+                   (locate-file (format "%s.bat" nrepl-lein-command) path)
+                   (locate-file nrepl-lein-command path))
+                (or (locate-file nrepl-lein-command path)
+                    (locate-file (format "%s.bat" nrepl-lein-command) path)))))
         (when (not command)
           (error (concat  "Unable to find \"lein\": consider M-x nrepl-lein-self-install,"
                           "or update `nrepl-server-command'")))
