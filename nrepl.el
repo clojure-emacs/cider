@@ -57,6 +57,7 @@
 (require 'cl)
 (require 'easymenu)
 (require 'compile)
+(require 'executable)
 
 (eval-when-compile
   (defvar paredit-version))
