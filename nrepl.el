@@ -1609,7 +1609,13 @@ See `nrepl-server-command' for details.
     (sit-for 1)
     (nrepl-lein-self-install-jar)))
 
-(defvar nrepl-lein-home (expand-file-name "~/.lein"))
+(defvar nrepl-lein-home 
+  (if (equal system-type 'windows-nt)
+      (concat 
+       (getenv "USERPROFILE")
+       "/.lein")
+    (expand-file-name "~/.lein")))
+
 (defvar nrepl-lein-version "2.0.0")
 (defvar nrepl-lein-download-url
   "https://leiningen.s3.amazonaws.com/downloads/leiningen-%s-standalone.jar")
