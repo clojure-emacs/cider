@@ -228,6 +228,13 @@ overrides `nrepl-popup-stacktraces' in REPL buffers."
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-popup-on-error t
+  "When `nrepl-popup-on-error' is set to t, stacktraces will be displayed.
+When set to nil, stactraces will not be displayed, but will be available
+in the `nrepl-error-buffer', which defaults to *nrepl-error*."
+  :type 'boolean
+  :group 'nrepl)
+
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
   "Selects the command to be invoked by the TAB key.
 The default option is `nrepl-indent-and-complete-symbol'.  If
@@ -677,15 +684,18 @@ Bind the value of the provided KEYS and execute BODY."
 
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
 
-(defun nrepl-make-response-handler (buffer value-handler stdout-handler stderr-handler done-handler)
+(defun nrepl-make-response-handler
+ (buffer value-handler stdout-handler stderr-handler done-handler
+         &optional eval-error-handler)
   "Make a response handler for BUFFER.
-Uses the specified VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER and
-DONE-HANDLER as appropriate."
+Uses the specified VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
+DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
   (lexical-let ((buffer buffer)
                 (value-handler value-handler)
                 (stdout-handler stdout-handler)
                 (stderr-handler stderr-handler)
-                (done-handler done-handler))
+                (done-handler done-handler)
+                (eval-error-handler eval-error-handler))
     (lambda (response)
       (nrepl-dbind-response response (value ns out err status id ex root-ex
                                             session)
@@ -705,7 +715,8 @@ DONE-HANDLER as appropriate."
                (if (member "interrupted" status)
                    (message "Evaluation interrupted."))
                (if (member "eval-error" status)
-                   (funcall nrepl-err-handler buffer ex root-ex session))
+                   (funcall (or eval-error-handler nrepl-err-handler)
+                            buffer ex root-ex session))
                (if (member "namespace-not-found" status)
                    (message "Namespace not found."))
                (if (member "need-input" status)
@@ -760,8 +771,14 @@ DONE-HANDLER as appropriate."
                                  (lambda (buffer value)
                                    (nrepl-emit-interactive-output value))
                                  (lambda (buffer err)
-                                   (message "%s" err))
-                                 '())))
+                                   (message "%s" err)
+                                   (nrepl-highlight-compilation-error-line
+                                    buffer err))
+                                 '()
+                                 (lambda (buffer ex root-ex session)
+                                   (let ((nrepl-popup-on-error nil))
+                                     (funcall nrepl-err-handler
+                                              buffer ex root-ex session))))))
 
 (defun nrepl-interactive-eval-print-handler (buffer)
   "Make a handler for evaluating and printing result in BUFFER."
@@ -794,39 +811,68 @@ DONE-HANDLER as appropriate."
                                  (nrepl-emit-into-popup-buffer buffer str))
                                '()))
 
+(defun nrepl-visit-error-buffer ()
+  "Visit the `nrepl-error-buffer' (usually *nrepl-error*) if it exists."
+  (interactive)
+  (let ((buffer (get-buffer nrepl-error-buffer)))
+    (when buffer
+      (nrepl-popup-buffer-display buffer))))
+
+(defun nrepl-find-property (property &optional backward)
+  "Find the next text region which has the specified PROPERTY.
+If BACKWARD is t, then search backward.
+Returns the position at which PROPERTY was found, or nil if not found."
+  (let ((p (if backward
+              (previous-single-char-property-change (point) property)
+             (next-single-char-property-change (point) property))))
+    (when (and (not (= p (point-min))) (not (= p (point-max))))
+      p)))
+
+(defun nrepl-jump-to-compilation-error (&optional arg reset)
+  "Jump to the line causing the current compilation error.
+
+ARG and RESET are ignored, as there is only ever one compilation error.
+They exist for compatibility with `next-error'."
+  (interactive)
+  (let ((p (or (nrepl-find-property 'nrepl-note)
+               (nrepl-find-property 'nrepl-note t))))
+    (when p
+      (goto-char p))))
+
 (defun nrepl-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (let ((replp (equal 'nrepl-mode (buffer-local-value 'major-mode buffer))))
     (if (or (and nrepl-popup-stacktraces-in-repl replp)
             (and nrepl-popup-stacktraces (not replp)))
-      (progn
+      (lexical-let ((nrepl-popup-on-error nrepl-popup-on-error))
         (with-current-buffer buffer
           (nrepl-send-string "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
                              (nrepl-make-response-handler
-                              (nrepl-popup-buffer nrepl-error-buffer)
+                              (nrepl-make-popup-buffer nrepl-error-buffer)
                               nil
-                              'nrepl-emit-into-color-buffer nil nil) nil session))
+                              (lambda (buffer value)
+                                (nrepl-emit-into-color-buffer buffer value)
+                                (when nrepl-popup-on-error
+                                  (nrepl-popup-buffer-display buffer)))
+                              nil nil) nil session))
         (with-current-buffer nrepl-error-buffer
-          (compilation-minor-mode +1))
-        (unless replp
-          (nrepl-highlight-compilation-error-line buffer)))
-    ;; TODO: maybe put the stacktrace in a tmp buffer somewhere that the user
-    ;; can pull up with a hotkey only when interested in seeing it?
-    )))
+          (compilation-minor-mode +1))))))
 
-(defun nrepl-highlight-compilation-error-line (buffer)
-  "Highlight compilation error line in BUFFER."
+(defun nrepl-highlight-compilation-error-line (buffer message)
+  "Highlight compilation error line in BUFFER, using MESSAGE."
   (with-current-buffer buffer
-    (let ((error-line-number (nrepl-extract-error-line (nrepl-stacktrace))))
+    (let ((error-line-number (nrepl-extract-error-line message)))
       (when (> error-line-number 0)
         (save-excursion
           (goto-char (point-min))
           (forward-line (1- error-line-number))
-          (overlay-put (make-overlay (progn (back-to-indentation) (point))
-                                     (progn (move-end-of-line nil) (point)))
-                       'face 'nrepl-error-highlight-face))))))
+          (let ((overlay (make-overlay (progn (back-to-indentation) (point))
+                                       (progn (move-end-of-line nil) (point)))))
+            (overlay-put overlay 'face 'nrepl-error-highlight-face)
+            (overlay-put overlay 'nrepl-note message)
+            (overlay-put overlay 'help-echo message)))))))
 
 (defun nrepl-extract-error-line (stacktrace)
   "Extract the error line number from STACKTRACE."
@@ -868,6 +914,12 @@ KILL-BUFFER-P is passed along."
 If SELECT is non-nil, select the newly created window"
   (with-current-buffer (nrepl-make-popup-buffer name)
     (setq buffer-read-only t)
+    (nrepl-popup-buffer-display (current-buffer) select)))
+
+(defun nrepl-popup-buffer-display (popup-buffer &optional select)
+  "Display POPUP-BUFFER.
+If SELECT is non-nil, select the newly created window"
+  (with-current-buffer popup-buffer
     (let ((new-window (display-buffer (current-buffer))))
       (set-window-point new-window (point))
       (when select
@@ -1361,6 +1413,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "M-,") 'nrepl-jump-back)
     (define-key map (kbd "M-TAB") 'complete-symbol)
     (define-key map (kbd "C-M-x") 'nrepl-eval-expression-at-point)
+    (define-key map (kbd "C-c C-c") 'nrepl-eval-expression-at-point)
     (define-key map (kbd "C-x C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'nrepl-eval-last-expression)
     (define-key map (kbd "C-c C-p") 'nrepl-pprint-eval-last-expression)
@@ -1464,6 +1517,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-n") 'nrepl-next-prompt)
     (define-key map (kbd "C-c C-p") 'nrepl-previous-prompt)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
+    (define-key map (kbd "C-c C-c") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
@@ -1487,7 +1541,8 @@ This will not work on non-current prompts."
 (defun clojure-enable-nrepl ()
   "Turn on nrepl interaction mode (see command `nrepl-interaction-mode').
 Useful in hooks."
-  (nrepl-interaction-mode 1))
+  (nrepl-interaction-mode 1)
+  (setq next-error-function 'nrepl-jump-to-compilation-error))
 
 (defun clojure-disable-nrepl ()
   "Turn off nrepl interaction mode (see command `nrepl-interaction-mode').
@@ -1701,8 +1756,10 @@ If BOL is non-nil insert at the beginning of line."
 (defun nrepl-emit-interactive-output (string)
   "Emit STRING as interactive output."
   (with-current-buffer (nrepl-current-nrepl-buffer)
-    (nrepl-emit-output-at-pos
-     (current-buffer) string (1- (nrepl-input-line-beginning-position)) t)))
+    (let ((pos (1- (nrepl-input-line-beginning-position))))
+      (nrepl-emit-output-at-pos (current-buffer) string pos t)
+      (ansi-color-apply-on-region pos (point-max))
+      )))
 
 (defun nrepl-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.
@@ -1785,7 +1842,10 @@ process buffer and run the hook `nrepl-disconnected-hook'."
   (message "nrepl connection closed: %s" message)
   (if (equal (process-status process) 'closed)
       (progn
-        (kill-buffer (process-buffer process))
+        (with-current-buffer (process-buffer process)
+          (when (get-buffer nrepl-nrepl-buffer)
+            (kill-buffer nrepl-nrepl-buffer))
+          (kill-buffer (current-buffer)))
         (run-hooks 'nrepl-disconnected-hook))))
 
 (defun nrepl-write-message (process message)
@@ -1939,16 +1999,24 @@ This is bound for the duration of the handling of that message")
   "The connection to use for nREPL interaction."
   (or nrepl-connection-dispatch
       nrepl-connection-buffer
-      (car nrepl-connection-list)))
+      (first (nrepl-connection-buffers))))
 
-(defun nrepl-current-nrepl-buffer ()
-  "The current nrepl buffer."
-  (when (nrepl-current-connection-buffer)
-    (buffer-local-value 'nrepl-nrepl-buffer
-                        (get-buffer (nrepl-current-connection-buffer)))))
+(defun nrepl-connection-buffers ()
+  "Clean up dead buffers from the `nrepl-connection-list'.
+Return the connection list."
+  (nrepl--connection-list-purge)
+  nrepl-connection-list)
+
+(defun nrepl--connection-list-purge ()
+  "Clean up dead buffers from the `nrepl-connection-list'."
+  (setq nrepl-connection-list
+        (remove-if (lambda (buffer)
+                     (not (buffer-live-p (get-buffer buffer))))
+                   nrepl-connection-list)))
 
 (defun nrepl-make-repl-connection-default (connection-buffer)
-  "Make the nREPL CONNECTION-BUFFER the default connection."
+  "Make the nREPL CONNECTION-BUFFER the default connection.
+Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
   (interactive (list nrepl-connection-buffer))
   (if connection-buffer
       ;; maintain the connection list in most recently used order
@@ -1956,6 +2024,26 @@ This is bound for the duration of the handling of that message")
         (setq nrepl-connection-list
               (cons buf-name (delq buf-name nrepl-connection-list))))
     (message "Not in an nREPL REPL buffer.")))
+
+(defun nrepl--close-connection-buffer (connection-buffer)
+  "Closes CONNECTION-BUFFER, removing it from `nrepl-connection-list'.
+Also closes associated repl and server buffers."
+  (let ((nrepl-connection-dispatch connection-buffer))
+     (lexical-let ((buffer (get-buffer connection-buffer)))
+       (setq nrepl-connection-list
+             (delq (buffer-name buffer) nrepl-connection-list))
+       (when (buffer-live-p buffer)
+         (dolist (buf-name `(,(buffer-local-value 'nrepl-nrepl-buffer buffer)
+                             ,(buffer-local-value 'nrepl-server-buffer buffer)
+                             ,buffer))
+           (when buf-name
+             (nrepl--close-buffer buf-name)))))))
+
+(defun nrepl-current-nrepl-buffer ()
+  "Return the current nrepl buffer."
+  (when (nrepl-current-connection-buffer)
+    (buffer-local-value 'nrepl-nrepl-buffer
+                        (get-buffer (nrepl-current-connection-buffer)))))
 
 ;;; server messages
 
@@ -2334,17 +2422,23 @@ Insert a banner, unless NOPROMPT is non-nil."
           (nrepl-init-repl-buffer
            connection (get-buffer-create "*nrepl*"))))))
 
-(defun nrepl-switch-to-repl-buffer ()
+(defun nrepl-switch-to-repl-buffer (arg)
   "Select the repl buffer, when possible in an existing window.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
-the buffer should appear."
-  (interactive)
+the buffer should appear.
+
+With a prefix ARG sets the name of the repl buffer to the one
+of the current source file."
+  (interactive "P")
   (if (not (get-buffer (nrepl-current-connection-buffer)))
       (message "No active nREPL connection.")
-    (pop-to-buffer (nrepl-repl-buffer))
-    (goto-char (point-max))))
+    (progn
+      (when arg
+        (nrepl-set-ns (nrepl-current-ns))
+      (pop-to-buffer (nrepl-repl-buffer))
+      (goto-char (point-max))))))
 
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to NS."
@@ -2660,7 +2754,7 @@ If so ask the user for confirmation."
                (and project-directory
                     (equal project-directory
                            (buffer-local-value 'nrepl-project-dir buffer))))))
-       nrepl-connection-list)
+       (nrepl-connection-buffers))
       (y-or-n-p
        "An nREPL buffer already exists.  Do you really want to create a new one? ")
     t))
@@ -2686,17 +2780,8 @@ If so ask the user for confirmation."
 (defun nrepl-close (connection-buffer)
   "Close the nrepl connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
-  (let ((nrepl-connection-dispatch connection-buffer))
-    (lexical-let ((buffer (get-buffer connection-buffer)))
-      (setq nrepl-connection-list
-            (delq (buffer-name buffer) nrepl-connection-list))
-      (when (buffer-live-p buffer)
-        (dolist (buf-name `(,(buffer-local-value 'nrepl-nrepl-buffer buffer)
-                            ,(buffer-local-value 'nrepl-server-buffer buffer)
-                            ,buffer))
-          (when buf-name
-            (nrepl--close-buffer buf-name))))
-      (nrepl-possibly-disable-on-existing-clojure-buffers))))
+  (nrepl--close-connection-buffer connection-buffer)
+  (nrepl-possibly-disable-on-existing-clojure-buffers))
 
 (defun nrepl-quit ()
   "Quit the nrepl server."
