@@ -1567,12 +1567,17 @@ See `nrepl-server-command' for details.
                   (or
                    (locate-file (format "%s.bat" nrepl-lein-command) path)
                    (locate-file nrepl-lein-command path))
-                (or (locate-file nrepl-lein-command path)
-                    (locate-file (format "%s.bat" nrepl-lein-command) path)))))
-        (when (not command)
-          (error (concat  "Unable to find \"lein\": consider M-x nrepl-lein-self-install,"
-                          "or update `nrepl-server-command'")))
-        (format "%s repl :headless" command))
+                (or (locate-file nrepl-lein-command path)))))
+        (if (not command)
+          (if (equal system-type 'darwin)
+              ;; last ditch attempt to find lein through login shell on mac
+              ;; will break in an ugly way later on if this doesn't work. 
+              (format "echo \"%s repl :headless\" | eval $SHELL -l" nrepl-lein-command)
+            ;; not on mac, so break cleanly.
+            (error (concat  "Unable to find \"lein\": consider M-x nrepl-lein-self-install,"
+                            "or update `nrepl-server-command'")))
+          (format "%s repl :headless" command)))
+   ;; command is explicit don't search
     nrepl-server-command))
 
 
