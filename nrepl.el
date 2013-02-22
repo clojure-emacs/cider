@@ -2347,9 +2347,9 @@ of the current source file."
       (message "No active nREPL connection.")
     (progn
       (when arg
-        (nrepl-set-ns (nrepl-current-ns))
+        (nrepl-set-ns (nrepl-current-ns)))
       (pop-to-buffer (nrepl-repl-buffer))
-      (goto-char (point-max))))))
+      (goto-char (point-max)))))
 
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to NS."
