@@ -84,6 +84,11 @@
   :type 'hook
   :group 'nrepl)
 
+(defcustom nrepl-file-loaded-hook nil
+  "List of functions to call when a load-file has completed."
+  :type 'hook
+  :group 'nrepl)
+
 (defcustom nrepl-host "127.0.0.1"
   "The default hostname (or IP address) to connect to."
   :type 'string
@@ -766,7 +771,8 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                                  (lambda (buffer value)
                                    (message "%s" value)
                                    (with-current-buffer buffer
-                                     (setq nrepl-buffer-ns (clojure-find-ns))))
+                                     (setq nrepl-buffer-ns (clojure-find-ns))
+                                     (run-hooks 'nrepl-file-loaded-hook)))
                                  (lambda (buffer value)
                                    (nrepl-emit-interactive-output value))
                                  (lambda (buffer err)
