@@ -869,6 +869,7 @@ They exist for compatibility with `next-error'."
           (forward-line (1- error-line-number))
           (let ((overlay (make-overlay (progn (back-to-indentation) (point))
                                        (progn (move-end-of-line nil) (point)))))
+            (overlay-put overlay 'nrepl-note-p t)
             (overlay-put overlay 'face 'nrepl-error-highlight-face)
             (overlay-put overlay 'nrepl-note message)
             (overlay-put overlay 'help-echo message)))))))
@@ -2508,7 +2509,7 @@ under point, prompts for a var."
                                 nil (if (buffer-file-name)
                                         (file-name-nondirectory
                                          (buffer-file-name))))))
-  (remove-overlays)
+  (remove-overlays (point-min) (point-max) 'nrepl-note-p t)
   (nrepl-dispatch-load-file filename)
   (message "Loading %s..." filename))
 
