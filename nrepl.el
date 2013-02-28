@@ -85,7 +85,7 @@
   :group 'nrepl)
 
 (defcustom nrepl-file-loaded-hook nil
-  "List of functions to call when a load-file has completed."
+  "List of functions to call when a load file has completed."
   :type 'hook
   :group 'nrepl)
 
