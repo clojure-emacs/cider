@@ -243,8 +243,8 @@ M-c</kbd>.
 
 ### Clojure buffer commands:
 
-* <kbd>C-x C-e</kbd>: Evalulate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
-* <kbd>C-c C-p</kbd>: Evalulate the form preceding point and display the result in a popup buffer.
+* <kbd>C-x C-e</kbd>: Evaluate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
+* <kbd>C-c C-p</kbd>: Evaluate the form preceding point and display the result in a popup buffer.
 * <kbd>C-M-x</kbd>: Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer. Also bound to <kbd>C-c C-c</kbd>.
 * <kbd>C-c C-r</kbd>: Evaluate the region and display the result in the echo area.
 * <kbd>C-c C-b</kbd>: Interrupt any pending evaluations.
