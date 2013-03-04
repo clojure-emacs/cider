@@ -1651,6 +1651,14 @@ See `nrepl-server-command' for details.
   "http://raw.github.com/technomancy/leiningen/stable/bin/lein.bat")
 
 (defun nrepl-lein-self-install ()
+  "Installs the latest leiningen for use by nrepl.
+
+On windows, this requires installation of the gnutls library,
+alongside Emacs. You can download it here
+ftp://ftp.gnutls.org/gcrypt/gnutls/w32/. Dropping all the files
+from the bin directory of the download into the same directory as
+the Emacs executable should work.
+"
   (interactive)
   (let* ((retrieve
          (if (equal system-type
