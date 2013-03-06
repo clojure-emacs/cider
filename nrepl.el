@@ -985,7 +985,7 @@ This variable specifies both what was expanded and the expander.")
   (lexical-let* ((ns ns))
     (nrepl-make-response-handler buffer nil
                                  (lambda (buffer str)
-                                   (nrepl-initialize-macroexpansion-buffer
+                                   (nrepl-append-to-macroexpansion-buffer
                                     str ns))
                                  nil nil)))
 
@@ -1013,6 +1013,7 @@ START, END and CURRENT-POINT are used to redraw the expansion."
   "Macroexpand, use EXPANDER, the given EXPR from BUFFER."
   (let ((form (nrepl-macroexpand-form expander expr)))
     (setq nrepl-last-macroexpand-expression form)
+    (nrepl-create-macroexpansion-buffer)
     (nrepl-send-string form (nrepl-macroexpand-handler buffer nrepl-buffer-ns)
                        nrepl-buffer-ns)))
 
@@ -1071,6 +1072,16 @@ If invoked with a PREFIX argument, use 'macroexpand' instead of
   (let ((inhibit-read-only t)
         (buffer-undo-list t))
     (erase-buffer)
+    (insert (format "%s" expansion))
+    (goto-char (point-min))
+    (font-lock-fontify-buffer)))
+
+(defun nrepl-append-to-macroexpansion-buffer (expansion ns)
+  "Create a new Macroexpansion buffer with EXPANSION and namespace NS."
+  (pop-to-buffer (get-buffer nrepl-macroexpansion-buffer))
+  (let ((inhibit-read-only t)
+        (buffer-undo-list t))
+    (goto-char (point-max))
     (insert (format "%s" expansion))
     (goto-char (point-min))
     (font-lock-fontify-buffer)))
