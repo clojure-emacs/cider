@@ -402,15 +402,15 @@ With a PREFIX argument, print the result in the current buffer."
   "Return the sexp at point as a string, otherwise nil."
   (let ((bounds (nrepl-bounds-of-sexp-at-point)))
     (if bounds
-        (buffer-substring-no-properties (car bounds)
-                                        (cdr bounds)))))
+        (buffer-substring-no-properties (first bounds)
+                                        (rest bounds)))))
 
 (defun nrepl-sexp-at-point-with-bounds ()
   "Return a list containing the sexp at point and its bounds."
   (let ((bounds (nrepl-bounds-of-sexp-at-point)))
     (if bounds
-        (let ((start (car bounds))
-              (end (cdr bounds)))
+        (let ((start (first bounds))
+              (end (rest bounds)))
           (list (buffer-substring-no-properties start end)
                 (cons (set-marker (make-marker) start)
                       (set-marker (make-marker) end)))))))
@@ -467,7 +467,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
                                  (with-current-buffer buffer
                                    (ring-insert find-tag-marker-ring (point-marker)))
                                  (nrepl-jump-to-def-for
-                                  (car (read-from-string value))))
+                                  (first (read-from-string value))))
                                (lambda (buffer out) (message out))
                                (lambda (buffer err) (message err))
                                nil))
@@ -530,7 +530,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
                   (nrepl-current-tooling-session))
                  :value)))
     (when strlst
-      (car (read-from-string strlst)))))
+      (first (read-from-string strlst)))))
 
 (defun nrepl-completion-complete-op-fn (str)
   "Return a list of completions for STR using the nREPL \"complete\" op."
@@ -542,7 +542,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
                                 "symbol" str))
                          :value)))
     (when strlst
-      (car strlst))))
+      (first strlst))))
 
 (defun nrepl-dispatch-complete-symbol (str)
   "Return a list of completions for STR.
@@ -557,7 +557,7 @@ otherwise dispatch to internal completion function."
   (let ((sap (symbol-at-point)))
     (when (and sap (not (in-string-p)))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
-        (list (car bounds) (cdr bounds)
+        (list (first bounds) (rest bounds)
               (completion-table-dynamic #'nrepl-dispatch-complete-symbol))))))
 
 (defun nrepl-eldoc-format-thing (thing)
@@ -625,8 +625,8 @@ highlighing all arguments matching THE-POS."
 (defun nrepl-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
   (let* ((info (nrepl-eldoc-info-in-current-sexp))
-         (thing (car info))
-         (pos (cadr info))
+         (thing (first info))
+         (pos (second info))
          (form (format "(try
                          (:arglists
                           (clojure.core/meta
@@ -683,7 +683,7 @@ highlighing all arguments matching THE-POS."
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."
   `(let ,(loop for key in keys
-               collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
+               collect `(,key (rest (assoc ,(format "%s" key) ,response))))
      ,@body))
 
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
@@ -1025,7 +1025,7 @@ START, END and CURRENT-POINT are used to redraw the expansion."
             (nrepl-send-string (nrepl-macroexpand-form expander expr)
                                (nrepl-macroexpand-inplace-handler
                                 (current-buffer)
-                                (car bounds) (cdr bounds) (point))
+                                (first bounds) (rest bounds) (point))
                                nrepl-buffer-ns)))))
 
 (defun nrepl-macroexpand-again ()
@@ -1177,7 +1177,7 @@ Print its value into the current buffer"
   "Add STRING to the input history.
 Empty strings and duplicates are ignored."
   (unless (or (equal string "")
-              (equal string (car nrepl-input-history)))
+              (equal string (first nrepl-input-history)))
     (push string nrepl-input-history)
     (incf nrepl-input-history-items-added)))
 
@@ -2401,7 +2401,7 @@ of the current source file."
   ;; TODO: immediate RET gives "" as selected for some reason
   ;; this is an OK workaround though
   (cond ((equal "" selected)
-         (nrepl-ido-select (car targets) targets callback))
+         (nrepl-ido-select (first targets) targets callback))
         ((equal "/" (substring selected -1)) ; selected a namespace
          (nrepl-ido-read-var (substring selected 0 -1) callback))
         ((equal ".." selected)
@@ -2416,7 +2416,7 @@ of the current source file."
                                  (lambda (buffer value)
                                    ;; make sure to eval the callback in the buffer that the symbol was requested from so we get the right namespace
                                    (with-current-buffer buffer
-                                     (let* ((targets (car (read-from-string value)))
+                                     (let* ((targets (first (read-from-string value)))
                                             (selected (ido-completing-read "Var: " targets nil t)))
                                        (nrepl-ido-select selected targets ido-callback))))
                                  nil nil nil)))
