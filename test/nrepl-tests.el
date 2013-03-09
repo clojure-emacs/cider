@@ -135,6 +135,18 @@
   (let ((nrepl-hide-special-buffers t))
     (should (equal (nrepl-server-buffer-name) " *nrepl-server*"))))
 
+(ert-deftest test-nrepl-extract-error-line ()
+  (let ((st "this context, compiling:(/some/test/file.clj:20) ala bala"))
+    (should (= (nrepl-extract-error-line st) 20)))
+  (let ((st "this context, compiling:(NO_SOURCE_PATH:20) ala bala"))
+    (should (= (nrepl-extract-error-line st) 20))))
+
+(ert-deftest test-nrepl-extract-error-filename ()
+  (let ((st "this context, compiling:(/some/test/file.clj:20) ala bala"))
+    (should (string= (nrepl-extract-error-filename st) "/some/test/file.clj")))
+  (let ((st "this context, compiling:(NO_SOURCE_PATH:20) ala bala"))
+    (should (string= (nrepl-extract-error-filename st) "NO_SOURCE_PATH"))))
+
 (defmacro nrepl-test-with-two-buffers (buffer-names &rest body)
   (lexical-let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
     `(lexical-let (,@(mapcar create buffer-names))
