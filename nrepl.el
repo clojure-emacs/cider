@@ -1654,8 +1654,8 @@ See `nrepl-server-command' for details."
   "Install the latest leiningen for use by nrepl.
 
 On windows, this requires installation of the gnutls library,
-alongside Emacs. You can download it here
-ftp://ftp.gnutls.org/gcrypt/gnutls/w32/. Dropping all the files
+alongside Emacs.  You can download it here
+ftp://ftp.gnutls.org/gcrypt/gnutls/w32/.  Dropping all the files
 from the bin directory of the download into the same directory as
 the Emacs executable should work."
   (interactive)
