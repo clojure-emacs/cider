@@ -1601,14 +1601,15 @@ See `compilation-error-regexp-alist' for help on their format.")
 ;;; communication
 (defcustom nrepl-lein-command
   "lein"
-  "The command used to execute leiningen 2.x. Only used if 
-`nrepl-server-command' is set to 'search."
+  "The command used to execute leiningen 2.x.
+
+Only used if `nrepl-server-command' is set to 'search."
   :type 'string
   :group 'nrepl-mode)
 
 
 (defcustom nrepl-server-command 'search
-  "How to find the command used to start nREPL via `nrepl-jack-in'. 
+  "How to find the command used to start nREPL via `nrepl-jack-in'.
 
 If 'search look for lein in the `exec-path' or the download path
 from `nrepl-lein-self-install'."
@@ -1617,14 +1618,13 @@ from `nrepl-lein-self-install'."
   :group 'nrepl-mode)
 
 (defun nrepl-fetch-server-command ()
-  "Fetch the server command to launch nrepl. 
+  "Fetch the server command to launch nrepl.
 
-See `nrepl-server-command' for details. 
-"
+See `nrepl-server-command' for details."
   (if (eq nrepl-server-command 'search)
-      (let* ((path 
+      (let* ((path
               (cons user-emacs-directory exec-path))
-             (command         
+             (command
               (if (equal system-type 'windows-nt)
                   (or
                    (locate-file (format "%s.bat" nrepl-lein-command) path)
@@ -1633,7 +1633,7 @@ See `nrepl-server-command' for details.
         (if (not command)
           (if (equal system-type 'darwin)
               ;; last ditch attempt to find lein through login shell on mac
-              ;; will break in an ugly way later on if this doesn't work. 
+              ;; will break in an ugly way later on if this doesn't work.
               (format "echo \"%s repl :headless\" | eval $SHELL -l" nrepl-lein-command)
             ;; not on mac, so break cleanly.
             (error (concat  "Unable to find \"lein\": consider M-x nrepl-lein-self-install,"
@@ -1643,29 +1643,28 @@ See `nrepl-server-command' for details.
     nrepl-server-command))
 
 
-(defvar nrepl-lein-retrieve-shell 
+(defvar nrepl-lein-retrieve-shell
   "https://raw.github.com/technomancy/leiningen/stable/bin/lein")
 
 ;; https requires gnutls which doesn't appear to be standard in Emacs24 build.
-(defvar nrepl-lein-retrieve-batch 
+(defvar nrepl-lein-retrieve-batch
   "http://raw.github.com/technomancy/leiningen/stable/bin/lein.bat")
 
 (defun nrepl-lein-self-install ()
-  "Installs the latest leiningen for use by nrepl.
+  "Install the latest leiningen for use by nrepl.
 
 On windows, this requires installation of the gnutls library,
 alongside Emacs. You can download it here
 ftp://ftp.gnutls.org/gcrypt/gnutls/w32/. Dropping all the files
 from the bin directory of the download into the same directory as
-the Emacs executable should work.
-"
+the Emacs executable should work."
   (interactive)
   (let* ((retrieve
          (if (equal system-type
                     'windows-nt)
              nrepl-lein-retrieve-batch
            nrepl-lein-retrieve-shell))
-         (lein-command 
+         (lein-command
           (if (equal system-type
                      'windows-nt)
               "lein.bat"
@@ -1684,9 +1683,9 @@ the Emacs executable should work.
     (sit-for 1)
     (nrepl-lein-self-install-jar)))
 
-(defvar nrepl-lein-home 
+(defvar nrepl-lein-home
   (if (equal system-type 'windows-nt)
-      (concat 
+      (concat
        (getenv "USERPROFILE")
        "/.lein")
     (expand-file-name "~/.lein")))
@@ -1700,13 +1699,17 @@ the Emacs executable should work.
           nrepl-lein-home nrepl-lein-version))
 
 (defun nrepl-lein-self-install-jar ()
+  "Install leiningen jar to local machine."
   (message "Installing Leiningen jar. Please wait.")
   (sit-for 1)
   (url-retrieve
    (format nrepl-lein-download-url nrepl-lein-version)
    'lein-self-install-callback (list nrepl-lein-jar)))
 
-(defun lein-self-install-callback (status lein-jar)
+(defun nrepl-lein-self-install-callback (status lein-jar)
+  "Callback for lein self-install.
+Argument STATUS status of download.
+Argument LEIN-JAR location of the jar."
   (search-forward "\n\n")
   (make-directory (file-name-directory lein-jar) t)
   (write-region (point) (point-max) lein-jar)
