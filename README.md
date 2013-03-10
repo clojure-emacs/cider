@@ -293,7 +293,7 @@ uses the same search pattern (even if the current input has changed).
 
 ### Managing multiple sessions
 
-You can connection to multiple nREPL servers and use `nrepl-jack-in` multiple
+You can connect to multiple nREPL servers and use `nrepl-jack-in` multiple
 times.  To close a single nREPL session, use `M-x nrepl-close`.  `M-x
 nrepl-quit` closes all sessions.
 
