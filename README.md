@@ -296,7 +296,7 @@ Keyboard shortcut               | Description
 
 ### Managing multiple sessions
 
-You can connection to multiple nREPL servers and use <kbd>M-x nrepl-jack-in</kbd> multiple
+You can connect to multiple nREPL servers and use <kbd>M-x nrepl-jack-in</kbd> multiple
 times.  To close a single nREPL session, use <kbd>M-x nrepl-close</kbd>.  <kbd>M-x
 nrepl-quit</kbd> closes all sessions.
 
