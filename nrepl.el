@@ -1003,29 +1003,6 @@ ARG is passed along to `undo-only'."
   "Specify the last macroexpansion preformed.
 This variable specifies both what was expanded and the expander.")
 
-(defun nrepl-macroexpand-handler (buffer ns)
-  "Make a response handler for macroexpansion from BUFFER in namespace NS."
-  (lexical-let* ((ns ns))
-    (nrepl-make-response-handler buffer nil
-                                 (lambda (buffer str)
-                                   (nrepl-initialize-macroexpansion-buffer
-                                    str ns))
-                                 nil nil)))
-
-(defun nrepl-macroexpand-inplace-handler
-  (expansion-buffer start end current-point)
-  "Make a response handler for inplace macroexpansion from EXPANSION-BUFFER.
-START, END and CURRENT-POINT are used to redraw the expansion."
-  (lexical-let* ((start start)
-                 (end end)
-                 (current-point current-point))
-    (nrepl-make-response-handler expansion-buffer
-                                 nil
-                                 (lambda (buffer str)
-                                   (nrepl-redraw-macroexpansion-buffer
-                                    str buffer start end current-point))
-                                 nil nil)))
-
 (defun nrepl-macroexpand-form (expander expr)
   "Macroexpand, using EXPANDER, the given EXPR."
   (format
@@ -1034,10 +1011,10 @@ START, END and CURRENT-POINT are used to redraw the expansion."
 
 (defun nrepl-macroexpand-expr (expander expr &optional buffer)
   "Macroexpand, use EXPANDER, the given EXPR from BUFFER."
-  (let ((form (nrepl-macroexpand-form expander expr)))
+  (let* ((form (nrepl-macroexpand-form expander expr))
+         (expansion (plist-get (nrepl-send-string-sync form nrepl-buffer-ns) :stdout)))
     (setq nrepl-last-macroexpand-expression form)
-    (nrepl-send-string form (nrepl-macroexpand-handler buffer nrepl-buffer-ns)
-                       nrepl-buffer-ns)))
+    (nrepl-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
 
 (defun nrepl-macroexpand-expr-inplace (expander)
   "Substitutes the current form at point with its macroexpansion using EXPANDER."
@@ -1045,19 +1022,17 @@ START, END and CURRENT-POINT are used to redraw the expansion."
   (let ((form-with-bounds (nrepl-sexp-at-point-with-bounds)))
     (if form-with-bounds
         (destructuring-bind (expr bounds) form-with-bounds
-            (nrepl-send-string (nrepl-macroexpand-form expander expr)
-                               (nrepl-macroexpand-inplace-handler
-                                (current-buffer)
-                                (first bounds) (rest bounds) (point))
-                               nrepl-buffer-ns)))))
+          (let* ((form (nrepl-macroexpand-form expander expr))
+                 (expansion (plist-get (nrepl-send-string-sync form nrepl-buffer-ns) :stdout)))
+            (nrepl-redraw-macroexpansion-buffer
+             expansion (current-buffer) (first bounds) (rest bounds) (point)))))))
 
 (defun nrepl-macroexpand-again ()
   "Repeat the last macroexpansion."
   (interactive)
-  (nrepl-send-string
-   nrepl-last-macroexpand-expression
-   (nrepl-macroexpand-handler (current-buffer) nrepl-buffer-ns)
-   nrepl-buffer-ns))
+  (let ((expansion
+         (plist-get (nrepl-send-string-sync nrepl-last-macroexpand-expression nrepl-buffer-ns) :stdout)))
+    (nrepl-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
 
 (defun nrepl-macroexpand-1 (&optional prefix)
   "Invoke 'macroexpand-1' on the expression at point.
