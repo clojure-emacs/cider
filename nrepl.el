@@ -1460,24 +1460,32 @@ This will not work on non-current prompts."
   '("nREPL"
     ["Jump" nrepl-jump]
     ["Jump back" nrepl-jump-back]
+    "--"
     ["Complete symbol" complete-symbol]
+    "--"
     ["Eval expression at point" nrepl-eval-expression-at-point]
     ["Eval last expression" nrepl-eval-last-expression]
     ["Eval last expression in popup buffer" nrepl-pprint-eval-last-expression]
     ["Eval region" nrepl-eval-region]
     ["Eval ns form" nrepl-eval-ns-form]
+    "--"
+    ["Load current buffer" nrepl-load-current-buffer]
+    ["Load file" nrepl-load-file]
+    "--"
     ["Macroexpand-1 last expression" nrepl-macroexpand-1]
     ["Macroexpand-all last expression" nrepl-macroexpand-all]
-    ["Set ns" nrepl-set-ns]
+    "--"
     ["Display documentation" nrepl-doc]
     ["Display Source" nrepl-src]
     ["Display JavaDoc" nrepl-javadoc]
+    "--"
+    ["Set ns" nrepl-set-ns]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
     ["Toggle REPL Pretty Print" nrepl-pretty-toggle]
     ["Clear REPL" nrepl-find-and-clear-repl-buffer]
-    ["Load current buffer" nrepl-load-current-buffer]
-    ["Load file" nrepl-load-file]
-    ["Interrupt" nrepl-interrupt]))
+    ["Interrupt" nrepl-interrupt]
+    "--"
+    ["Version info" nrepl-version]))
 
 (defvar nrepl-macroexpansion-minor-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1551,15 +1559,20 @@ This will not work on non-current prompts."
   '("nREPL"
     ["Jump" nrepl-jump]
     ["Jump back" nrepl-jump-back]
+    "--"
     ["Complete symbol" complete-symbol]
+    "--"
     ["Display documentation" nrepl-doc]
     ["Display source" nrepl-src]
     ["Display JavaDoc" nrepl-javadoc]
+    "--"
     ["Toggle pretty printing of results" nrepl-toggle-pretty-printing]
     ["Clear output" nrepl-clear-output]
     ["Clear buffer" nrepl-clear-buffer]
     ["Kill input" nrepl-kill-input]
-    ["Interrupt" nrepl-interrupt]))
+    ["Interrupt" nrepl-interrupt]
+    "--"
+    ["Version info" nrepl-version]))
 
 (defun clojure-enable-nrepl ()
   "Turn on nrepl interaction mode (see command `nrepl-interaction-mode').
