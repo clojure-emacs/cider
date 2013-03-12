@@ -71,9 +71,16 @@
   "The current nREPL.el version.")
 
 (defun nrepl-version ()
-  "Reports the version of nREPL.el in use."
+  "Report the version of nREPL.el and Clojure in use."
   (interactive)
-  (message "Currently using nREPL version %s" nrepl-current-version))
+  (message "Currently using nREPL.el version %s with Clojure %s"
+           nrepl-current-version
+           (nrepl-clojure-version)))
+
+(defun nrepl-clojure-version ()
+  "Retrieve the underlying process's Clojure version."
+  (let ((version-string (plist-get (nrepl-send-string-sync "(clojure-version)") :value)))
+   (substring version-string 1 (1- (length version-string)))))
 
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
