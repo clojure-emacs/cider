@@ -762,7 +762,9 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                                (lambda (buffer value)
                                  (nrepl-emit-interactive-output value))
                                (lambda (buffer err)
-                                 (message "%s" err))
+                                 (message "%s" err)
+                                 (nrepl-highlight-compilation-error-line
+                                  buffer err))
                                '()))
 
 (defun nrepl-load-file-handler (buffer)
@@ -869,10 +871,18 @@ They exist for compatibility with `next-error'."
 (defun nrepl-highlight-compilation-error-line (buffer message)
   "Highlight compilation error line in BUFFER, using MESSAGE."
   (with-current-buffer buffer
-    (let ((error-line-number (nrepl-extract-error-line message)))
-      (when (> error-line-number 0)
+    (let ((error-line-number (nrepl-extract-error-line message))
+          (error-filename (nrepl-extract-error-filename message)))
+      (when (and (> error-line-number 0)
+                 (or (string= (buffer-file-name buffer) error-filename)
+                     (string= "NO_SOURCE_PATH" error-filename)))
         (save-excursion
-          (goto-char (point-min))
+          ;; when we don't have a filename the line number
+          ;; is relative to form start
+          (if (string= error-filename "NO_SOURCE_PATH")
+              (beginning-of-defun)
+            ;; else we go to the top of the file
+            (goto-char (point-min)))
           (forward-line (1- error-line-number))
           (let ((overlay (make-overlay (progn (back-to-indentation) (point))
                                        (progn (move-end-of-line nil) (point)))))
@@ -883,8 +893,13 @@ They exist for compatibility with `next-error'."
 
 (defun nrepl-extract-error-line (stacktrace)
   "Extract the error line number from STACKTRACE."
-  (string-match "\\.clj:\\([0-9]+\\)" stacktrace)
+  (string-match "compiling:(.+:\\([0-9]+\\)" stacktrace)
   (string-to-number (match-string 1 stacktrace)))
+
+(defun nrepl-extract-error-filename (stacktrace)
+  "Extract the error filename from STACKTRACE."
+  (string-match "compiling:(\\(.+\\):" stacktrace)
+  (substring-no-properties (match-string 1 stacktrace)))
 
 (defun nrepl-stacktrace ()
   "Retrieve the current stracktrace from the `nrepl-error-buffer'."
@@ -1106,6 +1121,7 @@ and point is placed at CURRENT-POINT."
 
 (defun nrepl-interactive-eval (form)
   "Evaluate the given FORM and print value in minibuffer."
+  (remove-overlays (point-min) (point-max) 'nrepl-note-p t)
   (let ((buffer (current-buffer)))
     (nrepl-send-string form
                        (nrepl-interactive-eval-handler buffer)
