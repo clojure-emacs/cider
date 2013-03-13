@@ -2819,7 +2819,6 @@ If so ask the user for confirmation."
 
 (defun nrepl--close-buffer (buffer)
   "Close the nrepl BUFFER."
-  (message "Close buffer %s" buffer)
   (when (get-buffer-process buffer)
     (delete-process (get-buffer-process buffer)))
   (when (get-buffer buffer)
