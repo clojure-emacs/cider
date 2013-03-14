@@ -4,6 +4,8 @@
 
 ### New features
 
+### Bugs fixed
+
 ## 0.1.7 / 2013-03-13
 
 ### New features
@@ -34,7 +36,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
   completion.
 * Expand ido-completion to include "used" variables in addition to
   "interned" variables.
-  
+
 ### Bugs fixed
 
 * More accurate matching of filenames in stacktraces.
