@@ -173,7 +173,7 @@ buffer will be hidden.")
   :group 'nrepl)
 
 (defface nrepl-warning-highlight-face
-  '((t (:inherit 'font-lock-warning-face :underline (:color "yellow"))))
+  '((t (:inherit font-lock-warning-face :underline (:color "yellow"))))
   "Face used to highlight compilation warnings in Clojure buffers."
   :group 'nrepl)
 
