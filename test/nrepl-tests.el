@@ -1,6 +1,6 @@
 ;;; nrepl-tests.el
 
-;; Copyright © 2012 Tim King
+;; Copyright © 2012-2013 Tim King
 
 ;; Author: Tim King
 
