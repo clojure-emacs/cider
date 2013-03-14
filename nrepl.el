@@ -908,12 +908,6 @@ They exist for compatibility with `next-error'."
   (string-match "compiling:(\\(.+\\):" stacktrace)
   (substring-no-properties (match-string 1 stacktrace)))
 
-(defun nrepl-stacktrace ()
-  "Retrieve the current stracktrace from the `nrepl-error-buffer'."
-  (sleep-for 0.3) ; ugly hack to account for a race condition
-  (with-current-buffer nrepl-error-buffer
-    (substring-no-properties (buffer-string))))
-
 (defun nrepl-need-input (buffer)
   "Handle an need-input request from BUFFER."
   (with-current-buffer buffer
