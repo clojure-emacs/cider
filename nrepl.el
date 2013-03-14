@@ -893,8 +893,8 @@ They exist for compatibility with `next-error'."
   "Highlight compilation error line in BUFFER, using MESSAGE."
   (with-current-buffer buffer
     (let ((error-line-number (nrepl-extract-error-line message))
-	  (error-filename (nrepl-extract-error-filename message))
-	  (error-face (nrepl-determine-error-face message)))
+          (error-filename (nrepl-extract-error-filename message))
+          (error-face (nrepl-determine-error-face message)))
       (when (and (> error-line-number 0)
                  (or (string= (buffer-file-name buffer) error-filename)
                      (string= "NO_SOURCE_PATH" error-filename)))
