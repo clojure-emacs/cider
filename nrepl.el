@@ -107,6 +107,15 @@
   :type 'string
   :group 'nrepl)
 
+(defcustom nrepl-error-match-regexp
+  "\\(/.+\\.clj\\|NO_SOURCE_PATH\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)"
+  "Regexp to match errors.
+
+   Matching Group 1 should be the filename, Group 2 the line
+   number and Group 3 the column number"
+  :type 'string
+  :group 'nrepl)
+
 (defvar nrepl-connection-buffer nil)
 (defvar nrepl-server-buffer nil)
 (defvar nrepl-repl-buffer nil)
@@ -163,6 +172,11 @@ buffer will be hidden.")
 (defface nrepl-error-highlight-face
   '((t (:inherit font-lock-warning-face :underline t)))
   "Face used to highlight compilation errors in Clojure buffers."
+  :group 'nrepl)
+
+(defface nrepl-warning-highlight-face
+  '((t (:inherit font-lock-warning-face :underline (:color "yellow"))))
+  "Face used to highlight compilation warnings in Clojure buffers."
   :group 'nrepl)
 
 (defmacro nrepl-propertize-region (props &rest body)
@@ -879,7 +893,8 @@ They exist for compatibility with `next-error'."
   "Highlight compilation error line in BUFFER, using MESSAGE."
   (with-current-buffer buffer
     (let ((error-line-number (nrepl-extract-error-line message))
-          (error-filename (nrepl-extract-error-filename message)))
+          (error-filename (nrepl-extract-error-filename message))
+          (error-face (nrepl-determine-error-face message)))
       (when (and (> error-line-number 0)
                  (or (string= (buffer-file-name buffer) error-filename)
                      (string= "NO_SOURCE_PATH" error-filename)))
@@ -894,19 +909,25 @@ They exist for compatibility with `next-error'."
           (let ((overlay (make-overlay (progn (back-to-indentation) (point))
                                        (progn (move-end-of-line nil) (point)))))
             (overlay-put overlay 'nrepl-note-p t)
-            (overlay-put overlay 'face 'nrepl-error-highlight-face)
+            (overlay-put overlay 'face error-face)
             (overlay-put overlay 'nrepl-note message)
             (overlay-put overlay 'help-echo message)))))))
 
 (defun nrepl-extract-error-line (stacktrace)
   "Extract the error line number from STACKTRACE."
-  (string-match "compiling:(.+:\\([0-9]+\\)" stacktrace)
-  (string-to-number (match-string 1 stacktrace)))
+  (string-match nrepl-error-match-regexp stacktrace)
+  (string-to-number (match-string 2 stacktrace)))
 
 (defun nrepl-extract-error-filename (stacktrace)
   "Extract the error filename from STACKTRACE."
-  (string-match "compiling:(\\(.+\\):" stacktrace)
+  (string-match nrepl-error-match-regexp stacktrace)
   (substring-no-properties (match-string 1 stacktrace)))
+
+(defun nrepl-determine-error-face (message)
+   "Determine the face to highlight errors from MESSAGE."
+   (if (string-match "Reflection warning" message)
+       'nrepl-warning-highlight-face
+     'nrepl-error-highlight-face))
 
 (defun nrepl-stacktrace ()
   "Retrieve the current stracktrace from the `nrepl-error-buffer'."
