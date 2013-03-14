@@ -107,10 +107,12 @@
   :type 'string
   :group 'nrepl)
 
-(defcustom nrepl-error-match-regexp 
+(defcustom nrepl-error-match-regexp
   "\\(/.+\\.clj\\|NO_SOURCE_PATH\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)"
-  "Regexp to match errors. Matching Group 1 should be the
-   filename, Group 2 the line number and Group 3 the column number"
+  "Regexp to match errors.
+
+   Matching Group 1 should be the filename, Group 2 the line
+   number and Group 3 the column number"
   :type 'string
   :group 'nrepl)
 
@@ -923,8 +925,8 @@ They exist for compatibility with `next-error'."
 
 (defun nrepl-determine-error-face (message)
    "Determine the face to highlight errors from MESSAGE."
-   (if (string-match "Reflection warning" message) 
-       'nrepl-warning-highlight-face 
+   (if (string-match "Reflection warning" message)
+       'nrepl-warning-highlight-face
      'nrepl-error-highlight-face))
 
 (defun nrepl-stacktrace ()
