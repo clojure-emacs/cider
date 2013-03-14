@@ -1977,13 +1977,6 @@ Also closes associated repl and server buffers."
                         (get-buffer (nrepl-current-connection-buffer)))))
 
 ;;; Connection browser
-(define-derived-mode nrepl-connections-buffer-mode nrepl-popup-buffer-mode
-  "nREPL-Connections"
-  "nREPL Connections Buffer Mode.
-\\{nrepl-connections-buffer-mode-map}
-\\{nrepl-popup-buffer-mode-map}"
-  (set (make-local-variable 'truncate-lines) t))
-
 (defvar nrepl-connections-buffer-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "d" 'nrepl-connections-make-default)
@@ -1991,6 +1984,13 @@ Also closes associated repl and server buffers."
     (define-key map (kbd "C-k") 'nrepl-connections-close-connection)
     (define-key map (kbd "RET") 'nrepl-connections-goto-connection)
     map))
+
+(define-derived-mode nrepl-connections-buffer-mode nrepl-popup-buffer-mode
+  "nREPL-Connections"
+  "nREPL Connections Buffer Mode.
+\\{nrepl-connections-buffer-mode-map}
+\\{nrepl-popup-buffer-mode-map}"
+  (set (make-local-variable 'truncate-lines) t))
 
 (defvar nrepl--connection-ewoc)
 (defconst nrepl--connection-browser-buffer-name "*nrepl-connections*")
@@ -2099,7 +2099,7 @@ Refreshes EWOC."
 
 (defun nrepl--connections-goto-connection (ewoc data)
   "Goto the repl for the connection in EWOC specified by DATA."
-  (let ((buffer (buffer-local-value 'nrepl-nrepl-buffer (get-buffer data))))
+  (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
     (when buffer
       (select-window (display-buffer buffer)))))
 
