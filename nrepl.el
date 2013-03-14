@@ -2099,7 +2099,7 @@ Refreshes EWOC."
 
 (defun nrepl--connections-goto-connection (ewoc data)
   "Goto the repl for the connection in EWOC specified by DATA."
-  (let ((buffer (buffer-local-value 'nrepl-nrepl-buffer (get-buffer data))))
+  (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
     (when buffer
       (select-window (display-buffer buffer)))))
 
