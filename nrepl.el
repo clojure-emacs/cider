@@ -107,6 +107,13 @@
   :type 'string
   :group 'nrepl)
 
+(defcustom nrepl-error-match-regexp 
+  "\\(/.+\\.clj\\|NO_SOURCE_PATH\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)"
+  "Regexp to match errors. Matching Group 1 should be the
+   filename, Group 2 the line number and Group 3 the column number"
+  :type 'string
+  :group 'nrepl)
+
 (defvar nrepl-connection-buffer nil)
 (defvar nrepl-server-buffer nil)
 (defvar nrepl-repl-buffer nil)
@@ -161,7 +168,7 @@ buffer will be hidden.")
   :group 'nrepl)
 
 (defface nrepl-error-highlight-face
-  '((t (:inherit 'font-lock-warning-face :underline t)))
+  '((t (:inherit font-lock-warning-face :underline t)))
   "Face used to highlight compilation errors in Clojure buffers."
   :group 'nrepl)
 
@@ -883,9 +890,9 @@ They exist for compatibility with `next-error'."
 (defun nrepl-highlight-compilation-error-line (buffer message)
   "Highlight compilation error line in BUFFER, using MESSAGE."
   (with-current-buffer buffer
-  (let ((error-line-number (nrepl-extract-error-line message))
-	(error-filename (nrepl-extract-error-filename message))
-	(error-face (nrepl-determine-error-face message)))
+    (let ((error-line-number (nrepl-extract-error-line message))
+	  (error-filename (nrepl-extract-error-filename message))
+	  (error-face (nrepl-determine-error-face message)))
        (when (and (> error-line-number 0)
                  (or (string= (buffer-file-name buffer) error-filename)
                      (string= "NO_SOURCE_PATH" error-filename)))
@@ -906,12 +913,12 @@ They exist for compatibility with `next-error'."
 
 (defun nrepl-extract-error-line (stacktrace)
   "Extract the error line number from STACKTRACE."
-  (string-match "\\(/.+\\.clj\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)" stacktrace)
+  (string-match nrepl-error-match-regexp stacktrace)
   (string-to-number (match-string 2 stacktrace)))
 
 (defun nrepl-extract-error-filename (stacktrace)
   "Extract the error filename from STACKTRACE."
-  (string-match "\\(/.+\\.clj\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\)" stacktrace)
+  (string-match nrepl-error-match-regexp stacktrace)
   (substring-no-properties (match-string 1 stacktrace)))
 
 (defun nrepl-determine-error-face (message)
