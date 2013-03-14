@@ -1,10 +1,14 @@
 # Changelog
 
-## 0.1.7 (current)
+## 0.1.8 (current)
 
 ### New features
 
-* Add support for multiple nrepl session.  A single session is closed with
+## 0.1.7 / 2013-03-13
+
+### New features
+
+* Add support for multiple nrepl sessions.  A single session is closed with
   `M-x nrepl-close`.  A repl session is made default with
   `M-x nrepl-make-repl-connection-default`.
 * Added support for pretty-printing in the REPL buffer.
@@ -20,10 +24,21 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Apply ANSI color codes to output sent to nrepl buffers.
 * Add a connection browser `nrepl-connection-browser` to allow control of
   multiple connections.
-
+* Add macroexpand key bindings to `nrepl-mode-map`.
+* Don't suppress namespaces in macroexpansion.
+* Add explicit require of expected namespaces in the repl buffer.
+* Add command `nrepl-pprint-eval-last-expression`.
+* Add an event buffer for debugging.
+* Allow connections without repl buffers.
+* Add hook `nrepl-file-loaded-hook` which runs on load-file
+  completion.
+* Expand ido-completion to include "used" variables in addition to
+  "interned" variables.
+  
 ### Bugs fixed
 
 * More accurate matching of filenames in stacktraces.
+* Fix #290 - Macroexpand buffer truncates long expansions
 
 ## 0.1.6 / 2013-01-29
 
