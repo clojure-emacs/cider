@@ -893,7 +893,7 @@ They exist for compatibility with `next-error'."
     (let ((error-line-number (nrepl-extract-error-line message))
 	  (error-filename (nrepl-extract-error-filename message))
 	  (error-face (nrepl-determine-error-face message)))
-       (when (and (> error-line-number 0)
+      (when (and (> error-line-number 0)
                  (or (string= (buffer-file-name buffer) error-filename)
                      (string= "NO_SOURCE_PATH" error-filename)))
         (save-excursion
