@@ -165,6 +165,11 @@ buffer will be hidden.")
   "Face used to highlight compilation errors in Clojure buffers."
   :group 'nrepl)
 
+(defface nrepl-warning-highlight-face
+  '((t (:inherit font-lock-warning-face :underline (:color "yellow"))))
+  "Face used to highlight compilation warnings in Clojure buffers."
+  :group 'nrepl)
+
 (defmacro nrepl-propertize-region (props &rest body)
   "Add PROPS to all text inserted by executing BODY.
 More precisely, PROPS are added to the region between the point's
@@ -770,7 +775,7 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                                  (nrepl-emit-interactive-output value))
                                (lambda (buffer err)
                                  (message "%s" err)
-                                 (nrepl-highlight-compilation-error-line
+                                 (nrepl-highlight-compilation-errors
                                   buffer err))
                                '()))
 
@@ -787,7 +792,7 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                                    (nrepl-emit-interactive-output value))
                                  (lambda (buffer err)
                                    (message "%s" err)
-                                   (nrepl-highlight-compilation-error-line
+                                   (nrepl-highlight-compilation-errors
                                     buffer err))
                                  '()
                                  (lambda (buffer ex root-ex session)
@@ -849,10 +854,17 @@ Returns the position at which PROPERTY was found, or nil if not found."
 ARG and RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
-  (let ((p (or (nrepl-find-property 'nrepl-note)
-               (nrepl-find-property 'nrepl-note t))))
-    (when p
-      (goto-char p))))
+  (flet ((goto-next-note-boundary ()
+                                  (let ((p (or (nrepl-find-property 'nrepl-note)
+                                               (nrepl-find-property 'nrepl-note t))))
+                                    (when p
+                                      (goto-char p)
+                                      (message (get-char-property p 'nrepl-note))))))
+    ;; if we're already on a compilation error, first jump to the end of
+    ;; it, so that we find the next error.
+    (when (get-char-property (point) 'nrepl-note)
+      (goto-next-note-boundary))
+    (goto-next-note-boundary)))
 
 (defun nrepl-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
@@ -875,38 +887,57 @@ They exist for compatibility with `next-error'."
         (with-current-buffer nrepl-error-buffer
           (compilation-minor-mode +1))))))
 
-(defun nrepl-highlight-compilation-error-line (buffer message)
+(defun nrepl-extract-error-info (regexp message)
+  "Extract error information with REGEXP against MESSAGE."
+  (let ((file (nth 1 regexp))
+	(line (nth 2 regexp))
+	(col (nth 3 regexp))
+	(type (nth 4 regexp))
+	(pat (first regexp)))
+    (when (string-match pat message)
+      ;; special processing for type (1.2) style
+      (setq type (if (consp type)
+		     (or (and (first type) (match-end (first type)) 1)
+			 (and (rest type) (match-end (rest type)) 0)
+			 2)))
+      (list
+       (when file
+	 (let ((val (match-string-no-properties file message)))
+	   (unless (string= val "NO_SOURCE_PATH") val)))
+       (when line (string-to-number (match-string-no-properties line message)))
+       (when col (string-to-number (or (match-string-no-properties col message) "")))
+       (aref [nrepl-warning-highlight-face
+	      nrepl-warning-highlight-face
+	      nrepl-error-highlight-face]
+	     (or type 2))
+       (when message)))))
+
+(defun nrepl-highlight-compilation-errors (buffer message)
   "Highlight compilation error line in BUFFER, using MESSAGE."
   (with-current-buffer buffer
-    (let ((error-line-number (nrepl-extract-error-line message))
-          (error-filename (nrepl-extract-error-filename message)))
-      (when (and (> error-line-number 0)
-                 (or (string= (buffer-file-name buffer) error-filename)
-                     (string= "NO_SOURCE_PATH" error-filename)))
-        (save-excursion
-          ;; when we don't have a filename the line number
-          ;; is relative to form start
-          (if (string= error-filename "NO_SOURCE_PATH")
-              (beginning-of-defun)
-            ;; else we go to the top of the file
-            (goto-char (point-min)))
-          (forward-line (1- error-line-number))
-          (let ((overlay (make-overlay (progn (back-to-indentation) (point))
-                                       (progn (move-end-of-line nil) (point)))))
-            (overlay-put overlay 'nrepl-note-p t)
-            (overlay-put overlay 'face 'nrepl-error-highlight-face)
-            (overlay-put overlay 'nrepl-note message)
-            (overlay-put overlay 'help-echo message)))))))
-
-(defun nrepl-extract-error-line (stacktrace)
-  "Extract the error line number from STACKTRACE."
-  (string-match "compiling:(.+:\\([0-9]+\\)" stacktrace)
-  (string-to-number (match-string 1 stacktrace)))
-
-(defun nrepl-extract-error-filename (stacktrace)
-  "Extract the error filename from STACKTRACE."
-  (string-match "compiling:(\\(.+\\):" stacktrace)
-  (substring-no-properties (match-string 1 stacktrace)))
+    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+      (when info
+	(let ((file (nth 0 info))
+	      (line (nth 1 info))
+	      (col (nth 2 info))
+	      (face (nth 3 info))
+	      (note (nth 4 info)))
+	  (save-excursion
+	    ;; when we don't have a filename the line number
+	    ;; is relative to form start
+	    (if file
+		(goto-char (point-min)) ; start of file
+	      (beginning-of-defun))
+	    (forward-line (1- line))
+	    ;; if have column, highlight sexp at that point otherwise whole line.
+	    (move-to-column (or col 0))
+	    (let ((begin (progn (if col (backward-up-list) (back-to-indentation)) (point)))
+		  (end (progn (if col (forward-sexp) (move-end-of-line nil)) (point))))
+	      (let ((overlay (make-overlay begin end)))
+		(overlay-put overlay 'nrepl-note-p t)
+		(overlay-put overlay 'face face)
+		(overlay-put overlay 'nrepl-note note)
+		(overlay-put overlay 'help-echo note)))))))))
 
 (defun nrepl-need-input (buffer)
   "Handle an need-input request from BUFFER."
@@ -1561,12 +1592,13 @@ Useful in hooks."
 Useful in hooks."
   (nrepl-interaction-mode -1))
 
-(defvar nrepl-compilation-regexps '("(\\([^)]+\\):\\([[:digit:]]+\\))" 1 2)
-  "Specifications for matching errors in Clojure stacktraces.
+(defvar nrepl-compilation-regexp
+  '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
+  "Specifications for matching errors and warnings in Clojure stacktraces.
 See `compilation-error-regexp-alist' for help on their format.")
 
 (add-to-list 'compilation-error-regexp-alist-alist
-             (cons 'nrepl nrepl-compilation-regexps))
+             (cons 'nrepl nrepl-compilation-regexp))
 (add-to-list 'compilation-error-regexp-alist 'nrepl)
 
 ;;;###autoload
