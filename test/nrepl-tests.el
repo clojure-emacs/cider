@@ -140,7 +140,7 @@
     (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
       (should (string= (nth 0 info) "/some/test/file/core.clj"))
       (should (= (nth 1 info) 31))
-      (should (= (nth 2 info) 0))
+      (should (equal (nth 2 info) nil))
       (should (equal (nth 3 info) 'nrepl-error-highlight-face)))))
 
 (ert-deftest test-nrepl-extract-error-info-14-no-file ()
@@ -148,7 +148,7 @@
     (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
       (should (equal (nth 0 info) nil))
       (should (= (nth 1 info) 31))
-      (should (= (nth 2 info) 0))
+      (should (equal (nth 2 info) nil))
       (should (equal (nth 3 info) 'nrepl-error-highlight-face)))))
 
 (ert-deftest test-nrepl-extract-warning-info-14 ()
@@ -157,7 +157,7 @@
     (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
       (should (string= (nth 0 info) "/some/othertest/file/core.clj"))
       (should (= (nth 1 info) 24))
-      (should (= (nth 2 info) 0))
+      (should (equal (nth 2 info) nil))
       (should (equal (nth 3 info) 'nrepl-warning-highlight-face)))))
 
 (ert-deftest test-nrepl-extract-warning-info-14-no-file ()
@@ -166,7 +166,7 @@
     (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
       (should (equal (nth 0 info) nil))
       (should (= (nth 1 info) 24))
-      (should (= (nth 2 info) 0))
+      (should (equal (nth 2 info) nil))
       (should (equal (nth 3 info) 'nrepl-warning-highlight-face)))))
 
 (ert-deftest test-nrepl-extract-error-info-15 ()
