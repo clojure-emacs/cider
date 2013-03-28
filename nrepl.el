@@ -1092,14 +1092,14 @@ and point is placed at CURRENT-POINT."
   (let ((buffer (current-buffer)))
     (nrepl-send-string form
                        (nrepl-popup-eval-print-handler buffer)
-                       nrepl-buffer-ns)))
+                       (nrepl-current-ns))))
 
 (defun nrepl-interactive-eval-print (form)
   "Evaluate the given FORM and print value in current buffer."
   (let ((buffer (current-buffer)))
     (nrepl-send-string form
                        (nrepl-interactive-eval-print-handler buffer)
-                       nrepl-buffer-ns)))
+                       (nrepl-current-ns))))
 
 (defun nrepl-interactive-eval (form)
   "Evaluate the given FORM and print value in minibuffer."
@@ -1107,7 +1107,7 @@ and point is placed at CURRENT-POINT."
   (let ((buffer (current-buffer)))
     (nrepl-send-string form
                        (nrepl-interactive-eval-handler buffer)
-                       nrepl-buffer-ns)))
+                       (nrepl-current-ns))))
 
 (defun nrepl-send-op (op attributes handler)
   "Send the specified OP with ATTRIBUTES and response HANDLER."
@@ -1152,7 +1152,7 @@ Print its value into the current buffer"
         (result-buffer (nrepl-popup-buffer nrepl-result-buffer nil)))
     (nrepl-send-string (format "(clojure.pprint/pprint %s)" form)
                        (nrepl-popup-eval-out-handler result-buffer)
-                       nrepl-buffer-ns
+                       (nrepl-current-ns)
                        (nrepl-current-tooling-session))))
 
 ;;;;; History
