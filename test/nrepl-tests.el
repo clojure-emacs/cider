@@ -233,7 +233,7 @@
               (with-temp-buffer
                 (let ((b3 (current-buffer)))
                   (with-current-buffer b1
-                    (set (make-local-variable 'nrepl-nrepl-buffer) b3))
+                    (set (make-local-variable 'nrepl-repl-buffer) b3))
                   (with-current-buffer "*nrepl-connections*"
                     (nrepl-connections-goto-connection)
                     (should (equal b3 (current-buffer))))))
