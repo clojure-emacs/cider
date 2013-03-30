@@ -1784,7 +1784,7 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 
 ;;; Log nrepl events
 
-(defcustom nrepl-log-events t
+(defcustom nrepl-log-events nil
   "*Log protocol events to the *nrepl-events* buffer."
   :type 'boolean
   :group 'nrepl)
