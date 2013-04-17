@@ -58,6 +58,7 @@
 (require 'cl)
 (require 'easymenu)
 (require 'compile)
+(require 'tramp)
 
 (eval-when-compile
   (defvar paredit-version))
@@ -111,6 +112,13 @@
 (defvar nrepl-server-buffer nil)
 (defvar nrepl-repl-buffer nil)
 (defvar nrepl-endpoint nil)
+(defvar nrepl-load-file-tramp-method nil
+  "The method, user and host by which a remote file is loaded
+  using Tramp. Development using a remote nREPL server is made
+  easier, since nrepl-jump can load resources via the same Tramp
+  method rather than attempt to find them locally (where they may
+  not exist, or at least not exist under the same filesystem path
+  as on the remote machine).")
 (defvar nrepl-project-dir nil)
 (defconst nrepl-error-buffer "*nrepl-error*")
 (defconst nrepl-doc-buffer "*nrepl-doc*")
@@ -271,6 +279,7 @@ change the setting's value."
  'nrepl-repl-buffer
  'nrepl-server-buffer
  'nrepl-endpoint
+ 'nrepl-load-file-tramp-method
  'nrepl-project-dir
  'nrepl-ops
  'nrepl-session
@@ -439,21 +448,28 @@ Removes any leading slash if on Windows.  Uses `find-file'."
     (find-file fn)))
 
 (defun nrepl-find-resource (resource)
-  "Find and display RESOURCE."
-  (cond ((string-match "^file:\\(.+\\)" resource)
-         (nrepl-find-file (match-string 1 resource)))
-        ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
-         (let* ((jar (match-string 2 resource))
-                (path (match-string 3 resource))
-                (buffer-already-open (get-buffer (file-name-nondirectory jar))))
-           (nrepl-find-file jar)
-           (goto-char (point-min))
-           (search-forward path)
-           (let ((opened-buffer (current-buffer)))
-             (archive-extract)
-             (when (not buffer-already-open)
-               (kill-buffer opened-buffer)))))
-        (t (error "Unknown resource path %s" resource))))
+  "Find and display RESOURCE. If the connection is associated
+with a remote resource, use the same Tramp method when visiting
+the requested resource."
+  (let ((tramp-method (buffer-local-value
+                       'nrepl-load-file-tramp-method
+                       (get-buffer (nrepl-current-connection-buffer)))))
+    (cond ((string-match "^file:\\(.+\\)" resource)
+           (nrepl-find-file
+            (concat tramp-method (match-string 1 resource))))
+          ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
+           (let* ((jar (match-string 2 resource))
+                  (path (match-string 3 resource))
+                  (buffer-already-open (get-buffer (file-name-nondirectory jar))))
+             (nrepl-find-file
+              (concat tramp-method jar))
+             (goto-char (point-min))
+             (search-forward path)
+             (let ((opened-buffer (current-buffer)))
+               (archive-extract)
+               (when (not buffer-already-open)
+                 (kill-buffer opened-buffer)))))
+          (t (error "Unknown resource path %s" resource)))))
 
 (defun nrepl-jump-to-def-for (location)
   "Jump to LOCATION's definition in the source code."
@@ -2939,18 +2955,36 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
   (nrepl-create-client-session (nrepl-new-session-handler process no-repl-p))
   (nrepl-create-client-session (nrepl-new-tooling-session-handler process)))
 
+(defun nrepl-get-buffer-tramp-method ()
+  "Determine the method (the part that goes before the file name)
+when the buffer is loaded from a remote file via tramp."
+  (when (tramp-tramp-file-p (buffer-file-name))
+    (let ((vec (tramp-dissect-file-name (buffer-file-name))))
+      (tramp-make-tramp-file-name (tramp-file-name-method vec)
+                                  (tramp-file-name-user vec)
+                                  (tramp-file-name-host vec)
+                                  nil))))
+
 (defun nrepl-connect (host port &optional no-repl-p)
   "Connect to a running nREPL server running on HOST and PORT.
-When NO-REPL-P is truthy, suppress creation of a repl buffer."
+When NO-REPL-P is truthy, suppress creation of a repl buffer.
+
+If the current buffer is visiting a remote file, then the tramp
+method by which the remote file was loaded is associated with the
+nREPL connection and used for loading other files referenced by
+the associated nREPL-server, for example, on nrepl-jump."
   (message "Connecting to nREPL on %s:%s..." host port)
-  (let ((process (open-network-stream "nrepl"
-                                      (nrepl-make-connection-buffer) host
-                                      port)))
+  (let ((method (nrepl-get-buffer-tramp-method))
+        (process (open-network-stream "nrepl"
+                                       (nrepl-make-connection-buffer) host
+                                       port)))
     (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
     (with-current-buffer (process-buffer process)
-      (setq nrepl-endpoint `(,host ,port)))
+      (setq nrepl-endpoint `(,host ,port))
+      (setq nrepl-load-file-tramp-method method)
+      )
     (let ((nrepl-connection-dispatch (buffer-name (process-buffer process))))
       (nrepl-init-client-sessions process no-repl-p)
       (nrepl-describe-session process))
@@ -2961,6 +2995,13 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
 (add-hook 'nrepl-disconnected-hook
           'nrepl-possibly-disable-on-existing-clojure-buffers)
+
+;;;###autoload
+(defun nrepl-ssh (host remote-port local-port)
+  (interactive
+   (list (read-string "Host: " nrepl-host nil nrepl-host)
+         (string-to-number (read-string "Remote port: " nrepl-port nil nrepl-port))
+         (string-to-number (read-string "Local port: " nrepl-port nil nrepl-port)))))
 
 ;;;###autoload
 (defun nrepl (host port)
