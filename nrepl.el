@@ -68,6 +68,11 @@
   :prefix "nrepl-"
   :group 'applications)
 
+(defgroup nrepl-remote nil
+  "Interaction with a remote Clojure nREPL Server."
+  :prefix "nrepl-remote-"
+  :group 'nrepl)
+
 (defconst nrepl-current-version "0.1.8-preview"
   "The current nREPL.el version.")
 
@@ -113,12 +118,12 @@
 (defvar nrepl-repl-buffer nil)
 (defvar nrepl-endpoint nil)
 (defvar nrepl-load-file-tramp-method nil
-  "The method, user and host by which a remote file is loaded
-  using Tramp. Development using a remote nREPL server is made
-  easier, since nrepl-jump can load resources via the same Tramp
-  method rather than attempt to find them locally (where they may
-  not exist, or at least not exist under the same filesystem path
-  as on the remote machine).")
+  "The method, user and host by which a remote file is loaded using Tramp.
+Development using a remote nREPL server is made easier, since
+nrepl-jump can load resources via the same Tramp method rather
+than attempt to find them locally (where they may not exist, or
+at least not exist under the same filesystem path as on the
+remote machine).")
 (defvar nrepl-project-dir nil)
 (defconst nrepl-error-buffer "*nrepl-error*")
 (defconst nrepl-doc-buffer "*nrepl-doc*")
@@ -269,6 +274,17 @@ The `nrepl-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean
   :group 'nrepl)
+
+(defcustom nrepl-remote-tunnel-program "ssh"
+  "Program which will be invoked to provide a tunnel to the remote nREPL server."
+  :type 'string
+  :group 'nrepl-remote)
+
+(defcustom nrepl-remote-tunnel-wait "2"
+  "Time in seconds to wait for the remote tunnel to be established.
+1 second should work in most environments."
+  :type 'string
+  :group 'nrepl-remote)
 
 (defun nrepl-make-variables-buffer-local (&rest variables)
   "Make all VARIABLES buffer local."
@@ -448,9 +464,9 @@ Removes any leading slash if on Windows.  Uses `find-file'."
     (find-file fn)))
 
 (defun nrepl-find-resource (resource)
-  "Find and display RESOURCE. If the connection is associated
-with a remote resource, use the same Tramp method when visiting
-the requested resource."
+  "Find and display RESOURCE.
+If the connection is associated with a remote resource, use the
+same Tramp method when visiting the requested resource."
   (let ((tramp-method (buffer-local-value
                        'nrepl-load-file-tramp-method
                        (get-buffer (nrepl-current-connection-buffer)))))
@@ -2956,8 +2972,7 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
   (nrepl-create-client-session (nrepl-new-tooling-session-handler process)))
 
 (defun nrepl-get-buffer-tramp-method ()
-  "Determine the method (the part that goes before the file name)
-when the buffer is loaded from a remote file via tramp."
+  "Determine the method (the part that precedes the file name) when the buffer is loaded from a remote file via tramp."
   (when (tramp-tramp-file-p (buffer-file-name))
     (let ((vec (tramp-dissect-file-name (buffer-file-name))))
       (tramp-make-tramp-file-name (tramp-file-name-method vec)
@@ -2990,6 +3005,25 @@ the associated nREPL-server, for example, on nrepl-jump."
       (nrepl-describe-session process))
     process))
 
+(defun nrepl-remote-tunnel (host port)
+  "Create a secure tunnel to the remote HOST.
+The HOST argument will invariably be localhost (127.0.0.1) unless
+a multi-hop is required.  The PORT is specified for both the local
+and remote ends."
+  (let ((vec (tramp-dissect-file-name (buffer-file-name))))
+    (message "Creating %s tunnel to host %s port %d"
+             nrepl-remote-tunnel-program
+             (tramp-file-name-host vec)
+             port)
+    (start-process "*nrepl-ssh-tunnel*"
+                   (generate-new-buffer "*nrepl-ssh-tunnel*")
+                   nrepl-remote-tunnel-program
+                   "-L" (format "%d:%s:%d" port host port)
+                   "-N"
+                   (format "%s@%s"
+                           (tramp-file-name-user vec)
+                           (tramp-file-name-host vec)))))
+
 
 ;;;###autoload
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
@@ -2997,25 +3031,25 @@ the associated nREPL-server, for example, on nrepl-jump."
           'nrepl-possibly-disable-on-existing-clojure-buffers)
 
 ;;;###autoload
-(defun nrepl-ssh (host remote-port local-port)
-  (interactive
-   (list (read-string "Host: " nrepl-host nil nrepl-host)
-         (string-to-number (read-string "Remote port: " nrepl-port nil nrepl-port))
-         (string-to-number (read-string "Local port: " nrepl-port nil nrepl-port)))))
-
-;;;###autoload
 (defun nrepl (host port)
   "Connect nrepl to HOST and PORT."
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
                      (string-to-number (read-string "Port: " nrepl-port nil nrepl-port))))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
-    (nrepl-connect host port)))
+    (if (tramp-tramp-file-p (buffer-file-name))
+        (progn
+          (nrepl-remote-tunnel host port)
+          (message "Waiting for tunnel")
+          (sleep-for (string-to-number nrepl-remote-tunnel-wait))
+          (nrepl-connect host port))
+      (nrepl-connect host port))))
 
 ;;;###autoload
 (eval-after-load 'clojure-mode
   '(progn
      (define-key clojure-mode-map (kbd "C-c M-j") 'nrepl-jack-in)
-     (define-key clojure-mode-map (kbd "C-c M-c") 'nrepl)))
+     (define-key clojure-mode-map (kbd "C-c M-c") 'nrepl)
+     ))
 
 (provide 'nrepl)
 
