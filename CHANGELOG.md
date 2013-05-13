@@ -8,6 +8,8 @@
 * Add highlighting of compilation warnings in addition to existing highlighting of errors
 * Add support for selecting last clojure source buffer with keybinding
 <kbd>C-c C-z</kbd> (the same as `nrepl-switch-to-repl-buffer`).
+* The content of `target/repl-port`, if present, will be used as the
+  default port for `M-x nrepl`
 
 ### Bugs fixed
 
