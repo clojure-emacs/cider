@@ -1476,6 +1476,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
+    (define-key map (kbd "C-c M-s") 'nrepl-select)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1576,6 +1577,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-last-clojure-buffer)
+    (define-key map (kbd "C-c M-s") 'nrepl-select)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -2548,12 +2550,17 @@ Insert a banner, unless NOPROMPT is non-nil."
 
 (defun nrepl-find-or-create-repl-buffer ()
   "Return the repl buffer, create if necessary."
-  (let* ((current (nrepl-current-repl-buffer))
-         (buffer (or current (get-buffer current))))
-    (or (if (buffer-live-p buffer) buffer)
-        (let ((connection (get-process (nrepl-current-connection-buffer))))
-          (nrepl-init-repl-buffer
-           connection (get-buffer-create "*nrepl*"))))))
+  (let ((buffer (nrepl-current-repl-buffer)))
+	(if (null buffer)
+		(error "No active nREPL Connection")
+	  (let ((buffer (get-buffer buffer)))
+		(or (when (buffer-live-p buffer) buffer)
+			(let ((buffer (nrepl-current-connection-buffer)))
+			  (if (null buffer)
+				  (error "No active nREPL Connection")
+				(nrepl-init-repl-buffer
+				 (get-process buffer)
+				 (get-buffer-create "*nrepl*")))))))))
 
 (defun nrepl-switch-to-repl-buffer (arg)
   "Select the repl buffer, when possible in an existing window.
@@ -2770,6 +2777,123 @@ under point, prompts for a var."
              (y-or-n-p (format "Save file %s? " (buffer-file-name))))
     (save-buffer))
   (nrepl-load-file (buffer-file-name)))
+
+;;; selector
+(defvar nrepl-selector-methods nil
+  "List of buffer-selection methods for the `nrepl-select' command.
+Each element is a list (KEY DESCRIPTION FUNCTION).
+DESCRIPTION is a one-line description of what the key selects.")
+
+(defvar nrepl-selector-other-window nil
+  "If non-nil use `switch-to-buffer-other-window'.")
+
+(defun nrepl-selector (&optional other-window)
+  "Select a new buffer by type, indicated by a single character.
+The user is prompted for a single character indicating the method by
+which to choose a new buffer.  The `?' character describes then
+available methods.  OTHER-WINDOW provides an optional target.
+
+See `def-nrepl-selector-method' for defining new methods."
+  (interactive)
+  (message "Select [%s]: "
+           (apply #'string (mapcar #'car nrepl-selector-methods)))
+  (let* ((nrepl-selector-other-window other-window)
+         (ch (save-window-excursion
+               (select-window (minibuffer-window))
+               (read-char)))
+         (method (cl-find ch nrepl-selector-methods :key #'car)))
+    (cond (method
+           (funcall (cl-caddr method)))
+          (t
+           (message "No method for character: ?\\%c" ch)
+           (ding)
+           (sleep-for 1)
+           (discard-input)
+           (nrepl-selector)))))
+
+(defmacro def-nrepl-selector-method (key description &rest body)
+  "Define a new `nrepl-select' buffer selection method.
+
+KEY is the key the user will enter to choose this method.
+
+DESCRIPTION is a one-line sentence describing how the method
+selects a buffer.
+
+BODY is a series of forms which are evaluated when the selector
+is chosen.  The returned buffer is selected with
+`switch-to-buffer'."
+  (let ((method `(lambda ()
+                   (let ((buffer (progn ,@body)))
+                     (cond ((not (get-buffer buffer))
+                            (message "No such buffer: %S" buffer)
+                            (ding))
+                           ((get-buffer-window buffer)
+                            (select-window (get-buffer-window buffer)))
+                           (nrepl-selector-other-window
+                            (switch-to-buffer-other-window buffer))
+                           (t
+                            (switch-to-buffer buffer)))))))
+    `(setq nrepl-selector-methods
+           (cl-sort (cons (list ,key ,description ,method)
+                          (cl-remove ,key nrepl-selector-methods :key #'car))
+                  #'< :key #'car))))
+
+(def-nrepl-selector-method ?? "Selector help buffer."
+  (ignore-errors (kill-buffer "*Select Help*"))
+  (with-current-buffer (get-buffer-create "*Select Help*")
+    (insert "Select Methods:\n\n")
+    (loop for (key line nil) in nrepl-selector-methods
+          do (insert (format "%c:\t%s\n" key line)))
+    (goto-char (point-min))
+    (help-mode)
+    (display-buffer (current-buffer) t))
+  (nrepl-selector)
+  (current-buffer))
+
+(pushnew (list ?4 "Select in other window" (lambda () (nrepl-selector t)))
+         nrepl-selector-methods :key #'car)
+
+(def-nrepl-selector-method ?q "Abort."
+  (top-level))
+
+(def-nrepl-selector-method ?r
+  "Current *nrepl* buffer."
+  (nrepl-find-or-create-repl-buffer))
+
+(def-nrepl-selector-method ?n
+  "NREPL connections buffer."
+  (nrepl-connection-browser)
+  nrepl--connection-browser-buffer-name)
+
+(def-nrepl-selector-method ?v
+  "*nrepl-events* buffer."
+  nrepl-event-buffer-name)
+
+;; TBD --
+;;(def-nrepl-selector-method ?s
+;;  "Cycle to the next Clojure connection."
+;;  (nrepl-cycle-connections)
+;;  (concat "*nrepl "
+;;          (nrepl-connection-name (nrepl-current-connection))
+;;          "*"))
+
+(defun nrepl-recently-visited-buffer (mode)
+  "Return the most recently visited buffer whose `major-mode' is MODE.
+Only considers buffers that are not already visible."
+  (loop for buffer in (buffer-list)
+        when (and (with-current-buffer buffer (eq major-mode mode))
+                  (not (string-match "^ " (buffer-name buffer)))
+                  (null (get-buffer-window buffer 'visible)))
+        return buffer
+        finally (error "Can't find unshown buffer in %S" mode)))
+
+(def-nrepl-selector-method ?c
+  "most recently visited clojure-mode buffer."
+  (nrepl-recently-visited-buffer 'clojure-mode))
+
+(def-nrepl-selector-method ?e
+  "most recently visited emacs-lisp-mode buffer."
+  (nrepl-recently-visited-buffer 'emacs-lisp-mode))
 
 ;;; interrupt
 (defun nrepl-interrupt-handler (buffer)

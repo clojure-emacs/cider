@@ -10,6 +10,7 @@
 <kbd>C-c C-z</kbd> (the same as `nrepl-switch-to-repl-buffer`).
 * The content of `target/repl-port`, if present, will be used as the
   default port for `M-x nrepl`
+* Added an extendable slime-style selector command and binding 'C-c s'
 
 ### Bugs fixed
 
