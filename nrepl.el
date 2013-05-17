@@ -2678,8 +2678,8 @@ DESCRIPTION is a one-line description of what the key selects.")
 (defun nrepl-selector (&optional other-window)
   "Select a new buffer by type, indicated by a single character.
 The user is prompted for a single character indicating the method by
-which to choose a new buffer. The `?' character describes the
-available methods.
+which to choose a new buffer.  The `?' character describes then
+available methods.  OTHER-WINDOW provides an optional target.
 
 See `def-nrepl-selector-method' for defining new methods."
   (interactive)
@@ -2708,8 +2708,8 @@ DESCRIPTION is a one-line sentence describing how the method
 selects a buffer.
 
 BODY is a series of forms which are evaluated when the selector
-is chosen. The returned buffer is selected with
-`switch-to-buffer'.  "
+is chosen.  The returned buffer is selected with
+`switch-to-buffer'."
   (let ((method `(lambda ()
                    (let ((buffer (progn ,@body)))
                      (cond ((not (get-buffer buffer))

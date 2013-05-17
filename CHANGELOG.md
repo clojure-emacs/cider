@@ -4,6 +4,8 @@
 
 ### New features
 
+* Added an extendable slime-style selector command and binding 'C-c s'
+	
 ### Bugs fixed
 
 ## 0.1.7 / 2013-03-13
