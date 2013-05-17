@@ -2956,9 +2956,9 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
       (nrepl-describe-session process))
     process))
 
-(defun default-nrepl-port ()
-  "Attempts to read port from target/repl-port and falls back to
-nrepl-port if not found"
+(defun nrepl-default-port ()
+  "Attempts to read port from target/repl-port.
+Falls back to `nrepl-port' if not found."
   (let* ((dir (nrepl-project-directory-for (nrepl-current-dir)))
          (f (expand-file-name "target/repl-port" dir))
          (port (when (file-exists-p f)
@@ -2966,7 +2966,6 @@ nrepl-port if not found"
                    (insert-file-contents f)
                    (buffer-string)))))
     (or port nrepl-port)))
-
 
 ;;;###autoload
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
@@ -2977,7 +2976,7 @@ nrepl-port if not found"
 (defun nrepl (host port)
   "Connect nrepl to HOST and PORT."
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
-                     (string-to-number (let ((port (default-nrepl-port))) (read-string "Port: " port nil port)))))
+                     (string-to-number (let ((port (nrepl-default-port))) (read-string "Port: " port nil port)))))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 

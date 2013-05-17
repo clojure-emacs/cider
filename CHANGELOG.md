@@ -4,6 +4,9 @@
 
 ### New features
 
+* The content of `target/repl-port`, if present, will be used as the
+  default port for `M-x nrepl`
+
 ### Bugs fixed
 
 ## 0.1.7 / 2013-03-13
