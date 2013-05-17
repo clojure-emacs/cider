@@ -2673,7 +2673,7 @@ Each element is a list (KEY DESCRIPTION FUNCTION).
 DESCRIPTION is a one-line description of what the key selects.")
 
 (defvar nrepl-selector-other-window nil
-  "If non-nil use switch-to-buffer-other-window.")
+  "If non-nil use `switch-to-buffer-other-window'.")
 
 (defun nrepl-selector (&optional other-window)
   "Select a new buffer by type, indicated by a single character.
@@ -2683,14 +2683,14 @@ available methods.
 
 See `def-nrepl-selector-method' for defining new methods."
   (interactive)
-  (message "Select [%s]: " 
+  (message "Select [%s]: "
            (apply #'string (mapcar #'car nrepl-selector-methods)))
   (let* ((nrepl-selector-other-window other-window)
          (ch (save-window-excursion
                (select-window (minibuffer-window))
                (read-char)))
          (method (find ch nrepl-selector-methods :key #'car)))
-    (cond (method 
+    (cond (method
            (funcall (third method)))
           (t
            (message "No method for character: ?\\%c" ch)
@@ -2709,8 +2709,8 @@ selects a buffer.
 
 BODY is a series of forms which are evaluated when the selector
 is chosen. The returned buffer is selected with
-switch-to-buffer."
-  (let ((method `(lambda () 
+`switch-to-buffer'.  "
+  (let ((method `(lambda ()
                    (let ((buffer (progn ,@body)))
                      (cond ((not (get-buffer buffer))
                             (message "No such buffer: %S" buffer)
@@ -2761,16 +2761,16 @@ switch-to-buffer."
   "*nrepl-events* buffer."
   nrepl-event-buffer-name)
 
-;; TBD -- 
+;; TBD --
 ;;(def-nrepl-selector-method ?s
 ;;  "Cycle to the next Clojure connection."
-;;  (nrepl-cycle-connections) 
+;;  (nrepl-cycle-connections)
 ;;  (concat "*nrepl "
 ;;          (nrepl-connection-name (nrepl-current-connection))
 ;;          "*"))
 
 (defun nrepl-recently-visited-buffer (mode)
-  "Return the most recently visited buffer whose major-mode is MODE.
+  "Return the most recently visited buffer whose `major-mode' is MODE.
 Only considers buffers that are not already visible."
   (loop for buffer in (buffer-list)
         when (and (with-current-buffer buffer (eq major-mode mode))
