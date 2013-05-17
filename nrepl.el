@@ -2757,6 +2757,11 @@ is chosen.  The returned buffer is selected with
   "most recently visited emacs-lisp-mode buffer."
   (nrepl-recently-visited-buffer 'emacs-lisp-mode))
 
+(def-nrepl-selector-method ?r
+  "Current *nrepl* buffer."
+  (nrepl-switch-to-repl-buffer nil)
+  nrepl-current-connection-buffer)
+
 (def-nrepl-selector-method ?v
   "*nrepl-events* buffer."
   nrepl-event-buffer-name)
