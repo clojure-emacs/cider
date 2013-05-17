@@ -2759,8 +2759,7 @@ is chosen.  The returned buffer is selected with
 
 (def-nrepl-selector-method ?r
   "Current *nrepl* buffer."
-  (nrepl-switch-to-repl-buffer nil)
-  nrepl-current-connection-buffer)
+  (nrepl-find-or-create-repl-buffer))
 
 (def-nrepl-selector-method ?v
   "*nrepl-events* buffer."
