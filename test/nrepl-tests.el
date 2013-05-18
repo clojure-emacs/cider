@@ -257,6 +257,7 @@
 
 (ert-deftest test-nrepl-selector-c ()
 	(with-temp-buffer
+	  (rename-buffer "*testfile*.clj")
 	  (lexical-let ((b1 (current-buffer)))
 		(setq major-mode 'clojure-mode)
 		(with-temp-buffer
@@ -268,6 +269,7 @@
 
 (ert-deftest test-nrepl-selector-e ()
 	(with-temp-buffer
+	  (rename-buffer "*testfile*.el")
 	  (lexical-let ((b1 (current-buffer)))
 		(setq major-mode 'emacs-lisp-mode)
 		(with-temp-buffer
