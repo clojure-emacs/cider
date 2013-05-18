@@ -274,7 +274,6 @@
 	(with-temp-buffer
 	  (rename-buffer "*testfile*.el")
 	  (lexical-let ((b1 (current-buffer)))
-		(message (buffer-name b1))
 		(setq major-mode 'emacs-lisp-mode)
 		(with-temp-buffer
 		  (rename-buffer "*testfile*.clj")
@@ -284,7 +283,6 @@
 			(nrepl-invoke-selector-method-by-key ?c)
 			(not (equal (current-buffer) b1))
 			(nrepl-invoke-selector-method-by-key ?e)
-			(message (buffer-name (current-buffer)))
 			(equal (current-buffer) b1))))))
 
 (ert-deftest test-nrepl-selector-v ()
