@@ -1429,7 +1429,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
-	(define-key map (kbd "C-c s") 'nrepl-select)
+    (define-key map (kbd "C-c M-s") 'nrepl-select)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1529,7 +1529,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
-	(define-key map (kbd "C-c s") 'nrepl-select)
+    (define-key map (kbd "C-c M-s") 'nrepl-select)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -2744,22 +2744,14 @@ is chosen.  The returned buffer is selected with
 (def-nrepl-selector-method ?q "Abort."
   (top-level))
 
+(def-nrepl-selector-method ?r
+  "Current *nrepl* buffer."
+  (nrepl-find-or-create-repl-buffer))
+
 (def-nrepl-selector-method ?n
   "NREPL connections buffer."
   (nrepl-connection-browser)
   nrepl--connection-browser-buffer-name)
-
-(def-nrepl-selector-method ?c
-  "most recently visited clojure-mode buffer."
-  (nrepl-recently-visited-buffer 'clojure-mode))
-
-(def-nrepl-selector-method ?e
-  "most recently visited emacs-lisp-mode buffer."
-  (nrepl-recently-visited-buffer 'emacs-lisp-mode))
-
-(def-nrepl-selector-method ?r
-  "Current *nrepl* buffer."
-  (nrepl-find-or-create-repl-buffer))
 
 (def-nrepl-selector-method ?v
   "*nrepl-events* buffer."
@@ -2782,6 +2774,14 @@ Only considers buffers that are not already visible."
                   (null (get-buffer-window buffer 'visible)))
         return buffer
         finally (error "Can't find unshown buffer in %S" mode)))
+
+(def-nrepl-selector-method ?c
+  "most recently visited clojure-mode buffer."
+  (nrepl-recently-visited-buffer 'clojure-mode))
+
+(def-nrepl-selector-method ?e
+  "most recently visited emacs-lisp-mode buffer."
+  (nrepl-recently-visited-buffer 'emacs-lisp-mode))
 
 ;;; interrupt
 (defun nrepl-interrupt-handler (buffer)
