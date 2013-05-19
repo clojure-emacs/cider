@@ -2470,11 +2470,17 @@ Insert a banner, unless NOPROMPT is non-nil."
 
 (defun nrepl-find-or-create-repl-buffer ()
   "Return the repl buffer, create if necessary."
-  (let ((buffer (get-buffer (nrepl-current-repl-buffer))))
-    (or (if (buffer-live-p buffer) buffer)
-        (let ((connection (get-process (nrepl-current-connection-buffer))))
-          (nrepl-init-repl-buffer
-           connection (get-buffer-create "*nrepl*"))))))
+  (let ((buffer (nrepl-current-repl-buffer)))
+	(if (null buffer)
+		(error "No active nREPL Connection")
+	  (let ((buffer (get-buffer buffer)))
+		(or (when (buffer-live-p buffer) buffer)
+			(let ((buffer (nrepl-current-connection-buffer)))
+			  (if (null buffer)
+				  (error "No active nREPL Connection")
+				(nrepl-init-repl-buffer
+				 (get-process buffer)
+				 (get-buffer-create "*nrepl*")))))))))
 
 (defun nrepl-switch-to-repl-buffer (arg)
   "Select the repl buffer, when possible in an existing window.
