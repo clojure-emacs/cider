@@ -1528,6 +1528,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
+    (define-key map (kbd "C-c C-z") 'nrepl-switch-to-last-clojure-buffer)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -2464,6 +2465,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     (nrepl-reset-markers)
     (unless noprompt
       (nrepl-insert-banner nrepl-buffer-ns))
+    (nrepl-remember-clojure-buffer nrepl-current-clojure-buffer)
     (current-buffer)))
 
 (defun nrepl-find-or-create-repl-buffer ()
@@ -2487,10 +2489,41 @@ of the current source file."
   (if (not (get-buffer (nrepl-current-connection-buffer)))
       (message "No active nREPL connection.")
     (progn
-      (when arg
-        (nrepl-set-ns (nrepl-current-ns)))
-      (pop-to-buffer (nrepl-find-or-create-repl-buffer))
-      (goto-char (point-max)))))
+      (let ((buffer (current-buffer)))
+        (when arg
+          (nrepl-set-ns (nrepl-current-ns)))
+        (pop-to-buffer (nrepl-find-or-create-repl-buffer))
+        (nrepl-remember-clojure-buffer buffer)
+        (goto-char (point-max))))))
+
+(make-variable-buffer-local
+ (defvar nrepl-last-clojure-buffer nil))
+
+;; Using a global variable to remember the clojure buffer
+;; before `nrepl` or `nrepl-jack-in` is called. After the
+;; REPL is created, the value is used to call `nrepl-remember-clojure-buffer`
+;; so the new created *nrepl* buffer could remember the clojure buffer
+(defvar nrepl-current-clojure-buffer nil)
+
+(defun nrepl-remember-clojure-buffer (buffer)
+  "Remember the clojure buffer from which the user jumps, so that
+the user could use `nrepl-switch-to-last-clojure-buffer' to jump back."
+  (when (and buffer
+             (eq 'clojure-mode (with-current-buffer buffer major-mode))
+             (eq 'nrepl-mode major-mode))
+    (setq nrepl-last-clojure-buffer buffer)))
+
+(defun nrepl-switch-to-last-clojure-buffer ()
+  "Switch to the remembered clojure buffer.
+The default key binding for this command is
+also C-c C-z (the same as `nrepl-switch-to-repl-buffer'),
+so that it is very convenient to jump between a
+clojure buffer and the repl buffer."
+  (interactive)
+  (if (and (eq 'nrepl-mode major-mode)
+           (buffer-live-p nrepl-last-clojure-buffer))
+      (pop-to-buffer nrepl-last-clojure-buffer)
+    (message "No active clojure buffer remembered")))
 
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to NS."
@@ -2761,6 +2794,7 @@ See command `nrepl-interaction-mode'."
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
+  (setq nrepl-current-clojure-buffer (current-buffer))
   (lexical-let* ((project (when prompt-project
                             (ido-read-directory-name "Project: ")))
                  (project-dir (nrepl-project-directory-for
@@ -2967,6 +3001,7 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
   "Connect nrepl to HOST and PORT."
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
                      (string-to-number (read-string "Port: " nrepl-port nil nrepl-port))))
+  (setq nrepl-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 
