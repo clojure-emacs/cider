@@ -2506,8 +2506,10 @@ of the current source file."
 (defvar nrepl-current-clojure-buffer nil)
 
 (defun nrepl-remember-clojure-buffer (buffer)
-  "Remember the clojure buffer from which the user jumps, so that
-the user could use `nrepl-switch-to-last-clojure-buffer' to jump back."
+  "Try to remember the BUFFER from which the user jumps.
+The BUFFER needs to be a clojure buffer and current major mode needs
+to be nrepl-mode.  The user can use `nrepl-switch-to-last-clojure-buffer'
+to jump back to the remembered clojure buffer."
   (when (and buffer
              (eq 'clojure-mode (with-current-buffer buffer major-mode))
              (eq 'nrepl-mode major-mode))
@@ -2516,7 +2518,7 @@ the user could use `nrepl-switch-to-last-clojure-buffer' to jump back."
 (defun nrepl-switch-to-last-clojure-buffer ()
   "Switch to the remembered clojure buffer.
 The default key binding for this command is
-also C-c C-z (the same as `nrepl-switch-to-repl-buffer'),
+the same as `nrepl-switch-to-repl-buffer',
 so that it is very convenient to jump between a
 clojure buffer and the repl buffer."
   (interactive)
