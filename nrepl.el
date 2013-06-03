@@ -2497,35 +2497,39 @@ of the current source file."
         (goto-char (point-max))))))
 
 (make-variable-buffer-local
- (defvar nrepl-last-clojure-buffer nil))
+ (defvar nrepl-last-clojure-buffer nil
+   "A buffer-local variable holding the last clojure source buffer.
+`nrepl-switch-to-last-clojure-buffer' uses this variable to jump
+back to last clojure source buffer."))
 
-;; Using a global variable to remember the clojure buffer
-;; before `nrepl` or `nrepl-jack-in` is called. After the
-;; REPL is created, the value is used to call `nrepl-remember-clojure-buffer`
-;; so the new created *nrepl* buffer could remember the clojure buffer
-(defvar nrepl-current-clojure-buffer nil)
+
+(defvar nrepl-current-clojure-buffer nil
+  "This variable holds current buffer temporarily when connecting to a REPL.
+It is set to current buffer when `nrepl' or `nrepl-jack-in' is called.
+After the REPL buffer is created, the value of this variable is used
+to call `nrepl-remember-clojure-buffer'.")
 
 (defun nrepl-remember-clojure-buffer (buffer)
   "Try to remember the BUFFER from which the user jumps.
 The BUFFER needs to be a clojure buffer and current major mode needs
-to be nrepl-mode.  The user can use `nrepl-switch-to-last-clojure-buffer'
-to jump back to the remembered clojure buffer."
+to be `nrepl-mode'.  The user can use `nrepl-switch-to-last-clojure-buffer'
+to jump back to the last clojure source buffer."
   (when (and buffer
              (eq 'clojure-mode (with-current-buffer buffer major-mode))
              (eq 'nrepl-mode major-mode))
     (setq nrepl-last-clojure-buffer buffer)))
 
 (defun nrepl-switch-to-last-clojure-buffer ()
-  "Switch to the remembered clojure buffer.
-The default key binding for this command is
+  "Switch to the last clojure buffer.
+The default keybinding for this command is
 the same as `nrepl-switch-to-repl-buffer',
 so that it is very convenient to jump between a
-clojure buffer and the repl buffer."
+clojure buffer and the REPL buffer."
   (interactive)
   (if (and (eq 'nrepl-mode major-mode)
            (buffer-live-p nrepl-last-clojure-buffer))
       (pop-to-buffer nrepl-last-clojure-buffer)
-    (message "No active clojure buffer remembered")))
+    (message "Don't know the original clojure buffer")))
 
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to NS."
