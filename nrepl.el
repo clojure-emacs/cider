@@ -1528,6 +1528,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
+    (define-key map (kbd "C-c C-z") 'nrepl-switch-to-last-clojure-buffer)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -2464,6 +2465,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     (nrepl-reset-markers)
     (unless noprompt
       (nrepl-insert-banner nrepl-buffer-ns))
+    (nrepl-remember-clojure-buffer nrepl-current-clojure-buffer)
     (current-buffer)))
 
 (defun nrepl-find-or-create-repl-buffer ()
@@ -2487,10 +2489,47 @@ of the current source file."
   (if (not (get-buffer (nrepl-current-connection-buffer)))
       (message "No active nREPL connection.")
     (progn
-      (when arg
-        (nrepl-set-ns (nrepl-current-ns)))
-      (pop-to-buffer (nrepl-find-or-create-repl-buffer))
-      (goto-char (point-max)))))
+      (let ((buffer (current-buffer)))
+        (when arg
+          (nrepl-set-ns (nrepl-current-ns)))
+        (pop-to-buffer (nrepl-find-or-create-repl-buffer))
+        (nrepl-remember-clojure-buffer buffer)
+        (goto-char (point-max))))))
+
+(make-variable-buffer-local
+ (defvar nrepl-last-clojure-buffer nil
+   "A buffer-local variable holding the last clojure source buffer.
+`nrepl-switch-to-last-clojure-buffer' uses this variable to jump
+back to last clojure source buffer."))
+
+
+(defvar nrepl-current-clojure-buffer nil
+  "This variable holds current buffer temporarily when connecting to a REPL.
+It is set to current buffer when `nrepl' or `nrepl-jack-in' is called.
+After the REPL buffer is created, the value of this variable is used
+to call `nrepl-remember-clojure-buffer'.")
+
+(defun nrepl-remember-clojure-buffer (buffer)
+  "Try to remember the BUFFER from which the user jumps.
+The BUFFER needs to be a clojure buffer and current major mode needs
+to be `nrepl-mode'.  The user can use `nrepl-switch-to-last-clojure-buffer'
+to jump back to the last clojure source buffer."
+  (when (and buffer
+             (eq 'clojure-mode (with-current-buffer buffer major-mode))
+             (eq 'nrepl-mode major-mode))
+    (setq nrepl-last-clojure-buffer buffer)))
+
+(defun nrepl-switch-to-last-clojure-buffer ()
+  "Switch to the last clojure buffer.
+The default keybinding for this command is
+the same as `nrepl-switch-to-repl-buffer',
+so that it is very convenient to jump between a
+clojure buffer and the REPL buffer."
+  (interactive)
+  (if (and (eq 'nrepl-mode major-mode)
+           (buffer-live-p nrepl-last-clojure-buffer))
+      (pop-to-buffer nrepl-last-clojure-buffer)
+    (message "Don't know the original clojure buffer")))
 
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to NS."
@@ -2761,6 +2800,7 @@ See command `nrepl-interaction-mode'."
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
+  (setq nrepl-current-clojure-buffer (current-buffer))
   (lexical-let* ((project (when prompt-project
                             (ido-read-directory-name "Project: ")))
                  (project-dir (nrepl-project-directory-for
@@ -2967,6 +3007,7 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
   "Connect nrepl to HOST and PORT."
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
                      (string-to-number (read-string "Port: " nrepl-port nil nrepl-port))))
+  (setq nrepl-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 

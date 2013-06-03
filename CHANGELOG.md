@@ -4,6 +4,9 @@
 
 ### New features
 
+* Add support for selecting last clojure source buffer with keybinding
+<kbd>C-c C-z</kbd> (the same as `nrepl-switch-to-repl-buffer`).
+
 ### Bugs fixed
 
 ## 0.1.7 / 2013-03-13
