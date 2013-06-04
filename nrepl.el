@@ -4,6 +4,7 @@
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
+;;         Robert Ewald <robewald@gmx.net>
 ;; URL: http://www.github.com/kingtim/nrepl.el
 ;; Version: 0.1.8
 ;; Keywords: languages, clojure, nrepl
@@ -1429,6 +1430,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
+    (define-key map (kbd "C-c M-t") 'nrepl-toggle-trace)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -2609,6 +2611,31 @@ Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-src-handler query))
+
+(defun nrepl-toggle-trace (query)
+  "Toggle tracing for the given QUERY.
+Defaults to the symbol at point.  With prefix arg or no symbol at
+point, prompts for a var."
+  (interactive "P")
+  (save-excursion
+    (nrepl-read-symbol-name
+     "Var: "
+     (lexical-let ((buffer (current-buffer)))
+       (lambda (x)
+         (nrepl-send-string
+          (format "(require 'clojure.tools.trace)
+                   (let [cur-ns-name '%s
+                          aliased-var '%s]
+                      (if-let [cur-ns (find-ns cur-ns-name)]
+                        (when-let [the-var (ns-resolve cur-ns aliased-var)]
+                          (if (clojure.tools.trace/traced? the-var)
+                            (clojure.tools.trace/untrace-var* the-var)
+                            (clojure.tools.trace/trace-var* the-var)))
+                        (print \"Namespace \" cur-ns-name \" not found. Is is loaded?\")))"
+                  (nrepl-current-ns)
+                  x)
+          (nrepl-interactive-eval-handler buffer))))
+     query)))
 
 ;; TODO: implement reloading ns
 (defun nrepl-eval-load-file (form)

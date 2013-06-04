@@ -3,6 +3,8 @@
 ## 0.1.8 (current)
 
 ### New features
+* Add feature: Toggle tracing/untracing of a var at point. A var is traced/untraced
+	with `C-c M-t`.
 
 ### Bugs fixed
 
