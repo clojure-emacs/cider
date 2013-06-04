@@ -6,6 +6,7 @@
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
+;;         Robert Ewald <robewald@gmx.net>
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
@@ -1588,6 +1589,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c M-s") 'nrepl-selector)
+    (define-key map (kbd "C-c M-t") 'nrepl-toggle-trace)
     (define-key map (kbd "C-c M-r") 'nrepl-rotate-connection)
     (define-key map (kbd "C-c M-d") 'nrepl-display-current-connection-info)
     (define-key map (kbd "C-c C-q") 'nrepl-quit)
@@ -2920,6 +2922,31 @@ Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
   (nrepl-read-symbol-name "Symbol: " 'nrepl-src-handler query))
+
+(defun nrepl-toggle-trace (query)
+  "Toggle tracing for the given QUERY.
+Defaults to the symbol at point.  With prefix arg or no symbol at
+point, prompts for a var."
+  (interactive "P")
+  (save-excursion
+    (nrepl-read-symbol-name
+     "Var: "
+     (lexical-let ((buffer (current-buffer)))
+       (lambda (x)
+         (nrepl-send-string
+          (format "(require 'clojure.tools.trace)
+                   (let [cur-ns-name '%s
+                          aliased-var '%s]
+                      (if-let [cur-ns (find-ns cur-ns-name)]
+                        (when-let [the-var (ns-resolve cur-ns aliased-var)]
+                          (if (clojure.tools.trace/traced? the-var)
+                            (str \"untracing: \" (clojure.tools.trace/untrace-var* the-var))
+                            (str \"tracing: \" (clojure.tools.trace/trace-var* the-var))))
+                        (print \"Namespace \" cur-ns-name \" not found. Is is loaded?\")))"
+                  (nrepl-current-ns)
+                  x)
+          (nrepl-interactive-eval-handler buffer))))
+     query)))
 
 ;; TODO: implement reloading ns
 (defun nrepl-eval-load-file (form)
