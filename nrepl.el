@@ -1569,6 +1569,28 @@ See `compilation-error-regexp-alist' for help on their format.")
              (cons 'nrepl nrepl-compilation-regexps))
 (add-to-list 'compilation-error-regexp-alist 'nrepl)
 
+;;; Prevent paredit from inserting some inappropriate spaces.
+;;; C.f. clojure-mode.el
+(defun nrepl-space-for-delimiter-p (endp delim)
+  "Hook for paredit's `paredit-space-for-delimiter-predicates`.
+
+Decides if paredit should insert a space after/before (if/unless
+ENDP) DELIM."
+  (if (eq major-mode 'nrepl-mode)
+      (save-excursion
+        (backward-char)
+        (if (and (or (char-equal delim ?\()
+                     (char-equal delim ?\")
+                     (char-equal delim ?{))
+                 (not endp))
+            (if (char-equal (char-after) ?#)
+                (and (not (bobp))
+                     (or (char-equal ?w (char-syntax (char-before)))
+                         (char-equal ?_ (char-syntax (char-before)))))
+              t)
+          t))
+    t))
+
 ;;;###autoload
 (define-minor-mode nrepl-interaction-mode
   "Minor mode for nrepl interaction from a Clojure buffer.
@@ -1601,7 +1623,9 @@ See `compilation-error-regexp-alist' for help on their format.")
             (lambda ()
               (when (>= paredit-version 21)
                 (define-key nrepl-mode-map "{" 'paredit-open-curly)
-                (define-key nrepl-mode-map "}" 'paredit-close-curly)))))
+                (define-key nrepl-mode-map "}" 'paredit-close-curly)
+                (add-to-list 'paredit-space-for-delimiter-predicates
+                             'nrepl-space-for-delimiter-p)))))
 
 ;;; communication
 (defcustom nrepl-lein-command
