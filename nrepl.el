@@ -55,7 +55,7 @@
 (require 'ansi-color)
 (require 'eldoc)
 (require 'ewoc)
-(require 'cl)
+(require 'cl-lib)
 (require 'easymenu)
 (require 'compile)
 
@@ -1467,7 +1467,7 @@ This will not work on non-current prompts."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "g") 'nrepl-macroexpand-again)
     (define-key map (kbd "q") 'nrepl-popup-buffer-quit-function)
-    (flet ((redefine-key (from to)
+    (cl-flet ((redefine-key (from to)
                          (dolist (mapping (where-is-internal from nrepl-interaction-mode-map))
                            (define-key map mapping to))))
       (redefine-key 'nrepl-macroexpand-1 'nrepl-macroexpand-1-inplace)
