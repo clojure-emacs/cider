@@ -2468,7 +2468,8 @@ Insert a banner, unless NOPROMPT is non-nil."
 
 (defun nrepl-find-or-create-repl-buffer ()
   "Return the repl buffer, create if necessary."
-  (let ((buffer (get-buffer (nrepl-current-repl-buffer))))
+  (let* ((current (nrepl-current-repl-buffer))
+         (buffer (or current (get-buffer current))))
     (or (if (buffer-live-p buffer) buffer)
         (let ((connection (get-process (nrepl-current-connection-buffer))))
           (nrepl-init-repl-buffer
