@@ -2957,15 +2957,18 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
     process))
 
 (defun nrepl-decompile (fn-name)
-  "Decompiles specified function into the java bytecode. Opens buffer *decompiled* with the result
-of decompilation, enables javap-mode on it.
-Input: fn-name in format 'my-namespace$my-function'. All dashes will be replaced with underscores,
-the dollar symbol will be escaped."
+  "Decompiles specified function into the java bytecode.
+Opens buffer *decompiled* with the result of decompilation,
+enables javap-mode on it. Input: FN-NAME in format 'my-namespace$my-function'.
+All dashes will be replaced with underscores, the dollar symbol will be
+escaped."
   (let* ((buf-name "*decompiled*")
 	 (class-name
-	  (replace-regexp-in-string "-" "_" 
-				    (replace-regexp-in-string "\\$" "\\\\$" fn-name)))
-	 (cmd (concat "javap -constants -v -c -classpath `lein classpath` " class-name))
+	  (replace-regexp-in-string "-" "_"
+			(replace-regexp-in-string "\\$" "\\\\$" fn-name)))
+	 (cmd
+	  (concat "javap -constants -v -c -classpath `lein classpath` "
+		  class-name))
 	 (decompiled (shell-command-to-string cmd)))
     (with-current-buffer (get-buffer-create buf-name)
       (point-min)
@@ -2974,12 +2977,14 @@ the dollar symbol will be escaped."
     (display-buffer buf-name)))
 
 (defun nrepl-decompile-func (fn-name)
-  "Asks for the function name in the current namespace and decompiles it."
+  "Asks for the function name (FN-NAME) in the current namespace
+and decompiles it."
   (interactive "sFunction: ")
   (nrepl-decompile (concat (nrepl-current-ns) "$" fn-name)))
 
 (defun nrepl-decompile-ns-func (fn-name)
-  "Asks for the function name in a specific namespace and decompiles it."
+  "Asks for the function name (FN-NAME) in a specific namespace
+and decompiles it. The FN-NAME should be prefixed with the namespace."
   (interactive "sNamespace/function: ")
   (nrepl-decompile (concat (replace-regexp-in-string "\\\/" "$" fn-name))))
 
