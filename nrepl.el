@@ -2468,7 +2468,8 @@ Insert a banner, unless NOPROMPT is non-nil."
 
 (defun nrepl-find-or-create-repl-buffer ()
   "Return the repl buffer, create if necessary."
-  (let ((buffer (get-buffer (nrepl-current-repl-buffer))))
+  (let* ((current (nrepl-current-repl-buffer))
+         (buffer (or current (get-buffer current))))
     (or (if (buffer-live-p buffer) buffer)
         (let ((connection (get-process (nrepl-current-connection-buffer))))
           (nrepl-init-repl-buffer
@@ -2956,6 +2957,16 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
       (nrepl-describe-session process))
     process))
 
+(defun nrepl-default-port ()
+  "Attempts to read port from target/repl-port.
+Falls back to `nrepl-port' if not found."
+  (let* ((dir (nrepl-project-directory-for (nrepl-current-dir)))
+         (f (expand-file-name "target/repl-port" dir))
+         (port (when (file-exists-p f)
+                 (with-temp-buffer
+                   (insert-file-contents f)
+                   (buffer-string)))))
+    (or port nrepl-port)))
 
 ;;;###autoload
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
@@ -2966,7 +2977,7 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
 (defun nrepl (host port)
   "Connect nrepl to HOST and PORT."
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
-                     (string-to-number (read-string "Port: " nrepl-port nil nrepl-port))))
+                     (string-to-number (let ((port (nrepl-default-port))) (read-string "Port: " port nil port)))))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 
