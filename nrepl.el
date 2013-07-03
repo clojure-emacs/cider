@@ -2959,7 +2959,7 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
 (defun nrepl-decompile (fn-name)
   "Decompiles specified function into the java bytecode.
 Opens buffer *decompiled* with the result of decompilation,
-enables javap-mode on it. Input: FN-NAME in format 'my-namespace$my-function'.
+enables javap-mode on it.  Input: FN-NAME in format 'my-namespace$my-function'.
 All dashes will be replaced with underscores, the dollar symbol will be
 escaped."
   (let* ((buf-name "*decompiled*")
@@ -2977,15 +2977,14 @@ escaped."
     (display-buffer buf-name)))
 
 (defun nrepl-decompile-func (fn-name)
-  "Asks for the function name (FN-NAME) in the current namespace
-and decompiles it."
+  "Asks for the func name (FN-NAME) in the current namespace.and decompiles."
   (interactive "sFunction: ")
   (nrepl-decompile (concat (nrepl-current-ns) "$" fn-name)))
 
 (defun nrepl-decompile-ns-func (fn-name)
-  "Asks for the function name (FN-NAME) in a specific namespace
-and decompiles it. The FN-NAME should be prefixed with the namespace."
-  (interactive "sNamespace/function: ")
+  "Asks for the func name (FN-NAME) in a specific namespace and decompiles it.
+The FN-NAME should be prefixed with the namespace."
+  (interactive "sNamespace/function:  ")
   (nrepl-decompile (concat (replace-regexp-in-string "\\\/" "$" fn-name))))
 
 
