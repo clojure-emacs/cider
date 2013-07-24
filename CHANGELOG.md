@@ -4,6 +4,8 @@
 
 ### New features
 
+* Add highlighting of compilation warnings in addition to existing highlighting of errors
+
 ### Bugs fixed
 
 ## 0.1.7 / 2013-03-13
