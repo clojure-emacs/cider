@@ -60,7 +60,8 @@
 (require 'compile)
 
 (eval-when-compile
-  (defvar paredit-version))
+  (defvar paredit-version)
+  (defvar paredit-space-for-delimiter-predicates))
 
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
