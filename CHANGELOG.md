@@ -3,6 +3,8 @@
 ## 0.1.8 (current)
 
 ### New features
+* Add feature: Toggle tracing/untracing of a var at point. A var is traced/untraced
+	with `C-c M-t`.
 
 * Add highlighting of compilation warnings in addition to existing highlighting of errors
 
