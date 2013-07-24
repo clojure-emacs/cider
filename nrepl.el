@@ -890,28 +890,28 @@ They exist for compatibility with `next-error'."
 (defun nrepl-extract-error-info (regexp message)
   "Extract error information with REGEXP against MESSAGE."
   (let ((file (nth 1 regexp))
-	(line (nth 2 regexp))
-	(col (nth 3 regexp))
-	(type (nth 4 regexp))
-	(pat (first regexp)))
+        (line (nth 2 regexp))
+        (col (nth 3 regexp))
+        (type (nth 4 regexp))
+        (pat (first regexp)))
     (when (string-match pat message)
       ;; special processing for type (1.2) style
       (setq type (if (consp type)
-		     (or (and (first type) (match-end (first type)) 1)
-			 (and (rest type) (match-end (rest type)) 0)
-			 2)))
+                     (or (and (first type) (match-end (first type)) 1)
+                         (and (rest type) (match-end (rest type)) 0)
+                         2)))
       (list
        (when file
-	 (let ((val (match-string-no-properties file message)))
-	   (unless (string= val "NO_SOURCE_PATH") val)))
+         (let ((val (match-string-no-properties file message)))
+           (unless (string= val "NO_SOURCE_PATH") val)))
        (when line (string-to-number (match-string-no-properties line message)))
        (when col
-	 (let ((val (match-string-no-properties col message)))
-	   (when val (string-to-number val))))
+         (let ((val (match-string-no-properties col message)))
+           (when val (string-to-number val))))
        (aref [nrepl-warning-highlight-face
-	      nrepl-warning-highlight-face
-	      nrepl-error-highlight-face]
-	     (or type 2))
+              nrepl-warning-highlight-face
+              nrepl-error-highlight-face]
+             (or type 2))
        (when message)))))
 
 (defun nrepl-highlight-compilation-errors (buffer message)
