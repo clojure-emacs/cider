@@ -2553,9 +2553,11 @@ of the current source file."
 (defun nrepl-set-ns (ns)
   "Switch the namespace of the nREPL buffer to NS."
   (interactive (list (nrepl-current-ns)))
-  (with-current-buffer (nrepl-current-repl-buffer)
-    (nrepl-send-string
-     (format "(in-ns '%s)" ns) (nrepl-handler (current-buffer)))))
+  (if ns
+      (with-current-buffer (nrepl-current-repl-buffer)
+        (nrepl-send-string
+         (format "(in-ns '%s)" ns) (nrepl-handler (current-buffer))))
+    (message "Sorry, I don't know what the current namespace is.")))
 
 (defun nrepl-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
