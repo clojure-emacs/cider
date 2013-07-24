@@ -58,6 +58,7 @@
 (require 'cl)
 (require 'easymenu)
 (require 'compile)
+(require 'executable)
 
 (eval-when-compile
   (defvar paredit-version)
@@ -1665,21 +1666,120 @@ ENDP) DELIM."
 ;;; communication
 (defcustom nrepl-lein-command
   "lein"
-  "The command used to execute leiningen 2.x."
+  "The command used to execute leiningen 2.x.
+
+Only used if `nrepl-server-command' is set to 'search."
   :type 'string
   :group 'nrepl-mode)
 
-(defcustom nrepl-server-command
-  (if (or (locate-file nrepl-lein-command exec-path)
-          (locate-file (format "%s.bat" nrepl-lein-command) exec-path))
-      (format "%s repl :headless" nrepl-lein-command)
-    (format "echo \"%s repl :headless\" | eval $SHELL -l" nrepl-lein-command))
-  "The command used to start the nREPL via command `nrepl-jack-in'.
-For a remote nREPL server lein must be in your PATH.  The remote
-proc is launched via sh rather than bash, so it might be necessary
-to specific the full path to it.  Localhost is assumed."
-  :type 'string
+
+(defcustom nrepl-server-command 'search
+  "How to find the command used to start nREPL via `nrepl-jack-in'.
+
+If 'search look for lein in the `exec-path' or the download path
+from `nrepl-lein-self-install'."
+  :type '(choice (const :tag "Search" search)
+                 (string :tag "Command"))
   :group 'nrepl-mode)
+
+(defun nrepl-fetch-server-command ()
+  "Fetch the server command to launch nrepl.
+
+See `nrepl-server-command' for details."
+  (if (eq nrepl-server-command 'search)
+      (let* ((path
+              (cons user-emacs-directory exec-path))
+             (command
+              (if (equal system-type 'windows-nt)
+                  (or
+                   (locate-file (format "%s.bat" nrepl-lein-command) path)
+                   (locate-file nrepl-lein-command path))
+                (or (locate-file nrepl-lein-command path)))))
+        (if (not command)
+          (if (equal system-type 'darwin)
+              ;; last ditch attempt to find lein through login shell on mac
+              ;; will break in an ugly way later on if this doesn't work.
+              (format "echo \"%s repl :headless\" | eval $SHELL -l" nrepl-lein-command)
+            ;; not on mac, so break cleanly.
+            (error (concat  "Unable to find \"lein\": consider M-x nrepl-lein-self-install,"
+                            "or update `nrepl-server-command'")))
+          (format "%s repl :headless" command)))
+   ;; command is explicit don't search
+    nrepl-server-command))
+
+
+(defvar nrepl-lein-retrieve-shell
+  "https://raw.github.com/technomancy/leiningen/stable/bin/lein")
+
+;; https requires gnutls which doesn't appear to be standard in Emacs24 build.
+(defvar nrepl-lein-retrieve-batch
+  "http://raw.github.com/technomancy/leiningen/stable/bin/lein.bat")
+
+(defun nrepl-lein-self-install ()
+  "Install the latest leiningen for use by nrepl.
+
+On windows, this requires installation of the gnutls library,
+alongside Emacs.  You can download it here
+ftp://ftp.gnutls.org/gcrypt/gnutls/w32/.  Dropping all the files
+from the bin directory of the download into the same directory as
+the Emacs executable should work."
+  (interactive)
+  (let* ((retrieve
+         (if (equal system-type
+                    'windows-nt)
+             nrepl-lein-retrieve-batch
+           nrepl-lein-retrieve-shell))
+         (lein-command
+          (if (equal system-type
+                     'windows-nt)
+              "lein.bat"
+            "lein"))
+         (lein-buffer
+          (url-retrieve-synchronously
+           retrieve)))
+    (message "Installing %s..." lein-command)
+    (save-excursion
+      (set-buffer lein-buffer)
+      (search-forward "\n\n")
+      (delete-region (point-min) (point))
+      (write-file (concat user-emacs-directory lein-command))
+      (executable-chmod))
+    (message "Installing %s...done" lein-command)
+    (sit-for 1)
+    (nrepl-lein-self-install-jar)))
+
+(defvar nrepl-lein-home
+  (if (equal system-type 'windows-nt)
+      (concat
+       (getenv "USERPROFILE")
+       "/.lein")
+    (expand-file-name "~/.lein")))
+
+(defvar nrepl-lein-version "2.0.0")
+(defvar nrepl-lein-download-url
+  "https://leiningen.s3.amazonaws.com/downloads/leiningen-%s-standalone.jar")
+
+(defvar nrepl-lein-jar
+  (format "%s/self-installs/leiningen-%s-standalone.jar"
+          nrepl-lein-home nrepl-lein-version))
+
+(defun nrepl-lein-self-install-jar ()
+  "Install leiningen jar to local machine."
+  (message "Installing Leiningen jar. Please wait.")
+  (sit-for 1)
+  (url-retrieve
+   (format nrepl-lein-download-url nrepl-lein-version)
+   'lein-self-install-callback (list nrepl-lein-jar)))
+
+(defun nrepl-lein-self-install-callback (status lein-jar)
+  "Callback for lein self-install.
+Argument STATUS status of download.
+Argument LEIN-JAR location of the jar."
+  (search-forward "\n\n")
+  (make-directory (file-name-directory lein-jar) t)
+  (write-region (point) (point-max) lein-jar)
+  (message "Leiningen download complete."))
+
 
 
 (defun nrepl-show-maximum-output ()
@@ -2828,8 +2928,8 @@ start the server."
                                (or project (nrepl-current-dir)))))
     (when (nrepl-check-for-repl-buffer nil project-dir)
       (let* ((cmd (if project
-                      (format "cd %s && %s" project nrepl-server-command)
-                    nrepl-server-command))
+                      (format "cd %s && %s" project (nrepl-fetch-server-command))
+                    (nrepl-fetch-server-command)))
              (process (start-process-shell-command
                        "nrepl-server"
                        (generate-new-buffer-name (nrepl-server-buffer-name))
