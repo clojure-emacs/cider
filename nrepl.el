@@ -888,6 +888,15 @@ They exist for compatibility with `next-error'."
         (with-current-buffer nrepl-error-buffer
           (compilation-minor-mode +1))))))
 
+(defvar nrepl-compilation-regexp
+  '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
+  "Specifications for matching errors and warnings in Clojure stacktraces.
+See `compilation-error-regexp-alist' for help on their format.")
+
+(add-to-list 'compilation-error-regexp-alist-alist
+             (cons 'nrepl nrepl-compilation-regexp))
+(add-to-list 'compilation-error-regexp-alist 'nrepl)
+
 (defun nrepl-extract-error-info (regexp message)
   "Extract error information with REGEXP against MESSAGE."
   (let ((file (nth 1 regexp))
@@ -1594,15 +1603,6 @@ Useful in hooks."
   "Turn off nrepl interaction mode (see command `nrepl-interaction-mode').
 Useful in hooks."
   (nrepl-interaction-mode -1))
-
-(defvar nrepl-compilation-regexp
-  '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
-  "Specifications for matching errors and warnings in Clojure stacktraces.
-See `compilation-error-regexp-alist' for help on their format.")
-
-(add-to-list 'compilation-error-regexp-alist-alist
-             (cons 'nrepl nrepl-compilation-regexp))
-(add-to-list 'compilation-error-regexp-alist 'nrepl)
 
 ;;; Prevent paredit from inserting some inappropriate spaces.
 ;;; C.f. clojure-mode.el
