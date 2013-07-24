@@ -4,7 +4,7 @@
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
-;; URL: http://www.github.com/kingtim/nrepl.el
+;; URL: http://www.github.com/clojure-emacs/nrepl.el
 ;; Version: 0.1.8
 ;; Keywords: languages, clojure, nrepl
 ;; Package-Requires: ((clojure-mode "2.0.0"))
