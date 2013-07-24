@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/kingtim/nrepl.el.png?branch=master)](https://travis-ci.org/kingtim/nrepl.el)
+[![Build Status](https://travis-ci.org/clojure-emacs/nrepl.el.png?branch=master)](https://travis-ci.org/clojure-emacs/nrepl.el)
 
 # nrepl.el
 
