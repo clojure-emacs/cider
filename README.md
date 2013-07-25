@@ -77,6 +77,12 @@ Keep in mind that `nrepl.el` depends on `clojure-mode` so you'll have to install
 [Emacs Prelude](https://github.com/bbatsov/prelude). If you're a
 Prelude user you can start using it right away.
 
+### Emacs Live
+
+`nrepl.el` comes bundled in
+[Emacs Live](https://github.com/overtone/emacs-live). If you're using
+Emacs Live you're already good to go.
+
 ## Configuration
 
 You can certainly use `nrepl.el` without configuring it any further,
