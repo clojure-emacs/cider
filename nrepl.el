@@ -3208,7 +3208,7 @@ Falls back to `nrepl-port' if not found."
 (defun nrepl (host port)
   "Connect nrepl to HOST and PORT."
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
-                     (string-to-number (let ((port (default-nrepl-port))) (read-string "Port: " port nil port)))))
+                     (string-to-number (let ((port (nrepl-default-port))) (read-string "Port: " port nil port)))))
   (setq nrepl-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
