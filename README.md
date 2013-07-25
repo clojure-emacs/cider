@@ -158,6 +158,15 @@ enable `paredit` in the nREPL buffer as well:
 (add-hook 'nrepl-mode-hook 'paredit-mode)
 ```
 
+* [smartparens](https://github.com/Fuco1/smartparens) is an excellent
+  alternative to paredit. Many Clojure hackers have adopted it
+  recently and you might want to give it a try as well. To enable
+  `smartparens` in the nREPL buffer use the following code:
+
+```lisp
+(add-hook 'nrepl-mode-hook 'smartparens-mode)
+```
+
 * [RainbowDelimiters](https://github.com/jlr/rainbow-delimiters) is a
   minor mode which highlights parentheses, brackets, and braces
   according to their depth. Each successive level is highlighted in a
