@@ -11,7 +11,7 @@
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
 ;; Version: 0.1.8
 ;; Keywords: languages, clojure, nrepl
-;; Package-Requires: ((clojure-mode "2.0.0"))
+;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "1.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@
 (require 'ansi-color)
 (require 'eldoc)
 (require 'ewoc)
-(require 'cl)
+(require 'cl-lib)
 (require 'easymenu)
 (require 'compile)
 
@@ -585,7 +585,7 @@ otherwise dispatch to internal completion function."
 (defun nrepl-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.
 POS is the index of the currently highlighted argument."
-  (let* ((rest-pos (position '& arglist))
+  (let* ((rest-pos (cl-position '& arglist))
          (i 0))
     (mapconcat
      (lambda (arg)
@@ -859,12 +859,12 @@ Returns the position at which PROPERTY was found, or nil if not found."
 ARG and RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
-  (flet ((goto-next-note-boundary ()
-                                  (let ((p (or (nrepl-find-property 'nrepl-note)
-                                               (nrepl-find-property 'nrepl-note t))))
-                                    (when p
-                                      (goto-char p)
-                                      (message (get-char-property p 'nrepl-note))))))
+  (cl-flet ((goto-next-note-boundary ()
+                                     (let ((p (or (nrepl-find-property 'nrepl-note)
+                                                  (nrepl-find-property 'nrepl-note t))))
+                                       (when p
+                                         (goto-char p)
+                                         (message (get-char-property p 'nrepl-note))))))
     ;; if we're already on a compilation error, first jump to the end of
     ;; it, so that we find the next error.
     (when (get-char-property (point) 'nrepl-note)
@@ -1380,7 +1380,7 @@ utf-8-unix."
                                        nrepl-input-history-items-added
                                        (nrepl-history-read filename)))
          ;; newest items are at the beginning of the list, thus 0
-         (hist  (subseq mhist 0 (min (length mhist) nrepl-history-size))))
+         (hist (cl-subseq mhist 0 (min (length mhist) nrepl-history-size))))
     (unless (file-writable-p filename)
       (error (format "History file not writable: %s" filename)))
     (let ((print-length nil) (print-level nil))
@@ -1396,7 +1396,7 @@ utf-8-unix."
   "Save the current nREPL input history to FILENAME.
 FILENAME defaults to the value of `nrepl-history-file`."
   (interactive (list (nrepl-history-read-filename)))
-  (let* ((file  (or filename nrepl-history-file)))
+  (let* ((file (or filename nrepl-history-file)))
     (nrepl-history-write file)))
 
 (defun nrepl-history-just-save ()
@@ -1412,7 +1412,7 @@ This function is meant to be used in hooks to avoid lambda
 ;; have been changed in the meantime by another session
 (defun nrepl-histories-merge (session-hist n-added-items file-hist)
   "Merge histories from SESSION-HIST adding N-ADDED-ITEMS into FILE-HIST."
-  (append (subseq session-hist 0 n-added-items)
+  (append (cl-subseq session-hist 0 n-added-items)
           file-hist))
 
 ;;;
@@ -1514,9 +1514,9 @@ This will not work on non-current prompts."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "g") 'nrepl-macroexpand-again)
     (define-key map (kbd "q") 'nrepl-popup-buffer-quit-function)
-    (flet ((redefine-key (from to)
-                         (dolist (mapping (where-is-internal from nrepl-interaction-mode-map))
-                           (define-key map mapping to))))
+    (cl-flet ((redefine-key (from to)
+                            (dolist (mapping (where-is-internal from nrepl-interaction-mode-map))
+                              (define-key map mapping to))))
       (redefine-key 'nrepl-macroexpand-1 'nrepl-macroexpand-1-inplace)
       (redefine-key 'nrepl-macroexpand-all 'nrepl-macroexpand-all-inplace)
       (redefine-key 'advertised-undo 'nrepl-macroexpand-undo)
@@ -1998,9 +1998,9 @@ Return the connection list."
 (defun nrepl--connection-list-purge ()
   "Clean up dead buffers from the `nrepl-connection-list'."
   (setq nrepl-connection-list
-        (remove-if (lambda (buffer)
-                     (not (buffer-live-p (get-buffer buffer))))
-                   nrepl-connection-list)))
+        (cl-remove-if (lambda (buffer)
+                        (not (buffer-live-p (get-buffer buffer))))
+                      nrepl-connection-list)))
 
 (defun nrepl-make-repl-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
@@ -2115,7 +2115,7 @@ The project name is the final component of PATH if not nil."
   (ewoc-filter ewoc (lambda (n) (member n connections)))
   (let ((existing))
     (ewoc-map (lambda (n) (setq existing (cons n existing))) ewoc)
-    (lexical-let ((added (set-difference connections existing)))
+    (lexical-let ((added (cl-set-difference connections existing)))
       (mapc (apply-partially 'ewoc-enter-last ewoc) added)
       (save-excursion (ewoc-refresh ewoc)))))
 
@@ -2519,6 +2519,18 @@ search for and read a `ns' form."
   (nrepl-mark-input-start)
   (nrepl-insert-prompt ns))
 
+(make-variable-buffer-local
+ (defvar nrepl-last-clojure-buffer nil
+   "A buffer-local variable holding the last clojure source buffer.
+`nrepl-switch-to-last-clojure-buffer' uses this variable to jump
+back to last clojure source buffer."))
+
+(defvar nrepl-current-clojure-buffer nil
+  "This variable holds current buffer temporarily when connecting to a REPL.
+It is set to current buffer when `nrepl' or `nrepl-jack-in' is called.
+After the REPL buffer is created, the value of this variable is used
+to call `nrepl-remember-clojure-buffer'.")
+
 (defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
   "Initialize the repl for CONNECTION in BUFFER.
 Insert a banner, unless NOPROMPT is non-nil."
@@ -2558,19 +2570,6 @@ of the current source file."
         (pop-to-buffer (nrepl-find-or-create-repl-buffer))
         (nrepl-remember-clojure-buffer buffer)
         (goto-char (point-max))))))
-
-(make-variable-buffer-local
- (defvar nrepl-last-clojure-buffer nil
-   "A buffer-local variable holding the last clojure source buffer.
-`nrepl-switch-to-last-clojure-buffer' uses this variable to jump
-back to last clojure source buffer."))
-
-
-(defvar nrepl-current-clojure-buffer nil
-  "This variable holds current buffer temporarily when connecting to a REPL.
-It is set to current buffer when `nrepl' or `nrepl-jack-in' is called.
-After the REPL buffer is created, the value of this variable is used
-to call `nrepl-remember-clojure-buffer'.")
 
 (defun nrepl-remember-clojure-buffer (buffer)
   "Try to remember the BUFFER from which the user jumps.
@@ -2902,7 +2901,7 @@ start the server."
 Looks for buffers where `nrepl-endpoint' matches ENDPOINT,
 or `nrepl-project-dir' matches PROJECT-DIRECTORY.
 If so ask the user for confirmation."
-  (if (find-if
+  (if (cl-find-if
        (lambda (buffer)
          (lexical-let ((buffer (get-buffer buffer)))
            (or (and endpoint
@@ -3083,9 +3082,4 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
      (define-key clojure-mode-map (kbd "C-c M-c") 'nrepl)))
 
 (provide 'nrepl)
-
-;; Local Variables:
-;; byte-compile-warnings: (not cl-functions)
-;; End:
-
 ;;; nrepl.el ends here
