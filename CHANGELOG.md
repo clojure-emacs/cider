@@ -5,6 +5,8 @@
 ### New features
 
 * Add highlighting of compilation warnings in addition to existing highlighting of errors
+* Add support for selecting last clojure source buffer with keybinding
+<kbd>C-c C-z</kbd> (the same as `nrepl-switch-to-repl-buffer`).
 
 ### Bugs fixed
 

@@ -284,6 +284,7 @@ Keyboard shortcut                    | Description
 <kbd>TAB</kbd> | Complete symbol at point.
 <kbd>C-c C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 <kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-z</kbd> | Select the last clojure buffer.
 
 ### Macroexpansion buffer commands:
 
