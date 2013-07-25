@@ -315,12 +315,26 @@ connection default, switch to it's repl buffer and use
 
 An extensive changelog is available [here](CHANGELOG.md).
 
+## Team
+
+* [Tim King](https://github.com/kingtim)
+* [Phil Hagelberg](https://github.com/technomancy)
+* [Bozhidar Batsov](https://github.com/bbatsov)
+* [Hugo Duncan](https://github.com/hugoduncan)
+* [Steve Purcell](https://github.com/purcell)
+
 ## Contributing
+
 * Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
-* Please report issues on the [GitHub issue tracker](https://github.com/kingtim/nrepl.el/issues) or the mailing list.
+* Please report issues on the [GitHub issue tracker](https://github.com/clojure-emacs/nrepl.el/issues) or the mailing list.
+
+Bug reports and suggestions for improvements are always
+welcome. GitHub pull requests are even better! :-)
 
 ## License
 
-Copyright © 2012-2013 Tim King, Phil Hagelberg and [contributors](https://github.com/kingtim/nrepl.el/contributors).
+Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
+Duncan, Steve Purcell and
+[contributors](https://github.com/kingtim/nrepl.el/contributors).
 
 Distributed under the GNU General Public License, version 3

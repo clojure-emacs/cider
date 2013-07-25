@@ -1,9 +1,13 @@
 ;;; nrepl.el --- Client for Clojure nREPL
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
+;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
+;;         Bozhidar Batsov <bozhidar@batsov.com>
+;;         Hugo Duncan <hugo@hugoduncan.org>
+;;         Steve Purcell <steve@sanityinc.com>
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
 ;; Version: 0.1.8
 ;; Keywords: languages, clojure, nrepl
