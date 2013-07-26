@@ -859,7 +859,7 @@ Returns the position at which PROPERTY was found, or nil if not found."
 ARG and RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
-  (cl-lables ((goto-next-note-boundary ()
+  (cl-labels ((goto-next-note-boundary ()
                                        (let ((p (or (nrepl-find-property 'nrepl-note)
                                                     (nrepl-find-property 'nrepl-note t))))
                                          (when p
