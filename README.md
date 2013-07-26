@@ -179,6 +179,12 @@ enable `paredit` in the nREPL buffer as well:
 (add-hook 'nrepl-mode-hook 'rainbow-delimiters-mode)
 ```
 
+* [ac-nrepl](https://github.com/clojure-emacs/ac-nrepl) provides
+  completion source for the popular Emacs interactive auto-completion
+  framework [auto-complete](http://cx4a.org/software/auto-complete/).
+  Where nrepl provides it, pop-up documentation for completed symbols
+  will be displayed.
+
 ## Basic Usage
 
 The only requirement to use nrepl.el is to have a nrepl server to
