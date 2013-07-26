@@ -11,7 +11,7 @@
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
 ;; Version: 0.1.8
 ;; Keywords: languages, clojure, nrepl
-;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "1.0"))
+;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -859,12 +859,12 @@ Returns the position at which PROPERTY was found, or nil if not found."
 ARG and RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
-  (cl-flet ((goto-next-note-boundary ()
-                                     (let ((p (or (nrepl-find-property 'nrepl-note)
-                                                  (nrepl-find-property 'nrepl-note t))))
-                                       (when p
-                                         (goto-char p)
-                                         (message (get-char-property p 'nrepl-note))))))
+  (cl-lables ((goto-next-note-boundary ()
+                                       (let ((p (or (nrepl-find-property 'nrepl-note)
+                                                    (nrepl-find-property 'nrepl-note t))))
+                                         (when p
+                                           (goto-char p)
+                                           (message (get-char-property p 'nrepl-note))))))
     ;; if we're already on a compilation error, first jump to the end of
     ;; it, so that we find the next error.
     (when (get-char-property (point) 'nrepl-note)
@@ -1515,9 +1515,9 @@ This will not work on non-current prompts."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "g") 'nrepl-macroexpand-again)
     (define-key map (kbd "q") 'nrepl-popup-buffer-quit-function)
-    (cl-flet ((redefine-key (from to)
-                            (dolist (mapping (where-is-internal from nrepl-interaction-mode-map))
-                              (define-key map mapping to))))
+    (cl-labels ((redefine-key (from to)
+                              (dolist (mapping (where-is-internal from nrepl-interaction-mode-map))
+                                (define-key map mapping to))))
       (redefine-key 'nrepl-macroexpand-1 'nrepl-macroexpand-1-inplace)
       (redefine-key 'nrepl-macroexpand-all 'nrepl-macroexpand-all-inplace)
       (redefine-key 'advertised-undo 'nrepl-macroexpand-undo)
