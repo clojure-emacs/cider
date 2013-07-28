@@ -62,6 +62,7 @@
 (require 'cl-lib)
 (require 'easymenu)
 (require 'compile)
+(require 'tramp)
 
 (eval-when-compile
   (defvar paredit-version)
@@ -439,14 +440,53 @@ With a PREFIX argument, print the result in the current buffer."
    (save-excursion (backward-sexp) (point))
    (point)))
 
+(defcustom nrepl-use-local-resources t
+  "Use local resources under HOME if possible."
+  :type 'boolean
+  :group 'nrepl)
+
+(defun nrepl-tramp-prefix ()
+  "Top element on `find-tag-marker-ring` used to determine Clojure host."
+  (let ((jump-origin (buffer-file-name
+                      (marker-buffer
+                       (ring-ref find-tag-marker-ring 0)))))
+    (when (tramp-tramp-file-p jump-origin)
+      (let ((vec (tramp-dissect-file-name jump-origin)))
+        (tramp-make-tramp-file-name (tramp-file-name-method vec)
+                                    (tramp-file-name-user vec)
+                                    (tramp-file-name-host vec)
+                                    nil)))))
+
+(defun nrepl-home-prefix-adjustment (resource)
+  "System dependend HOME location will be adjusted in RESOURCE.
+Removes any leading slash if on Windows."
+  (save-match-data
+    (cond ((string-match "^\\/\\(Users\\|home\\)\\/\\w+\\(\\/.+\\)" resource)
+           (concat (getenv "HOME") (match-string 2 resource)))
+          ((and (eq system-type 'windows-nt)
+                (string-match "^/" resource)
+                (not (tramp-tramp-file-p resource)))
+           (substring resource 1))
+          resource)))
+
+(defun nrepl-emacs-or-clojure-side-adjustment (resource)
+  "Fix the RESOURCE path depending on `nrepl-use-local-resources`."
+  (let ((resource         (nrepl-home-prefix-adjustment resource))
+        (clojure-side-res (concat (nrepl-tramp-prefix) resource))
+        (emacs-side-res   resource))
+    (cond ((equal resource "") resource)
+	  ((and nrepl-use-local-resources
+		(file-exists-p emacs-side-res))
+	   emacs-side-res)
+	  ((file-exists-p clojure-side-res)
+	   clojure-side-res)
+	  (t
+	   resource))))
+
 (defun nrepl-find-file (filename)
   "Switch to a buffer visiting FILENAME.
-Removes any leading slash if on Windows.  Uses `find-file'."
-  (let ((fn (if (and (eq system-type 'windows-nt)
-                     (string-match "^/" filename))
-                (substring filename 1)
-              filename)))
-    (find-file fn)))
+Adjusts for HOME location using `nrepl-home-prefix-adjustment'.  Uses `find-file'."
+  (find-file (nrepl-emacs-or-clojure-side-adjustment filename)))
 
 (defun nrepl-find-resource (resource)
   "Find and display RESOURCE."
@@ -454,7 +494,7 @@ Removes any leading slash if on Windows.  Uses `find-file'."
          (nrepl-find-file (match-string 1 resource)))
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
          (let* ((jar (match-string 2 resource))
-                (path (match-string 3 resource))
+		(path (match-string 3 resource))
                 (buffer-already-open (get-buffer (file-name-nondirectory jar))))
            (nrepl-find-file jar)
            (goto-char (point-min))

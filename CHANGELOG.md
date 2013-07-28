@@ -14,6 +14,8 @@
 
 ### Bugs fixed
 
+* M-. (nrepl-jump) on remote nrepl connection (across OS hosts) has been fixed.
+
 ## 0.1.7 / 2013-03-13
 
 ### New features
