@@ -14,8 +14,8 @@ WORK_DIR=$(shell pwd)
 TRAVIS_FILE=.travis.yml
 TEST_DIR=test
 CLOJURE_MODE=clojure-mode.el
-CLOJURE_MODE_STABLE_URL=https://raw.github.com/technomancy/clojure-mode/2.0.0/clojure-mode.el
-CLOJURE_MODE_LATEST_URL=https://raw.github.com/technomancy/clojure-mode/master/clojure-mode.el
+CLOJURE_MODE_STABLE_URL=https://raw.github.com/clojure-emacs/clojure-mode/2.0.0/clojure-mode.el
+CLOJURE_MODE_LATEST_URL=https://raw.github.com/clojure-emacs/clojure-mode/master/clojure-mode.el
 CHECKDOC_BATCH=checkdoc_batch.el
 CHECKDOC_BATCH_URL=ftp://download.tuxfamily.org/user42/checkdoc-batch.el
 
