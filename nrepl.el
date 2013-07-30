@@ -458,7 +458,7 @@ With a PREFIX argument, print the result in the current buffer."
                                     nil)))))
 
 (defun nrepl-home-prefix-adjustment (resource)
-  "System dependend HOME location will be adjusted in RESOURCE.
+  "System-dependent HOME location will be adjusted in RESOURCE.
 Removes any leading slash if on Windows."
   (save-match-data
     (cond ((string-match "^\\/\\(Users\\|home\\)\\/\\w+\\(\\/.+\\)" resource)
@@ -467,7 +467,8 @@ Removes any leading slash if on Windows."
                 (string-match "^/" resource)
                 (not (tramp-tramp-file-p resource)))
            (substring resource 1))
-          resource)))
+          (t
+           resource))))
 
 (defun nrepl-emacs-or-clojure-side-adjustment (resource)
   "Fix the RESOURCE path depending on `nrepl-use-local-resources`."
