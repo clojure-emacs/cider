@@ -130,13 +130,13 @@ When true some special buffers like the connection and the server
 buffer will be hidden.")
 
 (defun nrepl-connection-buffer-name ()
-  "Obtain the name of the connection buffer."
+  "Return the name of the connection buffer."
   (if nrepl-hide-special-buffers
       " *nrepl-connection*"
     "*nrepl-connection*"))
 
 (defun nrepl-server-buffer-name ()
-  "Obtain the name of the server buffer."
+  "Return the name of the server buffer."
   (if nrepl-hide-special-buffers
       " *nrepl-server*"
     "*nrepl-server*"))
@@ -210,7 +210,7 @@ joined together.")
 (defvar nrepl-requests (make-hash-table :test 'equal))
 
 (defvar nrepl-buffer-ns "user"
-  "Current clojure namespace of this buffer.")
+  "Current Clojure namespace of this buffer.")
 
 (defvar nrepl-input-history '()
   "History list of strings read from the nREPL buffer.")
@@ -259,7 +259,7 @@ in the `nrepl-error-buffer', which defaults to *nrepl-error*."
   :group 'nrepl)
 
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
-  "Selects the command to be invoked by the TAB key.
+  "Select the command to be invoked by the TAB key.
 The default option is `nrepl-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
@@ -1099,7 +1099,7 @@ This variable specifies both what was expanded and the expander.")
     (nrepl-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
 
 (defun nrepl-macroexpand-expr-inplace (expander)
-  "Substitutes the current form at point with its macroexpansion using EXPANDER."
+  "Substitute the current form at point with its macroexpansion using EXPANDER."
   (interactive)
   (let ((form-with-bounds (nrepl-sexp-at-point-with-bounds)))
     (if form-with-bounds
@@ -1240,7 +1240,7 @@ Print its value into the current buffer"
 ;;;;; History
 
 (defcustom nrepl-wrap-history nil
-  "*T to wrap history around when the end is reached."
+  "T to wrap history around when the end is reached."
   :type 'boolean
   :group 'nrepl)
 
@@ -1387,13 +1387,13 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
   :group 'nrepl-mode)
 
 (defun nrepl-history-read-filename ()
-  "Ask the user which file to use, defaulting `nrepl-history-file`."
+  "Ask the user which file to use, defaulting `nrepl-history-file'."
   (read-file-name "Use nREPL history file: "
                   nrepl-history-file))
 
 (defun nrepl-history-read (filename)
   "Read history from FILENAME and return it.
-Does not yet set the input history."
+It does not yet set the input history."
   (if (file-readable-p filename)
       (with-temp-buffer
         (insert-file-contents filename)
@@ -1402,10 +1402,10 @@ Does not yet set the input history."
 
 (defun nrepl-history-load (&optional filename)
   "Load history from FILENAME into current session.
-FILENAME defaults to the value of `nrepl-history-file` but user
+FILENAME defaults to the value of `nrepl-history-file' but user
 defined filenames can be used to read special history files.
 
-The value of `nrepl-input-history` is set by this function."
+The value of `nrepl-input-history' is set by this function."
   (interactive (list (nrepl-history-read-filename)))
   (let ((f (or filename nrepl-history-file)))
     ;; TODO: probably need to set nrepl-input-history-position as well.
@@ -1435,15 +1435,15 @@ utf-8-unix."
 
 (defun nrepl-history-save (&optional filename)
   "Save the current nREPL input history to FILENAME.
-FILENAME defaults to the value of `nrepl-history-file`."
+FILENAME defaults to the value of `nrepl-history-file'."
   (interactive (list (nrepl-history-read-filename)))
   (let* ((file (or filename nrepl-history-file)))
     (nrepl-history-write file)))
 
 (defun nrepl-history-just-save ()
-  "Just save the history to `nrepl-history-file`.
+  "Just save the history to `nrepl-history-file'.
 This function is meant to be used in hooks to avoid lambda
-  constructs."
+constructs."
   (nrepl-history-save nrepl-history-file))
 
 ;; SLIME has different semantics and will not save any duplicates.
@@ -1886,7 +1886,7 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 ;;; Log nrepl events
 
 (defcustom nrepl-log-events nil
-  "*Log protocol events to the *nrepl-events* buffer."
+  "Log protocol events to the *nrepl-events* buffer."
   :type 'boolean
   :group 'nrepl)
 
@@ -2302,7 +2302,7 @@ The result is a plist with keys :value, :stderr and :stdout."
     nrepl-sync-response))
 
 (defun nrepl-send-string-sync (input &optional ns session)
-  "Send the INPUT the the backed synchronously.
+  "Send the INPUT the backed synchronously.
 See command `nrepl-eval-request' for details about how NS and SESSION
 are processed."
   (nrepl-send-request-sync (nrepl-eval-request input ns session)))
@@ -2311,7 +2311,7 @@ are processed."
 (defalias 'nrepl-eval-async 'nrepl-send-string)
 
 (defun nrepl-send-input (&optional newline)
-  "Goto to the end of the input and send the current input.
+  "Go to the end of the input and send the current input.
 If NEWLINE is true then add a newline at the end of the input."
   (unless (nrepl-in-input-area-p)
     (error "No input at point"))
@@ -2390,8 +2390,8 @@ the symbol."
   "Evaluate the current input string, or insert a newline.
 Send the current input ony if a whole expression has been entered,
 i.e. the parenthesis are matched.
-With prefix END-OF-INPUT argument send the input even if the parenthesis are not
-balanced."
+When END-OF-INPUT is non-nil, send the input even if the parentheses
+are not balanced."
   (interactive "P")
   (cond
    (end-of-input
@@ -2407,7 +2407,7 @@ balanced."
     (message "[input not complete]"))))
 
 (defun nrepl-recenter-if-needed ()
-  "Make sure that (point) is visible."
+  "Make sure that the point is visible."
   (unless (pos-visible-in-window-p (point-max))
     (save-excursion
       (goto-char (point-max))
@@ -2465,7 +2465,7 @@ text property `nrepl-old-input'."
   (run-hooks 'nrepl-clear-buffer-hook))
 
 (defun nrepl-find-and-clear-repl-buffer ()
-  "Find the current repl buffer and clears it.
+  "Find the current repl buffer and clear it.
 Returns to the buffer in which the command was invoked."
   (interactive)
   (let ((origin-buffer (current-buffer)))
@@ -2590,7 +2590,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     (current-buffer)))
 
 (defun nrepl-find-or-create-repl-buffer ()
-  "Return the repl buffer, create if necessary."
+  "Return the repl buffer, create it if necessary."
   (let ((buffer (nrepl-current-repl-buffer)))
         (if (null buffer)
                 (error "No active nREPL Connection")
@@ -2666,7 +2666,7 @@ clojure buffer and the REPL buffer."
 (defvar nrepl-ido-ns nil)
 
 (defun nrepl-ido-form (ns)
-  "Construct a clojure form for ido read using NS."
+  "Construct a Clojure form for ido read using NS."
   `(concat (if (find-ns (symbol ,ns))
                (map name (concat (keys (ns-interns (symbol ,ns)))
                                  (keys (ns-refers (symbol ,ns))))))
@@ -2783,7 +2783,7 @@ under point, prompts for a var."
                         (file-name-nondirectory filename)))
 
 (defun nrepl-load-file-core (filename)
-  "Load the clojure file FILENAME."
+  "Load the Clojure file FILENAME."
   (let ((fn (replace-regexp-in-string
              "\\\\" "\\\\\\\\"
              (convert-standard-filename (expand-file-name filename)))))
@@ -2798,7 +2798,7 @@ under point, prompts for a var."
     (nrepl-load-file-core filename)))
 
 (defun nrepl-load-file (filename)
-  "Load the clojure file FILENAME."
+  "Load the Clojure file FILENAME."
   (interactive (list
                 (read-file-name "Load file: " nil nil
                                 nil (if (buffer-file-name)
@@ -3023,7 +3023,7 @@ See command `nrepl-interaction-mode'."
           (clojure-disable-nrepl))))))
 
 (defun nrepl-possibly-disable-on-existing-clojure-buffers ()
-  "If not connected, disable nrepl interaction mode on existing clojure buffers."
+  "If not connected, disable nrepl interaction mode on existing Clojure buffers."
   (when (not (nrepl-current-connection-buffer))
     (nrepl-disable-on-existing-clojure-buffers)))
 
@@ -3092,7 +3092,7 @@ If so ask the user for confirmation."
     (kill-buffer buffer)))
 
 (defun nrepl-close-ancilliary-buffers ()
-  "Closes buffers that are shared across connections."
+  "Close buffers that are shared across connections."
   (interactive)
   (dolist (buf-name `(,nrepl-error-buffer
                       ,nrepl-doc-buffer
@@ -3230,7 +3230,7 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
     process))
 
 (defun nrepl-default-port ()
-  "Attempts to read port from target/repl-port.
+  "Attempt to read port from target/repl-port.
 Falls back to `nrepl-port' if not found."
   (let* ((dir (nrepl-project-directory-for (nrepl-current-dir)))
          (f (expand-file-name "target/repl-port" dir))
