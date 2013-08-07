@@ -476,13 +476,13 @@ Removes any leading slash if on Windows."
         (clojure-side-res (concat (nrepl-tramp-prefix) resource))
         (emacs-side-res   resource))
     (cond ((equal resource "") resource)
-	  ((and nrepl-use-local-resources
-		(file-exists-p emacs-side-res))
-	   emacs-side-res)
-	  ((file-exists-p clojure-side-res)
-	   clojure-side-res)
-	  (t
-	   resource))))
+          ((and nrepl-use-local-resources
+                (file-exists-p emacs-side-res))
+           emacs-side-res)
+          ((file-exists-p clojure-side-res)
+           clojure-side-res)
+          (t
+           resource))))
 
 (defun nrepl-find-file (filename)
   "Switch to a buffer visiting FILENAME.
@@ -495,7 +495,7 @@ Adjusts for HOME location using `nrepl-home-prefix-adjustment'.  Uses `find-file
          (nrepl-find-file (match-string 1 resource)))
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
          (let* ((jar (match-string 2 resource))
-		(path (match-string 3 resource))
+                (path (match-string 3 resource))
                 (buffer-already-open (get-buffer (file-name-nondirectory jar))))
            (nrepl-find-file jar)
            (goto-char (point-min))
