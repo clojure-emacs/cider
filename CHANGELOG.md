@@ -2,6 +2,9 @@
 
 ## 0.2.0
 
+* <kbd>C-c C-z</kbd> will select the clojure buffer based on the current namespace.
+* <kbd>C-u C-u C-c C-z</kbd> will select the clojure buffer based on a user directory prompt.
+
 ### Bugs fixed
 
 * <kbd>C-c M-s</kbd> (`nrepl-selector`) was bound to non-existing symbol.

@@ -2581,6 +2581,16 @@ It is set to current buffer when `nrepl' or `nrepl-jack-in' is called.
 After the REPL buffer is created, the value of this variable is used
 to call `nrepl-remember-clojure-buffer'.")
 
+(defun nrepl-remember-clojure-buffer (buffer)
+  "Try to remember the BUFFER from which the user jumps.
+The BUFFER needs to be a clojure buffer and current major mode needs
+to be `nrepl-mode'.  The user can use `nrepl-switch-to-last-clojure-buffer'
+to jump back to the last clojure source buffer."
+  (when (and buffer
+             (eq 'clojure-mode (with-current-buffer buffer major-mode))
+             (eq 'nrepl-mode major-mode))
+    (setq nrepl-last-clojure-buffer buffer)))
+
 (defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
   "Initialize the repl for CONNECTION in BUFFER.
 Insert a banner, unless NOPROMPT is non-nil."
@@ -2609,33 +2619,43 @@ Insert a banner, unless NOPROMPT is non-nil."
 
 (defun nrepl-switch-to-repl-buffer (arg)
   "Select the repl buffer, when possible in an existing window.
+The buffer chosen is based on the file open in the current buffer.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear.
 
 With a prefix ARG sets the name of the repl buffer to the one
-of the current source file."
-  (interactive "P")
+of the current source file.
+
+With a second prefix ARG the chosen repl buffer is based on a
+supplied project directory."
+  (interactive "p")
   (if (not (get-buffer (nrepl-current-connection-buffer)))
       (message "No active nREPL connection.")
     (progn
+      (let ((project-directory
+	     (or (when (eq 16 arg)
+		   (ido-read-directory-name "Project: "))
+		 (nrepl-project-directory-for (nrepl-current-dir)))))
+	(when project-directory
+	  (lexical-let ((buf (car (cl-remove-if-not
+				   (lambda (conn)
+				     (equal (file-truename project-directory)
+					    (file-truename
+					     (with-current-buffer (get-buffer conn)
+					       nrepl-project-dir))))
+				   nrepl-connection-list))))
+	    (if (not buf)
+		(message (format "nREPL connection not found for %s." (file-truename project-directory)))
+	      (setq nrepl-connection-list
+		    (cons buf (delq buf nrepl-connection-list)))))))
       (let ((buffer (current-buffer)))
-        (when arg
+        (when (eq 4 arg)
           (nrepl-set-ns (nrepl-current-ns)))
         (pop-to-buffer (nrepl-find-or-create-repl-buffer))
         (nrepl-remember-clojure-buffer buffer)
         (goto-char (point-max))))))
-
-(defun nrepl-remember-clojure-buffer (buffer)
-  "Try to remember the BUFFER from which the user jumps.
-The BUFFER needs to be a clojure buffer and current major mode needs
-to be `nrepl-mode'.  The user can use `nrepl-switch-to-last-clojure-buffer'
-to jump back to the last clojure source buffer."
-  (when (and buffer
-             (eq 'clojure-mode (with-current-buffer buffer major-mode))
-             (eq 'nrepl-mode major-mode))
-    (setq nrepl-last-clojure-buffer buffer)))
 
 (defun nrepl-switch-to-last-clojure-buffer ()
   "Switch to the last clojure buffer.
