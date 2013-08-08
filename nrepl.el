@@ -9,7 +9,7 @@
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
-;; Version: 0.1.8
+;; Version: 0.2.0
 ;; Keywords: languages, clojure, nrepl
 ;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3"))
 
@@ -73,7 +73,7 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defconst nrepl-current-version "0.1.8"
+(defconst nrepl-current-version "0.2.0-preview"
   "The current nREPL.el version.")
 
 (defun nrepl-version ()

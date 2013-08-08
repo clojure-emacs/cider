@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.2.0
+
 ## 0.1.8 / 2013-08-08
 
 ### New features
