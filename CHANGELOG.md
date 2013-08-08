@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.8 (current)
+## 0.1.8 / 2013-08-08
 
 ### New features
 

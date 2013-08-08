@@ -73,7 +73,7 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defconst nrepl-current-version "0.1.8-preview"
+(defconst nrepl-current-version "0.1.8"
   "The current nREPL.el version.")
 
 (defun nrepl-version ()
