@@ -2,6 +2,10 @@
 
 ## 0.2.0
 
+### Bugs fixed
+
+* <kbd>C-c M-s</kbd> (`nrepl-selector`) was bound to non-existing symbol.
+
 ## 0.1.8 / 2013-08-08
 
 ### New features
