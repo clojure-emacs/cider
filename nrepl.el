@@ -167,12 +167,16 @@ buffer will be hidden.")
   :group 'nrepl)
 
 (defface nrepl-error-highlight-face
-  '((t (:inherit font-lock-warning-face :underline t)))
+  '((((supports :underline (:style wave)))
+     (:underline (:style wave :color "red") :inherit unspecified))
+    (t (:inherit font-lock-warning-face :underline t)))
   "Face used to highlight compilation errors in Clojure buffers."
   :group 'nrepl)
 
 (defface nrepl-warning-highlight-face
-  '((t (:inherit font-lock-warning-face :underline (:color "yellow"))))
+  '((((supports :underline (:style wave)))
+     (:underline (:style wave :color "yellow") :inherit unspecified))
+    (t (:inherit font-lock-warning-face :underline (:color "yellow"))))
   "Face used to highlight compilation warnings in Clojure buffers."
   :group 'nrepl)
 
