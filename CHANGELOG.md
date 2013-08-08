@@ -8,15 +8,15 @@
 
 * Evaluate all namespace forms `(ns ...)` in the user namespace.
 * Add highlighting of compilation warnings in addition to existing highlighting of errors
-* Add support for selecting last clojure source buffer with keybinding
+* Add support for selecting last Clojure source buffer with keybinding
 <kbd>C-c C-z</kbd> (the same as `nrepl-switch-to-repl-buffer`).
 * The content of `target/repl-port`, if present, will be used as the
-  default port for `M-x nrepl`
-* Added an extendable slime-style selector command and binding 'C-c s'
+  default port for <kbd>M-x nrepl</kbd>
+* Added an extendable slime-style selector command and binding <kbd>C-c M-s</kbd>
 
 ### Bugs fixed
 
-* M-. (nrepl-jump) on remote nrepl connection (across OS hosts) has been fixed.
+* <kbd>M-.</kbd> (`nrepl-jump`) on remote nrepl connection (across OS hosts) has been fixed.
 
 ## 0.1.7 / 2013-03-13
 
