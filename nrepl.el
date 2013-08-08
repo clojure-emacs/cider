@@ -1521,7 +1521,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
-    (define-key map (kbd "C-c M-s") 'nrepl-select)
+    (define-key map (kbd "C-c M-s") 'nrepl-selector)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1622,7 +1622,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-m") 'nrepl-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-last-clojure-buffer)
-    (define-key map (kbd "C-c M-s") 'nrepl-select)
+    (define-key map (kbd "C-c M-s") 'nrepl-selector)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
