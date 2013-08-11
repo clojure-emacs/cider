@@ -133,6 +133,13 @@ than the REPL:
 (setq nrepl-popup-stacktraces-in-repl t)
 ```
 
+* The nrepl buffer name takes the format `*nrepl project-name*`.
+Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
+
+```lisp
+(setq nrepl-buffer-name-separator "-")
+```
+
 * Make <kbd>C-c C-z</kbd> switch to the `*nrepl*` buffer in the current window:
 
 ```lisp
