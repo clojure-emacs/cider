@@ -301,51 +301,51 @@
 	(funcall (third method))))
 
 (ert-deftest test-nrepl-selector-n ()
-	(with-temp-buffer
-	  (lexical-let ((b1 (current-buffer)))
-		(set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
-		(let ((nrepl-connection-list (list (buffer-name b1))))
-		  (nrepl-connection-browser)
-		  (with-temp-buffer ;; switch to another buffer
-			(nrepl-invoke-selector-method-by-key ?n)
-			(equal (current-buffer)
-				   (get-buffer nrepl--connection-browser-buffer-name)))))))
+  (with-temp-buffer
+    (lexical-let ((b1 (current-buffer)))
+      (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
+      (let ((nrepl-connection-list (list (buffer-name b1))))
+	(nrepl-connection-browser)
+	(with-temp-buffer ;; switch to another buffer
+	  (nrepl-invoke-selector-method-by-key ?n)
+	  (equal (current-buffer)
+		 (get-buffer nrepl--connection-browser-buffer-name)))))))
 
 (ert-deftest test-nrepl-selector-c ()
+  (with-temp-buffer
+    (rename-buffer "*testfile*.clj")
+    (lexical-let ((b1 (current-buffer)))
+      (setq major-mode 'clojure-mode)
+      (with-temp-buffer
+	(rename-buffer "*testfile*.el")
+	(setq major-mode 'emacs-lisp-mode)
 	(with-temp-buffer
-	  (rename-buffer "*testfile*.clj")
-	  (lexical-let ((b1 (current-buffer)))
-		(setq major-mode 'clojure-mode)
-		(with-temp-buffer
-		  (rename-buffer "*testfile*.el")
-		  (setq major-mode 'emacs-lisp-mode)
-		  (with-temp-buffer
-			(not (equal (current-buffer) b1))
-			(nrepl-invoke-selector-method-by-key ?e)
-			(not (equal (current-buffer) b1))
-			(nrepl-invoke-selector-method-by-key ?c)
-			(equal (current-buffer) b1))))))
+	  (not (equal (current-buffer) b1))
+	  (nrepl-invoke-selector-method-by-key ?e)
+	  (not (equal (current-buffer) b1))
+	  (nrepl-invoke-selector-method-by-key ?c)
+	  (equal (current-buffer) b1))))))
 
 (ert-deftest test-nrepl-selector-e ()
+  (with-temp-buffer
+    (rename-buffer "*testfile*.el")
+    (lexical-let ((b1 (current-buffer)))
+      (setq major-mode 'emacs-lisp-mode)
+      (with-temp-buffer
+	(rename-buffer "*testfile*.clj")
+	(setq major-mode 'clojure-mode)
 	(with-temp-buffer
-	  (rename-buffer "*testfile*.el")
-	  (lexical-let ((b1 (current-buffer)))
-		(setq major-mode 'emacs-lisp-mode)
-		(with-temp-buffer
-		  (rename-buffer "*testfile*.clj")
-		  (setq major-mode 'clojure-mode)
-		  (with-temp-buffer
-			(not (equal (current-buffer) b1))
-			(nrepl-invoke-selector-method-by-key ?c)
-			(not (equal (current-buffer) b1))
-			(nrepl-invoke-selector-method-by-key ?e)
-			(equal (current-buffer) b1))))))
+	  (not (equal (current-buffer) b1))
+	  (nrepl-invoke-selector-method-by-key ?c)
+	  (not (equal (current-buffer) b1))
+	  (nrepl-invoke-selector-method-by-key ?e)
+	  (equal (current-buffer) b1))))))
 
 (ert-deftest test-nrepl-selector-v ()
-	(with-temp-buffer
-	  (rename-buffer "*nrepl-events*")
-	  (lexical-let ((b1 (current-buffer)))
-		(with-temp-buffer
-		  (not (equal (current-buffer) b1))
-		  (nrepl-invoke-selector-method-by-key ?v)
-		  (equal (current-buffer) b1)))))
+  (with-temp-buffer
+    (rename-buffer "*nrepl-events*")
+    (lexical-let ((b1 (current-buffer)))
+      (with-temp-buffer
+	(not (equal (current-buffer) b1))
+	(nrepl-invoke-selector-method-by-key ?v)
+	(equal (current-buffer) b1)))))
