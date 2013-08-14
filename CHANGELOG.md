@@ -2,6 +2,8 @@
 
 ## 0.2.0
 
+* <kbd>C-c M-d</kbd> will display current nREPL connection details.
+* <kbd>C-c M-r</kbd> will rotate and display the current nREPL connection.
 * Setting the variable `nrepl-buffer-name-show-port` will display the port on which the nRepl server is running.
 * nRepl buffer name uses project directory name; `*nrepl*` will appear as `*nrepl project-directory-name*`.
 * <kbd>C-c C-z</kbd> will select the clojure buffer based on the current namespace.
