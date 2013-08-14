@@ -349,3 +349,42 @@
 	(should (not (equal (current-buffer) b1)))
 	(nrepl-invoke-selector-method-by-key ?v)
 	(should (equal (current-buffer) b1))))))
+
+(ert-deftest test-nrepl-clojure-buffer-name ()
+  (with-temp-buffer
+    (lexical-let ((b1 (current-buffer)))
+      (let ((nrepl-connection-list (list (buffer-name b1))))
+	(should
+	 (equal (nrepl-repl-buffer-name) "*nrepl*"))))))
+
+(ert-deftest test-nrepl-clojure-buffer-name-based-on-project ()
+  (with-temp-buffer
+    (lexical-let ((b1 (current-buffer)))
+      (set (make-local-variable 'nrepl-project-dir) "proj")
+      (let ((nrepl-connection-list (list (buffer-name b1))))
+	(should
+	 (equal (nrepl-repl-buffer-name) "*nrepl proj*"))))))
+
+(ert-deftest test-nrepl-clojure-buffer-name-separator ()
+  (with-temp-buffer
+    (lexical-let ((b1 (current-buffer)))
+      (set (make-local-variable 'nrepl-project-dir) "proj")
+      (let ((nrepl-connection-list (list (buffer-name b1)))
+	    (nrepl-buffer-name-separator "X"))
+	(should
+	 (equal (nrepl-repl-buffer-name) "*nreplXproj*"))))))
+
+(ert-deftest test-nrepl-clojure-buffer-name-two-buffers-same-project ()
+  (with-temp-buffer
+    (set (make-local-variable 'nrepl-project-dir) "proj")
+    (let* ((nrepl-connection-list (list (buffer-name (current-buffer))))
+           (nrepl-new-buffer (nrepl-repl-buffer-name)))
+      (get-buffer-create nrepl-new-buffer)
+      (should
+       (equal nrepl-new-buffer "*nrepl proj*"))
+      (with-temp-buffer
+        (set (make-local-variable 'nrepl-project-dir) "proj")
+        (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
+          (should
+           (equal (nrepl-repl-buffer-name) "*nrepl proj*<2>")))
+        (kill-buffer nrepl-new-buffer)))))
