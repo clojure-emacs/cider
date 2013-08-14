@@ -277,6 +277,12 @@ change the setting's value."
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-buffer-name-separator " "
+  "Used in constructing the repl buffer name.
+The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
+  :type '(string)
+  :group 'nrepl)
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   "Make all VARIABLES buffer local."
   (mapcar #'make-variable-buffer-local variables))
@@ -3184,13 +3190,23 @@ restart the server."
        nrepl-buffer-ns
        nrepl-tooling-session))))
 
+(defun nrepl-repl-buffer-name ()
+  "Create a repl buffer name based on current connection buffer."
+  (generate-new-buffer-name
+   (lexical-let ((project-name (with-current-buffer
+				   (get-buffer (nrepl-current-connection-buffer))
+				 (nrepl--project-name nrepl-project-dir))))
+     (if project-name
+	 (format "*nrepl%s%s*" nrepl-buffer-name-separator project-name)
+       "*nrepl*"))))
+
 (defun nrepl-create-repl-buffer (process)
   "Create a repl buffer for PROCESS."
   (nrepl-init-repl-buffer
    process
-   (let ((buf (generate-new-buffer-name "*nrepl*")))
-     (pop-to-buffer buf)
-     buf)))
+   (let ((buffer-name (nrepl-repl-buffer-name)))
+     (pop-to-buffer buffer-name)
+     buffer-name)))
 
 (defun nrepl-new-tooling-session-handler (process)
   "Create a new tooling session handler for PROCESS."

@@ -2,6 +2,7 @@
 
 ## 0.2.0
 
+* Clojure buffer name uses project directory name; `*nrepl*` will appear as `*nrepl project-directory-name*`.
 * <kbd>C-c C-z</kbd> will select the clojure buffer based on the current namespace.
 * <kbd>C-u C-u C-c C-z</kbd> will select the clojure buffer based on a user directory prompt.
 
