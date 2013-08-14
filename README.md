@@ -45,7 +45,7 @@ And then you can install nREPL with the following command:
 or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.emacs` or `init.el`):
 
 ```lisp
-(unless (package-installed-p 'nrepl))
+(unless (package-installed-p 'nrepl)
   (package-install 'nrepl))
 ```
 
