@@ -140,6 +140,13 @@ Change the separator from space to something else by overriding `nrepl-buffer-na
 (setq nrepl-buffer-name-separator "-")
 ```
 
+* The nrepl buffer name can also display the port on which the nrepl server is running.
+Buffer name will look like *nrepl project-name:port*.
+
+```lisp
+(setq nrepl-buffer-name-show-port t)
+```
+
 * Make <kbd>C-c C-z</kbd> switch to the `*nrepl*` buffer in the current window:
 
 ```lisp

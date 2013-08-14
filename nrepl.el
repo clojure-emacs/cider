@@ -284,6 +284,11 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
   :type '(string)
   :group 'nrepl)
 
+(defcustom nrepl-buffer-name-show-port nil
+  "Show the connection port in the nrepl repl buffer name, if set to t."
+  :type 'boolean
+  :group 'nrepl)
+
 (defun nrepl-make-variables-buffer-local (&rest variables)
   "Make all VARIABLES buffer local."
   (mapcar #'make-variable-buffer-local variables))
@@ -3200,12 +3205,18 @@ restart the server."
 (defun nrepl-repl-buffer-name ()
   "Create a repl buffer name based on current connection buffer."
   (generate-new-buffer-name
-   (lexical-let ((project-name (with-current-buffer
-				   (get-buffer (nrepl-current-connection-buffer))
-				 (nrepl--project-name nrepl-project-dir))))
-     (if project-name
-	 (format "*nrepl%s%s*" nrepl-buffer-name-separator project-name)
-       "*nrepl*"))))
+   (lexical-let* ((buf (get-buffer (nrepl-current-connection-buffer)))
+                  (project-name (with-current-buffer buf
+                                  (nrepl--project-name nrepl-project-dir)))
+                  (nrepl-proj-name (if project-name
+                                       (format "%s%s"
+                                               nrepl-buffer-name-separator
+                                               project-name)
+                                     ""))
+                  (nrepl-proj-port (cadr (buffer-local-value 'nrepl-endpoint buf))))
+     (if nrepl-buffer-name-show-port
+       (format "*nrepl%s:%s*" nrepl-proj-name nrepl-proj-port)
+       (format "*nrepl%s*" nrepl-proj-name)))))
 
 (defun nrepl-create-repl-buffer (process)
   "Create a repl buffer for PROCESS."
