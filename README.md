@@ -360,6 +360,22 @@ An extensive changelog is available [here](CHANGELOG.md).
 Bug reports and suggestions for improvements are always
 welcome. GitHub pull requests are even better! :-)
 
+### Running the tests in batch mode
+
+Install [cask](https://github.com/rejeep/cask.el) if you haven't
+already, then:
+
+```bash
+$ cd /path/to/nrepl
+$ cask
+```
+
+Run all tests with:
+
+```bash
+$ make test
+```
+
 ## License
 
 Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
