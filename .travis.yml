@@ -1,29 +1,9 @@
 language: emacs-lisp
-
 env:
-  matrix:
-    - NREPL_DEPS=stable
-    - NREPL_DEPS=latest
-  global:
-    - EMACS=emacs24
-
-install:
-  - if [ "$EMACS" = "emacs24" ]; then
-        sudo add-apt-repository -y ppa:cassou/emacs &&
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs24 emacs24-el;
-    fi
-  - if [ "$NREPL_DEPS" = "stable" ]; then
-        make downloads-stable;
-    fi
-  - if [ "$NREPL_DEPS" = "latest" ]; then
-        make downloads-latest;
-    fi
-
+  - EMACS=emacs24
+  - EMACS=emacs-snapshot
+before_script:
+  - sh vagrant/provision.sh
+  - make elpa
 script:
-  - if [ "$NREPL_DEPS" = "latest" ]; then
-        $EMACS --version && make test-latest-no-backtrace checkdoc EMACS=$EMACS;
-    fi
-  - if [ "$NREPL_DEPS" = "stable" ]; then
-        $EMACS --version && make test-no-backtrace checkdoc EMACS=$EMACS;
-    fi
+  - make EMACS=${EMACS} test

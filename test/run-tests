@@ -1,0 +1,17 @@
+#!/usr/bin/env emacs --script
+
+(let ((current-directory (file-name-directory load-file-name)))
+  (setq nrepl-test-path (expand-file-name "." current-directory))
+  (setq nrepl-root-path (expand-file-name ".." current-directory)))
+
+(add-to-list 'load-path nrepl-root-path)
+(add-to-list 'load-path nrepl-test-path)
+
+(require 'nrepl)
+(require 'cl)
+
+(dolist (test-file (or argv (directory-files nrepl-test-path t "-tests.el$")))
+  (load test-file nil t))
+
+;; run tests
+(ert-run-tests-batch-and-exit t)

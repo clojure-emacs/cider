@@ -2,6 +2,6 @@
 *\#*\#
 *.\#*
 *.elc
-test/stable/
-test/latest/
-test/lib/
+.cask
+elpa
+
