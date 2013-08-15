@@ -11,7 +11,7 @@
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
 ;; Version: 0.2.0
 ;; Keywords: languages, clojure, nrepl
-;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3"))
+;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "1.6.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -53,6 +53,7 @@
 ;;; Code:
 
 (require 'clojure-mode)
+(require 'dash)
 (require 'thingatpt)
 (require 'etags)
 (require 'arc-mode)
@@ -636,7 +637,7 @@ otherwise dispatch to internal completion function."
 (defun nrepl-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.
 POS is the index of the currently highlighted argument."
-  (let* ((rest-pos (cl-position '& arglist))
+  (let* ((rest-pos (nrepl--find-rest-args-position arglist))
          (i 0))
     (mapconcat
      (lambda (arg)
@@ -651,6 +652,12 @@ POS is the index of the currently highlighted argument."
                                'eldoc-highlight-function-argument)
                  argstr)
              (setq i (1+ i)))))) arglist " ")))
+
+(defun nrepl--find-rest-args-position (arglist)
+  "Find the position of & in the ARGLIST vector."
+  (car (--first (eq '& (car (cdr it)))
+                (-map-indexed (lambda (ix elem) (list ix elem))
+                              (append arglist ())))))
 
 (defun nrepl-highlight-arglist (arglist pos)
   "Format the ARGLIST for eldoc.

@@ -388,3 +388,7 @@
           (should
            (equal (nrepl-repl-buffer-name) "*nrepl proj*<2>")))
         (kill-buffer nrepl-new-buffer)))))
+
+(ert-deftest test-nrepl--find-rest-args-position ()
+  (should (= (nrepl--find-rest-args-position [fmt & arg]) 1))
+  (should (equal (nrepl--find-rest-args-position [fmt arg]) nil)))
