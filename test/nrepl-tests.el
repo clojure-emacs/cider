@@ -374,6 +374,31 @@
 	(should
 	 (equal (nrepl-repl-buffer-name) "*nreplXproj*"))))))
 
+(ert-deftest test-nrepl-clojure-buffer-name-show-port-t ()
+  (with-temp-buffer
+    (set (make-local-variable 'nrepl-buffer-name-show-port) t)
+    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
+      (should
+       (equal (nrepl-repl-buffer-name) "*nrepl:4009*")))))
+
+(ert-deftest test-nrepl-clojure-buffer-name-show-port-nil ()
+  (with-temp-buffer
+    (set (make-local-variable 'nrepl-buffer-name-show-port) nil)
+    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
+      (should
+       (equal (nrepl-repl-buffer-name) "*nrepl*")))))
+
+(ert-deftest test-nrepl-clojure-buffer-name-based-on-project-and-port ()
+  (with-temp-buffer
+    (set (make-local-variable 'nrepl-buffer-name-show-port) t)
+    (set (make-local-variable 'nrepl-project-dir) "proj")
+    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
+      (should
+       (equal (nrepl-repl-buffer-name) "*nrepl proj:4009*")))))
+
 (ert-deftest test-nrepl-clojure-buffer-name-two-buffers-same-project ()
   (with-temp-buffer
     (set (make-local-variable 'nrepl-project-dir) "proj")
@@ -392,3 +417,22 @@
 (ert-deftest test-nrepl--find-rest-args-position ()
   (should (= (nrepl--find-rest-args-position [fmt & arg]) 1))
   (should (equal (nrepl--find-rest-args-position [fmt arg]) nil)))
+
+(ert-deftest test-nrepl-clojure-buffer-name-duplicate-proj-port ()
+  (with-temp-buffer
+    (set (make-local-variable 'nrepl-buffer-name-show-port) t)
+    (set (make-local-variable 'nrepl-project-dir) "proj")
+    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (let* ((nrepl-connection-list (list (buffer-name (current-buffer))))
+           (nrepl-new-buffer (nrepl-repl-buffer-name)))
+      (get-buffer-create nrepl-new-buffer)
+      (should
+       (equal nrepl-new-buffer "*nrepl proj:4009*"))
+      (with-temp-buffer
+        (set (make-local-variable 'nrepl-buffer-name-show-port) t)
+        (set (make-local-variable 'nrepl-project-dir) "proj")
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+        (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
+          (should
+           (equal (nrepl-repl-buffer-name) "*nrepl proj:4009*<2>")))
+        (kill-buffer nrepl-new-buffer)))))
