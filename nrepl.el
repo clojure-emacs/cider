@@ -1561,6 +1561,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-d") 'nrepl-doc)
     (define-key map (kbd "C-c C-s") 'nrepl-src)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-repl-buffer)
+    (define-key map (kbd "C-c C-Z") 'nrepl-switch-to-relevant-repl-buffer)
     (define-key map (kbd "C-c M-o") 'nrepl-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'nrepl-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'nrepl-load-file)
@@ -1597,6 +1598,7 @@ This will not work on non-current prompts."
     "--"
     ["Set ns" nrepl-set-ns]
     ["Switch to REPL" nrepl-switch-to-repl-buffer]
+    ["Switch to Relevant REPL" nrepl-switch-to-relevant-repl-buffer]
     ["Toggle REPL Pretty Print" nrepl-pretty-toggle]
     ["Clear REPL" nrepl-find-and-clear-repl-buffer]
     ["Interrupt" nrepl-interrupt]
@@ -2701,6 +2703,26 @@ Insert a banner, unless NOPROMPT is non-nil."
 
 (defun nrepl-switch-to-repl-buffer (arg)
   "Select the repl buffer, when possible in an existing window.
+
+Hint: You can use `display-buffer-reuse-frames' and
+`special-display-buffer-names' to customize the frame in which
+the buffer should appear.
+
+With a prefix ARG sets the name of the repl buffer to the one
+of the current source file."
+  (interactive "P")
+  (if (not (get-buffer (nrepl-current-connection-buffer)))
+      (message "No active nREPL connection.")
+    (progn
+      (let ((buffer (current-buffer)))
+        (when arg
+          (nrepl-set-ns (nrepl-current-ns)))
+        (pop-to-buffer (nrepl-find-or-create-repl-buffer))
+        (nrepl-remember-clojure-buffer buffer)
+        (goto-char (point-max))))))
+
+(defun nrepl-switch-to-relevant-repl-buffer (arg)
+  "Select the repl buffer, when possible in an existing window.
 The buffer chosen is based on the file open in the current buffer.
 
 Hint: You can use `display-buffer-reuse-frames' and
@@ -2712,32 +2734,29 @@ of the current source file.
 
 With a second prefix ARG the chosen repl buffer is based on a
 supplied project directory."
-  (interactive "p")
+  (interactive "P")
   (if (not (get-buffer (nrepl-current-connection-buffer)))
       (message "No active nREPL connection.")
     (progn
       (let ((project-directory
-             (or (when (eq 16 arg)
+             (or (when arg
                    (ido-read-directory-name "Project: "))
                  (nrepl-project-directory-for (nrepl-current-dir)))))
-        (when project-directory
-          (lexical-let ((buf (car (cl-remove-if-not
-                                   (lambda (conn)
-                                     (equal (file-truename project-directory)
-                                            (file-truename
-                                             (with-current-buffer (get-buffer conn)
-                                               nrepl-project-dir))))
-                                   nrepl-connection-list))))
-            (if (not buf)
-                (message (format "nREPL connection not found for %s." (file-truename project-directory)))
+        (if project-directory
+          (let ((buf (car (-filter
+                           (lambda (conn)
+                             (let ((conn-proj-dir (with-current-buffer (get-buffer conn)
+                                                    nrepl-project-dir)))
+                               (when conn-proj-dir
+                                 (equal (file-truename project-directory)
+                                        (file-truename conn-proj-dir)))))
+                           nrepl-connection-list))))
+            (if buf
               (setq nrepl-connection-list
-                    (cons buf (delq buf nrepl-connection-list)))))))
-      (let ((buffer (current-buffer)))
-        (when (eq 4 arg)
-          (nrepl-set-ns (nrepl-current-ns)))
-        (pop-to-buffer (nrepl-find-or-create-repl-buffer))
-        (nrepl-remember-clojure-buffer buffer)
-        (goto-char (point-max))))))
+                    (cons buf (delq buf nrepl-connection-list)))
+              (message "No relevant nREPL connection found. Switching to default connection.")))
+          (message "No project directory found. Switching to default nREPL connection.")))
+      (nrepl-switch-to-repl-buffer '()))))
 
 (defun nrepl-switch-to-last-clojure-buffer ()
   "Switch to the last clojure buffer.
