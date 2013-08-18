@@ -1540,6 +1540,8 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-b") 'nrepl-interrupt)
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c M-s") 'nrepl-selector)
+    (define-key map (kbd "C-c M-r") 'nrepl-rotate-connection)
+    (define-key map (kbd "C-c M-d") 'nrepl-current-connection-info)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1571,6 +1573,9 @@ This will not work on non-current prompts."
     ["Toggle REPL Pretty Print" nrepl-pretty-toggle]
     ["Clear REPL" nrepl-find-and-clear-repl-buffer]
     ["Interrupt" nrepl-interrupt]
+    "--"
+    ["Display current nrepl connection" nrepl-current-connection-info]
+    ["Rotate current nrepl connection" nrepl-rotate-connection]
     "--"
     ["Version info" nrepl-version]))
 
@@ -1641,6 +1646,8 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c M-m") 'nrepl-macroexpand-all)
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-last-clojure-buffer)
     (define-key map (kbd "C-c M-s") 'nrepl-selector)
+    (define-key map (kbd "C-c M-r") 'nrepl-rotate-connection)
+    (define-key map (kbd "C-c M-d") 'nrepl-current-connection-info)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -2225,6 +2232,26 @@ Refreshes EWOC."
   (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
     (when buffer
       (select-window (display-buffer buffer)))))
+
+(defun nrepl-current-connection-info ()
+  "Display the current nrepl connection.
+Shows project name, current repl namespace, and host:port endpoint."
+  (interactive)
+  (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
+    (message
+     (format "Active nrepl connection: %s:%s, %s:%s"
+	     (or (nrepl--project-name nrepl-project-dir) "<no project>")
+	     nrepl-buffer-ns
+	     (car nrepl-endpoint)
+	     (cadr nrepl-endpoint)))))
+
+(defun nrepl-rotate-connection ()
+  "Rotate and display the current nrepl connection."
+  (interactive)
+  (setq nrepl-connection-list
+	(append (cdr nrepl-connection-list)
+		(list (car nrepl-connection-list))))
+  (nrepl-current-connection-info))
 
 ;;; server messages
 
