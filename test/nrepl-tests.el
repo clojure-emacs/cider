@@ -241,11 +241,11 @@
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
 
 (ert-deftest test-nrepl-rotate-connecton-buffer ()
-  (noflet ((nrepl-current-connection-info ()))
+  (noflet ((nrepl--current-connection-info ()))
     (nrepl-test-with-buffers
      (a b c)
      (let ((nrepl-connection-list
-	    (list (buffer-name a) (buffer-name b) (buffer-name c))))
+            (list (buffer-name a) (buffer-name b) (buffer-name c))))
        (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
        (nrepl-rotate-connection)
        (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
@@ -254,28 +254,26 @@
        (nrepl-rotate-connection)
        (should (equal (buffer-name a) (nrepl-current-connection-buffer)))))))
 
-(ert-deftest test-nrepl-current-connection-info ()
+(ert-deftest test-nrepl--current-connection-info ()
   (with-temp-buffer
     (message (buffer-name (current-buffer)))
     (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
-      (noflet ((message (m)
-			(when (string-match "Active nrepl connection" m)
-			  (should (equal "Active nrepl connection: proj:somens, localhost:4005" m)))))
+      (noflet ((nrepl--clojure-version () "1.5.1"))
        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
        (set (make-local-variable 'nrepl-project-dir) "proj")
        (set (make-local-variable 'nrepl-buffer-ns) "somens")
-       (nrepl-current-connection-info)))))
+       (should (string= (nrepl--current-connection-info)
+                        "Active nrepl connection: proj:somens, localhost:4005 (Clojure 1.5.1)"))))))
 
 (ert-deftest test-nrepl-current-connection-info-no-project ()
   (with-temp-buffer
     (message (buffer-name (current-buffer)))
     (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
-      (noflet ((message (m)
-			(when (string-match "Active nrepl connection" m)
-			  (should (equal "Active nrepl connection: <no project>:somens, localhost:4005" m)))))
+      (noflet ((nrepl--clojure-version () "1.5.1"))
        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
        (set (make-local-variable 'nrepl-buffer-ns) "somens")
-       (nrepl-current-connection-info)))))
+       (should (string= (nrepl--current-connection-info)
+                        "Active nrepl connection: <no project>:somens, localhost:4005 (Clojure 1.5.1)"))))))
 
 (ert-deftest test-nrepl-close ()
   (lexical-let ((connections (nrepl-connection-buffers)))
@@ -336,18 +334,18 @@
 ;; selector
 (defun nrepl-invoke-selector-method-by-key (ch)
   (lexical-let ((method (find ch nrepl-selector-methods :key #'car)))
-	(funcall (third method))))
+        (funcall (third method))))
 
 (ert-deftest test-nrepl-selector-n ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
       (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
       (let ((nrepl-connection-list (list (buffer-name b1))))
-	(nrepl-connection-browser)
-	(with-temp-buffer ;; switch to another buffer
-	  (nrepl-invoke-selector-method-by-key ?n)
-	  (should (equal (current-buffer)
-			 (get-buffer nrepl--connection-browser-buffer-name))))))))
+        (nrepl-connection-browser)
+        (with-temp-buffer ;; switch to another buffer
+          (nrepl-invoke-selector-method-by-key ?n)
+          (should (equal (current-buffer)
+                         (get-buffer nrepl--connection-browser-buffer-name))))))))
 
 (ert-deftest test-nrepl-selector-c ()
   (with-temp-buffer
@@ -355,14 +353,14 @@
     (lexical-let ((b1 (current-buffer)))
       (setq major-mode 'clojure-mode)
       (with-temp-buffer
-	(rename-buffer "*testfile*.el")
-	(setq major-mode 'emacs-lisp-mode)
-	(with-temp-buffer
-	  (should (not (equal (current-buffer) b1)))
-	  (nrepl-invoke-selector-method-by-key ?e)
-	  (should (not (equal (current-buffer) b1)))
-	  (nrepl-invoke-selector-method-by-key ?c)
-	  (should (equal (current-buffer) b1)))))))
+        (rename-buffer "*testfile*.el")
+        (setq major-mode 'emacs-lisp-mode)
+        (with-temp-buffer
+          (should (not (equal (current-buffer) b1)))
+          (nrepl-invoke-selector-method-by-key ?e)
+          (should (not (equal (current-buffer) b1)))
+          (nrepl-invoke-selector-method-by-key ?c)
+          (should (equal (current-buffer) b1)))))))
 
 (ert-deftest test-nrepl-selector-e ()
   (with-temp-buffer
@@ -370,47 +368,47 @@
     (lexical-let ((b1 (current-buffer)))
       (setq major-mode 'emacs-lisp-mode)
       (with-temp-buffer
-	(rename-buffer "*testfile*.clj")
-	(setq major-mode 'clojure-mode)
-	(with-temp-buffer
-	  (should (not (equal (current-buffer) b1)))
-	  (nrepl-invoke-selector-method-by-key ?c)
-	  (should (not (equal (current-buffer) b1)))
-	  (nrepl-invoke-selector-method-by-key ?e)
-	  (should (equal (current-buffer) b1)))))))
+        (rename-buffer "*testfile*.clj")
+        (setq major-mode 'clojure-mode)
+        (with-temp-buffer
+          (should (not (equal (current-buffer) b1)))
+          (nrepl-invoke-selector-method-by-key ?c)
+          (should (not (equal (current-buffer) b1)))
+          (nrepl-invoke-selector-method-by-key ?e)
+          (should (equal (current-buffer) b1)))))))
 
 (ert-deftest test-nrepl-selector-v ()
   (with-temp-buffer
     (rename-buffer "*nrepl-events*")
     (lexical-let ((b1 (current-buffer)))
       (with-temp-buffer
-	(should (not (equal (current-buffer) b1)))
-	(nrepl-invoke-selector-method-by-key ?v)
-	(should (equal (current-buffer) b1))))))
+        (should (not (equal (current-buffer) b1)))
+        (nrepl-invoke-selector-method-by-key ?v)
+        (should (equal (current-buffer) b1))))))
 
 (ert-deftest test-nrepl-clojure-buffer-name ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1))))
-	(should
-	 (equal (nrepl-repl-buffer-name) "*nrepl*"))))))
+        (should
+         (equal (nrepl-repl-buffer-name) "*nrepl*"))))))
 
 (ert-deftest test-nrepl-clojure-buffer-name-based-on-project ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
       (set (make-local-variable 'nrepl-project-dir) "proj")
       (let ((nrepl-connection-list (list (buffer-name b1))))
-	(should
-	 (equal (nrepl-repl-buffer-name) "*nrepl proj*"))))))
+        (should
+         (equal (nrepl-repl-buffer-name) "*nrepl proj*"))))))
 
 (ert-deftest test-nrepl-clojure-buffer-name-separator ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
       (set (make-local-variable 'nrepl-project-dir) "proj")
       (let ((nrepl-connection-list (list (buffer-name b1)))
-	    (nrepl-buffer-name-separator "X"))
-	(should
-	 (equal (nrepl-repl-buffer-name) "*nreplXproj*"))))))
+            (nrepl-buffer-name-separator "X"))
+        (should
+         (equal (nrepl-repl-buffer-name) "*nreplXproj*"))))))
 
 (ert-deftest test-nrepl-clojure-buffer-name-show-port-t ()
   (with-temp-buffer

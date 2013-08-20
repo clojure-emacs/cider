@@ -9,9 +9,9 @@
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
-;; Version: 0.2.0
+;; Version: 0.2.0-cvs
 ;; Keywords: languages, clojure, nrepl
-;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "1.6.0"))
+;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "1.6.0") (pkg-info "0.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -74,20 +74,46 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defconst nrepl-current-version "0.2.0-preview"
-  "The current nREPL.el version.")
+
+;;; Version information
+(defun nrepl-library-version ()
+  "Get the version in the nrepl library header."
+  (-when-let (version (pkg-info-defining-library-version 'nrepl))
+    (pkg-info-format-version version)))
 
-(defun nrepl-version ()
-  "Report the version of nREPL.el and Clojure in use."
-  (interactive)
-  (message "Currently using nREPL.el version %s with Clojure %s"
-           nrepl-current-version
-           (nrepl-clojure-version)))
+(defun nrepl-package-version ()
+  "Get the package version of nrepl.
 
-(defun nrepl-clojure-version ()
-  "Retrieve the underlying process's Clojure version."
-  (let ((version-string (plist-get (nrepl-send-string-sync "(clojure-version)") :value)))
-   (substring version-string 1 (1- (length version-string)))))
+This is the version number of the installed nrepl package."
+  (-when-let (version (pkg-info-package-version 'nrepl))
+    (pkg-info-format-version version)))
+
+(defun nrepl-version (&optional show-version)
+  "Get the nrepl version as string.
+
+If called interactively or if SHOW-VERSION is non-nil, show the
+version in the echo area and the messages buffer.
+
+The returned string includes both, the version from package.el
+and the library version, if both a present and different.
+
+If the version number could not be determined, signal an error,
+if called interactively, or if SHOW-VERSION is non-nil, otherwise
+just return nil."
+  (interactive (list (not (or executing-kbd-macro noninteractive))))
+  (let* ((lib-version (nrepl-library-version))
+         (pkg-version (nrepl-package-version))
+         (version (cond
+                   ((and lib-version pkg-version
+                         (not (string= lib-version pkg-version)))
+                    (format "%s (package: %s)" lib-version pkg-version))
+                   ((or pkg-version lib-version)
+                    (format "%s" (or pkg-version lib-version))))))
+    (when show-version
+      (unless version
+        (error "Could not find out nrepl version"))
+      (message "nrepl version: %s" version))
+    version))
 
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
@@ -1541,7 +1567,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-j") 'nrepl-javadoc)
     (define-key map (kbd "C-c M-s") 'nrepl-selector)
     (define-key map (kbd "C-c M-r") 'nrepl-rotate-connection)
-    (define-key map (kbd "C-c M-d") 'nrepl-current-connection-info)
+    (define-key map (kbd "C-c M-d") 'nrepl-display-current-connection-info)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1574,7 +1600,7 @@ This will not work on non-current prompts."
     ["Clear REPL" nrepl-find-and-clear-repl-buffer]
     ["Interrupt" nrepl-interrupt]
     "--"
-    ["Display current nrepl connection" nrepl-current-connection-info]
+    ["Display current nrepl connection" nrepl-display-current-connection-info]
     ["Rotate current nrepl connection" nrepl-rotate-connection]
     "--"
     ["Version info" nrepl-version]))
@@ -1647,7 +1673,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-z") 'nrepl-switch-to-last-clojure-buffer)
     (define-key map (kbd "C-c M-s") 'nrepl-selector)
     (define-key map (kbd "C-c M-r") 'nrepl-rotate-connection)
-    (define-key map (kbd "C-c M-d") 'nrepl-current-connection-info)
+    (define-key map (kbd "C-c M-d") 'nrepl-display-current-connection-info)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -2233,17 +2259,27 @@ Refreshes EWOC."
     (when buffer
       (select-window (display-buffer buffer)))))
 
-(defun nrepl-current-connection-info ()
-  "Display the current nrepl connection.
-Shows project name, current repl namespace, and host:port endpoint."
-  (interactive)
+(defun nrepl--current-connection-info ()
+  "Return info about the current nrepl connection.
+
+Info contains project name, current repl namespace, host:port endpoint and Clojure version."
   (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
-    (message
-     (format "Active nrepl connection: %s:%s, %s:%s"
-             (or (nrepl--project-name nrepl-project-dir) "<no project>")
-             nrepl-buffer-ns
-             (car nrepl-endpoint)
-             (cadr nrepl-endpoint)))))
+    (format "Active nrepl connection: %s:%s, %s:%s (Clojure %s)"
+            (or (nrepl--project-name nrepl-project-dir) "<no project>")
+            nrepl-buffer-ns
+            (car nrepl-endpoint)
+            (cadr nrepl-endpoint)
+            (nrepl--clojure-version))))
+
+(defun nrepl--clojure-version ()
+  "Retrieve the underlying connection's Clojure version."
+  (let ((version-string (plist-get (nrepl-send-string-sync "(clojure-version)") :value)))
+   (substring version-string 1 (1- (length version-string)))))
+
+(defun nrepl-display-current-connection-info ()
+  "Display information about the current connection."
+  (interactive)
+  (message (nrepl--current-connection-info)))
 
 (defun nrepl-rotate-connection ()
   "Rotate and display the current nrepl connection."
@@ -2251,7 +2287,7 @@ Shows project name, current repl namespace, and host:port endpoint."
   (setq nrepl-connection-list
         (append (cdr nrepl-connection-list)
                 (list (car nrepl-connection-list))))
-  (nrepl-current-connection-info))
+  (nrepl-display-current-connection-info))
 
 ;;; server messages
 
