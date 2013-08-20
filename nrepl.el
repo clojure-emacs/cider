@@ -2240,17 +2240,17 @@ Shows project name, current repl namespace, and host:port endpoint."
   (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
     (message
      (format "Active nrepl connection: %s:%s, %s:%s"
-	     (or (nrepl--project-name nrepl-project-dir) "<no project>")
-	     nrepl-buffer-ns
-	     (car nrepl-endpoint)
-	     (cadr nrepl-endpoint)))))
+             (or (nrepl--project-name nrepl-project-dir) "<no project>")
+             nrepl-buffer-ns
+             (car nrepl-endpoint)
+             (cadr nrepl-endpoint)))))
 
 (defun nrepl-rotate-connection ()
   "Rotate and display the current nrepl connection."
   (interactive)
   (setq nrepl-connection-list
-	(append (cdr nrepl-connection-list)
-		(list (car nrepl-connection-list))))
+        (append (cdr nrepl-connection-list)
+                (list (car nrepl-connection-list))))
   (nrepl-current-connection-info))
 
 ;;; server messages
@@ -2680,21 +2680,21 @@ supplied project directory."
       (message "No active nREPL connection.")
     (progn
       (let ((project-directory
-	     (or (when (eq 16 arg)
-		   (ido-read-directory-name "Project: "))
-		 (nrepl-project-directory-for (nrepl-current-dir)))))
-	(when project-directory
-	  (lexical-let ((buf (car (cl-remove-if-not
-				   (lambda (conn)
-				     (equal (file-truename project-directory)
-					    (file-truename
-					     (with-current-buffer (get-buffer conn)
-					       nrepl-project-dir))))
-				   nrepl-connection-list))))
-	    (if (not buf)
-		(message (format "nREPL connection not found for %s." (file-truename project-directory)))
-	      (setq nrepl-connection-list
-		    (cons buf (delq buf nrepl-connection-list)))))))
+             (or (when (eq 16 arg)
+                   (ido-read-directory-name "Project: "))
+                 (nrepl-project-directory-for (nrepl-current-dir)))))
+        (when project-directory
+          (lexical-let ((buf (car (cl-remove-if-not
+                                   (lambda (conn)
+                                     (equal (file-truename project-directory)
+                                            (file-truename
+                                             (with-current-buffer (get-buffer conn)
+                                               nrepl-project-dir))))
+                                   nrepl-connection-list))))
+            (if (not buf)
+                (message (format "nREPL connection not found for %s." (file-truename project-directory)))
+              (setq nrepl-connection-list
+                    (cons buf (delq buf nrepl-connection-list)))))))
       (let ((buffer (current-buffer)))
         (when (eq 4 arg)
           (nrepl-set-ns (nrepl-current-ns)))
