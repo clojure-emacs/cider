@@ -4,3 +4,4 @@
 
 (depends-on "clojure-mode" "2.0.0")
 (depends-on "dash" "1.6.0")
+(depends-on "noflet" "0.0.8")

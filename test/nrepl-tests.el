@@ -30,6 +30,7 @@
 
 (require 'ert)
 (require 'nrepl)
+(require 'noflet)
 
 (ert-deftest test-nrepl-decode-string ()
   (should (equal '("spam") (nrepl-decode "4:spam"))))
@@ -203,7 +204,7 @@
       (should (= (nth 2 info) 43))
       (should (equal (nth 3 info) 'nrepl-warning-highlight-face)))))
 
-(defmacro nrepl-test-with-two-buffers (buffer-names &rest body)
+(defmacro nrepl-test-with-buffers (buffer-names &rest body)
   (lexical-let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
     `(lexical-let (,@(mapcar create buffer-names))
        (unwind-protect
@@ -212,7 +213,7 @@
 
 (ert-deftest test-nrepl-make-repl-connection-default ()
   (lexical-let ((connections (nrepl-connection-buffers)))
-    (nrepl-test-with-two-buffers
+    (nrepl-test-with-buffers
      (a b)
      (should (get-buffer a))
      (should (get-buffer b))
@@ -229,7 +230,7 @@
 
 (ert-deftest test-nrepl-connection-buffers ()
   (lexical-let ((connections (nrepl-connection-buffers)))
-    (nrepl-test-with-two-buffers
+    (nrepl-test-with-buffers
      (a b)
      (nrepl-make-repl-connection-default a)
      (nrepl-make-repl-connection-default b)
@@ -239,9 +240,46 @@
                     (nrepl-connection-buffers)))
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
 
+(ert-deftest test-nrepl-rotate-connecton-buffer ()
+  (noflet ((nrepl-current-connection-info ()))
+    (nrepl-test-with-buffers
+     (a b c)
+     (let ((nrepl-connection-list
+	    (list (buffer-name a) (buffer-name b) (buffer-name c))))
+       (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
+       (nrepl-rotate-connection)
+       (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
+       (nrepl-rotate-connection)
+       (should (equal (buffer-name c) (nrepl-current-connection-buffer)))
+       (nrepl-rotate-connection)
+       (should (equal (buffer-name a) (nrepl-current-connection-buffer)))))))
+
+(ert-deftest test-nrepl-current-connection-info ()
+  (with-temp-buffer
+    (message (buffer-name (current-buffer)))
+    (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
+      (noflet ((message (m)
+			(when (string-match "Active nrepl connection" m)
+			  (should (equal "Active nrepl connection: proj:somens, localhost:4005" m)))))
+       (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+       (set (make-local-variable 'nrepl-project-dir) "proj")
+       (set (make-local-variable 'nrepl-buffer-ns) "somens")
+       (nrepl-current-connection-info)))))
+
+(ert-deftest test-nrepl-current-connection-info-no-project ()
+  (with-temp-buffer
+    (message (buffer-name (current-buffer)))
+    (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
+      (noflet ((message (m)
+			(when (string-match "Active nrepl connection" m)
+			  (should (equal "Active nrepl connection: <no project>:somens, localhost:4005" m)))))
+       (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+       (set (make-local-variable 'nrepl-buffer-ns) "somens")
+       (nrepl-current-connection-info)))))
+
 (ert-deftest test-nrepl-close ()
   (lexical-let ((connections (nrepl-connection-buffers)))
-    (nrepl-test-with-two-buffers
+    (nrepl-test-with-buffers
      (a b)
      (nrepl-make-repl-connection-default a)
      (nrepl-make-repl-connection-default b)

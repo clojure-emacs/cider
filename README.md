@@ -291,6 +291,9 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-n</kbd>                   | Eval the ns form.
 <kbd>C-c M-n</kbd>                   | Switch the namespace of the repl buffer to the namespace of the current buffer.
 <kbd>C-c C-z</kbd>                   | Select the REPL buffer. With a prefix argument - changes the namespace of the REPL buffer to the one of the currently visited source file.
+<kbd>C-u C-u C-c C-z</kbd>           | Select the REPL buffer based on a user prompt for a directory.
+<kbd>C-c M-d</kbd>                   | Display current REPL connection details, including project directory name, buffer namespace, host and port.
+<kbd>C-c M-r</kbd>                   | Rotate and display the current REPL connection.
 <kbd>C-c M-o</kbd>                   | Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 <kbd>C-c C-k</kbd>                   | Load the current buffer.
 <kbd>C-c C-l</kbd>                   | Load a file.
@@ -321,6 +324,8 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-z</kbd> | Select the last clojure buffer. <kbd>C-u C-c C-z</kbd> will switch the clojure buffer to the namespace in the current buffer.
 <kbd>C-u C-u C-c C-z</kbd> | Select the clojure buffer based on a user prompt for a directory.
+<kbd>C-c M-d</kbd> | Display current REPL connection details, including project directory name, buffer namespace, host and port.
+<kbd>C-c M-r</kbd> | Rotate and display the current REPL connection.
 
 ### Macroexpansion buffer commands:
 
@@ -340,6 +345,10 @@ nrepl-quit</kbd> closes all sessions.
 nrepl.el commands in a clojure buffer use the default connection.  To make a
 connection default, switch to it's repl buffer and use
 <kbd>M-x nrepl-make-repl-connection-default</kbd>.
+
+To switch to the relevant nREPL buffer based on the clojure namespace in the current buffer, use: <kbd>C-c C-z</kbd>.
+
+You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate through available connections using <kbd>C-c M-r</kbd>.
 
 ## Requirements:
 
