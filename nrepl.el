@@ -2643,7 +2643,7 @@ search for and read a `ns' form."
 (defun nrepl-insert-banner (ns)
   "Insert REPL banner, taking into account NS."
   (when (zerop (buffer-size))
-    (let ((welcome (concat "; nREPL " nrepl-current-version)))
+    (let ((welcome (concat "; nREPL " (nrepl-version))))
       (insert (propertize welcome 'face 'font-lock-comment-face))))
   (goto-char (point-max))
   (nrepl-mark-output-start)
