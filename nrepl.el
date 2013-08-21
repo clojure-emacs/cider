@@ -151,23 +151,43 @@ just return nil."
 (defconst nrepl-src-buffer "*nrepl-src*")
 (defconst nrepl-macroexpansion-buffer "*nrepl-macroexpansion*")
 (defconst nrepl-result-buffer "*nrepl-result*")
+(defconst nrepl-repl-buffer-name-template "*nrepl%s*")
+(defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
+(defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
 
 (defcustom nrepl-hide-special-buffers nil
   "Control the display of some special buffers in buffer switching commands.
 When true some special buffers like the connection and the server
 buffer will be hidden.")
 
+(defun nrepl-apply-hide-special-buffers (buffer-name)
+  "Apply a prefix to BUFFER-NAME that will hide the buffer."
+  (concat (if nrepl-hide-special-buffers " " "") buffer-name))
+
+(defun nrepl-buffer-name (buffer-name-template)
+  "Generate a buffer name using BUFFER-NAME-TEMPLATE.
+
+The name will include the project name if available. The name will
+also include the connection port if `nrepl-buffer-name-show-port' is true."
+  (generate-new-buffer-name
+   (let ((project-name (nrepl--project-name nrepl-project-dir))
+         (nrepl-proj-port (cadr nrepl-endpoint)))
+     (format
+      buffer-name-template
+      (concat (if project-name
+                  (format "%s%s" nrepl-buffer-name-separator project-name) "")
+              (if (and nrepl-proj-port nrepl-buffer-name-show-port)
+                  (format ":%s" nrepl-proj-port) ""))))))
+
 (defun nrepl-connection-buffer-name ()
   "Return the name of the connection buffer."
-  (if nrepl-hide-special-buffers
-      " *nrepl-connection*"
-    "*nrepl-connection*"))
+  (nrepl-apply-hide-special-buffers
+   (nrepl-buffer-name nrepl-connection-buffer-name-template)))
 
 (defun nrepl-server-buffer-name ()
   "Return the name of the server buffer."
-  (if nrepl-hide-special-buffers
-      " *nrepl-server*"
-    "*nrepl-server*"))
+  (nrepl-apply-hide-special-buffers
+   (nrepl-buffer-name nrepl-server-buffer-name-template)))
 
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
@@ -3092,16 +3112,16 @@ Only considers buffers that are not already visible."
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
-      (let ((nrepl-process (nrepl-connect "localhost" port)))
-        (with-current-buffer (process-buffer process)
+      (with-current-buffer (process-buffer process)
+        (let ((nrepl-process (nrepl-connect "localhost" port)))
           (setq nrepl-connection-buffer
-                (buffer-name (process-buffer nrepl-process))))
-        (with-current-buffer (process-buffer nrepl-process)
-          (setq nrepl-server-buffer
-                (buffer-name (process-buffer process))
-                nrepl-project-dir
-                (buffer-local-value
-                 'nrepl-project-dir (process-buffer process))))))))
+                (buffer-name (process-buffer nrepl-process)))
+          (with-current-buffer (process-buffer nrepl-process)
+            (setq nrepl-server-buffer
+                  (buffer-name (process-buffer process))
+                  nrepl-project-dir
+                  (buffer-local-value
+                   'nrepl-project-dir (process-buffer process)))))))))
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
@@ -3167,7 +3187,8 @@ start the server."
                  (project-dir (nrepl-project-directory-for
                                (or project (nrepl-current-dir)))))
     (when (nrepl-check-for-repl-buffer nil project-dir)
-      (let* ((cmd (if project
+      (let* ((nrepl-project-dir project-dir)
+             (cmd (if project
                       (format "cd %s && %s" project nrepl-server-command)
                     nrepl-server-command))
              (process (start-process-shell-command
@@ -3289,23 +3310,9 @@ restart the server."
        nrepl-tooling-session))))
 
 (defun nrepl-repl-buffer-name ()
-  "Generate a REPL buffer name based on current connection buffer.
-
-The name will include the project name if available. The name will
-also include the connection port if `nrepl-buffer-name-show-port' is true."
-  (generate-new-buffer-name
-   (lexical-let* ((buf (get-buffer (nrepl-current-connection-buffer)))
-                  (project-name (with-current-buffer buf
-                                  (nrepl--project-name nrepl-project-dir)))
-                  (nrepl-proj-name (if project-name
-                                       (format "%s%s"
-                                               nrepl-buffer-name-separator
-                                               project-name)
-                                     ""))
-                  (nrepl-proj-port (cadr (buffer-local-value 'nrepl-endpoint buf))))
-     (if nrepl-buffer-name-show-port
-         (format "*nrepl%s:%s*" nrepl-proj-name nrepl-proj-port)
-       (format "*nrepl%s*" nrepl-proj-name)))))
+  "Generate a REPL buffer name based on current connection buffer."
+  (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
+    (nrepl-buffer-name nrepl-repl-buffer-name-template)))
 
 (defun nrepl-create-repl-buffer (process)
   "Create a REPL buffer for PROCESS."
@@ -3363,9 +3370,10 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
   "Connect to a running nREPL server running on HOST and PORT.
 When NO-REPL-P is truthy, suppress creation of a repl buffer."
   (message "Connecting to nREPL on %s:%s..." host port)
-  (let ((process (open-network-stream "nrepl"
-                                      (nrepl-make-connection-buffer) host
-                                      port)))
+  (let* ((nrepl-endpoint `(,host ,port))
+         (process (open-network-stream "nrepl"
+                                       (nrepl-make-connection-buffer) host
+                                       port)))
     (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
     (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
