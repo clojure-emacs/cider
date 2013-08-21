@@ -472,3 +472,57 @@
           (should
            (equal (nrepl-repl-buffer-name) "*nrepl proj:4009*<2>")))
         (kill-buffer nrepl-new-buffer)))))
+
+(ert-deftest test-nrepl-switch-to-relevant-repl-buffer ()
+  (noflet ((nrepl-project-directory-for (dontcare)
+             nrepl-project-dir))
+    (let* ((b1 (generate-new-buffer "temp"))
+           (b2 (generate-new-buffer "temp"))
+           (b3 (generate-new-buffer "temp"))
+           (b4 (generate-new-buffer "temp"))
+           (b5 (generate-new-buffer "temp"))
+           (b6 (generate-new-buffer "temp"))
+           (nrepl-connection-list (list (buffer-name b1)
+                                        (buffer-name b2)
+                                        (buffer-name b3))))
+      (with-current-buffer b1 ;; nrepl-jack-in 1
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+        (set (make-local-variable 'nrepl-project-dir) "proj1")
+        (set (make-local-variable 'nrepl-repl-buffer) b4))
+      (with-current-buffer b2 ;; nrepl-jack-in 2
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
+        (set (make-local-variable 'nrepl-project-dir) "proj2")
+        (set (make-local-variable 'nrepl-repl-buffer) b5))
+      (with-current-buffer b3 ;; nrepl-connect - no relevant buffer
+        (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4009))
+        (set (make-local-variable 'nrepl-repl-buffer) b6))
+
+      (with-current-buffer b1
+        (nrepl-switch-to-relevant-repl-buffer '())
+        (should (equal b4 (current-buffer)))
+        (should (equal (list (buffer-name b1) (buffer-name b2) (buffer-name b3))
+                       nrepl-connection-list)))
+
+      (with-current-buffer b2
+        (nrepl-switch-to-relevant-repl-buffer '())
+        (should (equal b5 (current-buffer)))
+        (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
+                       nrepl-connection-list)))
+
+      (with-current-buffer b3
+        (nrepl-switch-to-relevant-repl-buffer '())
+        (should (equal b5 (current-buffer))) ;; didn't switch to anything
+        (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
+                       nrepl-connection-list)))
+
+      (let ((nrepl-connection-list (list (buffer-name b3)
+                                         (buffer-name b2)
+                                         (buffer-name b1))))
+        (with-current-buffer b1
+          (nrepl-switch-to-relevant-repl-buffer '())
+          (should (equal b4 (current-buffer)))
+          (should (equal (list (buffer-name b1) (buffer-name b3) (buffer-name b2))
+                         nrepl-connection-list))))
+
+      (dolist (buf (list b1 b2 b3 b4 b5 b6))
+        (kill-buffer buf)))))
