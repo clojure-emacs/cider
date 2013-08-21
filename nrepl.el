@@ -54,6 +54,7 @@
 
 (require 'clojure-mode)
 (require 'dash)
+(require 'pkg-info)
 (require 'thingatpt)
 (require 'etags)
 (require 'arc-mode)
