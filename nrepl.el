@@ -2099,9 +2099,9 @@ Return the connection list."
 (defun nrepl--connection-list-purge ()
   "Clean up dead buffers from the `nrepl-connection-list'."
   (setq nrepl-connection-list
-        (cl-remove-if (lambda (buffer)
-                        (not (buffer-live-p (get-buffer buffer))))
-                      nrepl-connection-list)))
+        (-remove (lambda (buffer)
+                   (not (buffer-live-p (get-buffer buffer))))
+                 nrepl-connection-list)))
 
 (defun nrepl-make-repl-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
@@ -2216,7 +2216,7 @@ The project name is the final component of PATH if not nil."
   (ewoc-filter ewoc (lambda (n) (member n connections)))
   (let ((existing))
     (ewoc-map (lambda (n) (setq existing (cons n existing))) ewoc)
-    (lexical-let ((added (cl-set-difference connections existing)))
+    (lexical-let ((added (-difference connections existing)))
       (mapc (apply-partially 'ewoc-enter-last ewoc) added)
       (save-excursion (ewoc-refresh ewoc)))))
 
