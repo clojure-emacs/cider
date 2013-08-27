@@ -11,7 +11,7 @@
 ;; URL: http://www.github.com/clojure-emacs/nrepl.el
 ;; Version: 0.2.0-cvs
 ;; Keywords: languages, clojure, nrepl
-;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "1.6.0") (pkg-info "0.1"))
+;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "2.1.0") (pkg-info "0.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
