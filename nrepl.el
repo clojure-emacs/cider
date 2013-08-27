@@ -79,7 +79,7 @@
 ;;; Version information
 (defun nrepl-library-version ()
   "Get the version in the nrepl library header."
-  (-when-let (version (pkg-info-defining-library-version 'nrepl))
+  (-when-let (version (pkg-info-defining-library-version 'nrepl-mode))
     (pkg-info-format-version version)))
 
 (defun nrepl-package-version ()
