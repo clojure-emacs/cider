@@ -732,20 +732,21 @@ highlighing all arguments matching THE-POS."
 
 (defun nrepl-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
-  (let* ((info (nrepl-eldoc-info-in-current-sexp))
-         (thing (car info))
-         (pos (cadr info))
-         (form (format "(try
-                         (:arglists
-                          (clojure.core/meta
-                           (clojure.core/resolve
-                            (clojure.core/read-string \"%s\"))))
-                         (catch Throwable t nil))" thing)))
-    (when thing
-      (nrepl-send-string form
-                         (nrepl-eldoc-handler (current-buffer) thing pos)
-                         nrepl-buffer-ns
-                         (nrepl-current-tooling-session)))))
+  (when (nrepl-current-connection-buffer)
+    (let* ((info (nrepl-eldoc-info-in-current-sexp))
+           (thing (car info))
+           (pos (cadr info))
+           (form (format "(try
+                           (:arglists
+                            (clojure.core/meta
+                             (clojure.core/resolve
+                              (clojure.core/read-string \"%s\"))))
+                           (catch Throwable t nil))" thing)))
+      (when thing
+        (nrepl-send-string form
+                           (nrepl-eldoc-handler (current-buffer) thing pos)
+                           nrepl-buffer-ns
+                           (nrepl-current-tooling-session))))))
 
 (defun nrepl-turn-on-eldoc-mode ()
   "Turn on eldoc mode in the current buffer."
