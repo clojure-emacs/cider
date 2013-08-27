@@ -687,9 +687,7 @@ POS is the index of the currently highlighted argument."
 
 (defun nrepl--find-rest-args-position (arglist)
   "Find the position of & in the ARGLIST vector."
-  (car (--first (eq '& (car (cdr it)))
-                (-map-indexed (lambda (ix elem) (list ix elem))
-                              (append arglist ())))))
+  (-elem-index '& (append arglist ())))
 
 (defun nrepl-highlight-arglist (arglist pos)
   "Format the ARGLIST for eldoc.
