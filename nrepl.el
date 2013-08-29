@@ -948,15 +948,16 @@ Returns the position at which PROPERTY was found, or nil if not found."
 ARG and RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
-  (cl-labels ((goto-next-note-boundary ()
-                                       (let ((p (or (nrepl-find-property 'nrepl-note)
-                                                    (nrepl-find-property 'nrepl-note t))))
-                                         (when p
-                                           (goto-char p)
-                                           (message (get-char-property p 'nrepl-note))))))
+  (cl-labels ((goto-next-note-boundary
+               ()
+               (let ((p (or (nrepl-find-property 'nrepl-note-p)
+                            (nrepl-find-property 'nrepl-note-p t))))
+                 (when p
+                   (goto-char p)
+                   (message (get-char-property p 'nrepl-note))))))
     ;; if we're already on a compilation error, first jump to the end of
     ;; it, so that we find the next error.
-    (when (get-char-property (point) 'nrepl-note)
+    (when (get-char-property (point) 'nrepl-note-p)
       (goto-next-note-boundary))
     (goto-next-note-boundary)))
 
@@ -1015,7 +1016,7 @@ See `compilation-error-regexp-alist' for help on their format.")
               nrepl-warning-highlight-face
               nrepl-error-highlight-face]
              (or type 2))
-       (when message)))))
+       message))))
 
 (defun nrepl-highlight-compilation-errors (buffer message)
   "Highlight compilation error line in BUFFER, using MESSAGE."
