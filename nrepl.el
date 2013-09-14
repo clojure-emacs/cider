@@ -3289,7 +3289,10 @@ restart the server."
        nrepl-tooling-session))))
 
 (defun nrepl-repl-buffer-name ()
-  "Create a repl buffer name based on current connection buffer."
+  "Generate a REPL buffer name based on current connection buffer.
+
+The name will include the project name if available. The name will
+also include the connection port if `nrepl-buffer-name-show-port' is true."
   (generate-new-buffer-name
    (lexical-let* ((buf (get-buffer (nrepl-current-connection-buffer)))
                   (project-name (with-current-buffer buf
@@ -3305,7 +3308,7 @@ restart the server."
        (format "*nrepl%s*" nrepl-proj-name)))))
 
 (defun nrepl-create-repl-buffer (process)
-  "Create a repl buffer for PROCESS."
+  "Create a REPL buffer for PROCESS."
   (nrepl-init-repl-buffer
    process
    (let ((buffer-name (nrepl-repl-buffer-name)))
