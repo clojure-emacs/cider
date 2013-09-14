@@ -3304,7 +3304,7 @@ also include the connection port if `nrepl-buffer-name-show-port' is true."
                                      ""))
                   (nrepl-proj-port (cadr (buffer-local-value 'nrepl-endpoint buf))))
      (if nrepl-buffer-name-show-port
-       (format "*nrepl%s:%s*" nrepl-proj-name nrepl-proj-port)
+         (format "*nrepl%s:%s*" nrepl-proj-name nrepl-proj-port)
        (format "*nrepl%s*" nrepl-proj-name)))))
 
 (defun nrepl-create-repl-buffer (process)
