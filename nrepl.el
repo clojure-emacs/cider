@@ -2684,6 +2684,8 @@ Insert a banner, unless NOPROMPT is non-nil."
   (with-current-buffer buffer
     (unless (eq major-mode 'nrepl-mode)
       (nrepl-mode))
+    ;; use the same requires by default as clojure.main does
+    (nrepl-send-string-sync "(apply require clojure.main/repl-requires)")
     (nrepl-reset-markers)
     (unless noprompt
       (nrepl-insert-banner nrepl-buffer-ns))
