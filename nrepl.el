@@ -3281,7 +3281,7 @@ restart the server."
   (let ((buffer (process-buffer process)))
     (with-current-buffer buffer
       (nrepl-send-string
-       "(use '[clojure.repl :only [doc]])(require 'clojure.pprint)"
+       "(apply require clojure.main/repl-requires)"
        (nrepl-make-response-handler
         buffer nil
         (lambda (buffer out) (message out))
