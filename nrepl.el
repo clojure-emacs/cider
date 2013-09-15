@@ -1570,6 +1570,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c M-s") 'nrepl-selector)
     (define-key map (kbd "C-c M-r") 'nrepl-rotate-connection)
     (define-key map (kbd "C-c M-d") 'nrepl-display-current-connection-info)
+    (define-key map (kbd "C-c C-q") 'nrepl-quit)
     map))
 
 (easy-menu-define nrepl-interaction-mode-menu nrepl-interaction-mode-map
@@ -1602,6 +1603,8 @@ This will not work on non-current prompts."
     ["Toggle REPL Pretty Print" nrepl-pretty-toggle]
     ["Clear REPL" nrepl-find-and-clear-repl-buffer]
     ["Interrupt" nrepl-interrupt]
+    ["Quit" nrepl-quit]
+    ["Restart" nrepl-restart]
     "--"
     ["Display current nrepl connection" nrepl-display-current-connection-info]
     ["Rotate current nrepl connection" nrepl-rotate-connection]
@@ -1677,6 +1680,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c M-s") 'nrepl-selector)
     (define-key map (kbd "C-c M-r") 'nrepl-rotate-connection)
     (define-key map (kbd "C-c M-d") 'nrepl-display-current-connection-info)
+    (define-key map (kbd "C-c C-q") 'nrepl-quit)
     map))
 
 (easy-menu-define nrepl-mode-menu nrepl-mode-map
@@ -1696,6 +1700,8 @@ This will not work on non-current prompts."
     ["Clear buffer" nrepl-clear-buffer]
     ["Kill input" nrepl-kill-input]
     ["Interrupt" nrepl-interrupt]
+    ["Quit" nrepl-quit]
+    ["Restart" nrepl-restart]
     "--"
     ["Version info" nrepl-version]))
 

@@ -8,6 +8,7 @@
 * nRepl buffer name uses project directory name; `*nrepl*` will appear as `*nrepl project-directory-name*`.
 * <kbd>C-c C-Z</kbd> will select the nrepl buffer based on the current namespace.
 * <kbd>C-u C-c C-Z</kbd> will select the nrepl buffer based on a user project directory prompt.
+* Bind <kbd>C-c C-q</kbd> to `nrepl-quit`
 
 ### Bugs fixed
 
