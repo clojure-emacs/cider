@@ -245,7 +245,7 @@
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
 
 (ert-deftest test-nrepl-rotate-connecton-buffer ()
-  (noflet ((nrepl--current-connection-info ()))
+  (noflet ((nrepl--connection-info (connection-buffer-name)))
     (nrepl-test-with-buffers
      (a b c)
      (let ((nrepl-connection-list
@@ -260,24 +260,20 @@
 
 (ert-deftest test-nrepl--current-connection-info ()
   (with-temp-buffer
-    (message (buffer-name (current-buffer)))
-    (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
-      (noflet ((nrepl--clojure-version () "1.5.1"))
-       (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-       (set (make-local-variable 'nrepl-project-dir) "proj")
-       (set (make-local-variable 'nrepl-buffer-ns) "somens")
-       (should (string= (nrepl--current-connection-info)
-                        "Active nrepl connection: proj:somens, localhost:4005 (Clojure 1.5.1)"))))))
+    (noflet ((nrepl--clojure-version () "1.5.1"))
+            (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+            (set (make-local-variable 'nrepl-project-dir) "proj")
+            (set (make-local-variable 'nrepl-buffer-ns) "somens")
+            (should (string= (nrepl--connection-info (buffer-name (current-buffer)))
+                             "Active nrepl connection: proj:somens, localhost:4005 (Clojure 1.5.1)")))))
 
 (ert-deftest test-nrepl-current-connection-info-no-project ()
   (with-temp-buffer
-    (message (buffer-name (current-buffer)))
-    (let ((nrepl-connection-list (list (buffer-name (current-buffer)))))
-      (noflet ((nrepl--clojure-version () "1.5.1"))
-       (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-       (set (make-local-variable 'nrepl-buffer-ns) "somens")
-       (should (string= (nrepl--current-connection-info)
-                        "Active nrepl connection: <no project>:somens, localhost:4005 (Clojure 1.5.1)"))))))
+    (noflet ((nrepl--clojure-version () "1.5.1"))
+            (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+            (set (make-local-variable 'nrepl-buffer-ns) "somens")
+            (should (string= (nrepl--connection-info (buffer-name (current-buffer)))
+                             "Active nrepl connection: <no project>:somens, localhost:4005 (Clojure 1.5.1)")))))
 
 (ert-deftest test-nrepl-close ()
   (lexical-let ((connections (nrepl-connection-buffers)))

@@ -2288,11 +2288,16 @@ Refreshes EWOC."
     (when buffer
       (select-window (display-buffer buffer)))))
 
-(defun nrepl--current-connection-info ()
-  "Return info about the current nrepl connection.
+(defun nrepl--clojure-version ()
+  "Retrieve the underlying connection's Clojure version."
+  (let ((version-string (plist-get (nrepl-send-string-sync "(clojure-version)") :value)))
+   (substring version-string 1 (1- (length version-string)))))
+
+(defun nrepl--connection-info (nrepl-connection-buffer)
+  "Return info about NREPL-CONNECTION-BUFFER.
 
 Info contains project name, current repl namespace, host:port endpoint and Clojure version."
-  (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
+  (with-current-buffer (get-buffer nrepl-connection-buffer)
     (format "Active nrepl connection: %s:%s, %s:%s (Clojure %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
             nrepl-buffer-ns
@@ -2300,15 +2305,10 @@ Info contains project name, current repl namespace, host:port endpoint and Cloju
             (cadr nrepl-endpoint)
             (nrepl--clojure-version))))
 
-(defun nrepl--clojure-version ()
-  "Retrieve the underlying connection's Clojure version."
-  (let ((version-string (plist-get (nrepl-send-string-sync "(clojure-version)") :value)))
-   (substring version-string 1 (1- (length version-string)))))
-
 (defun nrepl-display-current-connection-info ()
   "Display information about the current connection."
   (interactive)
-  (message (nrepl--current-connection-info)))
+  (message (nrepl--connection-info (nrepl-current-connection-buffer))))
 
 (defun nrepl-rotate-connection ()
   "Rotate and display the current nrepl connection."
@@ -2316,7 +2316,7 @@ Info contains project name, current repl namespace, host:port endpoint and Cloju
   (setq nrepl-connection-list
         (append (cdr nrepl-connection-list)
                 (list (car nrepl-connection-list))))
-  (nrepl-display-current-connection-info))
+  (message (nrepl--connection-info (car nrepl-connection-list))))
 
 ;;; server messages
 
