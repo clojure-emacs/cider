@@ -360,6 +360,13 @@ You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate
 
 An extensive changelog is available [here](CHANGELOG.md).
 
+## Extensions
+
+There are a couple of nrepl.el extensions that add some extra functionality to it:
+
+* [nrepl-tracing](https://github.com/clojure-emacs/nrepl-tracing) adds basic tracing support
+* [nrepl-decompile](https://github.com/clojure-emacs/nrepl-decompile) adds some Java bytecode decompilation commands
+
 ## Team
 
 * [Tim King](https://github.com/kingtim)
