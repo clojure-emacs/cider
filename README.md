@@ -350,9 +350,9 @@ To switch to the relevant nREPL buffer based on the clojure namespace in the cur
 
 You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate through available connections using <kbd>C-c M-r</kbd>.
 
-## Requirements:
+## Requirements
 
-* [Leiningen](http://leiningen.org) 2.x
+* [Leiningen](http://leiningen.org) 2.x (only for `nrepl-jack-in`)
 * [clojure-mode](https://github.com/technomancy/clojure-mode)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
 
