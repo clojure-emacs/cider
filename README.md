@@ -68,8 +68,8 @@ and `require`ing it. Many people favour the folder `~/.emacs.d/vendor`:
 (require 'nrepl)
 ```
 
-Keep in mind that `nrepl.el` depends on `clojure-mode` so you'll have to install
-`clojure-mode` as well.
+Keep in mind that `nrepl.el` depends on `clojure-mode`, `dash.el` and
+`pkg-info` so you'll have to install them as well.
 
 ### Emacs Prelude
 
@@ -353,7 +353,6 @@ You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate
 ## Requirements
 
 * [Leiningen](http://leiningen.org) 2.x (only for `nrepl-jack-in`)
-* [clojure-mode](https://github.com/technomancy/clojure-mode)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
 
 ## Changelog
