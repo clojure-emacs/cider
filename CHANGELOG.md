@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.2.0
-
+* Add feature: Toggle tracing/untracing of a var at point. A var is traced/untraced with `C-c M-t`.
 * <kbd>C-c M-d</kbd> will display current nREPL connection details.
 * <kbd>C-c M-r</kbd> will rotate and display the current nREPL connection.
 * Setting the variable `nrepl-buffer-name-show-port` will display the port on which the nRepl server is running.
@@ -19,7 +19,6 @@
 ## 0.1.8 / 2013-08-08
 
 ### New features
-
 * Evaluate all namespace forms `(ns ...)` in the user namespace.
 * Add highlighting of compilation warnings in addition to existing highlighting of errors
 * Add support for selecting last Clojure source buffer with keybinding
