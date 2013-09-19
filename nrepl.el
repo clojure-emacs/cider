@@ -721,21 +721,6 @@ POS is the index of current argument."
           (mapconcat (lambda (args) (nrepl-highlight-arglist args pos))
                      (read arglist) " ") ")"))
 
-(defun nrepl-eldoc-handler (buffer the-thing the-pos)
-  "Create a response handler for nrepl eldoc in BUFFER.
-This will produce an eldoc message for THE-THING
-highlighing all arguments matching THE-POS."
-  (lexical-let ((thing the-thing)
-                (pos the-pos))
-    (nrepl-make-response-handler
-     buffer
-     (lambda (buffer value)
-       (when (not (string-equal value "nil"))
-         (message "%s: %s"
-                  (nrepl-eldoc-format-thing thing)
-                  (nrepl-eldoc-format-arglist value pos))))
-     nil nil nil)))
-
 (defun nrepl-eldoc-info-in-current-sexp ()
   "Return a list of the current sexp and the current argument index."
   (save-excursion
@@ -759,12 +744,17 @@ highlighing all arguments matching THE-POS."
                             (clojure.core/meta
                              (clojure.core/resolve
                               (clojure.core/read-string \"%s\"))))
-                           (catch Throwable t nil))" thing)))
-      (when thing
-        (nrepl-send-string form
-                           (nrepl-eldoc-handler (current-buffer) thing pos)
-                           nrepl-buffer-ns
-                           (nrepl-current-tooling-session))))))
+                           (catch Throwable t nil))" thing))
+	   (result (when thing
+		     (nrepl-send-string-sync form
+					     nrepl-buffer-ns
+					     (nrepl-current-tooling-session))))
+	   (done (plist-get result :done))
+	   (value (plist-get result :value)))
+      (when (and done (not (string= value "nil")))
+	(message "%s: %s"
+		 (nrepl-eldoc-format-thing thing)
+		 (nrepl-eldoc-format-arglist value pos))))))
 
 (defun nrepl-turn-on-eldoc-mode ()
   "Turn on eldoc mode in the current buffer."
