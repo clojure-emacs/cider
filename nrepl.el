@@ -70,6 +70,16 @@
   (defvar paredit-version)
   (defvar paredit-space-for-delimiter-predicates))
 
+
+;;; Compatibility
+(eval-and-compile
+  ;; `setq-local' for Emacs 24.2 and below
+  (unless (fboundp 'setq-local)
+    (defmacro setq-local (var val)
+      "Set variable VAR to value VAL in current buffer."
+      `(set (make-local-variable ',var) ,val))))
+
+
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
   :prefix "nrepl-"
@@ -382,7 +392,8 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
         ((looking-at "\\([0-9]+\\):")
          (goto-char (match-end 0))
          (let ((start (point))
-               (end (byte-to-position (+ (position-bytes (point)) (string-to-number (match-string 1))))))
+               (end (byte-to-position (+ (position-bytes (point))
+                                         (string-to-number (match-string 1))))))
            (goto-char end)
            (buffer-substring-no-properties start end)))
         ((looking-at "l")
@@ -757,8 +768,7 @@ POS is the index of current argument."
 
 (defun nrepl-turn-on-eldoc-mode ()
   "Turn on eldoc mode in the current buffer."
-  (make-local-variable 'eldoc-documentation-function)
-  (setq eldoc-documentation-function 'nrepl-eldoc)
+  (setq-local eldoc-documentation-function 'nrepl-eldoc)
   (apply 'eldoc-add-command nrepl-extra-eldoc-commands)
   (turn-on-eldoc-mode))
 
@@ -1763,7 +1773,7 @@ ENDP) DELIM."
   "Major mode for nREPL interactions.
 
 \\{nrepl-mode-map}"
-  (set (make-local-variable 'indent-line-function) 'lisp-indent-line)
+  (setq-local indent-line-function 'lisp-indent-line)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point)
@@ -1998,8 +2008,8 @@ The default buffer name is *nrepl-events*."
       (let ((buffer (get-buffer-create nrepl-event-buffer-name)))
         (with-current-buffer buffer
           (buffer-disable-undo)
-          (set (make-local-variable 'comment-start) ";")
-          (set (make-local-variable 'comment-end) ""))
+          (setq-local comment-start ";")
+          (setq-local comment-end ""))
         buffer)))
 
 (defun nrepl-log-events (&optional disable)
@@ -2096,7 +2106,7 @@ This is bound for the duration of the handling of that message")
   (let ((buffer (generate-new-buffer (nrepl-connection-buffer-name))))
     (with-current-buffer buffer
       (buffer-disable-undo)
-      (set (make-local-variable 'kill-buffer-query-functions) nil))
+      (setq-local kill-buffer-query-functions nil))
     buffer))
 
 (defun nrepl-current-connection-buffer ()
@@ -2164,7 +2174,7 @@ Also closes associated repl and server buffers."
   "nREPL Connections Buffer Mode.
 \\{nrepl-connections-buffer-mode-map}
 \\{nrepl-popup-buffer-mode-map}"
-  (set (make-local-variable 'truncate-lines) t))
+  (setq-local truncate-lines t))
 
 (defvar nrepl--connection-ewoc)
 (defconst nrepl--connection-browser-buffer-name "*nrepl-connections*")
@@ -2200,7 +2210,7 @@ The connections buffer is determined by
     (lexical-let ((ewoc (ewoc-create
                          'nrepl--connection-pp
                          "  Host              Port   Project\n")))
-      (set (make-local-variable 'nrepl--connection-ewoc) ewoc)
+      (setq-local nrepl--connection-ewoc ewoc)
       (nrepl--update-connections-display ewoc nrepl-connection-list)
       (setq buffer-read-only t)
       (nrepl-connections-buffer-mode)
