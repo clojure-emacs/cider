@@ -3257,10 +3257,12 @@ If so ask the user for confirmation."
 (defun nrepl-quit ()
   "Quit the nrepl server."
   (interactive)
-  (dolist (connection nrepl-connection-list)
-    (when connection
-      (nrepl-close connection)))
-  (nrepl-close-ancilliary-buffers))
+  (when (y-or-n-p "Are you sure you want to quit nrepl?")
+    (dolist (connection nrepl-connection-list)
+      (when connection
+        (nrepl-close connection)))
+    (message "All active nrepl connections were closed")
+    (nrepl-close-ancilliary-buffers)))
 
 (defun nrepl-restart (&optional prompt-project)
   "Quit nrepl and restart it.
