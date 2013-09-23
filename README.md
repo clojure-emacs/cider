@@ -178,7 +178,7 @@ enable `paredit` in the nREPL buffer as well:
   `smartparens` in the nREPL buffer use the following code:
 
 ```lisp
-(add-hook 'nrepl-mode-hook 'smartparens-mode)
+(add-hook 'nrepl-mode-hook 'smartparens-strict-mode)
 ```
 
 * [RainbowDelimiters](https://github.com/jlr/rainbow-delimiters) is a
