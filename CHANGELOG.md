@@ -15,6 +15,7 @@
 ### Bugs fixed
 
 * <kbd>C-c M-s</kbd> (`nrepl-selector`) was bound to non-existing symbol.
+* Fix indentation in REPL buffers.
 
 ## 0.1.8 / 2013-08-08
 
