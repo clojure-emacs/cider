@@ -2292,17 +2292,23 @@ Refreshes EWOC."
   (let ((version-string (plist-get (nrepl-send-string-sync "(clojure-version)") :value)))
    (substring version-string 1 (1- (length version-string)))))
 
+(defun nrepl--backend-version ()
+  "Retrieve the underlying connection's nREPL version."
+  (let ((version-string (plist-get (nrepl-send-string-sync "(:version-string clojure.tools.nrepl/version)") :value)))
+    (substring version-string 1 (1- (length version-string)))))
+
 (defun nrepl--connection-info (nrepl-connection-buffer)
   "Return info about NREPL-CONNECTION-BUFFER.
 
 Info contains project name, current repl namespace, host:port endpoint and Clojure version."
   (with-current-buffer (get-buffer nrepl-connection-buffer)
-    (format "Active nrepl connection: %s:%s, %s:%s (Clojure %s)"
+    (format "Active nrepl connection: %s:%s, %s:%s (Clojure %s, nREPL %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
             nrepl-buffer-ns
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
-            (nrepl--clojure-version))))
+            (nrepl--clojure-version)
+            (nrepl--backend-version))))
 
 (defun nrepl-display-current-connection-info ()
   "Display information about the current connection."

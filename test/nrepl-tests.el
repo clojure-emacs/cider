@@ -260,20 +260,22 @@
 
 (ert-deftest test-nrepl--current-connection-info ()
   (with-temp-buffer
-    (noflet ((nrepl--clojure-version () "1.5.1"))
+    (noflet ((nrepl--clojure-version () "1.5.1")
+             (nrepl--backend-version () "0.2.1"))
             (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
             (set (make-local-variable 'nrepl-project-dir) "proj")
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
             (should (string= (nrepl--connection-info (buffer-name (current-buffer)))
-                             "Active nrepl connection: proj:somens, localhost:4005 (Clojure 1.5.1)")))))
+                             "Active nrepl connection: proj:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-current-connection-info-no-project ()
   (with-temp-buffer
-    (noflet ((nrepl--clojure-version () "1.5.1"))
+    (noflet ((nrepl--clojure-version () "1.5.1")
+             (nrepl--backend-version () "0.2.1"))
             (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
             (should (string= (nrepl--connection-info (buffer-name (current-buffer)))
-                             "Active nrepl connection: <no project>:somens, localhost:4005 (Clojure 1.5.1)")))))
+                             "Active nrepl connection: <no project>:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-close ()
   (lexical-let ((connections (nrepl-connection-buffers)))
