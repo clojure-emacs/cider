@@ -138,7 +138,7 @@
 
 (ert-deftest test-nrepl--banner ()
   (noflet ((nrepl-version () "1.5.1"))
-    (should (equal (nrepl--banner) "; nREPL 1.5.1"))))
+    (should (equal (nrepl--banner) "; nrepl.el 1.5.1"))))
 
 (ert-deftest test-nrepl-extract-error-info-14 ()
   (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31)"))

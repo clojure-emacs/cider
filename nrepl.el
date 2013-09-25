@@ -2670,7 +2670,7 @@ search for and read a `ns' form."
 
 (defun nrepl--banner ()
   "Generate the welcome REPL buffer banner."
-  (concat "; nREPL " (nrepl-version)))
+  (concat "; nrepl.el " (nrepl-version)))
 
 (defun nrepl-insert-banner (ns)
   "Insert REPL banner, taking into account NS."
