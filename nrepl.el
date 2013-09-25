@@ -2665,6 +2665,8 @@ search for and read a `ns' form."
     "Your hacking starts... NOW!"
     "May the Source be with you!"
     "May the Source shine upon thy nREPL!"
+    "Code long and prosper!"
+    "Happy hacking!"
     ,(format "%s, this could be the start of a beautiful program."
              (nrepl-user-first-name)))
   "Scientifically-proven optimal words of hackerish encouragement.")
