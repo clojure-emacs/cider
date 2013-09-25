@@ -2676,7 +2676,10 @@ search for and read a `ns' form."
 
 (defun nrepl--banner ()
   "Generate the welcome REPL buffer banner."
-  (concat "; nrepl.el " (nrepl-version)))
+  (format "; nrepl.el %s (Clojure %s, nREPL %s)"
+          (nrepl-version)
+          (nrepl--clojure-version)
+          (nrepl--backend-version)))
 
 (defun nrepl-insert-banner (ns)
   "Insert REPL banner, taking into account NS."

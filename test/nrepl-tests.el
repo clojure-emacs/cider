@@ -137,8 +137,10 @@
     (should (equal (nrepl-server-buffer-name) " *nrepl-server*"))))
 
 (ert-deftest test-nrepl--banner ()
-  (noflet ((nrepl-version () "1.5.1"))
-    (should (equal (nrepl--banner) "; nrepl.el 1.5.1"))))
+  (noflet ((nrepl-version () "0.2.0")
+           (nrepl--clojure-version () "1.5.1")
+           (nrepl--backend-version () "0.2.1"))
+    (should (equal (nrepl--banner) "; nrepl.el 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
 
 (ert-deftest test-nrepl-extract-error-info-14 ()
   (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31)"))
