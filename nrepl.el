@@ -336,13 +336,13 @@ change the setting's value."
   :group 'nrepl)
 
 (defcustom nrepl-buffer-name-separator " "
-  "Used in constructing the repl buffer name.
+  "Used in constructing the REPL buffer name.
 The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
   :type '(string)
   :group 'nrepl)
 
 (defcustom nrepl-buffer-name-show-port nil
-  "Show the connection port in the nrepl repl buffer name, if set to t."
+  "Show the connection port in the nrepl REPL buffer name, if set to t."
   :type 'boolean
   :group 'nrepl)
 
@@ -373,7 +373,7 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
  'nrepl-sync-response)
 
 (defun nrepl-reset-markers ()
-  "Reset all repl markers."
+  "Reset all REPL markers."
   (dolist (markname '(nrepl-output-start
                       nrepl-output-end
                       nrepl-prompt-start-mark
@@ -1337,7 +1337,7 @@ Empty strings and duplicates are ignored."
   (delete-region nrepl-input-start-mark (point-max)))
 
 (defun nrepl-replace-input (string)
-  "Replace the current repl input with STRING."
+  "Replace the current REPL input with STRING."
   (nrepl-delete-current-input)
   (insert-and-inherit string))
 
@@ -1882,7 +1882,7 @@ If BOL is non-nil, emit at the beginning of the line."
     (nrepl-emit-output-at-pos buffer string nrepl-input-start-mark bol)))
 
 (defun nrepl-emit-prompt (buffer)
-  "Emit the repl prompt into BUFFER."
+  "Emit the REPL prompt into BUFFER."
   (with-current-buffer buffer
     (save-excursion
       (nrepl-save-marker nrepl-output-start
@@ -2018,7 +2018,7 @@ With a prefix argument DISABLE, turn it off."
   (interactive "P")
   (setq nrepl-log-events (not disable)))
 
-;;; repl interaction
+;;; REPL interaction
 (defun nrepl-property-bounds (prop)
   "Return the the positions of the previous and next change to PROP.
 PROP is the name of a text property."
@@ -2142,7 +2142,7 @@ Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
 
 (defun nrepl--close-connection-buffer (connection-buffer)
   "Closes CONNECTION-BUFFER, removing it from `nrepl-connection-list'.
-Also closes associated repl and server buffers."
+Also closes associated REPL and server buffers."
   (let ((nrepl-connection-dispatch connection-buffer))
      (lexical-let ((buffer (get-buffer connection-buffer)))
        (setq nrepl-connection-list
@@ -2282,7 +2282,7 @@ Refreshes EWOC."
   (nrepl--ewoc-apply-at-point #'nrepl--connections-goto-connection))
 
 (defun nrepl--connections-goto-connection (ewoc data)
-  "Goto the repl for the connection in EWOC specified by DATA."
+  "Goto the REPL for the connection in EWOC specified by DATA."
   (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
     (when buffer
       (select-window (display-buffer buffer)))))
@@ -2300,7 +2300,7 @@ Refreshes EWOC."
 (defun nrepl--connection-info (nrepl-connection-buffer)
   "Return info about NREPL-CONNECTION-BUFFER.
 
-Info contains project name, current repl namespace, host:port endpoint and Clojure version."
+Info contains project name, current REPL namespace, host:port endpoint and Clojure version."
   (with-current-buffer (get-buffer nrepl-connection-buffer)
     (format "Active nrepl connection: %s:%s, %s:%s (Clojure %s, nREPL %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
@@ -2584,7 +2584,7 @@ text property `nrepl-old-input'."
   (run-hooks 'nrepl-clear-buffer-hook))
 
 (defun nrepl-find-and-clear-repl-buffer ()
-  "Find the current repl buffer and clear it.
+  "Find the current REPL buffer and clear it.
 Returns to the buffer in which the command was invoked."
   (interactive)
   (let ((origin-buffer (current-buffer)))
@@ -2715,7 +2715,7 @@ to jump back to the last clojure source buffer."
     (setq nrepl-last-clojure-buffer buffer)))
 
 (defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
-  "Initialize the repl for CONNECTION in BUFFER.
+  "Initialize the REPL for CONNECTION in BUFFER.
 Insert a banner, unless NOPROMPT is non-nil."
   (with-current-buffer buffer
     (unless (eq major-mode 'nrepl-mode)
@@ -2729,27 +2729,27 @@ Insert a banner, unless NOPROMPT is non-nil."
     (current-buffer)))
 
 (defun nrepl-find-or-create-repl-buffer ()
-  "Return the repl buffer, create it if necessary."
+  "Return the REPL buffer, create it if necessary."
   (let ((buffer (nrepl-current-repl-buffer)))
         (if (null buffer)
-                (error "No active nREPL Connection")
+                (error "No active nREPL connection")
           (let ((buffer (get-buffer buffer)))
                 (or (when (buffer-live-p buffer) buffer)
                         (let ((buffer (nrepl-current-connection-buffer)))
                           (if (null buffer)
-                                  (error "No active nREPL Connection")
+                                  (error "No active nREPL connection")
                                 (nrepl-init-repl-buffer
                                  (get-process buffer)
                                  (get-buffer-create "*nrepl*")))))))))
 
 (defun nrepl-switch-to-repl-buffer (arg)
-  "Select the repl buffer, when possible in an existing window.
+  "Select the REPL buffer, when possible in an existing window.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear.
 
-With a prefix ARG sets the name of the repl buffer to the one
+With a prefix ARG sets the name of the REPL buffer to the one
 of the current source file."
   (interactive "P")
   (if (not (get-buffer (nrepl-current-connection-buffer)))
@@ -2763,17 +2763,17 @@ of the current source file."
         (goto-char (point-max))))))
 
 (defun nrepl-switch-to-relevant-repl-buffer (arg)
-  "Select the repl buffer, when possible in an existing window.
+  "Select the REPL buffer, when possible in an existing window.
 The buffer chosen is based on the file open in the current buffer.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear.
 
-With a prefix ARG sets the name of the repl buffer to the one
+With a prefix ARG sets the name of the REPL buffer to the one
 of the current source file.
 
-With a second prefix ARG the chosen repl buffer is based on a
+With a second prefix ARG the chosen REPL buffer is based on a
 supplied project directory."
   (interactive "P")
   (if (not (get-buffer (nrepl-current-connection-buffer)))
@@ -2809,10 +2809,10 @@ clojure buffer and the REPL buffer."
   (if (and (eq 'nrepl-mode major-mode)
            (buffer-live-p nrepl-last-clojure-buffer))
       (pop-to-buffer nrepl-last-clojure-buffer)
-    (message "Don't know the original clojure buffer")))
+    (message "Don't know the original Clojure buffer")))
 
 (defun nrepl-set-ns (ns)
-  "Switch the namespace of the nREPL buffer to NS."
+  "Switch the namespace of the REPL buffer to NS."
   (interactive (list (nrepl-current-ns)))
   (if ns
       (with-current-buffer (nrepl-current-repl-buffer)
@@ -3354,7 +3354,7 @@ restart the server."
                  (nrepl-setup-default-namespaces process))))))))
 
 (defun nrepl-make-repl (process)
-  "Make a repl for the connection PROCESS."
+  "Make a REPL for the connection PROCESS."
   (lexical-let ((connection-buffer (process-buffer process))
                 (nrepl-buffer (nrepl-create-repl-buffer process)))
     (with-current-buffer nrepl-buffer
@@ -3364,7 +3364,7 @@ restart the server."
 
 (defun nrepl-new-session-handler (process no-repl-p)
   "Create a new session handler for PROCESS.
-When NO-REPL-P is truthy, suppress creation of a repl buffer."
+When NO-REPL-P is truthy, suppress creation of a REPL buffer."
   (lexical-let ((process process)
                 (no-repl-p no-repl-p))
     (lambda (response)
@@ -3382,13 +3382,13 @@ When NO-REPL-P is truthy, suppress creation of a repl buffer."
 
 (defun nrepl-init-client-sessions (process no-repl-p)
   "Initialize client sessions for PROCESS.
-When NO-REPL-P is truthy, suppress creation of a repl buffer."
+When NO-REPL-P is truthy, suppress creation of a REPL buffer."
   (nrepl-create-client-session (nrepl-new-session-handler process no-repl-p))
   (nrepl-create-client-session (nrepl-new-tooling-session-handler process)))
 
 (defun nrepl-connect (host port &optional no-repl-p)
   "Connect to a running nREPL server running on HOST and PORT.
-When NO-REPL-P is truthy, suppress creation of a repl buffer."
+When NO-REPL-P is truthy, suppress creation of a REPL buffer."
   (message "Connecting to nREPL on %s:%s..." host port)
   (let* ((nrepl-endpoint `(,host ,port))
          (process (open-network-stream "nrepl"
