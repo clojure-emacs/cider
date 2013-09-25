@@ -2683,8 +2683,8 @@ search for and read a `ns' form."
           (nrepl--clojure-version)
           (nrepl--backend-version)))
 
-(defun nrepl-insert-banner (ns)
-  "Insert REPL banner, taking into account NS."
+(defun nrepl-insert-banner-and-prompt (ns)
+  "Insert REPL banner and REPL prompt, taking into account NS."
   (when (zerop (buffer-size))
     (insert (propertize (nrepl--banner) 'face 'font-lock-comment-face)))
   (goto-char (point-max))
@@ -2724,7 +2724,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     (nrepl-send-string-sync "(apply require clojure.main/repl-requires)")
     (nrepl-reset-markers)
     (unless noprompt
-      (nrepl-insert-banner nrepl-buffer-ns))
+      (nrepl-insert-banner-and-prompt nrepl-buffer-ns))
     (nrepl-remember-clojure-buffer nrepl-current-clojure-buffer)
     (current-buffer)))
 
