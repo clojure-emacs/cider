@@ -354,6 +354,7 @@ You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate
 
 * [Leiningen](http://leiningen.org) 2.x (only for `nrepl-jack-in`)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
+* [Clojure](http://clojure.org) 1.5.0+ (`nrepl.el` 0.1.8 is the last version that supports Clojure 1.4)
 
 ## Changelog
 

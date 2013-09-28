@@ -2,20 +2,27 @@
 
 ## 0.2.0
 
+### New features
+
 * <kbd>C-c M-d</kbd> will display current nREPL connection details.
 * <kbd>C-c M-r</kbd> will rotate and display the current nREPL connection.
-* Setting the variable `nrepl-buffer-name-show-port` will display the port on which the nRepl server is running.
-* nRepl buffer name uses project directory name; `*nrepl*` will appear as `*nrepl project-directory-name*`.
-* nRepl connection buffer name uses project directory name; `*nrepl-connection*` will appear as `*nrepl-connection project-directory-name*`.
-* nRepl server buffer name uses project directory name; `*nrepl-server*` will appear as `*nrepl-server project-directory-name*`.
+* Setting the variable `nrepl-buffer-name-show-port` will display the port on which the nREPL server is running.
+* The REPL buffer name uses project directory name; `*nrepl*` will appear as `*nrepl project-directory-name*`.
+* The nREPL connection buffer name uses project directory name; `*nrepl-connection*` will appear as `*nrepl-connection project-directory-name*`.
+* nREPL server buffer name uses project directory name; `*nrepl-server*` will appear as `*nrepl-server project-directory-name*`.
 * <kbd>C-c C-Z</kbd> will select the nrepl buffer based on the current namespace.
 * <kbd>C-u C-c C-Z</kbd> will select the nrepl buffer based on a user project directory prompt.
 * Bind <kbd>C-c C-q</kbd> to `nrepl-quit`
+
+### Changes
+
+* Drop support for Clojure 1.4
 
 ### Bugs fixed
 
 * <kbd>C-c M-s</kbd> (`nrepl-selector`) was bound to non-existing symbol.
 * Fix indentation in REPL buffers.
+* Fix `nrepl-doc` on Clojure 1.5
 
 ## 0.1.8 / 2013-08-08
 
