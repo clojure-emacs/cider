@@ -1773,7 +1773,8 @@ ENDP) DELIM."
   "Major mode for nREPL interactions.
 
 \\{nrepl-mode-map}"
-  (setq-local indent-line-function 'clojure-indent-function)
+  (setq-local lisp-indent-function 'clojure-indent-function)
+  (setq-local indent-line-function 'lisp-indent-line)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point)
