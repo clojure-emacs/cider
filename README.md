@@ -322,8 +322,8 @@ Keyboard shortcut                    | Description
 <kbd>TAB</kbd> | Complete symbol at point.
 <kbd>C-c C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 <kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-z</kbd> | Select the last clojure buffer. <kbd>C-u C-c C-z</kbd> will switch the clojure buffer to the namespace in the current buffer.
-<kbd>C-u C-u C-c C-z</kbd> | Select the clojure buffer based on a user prompt for a directory.
+<kbd>C-c C-z</kbd> | Select the last Clojure buffer. <kbd>C-u C-c C-z</kbd> will switch the Clojure buffer to the namespace in the current buffer.
+<kbd>C-u C-u C-c C-z</kbd> | Select the Clojure buffer based on a user prompt for a directory.
 <kbd>C-c M-d</kbd> | Display current REPL connection details, including project directory name, buffer namespace, host and port.
 <kbd>C-c M-r</kbd> | Rotate and display the current REPL connection.
 
@@ -342,11 +342,11 @@ You can connect to multiple nREPL servers and use <kbd>M-x nrepl-jack-in</kbd> m
 times.  To close a single nREPL session, use <kbd>M-x nrepl-close</kbd>.  <kbd>M-x
 nrepl-quit</kbd> closes all sessions.
 
-nrepl.el commands in a clojure buffer use the default connection.  To make a
+nrepl.el commands in a Clojure buffer use the default connection.  To make a
 connection default, switch to it's repl buffer and use
 <kbd>M-x nrepl-make-repl-connection-default</kbd>.
 
-To switch to the relevant REPL buffer based on the clojure namespace in the current buffer, use: <kbd>C-c C-z</kbd>.
+To switch to the relevant REPL buffer based on the Clojure namespace in the current buffer, use: <kbd>C-c C-z</kbd>.
 
 You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate through available connections using <kbd>C-c M-r</kbd>.
 

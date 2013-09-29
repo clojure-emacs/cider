@@ -2695,9 +2695,9 @@ search for and read a `ns' form."
 
 (make-variable-buffer-local
  (defvar nrepl-last-clojure-buffer nil
-   "A buffer-local variable holding the last clojure source buffer.
+   "A buffer-local variable holding the last Clojure source buffer.
 `nrepl-switch-to-last-clojure-buffer' uses this variable to jump
-back to last clojure source buffer."))
+back to last Clojure source buffer."))
 
 (defvar nrepl-current-clojure-buffer nil
   "This variable holds current buffer temporarily when connecting to a REPL.
@@ -2707,9 +2707,9 @@ to call `nrepl-remember-clojure-buffer'.")
 
 (defun nrepl-remember-clojure-buffer (buffer)
   "Try to remember the BUFFER from which the user jumps.
-The BUFFER needs to be a clojure buffer and current major mode needs
+The BUFFER needs to be a Clojure buffer and current major mode needs
 to be `nrepl-repl-mode'.  The user can use `nrepl-switch-to-last-clojure-buffer'
-to jump back to the last clojure source buffer."
+to jump back to the last Clojure source buffer."
   (when (and buffer
              (eq 'clojure-mode (with-current-buffer buffer major-mode))
              (eq 'nrepl-repl-mode major-mode))
@@ -2801,11 +2801,11 @@ supplied project directory."
       (nrepl-switch-to-repl-buffer '()))))
 
 (defun nrepl-switch-to-last-clojure-buffer ()
-  "Switch to the last clojure buffer.
+  "Switch to the last Clojure buffer.
 The default keybinding for this command is
 the same as `nrepl-switch-to-repl-buffer',
 so that it is very convenient to jump between a
-clojure buffer and the REPL buffer."
+Clojure buffer and the REPL buffer."
   (interactive)
   (if (and (eq 'nrepl-repl-mode major-mode)
            (buffer-live-p nrepl-last-clojure-buffer))
