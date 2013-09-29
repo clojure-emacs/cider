@@ -3168,12 +3168,10 @@ Only considers buffers that are not already visible."
 See command `nrepl-interaction-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
-  (add-hook 'clojurescript-mode-hook 'clojure-enable-nrepl)
   (save-window-excursion
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
-        (when (or (eq major-mode 'clojure-mode)
-                  (eq major-mode 'clojurescript-mode))
+        (when (eq major-mode 'clojure-mode)
           (clojure-enable-nrepl))))))
 
 ;;;###autoload
@@ -3184,8 +3182,7 @@ See command `nrepl-interaction-mode'."
   (save-window-excursion
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
-        (when (or (eq major-mode 'clojure-mode)
-                  (eq major-mode 'clojurescript-mode))
+        (when (eq major-mode 'clojure-mode)
           (setq nrepl-buffer-ns "user")
           (clojure-disable-nrepl))))))
 
