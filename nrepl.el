@@ -1763,13 +1763,13 @@ ENDP) DELIM."
 
 \\{nrepl-interaction-mode-map}"
   nil
-  " nREPL"
+  " nREPL/i"
   nrepl-interaction-mode-map
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point))
 
-(define-derived-mode nrepl-repl-mode fundamental-mode "nREPL"
+(define-derived-mode nrepl-repl-mode fundamental-mode "nREPL/r"
   "Major mode for nREPL interactions.
 
 \\{nrepl-repl-mode-map}"
