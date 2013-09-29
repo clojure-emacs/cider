@@ -38,7 +38,7 @@ For MELPA the code you need to add is:
 (package-initialize)
 ```
 
-And then you can install nREPL with the following command:
+And then you can install `nrepl.el` with the following command:
 
 <kbd>M-x package-install [RET] nrepl [RET]</kbd>
 
@@ -133,14 +133,14 @@ than the REPL:
 (setq nrepl-popup-stacktraces-in-repl t)
 ```
 
-* The nrepl buffer name takes the format `*nrepl project-name*`.
+* The REPL buffer name takes the format `*nrepl project-name*`.
 Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 
 ```lisp
 (setq nrepl-buffer-name-separator "-")
 ```
 
-* The nrepl buffer name can also display the port on which the nrepl server is running.
+* The REPL buffer name can also display the port on which the nrepl server is running.
 Buffer name will look like *nrepl project-name:port*.
 
 ```lisp
@@ -175,7 +175,7 @@ enable `paredit` in the nREPL buffer as well:
 * [smartparens](https://github.com/Fuco1/smartparens) is an excellent
   alternative to paredit. Many Clojure hackers have adopted it
   recently and you might want to give it a try as well. To enable
-  `smartparens` in the nREPL buffer use the following code:
+  `smartparens` in the REPL buffer use the following code:
 
 ```lisp
 (add-hook 'nrepl-repl-mode-hook 'smartparens-strict-mode)
@@ -187,7 +187,7 @@ enable `paredit` in the nREPL buffer as well:
   different color. This makes it easy to spot matching delimiters,
   orient yourself in the code, and tell which statements are at a
   given depth. Assuming you've already installed RainbowDelimiters you can
-  enable it in nREPL like this:
+  enable it in the REPL like this:
 
 ```lisp
 (add-hook 'nrepl-repl-mode-hook 'rainbow-delimiters-mode)
@@ -201,9 +201,9 @@ enable `paredit` in the nREPL buffer as well:
 
 ## Basic Usage
 
-The only requirement to use nrepl.el is to have a nrepl server to
+The only requirement to use nrepl.el is to have a nREPL server to
 which it may connect. Many Clojurians favour the use of the Leiningen tool
-to start a nrepl server, but the use of Leiningen is not a prerequisite to use
+to start a nREPL server, but the use of Leiningen is not a prerequisite to use
 nrepl.el (but it's required if you want to use the `nrepl-jack-in` command).
 
 ### Setting up a Leiningen project (optional)
@@ -213,7 +213,7 @@ build/project management tool for Clojure.  It has a similar scope to
 the Maven build tool favoured by Java developers (Leiningen actually
 reuses many things from the Maven ecosystem).
 
-nrepl.el features a command called `nrepl-jack-in` that will start an nrepl server
+nrepl.el features a command called `nrepl-jack-in` that will start an nREPL server
 for a particular Leiningen project and connect to it automatically.
 This functionality depends on Leiningen 2. Older versions are not supported. Follow
 the installation instructions on Leiningen's web site to get it up and running and afterwards
@@ -223,9 +223,9 @@ create a project like this:
 $ lein new demo
 ```
 
-The two main ways to obtain an nREPL are discussed in the following sections of the manual.
+The two main ways to obtain an nREPL connection are discussed in the following sections of the manual.
 
-### Launch a nrepl server and client from Emacs
+### Launch a nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` project (like
 `foo.clj`) and type <kbd>M-x nrepl-jack-in</kbd>. This will start a nREPL with
@@ -246,14 +246,14 @@ $ lein repl
 Alternatively you can start nrepl.el either manually or by the facilities provided by your
 project build tool (Maven, etc).
 
-After you get your nrepl server running go back to Emacs.
+After you get your nREPL server running go back to Emacs.
 Typing there <kbd>M-x nrepl</kbd> will allow you to connect to the running nrepl session.
 
 ### Using the nrepl minor mode
 
 `nrepl.el` comes with a handy minor mode called `nrepl-interaction-mode` (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure source
-files and load it directly in the repl.  A list of all
+files and load it directly in the REPL.  A list of all
 available commands is available in the nREPL menu and in the following
 section of this manual.
 
@@ -346,7 +346,7 @@ nrepl.el commands in a clojure buffer use the default connection.  To make a
 connection default, switch to it's repl buffer and use
 <kbd>M-x nrepl-make-repl-connection-default</kbd>.
 
-To switch to the relevant nREPL buffer based on the clojure namespace in the current buffer, use: <kbd>C-c C-z</kbd>.
+To switch to the relevant REPL buffer based on the clojure namespace in the current buffer, use: <kbd>C-c C-z</kbd>.
 
 You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate through available connections using <kbd>C-c M-r</kbd>.
 
