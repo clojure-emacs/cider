@@ -159,7 +159,7 @@ we often have to deal with Java class and method names. The built-in
 Emacs minor mode `subword-mode` provides such functionality:
 
 ```lisp
-(add-hook 'nrepl-mode-hook 'subword-mode)
+(add-hook 'nrepl-repl-mode-hook 'subword-mode)
 ```
 
 * The use of [paredit](http://mumble.net/~campbell/emacs/paredit.html)
@@ -169,7 +169,7 @@ buffers (if you're not you probably should). You might also want to
 enable `paredit` in the nREPL buffer as well:
 
 ```lisp
-(add-hook 'nrepl-mode-hook 'paredit-mode)
+(add-hook 'nrepl-repl-mode-hook 'paredit-mode)
 ```
 
 * [smartparens](https://github.com/Fuco1/smartparens) is an excellent
@@ -178,7 +178,7 @@ enable `paredit` in the nREPL buffer as well:
   `smartparens` in the nREPL buffer use the following code:
 
 ```lisp
-(add-hook 'nrepl-mode-hook 'smartparens-strict-mode)
+(add-hook 'nrepl-repl-mode-hook 'smartparens-strict-mode)
 ```
 
 * [RainbowDelimiters](https://github.com/jlr/rainbow-delimiters) is a
@@ -190,7 +190,7 @@ enable `paredit` in the nREPL buffer as well:
   enable it in nREPL like this:
 
 ```lisp
-(add-hook 'nrepl-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'nrepl-repl-mode-hook 'rainbow-delimiters-mode)
 ```
 
 * [ac-nrepl](https://github.com/clojure-emacs/ac-nrepl) provides

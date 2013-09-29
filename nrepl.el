@@ -89,7 +89,7 @@
 ;;; Version information
 (defun nrepl-library-version ()
   "Get the version in the nrepl library header."
-  (-when-let (version (pkg-info-defining-library-version 'nrepl-mode))
+  (-when-let (version (pkg-info-defining-library-version 'nrepl-repl-mode))
     (pkg-info-format-version version)))
 
 (defun nrepl-package-version ()
@@ -983,7 +983,7 @@ They exist for compatibility with `next-error'."
 (defun nrepl-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
-  (let ((replp (equal 'nrepl-mode (buffer-local-value 'major-mode buffer))))
+  (let ((replp (equal 'nrepl-repl-mode (buffer-local-value 'major-mode buffer))))
     (if (or (and nrepl-popup-stacktraces-in-repl replp)
             (and nrepl-popup-stacktraces (not replp)))
       (lexical-let ((nrepl-popup-on-error nrepl-popup-on-error))
@@ -1446,13 +1446,13 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
   "The maximum number of items to keep in the REPL history."
   :type 'integer
   :safe 'integerp
-  :group 'nrepl-mode)
+  :group 'nrepl-repl-mode)
 
 (defcustom nrepl-history-file nil
   "File to save the persistent REPL history to."
   :type 'string
   :safe 'stringp
-  :group 'nrepl-mode)
+  :group 'nrepl-repl-mode)
 
 (defun nrepl-history-read-filename ()
   "Ask the user which file to use, defaulting `nrepl-history-file'."
@@ -1556,10 +1556,10 @@ This will not work on non-current prompts."
   (= (point) nrepl-input-start-mark))
 
 ;;; mode book-keeping
-(defvar nrepl-mode-hook nil
-  "Hook executed when entering `nrepl-mode'.")
+(defvar nrepl-repl-mode-hook nil
+  "Hook executed when entering `nrepl-repl-mode'.")
 
-(defvar nrepl-mode-syntax-table
+(defvar nrepl-repl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
 (defvar nrepl-interaction-mode-map
@@ -1660,11 +1660,11 @@ This will not work on non-current prompts."
     (current-buffer)))
 
 (defun nrepl-tab ()
-  "Invoked on TAB keystrokes in `nrepl-mode' buffers."
+  "Invoked on TAB keystrokes in `nrepl-repl-mode' buffers."
   (interactive)
   (funcall nrepl-tab-command))
 
-(defvar nrepl-mode-map
+(defvar nrepl-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "M-.") 'nrepl-jump)
@@ -1702,7 +1702,7 @@ This will not work on non-current prompts."
     (define-key map (kbd "C-c C-q") 'nrepl-quit)
     map))
 
-(easy-menu-define nrepl-mode-menu nrepl-mode-map
+(easy-menu-define nrepl-repl-mode-menu nrepl-repl-mode-map
   "Menu for nREPL mode"
   '("nREPL"
     ["Jump" nrepl-jump]
@@ -1742,7 +1742,7 @@ Useful in hooks."
 
 Decides if paredit should insert a space after/before (if/unless
 ENDP) DELIM."
-  (if (eq major-mode 'nrepl-mode)
+  (if (eq major-mode 'nrepl-repl-mode)
       (save-excursion
         (backward-char)
         (if (and (or (char-equal delim ?\()
@@ -1769,16 +1769,16 @@ ENDP) DELIM."
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point))
 
-(define-derived-mode nrepl-mode fundamental-mode "nREPL"
+(define-derived-mode nrepl-repl-mode fundamental-mode "nREPL"
   "Major mode for nREPL interactions.
 
-\\{nrepl-mode-map}"
+\\{nrepl-repl-mode-map}"
   (setq-local lisp-indent-function 'clojure-indent-function)
   (setq-local indent-line-function 'lisp-indent-line)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                'nrepl-complete-at-point)
-  (set-syntax-table nrepl-mode-syntax-table)
+  (set-syntax-table nrepl-repl-mode-syntax-table)
   (nrepl-turn-on-eldoc-mode)
   (if (fboundp 'hack-dir-local-variables-non-file-buffer)
       (hack-dir-local-variables-non-file-buffer))
@@ -1789,8 +1789,8 @@ ENDP) DELIM."
   (add-hook 'paredit-mode-hook
             (lambda ()
               (when (>= paredit-version 21)
-                (define-key nrepl-mode-map "{" 'paredit-open-curly)
-                (define-key nrepl-mode-map "}" 'paredit-close-curly)
+                (define-key nrepl-repl-mode-map "{" 'paredit-open-curly)
+                (define-key nrepl-repl-mode-map "}" 'paredit-close-curly)
                 (add-to-list 'paredit-space-for-delimiter-predicates
                              'nrepl-space-for-delimiter-p)))))
 
@@ -1799,7 +1799,7 @@ ENDP) DELIM."
   "lein"
   "The command used to execute leiningen 2.x."
   :type 'string
-  :group 'nrepl-mode)
+  :group 'nrepl-repl-mode)
 
 (defcustom nrepl-server-command
   (if (or (locate-file nrepl-lein-command exec-path)
@@ -1811,7 +1811,7 @@ For a remote nREPL server lein must be in your PATH.  The remote
 proc is launched via sh rather than bash, so it might be necessary
 to specific the full path to it.  Localhost is assumed."
   :type 'string
-  :group 'nrepl-mode)
+  :group 'nrepl-repl-mode)
 
 
 (defun nrepl-show-maximum-output ()
@@ -2708,19 +2708,19 @@ to call `nrepl-remember-clojure-buffer'.")
 (defun nrepl-remember-clojure-buffer (buffer)
   "Try to remember the BUFFER from which the user jumps.
 The BUFFER needs to be a clojure buffer and current major mode needs
-to be `nrepl-mode'.  The user can use `nrepl-switch-to-last-clojure-buffer'
+to be `nrepl-repl-mode'.  The user can use `nrepl-switch-to-last-clojure-buffer'
 to jump back to the last clojure source buffer."
   (when (and buffer
              (eq 'clojure-mode (with-current-buffer buffer major-mode))
-             (eq 'nrepl-mode major-mode))
+             (eq 'nrepl-repl-mode major-mode))
     (setq nrepl-last-clojure-buffer buffer)))
 
 (defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
   "Initialize the REPL for CONNECTION in BUFFER.
 Insert a banner, unless NOPROMPT is non-nil."
   (with-current-buffer buffer
-    (unless (eq major-mode 'nrepl-mode)
-      (nrepl-mode))
+    (unless (eq major-mode 'nrepl-repl-mode)
+      (nrepl-repl-mode))
     ;; use the same requires by default as clojure.main does
     (nrepl-send-string-sync "(apply require clojure.main/repl-requires)")
     (nrepl-reset-markers)
@@ -2807,7 +2807,7 @@ the same as `nrepl-switch-to-repl-buffer',
 so that it is very convenient to jump between a
 clojure buffer and the REPL buffer."
   (interactive)
-  (if (and (eq 'nrepl-mode major-mode)
+  (if (and (eq 'nrepl-repl-mode major-mode)
            (buffer-live-p nrepl-last-clojure-buffer))
       (pop-to-buffer nrepl-last-clojure-buffer)
     (message "Don't know the original Clojure buffer")))
