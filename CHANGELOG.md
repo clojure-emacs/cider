@@ -13,6 +13,8 @@
 * <kbd>C-c C-Z</kbd> will select the nrepl buffer based on the current namespace.
 * <kbd>C-u C-c C-Z</kbd> will select the nrepl buffer based on a user project directory prompt.
 * Bind <kbd>C-c C-q</kbd> to `nrepl-quit`
+* Added an option to auto-select error popups (`nrepl-auto-select-error-buffer`)
+* Made the display of the REPL buffer on connect optional
 
 ### Changes
 
