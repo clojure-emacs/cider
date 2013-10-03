@@ -120,6 +120,13 @@ following snippet:
 (setq nrepl-tab-command 'indent-for-tab-command)
 ```
 
+* Prevent the auto-display of the REPL buffer in a separate window
+  after connection is established:
+
+```lisp
+(setq nrepl-pop-to-repl-buffer-on-connect nil
+```
+
 * Stop the error buffer from popping up while working in buffers other
 than the REPL:
 

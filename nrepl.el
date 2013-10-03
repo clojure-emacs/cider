@@ -320,6 +320,13 @@ in the `nrepl-error-buffer', which defaults to *nrepl-error*."
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-pop-to-repl-buffer-on-connect t
+  "Controls whether to pop to the REPL buffer on connect.
+
+When set to nil the buffer will only be created."
+  :type 'boolean
+  :group 'nrepl)
+
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
 The default option is `nrepl-indent-and-complete-symbol'.  If
@@ -3337,7 +3344,9 @@ restart the server."
   (nrepl-init-repl-buffer
    process
    (let ((buffer-name (nrepl-repl-buffer-name)))
-     (pop-to-buffer buffer-name)
+     (if nrepl-pop-to-repl-buffer-on-connect
+         (pop-to-buffer buffer-name)
+       (generate-new-buffer buffer-name))
      buffer-name)))
 
 (defun nrepl-new-tooling-session-handler (process)
