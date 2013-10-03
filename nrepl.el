@@ -3354,11 +3354,11 @@ restart the server."
 (defun nrepl-make-repl (process)
   "Make a REPL for the connection PROCESS."
   (lexical-let ((connection-buffer (process-buffer process))
-                (nrepl-buffer (nrepl-create-repl-buffer process)))
-    (with-current-buffer nrepl-buffer
+                (repl-buffer (nrepl-create-repl-buffer process)))
+    (with-current-buffer repl-buffer
       (setq nrepl-connection-buffer (buffer-name connection-buffer)))
     (with-current-buffer connection-buffer
-      (setq nrepl-repl-buffer (buffer-name nrepl-buffer)))))
+      (setq nrepl-repl-buffer (buffer-name repl-buffer)))))
 
 (defun nrepl-new-session-handler (process no-repl-p)
   "Create a new session handler for PROCESS.
