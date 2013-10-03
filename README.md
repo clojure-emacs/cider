@@ -140,6 +140,12 @@ than the REPL:
 (setq nrepl-popup-stacktraces-in-repl t)
 ```
 
+* To auto-select the error buffer when it's displayed:
+
+```lisp
+(setq nrepl-auto-select-error-buffer t)
+```
+
 * The REPL buffer name takes the format `*nrepl project-name*`.
 Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 

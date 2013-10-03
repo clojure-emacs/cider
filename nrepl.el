@@ -327,6 +327,11 @@ When set to nil the buffer will only be created."
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-auto-select-error-buffer nil
+  "Controls whether to auto-select the error popup buffer."
+  :type 'boolean
+  :group 'nrepl)
+
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
 The default option is `nrepl-indent-and-complete-symbol'.  If
@@ -1003,7 +1008,7 @@ They exist for compatibility with `next-error'."
                               (lambda (buffer value)
                                 (nrepl-emit-into-color-buffer buffer value)
                                 (when nrepl-popup-on-error
-                                  (nrepl-popup-buffer-display buffer)))
+                                  (nrepl-popup-buffer-display buffer nrepl-auto-select-error-buffer)))
                               nil nil) nil session))
         (with-current-buffer nrepl-error-buffer
           (compilation-minor-mode +1))))))
