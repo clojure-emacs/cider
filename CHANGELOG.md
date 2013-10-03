@@ -18,7 +18,6 @@
 
 ### Changes
 
-* Drop support for Clojure 1.4
 * Renamed `nrepl-mode` to `nrepl-repl-mode`
 
 ### Bugs fixed

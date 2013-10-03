@@ -151,6 +151,9 @@ just return nil."
   :type 'string
   :group 'nrepl)
 
+(defvar nrepl-repl-requires-sexp "(apply require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
+  "Things to require in the tooling session and the REPL buffer.")
+
 (defvar nrepl-connection-buffer nil)
 (defvar nrepl-server-buffer nil)
 (defvar nrepl-repl-buffer nil)
@@ -2734,7 +2737,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     (unless (eq major-mode 'nrepl-repl-mode)
       (nrepl-repl-mode))
     ;; use the same requires by default as clojure.main does
-    (nrepl-send-string-sync "(apply require clojure.main/repl-requires)")
+    (nrepl-send-string-sync nrepl-repl-requires-sexp)
     (nrepl-reset-markers)
     (unless noprompt
       (nrepl-insert-banner-and-prompt nrepl-buffer-ns))
@@ -3330,7 +3333,7 @@ restart the server."
   (let ((buffer (process-buffer process)))
     (with-current-buffer buffer
       (nrepl-send-string
-       "(apply require clojure.main/repl-requires)"
+       nrepl-repl-requires-sexp
        (nrepl-make-response-handler
         buffer nil
         (lambda (buffer out) (message out))
