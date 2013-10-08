@@ -2756,7 +2756,8 @@ Insert a banner, unless NOPROMPT is non-nil."
                                   (error "No active nREPL connection")
                                 (nrepl-init-repl-buffer
                                  (get-process buffer)
-                                 (get-buffer-create "*nrepl*")))))))))
+                                 (get-buffer-create
+                                  (nrepl-repl-buffer-name))))))))))
 
 (defun nrepl-switch-to-repl-buffer (arg)
   "Select the REPL buffer, when possible in an existing window.

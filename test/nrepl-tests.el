@@ -470,6 +470,14 @@
         (should
          (equal (nrepl-repl-buffer-name) "*nrepl*"))))))
 
+(ert-deftest test-nrepl-clojure-buffer-name-w/project ()
+  (with-temp-buffer
+    (lexical-let ((b1 (current-buffer)))
+      (let ((nrepl-connection-list (list (buffer-name b1)))
+            (nrepl-project-dir "/a/test/directory/project"))
+        (should
+         (equal (nrepl-repl-buffer-name) "*nrepl project*"))))))
+
 (ert-deftest test-nrepl--find-rest-args-position ()
   (should (= (nrepl--find-rest-args-position [fmt & arg]) 1))
   (should (equal (nrepl--find-rest-args-position [fmt arg]) nil)))
