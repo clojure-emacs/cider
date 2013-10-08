@@ -89,11 +89,10 @@ You can certainly use `nrepl.el` without configuring it any further,
 but here are some ways other folks are adjusting their `nrepl.el`
 experience.
 
-* Enable eldoc in clojure buffers:
+* Enable `eldoc` in Clojure buffers:
 
 ```lisp
-(add-hook 'nrepl-interaction-mode-hook
-  'nrepl-turn-on-eldoc-mode)
+(add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
 ```
 
 * You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
