@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.2.0
+## master
+
+## 0.2.0 / 2013-10-10
 
 ### New features
 
