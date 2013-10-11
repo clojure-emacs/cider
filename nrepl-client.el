@@ -1972,13 +1972,10 @@ is chosen.  The returned buffer is selected with
   "*nrepl-events* buffer."
   nrepl-event-buffer-name)
 
-;; TBD --
-;;(def-nrepl-selector-method ?s
-;;  "Cycle to the next Clojure connection."
-;;  (nrepl-cycle-connections)
-;;  (concat "*nrepl "
-;;          (nrepl-connection-name (nrepl-current-connection))
-;;          "*"))
+(def-nrepl-selector-method ?s
+ "Cycle to the next Clojure connection."
+ (nrepl-rotate-connections)
+ (nrepl-find-or-create-repl-buffer))
 
 (defun nrepl-recently-visited-buffer (mode)
   "Return the most recently visited buffer whose `major-mode' is MODE.
