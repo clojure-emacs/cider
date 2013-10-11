@@ -30,7 +30,6 @@
 
 ;;; Code:
 
-
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the nREPL client."
