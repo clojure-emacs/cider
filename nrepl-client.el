@@ -32,7 +32,6 @@
 
 (require 'clojure-mode)
 (require 'dash)
-(require 'pkg-info)
 (require 'thingatpt)
 (require 'etags)
 (require 'arc-mode)
@@ -61,47 +60,6 @@
   "Interaction with the Clojure nREPL Server."
   :prefix "nrepl-"
   :group 'applications)
-
-
-;;; Version information
-(defun nrepl-library-version ()
-  "Get the version in the nrepl library header."
-  (-when-let (version (pkg-info-defining-library-version 'nrepl-repl-mode))
-    (pkg-info-format-version version)))
-
-(defun nrepl-package-version ()
-  "Get the package version of nrepl.
-
-This is the version number of the installed nrepl package."
-  (-when-let (version (pkg-info-package-version 'nrepl))
-    (pkg-info-format-version version)))
-
-(defun nrepl-version (&optional show-version)
-  "Get the nrepl version as string.
-
-If called interactively or if SHOW-VERSION is non-nil, show the
-version in the echo area and the messages buffer.
-
-The returned string includes both, the version from package.el
-and the library version, if both a present and different.
-
-If the version number could not be determined, signal an error,
-if called interactively, or if SHOW-VERSION is non-nil, otherwise
-just return nil."
-  (interactive (list (not (or executing-kbd-macro noninteractive))))
-  (let* ((lib-version (nrepl-library-version))
-         (pkg-version (nrepl-package-version))
-         (version (cond
-                   ((and lib-version pkg-version
-                         (not (string= lib-version pkg-version)))
-                    (format "%s (package: %s)" lib-version pkg-version))
-                   ((or pkg-version lib-version)
-                    (format "%s" (or pkg-version lib-version))))))
-    (when show-version
-      (unless version
-        (error "Could not find out nrepl version"))
-      (message "nrepl version: %s" version))
-    version))
 
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
