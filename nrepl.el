@@ -61,6 +61,7 @@
 (require 'nrepl-repl)
 (require 'nrepl-repl-mode)
 (require 'nrepl-interaction-mode)
+(require 'nrepl-macroexpansion)
 
 (provide 'nrepl)
 ;;; nrepl.el ends here

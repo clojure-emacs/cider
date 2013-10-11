@@ -110,28 +110,5 @@
     "--"
     ["Version info" nrepl-version]))
 
-;;; mode book-keeping
-(defvar nrepl-macroexpansion-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "g") 'nrepl-macroexpand-again)
-    (define-key map (kbd "q") 'nrepl-popup-buffer-quit-function)
-    (cl-labels ((redefine-key (from to)
-                              (dolist (mapping (where-is-internal from nrepl-interaction-mode-map))
-                                (define-key map mapping to))))
-      (redefine-key 'nrepl-macroexpand-1 'nrepl-macroexpand-1-inplace)
-      (redefine-key 'nrepl-macroexpand-all 'nrepl-macroexpand-all-inplace)
-      (redefine-key 'advertised-undo 'nrepl-macroexpand-undo)
-      (redefine-key 'undo 'nrepl-macroexpand-undo))
-    map))
-
-(define-minor-mode nrepl-macroexpansion-minor-mode
-  "Minor mode for nrepl macroexpansion.
-
-\\{nrepl-macroexpansion-minor-mode-map}"
-  nil
-  " Macroexpand"
-  nrepl-macroexpansion-minor-mode-map)
-
-
 (provide 'nrepl-interaction-mode)
 ;;; nrepl-interaction-mode.el ends here
