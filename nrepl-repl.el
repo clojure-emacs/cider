@@ -32,27 +32,27 @@
 
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
-  "Face for the prompt in the nREPL client."
+  "Face for the prompt in the REPL buffer."
   :group 'nrepl)
 
 (defface nrepl-output-face
   '((t (:inherit font-lock-string-face)))
-  "Face for output in the nREPL client."
+  "Face for output in the REPL buffer."
   :group 'nrepl)
 
 (defface nrepl-error-face
   '((t (:inherit font-lock-string-face)))
-  "Face for errors in the nREPL client."
+  "Face for errors in the REPL buffer."
   :group 'nrepl)
 
 (defface nrepl-input-face
   '((t (:bold t)))
-  "Face for previous input in the nREPL client."
+  "Face for previous input in the REPL buffer."
   :group 'nrepl)
 
 (defface nrepl-result-face
   '((t ()))
-  "Face for the result of an evaluation in the nREPL client."
+  "Face for the result of an evaluation in the REPL buffer."
   :group 'nrepl)
 
 (defcustom nrepl-popup-stacktraces-in-repl nil
