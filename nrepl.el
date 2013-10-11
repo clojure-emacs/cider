@@ -60,6 +60,7 @@
 (require 'nrepl-version)
 (require 'nrepl-repl)
 (require 'nrepl-repl-mode)
+(require 'nrepl-selector)
 (require 'nrepl-interaction-mode)
 (require 'nrepl-macroexpansion)
 
