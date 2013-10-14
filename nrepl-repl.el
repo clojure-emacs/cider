@@ -30,6 +30,8 @@
 
 ;;; Code:
 
+(require 'nrepl-client)
+
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the REPL buffer."
