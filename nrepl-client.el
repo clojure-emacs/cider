@@ -1567,35 +1567,6 @@ are processed."
 (defalias 'nrepl-eval 'nrepl-send-string-sync)
 (defalias 'nrepl-eval-async 'nrepl-send-string)
 
-(defun nrepl-send-input (&optional newline)
-  "Go to the end of the input and send the current input.
-If NEWLINE is true then add a newline at the end of the input."
-  (unless (nrepl-in-input-area-p)
-    (error "No input at point"))
-  (goto-char (point-max))
-  (let ((end (point)))             ; end of input, without the newline
-    (nrepl-add-to-input-history (buffer-substring nrepl-input-start-mark end))
-    (when newline
-      (insert "\n")
-      (nrepl-show-maximum-output))
-    (let ((inhibit-modification-hooks t))
-      (add-text-properties nrepl-input-start-mark
-                           (point)
-                           `(nrepl-old-input
-                             ,(incf nrepl-old-input-counter))))
-    (let ((overlay (make-overlay nrepl-input-start-mark end)))
-      ;; These properties are on an overlay so that they won't be taken
-      ;; by kill/yank.
-      (overlay-put overlay 'read-only t)
-      (overlay-put overlay 'face 'nrepl-input-face)))
-  (let* ((input (nrepl-current-input))
-         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-use-pretty-printing)
-                   (format "(clojure.pprint/pprint %s)" input) input)))
-    (goto-char (point-max))
-    (nrepl-mark-input-start)
-    (nrepl-mark-output-start)
-    (nrepl-send-string form (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
-
 (defun nrepl-find-ns ()
   "Return the ns specified in the buffer, or \"user\" if no ns declaration is found."
   (or (save-restriction
