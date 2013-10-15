@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
+(require 'nrepl-version)
 
 (defface nrepl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
@@ -116,8 +117,8 @@ positions before and after executing BODY."
 
 (defun nrepl-make-repl (process)
   "Make a REPL for the connection PROCESS."
-  (lexical-let ((connection-buffer (process-buffer process))
-                (repl-buffer (nrepl-create-repl-buffer process)))
+  (let ((connection-buffer (process-buffer process))
+        (repl-buffer (nrepl-create-repl-buffer process)))
     (with-current-buffer repl-buffer
       (setq nrepl-connection-buffer (buffer-name connection-buffer)))
     (with-current-buffer connection-buffer
