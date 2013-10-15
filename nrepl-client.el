@@ -155,34 +155,13 @@ also include the connection port if `nrepl-buffer-name-show-port' is true."
   "Current nREPL tooling session id.
 To be used for tooling calls (i.e. completion, eldoc, etc)")
 
-(defvar nrepl-input-start-mark)
-
-(defvar nrepl-prompt-start-mark)
-
 (defvar nrepl-request-counter 0
   "Continuation serial number counter.")
-
-(defvar nrepl-old-input-counter 0
-  "Counter used to generate unique `nrepl-old-input' properties.
-This property value must be unique to avoid having adjacent inputs be
-joined together.")
 
 (defvar nrepl-requests (make-hash-table :test 'equal))
 
 (defvar nrepl-buffer-ns "user"
   "Current Clojure namespace of this buffer.")
-
-(defvar nrepl-input-history '()
-  "History list of strings read from the nREPL buffer.")
-
-(defvar nrepl-input-history-items-added 0
-  "Variable counting the items added in the current session.")
-
-(defvar nrepl-output-start nil
-  "Marker for the start of output.")
-
-(defvar nrepl-output-end nil
-  "Marker for the end of output.")
 
 (defvar nrepl-sync-response nil
   "Result of the last sync request.")
@@ -240,17 +219,9 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
  'nrepl-ops
  'nrepl-session
  'nrepl-tooling-session
- 'nrepl-input-start-mark
- 'nrepl-prompt-start-mark
  'nrepl-request-counter
  'nrepl-requests
- 'nrepl-old-input-counter
  'nrepl-buffer-ns
- 'nrepl-input-history
- 'nrepl-input-history-items-added
- 'nrepl-current-input-history-index
- 'nrepl-output-start
- 'nrepl-output-end
  'nrepl-sync-response)
 
 ;;; Bencode

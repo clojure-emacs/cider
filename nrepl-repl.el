@@ -87,6 +87,38 @@ you'd like to use the default Emacs behavior use
   :type 'symbol
   :group 'nrepl)
 
+
+;;;; REPL buffer local variables
+(defvar nrepl-input-start-mark)
+
+(defvar nrepl-prompt-start-mark)
+
+(defvar nrepl-old-input-counter 0
+  "Counter used to generate unique `nrepl-old-input' properties.
+This property value must be unique to avoid having adjacent inputs be
+joined together.")
+
+(defvar nrepl-input-history '()
+  "History list of strings read from the nREPL buffer.")
+
+(defvar nrepl-input-history-items-added 0
+  "Variable counting the items added in the current session.")
+
+(defvar nrepl-output-start nil
+  "Marker for the start of output.")
+
+(defvar nrepl-output-end nil
+  "Marker for the end of output.")
+
+(nrepl-make-variables-buffer-local
+ 'nrepl-input-start-mark
+ 'nrepl-prompt-start-mark
+ 'nrepl-old-input-counter
+ 'nrepl-input-history
+ 'nrepl-input-history-items-added
+ 'nrepl-output-start
+ 'nrepl-output-end)
+
 (defun nrepl-tab ()
   "Invoked on TAB keystrokes in `nrepl-repl-mode' buffers."
   (interactive)
