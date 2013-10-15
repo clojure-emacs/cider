@@ -42,10 +42,6 @@
 (require 'compile)
 (require 'tramp)
 
-(eval-when-compile
-  (defvar paredit-version)
-  (defvar paredit-space-for-delimiter-predicates))
-
 
 ;;; Compatibility
 (eval-and-compile

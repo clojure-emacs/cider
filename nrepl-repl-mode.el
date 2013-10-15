@@ -30,8 +30,14 @@
 
 ;;; Code:
 
+(require 'nrepl-repl)
+
 (require 'clojure-mode)
 (require 'easymenu)
+
+(eval-when-compile
+  (defvar paredit-version)
+  (defvar paredit-space-for-delimiter-predicates))
 
 (defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
