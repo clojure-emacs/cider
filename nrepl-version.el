@@ -35,9 +35,8 @@
 ;;; Version information
 (defun nrepl-library-version ()
   "Get the version in the nrepl library header."
-  ;; (-when-let (version (pkg-info-defining-library-version 'nrepl))
-  ;;   (pkg-info-format-version version)))
-  "0.3.0-snapshot")
+  (-when-let (version (pkg-info-library-version 'nrepl))
+    (pkg-info-format-version version)))
 
 (defun nrepl-package-version ()
   "Get the package version of nrepl.
