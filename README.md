@@ -22,7 +22,7 @@ maintained repos -
 If you're not already using Marmalade, add this to your
 `~/.emacs.d/init.el` (or equivalent) and load it with <kbd>M-x eval-buffer</kbd>.
 
-```lisp
+```el
 (require 'package)
 (add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/"))
@@ -31,7 +31,7 @@ If you're not already using Marmalade, add this to your
 
 For MELPA the code you need to add is:
 
-```lisp
+```el
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
@@ -44,7 +44,7 @@ And then you can install `nrepl.el` with the following command:
 
 or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.emacs` or `init.el`):
 
-```lisp
+```el
 (unless (package-installed-p 'nrepl)
   (package-install 'nrepl))
 ```
@@ -63,7 +63,7 @@ If you're an el-get user just do <kbd>M-x el-get-install</kbd>.
 You can install `nrepl.el` manually by placing `nrepl.el` on your `load-path`
 and `require`ing it. Many people favour the folder `~/.emacs.d/vendor`:
 
-```lisp
+```el
 (add-to-list 'load-path "~/emacs.d/vendor")
 (require 'nrepl)
 ```
@@ -91,7 +91,7 @@ experience.
 
 * Enable `eldoc` in Clojure buffers:
 
-```lisp
+```el
 (add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
 ```
 
@@ -99,7 +99,7 @@ experience.
 from appearing in some buffer switching commands like
 `switch-to-buffer`(<kbd>C-x b</kbd>) like this:
 
-```lisp
+```el
 (setq nrepl-hide-special-buffers t)
 ```
 
@@ -115,53 +115,53 @@ to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
 because you're used to completing with <kbd>M-TAB</kbd>) use the
 following snippet:
 
-```lisp
+```el
 (setq nrepl-tab-command 'indent-for-tab-command)
 ```
 
 * Prevent the auto-display of the REPL buffer in a separate window
   after connection is established:
 
-```lisp
+```el
 (setq nrepl-pop-to-repl-buffer-on-connect nil
 ```
 
 * Stop the error buffer from popping up while working in buffers other
 than the REPL:
 
-```lisp
+```el
 (setq nrepl-popup-stacktraces nil)
 ```
 
 * Enable error buffer popping also in the REPL:
 
-```lisp
+```el
 (setq nrepl-popup-stacktraces-in-repl t)
 ```
 
 * To auto-select the error buffer when it's displayed:
 
-```lisp
+```el
 (setq nrepl-auto-select-error-buffer t)
 ```
 
 * The REPL buffer name takes the format `*nrepl project-name*`.
 Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 
-```lisp
+```el
 (setq nrepl-buffer-name-separator "-")
 ```
 
 * The REPL buffer name can also display the port on which the nrepl server is running.
 Buffer name will look like *nrepl project-name:port*.
 
-```lisp
+```el
 (setq nrepl-buffer-name-show-port t)
 ```
 
 * Make <kbd>C-c C-z</kbd> switch to the `*nrepl*` buffer in the current window:
 
-```lisp
+```el
 (add-to-list 'same-window-buffer-names "*nrepl*")
 ```
 
@@ -170,7 +170,7 @@ Buffer name will look like *nrepl project-name:port*.
 we often have to deal with Java class and method names. The built-in
 Emacs minor mode `subword-mode` provides such functionality:
 
-```lisp
+```el
 (add-hook 'nrepl-repl-mode-hook 'subword-mode)
 ```
 
@@ -180,7 +180,7 @@ recommended.  You're probably using it already in your `clojure-mode`
 buffers (if you're not you probably should). You might also want to
 enable `paredit` in the nREPL buffer as well:
 
-```lisp
+```el
 (add-hook 'nrepl-repl-mode-hook 'paredit-mode)
 ```
 
@@ -189,7 +189,7 @@ enable `paredit` in the nREPL buffer as well:
   recently and you might want to give it a try as well. To enable
   `smartparens` in the REPL buffer use the following code:
 
-```lisp
+```el
 (add-hook 'nrepl-repl-mode-hook 'smartparens-strict-mode)
 ```
 
@@ -201,7 +201,7 @@ enable `paredit` in the nREPL buffer as well:
   given depth. Assuming you've already installed RainbowDelimiters you can
   enable it in the REPL like this:
 
-```lisp
+```el
 (add-hook 'nrepl-repl-mode-hook 'rainbow-delimiters-mode)
 ```
 
@@ -231,7 +231,7 @@ This functionality depends on Leiningen 2. Older versions are not supported. Fol
 the installation instructions on Leiningen's web site to get it up and running and afterwards
 create a project like this:
 
-```bash
+```
 $ lein new demo
 ```
 
@@ -251,7 +251,7 @@ a lein project, without having to visit any file in it.
 You can go to your project's dir in a terminal and type there
 (assuming you're using Leiningen that is):
 
-```bash
+```
 $ lein repl
 ```
 
@@ -400,14 +400,14 @@ welcome. GitHub pull requests are even better! :-)
 Install [cask](https://github.com/rejeep/cask.el) if you haven't
 already, then:
 
-```bash
+```
 $ cd /path/to/nrepl
 $ cask
 ```
 
 Run all tests with:
 
-```bash
+```
 $ make test
 ```
 
