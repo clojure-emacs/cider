@@ -79,6 +79,19 @@ change the setting's value."
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
+  "Select the command to be invoked by the TAB key.
+The default option is `nrepl-indent-and-complete-symbol'.  If
+you'd like to use the default Emacs behavior use
+`indent-for-tab-command'."
+  :type 'symbol
+  :group 'nrepl)
+
+(defun nrepl-tab ()
+  "Invoked on TAB keystrokes in `nrepl-repl-mode' buffers."
+  (interactive)
+  (funcall nrepl-tab-command))
+
 (defun nrepl-reset-markers ()
   "Reset all REPL markers."
   (dolist (markname '(nrepl-output-start
@@ -785,28 +798,6 @@ Returns to the buffer in which the command was invoked."
           (goto-char start)
           (insert
            (propertize ";;; output cleared" 'face 'font-lock-comment-face)))))))
-
-;;; Prevent paredit from inserting some inappropriate spaces.
-;;; C.f. clojure-mode.el
-(defun nrepl-space-for-delimiter-p (endp delim)
-  "Hook for paredit's `paredit-space-for-delimiter-predicates`.
-
-Decides if paredit should insert a space after/before (if/unless
-ENDP) DELIM."
-  (if (eq major-mode 'nrepl-repl-mode)
-      (save-excursion
-        (backward-char)
-        (if (and (or (char-equal delim ?\()
-                     (char-equal delim ?\")
-                     (char-equal delim ?{))
-                 (not endp))
-            (if (char-equal (char-after) ?#)
-                (and (not (bobp))
-                     (or (char-equal ?w (char-syntax (char-before)))
-                         (char-equal ?_ (char-syntax (char-before)))))
-              t)
-          t))
-    t))
 
 (provide 'nrepl-repl)
 ;;; nrepl-repl.el ends here
