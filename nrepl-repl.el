@@ -34,60 +34,59 @@
 (require 'nrepl-interaction)
 (require 'nrepl-version)
 
-(defface nrepl-prompt-face
+(defgroup nrepl-repl nil
+  "Interaction with the REPL."
+  :prefix "nrepl-repl-"
+  :group 'nrepl)
+
+(defface nrepl-repl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the REPL buffer."
-  :group 'nrepl)
+  :group 'nrepl-repl)
 
-(defface nrepl-output-face
+(defface nrepl-repl-output-face
   '((t (:inherit font-lock-string-face)))
   "Face for output in the REPL buffer."
-  :group 'nrepl)
+  :group 'nrepl-repl)
 
-(defface nrepl-error-face
-  '((t (:inherit font-lock-string-face)))
-  "Face for errors in the REPL buffer."
-  :group 'nrepl)
-
-(defface nrepl-input-face
+(defface nrepl-repl-input-face
   '((t (:bold t)))
   "Face for previous input in the REPL buffer."
-  :group 'nrepl)
+  :group 'nrepl-repl)
 
-(defface nrepl-result-face
+(defface nrepl-repl-result-face
   '((t ()))
   "Face for the result of an evaluation in the REPL buffer."
-  :group 'nrepl)
+  :group 'nrepl-repl)
 
-(defcustom nrepl-popup-stacktraces-in-repl nil
+(defcustom nrepl-repl-popup-stacktraces nil
   "Non-nil means pop-up error stacktraces in the REPL buffer.
 Nil means show only an error message in the minibuffer.  This variable
 overrides `nrepl-popup-stacktraces' in REPL buffers."
   :type 'boolean
-  :group 'nrepl)
+  :group 'nrepl-repl)
 
-(defcustom nrepl-pop-to-repl-buffer-on-connect t
+(defcustom nrepl-repl-pop-to-buffer-on-connect t
   "Controls whether to pop to the REPL buffer on connect.
 
 When set to nil the buffer will only be created."
   :type 'boolean
-  :group 'nrepl)
+  :group 'nrepl-repl)
 
-(defcustom nrepl-use-pretty-printing nil
+(defcustom nrepl-repl-use-pretty-printing nil
   "Control whether the results in REPL are pretty-printed or not.
 The `nrepl-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean
-  :group 'nrepl)
+  :group 'nrepl-repl)
 
-(defcustom nrepl-tab-command 'nrepl-indent-and-complete-symbol
+(defcustom nrepl-repl-tab-command 'nrepl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
 The default option is `nrepl-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
   :type 'symbol
-  :group 'nrepl)
-
+  :group 'nrepl-repl)
 
 ;;;; REPL buffer local variables
 (defvar nrepl-input-start-mark)
@@ -123,7 +122,7 @@ joined together.")
 (defun nrepl-tab ()
   "Invoked on TAB keystrokes in `nrepl-repl-mode' buffers."
   (interactive)
-  (funcall nrepl-tab-command))
+  (funcall nrepl-repl-tab-command))
 
 (defun nrepl-reset-markers ()
   "Reset all REPL markers."
@@ -156,7 +155,7 @@ positions before and after executing BODY."
   (nrepl-init-repl-buffer
    process
    (let ((buffer-name (nrepl-repl-buffer-name)))
-     (if nrepl-pop-to-repl-buffer-on-connect
+     (if nrepl-repl-pop-to-buffer-on-connect
          (pop-to-buffer buffer-name)
        (generate-new-buffer buffer-name))
      buffer-name)))
@@ -330,7 +329,7 @@ If BACKWARD is non-nil search backward."
 (defun nrepl-mark-output-end ()
   "Marke the output end."
   (add-text-properties nrepl-output-start nrepl-output-end
-                       '(face nrepl-output-face
+                       '(face nrepl-repl-output-face
                               rear-nonsticky (face))))
 
 ;;;;; History
@@ -612,7 +611,7 @@ Return the position of the prompt beginning."
       (let ((prompt-start (point))
             (prompt (format "%s> " namespace)))
         (nrepl-propertize-region
-            '(face nrepl-prompt-face read-only t intangible t
+            '(face nrepl-repl-prompt-face read-only t intangible t
                    nrepl-prompt t
                    rear-nonsticky (nrepl-prompt read-only face intangible))
           (insert-before-markers prompt))
@@ -628,7 +627,7 @@ If BOL is non-nil insert at the beginning of line."
         (nrepl-save-marker nrepl-output-end
           (goto-char position)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (nrepl-propertize-region `(face nrepl-output-face
+          (nrepl-propertize-region `(face nrepl-repl-output-face
                                           rear-nonsticky (face))
             (insert-before-markers string)
             (when (and (= (point) nrepl-prompt-start-mark)
@@ -669,7 +668,7 @@ If BOL is non-nil insert at the beginning of the line."
         (nrepl-save-marker nrepl-output-end
           (goto-char nrepl-input-start-mark)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (nrepl-propertize-region `(face nrepl-result-face
+          (nrepl-propertize-region `(face nrepl-repl-result-face
                                           rear-nonsticky (face))
             (insert-before-markers string)))))
     (nrepl-show-maximum-output)))
@@ -742,9 +741,9 @@ If NEWLINE is true then add a newline at the end of the input."
       ;; These properties are on an overlay so that they won't be taken
       ;; by kill/yank.
       (overlay-put overlay 'read-only t)
-      (overlay-put overlay 'face 'nrepl-input-face)))
+      (overlay-put overlay 'face 'nrepl-repl-input-face)))
   (let* ((input (nrepl-current-input))
-         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-use-pretty-printing)
+         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-repl-use-pretty-printing)
                    (format "(clojure.pprint/pprint %s)" input) input)))
     (goto-char (point-max))
     (nrepl-mark-input-start)
@@ -812,9 +811,9 @@ text property `nrepl-old-input'."
 (defun nrepl-toggle-pretty-printing ()
   "Toggle pretty-printing in the REPL."
   (interactive)
-  (setq nrepl-use-pretty-printing (not nrepl-use-pretty-printing))
+  (setq nrepl-repl-use-pretty-printing (not nrepl-repl-use-pretty-printing))
   (message "Pretty printing in nREPL %s."
-           (if nrepl-use-pretty-printing "enabled" "disabled")))
+           (if nrepl-repl-use-pretty-printing "enabled" "disabled")))
 
 (defvar nrepl-clear-buffer-hook)
 

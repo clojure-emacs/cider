@@ -116,14 +116,14 @@ because you're used to completing with <kbd>M-TAB</kbd>) use the
 following snippet:
 
 ```el
-(setq nrepl-tab-command 'indent-for-tab-command)
+(setq nrepl-repl-tab-command 'indent-for-tab-command)
 ```
 
 * Prevent the auto-display of the REPL buffer in a separate window
   after connection is established:
 
 ```el
-(setq nrepl-pop-to-repl-buffer-on-connect nil
+(setq nrepl-repl-pop-to-buffer-on-connect nil
 ```
 
 * Stop the error buffer from popping up while working in buffers other
@@ -136,7 +136,7 @@ than the REPL:
 * Enable error buffer popping also in the REPL:
 
 ```el
-(setq nrepl-popup-stacktraces-in-repl t)
+(setq nrepl-repl-popup-stacktraces t)
 ```
 
 * To auto-select the error buffer when it's displayed:

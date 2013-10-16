@@ -55,7 +55,7 @@
 (defcustom nrepl-popup-stacktraces t
   "Non-nil means pop-up error stacktraces for evaluation errors.
 Nil means show only an error message in the minibuffer.  See also
-`nrepl-popup-stacktraces-in-repl', which overrides this setting
+`nrepl-repl-popup-stacktraces', which overrides this setting
 for REPL buffers."
   :type 'boolean
   :group 'nrepl)
@@ -628,7 +628,7 @@ They exist for compatibility with `next-error'."
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (let ((replp (equal 'nrepl-repl-mode (buffer-local-value 'major-mode buffer))))
-    (if (or (and nrepl-popup-stacktraces-in-repl replp)
+    (if (or (and nrepl-repl-popup-stacktraces replp)
             (and nrepl-popup-stacktraces (not replp)))
       (lexical-let ((nrepl-popup-on-error nrepl-popup-on-error))
         (with-current-buffer buffer
