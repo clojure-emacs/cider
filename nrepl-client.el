@@ -105,7 +105,7 @@ to specific the full path to it.  Localhost is assumed."
 (defvar nrepl-endpoint nil)
 (defvar nrepl-project-dir nil)
 
-(defconst nrepl-repl-buffer-name-template "*nrepl%s*")
+(defconst nrepl-repl-buffer-name-template "*cider%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
 
@@ -434,6 +434,8 @@ This is bound for the duration of the handling of that message")
 (defvar nrepl-connection-list nil
   "A list of connections.")
 
+
+
 (defun nrepl-make-connection-buffer ()
   "Create an nREPL connection buffer."
   (let ((buffer (generate-new-buffer (nrepl-connection-buffer-name))))
@@ -502,11 +504,11 @@ Also closes associated REPL and server buffers."
     (define-key map (kbd "RET") 'nrepl-connections-goto-connection)
     map))
 
-(define-derived-mode nrepl-connections-buffer-mode nrepl-popup-buffer-mode
+(define-derived-mode nrepl-connections-buffer-mode cider-popup-buffer-mode
   "nREPL-Connections"
   "nREPL Connections Buffer Mode.
 \\{nrepl-connections-buffer-mode-map}
-\\{nrepl-popup-buffer-mode-map}"
+\\{cider-popup-buffer-mode-map}"
   (setq-local truncate-lines t))
 
 (defvar nrepl--connection-ewoc)
@@ -747,14 +749,6 @@ search for and read a `ns' form."
         (nrepl-send-string
          (format "(in-ns '%s)" ns) (nrepl-handler (current-buffer))))
     (message "Sorry, I don't know what the current namespace is.")))
-
-(defun nrepl-symbol-at-point ()
-  "Return the name of the symbol at point, otherwise nil."
-  (let ((str (thing-at-point 'symbol)))
-    (and str
-         (not (equal str (concat (nrepl-find-ns) "> ")))
-         (not (equal str ""))
-         (substring-no-properties str))))
 
 ;;; interrupt
 (defun nrepl-interrupt-handler (buffer)
@@ -1001,11 +995,11 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
         (remhash id nrepl-requests)
         (cond (new-session
                (lexical-let ((connection-buffer (process-buffer process)))
-                 (message "Connected.  %s" (nrepl-random-words-of-inspiration))
+                 (message "Connected.  %s" (cider-random-words-of-inspiration))
                  (setq nrepl-session new-session
                        nrepl-connection-buffer connection-buffer)
                  (unless no-repl-p
-                   (nrepl-make-repl process)
+                   (cider-make-repl process)
                    (nrepl-make-repl-connection-default connection-buffer))
                  (run-hooks 'nrepl-connected-hook))))))))
 
@@ -1058,12 +1052,6 @@ Falls back to `nrepl-port' if not found."
   (setq nrepl-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
-
-;;;###autoload
-(eval-after-load 'clojure-mode
-  '(progn
-     (define-key clojure-mode-map (kbd "C-c M-j") 'nrepl-jack-in)
-     (define-key clojure-mode-map (kbd "C-c M-c") 'nrepl)))
 
 (provide 'nrepl-client)
 ;;; nrepl-client.el ends here

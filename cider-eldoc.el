@@ -1,4 +1,4 @@
-;;; nrepl-eldoc.el --- eldoc support for Clojure
+;;; cider-eldoc.el --- eldoc support for Clojure
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -35,17 +35,17 @@
 (require 'eldoc)
 (require 'dash)
 
-(defvar nrepl-extra-eldoc-commands '("nrepl-complete" "yas/expand")
+(defvar cider-extra-eldoc-commands '("cider-complete" "yas/expand")
   "Extra commands to be added to eldoc's safe commands list.")
 
-(defun nrepl-eldoc-format-thing (thing)
+(defun cider-eldoc-format-thing (thing)
   "Format the eldoc THING."
   (propertize thing 'face 'font-lock-function-name-face))
 
-(defun nrepl-highlight-args (arglist pos)
+(defun cider-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.
 POS is the index of the currently highlighted argument."
-  (let* ((rest-pos (nrepl--find-rest-args-position arglist))
+  (let* ((rest-pos (cider--find-rest-args-position arglist))
          (i 0))
     (mapconcat
      (lambda (arg)
@@ -61,23 +61,23 @@ POS is the index of the currently highlighted argument."
                  argstr)
              (setq i (1+ i)))))) arglist " ")))
 
-(defun nrepl--find-rest-args-position (arglist)
+(defun cider--find-rest-args-position (arglist)
   "Find the position of & in the ARGLIST vector."
   (-elem-index '& (append arglist ())))
 
-(defun nrepl-highlight-arglist (arglist pos)
+(defun cider-highlight-arglist (arglist pos)
   "Format the ARGLIST for eldoc.
 POS is the index of the argument to highlight."
-  (concat "[" (nrepl-highlight-args arglist pos) "]"))
+  (concat "[" (cider-highlight-args arglist pos) "]"))
 
-(defun nrepl-eldoc-format-arglist (arglist pos)
+(defun cider-eldoc-format-arglist (arglist pos)
   "Format all the ARGLIST for eldoc.
 POS is the index of current argument."
   (concat "("
-          (mapconcat (lambda (args) (nrepl-highlight-arglist args pos))
+          (mapconcat (lambda (args) (cider-highlight-arglist args pos))
                      (read arglist) " ") ")"))
 
-(defun nrepl-eldoc-info-in-current-sexp ()
+(defun cider-eldoc-info-in-current-sexp ()
   "Return a list of the current sexp and the current argument index."
   (save-excursion
     (let ((argument-index (1- (eldoc-beginning-of-sexp))))
@@ -87,12 +87,12 @@ POS is the index of current argument."
       ;; Don't do anything if current word is inside a string.
       (if (= (or (char-after (1- (point))) 0) ?\")
           nil
-        (list (nrepl-symbol-at-point) argument-index)))))
+        (list (cider-symbol-at-point) argument-index)))))
 
-(defun nrepl-eldoc ()
+(defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
   (when (nrepl-current-connection-buffer)
-    (let* ((info (nrepl-eldoc-info-in-current-sexp))
+    (let* ((info (cider-eldoc-info-in-current-sexp))
            (thing (car info))
            (pos (cadr info))
            (form (format "(try
@@ -108,14 +108,14 @@ POS is the index of current argument."
            (value (plist-get result :value)))
       (unless (string= value "nil")
         (format "%s: %s"
-                (nrepl-eldoc-format-thing thing)
-                (nrepl-eldoc-format-arglist value pos))))))
+                (cider-eldoc-format-thing thing)
+                (cider-eldoc-format-arglist value pos))))))
 
-(defun nrepl-turn-on-eldoc-mode ()
+(defun cider-turn-on-eldoc-mode ()
   "Turn on eldoc mode in the current buffer."
-  (setq-local eldoc-documentation-function 'nrepl-eldoc)
-  (apply 'eldoc-add-command nrepl-extra-eldoc-commands)
+  (setq-local eldoc-documentation-function 'cider-eldoc)
+  (apply 'eldoc-add-command cider-extra-eldoc-commands)
   (turn-on-eldoc-mode))
 
-(provide 'nrepl-eldoc)
-;;; nrepl-eldoc ends here
+(provide 'cider-eldoc)
+;;; cider-eldoc ends here

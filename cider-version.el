@@ -1,4 +1,4 @@
-;;; nrepl-version.el --- Version information
+;;; cider-version.el --- Version information
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -33,21 +33,20 @@
 (require 'pkg-info)
 
 ;;; Version information
-(defun nrepl-library-version ()
+(defun cider--library-version ()
   "Get the version in the nrepl library header."
-  ;; (-when-let (version (pkg-info-defining-library-version 'nrepl))
-  ;;   (pkg-info-format-version version)))
-  "0.3.0-snapshot")
+  (-when-let (version (pkg-info-library-version 'cider))
+    (pkg-info-format-version version)))
 
-(defun nrepl-package-version ()
+(defun cider--package-version ()
   "Get the package version of nrepl.
 
 This is the version number of the installed nrepl package."
-  (-when-let (version (pkg-info-package-version 'nrepl))
+  (-when-let (version (pkg-info-package-version 'cider))
     (pkg-info-format-version version)))
 
-(defun nrepl-version (&optional show-version)
-  "Get the nrepl version as string.
+(defun cider-version (&optional show-version)
+  "Get the CIDER version as string.
 
 If called interactively or if SHOW-VERSION is non-nil, show the
 version in the echo area and the messages buffer.
@@ -59,8 +58,8 @@ If the version number could not be determined, signal an error,
 if called interactively, or if SHOW-VERSION is non-nil, otherwise
 just return nil."
   (interactive (list (not (or executing-kbd-macro noninteractive))))
-  (let* ((lib-version (nrepl-library-version))
-         (pkg-version (nrepl-package-version))
+  (let* ((lib-version (cider--library-version))
+         (pkg-version (cider--package-version))
          (version (cond
                    ((and lib-version pkg-version
                          (not (string= lib-version pkg-version)))
@@ -73,5 +72,5 @@ just return nil."
       (message "nrepl version: %s" version))
     version))
 
-(provide 'nrepl-version)
-;;; nrepl-version.el ends here
+(provide 'cider-version)
+;;; cider-version.el ends here

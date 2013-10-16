@@ -1,4 +1,4 @@
-;;; nrepl-selector.el --- Buffer selection command inspired by SLIME's selector
+;;; cider-selector.el --- Buffer selection command inspired by SLIME's selector
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -30,29 +30,32 @@
 
 ;;; Code:
 
-(defvar nrepl-selector-methods nil
-  "List of buffer-selection methods for the `nrepl-select' command.
+(require 'nrepl-client)
+(require 'cider-interaction)
+
+(defvar cider-selector-methods nil
+  "List of buffer-selection methods for the `cider-select' command.
 Each element is a list (KEY DESCRIPTION FUNCTION).
 DESCRIPTION is a one-line description of what the key selects.")
 
-(defvar nrepl-selector-other-window nil
+(defvar cider-selector-other-window nil
   "If non-nil use `switch-to-buffer-other-window'.")
 
-(defun nrepl-selector (&optional other-window)
+(defun cider-selector (&optional other-window)
   "Select a new buffer by type, indicated by a single character.
 The user is prompted for a single character indicating the method by
 which to choose a new buffer.  The `?' character describes then
 available methods.  OTHER-WINDOW provides an optional target.
 
-See `def-nrepl-selector-method' for defining new methods."
+See `def-cider-selector-method' for defining new methods."
   (interactive)
   (message "Select [%s]: "
-           (apply #'string (mapcar #'car nrepl-selector-methods)))
-  (let* ((nrepl-selector-other-window other-window)
+           (apply #'string (mapcar #'car cider-selector-methods)))
+  (let* ((cider-selector-other-window other-window)
          (ch (save-window-excursion
                (select-window (minibuffer-window))
                (read-char)))
-         (method (cl-find ch nrepl-selector-methods :key #'car)))
+         (method (cl-find ch cider-selector-methods :key #'car)))
     (cond (method
            (funcall (cl-caddr method)))
           (t
@@ -60,10 +63,10 @@ See `def-nrepl-selector-method' for defining new methods."
            (ding)
            (sleep-for 1)
            (discard-input)
-           (nrepl-selector)))))
+           (cider-selector)))))
 
-(defmacro def-nrepl-selector-method (key description &rest body)
-  "Define a new `nrepl-select' buffer selection method.
+(defmacro def-cider-selector-method (key description &rest body)
+  "Define a new `cider-select' buffer selection method.
 
 KEY is the key the user will enter to choose this method.
 
@@ -80,58 +83,58 @@ is chosen.  The returned buffer is selected with
                             (ding))
                            ((get-buffer-window buffer)
                             (select-window (get-buffer-window buffer)))
-                           (nrepl-selector-other-window
+                           (cider-selector-other-window
                             (switch-to-buffer-other-window buffer))
                            (t
                             (switch-to-buffer buffer)))))))
-    `(setq nrepl-selector-methods
+    `(setq cider-selector-methods
            (cl-sort (cons (list ,key ,description ,method)
-                          (cl-remove ,key nrepl-selector-methods :key #'car))
+                          (cl-remove ,key cider-selector-methods :key #'car))
                   #'< :key #'car))))
 
-(def-nrepl-selector-method ?? "Selector help buffer."
+(def-cider-selector-method ?? "Selector help buffer."
   (ignore-errors (kill-buffer "*Select Help*"))
   (with-current-buffer (get-buffer-create "*Select Help*")
     (insert "Select Methods:\n\n")
-    (loop for (key line nil) in nrepl-selector-methods
+    (loop for (key line nil) in cider-selector-methods
           do (insert (format "%c:\t%s\n" key line)))
     (goto-char (point-min))
     (help-mode)
     (display-buffer (current-buffer) t))
-  (nrepl-selector)
+  (cider-selector)
   (current-buffer))
 
-(pushnew (list ?4 "Select in other window" (lambda () (nrepl-selector t)))
-         nrepl-selector-methods :key #'car)
+(pushnew (list ?4 "Select in other window" (lambda () (cider-selector t)))
+         cider-selector-methods :key #'car)
 
-(def-nrepl-selector-method ?c
+(def-cider-selector-method ?c
   "most recently visited clojure-mode buffer."
-  (nrepl-recently-visited-buffer 'clojure-mode))
+  (cider-recently-visited-buffer 'clojure-mode))
 
-(def-nrepl-selector-method ?e
+(def-cider-selector-method ?e
   "most recently visited emacs-lisp-mode buffer."
-  (nrepl-recently-visited-buffer 'emacs-lisp-mode))
+  (cider-recently-visited-buffer 'emacs-lisp-mode))
 
-(def-nrepl-selector-method ?q "Abort."
+(def-cider-selector-method ?q "Abort."
   (top-level))
 
-(def-nrepl-selector-method ?r
+(def-cider-selector-method ?r
   "Current *nrepl* buffer."
-  (nrepl-find-or-create-repl-buffer))
+  (cider-find-or-create-repl-buffer))
 
-(def-nrepl-selector-method ?n
+(def-cider-selector-method ?n
   "NREPL connections buffer."
   (nrepl-connection-browser)
   nrepl--connection-browser-buffer-name)
 
-(def-nrepl-selector-method ?v
+(def-cider-selector-method ?v
   "*nrepl-events* buffer."
   nrepl-event-buffer-name)
 
-(def-nrepl-selector-method ?s
+(def-cider-selector-method ?s
  "Cycle to the next Clojure connection."
- (nrepl-rotate-connections)
- (nrepl-find-or-create-repl-buffer))
+ (cider-rotate-connections)
+ (cider-find-or-create-repl-buffer))
 
-(provide 'nrepl-selector)
-;;; nrepl-selector.el ends here
+(provide 'cider-selector)
+;;; cider-selector.el ends here

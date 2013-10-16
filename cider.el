@@ -1,4 +1,4 @@
-;;; nrepl.el --- Client for Clojure nREPL
+;;; cider.el --- Client for Clojure nREPL
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -57,14 +57,26 @@
   (add-to-list 'load-path default-directory))
 
 (require 'nrepl-client)
-(require 'nrepl-version)
-(require 'nrepl-interaction)
-(require 'nrepl-eldoc)
-(require 'nrepl-repl)
-(require 'nrepl-repl-mode)
-(require 'nrepl-selector)
-(require 'nrepl-interaction-mode)
-(require 'nrepl-macroexpansion)
+(require 'cider-version)
+(require 'cider-interaction)
+(require 'cider-eldoc)
+(require 'cider-repl)
+(require 'cider-repl-mode)
+(require 'cider-selector)
+(require 'cider-interaction-mode)
+(require 'cider-macroexpansion)
 
-(provide 'nrepl)
-;;; nrepl.el ends here
+;;;###autoload
+(defalias 'cider 'nrepl)
+
+;;;###autoload
+(defalias 'cider-jack-in 'nrepl-jack-in)
+
+;;;###autoload
+(eval-after-load 'clojure-mode
+  '(progn
+     (define-key clojure-mode-map (kbd "C-c M-j") 'nrepl-jack-in)
+     (define-key clojure-mode-map (kbd "C-c M-c") 'nrepl)))
+
+(provide 'cider)
+;;; cider.el ends here

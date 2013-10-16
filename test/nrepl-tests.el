@@ -1,4 +1,4 @@
-;;; nrepl-tests.el
+;;; cider-tests.el
 
 ;; Copyright © 2012-2013 Tim King
 
@@ -29,7 +29,7 @@
 ;;; Code:
 
 (require 'ert)
-(require 'nrepl)
+(require 'cider)
 (require 'noflet)
 
 (ert-deftest test-nrepl-decode-string ()
@@ -124,93 +124,93 @@
                   "d2:id2:422:ns4:user7:session36:3f586403-ed47-4e4d-b8db-70522054f9715:value5:\"←\"ed2:id2:427:session36:3f586403-ed47-4e4d-b8db-70522054f9716:statusl4:doneee"))))
 
 ;;;; generic
-(ert-deftest test-nrepl-connection-buffer-name ()
+(ert-deftest test-cider-connection-buffer-name ()
   (let ((nrepl-hide-special-buffers nil))
     (should (equal (nrepl-connection-buffer-name) "*nrepl-connection*")))
   (let ((nrepl-hide-special-buffers t))
     (should (equal (nrepl-connection-buffer-name) " *nrepl-connection*"))))
 
-(ert-deftest test-nrepl-server-buffer-name ()
+(ert-deftest test-cider-server-buffer-name ()
   (let ((nrepl-hide-special-buffers nil))
     (should (equal (nrepl-server-buffer-name) "*nrepl-server*")))
   (let ((nrepl-hide-special-buffers t))
     (should (equal (nrepl-server-buffer-name) " *nrepl-server*"))))
 
-(ert-deftest test-nrepl--banner ()
-  (noflet ((nrepl-version () "0.2.0")
-           (nrepl--clojure-version () "1.5.1")
-           (nrepl--backend-version () "0.2.1"))
-    (should (equal (nrepl--banner) "; nrepl.el 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
+(ert-deftest test-cider--banner ()
+  (noflet ((cider-version () "0.2.0")
+           (cider--clojure-version () "1.5.1")
+           (cider--backend-version () "0.2.1"))
+    (should (equal (cider--banner) "; CIDER 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
 
-(ert-deftest test-nrepl-extract-error-info-14 ()
+(ert-deftest test-cider-extract-error-info-14 ()
   (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31)"))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (string= (nth 0 info) "/some/test/file/core.clj"))
       (should (= (nth 1 info) 31))
       (should (equal (nth 2 info) nil))
-      (should (equal (nth 3 info) 'nrepl-error-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-error-highlight-face)))))
 
-(ert-deftest test-nrepl-extract-error-info-14-no-file ()
+(ert-deftest test-cider-extract-error-info-14-no-file ()
   (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(NO_SOURCE_PATH:31)"))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (equal (nth 0 info) nil))
       (should (= (nth 1 info) 31))
       (should (equal (nth 2 info) nil))
-      (should (equal (nth 3 info) 'nrepl-error-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-error-highlight-face)))))
 
-(ert-deftest test-nrepl-extract-warning-info-14 ()
+(ert-deftest test-cider-extract-warning-info-14 ()
   (let ((message "Reflection warning, /some/othertest/file/core.clj:24 - reference to field getCanonicalPath can't be resolved.
 "))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (string= (nth 0 info) "/some/othertest/file/core.clj"))
       (should (= (nth 1 info) 24))
       (should (equal (nth 2 info) nil))
-      (should (equal (nth 3 info) 'nrepl-warning-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-warning-highlight-face)))))
 
-(ert-deftest test-nrepl-extract-warning-info-14-no-file ()
+(ert-deftest test-cider-extract-warning-info-14-no-file ()
   (let ((message "Reflection warning, NO_SOURCE_PATH:24 - reference to field getCanonicalPath can't be resolved.
 "))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (equal (nth 0 info) nil))
       (should (= (nth 1 info) 24))
       (should (equal (nth 2 info) nil))
-      (should (equal (nth 3 info) 'nrepl-warning-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-warning-highlight-face)))))
 
-(ert-deftest test-nrepl-extract-error-info-15 ()
+(ert-deftest test-cider-extract-error-info-15 ()
   (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31:3)"))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (string= (nth 0 info) "/some/test/file/core.clj"))
       (should (= (nth 1 info) 31))
       (should (= (nth 2 info) 3))
-      (should (equal (nth 3 info) 'nrepl-error-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-error-highlight-face)))))
 
-(ert-deftest test-nrepl-extract-error-info-15-no-file ()
+(ert-deftest test-cider-extract-error-info-15-no-file ()
   (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(NO_SOURCE_PATH:31:3)"))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (equal (nth 0 info) nil))
       (should (= (nth 1 info) 31))
       (should (= (nth 2 info) 3))
-      (should (equal (nth 3 info) 'nrepl-error-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-error-highlight-face)))))
 
-(ert-deftest test-nrepl-extract-warning-info-15 ()
+(ert-deftest test-cider-extract-warning-info-15 ()
   (let ((message "Reflection warning, /some/othertest/file/core.clj:24:43 - reference to field getCanonicalPath can't be resolved.
 "))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (string= (nth 0 info) "/some/othertest/file/core.clj"))
       (should (= (nth 1 info) 24))
       (should (= (nth 2 info) 43))
-      (should (equal (nth 3 info) 'nrepl-warning-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-warning-highlight-face)))))
 
-(ert-deftest test-nrepl-extract-warning-info-15-no-file ()
+(ert-deftest test-cider-extract-warning-info-15-no-file ()
   (let ((message "Reflection warning, NO_SOURCE_PATH:24:43 - reference to field getCanonicalPath can't be resolved.
 "))
-    (let ((info (nrepl-extract-error-info nrepl-compilation-regexp message)))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
       (should (equal (nth 0 info) nil))
       (should (= (nth 1 info) 24))
       (should (= (nth 2 info) 43))
-      (should (equal (nth 3 info) 'nrepl-warning-highlight-face)))))
+      (should (equal (nth 3 info) 'cider-warning-highlight-face)))))
 
-(defmacro nrepl-test-with-buffers (buffer-names &rest body)
+(defmacro cider-test-with-buffers (buffer-names &rest body)
   (lexical-let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
     `(lexical-let (,@(mapcar create buffer-names))
        (unwind-protect
@@ -219,7 +219,7 @@
 
 (ert-deftest test-nrepl-make-repl-connection-default ()
   (lexical-let ((connections (nrepl-connection-buffers)))
-    (nrepl-test-with-buffers
+    (cider-test-with-buffers
      (a b)
      (should (get-buffer a))
      (should (get-buffer b))
@@ -236,7 +236,7 @@
 
 (ert-deftest test-nrepl-connection-buffers ()
   (lexical-let ((connections (nrepl-connection-buffers)))
-    (nrepl-test-with-buffers
+    (cider-test-with-buffers
      (a b)
      (nrepl-make-repl-connection-default a)
      (nrepl-make-repl-connection-default b)
@@ -246,42 +246,42 @@
                     (nrepl-connection-buffers)))
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
 
-(ert-deftest test-nrepl-rotate-connecton-buffer ()
+(ert-deftest test-cider-rotate-connecton-buffer ()
   (noflet ((nrepl--connection-info (connection-buffer-name)))
-    (nrepl-test-with-buffers
+    (cider-test-with-buffers
      (a b c)
      (let ((nrepl-connection-list
             (list (buffer-name a) (buffer-name b) (buffer-name c))))
        (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
-       (nrepl-rotate-connection)
+       (cider-rotate-connection)
        (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
-       (nrepl-rotate-connection)
+       (cider-rotate-connection)
        (should (equal (buffer-name c) (nrepl-current-connection-buffer)))
-       (nrepl-rotate-connection)
+       (cider-rotate-connection)
        (should (equal (buffer-name a) (nrepl-current-connection-buffer)))))))
 
-(ert-deftest test-nrepl--current-connection-info ()
+(ert-deftest test-cider--current-connection-info ()
   (with-temp-buffer
-    (noflet ((nrepl--clojure-version () "1.5.1")
-             (nrepl--backend-version () "0.2.1"))
+    (noflet ((cider--clojure-version () "1.5.1")
+             (cider--backend-version () "0.2.1"))
             (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
             (set (make-local-variable 'nrepl-project-dir) "proj")
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
-            (should (string= (nrepl--connection-info (buffer-name (current-buffer)))
+            (should (string= (cider--connection-info (buffer-name (current-buffer)))
                              "Active nrepl connection: proj:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
-(ert-deftest test-nrepl-current-connection-info-no-project ()
+(ert-deftest test-cider-current-connection-info-no-project ()
   (with-temp-buffer
-    (noflet ((nrepl--clojure-version () "1.5.1")
-             (nrepl--backend-version () "0.2.1"))
+    (noflet ((cider--clojure-version () "1.5.1")
+             (cider--backend-version () "0.2.1"))
             (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
-            (should (string= (nrepl--connection-info (buffer-name (current-buffer)))
+            (should (string= (cider--connection-info (buffer-name (current-buffer)))
                              "Active nrepl connection: <no project>:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
-(ert-deftest test-nrepl-close ()
+(ert-deftest test-cider-close ()
   (lexical-let ((connections (nrepl-connection-buffers)))
-    (nrepl-test-with-buffers
+    (cider-test-with-buffers
      (a b)
      (nrepl-make-repl-connection-default a)
      (nrepl-make-repl-connection-default b)
@@ -294,14 +294,14 @@
 
 ;;; connection browser
 
-(ert-deftest test-nrepl-connections-buffer ()
+(ert-deftest test-cider-connections-buffer ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
-      (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+      (set (make-local-variable 'cider-endpoint) '("localhost" 4005))
       (set (make-local-variable 'nrepl-project-dir) "proj")
       (with-temp-buffer
         (lexical-let ((b2 (current-buffer)))
-          (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
+          (set (make-local-variable 'cider-endpoint) '("123.123.123.123" 4006))
           (let ((nrepl-connection-list
                  (list (buffer-name b1) (buffer-name b2))))
             (nrepl-connection-browser)
@@ -312,7 +312,7 @@
   123.123.123.123   4006   \n\n"
                              (buffer-string)))
               (goto-char 80)         ; somewhere in the second connection listed
-              (nrepl-connections-make-default)
+              (cider-connections-make-default)
               (should (equal (buffer-name b2) (first nrepl-connection-list)))
               (should (equal "  Host              Port   Project
 
@@ -320,7 +320,7 @@
 * 123.123.123.123   4006   \n\n"
                              (buffer-string)))
               (goto-char 80)         ; somewhere in the second connection listed
-              (nrepl-connections-close-connection)
+              (cider-connections-close-connection)
               (should (equal (list (buffer-name b1)) nrepl-connection-list))
               (should (equal "  Host              Port   Project
 
@@ -331,27 +331,27 @@
                   (with-current-buffer b1
                     (set (make-local-variable 'nrepl-repl-buffer) b3))
                   (with-current-buffer "*nrepl-connections*"
-                    (nrepl-connections-goto-connection)
+                    (cider-connections-goto-connection)
                     (should (equal b3 (current-buffer))))))
               (kill-buffer "*nrepl-connections*"))))))))
 
 ;; selector
-(defun nrepl-invoke-selector-method-by-key (ch)
-  (lexical-let ((method (find ch nrepl-selector-methods :key #'car)))
+(defun cider-invoke-selector-method-by-key (ch)
+  (lexical-let ((method (find ch cider-selector-methods :key #'car)))
         (funcall (third method))))
 
-(ert-deftest test-nrepl-selector-n ()
+(ert-deftest test-cider-selector-n ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
-      (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
+      (set (make-local-variable 'cider-endpoint) '("123.123.123.123" 4006))
       (let ((nrepl-connection-list (list (buffer-name b1))))
         (nrepl-connection-browser)
         (with-temp-buffer ;; switch to another buffer
-          (nrepl-invoke-selector-method-by-key ?n)
+          (cider-invoke-selector-method-by-key ?n)
           (should (equal (current-buffer)
                          (get-buffer nrepl--connection-browser-buffer-name))))))))
 
-(ert-deftest test-nrepl-selector-c ()
+(ert-deftest test-cider-selector-c ()
   (with-temp-buffer
     (rename-buffer "*testfile*.clj")
     (lexical-let ((b1 (current-buffer)))
@@ -361,12 +361,12 @@
         (setq major-mode 'emacs-lisp-mode)
         (with-temp-buffer
           (should (not (equal (current-buffer) b1)))
-          (nrepl-invoke-selector-method-by-key ?e)
+          (cider-invoke-selector-method-by-key ?e)
           (should (not (equal (current-buffer) b1)))
-          (nrepl-invoke-selector-method-by-key ?c)
+          (cider-invoke-selector-method-by-key ?c)
           (should (equal (current-buffer) b1)))))))
 
-(ert-deftest test-nrepl-selector-e ()
+(ert-deftest test-cider-selector-e ()
   (with-temp-buffer
     (rename-buffer "*testfile*.el")
     (lexical-let ((b1 (current-buffer)))
@@ -376,18 +376,18 @@
         (setq major-mode 'clojure-mode)
         (with-temp-buffer
           (should (not (equal (current-buffer) b1)))
-          (nrepl-invoke-selector-method-by-key ?c)
+          (cider-invoke-selector-method-by-key ?c)
           (should (not (equal (current-buffer) b1)))
-          (nrepl-invoke-selector-method-by-key ?e)
+          (cider-invoke-selector-method-by-key ?e)
           (should (equal (current-buffer) b1)))))))
 
-(ert-deftest test-nrepl-selector-v ()
+(ert-deftest test-cider-selector-v ()
   (with-temp-buffer
     (rename-buffer "*nrepl-events*")
     (lexical-let ((b1 (current-buffer)))
       (with-temp-buffer
         (should (not (equal (current-buffer) b1)))
-        (nrepl-invoke-selector-method-by-key ?v)
+        (cider-invoke-selector-method-by-key ?v)
         (should (equal (current-buffer) b1))))))
 
 (ert-deftest test-nrepl-buffer-name ()
@@ -436,53 +436,53 @@
 (ert-deftest test-nrepl-buffer-name-two-buffers-same-project ()
   (with-temp-buffer
     (set (make-local-variable 'nrepl-project-dir) "proj")
-    (let* ((nrepl-new-buffer (nrepl-buffer-name "*buff-name%s*")))
-      (get-buffer-create nrepl-new-buffer)
+    (let* ((cider-new-buffer (nrepl-buffer-name "*buff-name%s*")))
+      (get-buffer-create cider-new-buffer)
       (should
-       (equal nrepl-new-buffer "*buff-name proj*"))
+       (equal cider-new-buffer "*buff-name proj*"))
       (with-temp-buffer
         (set (make-local-variable 'nrepl-project-dir) "proj")
         (should
          (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj*<2>"))
-        (kill-buffer nrepl-new-buffer)))))
+        (kill-buffer cider-new-buffer)))))
 
 (ert-deftest test-nrepl-buffer-name-duplicate-proj-port ()
   (with-temp-buffer
     (set (make-local-variable 'nrepl-buffer-name-show-port) t)
     (set (make-local-variable 'nrepl-project-dir) "proj")
     (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
-    (let* ((nrepl-new-buffer (nrepl-buffer-name "*buff-name%s*")))
-      (get-buffer-create nrepl-new-buffer)
+    (let* ((cider-new-buffer (nrepl-buffer-name "*buff-name%s*")))
+      (get-buffer-create cider-new-buffer)
       (should
-       (equal nrepl-new-buffer "*buff-name proj:4009*"))
+       (equal cider-new-buffer "*buff-name proj:4009*"))
       (with-temp-buffer
         (set (make-local-variable 'nrepl-buffer-name-show-port) t)
         (set (make-local-variable 'nrepl-project-dir) "proj")
         (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
         (should
          (equal (nrepl-buffer-name  "*buff-name%s*") "*buff-name proj:4009*<2>"))
-        (kill-buffer nrepl-new-buffer)))))
+        (kill-buffer cider-new-buffer)))))
 
-(ert-deftest test-nrepl-clojure-buffer-name ()
+(ert-deftest test-cider-clojure-buffer-name ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1))))
         (should
-         (equal (nrepl-repl-buffer-name) "*nrepl*"))))))
+         (equal (cider-repl-buffer-name) "*cider*"))))))
 
-(ert-deftest test-nrepl-clojure-buffer-name-w/project ()
+(ert-deftest test-cider-clojure-buffer-name-w/project ()
   (with-temp-buffer
     (lexical-let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1)))
             (nrepl-project-dir "/a/test/directory/project"))
         (should
-         (equal (nrepl-repl-buffer-name) "*nrepl project*"))))))
+         (equal (cider-repl-buffer-name) "*cider project*"))))))
 
-(ert-deftest test-nrepl--find-rest-args-position ()
-  (should (= (nrepl--find-rest-args-position [fmt & arg]) 1))
-  (should (equal (nrepl--find-rest-args-position [fmt arg]) nil)))
+(ert-deftest test-cider--find-rest-args-position ()
+  (should (= (cider--find-rest-args-position [fmt & arg]) 1))
+  (should (equal (cider--find-rest-args-position [fmt arg]) nil)))
 
-(ert-deftest test-nrepl-switch-to-relevant-repl-buffer ()
+(ert-deftest test-cider-switch-to-relevant-repl-buffer ()
   (noflet ((nrepl-project-directory-for (dontcare)
              nrepl-project-dir))
     (let* ((b1 (generate-new-buffer "temp"))
@@ -494,32 +494,32 @@
            (nrepl-connection-list (list (buffer-name b1)
                                         (buffer-name b2)
                                         (buffer-name b3))))
-      (with-current-buffer b1 ;; nrepl-jack-in 1
+      (with-current-buffer b1 ;; cider-jack-in 1
         (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
         (set (make-local-variable 'nrepl-project-dir) "proj1")
         (set (make-local-variable 'nrepl-repl-buffer) b4))
-      (with-current-buffer b2 ;; nrepl-jack-in 2
+      (with-current-buffer b2 ;; cider-jack-in 2
         (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
         (set (make-local-variable 'nrepl-project-dir) "proj2")
         (set (make-local-variable 'nrepl-repl-buffer) b5))
-      (with-current-buffer b3 ;; nrepl-connect - no relevant buffer
+      (with-current-buffer b3 ;; cider-connect - no relevant buffer
         (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4009))
         (set (make-local-variable 'nrepl-repl-buffer) b6))
 
       (with-current-buffer b1
-        (nrepl-switch-to-relevant-repl-buffer '())
+        (cider-switch-to-relevant-repl-buffer '())
         (should (equal b4 (current-buffer)))
         (should (equal (list (buffer-name b1) (buffer-name b2) (buffer-name b3))
                        nrepl-connection-list)))
 
       (with-current-buffer b2
-        (nrepl-switch-to-relevant-repl-buffer '())
+        (cider-switch-to-relevant-repl-buffer '())
         (should (equal b5 (current-buffer)))
         (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
                        nrepl-connection-list)))
 
       (with-current-buffer b3
-        (nrepl-switch-to-relevant-repl-buffer '())
+        (cider-switch-to-relevant-repl-buffer '())
         (should (equal b5 (current-buffer))) ;; didn't switch to anything
         (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
                        nrepl-connection-list)))
@@ -528,7 +528,7 @@
                                          (buffer-name b2)
                                          (buffer-name b1))))
         (with-current-buffer b1
-          (nrepl-switch-to-relevant-repl-buffer '())
+          (cider-switch-to-relevant-repl-buffer '())
           (should (equal b4 (current-buffer)))
           (should (equal (list (buffer-name b1) (buffer-name b3) (buffer-name b2))
                          nrepl-connection-list))))

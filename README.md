@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/clojure-emacs/nrepl.el.png?branch=master)](https://travis-ci.org/clojure-emacs/nrepl.el)
+[![Build Status](https://travis-ci.org/clojure-emacs/cider.png?branch=master)](https://travis-ci.org/clojure-emacs/cider.el)
 
-# nrepl.el
+# CIDER (formerly nrepl.el)
 
-`nrepl.el` is an Emacs client for
+`CIDER` is Clojure IDE and REPL for Emacs, built on top of
 [nREPL](https://github.com/clojure/tools.nrepl), the Clojure networked
 REPL server. It's a great alternative to the now deprecated combination
 of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
@@ -14,9 +14,9 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 `package.el` is the built-in package manager in Emacs 24+. On Emacs 23
 you will need to get [package.el](http://bit.ly/pkg-el23) yourself if you wish to use it.
 
-`nrepl.el` is available on both major `package.el` community
+`CIDER` is available on both major `package.el` community
 maintained repos -
-[Marmalade](http://marmalade-repo.org/packages/nrepl) and
+[Marmalade](http://marmalade-repo.org/packages/cider) and
 [MELPA](http://melpa.milkbox.net).
 
 If you're not already using Marmalade, add this to your
@@ -38,15 +38,15 @@ For MELPA the code you need to add is:
 (package-initialize)
 ```
 
-And then you can install `nrepl.el` with the following command:
+And then you can install `CIDER` with the following command:
 
-<kbd>M-x package-install [RET] nrepl [RET]</kbd>
+<kbd>M-x package-install [RET] cider [RET]</kbd>
 
 or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.emacs` or `init.el`):
 
 ```el
-(unless (package-installed-p 'nrepl)
-  (package-install 'nrepl))
+(unless (package-installed-p 'cider)
+  (package-install 'cider))
 ```
 
 If the installation doesn't work try refreshing the package list:
@@ -60,39 +60,39 @@ If you're an el-get user just do <kbd>M-x el-get-install</kbd>.
 
 ### Manual
 
-You can install `nrepl.el` manually by placing `nrepl.el` on your `load-path`
+You can install `CIDER` manually by placing `CIDER` on your `load-path`
 and `require`ing it. Many people favour the folder `~/.emacs.d/vendor`:
 
 ```el
 (add-to-list 'load-path "~/emacs.d/vendor")
-(require 'nrepl)
+(require 'cider)
 ```
 
-Keep in mind that `nrepl.el` depends on `clojure-mode`, `dash.el` and
+Keep in mind that `CIDER` depends on `clojure-mode`, `dash.el` and
 `pkg-info` so you'll have to install them as well.
 
 ### Emacs Prelude
 
-`nrepl.el` comes bundled in
+`CIDER` comes bundled in
 [Emacs Prelude](https://github.com/bbatsov/prelude). If you're a
 Prelude user you can start using it right away.
 
 ### Emacs Live
 
-`nrepl.el` comes bundled in
+`CIDER` comes bundled in
 [Emacs Live](https://github.com/overtone/emacs-live). If you're using
 Emacs Live you're already good to go.
 
 ## Configuration
 
-You can certainly use `nrepl.el` without configuring it any further,
-but here are some ways other folks are adjusting their `nrepl.el`
+You can certainly use `CIDER` without configuring it any further,
+but here are some ways other folks are adjusting their `CIDER`
 experience.
 
 * Enable `eldoc` in Clojure buffers:
 
 ```el
-(add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
+(add-hook 'cider-interaction-mode-hook 'cider-turn-on-eldoc-mode)
 ```
 
 * You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
@@ -108,44 +108,44 @@ make the hidden buffers visible. They'll always be visible in
 `list-buffers` (<kbd>C-x C-b</kbd>).
 
 * You can control the <kbd>TAB</kbd> key behavior in the REPL via the
-`nrepl-tab-command` variable.  While the default command
-`nrepl-indent-and-complete-symbol` should be an adequate choice for
+`cider-tab-command` variable.  While the default command
+`cider-indent-and-complete-symbol` should be an adequate choice for
 most users, it's very easy to switch to another command if you wish
 to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
 because you're used to completing with <kbd>M-TAB</kbd>) use the
 following snippet:
 
 ```el
-(setq nrepl-repl-tab-command 'indent-for-tab-command)
+(setq cider-repl-tab-command 'indent-for-tab-command)
 ```
 
 * Prevent the auto-display of the REPL buffer in a separate window
   after connection is established:
 
 ```el
-(setq nrepl-repl-pop-to-buffer-on-connect nil
+(setq cider-repl-pop-to-buffer-on-connect nil
 ```
 
 * Stop the error buffer from popping up while working in buffers other
 than the REPL:
 
 ```el
-(setq nrepl-popup-stacktraces nil)
+(setq cider-popup-stacktraces nil)
 ```
 
 * Enable error buffer popping also in the REPL:
 
 ```el
-(setq nrepl-repl-popup-stacktraces t)
+(setq cider-repl-popup-stacktraces t)
 ```
 
 * To auto-select the error buffer when it's displayed:
 
 ```el
-(setq nrepl-auto-select-error-buffer t)
+(setq cider-auto-select-error-buffer t)
 ```
 
-* The REPL buffer name takes the format `*nrepl project-name*`.
+* The REPL buffer name takes the format `*cider project-name*`.
 Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 
 ```el
@@ -153,16 +153,16 @@ Change the separator from space to something else by overriding `nrepl-buffer-na
 ```
 
 * The REPL buffer name can also display the port on which the nrepl server is running.
-Buffer name will look like *nrepl project-name:port*.
+Buffer name will look like *cider project-name:port*.
 
 ```el
 (setq nrepl-buffer-name-show-port t)
 ```
 
-* Make <kbd>C-c C-z</kbd> switch to the `*nrepl*` buffer in the current window:
+* Make <kbd>C-c C-z</kbd> switch to the `*cider*` buffer in the current window:
 
 ```el
-(add-to-list 'same-window-buffer-names "*nrepl*")
+(add-to-list 'same-window-buffer-names "*cider*")
 ```
 
 * Enabling `CamelCase` support for editing commands(like
@@ -171,7 +171,7 @@ we often have to deal with Java class and method names. The built-in
 Emacs minor mode `subword-mode` provides such functionality:
 
 ```el
-(add-hook 'nrepl-repl-mode-hook 'subword-mode)
+(add-hook 'cider-repl-mode-hook 'subword-mode)
 ```
 
 * The use of [paredit](http://mumble.net/~campbell/emacs/paredit.html)
@@ -181,7 +181,7 @@ buffers (if you're not you probably should). You might also want to
 enable `paredit` in the nREPL buffer as well:
 
 ```el
-(add-hook 'nrepl-repl-mode-hook 'paredit-mode)
+(add-hook 'cider-repl-mode-hook 'paredit-mode)
 ```
 
 * [smartparens](https://github.com/Fuco1/smartparens) is an excellent
@@ -190,7 +190,7 @@ enable `paredit` in the nREPL buffer as well:
   `smartparens` in the REPL buffer use the following code:
 
 ```el
-(add-hook 'nrepl-repl-mode-hook 'smartparens-strict-mode)
+(add-hook 'cider-repl-mode-hook 'smartparens-strict-mode)
 ```
 
 * [RainbowDelimiters](https://github.com/jlr/rainbow-delimiters) is a
@@ -202,7 +202,7 @@ enable `paredit` in the nREPL buffer as well:
   enable it in the REPL like this:
 
 ```el
-(add-hook 'nrepl-repl-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
 ```
 
 * [ac-nrepl](https://github.com/clojure-emacs/ac-nrepl) provides
@@ -213,10 +213,10 @@ enable `paredit` in the nREPL buffer as well:
 
 ## Basic Usage
 
-The only requirement to use nrepl.el is to have a nREPL server to
+The only requirement to use CIDER is to have a nREPL server to
 which it may connect. Many Clojurians favour the use of the Leiningen tool
 to start a nREPL server, but the use of Leiningen is not a prerequisite to use
-nrepl.el (but it's required if you want to use the `nrepl-jack-in` command).
+CIDER (but it's required if you want to use the `cider-jack-in` command).
 
 ### Setting up a Leiningen project (optional)
 
@@ -225,7 +225,7 @@ build/project management tool for Clojure.  It has a similar scope to
 the Maven build tool favoured by Java developers (Leiningen actually
 reuses many things from the Maven ecosystem).
 
-nrepl.el features a command called `nrepl-jack-in` that will start an nREPL server
+CIDER features a command called `cider-jack-in` that will start an nREPL server
 for a particular Leiningen project and connect to it automatically.
 This functionality depends on Leiningen 2. Older versions are not supported. Follow
 the installation instructions on Leiningen's web site to get it up and running and afterwards
@@ -240,10 +240,10 @@ The two main ways to obtain an nREPL connection are discussed in the following s
 ### Launch a nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` project (like
-`foo.clj`) and type <kbd>M-x nrepl-jack-in</kbd>. This will start a nREPL with
-all the deps loaded in, plus an `nrepl.el` client connected to it.
+`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL with
+all the deps loaded in, plus an `CIDER` client connected to it.
 
-Alternative you can use <kbd>C-u M-x nrepl-jack-in</kbd> to specify the name of
+Alternative you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
 a lein project, without having to visit any file in it.
 
 ### Connect to a running nrepl server
@@ -255,18 +255,18 @@ You can go to your project's dir in a terminal and type there
 $ lein repl
 ```
 
-Alternatively you can start nrepl.el either manually or by the facilities provided by your
+Alternatively you can start nREPL either manually or by the facilities provided by your
 project build tool (Maven, etc).
 
 After you get your nREPL server running go back to Emacs.
-Typing there <kbd>M-x nrepl</kbd> will allow you to connect to the running nrepl session.
+Typing there <kbd>M-x cider</kbd> will allow you to connect to the running nrepl session.
 
-### Using the nrepl minor mode
+### Using the cider minor mode
 
-`nrepl.el` comes with a handy minor mode called `nrepl-interaction-mode` (complementing
+`CIDER` comes with a handy minor mode called `cider-interaction-mode` (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure source
 files and load it directly in the REPL.  A list of all
-available commands is available in the nREPL menu and in the following
+available commands is available in the cider menu and in the following
 section of this manual.
 
 ### Pretty printing in the REPL
@@ -276,16 +276,16 @@ that this will not work correctly with forms such as `(def a 1) (def b2)`
 and it expects `clojure.pprint` to have been required already
 (the default in more recent versions of Clojure):
 
-<kbd>M-x nrepl-toggle-pretty-printing</kbd>
+<kbd>M-x cider-toggle-pretty-printing</kbd>
 
 ## Keyboard shortcuts
 
-* <kbd>M-x nrepl-jack-in</kbd>: Launch an nrepl server and a repl client.
+* <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a repl client.
     Prompts for a project root if given a prefix argument.
-* <kbd>M-x nrepl</kbd>: Connect to an already-running nrepl server.
+* <kbd>M-x cider</kbd>: Connect to an already-running nrepl server.
 
-While you're in `clojure-mode`, `nrepl-jack-in` is bound for
-convenience to <kbd>C-c M-j</kbd> and `nrepl` is bound to <kbd>C-c
+While you're in `clojure-mode`, `cider-jack-in` is bound for
+convenience to <kbd>C-c M-j</kbd> and `cider` is bound to <kbd>C-c
 M-c</kbd>.
 
 ### Clojure buffer commands:
@@ -350,11 +350,11 @@ Keyboard shortcut               | Description
 
 ### Managing multiple sessions
 
-You can connect to multiple nREPL servers and use <kbd>M-x nrepl-jack-in</kbd> multiple
+You can connect to multiple nREPL servers and use <kbd>M-x cider-jack-in</kbd> multiple
 times.  To close a single nREPL session, use <kbd>M-x nrepl-close</kbd>.  <kbd>M-x
 nrepl-quit</kbd> closes all sessions.
 
-nrepl.el commands in a Clojure buffer use the default connection.  To make a
+CIDER commands in a Clojure buffer use the default connection.  To make a
 connection default, switch to it's repl buffer and use
 <kbd>M-x nrepl-make-repl-connection-default</kbd>.
 
@@ -364,7 +364,7 @@ You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate
 
 ## Requirements
 
-* [Leiningen](http://leiningen.org) 2.x (only for `nrepl-jack-in`)
+* [Leiningen](http://leiningen.org) 2.x (only for `cider-jack-in`)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
 * [Clojure](http://clojure.org) 1.4.0+
 
@@ -374,7 +374,7 @@ An extensive changelog is available [here](CHANGELOG.md).
 
 ## Extensions
 
-There are a couple of nrepl.el extensions that add some extra functionality to it:
+There are a couple of CIDER extensions that add some extra functionality to it:
 
 * [nrepl-tracing](https://github.com/clojure-emacs/nrepl-tracing) adds basic tracing support
 * [nrepl-decompile](https://github.com/clojure-emacs/nrepl-decompile) adds some Java bytecode decompilation commands
@@ -389,8 +389,8 @@ There are a couple of nrepl.el extensions that add some extra functionality to i
 
 ## Contributing
 
-* Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/nrepl-el)
-* Please report issues on the [GitHub issue tracker](https://github.com/clojure-emacs/nrepl.el/issues) or the mailing list.
+* Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/cider)
+* Please report issues on the [GitHub issue tracker](https://github.com/clojure-emacs/cider/issues) or the mailing list.
 
 Bug reports and suggestions for improvements are always
 welcome. GitHub pull requests are even better! :-)
@@ -401,7 +401,7 @@ Install [cask](https://github.com/rejeep/cask.el) if you haven't
 already, then:
 
 ```
-$ cd /path/to/nrepl
+$ cd /path/to/cider
 $ cask
 ```
 
@@ -415,6 +415,6 @@ $ make test
 
 Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
 Duncan, Steve Purcell and
-[contributors](https://github.com/kingtim/nrepl.el/contributors).
+[contributors](https://github.com/clojure-emacs/cider/contributors).
 
 Distributed under the GNU General Public License, version 3

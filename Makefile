@@ -3,7 +3,7 @@ EMACSFLAGS =
 CASK = cask
 VAGRANT = vagrant
 
-OBJECTS = nrepl.elc
+OBJECTS = cider.elc
 
 elpa:
 	$(CASK) install

@@ -1,4 +1,4 @@
-;;; nrepl-repl-mode.el --- REPL interactions
+;;; cider-repl-mode.el --- REPL interactions
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -31,109 +31,109 @@
 ;;; Code:
 
 (require 'nrepl-client)
-(require 'nrepl-interaction)
-(require 'nrepl-version)
+(require 'cider-interaction)
+(require 'cider-version)
 
-(defgroup nrepl-repl nil
+(defgroup cider-repl nil
   "Interaction with the REPL."
-  :prefix "nrepl-repl-"
+  :prefix "cider-repl-"
   :group 'nrepl)
 
-(defface nrepl-repl-prompt-face
+(defface cider-repl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
   "Face for the prompt in the REPL buffer."
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
-(defface nrepl-repl-output-face
+(defface cider-repl-output-face
   '((t (:inherit font-lock-string-face)))
   "Face for output in the REPL buffer."
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
-(defface nrepl-repl-input-face
+(defface cider-repl-input-face
   '((t (:bold t)))
   "Face for previous input in the REPL buffer."
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
-(defface nrepl-repl-result-face
+(defface cider-repl-result-face
   '((t ()))
   "Face for the result of an evaluation in the REPL buffer."
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
-(defcustom nrepl-repl-popup-stacktraces nil
+(defcustom cider-repl-popup-stacktraces nil
   "Non-nil means pop-up error stacktraces in the REPL buffer.
 Nil means show only an error message in the minibuffer.  This variable
-overrides `nrepl-popup-stacktraces' in REPL buffers."
+overrides `cider-popup-stacktraces' in REPL buffers."
   :type 'boolean
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
-(defcustom nrepl-repl-pop-to-buffer-on-connect t
+(defcustom cider-repl-pop-to-buffer-on-connect t
   "Controls whether to pop to the REPL buffer on connect.
 
 When set to nil the buffer will only be created."
   :type 'boolean
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
-(defcustom nrepl-repl-use-pretty-printing nil
+(defcustom cider-repl-use-pretty-printing nil
   "Control whether the results in REPL are pretty-printed or not.
-The `nrepl-toggle-pretty-printing' command can be used to interactively
+The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
-(defcustom nrepl-repl-tab-command 'nrepl-indent-and-complete-symbol
+(defcustom cider-repl-tab-command 'cider-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
-The default option is `nrepl-indent-and-complete-symbol'.  If
+The default option is `cider-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
   :type 'symbol
-  :group 'nrepl-repl)
+  :group 'cider-repl)
 
 ;;;; REPL buffer local variables
-(defvar nrepl-input-start-mark)
+(defvar cider-input-start-mark)
 
-(defvar nrepl-prompt-start-mark)
+(defvar cider-prompt-start-mark)
 
-(defvar nrepl-old-input-counter 0
-  "Counter used to generate unique `nrepl-old-input' properties.
+(defvar cider-old-input-counter 0
+  "Counter used to generate unique `cider-old-input' properties.
 This property value must be unique to avoid having adjacent inputs be
 joined together.")
 
-(defvar nrepl-input-history '()
+(defvar cider-input-history '()
   "History list of strings read from the nREPL buffer.")
 
-(defvar nrepl-input-history-items-added 0
+(defvar cider-input-history-items-added 0
   "Variable counting the items added in the current session.")
 
-(defvar nrepl-output-start nil
+(defvar cider-output-start nil
   "Marker for the start of output.")
 
-(defvar nrepl-output-end nil
+(defvar cider-output-end nil
   "Marker for the end of output.")
 
 (nrepl-make-variables-buffer-local
- 'nrepl-input-start-mark
- 'nrepl-prompt-start-mark
- 'nrepl-old-input-counter
- 'nrepl-input-history
- 'nrepl-input-history-items-added
- 'nrepl-output-start
- 'nrepl-output-end)
+ 'cider-input-start-mark
+ 'cider-prompt-start-mark
+ 'cider-old-input-counter
+ 'cider-input-history
+ 'cider-input-history-items-added
+ 'cider-output-start
+ 'cider-output-end)
 
-(defun nrepl-tab ()
-  "Invoked on TAB keystrokes in `nrepl-repl-mode' buffers."
+(defun cider-tab ()
+  "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
   (interactive)
-  (funcall nrepl-repl-tab-command))
+  (funcall cider-repl-tab-command))
 
-(defun nrepl-reset-markers ()
+(defun cider-reset-markers ()
   "Reset all REPL markers."
-  (dolist (markname '(nrepl-output-start
-                      nrepl-output-end
-                      nrepl-prompt-start-mark
-                      nrepl-input-start-mark))
+  (dolist (markname '(cider-output-start
+                      cider-output-end
+                      cider-prompt-start-mark
+                      cider-input-start-mark))
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
-(defmacro nrepl-propertize-region (props &rest body)
+(defmacro cider-propertize-region (props &rest body)
   "Add PROPS to all text inserted by executing BODY.
 More precisely, PROPS are added to the region between the point's
 positions before and after executing BODY."
@@ -142,35 +142,35 @@ positions before and after executing BODY."
        (prog1 (progn ,@body)
          (add-text-properties ,start (point) ,props)))))
 
-(put 'nrepl-propertize-region 'lisp-indent-function 1)
+(put 'cider-propertize-region 'lisp-indent-function 1)
 
 ;;; REPL init
-(defun nrepl-repl-buffer-name ()
+(defun cider-repl-buffer-name ()
   "Generate a REPL buffer name based on current connection buffer."
   (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
     (nrepl-buffer-name nrepl-repl-buffer-name-template)))
 
-(defun nrepl-create-repl-buffer (process)
+(defun cider-create-repl-buffer (process)
   "Create a REPL buffer for PROCESS."
-  (nrepl-init-repl-buffer
+  (cider-init-repl-buffer
    process
-   (let ((buffer-name (nrepl-repl-buffer-name)))
-     (if nrepl-repl-pop-to-buffer-on-connect
+   (let ((buffer-name (cider-repl-buffer-name)))
+     (if cider-repl-pop-to-buffer-on-connect
          (pop-to-buffer buffer-name)
        (generate-new-buffer buffer-name))
      buffer-name)))
 
-(defun nrepl-make-repl (process)
+(defun cider-make-repl (process)
   "Make a REPL for the connection PROCESS."
   (let ((connection-buffer (process-buffer process))
-        (repl-buffer (nrepl-create-repl-buffer process)))
+        (repl-buffer (cider-create-repl-buffer process)))
     (with-current-buffer repl-buffer
       (setq nrepl-connection-buffer (buffer-name connection-buffer)))
     (with-current-buffer connection-buffer
       (setq nrepl-repl-buffer (buffer-name repl-buffer)))))
 
 ;;; Words of inspiration
-(defun nrepl-user-first-name ()
+(defun cider-user-first-name ()
   "Find the current user's first name."
   (let ((name (if (string= (user-full-name) "")
                   (user-login-name)
@@ -178,7 +178,7 @@ positions before and after executing BODY."
     (string-match "^[^ ]*" name)
     (capitalize (match-string 0 name))))
 
-(defvar nrepl-words-of-inspiration
+(defvar cider-words-of-inspiration
   `("The best way to predict the future is to invent it. -Alan Kay"
     "A point of view is worth 80 IQ points. -Alan Kay"
     "Lisp isn't a language, it's a building material. -Alan Kay"
@@ -206,46 +206,46 @@ positions before and after executing BODY."
     "Code long and prosper!"
     "Happy hacking!"
     ,(format "%s, this could be the start of a beautiful program."
-             (nrepl-user-first-name)))
+             (cider-user-first-name)))
   "Scientifically-proven optimal words of hackerish encouragement.")
 
-(defun nrepl-random-words-of-inspiration ()
-  "Select a random entry from `nrepl-words-of-inspiration'."
-  (eval (nth (random (length nrepl-words-of-inspiration))
-             nrepl-words-of-inspiration)))
+(defun cider-random-words-of-inspiration ()
+  "Select a random entry from `cider-words-of-inspiration'."
+  (eval (nth (random (length cider-words-of-inspiration))
+             cider-words-of-inspiration)))
 
-(defun nrepl--banner ()
+(defun cider--banner ()
   "Generate the welcome REPL buffer banner."
-  (format "; nrepl.el %s (Clojure %s, nREPL %s)"
-          (nrepl-version)
-          (nrepl--clojure-version)
-          (nrepl--backend-version)))
+  (format "; CIDER %s (Clojure %s, nREPL %s)"
+          (cider-version)
+          (cider--clojure-version)
+          (cider--backend-version)))
 
-(defun nrepl-insert-banner-and-prompt (ns)
+(defun cider-insert-banner-and-prompt (ns)
   "Insert REPL banner and REPL prompt, taking into account NS."
   (when (zerop (buffer-size))
-    (insert (propertize (nrepl--banner) 'face 'font-lock-comment-face)))
+    (insert (propertize (cider--banner) 'face 'font-lock-comment-face)))
   (goto-char (point-max))
-  (nrepl-mark-output-start)
-  (nrepl-mark-input-start)
-  (nrepl-insert-prompt ns))
+  (cider-mark-output-start)
+  (cider-mark-input-start)
+  (cider-insert-prompt ns))
 
 
-(defun nrepl-init-repl-buffer (connection buffer &optional noprompt)
+(defun cider-init-repl-buffer (connection buffer &optional noprompt)
   "Initialize the REPL for CONNECTION in BUFFER.
 Insert a banner, unless NOPROMPT is non-nil."
   (with-current-buffer buffer
-    (unless (eq major-mode 'nrepl-repl-mode)
-      (nrepl-repl-mode))
+    (unless (eq major-mode 'cider-repl-mode)
+      (cider-repl-mode))
     ;; use the same requires by default as clojure.main does
     (nrepl-send-string-sync nrepl-repl-requires-sexp)
-    (nrepl-reset-markers)
+    (cider-reset-markers)
     (unless noprompt
-      (nrepl-insert-banner-and-prompt nrepl-buffer-ns))
-    (nrepl-remember-clojure-buffer nrepl-current-clojure-buffer)
+      (cider-insert-banner-and-prompt nrepl-buffer-ns))
+    (cider-remember-clojure-buffer cider-current-clojure-buffer)
     (current-buffer)))
 
-(defun nrepl-find-or-create-repl-buffer ()
+(defun cider-find-or-create-repl-buffer ()
   "Return the REPL buffer, create it if necessary."
   (let ((buffer (nrepl-current-repl-buffer)))
         (if (null buffer)
@@ -255,56 +255,56 @@ Insert a banner, unless NOPROMPT is non-nil."
                         (let ((buffer (nrepl-current-connection-buffer)))
                           (if (null buffer)
                                   (error "No active nREPL connection")
-                                (nrepl-init-repl-buffer
+                                (cider-init-repl-buffer
                                  (get-process buffer)
                                  (get-buffer-create
-                                  (nrepl-repl-buffer-name))))))))))
+                                  (cider-repl-buffer-name))))))))))
 
 
 ;;; REPL interaction
-(defun nrepl-property-bounds (prop)
+(defun cider-property-bounds (prop)
   "Return the the positions of the previous and next change to PROP.
 PROP is the name of a text property."
   (assert (get-text-property (point) prop))
   (let ((end (next-single-char-property-change (point) prop)))
     (list (previous-single-char-property-change end prop) end)))
 
-(defun nrepl-in-input-area-p ()
+(defun cider-in-input-area-p ()
   "Return t if in input area."
-  (<= nrepl-input-start-mark (point)))
+  (<= cider-input-start-mark (point)))
 
-(defun nrepl-current-input (&optional until-point-p)
+(defun cider-current-input (&optional until-point-p)
   "Return the current input as string.
 The input is the region from after the last prompt to the end of
 buffer.  If UNTIL-POINT-P is non-nil, the input is until the current
 point."
-  (buffer-substring-no-properties nrepl-input-start-mark
+  (buffer-substring-no-properties cider-input-start-mark
                                   (if until-point-p
                                       (point)
                                     (point-max))))
 
-(defun nrepl-previous-prompt ()
+(defun cider-previous-prompt ()
   "Move backward to the previous prompt."
   (interactive)
-  (nrepl-find-prompt t))
+  (cider-find-prompt t))
 
-(defun nrepl-next-prompt ()
+(defun cider-next-prompt ()
   "Move forward to the next prompt."
   (interactive)
-  (nrepl-find-prompt))
+  (cider-find-prompt))
 
-(defun nrepl-find-prompt (&optional backward)
+(defun cider-find-prompt (&optional backward)
   "Find the next prompt.
 If BACKWARD is non-nil look backward."
   (let ((origin (point))
-        (prop 'nrepl-prompt))
+        (prop 'cider-prompt))
     (while (progn
-             (nrepl-search-property-change prop backward)
-             (not (or (nrepl-end-of-proprange-p prop) (bobp) (eobp)))))
-    (unless (nrepl-end-of-proprange-p prop)
+             (cider-search-property-change prop backward)
+             (not (or (cider-end-of-proprange-p prop) (bobp) (eobp)))))
+    (unless (cider-end-of-proprange-p prop)
       (goto-char origin))))
 
-(defun nrepl-search-property-change (prop &optional backward)
+(defun cider-search-property-change (prop &optional backward)
   "Search forward for a property change to PROP.
 If BACKWARD is non-nil search backward."
   (cond (backward
@@ -312,63 +312,63 @@ If BACKWARD is non-nil search backward."
         (t
          (goto-char (next-single-char-property-change (point) prop)))))
 
-(defun nrepl-end-of-proprange-p (property)
+(defun cider-end-of-proprange-p (property)
   "Return t if at the the end of a property range for PROPERTY."
   (and (get-char-property (max 1 (1- (point))) property)
        (not (get-char-property (point) property))))
 
-(defun nrepl-mark-input-start ()
+(defun cider-mark-input-start ()
   "Mark the input start."
-  (set-marker nrepl-input-start-mark (point) (current-buffer)))
+  (set-marker cider-input-start-mark (point) (current-buffer)))
 
-(defun nrepl-mark-output-start ()
+(defun cider-mark-output-start ()
   "Mark the output start."
-  (set-marker nrepl-output-start (point))
-  (set-marker nrepl-output-end (point)))
+  (set-marker cider-output-start (point))
+  (set-marker cider-output-end (point)))
 
-(defun nrepl-mark-output-end ()
+(defun cider-mark-output-end ()
   "Marke the output end."
-  (add-text-properties nrepl-output-start nrepl-output-end
-                       '(face nrepl-repl-output-face
+  (add-text-properties cider-output-start cider-output-end
+                       '(face cider-repl-output-face
                               rear-nonsticky (face))))
 
 ;;;;; History
 
-(defcustom nrepl-wrap-history nil
+(defcustom cider-wrap-history nil
   "T to wrap history around when the end is reached."
   :type 'boolean
   :group 'nrepl)
 
 ;; These two vars contain the state of the last history search.  We
-;; only use them if `last-command' was 'nrepl-history-replace,
+;; only use them if `last-command' was 'cider-history-replace,
 ;; otherwise we reinitialize them.
 
-(defvar nrepl-input-history-position -1
+(defvar cider-input-history-position -1
   "Newer items have smaller indices.")
 
-(defvar nrepl-history-pattern nil
+(defvar cider-history-pattern nil
   "The regexp most recently used for finding input history.")
 
-(defun nrepl-add-to-input-history (string)
+(defun cider-add-to-input-history (string)
   "Add STRING to the input history.
 Empty strings and duplicates are ignored."
   (unless (or (equal string "")
-              (equal string (car nrepl-input-history)))
-    (push string nrepl-input-history)
-    (incf nrepl-input-history-items-added)))
+              (equal string (car cider-input-history)))
+    (push string cider-input-history)
+    (incf cider-input-history-items-added)))
 
-(defun nrepl-delete-current-input ()
+(defun cider-delete-current-input ()
   "Delete all text after the prompt."
   (interactive)
   (goto-char (point-max))
-  (delete-region nrepl-input-start-mark (point-max)))
+  (delete-region cider-input-start-mark (point-max)))
 
-(defun nrepl-replace-input (string)
+(defun cider-replace-input (string)
   "Replace the current REPL input with STRING."
-  (nrepl-delete-current-input)
+  (cider-delete-current-input)
   (insert-and-inherit string))
 
-(defun nrepl-position-in-history (start-pos direction regexp)
+(defun cider-position-in-history (start-pos direction regexp)
   "Return the position of the history item starting at START-POS.
 Search in DIRECTION for REGEXP.
 Return -1 resp the length of the history if no item matches."
@@ -376,32 +376,32 @@ Return -1 resp the length of the history if no item matches."
   (let* ((step (ecase direction
                  (forward -1)
                  (backward 1)))
-         (history nrepl-input-history)
+         (history cider-input-history)
          (len (length history)))
     (loop for pos = (+ start-pos step) then (+ pos step)
           if (< pos 0) return -1
           if (<= len pos) return len
           if (string-match regexp (nth pos history)) return pos)))
 
-(defun nrepl-history-replace (direction &optional regexp)
+(defun cider-history-replace (direction &optional regexp)
   "Replace the current input with the next line in DIRECTION.
 DIRECTION is 'forward' or 'backward' (in the history list).
 If REGEXP is non-nil, only lines matching REGEXP are considered."
-  (setq nrepl-history-pattern regexp)
+  (setq cider-history-pattern regexp)
   (let* ((min-pos -1)
-         (max-pos (length nrepl-input-history))
-         (pos0 (cond ((nrepl-history-search-in-progress-p)
-                      nrepl-input-history-position)
+         (max-pos (length cider-input-history))
+         (pos0 (cond ((cider-history-search-in-progress-p)
+                      cider-input-history-position)
                      (t min-pos)))
-         (pos (nrepl-position-in-history pos0 direction (or regexp "")))
+         (pos (cider-position-in-history pos0 direction (or regexp "")))
          (msg nil))
     (cond ((and (< min-pos pos) (< pos max-pos))
-           (nrepl-replace-input (nth pos nrepl-input-history))
+           (cider-replace-input (nth pos cider-input-history))
            (setq msg (format "History item: %d" pos)))
-          ((not nrepl-wrap-history)
+          ((not cider-wrap-history)
            (setq msg (cond ((= pos min-pos) "End of history")
                            ((= pos max-pos) "Beginning of history"))))
-          (nrepl-wrap-history
+          (cider-wrap-history
            (setq pos (if (= pos min-pos) max-pos min-pos))
            (setq msg "Wrapped history")))
     (when (or (<= pos min-pos) (<= max-pos pos))
@@ -409,84 +409,84 @@ If REGEXP is non-nil, only lines matching REGEXP are considered."
         (setq msg (concat msg "; no matching item"))))
     (message "%s%s" msg (cond ((not regexp) "")
                               (t (format "; current regexp: %s" regexp))))
-    (setq nrepl-input-history-position pos)
-    (setq this-command 'nrepl-history-replace)))
+    (setq cider-input-history-position pos)
+    (setq this-command 'cider-history-replace)))
 
-(defun nrepl-history-search-in-progress-p ()
+(defun cider-history-search-in-progress-p ()
   "Return t if a current history search is in progress."
-  (eq last-command 'nrepl-history-replace))
+  (eq last-command 'cider-history-replace))
 
-(defun nrepl-terminate-history-search ()
+(defun cider-terminate-history-search ()
   "Terminate the current history search."
   (setq last-command this-command))
 
-(defun nrepl-previous-input ()
+(defun cider-previous-input ()
   "Cycle backwards through input history.
 If the `last-command' was a history navigation command use the
 same search pattern for this command.
 Otherwise use the current input as search pattern."
   (interactive)
-  (nrepl-history-replace 'backward (nrepl-history-pattern t)))
+  (cider-history-replace 'backward (cider-history-pattern t)))
 
-(defun nrepl-next-input ()
+(defun cider-next-input ()
   "Cycle forwards through input history.
-See `nrepl-previous-input'."
+See `cider-previous-input'."
   (interactive)
-  (nrepl-history-replace 'forward (nrepl-history-pattern t)))
+  (cider-history-replace 'forward (cider-history-pattern t)))
 
-(defun nrepl-forward-input ()
+(defun cider-forward-input ()
   "Cycle forwards through input history."
   (interactive)
-  (nrepl-history-replace 'forward (nrepl-history-pattern)))
+  (cider-history-replace 'forward (cider-history-pattern)))
 
-(defun nrepl-backward-input ()
+(defun cider-backward-input ()
   "Cycle backwards through input history."
   (interactive)
-  (nrepl-history-replace 'backward (nrepl-history-pattern)))
+  (cider-history-replace 'backward (cider-history-pattern)))
 
-(defun nrepl-previous-matching-input (regexp)
+(defun cider-previous-matching-input (regexp)
   "Find the previous input matching REGEXP."
   (interactive "sPrevious element matching (regexp): ")
-  (nrepl-terminate-history-search)
-  (nrepl-history-replace 'backward regexp))
+  (cider-terminate-history-search)
+  (cider-history-replace 'backward regexp))
 
-(defun nrepl-next-matching-input (regexp)
+(defun cider-next-matching-input (regexp)
   "Find then next input matching REGEXP."
   (interactive "sNext element matching (regexp): ")
-  (nrepl-terminate-history-search)
-  (nrepl-history-replace 'forward regexp))
+  (cider-terminate-history-search)
+  (cider-history-replace 'forward regexp))
 
-(defun nrepl-history-pattern (&optional use-current-input)
+(defun cider-history-pattern (&optional use-current-input)
   "Return the regexp for the navigation commands.
 If USE-CURRENT-INPUT is non-nil, use the current input."
-  (cond ((nrepl-history-search-in-progress-p)
-         nrepl-history-pattern)
+  (cond ((cider-history-search-in-progress-p)
+         cider-history-pattern)
         (use-current-input
-         (assert (<= nrepl-input-start-mark (point)))
-         (let ((str (nrepl-current-input t)))
+         (assert (<= cider-input-start-mark (point)))
+         (let ((str (cider-current-input t)))
            (cond ((string-match "^[ \n]*$" str) nil)
                  (t (concat "^" (regexp-quote str))))))
         (t nil)))
 
 ;;; persistent history
-(defcustom nrepl-history-size 500
+(defcustom cider-history-size 500
   "The maximum number of items to keep in the REPL history."
   :type 'integer
   :safe 'integerp
-  :group 'nrepl-repl-mode)
+  :group 'cider-repl-mode)
 
-(defcustom nrepl-history-file nil
+(defcustom cider-history-file nil
   "File to save the persistent REPL history to."
   :type 'string
   :safe 'stringp
-  :group 'nrepl-repl-mode)
+  :group 'cider-repl-mode)
 
-(defun nrepl-history-read-filename ()
-  "Ask the user which file to use, defaulting `nrepl-history-file'."
+(defun cider-history-read-filename ()
+  "Ask the user which file to use, defaulting `cider-history-file'."
   (read-file-name "Use nREPL history file: "
-                  nrepl-history-file))
+                  cider-history-file))
 
-(defun nrepl-history-read (filename)
+(defun cider-history-read (filename)
   "Read history from FILENAME and return it.
 It does not yet set the input history."
   (if (file-readable-p filename)
@@ -495,28 +495,28 @@ It does not yet set the input history."
         (read (current-buffer)))
     '()))
 
-(defun nrepl-history-load (&optional filename)
+(defun cider-history-load (&optional filename)
   "Load history from FILENAME into current session.
-FILENAME defaults to the value of `nrepl-history-file' but user
+FILENAME defaults to the value of `cider-history-file' but user
 defined filenames can be used to read special history files.
 
-The value of `nrepl-input-history' is set by this function."
-  (interactive (list (nrepl-history-read-filename)))
-  (let ((f (or filename nrepl-history-file)))
-    ;; TODO: probably need to set nrepl-input-history-position as well.
+The value of `cider-input-history' is set by this function."
+  (interactive (list (cider-history-read-filename)))
+  (let ((f (or filename cider-history-file)))
+    ;; TODO: probably need to set cider-input-history-position as well.
     ;; in a fresh connection the newest item in the list is currently
     ;; not available.  After sending one input, everything seems to work.
-    (setq nrepl-input-history (nrepl-history-read f))))
+    (setq cider-input-history (cider-history-read f))))
 
-(defun nrepl-history-write (filename)
+(defun cider-history-write (filename)
   "Write history to FILENAME.
 Currently coding system for writing the contents is hardwired to
 utf-8-unix."
-  (let* ((mhist (nrepl-histories-merge nrepl-input-history
-                                       nrepl-input-history-items-added
-                                       (nrepl-history-read filename)))
+  (let* ((mhist (cider-histories-merge cider-input-history
+                                       cider-input-history-items-added
+                                       (cider-history-read filename)))
          ;; newest items are at the beginning of the list, thus 0
-         (hist (cl-subseq mhist 0 (min (length mhist) nrepl-history-size))))
+         (hist (cl-subseq mhist 0 (min (length mhist) cider-history-size))))
     (unless (file-writable-p filename)
       (error (format "History file not writable: %s" filename)))
     (let ((print-length nil) (print-level nil))
@@ -528,61 +528,61 @@ utf-8-unix."
         (insert ";; Edit at your own risk\n\n")
         (prin1 (mapcar #'substring-no-properties hist) (current-buffer))))))
 
-(defun nrepl-history-save (&optional filename)
+(defun cider-history-save (&optional filename)
   "Save the current nREPL input history to FILENAME.
-FILENAME defaults to the value of `nrepl-history-file'."
-  (interactive (list (nrepl-history-read-filename)))
-  (let* ((file (or filename nrepl-history-file)))
-    (nrepl-history-write file)))
+FILENAME defaults to the value of `cider-history-file'."
+  (interactive (list (cider-history-read-filename)))
+  (let* ((file (or filename cider-history-file)))
+    (cider-history-write file)))
 
-(defun nrepl-history-just-save ()
-  "Just save the history to `nrepl-history-file'.
+(defun cider-history-just-save ()
+  "Just save the history to `cider-history-file'.
 This function is meant to be used in hooks to avoid lambda
 constructs."
-  (nrepl-history-save nrepl-history-file))
+  (cider-history-save cider-history-file))
 
 ;; SLIME has different semantics and will not save any duplicates.
 ;; we keep track of how many items were added to the history in the
-;; current session in nrepl-add-to-input-history and merge only the
+;; current session in cider-add-to-input-history and merge only the
 ;; new items with the current history found in the file, which may
 ;; have been changed in the meantime by another session
-(defun nrepl-histories-merge (session-hist n-added-items file-hist)
+(defun cider-histories-merge (session-hist n-added-items file-hist)
   "Merge histories from SESSION-HIST adding N-ADDED-ITEMS into FILE-HIST."
   (append (cl-subseq session-hist 0 n-added-items)
           file-hist))
 
 ;;;
-(defun nrepl-same-line-p (pos1 pos2)
+(defun cider-same-line-p (pos1 pos2)
   "Return t if buffer positions POS1 and POS2 are on the same line."
   (save-excursion (goto-char (min pos1 pos2))
                   (<= (max pos1 pos2) (line-end-position))))
 
-(defun nrepl-bol-internal ()
+(defun cider-bol-internal ()
   "Go to the beginning of line or the prompt."
-  (cond ((and (>= (point) nrepl-input-start-mark)
-              (nrepl-same-line-p (point) nrepl-input-start-mark))
-         (goto-char nrepl-input-start-mark))
+  (cond ((and (>= (point) cider-input-start-mark)
+              (cider-same-line-p (point) cider-input-start-mark))
+         (goto-char cider-input-start-mark))
         (t (beginning-of-line 1))))
 
-(defun nrepl-bol ()
+(defun cider-bol ()
   "Go to the beginning of line or the prompt."
   (interactive)
   (deactivate-mark)
-  (nrepl-bol-internal))
+  (cider-bol-internal))
 
-(defun nrepl-bol-mark ()
+(defun cider-bol-mark ()
   "Set the mark and go to the beginning of line or the prompt."
   (interactive)
   (unless mark-active
     (set-mark (point)))
-  (nrepl-bol-internal))
+  (cider-bol-internal))
 
-(defun nrepl-at-prompt-start-p ()
+(defun cider-at-prompt-start-p ()
   "Return t if point is at the start of prompt.
 This will not work on non-current prompts."
-  (= (point) nrepl-input-start-mark))
+  (= (point) cider-input-start-mark))
 
-(defun nrepl-show-maximum-output ()
+(defun cider-show-maximum-output ()
   "Put the end of the buffer at the bottom of the window."
   (when (eobp)
     (let ((win (get-buffer-window (current-buffer))))
@@ -591,101 +591,101 @@ This will not work on non-current prompts."
           (set-window-point win (point-max))
           (recenter -1))))))
 
-(defmacro nrepl-save-marker (marker &rest body)
+(defmacro cider-save-marker (marker &rest body)
   "Save MARKER and execute BODY."
   (let ((pos (make-symbol "pos")))
     `(let ((,pos (marker-position ,marker)))
        (prog1 (progn . ,body)
          (set-marker ,marker ,pos)))))
 
-(put 'nrepl-save-marker 'lisp-indent-function 1)
+(put 'cider-save-marker 'lisp-indent-function 1)
 
-(defun nrepl-insert-prompt (namespace)
+(defun cider-insert-prompt (namespace)
   "Insert the prompt (before markers!), taking into account NAMESPACE.
 Set point after the prompt.
 Return the position of the prompt beginning."
-  (goto-char nrepl-input-start-mark)
-  (nrepl-save-marker nrepl-output-start
-    (nrepl-save-marker nrepl-output-end
+  (goto-char cider-input-start-mark)
+  (cider-save-marker cider-output-start
+    (cider-save-marker cider-output-end
       (unless (bolp) (insert-before-markers "\n"))
       (let ((prompt-start (point))
             (prompt (format "%s> " namespace)))
-        (nrepl-propertize-region
-            '(face nrepl-repl-prompt-face read-only t intangible t
-                   nrepl-prompt t
-                   rear-nonsticky (nrepl-prompt read-only face intangible))
+        (cider-propertize-region
+            '(face cider-repl-prompt-face read-only t intangible t
+                   cider-prompt t
+                   rear-nonsticky (cider-prompt read-only face intangible))
           (insert-before-markers prompt))
-        (set-marker nrepl-prompt-start-mark prompt-start)
+        (set-marker cider-prompt-start-mark prompt-start)
         prompt-start))))
 
-(defun nrepl-emit-output-at-pos (buffer string position &optional bol)
+(defun cider-emit-output-at-pos (buffer string position &optional bol)
   "Using BUFFER, insert STRING at POSITION and mark it as output.
 If BOL is non-nil insert at the beginning of line."
   (with-current-buffer buffer
     (save-excursion
-      (nrepl-save-marker nrepl-output-start
-        (nrepl-save-marker nrepl-output-end
+      (cider-save-marker cider-output-start
+        (cider-save-marker cider-output-end
           (goto-char position)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (nrepl-propertize-region `(face nrepl-repl-output-face
+          (cider-propertize-region `(face cider-repl-output-face
                                           rear-nonsticky (face))
             (insert-before-markers string)
-            (when (and (= (point) nrepl-prompt-start-mark)
+            (when (and (= (point) cider-prompt-start-mark)
                        (not (bolp)))
               (insert-before-markers "\n")
-              (set-marker nrepl-output-end (1- (point))))))))
-    (nrepl-show-maximum-output)))
+              (set-marker cider-output-end (1- (point))))))))
+    (cider-show-maximum-output)))
 
-(defun nrepl-emit-interactive-output (string)
+(defun cider-emit-interactive-output (string)
   "Emit STRING as interactive output."
   (with-current-buffer (nrepl-current-repl-buffer)
-    (let ((pos (1- (nrepl-input-line-beginning-position))))
-      (nrepl-emit-output-at-pos (current-buffer) string pos t)
+    (let ((pos (1- (cider-input-line-beginning-position))))
+      (cider-emit-output-at-pos (current-buffer) string pos t)
       (ansi-color-apply-on-region pos (point-max))
       )))
 
-(defun nrepl-emit-output (buffer string &optional bol)
+(defun cider-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
-    (nrepl-emit-output-at-pos buffer string nrepl-input-start-mark bol)))
+    (cider-emit-output-at-pos buffer string cider-input-start-mark bol)))
 
-(defun nrepl-emit-prompt (buffer)
+(defun cider-emit-prompt (buffer)
   "Emit the REPL prompt into BUFFER."
   (with-current-buffer buffer
     (save-excursion
-      (nrepl-save-marker nrepl-output-start
-        (nrepl-save-marker nrepl-output-end
-          (nrepl-insert-prompt nrepl-buffer-ns))))
-    (nrepl-show-maximum-output)))
+      (cider-save-marker cider-output-start
+        (cider-save-marker cider-output-end
+          (cider-insert-prompt nrepl-buffer-ns))))
+    (cider-show-maximum-output)))
 
-(defun nrepl-emit-result (buffer string &optional bol)
+(defun cider-emit-result (buffer string &optional bol)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
 If BOL is non-nil insert at the beginning of the line."
   (with-current-buffer buffer
     (save-excursion
-      (nrepl-save-marker nrepl-output-start
-        (nrepl-save-marker nrepl-output-end
-          (goto-char nrepl-input-start-mark)
+      (cider-save-marker cider-output-start
+        (cider-save-marker cider-output-end
+          (goto-char cider-input-start-mark)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (nrepl-propertize-region `(face nrepl-repl-result-face
+          (cider-propertize-region `(face cider-repl-result-face
                                           rear-nonsticky (face))
             (insert-before-markers string)))))
-    (nrepl-show-maximum-output)))
+    (cider-show-maximum-output)))
 
 
-(defun nrepl-newline-and-indent ()
+(defun cider-newline-and-indent ()
   "Insert a newline, then indent the next line.
 Restrict the buffer from the prompt for indentation, to avoid being
 confused by strange characters (like unmatched quotes) appearing
 earlier in the buffer."
   (interactive)
   (save-restriction
-    (narrow-to-region nrepl-prompt-start-mark (point-max))
+    (narrow-to-region cider-prompt-start-mark (point-max))
     (insert "\n")
     (lisp-indent-line)))
 
-(defun nrepl-indent-and-complete-symbol ()
+(defun cider-indent-and-complete-symbol ()
   "Indent the current line and perform symbol completion.
 First indent the line.  If indenting doesn't move point, complete
 the symbol."
@@ -696,15 +696,15 @@ the symbol."
       (if (save-excursion (re-search-backward "[^() \n\t\r]+\\=" nil t))
           (completion-at-point)))))
 
-(defun nrepl-kill-input ()
+(defun cider-kill-input ()
   "Kill all text from the prompt to point."
   (interactive)
-  (cond ((< (marker-position nrepl-input-start-mark) (point))
-         (kill-region nrepl-input-start-mark (point)))
-        ((= (point) (marker-position nrepl-input-start-mark))
-         (nrepl-delete-current-input))))
+  (cond ((< (marker-position cider-input-start-mark) (point))
+         (kill-region cider-input-start-mark (point)))
+        ((= (point) (marker-position cider-input-start-mark))
+         (cider-delete-current-input))))
 
-(defun nrepl-input-complete-p (start end)
+(defun cider-input-complete-p (start end)
   "Return t if the region from START to END is a complete sexp."
   (save-excursion
     (goto-char start)
@@ -721,36 +721,36 @@ the symbol."
                t)))
           (t t))))
 
-(defun nrepl-send-input (&optional newline)
+(defun cider-send-input (&optional newline)
   "Go to the end of the input and send the current input.
 If NEWLINE is true then add a newline at the end of the input."
-  (unless (nrepl-in-input-area-p)
+  (unless (cider-in-input-area-p)
     (error "No input at point"))
   (goto-char (point-max))
   (let ((end (point)))             ; end of input, without the newline
-    (nrepl-add-to-input-history (buffer-substring nrepl-input-start-mark end))
+    (cider-add-to-input-history (buffer-substring cider-input-start-mark end))
     (when newline
       (insert "\n")
-      (nrepl-show-maximum-output))
+      (cider-show-maximum-output))
     (let ((inhibit-modification-hooks t))
-      (add-text-properties nrepl-input-start-mark
+      (add-text-properties cider-input-start-mark
                            (point)
-                           `(nrepl-old-input
-                             ,(incf nrepl-old-input-counter))))
-    (let ((overlay (make-overlay nrepl-input-start-mark end)))
+                           `(cider-old-input
+                             ,(incf cider-old-input-counter))))
+    (let ((overlay (make-overlay cider-input-start-mark end)))
       ;; These properties are on an overlay so that they won't be taken
       ;; by kill/yank.
       (overlay-put overlay 'read-only t)
-      (overlay-put overlay 'face 'nrepl-repl-input-face)))
-  (let* ((input (nrepl-current-input))
-         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) nrepl-repl-use-pretty-printing)
+      (overlay-put overlay 'face 'cider-repl-input-face)))
+  (let* ((input (cider-current-input))
+         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input)) cider-repl-use-pretty-printing)
                    (format "(clojure.pprint/pprint %s)" input) input)))
     (goto-char (point-max))
-    (nrepl-mark-input-start)
-    (nrepl-mark-output-start)
-    (nrepl-send-string form (nrepl-handler (current-buffer)) nrepl-buffer-ns)))
+    (cider-mark-input-start)
+    (cider-mark-output-start)
+    (nrepl-send-string form (cider-handler (current-buffer)) nrepl-buffer-ns)))
 
-(defun nrepl-return (&optional end-of-input)
+(defun cider-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
 Send the current input ony if a whole expression has been entered,
 i.e. the parenthesis are matched.
@@ -759,35 +759,35 @@ are not balanced."
   (interactive "P")
   (cond
    (end-of-input
-    (nrepl-send-input))
-   ((and (get-text-property (point) 'nrepl-old-input)
-         (< (point) nrepl-input-start-mark))
-    (nrepl-grab-old-input end-of-input)
-    (nrepl-recenter-if-needed))
-   ((nrepl-input-complete-p nrepl-input-start-mark (point-max))
-    (nrepl-send-input t))
+    (cider-send-input))
+   ((and (get-text-property (point) 'cider-old-input)
+         (< (point) cider-input-start-mark))
+    (cider-grab-old-input end-of-input)
+    (cider-recenter-if-needed))
+   ((cider-input-complete-p cider-input-start-mark (point-max))
+    (cider-send-input t))
    (t
-    (nrepl-newline-and-indent)
+    (cider-newline-and-indent)
     (message "[input not complete]"))))
 
-(defun nrepl-recenter-if-needed ()
+(defun cider-recenter-if-needed ()
   "Make sure that the point is visible."
   (unless (pos-visible-in-window-p (point-max))
     (save-excursion
       (goto-char (point-max))
       (recenter -1))))
 
-(defun nrepl-grab-old-input (replace)
+(defun cider-grab-old-input (replace)
   "Resend the old REPL input at point.
 If REPLACE is non-nil the current input is replaced with the old
 input; otherwise the new input is appended.  The old input has the
-text property `nrepl-old-input'."
-  (multiple-value-bind (beg end) (nrepl-property-bounds 'nrepl-old-input)
+text property `cider-old-input'."
+  (multiple-value-bind (beg end) (cider-property-bounds 'cider-old-input)
     (let ((old-input (buffer-substring beg end)) ;;preserve
           ;;properties, they will be removed later
           (offset (- (point) beg)))
       ;; Append the old input or replace the current input
-      (cond (replace (goto-char nrepl-input-start-mark))
+      (cond (replace (goto-char cider-input-start-mark))
             (t (goto-char (point-max))
                (unless (eq (char-before) ?\ )
                  (insert " "))))
@@ -798,60 +798,60 @@ text property `nrepl-old-input'."
           (delete-char -1)))
       (forward-char offset))))
 
-(defun nrepl-closing-return ()
+(defun cider-closing-return ()
   "Evaluate the current input string after closing all open lists."
   (interactive)
   (goto-char (point-max))
   (save-restriction
-    (narrow-to-region nrepl-input-start-mark (point))
+    (narrow-to-region cider-input-start-mark (point))
     (while (ignore-errors (save-excursion (backward-up-list 1)) t)
       (insert ")")))
-  (nrepl-return))
+  (cider-return))
 
-(defun nrepl-toggle-pretty-printing ()
+(defun cider-toggle-pretty-printing ()
   "Toggle pretty-printing in the REPL."
   (interactive)
-  (setq nrepl-repl-use-pretty-printing (not nrepl-repl-use-pretty-printing))
+  (setq cider-repl-use-pretty-printing (not cider-repl-use-pretty-printing))
   (message "Pretty printing in nREPL %s."
-           (if nrepl-repl-use-pretty-printing "enabled" "disabled")))
+           (if cider-repl-use-pretty-printing "enabled" "disabled")))
 
-(defvar nrepl-clear-buffer-hook)
+(defvar cider-clear-buffer-hook)
 
-(defun nrepl-clear-buffer ()
+(defun cider-clear-buffer ()
   "Delete the output generated by the Clojure process."
   (interactive)
   (let ((inhibit-read-only t))
-    (delete-region (point-min) nrepl-prompt-start-mark)
-    (delete-region nrepl-output-start nrepl-output-end)
-    (when (< (point) nrepl-input-start-mark)
-      (goto-char nrepl-input-start-mark))
+    (delete-region (point-min) cider-prompt-start-mark)
+    (delete-region cider-output-start cider-output-end)
+    (when (< (point) cider-input-start-mark)
+      (goto-char cider-input-start-mark))
     (recenter t))
-  (run-hooks 'nrepl-clear-buffer-hook))
+  (run-hooks 'cider-clear-buffer-hook))
 
-(defun nrepl-find-and-clear-repl-buffer ()
+(defun cider-find-and-clear-repl-buffer ()
   "Find the current REPL buffer and clear it.
 Returns to the buffer in which the command was invoked."
   (interactive)
   (let ((origin-buffer (current-buffer)))
     (switch-to-buffer (nrepl-current-repl-buffer))
-    (nrepl-clear-buffer)
+    (cider-clear-buffer)
     (switch-to-buffer origin-buffer)))
 
-(defun nrepl-input-line-beginning-position ()
+(defun cider-input-line-beginning-position ()
   "Return the position of the beginning of input."
   (save-excursion
-    (goto-char nrepl-input-start-mark)
+    (goto-char cider-input-start-mark)
     (line-beginning-position)))
 
-(defun nrepl-clear-output ()
+(defun cider-clear-output ()
   "Delete the output inserted since the last input."
   (interactive)
   (let ((start (save-excursion
-                 (nrepl-previous-prompt)
+                 (cider-previous-prompt)
                  (ignore-errors (forward-sexp))
                  (forward-line)
                  (point)))
-        (end (1- (nrepl-input-line-beginning-position))))
+        (end (1- (cider-input-line-beginning-position))))
     (when (< start end)
       (let ((inhibit-read-only t))
         (delete-region start end)
@@ -860,5 +860,5 @@ Returns to the buffer in which the command was invoked."
           (insert
            (propertize ";;; output cleared" 'face 'font-lock-comment-face)))))))
 
-(provide 'nrepl-repl)
-;;; nrepl-repl.el ends here
+(provide 'cider-repl)
+;;; cider-repl.el ends here
