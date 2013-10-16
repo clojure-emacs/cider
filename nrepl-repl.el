@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
+(require 'nrepl-interaction)
 (require 'nrepl-version)
 
 (defface nrepl-prompt-face

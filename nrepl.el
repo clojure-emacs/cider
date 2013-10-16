@@ -58,6 +58,8 @@
 
 (require 'nrepl-client)
 (require 'nrepl-version)
+(require 'nrepl-interaction)
+(require 'nrepl-eldoc)
 (require 'nrepl-repl)
 (require 'nrepl-repl-mode)
 (require 'nrepl-selector)

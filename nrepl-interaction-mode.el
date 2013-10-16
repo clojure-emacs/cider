@@ -30,6 +30,8 @@
 
 ;;; Code:
 
+(require 'nrepl-interaction)
+
 (defvar nrepl-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-.") 'nrepl-jump)
