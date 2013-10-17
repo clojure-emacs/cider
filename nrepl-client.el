@@ -162,7 +162,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar nrepl-sync-response nil
   "Result of the last sync request.")
 
-(defvar nrepl-err-handler 'nrepl-default-err-handler
+(defvar nrepl-err-handler 'cider-default-err-handler
   "Evaluation error handler.")
 
 (defvar nrepl-ops nil
