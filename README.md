@@ -108,7 +108,7 @@ make the hidden buffers visible. They'll always be visible in
 `list-buffers` (<kbd>C-x C-b</kbd>).
 
 * You can control the <kbd>TAB</kbd> key behavior in the REPL via the
-`cider-tab-command` variable.  While the default command
+`cider-repl-tab-command` variable.  While the default command
 `cider-indent-and-complete-symbol` should be an adequate choice for
 most users, it's very easy to switch to another command if you wish
 to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
@@ -166,7 +166,7 @@ Buffer name will look like *cider project-name:port*.
 ```
 
 * Enabling `CamelCase` support for editing commands(like
-`forward-word`, `backward-word`, etc) in nREPL is quite useful since
+`forward-word`, `backward-word`, etc) in the REPL is quite useful since
 we often have to deal with Java class and method names. The built-in
 Emacs minor mode `subword-mode` provides such functionality:
 
@@ -178,7 +178,7 @@ Emacs minor mode `subword-mode` provides such functionality:
 when editing Clojure (or any other Lisp) code is highly
 recommended.  You're probably using it already in your `clojure-mode`
 buffers (if you're not you probably should). You might also want to
-enable `paredit` in the nREPL buffer as well:
+enable `paredit` in the REPL buffer as well:
 
 ```el
 (add-hook 'cider-repl-mode-hook 'paredit-mode)
@@ -259,14 +259,14 @@ Alternatively you can start nREPL either manually or by the facilities provided 
 project build tool (Maven, etc).
 
 After you get your nREPL server running go back to Emacs.
-Typing there <kbd>M-x cider</kbd> will allow you to connect to the running nrepl session.
+Typing there <kbd>M-x cider</kbd> will allow you to connect to the running nREPL server.
 
 ### Using the cider minor mode
 
 `CIDER` comes with a handy minor mode called `cider-interaction-mode` (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure source
 files and load it directly in the REPL.  A list of all
-available commands is available in the cider menu and in the following
+available commands is available in the `CIDER` menu and in the following
 section of this manual.
 
 ### Pretty printing in the REPL
