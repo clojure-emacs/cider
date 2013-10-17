@@ -389,8 +389,8 @@ There are a couple of CIDER extensions that add some extra functionality to it:
 
 ## Contributing
 
-* Mailing list: [https://groups.google.com/forum/#!forum/nrepl-el](https://groups.google.com/forum/#!forum/cider)
-* Please report issues on the [GitHub issue tracker](https://github.com/clojure-emacs/cider/issues) or the mailing list.
+* Mailing list: [https://groups.google.com/forum/#!forum/cider-emacs](https://groups.google.com/forum/#!forum/cider-emacs)
+* Please report issues on the [GitHub issue tracker](https://github.com/clojure-emacs/cider/issues).
 
 Bug reports and suggestions for improvements are always
 welcome. GitHub pull requests are even better! :-)
