@@ -747,7 +747,7 @@ search for and read a `ns' form."
   (if ns
       (with-current-buffer (nrepl-current-repl-buffer)
         (nrepl-send-string
-         (format "(in-ns '%s)" ns) (nrepl-handler (current-buffer))))
+         (format "(in-ns '%s)" ns) (cider-handler (current-buffer))))
     (message "Sorry, I don't know what the current namespace is.")))
 
 ;;; interrupt
