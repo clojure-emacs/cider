@@ -1,4 +1,4 @@
-;;; cider.el --- Client for Clojure nREPL
+;;; cider.el --- Clojure Integrated Development Environment and REPL
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -8,9 +8,9 @@
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
-;; URL: http://www.github.com/clojure-emacs/nrepl.el
+;; URL: http://www.github.com/clojure-emacs/cider
 ;; Version: 0.3.0-cvs
-;; Keywords: languages, clojure, nrepl
+;; Keywords: languages, clojure, cider
 ;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "2.1.0") (pkg-info "0.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 
 ;;; Commentary:
 
-;; Provides an elisp client to connect to Clojure nREPL servers.
+;; Provides a Clojure IDE and REPL for Emacs, built on top of nREPL.
 
 ;;; Installation:
 
@@ -44,11 +44,11 @@
 ;; (add-to-list 'package-archives
 ;;              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 ;;
-;; M-x package-install nrepl
+;; M-x package-install cider
 
 ;;; Usage:
 
-;; M-x nrepl-jack-in
+;; M-x cider-jack-in
 
 ;;; Code:
 
@@ -75,8 +75,8 @@
 ;;;###autoload
 (eval-after-load 'clojure-mode
   '(progn
-     (define-key clojure-mode-map (kbd "C-c M-j") 'nrepl-jack-in)
-     (define-key clojure-mode-map (kbd "C-c M-c") 'nrepl)))
+     (define-key clojure-mode-map (kbd "C-c M-j") 'cider-jack-in)
+     (define-key clojure-mode-map (kbd "C-c M-c") 'cider)))
 
 (provide 'cider)
 ;;; cider.el ends here
