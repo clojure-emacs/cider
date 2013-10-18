@@ -251,14 +251,17 @@
     (cider-test-with-buffers
      (a b c)
      (let ((nrepl-connection-list
-            (list (buffer-name a) (buffer-name b) (buffer-name c))))
-       (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
-       (cider-rotate-connection)
-       (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
-       (cider-rotate-connection)
-       (should (equal (buffer-name c) (nrepl-current-connection-buffer)))
-       (cider-rotate-connection)
-       (should (equal (buffer-name a) (nrepl-current-connection-buffer)))))))
+            (list (buffer-name a) (buffer-name b) (buffer-name c)))
+           (nrepl-connection-buffer nil))
+       (noflet ((cider--clojure-version () "")
+                (cider--backend-version () ""))
+               (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
+               (cider-rotate-connection)
+               (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
+               (cider-rotate-connection)
+               (should (equal (buffer-name c) (nrepl-current-connection-buffer)))
+               (cider-rotate-connection)
+               (should (equal (buffer-name a) (nrepl-current-connection-buffer))))))))
 
 (ert-deftest test-cider--current-connection-info ()
   (with-temp-buffer
