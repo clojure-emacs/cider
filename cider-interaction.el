@@ -161,7 +161,7 @@ of the current source file."
     (progn
       (let ((buffer (current-buffer)))
         (when arg
-          (nrepl-set-ns (nrepl-current-ns)))
+          (cider-set-ns (cider-current-ns)))
         (pop-to-buffer (cider-find-or-create-repl-buffer))
         (cider-remember-clojure-buffer buffer)
         (goto-char (point-max))))))
@@ -273,7 +273,7 @@ With a PREFIX argument, print the result in the current buffer."
   "Return the name of the symbol at point, otherwise nil."
   (let ((str (thing-at-point 'symbol)))
     (and str
-         (not (equal str (concat (nrepl-find-ns) "> ")))
+         (not (equal str (concat (cider-find-ns) "> ")))
          (not (equal str ""))
          (substring-no-properties str))))
 
@@ -423,7 +423,7 @@ Adjusts for HOME location using `cider-home-prefix-adjustment'.  Uses `find-file
                                                     :file)
                                  :line)
                                 (clojure.core/meta (clojure.core/ns-resolve ns-symbol ns-var)))))"
-                      (nrepl-current-ns) var)))
+                      (cider-current-ns) var)))
     (nrepl-send-string form
                        (cider-jump-to-def-handler (current-buffer))
                        nrepl-buffer-ns
@@ -546,7 +546,7 @@ otherwise dispatch to internal completion function."
 
 (defun cider-load-file-handler (buffer)
   "Make a load file handler for BUFFER."
-  (let (current-ns (nrepl-current-ns))
+  (let (current-ns (cider-current-ns))
     (nrepl-make-response-handler buffer
                                  (lambda (buffer value)
                                    (message "%s" value)
@@ -792,20 +792,47 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
       (ansi-color-apply-on-region (point-min) (point-max)))
     (goto-char (point-min))))
 
+;;; Namespace handling
+(defun cider-find-ns ()
+  "Return the ns specified in the buffer, or \"user\" if no ns declaration is found."
+  (or (save-restriction
+        (widen)
+        (clojure-find-ns))
+      "user"))
+
+(defun cider-current-ns ()
+  "Return the ns in the current context.
+If `nrepl-buffer-ns' has a value then return that, otherwise
+search for and read a `ns' form."
+  (let ((ns nrepl-buffer-ns))
+    (or (and (string= ns "user")
+             (cider-find-ns))
+        ns)))
+
+(defun cider-set-ns (ns)
+  "Switch the namespace of the REPL buffer to NS."
+  (interactive (list (cider-current-ns)))
+  (if ns
+      (with-current-buffer (nrepl-current-repl-buffer)
+        (nrepl-send-string
+         (format "(in-ns '%s)" ns) (cider-handler (current-buffer))))
+    (message "Sorry, I don't know what the current namespace is.")))
+
 
+;;; Evaluation
 (defun cider-popup-eval-print (form)
   "Evaluate the given FORM and print value in current buffer."
   (let ((buffer (current-buffer)))
     (nrepl-send-string form
                        (cider-popup-eval-print-handler buffer)
-                       (nrepl-current-ns))))
+                       (cider-current-ns))))
 
 (defun cider-interactive-eval-print (form)
   "Evaluate the given FORM and print value in current buffer."
   (let ((buffer (current-buffer)))
     (nrepl-send-string form
                        (cider-interactive-eval-print-handler buffer)
-                       (nrepl-current-ns))))
+                       (cider-current-ns))))
 
 (defun cider-interactive-eval (form)
   "Evaluate the given FORM and print value in minibuffer."
@@ -813,7 +840,7 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
   (let ((buffer (current-buffer)))
     (nrepl-send-string form
                        (cider-interactive-eval-handler buffer)
-                       (nrepl-current-ns))))
+                       (cider-current-ns))))
 
 (defun cider-send-op (op attributes handler)
   "Send the specified OP with ATTRIBUTES and response HANDLER."
@@ -858,7 +885,7 @@ Print its value into the current buffer"
         (result-buffer (cider-popup-buffer cider-result-buffer nil)))
     (nrepl-send-string (format "(clojure.pprint/pprint %s)" form)
                        (cider-popup-eval-out-handler result-buffer)
-                       (nrepl-current-ns)
+                       (cider-current-ns)
                        (nrepl-current-tooling-session))))
 
 (defun clojure-enable-nrepl ()
@@ -999,7 +1026,7 @@ under point, prompts for a var."
              (convert-standard-filename (expand-file-name filename)))))
     (cider-eval-load-file
      (format "(clojure.core/load-file \"%s\")\n(in-ns '%s)\n"
-             fn (nrepl-find-ns)))))
+             fn (cider-find-ns)))))
 
 (defun cider-dispatch-load-file (filename)
   "Dispatch the load file operation for FILENAME."

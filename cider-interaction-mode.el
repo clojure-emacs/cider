@@ -46,7 +46,7 @@
     (define-key map (kbd "C-c C-n") 'cider-eval-ns-form)
     (define-key map (kbd "C-c C-m") 'cider-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'cider-macroexpand-all)
-    (define-key map (kbd "C-c M-n") 'nrepl-set-ns)
+    (define-key map (kbd "C-c M-n") 'cider-set-ns)
     (define-key map (kbd "C-c C-d") 'cider-doc)
     (define-key map (kbd "C-c C-s") 'cider-src)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
@@ -98,7 +98,7 @@
     ["Display Source" cider-src]
     ["Display JavaDoc" cider-javadoc]
     "--"
-    ["Set ns" nrepl-set-ns]
+    ["Set ns" cider-set-ns]
     ["Switch to REPL" cider-switch-to-repl-buffer]
     ["Switch to Relevant REPL" cider-switch-to-relevant-repl-buffer]
     ["Toggle REPL Pretty Print" cider-pretty-toggle]

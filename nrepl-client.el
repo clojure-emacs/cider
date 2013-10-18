@@ -725,31 +725,6 @@ See command `nrepl-eval-request' for details about how NS and SESSION
 are processed."
   (nrepl-send-request-sync (nrepl-eval-request input ns session)))
 
-(defun nrepl-find-ns ()
-  "Return the ns specified in the buffer, or \"user\" if no ns declaration is found."
-  (or (save-restriction
-        (widen)
-        (clojure-find-ns))
-      "user"))
-
-(defun nrepl-current-ns ()
-  "Return the ns in the current context.
-If `nrepl-buffer-ns' has a value then return that, otherwise
-search for and read a `ns' form."
-  (let ((ns nrepl-buffer-ns))
-    (or (and (string= ns "user")
-             (nrepl-find-ns))
-        ns)))
-
-(defun nrepl-set-ns (ns)
-  "Switch the namespace of the REPL buffer to NS."
-  (interactive (list (nrepl-current-ns)))
-  (if ns
-      (with-current-buffer (nrepl-current-repl-buffer)
-        (nrepl-send-string
-         (format "(in-ns '%s)" ns) (cider-handler (current-buffer))))
-    (message "Sorry, I don't know what the current namespace is.")))
-
 ;;; interrupt
 (defun nrepl-interrupt-handler (buffer)
   "Create an interrupt response handler for BUFFER."
