@@ -2,6 +2,11 @@
 
 ## master
 
+### Changes
+
+* Renamed package to CIDER
+* Renamed `cider-interaction-mode` to `cider-mode`
+
 ## 0.2.0 / 2013-10-10
 
 ### New features
