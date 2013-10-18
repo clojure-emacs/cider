@@ -889,15 +889,15 @@ Print its value into the current buffer"
                        (nrepl-current-tooling-session))))
 
 (defun clojure-enable-nrepl ()
-  "Turn on nrepl interaction mode (see command `cider-interaction-mode').
+  "Turn on nrepl interaction mode (see command `cider-mode').
 Useful in hooks."
-  (cider-interaction-mode 1)
+  (cider-mode 1)
   (setq next-error-function 'cider-jump-to-compilation-error))
 
 (defun clojure-disable-nrepl ()
-  "Turn off nrepl interaction mode (see command `cider-interaction-mode').
+  "Turn off nrepl interaction mode (see command `cider-mode').
 Useful in hooks."
-  (cider-interaction-mode -1))
+  (cider-mode -1))
 
 ;; this is horrible, but with async callbacks we can't rely on dynamic scope
 (defvar cider-ido-ns nil)

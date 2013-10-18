@@ -1,4 +1,4 @@
-;;; cider-interaction-mode.el --- Minor mode for REPL interactions
+;;; cider-mode.el --- Minor mode for REPL interactions
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -32,7 +32,7 @@
 
 (require 'cider-interaction)
 
-(defvar cider-interaction-mode-map
+(defvar cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-.") 'cider-jump)
     (define-key map (kbd "M-,") 'cider-jump-back)
@@ -63,18 +63,24 @@
     map))
 
 ;;;###autoload
-(define-minor-mode cider-interaction-mode
+(define-minor-mode cider-mode
   "Minor mode for REPL interaction from a Clojure buffer.
 
-\\{cider-interaction-mode-map}"
+\\{cider-mode-map}"
   nil
   " cider"
-  cider-interaction-mode-map
+  cider-mode-map
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                'cider-complete-at-point))
 
-(easy-menu-define cider-interaction-mode-menu cider-interaction-mode-map
+;;;###autoload
+(defalias 'cider-interaction-mode 'cider-mode)
+
+;;;###autoload
+(defalias 'cider-interaction-mode-hook 'cider-mode-hook)
+
+(easy-menu-define cider-mode-menu cider-mode-map
   "Menu for CIDER interaction mode"
   '("CIDER"
     ["Jump" cider-jump]
@@ -112,5 +118,5 @@
     "--"
     ["Version info" cider-version]))
 
-(provide 'cider-interaction-mode)
-;;; cider-interaction-mode.el ends here
+(provide 'cider-mode)
+;;; cider-mode.el ends here

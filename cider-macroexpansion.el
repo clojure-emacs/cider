@@ -139,7 +139,7 @@ and point is placed at CURRENT-POINT."
     (define-key map (kbd "g") 'cider-macroexpand-again)
     (define-key map (kbd "q") 'cider-popup-buffer-quit-function)
     (cl-labels ((redefine-key (from to)
-                              (dolist (mapping (where-is-internal from cider-interaction-mode-map))
+                              (dolist (mapping (where-is-internal from cider-mode-map))
                                 (define-key map mapping to))))
       (redefine-key 'cider-macroexpand-1 'cider-macroexpand-1-inplace)
       (redefine-key 'cider-macroexpand-all 'cider-macroexpand-all-inplace)

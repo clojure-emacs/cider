@@ -63,7 +63,7 @@
 (require 'cider-repl)
 (require 'cider-repl-mode)
 (require 'cider-selector)
-(require 'cider-interaction-mode)
+(require 'cider-mode)
 (require 'cider-macroexpansion)
 
 ;;;###autoload

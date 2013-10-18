@@ -92,7 +92,7 @@ experience.
 * Enable `eldoc` in Clojure buffers:
 
 ```el
-(add-hook 'cider-interaction-mode-hook 'cider-turn-on-eldoc-mode)
+(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
 ```
 
 * You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
@@ -263,7 +263,7 @@ Typing there <kbd>M-x cider</kbd> will allow you to connect to the running nREPL
 
 ### Using the cider minor mode
 
-`CIDER` comes with a handy minor mode called `cider-interaction-mode` (complementing
+`CIDER` comes with a handy minor mode called `cider-mode` (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure source
 files and load it directly in the REPL.  A list of all
 available commands is available in the `CIDER` menu and in the following
