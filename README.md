@@ -152,7 +152,7 @@ Change the separator from space to something else by overriding `nrepl-buffer-na
 (setq nrepl-buffer-name-separator "-")
 ```
 
-* The REPL buffer name can also display the port on which the nrepl server is running.
+* The REPL buffer name can also display the port on which the nREPL server is running.
 Buffer name will look like *cider project-name:port*.
 
 ```el
@@ -246,7 +246,7 @@ all the deps loaded in, plus an `CIDER` client connected to it.
 Alternative you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
 a lein project, without having to visit any file in it.
 
-### Connect to a running nrepl server
+### Connect to a running nREPL server
 
 You can go to your project's dir in a terminal and type there
 (assuming you're using Leiningen that is):
@@ -282,7 +282,7 @@ and it expects `clojure.pprint` to have been required already
 
 * <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a repl client.
     Prompts for a project root if given a prefix argument.
-* <kbd>M-x cider</kbd>: Connect to an already-running nrepl server.
+* <kbd>M-x cider</kbd>: Connect to an already-running nREPL server.
 
 While you're in `clojure-mode`, `cider-jack-in` is bound for
 convenience to <kbd>C-c M-j</kbd> and `cider` is bound to <kbd>C-c
