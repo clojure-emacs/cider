@@ -854,10 +854,10 @@ If so ask the user for confirmation."
 (defun nrepl-close-ancilliary-buffers ()
   "Close buffers that are shared across connections."
   (interactive)
-  (dolist (buf-name `(,nrepl-error-buffer
-                      ,nrepl-doc-buffer
-                      ,nrepl-src-buffer
-                      ,nrepl-macroexpansion-buffer
+  (dolist (buf-name `(,cider-error-buffer
+                      ,cider-doc-buffer
+                      ,cider-src-buffer
+                      ,cider-macroexpansion-buffer
                       ,nrepl-event-buffer-name))
     (nrepl--close-buffer buf-name)))
 
@@ -867,24 +867,6 @@ If so ask the user for confirmation."
   (nrepl--close-connection-buffer connection-buffer)
   (nrepl-possibly-disable-on-existing-clojure-buffers)
   (nrepl--connections-refresh))
-
-(defun nrepl-quit ()
-  "Quit the nrepl server."
-  (interactive)
-  (when (y-or-n-p "Are you sure you want to quit nrepl? ")
-    (dolist (connection nrepl-connection-list)
-      (when connection
-        (nrepl-close connection)))
-    (message "All active nrepl connections were closed")
-    (nrepl-close-ancilliary-buffers)))
-
-(defun nrepl-restart (&optional prompt-project)
-  "Quit nrepl and restart it.
-If PROMPT-PROJECT is t, then prompt for the project in which to
-restart the server."
-  (interactive)
-  (nrepl-quit)
-  (nrepl-jack-in current-prefix-arg))
 
 ;;; client
 (defun nrepl-op-supported-p (op)

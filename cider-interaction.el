@@ -1066,5 +1066,26 @@ Only considers buffers that are not already visible."
         return buffer
         finally (error "Can't find unshown buffer in %S" mode)))
 
+;;; quiting
+(defun cider-quit ()
+  "Quit CIDER.
+
+Quitting closes all active nREPL connections and kills all CIDER buffers."
+  (interactive)
+  (when (y-or-n-p "Are you sure you want to quit CIDER? ")
+    (dolist (connection nrepl-connection-list)
+      (when connection
+        (nrepl-close connection)))
+    (message "All active nREPL connections were closed")
+    (nrepl-close-ancilliary-buffers)))
+
+(defun cider-restart (&optional prompt-project)
+  "Quit nrepl and restart it.
+If PROMPT-PROJECT is t, then prompt for the project in which to
+restart the server."
+  (interactive)
+  (cider-quit)
+  (cider-jack-in current-prefix-arg))
+
 (provide 'cider-interaction)
 ;;; cider-interaction.el ends here
