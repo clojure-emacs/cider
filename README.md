@@ -123,7 +123,7 @@ following snippet:
   after connection is established:
 
 ```el
-(setq cider-repl-pop-to-buffer-on-connect nil
+(setq cider-repl-pop-to-buffer-on-connect nil)
 ```
 
 * Stop the error buffer from popping up while working in buffers other
