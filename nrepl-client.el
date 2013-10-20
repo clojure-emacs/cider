@@ -89,7 +89,7 @@
           (locate-file (format "%s.bat" nrepl-lein-command) exec-path))
       (format "%s repl :headless" nrepl-lein-command)
     (format "echo \"%s repl :headless\" | eval $SHELL -l" nrepl-lein-command))
-  "The command used to start the nREPL via command `nrepl-jack-in'.
+  "The command used to start the nREPL via command `cider-jack-in'.
 For a remote nREPL server lein must be in your PATH.  The remote
 proc is launched via sh rather than bash, so it might be necessary
 to specific the full path to it.  Localhost is assumed."
@@ -813,33 +813,6 @@ See command `nrepl-interaction-mode'."
   (when (not (nrepl-current-connection-buffer))
     (nrepl-disable-on-existing-clojure-buffers)))
 
-;;;###autoload
-(defun nrepl-jack-in (&optional prompt-project)
-  "Start a nREPL server for the current project and connect to it.
-If PROMPT-PROJECT is t, then prompt for the project for which to
-start the server."
-  (interactive "P")
-  (setq nrepl-current-clojure-buffer (current-buffer))
-  (lexical-let* ((project (when prompt-project
-                            (ido-read-directory-name "Project: ")))
-                 (project-dir (nrepl-project-directory-for
-                               (or project (nrepl-current-dir)))))
-    (when (nrepl-check-for-repl-buffer nil project-dir)
-      (let* ((nrepl-project-dir project-dir)
-             (cmd (if project
-                      (format "cd %s && %s" project nrepl-server-command)
-                    nrepl-server-command))
-             (process (start-process-shell-command
-                       "nrepl-server"
-                       (generate-new-buffer-name (nrepl-server-buffer-name))
-                       cmd)))
-        (set-process-filter process 'nrepl-server-filter)
-        (set-process-sentinel process 'nrepl-server-sentinel)
-        (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-        (with-current-buffer (process-buffer process)
-          (setq nrepl-project-dir project-dir))
-        (message "Starting nREPL server...")))))
-
 (defun nrepl-current-dir ()
   "Return the directory of the current buffer."
   (lexical-let ((file-name (buffer-file-name (current-buffer))))
@@ -1017,16 +990,6 @@ Falls back to `nrepl-port' if not found."
 (add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
 (add-hook 'nrepl-disconnected-hook
           'nrepl-possibly-disable-on-existing-clojure-buffers)
-
-;;;###autoload
-(defun nrepl (host port)
-  "Connect nrepl to HOST and PORT."
-  (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
-                     (string-to-number (let ((port (nrepl-default-port)))
-                                         (read-string "Port: " port nil port)))))
-  (setq nrepl-current-clojure-buffer (current-buffer))
-  (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
-    (nrepl-connect host port)))
 
 (provide 'nrepl-client)
 ;;; nrepl-client.el ends here

@@ -67,10 +67,41 @@
 (require 'cider-macroexpansion)
 
 ;;;###autoload
-(defalias 'cider 'nrepl)
+(defun cider-jack-in (&optional prompt-project)
+  "Start a nREPL server for the current project and connect to it.
+If PROMPT-PROJECT is t, then prompt for the project for which to
+start the server."
+  (interactive "P")
+  (setq nrepl-current-clojure-buffer (current-buffer))
+  (lexical-let* ((project (when prompt-project
+                            (ido-read-directory-name "Project: ")))
+                 (project-dir (nrepl-project-directory-for
+                               (or project (nrepl-current-dir)))))
+    (when (nrepl-check-for-repl-buffer nil project-dir)
+      (let* ((nrepl-project-dir project-dir)
+             (cmd (if project
+                      (format "cd %s && %s" project nrepl-server-command)
+                    nrepl-server-command))
+             (process (start-process-shell-command
+                       "nrepl-server"
+                       (generate-new-buffer-name (nrepl-server-buffer-name))
+                       cmd)))
+        (set-process-filter process 'nrepl-server-filter)
+        (set-process-sentinel process 'nrepl-server-sentinel)
+        (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
+        (with-current-buffer (process-buffer process)
+          (setq nrepl-project-dir project-dir))
+        (message "Starting nREPL server...")))))
 
 ;;;###autoload
-(defalias 'cider-jack-in 'nrepl-jack-in)
+(defun cider (host port)
+  "Connect to an nREPL server identified by HOST and PORT."
+  (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
+                     (string-to-number (let ((port (nrepl-default-port)))
+                                         (read-string "Port: " port nil port)))))
+  (setq nrepl-current-clojure-buffer (current-buffer))
+  (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
+    (nrepl-connect host port)))
 
 ;;;###autoload
 (eval-after-load 'clojure-mode
