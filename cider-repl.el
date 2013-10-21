@@ -98,7 +98,7 @@ you'd like to use the default Emacs behavior use
 
 (defvar cider-repl-prompt-start-mark)
 
-(defvar cider-old-input-counter 0
+(defvar cider-repl-old-input-counter 0
   "Counter used to generate unique `cider-old-input' properties.
 This property value must be unique to avoid having adjacent inputs be
 joined together.")
@@ -118,9 +118,9 @@ joined together.")
 (nrepl-make-variables-buffer-local
  'cider-repl-input-start-mark
  'cider-repl-prompt-start-mark
- 'cider-old-input-counter
- 'cider-input-history
- 'cider-input-history-items-added
+ 'cider-repl-old-input-counter
+ 'cider-repl-input-history
+ 'cider-repl-input-history-items-added
  'cider-output-start
  'cider-output-end)
 
@@ -350,7 +350,7 @@ If BACKWARD is non-nil search backward."
 ;; only use them if `last-command' was 'cider-history-replace,
 ;; otherwise we reinitialize them.
 
-(defvar cider-input-history-position -1
+(defvar cider-repl-input-history-position -1
   "Newer items have smaller indices.")
 
 (defvar cider-history-pattern nil
@@ -360,9 +360,9 @@ If BACKWARD is non-nil search backward."
   "Add STRING to the input history.
 Empty strings and duplicates are ignored."
   (unless (or (equal string "")
-              (equal string (car cider-input-history)))
-    (push string cider-input-history)
-    (incf cider-input-history-items-added)))
+              (equal string (car cider-repl-input-history)))
+    (push string cider-repl-input-history)
+    (incf cider-repl-input-history-items-added)))
 
 (defun cider-delete-current-input ()
   "Delete all text after the prompt."
@@ -383,7 +383,7 @@ Return -1 resp the length of the history if no item matches."
   (let* ((step (ecase direction
                  (forward -1)
                  (backward 1)))
-         (history cider-input-history)
+         (history cider-repl-input-history)
          (len (length history)))
     (loop for pos = (+ start-pos step) then (+ pos step)
           if (< pos 0) return -1
@@ -396,14 +396,14 @@ DIRECTION is 'forward' or 'backward' (in the history list).
 If REGEXP is non-nil, only lines matching REGEXP are considered."
   (setq cider-history-pattern regexp)
   (let* ((min-pos -1)
-         (max-pos (length cider-input-history))
+         (max-pos (length cider-repl-input-history))
          (pos0 (cond ((cider-history-search-in-progress-p)
-                      cider-input-history-position)
+                      cider-repl-input-history-position)
                      (t min-pos)))
          (pos (cider-position-in-history pos0 direction (or regexp "")))
          (msg nil))
     (cond ((and (< min-pos pos) (< pos max-pos))
-           (cider-replace-input (nth pos cider-input-history))
+           (cider-replace-input (nth pos cider-repl-input-history))
            (setq msg (format "History item: %d" pos)))
           ((not cider-wrap-history)
            (setq msg (cond ((= pos min-pos) "End of history")
@@ -416,7 +416,7 @@ If REGEXP is non-nil, only lines matching REGEXP are considered."
         (setq msg (concat msg "; no matching item"))))
     (message "%s%s" msg (cond ((not regexp) "")
                               (t (format "; current regexp: %s" regexp))))
-    (setq cider-input-history-position pos)
+    (setq cider-repl-input-history-position pos)
     (setq this-command 'cider-history-replace)))
 
 (defun cider-history-search-in-progress-p ()
@@ -507,20 +507,20 @@ It does not yet set the input history."
 FILENAME defaults to the value of `cider-history-file' but user
 defined filenames can be used to read special history files.
 
-The value of `cider-input-history' is set by this function."
+The value of `cider-repl-input-history' is set by this function."
   (interactive (list (cider-history-read-filename)))
   (let ((f (or filename cider-history-file)))
-    ;; TODO: probably need to set cider-input-history-position as well.
+    ;; TODO: probably need to set cider-repl-input-history-position as well.
     ;; in a fresh connection the newest item in the list is currently
     ;; not available.  After sending one input, everything seems to work.
-    (setq cider-input-history (cider-history-read f))))
+    (setq cider-repl-input-history (cider-history-read f))))
 
 (defun cider-history-write (filename)
   "Write history to FILENAME.
 Currently coding system for writing the contents is hardwired to
 utf-8-unix."
-  (let* ((mhist (cider-histories-merge cider-input-history
-                                       cider-input-history-items-added
+  (let* ((mhist (cider-histories-merge cider-repl-input-history
+                                       cider-repl-input-history-items-added
                                        (cider-history-read filename)))
          ;; newest items are at the beginning of the list, thus 0
          (hist (cl-subseq mhist 0 (min (length mhist) cider-history-size))))
@@ -743,7 +743,7 @@ If NEWLINE is true then add a newline at the end of the input."
       (add-text-properties cider-repl-input-start-mark
                            (point)
                            `(cider-old-input
-                             ,(incf cider-old-input-counter))))
+                             ,(incf cider-repl-old-input-counter))))
     (let ((overlay (make-overlay cider-repl-input-start-mark end)))
       ;; These properties are on an overlay so that they won't be taken
       ;; by kill/yank.
