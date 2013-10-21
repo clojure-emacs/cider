@@ -159,10 +159,10 @@ Buffer name will look like *cider project-name:port*.
 (setq nrepl-buffer-name-show-port t)
 ```
 
-* Make <kbd>C-c C-z</kbd> switch to the `*cider*` buffer in the current window:
+* Make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current window:
 
 ```el
-(add-to-list 'same-window-buffer-names "*cider*")
+(setq cider-repl-display-in-current-window t)
 ```
 
 * Enabling `CamelCase` support for editing commands(like

@@ -2,6 +2,10 @@
 
 ## master
 
+### New features
+
+* The variable `cider-repl-display-in-current-window` controls whether the REPL should be displayed in the current window when switched to.
+
 ### Changes
 
 * Renamed package to CIDER

@@ -73,6 +73,11 @@ When set to nil the buffer will only be created."
   :type 'boolean
   :group 'cider-repl)
 
+(defcustom cider-repl-display-in-current-window nil
+  "Controls whether the REPL buffer is displayed in the current window."
+  :type 'boolean
+  :group 'cider-repl)
+
 (defcustom cider-repl-use-pretty-printing nil
   "Control whether the results in REPL are pretty-printed or not.
 The `cider-toggle-pretty-printing' command can be used to interactively
@@ -155,6 +160,8 @@ positions before and after executing BODY."
   (cider-init-repl-buffer
    process
    (let ((buffer-name (cider-repl-buffer-name)))
+     (if cider-repl-display-in-current-window
+         (add-to-list 'same-window-buffer-names buffer-name))
      (if cider-repl-pop-to-buffer-on-connect
          (pop-to-buffer buffer-name)
        (generate-new-buffer buffer-name))
