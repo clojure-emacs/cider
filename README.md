@@ -376,8 +376,8 @@ An extensive changelog is available [here](CHANGELOG.md).
 
 There are a couple of CIDER extensions that add some extra functionality to it:
 
-* [nrepl-tracing](https://github.com/clojure-emacs/nrepl-tracing) adds basic tracing support
-* [nrepl-decompile](https://github.com/clojure-emacs/nrepl-decompile) adds some Java bytecode decompilation commands
+* [cider-tracing](https://github.com/clojure-emacs/cider-tracing) adds basic tracing support
+* [cider-decompile](https://github.com/clojure-emacs/cider-decompile) adds some Java bytecode decompilation commands
 
 ## Team
 
