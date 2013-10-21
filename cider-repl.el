@@ -129,7 +129,7 @@ joined together.")
   (interactive)
   (funcall cider-repl-tab-command))
 
-(defun cider-reset-markers ()
+(defun cider-repl-reset-markers ()
   "Reset all REPL markers."
   (dolist (markname '(cider-repl-output-start
                       cider-repl-output-end
@@ -246,7 +246,7 @@ Insert a banner, unless NOPROMPT is non-nil."
       (cider-repl-mode))
     ;; use the same requires by default as clojure.main does
     (nrepl-send-string-sync nrepl-repl-requires-sexp)
-    (cider-reset-markers)
+    (cider-repl-reset-markers)
     (unless noprompt
       (cider-insert-banner-and-prompt nrepl-buffer-ns))
     (cider-remember-clojure-buffer cider-current-clojure-buffer)
