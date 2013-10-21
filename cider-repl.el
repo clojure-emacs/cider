@@ -94,7 +94,7 @@ you'd like to use the default Emacs behavior use
   :group 'cider-repl)
 
 ;;;; REPL buffer local variables
-(defvar cider-input-start-mark)
+(defvar cider-repl-input-start-mark)
 
 (defvar cider-prompt-start-mark)
 
@@ -116,7 +116,7 @@ joined together.")
   "Marker for the end of output.")
 
 (nrepl-make-variables-buffer-local
- 'cider-input-start-mark
+ 'cider-repl-input-start-mark
  'cider-prompt-start-mark
  'cider-old-input-counter
  'cider-input-history
@@ -134,7 +134,7 @@ joined together.")
   (dolist (markname '(cider-output-start
                       cider-output-end
                       cider-prompt-start-mark
-                      cider-input-start-mark))
+                      cider-repl-input-start-mark))
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
@@ -278,14 +278,14 @@ PROP is the name of a text property."
 
 (defun cider-in-input-area-p ()
   "Return t if in input area."
-  (<= cider-input-start-mark (point)))
+  (<= cider-repl-input-start-mark (point)))
 
 (defun cider-current-input (&optional until-point-p)
   "Return the current input as string.
 The input is the region from after the last prompt to the end of
 buffer.  If UNTIL-POINT-P is non-nil, the input is until the current
 point."
-  (buffer-substring-no-properties cider-input-start-mark
+  (buffer-substring-no-properties cider-repl-input-start-mark
                                   (if until-point-p
                                       (point)
                                     (point-max))))
@@ -326,7 +326,7 @@ If BACKWARD is non-nil search backward."
 
 (defun cider-mark-input-start ()
   "Mark the input start."
-  (set-marker cider-input-start-mark (point) (current-buffer)))
+  (set-marker cider-repl-input-start-mark (point) (current-buffer)))
 
 (defun cider-mark-output-start ()
   "Mark the output start."
@@ -368,7 +368,7 @@ Empty strings and duplicates are ignored."
   "Delete all text after the prompt."
   (interactive)
   (goto-char (point-max))
-  (delete-region cider-input-start-mark (point-max)))
+  (delete-region cider-repl-input-start-mark (point-max)))
 
 (defun cider-replace-input (string)
   "Replace the current REPL input with STRING."
@@ -469,7 +469,7 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
   (cond ((cider-history-search-in-progress-p)
          cider-history-pattern)
         (use-current-input
-         (assert (<= cider-input-start-mark (point)))
+         (assert (<= cider-repl-input-start-mark (point)))
          (let ((str (cider-current-input t)))
            (cond ((string-match "^[ \n]*$" str) nil)
                  (t (concat "^" (regexp-quote str))))))
@@ -566,9 +566,9 @@ constructs."
 
 (defun cider-bol-internal ()
   "Go to the beginning of line or the prompt."
-  (cond ((and (>= (point) cider-input-start-mark)
-              (cider-same-line-p (point) cider-input-start-mark))
-         (goto-char cider-input-start-mark))
+  (cond ((and (>= (point) cider-repl-input-start-mark)
+              (cider-same-line-p (point) cider-repl-input-start-mark))
+         (goto-char cider-repl-input-start-mark))
         (t (beginning-of-line 1))))
 
 (defun cider-bol ()
@@ -587,7 +587,7 @@ constructs."
 (defun cider-at-prompt-start-p ()
   "Return t if point is at the start of prompt.
 This will not work on non-current prompts."
-  (= (point) cider-input-start-mark))
+  (= (point) cider-repl-input-start-mark))
 
 (defun cider-show-maximum-output ()
   "Put the end of the buffer at the bottom of the window."
@@ -611,7 +611,7 @@ This will not work on non-current prompts."
   "Insert the prompt (before markers!), taking into account NAMESPACE.
 Set point after the prompt.
 Return the position of the prompt beginning."
-  (goto-char cider-input-start-mark)
+  (goto-char cider-repl-input-start-mark)
   (cider-save-marker cider-output-start
     (cider-save-marker cider-output-end
       (unless (bolp) (insert-before-markers "\n"))
@@ -655,7 +655,7 @@ If BOL is non-nil insert at the beginning of line."
   "Using BUFFER, emit STRING.
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
-    (cider-emit-output-at-pos buffer string cider-input-start-mark bol)))
+    (cider-emit-output-at-pos buffer string cider-repl-input-start-mark bol)))
 
 (defun cider-emit-prompt (buffer)
   "Emit the REPL prompt into BUFFER."
@@ -673,7 +673,7 @@ If BOL is non-nil insert at the beginning of the line."
     (save-excursion
       (cider-save-marker cider-output-start
         (cider-save-marker cider-output-end
-          (goto-char cider-input-start-mark)
+          (goto-char cider-repl-input-start-mark)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (cider-propertize-region `(face cider-repl-result-face
                                           rear-nonsticky (face))
@@ -706,9 +706,9 @@ the symbol."
 (defun cider-kill-input ()
   "Kill all text from the prompt to point."
   (interactive)
-  (cond ((< (marker-position cider-input-start-mark) (point))
-         (kill-region cider-input-start-mark (point)))
-        ((= (point) (marker-position cider-input-start-mark))
+  (cond ((< (marker-position cider-repl-input-start-mark) (point))
+         (kill-region cider-repl-input-start-mark (point)))
+        ((= (point) (marker-position cider-repl-input-start-mark))
          (cider-delete-current-input))))
 
 (defun cider-input-complete-p (start end)
@@ -735,16 +735,16 @@ If NEWLINE is true then add a newline at the end of the input."
     (error "No input at point"))
   (goto-char (point-max))
   (let ((end (point)))             ; end of input, without the newline
-    (cider-add-to-input-history (buffer-substring cider-input-start-mark end))
+    (cider-add-to-input-history (buffer-substring cider-repl-input-start-mark end))
     (when newline
       (insert "\n")
       (cider-show-maximum-output))
     (let ((inhibit-modification-hooks t))
-      (add-text-properties cider-input-start-mark
+      (add-text-properties cider-repl-input-start-mark
                            (point)
                            `(cider-old-input
                              ,(incf cider-old-input-counter))))
-    (let ((overlay (make-overlay cider-input-start-mark end)))
+    (let ((overlay (make-overlay cider-repl-input-start-mark end)))
       ;; These properties are on an overlay so that they won't be taken
       ;; by kill/yank.
       (overlay-put overlay 'read-only t)
@@ -768,10 +768,10 @@ are not balanced."
    (end-of-input
     (cider-send-input))
    ((and (get-text-property (point) 'cider-old-input)
-         (< (point) cider-input-start-mark))
+         (< (point) cider-repl-input-start-mark))
     (cider-grab-old-input end-of-input)
     (cider-recenter-if-needed))
-   ((cider-input-complete-p cider-input-start-mark (point-max))
+   ((cider-input-complete-p cider-repl-input-start-mark (point-max))
     (cider-send-input t))
    (t
     (cider-newline-and-indent)
@@ -794,7 +794,7 @@ text property `cider-old-input'."
           ;;properties, they will be removed later
           (offset (- (point) beg)))
       ;; Append the old input or replace the current input
-      (cond (replace (goto-char cider-input-start-mark))
+      (cond (replace (goto-char cider-repl-input-start-mark))
             (t (goto-char (point-max))
                (unless (eq (char-before) ?\ )
                  (insert " "))))
@@ -810,7 +810,7 @@ text property `cider-old-input'."
   (interactive)
   (goto-char (point-max))
   (save-restriction
-    (narrow-to-region cider-input-start-mark (point))
+    (narrow-to-region cider-repl-input-start-mark (point))
     (while (ignore-errors (save-excursion (backward-up-list 1)) t)
       (insert ")")))
   (cider-return))
@@ -830,8 +830,8 @@ text property `cider-old-input'."
   (let ((inhibit-read-only t))
     (delete-region (point-min) cider-prompt-start-mark)
     (delete-region cider-output-start cider-output-end)
-    (when (< (point) cider-input-start-mark)
-      (goto-char cider-input-start-mark))
+    (when (< (point) cider-repl-input-start-mark)
+      (goto-char cider-repl-input-start-mark))
     (recenter t))
   (run-hooks 'cider-clear-buffer-hook))
 
@@ -847,7 +847,7 @@ Returns to the buffer in which the command was invoked."
 (defun cider-input-line-beginning-position ()
   "Return the position of the beginning of input."
   (save-excursion
-    (goto-char cider-input-start-mark)
+    (goto-char cider-repl-input-start-mark)
     (line-beginning-position)))
 
 (defun cider-clear-output ()
