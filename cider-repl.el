@@ -124,7 +124,7 @@ joined together.")
  'cider-repl-output-start
  'cider-repl-output-end)
 
-(defun cider-tab ()
+(defun cider-repl-tab ()
   "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
   (interactive)
   (funcall cider-repl-tab-command))

@@ -73,7 +73,7 @@ ENDP) DELIM."
     (define-key map (kbd "M-.") 'cider-jump)
     (define-key map (kbd "M-,") 'cider-jump-back)
     (define-key map (kbd "RET") 'cider-return)
-    (define-key map (kbd "TAB") 'cider-tab)
+    (define-key map (kbd "TAB") 'cider-repl-tab)
     (define-key map (kbd "C-<return>") 'cider-closing-return)
     (define-key map (kbd "C-j") 'cider-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'cider-doc)
