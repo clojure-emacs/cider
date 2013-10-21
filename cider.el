@@ -56,6 +56,11 @@
 (eval-when-compile
   (add-to-list 'load-path default-directory))
 
+(defgroup cider nil
+  "Clojure Integrated Development Environment and REPL."
+  :prefix "cider-"
+  :group 'applications)
+
 (require 'nrepl-client)
 (require 'cider-version)
 (require 'cider-interaction)
@@ -80,8 +85,8 @@ start the server."
     (when (nrepl-check-for-repl-buffer nil project-dir)
       (let* ((nrepl-project-dir project-dir)
              (cmd (if project
-                      (format "cd %s && %s" project nrepl-server-command)
-                    nrepl-server-command))
+                      (format "cd %s && %s" project cider-server-command)
+                    cider-server-command))
              (process (start-process-shell-command
                        "nrepl-server"
                        (generate-new-buffer-name (nrepl-server-buffer-name))

@@ -50,7 +50,7 @@
 (defcustom cider-use-local-resources t
   "Use local resources under HOME if possible."
   :type 'boolean
-  :group 'nrepl)
+  :group 'cider)
 
 (defcustom cider-popup-stacktraces t
   "Non-nil means pop-up error stacktraces for evaluation errors.
@@ -58,33 +58,33 @@ Nil means show only an error message in the minibuffer.  See also
 `cider-repl-popup-stacktraces', which overrides this setting
 for REPL buffers."
   :type 'boolean
-  :group 'nrepl)
+  :group 'cider)
 
 (defcustom cider-popup-on-error t
   "When `cider-popup-on-error' is set to t, stacktraces will be displayed.
 When set to nil, stactraces will not be displayed, but will be available
 in the `cider-error-buffer', which defaults to *cider-error*."
   :type 'boolean
-  :group 'nrepl)
+  :group 'cider)
 
 (defcustom cider-auto-select-error-buffer nil
   "Controls whether to auto-select the error popup buffer."
   :type 'boolean
-  :group 'nrepl)
+  :group 'cider)
 
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
      (:underline (:style wave :color "red") :inherit unspecified))
     (t (:inherit font-lock-warning-face :underline t)))
   "Face used to highlight compilation errors in Clojure buffers."
-  :group 'nrepl)
+  :group 'cider)
 
 (defface cider-warning-highlight-face
   '((((supports :underline (:style wave)))
      (:underline (:style wave :color "yellow") :inherit unspecified))
     (t (:inherit font-lock-warning-face :underline (:color "yellow"))))
   "Face used to highlight compilation warnings in Clojure buffers."
-  :group 'nrepl)
+  :group 'cider)
 
 ;;; Connection info
 (defun cider--clojure-version ()

@@ -37,7 +37,7 @@
 (defgroup cider-repl nil
   "Interaction with the REPL."
   :prefix "cider-repl-"
-  :group 'nrepl)
+  :group 'cider)
 
 (defface cider-repl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
@@ -91,6 +91,24 @@ The default option is `cider-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
   :type 'symbol
+  :group 'cider-repl)
+
+(defcustom cider-lein-command
+  "lein"
+  "The command used to execute leiningen 2.x."
+  :type 'string
+  :group 'cider-repl)
+
+(defcustom cider-server-command
+  (if (or (locate-file cider-lein-command exec-path)
+          (locate-file (format "%s.bat" cider-lein-command) exec-path))
+      (format "%s repl :headless" cider-lein-command)
+    (format "echo \"%s repl :headless\" | eval $SHELL -l" cider-lein-command))
+  "The command used to start the nREPL via command `cider-jack-in'.
+For a remote nREPL server lein must be in your PATH.  The remote
+proc is launched via sh rather than bash, so it might be necessary
+to specific the full path to it.  Localhost is assumed."
+  :type 'string
   :group 'cider-repl)
 
 ;;;; REPL buffer local variables
@@ -344,7 +362,7 @@ If BACKWARD is non-nil search backward."
 (defcustom cider-wrap-history nil
   "T to wrap history around when the end is reached."
   :type 'boolean
-  :group 'nrepl)
+  :group 'cider-repl)
 
 ;; These two vars contain the state of the last history search.  We
 ;; only use them if `last-command' was 'cider-history-replace,

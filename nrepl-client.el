@@ -78,24 +78,6 @@
   :type 'string
   :group 'nrepl)
 
-(defcustom nrepl-lein-command
-  "lein"
-  "The command used to execute leiningen 2.x."
-  :type 'string
-  :group 'nrepl-repl-mode)
-
-(defcustom nrepl-server-command
-  (if (or (locate-file nrepl-lein-command exec-path)
-          (locate-file (format "%s.bat" nrepl-lein-command) exec-path))
-      (format "%s repl :headless" nrepl-lein-command)
-    (format "echo \"%s repl :headless\" | eval $SHELL -l" nrepl-lein-command))
-  "The command used to start the nREPL via command `cider-jack-in'.
-For a remote nREPL server lein must be in your PATH.  The remote
-proc is launched via sh rather than bash, so it might be necessary
-to specific the full path to it.  Localhost is assumed."
-  :type 'string
-  :group 'nrepl-repl-mode)
-
 (defvar nrepl-repl-requires-sexp "(apply require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
   "Things to require in the tooling session and the REPL buffer.")
 
