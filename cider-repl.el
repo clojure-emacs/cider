@@ -103,16 +103,16 @@ you'd like to use the default Emacs behavior use
 This property value must be unique to avoid having adjacent inputs be
 joined together.")
 
-(defvar cider-input-history '()
+(defvar cider-repl-input-history '()
   "History list of strings read from the nREPL buffer.")
 
-(defvar cider-input-history-items-added 0
+(defvar cider-repl-input-history-items-added 0
   "Variable counting the items added in the current session.")
 
-(defvar cider-output-start nil
+(defvar cider-repl-output-start nil
   "Marker for the start of output.")
 
-(defvar cider-output-end nil
+(defvar cider-repl-output-end nil
   "Marker for the end of output.")
 
 (nrepl-make-variables-buffer-local
@@ -121,8 +121,8 @@ joined together.")
  'cider-repl-old-input-counter
  'cider-repl-input-history
  'cider-repl-input-history-items-added
- 'cider-output-start
- 'cider-output-end)
+ 'cider-repl-output-start
+ 'cider-repl-output-end)
 
 (defun cider-tab ()
   "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
@@ -131,8 +131,8 @@ joined together.")
 
 (defun cider-reset-markers ()
   "Reset all REPL markers."
-  (dolist (markname '(cider-output-start
-                      cider-output-end
+  (dolist (markname '(cider-repl-output-start
+                      cider-repl-output-end
                       cider-repl-prompt-start-mark
                       cider-repl-input-start-mark))
     (set markname (make-marker))
@@ -330,12 +330,12 @@ If BACKWARD is non-nil search backward."
 
 (defun cider-mark-output-start ()
   "Mark the output start."
-  (set-marker cider-output-start (point))
-  (set-marker cider-output-end (point)))
+  (set-marker cider-repl-output-start (point))
+  (set-marker cider-repl-output-end (point)))
 
 (defun cider-mark-output-end ()
   "Marke the output end."
-  (add-text-properties cider-output-start cider-output-end
+  (add-text-properties cider-repl-output-start cider-repl-output-end
                        '(face cider-repl-output-face
                               rear-nonsticky (face))))
 
@@ -612,8 +612,8 @@ This will not work on non-current prompts."
 Set point after the prompt.
 Return the position of the prompt beginning."
   (goto-char cider-repl-input-start-mark)
-  (cider-save-marker cider-output-start
-    (cider-save-marker cider-output-end
+  (cider-save-marker cider-repl-output-start
+    (cider-save-marker cider-repl-output-end
       (unless (bolp) (insert-before-markers "\n"))
       (let ((prompt-start (point))
             (prompt (format "%s> " namespace)))
@@ -630,8 +630,8 @@ Return the position of the prompt beginning."
 If BOL is non-nil insert at the beginning of line."
   (with-current-buffer buffer
     (save-excursion
-      (cider-save-marker cider-output-start
-        (cider-save-marker cider-output-end
+      (cider-save-marker cider-repl-output-start
+        (cider-save-marker cider-repl-output-end
           (goto-char position)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (cider-propertize-region `(face cider-repl-output-face
@@ -640,7 +640,7 @@ If BOL is non-nil insert at the beginning of line."
             (when (and (= (point) cider-repl-prompt-start-mark)
                        (not (bolp)))
               (insert-before-markers "\n")
-              (set-marker cider-output-end (1- (point))))))))
+              (set-marker cider-repl-output-end (1- (point))))))))
     (cider-show-maximum-output)))
 
 (defun cider-emit-interactive-output (string)
@@ -661,8 +661,8 @@ If BOL is non-nil, emit at the beginning of the line."
   "Emit the REPL prompt into BUFFER."
   (with-current-buffer buffer
     (save-excursion
-      (cider-save-marker cider-output-start
-        (cider-save-marker cider-output-end
+      (cider-save-marker cider-repl-output-start
+        (cider-save-marker cider-repl-output-end
           (cider-insert-prompt nrepl-buffer-ns))))
     (cider-show-maximum-output)))
 
@@ -671,8 +671,8 @@ If BOL is non-nil, emit at the beginning of the line."
 If BOL is non-nil insert at the beginning of the line."
   (with-current-buffer buffer
     (save-excursion
-      (cider-save-marker cider-output-start
-        (cider-save-marker cider-output-end
+      (cider-save-marker cider-repl-output-start
+        (cider-save-marker cider-repl-output-end
           (goto-char cider-repl-input-start-mark)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (cider-propertize-region `(face cider-repl-result-face
@@ -829,7 +829,7 @@ text property `cider-old-input'."
   (interactive)
   (let ((inhibit-read-only t))
     (delete-region (point-min) cider-repl-prompt-start-mark)
-    (delete-region cider-output-start cider-output-end)
+    (delete-region cider-repl-output-start cider-repl-output-end)
     (when (< (point) cider-repl-input-start-mark)
       (goto-char cider-repl-input-start-mark))
     (recenter t))
