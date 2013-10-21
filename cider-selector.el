@@ -133,7 +133,7 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?s
  "Cycle to the next Clojure connection."
- (cider-rotate-connections)
+ (cider-rotate-connection)
  (cider-find-or-create-repl-buffer))
 
 (provide 'cider-selector)
