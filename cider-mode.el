@@ -101,7 +101,7 @@
     ["Macroexpand-all last expression" cider-macroexpand-all]
     "--"
     ["Display documentation" cider-doc]
-    ["Display Source" cider-src]
+    ["Display source" cider-src]
     ["Display JavaDoc" cider-javadoc]
     "--"
     ["Set ns" cider-set-ns]
@@ -113,8 +113,8 @@
     ["Quit" cider-quit]
     ["Restart" cider-restart]
     "--"
-    ["Display current nrepl connection" cider-display-current-connection-info]
-    ["Rotate current nrepl connection" cider-rotate-connection]
+    ["Display current nREPL connection" cider-display-current-connection-info]
+    ["Rotate current nREPL connection" cider-rotate-connection]
     "--"
     ["Version info" cider-version]))
 
