@@ -358,7 +358,7 @@ Adjusts for HOME location using `cider-home-prefix-adjustment'.  Uses `find-file
            (search-forward path)
            (let ((opened-buffer (current-buffer)))
              (archive-extract)
-             (when (not buffer-already-open)
+             (unless buffer-already-open
                (kill-buffer opened-buffer)))))
         (t (error "Unknown resource path %s" resource))))
 
@@ -925,7 +925,7 @@ See command `cider-mode'."
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
   "If not connected, disable nrepl interaction mode on existing Clojure buffers."
-  (when (not (nrepl-current-connection-buffer))
+  (unless (nrepl-current-connection-buffer)
     (cider-disable-on-existing-clojure-buffers)))
 
 ;; this is horrible, but with async callbacks we can't rely on dynamic scope
