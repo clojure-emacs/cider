@@ -161,7 +161,7 @@ of the current source file."
     (progn
       (let ((buffer (current-buffer)))
         (when arg
-          (cider-set-ns (cider-current-ns)))
+          (cider-repl-set-ns (cider-current-ns)))
         (pop-to-buffer (cider-find-or-create-repl-buffer))
         (cider-remember-clojure-buffer buffer)
         (goto-char (point-max))))))
@@ -808,15 +808,6 @@ search for and read a `ns' form."
     (or (and (string= ns "user")
              (cider-find-ns))
         ns)))
-
-(defun cider-set-ns (ns)
-  "Switch the namespace of the REPL buffer to NS."
-  (interactive (list (cider-current-ns)))
-  (if ns
-      (with-current-buffer (nrepl-current-repl-buffer)
-        (nrepl-send-string
-         (format "(in-ns '%s)" ns) (cider-handler (current-buffer))))
-    (message "Sorry, I don't know what the current namespace is.")))
 
 
 ;;; Evaluation
