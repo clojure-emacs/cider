@@ -5,11 +5,12 @@
 ### New features
 
 * The variable `cider-repl-display-in-current-window` controls whether the REPL should be displayed in the current window when switched to.
+* `cider-repl-set-ns` can now be invoked in the REPL.
 
 ### Changes
 
-* Renamed package to CIDER
-* Renamed `cider-interaction-mode` to `cider-mode`
+* Renamed package to CIDER.
+* Renamed `cider-interaction-mode` to `cider-mode`.
 
 ## 0.2.0 / 2013-10-10
 

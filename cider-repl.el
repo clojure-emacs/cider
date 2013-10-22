@@ -886,8 +886,13 @@ Returns to the buffer in which the command was invoked."
            (propertize ";;; output cleared" 'face 'font-lock-comment-face)))))))
 
 (defun cider-repl-set-ns (ns)
-  "Switch the namespace of the REPL buffer to NS."
-  (interactive (list (cider-current-ns)))
+  "Switch the namespace of the REPL buffer to NS.
+
+If invoked in a REPL buffer the command will prompt you for the name of the
+namespace to switch to."
+  (interactive (list (if (eq 'cider-repl-mode (buffer-local-value 'major-mode (current-buffer)))
+                         (read-from-minibuffer "Switch to namespace: ")
+                       (cider-current-ns))))
   (if ns
       (with-current-buffer (nrepl-current-repl-buffer)
         (nrepl-send-string

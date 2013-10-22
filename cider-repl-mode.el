@@ -80,6 +80,7 @@ ENDP) DELIM."
     (define-key map (kbd "C-c C-s") 'cider-src)
     (define-key map (kbd "C-c C-o") 'cider-clear-output)
     (define-key map (kbd "C-c M-o") 'cider-clear-buffer)
+    (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
     (define-key map (kbd "C-c C-u") 'cider-kill-input)
     (define-key map (kbd "C-a") 'cider-bol)
     (define-key map (kbd "C-S-a") 'cider-bol-mark)
@@ -142,6 +143,7 @@ ENDP) DELIM."
     ["Display source" cider-src]
     ["Display JavaDoc" cider-javadoc]
     "--"
+    ["Set REPL ns" cider-repl-set-ns]
     ["Toggle pretty printing of results" cider-toggle-pretty-printing]
     ["Clear output" cider-clear-output]
     ["Clear buffer" cider-clear-buffer]
