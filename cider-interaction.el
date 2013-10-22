@@ -911,21 +911,19 @@ Useful in hooks."
 See command `cider-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook 'clojure-enable-cider)
-  (save-window-excursion
-    (dolist (buffer (cider--clojure-buffers))
-      (with-current-buffer buffer
-        (clojure-enable-cider)))))
+  (dolist (buffer (cider--clojure-buffers))
+    (with-current-buffer buffer
+      (clojure-enable-cider))))
 
 ;;;###autoload
 (defun cider-disable-on-existing-clojure-buffers ()
   "Disable interaction mode on existing Clojure buffers.
 See command `cider-mode'."
   (interactive)
-  (save-window-excursion
-    (dolist (buffer (cider--clojure-buffers))
-      (with-current-buffer buffer
-        (setq nrepl-buffer-ns "user")
-        (clojure-disable-nrepl)))))
+  (dolist (buffer (cider--clojure-buffers))
+    (with-current-buffer buffer
+      (setq nrepl-buffer-ns "user")
+      (clojure-disable-nrepl))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
   "If not connected, disable nrepl interaction mode on existing Clojure buffers."
