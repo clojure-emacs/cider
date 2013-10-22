@@ -899,6 +899,12 @@ Useful in hooks."
 Useful in hooks."
   (cider-mode -1))
 
+(defun cider--clojure-buffers ()
+  "Return a list of all existing `clojure-mode' buffers."
+  (-filter
+   (lambda (buffer) (eq 'clojure-mode (buffer-local-value 'major-mode buffer)))
+   (buffer-list)))
+
 ;;;###autoload
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable interaction mode on existing Clojure buffers.
@@ -906,10 +912,9 @@ See command `cider-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook 'clojure-enable-cider)
   (save-window-excursion
-    (dolist (buffer (buffer-list))
+    (dolist (buffer (cider--clojure-buffers))
       (with-current-buffer buffer
-        (when (eq major-mode 'clojure-mode)
-          (clojure-enable-cider))))))
+        (clojure-enable-cider)))))
 
 ;;;###autoload
 (defun cider-disable-on-existing-clojure-buffers ()
@@ -917,11 +922,10 @@ See command `cider-mode'."
 See command `cider-mode'."
   (interactive)
   (save-window-excursion
-    (dolist (buffer (buffer-list))
+    (dolist (buffer (cider--clojure-buffers))
       (with-current-buffer buffer
-        (when (eq major-mode 'clojure-mode)
-          (setq nrepl-buffer-ns "user")
-          (clojure-disable-nrepl))))))
+        (setq nrepl-buffer-ns "user")
+        (clojure-disable-nrepl)))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
   "If not connected, disable nrepl interaction mode on existing Clojure buffers."
