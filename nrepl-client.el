@@ -766,35 +766,6 @@ are processed."
       (error "Leiningen 2.x is required by nREPL.el"))
      (t (error "Could not start nREPL server: %s" problem)))))
 
-;;;###autoload
-(defun nrepl-enable-on-existing-clojure-buffers ()
-  "Enable interaction mode on existing Clojure buffers.
-See command `nrepl-interaction-mode'."
-  (interactive)
-  (add-hook 'clojure-mode-hook 'clojure-enable-nrepl)
-  (save-window-excursion
-    (dolist (buffer (buffer-list))
-      (with-current-buffer buffer
-        (when (eq major-mode 'clojure-mode)
-          (clojure-enable-nrepl))))))
-
-;;;###autoload
-(defun nrepl-disable-on-existing-clojure-buffers ()
-  "Disable interaction mode on existing Clojure buffers.
-See command `nrepl-interaction-mode'."
-  (interactive)
-  (save-window-excursion
-    (dolist (buffer (buffer-list))
-      (with-current-buffer buffer
-        (when (eq major-mode 'clojure-mode)
-          (setq nrepl-buffer-ns "user")
-          (clojure-disable-nrepl))))))
-
-(defun nrepl-possibly-disable-on-existing-clojure-buffers ()
-  "If not connected, disable nrepl interaction mode on existing Clojure buffers."
-  (when (not (nrepl-current-connection-buffer))
-    (nrepl-disable-on-existing-clojure-buffers)))
-
 (defun nrepl-current-dir ()
   "Return the directory of the current buffer."
   (lexical-let ((file-name (buffer-file-name (current-buffer))))
@@ -847,7 +818,7 @@ If so ask the user for confirmation."
   "Close the nrepl connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
   (nrepl--close-connection-buffer connection-buffer)
-  (nrepl-possibly-disable-on-existing-clojure-buffers)
+  (cider-possibly-disable-on-existing-clojure-buffers)
   (nrepl--connections-refresh))
 
 ;;; client
@@ -951,9 +922,9 @@ Falls back to `nrepl-port' if not found."
     (or port nrepl-port)))
 
 ;;;###autoload
-(add-hook 'nrepl-connected-hook 'nrepl-enable-on-existing-clojure-buffers)
+(add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
 (add-hook 'nrepl-disconnected-hook
-          'nrepl-possibly-disable-on-existing-clojure-buffers)
+          'cider-possibly-disable-on-existing-clojure-buffers)
 
 (provide 'nrepl-client)
 ;;; nrepl-client.el ends here

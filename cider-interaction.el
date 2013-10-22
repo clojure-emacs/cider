@@ -888,16 +888,45 @@ Print its value into the current buffer"
                        (cider-current-ns)
                        (nrepl-current-tooling-session))))
 
-(defun clojure-enable-nrepl ()
+(defun clojure-enable-cider ()
   "Turn on nrepl interaction mode (see command `cider-mode').
 Useful in hooks."
   (cider-mode 1)
   (setq next-error-function 'cider-jump-to-compilation-error))
 
-(defun clojure-disable-nrepl ()
+(defun clojure-disable-cider ()
   "Turn off nrepl interaction mode (see command `cider-mode').
 Useful in hooks."
   (cider-mode -1))
+
+;;;###autoload
+(defun cider-enable-on-existing-clojure-buffers ()
+  "Enable interaction mode on existing Clojure buffers.
+See command `cider-mode'."
+  (interactive)
+  (add-hook 'clojure-mode-hook 'clojure-enable-cider)
+  (save-window-excursion
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (eq major-mode 'clojure-mode)
+          (clojure-enable-cider))))))
+
+;;;###autoload
+(defun cider-disable-on-existing-clojure-buffers ()
+  "Disable interaction mode on existing Clojure buffers.
+See command `cider-mode'."
+  (interactive)
+  (save-window-excursion
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (eq major-mode 'clojure-mode)
+          (setq nrepl-buffer-ns "user")
+          (clojure-disable-nrepl))))))
+
+(defun cider-possibly-disable-on-existing-clojure-buffers ()
+  "If not connected, disable nrepl interaction mode on existing Clojure buffers."
+  (when (not (nrepl-current-connection-buffer))
+    (cider-disable-on-existing-clojure-buffers)))
 
 ;; this is horrible, but with async callbacks we can't rely on dynamic scope
 (defvar cider-ido-ns nil)
