@@ -295,7 +295,7 @@ Handles message contained in RESPONSE."
   (nrepl-dbind-response response (out value)
     (cond
      (out
-      (nrepl-emit-interactive-output out)))))
+      (cider-emit-interactive-output out)))))
 
 (defun nrepl-dispatch (response)
   "Dispatch the RESPONSE to associated callback."
@@ -919,7 +919,7 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
       (with-temp-buffer
         (insert-file-contents f)
         (buffer-string)))))
- 
+
 (defun nrepl-default-port ()
   "Attempt to read port from .nrepl-port or target/repl-port.
 Falls back to `nrepl-port' if not found."
