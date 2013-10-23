@@ -6,7 +6,9 @@
 
 * The variable `cider-repl-display-in-current-window` controls whether the REPL should be displayed in the current window when switched to.
 * `cider-repl-set-ns` can now be invoked in the REPL.
-
+* The content of `.nrepl-port`, if present, will be used as the
+  default port for <kbd>M-x nrepl</kbd>. This is in addition to `target/repl-port`.
+  
 ### Changes
 
 * Renamed package to CIDER.

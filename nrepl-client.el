@@ -910,16 +910,21 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
       (nrepl-describe-session process))
     process))
 
-(defun nrepl-default-port ()
-  "Attempt to read port from target/repl-port.
-Falls back to `nrepl-port' if not found."
+(defun nrepl--port-from-file (file)
+  "Attempts to read port from a file named by FILE."
   (let* ((dir (nrepl-project-directory-for (nrepl-current-dir)))
-         (f (expand-file-name "target/repl-port" dir))
-         (port (when (file-exists-p f)
-                 (with-temp-buffer
-                   (insert-file-contents f)
-                   (buffer-string)))))
-    (or port nrepl-port)))
+         (f (expand-file-name file dir)))
+    (when (file-exists-p f)
+      (with-temp-buffer
+        (insert-file-contents f)
+        (buffer-string)))))
+ 
+(defun nrepl-default-port ()
+  "Attempt to read port from .nrepl-port or target/repl-port.
+Falls back to `nrepl-port' if not found."
+  (or (nrepl--port-from-file ".nrepl-port")
+      (nrepl--port-from-file "target/repl-port")
+      nrepl-port))
 
 ;;;###autoload
 (add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
