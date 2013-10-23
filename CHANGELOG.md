@@ -8,11 +8,15 @@
 * `cider-repl-set-ns` can now be invoked in the REPL.
 * The content of `.nrepl-port`, if present, will be used as the
   default port for <kbd>M-x nrepl</kbd>. This is in addition to `target/repl-port`.
-  
+
 ### Changes
 
 * Renamed package to CIDER.
 * Renamed `cider-interaction-mode` to `cider-mode`.
+
+### Bugs fixed
+
+* [#393](https://github.com/clojure-emacs/cider/issues/393) - Error when evaluating strings with a namespace declaration in them.
 
 ## 0.2.0 / 2013-10-10
 
