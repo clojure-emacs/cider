@@ -666,8 +666,7 @@ If BOL is non-nil insert at the beginning of line."
   (with-current-buffer (nrepl-current-repl-buffer)
     (let ((pos (1- (cider-input-line-beginning-position))))
       (cider-emit-output-at-pos (current-buffer) string pos t)
-      (ansi-color-apply-on-region pos (point-max))
-      )))
+      (ansi-color-apply-on-region pos (point-max)))))
 
 (defun cider-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.
