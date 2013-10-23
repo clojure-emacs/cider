@@ -130,7 +130,7 @@ and point is placed at CURRENT-POINT."
   "Create a new macroexpansion buffer."
   (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer t)
     (clojure-mode)
-    (clojure-disable-nrepl)
+    (clojure-disable-cider)
     (cider-macroexpansion-minor-mode 1)
     (current-buffer)))
 

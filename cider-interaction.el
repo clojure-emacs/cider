@@ -914,7 +914,7 @@ See command `cider-mode'."
   (dolist (buffer (cider--clojure-buffers))
     (with-current-buffer buffer
       (setq nrepl-buffer-ns "user")
-      (clojure-disable-nrepl))))
+      (clojure-disable-cider))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
   "If not connected, disable nrepl interaction mode on existing Clojure buffers."
