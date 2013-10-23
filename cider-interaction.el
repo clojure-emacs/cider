@@ -725,7 +725,7 @@ See `compilation-error-regexp-alist' for help on their format.")
 
 ;;;; Popup buffers
 (define-minor-mode cider-popup-buffer-mode
-  "Mode for nrepl popup buffers"
+  "Mode for CIDER popup buffers"
   nil
   (" cider-tmp")
   '(("q" .  cider-popup-buffer-quit-function)))
