@@ -27,6 +27,9 @@ virtual-test :
 .PHONY: clean
 clean :
 	rm -f $(OBJECTS)
+
+.PHONY: elpaclean
+elpaclean : clean
 	rm -f elpa
 	rm -rf .cask # Clean packages installed for development
 
