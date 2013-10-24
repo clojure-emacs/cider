@@ -1,9 +1,10 @@
 EMACS = emacs
-EMACSFLAGS =
+EMACSFLAGS = -L .
 CASK = cask
 VAGRANT = vagrant
 
-OBJECTS = cider.elc
+ELS = $(wildcard *.el)
+OBJECTS = $(ELS:.el=.elc)
 
 elpa:
 	$(CASK) install

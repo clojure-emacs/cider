@@ -30,6 +30,8 @@
 
 ;;; Code:
 
+(require 'cider-mode)
+
 (defconst cider-macroexpansion-buffer "*cider-macroexpansion*")
 
 (defun cider-macroexpand-undo (&optional arg)
