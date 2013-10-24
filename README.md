@@ -9,6 +9,15 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
 ## Installation
 
+#### Upgrading from nrepl.el
+
+Before installing CIDER make sure you've removed the old `nrepl.el`
+package and all packages that depend on it. Use only packages updated to work with CIDER!
+
+You'll also need to adjust your config accordingly, as most settings
+were renamed in CIDER. Consult the **Configuration** section of the
+README for more details.
+
 ### Via package.el
 
 `package.el` is the built-in package manager in Emacs 24+. On Emacs 23
@@ -19,26 +28,11 @@ maintained repos -
 [Marmalade](http://marmalade-repo.org/packages/cider) and
 [MELPA](http://melpa.milkbox.net).
 
-If you're not already using Marmalade, add this to your
-`~/.emacs.d/init.el` (or equivalent) and load it with <kbd>M-x eval-buffer</kbd>.
+If you're not already using one of them, follow their installation instructions:
+[Marmalade](http://marmalade-repo.org/),
+[MELPA](http://melpa.milkbox.net/#/getting-started).
 
-```el
-(require 'package)
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
-(package-initialize)
-```
-
-For MELPA the code you need to add is:
-
-```el
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(package-initialize)
-```
-
-And then you can install `CIDER` with the following command:
+You can install `CIDER` with the following command:
 
 <kbd>M-x package-install [RET] cider [RET]</kbd>
 
@@ -52,6 +46,12 @@ or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.ema
 If the installation doesn't work try refreshing the package list:
 
 <kbd>M-x package-refresh-contents [RET]</kbd>
+
+Keep in mind that MELPA packages are built automatically from
+the `master` branch, meaning bugs might creep in there from time to
+time. Never-the-less, installing from MELPA is the recommended way of
+obtaining CIDER, as the `master` branch is normally quite stable and
+"stable" (tagged) builds are released somewhat infrequently.
 
 ### Via el-get
 
