@@ -103,7 +103,7 @@ in the `cider-error-buffer', which defaults to *cider-error*."
 
 Info contains project name, current REPL namespace, host:port endpoint and Clojure version."
   (with-current-buffer (get-buffer nrepl-connection-buffer)
-    (format "Active nrepl connection: %s:%s, %s:%s (Clojure %s, nREPL %s)"
+    (format "Active nREPL connection: %s:%s, %s:%s (Clojure %s, nREPL %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
             nrepl-buffer-ns
             (car nrepl-endpoint)

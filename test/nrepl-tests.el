@@ -271,7 +271,7 @@
             (set (make-local-variable 'nrepl-project-dir) "proj")
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
             (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                             "Active nrepl connection: proj:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
+                             "Active nREPL connection: proj:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-current-connection-info-no-project ()
   (with-temp-buffer
@@ -280,7 +280,7 @@
             (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
             (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                             "Active nrepl connection: <no project>:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
+                             "Active nREPL connection: <no project>:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-close ()
   (lexical-let ((connections (nrepl-connection-buffers)))
