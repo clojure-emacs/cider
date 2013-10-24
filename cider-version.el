@@ -68,8 +68,8 @@ just return nil."
                     (format "%s" (or pkg-version lib-version))))))
     (when show-version
       (unless version
-        (error "Could not find out nrepl version"))
-      (message "nrepl version: %s" version))
+        (error "Could not find out CIDER version"))
+      (message "CIDER version: %s" version))
     version))
 
 (provide 'cider-version)
