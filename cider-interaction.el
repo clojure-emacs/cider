@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
+(require 'cider-util)
 
 (require 'clojure-mode)
 (require 'dash)
@@ -890,19 +891,13 @@ Useful in hooks."
 Useful in hooks."
   (cider-mode -1))
 
-(defun cider--clojure-buffers ()
-  "Return a list of all existing `clojure-mode' buffers."
-  (-filter
-   (lambda (buffer) (eq 'clojure-mode (buffer-local-value 'major-mode buffer)))
-   (buffer-list)))
-
 ;;;###autoload
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable interaction mode on existing Clojure buffers.
 See command `cider-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook 'clojure-enable-cider)
-  (dolist (buffer (cider--clojure-buffers))
+  (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
       (clojure-enable-cider))))
 
@@ -911,7 +906,7 @@ See command `cider-mode'."
   "Disable interaction mode on existing Clojure buffers.
 See command `cider-mode'."
   (interactive)
-  (dolist (buffer (cider--clojure-buffers))
+  (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
       (setq nrepl-buffer-ns "user")
       (clojure-disable-cider))))
@@ -1087,6 +1082,18 @@ Only considers buffers that are not already visible."
                   (null (get-buffer-window buffer 'visible)))
         return buffer
         finally (error "Can't find unshown buffer in %S" mode)))
+
+;;; interrupt evaluation
+(defun cider-interrupt-handler (buffer)
+  "Create an interrupt response handler for BUFFER."
+  (nrepl-make-response-handler buffer nil nil nil nil))
+
+(defun cider-interrupt ()
+  "Interrupt any pending evaluations."
+  (interactive)
+  (let ((pending-request-ids (cider-util--hash-keys nrepl-requests)))
+    (dolist (request-id pending-request-ids)
+      (nrepl-send-interrupt request-id (cider-interrupt-handler (current-buffer))))))
 
 ;;; quiting
 (defun cider-quit ()

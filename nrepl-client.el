@@ -29,7 +29,6 @@
 ;; Provides an Emacs Lisp client to connect to Clojure nREPL servers.
 
 ;;; Code:
-
 (require 'clojure-mode)
 (require 'dash)
 (require 'thingatpt)
@@ -37,17 +36,9 @@
 (require 'ansi-color)
 (require 'ewoc)
 (require 'cl-lib)
+(require 'cider-util)
 
 
-;;; Compatibility
-(eval-and-compile
-  ;; `setq-local' for Emacs 24.2 and below
-  (unless (fboundp 'setq-local)
-    (defmacro setq-local (var val)
-      "Set variable VAR to value VAL in current buffer."
-      `(set (make-local-variable ',var) ,val))))
-
-
 (defgroup nrepl nil
   "Interaction with the Clojure nREPL Server."
   :prefix "nrepl-"
@@ -707,24 +698,6 @@ The result is a plist with keys :value, :stderr and :stdout."
 See command `nrepl-eval-request' for details about how NS and SESSION
 are processed."
   (nrepl-send-request-sync (nrepl-eval-request input ns session)))
-
-;;; interrupt
-(defun nrepl-interrupt-handler (buffer)
-  "Create an interrupt response handler for BUFFER."
-  (nrepl-make-response-handler buffer nil nil nil nil))
-
-(defun nrepl-hash-keys (hashtable)
-  "Return a list of keys in HASHTABLE."
-  (let ((keys '()))
-    (maphash (lambda (k v) (setq keys (cons k keys))) hashtable)
-    keys))
-
-(defun nrepl-interrupt ()
-  "Interrupt any pending evaluations."
-  (interactive)
-  (let ((pending-request-ids (nrepl-hash-keys nrepl-requests)))
-    (dolist (request-id pending-request-ids)
-      (nrepl-send-interrupt request-id (nrepl-interrupt-handler (current-buffer))))))
 
 ;;; server
 (defun nrepl-server-filter (process output)
