@@ -10,7 +10,7 @@ OBJECTS = $(ELS:.el=.elc)
 	@echo Compute dependencies
 	@rm -f .depend
 	@for f in $(ELS); do \
-		sed -n "s/(require '\(\(cider\|nrepl\)-.*\))/$${f}c: \1.elc/p" $$f >> .depend;\
+		sed -n "s/(require '\(\(cider\|nrepl\)-.*\)).*$$/$${f}c: \1.elc/p" $$f >> .depend;\
 	done
 
 -include .depend
