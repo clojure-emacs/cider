@@ -32,6 +32,7 @@
 
 (require 'nrepl-client)
 (require 'cider-interaction)
+(require 'cider-repl) ; for cider-find-or-create-repl-buffer
 
 (defvar cider-selector-methods nil
   "List of buffer-selection methods for the `cider-select' command.
