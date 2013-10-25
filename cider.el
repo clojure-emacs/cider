@@ -77,7 +77,7 @@
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
-  (setq nrepl-current-clojure-buffer (current-buffer))
+  (setq cider-current-clojure-buffer (current-buffer))
   (lexical-let* ((project (when prompt-project
                             (ido-read-directory-name "Project: ")))
                  (project-dir (nrepl-project-directory-for
@@ -104,7 +104,7 @@ start the server."
   (interactive (list (read-string "Host: " nrepl-host nil nrepl-host)
                      (string-to-number (let ((port (nrepl-default-port)))
                                          (read-string "Port: " port nil port)))))
-  (setq nrepl-current-clojure-buffer (current-buffer))
+  (setq cider-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 
