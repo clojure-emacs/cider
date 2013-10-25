@@ -75,7 +75,7 @@
                'cider-complete-at-point))
 
 (easy-menu-define cider-mode-menu cider-mode-map
-  "Menu for CIDER interaction mode"
+  "Menu for CIDER mode"
   '("CIDER"
     ["Jump" cider-jump]
     ["Jump back" cider-jump-back]
