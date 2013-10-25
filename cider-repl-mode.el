@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'cider-repl)
+(require 'cider-eldoc) ; for cider-turn-on-eldoc-mode
 
 (require 'clojure-mode)
 (require 'easymenu)
