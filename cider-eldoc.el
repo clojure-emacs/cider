@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
+(require 'cider-interaction) ; for cider-symbol-at-point
 
 (require 'eldoc)
 (require 'dash)
