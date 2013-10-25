@@ -44,6 +44,18 @@
   :prefix "nrepl-"
   :group 'applications)
 
+
+(defcustom nrepl-buffer-name-separator " "
+  "Used in constructing the REPL buffer name.
+The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
+  :type '(string)
+  :group 'nrepl)
+
+(defcustom nrepl-buffer-name-show-port nil
+  "Show the connection port in the nrepl REPL buffer name, if set to t."
+  :type 'boolean
+  :group 'nrepl)
+
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
   :type 'hook
@@ -140,17 +152,6 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 
 (defvar nrepl-ops nil
   "Available nREPL server ops (from describe).")
-
-(defcustom nrepl-buffer-name-separator " "
-  "Used in constructing the REPL buffer name.
-The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
-  :type '(string)
-  :group 'nrepl)
-
-(defcustom nrepl-buffer-name-show-port nil
-  "Show the connection port in the nrepl REPL buffer name, if set to t."
-  :type 'boolean
-  :group 'nrepl)
 
 (defun nrepl-make-variables-buffer-local (&rest variables)
   "Make all VARIABLES buffer local."
