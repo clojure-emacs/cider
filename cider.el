@@ -52,10 +52,6 @@
 
 ;;; Code:
 
-;; needed for make test
-(eval-when-compile
-  (add-to-list 'load-path default-directory))
-
 (defgroup cider nil
   "Clojure Integrated Development Environment and REPL."
   :prefix "cider-"
