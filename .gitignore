@@ -4,4 +4,4 @@
 *.elc
 .cask
 elpa
-
+.depend

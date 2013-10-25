@@ -6,6 +6,15 @@ VAGRANT = vagrant
 ELS = $(wildcard *.el)
 OBJECTS = $(ELS:.el=.elc)
 
+.depend: $(ELS)
+	@echo Compute dependencies
+	@rm -f .depend
+	@for f in $(ELS); do \
+		sed -n "s/(require '\(\(cider\|nrepl\)-.*\))/$${f}c: \1.elc/p" $$f >> .depend;\
+	done
+
+-include .depend
+
 elpa:
 	$(CASK) install
 	$(CASK) update
@@ -27,7 +36,7 @@ virtual-test :
 
 .PHONY: clean
 clean :
-	rm -f $(OBJECTS)
+	rm -f .depend $(OBJECTS)
 
 .PHONY: elpaclean
 elpaclean : clean
