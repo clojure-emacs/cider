@@ -422,7 +422,8 @@ This is bound for the duration of the handling of that message")
   "The connection to use for nREPL interaction."
   (or nrepl-connection-dispatch
       nrepl-connection-buffer
-      (car (nrepl-connection-buffers))))
+      (car (nrepl-connection-buffers))
+      (error "No nREPL connection")))
 
 (defun nrepl-connection-buffers ()
   "Clean up dead buffers from the `nrepl-connection-list'.
