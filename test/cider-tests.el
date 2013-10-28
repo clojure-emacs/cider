@@ -21,7 +21,7 @@
 
 ;;; Commentary:
 
-;; This file is part of nrepl
+;; This file is part of CIDER
 
 ;; To run these tests:
 ;;   All tests: M-x ert t
