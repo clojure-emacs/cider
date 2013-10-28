@@ -672,7 +672,9 @@ If BOL is non-nil insert at the beginning of line."
   "Using BUFFER, emit STRING.
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
-    (cider-emit-output-at-pos buffer string cider-repl-input-start-mark bol)))
+    (let ((pos (1- (cider-input-line-beginning-position))))
+      (cider-emit-output-at-pos buffer string cider-repl-input-start-mark bol)
+      (ansi-color-apply-on-region pos (point-max)))))
 
 (defun cider-emit-prompt (buffer)
   "Emit the REPL prompt into BUFFER."

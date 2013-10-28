@@ -8,6 +8,7 @@
 * `cider-repl-set-ns` can now be invoked in the REPL.
 * The content of `.nrepl-port`, if present, will be used as the
   default port for <kbd>M-x nrepl</kbd>. This is in addition to `target/repl-port`.
+* Applies ANSI color to all output in the REPL buffer.
 
 ### Changes
 
