@@ -42,6 +42,7 @@ DESCRIPTION is a one-line description of what the key selects.")
 (defvar cider-selector-other-window nil
   "If non-nil use `switch-to-buffer-other-window'.")
 
+;;;###autoload
 (defun cider-selector (&optional other-window)
   "Select a new buffer by type, indicated by a single character.
 The user is prompted for a single character indicating the method by

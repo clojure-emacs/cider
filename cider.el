@@ -63,7 +63,6 @@
 (require 'cider-eldoc)
 (require 'cider-repl)
 (require 'cider-repl-mode)
-(require 'cider-selector)
 (require 'cider-mode)
 (require 'cider-macroexpansion)
 
