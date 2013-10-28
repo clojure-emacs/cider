@@ -3,7 +3,7 @@ EMACSFLAGS = -L .
 CASK = cask
 VAGRANT = vagrant
 VERSION = $(shell git describe --tags --abbrev=0 | sed 's/^v//')
-PACKAGE_DIR = packages/cider-$(VERSION)
+PACKAGE_NAME = cider-$(VERSION)
 
 ELS = $(wildcard *.el)
 OBJECTS = $(ELS:.el=.elc)
@@ -23,13 +23,13 @@ elpa:
 	touch $@
 
 package:
-	mkdir -p $(PACKAGE_DIR)
-	cp $(ELS) $(PACKAGE_DIR)
-	tar cf $(PACKAGE_DIR).tar $(PACKAGE_DIR)
+	mkdir -p packages/$(PACKAGE_NAME)
+	cp $(ELS) packages/$(PACKAGE_NAME)
+	tar cf packages/$(PACKAGE_NAME).tar -C packages $(PACKAGE_NAME)
 
 packageclean:
-	rm -rf $(PACKAGE_DIR)
-	rm $(PACKAGE_DIR).tar
+	rm -rf packages/$(PACKAGE_NAME)
+	rm packages/$(PACKAGE_NAME).tar
 
 .PHONY: build
 build : elpa $(OBJECTS)
