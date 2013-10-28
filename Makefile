@@ -2,6 +2,8 @@ EMACS = emacs
 EMACSFLAGS = -L .
 CASK = cask
 VAGRANT = vagrant
+VERSION = $(shell git describe --tags --abbrev=0 | sed 's/^v//')
+PACKAGE_DIR = packages/cider-$(VERSION)
 
 ELS = $(wildcard *.el)
 OBJECTS = $(ELS:.el=.elc)
@@ -19,6 +21,15 @@ elpa:
 	$(CASK) install
 	$(CASK) update
 	touch $@
+
+package:
+	mkdir -p $(PACKAGE_DIR)
+	cp $(ELS) $(PACKAGE_DIR)
+	tar cf $(PACKAGE_DIR).tar $(PACKAGE_DIR)
+
+packageclean:
+	rm -rf $(PACKAGE_DIR)
+	rm $(PACKAGE_DIR).tar
 
 .PHONY: build
 build : elpa $(OBJECTS)
