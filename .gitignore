@@ -5,3 +5,4 @@
 .cask
 elpa
 .depend
+packages/*
