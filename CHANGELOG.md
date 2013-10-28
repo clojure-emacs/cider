@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.3.0 / 2013-10-28
+
 ### New features
 
 * The variable `cider-repl-display-in-current-window` controls whether the REPL should be displayed in the current window when switched to.
@@ -13,6 +15,7 @@
 ### Changes
 
 * Renamed package to CIDER.
+* Split package into several files.
 * Renamed `cider-interaction-mode` to `cider-mode`.
 
 ### Bugs fixed
