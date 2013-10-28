@@ -42,8 +42,10 @@
   "Get the package version of nrepl.
 
 This is the version number of the installed nrepl package."
-  (-when-let (version (pkg-info-package-version 'cider))
-    (pkg-info-format-version version)))
+  (condition-case nil
+      (-when-let (version (pkg-info-package-version 'cider))
+        (pkg-info-format-version version))
+    (error nil)))
 
 (defun cider-version (&optional show-version)
   "Get the CIDER version as string.
