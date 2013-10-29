@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.3.1 / 2013-10-29
+
+* Fix REPL init
+
 ## 0.3.0 / 2013-10-28
 
 ### New features
