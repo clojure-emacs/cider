@@ -7,6 +7,35 @@
 REPL server. It's a great alternative to the now deprecated combination
 of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
+## Table of Contents
+
+- [Installation](#installation)
+		- [Upgrading from nrepl.el](#upgrading-from-nreplel)
+	- [Via package.el](#via-packageel)
+	- [Via el-get](#via-el-get)
+	- [Manual](#manual)
+	- [Emacs Prelude](#emacs-prelude)
+	- [Emacs Live](#emacs-live)
+- [Configuration](#configuration)
+- [Basic Usage](#basic-usage)
+	- [Setting up a Leiningen project (optional)](#setting-up-a-leiningen-project-optional)
+	- [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
+	- [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
+	- [Using the cider minor mode](#using-the-cider-minor-mode)
+	- [Pretty printing in the REPL](#pretty-printing-in-the-repl)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+	- [cider-mode](#cider-mode)
+	- [cider-repl-mode](#cider-repl-mode)
+	- [cider-macroexpansion-minor-mode](#cider-macroexpansion-minor-mode)
+	- [Managing multiple sessions](#managing-multiple-sessions)
+- [Requirements](#requirements)
+- [Changelog](#changelog)
+- [Extensions](#extensions)
+- [Team](#team)
+- [Contributing](#contributing)
+	- [Running the tests in batch mode](#running-the-tests-in-batch-mode)
+- [License](#license)
+
 ## Installation
 
 #### Upgrading from nrepl.el
@@ -288,7 +317,7 @@ While you're in `clojure-mode`, `cider-jack-in` is bound for
 convenience to <kbd>C-c M-j</kbd> and `cider` is bound to <kbd>C-c
 M-c</kbd>.
 
-### Clojure buffer commands:
+### cider-mode
 
 
 Keyboard shortcut                    | Description
@@ -316,7 +345,7 @@ Keyboard shortcut                    | Description
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point. (For `auto-complete` integration, see [`ac-nrepl`](https://github.com/purcell/ac-nrepl))
 
-### REPL buffer commands:
+### cider-repl-mode
 
 Keyboard shortcut                    | Description
 -------------------------------------|------------------------------
@@ -339,7 +368,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-d</kbd> | Display current REPL connection details, including project directory name, buffer namespace, host and port.
 <kbd>C-c M-r</kbd> | Rotate and display the current REPL connection.
 
-### Macroexpansion buffer commands:
+### cider-macroexpansion-minor-mode
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
