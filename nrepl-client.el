@@ -274,7 +274,7 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                (if (member "namespace-not-found" status)
                    (message "Namespace not found."))
                (if (member "need-input" status)
-                   (nrepl-need-input buffer))
+                   (cider-need-input buffer))
                (if (member "done" status)
                    (progn (remhash id nrepl-requests)
                           (if done-handler
