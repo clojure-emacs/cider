@@ -1,4 +1,4 @@
-;;; cider-version.el --- Version information
+;;; cider-version.el --- Version information utilities
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -26,22 +26,22 @@
 
 ;;; Commentary:
 
-;; Version information.
+;; Contains several functions for extracting and displaying version information.
 
 ;;; Code:
 
 (require 'pkg-info)
 
-;;; Version information
 (defun cider--library-version ()
-  "Get the version in the nrepl library header."
+  "Get the version in the CIDER library header."
   (-when-let (version (pkg-info-library-version 'cider))
     (pkg-info-format-version version)))
 
 (defun cider--package-version ()
-  "Get the package version of nrepl.
+  "Get the package version of CIDER.
 
-This is the version number of the installed nrepl package."
+This is the version number of the installed CIDER package.
+Returns nil if CIDER was not installed via package.el."
   (condition-case nil
       (-when-let (version (pkg-info-package-version 'cider))
         (pkg-info-format-version version))
