@@ -85,9 +85,9 @@ change the setting's value."
   :type 'boolean
   :group 'cider-repl)
 
-(defcustom cider-repl-tab-command 'cider-indent-and-complete-symbol
+(defcustom cider-repl-tab-command 'cider-repl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
-The default option is `cider-indent-and-complete-symbol'.  If
+The default option is `cider-repl-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
   :type 'symbol
@@ -239,21 +239,21 @@ positions before and after executing BODY."
   (eval (nth (random (length cider-words-of-inspiration))
              cider-words-of-inspiration)))
 
-(defun cider--banner ()
+(defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
   (format "; CIDER %s (Clojure %s, nREPL %s)"
           (cider-version)
           (cider--clojure-version)
           (cider--backend-version)))
 
-(defun cider-insert-banner-and-prompt (ns)
+(defun cider-repl--insert-banner-and-prompt (ns)
   "Insert REPL banner and REPL prompt, taking into account NS."
   (when (zerop (buffer-size))
     (insert (propertize (cider--banner) 'face 'font-lock-comment-face)))
   (goto-char (point-max))
   (cider-mark-output-start)
   (cider-mark-input-start)
-  (cider-insert-prompt ns))
+  (cider-repl--insert-prompt ns))
 
 
 (defun cider-init-repl-buffer (connection buffer &optional noprompt)
@@ -266,7 +266,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     (nrepl-send-string-sync nrepl-repl-requires-sexp)
     (cider-repl-reset-markers)
     (unless noprompt
-      (cider-insert-banner-and-prompt nrepl-buffer-ns))
+      (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
     (cider-remember-clojure-buffer cider-current-clojure-buffer)
     (current-buffer)))
 
@@ -577,30 +577,30 @@ constructs."
           file-hist))
 
 ;;;
-(defun cider-same-line-p (pos1 pos2)
+(defun cider-repl--same-line-p (pos1 pos2)
   "Return t if buffer positions POS1 and POS2 are on the same line."
   (save-excursion (goto-char (min pos1 pos2))
                   (<= (max pos1 pos2) (line-end-position))))
 
-(defun cider-bol-internal ()
+(defun cider-repl--bol-internal ()
   "Go to the beginning of line or the prompt."
   (cond ((and (>= (point) cider-repl-input-start-mark)
-              (cider-same-line-p (point) cider-repl-input-start-mark))
+              (cider-repl--same-line-p (point) cider-repl-input-start-mark))
          (goto-char cider-repl-input-start-mark))
         (t (beginning-of-line 1))))
 
-(defun cider-bol ()
+(defun cider-repl-bol ()
   "Go to the beginning of line or the prompt."
   (interactive)
   (deactivate-mark)
-  (cider-bol-internal))
+  (cider-repl--bol-internal))
 
-(defun cider-bol-mark ()
+(defun cider-repl-bol-mark ()
   "Set the mark and go to the beginning of line or the prompt."
   (interactive)
   (unless mark-active
     (set-mark (point)))
-  (cider-bol-internal))
+  (cider-repl--bol-internal))
 
 (defun cider-at-prompt-start-p ()
   "Return t if point is at the start of prompt.
@@ -625,7 +625,7 @@ This will not work on non-current prompts."
 
 (put 'cider-save-marker 'lisp-indent-function 1)
 
-(defun cider-insert-prompt (namespace)
+(defun cider-repl--insert-prompt (namespace)
   "Insert the prompt (before markers!), taking into account NAMESPACE.
 Set point after the prompt.
 Return the position of the prompt beginning."
@@ -682,7 +682,7 @@ If BOL is non-nil, emit at the beginning of the line."
     (save-excursion
       (cider-save-marker cider-repl-output-start
         (cider-save-marker cider-repl-output-end
-          (cider-insert-prompt nrepl-buffer-ns))))
+          (cider-repl--insert-prompt nrepl-buffer-ns))))
     (cider-show-maximum-output)))
 
 (defun cider-emit-result (buffer string &optional bol)
@@ -699,8 +699,7 @@ If BOL is non-nil insert at the beginning of the line."
             (insert-before-markers string)))))
     (cider-show-maximum-output)))
 
-
-(defun cider-newline-and-indent ()
+(defun cider-repl-newline-and-indent ()
   "Insert a newline, then indent the next line.
 Restrict the buffer from the prompt for indentation, to avoid being
 confused by strange characters (like unmatched quotes) appearing
@@ -711,7 +710,7 @@ earlier in the buffer."
     (insert "\n")
     (lisp-indent-line)))
 
-(defun cider-indent-and-complete-symbol ()
+(defun cider-repl-indent-and-complete-symbol ()
   "Indent the current line and perform symbol completion.
 First indent the line.  If indenting doesn't move point, complete
 the symbol."
@@ -722,7 +721,7 @@ the symbol."
       (if (save-excursion (re-search-backward "[^() \n\t\r]+\\=" nil t))
           (completion-at-point)))))
 
-(defun cider-kill-input ()
+(defun cider-repl-kill-input ()
   "Kill all text from the prompt to point."
   (interactive)
   (cond ((< (marker-position cider-repl-input-start-mark) (point))
@@ -730,7 +729,7 @@ the symbol."
         ((= (point) (marker-position cider-repl-input-start-mark))
          (cider-delete-current-input))))
 
-(defun cider-input-complete-p (start end)
+(defun cider-repl--input-complete-p (start end)
   "Return t if the region from START to END is a complete sexp."
   (save-excursion
     (goto-char start)
@@ -747,7 +746,7 @@ the symbol."
                t)))
           (t t))))
 
-(defun cider-send-input (&optional newline)
+(defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
 If NEWLINE is true then add a newline at the end of the input."
   (unless (cider-in-input-area-p)
@@ -776,7 +775,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (cider-mark-output-start)
     (nrepl-send-string form (cider-handler (current-buffer)) nrepl-buffer-ns)))
 
-(defun cider-return (&optional end-of-input)
+(defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
 Send the current input ony if a whole expression has been entered,
 i.e. the parenthesis are matched.
@@ -785,15 +784,15 @@ are not balanced."
   (interactive "P")
   (cond
    (end-of-input
-    (cider-send-input))
+    (cider-repl--send-input))
    ((and (get-text-property (point) 'cider-old-input)
          (< (point) cider-repl-input-start-mark))
     (cider-grab-old-input end-of-input)
     (cider-recenter-if-needed))
-   ((cider-input-complete-p cider-repl-input-start-mark (point-max))
-    (cider-send-input t))
+   ((cider-repl--input-complete-p cider-repl-input-start-mark (point-max))
+    (cider-repl--send-input t))
    (t
-    (cider-newline-and-indent)
+    (cider-repl-newline-and-indent)
     (message "[input not complete]"))))
 
 (defun cider-recenter-if-needed ()
@@ -824,7 +823,7 @@ text property `cider-old-input'."
           (delete-char -1)))
       (forward-char offset))))
 
-(defun cider-closing-return ()
+(defun cider-repl-closing-return ()
   "Evaluate the current input string after closing all open lists."
   (interactive)
   (goto-char (point-max))
@@ -832,18 +831,18 @@ text property `cider-old-input'."
     (narrow-to-region cider-repl-input-start-mark (point))
     (while (ignore-errors (save-excursion (backward-up-list 1)) t)
       (insert ")")))
-  (cider-return))
+  (cider-repl-return))
 
-(defun cider-toggle-pretty-printing ()
+(defun cider-repl-toggle-pretty-printing ()
   "Toggle pretty-printing in the REPL."
   (interactive)
   (setq cider-repl-use-pretty-printing (not cider-repl-use-pretty-printing))
   (message "Pretty printing in nREPL %s."
            (if cider-repl-use-pretty-printing "enabled" "disabled")))
 
-(defvar cider-clear-buffer-hook)
+(defvar cider-repl-clear-buffer-hook)
 
-(defun cider-clear-buffer ()
+(defun cider-repl-clear-buffer ()
   "Delete the output generated by the Clojure process."
   (interactive)
   (let ((inhibit-read-only t))
@@ -852,7 +851,7 @@ text property `cider-old-input'."
     (when (< (point) cider-repl-input-start-mark)
       (goto-char cider-repl-input-start-mark))
     (recenter t))
-  (run-hooks 'cider-clear-buffer-hook))
+  (run-hooks 'cider-repl-clear-buffer-hook))
 
 (defun cider-find-and-clear-repl-buffer ()
   "Find the current REPL buffer and clear it.
@@ -860,7 +859,7 @@ Returns to the buffer in which the command was invoked."
   (interactive)
   (let ((origin-buffer (current-buffer)))
     (switch-to-buffer (nrepl-current-repl-buffer))
-    (cider-clear-buffer)
+    (cider-repl-clear-buffer)
     (switch-to-buffer origin-buffer)))
 
 (defun cider-input-line-beginning-position ()
@@ -869,7 +868,7 @@ Returns to the buffer in which the command was invoked."
     (goto-char cider-repl-input-start-mark)
     (line-beginning-position)))
 
-(defun cider-clear-output ()
+(defun cider-repl-clear-output ()
   "Delete the output inserted since the last input."
   (interactive)
   (let ((start (save-excursion

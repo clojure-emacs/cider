@@ -45,11 +45,11 @@
   (let ((nrepl-hide-special-buffers t))
     (should (equal (nrepl-server-buffer-name) " *nrepl-server*"))))
 
-(ert-deftest test-cider--banner ()
+(ert-deftest test-cider-repl--banner ()
   (noflet ((cider-version () "0.2.0")
            (cider--clojure-version () "1.5.1")
            (cider--backend-version () "0.2.1"))
-    (should (equal (cider--banner) "; CIDER 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
+    (should (equal (cider-repl--banner) "; CIDER 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
 
 (defmacro cider-test-with-buffers (buffer-names &rest body)
   (lexical-let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))

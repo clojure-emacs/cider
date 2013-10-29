@@ -138,7 +138,7 @@ make the hidden buffers visible. They'll always be visible in
 
 * You can control the <kbd>TAB</kbd> key behavior in the REPL via the
 `cider-repl-tab-command` variable.  While the default command
-`cider-indent-and-complete-symbol` should be an adequate choice for
+`cider-repl-indent-and-complete-symbol` should be an adequate choice for
 most users, it's very easy to switch to another command if you wish
 to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
 because you're used to completing with <kbd>M-TAB</kbd>) use the

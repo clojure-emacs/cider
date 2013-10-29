@@ -73,20 +73,20 @@ ENDP) DELIM."
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "M-.") 'cider-jump)
     (define-key map (kbd "M-,") 'cider-jump-back)
-    (define-key map (kbd "RET") 'cider-return)
+    (define-key map (kbd "RET") 'cider-repl-return)
     (define-key map (kbd "TAB") 'cider-repl-tab)
-    (define-key map (kbd "C-<return>") 'cider-closing-return)
-    (define-key map (kbd "C-j") 'cider-newline-and-indent)
+    (define-key map (kbd "C-<return>") 'cider-repl-closing-return)
+    (define-key map (kbd "C-j") 'cider-repl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'cider-doc)
     (define-key map (kbd "C-c C-s") 'cider-src)
-    (define-key map (kbd "C-c C-o") 'cider-clear-output)
-    (define-key map (kbd "C-c M-o") 'cider-clear-buffer)
+    (define-key map (kbd "C-c C-o") 'cider-repl-clear-output)
+    (define-key map (kbd "C-c M-o") 'cider-repl-clear-buffer)
     (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
-    (define-key map (kbd "C-c C-u") 'cider-kill-input)
-    (define-key map (kbd "C-a") 'cider-bol)
-    (define-key map (kbd "C-S-a") 'cider-bol-mark)
-    (define-key map [home] 'cider-bol)
-    (define-key map [S-home] 'cider-bol-mark)
+    (define-key map (kbd "C-c C-u") 'cider-repl-kill-input)
+    (define-key map (kbd "C-a") 'cider-repl-bol)
+    (define-key map (kbd "C-S-a") 'cider-repl-bol-mark)
+    (define-key map [home] 'cider-repl-bol)
+    (define-key map [S-home] 'cider-repl-bol-mark)
     (define-key map (kbd "C-<up>") 'cider-backward-input)
     (define-key map (kbd "C-<down>") 'cider-forward-input)
     (define-key map (kbd "M-p") 'cider-previous-input)
@@ -145,10 +145,10 @@ ENDP) DELIM."
     ["Display JavaDoc" cider-javadoc]
     "--"
     ["Set REPL ns" cider-repl-set-ns]
-    ["Toggle pretty printing of results" cider-toggle-pretty-printing]
-    ["Clear output" cider-clear-output]
-    ["Clear buffer" cider-clear-buffer]
-    ["Kill input" cider-kill-input]
+    ["Toggle pretty printing of results" cider-repl-toggle-pretty-printing]
+    ["Clear output" cider-repl-clear-output]
+    ["Clear buffer" cider-repl-clear-buffer]
+    ["Kill input" cider-repl-kill-input]
     ["Interrupt" cider-interrupt]
     ["Quit" cider-quit]
     ["Restart" cider-restart]
