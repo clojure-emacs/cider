@@ -5,4 +5,5 @@
 .cask
 elpa
 .depend
+cider-pkg.el
 packages/*
