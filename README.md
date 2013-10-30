@@ -33,7 +33,6 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 - [Extensions](#extensions)
 - [Team](#team)
 - [Contributing](#contributing)
-	- [Running the tests in batch mode](#running-the-tests-in-batch-mode)
 - [License](#license)
 
 ## Installation
@@ -410,19 +409,35 @@ There are a couple of CIDER extensions that add some extra functionality to it:
 
 ## Team
 
-* [Tim King](https://github.com/kingtim)
+* [Bozhidar Batsov](https://github.com/bbatsov)(maintainer)
+* [Tim King](https://github.com/kingtim)(original author)
 * [Phil Hagelberg](https://github.com/technomancy)
-* [Bozhidar Batsov](https://github.com/bbatsov)
 * [Hugo Duncan](https://github.com/hugoduncan)
 * [Steve Purcell](https://github.com/purcell)
 
 ## Contributing
 
-* Mailing list: [https://groups.google.com/forum/#!forum/cider-emacs](https://groups.google.com/forum/#!forum/cider-emacs)
-* Please report issues on the [GitHub issue tracker](https://github.com/clojure-emacs/cider/issues).
+### Discussion
 
-Bug reports and suggestions for improvements are always
-welcome. GitHub pull requests are even better! :-)
+For questions, suggestions and support refer to our [official mailing list](https://groups.google.com/forum/#!forum/cider-emacs).
+Please, don't report issues there, as this makes them harder to track.
+
+### Issues
+
+Report issues and suggest features and improvements on the
+[GitHub issue tracker](https://github.com/clojure-emacs/cider/issues). Don't
+ask questions on the issue tracker - the mailing list is the place for
+questions.
+
+### Patches
+
+Patches under any form are always welcome! GitHub pull requests are even better! :-)
+
+Before submitting a patch or a pull request make sure all tests are passing and that your patch is in line with the contrition guidelines.
+
+### Documentation
+
+Consider improving and extending the [community wiki](https://github.com/clojure-emacs/cider/wiki).
 
 ### Running the tests in batch mode
 
