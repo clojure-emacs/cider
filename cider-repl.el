@@ -249,7 +249,7 @@ positions before and after executing BODY."
 (defun cider-repl--insert-banner-and-prompt (ns)
   "Insert REPL banner and REPL prompt, taking into account NS."
   (when (zerop (buffer-size))
-    (insert (propertize (cider--banner) 'face 'font-lock-comment-face)))
+    (insert (propertize (cider-repl--banner) 'face 'font-lock-comment-face)))
   (goto-char (point-max))
   (cider-mark-output-start)
   (cider-mark-input-start)
