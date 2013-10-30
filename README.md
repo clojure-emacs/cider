@@ -409,8 +409,8 @@ There are a couple of CIDER extensions that add some extra functionality to it:
 
 ## Team
 
-* [Bozhidar Batsov](https://github.com/bbatsov)(maintainer)
-* [Tim King](https://github.com/kingtim)(original author)
+* [Bozhidar Batsov](https://github.com/bbatsov) (maintainer)
+* [Tim King](https://github.com/kingtim) (original author)
 * [Phil Hagelberg](https://github.com/technomancy)
 * [Hugo Duncan](https://github.com/hugoduncan)
 * [Steve Purcell](https://github.com/purcell)
