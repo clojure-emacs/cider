@@ -217,6 +217,15 @@ Clojure buffer and the REPL buffer."
       (pop-to-buffer cider-last-clojure-buffer)
     (message "Don't know the original Clojure buffer")))
 
+(defun cider-find-and-clear-repl-buffer ()
+  "Find the current REPL buffer and clear it.
+Returns to the buffer in which the command was invoked."
+  (interactive)
+  (let ((origin-buffer (current-buffer)))
+    (switch-to-buffer (nrepl-current-repl-buffer))
+    (cider-repl-clear-buffer)
+    (switch-to-buffer origin-buffer)))
+
 ;;; Evaluating
 (defun cider-eval-region (start end)
   "Evaluate the region.
