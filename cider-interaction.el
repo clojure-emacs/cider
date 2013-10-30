@@ -534,11 +534,11 @@ otherwise dispatch to internal completion function."
   "Make a nrepl evaluation handler for BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (cider-emit-result buffer value t))
+                                 (cider-emit-result buffer value))
                                (lambda (buffer out)
-                                 (cider-emit-output buffer out t))
+                                 (cider-emit-output buffer out))
                                (lambda (buffer err)
-                                 (cider-emit-output buffer err t))
+                                 (cider-emit-output buffer err))
                                (lambda (buffer)
                                  (cider-emit-prompt buffer))))
 

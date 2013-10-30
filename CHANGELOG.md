@@ -2,6 +2,10 @@
 
 ## master
 
+### Bugs fixed
+
+* [#315] Removed spurious newlines in output
+
 ## 0.3.1 / 2013-10-29
 
 * Fix REPL init

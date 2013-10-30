@@ -431,6 +431,7 @@ If BOL is non-nil insert at the beginning of line."
       (cider-save-marker cider-repl-output-start
         (cider-save-marker cider-repl-output-end
           (goto-char position)
+          ;; TODO: Review the need for bol
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (cider-propertize-region `(face cider-repl-output-face
                                           rear-nonsticky (face))
