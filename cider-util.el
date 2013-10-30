@@ -49,7 +49,7 @@
 (defun cider-util--clojure-buffers ()
   "Return a list of all existing `clojure-mode' buffers."
   (-filter
-   (lambda (buffer) (eq 'clojure-mode (buffer-local-value 'major-mode buffer)))
+   (lambda (buffer) (with-current-buffer buffer (derived-mode-p 'clojure-mode)))
    (buffer-list)))
 
 (provide 'cider-util)

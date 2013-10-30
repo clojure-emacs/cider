@@ -890,7 +890,7 @@ Returns to the buffer in which the command was invoked."
 
 If invoked in a REPL buffer the command will prompt you for the name of the
 namespace to switch to."
-  (interactive (list (if (eq 'cider-repl-mode (buffer-local-value 'major-mode (current-buffer)))
+  (interactive (list (if (derived-mode-p 'cider-repl-mode)
                          (read-from-minibuffer "Switch to namespace: ")
                        (cider-current-ns))))
   (if ns

@@ -143,8 +143,9 @@ The BUFFER needs to be a Clojure buffer and current major mode needs
 to be `cider-repl-mode'.  The user can use `cider-switch-to-last-clojure-buffer'
 to jump back to the last Clojure source buffer."
   (when (and buffer
-             (eq 'clojure-mode (with-current-buffer buffer major-mode))
-             (eq 'cider-repl-mode major-mode))
+             (with-current-buffer buffer
+               (derived-mode-p 'clojure-mode))
+             (derived-mode-p 'cider-repl-mode))
     (setq cider-last-clojure-buffer buffer)))
 
 (defun cider-switch-to-repl-buffer (arg)
@@ -211,7 +212,7 @@ the same as `cider-switch-to-repl-buffer',
 so that it is very convenient to jump between a
 Clojure buffer and the REPL buffer."
   (interactive)
-  (if (and (eq 'cider-repl-mode major-mode)
+  (if (and (derived-mode-p 'cider-repl-mode)
            (buffer-live-p cider-last-clojure-buffer))
       (pop-to-buffer cider-last-clojure-buffer)
     (message "Don't know the original Clojure buffer")))
@@ -636,7 +637,7 @@ They exist for compatibility with `next-error'."
 (defun cider-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
-  (let ((replp (equal 'cider-repl-mode (buffer-local-value 'major-mode buffer))))
+  (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
     (if (or (and cider-repl-popup-stacktraces replp)
             (and cider-popup-stacktraces (not replp)))
       (lexical-let ((cider-popup-on-error cider-popup-on-error))

@@ -47,7 +47,7 @@
 
 Decides if paredit should insert a space after/before (if/unless
 ENDP) DELIM."
-  (if (eq major-mode 'cider-repl-mode)
+  (if (derived-mode-p 'cider-repl-mode)
       (save-excursion
         (backward-char)
         (if (and (or (char-equal delim ?\()
