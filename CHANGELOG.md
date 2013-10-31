@@ -6,6 +6,12 @@
 
 * Added new interactive command `cider-read-and-eval` (bound to `C-c M-:` in `cider-mode`).
 
+### Changes
+
+* Renamed `cider-history-size` to `cider-repl-history-size`.
+* Renamed `cider-history-file` to `cider-repl-history-file`.
+* Renamed `cider-wrap-history` to `cider-repl-wrap-history`.
+
 ### Bugs fixed
 
 * [#315] Removed spurious newlines in output
