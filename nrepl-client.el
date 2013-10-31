@@ -770,7 +770,7 @@ If so ask the user for confirmation."
                            (buffer-local-value 'nrepl-project-dir buffer))))))
        (nrepl-connection-buffers))
       (y-or-n-p
-       "An nREPL buffer already exists.  Do you really want to create a new one? ")
+       "An nREPL connection buffer already exists.  Do you really want to create a new one? ")
     t))
 
 (defun nrepl--close-buffer (buffer)
