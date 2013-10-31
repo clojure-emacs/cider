@@ -193,6 +193,31 @@ Buffer name will look like *cider project-name:port*.
 (setq cider-repl-display-in-current-window t)
 ```
 
+### REPL History
+
+* To make the REPL history wrap around when its end is reached:
+
+```el
+(setq cider-repl-wrap-history t)
+```
+
+* To adjust the maximum number of items kept in the REPL history:
+
+```el
+(setq cider-repl-history-size 1000) ; the default is 500
+```
+
+* To store the REPL history in a file:
+
+```el
+(setq cider-repl-history-file "path/to/file")
+```
+
+Note that the history is written to the file when you kill the REPL
+buffer (which includes invoking `cider-quit`) or you quit Emacs.
+
+### Integration with other modes
+
 * Enabling `CamelCase` support for editing commands(like
 `forward-word`, `backward-word`, etc) in the REPL is quite useful since
 we often have to deal with Java class and method names. The built-in
