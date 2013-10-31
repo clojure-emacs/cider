@@ -867,7 +867,7 @@ utf-8-unix."
         (prin1 (mapcar #'substring-no-properties hist) (current-buffer))))))
 
 (defun cider-repl-history-save (&optional filename)
-  "Save the current nREPL input history to FILENAME.
+  "Save the current REPL input history to FILENAME.
 FILENAME defaults to the value of `cider-repl-history-file'."
   (interactive (list (cider-repl--history-read-filename)))
   (let* ((file (or filename cider-repl-history-file)))
