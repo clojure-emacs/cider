@@ -2,6 +2,10 @@
 
 ## master
 
+### New features
+
+* Added new interactive command `cider-read-and-eval` (bound to `C-c M-:` in `cider-mode`).
+
 ### Bugs fixed
 
 * [#315] Removed spurious newlines in output

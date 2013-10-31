@@ -227,6 +227,11 @@ Returns to the buffer in which the command was invoked."
     (switch-to-buffer origin-buffer)))
 
 ;;; Evaluating
+(defun cider-read-and-eval ()
+  "Read a sexp from the minibuffer and output its result to the echo area."
+  (interactive)
+  (cider-interactive-eval (read-from-minibuffer "CIDER Eval: ")))
+
 (defun cider-eval-region (start end)
   "Evaluate the region.
 The two arguments START and END are character positions;
