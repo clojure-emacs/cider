@@ -108,7 +108,7 @@ ENDP) DELIM."
     map))
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
-  "Major mode for nREPL interactions.
+  "Major mode for Clojure REPL interactions.
 
 \\{cider-repl-mode-map}"
   (setq-local lisp-indent-function 'clojure-indent-function)
