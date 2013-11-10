@@ -1,4 +1,4 @@
-EMACS = emacs
+EMACS ?= emacs
 EMACSFLAGS = -L .
 CASK = cask
 VAGRANT = vagrant
