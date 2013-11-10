@@ -42,6 +42,16 @@ DESCRIPTION is a one-line description of what the key selects.")
 (defvar cider-selector-other-window nil
   "If non-nil use `switch-to-buffer-other-window'.")
 
+(defun cider--recently-visited-buffer (mode)
+  "Return the most recently visited buffer whose `major-mode' is MODE.
+Only considers buffers that are not already visible."
+  (loop for buffer in (buffer-list)
+        when (and (with-current-buffer buffer (derived-mode-p mode))
+                  (not (string-match "^ " (buffer-name buffer)))
+                  (null (get-buffer-window buffer 'visible)))
+        return buffer
+        finally (error "Can't find unshown buffer in %S" mode)))
+
 ;;;###autoload
 (defun cider-selector (&optional other-window)
   "Select a new buffer by type, indicated by a single character.
@@ -111,11 +121,11 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?c
   "most recently visited clojure-mode buffer."
-  (cider-recently-visited-buffer 'clojure-mode))
+  (cider--recently-visited-buffer 'clojure-mode))
 
 (def-cider-selector-method ?e
   "most recently visited emacs-lisp-mode buffer."
-  (cider-recently-visited-buffer 'emacs-lisp-mode))
+  (cider--recently-visited-buffer 'emacs-lisp-mode))
 
 (def-cider-selector-method ?q "Abort."
   (top-level))

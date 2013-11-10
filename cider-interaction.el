@@ -1088,16 +1088,6 @@ under point, prompts for a var."
     (save-buffer))
   (cider-load-file (buffer-file-name)))
 
-(defun cider-recently-visited-buffer (mode)
-  "Return the most recently visited buffer whose `major-mode' is MODE.
-Only considers buffers that are not already visible."
-  (loop for buffer in (buffer-list)
-        when (and (with-current-buffer buffer (eq major-mode mode))
-                  (not (string-match "^ " (buffer-name buffer)))
-                  (null (get-buffer-window buffer 'visible)))
-        return buffer
-        finally (error "Can't find unshown buffer in %S" mode)))
-
 ;;; interrupt evaluation
 (defun cider-interrupt-handler (buffer)
   "Create an interrupt response handler for BUFFER."
