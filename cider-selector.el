@@ -48,6 +48,7 @@ Only considers buffers that are not already visible."
   (loop for buffer in (buffer-list)
         when (and (with-current-buffer buffer (derived-mode-p mode))
                   (not (string-match "^ " (buffer-name buffer)))
+                  (not (string-match "^\\*") (buffer-name buffer))
                   (null (get-buffer-window buffer 'visible)))
         return buffer
         finally (error "Can't find unshown buffer in %S" mode)))
