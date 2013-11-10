@@ -46,9 +46,8 @@ DESCRIPTION is a one-line description of what the key selects.")
   "Return the most recently visited buffer whose `major-mode' is MODE.
 Only considers buffers that are not already visible."
   (loop for buffer in (buffer-list)
-        when (and (with-current-buffer buffer (derived-mode-p mode))
+        when (and (with-current-buffer buffer (eq major-mode mode))
                   (not (string-match "^ " (buffer-name buffer)))
-                  (not (string-match "^\\*" (buffer-name buffer)))
                   (null (get-buffer-window buffer 'visible)))
         return buffer
         finally (error "Can't find unshown buffer in %S" mode)))
