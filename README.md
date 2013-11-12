@@ -405,7 +405,7 @@ Keyboard shortcut               | Description
 
 You can connect to multiple nREPL servers and use <kbd>M-x cider-jack-in</kbd> multiple
 times.  To close a single nREPL session, use <kbd>M-x nrepl-close</kbd>.  <kbd>M-x
-nrepl-quit</kbd> closes all sessions.
+cider-quit</kbd> closes all sessions.
 
 CIDER commands in a Clojure buffer use the default connection.  To make a
 connection default, switch to it's repl buffer and use
