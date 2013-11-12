@@ -76,6 +76,7 @@ This variable specifies both what was expanded and the expander.")
          (plist-get (nrepl-send-string-sync cider-last-macroexpand-expression nrepl-buffer-ns) :stdout)))
     (cider-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
 
+;;;###autoload
 (defun cider-macroexpand-1 (&optional prefix)
   "Invoke 'macroexpand-1' on the expression at point.
 If invoked with a PREFIX argument, use 'macroexpand' instead of
@@ -92,6 +93,7 @@ If invoked with a PREFIX argument, use 'macroexpand' instead of
   (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
     (cider-macroexpand-expr-inplace expander)))
 
+;;;###autoload
 (defun cider-macroexpand-all ()
   "Invoke 'clojure.walk/macroexpand-all' on the expression at point."
   (interactive)

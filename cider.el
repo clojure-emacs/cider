@@ -64,7 +64,6 @@
 (require 'cider-repl)
 (require 'cider-repl-mode)
 (require 'cider-mode)
-(require 'cider-macroexpansion)
 
 ;;;###autoload
 (defun cider-jack-in (&optional prompt-project)
