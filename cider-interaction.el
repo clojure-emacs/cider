@@ -1101,6 +1101,25 @@ under point, prompts for a var."
       (nrepl-send-interrupt request-id (cider-interrupt-handler (current-buffer))))))
 
 ;;; quiting
+(defun cider--close-buffer (buffer)
+  "Close the BUFFER and kill its associated process (if any)."
+  (when (get-buffer-process buffer)
+    (delete-process (get-buffer-process buffer)))
+  (when (get-buffer buffer)
+    (kill-buffer buffer)))
+
+(defvar cider-ancilliary-buffers
+  (list cider-error-buffer
+        cider-doc-buffer
+        cider-src-buffer
+        nrepl-event-buffer-name))
+
+(defun cider-close-ancilliary-buffers ()
+  "Close buffers that are shared across connections."
+  (interactive)
+  (dolist (buf-name cider-ancilliary-buffers)
+    (cider--close-buffer buf-name)))
+
 (defun cider-quit ()
   "Quit CIDER.
 
@@ -1111,7 +1130,7 @@ Quitting closes all active nREPL connections and kills all CIDER buffers."
       (when connection
         (nrepl-close connection)))
     (message "All active nREPL connections were closed")
-    (nrepl-close-ancilliary-buffers)))
+    (cider-close-ancilliary-buffers)))
 
 (defun cider-restart (&optional prompt-project)
   "Quit nrepl and restart it.

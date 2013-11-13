@@ -462,7 +462,7 @@ Also closes associated REPL and server buffers."
                              ,(buffer-local-value 'nrepl-server-buffer buffer)
                              ,buffer))
            (when buf-name
-             (nrepl--close-buffer buf-name)))))))
+             (cider--close-buffer buf-name)))))))
 
 (defun nrepl-current-repl-buffer ()
   "The current nrepl buffer."
@@ -772,23 +772,6 @@ If so ask the user for confirmation."
       (y-or-n-p
        "An nREPL connection buffer already exists.  Do you really want to create a new one? ")
     t))
-
-(defun nrepl--close-buffer (buffer)
-  "Close the nrepl BUFFER."
-  (when (get-buffer-process buffer)
-    (delete-process (get-buffer-process buffer)))
-  (when (get-buffer buffer)
-    (kill-buffer buffer)))
-
-(defun nrepl-close-ancilliary-buffers ()
-  "Close buffers that are shared across connections."
-  (interactive)
-  (dolist (buf-name `(,cider-error-buffer
-                      ,cider-doc-buffer
-                      ,cider-src-buffer
-                      ,cider-macroexpansion-buffer
-                      ,nrepl-event-buffer-name))
-    (nrepl--close-buffer buf-name)))
 
 (defun nrepl-close (connection-buffer)
   "Close the nrepl connection for CONNECTION-BUFFER."

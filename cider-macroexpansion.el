@@ -34,6 +34,8 @@
 
 (defconst cider-macroexpansion-buffer "*cider-macroexpansion*")
 
+(push cider-macroexpansion-buffer cider-ancilliary-buffers)
+
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
 ARG is passed along to `undo-only'."
