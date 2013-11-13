@@ -255,7 +255,6 @@ positions before and after executing BODY."
   (cider-repl--mark-input-start)
   (cider-repl--insert-prompt ns))
 
-
 (defun cider-init-repl-buffer (connection buffer &optional noprompt)
   "Initialize the REPL for CONNECTION in BUFFER.
 Insert a banner, unless NOPROMPT is non-nil."
@@ -284,7 +283,6 @@ Insert a banner, unless NOPROMPT is non-nil."
                                  (get-process buffer)
                                  (get-buffer-create
                                   (cider-repl-buffer-name))))))))))
-
 
 ;;; REPL interaction
 (defun cider-property-bounds (prop)
