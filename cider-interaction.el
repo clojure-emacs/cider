@@ -906,6 +906,12 @@ Useful in hooks."
 Useful in hooks."
   (cider-mode -1))
 
+(defun cider-connected-p ()
+  "Return t if CIDER is currently connected, nil otherwise."
+  (condition-case nil
+      (nrepl-current-connection-buffer)
+    (error nil)))
+
 ;;;###autoload
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable interaction mode on existing Clojure buffers.
@@ -928,7 +934,7 @@ See command `cider-mode'."
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
   "If not connected, disable nrepl interaction mode on existing Clojure buffers."
-  (unless (nrepl-current-connection-buffer)
+  (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
 ;; this is horrible, but with async callbacks we can't rely on dynamic scope
