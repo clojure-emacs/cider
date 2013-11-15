@@ -13,6 +13,13 @@ do so.
 * Be clear, concise and precise in your description of the problem.
 * Open an issue with a descriptive title and a summary in grammatically correct,
   complete sentences.
+* Mention your Emacs version and operating system.
+* Mention the CIDER version info. You can use the REPL version info, which looks like that:
+
+```el
+; CIDER 0.4.0snapshot (package: 20131112.1551) (Clojure 1.5.1, nREPL 0.2.1)
+```
+
 * Include any relevant code to the issue summary.
 
 ## Pull requests
