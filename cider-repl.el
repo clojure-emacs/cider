@@ -678,7 +678,7 @@ namespace to switch to."
   :group 'cider-repl)
 
 ;; These two vars contain the state of the last history search.  We
-;; only use them if `last-command' was 'cider-repl--history-replace,
+;; only use them if `last-command' was `cider-repl--history-replace',
 ;; otherwise we reinitialize them.
 
 (defvar cider-repl-input-history-position -1
