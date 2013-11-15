@@ -90,6 +90,12 @@ loaded."
     (dolist (request-id pending-request-ids)
       (nrepl-send-interrupt request-id (cider-interrupt-handler (current-buffer))))))
 
+(defun cider-current-repl-buffer ()
+  "The current REPL buffer."
+  (when (nrepl-current-connection-buffer)
+    (buffer-local-value 'nrepl-repl-buffer
+                        (get-buffer (nrepl-current-connection-buffer)))))
+
 (provide 'cider-client)
 
 ;;; cider-client.el ends here

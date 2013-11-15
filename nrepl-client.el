@@ -464,12 +464,6 @@ Also closes associated REPL and server buffers."
            (when buf-name
              (cider--close-buffer buf-name)))))))
 
-(defun nrepl-current-repl-buffer ()
-  "The current nrepl buffer."
-  (when (nrepl-current-connection-buffer)
-    (buffer-local-value 'nrepl-repl-buffer
-                        (get-buffer (nrepl-current-connection-buffer)))))
-
 ;;; Connection browser
 (defvar nrepl-connections-buffer-mode-map
   (let ((map (make-sparse-keymap)))

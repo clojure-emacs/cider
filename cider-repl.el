@@ -271,7 +271,7 @@ Insert a banner, unless NOPROMPT is non-nil."
 
 (defun cider-find-or-create-repl-buffer ()
   "Return the REPL buffer, create it if necessary."
-  (let ((buffer (nrepl-current-repl-buffer)))
+  (let ((buffer (cider-current-repl-buffer)))
         (if (null buffer)
                 (error "No active nREPL connection")
           (let ((buffer (get-buffer buffer)))
@@ -442,7 +442,7 @@ If BOL is non-nil insert at the beginning of line."
 
 (defun cider-emit-interactive-output (string)
   "Emit STRING as interactive output."
-  (with-current-buffer (nrepl-current-repl-buffer)
+  (with-current-buffer (cider-current-repl-buffer)
     (let ((pos (1- (cider-repl--input-line-beginning-position))))
       (cider-emit-output-at-pos (current-buffer) string pos t)
       (ansi-color-apply-on-region pos (point-max)))))
@@ -664,7 +664,7 @@ namespace to switch to."
                          (read-from-minibuffer "Switch to namespace: ")
                        (cider-current-ns))))
   (if ns
-      (with-current-buffer (nrepl-current-repl-buffer)
+      (with-current-buffer (cider-current-repl-buffer)
         (cider-eval
          (format "(in-ns '%s)" ns)
          (cider-handler (current-buffer))))

@@ -220,7 +220,7 @@ Clojure buffer and the REPL buffer."
 Returns to the buffer in which the command was invoked."
   (interactive)
   (let ((origin-buffer (current-buffer)))
-    (switch-to-buffer (nrepl-current-repl-buffer))
+    (switch-to-buffer (cider-current-repl-buffer))
     (cider-repl-clear-buffer)
     (switch-to-buffer origin-buffer)))
 
