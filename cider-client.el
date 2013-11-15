@@ -42,20 +42,20 @@ NS specifies the namespace in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
   (cider-eval input callback ns (nrepl-current-tooling-session)))
 
-(defun cider-eval-sync (input &optional ns)
+(defun cider-eval-sync (input &optional ns session)
   "Send the INPUT to the backend synchronously.
-NS specifies the namespace in which to evaluate the request."
-  (nrepl-send-string-sync input ns))
+NS & SESSION specify the evaluation context."
+  (nrepl-send-string-sync input ns session))
 
-(defun cider-eval-and-get-value (input &optional ns)
+(defun cider-eval-and-get-value (input &optional ns session)
   "Send the INPUT to the backend synchronously and return the value.
-NS specifies the namespace in which to evaluate the request."
-  (cider-get-value (cider-eval-sync input ns)))
+NS & SESSION specify the evaluation context."
+  (cider-get-value (cider-eval-sync input ns session)))
 
 (defun cider-tooling-eval-sync (input &optional ns)
   "Send the INPUT to the backend using a tooling session synchronously.
 NS specifies the namespace in which to evaluate the request."
-  (nrepl-send-string-sync input ns (nrepl-current-tooling-session)))
+  (cider-eval-sync input ns (nrepl-current-tooling-session)))
 
 (defun cider-get-value (eval-result)
   "Get the value from EVAL-RESULT."
