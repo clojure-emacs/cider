@@ -158,15 +158,14 @@ the buffer should appear.
 With a prefix ARG sets the name of the REPL buffer to the one
 of the current source file."
   (interactive "P")
-  (if (not (get-buffer (nrepl-current-connection-buffer)))
+  (if (not (cider-connected-p))
       (message "No active nREPL connection.")
-    (progn
-      (let ((buffer (current-buffer)))
-        (when arg
-          (cider-repl-set-ns (cider-current-ns)))
-        (pop-to-buffer (cider-find-or-create-repl-buffer))
-        (cider-remember-clojure-buffer buffer)
-        (goto-char (point-max))))))
+    (let ((buffer (current-buffer)))
+      (when arg
+        (cider-repl-set-ns (cider-current-ns)))
+      (pop-to-buffer (cider-find-or-create-repl-buffer))
+      (cider-remember-clojure-buffer buffer)
+      (goto-char (point-max)))))
 
 (defun cider-switch-to-relevant-repl-buffer (arg)
   "Select the REPL buffer, when possible in an existing window.
@@ -182,14 +181,13 @@ of the current source file.
 With a second prefix ARG the chosen REPL buffer is based on a
 supplied project directory."
   (interactive "P")
-  (if (not (get-buffer (nrepl-current-connection-buffer)))
+  (if (not (cider-connected-p))
       (message "No active nREPL connection.")
-    (progn
-      (let ((project-directory
-             (or (when arg
-                   (ido-read-directory-name "Project: "))
-                 (nrepl-project-directory-for (nrepl-current-dir)))))
-        (if project-directory
+    (let ((project-directory
+           (or (when arg
+                 (ido-read-directory-name "Project: "))
+               (nrepl-project-directory-for (nrepl-current-dir)))))
+      (if project-directory
           (let ((buf (car (-filter
                            (lambda (conn)
                              (let ((conn-proj-dir (with-current-buffer (get-buffer conn)
@@ -202,8 +200,8 @@ supplied project directory."
                 (setq nrepl-connection-list
                       (cons buf (delq buf nrepl-connection-list)))
               (message "No relevant nREPL connection found. Switching to default connection.")))
-          (message "No project directory found. Switching to default nREPL connection.")))
-      (cider-switch-to-repl-buffer '()))))
+        (message "No project directory found. Switching to default nREPL connection.")))
+    (cider-switch-to-repl-buffer '())))
 
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
