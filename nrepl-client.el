@@ -767,7 +767,7 @@ If so ask the user for confirmation."
   "Close the nrepl connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
   (nrepl--close-connection-buffer connection-buffer)
-  (cider-possibly-disable-on-existing-clojure-buffers)
+  (run-hooks 'nrepl-disconnected-hook)
   (nrepl--connections-refresh))
 
 ;;; client
