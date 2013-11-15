@@ -56,7 +56,7 @@ This variable specifies both what was expanded and the expander.")
 (defun cider-macroexpand-expr (expander expr &optional buffer)
   "Macroexpand, use EXPANDER, the given EXPR from BUFFER."
   (let* ((form (cider-macroexpand-form expander expr))
-         (expansion (plist-get (nrepl-send-string-sync form nrepl-buffer-ns) :stdout)))
+         (expansion (plist-get (cider-eval-sync form nrepl-buffer-ns) :stdout)))
     (setq cider-last-macroexpand-expression form)
     (cider-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
 
@@ -67,7 +67,7 @@ This variable specifies both what was expanded and the expander.")
     (if form-with-bounds
         (destructuring-bind (expr bounds) form-with-bounds
           (let* ((form (cider-macroexpand-form expander expr))
-                 (expansion (plist-get (nrepl-send-string-sync form nrepl-buffer-ns) :stdout)))
+                 (expansion (plist-get (cider-eval-sync form nrepl-buffer-ns) :stdout)))
             (cider-redraw-macroexpansion-buffer
              expansion (current-buffer) (car bounds) (cdr bounds) (point)))))))
 
@@ -75,7 +75,7 @@ This variable specifies both what was expanded and the expander.")
   "Repeat the last macroexpansion."
   (interactive)
   (let ((expansion
-         (plist-get (nrepl-send-string-sync cider-last-macroexpand-expression nrepl-buffer-ns) :stdout)))
+         (plist-get (cider-eval-sync cider-last-macroexpand-expression nrepl-buffer-ns) :stdout)))
     (cider-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
 
 ;;;###autoload

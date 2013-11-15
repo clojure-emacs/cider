@@ -57,7 +57,7 @@
   :prefix "cider-"
   :group 'applications)
 
-(require 'nrepl-client)
+(require 'cider-client)
 (require 'cider-version)
 (require 'cider-interaction)
 (require 'cider-eldoc)

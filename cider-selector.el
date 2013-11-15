@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(require 'nrepl-client)
+(require 'cider-client)
 (require 'cider-interaction)
 (require 'cider-repl) ; for cider-find-or-create-repl-buffer
 

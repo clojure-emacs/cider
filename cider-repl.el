@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(require 'nrepl-client)
+(require 'cider-client)
 (require 'cider-interaction)
 (require 'cider-version)
 
@@ -262,7 +262,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     (unless (eq major-mode 'cider-repl-mode)
       (cider-repl-mode))
     ;; use the same requires by default as clojure.main does
-    (nrepl-send-string-sync nrepl-repl-requires-sexp)
+    (cider-eval-sync nrepl-repl-requires-sexp)
     (cider-repl-reset-markers)
     (unless noprompt
       (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
@@ -552,7 +552,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
-    (nrepl-send-string form (cider-handler (current-buffer)) nrepl-buffer-ns)))
+    (cider-eval form (cider-handler (current-buffer)) nrepl-buffer-ns)))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -665,8 +665,9 @@ namespace to switch to."
                        (cider-current-ns))))
   (if ns
       (with-current-buffer (nrepl-current-repl-buffer)
-        (nrepl-send-string
-         (format "(in-ns '%s)" ns) (cider-handler (current-buffer))))
+        (cider-eval
+         (format "(in-ns '%s)" ns)
+         (cider-handler (current-buffer))))
     (message "Sorry, I don't know what the current namespace is.")))
 
 ;;;;; History

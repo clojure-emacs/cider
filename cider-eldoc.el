@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(require 'nrepl-client)
+(require 'cider-client)
 (require 'cider-interaction) ; for cider-symbol-at-point
 
 (require 'eldoc)
@@ -102,11 +102,8 @@ POS is the index of current argument."
                              (clojure.core/resolve
                               (clojure.core/read-string \"%s\"))))
                            (catch Throwable t nil))" thing))
-           (result (when thing
-                     (nrepl-send-string-sync form
-                                             nrepl-buffer-ns
-                                             (nrepl-current-tooling-session))))
-           (value (plist-get result :value)))
+           (value (when thing
+                    (cider-get-value (cider-tooling-eval-sync form nrepl-buffer-ns)))))
       (unless (string= value "nil")
         (format "%s: %s"
                 (cider-eldoc-format-thing thing)
