@@ -92,7 +92,7 @@ POS is the index of current argument."
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
-  (when (nrepl-current-connection-buffer)
+  (when (cider-connected-p)
     (let* ((info (cider-eldoc-info-in-current-sexp))
            (thing (car info))
            (pos (cadr info))
