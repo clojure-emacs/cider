@@ -1102,7 +1102,7 @@ Quitting closes all active nREPL connections and kills all CIDER buffers."
     (cider-close-ancilliary-buffers)))
 
 (defun cider-restart (&optional prompt-project)
-  "Quit nrepl and restart it.
+  "Quit CIDER and restart it.
 If PROMPT-PROJECT is t, then prompt for the project in which to
 restart the server."
   (interactive)
