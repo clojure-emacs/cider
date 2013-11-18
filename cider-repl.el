@@ -655,13 +655,18 @@ text property `cider-old-input'."
           (insert
            (propertize ";;; output cleared" 'face 'font-lock-comment-face)))))))
 
+(defun cider--all-ns ()
+  "Get a list of the available namespaces."
+  (read (cider-eval-and-get-value "(map str (all-ns))")))
+
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
 
 If invoked in a REPL buffer the command will prompt you for the name of the
 namespace to switch to."
   (interactive (list (if (derived-mode-p 'cider-repl-mode)
-                         (read-from-minibuffer "Switch to namespace: ")
+                         (completing-read "Switch to namespace: "
+                                          (cider--all-ns))
                        (cider-current-ns))))
   (if ns
       (with-current-buffer (cider-current-repl-buffer)
