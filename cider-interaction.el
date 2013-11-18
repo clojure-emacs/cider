@@ -285,7 +285,7 @@ With a PREFIX argument, print the result in the current buffer."
 
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
-  (let ((str (thing-at-point 'symbol)))
+  (let ((str (substring-no-properties (thing-at-point 'symbol))))
     (and str
          (not (equal str (concat (cider-find-ns) "> ")))
          (not (equal str ""))
@@ -806,11 +806,18 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
 
 ;;; Namespace handling
 (defun cider-find-ns ()
-  "Return the ns specified in the buffer, or \"user\" if no ns declaration is found."
-  (or (save-restriction
-        (widen)
-        (clojure-find-ns))
-      "user"))
+  "Return the ns of the current buffer.
+
+For Clojure buffers the ns is extracted from the ns header.  If
+it's missing \"user\" is used as fallback."
+  (cond
+   ((derived-mode-p 'clojure-mode)
+    (or (save-restriction
+          (widen)
+          (clojure-find-ns))
+        "user"))
+   ((derived-mode-p 'cider-repl-mode)
+    nrepl-buffer-ns)))
 
 (defun cider-current-ns ()
   "Return the ns in the current context.
