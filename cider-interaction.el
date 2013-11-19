@@ -285,7 +285,7 @@ With a PREFIX argument, print the result in the current buffer."
 
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
-  (let ((str (substring-no-properties (thing-at-point 'symbol))))
+  (let ((str (substring-no-properties (or (thing-at-point 'symbol) ""))))
     (and str
          (not (equal str (concat (cider-find-ns) "> ")))
          (not (equal str ""))
