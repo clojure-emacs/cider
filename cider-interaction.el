@@ -316,7 +316,7 @@ With a PREFIX argument, print the result in the current buffer."
 
 ;;;
 (defun cider-tramp-prefix ()
-  "Top element on `find-tag-marker-ring` used to determine Clojure host."
+  "Top element on `find-tag-marker-ring' used to determine Clojure host."
   (let ((jump-origin (buffer-file-name
                       (marker-buffer
                        (ring-ref find-tag-marker-ring 0)))))
