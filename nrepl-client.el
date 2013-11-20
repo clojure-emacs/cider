@@ -44,7 +44,6 @@
   :prefix "nrepl-"
   :group 'applications)
 
-
 (defcustom nrepl-buffer-name-separator " "
   "Used in constructing the REPL buffer name.
 The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
@@ -828,7 +827,6 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
         (remhash id nrepl-requests)
         (cond (new-session
                (lexical-let ((connection-buffer (process-buffer process)))
-                 (message "Connected.  %s" (cider-random-words-of-inspiration))
                  (setq nrepl-session new-session
                        nrepl-connection-buffer connection-buffer)
                  (unless no-repl-p
