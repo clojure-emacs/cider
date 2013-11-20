@@ -14,7 +14,7 @@
 
 ### Bugs fixed
 
-* [#315] Removed spurious newlines in output
+* [#315](https://github.com/clojure-emacs/cider/issues/393) Removed spurious newlines in output
 
 ## 0.3.1 / 2013-10-29
 
