@@ -330,7 +330,7 @@ Assume that any error during decoding indicates an incomplete message."
   "Handle sentinel events from PROCESS.
 Display MESSAGE and if the process is closed kill the
 process buffer and run the hook `nrepl-disconnected-hook'."
-  (message "nrepl connection closed: %s" message)
+  (message "nREPL connection closed: %s" message)
   (if (equal (process-status process) 'closed)
       (progn
         (with-current-buffer (process-buffer process)
@@ -343,7 +343,7 @@ process buffer and run the hook `nrepl-disconnected-hook'."
   "Send the PROCESS the MESSAGE."
   (process-send-string process message))
 
-;;; Log nrepl events
+;;; Log nREPL events
 
 (defcustom nrepl-log-events nil
   "Log protocol events to the *nrepl-events* buffer."
