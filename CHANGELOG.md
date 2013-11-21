@@ -5,6 +5,8 @@
 ### New features
 
 * Added new interactive command `cider-read-and-eval` (bound to `C-c M-:` in `cider-mode`).
+* Added new interactive command `cider-eval-last-expression-to-repl` (`C-c M-e`). The command will output the result
+of the evaluated code to the REPL buffer, so you can easily play with the output there afterwords.
 
 ### Changes
 

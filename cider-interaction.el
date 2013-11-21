@@ -148,7 +148,7 @@ to jump back to the last Clojure source buffer."
              (derived-mode-p 'cider-repl-mode))
     (setq cider-last-clojure-buffer buffer)))
 
-(defun cider-switch-to-repl-buffer (arg)
+(defun cider-switch-to-repl-buffer (&optional arg)
   "Select the REPL buffer, when possible in an existing window.
 
 Hint: You can use `display-buffer-reuse-frames' and
@@ -544,6 +544,21 @@ otherwise dispatch to internal completion function."
                                (lambda (buffer)
                                  (cider-emit-prompt buffer))))
 
+(defun cider-insert-eval-handler (buffer)
+  "Make a nrepl evaluation handler for the BUFFER.
+The handler simply inserts the result value in BUFFER."
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (with-current-buffer buffer
+                                   (insert value)))
+                               (lambda (buffer out)
+                                 (cider-emit-interactive-output out))
+                               (lambda (buffer err)
+                                 (message "%s" err)
+                                 (cider-highlight-compilation-errors
+                                  buffer err))
+                               '()))
+
 (defun cider-interactive-eval-handler (buffer)
   "Make an interactive eval handler for BUFFER."
   (nrepl-make-response-handler buffer
@@ -853,6 +868,13 @@ search for and read a `ns' form."
                 (cider-interactive-eval-handler buffer)
                 (cider-current-ns))))
 
+(defun cider-interactive-eval-to-repl (form)
+  "Evaluate the given FORM and print it's value in REPL buffer."
+  (let ((buffer (cider-current-repl-buffer)))
+    (cider-eval form
+                (cider-insert-eval-handler buffer)
+                (cider-current-ns))))
+
 (defun cider-eval-last-expression (&optional prefix)
   "Evaluate the expression preceding point.
 If invoked with a PREFIX argument, print the result in the current buffer."
@@ -860,6 +882,14 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (if prefix
       (cider-interactive-eval-print (cider-last-expression))
     (cider-interactive-eval (cider-last-expression))))
+
+(defun cider-eval-last-expression-to-repl (&optional prefix)
+  "Evaluate the expression preceding point and insert its result in the REPL.
+If invoked with a PREFIX argument, switch to the REPL buffer."
+  (interactive "P")
+  (cider-interactive-eval-to-repl (cider-last-expression))
+  (when prefix
+    (cider-switch-to-repl-buffer)))
 
 (defun cider-eval-print-last-expression ()
   "Evaluate the expression preceding point.
