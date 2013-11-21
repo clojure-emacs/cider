@@ -871,6 +871,13 @@ If invoked with a PREFIX argument, print the result in the current buffer."
       (cider-interactive-eval-print (cider-last-expression))
     (cider-interactive-eval (cider-last-expression))))
 
+(defun cider-eval-last-expression-and-replace ()
+  "Evaluate the expression preceding point and replace it with its result."
+  (interactive)
+  (let ((last-sexp (cider-last-expression)))
+    (backward-kill-sexp)
+    (cider-interactive-eval-print last-sexp)))
+
 (defun cider-eval-last-expression-to-repl (&optional prefix)
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
