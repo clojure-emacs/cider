@@ -640,7 +640,7 @@ namespace to switch to."
         (cider-eval
          (format "(in-ns '%s)" ns)
          (cider-repl-handler (current-buffer))))
-    (message "Sorry, I don't know what the current namespace is.")))
+    (error "Cannot determine the current namespace")))
 
 ;;;;; History
 
