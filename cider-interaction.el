@@ -906,6 +906,16 @@ Print its value into the current buffer"
                         (cider-popup-eval-out-handler result-buffer)
                         (cider-current-ns))))
 
+(defun cider-insert-last-expression-in-repl ()
+  "Insert the expression preceding point in the REPL buffer."
+  (interactive)
+  (let ((form (cider-last-expression))
+        (start-pos (point)))
+    (with-current-buffer (cider-current-repl-buffer)
+      (insert form)
+      (indent-region start-pos (point))))
+  (cider-switch-to-repl-buffer))
+
 (defun clojure-enable-cider ()
   "Turn on CIDER mode (see command `cider-mode').
 Useful in hooks."
