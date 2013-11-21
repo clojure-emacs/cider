@@ -480,6 +480,18 @@ the symbol."
                t)))
           (t t))))
 
+(defun cider-repl-handler (buffer)
+  "Make a nREPL evaluation handler for the REPL BUFFER."
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (cider-emit-result buffer value))
+                               (lambda (buffer out)
+                                 (cider-emit-output buffer out))
+                               (lambda (buffer err)
+                                 (cider-emit-output buffer err))
+                               (lambda (buffer)
+                                 (cider-emit-prompt buffer))))
+
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
 If NEWLINE is true then add a newline at the end of the input."
@@ -507,7 +519,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
-    (cider-eval form (cider-handler (current-buffer)) nrepl-buffer-ns)))
+    (cider-eval form (cider-repl-handler (current-buffer)) nrepl-buffer-ns)))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -627,7 +639,7 @@ namespace to switch to."
       (with-current-buffer (cider-current-repl-buffer)
         (cider-eval
          (format "(in-ns '%s)" ns)
-         (cider-handler (current-buffer))))
+         (cider-repl-handler (current-buffer))))
     (message "Sorry, I don't know what the current namespace is.")))
 
 ;;;;; History

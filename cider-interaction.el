@@ -532,18 +532,6 @@ otherwise dispatch to internal completion function."
                                  (cider-emit-output buffer err t))
                                nil))
 
-(defun cider-handler (buffer)
-  "Make a nrepl evaluation handler for BUFFER."
-  (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
-                                 (cider-emit-result buffer value))
-                               (lambda (buffer out)
-                                 (cider-emit-output buffer out))
-                               (lambda (buffer err)
-                                 (cider-emit-output buffer err))
-                               (lambda (buffer)
-                                 (cider-emit-prompt buffer))))
-
 (defun cider-insert-eval-handler (buffer)
   "Make a nrepl evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
