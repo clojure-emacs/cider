@@ -5,9 +5,9 @@
 ### New features
 
 * Added new interactive command `cider-read-and-eval` (bound to `C-c M-:` in `cider-mode`).
-* Added new interactive command `cider-eval-last-expression-to-repl` (`C-c M-e`). The command will output the result
+* Added new interactive command `cider-eval-last-sexp-to-repl` (`C-c M-e`). The command will output the result
 of the evaluated code to the REPL buffer, so you can easily play with the output there afterwords.
-* Added new interactive command `cider-insert-last-expression-in-repl` (`C-c M-p`).
+* Added new interactive command `cider-insert-last-sexp-in-repl` (`C-c M-p`).
 * Added new interactive command `cider-eval-last-expression-and-replace` (`C-c C-w`).
 
 ### Changes
@@ -16,6 +16,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 * Renamed `cider-history-file` to `cider-repl-history-file`.
 * Renamed `cider-wrap-history` to `cider-repl-wrap-history`.
 * Renamed `cider-eval-expression-at-point` to `cider-eval-defun-at-point`.
+* Changed `last-expression` to `last-sexp` in a number of functions.
 
 ### Bugs fixed
 

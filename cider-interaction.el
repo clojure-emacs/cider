@@ -308,7 +308,7 @@ With a PREFIX argument, print the result in the current buffer."
                 (cons (set-marker (make-marker) start)
                       (set-marker (make-marker) end)))))))
 
-(defun cider-last-expression ()
+(defun cider-last-sexp ()
   "Return the last sexp."
   (buffer-substring-no-properties
    (save-excursion (backward-sexp) (point))
@@ -863,48 +863,48 @@ search for and read a `ns' form."
                 (cider-insert-eval-handler buffer)
                 (cider-current-ns))))
 
-(defun cider-eval-last-expression (&optional prefix)
+(defun cider-eval-last-sexp (&optional prefix)
   "Evaluate the expression preceding point.
 If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
   (if prefix
-      (cider-interactive-eval-print (cider-last-expression))
-    (cider-interactive-eval (cider-last-expression))))
+      (cider-interactive-eval-print (cider-last-sexp))
+    (cider-interactive-eval (cider-last-sexp))))
 
-(defun cider-eval-last-expression-and-replace ()
+(defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
   (interactive)
-  (let ((last-sexp (cider-last-expression)))
+  (let ((last-sexp (cider-last-sexp)))
     (backward-kill-sexp)
     (cider-interactive-eval-print last-sexp)))
 
-(defun cider-eval-last-expression-to-repl (&optional prefix)
+(defun cider-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider-interactive-eval-to-repl (cider-last-expression))
+  (cider-interactive-eval-to-repl (cider-last-sexp))
   (when prefix
     (cider-switch-to-repl-buffer)))
 
-(defun cider-eval-print-last-expression ()
+(defun cider-eval-print-last-sexp ()
   "Evaluate the expression preceding point.
 Print its value into the current buffer"
   (interactive)
-  (cider-interactive-eval-print (cider-last-expression)))
+  (cider-interactive-eval-print (cider-last-sexp)))
 
-(defun cider-pprint-eval-last-expression ()
+(defun cider-pprint-eval-last-sexp ()
   "Evaluate the expression preceding point and pprint its value in a popup buffer."
   (interactive)
-  (let ((form (cider-last-expression))
+  (let ((form (cider-last-sexp))
         (result-buffer (cider-popup-buffer cider-result-buffer nil)))
     (cider-tooling-eval (format "(clojure.pprint/pprint %s)" form)
                         (cider-popup-eval-out-handler result-buffer)
                         (cider-current-ns))))
 
-(defun cider-insert-last-expression-in-repl ()
+(defun cider-insert-last-sexp-in-repl ()
   "Insert the expression preceding point in the REPL buffer."
   (interactive)
-  (let ((form (cider-last-expression))
+  (let ((form (cider-last-sexp))
         (start-pos (point)))
     (with-current-buffer (cider-current-repl-buffer)
       (insert form)
