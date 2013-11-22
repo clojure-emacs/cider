@@ -245,9 +245,9 @@ they can be in either order."
 (defun cider-defun-at-point ()
   "Return the text of the top-level sexp at point."
   (apply #'buffer-substring-no-properties
-         (cider-region-for-defun-at-point)))
+         (cider--region-for-defun-at-point)))
 
-(defun cider-region-for-defun-at-point ()
+(defun cider--region-for-defun-at-point ()
   "Return the start and end position of defun at point."
   (save-excursion
     (save-match-data
