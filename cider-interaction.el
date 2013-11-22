@@ -525,11 +525,11 @@ otherwise dispatch to internal completion function."
   "Make a stdin response handler for BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (cider-emit-result buffer value t))
+                                 (cider-repl-emit-result buffer value t))
                                (lambda (buffer out)
-                                 (cider-emit-output buffer out t))
+                                 (cider-repl-emit-output buffer out t))
                                (lambda (buffer err)
-                                 (cider-emit-output buffer err t))
+                                 (cider-repl-emit-output buffer err t))
                                nil))
 
 (defun cider-insert-eval-handler (buffer)
@@ -540,7 +540,7 @@ The handler simply inserts the result value in BUFFER."
                                  (with-current-buffer buffer
                                    (insert value)))
                                (lambda (buffer out)
-                                 (cider-emit-interactive-output out))
+                                 (cider-repl-emit-interactive-output out))
                                (lambda (buffer err)
                                  (message "%s" err)
                                  (cider-highlight-compilation-errors
@@ -553,7 +553,7 @@ The handler simply inserts the result value in BUFFER."
                                (lambda (buffer value)
                                  (message "%s" value))
                                (lambda (buffer value)
-                                 (cider-emit-interactive-output value))
+                                 (cider-repl-emit-interactive-output value))
                                (lambda (buffer err)
                                  (message "%s" err)
                                  (cider-highlight-compilation-errors
@@ -570,7 +570,7 @@ The handler simply inserts the result value in BUFFER."
                                      (setq nrepl-buffer-ns (clojure-find-ns))
                                      (run-hooks 'cider-file-loaded-hook)))
                                  (lambda (buffer value)
-                                   (cider-emit-interactive-output value))
+                                   (cider-repl-emit-interactive-output value))
                                  (lambda (buffer err)
                                    (message "%s" err)
                                    (cider-highlight-compilation-errors

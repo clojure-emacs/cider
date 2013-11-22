@@ -286,7 +286,7 @@ Handles message contained in RESPONSE."
   (nrepl-dbind-response response (out value)
     (cond
      (out
-      (cider-emit-interactive-output out)))))
+      (cider-repl-emit-interactive-output out)))))
 
 (defun nrepl-dispatch (response)
   "Dispatch the RESPONSE to associated callback."

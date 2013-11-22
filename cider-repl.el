@@ -376,7 +376,7 @@ Return the position of the prompt beginning."
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
 
-(defun cider-emit-output-at-pos (buffer string position &optional bol)
+(defun cider-repl-emit-output-at-pos (buffer string position &optional bol)
   "Using BUFFER, insert STRING at POSITION and mark it as output.
 If BOL is non-nil insert at the beginning of line."
   (with-current-buffer buffer
@@ -395,22 +395,22 @@ If BOL is non-nil insert at the beginning of line."
               (set-marker cider-repl-output-end (1- (point))))))))
     (cider-repl--show-maximum-output)))
 
-(defun cider-emit-interactive-output (string)
+(defun cider-repl-emit-interactive-output (string)
   "Emit STRING as interactive output."
   (with-current-buffer (cider-current-repl-buffer)
     (let ((pos (1- (cider-repl--input-line-beginning-position))))
-      (cider-emit-output-at-pos (current-buffer) string pos t)
+      (cider-repl-emit-output-at-pos (current-buffer) string pos t)
       (ansi-color-apply-on-region pos (point-max)))))
 
-(defun cider-emit-output (buffer string &optional bol)
+(defun cider-repl-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
     (let ((pos (1- (cider-repl--input-line-beginning-position))))
-      (cider-emit-output-at-pos buffer string cider-repl-input-start-mark bol)
+      (cider-repl-emit-output-at-pos buffer string cider-repl-input-start-mark bol)
       (ansi-color-apply-on-region pos (point-max)))))
 
-(defun cider-emit-prompt (buffer)
+(defun cider-repl-emit-prompt (buffer)
   "Emit the REPL prompt into BUFFER."
   (with-current-buffer buffer
     (save-excursion
@@ -419,7 +419,7 @@ If BOL is non-nil, emit at the beginning of the line."
           (cider-repl--insert-prompt nrepl-buffer-ns))))
     (cider-repl--show-maximum-output)))
 
-(defun cider-emit-result (buffer string &optional bol)
+(defun cider-repl-emit-result (buffer string &optional bol)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
 If BOL is non-nil insert at the beginning of the line."
   (with-current-buffer buffer
@@ -484,13 +484,13 @@ the symbol."
   "Make a nREPL evaluation handler for the REPL BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (cider-emit-result buffer value))
+                                 (cider-repl-emit-result buffer value))
                                (lambda (buffer out)
-                                 (cider-emit-output buffer out))
+                                 (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
-                                 (cider-emit-output buffer err))
+                                 (cider-repl-emit-output buffer err))
                                (lambda (buffer)
-                                 (cider-emit-prompt buffer))))
+                                 (cider-repl-emit-prompt buffer))))
 
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
