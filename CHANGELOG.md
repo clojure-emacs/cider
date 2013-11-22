@@ -15,6 +15,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 * Renamed `cider-history-size` to `cider-repl-history-size`.
 * Renamed `cider-history-file` to `cider-repl-history-file`.
 * Renamed `cider-wrap-history` to `cider-repl-wrap-history`.
+* Renamed `cider-eval-expression-at-point` to `cider-eval-defun-at-point`.
 
 ### Bugs fixed
 

@@ -242,12 +242,12 @@ they can be in either order."
   (interactive)
   (cider-eval-region (point-min) (point-max)))
 
-(defun cider-expression-at-point ()
-  "Return the text of the expr at point."
+(defun cider-defun-at-point ()
+  "Return the text of the top-level sexp at point."
   (apply #'buffer-substring-no-properties
-         (cider-region-for-expression-at-point)))
+         (cider-region-for-defun-at-point)))
 
-(defun cider-region-for-expression-at-point ()
+(defun cider-region-for-defun-at-point ()
   "Return the start and end position of defun at point."
   (save-excursion
     (save-match-data
@@ -256,11 +256,11 @@ they can be in either order."
         (beginning-of-defun)
         (list (point) end)))))
 
-(defun cider-eval-expression-at-point (&optional prefix)
-  "Evaluate the current toplevel form, and print result in the mini-buffer.
+(defun cider-eval-defun-at-point (&optional prefix)
+  "Evaluate the current toplevel form, and print result in the minibuffer.
 With a PREFIX argument, print the result in the current buffer."
   (interactive "P")
-  (let ((form (cider-expression-at-point)))
+  (let ((form (cider-defun-at-point)))
     (if prefix
         (cider-interactive-eval-print form)
       (cider-interactive-eval form))))
@@ -271,7 +271,7 @@ With a PREFIX argument, print the result in the current buffer."
   (when (clojure-find-ns)
     (save-excursion
       (goto-char (match-beginning 0))
-      (cider-eval-expression-at-point))))
+      (cider-eval-defun-at-point))))
 
 (defun cider-bounds-of-sexp-at-point ()
   "Return the bounds sexp at point as a pair (or nil)."

@@ -37,8 +37,8 @@
     (define-key map (kbd "M-.") 'cider-jump)
     (define-key map (kbd "M-,") 'cider-jump-back)
     (define-key map (kbd "M-TAB") 'complete-symbol)
-    (define-key map (kbd "C-M-x") 'cider-eval-expression-at-point)
-    (define-key map (kbd "C-c C-c") 'cider-eval-expression-at-point)
+    (define-key map (kbd "C-M-x") 'cider-eval-defun-at-point)
+    (define-key map (kbd "C-c C-c") 'cider-eval-defun-at-point)
     (define-key map (kbd "C-x C-e") 'cider-eval-last-expression)
     (define-key map (kbd "C-c C-e") 'cider-eval-last-expression)
     (define-key map (kbd "C-c C-w") 'cider-eval-last-expression-and-replace)
@@ -86,7 +86,7 @@
     "--"
     ["Complete symbol" complete-symbol]
     "--"
-    ["Eval expression at point" cider-eval-expression-at-point]
+    ["Eval top-level sexp at point" cider-eval-defun-at-point]
     ["Eval last expression" cider-eval-last-expression]
     ["Eval last expression in popup buffer" cider-pprint-eval-last-expression]
     ["Eval region" cider-eval-region]
