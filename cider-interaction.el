@@ -117,7 +117,7 @@ Info contains project name, current REPL namespace, host:port endpoint and Cloju
   (message (cider--connection-info (nrepl-current-connection-buffer))))
 
 (defun cider-rotate-connection ()
-  "Rotate and display the current nrepl connection."
+  "Rotate and display the current nREPL connection."
   (interactive)
   (setq nrepl-connection-list
         (append (cdr nrepl-connection-list)
@@ -533,7 +533,7 @@ otherwise dispatch to internal completion function."
                                nil))
 
 (defun cider-insert-eval-handler (buffer)
-  "Make a nrepl evaluation handler for the BUFFER.
+  "Make a nREPL evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
@@ -675,8 +675,8 @@ They exist for compatibility with `next-error'."
 See `compilation-error-regexp-alist' for help on their format.")
 
 (add-to-list 'compilation-error-regexp-alist-alist
-             (cons 'nrepl cider-compilation-regexp))
-(add-to-list 'compilation-error-regexp-alist 'nrepl)
+             (cons 'cider cider-compilation-regexp))
+(add-to-list 'compilation-error-regexp-alist 'cider)
 
 (defun cider-extract-error-info (regexp message)
   "Extract error information with REGEXP against MESSAGE."
@@ -940,7 +940,7 @@ See command `cider-mode'."
 
 ;;;###autoload
 (defun cider-disable-on-existing-clojure-buffers ()
-  "Disable interaction mode on existing Clojure buffers.
+  "Disable `cider-mode' on existing Clojure buffers.
 See command `cider-mode'."
   (interactive)
   (dolist (buffer (cider-util--clojure-buffers))
@@ -949,7 +949,7 @@ See command `cider-mode'."
       (clojure-disable-cider))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
-  "If not connected, disable nrepl interaction mode on existing Clojure buffers."
+  "If not connected, disable `cider-mode' on existing Clojure buffers."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
