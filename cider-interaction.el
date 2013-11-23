@@ -656,8 +656,13 @@ They exist for compatibility with `next-error'."
             (and cider-popup-stacktraces (not replp)))
       (lexical-let ((cider-popup-on-error cider-popup-on-error))
         (with-current-buffer buffer
-          (cider-eval "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
-                        (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
+          (cider-eval "(do (try (require 'io.aviso.exception)
+                             (catch Exception e nil))
+                         (let [exception-fns ['io.aviso.exception/write-exception
+                                              'clj-stacktrace.repl/pst+
+                                              'clojure.stacktrace/print-stack-trace]
+                               print-stack-trace (first (keep clojure.core/resolve exception-fns))]
+                           (print-stack-trace *e)))"
                       (nrepl-make-response-handler
                        (cider-make-popup-buffer cider-error-buffer)
                        nil
