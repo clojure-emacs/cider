@@ -767,7 +767,7 @@ If so ask the user for confirmation."
   "Close the nrepl connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
   (nrepl--close-connection-buffer connection-buffer)
-  (cider-possibly-disable-on-existing-clojure-buffers)
+  (run-hooks 'nrepl-disconnected-hook)
   (nrepl--connections-refresh))
 
 ;;; client
@@ -873,11 +873,6 @@ Falls back to `nrepl-port' if not found."
   (or (nrepl--port-from-file ".nrepl-port")
       (nrepl--port-from-file "target/repl-port")
       nrepl-port))
-
-;;;###autoload
-(add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
-(add-hook 'nrepl-disconnected-hook
-          'cider-possibly-disable-on-existing-clojure-buffers)
 
 (provide 'nrepl-client)
 ;;; nrepl-client.el ends here

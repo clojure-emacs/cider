@@ -936,7 +936,6 @@ Useful in hooks."
       (nrepl-current-connection-buffer)
     (error nil)))
 
-;;;###autoload
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable interaction mode on existing Clojure buffers.
 See command `cider-mode'."
@@ -946,7 +945,6 @@ See command `cider-mode'."
     (with-current-buffer buffer
       (clojure-enable-cider))))
 
-;;;###autoload
 (defun cider-disable-on-existing-clojure-buffers ()
   "Disable `cider-mode' on existing Clojure buffers.
 See command `cider-mode'."
@@ -1159,6 +1157,10 @@ restart the server."
   (interactive)
   (cider-quit)
   (cider-jack-in current-prefix-arg))
+
+(add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
+(add-hook 'nrepl-disconnected-hook
+          'cider-possibly-disable-on-existing-clojure-buffers)
 
 (provide 'cider-interaction)
 ;;; cider-interaction.el ends here
