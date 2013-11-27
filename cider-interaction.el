@@ -909,14 +909,17 @@ Print its value into the current buffer"
                         (cider-popup-eval-out-handler result-buffer)
                         (cider-current-ns))))
 
-(defun cider-insert-last-sexp-in-repl ()
-  "Insert the expression preceding point in the REPL buffer."
-  (interactive)
+(defun cider-insert-last-sexp-in-repl (&optional arg)
+  "Insert the expression preceding point in the REPL buffer.
+If invoked with a prefix ARG eval the expression after inserting it."
+  (interactive "P")
   (let ((form (cider-last-sexp))
         (start-pos (point)))
     (with-current-buffer (cider-current-repl-buffer)
       (insert form)
-      (indent-region start-pos (point))))
+      (indent-region start-pos (point))
+      (when arg
+        (cider-repl-return))))
   (cider-switch-to-repl-buffer))
 
 (defun clojure-enable-cider ()
