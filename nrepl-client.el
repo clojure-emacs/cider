@@ -138,7 +138,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar nrepl-request-counter 0
   "Continuation serial number counter.")
 
-(defvar nrepl-requests (make-hash-table :test 'equal))
+(defvar nrepl-pending-requests (make-hash-table :test 'equal))
+
+(defvar nrepl-completed-requests (make-hash-table :test 'equal))
 
 (defvar nrepl-buffer-ns "user"
   "Current Clojure namespace of this buffer.")
@@ -166,7 +168,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
  'nrepl-session
  'nrepl-tooling-session
  'nrepl-request-counter
- 'nrepl-requests
+ 'nrepl-pending-requests
+ 'nrepl-completed-requests
+ 'nrepl-done-requests
  'nrepl-buffer-ns
  'nrepl-sync-response)
 
@@ -275,9 +279,11 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                (if (member "need-input" status)
                    (cider-need-input buffer))
                (if (member "done" status)
-                   (progn (remhash id nrepl-requests)
-                          (if done-handler
-                              (funcall done-handler buffer))))))))))
+                   (progn
+                     (puthash id (gethash id nrepl-pending-requests) nrepl-completed-requests)
+                     (remhash id nrepl-pending-requests)
+                     (if done-handler
+                         (funcall done-handler buffer))))))))))
 
 ;;; communication
 (defun nrepl-default-handler (response)
@@ -289,10 +295,15 @@ Handles message contained in RESPONSE."
       (cider-repl-emit-interactive-output out)))))
 
 (defun nrepl-dispatch (response)
-  "Dispatch the RESPONSE to associated callback."
+  "Dispatch the RESPONSE to associated callback.
+
+First we check the list of pending requests for the callback to invoke
+and afterwards we check the completed requests as well, since responses
+could be received even for requests with status \"done\"."
   (nrepl-log-event response)
   (nrepl-dbind-response response (id)
-    (let ((callback (gethash id nrepl-requests)))
+    (let ((callback (or (gethash id nrepl-pending-requests)
+                        (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
         (nrepl-default-handler response)))))
@@ -613,7 +624,7 @@ Refreshes EWOC."
          (request (append (list "id" request-id) request))
          (message (nrepl-bencode request)))
     (nrepl-log-event request)
-    (puthash request-id callback nrepl-requests)
+    (puthash request-id callback nrepl-pending-requests)
     (nrepl-write-message (nrepl-current-connection-buffer) message)))
 
 (defun nrepl-create-client-session (callback)
@@ -814,7 +825,7 @@ If so ask the user for confirmation."
         (cond (new-session
                (with-current-buffer (process-buffer process)
                  (setq nrepl-tooling-session new-session)
-                 (remhash id nrepl-requests)
+                 (remhash id nrepl-pending-requests)
                  (nrepl-setup-default-namespaces process))))))))
 
 (defun nrepl-new-session-handler (process no-repl-p)
@@ -824,7 +835,7 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
                 (no-repl-p no-repl-p))
     (lambda (response)
       (nrepl-dbind-response response (id new-session)
-        (remhash id nrepl-requests)
+        (remhash id nrepl-pending-requests)
         (cond (new-session
                (lexical-let ((connection-buffer (process-buffer process)))
                  (setq nrepl-session new-session

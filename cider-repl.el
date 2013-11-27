@@ -486,7 +486,7 @@ the symbol."
                                (lambda (buffer value)
                                  (cider-repl-emit-result buffer value))
                                (lambda (buffer out)
-                                 (cider-repl-emit-output buffer out))
+                                 (cider-repl-emit-interactive-output out))
                                (lambda (buffer err)
                                  (cider-repl-emit-output buffer err))
                                (lambda (buffer)
