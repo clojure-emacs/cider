@@ -120,22 +120,22 @@ is chosen.  The returned buffer is selected with
          cider-selector-methods :key #'car)
 
 (def-cider-selector-method ?c
-  "most recently visited clojure-mode buffer."
+  "Most recently visited clojure-mode buffer."
   (cider--recently-visited-buffer 'clojure-mode))
 
 (def-cider-selector-method ?e
-  "most recently visited emacs-lisp-mode buffer."
+  "Most recently visited emacs-lisp-mode buffer."
   (cider--recently-visited-buffer 'emacs-lisp-mode))
 
 (def-cider-selector-method ?q "Abort."
   (top-level))
 
 (def-cider-selector-method ?r
-  "Current *nrepl* buffer."
+  "Current REPL buffer."
   (cider-find-or-create-repl-buffer))
 
 (def-cider-selector-method ?n
-  "NREPL connections buffer."
+  "Connections browser buffer."
   (nrepl-connection-browser)
   nrepl--connection-browser-buffer-name)
 
@@ -144,7 +144,7 @@ is chosen.  The returned buffer is selected with
   nrepl-event-buffer-name)
 
 (def-cider-selector-method ?s
- "Cycle to the next Clojure connection."
+ "Cycle to the next CIDER connection."
  (cider-rotate-connection)
  (cider-find-or-create-repl-buffer))
 
