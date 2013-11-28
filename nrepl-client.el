@@ -454,7 +454,7 @@ Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
   (interactive (list nrepl-connection-buffer))
   (if connection-buffer
       ;; maintain the connection list in most recently used order
-      (lexical-let ((buf-name (buffer-name (get-buffer connection-buffer))))
+      (let ((buf-name (buffer-name (get-buffer connection-buffer))))
         (setq nrepl-connection-list
               (cons buf-name (delq buf-name nrepl-connection-list)))
         (nrepl--connections-refresh))
@@ -464,7 +464,7 @@ Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
   "Closes CONNECTION-BUFFER, removing it from `nrepl-connection-list'.
 Also closes associated REPL and server buffers."
   (let ((nrepl-connection-dispatch connection-buffer))
-     (lexical-let ((buffer (get-buffer connection-buffer)))
+     (let ((buffer (get-buffer connection-buffer)))
        (setq nrepl-connection-list
              (delq (buffer-name buffer) nrepl-connection-list))
        (when (buffer-live-p buffer)
@@ -496,7 +496,7 @@ Also closes associated REPL and server buffers."
 (defun nrepl-connection-browser ()
   "Open a browser buffer for nREPL connections."
   (interactive)
-  (lexical-let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
+  (let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
     (if buffer
         (progn
           (nrepl--connections-refresh-buffer buffer)
@@ -508,7 +508,7 @@ Also closes associated REPL and server buffers."
   "Refresh the connections buffer, if the buffer exists.
 The connections buffer is determined by
 `nrepl--connection-browser-buffer-name'"
-  (lexical-let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
+  (let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
     (when buffer
       (nrepl--connections-refresh-buffer buffer))))
 
@@ -521,7 +521,7 @@ The connections buffer is determined by
 (defun nrepl--setup-connection-browser ()
   "Create a browser buffer for nREPL connections."
   (with-current-buffer (get-buffer-create nrepl--connection-browser-buffer-name)
-    (lexical-let ((ewoc (ewoc-create
+    (let ((ewoc (ewoc-create
                          'nrepl--connection-pp
                          "  Host              Port   Project\n")))
       (setq-local nrepl--connection-ewoc ewoc)
@@ -532,7 +532,7 @@ The connections buffer is determined by
 
 (defun nrepl--connection-pp (connection)
   "Print an nREPL CONNECTION to the current buffer."
-  (lexical-let* ((buffer-read-only nil)
+  (let* ((buffer-read-only nil)
                  (buffer (get-buffer connection))
                  (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
@@ -555,14 +555,14 @@ The project name is the final component of PATH if not nil."
   (ewoc-filter ewoc (lambda (n) (member n connections)))
   (let ((existing))
     (ewoc-map (lambda (n) (setq existing (cons n existing))) ewoc)
-    (lexical-let ((added (-difference connections existing)))
+    (let ((added (-difference connections existing)))
       (mapc (apply-partially 'ewoc-enter-last ewoc) added)
       (save-excursion (ewoc-refresh ewoc)))))
 
 (defun nrepl--ewoc-apply-at-point (f)
   "Apply function F to the ewoc node at point.
 F is a function of two arguments, the ewoc and the data at point."
-  (lexical-let* ((ewoc nrepl--connection-ewoc)
+  (let* ((ewoc nrepl--connection-ewoc)
                  (node (and ewoc (ewoc-locate ewoc))))
     (when node
       (funcall f ewoc (ewoc-data node)))))
@@ -745,7 +745,7 @@ are processed."
 
 (defun nrepl-current-dir ()
   "Return the directory of the current buffer."
-  (lexical-let ((file-name (buffer-file-name (current-buffer))))
+  (let ((file-name (buffer-file-name (current-buffer))))
     (or (when file-name
           (file-name-directory file-name))
         list-buffers-directory)))
@@ -762,7 +762,7 @@ or `nrepl-project-dir' matches PROJECT-DIRECTORY.
 If so ask the user for confirmation."
   (if (cl-find-if
        (lambda (buffer)
-         (lexical-let ((buffer (get-buffer buffer)))
+         (let ((buffer (get-buffer buffer)))
            (or (and endpoint
                     (equal endpoint
                            (buffer-local-value 'nrepl-endpoint buffer)))

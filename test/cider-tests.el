@@ -52,14 +52,14 @@
     (should (equal (cider-repl--banner) "; CIDER 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
 
 (defmacro cider-test-with-buffers (buffer-names &rest body)
-  (lexical-let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
-    `(lexical-let (,@(mapcar create buffer-names))
+  (let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
+    `(let (,@(mapcar create buffer-names))
        (unwind-protect
            ,@body
          (mapc 'kill-buffer (list ,@buffer-names))))))
 
 (ert-deftest test-nrepl-make-repl-connection-default ()
-  (lexical-let ((connections (nrepl-connection-buffers)))
+  (let ((connections (nrepl-connection-buffers)))
     (cider-test-with-buffers
      (a b)
      (should (get-buffer a))
@@ -76,7 +76,7 @@
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
 
 (ert-deftest test-nrepl-connection-buffers ()
-  (lexical-let ((connections (nrepl-connection-buffers)))
+  (let ((connections (nrepl-connection-buffers)))
     (cider-test-with-buffers
      (a b)
      (nrepl-make-repl-connection-default a)
@@ -124,7 +124,7 @@
                              "Active nREPL connection: <no project>:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-close ()
-  (lexical-let ((connections (nrepl-connection-buffers)))
+  (let ((connections (nrepl-connection-buffers)))
     (cider-test-with-buffers
      (a b)
      (nrepl-make-repl-connection-default a)
@@ -140,11 +140,11 @@
 
 (ert-deftest test-cider-connections-buffer ()
   (with-temp-buffer
-    (lexical-let ((b1 (current-buffer)))
+    (let ((b1 (current-buffer)))
       (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
       (set (make-local-variable 'nrepl-project-dir) "proj")
       (with-temp-buffer
-        (lexical-let ((b2 (current-buffer)))
+        (let ((b2 (current-buffer)))
           (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
           (let ((nrepl-connection-list
                  (list (buffer-name b1) (buffer-name b2))))
@@ -181,20 +181,20 @@
 
 (ert-deftest test-nrepl-buffer-name ()
   (with-temp-buffer
-    (lexical-let ((b1 (current-buffer)))
+    (let ((b1 (current-buffer)))
       (should
        (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name*")))))
 
 (ert-deftest test-nrepl-buffer-name-based-on-project ()
   (with-temp-buffer
-    (lexical-let ((b1 (current-buffer)))
+    (let ((b1 (current-buffer)))
       (set (make-local-variable 'nrepl-project-dir) "proj")
       (should
        (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj*")))))
 
 (ert-deftest test-nrepl-buffer-name-separator ()
   (with-temp-buffer
-    (lexical-let ((b1 (current-buffer)))
+    (let ((b1 (current-buffer)))
       (set (make-local-variable 'nrepl-project-dir) "proj")
       (let ((nrepl-buffer-name-separator "X"))
         (should
@@ -254,14 +254,14 @@
 
 (ert-deftest test-cider-clojure-buffer-name ()
   (with-temp-buffer
-    (lexical-let ((b1 (current-buffer)))
+    (let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1))))
         (should
          (equal (cider-repl-buffer-name) "*cider*"))))))
 
 (ert-deftest test-cider-clojure-buffer-name-w/project ()
   (with-temp-buffer
-    (lexical-let ((b1 (current-buffer)))
+    (let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1)))
             (nrepl-project-dir "/a/test/directory/project"))
         (should

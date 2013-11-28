@@ -72,10 +72,10 @@ If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
-  (lexical-let* ((project (when prompt-project
-                            (ido-read-directory-name "Project: ")))
-                 (project-dir (nrepl-project-directory-for
-                               (or project (nrepl-current-dir)))))
+  (let* ((project (when prompt-project
+                    (ido-read-directory-name "Project: ")))
+         (project-dir (nrepl-project-directory-for
+                       (or project (nrepl-current-dir)))))
     (when (nrepl-check-for-repl-buffer nil project-dir)
       (let* ((nrepl-project-dir project-dir)
              (cmd (if project

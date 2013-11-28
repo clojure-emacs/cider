@@ -466,13 +466,13 @@ Uses `find-file'."
 
 (defun cider-completion-complete-op-fn (str)
   "Return a list of completions for STR using the nREPL \"complete\" op."
-  (lexical-let ((strlst (plist-get
-                         (nrepl-send-request-sync
-                          (list "op" "complete"
-                                "session" (nrepl-current-tooling-session)
-                                "ns" nrepl-buffer-ns
-                                "symbol" str))
-                         :value)))
+  (let ((strlst (plist-get
+                 (nrepl-send-request-sync
+                  (list "op" "complete"
+                        "session" (nrepl-current-tooling-session)
+                        "ns" nrepl-buffer-ns
+                        "symbol" str))
+                 :value)))
     (when strlst
       (car strlst))))
 
