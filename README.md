@@ -261,7 +261,7 @@ enable `paredit` in the REPL buffer as well:
 * [ac-nrepl](https://github.com/clojure-emacs/ac-nrepl) provides
   completion source for the popular Emacs interactive auto-completion
   framework [auto-complete](http://cx4a.org/software/auto-complete/).
-  Where nrepl provides it, pop-up documentation for completed symbols
+  Where nREPL provides it, pop-up documentation for completed symbols
   will be displayed.
 
 ## Basic Usage
@@ -333,7 +333,7 @@ and it expects `clojure.pprint` to have been required already
 
 ## Keyboard shortcuts
 
-* <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a repl client.
+* <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a REPL client.
     Prompts for a project root if given a prefix argument.
 * <kbd>M-x cider</kbd>: Connect to an already-running nREPL server.
 
@@ -356,7 +356,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 <kbd>C-c M-m</kbd>                   | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
 <kbd>C-c C-n</kbd>                   | Eval the ns form.
-<kbd>C-c M-n</kbd>                   | Switch the namespace of the repl buffer to the namespace of the current buffer.
+<kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
 <kbd>C-c C-z</kbd>                   | Select the REPL buffer. With a prefix argument - changes the namespace of the REPL buffer to the one of the currently visited source file.
 <kbd>C-u C-u C-c C-z</kbd>           | Select the REPL buffer based on a user prompt for a directory.
 <kbd>C-c M-d</kbd>                   | Display current REPL connection details, including project directory name, buffer namespace, host and port.
@@ -416,7 +416,7 @@ times.  To close a single nREPL session, use <kbd>M-x nrepl-close</kbd>.  <kbd>M
 cider-quit</kbd> closes all sessions.
 
 CIDER commands in a Clojure buffer use the default connection.  To make a
-connection default, switch to it's repl buffer and use
+connection default, switch to it's REPL buffer and use
 <kbd>M-x nrepl-make-repl-connection-default</kbd>.
 
 To switch to the relevant REPL buffer based on the Clojure namespace in the current buffer, use: <kbd>C-c C-z</kbd>.
