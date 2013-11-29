@@ -866,5 +866,39 @@ constructs."
   (append (cl-subseq session-hist 0 n-added-items)
           file-hist))
 
+;;; REPL shortcuts
+(defcustom cider-repl-shortcut-dispatch-char ?\,
+  "Character used to distinguish REPL commands from Lisp forms."
+  :type '(character)
+  :group 'cider-repl)
+
+(defvar cider-repl-shortcuts (make-hash-table :test 'equal))
+
+(defun cider-repl-add-shortcut (name handler)
+  "Add a REPL shortcut command, defined by NAME and HANDLER."
+  (puthash name handler cider-repl-shortcuts))
+
+(cider-repl-add-shortcut "hasta la vista" 'cider-quit)
+(cider-repl-add-shortcut "version" 'cider-version)
+(cider-repl-add-shortcut "conn-info" 'cider-display-current-connection-info)
+(cider-repl-add-shortcut "conn-rotate" 'cider-rotate-connection)
+(cider-repl-add-shortcut "clear" 'cider-repl-clear-buffer)
+(cider-repl-add-shortcut "ns" 'cider-repl-set-ns)
+
+(defun cider-repl--available-shortcuts ()
+  "Return the available REPL shortcuts."
+  (cider-util--hash-keys cider-repl-shortcuts))
+
+(defun cider-repl-handle-shortcut ()
+  "Execute a REPL shortcut."
+  (interactive)
+  (if (> (point) cider-repl-input-start-mark)
+      (insert (string cider-repl-shortcut-dispatch-char))
+    (let ((command (completing-read "Command: "
+                                   (cider-repl--available-shortcuts))))
+     (if (not (equal command ""))
+         (call-interactively (gethash command cider-repl-shortcuts))
+       (error "No command selected")))))
+
 (provide 'cider-repl)
 ;;; cider-repl.el ends here

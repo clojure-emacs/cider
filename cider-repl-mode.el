@@ -105,6 +105,7 @@ ENDP) DELIM."
     (define-key map (kbd "C-c M-r") 'cider-rotate-connection)
     (define-key map (kbd "C-c M-d") 'cider-display-current-connection-info)
     (define-key map (kbd "C-c C-q") 'cider-quit)
+    (define-key map (string cider-repl-shortcut-dispatch-char) 'cider-repl-handle-shortcut)
     map))
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"

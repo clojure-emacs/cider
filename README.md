@@ -394,6 +394,12 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-d</kbd> | Display current REPL connection details, including project directory name, buffer namespace, host and port.
 <kbd>C-c M-r</kbd> | Rotate and display the current REPL connection.
 
+In the REPL you can also use "shortcut commands" by pressing `,` at the beginning of a REPL line. You'll be presented with a list of commands you can quickly run (like quitting, displaying some info, clearing the REPL, etc). The character used to trigger the shortcuts is configurable via `cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
+
+```el
+(setq cider-repl-shortcut-dispatch-char ?\:)
+```
+
 ### cider-macroexpansion-minor-mode
 
 Keyboard shortcut               | Description

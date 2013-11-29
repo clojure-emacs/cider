@@ -9,6 +9,7 @@
 of the evaluated code to the REPL buffer, so you can easily play with the output there afterwords.
 * Added new interactive command `cider-insert-last-sexp-in-repl` (`C-c M-p`).
 * Added new interactive command `cider-eval-last-expression-and-replace` (`C-c C-w`).
+* Implemented REPL shortcuts, triggered by pressing `,` at the start of a REPL input line (similar to the ones in SLIME).
 
 ### Changes
 
