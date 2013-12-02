@@ -275,7 +275,7 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                    (funcall (or eval-error-handler nrepl-err-handler)
                             buffer ex root-ex session))
                (if (member "namespace-not-found" status)
-                   (message "Namespace not found."))
+                   (message (format "Namespace %s not found." ns)))
                (if (member "need-input" status)
                    (cider-need-input buffer))
                (if (member "done" status)
@@ -662,7 +662,6 @@ Use SESSION if it is non-nil, otherwise use the current session."
 (defun nrepl-send-string (input callback &optional ns session)
   "Send the request INPUT and register the CALLBACK as the response handler.
 See command `nrepl-eval-request' for details on how NS and SESSION are processed."
-  ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-send-request (nrepl-eval-request input ns session) callback))
 
 (defun nrepl-sync-request-handler (buffer)
