@@ -91,6 +91,11 @@ NS & SESSION specify the context in which to evaluate the request."
   (let ((ns (if (string-match "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" input)
                 "user"
               ns)))
+    ;; prevent forms from being evaluated in the wrong or a non-existing namespace
+    (when (and ns
+               (derived-mode-p 'clojure-mode)
+               (not (string= ns nrepl-buffer-ns)))
+      (cider-eval-ns-form))
     (nrepl-send-string input callback ns session)))
 
 (defun cider-tooling-eval (input callback &optional ns)

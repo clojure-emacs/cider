@@ -23,6 +23,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 
 * [#315](https://github.com/clojure-emacs/cider/issues/393) Removed spurious newlines in output.
 * [#237](https://github.com/clojure-emacs/cider/issues/237) Don't swallow output from futures.
+* Create non-existing namespaces, when evaluating code in Clojure buffers.
 
 ## 0.3.1 / 2013-10-29
 
