@@ -89,7 +89,7 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
 (defvar nrepl-endpoint nil)
 (defvar nrepl-project-dir nil)
 
-(defconst nrepl-repl-buffer-name-template "*cider%s*")
+(defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
 
