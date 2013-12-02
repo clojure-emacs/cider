@@ -1090,9 +1090,13 @@ under point, prompts for a var."
 
 (defun cider-dispatch-load-file (filename)
   "Dispatch the load file operation for FILENAME."
-  (if (nrepl-op-supported-p "load-file")
-      (cider-load-file-op filename)
-    (cider-load-file-core filename)))
+  (let ((f (if (file-remote-p filename)
+               (tramp-file-name-localname
+                (tramp-dissect-file-name filename))
+             filename)))
+    (if (nrepl-op-supported-p "load-file")
+        (cider-load-file-op f)
+      (cider-load-file-core f))))
 
 (defun cider-load-file (filename)
   "Load the Clojure file FILENAME."
