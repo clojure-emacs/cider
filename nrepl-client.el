@@ -275,7 +275,7 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                    (funcall (or eval-error-handler nrepl-err-handler)
                             buffer ex root-ex session))
                (if (member "namespace-not-found" status)
-                   (message (format "Namespace %s not found." ns)))
+                   (message "Namespace not found."))
                (if (member "need-input" status)
                    (cider-need-input buffer))
                (if (member "done" status)
