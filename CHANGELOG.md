@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.4.0 / 2013-12-03
+
 ### New features
 
 * Added new interactive command `cider-read-and-eval` (bound to `C-c M-:` in `cider-mode`).

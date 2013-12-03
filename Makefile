@@ -23,7 +23,7 @@ elpa:
 	touch $@
 
 package:
-	$(cask) package
+	$(CASK) package
 	mkdir -p packages/$(PACKAGE_NAME)
 	cp $(ELS) packages/$(PACKAGE_NAME)
 	tar cf packages/$(PACKAGE_NAME).tar -C packages $(PACKAGE_NAME)
