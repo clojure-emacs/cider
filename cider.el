@@ -62,7 +62,6 @@
 (require 'cider-interaction)
 (require 'cider-eldoc)
 (require 'cider-repl)
-(require 'cider-repl-mode)
 (require 'cider-mode)
 
 ;;;###autoload
