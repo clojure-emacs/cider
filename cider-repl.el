@@ -492,9 +492,9 @@ the symbol."
   "Make a nREPL evaluation handler for the REPL BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (cider-repl-emit-result buffer value))
+                                 (cider-repl-emit-result buffer value t))
                                (lambda (buffer out)
-                                 (cider-repl-emit-interactive-output out))
+                                 (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
                                  (cider-repl-emit-output buffer err))
                                (lambda (buffer)
