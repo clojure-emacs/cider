@@ -1084,21 +1084,6 @@ under point, prompts for a var."
                         filename
                         (file-name-nondirectory filename)))
 
-(defun cider-load-file-core (filename)
-  "Load the Clojure file FILENAME."
-  (let ((fn (replace-regexp-in-string
-             "\\\\" "\\\\\\\\"
-             (convert-standard-filename (expand-file-name filename)))))
-    (cider-eval-load-file
-     (format "(clojure.core/load-file \"%s\")\n(in-ns '%s)\n"
-             fn (cider-find-ns)))))
-
-(defun cider-dispatch-load-file (filename)
-  "Dispatch the load file operation for FILENAME."
-  (if (nrepl-op-supported-p "load-file")
-      (cider-load-file-op filename)
-    (cider-load-file-core filename)))
-
 (defun cider-load-file (filename)
   "Load the Clojure file FILENAME."
   (interactive (list
@@ -1107,7 +1092,7 @@ under point, prompts for a var."
                                         (file-name-nondirectory
                                          (buffer-file-name))))))
   (remove-overlays (point-min) (point-max) 'cider-note-p t)
-  (cider-dispatch-load-file filename)
+  (cider-load-file-op filename)
   (message "Loading %s..." filename))
 
 (defun cider-load-current-buffer ()
