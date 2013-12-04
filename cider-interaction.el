@@ -969,6 +969,7 @@ See command `cider-mode'."
 
 ;; this is horrible, but with async callbacks we can't rely on dynamic scope
 (defvar cider-ido-ns nil)
+(defvar cider-ido-var-callback nil)
 
 (defun cider-ido-form (ns)
   "Construct a Clojure form for ido read using NS."
@@ -990,38 +991,66 @@ See command `cider-mode'."
   "Perform up using NS."
   (mapconcat 'identity (butlast (split-string ns "\\.")) "."))
 
-(defun cider-ido-select (selected targets callback)
-  "Peform ido select using SELECTED, TARGETS and CALLBACK."
+(defun cider-ido-var-select (selected targets)
+  "Peform ido select using SELECTED and TARGETS."
   ;; TODO: immediate RET gives "" as selected for some reason
   ;; this is an OK workaround though
   (cond ((equal "" selected)
-         (cider-ido-select (car targets) targets callback))
+         (cider-ido-var-select (car targets) targets))
         ((equal "/" (substring selected -1)) ; selected a namespace
-         (cider-ido-read-var (substring selected 0 -1) callback))
+         (cider-ido-read-var (substring selected 0 -1) cider-ido-var-callback))
         ((equal ".." selected)
-         (cider-ido-read-var (cider-ido-up-ns cider-ido-ns) callback))
+         (cider-ido-read-var (cider-ido-up-ns cider-ido-ns) cider-ido-var-callback))
         ;; non ido variable selection techniques don't return qualified symbols, so this shouldn't either
-        (t (funcall callback selected))))
+        (t (funcall cider-ido-var-callback selected))))
 
-(defun cider-ido-read-var-handler (ido-callback buffer)
-  "Create an ido read var handler with IDO-CALLBACK for BUFFER."
-  (lexical-let ((ido-callback ido-callback))
+(defun cider-ido-read-sym-handler (label ido-select buffer)
+  "Create an ido read var handler with IDO-SELECT for BUFFER."
+  (lexical-let ((ido-select ido-select)
+                (label label))
     (nrepl-make-response-handler buffer
                                  (lambda (buffer value)
                                    ;; make sure to eval the callback in the buffer that the symbol was requested from so we get the right namespace
                                    (with-current-buffer buffer
                                      (let* ((targets (car (read-from-string value)))
-                                            (selected (ido-completing-read "Var: " targets nil t)))
-                                       (cider-ido-select selected targets ido-callback))))
+                                            (selected (ido-completing-read label targets nil t)))
+                                       (funcall ido-select selected targets))))
                                  nil nil nil)))
 
 (defun cider-ido-read-var (ns ido-callback)
   "Perform ido read var in NS using IDO-CALLBACK."
   ;; Have to be stateful =(
   (setq cider-ido-ns ns)
+  (setq cider-ido-var-callback ido-callback)
   (cider-tooling-eval (prin1-to-string (cider-ido-form cider-ido-ns))
-                     (cider-ido-read-var-handler ido-callback (current-buffer))
-                     nrepl-buffer-ns))
+                      (cider-ido-read-sym-handler "Var:" 'cider-ido-var-select (current-buffer))
+                      nrepl-buffer-ns))
+
+(defun cider-ido-fns-form (ns)
+  "Construct a Clojure form for reading fns using supplied NS."
+  (format "(let [fn-pred (fn [[k v]] (and (fn? (.get v))
+                                     (not (re-find #\"clojure.\" (str v)))))]
+              (sort
+                (map (comp name key)
+                     (filter fn-pred
+                         (concat
+                           (ns-interns '%s)
+                           (ns-refers '%s))))))" ns ns))
+
+(defun cider-ido-fn-callback (f targets)
+  (with-current-buffer (cider-current-repl-buffer)
+    (cider-repl--replace-input (format "(%s)" f))
+    (goto-char (- (point-max) 1))))
+
+(defun cider-load-fn-into-repl-buffer ()
+  "Browse functions available in current repl buffer using ido.
+Once selected, the name of the fn will appear in the repl buffer in parens
+ready to call."
+  (interactive)
+  (cider-tooling-eval (cider-ido-fns-form (cider-current-ns))
+                      (cider-ido-read-sym-handler (format "Fn: %s/" nrepl-buffer-ns)
+                                                  'cider-ido-fn-callback (current-buffer))
+                      nrepl-buffer-ns))
 
 (defun cider-read-symbol-name (prompt callback &optional query)
   "Either read a symbol name using PROMPT or choose the one at point.
