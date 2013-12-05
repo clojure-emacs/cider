@@ -35,7 +35,7 @@
 (require 'cider-repl) ; for cider-find-or-create-repl-buffer
 
 (defvar cider-selector-methods nil
-  "List of buffer-selection methods for the `cider-select' command.
+  "List of buffer-selection methods for the `cider-selector' command.
 Each element is a list (KEY DESCRIPTION FUNCTION).
 DESCRIPTION is a one-line description of what the key selects.")
 
@@ -144,7 +144,7 @@ is chosen.  The returned buffer is selected with
   nrepl-event-buffer-name)
 
 (def-cider-selector-method ?s
- "Cycle to the next CIDER connection."
+ "Cycle to the next CIDER connection's REPL."
  (cider-rotate-connection)
  (cider-find-or-create-repl-buffer))
 
