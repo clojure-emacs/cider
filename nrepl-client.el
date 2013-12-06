@@ -80,7 +80,7 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
   :type 'string
   :group 'nrepl)
 
-(defvar nrepl-repl-requires-sexp "(apply require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
+(defvar nrepl-repl-requires-sexp "(clojure.core/apply clojure.core/require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
   "Things to require in the tooling session and the REPL buffer.")
 
 (defvar nrepl-connection-buffer nil)
