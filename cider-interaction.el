@@ -458,7 +458,7 @@ Uses `find-file'."
   "Return a list of completions for STR using complete.core/completions."
   (let ((strlst
          (cider-eval-and-get-value
-          (format "(require 'complete.core) (complete.core/completions \"%s\" *ns*)" str)
+          (format "(clojure.core/require 'complete.core) (complete.core/completions \"%s\" *ns*)" str)
           nrepl-buffer-ns
           (nrepl-current-tooling-session))))
     (when strlst
