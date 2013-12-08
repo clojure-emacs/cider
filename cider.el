@@ -94,8 +94,7 @@ start the server."
 ;;;###autoload
 (defun cider (host port)
   "Connect to an nREPL server identified by HOST and PORT."
-  (interactive (list (read-string "Host: " (if (file-remote-p buffer-file-name)
-                                               tramp-current-host nrepl-host) nil nrepl-host)
+  (interactive (list (read-string "Host: " (nrepl-current-host) nil nrepl-host)
                      (string-to-number (let ((port (nrepl-default-port)))
                                          (read-string "Port: " port nil port)))))
   (setq cider-current-clojure-buffer (current-buffer))

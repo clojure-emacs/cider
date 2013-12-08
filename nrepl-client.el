@@ -419,6 +419,9 @@ This is bound for the duration of the handling of that message")
   "A list of connections.")
 
 
+(defun nrepl-current-host ()
+  (if (file-remote-p buffer-file-name)
+      tramp-current-host nrepl-host))
 
 (defun nrepl-make-connection-buffer ()
   "Create an nREPL connection buffer."
