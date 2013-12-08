@@ -420,7 +420,8 @@ This is bound for the duration of the handling of that message")
 
 
 (defun nrepl-current-host ()
-  (if (file-remote-p buffer-file-name)
+  (if (and (stringp buffer-file-name)
+           (file-remote-p buffer-file-name))
       tramp-current-host nrepl-host))
 
 (defun nrepl-make-connection-buffer ()
