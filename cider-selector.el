@@ -34,8 +34,11 @@
 (require 'cider-interaction)
 (require 'cider-repl) ; for cider-find-or-create-repl-buffer
 
+(defconst cider-selector-help-buffer "*Selector Help*"
+  "The name of the selector's help buffer.")
+
 (defvar cider-selector-methods nil
-  "List of buffer-selection methods for the `cider-select' command.
+  "List of buffer-selection methods for the `cider-selector' command.
 Each element is a list (KEY DESCRIPTION FUNCTION).
 DESCRIPTION is a one-line description of what the key selects.")
 
@@ -105,9 +108,9 @@ is chosen.  The returned buffer is selected with
                   #'< :key #'car))))
 
 (def-cider-selector-method ?? "Selector help buffer."
-  (ignore-errors (kill-buffer "*Select Help*"))
-  (with-current-buffer (get-buffer-create "*Select Help*")
-    (insert "Select Methods:\n\n")
+  (ignore-errors (kill-buffer cider-selector-help-buffer))
+  (with-current-buffer (get-buffer-create cider-selector-help-buffer)
+    (insert "CIDER Selector Methods:\n\n")
     (loop for (key line nil) in cider-selector-methods
           do (insert (format "%c:\t%s\n" key line)))
     (goto-char (point-min))
@@ -144,7 +147,7 @@ is chosen.  The returned buffer is selected with
   nrepl-event-buffer-name)
 
 (def-cider-selector-method ?s
- "Cycle to the next CIDER connection."
+ "Cycle to the next CIDER connection's REPL."
  (cider-rotate-connection)
  (cider-find-or-create-repl-buffer))
 

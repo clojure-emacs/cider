@@ -393,6 +393,7 @@ Keyboard shortcut                    | Description
 <kbd>C-u C-u C-c C-z</kbd> | Select the Clojure buffer based on a user prompt for a directory.
 <kbd>C-c M-d</kbd> | Display current REPL connection details, including project directory name, buffer namespace, host and port.
 <kbd>C-c M-r</kbd> | Rotate and display the current REPL connection.
+<kbd>C-c M-f</kbd> | Select a function from the current namespace using IDO and insert into nREPL buffer.
 
 In the REPL you can also use "shortcut commands" by pressing `,` at the beginning of a REPL line. You'll be presented with a list of commands you can quickly run (like quitting, displaying some info, clearing the REPL, etc). The character used to trigger the shortcuts is configurable via `cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
 
@@ -433,12 +434,14 @@ You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate
 
 An extensive changelog is available [here](CHANGELOG.md).
 
-## Extensions
+## Extensions & Related projects
 
 There are a couple of CIDER extensions that add some extra functionality to it:
 
 * [cider-tracing](https://github.com/clojure-emacs/cider-tracing) adds basic tracing support
 * [cider-decompile](https://github.com/clojure-emacs/cider-decompile) adds some Java bytecode decompilation commands
+* [troncle](https://github.com/coventry/troncle) adds advanced tracing support. If you don't mind installing some extra nREPL middleware
+you should use it instead of `cider-tracing`.
 
 ## Team
 

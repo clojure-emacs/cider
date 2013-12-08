@@ -257,7 +257,7 @@
     (let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1))))
         (should
-         (equal (cider-repl-buffer-name) "*cider*"))))))
+         (equal (cider-repl-buffer-name) "*cider-repl*"))))))
 
 (ert-deftest test-cider-clojure-buffer-name-w/project ()
   (with-temp-buffer
@@ -265,7 +265,7 @@
       (let ((nrepl-connection-list (list (buffer-name b1)))
             (nrepl-project-dir "/a/test/directory/project"))
         (should
-         (equal (cider-repl-buffer-name) "*cider project*"))))))
+         (equal (cider-repl-buffer-name) "*cider-repl project*"))))))
 
 (ert-deftest test-cider--find-rest-args-position ()
   (should (= (cider--find-rest-args-position [fmt & arg]) 1))

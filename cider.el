@@ -9,7 +9,7 @@
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 0.4.0-cvs
+;; Version: 0.4.0
 ;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "2.1.0") (pkg-info "0.3"))
 ;; Keywords: languages, clojure, cider
 
@@ -62,7 +62,6 @@
 (require 'cider-interaction)
 (require 'cider-eldoc)
 (require 'cider-repl)
-(require 'cider-repl-mode)
 (require 'cider-mode)
 
 ;;;###autoload

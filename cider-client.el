@@ -54,6 +54,7 @@
     "Design is about pulling things apart. -Rich Hickey"
     "Programmers know the benefits of everything and the tradeoffs of nothing. -Rich Hickey"
     "Code never lies, comments sometimes do. -Ron Jeffries"
+    "The true delight is in the finding out rather than in the knowing.  -Isaac Asimov"
     "Take this REPL, fellow hacker, and may it serve you well."
     "Let the hacking commence!"
     "Hacks and glory await!"
@@ -63,6 +64,10 @@
     "May the Source shine upon thy REPL!"
     "Code long and prosper!"
     "Happy hacking!"
+    "Backend is up, REPL is operational!"
+    "Your imagination is the only limit to what you can do with this REPL!"
+    "This REPL is yours to command!"
+    "Fame is but a hack away!"
     ,(format "%s, this could be the start of a beautiful program."
              (cider-user-first-name)))
   "Scientifically-proven optimal words of hackerish encouragement.")
@@ -86,6 +91,11 @@ NS & SESSION specify the context in which to evaluate the request."
   (let ((ns (if (string-match "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" input)
                 "user"
               ns)))
+    ;; prevent forms from being evaluated in the wrong or a non-existing namespace
+    (when (and ns
+               (derived-mode-p 'clojure-mode)
+               (not (string= ns nrepl-buffer-ns)))
+      (cider-eval-ns-form))
     (nrepl-send-string input callback ns session)))
 
 (defun cider-tooling-eval (input callback &optional ns)

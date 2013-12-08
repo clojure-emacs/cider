@@ -4,12 +4,19 @@
 
 ### New features
 
+* <kbd>C-c M-f</kbd> Select a function from the current namespace using IDO and insert into the REPL buffer.
+
+## 0.4.0 / 2013-12-03
+
+### New features
+
 * Added new interactive command `cider-read-and-eval` (bound to `C-c M-:` in `cider-mode`).
 * Added new interactive command `cider-eval-last-sexp-to-repl` (`C-c M-e`). The command will output the result
 of the evaluated code to the REPL buffer, so you can easily play with the output there afterwords.
 * Added new interactive command `cider-insert-last-sexp-in-repl` (`C-c M-p`).
 * Added new interactive command `cider-eval-last-expression-and-replace` (`C-c C-w`).
 * Implemented REPL shortcuts, triggered by pressing `,` at the start of a REPL input line (similar to the ones in SLIME).
+* Added new interactive command `cider-ping` to check connectivity with the server.
 
 ### Changes
 
@@ -23,6 +30,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 
 * [#315](https://github.com/clojure-emacs/cider/issues/393) Removed spurious newlines in output.
 * [#237](https://github.com/clojure-emacs/cider/issues/237) Don't swallow output from futures.
+* Create non-existing namespaces, when evaluating code in Clojure buffers.
 
 ## 0.3.1 / 2013-10-29
 

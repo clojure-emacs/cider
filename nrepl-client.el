@@ -80,7 +80,7 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
   :type 'string
   :group 'nrepl)
 
-(defvar nrepl-repl-requires-sexp "(apply require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
+(defvar nrepl-repl-requires-sexp "(clojure.core/apply clojure.core/require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
   "Things to require in the tooling session and the REPL buffer.")
 
 (defvar nrepl-connection-buffer nil)
@@ -89,7 +89,7 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
 (defvar nrepl-endpoint nil)
 (defvar nrepl-project-dir nil)
 
-(defconst nrepl-repl-buffer-name-template "*cider%s*")
+(defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
 
@@ -662,7 +662,6 @@ Use SESSION if it is non-nil, otherwise use the current session."
 (defun nrepl-send-string (input callback &optional ns session)
   "Send the request INPUT and register the CALLBACK as the response handler.
 See command `nrepl-eval-request' for details on how NS and SESSION are processed."
-  ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-send-request (nrepl-eval-request input ns session) callback))
 
 (defun nrepl-sync-request-handler (buffer)
