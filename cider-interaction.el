@@ -224,12 +224,37 @@ Returns to the buffer in which the command was invoked."
     (cider-repl-clear-buffer)
     (switch-to-buffer origin-buffer)))
 
-;;; Evaluating
+;;; Minibuffer eval
+(defvar cider-minibuffer-history '()
+  "History list of expressions read from the minibuffer.")
+
+(defvar cider-minibuffer-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map minibuffer-local-map)
+    (define-key map "TAB" 'complete-symbol)
+    (define-key map "M-TAB" 'complete-symbol)
+    map)
+  "Minibuffer keymap used for reading Clojure expressions.")
+
+(defun cider-read-from-minibuffer (prompt &optional initial-value history)
+  "Read a string from the minibuffer, prompting with PROMPT.
+If INITIAL-VALUE is non-nil, it is inserted into the minibuffer before
+reading input."
+  (minibuffer-with-setup-hook
+      (lambda ()
+        (add-hook 'completion-at-point-functions
+                  #'cider-complete-at-point nil t)
+        (run-hooks 'eval-expression-minibuffer-setup-hook))
+    (read-from-minibuffer prompt initial-value
+                          cider-minibuffer-map nil
+                          'cider-minibuffer-history)))
+
 (defun cider-read-and-eval ()
   "Read a sexp from the minibuffer and output its result to the echo area."
   (interactive)
-  (cider-interactive-eval (read-from-minibuffer "CIDER Eval: ")))
+  (cider-interactive-eval (cider-read-from-minibuffer "CIDER Eval: ")))
 
+;;; Eval
 (defun cider-eval-region (start end)
   "Evaluate the region.
 The two arguments START and END are character positions;
