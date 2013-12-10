@@ -30,6 +30,7 @@ do so.
 * Use the same coding conventions as the rest of the project.
 * Verify your Emacs Lisp code with `checkdoc` (<kbd>C-c ? d</kbd>).
 * Update the [changelog](CHANGELOG.md) accordingly.
+* [Squash related commits together][5].
 * Open a [pull request][4] that relates to *only* one subject with a clear title
   and description in grammatically correct, complete sentences.
 
@@ -37,3 +38,4 @@ do so.
 [2]: http://gun.io/blog/how-to-github-fork-branch-and-pull-request
 [3]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [4]: https://help.github.com/articles/using-pull-requests
+[5]: http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html
