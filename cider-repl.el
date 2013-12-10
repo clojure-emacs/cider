@@ -93,6 +93,15 @@ change the setting's value."
   :type 'boolean
   :group 'cider-repl)
 
+(defcustom cider-repl-print-length nil
+  "Non-nil means limit the number of objects printed in REPL to this value.
+This is implemented by setting the value of the Clojure var
+*print-length*.  The `cider-repl-toggle-print-length-limiting'
+command can be used to interactively change whether this setting
+is enforced or not."
+  :type 'integer
+  :group 'cider-repl)
+
 (defcustom cider-repl-tab-command 'cider-repl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
 The default option is `cider-repl-indent-and-complete-symbol'.  If
@@ -226,6 +235,8 @@ Insert a banner, unless NOPROMPT is non-nil."
       (cider-repl-mode))
     ;; use the same requires by default as clojure.main does
     (cider-eval-sync nrepl-repl-requires-sexp)
+    (when cider-repl-print-length
+      (cider-repl-set-print-length cider-repl-print-length))
     (cider-repl-reset-markers)
     (unless noprompt
       (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
@@ -593,6 +604,23 @@ text property `cider-old-input'."
   (setq cider-repl-use-pretty-printing (not cider-repl-use-pretty-printing))
   (message "Pretty printing in nREPL %s."
            (if cider-repl-use-pretty-printing "enabled" "disabled")))
+
+(defun cider-repl-set-print-length (print-length)
+  "Set the clojure var *print-length* to PRINT-LENGTH."
+  (let* ((form (format "(set! *print-length* %d)"
+                       print-length)))
+    (cider-eval-sync form)))
+
+(defun cider-repl-toggle-print-length-limiting ()
+  "Toggle the enforcement of `cider-repl-print-length'."
+  (interactive)
+  (when (integerp cider-repl-print-length)
+    (let* ((form (format "(set! *print-length* (if *print-length* nil %d))"
+                         cider-repl-print-length))
+           (print-length (cider-eval-and-get-value form)))
+      (if print-length
+          (message "*print-length* limited to %d" print-length)
+        (message "*print-length* unlimited")))))
 
 (defvar cider-repl-clear-buffer-hook)
 

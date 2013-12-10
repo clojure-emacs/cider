@@ -6,6 +6,10 @@
 
 * <kbd>C-c M-f</kbd> Select a function from the current namespace using IDO and insert into the REPL buffer.
 * `cider-read-and-eval` now supports completion and keeps history.
+* Added ability to limit the number of objects printed in collections
+  by managing `*print-length*`. `cider-repl-print-length` can be used
+  to set a limit, and `cider-repl-toggle-print-length-limiting` can be
+  used to toggle the enforcement of the limit.
 
 ## 0.4.0 / 2013-12-03
 
