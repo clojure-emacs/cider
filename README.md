@@ -29,6 +29,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 	- [cider-macroexpansion-minor-mode](#cider-macroexpansion-minor-mode)
 	- [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
+- [Caveats](#caveats)
 - [Changelog](#changelog)
 - [Extensions](#extensions)
 - [Team](#team)
@@ -429,6 +430,21 @@ You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate
 * [Leiningen](http://leiningen.org) 2.x (only for `cider-jack-in`)
 * [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
 * [Clojure](http://clojure.org) 1.4.0+
+
+## Caveats
+
+### Completion
+
+The built-in completion logic in CIDER relies on the library
+[clojure-complete](https://github.com/ninjudd/clojure-complete), so
+you'll have to have it your classpath for completion to work.  If
+you're connecting to an nREPL server started from `lein` (e.g. you
+invoked `M-x cider-jack-in`) - there's nothing for you to do.  This
+is, however, an issue if you're embedding nREPL in an application for
+instance, because nREPL itself does not depend on `clojure-complete`.
+
+Note that if you're using an nREPL middleware providing a `complete` op,
+CIDER will use it instead of its built-in completion.
 
 ## Changelog
 
