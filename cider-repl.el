@@ -632,8 +632,8 @@ text property `cider-old-input'."
 
 (defun cider--all-ns ()
   "Get a list of the available namespaces."
-  (read (cider-eval-and-get-value
-         "(clojure.core/map clojure.core/str (clojure.core/all-ns))")))
+  (cider-eval-and-get-value
+   "(clojure.core/map clojure.core/str (clojure.core/all-ns))"))
 
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.

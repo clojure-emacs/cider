@@ -90,13 +90,11 @@ in the `cider-error-buffer', which defaults to *cider-error*."
 ;;; Connection info
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
-  (let ((version-string (cider-eval-and-get-value "(clojure-version)")))
-   (substring version-string 1 (1- (length version-string)))))
+  (cider-eval-and-get-value "(clojure-version)"))
 
 (defun cider--backend-version ()
   "Retrieve the underlying connection's nREPL version."
-  (let ((version-string (cider-eval-and-get-value "(:version-string clojure.tools.nrepl/version)")))
-    (substring version-string 1 (1- (length version-string)))))
+  (cider-eval-and-get-value "(:version-string clojure.tools.nrepl/version)"))
 
 (defun cider--connection-info (nrepl-connection-buffer)
   "Return info about NREPL-CONNECTION-BUFFER.
@@ -481,13 +479,10 @@ Uses `find-file'."
 
 (defun cider-completion-complete-core-fn (str)
   "Return a list of completions for STR using complete.core/completions."
-  (let ((strlst
-         (cider-eval-and-get-value
-          (format "(clojure.core/require 'complete.core) (complete.core/completions \"%s\" *ns*)" str)
-          nrepl-buffer-ns
-          (nrepl-current-tooling-session))))
-    (when strlst
-      (car (read-from-string strlst)))))
+  (cider-eval-and-get-value
+   (format "(clojure.core/require 'complete.core) (complete.core/completions \"%s\" *ns*)" str)
+   nrepl-buffer-ns
+   (nrepl-current-tooling-session)))
 
 (defun cider-completion-complete-op-fn (str)
   "Return a list of completions for STR using the nREPL \"complete\" op."
