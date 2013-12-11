@@ -7,6 +7,10 @@
 * <kbd>C-c M-f</kbd> Select a function from the current namespace using IDO and insert into the REPL buffer.
 * `cider-read-and-eval` now supports completion and keeps history.
 
+### Bugs fixed
+
+* [#316](https://github.com/clojure-emacs/cider/issues/316) Honor the `:init-ns` namespace on startup.
+
 ## 0.4.0 / 2013-12-03
 
 ### New features
