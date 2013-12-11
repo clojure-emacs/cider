@@ -23,6 +23,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 	- [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
 	- [Using the cider minor mode](#using-the-cider-minor-mode)
 	- [Pretty printing in the REPL](#pretty-printing-in-the-repl)
+    - [Limiting printed output in the REPL](#limiting-printed-output-in-the-repl)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 	- [cider-mode](#cider-mode)
 	- [cider-repl-mode](#cider-repl-mode)
@@ -194,6 +195,13 @@ Buffer name will look like *cider project-name:port*.
 (setq cider-repl-display-in-current-window t)
 ```
 
+* Limit the number of items of each collection the printer will print
+  to 100:
+
+```el
+(setq cider-repl-print-length 100) ; the default is nil, no limit
+```
+
 ### REPL History
 
 * To make the REPL history wrap around when its end is reached:
@@ -331,6 +339,17 @@ and it expects `clojure.pprint` to have been required already
 (the default in more recent versions of Clojure):
 
 <kbd>M-x cider-toggle-pretty-printing</kbd>
+
+### Limiting printed output in the REPL
+
+Accidentally printing large objects can be detrimental to your
+productivity. Clojure provides the `*print-length*` var which, if set,
+controls how many items of each collection the printer will print. You
+can supply a default value for REPL sessions by setting the
+`cider-repl-print-length` variable to an integer value. The
+enforcement of this limit can then be toggled using:
+
+<kbd>M-x cider-toggle-print-length-limiting</kbd>
 
 ## Keyboard shortcuts
 
