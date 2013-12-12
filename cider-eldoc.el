@@ -103,7 +103,7 @@ POS is the index of current argument."
                               (clojure.core/read-string \"%s\"))))
                            (catch Throwable t nil))" thing))
            (value (when thing
-                    (cider-get-value (cider-tooling-eval-sync form nrepl-buffer-ns)))))
+                    (cider-get-raw-value (cider-tooling-eval-sync form nrepl-buffer-ns)))))
       (unless (string= value "nil")
         (format "%s: %s"
                 (cider-eldoc-format-thing thing)

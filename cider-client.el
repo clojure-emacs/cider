@@ -119,9 +119,13 @@ NS & SESSION specify the evaluation context."
 NS specifies the namespace in which to evaluate the request."
   (cider-eval-sync input ns (nrepl-current-tooling-session)))
 
+(defun cider-get-raw-value (eval-result)
+  "Get the raw value (as string) from EVAL-RESULT."
+  (plist-get eval-result :value))
+
 (defun cider-get-value (eval-result)
   "Get the value from EVAL-RESULT."
-  (read (plist-get eval-result :value)))
+  (read (cider-get-raw-value eval-result)))
 
 (defun cider-send-op (op attributes handler)
   "Send the specified OP with ATTRIBUTES and response HANDLER."
