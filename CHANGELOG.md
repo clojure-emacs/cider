@@ -14,6 +14,7 @@
 ### Bugs fixed
 
 * [#316](https://github.com/clojure-emacs/cider/issues/316) Honor the `:init-ns` namespace on startup.
+* [#436](https://github.com/clojure-emacs/cider/issues/436) Fix an infinite loop when evaluating ns forms.
 
 ## 0.4.0 / 2013-12-03
 
