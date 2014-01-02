@@ -175,7 +175,7 @@ than the REPL:
 (setq cider-auto-select-error-buffer t)
 ```
 
-* The REPL buffer name takes the format `*cider project-name*`.
+* The REPL buffer name has the format `*cider-repl project-name*`.
 Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 
 ```el
@@ -183,7 +183,7 @@ Change the separator from space to something else by overriding `nrepl-buffer-na
 ```
 
 * The REPL buffer name can also display the port on which the nREPL server is running.
-Buffer name will look like *cider project-name:port*.
+Buffer name will look like *cider-repl project-name:port*.
 
 ```el
 (setq nrepl-buffer-name-show-port t)
