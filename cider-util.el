@@ -52,6 +52,14 @@
    (lambda (buffer) (with-current-buffer buffer (derived-mode-p 'clojure-mode)))
    (buffer-list)))
 
+(defun cider-font-lock-as-clojure (string)
+  "Font-lock STRING as Clojure code."
+  (with-temp-buffer
+    (insert string)
+    (clojure-mode)
+    (font-lock-fontify-buffer)
+    (buffer-string)))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

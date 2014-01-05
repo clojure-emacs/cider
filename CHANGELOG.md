@@ -11,7 +11,8 @@
   to set a limit, and `cider-repl-toggle-print-length-limiting` can be
   used to toggle the enforcement of the limit.
 * New config `cider-interactive-eval-result-prefix` controls the prefix displayed before results
-  from interactive evaluation displayed in the minibuffer.
+from interactive evaluation displayed in the minibuffer.
+* Font-lock interactive evaluation results as Clojure code.
 
 ### Bugs fixed
 

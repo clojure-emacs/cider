@@ -580,7 +580,9 @@ The handler simply inserts the result value in BUFFER."
   "Make an interactive eval handler for BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (message "%s%s" cider-interactive-eval-result-prefix value))
+                                 (message "%s%s"
+                                          cider-interactive-eval-result-prefix
+                                          (cider-font-lock-as-clojure value)))
                                (lambda (buffer value)
                                  (cider-repl-emit-interactive-output value))
                                (lambda (buffer err)
