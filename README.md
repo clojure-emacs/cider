@@ -202,6 +202,14 @@ Buffer name will look like *cider-repl project-name:port*.
 (setq cider-repl-print-length 100) ; the default is nil, no limit
 ```
 
+* Change the result prefix for interactive evaluation (by default it's `=> `):
+
+```el
+(set cider-interactive-eval-result-prefix ";; => ")
+```
+
+To remove the prefix altogether just set it to an empty string(`""`).
+
 ### REPL History
 
 * To make the REPL history wrap around when its end is reached:

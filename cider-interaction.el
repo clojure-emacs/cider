@@ -73,6 +73,11 @@ in the `cider-error-buffer', which defaults to *cider-error*."
   :type 'boolean
   :group 'cider)
 
+(defcustom cider-interactive-eval-result-prefix "=> "
+  "The prefix displayed in the minibuffer before a result value."
+  :type 'string
+  :group 'cider)
+
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
      (:underline (:style wave :color "red") :inherit unspecified))
@@ -575,7 +580,7 @@ The handler simply inserts the result value in BUFFER."
   "Make an interactive eval handler for BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (message "%s" value))
+                                 (message "%s%s" cider-interactive-eval-result-prefix value))
                                (lambda (buffer value)
                                  (cider-repl-emit-interactive-output value))
                                (lambda (buffer err)
