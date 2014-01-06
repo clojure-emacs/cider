@@ -13,6 +13,8 @@
 * New config `cider-interactive-eval-result-prefix` controls the prefix displayed before results
 from interactive evaluation displayed in the minibuffer.
 * Font-lock interactive evaluation results as Clojure code.
+* Added the ability to font-lock input and results in the REPL as Clojure code. This is controlled via
+the option `cider-repl-use-clojure-font-lock`.
 
 ### Bugs fixed
 

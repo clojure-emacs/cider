@@ -102,6 +102,13 @@ is enforced or not."
   :type 'integer
   :group 'cider-repl)
 
+(defcustom cider-repl-use-clojure-font-lock nil
+  "Non-nil means to use Clojure mode font-locking for input and result.
+Nil means that `cider-repl-input-face' and `cider-repl-result-face'
+will be used."
+  :type 'boolean
+  :group 'cider-repl)
+
 (defcustom cider-repl-tab-command 'cider-repl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
 The default option is `cider-repl-indent-and-complete-symbol'.  If
@@ -449,9 +456,11 @@ If BOL is non-nil insert at the beginning of the line."
         (cider-save-marker cider-repl-output-end
           (goto-char cider-repl-input-start-mark)
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (cider-propertize-region `(face cider-repl-result-face
-                                          rear-nonsticky (face))
-            (insert-before-markers string)))))
+          (if cider-repl-use-clojure-font-lock
+              (insert-before-markers (cider-font-lock-as-clojure string))
+              (cider-propertize-region `(face cider-repl-result-face
+                                              rear-nonsticky (face))
+             (insert-before-markers string))))))
     (cider-repl--show-maximum-output)))
 
 (defun cider-repl-newline-and-indent ()
@@ -529,11 +538,18 @@ If NEWLINE is true then add a newline at the end of the input."
                            (point)
                            `(cider-old-input
                              ,(incf cider-repl-old-input-counter))))
-    (let ((overlay (make-overlay cider-repl-input-start-mark end)))
-      ;; These properties are on an overlay so that they won't be taken
-      ;; by kill/yank.
-      (overlay-put overlay 'read-only t)
-      (overlay-put overlay 'face 'cider-repl-input-face)))
+    (if cider-repl-use-clojure-font-lock
+        (let ((input-string (buffer-substring cider-repl-input-start-mark end)))
+          (save-excursion
+            ;; TODO: Think of a more efficient way to do that
+            (cider-repl-kill-input)
+            ;; replace the current input with a Clojure font-locked version of itself
+            (insert (cider-font-lock-as-clojure input-string) "\n")))
+      (let ((overlay (make-overlay cider-repl-input-start-mark end)))
+        ;; These properties are on an overlay so that they won't be taken
+        ;; by kill/yank.
+        (overlay-put overlay 'read-only t)
+        (overlay-put overlay 'face 'cider-repl-input-face))))
   (let* ((input (cider-repl--current-input))
          (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
                         cider-repl-use-pretty-printing)
