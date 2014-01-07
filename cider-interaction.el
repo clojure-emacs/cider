@@ -926,7 +926,7 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
 
 (defun cider-eval-print-last-sexp ()
   "Evaluate the expression preceding point.
-Print its value into the current buffer"
+Print its value into the current buffer."
   (interactive)
   (cider-interactive-eval-print (cider-last-sexp)))
 
