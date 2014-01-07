@@ -939,6 +939,15 @@ Print its value into the current buffer."
                         (cider-popup-eval-out-handler result-buffer)
                         (cider-current-ns))))
 
+(defun cider-pprint-eval-defun-at-point ()
+  "Evaluate the current top-level form at point and pprint its value in a popup buffer."
+  (interactive)
+  (let ((form (cider-defun-at-point))
+        (result-buffer (cider-popup-buffer cider-result-buffer nil)))
+    (cider-tooling-eval (format "(clojure.pprint/pprint %s)" form)
+                        (cider-popup-eval-out-handler result-buffer)
+                        (cider-current-ns))))
+
 (defun cider-insert-last-sexp-in-repl (&optional arg)
   "Insert the expression preceding point in the REPL buffer.
 If invoked with a prefix ARG eval the expression after inserting it."

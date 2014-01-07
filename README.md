@@ -386,7 +386,8 @@ Keyboard shortcut                    | Description
 <kbd>C-x C-w</kbd>                   | Evaluate the form preceding point and replace it with its result.
 <kbd>C-c M-e</kbd>                   | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 <kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
-<kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and display the result in a popup buffer.
+<kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer.
+<kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer.
 <kbd>C-M-x</kbd> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
 <kbd>C-c C-r</kbd>                   | Evaluate the region and display the result in the echo area.
 <kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
