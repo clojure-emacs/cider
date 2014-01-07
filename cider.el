@@ -10,7 +10,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
 ;; Version: 0.5.0-cvs
-;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "2.1.0") (pkg-info "0.4"))
+;; Package-Requires: ((clojure-mode "2.0.0") (cl-lib "0.3") (dash "2.4.1") (pkg-info "0.4"))
 ;; Keywords: languages, clojure, cider
 
 ;; This program is free software: you can redistribute it and/or modify
