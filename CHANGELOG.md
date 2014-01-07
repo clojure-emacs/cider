@@ -15,6 +15,7 @@ from interactive evaluation displayed in the minibuffer.
 * Font-lock interactive evaluation results as Clojure code.
 * Added the ability to font-lock input and results in the REPL as Clojure code. This is controlled via
 the option `cider-repl-use-clojure-font-lock`.
+* Added `cider-pprint-eval-defun-at-point`, a companion to `cider-pprint-eval-last-sexp` which works on the top-level form.
 
 ### Bugs fixed
 

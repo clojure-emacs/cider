@@ -45,6 +45,7 @@
     (define-key map (kbd "C-c M-e") 'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") 'cider-insert-last-sexp-in-repl)
     (define-key map (kbd "C-c C-p") 'cider-pprint-eval-last-sexp)
+    (define-key map (kbd "C-c C-f") 'cider-pprint-eval-defun-at-point)
     (define-key map (kbd "C-c C-r") 'cider-eval-region)
     (define-key map (kbd "C-c C-n") 'cider-eval-ns-form)
     (define-key map (kbd "C-c M-:") 'cider-read-and-eval)
