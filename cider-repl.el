@@ -109,6 +109,11 @@ will be used."
   :type 'boolean
   :group 'cider-repl)
 
+(defcustom cider-repl-result-prefix ""
+  "The prefix displayed in the REPL before a result value."
+  :type 'string
+  :group 'cider)
+
 (defcustom cider-repl-tab-command 'cider-repl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.
 The default option is `cider-repl-indent-and-complete-symbol'.  If
@@ -455,12 +460,14 @@ If BOL is non-nil insert at the beginning of the line."
       (cider-save-marker cider-repl-output-start
         (cider-save-marker cider-repl-output-end
           (goto-char cider-repl-input-start-mark)
-          (when (and bol (not (bolp))) (insert-before-markers "\n"))
+          (when (and bol (not (bolp)))
+            (insert-before-markers "\n"))
+          (insert-before-markers cider-repl-result-prefix)
           (if cider-repl-use-clojure-font-lock
               (insert-before-markers (cider-font-lock-as-clojure string))
-              (cider-propertize-region `(face cider-repl-result-face
-                                              rear-nonsticky (face))
-             (insert-before-markers string))))))
+            (cider-propertize-region
+                `(face cider-repl-result-face rear-nonsticky (face))
+              (insert-before-markers string))))))
     (cider-repl--show-maximum-output)))
 
 (defun cider-repl-newline-and-indent ()
