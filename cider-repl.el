@@ -462,7 +462,7 @@ If BOL is non-nil insert at the beginning of the line."
           (goto-char cider-repl-input-start-mark)
           (when (and bol (not (bolp)))
             (insert-before-markers "\n"))
-          (insert-before-markers cider-repl-result-prefix)
+          (insert-before-markers (propertize cider-repl-result-prefix 'face 'font-lock-comment-face))
           (if cider-repl-use-clojure-font-lock
               (insert-before-markers (cider-font-lock-as-clojure string))
             (cider-propertize-region
