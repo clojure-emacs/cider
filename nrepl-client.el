@@ -83,11 +83,11 @@ The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
 (defvar nrepl-repl-requires-sexp "(clojure.core/apply clojure.core/require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
   "Things to require in the tooling session and the REPL buffer.")
 
-(defvar nrepl-connection-buffer nil)
-(defvar nrepl-server-buffer nil)
-(defvar nrepl-repl-buffer nil)
-(defvar nrepl-endpoint nil)
-(defvar nrepl-project-dir nil)
+(defvar-local nrepl-connection-buffer nil)
+(defvar-local nrepl-server-buffer nil)
+(defvar-local nrepl-repl-buffer nil)
+(defvar-local nrepl-endpoint nil)
+(defvar-local nrepl-project-dir nil)
 
 (defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
@@ -128,51 +128,31 @@ also include the connection port if `nrepl-buffer-name-show-port' is true."
    (nrepl-buffer-name nrepl-server-buffer-name-template)))
 
 ;; buffer local declarations
-(defvar nrepl-session nil
+(defvar-local nrepl-session nil
   "Current nREPL session id.")
 
-(defvar nrepl-tooling-session nil
+(defvar-local nrepl-tooling-session nil
   "Current nREPL tooling session id.
 To be used for tooling calls (i.e. completion, eldoc, etc)")
 
-(defvar nrepl-request-counter 0
+(defvar-local nrepl-request-counter 0
   "Continuation serial number counter.")
 
-(defvar nrepl-pending-requests (make-hash-table :test 'equal))
+(defvar-local nrepl-pending-requests (make-hash-table :test 'equal))
 
-(defvar nrepl-completed-requests (make-hash-table :test 'equal))
+(defvar-local nrepl-completed-requests (make-hash-table :test 'equal))
 
-(defvar nrepl-buffer-ns "user"
+(defvar-local nrepl-buffer-ns "user"
   "Current Clojure namespace of this buffer.")
 
-(defvar nrepl-sync-response nil
+(defvar-local nrepl-sync-response nil
   "Result of the last sync request.")
 
 (defvar nrepl-err-handler 'cider-default-err-handler
   "Evaluation error handler.")
 
-(defvar nrepl-ops nil
+(defvar-local nrepl-ops nil
   "Available nREPL server ops (from describe).")
-
-(defun nrepl-make-variables-buffer-local (&rest variables)
-  "Make all VARIABLES buffer local."
-  (mapcar #'make-variable-buffer-local variables))
-
-(nrepl-make-variables-buffer-local
- 'nrepl-connection-buffer
- 'nrepl-repl-buffer
- 'nrepl-server-buffer
- 'nrepl-endpoint
- 'nrepl-project-dir
- 'nrepl-ops
- 'nrepl-session
- 'nrepl-tooling-session
- 'nrepl-request-counter
- 'nrepl-pending-requests
- 'nrepl-completed-requests
- 'nrepl-done-requests
- 'nrepl-buffer-ns
- 'nrepl-sync-response)
 
 ;;; Bencode
 ;;; Adapted from http://www.emacswiki.org/emacs-en/bencode.el

@@ -141,35 +141,26 @@ to specific the full path to it.  Localhost is assumed."
   :group 'cider-repl)
 
 ;;;; REPL buffer local variables
-(defvar cider-repl-input-start-mark)
+(defvar-local cider-repl-input-start-mark)
 
-(defvar cider-repl-prompt-start-mark)
+(defvar-local cider-repl-prompt-start-mark)
 
-(defvar cider-repl-old-input-counter 0
+(defvar-local cider-repl-old-input-counter 0
   "Counter used to generate unique `cider-old-input' properties.
 This property value must be unique to avoid having adjacent inputs be
 joined together.")
 
-(defvar cider-repl-input-history '()
+(defvar-local cider-repl-input-history '()
   "History list of strings read from the nREPL buffer.")
 
-(defvar cider-repl-input-history-items-added 0
+(defvar-local cider-repl-input-history-items-added 0
   "Variable counting the items added in the current session.")
 
-(defvar cider-repl-output-start nil
+(defvar-local cider-repl-output-start nil
   "Marker for the start of output.")
 
-(defvar cider-repl-output-end nil
+(defvar-local cider-repl-output-end nil
   "Marker for the end of output.")
-
-(nrepl-make-variables-buffer-local
- 'cider-repl-input-start-mark
- 'cider-repl-prompt-start-mark
- 'cider-repl-old-input-counter
- 'cider-repl-input-history
- 'cider-repl-input-history-items-added
- 'cider-repl-output-start
- 'cider-repl-output-end)
 
 (defun cider-repl-tab ()
   "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
