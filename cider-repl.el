@@ -141,9 +141,9 @@ to specific the full path to it.  Localhost is assumed."
   :group 'cider-repl)
 
 ;;;; REPL buffer local variables
-(defvar-local cider-repl-input-start-mark)
+(defvar-local cider-repl-input-start-mark nil)
 
-(defvar-local cider-repl-prompt-start-mark)
+(defvar-local cider-repl-prompt-start-mark nil)
 
 (defvar-local cider-repl-old-input-counter 0
   "Counter used to generate unique `cider-old-input' properties.
