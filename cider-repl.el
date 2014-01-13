@@ -939,6 +939,20 @@ constructs."
 (cider-repl-add-shortcut "conn-rotate" 'cider-rotate-connection)
 (cider-repl-add-shortcut "clear" 'cider-repl-clear-buffer)
 (cider-repl-add-shortcut "ns" 'cider-repl-set-ns)
+(cider-repl-add-shortcut "help" 'cider-repl-shortcuts-help)
+
+(defun cider-repl-shortcuts-help ()
+  "Display a help buffer."
+  (interactive)
+  (ignore-errors (kill-buffer "*CIDER REPL Shortcuts Help*"))
+  (with-current-buffer (get-buffer-create "*CIDER REPL Shortcuts Help*")
+    (insert "CIDER REPL shortcuts:\n\n")
+    (maphash (lambda (k v) (insert (format "%s:\n\t%s\n" k v))) cider-repl-shortcuts)
+    (goto-char (point-min))
+    (help-mode)
+    (display-buffer (current-buffer) t))
+  (cider-repl-handle-shortcut)
+  (current-buffer))
 
 (defun cider-repl--available-shortcuts ()
   "Return the available REPL shortcuts."
