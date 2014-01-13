@@ -55,7 +55,6 @@
     (define-key map (kbd "C-c C-d") 'cider-doc)
     (define-key map (kbd "C-c C-s") 'cider-src)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
-    (define-key map (kbd "C-c C-Z") 'cider-switch-to-relevant-repl-buffer)
     (define-key map (kbd "C-c M-o") 'cider-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'cider-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'cider-load-file)

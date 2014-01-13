@@ -22,6 +22,7 @@ the option `cider-repl-use-clojure-font-lock`.
 
 * [#316](https://github.com/clojure-emacs/cider/issues/316) Honor the `:init-ns` namespace on startup.
 * [#436](https://github.com/clojure-emacs/cider/issues/436) Fix an infinite loop when evaluating ns forms.
+* [#435](https://github.com/clojure-emacs/cider/issues/435) Fix trampling of `cider-switch-to-repl-buffer` by `cider-switch-to-relevant-repl-buffer`.
 
 ## 0.4.0 / 2013-12-03
 

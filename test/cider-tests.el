@@ -277,50 +277,103 @@
     (let* ((b1 (generate-new-buffer "temp"))
            (b2 (generate-new-buffer "temp"))
            (b3 (generate-new-buffer "temp"))
-           (b4 (generate-new-buffer "temp"))
-           (b5 (generate-new-buffer "temp"))
-           (b6 (generate-new-buffer "temp"))
+           (b1-repl (generate-new-buffer "temp"))
+           (b2-repl (generate-new-buffer "temp"))
+           (b3-repl (generate-new-buffer "temp"))
+           (nrepl-connection-list (list (buffer-name b1)
+                                        (buffer-name b2)
+                                        (buffer-name b3))))
+      (with-current-buffer b1
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+        (set (make-local-variable 'nrepl-project-dir) "proj1")
+        (set (make-local-variable 'nrepl-repl-buffer) b1-repl))
+      (with-current-buffer b2
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
+        (set (make-local-variable 'nrepl-project-dir) "proj2")
+        (set (make-local-variable 'nrepl-repl-buffer) b2-repl))
+      (with-current-buffer b3
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+        (set (make-local-variable 'nrepl-project-dir) "proj3")
+        (set (make-local-variable 'nrepl-repl-buffer) b3-repl))
+      (with-current-buffer b1
+        (cider-switch-to-relevant-repl-buffer '())
+        (should (equal b1-repl (current-buffer)))
+        (should (equal (list (buffer-name b1) (buffer-name b2) (buffer-name b3))
+                       nrepl-connection-list)))
+      (with-current-buffer b2
+        (cider-switch-to-relevant-repl-buffer '())
+        (should (equal b2-repl (current-buffer)))
+        (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
+                       nrepl-connection-list)))
+      (with-current-buffer b3
+        (cider-switch-to-relevant-repl-buffer '())
+        (should (equal b3-repl (current-buffer))) ;; didn't switch to anything
+        (should (equal (list (buffer-name b3) (buffer-name b2) (buffer-name b1))
+                       nrepl-connection-list)))
+      (let ((nrepl-connection-list (list (buffer-name b3)
+                                         (buffer-name b2)
+                                         (buffer-name b1))))
+        (with-current-buffer b1
+          (cider-switch-to-relevant-repl-buffer '())
+          (should (equal b1-repl (current-buffer)))
+          (should (equal (list (buffer-name b1) (buffer-name b3) (buffer-name b2))
+                         nrepl-connection-list))))
+      (dolist (buf (list b1 b2 b3 b1-repl b2-repl b3-repl))
+        (kill-buffer buf)))))
+
+(ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-project-dir ()
+  (noflet ((nrepl-project-directory-for (dontcare)
+             nrepl-project-dir))
+    (let* ((b1 (generate-new-buffer "temp"))
+           (b2 (generate-new-buffer "temp"))
+           (b1-repl (generate-new-buffer "temp"))
+           (b2-repl (generate-new-buffer "temp"))
+           (nrepl-connection-list (list (buffer-name b1)
+                                        (buffer-name b2))))
+      (with-current-buffer b1 ;; cider-jack-in 1
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
+        (set (make-local-variable 'nrepl-project-dir) "proj1")
+        (set (make-local-variable 'nrepl-repl-buffer) b1-repl))
+      (with-current-buffer b2 ;; cider-connect - no relevant buffer
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
+        (set (make-local-variable 'nrepl-repl-buffer) b2-repl))
+      (with-current-buffer b2
+        (cider-switch-to-relevant-repl-buffer '())
+        (should (equal b1-repl (current-buffer)))
+        (should (equal (list (buffer-name b1) (buffer-name b2))
+                       nrepl-connection-list)))
+      (dolist (buf (list b1 b2 b1-repl b2-repl))
+        (kill-buffer buf)))))
+
+(ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-if-two-projects ()
+  (noflet ((nrepl-project-directory-for (dontcare)
+             nrepl-project-dir))
+    (let* ((b1 (generate-new-buffer "temp"))
+           (b2 (generate-new-buffer "temp"))
+           (b3 (generate-new-buffer "temp"))
+           (b1-repl (generate-new-buffer "temp"))
+           (b2-repl (generate-new-buffer "temp"))
+           (b3-repl (generate-new-buffer "temp"))
            (nrepl-connection-list (list (buffer-name b1)
                                         (buffer-name b2)
                                         (buffer-name b3))))
       (with-current-buffer b1 ;; cider-jack-in 1
         (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
         (set (make-local-variable 'nrepl-project-dir) "proj1")
-        (set (make-local-variable 'nrepl-repl-buffer) b4))
-      (with-current-buffer b2 ;; cider-jack-in 2
+        (set (make-local-variable 'nrepl-repl-buffer) b1-repl))
+      (with-current-buffer b2 ;; cider-connect - no relevant buffer
         (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
-        (set (make-local-variable 'nrepl-project-dir) "proj2")
-        (set (make-local-variable 'nrepl-repl-buffer) b5))
+        (set (make-local-variable 'nrepl-project-dir) "proj1")
+        (set (make-local-variable 'nrepl-repl-buffer) b2-repl))
       (with-current-buffer b3 ;; cider-connect - no relevant buffer
-        (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4009))
-        (set (make-local-variable 'nrepl-repl-buffer) b6))
-
-      (with-current-buffer b1
-        (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b4 (current-buffer)))
-        (should (equal (list (buffer-name b1) (buffer-name b2) (buffer-name b3))
-                       nrepl-connection-list)))
-
+        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4007))
+        (set (make-local-variable 'nrepl-project-dir) "proj2")
+        (set (make-local-variable 'nrepl-repl-buffer) b3-repl))
+      (with-current-buffer b3
+        (cider-switch-to-relevant-repl-buffer '()))
       (with-current-buffer b2
         (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b5 (current-buffer)))
-        (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
-                       nrepl-connection-list)))
+        (should (equal b3-repl (current-buffer))))
 
-      (with-current-buffer b3
-        (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b5 (current-buffer))) ;; didn't switch to anything
-        (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
-                       nrepl-connection-list)))
-
-      (let ((nrepl-connection-list (list (buffer-name b3)
-                                         (buffer-name b2)
-                                         (buffer-name b1))))
-        (with-current-buffer b1
-          (cider-switch-to-relevant-repl-buffer '())
-          (should (equal b4 (current-buffer)))
-          (should (equal (list (buffer-name b1) (buffer-name b3) (buffer-name b2))
-                         nrepl-connection-list))))
-
-      (dolist (buf (list b1 b2 b3 b4 b5 b6))
+      (dolist (buf (list b1 b2 b3 b1-repl b2-repl b3-repl))
         (kill-buffer buf)))))

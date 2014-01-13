@@ -78,6 +78,15 @@ in the `cider-error-buffer', which defaults to *cider-error*."
   :type 'string
   :group 'cider)
 
+(defcustom cider-switch-to-repl-command 'cider-switch-to-relevant-repl-buffer
+  "Select the command to be invoked when switching-to-repl.
+The default option is `cider-switch-to-relevant-repl-buffer'.  If
+you'd like to not use smart matching of repl buffer based on
+project directory, you can assign it to `cider-switch-to-current-repl-buffer'
+which will use the default REPL connection."
+  :type 'symbol
+  :group 'cider)
+
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
      (:underline (:style wave :color "red") :inherit unspecified))
@@ -152,59 +161,98 @@ to jump back to the last Clojure source buffer."
     (setq cider-last-clojure-buffer buffer)))
 
 (defun cider-switch-to-repl-buffer (&optional arg)
+  "Invoke `cider-switch-to-repl-command'."
+  (interactive "p")
+  (funcall cider-switch-to-repl-command arg))
+
+(defun cider-switch-to-current-repl-buffer (&optional arg)
   "Select the REPL buffer, when possible in an existing window.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear.
 
-With a prefix ARG sets the name of the REPL buffer to the one
-of the current source file."
-  (interactive "P")
+With a prefix ARG sets the namespace in the REPL buffer to that
+of the namespace in the Clojure source buffer."
+  (interactive "p")
   (if (not (cider-connected-p))
       (message "No active nREPL connection.")
     (let ((buffer (current-buffer)))
-      (when arg
+      (when (eq 4 arg)
         (cider-repl-set-ns (cider-current-ns)))
       (pop-to-buffer (cider-find-or-create-repl-buffer))
       (cider-remember-clojure-buffer buffer)
       (goto-char (point-max)))))
 
-(defun cider-switch-to-relevant-repl-buffer (arg)
+(defun cider-find-connection-buffer-for-project-directory (project-directory)
+  "Find the relevant connection-buffer for the given PROJECT-DIRECTORY.
+
+A check is made to ensure that all connection buffers have a project-directory
+otherwise there is ambiguity as to which connection buffer should be selected.
+
+If there are multiple connection buffers matching PROJECT-DIRECTORY there
+is ambiguity, therefore nil is returned."
+  (when (not (car (-filter
+                   (lambda (conn)
+                     (not
+                      (with-current-buffer (get-buffer conn)
+                        nrepl-project-dir)))
+                   nrepl-connection-list)))
+    (let ((matching-connections
+           (-filter
+            (lambda (conn)
+              (let ((conn-proj-dir (with-current-buffer (get-buffer conn)
+                                     nrepl-project-dir)))
+                (when conn-proj-dir
+                  (equal (file-truename project-directory)
+                         (file-truename conn-proj-dir)))))
+            nrepl-connection-list)))
+      (when (= 1 (length matching-connections))
+        (car matching-connections)))))
+
+(defun cider-switch-to-relevant-repl-buffer (&optional arg)
   "Select the REPL buffer, when possible in an existing window.
 The buffer chosen is based on the file open in the current buffer.
+
+If the REPL buffer cannot be unambiguously determined, the REPL
+buffer is chosen based on the current connection buffer and a
+message raised informing the user.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear.
 
-With a prefix ARG sets the name of the REPL buffer to the one
-of the current source file.
+With a prefix ARG sets the namespace in the REPL buffer to that
+of the namespace in the Clojure source buffer.
 
 With a second prefix ARG the chosen REPL buffer is based on a
-supplied project directory."
-  (interactive "P")
+supplied project directory using IDO."
+  (interactive "p")
   (if (not (cider-connected-p))
       (message "No active nREPL connection.")
-    (let ((project-directory
-           (or (when arg
-                 (ido-read-directory-name "Project: "))
-               (nrepl-project-directory-for (nrepl-current-dir)))))
-      (if project-directory
-          (let ((buf (car (-filter
-                           (lambda (conn)
-                             (let ((conn-proj-dir (with-current-buffer (get-buffer conn)
-                                                    nrepl-project-dir)))
-                               (when conn-proj-dir
-                                 (equal (file-truename project-directory)
-                                        (file-truename conn-proj-dir)))))
-                           nrepl-connection-list))))
-            (if buf
-                (setq nrepl-connection-list
-                      (cons buf (delq buf nrepl-connection-list)))
-              (message "No relevant nREPL connection found. Switching to default connection.")))
-        (message "No project directory found. Switching to default nREPL connection.")))
-    (cider-switch-to-repl-buffer '())))
+
+    (let* ((project-directory
+            (or (when (eq 16 arg) (ido-read-directory-name "Project: "))
+                (nrepl-project-directory-for (nrepl-current-dir))))
+           (connection-buffer
+            (or
+             (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
+             (and project-directory
+                  (cider-find-connection-buffer-for-project-directory project-directory)))))
+      (when connection-buffer
+        (setq nrepl-connection-list
+              (cons connection-buffer (delq connection-buffer nrepl-connection-list))))
+      (cider-switch-to-current-repl-buffer arg)
+      (message
+       (format (if connection-buffer
+                   "Switched to REPL: %s"
+                 "Could not determine relevant nREPL connection, using: %s")
+               (with-current-buffer (nrepl-current-connection-buffer)
+                 (format "%s:%s, %s:%s"
+                         (or (nrepl--project-name nrepl-project-dir) "<no project>")
+                         nrepl-buffer-ns
+                         (car nrepl-endpoint)
+                         (cadr nrepl-endpoint))))))))
 
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
