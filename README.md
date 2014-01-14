@@ -232,6 +232,17 @@ font-locked as in `clojure-mode` use the following:
 (setq cider-repl-use-clojure-font-lock t)
 ```
 
+* You can control the <kbd>C-c C-z</kbd> key behavior of switching to the REPL buffer
+with the `cider-switch-to-repl-command` variable.  While the default command
+`cider-switch-to-relevant-repl-buffer` should be an adequate choice for
+most users, `cider-switch-to-current-repl-buffer` offers a simpler alternative
+where CIDER will not attempt to match the correct REPL buffer based on
+underlying project directories:
+
+```el
+(setq cider-switch-to-repl-command 'cider-switch-to-current-repl-buffer)
+```
+
 ### REPL History
 
 * To make the REPL history wrap around when its end is reached:
@@ -408,10 +419,10 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-m</kbd>                   | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
 <kbd>C-c C-n</kbd>                   | Eval the ns form.
 <kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
-<kbd>C-c C-z</kbd>                   | Select the REPL buffer. With a prefix argument - changes the namespace of the REPL buffer to the one of the currently visited source file.
-<kbd>C-u C-u C-c C-z</kbd>           | Select the REPL buffer based on a user prompt for a directory.
-<kbd>C-c M-d</kbd>                   | Display current REPL connection details, including project directory name, buffer namespace, host and port.
-<kbd>C-c M-r</kbd>                   | Rotate and display the current REPL connection.
+<kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
+<kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
+<kbd>C-c M-d</kbd>                   | Display default REPL connection details, including project directory name, buffer namespace, host and port.
+<kbd>C-c M-r</kbd>                   | Rotate and display the default nREPL connection.
 <kbd>C-c M-o</kbd>                   | Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 <kbd>C-c C-k</kbd>                   | Load the current buffer.
 <kbd>C-c C-l</kbd>                   | Load a file.
@@ -440,10 +451,7 @@ Keyboard shortcut                    | Description
 <kbd>TAB</kbd> | Complete symbol at point.
 <kbd>C-c C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 <kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-z</kbd> | Select the last Clojure buffer. <kbd>C-u C-c C-z</kbd> will switch the Clojure buffer to the namespace in the current buffer.
-<kbd>C-u C-u C-c C-z</kbd> | Select the Clojure buffer based on a user prompt for a directory.
-<kbd>C-c M-d</kbd> | Display current REPL connection details, including project directory name, buffer namespace, host and port.
-<kbd>C-c M-r</kbd> | Rotate and display the current REPL connection.
+<kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
 <kbd>C-c M-f</kbd> | Select a function from the current namespace using IDO and insert into nREPL buffer.
 
 In the REPL you can also use "shortcut commands" by pressing `,` at the beginning of a REPL line. You'll be presented with a list of commands you can quickly run (like quitting, displaying some info, clearing the REPL, etc). The character used to trigger the shortcuts is configurable via `cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
@@ -463,17 +471,19 @@ Keyboard shortcut               | Description
 
 ### Managing multiple sessions
 
-You can connect to multiple nREPL servers and use <kbd>M-x cider-jack-in</kbd> multiple
-times.  To close a single nREPL session, use <kbd>M-x nrepl-close</kbd>.  <kbd>M-x
-cider-quit</kbd> closes all sessions.
+You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> multiple
+times.  To close the current nREPL connection, use <kbd>M-x nrepl-close</kbd>. <kbd>M-x
+cider-quit</kbd> closes all connections.
 
-CIDER commands in a Clojure buffer use the default connection.  To make a
-connection default, switch to it's REPL buffer and use
-<kbd>M-x nrepl-make-repl-connection-default</kbd>.
+CIDER maintains a list of nREPL connections and a single 'default' connection. When you execute CIDER commands in a Clojure editing buffer such as to compile a namespace, these commands are executed against the default connection.
 
-To switch to the relevant REPL buffer based on the Clojure namespace in the current buffer, use: <kbd>C-c C-z</kbd>.
+You can display the default nREPL connection using <kbd>C-c M-d</kbd> and rotate the default connection using <kbd>C-c M-r</kbd>. Another option for setting the default connection is to execute the command <kbd>M-x nrepl-make-repl-connection-default</kbd> in the appropriate REPL buffer.
 
-You can display the current nREPL connection using <kbd>C-c M-d</kbd> and rotate through available connections using <kbd>C-c M-r</kbd>.
+To switch to the relevant REPL buffer based on the Clojure namespace in the current Clojure buffer, use: <kbd>C-c C-z</kbd>. You can then use the same key combination to switch back to the Clojure buffer you came from.
+
+The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the relevant REPL buffer and set the namespace in that buffer based on namespace in the current Clojure buffer.
+
+To explicitly choose the REPL buffer that <kbd>C-c C-z</kbd> uses based on project directory, use a double prefix <kbd>C-u C-u C-c C-z</kbd>. This assumes you have `cider-switch-to-relevant-repl` mapped to the var `cider-switch-to-repl-command` which is the default configuration.
 
 ## Requirements
 
