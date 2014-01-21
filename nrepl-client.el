@@ -708,14 +708,14 @@ are processed."
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
-  (let* ((b (process-buffer process))
-         (connection-buffer (buffer-local-value 'nrepl-connection-buffer b))
-         (problem (if (and b (buffer-live-p b))
-                      (with-current-buffer b
+  (let* ((nrepl-buffer (process-buffer process))
+         (connection-buffer (buffer-local-value 'nrepl-connection-buffer nrepl-buffer))
+         (problem (if (and nrepl-buffer (buffer-live-p nrepl-buffer))
+                      (with-current-buffer nrepl-buffer
                         (buffer-substring (point-min) (point-max)))
                     "")))
-    (when b
-      (kill-buffer b))
+    (when nrepl-buffer
+      (kill-buffer nrepl-buffer))
     (cond
      ((string-match "^killed" event)
       nil)
