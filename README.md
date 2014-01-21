@@ -4,9 +4,7 @@
   <img src="https://github.com/clojure-emacs/cider/blob/master/cider.png?raw=true" alt="CIDER Logo"/>
 </p>
 
-# CIDER (formerly nrepl.el)
-
-`CIDER` is Clojure IDE and REPL for Emacs, built on top of
+`CIDER` (formerly `nrepl.el`) is Clojure IDE and REPL for Emacs, built on top of
 [nREPL](https://github.com/clojure/tools.nrepl), the Clojure networked
 REPL server. It's a great alternative to the now deprecated combination
 of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
