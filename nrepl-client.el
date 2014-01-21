@@ -723,7 +723,7 @@ are processed."
       (when connection-buffer
         (nrepl-close connection-buffer)))
      ((string-match "Wrong number of arguments to repl task" problem)
-      (error "Leiningen 2.x is required by nREPL.el"))
+      (error "Leiningen 2.x is required by CIDER"))
      (t (error "Could not start nREPL server: %s" problem)))))
 
 (defun nrepl-current-dir ()
