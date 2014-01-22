@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/clojure-emacs/cider.png?branch=master)](https://travis-ci.org/clojure-emacs/cider.el)
 
 <p align="center">
-  <img src="https://github.com/clojure-emacs/cider/blob/master/cider.png?raw=true" alt="CIDER Logo"/>
+  <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
 </p>
 
 `CIDER` (formerly `nrepl.el`) is the Clojure IDE and REPL for Emacs, built on top of
