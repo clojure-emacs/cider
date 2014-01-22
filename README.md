@@ -536,6 +536,11 @@ you should use it instead of `cider-tracing`.
 * [Hugo Duncan](https://github.com/hugoduncan)
 * [Steve Purcell](https://github.com/purcell)
 
+## Logo
+
+CIDER's logo was created by [@ndr-qef](https://github.com/ndr-qef). You can find the logo in various
+formats [here](https://github.com/clojure-emacs/cider/tree/master/logo).
+
 ## Contributing
 
 ### Discussion
