@@ -17,6 +17,7 @@ from interactive evaluation displayed in the minibuffer.
 * Added the ability to font-lock input and results in the REPL as Clojure code. This is controlled via
 the option `cider-repl-use-clojure-font-lock`.
 * Added `cider-pprint-eval-defun-at-point`, a companion to `cider-pprint-eval-last-sexp` which works on the top-level form.
+* The REPL buffer name uses host if no project directory available; `*cider-repl*` will appear as `*cider-repl <host>*`.
 
 ### Bugs fixed
 
