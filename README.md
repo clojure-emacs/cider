@@ -12,7 +12,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 ***
 
 - [Installation](#installation)
-		- [Upgrading from nrepl.el](#upgrading-from-nreplel)
+	- [Prerequisites](#prerequisites)
 	- [Via package.el](#via-packageel)
 	- [Via el-get](#via-el-get)
 	- [Manual](#manual)
@@ -41,7 +41,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
 ## Installation
 
-#### Prerequisites
+### Prerequisites
 
 You'll need to have Emacs installed (preferably the latest stable
 release). If you're new to Emacs you might want to read
@@ -54,7 +54,7 @@ Before installing CIDER make sure you've removed the old `nrepl.el`
 package and all packages that depend on it. Use only packages updated to work with CIDER!
 
 You'll also need to adjust your config accordingly, as most settings
-were renamed in CIDER. Consult the **Configuration** section of the
+were renamed in CIDER. Consult the [Configuration](#configuration) section of the
 README for more details.
 
 ### Via package.el
