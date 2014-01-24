@@ -9,7 +9,7 @@
 REPL server. It's a great alternative to the now deprecated combination
 of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
-## Table of Contents
+***
 
 - [Installation](#installation)
 		- [Upgrading from nrepl.el](#upgrading-from-nreplel)
