@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.5.0 / 2014-01-24
+
 ### New features
 
 * <kbd>C-c M-f</kbd> Select a function from the current namespace using IDO and insert into the REPL buffer.
