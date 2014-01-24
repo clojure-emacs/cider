@@ -105,15 +105,16 @@ buffer will be hidden.")
 (defun nrepl-buffer-name (buffer-name-template)
   "Generate a buffer name using BUFFER-NAME-TEMPLATE.
 
-The name will include the project name if available.  The name will
-also include the connection port if `nrepl-buffer-name-show-port' is true."
+The name will include the project name if available or the
+endpoint host if it is not.  The name will also include the
+connection port if `nrepl-buffer-name-show-port' is true."
   (generate-new-buffer-name
    (let ((project-name (nrepl--project-name nrepl-project-dir))
          (nrepl-proj-port (cadr nrepl-endpoint)))
      (format
       buffer-name-template
-      (concat (if project-name
-                  (format "%s%s" nrepl-buffer-name-separator project-name) "")
+      (concat (format "%s%s" nrepl-buffer-name-separator
+                      (if project-name project-name (car nrepl-endpoint)))
               (if (and nrepl-proj-port nrepl-buffer-name-show-port)
                   (format ":%s" nrepl-proj-port) ""))))))
 
