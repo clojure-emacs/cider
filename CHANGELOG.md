@@ -2,6 +2,11 @@
 
 ## master
 
+### New features
+
+* New interactive command `cider-insert-defun-in-repl`.
+* New interactive command `cider-insert-ns-form-in-repl`.
+
 ## 0.5.0 / 2014-01-24
 
 ### New features

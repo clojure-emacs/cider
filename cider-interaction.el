@@ -345,6 +345,13 @@ With a PREFIX argument, print the result in the current buffer."
   'cider-eval-expression-at-point
   'cider-eval-defun-at-point)
 
+(defun cider-ns-form ()
+  "Retrieve the ns form."
+  (when (clojure-find-ns)
+    (save-excursion
+      (goto-char (match-beginning 0))
+      (cider-defun-at-point))))
+
 (defun cider-eval-ns-form ()
   "Evaluate the current buffer's namespace form."
   (interactive)
@@ -996,18 +1003,36 @@ Print its value into the current buffer."
                         (cider-popup-eval-out-handler result-buffer)
                         (cider-current-ns))))
 
-(defun cider-insert-last-sexp-in-repl (&optional arg)
-  "Insert the expression preceding point in the REPL buffer.
-If invoked with a prefix ARG eval the expression after inserting it."
-  (interactive "P")
-  (let ((form (cider-last-sexp))
-        (start-pos (point)))
+(defun cider-insert-in-repl (form eval)
+  "Insert FORM in the REPL buffer and switch to it.
+If EVAL is non-nil the form will also be evaluated."
+  (let ((start-pos (point)))
+    (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
+      (setq form (replace-match "" t t form)))
     (with-current-buffer (cider-current-repl-buffer)
       (insert form)
       (indent-region start-pos (point))
       (when arg
         (cider-repl-return))))
   (cider-switch-to-repl-buffer))
+
+(defun cider-insert-last-sexp-in-repl (&optional arg)
+  "Insert the expression preceding point in the REPL buffer.
+If invoked with a prefix ARG eval the expression after inserting it."
+  (interactive "P")
+  (cider-insert-in-repl (cider-last-sexp) arg))
+
+(defun cider-insert-defun-in-repl (&optional arg)
+  "Insert the top-level form at point in the REPL buffer.
+If invoked with a prefix ARG eval the expression after inserting it."
+  (interactive "P")
+  (cider-insert-in-repl (cider-defun-at-point) arg))
+
+(defun cider-insert-ns-form-in-repl (&optional arg)
+  "Insert the current buffer's ns form in the REPL buffer.
+If invoked with a prefix ARG eval the expression after inserting it."
+  (interactive "P")
+  (cider-insert-in-repl (cider-ns-form) arg))
 
 (defun cider-ping ()
   "Check that communication with the server works."
