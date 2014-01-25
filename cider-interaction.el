@@ -549,12 +549,12 @@ Uses `find-file'."
   (let ((strlst (plist-get
                  (nrepl-send-request-sync
                   (list "op" "complete"
-                        "session" (nrepl-current-tooling-session)
+                        "session" (nrepl-current-session)
                         "ns" nrepl-buffer-ns
                         "symbol" str))
                  :value)))
     (when strlst
-      (car strlst))))
+      strlst)))
 
 (defun cider-dispatch-complete-symbol (str)
   "Return a list of completions for STR.
