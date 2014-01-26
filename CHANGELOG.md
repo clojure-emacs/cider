@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#460](https://github.com/clojure-emacs/cider/issues/316) Support for cider-nrepl's complete middleware for CLJ/CLJS autocomplete.
 * New interactive command `cider-insert-defun-in-repl`.
 * New interactive command `cider-insert-ns-form-in-repl`.
 
