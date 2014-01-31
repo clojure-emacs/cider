@@ -492,8 +492,8 @@ Uses `find-file'."
                                (lambda (buffer err) (message err))
                                nil))
 
-(defun cider-jump-to-def (var)
-  "Jump to the definition of the VAR at point."
+(defun cider--jump-to-def-eval-fn (var)
+  "Jump to VAR using the old eval method"
   (let ((form (format "(let [ns-symbol    '%s
                              ns-var       '%s
                              ns-file      (clojure.core/comp :file
@@ -531,7 +531,27 @@ Uses `find-file'."
                       (cider-current-ns) var)))
     (cider-tooling-eval form
                         (cider-jump-to-def-handler (current-buffer))
-                        nrepl-buffer-ns)))
+                        (cider-current-ns))))
+
+(defun cider--jump-to-def-op-fn (var)
+  "Pass the VAR into the info in order to jump to a definition"
+  (let* ((val (plist-get (nrepl-send-request-sync
+                         (list "op" "info"
+                               "session" (nrepl-current-session)
+                               "ns" (cider-current-ns)
+                               "symbol" var))
+                         :value))
+         (val-alist (-partition 2 val))
+         (file (cadr (assoc "file" val-alist)))
+         (line (cadr (assoc "line" val-alist))))
+    (ring-insert find-tag-marker-ring (point-marker))
+    (cider-jump-to-def-for (vector file file line))))
+
+(defun cider-jump-to-def (var)
+  "Jump to the definition of the VAR at point."
+  (if (nrepl-op-supported-p "info")
+      (cider--jump-to-def-op-fn var)
+    (cider--jump-to-def-eval-fn var)))
 
 (defun cider-jump (query)
   "Jump to the definition of QUERY."

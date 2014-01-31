@@ -6,6 +6,8 @@
 
 * [#460](https://github.com/clojure-emacs/cider/issues/316) Support for
 cider-nrepl's complete middleware for CLJ/CLJS autocomplete.
+* [#465](https://github.com/clojure-emacs/cider/issues/465) Support for
+cider-nrepl's info middleware for jump-to-definition.
 * [#469](https://github.com/clojure-emacs/cider/issues/469) Add option
 `cider-prompt-save-file-on-load`.
 * New interactive command `cider-insert-defun-in-repl`.
