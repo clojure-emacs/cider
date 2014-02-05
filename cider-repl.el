@@ -512,7 +512,8 @@ the symbol."
   "Make a nREPL evaluation handler for the REPL BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (cider-repl-emit-result buffer value t))
+                                 (when (not cider-repl-use-pretty-printing)
+				   (cider-repl-emit-result buffer value t)))
                                (lambda (buffer out)
                                  (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
@@ -551,7 +552,7 @@ If NEWLINE is true then add a newline at the end of the input."
   (let* ((input (cider-repl--current-input))
          (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
                         cider-repl-use-pretty-printing)
-                   (format "(clojure.pprint/pprint %s)" input)
+                 (cider-format-pprint-eval input)
                  input)))
     (goto-char (point-max))
     (cider-repl--mark-input-start)
