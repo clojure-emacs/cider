@@ -993,7 +993,7 @@ Print its value into the current buffer."
   (interactive)
   (let ((form (cider-last-sexp))
         (result-buffer (cider-popup-buffer cider-result-buffer nil)))
-    (cider-tooling-eval (format "(clojure.pprint/pprint %s)" form)
+    (cider-tooling-eval (cider-format-pprint-eval form)
                         (cider-popup-eval-out-handler result-buffer)
                         (cider-current-ns))))
 
@@ -1002,7 +1002,7 @@ Print its value into the current buffer."
   (interactive)
   (let ((form (cider-defun-at-point))
         (result-buffer (cider-popup-buffer cider-result-buffer nil)))
-    (cider-tooling-eval (format "(clojure.pprint/pprint %s)" form)
+    (cider-tooling-eval (cider-format-pprint-eval form)
                         (cider-popup-eval-out-handler result-buffer)
                         (cider-current-ns))))
 

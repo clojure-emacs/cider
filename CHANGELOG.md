@@ -10,6 +10,8 @@ cider-nrepl's complete middleware for CLJ/CLJS autocomplete.
 `cider-prompt-save-file-on-load`.
 * New interactive command `cider-insert-defun-in-repl`.
 * New interactive command `cider-insert-ns-form-in-repl`.
+* [#468](https://github.com/clojure-emacs/cider/issues/468) Fix
+pretty-printing of evaluation results so that `*1` is set properly.
 
 ## 0.5.0 / 2014-01-24
 

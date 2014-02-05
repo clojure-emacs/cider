@@ -71,6 +71,10 @@ buffer-local wherever it is set."
     (font-lock-fontify-buffer)
     (buffer-string)))
 
+(defun cider-format-pprint-eval (form)
+  "Return a string of Clojure code that will eval and pretty-print FORM."
+  (format "(let [x %s] (clojure.pprint/pprint x) x)" form))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
