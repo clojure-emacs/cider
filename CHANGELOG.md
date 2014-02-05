@@ -4,7 +4,10 @@
 
 ### New features
 
-* [#460](https://github.com/clojure-emacs/cider/issues/316) Support for cider-nrepl's complete middleware for CLJ/CLJS autocomplete.
+* [#460](https://github.com/clojure-emacs/cider/issues/316) Support for
+cider-nrepl's complete middleware for CLJ/CLJS autocomplete.
+* [#469](https://github.com/clojure-emacs/cider/issues/469) Add option
+`cider-prompt-save-file-on-load`.
 * New interactive command `cider-insert-defun-in-repl`.
 * New interactive command `cider-insert-ns-form-in-repl`.
 
