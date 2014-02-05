@@ -211,6 +211,13 @@ Buffer name will look like *cider-repl project-name:port*.
 (setq cider-repl-print-length 100) ; the default is nil, no limit
 ```
 
+* Prevent <kbd>C-c C-k</kbd> from prompting to save the file corresponding to
+  the buffer being loaded, if it's modified:
+
+```el
+(setq cider-prompt-save-file-on-load nil)
+```
+
 * Change the result prefix for REPL evaluation (by default there's no prefix):
 
 ```el
