@@ -57,12 +57,22 @@
   :prefix "cider-"
   :group 'applications)
 
+(require 'pkg-info)
+
 (require 'cider-client)
-(require 'cider-version)
 (require 'cider-interaction)
 (require 'cider-eldoc)
 (require 'cider-repl)
 (require 'cider-mode)
+
+(defvar cider-version "0.6-snapshot")
+
+;;;###autoload
+(defun cider-version ()
+  "Display CIDER's version."
+  (interactive)
+  (let ((version (pkg-info-version-info 'cider)))
+    (message "CIDER %s" version)))
 
 ;;;###autoload
 (defun cider-jack-in (&optional prompt-project)
