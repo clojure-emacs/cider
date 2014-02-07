@@ -4,7 +4,7 @@
 
 ### New features
 
-* [#460](https://github.com/clojure-emacs/cider/issues/316) Support for
+* [#460](https://github.com/clojure-emacs/cider/issues/460) Support for
 cider-nrepl's complete middleware for CLJ/CLJS autocomplete.
 * [#465](https://github.com/clojure-emacs/cider/issues/465) Support for
 cider-nrepl's info middleware for jump-to-definition.
