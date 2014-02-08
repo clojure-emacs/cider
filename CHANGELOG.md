@@ -19,6 +19,7 @@ cider-nrepl's info middleware for jump-to-definition.
 pretty-printing of evaluation results so that `*1` is set properly.
 * [#439](https://github.com/clojure-emacs/cider/issues/439) Fix
 race condition bug in `cider-restart`.
+* [#441](https://github.com/clojure-emacs/cider/issues/441) Fix timing bug in `cider-jack-in`.
 
 
 ## 0.5.0 / 2014-01-24

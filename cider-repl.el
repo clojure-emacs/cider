@@ -1,7 +1,7 @@
 ;;; cider-repl.el --- REPL interactions
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg
-;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
+;; Copyright © 2012-2014 Tim King, Phil Hagelberg
+;; Copyright © 2013-2014 Bozhidar Batsov, Hugo Duncan, Steve Purcell
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -239,7 +239,8 @@ Insert a banner, unless NOPROMPT is non-nil."
     (unless (eq major-mode 'cider-repl-mode)
       (cider-repl-mode))
     ;; use the same requires by default as clojure.main does
-    (cider-eval-sync nrepl-repl-requires-sexp)
+    ;; load them a bit later to avoid a possible race condition
+    (run-with-idle-timer 2 nil 'cider-eval-sync nrepl-repl-requires-sexp)
     (when cider-repl-print-length
       (cider-repl-set-print-length cider-repl-print-length))
     (cider-repl-reset-markers)
