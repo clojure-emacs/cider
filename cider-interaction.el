@@ -493,7 +493,7 @@ Uses `find-file'."
                                nil))
 
 (defun cider--jump-to-def-eval-fn (var)
-  "Jump to VAR using the old eval method"
+  "Jump to VAR def by evaluating inlined Clojure code."
   (let ((form (format "(let [ns-symbol    '%s
                              ns-var       '%s
                              ns-file      (clojure.core/comp :file
@@ -534,7 +534,7 @@ Uses `find-file'."
                         (cider-current-ns))))
 
 (defun cider--jump-to-def-op-fn (var)
-  "Pass the VAR into the info in order to jump to a definition"
+  "Jump to VAR def by using the nREPL info op."
   (let* ((val (plist-get (nrepl-send-request-sync
                          (list "op" "info"
                                "session" (nrepl-current-session)
