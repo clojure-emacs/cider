@@ -12,8 +12,14 @@ cider-nrepl's info middleware for jump-to-definition.
 `cider-prompt-save-file-on-load`.
 * New interactive command `cider-insert-defun-in-repl`.
 * New interactive command `cider-insert-ns-form-in-repl`.
+
+### Bugs fixed
+
 * [#468](https://github.com/clojure-emacs/cider/issues/468) Fix
 pretty-printing of evaluation results so that `*1` is set properly.
+* [#439](https://github.com/clojure-emacs/cider/issues/439) Fix
+race condition bug in `cider-restart`.
+
 
 ## 0.5.0 / 2014-01-24
 
@@ -155,6 +161,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Add macroexpand key bindings to `nrepl-mode-map`.
 * Don't suppress namespaces in macroexpansion.
 * Add explicit require of expected namespaces in the repl buffer.
+
 * Add command `nrepl-pprint-eval-last-expression`.
 * Add an event buffer for debugging.
 * Allow connections without repl buffers.

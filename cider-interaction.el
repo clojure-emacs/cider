@@ -1,7 +1,7 @@
 ;;; cider-interaction.el --- IDE for Clojure
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg
-;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
+;; Copyright © 2012-2014 Tim King, Phil Hagelberg
+;; Copyright © 2013-2014 Bozhidar Batsov, Hugo Duncan, Steve Purcell
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -1314,6 +1314,10 @@ If PROMPT-PROJECT is t, then prompt for the project in which to
 restart the server."
   (interactive)
   (cider-quit)
+  ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
+  ;; TODO: Find a better way to ensure `cider-quit' has finished
+  (message "Waiting for CIDER to quit...")
+  (sleep 2)
   (cider-jack-in current-prefix-arg))
 
 (add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
