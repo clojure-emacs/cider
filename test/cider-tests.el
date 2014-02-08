@@ -1,8 +1,9 @@
 ;;; cider-tests.el
 
-;; Copyright © 2012-2013 Tim King
+;; Copyright © 2012-2014 Tim King, Bozhidar Batsov
 
-;; Author: Tim King
+;; Author: Tim King <kingtim@gmail.com>
+;;         Bozhidar Batsov <bozhidar@batsov.com>
 
 ;; This file is NOT part of GNU Emacs.
 

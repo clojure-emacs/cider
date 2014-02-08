@@ -1,7 +1,7 @@
 ;;; cider.el --- Clojure Integrated Development Environment and REPL
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg
-;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
+;; Copyright © 2012-2014 Tim King, Phil Hagelberg
+;; Copyright © 2013-2014 Bozhidar Batsov, Hugo Duncan, Steve Purcell
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
