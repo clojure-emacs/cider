@@ -65,7 +65,10 @@
 (require 'cider-repl)
 (require 'cider-mode)
 
-(defvar cider-version "0.6-snapshot")
+(defvar cider-version "0.6-snapshot"
+  "Fallback version used when it cannot be extracted automatically.
+Normally it won't be used, unless `pkg-info' fails to extract the
+version from the CIDER package or library.")
 
 ;;;###autoload
 (defun cider-version ()
