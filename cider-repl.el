@@ -242,7 +242,7 @@ Insert a banner, unless NOPROMPT is non-nil."
     ;; load them a with a delay to avoid a possible race condition
     ;; TODO: Do this async
     (sleep-for 1)
-    (run-with-idle-timer 2 nil 'cider-eval-sync nrepl-repl-requires-sexp)
+    (cider-eval-sync nrepl-repl-requires-sexp)
     (when cider-repl-print-length
       (cider-repl-set-print-length cider-repl-print-length))
     (cider-repl-reset-markers)
