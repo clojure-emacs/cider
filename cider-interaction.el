@@ -1317,7 +1317,7 @@ restart the server."
   ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
   ;; TODO: Find a better way to ensure `cider-quit' has finished
   (message "Waiting for CIDER to quit...")
-  (sleep 2)
+  (sleep-for 2)
   (cider-jack-in current-prefix-arg))
 
 (add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
