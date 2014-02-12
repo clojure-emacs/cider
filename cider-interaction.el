@@ -766,7 +766,7 @@ They exist for compatibility with `next-error'."
       (lexical-let ((cider-popup-on-error cider-popup-on-error))
         (with-current-buffer buffer
           (cider-eval "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
-                        (pst+ *e) (clojure.stacktrace/print-stack-trace *e))"
+                        (pst+ *e) (clojure.stacktrace/print-cause-trace *e))"
                       (nrepl-make-response-handler
                        (cider-make-popup-buffer cider-error-buffer)
                        nil
