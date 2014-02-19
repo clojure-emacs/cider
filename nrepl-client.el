@@ -1,4 +1,4 @@
-;;; nrepl-client.el --- Client for Clojure nREPL
+;;; nrepl-client.el --- Client for Clojure nREPL -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2014 Tim King, Phil Hagelberg
 ;; Copyright © 2013-2014 Bozhidar Batsov, Hugo Duncan, Steve Purcell

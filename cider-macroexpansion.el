@@ -1,4 +1,4 @@
-;;; cider-macroexpansion.el --- Macro expansion support
+;;; cider-macroexpansion.el --- Macro expansion support -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell

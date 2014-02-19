@@ -1,4 +1,4 @@
-;;; cider-interaction.el --- IDE for Clojure
+;;; cider-interaction.el --- IDE for Clojure -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2014 Tim King, Phil Hagelberg
 ;; Copyright © 2013-2014 Bozhidar Batsov, Hugo Duncan, Steve Purcell

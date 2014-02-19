@@ -1,4 +1,4 @@
-;;; cider-eldoc.el --- eldoc support for Clojure
+;;; cider-eldoc.el --- eldoc support for Clojure -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg
 ;; Copyright © 2013 Bozhidar Batsov, Hugo Duncan, Steve Purcell
