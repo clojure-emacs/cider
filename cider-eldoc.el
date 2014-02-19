@@ -113,7 +113,7 @@ POS is the index of current argument."
   "Turn on eldoc mode in the current buffer."
   (setq-local eldoc-documentation-function 'cider-eldoc)
   (apply 'eldoc-add-command cider-extra-eldoc-commands)
-  (turn-on-eldoc-mode))
+  (eldoc-mode +1))
 
 (provide 'cider-eldoc)
 ;;; cider-eldoc ends here
