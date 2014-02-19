@@ -115,11 +115,12 @@ which will use the default REPL connection."
   "Retrieve the underlying connection's nREPL version."
   (cider-eval-and-get-value "(:version-string clojure.tools.nrepl/version)"))
 
-(defun cider--connection-info (nrepl-connection-buffer)
-  "Return info about NREPL-CONNECTION-BUFFER.
+(defun cider--connection-info (connection-buffer)
+  "Return info about CONNECTION-BUFFER.
 
-Info contains project name, current REPL namespace, host:port endpoint and Clojure version."
-  (with-current-buffer (get-buffer nrepl-connection-buffer)
+Info contains project name, current REPL namespace, host:port
+endpoint and Clojure version."
+  (with-current-buffer (get-buffer connection-buffer)
     (format "Active nREPL connection: %s:%s, %s:%s (Clojure %s, nREPL %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
             nrepl-buffer-ns
