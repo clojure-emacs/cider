@@ -763,20 +763,20 @@ They exist for compatibility with `next-error'."
   (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
     (if (or (and cider-repl-popup-stacktraces replp)
             (and cider-popup-stacktraces (not replp)))
-      (lexical-let ((cider-popup-on-error cider-popup-on-error))
-        (with-current-buffer buffer
-          (cider-eval "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
+        (let ((cider-popup-on-error cider-popup-on-error))
+          (with-current-buffer buffer
+            (cider-eval "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
                         (pst+ *e) (clojure.stacktrace/print-cause-trace *e))"
-                      (nrepl-make-response-handler
-                       (cider-make-popup-buffer cider-error-buffer)
-                       nil
-                       (lambda (buffer value)
-                         (cider-emit-into-color-buffer buffer value)
-                         (when cider-popup-on-error
-                           (cider-popup-buffer-display buffer cider-auto-select-error-buffer)))
-                       nil nil) nil session))
-        (with-current-buffer cider-error-buffer
-          (compilation-minor-mode +1))))))
+                        (nrepl-make-response-handler
+                         (cider-make-popup-buffer cider-error-buffer)
+                         nil
+                         (lambda (buffer value)
+                           (cider-emit-into-color-buffer buffer value)
+                           (when cider-popup-on-error
+                             (cider-popup-buffer-display buffer cider-auto-select-error-buffer)))
+                         nil nil) nil session))
+          (with-current-buffer cider-error-buffer
+            (compilation-minor-mode +1))))))
 
 (defvar cider-compilation-regexp
   '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
@@ -1141,8 +1141,8 @@ See command `cider-mode'."
 
 (defun cider-ido-read-sym-handler (label ido-select buffer)
   "Create an ido read var handler with IDO-SELECT for BUFFER."
-  (lexical-let ((ido-select ido-select)
-                (label label))
+  (let ((ido-select ido-select)
+        (label label))
     (nrepl-make-response-handler buffer
                                  (lambda (buffer value)
                                    ;; make sure to eval the callback in the buffer that the symbol was requested from so we get the right namespace

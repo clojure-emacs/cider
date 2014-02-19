@@ -228,12 +228,12 @@ Bind the value of the provided KEYS and execute BODY."
   "Make a response handler for BUFFER.
 Uses the specified VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
 DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
-  (lexical-let ((buffer buffer)
-                (value-handler value-handler)
-                (stdout-handler stdout-handler)
-                (stderr-handler stderr-handler)
-                (done-handler done-handler)
-                (eval-error-handler eval-error-handler))
+  (let ((buffer buffer)
+        (value-handler value-handler)
+        (stdout-handler stdout-handler)
+        (stderr-handler stderr-handler)
+        (done-handler done-handler)
+        (eval-error-handler eval-error-handler))
     (lambda (response)
       (nrepl-dbind-response response (value ns out err status id ex root-ex
                                             session)
@@ -774,7 +774,7 @@ If so ask the user for confirmation."
 
 (defun nrepl-describe-handler (process-buffer)
   "Return a handler to describe into PROCESS-BUFFER."
-  (lexical-let ((buffer process-buffer))
+  (let ((buffer process-buffer))
     (lambda (response)
       (nrepl-dbind-response response (ops)
         (cond (ops
@@ -803,7 +803,7 @@ If so ask the user for confirmation."
 
 (defun nrepl-new-tooling-session-handler (process)
   "Create a new tooling session handler for PROCESS."
-  (lexical-let ((process process))
+  (let ((process process))
     (lambda (response)
       (nrepl-dbind-response response (id new-session)
         (cond (new-session
@@ -815,13 +815,13 @@ If so ask the user for confirmation."
 (defun nrepl-new-session-handler (process no-repl-p)
   "Create a new session handler for PROCESS.
 When NO-REPL-P is truthy, suppress creation of a REPL buffer."
-  (lexical-let ((process process)
+  (let ((process process)
                 (no-repl-p no-repl-p))
     (lambda (response)
       (nrepl-dbind-response response (id new-session)
         (remhash id nrepl-pending-requests)
         (cond (new-session
-               (lexical-let ((connection-buffer (process-buffer process)))
+               (let ((connection-buffer (process-buffer process)))
                  (setq nrepl-session new-session
                        nrepl-connection-buffer connection-buffer)
                  (unless no-repl-p
