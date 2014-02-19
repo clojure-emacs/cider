@@ -463,7 +463,11 @@ Uses `find-file'."
                 (buffer-already-open (get-buffer (file-name-nondirectory jar))))
            (cider-find-file jar)
            (goto-char (point-min))
-           (search-forward path)
+           ;; Make sure the file path is followed by a newline to
+           ;; prevent eg. clj matching cljs.
+           (search-forward (concat path "\n"))
+           ;; moves up to matching line
+           (forward-line -1)
            (let ((opened-buffer (current-buffer)))
              (archive-extract)
              (unless buffer-already-open
