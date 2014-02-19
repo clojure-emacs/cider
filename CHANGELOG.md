@@ -13,6 +13,10 @@ cider-nrepl's info middleware for jump-to-definition.
 * New interactive command `cider-insert-defun-in-repl`.
 * New interactive command `cider-insert-ns-form-in-repl`.
 
+### Changes
+
+* Required Emacs version is now 24.1.
+
 ### Bugs fixed
 
 * [#468](https://github.com/clojure-emacs/cider/issues/468) Fix

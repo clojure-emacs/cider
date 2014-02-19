@@ -59,8 +59,7 @@ README for more details.
 
 ### Via package.el
 
-`package.el` is the built-in package manager in Emacs 24+. On Emacs 23
-you will need to get [package.el](http://bit.ly/pkg-el23) yourself if you wish to use it.
+`package.el` is the built-in package manager in Emacs.
 
 `CIDER` is available on both major `package.el` community
 maintained repos -
@@ -504,7 +503,7 @@ To explicitly choose the REPL buffer that <kbd>C-c C-z</kbd> uses based on proje
 ## Requirements
 
 * [Leiningen](http://leiningen.org) 2.x (only for `cider-jack-in`)
-* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 23.2+ or 24.
+* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 24.1+.
 * [Clojure](http://clojure.org) 1.4.0+
 
 ## Caveats
