@@ -625,10 +625,9 @@ otherwise dispatch to internal completion function."
 (defun cider-javadoc-handler (symbol-name)
   "Invoke the nREPL \"javadoc\" op on SYMBOL-NAME if available."
   (when symbol-name
-    (let ((bounds (bounds-of-thing-at-point 'symbol)))
-      (if (nrepl-op-supported-p "javadoc")
-          (cider-javadoc-op symbol-name)
-        (message "No Javadoc middleware available")))))
+    (if (nrepl-op-supported-p "javadoc")
+        (cider-javadoc-op symbol-name)
+      (message "No Javadoc middleware available"))))
 
 (defun cider-javadoc (query)
   "Browse Javadoc on the Java class QUERY at point."
