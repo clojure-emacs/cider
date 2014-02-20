@@ -134,13 +134,12 @@ NS specifies the namespace in which to evaluate the request."
 
 (defun cider-send-op (op attributes handler)
   "Send the specified OP with ATTRIBUTES and response HANDLER."
-  (let ((buffer (current-buffer)))
-    (nrepl-send-request (append
-                         (list "op" op
-                               "session" (nrepl-current-session)
-                               "ns" nrepl-buffer-ns)
-                         attributes)
-                        handler)))
+  (nrepl-send-request (append
+                       (list "op" op
+                             "session" (nrepl-current-session)
+                             "ns" nrepl-buffer-ns)
+                       attributes)
+                      handler))
 
 (defun cider-send-load-file (file-contents file-path file-name)
   "Perform the nREPL \"load-file\" op.

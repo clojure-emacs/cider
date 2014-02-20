@@ -625,10 +625,9 @@ otherwise dispatch to internal completion function."
 (defun cider-javadoc-handler (symbol-name)
   "Invoke the nREPL \"javadoc\" op on SYMBOL-NAME if available."
   (when symbol-name
-    (let ((bounds (bounds-of-thing-at-point 'symbol)))
-      (if (nrepl-op-supported-p "javadoc")
-          (cider-javadoc-op symbol-name)
-        (message "No Javadoc middleware available")))))
+    (if (nrepl-op-supported-p "javadoc")
+        (cider-javadoc-op symbol-name)
+      (message "No Javadoc middleware available"))))
 
 (defun cider-javadoc (query)
   "Browse Javadoc on the Java class QUERY at point."
@@ -678,24 +677,23 @@ The handler simply inserts the result value in BUFFER."
 
 (defun cider-load-file-handler (buffer)
   "Make a load file handler for BUFFER."
-  (let (current-ns (cider-current-ns))
-    (nrepl-make-response-handler buffer
-                                 (lambda (buffer value)
-                                   (message "%s" value)
-                                   (with-current-buffer buffer
-                                     (setq nrepl-buffer-ns (clojure-find-ns))
-                                     (run-hooks 'cider-file-loaded-hook)))
-                                 (lambda (buffer value)
-                                   (cider-repl-emit-interactive-output value))
-                                 (lambda (buffer err)
-                                   (message "%s" err)
-                                   (cider-highlight-compilation-errors
-                                    buffer err))
-                                 '()
-                                 (lambda (buffer ex root-ex session)
-                                   (let ((cider-popup-on-error nil))
-                                     (funcall nrepl-err-handler
-                                              buffer ex root-ex session))))))
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (message "%s" value)
+                                 (with-current-buffer buffer
+                                   (setq nrepl-buffer-ns (clojure-find-ns))
+                                   (run-hooks 'cider-file-loaded-hook)))
+                               (lambda (buffer value)
+                                 (cider-repl-emit-interactive-output value))
+                               (lambda (buffer err)
+                                 (message "%s" err)
+                                 (cider-highlight-compilation-errors
+                                  buffer err))
+                               '()
+                               (lambda (buffer ex root-ex session)
+                                 (let ((cider-popup-on-error nil))
+                                   (funcall nrepl-err-handler
+                                            buffer ex root-ex session)))))
 
 (defun cider-interactive-eval-print-handler (buffer)
   "Make a handler for evaluating and printing result in BUFFER."
@@ -1042,7 +1040,7 @@ If EVAL is non-nil the form will also be evaluated."
     (with-current-buffer (cider-current-repl-buffer)
       (insert form)
       (indent-region start-pos (point))
-      (when arg
+      (when eval
         (cider-repl-return))))
   (cider-switch-to-repl-buffer))
 
@@ -1319,13 +1317,13 @@ Quitting closes all active nREPL connections and kills all CIDER buffers."
   "Quit CIDER and restart it.
 If PROMPT-PROJECT is t, then prompt for the project in which to
 restart the server."
-  (interactive)
+  (interactive "P")
   (cider-quit)
   ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
   ;; TODO: Find a better way to ensure `cider-quit' has finished
   (message "Waiting for CIDER to quit...")
   (sleep-for 2)
-  (cider-jack-in current-prefix-arg))
+  (cider-jack-in prompt-project))
 
 (add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
 (add-hook 'nrepl-disconnected-hook
