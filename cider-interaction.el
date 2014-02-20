@@ -677,24 +677,23 @@ The handler simply inserts the result value in BUFFER."
 
 (defun cider-load-file-handler (buffer)
   "Make a load file handler for BUFFER."
-  (let (current-ns (cider-current-ns))
-    (nrepl-make-response-handler buffer
-                                 (lambda (buffer value)
-                                   (message "%s" value)
-                                   (with-current-buffer buffer
-                                     (setq nrepl-buffer-ns (clojure-find-ns))
-                                     (run-hooks 'cider-file-loaded-hook)))
-                                 (lambda (buffer value)
-                                   (cider-repl-emit-interactive-output value))
-                                 (lambda (buffer err)
-                                   (message "%s" err)
-                                   (cider-highlight-compilation-errors
-                                    buffer err))
-                                 '()
-                                 (lambda (buffer ex root-ex session)
-                                   (let ((cider-popup-on-error nil))
-                                     (funcall nrepl-err-handler
-                                              buffer ex root-ex session))))))
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value)
+                                 (message "%s" value)
+                                 (with-current-buffer buffer
+                                   (setq nrepl-buffer-ns (clojure-find-ns))
+                                   (run-hooks 'cider-file-loaded-hook)))
+                               (lambda (buffer value)
+                                 (cider-repl-emit-interactive-output value))
+                               (lambda (buffer err)
+                                 (message "%s" err)
+                                 (cider-highlight-compilation-errors
+                                  buffer err))
+                               '()
+                               (lambda (buffer ex root-ex session)
+                                 (let ((cider-popup-on-error nil))
+                                   (funcall nrepl-err-handler
+                                            buffer ex root-ex session)))))
 
 (defun cider-interactive-eval-print-handler (buffer)
   "Make a handler for evaluating and printing result in BUFFER."
