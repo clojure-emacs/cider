@@ -1318,13 +1318,13 @@ Quitting closes all active nREPL connections and kills all CIDER buffers."
   "Quit CIDER and restart it.
 If PROMPT-PROJECT is t, then prompt for the project in which to
 restart the server."
-  (interactive)
+  (interactive "P")
   (cider-quit)
   ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
   ;; TODO: Find a better way to ensure `cider-quit' has finished
   (message "Waiting for CIDER to quit...")
   (sleep-for 2)
-  (cider-jack-in current-prefix-arg))
+  (cider-jack-in prompt-project))
 
 (add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
 (add-hook 'nrepl-disconnected-hook
