@@ -1042,7 +1042,7 @@ If EVAL is non-nil the form will also be evaluated."
     (with-current-buffer (cider-current-repl-buffer)
       (insert form)
       (indent-region start-pos (point))
-      (when arg
+      (when eval
         (cider-repl-return))))
   (cider-switch-to-repl-buffer))
 
