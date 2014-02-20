@@ -53,8 +53,8 @@ This variable specifies both what was expanded and the expander.")
    "(clojure.pprint/write (%s '%s) :suppress-namespaces false :dispatch clojure.pprint/code-dispatch)"
    expander expr))
 
-(defun cider-macroexpand-expr (expander expr &optional buffer)
-  "Macroexpand, use EXPANDER, the given EXPR from BUFFER."
+(defun cider-macroexpand-expr (expander expr)
+  "Macroexpand, use EXPANDER, the given EXPR."
   (let* ((form (cider-macroexpand-form expander expr))
          (expansion (plist-get (cider-eval-sync form nrepl-buffer-ns) :stdout)))
     (setq cider-last-macroexpand-expression form)
