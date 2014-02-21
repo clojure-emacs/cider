@@ -12,6 +12,7 @@ cider-nrepl's info middleware for jump-to-definition.
 `cider-prompt-save-file-on-load`.
 * New interactive command `cider-insert-defun-in-repl`.
 * New interactive command `cider-insert-ns-form-in-repl`.
+* New inspector inspired by SLIME's inspector
 
 ### Changes
 

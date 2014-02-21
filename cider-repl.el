@@ -1042,6 +1042,7 @@ ENDP) DELIM."
     (define-key map (kbd "C-c M-s") 'cider-selector)
     (define-key map (kbd "C-c M-f") 'cider-load-fn-into-repl-buffer)
     (define-key map (kbd "C-c C-q") 'cider-quit)
+    (define-key map (kbd "C-c C-i") 'cider-inspect)
     (define-key map (string cider-repl-shortcut-dispatch-char) 'cider-repl-handle-shortcut)
     map))
 
@@ -1081,6 +1082,7 @@ ENDP) DELIM."
     ["Display documentation" cider-doc]
     ["Display source" cider-src]
     ["Display JavaDoc" cider-javadoc]
+    ["Inspect" cider-inspect]
     "--"
     ["Set REPL ns" cider-repl-set-ns]
     ["Toggle pretty printing of results" cider-repl-toggle-pretty-printing]

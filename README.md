@@ -30,6 +30,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 	- [cider-mode](#cider-mode)
 	- [cider-repl-mode](#cider-repl-mode)
 	- [cider-macroexpansion-minor-mode](#cider-macroexpansion-minor-mode)
+    - [cider-inspector](#cider-inspector)
 	- [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
@@ -444,6 +445,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-s</kbd>                   | Display the source for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-i</kbd>                   | Inspect expression. Will act on expression at point if present.
 <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point. (For `auto-complete` integration, see [`ac-nrepl`](https://github.com/purcell/ac-nrepl))
@@ -468,6 +470,8 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
 <kbd>C-c M-f</kbd> | Select a function from the current namespace using IDO and insert into nREPL buffer.
+<kbd>C-c C-i</kbd> | Inspect expression. Will act on expression at point if present.
+
 
 In the REPL you can also use "shortcut commands" by pressing `,` at the beginning of a REPL line. You'll be presented with a list of commands you can quickly run (like quitting, displaying some info, clearing the REPL, etc). The character used to trigger the shortcuts is configurable via `cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
 
@@ -483,6 +487,16 @@ Keyboard shortcut               | Description
 <kbd>C-c M-m</kbd>              | Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
 <kbd>g</kbd>                    | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
 <kbd>C-/</kbd> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
+
+### cider-inspector-mode
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>Tab</kbd> and <kbd>Shift-Tab</kbd> | navigate inspectable sub-objects
+<kbd>Return</kbd> | inspect sub-objects
+<kbd>l</kbd> | pop to the parent object
+<kbd>g</kbd> | refresh the inspector (e.g. if viewing an atom/ref/agent)
+
 
 ### Managing multiple sessions
 
