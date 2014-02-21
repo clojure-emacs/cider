@@ -122,6 +122,15 @@ Prelude user you can start using it right away.
 [Emacs Live](https://github.com/overtone/emacs-live). If you're using
 Emacs Live you're already good to go.
 
+## CIDER nREPL middleware
+
+Some of CIDER's functionality (like the inspector, ClojureScript
+completion, etc) depends on the presence of CIDER's own
+[nREPL middleware][https://github.com/clojure-emacs/cider-nrepl].
+
+Other functionality will work out of the box, but will be enhanced in the presence of the
+extra middleware. All CIDER users are encouraged to use it.
+
 ## Configuration
 
 You can certainly use `CIDER` without configuring it any further,
