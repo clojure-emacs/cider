@@ -193,10 +193,9 @@ positions before and after executing BODY."
   (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
     (nrepl-buffer-name nrepl-repl-buffer-name-template)))
 
-(defun cider-create-repl-buffer (process)
-  "Create a REPL buffer for PROCESS."
+(defun cider-create-repl-buffer ()
+  "Create a REPL buffer."
   (cider-init-repl-buffer
-   process
    (let ((buffer-name (cider-repl-buffer-name)))
      (if cider-repl-display-in-current-window
          (add-to-list 'same-window-buffer-names buffer-name))
@@ -208,7 +207,7 @@ positions before and after executing BODY."
 (defun cider-make-repl (process)
   "Make a REPL for the connection PROCESS."
   (let ((connection-buffer (process-buffer process))
-        (repl-buffer (cider-create-repl-buffer process)))
+        (repl-buffer (cider-create-repl-buffer)))
     (with-current-buffer repl-buffer
       (setq nrepl-connection-buffer (buffer-name connection-buffer)))
     (with-current-buffer connection-buffer
@@ -232,8 +231,8 @@ positions before and after executing BODY."
   (cider-repl--mark-input-start)
   (cider-repl--insert-prompt ns))
 
-(defun cider-init-repl-buffer (connection buffer &optional noprompt)
-  "Initialize the REPL for CONNECTION in BUFFER.
+(defun cider-init-repl-buffer (buffer &optional noprompt)
+  "Initialize the REPL in BUFFER.
 Insert a banner, unless NOPROMPT is non-nil."
   (with-current-buffer buffer
     (unless (eq major-mode 'cider-repl-mode)
