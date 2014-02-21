@@ -469,7 +469,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 <kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
-<kbd>C-c M-f</kbd> | Select a function from the current namespace using IDO and insert into nREPL buffer.
+<kbd>C-c M-f</kbd> | Select a function from the current namespace using `ido` and insert into the REPL buffer.
 <kbd>C-c C-i</kbd> | Inspect expression. Will act on expression at point if present.
 
 

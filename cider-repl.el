@@ -151,7 +151,7 @@ This property value must be unique to avoid having adjacent inputs be
 joined together.")
 
 (defvar-local cider-repl-input-history '()
-  "History list of strings read from the nREPL buffer.")
+  "History list of strings read from the REPL buffer.")
 
 (defvar-local cider-repl-input-history-items-added 0
   "Variable counting the items added in the current session.")
