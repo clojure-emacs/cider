@@ -495,8 +495,8 @@ Uses `find-file'."
                                    (ring-insert find-tag-marker-ring (point-marker)))
                                  (cider-jump-to-def-for
                                   (car (read-from-string value))))
-                               (lambda (buffer out) (message out))
-                               (lambda (buffer err) (message err))
+                               (lambda (_buffer out) (message out))
+                               (lambda (_buffer err) (message err))
                                nil))
 
 (defun cider--jump-to-def-eval-fn (var)
@@ -616,7 +616,7 @@ otherwise dispatch to internal completion function."
      "local-paths" ,(mapconcat #'identity cider-javadoc-local-paths " "))
    (nrepl-make-response-handler
     (current-buffer)
-    (lambda (buffer url)
+    (lambda (_buffer url)
       (if url
           (browse-url url)
         (error "No javadoc url for %s" symbol-name)))
@@ -649,10 +649,10 @@ otherwise dispatch to internal completion function."
   "Make a nREPL evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
   (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
+                               (lambda (_buffer value)
                                  (with-current-buffer buffer
                                    (insert value)))
-                               (lambda (buffer out)
+                               (lambda (_buffer out)
                                  (cider-repl-emit-interactive-output out))
                                (lambda (buffer err)
                                  (message "%s" err)
@@ -663,11 +663,11 @@ The handler simply inserts the result value in BUFFER."
 (defun cider-interactive-eval-handler (buffer)
   "Make an interactive eval handler for BUFFER."
   (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
+                               (lambda (_buffer value)
                                  (message "%s%s"
                                           cider-interactive-eval-result-prefix
                                           (cider-font-lock-as-clojure value)))
-                               (lambda (buffer value)
+                               (lambda (_buffer value)
                                  (cider-repl-emit-interactive-output value))
                                (lambda (buffer err)
                                  (message "%s" err)
@@ -683,7 +683,7 @@ The handler simply inserts the result value in BUFFER."
                                  (with-current-buffer buffer
                                    (setq nrepl-buffer-ns (clojure-find-ns))
                                    (run-hooks 'cider-file-loaded-hook)))
-                               (lambda (buffer value)
+                               (lambda (_buffer value)
                                  (cider-repl-emit-interactive-output value))
                                (lambda (buffer err)
                                  (message "%s" err)
@@ -702,7 +702,7 @@ The handler simply inserts the result value in BUFFER."
                                  (with-current-buffer buffer
                                    (insert (format "%s" value))))
                                '()
-                               (lambda (buffer err)
+                               (lambda (_buffer err)
                                  (message "%s" err))
                                '()))
 
@@ -743,10 +743,10 @@ Returns the position at which PROPERTY was found, or nil if not found."
     (when (and (not (= p (point-min))) (not (= p (point-max))))
       p)))
 
-(defun cider-jump-to-compilation-error (&optional arg reset)
+(defun cider-jump-to-compilation-error (&optional _arg _reset)
   "Jump to the line causing the current compilation error.
 
-ARG and RESET are ignored, as there is only ever one compilation error.
+_ARG and _RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
   (cl-labels ((goto-next-note-boundary
