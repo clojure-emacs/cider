@@ -535,9 +535,12 @@ instance, because nREPL itself does not depend on `clojure-complete`.
 Note that if you're using an nREPL middleware providing a `complete` op,
 CIDER will use it instead of its built-in completion.
 
-Clojurescript completion is provided by the [cider-nrepl](https://github.com/clojure-emacs/cider-nrepl) 'complete'
-implementation middleware which relies on [piggieback](https://github.com/cemerick/piggieback).  Include it in your project middlewares and call
-(cemerick.piggieback/cljs-repl) or another method to start up the cljs repl.
+ClojureScript completion is provided by the
+[cider-nrepl](https://github.com/clojure-emacs/cider-nrepl) 'complete'
+implementation middleware which relies on
+[piggieback](https://github.com/cemerick/piggieback).  Include it in
+your project middlewares and call `(cemerick.piggieback/cljs-repl)` or
+another method to start up the cljs REPL.
 
 ## Changelog
 
