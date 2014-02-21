@@ -629,10 +629,10 @@ text property `cider-old-input'."
   (message "Pretty printing in nREPL %s."
            (if cider-repl-use-pretty-printing "enabled" "disabled")))
 
-(defun cider-repl-set-print-length (print-length)
-  "Set the clojure var *print-length* to PRINT-LENGTH."
+(defun cider-repl-set-print-length (length)
+  "Set the clojure var *print-length* to LENGTH."
   (let* ((form (format "(set! *print-length* %d)"
-                       print-length)))
+                       length)))
     (cider-eval-sync form)))
 
 (defun cider-repl-toggle-print-length-limiting ()
