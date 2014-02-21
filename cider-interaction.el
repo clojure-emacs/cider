@@ -293,7 +293,7 @@ Returns to the buffer in which the command was invoked."
     map)
   "Minibuffer keymap used for reading Clojure expressions.")
 
-(defun cider-read-from-minibuffer (prompt &optional initial-value history)
+(defun cider-read-from-minibuffer (prompt &optional initial-value)
   "Read a string from the minibuffer, prompting with PROMPT.
 If INITIAL-VALUE is non-nil, it is inserted into the minibuffer before
 reading input."
@@ -304,7 +304,7 @@ reading input."
         (run-hooks 'eval-expression-minibuffer-setup-hook))
     (read-from-minibuffer prompt initial-value
                           cider-minibuffer-map nil
-                          'cider-minibuffer-history)))
+                          cider-minibuffer-history)))
 
 (defun cider-read-and-eval ()
   "Read a sexp from the minibuffer and output its result to the echo area."
