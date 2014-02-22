@@ -408,17 +408,35 @@ With a PREFIX argument, print the result in the current buffer."
    (point)))
 
 ;;;
-(defun cider-tramp-prefix ()
-  "Top element on `find-tag-marker-ring' used to determine Clojure host."
-  (let ((jump-origin (buffer-file-name
-                      (marker-buffer
-                       (ring-ref find-tag-marker-ring 0)))))
-    (when (tramp-tramp-file-p jump-origin)
-      (let ((vec (tramp-dissect-file-name jump-origin)))
+(defun cider-tramp-prefix (&optional buffer)
+  "Use the filename for BUFFER to determine a tramp prefix.
+  Defaults to the current buffer.
+  Return the tramp prefix, or nil if BUFFER is local."
+  (let ((buffer (or buffer (current-buffer)))
+        (name (buffer-file-name buffer)))
+    (when (tramp-tramp-file-p name)
+      (let ((vec (tramp-dissect-file-name name)))
         (tramp-make-tramp-file-name (tramp-file-name-method vec)
                                     (tramp-file-name-user vec)
                                     (tramp-file-name-host vec)
                                     nil)))))
+
+(defun cider--client-tramp-filename (name &optional buffer)
+  "Return the tramp filename for path NAME relative to BUFFER.
+  If BUFFER has a tramp prefix, it will be added as a prefix to NAME.
+  If the resulting path is an existing tramp file, it returns the path,
+  otherwise, nil."
+  (let ((buffer (or buffer (current-buffer)))
+        (name (concat (cider-tramp-prefix buffer) name)))
+    (if (tramp-handle-file-exists-p name)
+        name)))
+
+(defun cider--server-filename (name)
+  "Return the nREPL server-relative filename for NAME."
+  (if (tramp-tramp-file-p name)
+      (with-parsed-tramp-file-name name nil
+        localname)
+    name))
 
 (defun cider-home-prefix-adjustment (resource)
   "System-dependent HOME location will be adjusted in RESOURCE.
@@ -474,15 +492,19 @@ Uses `find-file'."
                (kill-buffer opened-buffer)))))
         (t (error "Unknown resource path %s" resource))))
 
-(defun cider-jump-to-def-for (location)
-  "Jump to LOCATION's definition in the source code."
+(defun cider-jump-to-def-for (location buffer)
+  "Jump to LOCATION's definition in the source code, relative to BUFFER.
+  BUFFER is used to determine a tramp prefix, which is added to as a prefix
+  to the LOCATION."
   ;; ugh; elisp destructuring doesn't work for vectors
-  (let ((resource (aref location 0))
-        (path (aref location 1))
-        (line (aref location 2)))
-    (if (and path (file-exists-p path))
-        (find-file path)
-      (cider-find-resource resource))
+  (let* ((resource (aref location 0))
+         (path (aref location 1))
+         (line (aref location 2))
+         (tpath (if path (cider--client-tramp-filename path buffer))))
+    (cond
+     (tpath (find-file tpath))
+     ((and path (file-exists-p path)) (find-file path))
+     (t (cider-find-resource resource)))
     (goto-char (point-min))
     (forward-line (1- line))))
 
@@ -494,7 +516,7 @@ Uses `find-file'."
                                  (with-current-buffer buffer
                                    (ring-insert find-tag-marker-ring (point-marker)))
                                  (cider-jump-to-def-for
-                                  (car (read-from-string value))))
+                                  (car (read-from-string value)) buffer))
                                (lambda (_buffer out) (message out))
                                (lambda (_buffer err) (message err))
                                nil))
@@ -552,7 +574,7 @@ Uses `find-file'."
          (file (cadr (assoc "file" val-alist)))
          (line (cadr (assoc "line" val-alist))))
     (ring-insert find-tag-marker-ring (point-marker))
-    (cider-jump-to-def-for (vector file file line))))
+    (cider-jump-to-def-for (vector file file line) (current-buffer))))
 
 (defun cider-jump-to-def (var)
   "Jump to the definition of the VAR at point."
@@ -1250,7 +1272,7 @@ under point, prompts for a var."
 (defun cider-load-file-op (filename)
   "Send \"load-file\" op for FILENAME."
   (cider-send-load-file (cider-file-string filename)
-                        filename
+                        (cider--server-filename filename)
                         (file-name-nondirectory filename)))
 
 (defun cider-load-file (filename)
