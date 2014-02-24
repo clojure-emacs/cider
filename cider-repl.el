@@ -220,7 +220,7 @@ positions before and after executing BODY."
               (pkg-info-version-info 'cider)
             (error cider-version))
           (cider--clojure-version)
-          (cider--backend-version)))
+          (cider--nrepl-version)))
 
 (defun cider-repl--insert-banner-and-prompt (ns)
   "Insert REPL banner and REPL prompt, taking into account NS."

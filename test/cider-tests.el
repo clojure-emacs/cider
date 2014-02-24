@@ -51,13 +51,13 @@
 (ert-deftest test-cider-repl--banner ()
   (noflet ((pkg-info-version-info (library) "0.2.0")
            (cider--clojure-version () "1.5.1")
-           (cider--backend-version () "0.2.1"))
+           (cider--nrepl-version () "0.2.1"))
     (should (equal (cider-repl--banner) "; CIDER 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
 
 (ert-deftest test-cider-repl--banner-version-fallback ()
   (noflet ((pkg-info-version-info (library) (error "No package version"))
            (cider--clojure-version () "1.5.1")
-           (cider--backend-version () "0.2.1"))
+           (cider--nrepl-version () "0.2.1"))
           (let ((cider-version "0.5.1"))
               (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
@@ -105,7 +105,7 @@
             (list (buffer-name a) (buffer-name b) (buffer-name c)))
            (nrepl-connection-buffer nil))
        (noflet ((cider--clojure-version () "")
-                (cider--backend-version () ""))
+                (cider--nrepl-version () ""))
                (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
                (cider-rotate-connection)
                (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
@@ -117,7 +117,7 @@
 (ert-deftest test-cider--current-connection-info ()
   (with-temp-buffer
     (noflet ((cider--clojure-version () "1.5.1")
-             (cider--backend-version () "0.2.1"))
+             (cider--nrepl-version () "0.2.1"))
             (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
             (set (make-local-variable 'nrepl-project-dir) "proj")
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
@@ -127,7 +127,7 @@
 (ert-deftest test-cider-current-connection-info-no-project ()
   (with-temp-buffer
     (noflet ((cider--clojure-version () "1.5.1")
-             (cider--backend-version () "0.2.1"))
+             (cider--nrepl-version () "0.2.1"))
             (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
             (set (make-local-variable 'nrepl-buffer-ns) "somens")
             (should (string= (cider--connection-info (buffer-name (current-buffer)))

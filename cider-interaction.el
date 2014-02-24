@@ -111,7 +111,7 @@ which will use the default REPL connection."
   "Retrieve the underlying connection's Clojure version."
   (cider-eval-and-get-value "(clojure-version)"))
 
-(defun cider--backend-version ()
+(defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
   (cider-eval-and-get-value "(:version-string clojure.tools.nrepl/version)"))
 
@@ -127,7 +127,7 @@ endpoint and Clojure version."
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
             (cider--clojure-version)
-            (cider--backend-version))))
+            (cider--nrepl-version))))
 
 (defun cider-display-current-connection-info ()
   "Display information about the current connection."
