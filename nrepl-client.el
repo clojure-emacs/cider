@@ -670,7 +670,7 @@ See command `nrepl-eval-request' for details on how NS and SESSION are processed
                                        (plist-put nrepl-sync-response :done t)))))
 
 (defun nrepl-send-request-sync (request)
-  "Send REQUEST to the backend synchronously (discouraged).
+  "Send REQUEST to the nREPL server synchronously (discouraged).
 The result is a plist with keys :value, :stderr and :stdout."
   (with-current-buffer (nrepl-current-connection-buffer)
     (setq nrepl-sync-response nil)
@@ -681,7 +681,7 @@ The result is a plist with keys :value, :stderr and :stdout."
     nrepl-sync-response))
 
 (defun nrepl-send-string-sync (input &optional ns session)
-  "Send the INPUT to the backend synchronously.
+  "Send the INPUT to the nREPL server synchronously.
 See command `nrepl-eval-request' for details about how NS and SESSION
 are processed."
   (nrepl-send-request-sync (nrepl-eval-request input ns session)))

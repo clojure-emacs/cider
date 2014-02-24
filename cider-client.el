@@ -64,7 +64,7 @@
     "May the Source shine upon thy REPL!"
     "Code long and prosper!"
     "Happy hacking!"
-    "Backend is up, REPL is operational!"
+    "nREPL server is up, REPL is operational!"
     "Your imagination is the only limit to what you can do with this REPL!"
     "This REPL is yours to command!"
     "Fame is but a hack away!"
@@ -110,17 +110,17 @@ NS specifies the namespace in which to evaluate the request."
   (cider-eval input callback ns (nrepl-current-tooling-session)))
 
 (defun cider-eval-sync (input &optional ns session)
-  "Send the INPUT to the backend synchronously.
+  "Send the INPUT to the nREPL server synchronously.
 NS & SESSION specify the evaluation context."
   (nrepl-send-string-sync input ns session))
 
 (defun cider-eval-and-get-value (input &optional ns session)
-  "Send the INPUT to the backend synchronously and return the value.
+  "Send the INPUT to the nREPL server synchronously and return the value.
 NS & SESSION specify the evaluation context."
   (cider-get-value (cider-eval-sync input ns session)))
 
 (defun cider-tooling-eval-sync (input &optional ns)
-  "Send the INPUT to the backend using a tooling session synchronously.
+  "Send the INPUT to the nREPL server using a tooling session synchronously.
 NS specifies the namespace in which to evaluate the request."
   (cider-eval-sync input ns (nrepl-current-tooling-session)))
 
