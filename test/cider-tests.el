@@ -35,14 +35,14 @@
 
 ;;;; generic
 (ert-deftest test-cider-connection-buffer-name ()
-  (set (make-local-variable 'nrepl-endpoint) '("localhost" 1))
+  (setq-local nrepl-endpoint '("localhost" 1))
   (let ((nrepl-hide-special-buffers nil))
     (should (equal (nrepl-connection-buffer-name) "*nrepl-connection localhost*")))
   (let ((nrepl-hide-special-buffers t))
     (should (equal (nrepl-connection-buffer-name) " *nrepl-connection localhost*"))))
 
 (ert-deftest test-cider-server-buffer-name ()
-  (set (make-local-variable 'nrepl-endpoint) '("localhost" 1))
+  (setq-local nrepl-endpoint '("localhost" 1))
   (let ((nrepl-hide-special-buffers nil))
     (should (equal (nrepl-server-buffer-name) "*nrepl-server localhost*")))
   (let ((nrepl-hide-special-buffers t))
@@ -118,9 +118,9 @@
   (with-temp-buffer
     (noflet ((cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
-            (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-            (set (make-local-variable 'nrepl-project-dir) "proj")
-            (set (make-local-variable 'nrepl-buffer-ns) "somens")
+            (setq-local nrepl-endpoint '("localhost" 4005))
+            (setq-local nrepl-project-dir "proj")
+            (setq-local nrepl-buffer-ns "somens")
             (should (string= (cider--connection-info (buffer-name (current-buffer)))
                              "Active nREPL connection: proj:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
@@ -128,8 +128,8 @@
   (with-temp-buffer
     (noflet ((cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
-            (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-            (set (make-local-variable 'nrepl-buffer-ns) "somens")
+            (setq-local nrepl-endpoint '("localhost" 4005))
+            (setq-local nrepl-buffer-ns "somens")
             (should (string= (cider--connection-info (buffer-name (current-buffer)))
                              "Active nREPL connection: <no project>:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
@@ -151,11 +151,11 @@
 (ert-deftest test-cider-connections-buffer ()
   (with-temp-buffer
     (let ((b1 (current-buffer)))
-      (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-      (set (make-local-variable 'nrepl-project-dir) "proj")
+      (setq-local nrepl-endpoint '("localhost" 4005))
+      (setq-local nrepl-project-dir "proj")
       (with-temp-buffer
         (let ((b2 (current-buffer)))
-          (set (make-local-variable 'nrepl-endpoint) '("123.123.123.123" 4006))
+          (setq-local nrepl-endpoint '("123.123.123.123" 4006))
           (let ((nrepl-connection-list
                  (list (buffer-name b1) (buffer-name b2))))
             (nrepl-connection-browser)
@@ -183,7 +183,7 @@
               (with-temp-buffer
                 (let ((b3 (current-buffer)))
                   (with-current-buffer b1
-                    (set (make-local-variable 'nrepl-repl-buffer) b3))
+                    (setq-local nrepl-repl-buffer b3))
                   (with-current-buffer "*nrepl-connections*"
                     (nrepl-connections-goto-connection)
                     (should (equal b3 (current-buffer))))))
@@ -191,7 +191,7 @@
 
 (ert-deftest test-nrepl-buffer-name ()
   (with-temp-buffer
-    (set (make-local-variable 'nrepl-endpoint) '("localhost" 1))
+    (setq-local nrepl-endpoint '("localhost" 1))
     (let ((b1 (current-buffer)))
       (should
        (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name localhost*")))))
@@ -199,73 +199,73 @@
 (ert-deftest test-nrepl-buffer-name-based-on-project ()
   (with-temp-buffer
     (let ((b1 (current-buffer)))
-      (set (make-local-variable 'nrepl-project-dir) "proj")
+      (setq-local nrepl-project-dir "proj")
       (should
        (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj*")))))
 
 (ert-deftest test-nrepl-buffer-name-separator ()
   (with-temp-buffer
     (let ((b1 (current-buffer)))
-      (set (make-local-variable 'nrepl-project-dir) "proj")
+      (setq-local nrepl-project-dir "proj")
       (let ((nrepl-buffer-name-separator "X"))
         (should
          (equal (nrepl-buffer-name "*buff-name%s*") "*buff-nameXproj*"))))))
 
 (ert-deftest test-nrepl-buffer-name-show-port-t ()
   (with-temp-buffer
-    (set (make-local-variable 'nrepl-buffer-name-show-port) t)
-    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (setq-local nrepl-buffer-name-show-port t)
+    (setq-local nrepl-endpoint '("localhost" 4009))
     (should
      (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name localhost:4009*"))))
 
 (ert-deftest test-nrepl-buffer-name-show-port-nil ()
   (with-temp-buffer
-    (set (make-local-variable 'nrepl-buffer-name-show-port) nil)
-    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (setq-local nrepl-buffer-name-show-port nil)
+    (setq-local nrepl-endpoint '("localhost" 4009))
     (should
      (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name localhost*"))))
 
 (ert-deftest test-nrepl-buffer-name-based-on-project-and-port ()
   (with-temp-buffer
-    (set (make-local-variable 'nrepl-buffer-name-show-port) t)
-    (set (make-local-variable 'nrepl-project-dir) "proj")
-    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (setq-local nrepl-buffer-name-show-port t)
+    (setq-local nrepl-project-dir "proj")
+    (setq-local nrepl-endpoint '("localhost" 4009))
     (should
      (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj:4009*"))))
 
 (ert-deftest test-nrepl-buffer-name-two-buffers-same-project ()
   (with-temp-buffer
-    (set (make-local-variable 'nrepl-project-dir) "proj")
+    (setq-local nrepl-project-dir "proj")
     (let* ((cider-new-buffer (nrepl-buffer-name "*buff-name%s*")))
       (get-buffer-create cider-new-buffer)
       (should
        (equal cider-new-buffer "*buff-name proj*"))
       (with-temp-buffer
-        (set (make-local-variable 'nrepl-project-dir) "proj")
+        (setq-local nrepl-project-dir "proj")
         (should
          (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj*<2>"))
         (kill-buffer cider-new-buffer)))))
 
 (ert-deftest test-nrepl-buffer-name-duplicate-proj-port ()
   (with-temp-buffer
-    (set (make-local-variable 'nrepl-buffer-name-show-port) t)
-    (set (make-local-variable 'nrepl-project-dir) "proj")
-    (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+    (setq-local nrepl-buffer-name-show-port t)
+    (setq-local nrepl-project-dir "proj")
+    (setq-local nrepl-endpoint '("localhost" 4009))
     (let* ((cider-new-buffer (nrepl-buffer-name "*buff-name%s*")))
       (get-buffer-create cider-new-buffer)
       (should
        (equal cider-new-buffer "*buff-name proj:4009*"))
       (with-temp-buffer
-        (set (make-local-variable 'nrepl-buffer-name-show-port) t)
-        (set (make-local-variable 'nrepl-project-dir) "proj")
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
+        (setq-local nrepl-buffer-name-show-port t)
+        (setq-local nrepl-project-dir "proj")
+        (setq-local nrepl-endpoint '("localhost" 4009))
         (should
          (equal (nrepl-buffer-name  "*buff-name%s*") "*buff-name proj:4009*<2>"))
         (kill-buffer cider-new-buffer)))))
 
 (ert-deftest test-cider-clojure-buffer-name ()
   (with-temp-buffer
-    (set (make-local-variable 'nrepl-endpoint) '("localhost" 1))
+    (setq-local nrepl-endpoint '("localhost" 1))
     (let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1))))
         (should
@@ -296,17 +296,17 @@
                                         (buffer-name b2)
                                         (buffer-name b3))))
       (with-current-buffer b1
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-        (set (make-local-variable 'nrepl-project-dir) "proj1")
-        (set (make-local-variable 'nrepl-repl-buffer) b1-repl))
+        (setq-local nrepl-endpoint '("localhost" 4005))
+        (setq-local nrepl-project-dir "proj1")
+        (setq-local nrepl-repl-buffer b1-repl))
       (with-current-buffer b2
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
-        (set (make-local-variable 'nrepl-project-dir) "proj2")
-        (set (make-local-variable 'nrepl-repl-buffer) b2-repl))
+        (setq-local nrepl-endpoint '("localhost" 4006))
+        (setq-local nrepl-project-dir "proj2")
+        (setq-local nrepl-repl-buffer b2-repl))
       (with-current-buffer b3
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4009))
-        (set (make-local-variable 'nrepl-project-dir) "proj3")
-        (set (make-local-variable 'nrepl-repl-buffer) b3-repl))
+        (setq-local nrepl-endpoint '("localhost" 4009))
+        (setq-local nrepl-project-dir "proj3")
+        (setq-local nrepl-repl-buffer b3-repl))
       (with-current-buffer b1
         (cider-switch-to-relevant-repl-buffer '())
         (should (equal b1-repl (current-buffer)))
@@ -343,12 +343,12 @@
            (nrepl-connection-list (list (buffer-name b1)
                                         (buffer-name b2))))
       (with-current-buffer b1 ;; cider-jack-in 1
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-        (set (make-local-variable 'nrepl-project-dir) "proj1")
-        (set (make-local-variable 'nrepl-repl-buffer) b1-repl))
+        (setq-local nrepl-endpoint '("localhost" 4005))
+        (setq-local nrepl-project-dir "proj1")
+        (setq-local nrepl-repl-buffer b1-repl))
       (with-current-buffer b2 ;; cider-connect - no relevant buffer
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
-        (set (make-local-variable 'nrepl-repl-buffer) b2-repl))
+        (setq-local nrepl-endpoint '("localhost" 4006))
+        (setq-local nrepl-repl-buffer b2-repl))
       (with-current-buffer b2
         (cider-switch-to-relevant-repl-buffer '())
         (should (equal b1-repl (current-buffer)))
@@ -370,17 +370,17 @@
                                         (buffer-name b2)
                                         (buffer-name b3))))
       (with-current-buffer b1 ;; cider-jack-in 1
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4005))
-        (set (make-local-variable 'nrepl-project-dir) "proj1")
-        (set (make-local-variable 'nrepl-repl-buffer) b1-repl))
+        (setq-local nrepl-endpoint '("localhost" 4005))
+        (setq-local nrepl-project-dir "proj1")
+        (setq-local nrepl-repl-buffer b1-repl))
       (with-current-buffer b2 ;; cider-connect - no relevant buffer
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4006))
-        (set (make-local-variable 'nrepl-project-dir) "proj1")
-        (set (make-local-variable 'nrepl-repl-buffer) b2-repl))
+        (setq-local nrepl-endpoint '("localhost" 4006))
+        (setq-local nrepl-project-dir "proj1")
+        (setq-local nrepl-repl-buffer b2-repl))
       (with-current-buffer b3 ;; cider-connect - no relevant buffer
-        (set (make-local-variable 'nrepl-endpoint) '("localhost" 4007))
-        (set (make-local-variable 'nrepl-project-dir) "proj2")
-        (set (make-local-variable 'nrepl-repl-buffer) b3-repl))
+        (setq-local nrepl-endpoint '("localhost" 4007))
+        (setq-local nrepl-project-dir "proj2")
+        (setq-local nrepl-repl-buffer b3-repl))
       (with-current-buffer b3
         (cider-switch-to-relevant-repl-buffer '()))
       (with-current-buffer b2
