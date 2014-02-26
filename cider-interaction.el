@@ -151,7 +151,7 @@ back to last Clojure source buffer."))
 
 (defvar cider-current-clojure-buffer nil
   "This variable holds current buffer temporarily when connecting to a REPL.
-It is set to current buffer when `nrepl' or `cider-jack-in' is called.
+It is set to current buffer when `cider' or `cider-jack-in' is called.
 After the REPL buffer is created, the value of this variable is used
 to call `cider-remember-clojure-buffer'.")
 

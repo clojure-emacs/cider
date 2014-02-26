@@ -46,7 +46,7 @@
 
 (defcustom nrepl-buffer-name-separator " "
   "Used in constructing the REPL buffer name.
-The `nrepl-buffer-name-separator' separates `nrepl' from the project name."
+The `nrepl-buffer-name-separator' separates cider-repl from the project name."
   :type '(string)
   :group 'nrepl)
 
