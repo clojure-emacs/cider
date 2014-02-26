@@ -54,7 +54,12 @@
 
 (defface cider-repl-output-face
   '((t (:inherit font-lock-string-face)))
-  "Face for output in the REPL buffer."
+  "Face for STDOUT output in the REPL buffer."
+  :group 'cider-repl)
+
+(defface cider-repl-err-output-face
+  '((t (:inherit font-lock-warning-face)))
+  "Face for STDERR output in the REPL buffer."
   :group 'cider-repl)
 
 (defface cider-repl-input-face
@@ -404,7 +409,7 @@ Return the position of the prompt beginning."
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
 
-(defun cider-repl-emit-output-at-pos (buffer string position &optional bol)
+(defun cider-repl-emit-output-at-pos (buffer string output-face position &optional bol)
   "Using BUFFER, insert STRING at POSITION and mark it as output.
 If BOL is non-nil insert at the beginning of line."
   (with-current-buffer buffer
@@ -414,7 +419,7 @@ If BOL is non-nil insert at the beginning of line."
           (goto-char position)
           ;; TODO: Review the need for bol
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (cider-propertize-region `(face cider-repl-output-face
+          (cider-propertize-region `(face ,output-face
                                           rear-nonsticky (face))
             (insert-before-markers string)
             (when (and (= (point) cider-repl-prompt-start-mark)
@@ -427,7 +432,7 @@ If BOL is non-nil insert at the beginning of line."
   "Emit STRING as interactive output."
   (with-current-buffer (cider-current-repl-buffer)
     (let ((pos (1- (cider-repl--input-line-beginning-position))))
-      (cider-repl-emit-output-at-pos (current-buffer) string pos t)
+      (cider-repl-emit-output-at-pos (current-buffer) string 'cider-repl-output-face pos t)
       (ansi-color-apply-on-region pos (point-max)))))
 
 (defun cider-repl-emit-output (buffer string &optional bol)
@@ -435,7 +440,16 @@ If BOL is non-nil insert at the beginning of line."
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
     (let ((pos (1- (cider-repl--input-line-beginning-position))))
-      (cider-repl-emit-output-at-pos buffer string cider-repl-input-start-mark bol)
+      (cider-repl-emit-output-at-pos buffer string 'cider-repl-output-face cider-repl-input-start-mark bol)
+      (ansi-color-apply-on-region pos (point-max)))))
+
+;; TODO: Factor out repeated code
+(defun cider-repl-emit-err-output (buffer string &optional bol)
+  "Using BUFFER, emit STRING.
+If BOL is non-nil, emit at the beginning of the line."
+  (with-current-buffer buffer
+    (let ((pos (1- (cider-repl--input-line-beginning-position))))
+      (cider-repl-emit-output-at-pos buffer string 'cider-repl-err-output-face cider-repl-input-start-mark bol)
       (ansi-color-apply-on-region pos (point-max)))))
 
 (defun cider-repl-emit-prompt (buffer)
@@ -521,7 +535,7 @@ the symbol."
                                (lambda (buffer out)
                                  (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
-                                 (cider-repl-emit-output buffer err))
+                                 (cider-repl-emit-err-output buffer err))
                                (lambda (buffer)
                                  (cider-repl-emit-prompt buffer))))
 
