@@ -580,8 +580,8 @@ Refreshes EWOC."
   (interactive)
   (nrepl--ewoc-apply-at-point #'nrepl--connections-goto-connection))
 
-(defun nrepl--connections-goto-connection (ewoc data)
-  "Goto the REPL for the connection in EWOC specified by DATA."
+(defun nrepl--connections-goto-connection (_ewoc data)
+  "Goto the REPL for the connection in _EWOC specified by DATA."
   (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
     (when buffer
       (select-window (display-buffer buffer)))))
@@ -652,20 +652,20 @@ See command `nrepl-eval-request' for details on how NS and SESSION are processed
 (defun nrepl-sync-request-handler (buffer)
   "Make a synchronous request handler for BUFFER."
   (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
+                               (lambda (_buffer value)
                                  (setq nrepl-sync-response
                                        (plist-put nrepl-sync-response :value value)))
-                               (lambda (buffer out)
+                               (lambda (_buffer out)
                                  (let ((so-far (plist-get nrepl-sync-response :stdout)))
                                    (setq nrepl-sync-response
                                          (plist-put nrepl-sync-response
                                                     :stdout (concat so-far out)))))
-                               (lambda (buffer err)
+                               (lambda (_buffer err)
                                  (let ((so-far (plist-get nrepl-sync-response :stderr)))
                                    (setq nrepl-sync-response
                                          (plist-put nrepl-sync-response
                                                     :stderr (concat so-far err)))))
-                               (lambda (buffer)
+                               (lambda (_buffer)
                                  (setq nrepl-sync-response
                                        (plist-put nrepl-sync-response :done t)))))
 
@@ -795,8 +795,8 @@ If so ask the user for confirmation."
        nrepl-repl-requires-sexp
        (nrepl-make-response-handler
         buffer nil
-        (lambda (buffer out) (message out))
-        (lambda (buffer err) (message err))
+        (lambda (_buffer out) (message out))
+        (lambda (_buffer err) (message err))
         nil)
        nrepl-buffer-ns
        nrepl-tooling-session))))
