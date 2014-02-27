@@ -126,7 +126,7 @@ Emacs Live you're already good to go.
 
 Some of CIDER's functionality (like the inspector, ClojureScript
 completion, etc) depends on the presence of CIDER's own
-[nREPL middleware][https://github.com/clojure-emacs/cider-nrepl].
+[nREPL middleware](https://github.com/clojure-emacs/cider-nrepl).
 
 Other functionality will work out of the box, but will be enhanced in the presence of the
 extra middleware. All CIDER users are encouraged to use it.
