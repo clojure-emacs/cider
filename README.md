@@ -30,7 +30,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 	- [cider-mode](#cider-mode)
 	- [cider-repl-mode](#cider-repl-mode)
 	- [cider-macroexpansion-minor-mode](#cider-macroexpansion-minor-mode)
-    - [cider-inspector](#cider-inspector)
+    - [cider-inspector-mode](#cider-inspector-mode)
 	- [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
