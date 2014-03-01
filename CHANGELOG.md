@@ -8,6 +8,8 @@
 * Cider command uses `cider-known-endpoints`.
 * [#490](https://github.com/clojure-emacs/cider/pull/490) Dedicated
   support for `company-mode` in `cider-complete-at-point`.
+* [#489](https://github.com/clojure-emacs/cider/issues/489) Enable
+  cider-jack-in on tramp source buffers.
 * [#460](https://github.com/clojure-emacs/cider/issues/460) Support for
 cider-nrepl's complete middleware for CLJ/CLJS autocomplete.
 * [#465](https://github.com/clojure-emacs/cider/issues/465) Support for
