@@ -1225,20 +1225,23 @@ if there is no symbol at point, or if QUERY is non-nil."
           (ido-mode (cider-ido-read-var nrepl-buffer-ns callback))
           (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
 
-(defun cider-doc-handler (symbol)
-  "Create a handler to lookup documentation for SYMBOL."
-  (let ((form (format "(clojure.repl/doc %s)" symbol))
-        (doc-buffer (cider-popup-buffer cider-doc-buffer t)))
-    (cider-tooling-eval form
-                        (cider-popup-eval-out-handler doc-buffer)
-                        nrepl-buffer-ns)))
+(defun cider-doc-for (symbol)
+  "Look up documentation for SYMBOL using inlined Clojure code."
+  (let* ((form (format "(clojure.repl/doc %s)" symbol))
+         (doc-buffer (cider-popup-buffer cider-doc-buffer t))
+         (response
+          (cider-tooling-eval-sync form nrepl-buffer-ns))
+         (str
+          (or (plist-get response :stdout)
+              (plist-get response :stderr))))
+    (cider-emit-into-popup-buffer doc-buffer str)))
 
 (defun cider-doc (query)
   "Open a window with the docstring for the given QUERY.
 Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-doc-handler query))
+  (cider-read-symbol-name "Symbol: " 'cider-doc-for query))
 
 (defun cider-src-handler (symbol)
   "Create a handler to lookup source for SYMBOL."
