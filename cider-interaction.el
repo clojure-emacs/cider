@@ -496,6 +496,7 @@ Uses `find-file'."
   "Jump to LOCATION's definition in the source code.
 The current buffer is used to determine a tramp prefix, which is
 added as a prefix to the LOCATION."
+  (ring-insert find-tag-marker-ring (point-marker))
   ;; ugh; elisp destructuring doesn't work for vectors
   (let* ((resource (aref location 0))
          (path (aref location 1))
@@ -515,7 +516,6 @@ added as a prefix to the LOCATION."
         (err (plist-get response :stderr)))
     (cond
      (value
-      (ring-insert find-tag-marker-ring (point-marker))
       (cider-jump-to-def-for (car (read-from-string value))))
      (out (message out))
      (err (message err)))))
