@@ -90,21 +90,27 @@ POS is the index of current argument."
           nil
         (list (cider-symbol-at-point) argument-index)))))
 
+(defun cider-eldoc-arglist (thing)
+  "Return the arglist for THING."
+  (let* ((form (format "(try
+                         (:arglists
+                          (clojure.core/meta
+                           (clojure.core/resolve
+                            (clojure.core/read-string \"%s\"))))
+                         (catch Throwable t nil))" thing))
+         (value (when thing
+                  (cider-get-raw-value (cider-tooling-eval-sync form nrepl-buffer-ns)))))
+    (unless (string= value "nil")
+      value)))
+
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
   (when (cider-connected-p)
     (let* ((info (cider-eldoc-info-in-current-sexp))
            (thing (car info))
            (pos (cadr info))
-           (form (format "(try
-                           (:arglists
-                            (clojure.core/meta
-                             (clojure.core/resolve
-                              (clojure.core/read-string \"%s\"))))
-                           (catch Throwable t nil))" thing))
-           (value (when thing
-                    (cider-get-raw-value (cider-tooling-eval-sync form nrepl-buffer-ns)))))
-      (unless (string= value "nil")
+           (value (cider-eldoc-arglist thing)))
+      (when value
         (format "%s: %s"
                 (cider-eldoc-format-thing thing)
                 (cider-eldoc-format-arglist value pos))))))

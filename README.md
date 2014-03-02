@@ -339,6 +339,14 @@ enable `paredit` in the REPL buffer as well:
   Where nREPL provides it, pop-up documentation for completed symbols
   will be displayed.
 
+* [company-cider](https://github.com/clojure-emacs/company-cider)
+  provides completion back-end with similar functionality for
+  [company-mode](http://company-mode.github.io/).
+
+* As long as `company-mode` has the `company-capf` back-end enabled,
+  it will retrieve completion information from
+  `cider-complete-at-point`, requiring no additional setup.
+
 ## Basic Usage
 
 The only requirement to use CIDER is to have a nREPL server to

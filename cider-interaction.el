@@ -492,15 +492,16 @@ Uses `find-file'."
                (kill-buffer opened-buffer)))))
         (t (error "Unknown resource path %s" resource))))
 
-(defun cider-jump-to-def-for (location buffer)
-  "Jump to LOCATION's definition in the source code, relative to BUFFER.
-BUFFER is used to determine a tramp prefix, which is added to as a prefix
-to the LOCATION."
+(defun cider-jump-to-def-for (location)
+  "Jump to LOCATION's definition in the source code.
+The current buffer is used to determine a tramp prefix, which is
+added as a prefix to the LOCATION."
+  (ring-insert find-tag-marker-ring (point-marker))
   ;; ugh; elisp destructuring doesn't work for vectors
   (let* ((resource (aref location 0))
          (path (aref location 1))
          (line (aref location 2))
-         (tpath (if path (cider--client-tramp-filename path buffer))))
+         (tpath (if path (cider--client-tramp-filename path))))
     (cond
      (tpath (find-file tpath))
      ((and path (file-exists-p path)) (find-file path))
@@ -508,18 +509,16 @@ to the LOCATION."
     (goto-char (point-min))
     (forward-line (1- line))))
 
-(defun cider-jump-to-def-handler (buffer)
-  "Create a handler for jump-to-def in BUFFER."
-  ;; TODO: got to be a simpler way to do this
-  (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
-                                 (with-current-buffer buffer
-                                   (ring-insert find-tag-marker-ring (point-marker)))
-                                 (cider-jump-to-def-for
-                                  (car (read-from-string value)) buffer))
-                               (lambda (_buffer out) (message out))
-                               (lambda (_buffer err) (message err))
-                               nil))
+(defun cider--jump-to-def-eval-fn-1 (response)
+  "Handle the synchronous RESPONSE."
+  (let ((value (plist-get response :value))
+        (out (plist-get response :stdout))
+        (err (plist-get response :stderr)))
+    (cond
+     (value
+      (cider-jump-to-def-for (car (read-from-string value))))
+     (out (error out))
+     (err (error err)))))
 
 (defun cider--jump-to-def-eval-fn (var)
   "Jump to VAR def by evaluating inlined Clojure code."
@@ -558,9 +557,7 @@ to the LOCATION."
                                  :line)
                                 (clojure.core/meta (clojure.core/ns-resolve ns-symbol ns-var)))))"
                       (cider-current-ns) var)))
-    (cider-tooling-eval form
-                        (cider-jump-to-def-handler (current-buffer))
-                        (cider-current-ns))))
+    (cider--jump-to-def-eval-fn-1 (cider-tooling-eval-sync form (cider-current-ns)))))
 
 (defun cider--jump-to-def-op-fn (var)
   "Jump to VAR def by using the nREPL info op."
@@ -574,7 +571,7 @@ to the LOCATION."
          (file (cadr (assoc "file" val-alist)))
          (line (cadr (assoc "line" val-alist))))
     (ring-insert find-tag-marker-ring (point-marker))
-    (cider-jump-to-def-for (vector file file line) (current-buffer))))
+    (cider-jump-to-def-for (vector file file line))))
 
 (defun cider-jump-to-def (var)
   "Jump to the definition of the VAR at point."
@@ -622,8 +619,27 @@ otherwise dispatch to internal completion function."
     (when (and sap (not (in-string-p)))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
-              (completion-table-dynamic #'cider-dispatch-complete-symbol))))))
+              (completion-table-dynamic #'cider-dispatch-complete-symbol)
+              :company-doc-buffer #'cider-doc-buffer-for
+              :company-location #'cider-company-location
+              :company-docsig #'cider-company-docsig)))))
 
+(defun cider-company-location (var)
+  "Open VAR definition in a buffer and return its location."
+  (save-excursion
+    (save-window-excursion
+      (let ((find-tag-marker-ring (make-ring 1)))
+        (cider-jump-to-def var)
+        (unless (string-match-p "Namespace not found" (current-message))
+          (cons (current-buffer) (point)))))))
+
+(defun cider-company-docsig (thing)
+  "Return signature for THING."
+  (let ((arglist (cider-eldoc-arglist thing)))
+    (when arglist
+      (format "%s: %s"
+              (cider-eldoc-format-thing thing)
+              arglist))))
 
 ;;; JavaDoc Browsing
 ;;; Assumes local-paths are accessible in the VM.
@@ -1225,20 +1241,30 @@ if there is no symbol at point, or if QUERY is non-nil."
           (ido-mode (cider-ido-read-var nrepl-buffer-ns callback))
           (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
 
-(defun cider-doc-handler (symbol)
-  "Create a handler to lookup documentation for SYMBOL."
-  (let ((form (format "(clojure.repl/doc %s)" symbol))
-        (doc-buffer (cider-popup-buffer cider-doc-buffer t)))
-    (cider-tooling-eval form
-                        (cider-popup-eval-out-handler doc-buffer)
-                        nrepl-buffer-ns)))
+(defun cider-doc-buffer-for (symbol)
+  "Return buffer with documentation for SYMBOL."
+  (let* ((form (format "(clojure.repl/doc %s)" symbol))
+         (doc-buffer (cider-make-popup-buffer cider-doc-buffer))
+         (response
+          (cider-tooling-eval-sync form nrepl-buffer-ns))
+         (str
+          (or (plist-get response :stdout)
+              (plist-get response :stderr))))
+    (cider-emit-into-popup-buffer doc-buffer str)
+    doc-buffer))
+
+(defun cider-doc-lookup (symbol)
+  "Look up documentation for SYMBOL."
+  (with-current-buffer (cider-doc-buffer-for symbol)
+    (setq buffer-read-only t)
+    (cider-popup-buffer-display (current-buffer) t)))
 
 (defun cider-doc (query)
   "Open a window with the docstring for the given QUERY.
 Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-doc-handler query))
+  (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
 (defun cider-src-handler (symbol)
   "Create a handler to lookup source for SYMBOL."
