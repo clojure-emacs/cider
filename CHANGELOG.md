@@ -19,6 +19,10 @@ visually distinctive from `cider-repl-output-face` (used for STDOUT output).
 ### Changes
 
 * Required Emacs version is now 24.1.
+* [#486](https://github.com/clojure-emacs/cider/issues/486) Improve
+  support for tramp, so tramp paths do not get used in compiled debug
+  information.  `cider-jump` still uses tramp filenames to find
+  definitions if used in a buffer associated with a tramp file.
 
 ### Bugs fixed
 
