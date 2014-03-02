@@ -630,7 +630,8 @@ otherwise dispatch to internal completion function."
     (save-window-excursion
       (let ((find-tag-marker-ring (make-ring 1)))
         (cider-jump-to-def var)
-        (cons (current-buffer) (point))))))
+        (unless (string-match-p "Namespace not found" (current-message))
+          (cons (current-buffer) (point)))))))
 
 (defun cider-company-docsig (thing)
   "Return signature for THING."
