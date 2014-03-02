@@ -492,15 +492,15 @@ Uses `find-file'."
                (kill-buffer opened-buffer)))))
         (t (error "Unknown resource path %s" resource))))
 
-(defun cider-jump-to-def-for (location buffer)
-  "Jump to LOCATION's definition in the source code, relative to BUFFER.
-BUFFER is used to determine a tramp prefix, which is added to as a prefix
-to the LOCATION."
+(defun cider-jump-to-def-for (location)
+  "Jump to LOCATION's definition in the source code.
+The current buffer is used to determine a tramp prefix, which is
+added as a prefix to the LOCATION."
   ;; ugh; elisp destructuring doesn't work for vectors
   (let* ((resource (aref location 0))
          (path (aref location 1))
          (line (aref location 2))
-         (tpath (if path (cider--client-tramp-filename path buffer))))
+         (tpath (if path (cider--client-tramp-filename path))))
     (cond
      (tpath (find-file tpath))
      ((and path (file-exists-p path)) (find-file path))
@@ -508,18 +508,17 @@ to the LOCATION."
     (goto-char (point-min))
     (forward-line (1- line))))
 
-(defun cider-jump-to-def-handler (buffer)
-  "Create a handler for jump-to-def in BUFFER."
-  ;; TODO: got to be a simpler way to do this
-  (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
-                                 (with-current-buffer buffer
-                                   (ring-insert find-tag-marker-ring (point-marker)))
-                                 (cider-jump-to-def-for
-                                  (car (read-from-string value)) buffer))
-                               (lambda (_buffer out) (message out))
-                               (lambda (_buffer err) (message err))
-                               nil))
+(defun cider--jump-to-def-eval-fn-1 (response)
+  "Handle the synchronous response."
+  (let ((value (plist-get response :value))
+        (out (plist-get response :stdout))
+        (err (plist-get response :stderr)))
+    (cond
+     (value
+      (ring-insert find-tag-marker-ring (point-marker))
+      (cider-jump-to-def-for (car (read-from-string value))))
+     (out (message out))
+     (err (message err)))))
 
 (defun cider--jump-to-def-eval-fn (var)
   "Jump to VAR def by evaluating inlined Clojure code."
@@ -558,9 +557,7 @@ to the LOCATION."
                                  :line)
                                 (clojure.core/meta (clojure.core/ns-resolve ns-symbol ns-var)))))"
                       (cider-current-ns) var)))
-    (cider-tooling-eval form
-                        (cider-jump-to-def-handler (current-buffer))
-                        (cider-current-ns))))
+    (cider--jump-to-def-eval-fn-1 (cider-tooling-eval-sync form (cider-current-ns)))))
 
 (defun cider--jump-to-def-op-fn (var)
   "Jump to VAR def by using the nREPL info op."
@@ -574,7 +571,7 @@ to the LOCATION."
          (file (cadr (assoc "file" val-alist)))
          (line (cadr (assoc "line" val-alist))))
     (ring-insert find-tag-marker-ring (point-marker))
-    (cider-jump-to-def-for (vector file file line) (current-buffer))))
+    (cider-jump-to-def-for (vector file file line))))
 
 (defun cider-jump-to-def (var)
   "Jump to the definition of the VAR at point."
