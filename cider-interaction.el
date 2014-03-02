@@ -622,8 +622,8 @@ otherwise dispatch to internal completion function."
     (when (and sap (not (in-string-p)))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
-              (completion-table-dynamic #'cider-dispatch-complete-symbol))))))
-
+              (completion-table-dynamic #'cider-dispatch-complete-symbol)
+              :company-doc-buffer #'cider-doc-buffer-for)))))
 
 ;;; JavaDoc Browsing
 ;;; Assumes local-paths are accessible in the VM.
@@ -1225,23 +1225,30 @@ if there is no symbol at point, or if QUERY is non-nil."
           (ido-mode (cider-ido-read-var nrepl-buffer-ns callback))
           (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
 
-(defun cider-doc-for (symbol)
-  "Look up documentation for SYMBOL using inlined Clojure code."
+(defun cider-doc-buffer-for (symbol)
+  "Return buffer with documentation for SYMBOL."
   (let* ((form (format "(clojure.repl/doc %s)" symbol))
-         (doc-buffer (cider-popup-buffer cider-doc-buffer t))
+         (doc-buffer (cider-make-popup-buffer cider-doc-buffer))
          (response
           (cider-tooling-eval-sync form nrepl-buffer-ns))
          (str
           (or (plist-get response :stdout)
               (plist-get response :stderr))))
-    (cider-emit-into-popup-buffer doc-buffer str)))
+    (cider-emit-into-popup-buffer doc-buffer str)
+    doc-buffer))
+
+(defun cider-doc-lookup (symbol)
+  "Look up documentation for SYMBOL."
+  (with-current-buffer (cider-doc-buffer-for symbol)
+    (setq buffer-read-only t)
+    (cider-popup-buffer-display (current-buffer) t)))
 
 (defun cider-doc (query)
   "Open a window with the docstring for the given QUERY.
 Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-doc-for query))
+  (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
 (defun cider-src-handler (symbol)
   "Create a handler to lookup source for SYMBOL."
