@@ -510,7 +510,7 @@ added as a prefix to the LOCATION."
     (forward-line (1- line))))
 
 (defun cider--jump-to-def-eval-fn-1 (response)
-  "Handle the synchronous response."
+  "Handle the synchronous RESPONSE."
   (let ((value (plist-get response :value))
         (out (plist-get response :stdout))
         (err (plist-get response :stderr)))
