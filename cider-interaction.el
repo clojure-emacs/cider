@@ -517,8 +517,8 @@ added as a prefix to the LOCATION."
     (cond
      (value
       (cider-jump-to-def-for (car (read-from-string value))))
-     (out (message out))
-     (err (message err)))))
+     (out (error out))
+     (err (error err)))))
 
 (defun cider--jump-to-def-eval-fn (var)
   "Jump to VAR def by evaluating inlined Clojure code."
