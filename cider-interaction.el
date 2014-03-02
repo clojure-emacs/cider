@@ -620,7 +620,16 @@ otherwise dispatch to internal completion function."
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
               (completion-table-dynamic #'cider-dispatch-complete-symbol)
-              :company-doc-buffer #'cider-doc-buffer-for)))))
+              :company-doc-buffer #'cider-doc-buffer-for
+              :company-location #'cider-company-location)))))
+
+(defun cider-company-location (var)
+  "Open VAR definition in a buffer and return its location."
+  (save-excursion
+    (save-window-excursion
+      (let ((find-tag-marker-ring (make-ring 1)))
+        (cider-jump-to-def var)
+        (cons (current-buffer) (point))))))
 
 ;;; JavaDoc Browsing
 ;;; Assumes local-paths are accessible in the VM.
