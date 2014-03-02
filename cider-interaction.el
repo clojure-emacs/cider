@@ -410,8 +410,8 @@ With a PREFIX argument, print the result in the current buffer."
 ;;;
 (defun cider-tramp-prefix (&optional buffer)
   "Use the filename for BUFFER to determine a tramp prefix.
-  Defaults to the current buffer.
-  Return the tramp prefix, or nil if BUFFER is local."
+Defaults to the current buffer.
+Return the tramp prefix, or nil if BUFFER is local."
   (let ((buffer (or buffer (current-buffer)))
         (name (buffer-file-name buffer)))
     (when (tramp-tramp-file-p name)
@@ -423,9 +423,9 @@ With a PREFIX argument, print the result in the current buffer."
 
 (defun cider--client-tramp-filename (name &optional buffer)
   "Return the tramp filename for path NAME relative to BUFFER.
-  If BUFFER has a tramp prefix, it will be added as a prefix to NAME.
-  If the resulting path is an existing tramp file, it returns the path,
-  otherwise, nil."
+If BUFFER has a tramp prefix, it will be added as a prefix to NAME.
+If the resulting path is an existing tramp file, it returns the path,
+otherwise, nil."
   (let ((buffer (or buffer (current-buffer)))
         (name (concat (cider-tramp-prefix buffer) name)))
     (if (tramp-handle-file-exists-p name)
@@ -494,8 +494,8 @@ Uses `find-file'."
 
 (defun cider-jump-to-def-for (location buffer)
   "Jump to LOCATION's definition in the source code, relative to BUFFER.
-  BUFFER is used to determine a tramp prefix, which is added to as a prefix
-  to the LOCATION."
+BUFFER is used to determine a tramp prefix, which is added to as a prefix
+to the LOCATION."
   ;; ugh; elisp destructuring doesn't work for vectors
   (let* ((resource (aref location 0))
          (path (aref location 1))
