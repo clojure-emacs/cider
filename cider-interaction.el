@@ -1201,7 +1201,7 @@ See command `cider-mode'."
   (setq cider-ido-ns ns)
   (setq cider-ido-var-callback ido-callback)
   (cider-tooling-eval (prin1-to-string (cider-ido-form cider-ido-ns))
-                      (cider-ido-read-sym-handler "Var:" 'cider-ido-var-select (current-buffer))
+                      (cider-ido-read-sym-handler "Var: " 'cider-ido-var-select (current-buffer))
                       nrepl-buffer-ns))
 
 (defun cider-ido-fns-form (ns)
