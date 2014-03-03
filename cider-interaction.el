@@ -562,10 +562,10 @@ added as a prefix to the LOCATION."
 (defun cider--jump-to-def-op-fn (var)
   "Jump to VAR def by using the nREPL info op."
   (let* ((val (plist-get (nrepl-send-request-sync
-                         (list "op" "info"
-                               "session" (nrepl-current-session)
-                               "ns" (cider-current-ns)
-                               "symbol" var))
+                          (list "op" "info"
+                                "session" (nrepl-current-session)
+                                "ns" (cider-current-ns)
+                                "symbol" var))
                          :value))
          (val-alist (-partition 2 val))
          (file (cadr (assoc "file" val-alist)))
