@@ -52,7 +52,7 @@
     (define-key map (kbd "C-c C-m") 'cider-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'cider-macroexpand-all)
     (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
-    (define-key map (kbd "C-c C-i") 'cider-inspect)
+    (define-key map (kbd "C-c M-i") 'cider-inspect)
     (define-key map (kbd "C-c C-d") 'cider-doc)
     (define-key map (kbd "C-c C-s") 'cider-src)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
