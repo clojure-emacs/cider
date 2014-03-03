@@ -1250,14 +1250,17 @@ if there is no symbol at point, or if QUERY is non-nil."
          (str
           (or (plist-get response :stdout)
               (plist-get response :stderr))))
-    (cider-emit-into-popup-buffer doc-buffer str)
-    doc-buffer))
+    (unless (member str '("nil" nil))
+      (cider-emit-into-popup-buffer doc-buffer str)
+      doc-buffer)))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
-  (with-current-buffer (cider-doc-buffer-for symbol)
-    (setq buffer-read-only t)
-    (cider-popup-buffer-display (current-buffer) t)))
+  (let ((buffer (cider-doc-buffer-for symbol)))
+    (when buffer
+      (with-current-buffer buffer
+        (setq buffer-read-only t)
+        (cider-popup-buffer-display (current-buffer) t)))))
 
 (defun cider-doc (query)
   "Open a window with the docstring for the given QUERY.
