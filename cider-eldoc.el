@@ -90,8 +90,12 @@ POS is the index of current argument."
           nil
         (list (cider-symbol-at-point) argument-index)))))
 
-(defun cider-eldoc-arglist (thing)
-  "Return the arglist for THING."
+(defun cider-eldoc--arglist-op-fn (thing)
+  "Return the arglist for THING using nREPL info op."
+  (cider-get-var-attr thing "arglists"))
+
+(defun cider-eldoc--arglist-eval-fn (thing)
+  "Return the arglist for THING using inlined code."
   (let* ((form (format "(try
                          (:arglists
                           (clojure.core/meta
@@ -102,6 +106,12 @@ POS is the index of current argument."
                   (cider-get-raw-value (cider-tooling-eval-sync form nrepl-buffer-ns)))))
     (unless (string= value "nil")
       value)))
+
+(defun cider-eldoc-arglist (thing)
+  "Return the arglist for THING."
+  (if (nrepl-op-supported-p "info")
+      (cider-eldoc--arglist-op-fn thing)
+    (cider-eldoc--arglist-eval-fn)))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
