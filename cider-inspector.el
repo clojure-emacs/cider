@@ -63,7 +63,9 @@
   (interactive
    (list (cider-read-from-minibuffer "Inspect value (evaluated): "
                                      (cider-sexp-at-point))))
-  (cider-inspect-sym expression (cider-current-ns)))
+  (if (nrepl-op-supported-p "inspect-start")
+      (cider-inspect-sym expression (cider-current-ns))
+    (error "Can't find required inspector middleware. Please, install cider-nrepl")))
 
 ;; Operations
 (defun cider-render-response (buffer)
