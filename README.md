@@ -465,7 +465,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
 <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
-<kbd>M-TAB</kbd>                     | Complete the symbol at point. (For `auto-complete` integration, see [`ac-nrepl`](https://github.com/purcell/ac-nrepl))
+<kbd>M-TAB</kbd>                     | Complete the symbol at point.
 
 ### cider-repl-mode
 
