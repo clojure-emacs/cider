@@ -111,7 +111,7 @@ POS is the index of current argument."
   "Return the arglist for THING."
   (if (nrepl-op-supported-p "info")
       (cider-eldoc--arglist-op-fn thing)
-    (cider-eldoc--arglist-eval-fn)))
+    (cider-eldoc--arglist-eval-fn thing)))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
