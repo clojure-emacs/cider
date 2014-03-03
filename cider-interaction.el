@@ -412,8 +412,8 @@ With a PREFIX argument, print the result in the current buffer."
   "Use the filename for BUFFER to determine a tramp prefix.
 Defaults to the current buffer.
 Return the tramp prefix, or nil if BUFFER is local."
-  (let ((buffer (or buffer (current-buffer)))
-        (name (buffer-file-name buffer)))
+  (let* ((buffer (or buffer (current-buffer)))
+         (name (buffer-file-name buffer)))
     (when (tramp-tramp-file-p name)
       (let ((vec (tramp-dissect-file-name name)))
         (tramp-make-tramp-file-name (tramp-file-name-method vec)
@@ -426,8 +426,8 @@ Return the tramp prefix, or nil if BUFFER is local."
 If BUFFER has a tramp prefix, it will be added as a prefix to NAME.
 If the resulting path is an existing tramp file, it returns the path,
 otherwise, nil."
-  (let ((buffer (or buffer (current-buffer)))
-        (name (concat (cider-tramp-prefix buffer) name)))
+  (let* ((buffer (or buffer (current-buffer)))
+         (name (concat (cider-tramp-prefix buffer) name)))
     (if (tramp-handle-file-exists-p name)
         name)))
 
