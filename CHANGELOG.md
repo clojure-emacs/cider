@@ -28,6 +28,8 @@ visually distinctive from `cider-repl-output-face` (used for STDOUT output).
 
 ### Bugs fixed
 
+* [#493](https://github.com/clojure-emacs/cider/issues/493) Fix rotate connection to handle no
+nREPL connection.
 * [#468](https://github.com/clojure-emacs/cider/issues/468) Fix
 pretty-printing of evaluation results so that `*1` is set properly.
 * [#439](https://github.com/clojure-emacs/cider/issues/439) Fix

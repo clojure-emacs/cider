@@ -137,6 +137,7 @@ endpoint and Clojure version."
 (defun cider-rotate-connection ()
   "Rotate and display the current nREPL connection."
   (interactive)
+  (cider-ensure-connected)
   (setq nrepl-connection-list
         (append (cdr nrepl-connection-list)
                 (list (car nrepl-connection-list))))
@@ -181,14 +182,13 @@ the buffer should appear.
 With a prefix ARG sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "p")
-  (if (not (cider-connected-p))
-      (message "No active nREPL connection.")
-    (let ((buffer (current-buffer)))
-      (when (eq 4 arg)
-        (cider-repl-set-ns (cider-current-ns)))
-      (pop-to-buffer (cider-find-or-create-repl-buffer))
-      (cider-remember-clojure-buffer buffer)
-      (goto-char (point-max)))))
+  (cider-ensure-connected)
+  (let ((buffer (current-buffer)))
+    (when (eq 4 arg)
+      (cider-repl-set-ns (cider-current-ns)))
+    (pop-to-buffer (cider-find-or-create-repl-buffer))
+    (cider-remember-clojure-buffer buffer)
+    (goto-char (point-max))))
 
 (defun cider-find-connection-buffer-for-project-directory (project-directory)
   "Find the relevant connection-buffer for the given PROJECT-DIRECTORY.
@@ -234,31 +234,29 @@ of the namespace in the Clojure source buffer.
 With a second prefix ARG the chosen REPL buffer is based on a
 supplied project directory using IDO."
   (interactive "p")
-  (if (not (cider-connected-p))
-      (message "No active nREPL connection.")
-
-    (let* ((project-directory
-            (or (when (eq 16 arg) (ido-read-directory-name "Project: "))
-                (nrepl-project-directory-for (nrepl-current-dir))))
-           (connection-buffer
-            (or
-             (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
-             (and project-directory
-                  (cider-find-connection-buffer-for-project-directory project-directory)))))
-      (when connection-buffer
-        (setq nrepl-connection-list
-              (cons connection-buffer (delq connection-buffer nrepl-connection-list))))
-      (cider-switch-to-current-repl-buffer arg)
-      (message
-       (format (if connection-buffer
-                   "Switched to REPL: %s"
-                 "Could not determine relevant nREPL connection, using: %s")
-               (with-current-buffer (nrepl-current-connection-buffer)
-                 (format "%s:%s, %s:%s"
-                         (or (nrepl--project-name nrepl-project-dir) "<no project>")
-                         nrepl-buffer-ns
-                         (car nrepl-endpoint)
-                         (cadr nrepl-endpoint))))))))
+  (cider-ensure-connected)
+  (let* ((project-directory
+          (or (when (eq 16 arg) (ido-read-directory-name "Project: "))
+              (nrepl-project-directory-for (nrepl-current-dir))))
+         (connection-buffer
+          (or
+           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
+           (and project-directory
+                (cider-find-connection-buffer-for-project-directory project-directory)))))
+    (when connection-buffer
+      (setq nrepl-connection-list
+            (cons connection-buffer (delq connection-buffer nrepl-connection-list))))
+    (cider-switch-to-current-repl-buffer arg)
+    (message
+     (format (if connection-buffer
+                 "Switched to REPL: %s"
+               "Could not determine relevant nREPL connection, using: %s")
+             (with-current-buffer (nrepl-current-connection-buffer)
+               (format "%s:%s, %s:%s"
+                       (or (nrepl--project-name nrepl-project-dir) "<no project>")
+                       nrepl-buffer-ns
+                       (car nrepl-endpoint)
+                       (cadr nrepl-endpoint)))))))
 
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
@@ -1115,6 +1113,12 @@ Useful in hooks."
   (condition-case nil
       (nrepl-current-connection-buffer)
     (error nil)))
+
+(defun cider-ensure-connected ()
+  "Ensure there is a cider connection present, otherwise
+an error is signalled."
+  (unless (cider-connected-p)
+    (error "No active nREPL connection")))
 
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable interaction mode on existing Clojure buffers.
