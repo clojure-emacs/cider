@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'cider-interaction)
 
 ;; ===================================
@@ -74,7 +74,7 @@
    (lambda (buffer str)
      (cider-irender buffer str))
    '()
-   (lambda (buffer str)
+   (lambda (buffer _str)
      (cider-emit-into-popup-buffer buffer "Oops"))
    '()))
 
@@ -105,7 +105,7 @@
   "Execute BODY and add PROPS to all the text it inserts.
 More precisely, PROPS are added to the region between the point's
 positions before and after executing BODY."
-  (let ((start (gensym)))
+  (let ((start (cl-gensym)))
     `(let ((,start (point)))
        (prog1 (progn ,@body)
          (add-text-properties ,start (point) ,props)))))
@@ -133,7 +133,7 @@ positions before and after executing BODY."
          (newline))
         ((and (consp el) (eq (car el) :value))
          (cider-irender-value (cadr el) (caddr el)))
-        (t (message "Unrecognized inspector object: " el))))
+        (t (message "Unrecognized inspector object: %s" el))))
 
 (defun cider-irender-value (value idx)
   (cider-propertize-region
@@ -174,7 +174,7 @@ If ARG is negative, move backwards."
         (previously-wrapped-p nil))
     ;; Forward.
     (while (> arg 0)
-      (destructuring-bind (pos foundp)
+      (cl-destructuring-bind (pos foundp)
           (cider-find-inspectable-object 'next maxpos)
         (if foundp
             (progn (goto-char pos) (setq arg (1- arg))
@@ -184,7 +184,7 @@ If ARG is negative, move backwards."
             (error "No inspectable objects")))))
     ;; Backward.
     (while (< arg 0)
-      (destructuring-bind (pos foundp)
+      (cl-destructuring-bind (pos foundp)
           (cider-find-inspectable-object 'prev minpos)
         ;; CIDER-OPEN-INSPECTOR inserts the title of an inspector page
         ;; as a presentation at the beginning of the buffer; skip
@@ -208,10 +208,10 @@ If ARG is negative, move forwards."
                                        cider-action-number))
          (find-property
           (lambda (point)
-            (loop for property in properties
-                  for value = (get-text-property point property)
-                  when value
-                  return (list property value)))))
+            (cl-loop for property in properties
+                     for value = (get-text-property point property)
+                     when value
+                     return (list property value)))))
     (or (funcall find-property (point))
         (funcall find-property (1- (point))))))
 
@@ -222,9 +222,9 @@ that value.
 2. If point is on an action then call that action.
 3. If point is on a range-button fetch and insert the range."
   (interactive)
-  (destructuring-bind (property value)
+  (cl-destructuring-bind (property value)
       (cider-inspector-property-at-point)
-    (case property
+    (cl-case property
       (cider-value-idx
        (cider-inspector-push value))
       ;; TODO: range and action handlers
