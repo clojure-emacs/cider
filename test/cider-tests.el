@@ -61,6 +61,29 @@
           (let ((cider-version "0.5.1"))
               (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Clojure 1.5.1, nREPL 0.2.1)")))))
 
+(ert-deftest test-cider-var-info ()
+  (noflet ((nrepl-send-request-sync (list)
+                                    `(:value
+                                      ("arglists" "([] [x] [x & ys])"
+                                       "ns" "clojure.core"
+                                       "name" "str"
+                                       "column" 1
+                                       "added" "1.0"
+                                       "static" "true"
+                                       "doc" "stub"
+                                       "line" 504
+                                       "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
+                                       "tag" "class java.lang.String")
+                                      :done t))
+           (nrepl-current-session () nil)
+           (cider-current-ns () "user"))
+          (should (equal (cadr (assoc "doc" (cider-var-info "str"))) "stub" ))))
+
+(ert-deftest test-cider-get-var-attr ()
+  (noflet ((cider-var-info (var) '(("doc" "var doc") ("arglists" "var arglists"))))
+          (should (equal (cider-get-var-attr "test" "doc") "var doc"))
+          (should (equal (cider-get-var-attr "test" "arglists") "var arglists"))))
+
 (defmacro cider-test-with-buffers (buffer-names &rest body)
   (let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
     `(let (,@(mapcar create buffer-names))

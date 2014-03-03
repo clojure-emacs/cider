@@ -561,15 +561,9 @@ added as a prefix to the LOCATION."
 
 (defun cider--jump-to-def-op-fn (var)
   "Jump to VAR def by using the nREPL info op."
-  (let* ((val (plist-get (nrepl-send-request-sync
-                          (list "op" "info"
-                                "session" (nrepl-current-session)
-                                "ns" (cider-current-ns)
-                                "symbol" var))
-                         :value))
-         (val-alist (-partition 2 val))
-         (file (cadr (assoc "file" val-alist)))
-         (line (cadr (assoc "line" val-alist))))
+  (let* ((var-info (cider-var-info var))
+         (file (cadr (assoc "file" var-info)))
+         (line (cadr (assoc "line" var-info))))
     (ring-insert find-tag-marker-ring (point-marker))
     (cider-jump-to-def-for (vector file file line))))
 

@@ -166,6 +166,20 @@ loaded."
     (buffer-local-value 'nrepl-repl-buffer
                         (get-buffer (nrepl-current-connection-buffer)))))
 
+(defun cider-var-info (var)
+  "Return VAR's info as an alist."
+  (let ((val (plist-get (nrepl-send-request-sync
+                         (list "op" "info"
+                               "session" (nrepl-current-session)
+                               "ns" (cider-current-ns)
+                               "symbol" var))
+                        :value)))
+    (-partition 2 val)))
+
+(defun cider-get-var-attr (var attr)
+  "Return VAR's ATTR."
+  (cadr (assoc attr (cider-var-info var))))
+
 (provide 'cider-client)
 
 ;;; cider-client.el ends here
