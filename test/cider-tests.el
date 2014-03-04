@@ -412,3 +412,22 @@
 
       (dolist (buf (list b1 b2 b3 b1-repl b2-repl b3-repl))
         (kill-buffer buf)))))
+
+(ert-deftest test-cider-known-endpoint-candidates ()
+  (let ((cider-known-endpoints '(("label" "host" "port"))))
+    (noflet ((nrepl-current-host () "current-host")
+             (nrepl-default-port () "current-port"))
+      (should (equal '("current-host current-port" "label host port")
+                     (cider-known-endpoint-candidates))))))
+
+(ert-deftest test-cider-known-endpoint-candidates-remove-duplicates ()
+  (let ((cider-known-endpoints '(("label" "host" "port") ("label" "host" "port"))))
+    (noflet ((nrepl-current-host () "current-host")
+             (nrepl-default-port () "current-port"))
+      (should (equal '("current-host current-port" "label host port")
+                     (cider-known-endpoint-candidates))))))
+
+(ert-deftest test-cider-select-known-endpoint-remove-label ()
+  (noflet ((cider-known-endpoint-candidates () '())
+           (ido-completing-read (dontcare dontcare) "label host port"))
+      (should (equal '("host" "port") (cider-select-known-endpoint)))))
