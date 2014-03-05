@@ -568,6 +568,31 @@ implementation middleware which relies on
 your project middlewares and call `(cemerick.piggieback/cljs-repl)` or
 another method to start up the cljs REPL.
 
+### Microsoft Windows
+
+On Microsoft Windows the JVM default line separator string is `\r\n`
+which can appear in Emacs as `^M` characters at the end of lines
+printed out by the JVM. One option is to set the
+`buffer-display-table` to not show these characters as detailed
+[here](http://stackoverflow.com/questions/10098925/m-character-showing-in-clojure-slime-repl/11787550#11787550)
+(changing `slime-repl-mode-hook` to
+`cider-repl-mode-hook`). Alternatively, setting the system property
+`line.separator` to `\n` at JVM startup will stop the carriage return
+from being printed and will fix output in all cider buffers. To do so
+add `"-Dline.separator=\"\n\""` to `:jvm-opts` in
+`~/.lein/profiles.clj`.
+
+### powershell.el
+
+The powershell inferior shell mode truncates cider repl output when
+loaded. As a workaround remove
+
+```el
+(require 'powershell)
+```
+
+from your Emacs config.
+
 ## Changelog
 
 An extensive changelog is available [here](CHANGELOG.md).
