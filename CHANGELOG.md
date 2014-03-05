@@ -4,6 +4,7 @@
 
 ### New features
 
+* Cider command uses `cider-known-endpoints`.
 * [#490](https://github.com/clojure-emacs/cider/pull/490) Dedicated
   support for `company-mode` in `cider-complete-at-point`.
 * [#460](https://github.com/clojure-emacs/cider/issues/460) Support for

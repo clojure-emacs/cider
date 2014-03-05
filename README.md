@@ -268,6 +268,15 @@ underlying project directories:
 (setq cider-switch-to-repl-command 'cider-switch-to-current-repl-buffer)
 ```
 
+* You can configure known endpoints used by the cider command. This is useful if you
+have a list of common host/ports you want to establish remote nREPL connections to.
+Using an optional label is helpful for identifying each host.
+If you want to bypass IDO selection of an endpoint, use <kbd>C-j</kbd>.
+
+```el
+(setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
+```
+
 ### REPL History
 
 * To make the REPL history wrap around when its end is reached:

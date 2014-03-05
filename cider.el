@@ -70,6 +70,14 @@
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
 
+(defcustom cider-known-endpoints nil
+  "Specify a list of custom endpoints where each endpoint is a list.
+For example: '((\"label\" \"host\" \"port\")).
+The label is optional so that '(\"host\" \"port\") will suffice.
+This variable is used by the CIDER command."
+  :type 'list
+  :group 'cider)
+
 ;;;###autoload
 (defun cider-version ()
   "Display CIDER's version."
@@ -104,12 +112,35 @@ start the server."
           (setq nrepl-project-dir project-dir))
         (message "Starting nREPL server...")))))
 
+(defun cider-known-endpoint-candidates ()
+  "Known endpoint candidates for establishing an nREPL connection.
+A default will be included consisting of `nrepl-default-host' and
+`nrepl-default-port'."
+  (-distinct
+   (mapcar (lambda (endpoint)
+             (mapconcat 'identity endpoint " "))
+           (cons (list (nrepl-current-host) (nrepl-default-port))
+                 cider-known-endpoints))))
+
+(defun cider-select-known-endpoint ()
+  "Select an endpoint from known endpoints.
+The returned endpoint has the label removed."
+  (let ((selected-endpoint (split-string
+                            (ido-completing-read
+                             "Host: " (cider-known-endpoint-candidates)))))
+    (if (= 3 (length selected-endpoint))
+        (cdr selected-endpoint)
+      selected-endpoint)))
+
 ;;;###autoload
 (defun cider (host port)
   "Connect to an nREPL server identified by HOST and PORT."
-  (interactive (list (read-string "Host: " (nrepl-current-host) nil (nrepl-current-host))
-                     (string-to-number (let ((port (nrepl-default-port)))
-                                         (read-string "Port: " port nil port)))))
+  (interactive (let ((known-endpoint (when cider-known-endpoints
+                                       (cider-select-known-endpoint))))
+                 (list (or (car known-endpoint)
+                           (read-string "Host: " (nrepl-current-host) nil (nrepl-current-host)))
+                       (string-to-number (let ((port (or (cadr known-endpoint) (nrepl-default-port))))
+                                           (read-string "Port: " port nil port))))))
   (setq cider-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
