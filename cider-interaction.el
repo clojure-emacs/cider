@@ -485,11 +485,14 @@ Removes any leading slash if on Windows."
           (t
            resource))))
 
+(defvar cider-from-nrepl-filename-function #'identity
+  "Function to translate nREPL namestrings to Emacs filenames.")
+
 (defun cider-emacs-or-clojure-side-adjustment (resource)
   "Fix the RESOURCE path depending on `cider-use-local-resources`."
   (let ((resource         (cider-home-prefix-adjustment resource))
         (clojure-side-res (concat (cider-tramp-prefix) resource))
-        (emacs-side-res   resource))
+        (emacs-side-res   (funcall cider-from-nrepl-filename-function resource)))
     (cond ((equal resource "") resource)
           ((and cider-use-local-resources
                 (file-exists-p emacs-side-res))
