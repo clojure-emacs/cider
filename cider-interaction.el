@@ -198,12 +198,12 @@ otherwise there is ambiguity as to which connection buffer should be selected.
 
 If there are multiple connection buffers matching PROJECT-DIRECTORY there
 is ambiguity, therefore nil is returned."
-  (when (not (car (-filter
-                   (lambda (conn)
-                     (not
-                      (with-current-buffer (get-buffer conn)
-                        nrepl-project-dir)))
-                   nrepl-connection-list)))
+  (unless (-filter
+           (lambda (conn)
+             (not
+              (with-current-buffer (get-buffer conn)
+                nrepl-project-dir)))
+           nrepl-connection-list)
     (let ((matching-connections
            (-filter
             (lambda (conn)
