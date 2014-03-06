@@ -530,8 +530,8 @@ the symbol."
   "Make a nREPL evaluation handler for the REPL BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
-                                 (when (not cider-repl-use-pretty-printing)
-				   (cider-repl-emit-result buffer value t)))
+                                 (unless cider-repl-use-pretty-printing
+                                   (cider-repl-emit-result buffer value t)))
                                (lambda (buffer out)
                                  (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
