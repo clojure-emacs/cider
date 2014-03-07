@@ -212,6 +212,23 @@
                     (should (equal b3 (current-buffer))))))
               (kill-buffer "*nrepl-connections*"))))))))
 
+(ert-deftest test-nrepl-format-buffer-name-template ()
+  (should (equal "*template designation-foo*"
+                 (nrepl-format-buffer-name-template "*template%s*" "designation-foo"))))
+
+(ert-deftest test-nrepl-format-buffer-name-template-use-separator ()
+  (let ((nrepl-buffer-name-separator "_"))
+    (should (equal "*template_designation-foo*"
+                   (nrepl-format-buffer-name-template "*template%s*" "designation-foo")))))
+
+(ert-deftest test-nrepl-format-buffer-name-template-handle-nil-designation ()
+  (should (equal "*template*"
+                 (nrepl-format-buffer-name-template "*template%s*" nil))))
+
+(ert-deftest test-nrepl-format-buffer-name-template-handle-empty-designation ()
+  (should (equal "*template*"
+                 (nrepl-format-buffer-name-template "*template%s*" ""))))
+
 (ert-deftest test-nrepl-buffer-name ()
   (with-temp-buffer
     (setq-local nrepl-endpoint '("localhost" 1))
