@@ -488,6 +488,9 @@ Removes any leading slash if on Windows."
 (defvar cider-from-nrepl-filename-function #'identity
   "Function to translate nREPL namestrings to Emacs filenames.")
 
+(defvar cider-to-nrepl-filename-function #'convert-standard-filename
+  "Function to translate Emacs filenames to nREPL namestrings.")
+
 (defun cider-emacs-or-clojure-side-adjustment (resource)
   "Fix the RESOURCE path depending on `cider-use-local-resources`."
   (let ((resource         (cider-home-prefix-adjustment resource))
@@ -537,11 +540,12 @@ added as a prefix to the LOCATION."
   ;; ugh; elisp destructuring doesn't work for vectors
   (let* ((resource (aref location 0))
          (path (aref location 1))
+	 (cider-path (if path (funcall cider-from-nrepl-filename-function path)))
          (line (aref location 2))
          (tpath (if path (cider--client-tramp-filename path))))
     (cond
      (tpath (find-file tpath))
-     ((and path (file-exists-p path)) (find-file path))
+     ((and cider-path (file-exists-p cider-path)) (find-file cider-path))
      (t (cider-find-resource resource)))
     (goto-char (point-min))
     (forward-line (1- line))))
@@ -1338,7 +1342,7 @@ under point, prompts for a var."
 (defun cider-load-file-op (filename)
   "Send \"load-file\" op for FILENAME."
   (cider-send-load-file (cider-file-string filename)
-                        (cider--server-filename filename)
+                        (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
                         (file-name-nondirectory filename)))
 
 (defun cider-load-file (filename)
