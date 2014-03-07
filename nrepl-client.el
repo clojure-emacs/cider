@@ -270,7 +270,7 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
 (defun nrepl-default-handler (response)
   "Default handler which is invoked when no handler is found.
 Handles message contained in RESPONSE."
-  (nrepl-dbind-response response (out value)
+  (nrepl-dbind-response response (out _value)
     (cond
      (out
       (cider-repl-emit-interactive-output out)))))
@@ -401,9 +401,11 @@ This is bound for the duration of the handling of that message")
 
 
 (defun nrepl-current-host ()
+  "Retrieve the current host."
   (if (and (stringp buffer-file-name)
            (file-remote-p buffer-file-name))
-      tramp-current-host nrepl-host))
+      tramp-current-host
+    nrepl-host))
 
 (defun nrepl-make-connection-buffer ()
   "Create an nREPL connection buffer."
