@@ -448,3 +448,69 @@
   (noflet ((cider-known-endpoint-candidates () '())
            (ido-completing-read (dontcare dontcare) "label host port"))
       (should (equal '("host" "port") (cider-select-known-endpoint)))))
+
+(ert-deftest test-cider-change-buffers-designation ()
+  (with-temp-buffer
+    (let ((server-buffer (current-buffer)))
+      (with-temp-buffer
+        (let* ((connection-buffer (current-buffer))
+               (nrepl-connection-list (list (buffer-name connection-buffer))))
+          (with-temp-buffer
+            (let ((repl-buffer (current-buffer)))
+              (with-current-buffer connection-buffer
+                (setq-local nrepl-repl-buffer (buffer-name repl-buffer))
+                (setq-local nrepl-server-buffer (buffer-name server-buffer)))
+              (noflet ((read-string (dontcare) "bob"))
+                (cider-change-buffers-designation)
+                (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
+                (should (equal "*nrepl-connection bob*" (buffer-name connection-buffer)))
+                (should (equal "*nrepl-server bob*" (buffer-name server-buffer)))))))))))
+
+(ert-deftest test-cider-change-buffers-designation-to-existing-designation-has-no-effect ()
+  (with-temp-buffer
+    (let ((server-buffer (current-buffer)))
+      (with-temp-buffer
+        (let* ((connection-buffer (current-buffer))
+               (nrepl-connection-list (list (buffer-name connection-buffer))))
+          (with-temp-buffer
+            (rename-buffer "*cider-repl bob*") ;; Make a buffer that already has the designation
+            (with-temp-buffer
+              (let* ((repl-buffer (current-buffer))
+                    (before-repl-buffer-name (buffer-name repl-buffer))
+                    (before-connection-buffer-name (buffer-name connection-buffer))
+                    (before-server-buffer-name (buffer-name server-buffer)))
+
+                (with-current-buffer connection-buffer
+                  (setq-local nrepl-repl-buffer (buffer-name repl-buffer))
+                  (setq-local nrepl-server-buffer (buffer-name server-buffer)))
+
+                (noflet ((read-string (dontcare) "bob"))
+                        (should-error
+                         (cider-change-buffers-designation))
+                        (should (equal before-repl-buffer-name (buffer-name repl-buffer)))
+                        (should (equal before-connection-buffer-name (buffer-name connection-buffer)))
+                        (should (equal before-server-buffer-name (buffer-name server-buffer))))))))))))
+
+(ert-deftest cider-extract-designation-from-current-repl-buffer ()
+  (with-temp-buffer
+    (let* ((connection-buffer (current-buffer))
+           (nrepl-connection-list (list (buffer-name connection-buffer))))
+      (with-temp-buffer
+        (let ((repl-buffer (current-buffer)))
+          (rename-buffer "*cider-repl bob*")
+          (with-temp-buffer
+            (with-current-buffer connection-buffer
+              (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))
+            (should (equal "bob" (cider-extract-designation-from-current-repl-buffer)))))))))
+
+(ert-deftest cider-extract-designation-from-current-repl-buffer-no-designation()
+  (with-temp-buffer
+    (let* ((connection-buffer (current-buffer))
+           (nrepl-connection-list (list (buffer-name connection-buffer))))
+      (with-temp-buffer
+        (let ((repl-buffer (current-buffer)))
+          (rename-buffer "*cider-repl*")
+          (with-temp-buffer
+            (with-current-buffer connection-buffer
+              (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))
+            (should (equal "<no designation>" (cider-extract-designation-from-current-repl-buffer)))))))))
