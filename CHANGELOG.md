@@ -29,6 +29,8 @@ visually distinctive from `cider-repl-output-face` (used for STDOUT output).
 
 ### Bugs fixed
 
+* [#501](https://github.com/clojure-emacs/cider/issues/501) Fix
+nil appearing in nrepl-server buffer name when no project directory.
 * [#493](https://github.com/clojure-emacs/cider/issues/493) Fix rotate connection to handle no
 nREPL connection.
 * [#468](https://github.com/clojure-emacs/cider/issues/468) Fix

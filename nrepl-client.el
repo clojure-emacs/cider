@@ -102,6 +102,13 @@ buffer will be hidden.")
   "Apply a prefix to BUFFER-NAME that will hide the buffer."
   (concat (if nrepl-hide-special-buffers " " "") buffer-name))
 
+(defun nrepl-format-buffer-name-template (buffer-name-template designation)
+  "Apply the DESIGNATION to the corresponding BUFFER-NAME-TEMPLATE."
+  (format buffer-name-template
+          (if (> (length designation) 0)
+              (concat nrepl-buffer-name-separator designation)
+            "")))
+
 (defun nrepl-buffer-name (buffer-name-template)
   "Generate a buffer name using BUFFER-NAME-TEMPLATE.
 
@@ -111,10 +118,9 @@ connection port if `nrepl-buffer-name-show-port' is true."
   (generate-new-buffer-name
    (let ((project-name (nrepl--project-name nrepl-project-dir))
          (nrepl-proj-port (cadr nrepl-endpoint)))
-     (format
+     (nrepl-format-buffer-name-template
       buffer-name-template
-      (concat (format "%s%s" nrepl-buffer-name-separator
-                      (if project-name project-name (car nrepl-endpoint)))
+      (concat (if project-name project-name (car nrepl-endpoint))
               (if (and nrepl-proj-port nrepl-buffer-name-show-port)
                   (format ":%s" nrepl-proj-port) ""))))))
 
