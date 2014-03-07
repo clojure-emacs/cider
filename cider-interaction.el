@@ -143,6 +143,42 @@ endpoint and Clojure version."
                 (list (car nrepl-connection-list))))
   (message (cider--connection-info (car nrepl-connection-list))))
 
+(defun cider-extract-designation-from-current-repl-buffer ()
+  "Extract the designation from the cider repl buffer name."
+  (let ((repl-buffer-name (cider-current-repl-buffer))
+        (template (split-string nrepl-repl-buffer-name-template "%s")))
+    (string-match (format "^%s\\(.*\\)%s"
+                          (regexp-quote (concat (car template) nrepl-buffer-name-separator))
+                          (regexp-quote (cadr template)))
+                  repl-buffer-name)
+    (or (match-string 1 repl-buffer-name) "<no designation>")))
+
+(defun cider-change-buffers-designation ()
+  "Changes the designation in cider buffer names.
+Buffer names changed are cider-repl, nrepl-connection and nrepl-server."
+  (interactive)
+  (cider-ensure-connected)
+  (let* ((designation (read-string (format "Change CIDER buffer designation from '%s': "
+                                           (cider-extract-designation-from-current-repl-buffer))))
+         (new-repl-buffer-name (nrepl-format-buffer-name-template
+                                nrepl-repl-buffer-name-template designation)))
+    (with-current-buffer (cider-current-repl-buffer)
+      (rename-buffer new-repl-buffer-name))
+    (with-current-buffer (nrepl-current-connection-buffer)
+      (setq-local nrepl-repl-buffer new-repl-buffer-name)
+      (let ((new-connection-buffer-name (nrepl-format-buffer-name-template
+                                         nrepl-connection-buffer-name-template designation)))
+        (rename-buffer new-connection-buffer-name)
+        (setq nrepl-connection-list
+              (cons new-connection-buffer-name (cdr nrepl-connection-list)))
+        (when nrepl-server-buffer
+          (let ((new-server-buffer-name (nrepl-format-buffer-name-template
+                                         nrepl-server-buffer-name-template designation)))
+            (with-current-buffer nrepl-server-buffer
+              (rename-buffer new-server-buffer-name))
+            (setq-local nrepl-server-buffer new-server-buffer-name)))))
+    (message "CIDER buffer designation changed to: %s" designation)))
+
 ;;; Switching between REPL & source buffers
 (make-variable-buffer-local
  (defvar cider-last-clojure-buffer nil

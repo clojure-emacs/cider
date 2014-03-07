@@ -540,6 +540,8 @@ The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the relevant REPL b
 
 To explicitly choose the REPL buffer that <kbd>C-c C-z</kbd> uses based on project directory, use a double prefix <kbd>C-u C-u C-c C-z</kbd>. This assumes you have `cider-switch-to-relevant-repl` mapped to the var `cider-switch-to-repl-command` which is the default configuration.
 
+To change the designation used for CIDER buffers use <kbd>M-x cider-change-buffers-designation</kbd>. This changes the CIDER REPL buffer, nREPL connection buffer and nREPL server buffer. For example using `cider-change-buffers-designation` with the string "foo" would change `*cider-repl localhost*` to `*cider-repl foo*`.
+
 ## Requirements
 
 * [Leiningen](http://leiningen.org) 2.x (only for `cider-jack-in`)
