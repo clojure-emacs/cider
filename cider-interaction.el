@@ -171,6 +171,8 @@ Buffer names changed are cider-repl, nrepl-connection and nrepl-server."
         (rename-buffer new-connection-buffer-name)
         (setq nrepl-connection-list
               (cons new-connection-buffer-name (cdr nrepl-connection-list)))
+        (with-current-buffer (cider-current-repl-buffer)
+          (setq-local nrepl-connection-buffer new-connection-buffer-name))
         (when nrepl-server-buffer
           (let ((new-server-buffer-name (nrepl-format-buffer-name-template
                                          nrepl-server-buffer-name-template designation)))
