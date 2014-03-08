@@ -464,7 +464,9 @@
                 (cider-change-buffers-designation)
                 (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
                 (should (equal "*nrepl-connection bob*" (buffer-name connection-buffer)))
-                (should (equal "*nrepl-server bob*" (buffer-name server-buffer)))))))))))
+                (should (equal "*nrepl-server bob*" (buffer-name server-buffer))))
+              (with-current-buffer repl-buffer
+                (should (equal "*nrepl-connection bob*" nrepl-connection-buffer))))))))))
 
 (ert-deftest test-cider-change-buffers-designation-to-existing-designation-has-no-effect ()
   (with-temp-buffer
