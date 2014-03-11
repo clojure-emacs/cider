@@ -54,7 +54,7 @@ buffer-local wherever it is set."
 (defun cider-util--hash-keys (hashtable)
   "Return a list of keys in HASHTABLE."
   (let ((keys '()))
-    (maphash (lambda (k v) (setq keys (cons k keys))) hashtable)
+    (maphash (lambda (k _v) (setq keys (cons k keys))) hashtable)
     keys))
 
 (defun cider-util--clojure-buffers ()
