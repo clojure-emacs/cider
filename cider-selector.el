@@ -152,4 +152,9 @@ is chosen.  The returned buffer is selected with
  (cider-find-or-create-repl-buffer))
 
 (provide 'cider-selector)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; cider-selector.el ends here

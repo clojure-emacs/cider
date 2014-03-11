@@ -152,4 +152,9 @@ The returned endpoint has the label removed."
      (define-key clojure-mode-map (kbd "C-c M-c") 'cider)))
 
 (provide 'cider)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; cider.el ends here

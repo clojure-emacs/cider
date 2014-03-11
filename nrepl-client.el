@@ -878,4 +878,9 @@ Falls back to `nrepl-port' if not found."
       nrepl-port))
 
 (provide 'nrepl-client)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; nrepl-client.el ends here

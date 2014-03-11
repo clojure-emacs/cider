@@ -132,4 +132,9 @@ POS is the index of current argument."
   (eldoc-mode +1))
 
 (provide 'cider-eldoc)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; cider-eldoc ends here

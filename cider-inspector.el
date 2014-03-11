@@ -245,4 +245,8 @@ that value.
 
 (provide 'cider-inspector)
 
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; cider-inspector.el ends here

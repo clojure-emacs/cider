@@ -162,4 +162,9 @@ and point is placed at CURRENT-POINT."
   cider-macroexpansion-minor-mode-map)
 
 (provide 'cider-macroexpansion)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; cider-macroexpansion.el ends here

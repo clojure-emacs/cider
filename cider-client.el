@@ -183,4 +183,8 @@ loaded."
 
 (provide 'cider-client)
 
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; cider-client.el ends here
