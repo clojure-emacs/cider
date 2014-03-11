@@ -122,7 +122,6 @@ positions before and after executing BODY."
     (goto-char (point-min))))
 
 (defun cider-irender* (elements)
-  (setq cider-irender-temp elements)
   (dolist (el elements)
     (cider-irender-el* el)))
 
