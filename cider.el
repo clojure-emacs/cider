@@ -59,6 +59,7 @@
 
 (require 'pkg-info)
 
+(require 'cider-util)
 (require 'cider-client)
 (require 'cider-interaction)
 (require 'cider-eldoc)
@@ -126,7 +127,7 @@ A default will be included consisting of `nrepl-default-host' and
   "Select an endpoint from known endpoints.
 The returned endpoint has the label removed."
   (let ((selected-endpoint (split-string
-                            (ido-completing-read
+                            (cider-completing-read
                              "Host: " (cider-known-endpoint-candidates)))))
     (if (= 3 (length selected-endpoint))
         (cdr selected-endpoint)

@@ -51,6 +51,27 @@ buffer-local wherever it is set."
       "Set variable VAR to value VAL in current buffer."
       `(set (make-local-variable ',var) ,val))))
 
+(defcustom cider-completion-system 'ido
+  "The completion system to be used by CIDER."
+  :group 'cider
+  :type 'symbol
+  :options '(ido grizzl default))
+
+(defun cider-completing-read (prompt choices)
+  "Present a PROMPT with CHOICES based on `cider-completion-system'."
+  (cond
+   ((eq projectile-completion-system 'ido)
+    (ido-completing-read prompt choices))
+   ((eq projectile-completion-system 'default)
+    (completing-read prompt choices))
+   ((eq projectile-completion-system 'grizzl)
+    (if (and (fboundp 'grizzl-completing-read)
+             (fboundp 'grizzl-make-index))
+        (grizzl-completing-read prompt (grizzl-make-index choices))
+      (user-error "Please install grizzl from \
+https://github.com/d11wtq/grizzl")))
+   (t (funcall projectile-completion-system prompt choices))))
+
 (defun cider-util--hash-keys (hashtable)
   "Return a list of keys in HASHTABLE."
   (let ((keys '()))

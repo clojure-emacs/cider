@@ -446,7 +446,7 @@
 
 (ert-deftest test-cider-select-known-endpoint-remove-label ()
   (noflet ((cider-known-endpoint-candidates () '())
-           (ido-completing-read (dontcare dontcare) "label host port"))
+           (cider-completing-read (dontcare dontcare) "label host port"))
       (should (equal '("host" "port") (cider-select-known-endpoint)))))
 
 (ert-deftest test-cider-change-buffers-designation ()
