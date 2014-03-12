@@ -60,17 +60,17 @@ buffer-local wherever it is set."
 (defun cider-completing-read (prompt choices)
   "Present a PROMPT with CHOICES based on `cider-completion-system'."
   (cond
-   ((eq projectile-completion-system 'ido)
+   ((eq cider-completion-system 'ido)
     (ido-completing-read prompt choices))
-   ((eq projectile-completion-system 'default)
+   ((eq cider-completion-system 'default)
     (completing-read prompt choices))
-   ((eq projectile-completion-system 'grizzl)
+   ((eq cider-completion-system 'grizzl)
     (if (and (fboundp 'grizzl-completing-read)
              (fboundp 'grizzl-make-index))
         (grizzl-completing-read prompt (grizzl-make-index choices))
       (user-error "Please install grizzl from \
 https://github.com/d11wtq/grizzl")))
-   (t (funcall projectile-completion-system prompt choices))))
+   (t (funcall cider-completion-system prompt choices))))
 
 (defun cider-util--hash-keys (hashtable)
   "Return a list of keys in HASHTABLE."
