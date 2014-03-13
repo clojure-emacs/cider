@@ -22,6 +22,8 @@ visually distinctive from `cider-repl-output-face` (used for STDOUT output).
 
 ### Changes
 
+* [#513](https://github.com/clojure-emacs/cider/issues/513)
+  Remove hardcoded use of IDO mode and use `completing-read`.
 * Required Emacs version is now 24.1.
 * [#486](https://github.com/clojure-emacs/cider/issues/486) Improve
   support for tramp, so tramp paths do not get used in compiled debug
@@ -31,6 +33,8 @@ visually distinctive from `cider-repl-output-face` (used for STDOUT output).
 
 ### Bugs fixed
 
+* [#515](https://github.com/clojure-emacs/cider/issues/515) Fix
+inconsistent prompt used for load symbol functions.
 * [#501](https://github.com/clojure-emacs/cider/issues/501) Fix
 nil appearing in nrepl-server buffer name when no project directory.
 * [#493](https://github.com/clojure-emacs/cider/issues/493) Fix rotate connection to handle no

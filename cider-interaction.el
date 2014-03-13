@@ -270,11 +270,11 @@ With a prefix ARG sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer.
 
 With a second prefix ARG the chosen REPL buffer is based on a
-supplied project directory using IDO."
+supplied project directory."
   (interactive "p")
   (cider-ensure-connected)
   (let* ((project-directory
-          (or (when (eq 16 arg) (ido-read-directory-name "Project: "))
+          (or (when (eq 16 arg) (read-directory-name "Project: "))
               (nrepl-project-directory-for (nrepl-current-dir))))
          (connection-buffer
           (or
@@ -1173,8 +1173,8 @@ See command `cider-mode'."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
-(defun cider-ido-form (ns)
-  "Construct a Clojure form for ido read using NS."
+(defun cider-fetch-vars-form (ns)
+  "Construct a Clojure form to read vars inside for NS."
   `(concat (if (find-ns (symbol ,ns))
                (map name (concat (keys (ns-interns (symbol ,ns)))
                                  (keys (ns-refers (symbol ,ns))))))
@@ -1189,51 +1189,54 @@ See command `cider-mode'."
              (map (fn [n] (str n "/")))
              (into (hash-set)))))
 
-(defun cider-ido-up-ns (ns)
-  "Perform up using NS."
+(defun cider-parent-ns (ns)
+  "Go up a level of NS.
+For example \"foo.bar.tar\" -> \"foo.bar\"."
   (mapconcat 'identity (butlast (split-string ns "\\.")) "."))
 
-(defun cider-ido-var-select (prompt ido-callback cider-ido-ns selected targets)
-  "Peform ido select using SELECTED and TARGETS.
+(defun cider-completing-read-var-select (prompt callback ns selected targets)
+  "Peform completing read using SELECTED and TARGETS.
 If SELECTED is \"..\" then another selection is made for vars in the parent namespace of
-CIDER-IDO-NS using PROMPT.
+NS using PROMPT.
 If SELECTED is a namespace then another selection is made against that namespace
 using PROMPT.
-Once a selecton is made IDO-CALLBACK is called with SELECTED."
+Once a selecton is made CALLBACK is called with SELECTED."
   ;; TODO: immediate RET gives "" as selected for some reason
   ;; this is an OK workaround though
   (cond ((equal "" selected)
-         (cider-ido-var-select prompt ido-callback cider-ido-ns (car targets) targets))
+         (cider-completing-read-var-select prompt callback ns (car targets) targets))
         ((equal "/" (substring selected -1)) ; selected a namespace
-         (cider-ido-read-var prompt (substring selected 0 -1) ido-callback))
+         (cider-completing-read-var prompt (substring selected 0 -1) callback))
         ((equal ".." selected)
-         (cider-ido-read-var prompt (cider-ido-up-ns cider-ido-ns) ido-callback))
+         (cider-completing-read-var prompt (cider-parent-ns ns) callback))
         ;; non ido variable selection techniques don't return qualified symbols, so this shouldn't either
-        (t (funcall ido-callback selected))))
+        (t (funcall callback selected))))
 
-(defun cider-ido-read-sym-handler (label ido-select buffer)
-  "Create an ido read var handler with IDO-SELECT for BUFFER."
+(defun cider-completing-read-sym-handler (label completing-read-callback buffer)
+  "Create an nrepl response handler for BUFFER.
+The handler will parse the response from nrepl to create targets for a completing read.
+The result of the completing read will be passed to COMPLETING-READ-CALLBACK."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
                                  ;; make sure to eval the callback in the buffer that the symbol was requested from so we get the right namespace
                                  (with-current-buffer buffer
                                    (let* ((targets (car (read-from-string value)))
-                                          (selected (ido-completing-read label targets nil t)))
-                                     (funcall ido-select selected targets))))
+                                          (selected (completing-read label targets nil t)))
+                                     (funcall completing-read-callback selected targets))))
                                nil nil nil))
 
-(defun cider-ido-read-sym-form (label form callback)
+(defun cider-completing-read-sym-form (label form callback)
   "Eval the FORM and pass the result to the response handler."
-  (cider-tooling-eval form (cider-ido-read-sym-handler label callback (current-buffer))
+  (cider-tooling-eval form (cider-completing-read-sym-handler label callback (current-buffer))
                       nrepl-buffer-ns))
 
-(defun cider-ido-read-var (prompt ns ido-callback)
-  "Perform ido read var in NS using IDO-CALLBACK."
-  (cider-ido-read-sym-form prompt (prin1-to-string (cider-ido-form ns))
+(defun cider-completing-read-var (prompt ns callback)
+  "Perform completing read var in NS using CALLBACK."
+  (cider-completing-read-sym-form prompt (prin1-to-string (cider-fetch-vars-form ns))
                            (lambda (selected targets)
-                             (cider-ido-var-select prompt ido-callback ns selected targets))))
+                             (cider-completing-read-var-select prompt callback ns selected targets))))
 
-(defun cider-ido-fns-form (ns)
+(defun cider-fetch-fns-form (ns)
   "Construct a Clojure form for reading fns using supplied NS."
   (format "(let [fn-pred (fn [[k v]] (and (fn? (.get v))
                                      (not (re-find #\"clojure.\" (str v)))))]
@@ -1245,27 +1248,26 @@ Once a selecton is made IDO-CALLBACK is called with SELECTED."
                            (ns-refers '%s))))))" ns ns))
 
 (defun cider-load-fn-into-repl-buffer ()
-  "Browse functions available in current repl buffer using ido.
+  "Browse functions available in current repl buffer.
 Once selected, the name of the fn will appear in the repl buffer in parens
 ready to call."
   (interactive)
-  (cider-ido-read-sym-form (format "Fn: %s/" nrepl-buffer-ns)
-                           (cider-ido-fns-form (cider-current-ns))
-                           (lambda (f _targets)
-                             (with-current-buffer (cider-current-repl-buffer)
-                               (cider-repl--replace-input (format "(%s)" f))
-                               (goto-char (- (point-max) 1))))))
+  (cider-completing-read-sym-form (format "Fn: %s/" nrepl-buffer-ns)
+                                  (cider-fetch-fns-form (cider-current-ns))
+                                  (lambda (f _targets)
+                                    (with-current-buffer (cider-current-repl-buffer)
+                                      (cider-repl--replace-input (format "(%s)" f))
+                                      (goto-char (- (point-max) 1))))))
 
 (defun cider-read-symbol-name (prompt callback &optional query)
   "Either read a symbol name using PROMPT or choose the one at point.
-Use CALLBACK as the ido read var callback.
+Use CALLBACK as the completing read var callback.
 The user is prompted with PROMPT if a prefix argument is in effect,
 if there is no symbol at point, or if QUERY is non-nil."
   (let ((symbol-name (cider-symbol-at-point)))
-    (cond ((not (or current-prefix-arg query (not symbol-name)))
-           (funcall callback symbol-name))
-          (ido-mode (cider-ido-read-var prompt nrepl-buffer-ns callback))
-          (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
+    (if (not (or current-prefix-arg query (not symbol-name)))
+        (funcall callback symbol-name)
+      (cider-completing-read-var prompt nrepl-buffer-ns callback))))
 
 (defun cider-doc-buffer-for (symbol)
   "Return buffer with documentation for SYMBOL."
