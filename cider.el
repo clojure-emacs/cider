@@ -133,7 +133,7 @@ The returned endpoint has the label removed."
       selected-endpoint)))
 
 ;;;###autoload
-(defun cider (host port)
+(defun cider-connect (host port)
   "Connect to an nREPL server identified by HOST and PORT."
   (interactive (let ((known-endpoint (when cider-known-endpoints
                                        (cider-select-known-endpoint))))
@@ -145,11 +145,15 @@ The returned endpoint has the label removed."
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
     (nrepl-connect host port)))
 
+(define-obsolete-function-alias
+  'cider
+  'cider-connect)
+
 ;;;###autoload
 (eval-after-load 'clojure-mode
   '(progn
      (define-key clojure-mode-map (kbd "C-c M-j") 'cider-jack-in)
-     (define-key clojure-mode-map (kbd "C-c M-c") 'cider)))
+     (define-key clojure-mode-map (kbd "C-c M-c") 'cider-connect)))
 
 (provide 'cider)
 

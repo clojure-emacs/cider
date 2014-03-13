@@ -404,7 +404,7 @@ Alternatively you can start nREPL either manually or by the facilities provided 
 project build tool (Maven, etc).
 
 After you get your nREPL server running go back to Emacs.
-Typing there <kbd>M-x cider</kbd> will allow you to connect to the running nREPL server.
+Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the running nREPL server.
 
 ### Using the cider minor mode
 
@@ -441,7 +441,7 @@ enforcement of this limit can then be toggled using:
 * <kbd>M-x cider</kbd>: Connect to an already-running nREPL server.
 
 While you're in `clojure-mode`, `cider-jack-in` is bound for
-convenience to <kbd>C-c M-j</kbd> and `cider` is bound to <kbd>C-c
+convenience to <kbd>C-c M-j</kbd> and `cider-connect` is bound to <kbd>C-c
 M-c</kbd>.
 
 ### cider-mode

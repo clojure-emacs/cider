@@ -27,6 +27,7 @@ visually distinctive from `cider-repl-output-face` (used for STDOUT output).
   support for tramp, so tramp paths do not get used in compiled debug
   information.  `cider-jump` still uses tramp filenames to find
   definitions if used in a buffer associated with a tramp file.
+* Renamed `cider` command to `cider-connect`.
 
 ### Bugs fixed
 
