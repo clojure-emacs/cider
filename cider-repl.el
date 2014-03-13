@@ -723,8 +723,6 @@ namespace to switch to."
   :type 'boolean
   :group 'cider-repl)
 
-(define-obsolete-variable-alias 'cider-wrap-history 'cider-repl-wrap-history)
-
 ;; These two vars contain the state of the last history search.  We
 ;; only use them if `last-command' was `cider-repl--history-replace',
 ;; otherwise we reinitialize them.
@@ -860,15 +858,11 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
   :safe 'integerp
   :group 'cider-repl-mode)
 
-(define-obsolete-variable-alias 'cider-history-size 'cider-repl-history-size)
-
 (defcustom cider-repl-history-file nil
   "File to save the persistent REPL history to."
   :type 'string
   :safe 'stringp
   :group 'cider-repl-mode)
-
-(define-obsolete-variable-alias 'cider-history-file 'cider-repl-history-file)
 
 (defun cider-repl--history-read-filename ()
   "Ask the user which file to use, defaulting `cider-repl-history-file'."

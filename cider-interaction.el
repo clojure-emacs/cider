@@ -383,10 +383,6 @@ With a PREFIX argument, print the result in the current buffer."
         (cider-interactive-eval-print form)
       (cider-interactive-eval form))))
 
-(define-obsolete-function-alias
-  'cider-eval-expression-at-point
-  'cider-eval-defun-at-point)
-
 (defun cider-ns-form ()
   "Retrieve the ns form."
   (when (clojure-find-ns)
@@ -1052,10 +1048,6 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (if prefix
       (cider-interactive-eval-print (cider-last-sexp))
     (cider-interactive-eval (cider-last-sexp))))
-
-(define-obsolete-function-alias
-  'cider-eval-last-expression
-  'cider-eval-last-sexp)
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
