@@ -137,6 +137,10 @@ You can certainly use `CIDER` without configuring it any further,
 but here are some ways other folks are adjusting their `CIDER`
 experience.
 
+Using a completion system such as `IDO` will enhance certain `CIDER`
+functionality. If you are using `IDO`, be sure to use both `ido-everywhere`
+and [`ido-ubiquitous`](https://github.com/technomancy/ido-ubiquitous).
+
 * Enable `eldoc` in Clojure buffers:
 
 ```el
@@ -268,10 +272,10 @@ underlying project directories:
 (setq cider-switch-to-repl-command 'cider-switch-to-current-repl-buffer)
 ```
 
-* You can configure known endpoints used by the cider command. This is useful if you
-have a list of common host/ports you want to establish remote nREPL connections to.
-Using an optional label is helpful for identifying each host.
-If you want to bypass IDO selection of an endpoint, use <kbd>C-j</kbd>.
+* You can configure known endpoints used by the cider command offered via a
+completing read. This is useful if you have a list of common host/ports you
+want to establish remote nREPL connections to. Using an optional label is
+helpful for identifying each host.
 
 ```el
 (setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
@@ -495,7 +499,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 <kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
-<kbd>C-c M-f</kbd> | Select a function from the current namespace using `ido` and insert into the REPL buffer.
+<kbd>C-c M-f</kbd> | Select a function from the current namespace and insert into the REPL buffer.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-n</kbd> | Select a namespace and switch to it.
 
