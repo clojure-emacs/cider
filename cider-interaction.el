@@ -1193,16 +1193,21 @@ See command `cider-mode'."
   "Perform up using NS."
   (mapconcat 'identity (butlast (split-string ns "\\.")) "."))
 
-(defun cider-ido-var-select (ido-callback cider-ido-ns selected targets)
-  "Peform ido select using SELECTED and TARGETS."
+(defun cider-ido-var-select (prompt ido-callback cider-ido-ns selected targets)
+  "Peform ido select using SELECTED and TARGETS.
+If SELECTED is \"..\" then another selection is made for vars in the parent namespace of
+CIDER-IDO-NS using PROMPT.
+If SELECTED is a namespace then another selection is made against that namespace
+using PROMPT.
+Once a selecton is made IDO-CALLBACK is called with SELECTED."
   ;; TODO: immediate RET gives "" as selected for some reason
   ;; this is an OK workaround though
   (cond ((equal "" selected)
-         (cider-ido-var-select ido-callback cider-ido-ns (car targets) targets))
+         (cider-ido-var-select prompt ido-callback cider-ido-ns (car targets) targets))
         ((equal "/" (substring selected -1)) ; selected a namespace
-         (cider-ido-read-var (substring selected 0 -1) ido-callback))
+         (cider-ido-read-var prompt (substring selected 0 -1) ido-callback))
         ((equal ".." selected)
-         (cider-ido-read-var (cider-ido-up-ns cider-ido-ns) ido-callback))
+         (cider-ido-read-var prompt (cider-ido-up-ns cider-ido-ns) ido-callback))
         ;; non ido variable selection techniques don't return qualified symbols, so this shouldn't either
         (t (funcall ido-callback selected))))
 
@@ -1222,11 +1227,11 @@ See command `cider-mode'."
   (cider-tooling-eval form (cider-ido-read-sym-handler label callback (current-buffer))
                       nrepl-buffer-ns))
 
-(defun cider-ido-read-var (ns ido-callback)
+(defun cider-ido-read-var (prompt ns ido-callback)
   "Perform ido read var in NS using IDO-CALLBACK."
-  (cider-ido-read-sym-form "Var: " (prin1-to-string (cider-ido-form ns))
+  (cider-ido-read-sym-form prompt (prin1-to-string (cider-ido-form ns))
                            (lambda (selected targets)
-                             (cider-ido-var-select ido-callback ns selected targets))))
+                             (cider-ido-var-select prompt ido-callback ns selected targets))))
 
 (defun cider-ido-fns-form (ns)
   "Construct a Clojure form for reading fns using supplied NS."
@@ -1259,7 +1264,7 @@ if there is no symbol at point, or if QUERY is non-nil."
   (let ((symbol-name (cider-symbol-at-point)))
     (cond ((not (or current-prefix-arg query (not symbol-name)))
            (funcall callback symbol-name))
-          (ido-mode (cider-ido-read-var nrepl-buffer-ns callback))
+          (ido-mode (cider-ido-read-var prompt nrepl-buffer-ns callback))
           (t (funcall callback (read-from-minibuffer prompt symbol-name))))))
 
 (defun cider-doc-buffer-for (symbol)
