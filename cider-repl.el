@@ -60,7 +60,8 @@
 (defface cider-repl-err-output-face
   '((t (:inherit font-lock-warning-face)))
   "Face for STDERR output in the REPL buffer."
-  :group 'cider-repl)
+  :group 'cider-repl
+  :package-version '(cider . "0.6.0"))
 
 (defface cider-repl-input-face
   '((t (:bold t)))
@@ -112,12 +113,14 @@ is enforced or not."
 Nil means that `cider-repl-input-face' and `cider-repl-result-face'
 will be used."
   :type 'boolean
-  :group 'cider-repl)
+  :group 'cider-repl
+  :package-version '(cider . "0.5.0"))
 
 (defcustom cider-repl-result-prefix ""
   "The prefix displayed in the REPL before a result value."
   :type 'string
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.5.0"))
 
 (defcustom cider-repl-tab-command 'cider-repl-indent-and-complete-symbol
   "Select the command to be invoked by the TAB key.

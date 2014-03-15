@@ -76,7 +76,8 @@ in the `cider-error-buffer', which defaults to *cider-error*."
 (defcustom cider-interactive-eval-result-prefix "=> "
   "The prefix displayed in the minibuffer before a result value."
   :type 'string
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.5.0"))
 
 (defcustom cider-switch-to-repl-command 'cider-switch-to-relevant-repl-buffer
   "Select the command to be invoked when switching-to-repl.
