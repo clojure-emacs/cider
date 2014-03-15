@@ -856,13 +856,13 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
   "The maximum number of items to keep in the REPL history."
   :type 'integer
   :safe 'integerp
-  :group 'cider-repl-mode)
+  :group 'cider-repl)
 
 (defcustom cider-repl-history-file nil
   "File to save the persistent REPL history to."
   :type 'string
   :safe 'stringp
-  :group 'cider-repl-mode)
+  :group 'cider-repl)
 
 (defun cider-repl--history-read-filename ()
   "Ask the user which file to use, defaulting `cider-repl-history-file'."
