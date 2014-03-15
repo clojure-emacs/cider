@@ -55,7 +55,9 @@
 (defgroup cider nil
   "Clojure Integrated Development Environment and REPL."
   :prefix "cider-"
-  :group 'applications)
+  :group 'applications
+  :link '(url-link :tag "Github" "https://github.com/clojure-emacs/cider")
+  :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
 (require 'pkg-info)
 
