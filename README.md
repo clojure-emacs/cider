@@ -137,9 +137,7 @@ You can certainly use `CIDER` without configuring it any further,
 but here are some ways other folks are adjusting their `CIDER`
 experience.
 
-Using a completion system such as `IDO` will enhance certain `CIDER`
-functionality. If you are using `IDO`, be sure to use both `ido-everywhere`
-and [`ido-ubiquitous`](https://github.com/technomancy/ido-ubiquitous).
+### Basic configuration
 
 * Enable `eldoc` in Clojure buffers:
 
@@ -303,6 +301,27 @@ helpful for identifying each host.
 
 Note that the history is written to the file when you kill the REPL
 buffer (which includes invoking `cider-quit`) or you quit Emacs.
+
+### Minibuffer completion
+
+Out-of-the box `CIDER` uses the standard `completing-read` Emacs mechanism. While it's not
+fancy it certainly gets the job done (just press `TAB`). There are, however, ways to improve
+upon the standard completion if you wish to.
+
+#### icomplete
+
+`icomplete` is bundled with Emacs and enhances the default minubuffer completion:
+
+```el
+(require 'icomplete)
+```
+
+#### ido
+
+`ido` is also bundled with Emacs and offers more features than `icomplete`.
+If you are using `ido`, be sure to use both `ido-everywhere`
+and [`ido-ubiquitous`](https://github.com/DarwinAwardWinner/ido-ubiquitous).
+You might also want to install [`ido-flex`](https://github.com/lewang/flx).
 
 ### Integration with other modes
 
