@@ -103,10 +103,17 @@ start the server."
              (cmd (if project
                       (format "cd %s && %s" project cider-server-command)
                     cider-server-command))
-             (process (start-process-shell-command
-                       "nrepl-server"
-                       (generate-new-buffer-name (nrepl-server-buffer-name))
-                       cmd)))
+             (default-directory project-dir)
+             (nrepl-buffer-name (generate-new-buffer-name
+                                 (nrepl-server-buffer-name)))
+             (process
+              (progn
+                ;; the buffer has to be created before the proc:
+                (get-buffer-create nrepl-buffer-name)
+                (start-file-process-shell-command
+                 "nrepl-server"
+                 nrepl-buffer-name
+                 cmd))))
         (set-process-filter process 'nrepl-server-filter)
         (set-process-sentinel process 'nrepl-server-sentinel)
         (set-process-coding-system process 'utf-8-unix 'utf-8-unix)

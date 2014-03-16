@@ -80,6 +80,18 @@ The `nrepl-buffer-name-separator' separates cider-repl from the project name."
   :type 'string
   :group 'nrepl)
 
+(defcustom nrepl-connection-endpoint
+  'nrepl-connection-ssh-tunnel
+  "A function that is called to determine command that will be run
+once an nrepl server process is running. Used to set up an ssh tunnel
+on remote connections.
+
+The arguments are dir and port. The return value
+should be an `plist` of the form
+(:proc-buffer-name \"*buf*\" :hostname \"hostname\" :port 1234)"
+  :type 'function
+  :group 'nrepl)
+
 (defvar nrepl-repl-requires-sexp "(clojure.core/apply clojure.core/require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
   "Things to require in the tooling session and the REPL buffer.")
 
@@ -88,10 +100,12 @@ The `nrepl-buffer-name-separator' separates cider-repl from the project name."
 (defvar-local nrepl-repl-buffer nil)
 (defvar-local nrepl-endpoint nil)
 (defvar-local nrepl-project-dir nil)
+(defvar-local nrepl-on-connection-buffer nil)
 
 (defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
+(defconst nrepl-on-connection-buffer-name-template "*nrepl-on-connection%s*")
 
 (defcustom nrepl-hide-special-buffers nil
   "Control the display of some special buffers in buffer switching commands.
@@ -133,6 +147,11 @@ connection port if `nrepl-buffer-name-show-port' is true."
   "Return the name of the server buffer."
   (nrepl-apply-hide-special-buffers
    (nrepl-buffer-name nrepl-server-buffer-name-template)))
+
+(defun nrepl-on-connection-buffer-name ()
+  "Return the name of the on-connection buffer."
+  (nrepl-apply-hide-special-buffers
+   (nrepl-buffer-name nrepl-on-connection-buffer-name-template)))
 
 ;; buffer local declarations
 (defvar-local nrepl-session nil
@@ -463,6 +482,8 @@ Also closes associated REPL and server buffers."
        (when (buffer-live-p buffer)
          (dolist (buf-name `(,(buffer-local-value 'nrepl-repl-buffer buffer)
                              ,(buffer-local-value 'nrepl-server-buffer buffer)
+                             ,(buffer-local-value
+                               'nrepl-on-connection-buffer buffer)
                              ,buffer))
            (when buf-name
              (cider--close-buffer buf-name)))))))
@@ -695,6 +716,26 @@ are processed."
   (nrepl-send-request-sync (nrepl-eval-request input ns session)))
 
 ;;; server
+(defun nrepl--default-endpoint (dir port)
+  "The endpoint for a repl in project DIR on PORT.
+Return a plist with :hostname, :port and :proc keys."
+    (list :hostname (if (file-remote-p dir)
+                        tramp-current-host
+                      "localhost")
+          :port port
+          :proc-buffer-name nil))
+
+(defun nrepl--endpoint-for-connection (dir port)
+  "Call any `nrepl-connection-endpoint' for DIR and PORT.
+Return a plist with :hostname and :port values, specifying where
+to connect, and a :proc-buffer-name key, specifying the name of a
+process buffer to associate with the connection.  When no
+`nrepl-connection-endpoint' is specified, returns a plist with
+the hostname associated with DIR, and PORT."
+  (if (functionp nrepl-connection-endpoint)
+      (funcall nrepl-connection-endpoint dir port)
+    (nrepl--default-endpoint dir port)))
+
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT."
   (with-current-buffer (process-buffer process)
@@ -705,15 +746,21 @@ are processed."
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
       (with-current-buffer (process-buffer process)
-        (let ((nrepl-process (nrepl-connect "localhost" port)))
-          (setq nrepl-connection-buffer
-                (buffer-name (process-buffer nrepl-process)))
-          (with-current-buffer (process-buffer nrepl-process)
-            (setq nrepl-server-buffer
-                  (buffer-name (process-buffer process))
-                  nrepl-project-dir
-                  (buffer-local-value
-                   'nrepl-project-dir (process-buffer process)))))))))
+        (let* ((endpoint (nrepl--endpoint-for-connection
+                          default-directory port))
+               (hostname (plist-get endpoint :hostname))
+               (port (plist-get endpoint :port))
+               (proc-buffer-name (plist-get endpoint :proc-buffer-name)))
+          (let ((nrepl-process (nrepl-connect hostname port)))
+            (setq nrepl-connection-buffer
+                  (buffer-name (process-buffer nrepl-process)))
+            (with-current-buffer (process-buffer nrepl-process)
+              (setq nrepl-server-buffer
+                    (buffer-name (process-buffer process))
+                    nrepl-project-dir
+                    (buffer-local-value
+                     'nrepl-project-dir (process-buffer process))
+                    nrepl-on-connection-buffer proc-buffer-name))))))))
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
@@ -734,6 +781,66 @@ are processed."
      ((string-match "Wrong number of arguments to repl task" problem)
       (error "Leiningen 2.x is required by CIDER"))
      (t (error "Could not start nREPL server: %s" problem)))))
+
+(defun nrepl--ssh-tunnel-command (ssh dir port)
+  "Command string to open SSH tunnel to the host associated with DIR's PORT."
+  (with-parsed-tramp-file-name dir nil
+    (format-spec
+     "%s -v -N -L %p:localhost:%p %u'%h'"
+     `((?s . ,ssh)
+       (?p . ,port)
+       (?h . ,host)
+       (?u . ,(if user (format "-l '%s' " user) ""))))))
+
+(defun nrepl--ssh-tunnel-filter (port)
+  "Return a filter function for waiting on PORT to appear in output."
+  (let ((port-string (format "LOCALHOST:%s" port)))
+    (lambda (proc string)
+      (when (buffer-live-p (process-buffer proc))
+        (with-current-buffer (process-buffer proc)
+          (let ((moving (= (point) (process-mark proc))))
+            (save-excursion
+              (goto-char (process-mark proc))
+              (insert string)
+              (set-marker (process-mark proc) (point)))
+            (if moving (goto-char (process-mark proc))))))
+      (when (string-match port-string string)
+        (with-current-buffer (process-buffer proc)
+          (setq nrepl-wait-for-port nil))))))
+
+(defun nrepl-connection-ssh-tunnel (dir port)
+  "Return an endpoint for SSH tunnel to project DIR path, and PORT port.
+If DIR is remote, then attempt to open an SSH tunnel to port.  If
+the ssh executable is not found on the path, then fall back to
+specifying a direct conneciton."
+  ;; this abuses the -v option for ssh to get output when the port
+  ;; forwarding is set up, which is used to synchronise on, so that
+  ;; the port forwarding is up when we try to connect.
+  (if (file-remote-p dir)
+      (let ((ssh (executable-find "ssh")))
+        (if ssh
+            ;; run cmd in a local shell
+            (let* ((cmd (nrepl--ssh-tunnel-command ssh dir port))
+                   (on-connection-buffer-name (nrepl-on-connection-buffer-name))
+                   (proc (start-process-shell-command
+                          "nrepl-on-connection"
+                          on-connection-buffer-name
+                          cmd))
+                   (on-connection-buffer (get-buffer
+                                          on-connection-buffer-name)))
+              (with-current-buffer on-connection-buffer-name
+                (setq-local nrepl-wait-for-port t))
+              (set-process-filter proc (nrepl--ssh-tunnel-filter port))
+              (while (and (buffer-local-value 'nrepl-wait-for-port
+                                              on-connection-buffer)
+                          (process-live-p proc))
+                (accept-process-output nil 0.005))
+              (unless (process-live-p proc)
+                (message "SSH port forwarding failed"))
+              (list :hostname "localhost" :port port
+                    :proc-buffer-name on-connection-buffer-name))
+          (nrepl--default-endpoint dir port)))
+    (list :hostname "localhost" :port port :proc-buffer-name nil)))
 
 (defun nrepl-current-dir ()
   "Return the directory of the current buffer."
