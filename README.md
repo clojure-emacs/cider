@@ -444,7 +444,7 @@ that this will not work correctly with forms such as `(def a 1) (def b2)`
 and it expects `clojure.pprint` to have been required already
 (the default in more recent versions of Clojure):
 
-<kbd>M-x cider-toggle-pretty-printing</kbd>
+<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
 
 ### Limiting printed output in the REPL
 
@@ -455,7 +455,7 @@ can supply a default value for REPL sessions by setting the
 `cider-repl-print-length` variable to an integer value. The
 enforcement of this limit can then be toggled using:
 
-<kbd>M-x cider-toggle-print-length-limiting</kbd>
+<kbd>M-x cider-repl-toggle-print-length-limiting</kbd>
 
 ## Keyboard shortcuts
 
