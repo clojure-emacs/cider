@@ -597,7 +597,6 @@ added as a prefix to the LOCATION."
   (let* ((var-info (cider-var-info var))
          (file (cadr (assoc "file" var-info)))
          (line (cadr (assoc "line" var-info))))
-    (ring-insert find-tag-marker-ring (point-marker))
     (cider-jump-to-def-for (vector file file line))))
 
 (defun cider-jump-to-def (var)
