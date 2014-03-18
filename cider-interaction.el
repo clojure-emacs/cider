@@ -765,7 +765,7 @@ The handler simply inserts the result value in BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
                                  (with-current-buffer buffer
-                                   (insert (format "%s" value))))
+                                   (insert (format "\n%s" value))))
                                '()
                                (lambda (_buffer err)
                                  (message "%s" err))
