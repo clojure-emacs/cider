@@ -103,7 +103,7 @@ start the server."
              (cmd (if project
                       (format "cd %s && %s" project cider-server-command)
                     cider-server-command))
-             (default-directory project-dir)
+             (default-directory (or project-dir default-directory))
              (nrepl-buffer-name (generate-new-buffer-name
                                  (nrepl-server-buffer-name)))
              (process
