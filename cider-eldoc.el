@@ -76,7 +76,7 @@ POS is the index of the argument to highlight."
 POS is the index of current argument."
   (concat "("
           (mapconcat (lambda (args) (cider-highlight-arglist args pos))
-                     (read arglist) " ") ")"))
+                     arglist " ") ")"))
 
 (defun cider-eldoc-info-in-current-sexp ()
   "Return a list of the current sexp and the current argument index."
