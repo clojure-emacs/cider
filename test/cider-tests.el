@@ -50,16 +50,18 @@
 
 (ert-deftest test-cider-repl--banner ()
   (noflet ((pkg-info-version-info (library) "0.2.0")
+           (cider--java-version () "1.7")
            (cider--clojure-version () "1.5.1")
            (cider--nrepl-version () "0.2.1"))
-    (should (equal (cider-repl--banner) "; CIDER 0.2.0 (Clojure 1.5.1, nREPL 0.2.1)"))))
+    (should (equal (cider-repl--banner) "; CIDER 0.2.0 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)"))))
 
 (ert-deftest test-cider-repl--banner-version-fallback ()
   (noflet ((pkg-info-version-info (library) (error "No package version"))
+           (cider--java-version () "1.7")
            (cider--clojure-version () "1.5.1")
            (cider--nrepl-version () "0.2.1"))
           (let ((cider-version "0.5.1"))
-              (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Clojure 1.5.1, nREPL 0.2.1)")))))
+              (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-var-info ()
   (noflet ((nrepl-send-request-sync (list)
@@ -127,7 +129,8 @@
      (let ((nrepl-connection-list
             (list (buffer-name a) (buffer-name b) (buffer-name c)))
            (nrepl-connection-buffer nil))
-       (noflet ((cider--clojure-version () "")
+       (noflet ((cider--java-version () "")
+                (cider--clojure-version () "")
                 (cider--nrepl-version () ""))
                (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
                (cider-rotate-connection)
@@ -139,22 +142,24 @@
 
 (ert-deftest test-cider--current-connection-info ()
   (with-temp-buffer
-    (noflet ((cider--clojure-version () "1.5.1")
+    (noflet ((cider--java-version () "1.7")
+             (cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
             (setq-local nrepl-endpoint '("localhost" 4005))
             (setq-local nrepl-project-dir "proj")
             (setq-local nrepl-buffer-ns "somens")
             (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                             "Active nREPL connection: proj:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
+                             "Active nREPL connection: proj:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-current-connection-info-no-project ()
   (with-temp-buffer
-    (noflet ((cider--clojure-version () "1.5.1")
+    (noflet ((cider--java-version () "1.7")
+             (cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
             (setq-local nrepl-endpoint '("localhost" 4005))
             (setq-local nrepl-buffer-ns "somens")
             (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                             "Active nREPL connection: <no project>:somens, localhost:4005 (Clojure 1.5.1, nREPL 0.2.1)")))))
+                             "Active nREPL connection: <no project>:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-close ()
   (let ((connections (nrepl-connection-buffers)))

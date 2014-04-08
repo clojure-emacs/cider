@@ -223,10 +223,11 @@ positions before and after executing BODY."
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
-  (format "; CIDER %s (Clojure %s, nREPL %s)"
+  (format "; CIDER %s (Java %s, Clojure %s, nREPL %s)"
           (condition-case nil
               (pkg-info-version-info 'cider)
             (error cider-version))
+          (cider--java-version)
           (cider--clojure-version)
           (cider--nrepl-version)))
 

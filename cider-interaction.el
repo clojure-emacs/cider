@@ -108,6 +108,10 @@ which will use the default REPL connection."
   :group 'cider)
 
 ;;; Connection info
+(defun cider--java-version ()
+  "Retrieve the underlying connection's Java version."
+  (cider-eval-and-get-value "(System/getProperty \"java.version\")"))
+
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
   (cider-eval-and-get-value "(clojure-version)"))
@@ -122,11 +126,12 @@ which will use the default REPL connection."
 Info contains project name, current REPL namespace, host:port
 endpoint and Clojure version."
   (with-current-buffer (get-buffer connection-buffer)
-    (format "Active nREPL connection: %s:%s, %s:%s (Clojure %s, nREPL %s)"
+    (format "Active nREPL connection: %s:%s, %s:%s (Java %s, Clojure %s, nREPL %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
             nrepl-buffer-ns
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
+            (cider--java-version)
             (cider--clojure-version)
             (cider--nrepl-version))))
 
