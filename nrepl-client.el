@@ -198,13 +198,15 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
         ((looking-at "l")
          (goto-char (match-end 0))
          (let (result item)
-           (while (setq item (nrepl-bdecode-buffer))
+           ;; check for the end sentinel, setq returns the value
+           (while (not (eq :end (setq item (nrepl-bdecode-buffer))))
              (setq result (cons item result)))
            (nreverse result)))
         ((looking-at "d")
          (goto-char (match-end 0))
          (let (dict key item)
-           (while (setq item (nrepl-bdecode-buffer))
+           ;; check for the end sentinel, setq returns the value
+           (while (not (eq :end (setq item (nrepl-bdecode-buffer))))
              (if key
                  (setq dict (cons (cons key item) dict)
                        key nil)
@@ -214,7 +216,12 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
            (cons 'dict (nreverse dict))))
         ((looking-at "e")
          (goto-char (match-end 0))
-         nil)
+         ;; This line used to return nil and checks above checked for
+         ;; falsiness to indicate the end of a list/dict, but that
+         ;; meant that nil/() was unable to pass through without
+         ;; shorting the algorithm. Now we return an :end keyword
+         ;; as a sentinel value and check for equality.
+         :end)
         (t
          (error "Cannot decode object: %d" (point)))))
 
