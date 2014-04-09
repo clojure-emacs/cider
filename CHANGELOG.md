@@ -22,6 +22,8 @@ cider-nrepl's info middleware for jump-to-definition.
 * STDERR ouput is now font-locked with `cider-repl-err-output-face` to make it
 visually distinctive from `cider-repl-output-face` (used for STDOUT output).
 * New interactive command `cider-scratch`.
+* [#521](https://github.com/clojure-emacs/cider/pull/521) New interactive
+stacktrace filtering/navigation using cider-nrepl's stacktrace middleware.
 
 ### Changes
 

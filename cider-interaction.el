@@ -32,6 +32,7 @@
 
 (require 'cider-client)
 (require 'cider-util)
+(require 'cider-stacktrace)
 
 (require 'clojure-mode)
 (require 'dash)
@@ -831,8 +832,8 @@ They exist for compatibility with `next-error'."
       (goto-next-note-boundary))
     (goto-next-note-boundary)))
 
-(defun cider-default-err-handler (buffer ex root-ex session)
-  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
+(defun cider-default-err-eval-handler (buffer ex root-ex session)
+  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION without middleware support."
   ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
   (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
     (if (or (and cider-repl-popup-stacktraces replp)
@@ -851,6 +852,31 @@ They exist for compatibility with `next-error'."
                          nil nil) nil session))
           (with-current-buffer cider-error-buffer
             (compilation-minor-mode +1))))))
+
+(defun cider-default-err-op-handler (buffer ex root-ex session)
+  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION with middleware support."
+  (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
+    (when (or (and cider-repl-popup-stacktraces replp)
+              (and cider-popup-stacktraces (not replp)))
+      (let (causes frames)
+        (nrepl-send-request
+         (list "op" "stacktrace" "session" session)
+         (lambda (response)
+           (nrepl-dbind-response response (message name status)
+             (cond (message (setq causes (cons response causes)))
+                   (name    (setq frames (cons response frames)))
+                   (status  (when (and causes frames)
+                              (cider-stacktrace-render
+                               (cider-popup-buffer cider-error-buffer
+                                                   cider-auto-select-error-buffer)
+                               (reverse causes)
+                               (reverse frames))))))))))))
+
+(defun cider-default-err-handler (buffer ex root-ex session)
+  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
+  (if (nrepl-op-supported-p "stacktrace")
+      (cider-default-err-op-handler buffer ex root-ex session)
+    (cider-default-err-eval-handler buffer ex root-ex session)))
 
 (defvar cider-compilation-regexp
   '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
