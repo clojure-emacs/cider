@@ -195,6 +195,15 @@ than the REPL:
 (setq cider-auto-select-error-buffer t)
 ```
 
+* If using the `wrap-stacktrace` middleware from `cider-nrepl`, error buffer
+stacktraces may be filtered by default. Valid filter types include `java`,
+`clj`, `repl`, `tooling`, and `dup`. Setting this to `nil` will show all
+stacktrace frames.
+
+```el
+(setq cider-stacktrace-default-filters '(tooling dup))
+```
+
 * The REPL buffer name has the format `*cider-repl project-name*`.
 Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 
@@ -547,6 +556,17 @@ Keyboard shortcut               | Description
 <kbd>l</kbd> | pop to the parent object
 <kbd>g</kbd> | refresh the inspector (e.g. if viewing an atom/ref/agent)
 
+### cider-stacktrace-mode
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>Return</kbd> | navigate to the source location (if available) for the stacktrace frame
+<kbd>j</kbd> | toggle display of java frames
+<kbd>c</kbd> | toggle display of clj frames
+<kbd>r</kbd> | toggle display of repl frames
+<kbd>t</kbd> | toggle display of tooling frames (e.g. compiler, nREPL middleware)
+<kbd>d</kbd> | toggle display of duplicate frames
+<kbd>a</kbd> | toggle display of all frames
 
 ### Managing multiple sessions
 
