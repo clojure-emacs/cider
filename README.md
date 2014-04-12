@@ -643,7 +643,7 @@ from your Emacs config.
 
 An extensive changelog is available [here](CHANGELOG.md).
 
-## Extensions & Related projects
+## Extensions
 
 There are a couple of CIDER extensions that add some extra functionality to it:
 
