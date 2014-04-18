@@ -570,21 +570,42 @@ Keyboard shortcut               | Description
 
 ### Managing multiple sessions
 
-You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> multiple
-times.  To close the current nREPL connection, use <kbd>M-x nrepl-close</kbd>. <kbd>M-x
-cider-quit</kbd> closes all connections.
+You can connect to multiple nREPL servers using <kbd>M-x
+cider-jack-in</kbd> multiple times.  To close the current nREPL
+connection, use <kbd>M-x nrepl-close</kbd>. <kbd>M-x cider-quit</kbd>
+closes all connections.
 
-CIDER maintains a list of nREPL connections and a single 'default' connection. When you execute CIDER commands in a Clojure editing buffer such as to compile a namespace, these commands are executed against the default connection.
+CIDER maintains a list of nREPL connections and a single 'default'
+connection. When you execute CIDER commands in a Clojure editing
+buffer such as to compile a namespace, these commands are executed
+against the default connection.
 
-You can display the default nREPL connection using <kbd>C-c M-d</kbd> and rotate the default connection using <kbd>C-c M-r</kbd>. Another option for setting the default connection is to execute the command <kbd>M-x nrepl-make-repl-connection-default</kbd> in the appropriate REPL buffer.
+You can display the default nREPL connection using <kbd>C-c M-d</kbd>
+and rotate the default connection using <kbd>C-c M-r</kbd>. Another
+option for setting the default connection is to execute the command
+<kbd>M-x nrepl-make-repl-connection-default</kbd> in the appropriate
+REPL buffer.
 
-To switch to the relevant REPL buffer based on the Clojure namespace in the current Clojure buffer, use: <kbd>C-c C-z</kbd>. You can then use the same key combination to switch back to the Clojure buffer you came from.
+To switch to the relevant REPL buffer based on the Clojure namespace
+in the current Clojure buffer, use: <kbd>C-c C-z</kbd>. You can then
+use the same key combination to switch back to the Clojure buffer you
+came from.
 
-The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the relevant REPL buffer and set the namespace in that buffer based on namespace in the current Clojure buffer.
+The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the
+relevant REPL buffer and set the namespace in that buffer based on
+namespace in the current Clojure buffer.
 
-To explicitly choose the REPL buffer that <kbd>C-c C-z</kbd> uses based on project directory, use a double prefix <kbd>C-u C-u C-c C-z</kbd>. This assumes you have `cider-switch-to-relevant-repl` mapped to the var `cider-switch-to-repl-command` which is the default configuration.
+To explicitly choose the REPL buffer that <kbd>C-c C-z</kbd> uses
+based on project directory, use a double prefix <kbd>C-u C-u C-c
+C-z</kbd>. This assumes you have `cider-switch-to-relevant-repl`
+mapped to the var `cider-switch-to-repl-command` which is the default
+configuration.
 
-To change the designation used for CIDER buffers use <kbd>M-x cider-change-buffers-designation</kbd>. This changes the CIDER REPL buffer, nREPL connection buffer and nREPL server buffer. For example using `cider-change-buffers-designation` with the string "foo" would change `*cider-repl localhost*` to `*cider-repl foo*`.
+To change the designation used for CIDER buffers use <kbd>M-x
+cider-change-buffers-designation</kbd>. This changes the CIDER REPL
+buffer, nREPL connection buffer and nREPL server buffer. For example
+using `cider-change-buffers-designation` with the string "foo" would
+change `*cider-repl localhost*` to `*cider-repl foo*`.
 
 ## Requirements
 
