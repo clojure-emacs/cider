@@ -36,7 +36,7 @@
 (require 'eldoc)
 (require 'dash)
 
-(defvar cider-extra-eldoc-commands '("cider-complete" "yas/expand")
+(defvar cider-extra-eldoc-commands '("yas/expand")
   "Extra commands to be added to eldoc's safe commands list.")
 
 (defun cider-eldoc-format-thing (thing)
