@@ -374,19 +374,19 @@ enable `paredit` in the REPL buffer as well:
 (add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
 ```
 
+* [company-mode](http://company-mode.github.io/) provides in-buffer
+  completion framework. When its `company-capf` back-end is enabled, it will
+  retrieve completion information from `cider-complete-at-point`,
+  requiring no additional setup. On Emacs 24.4 and newer
+  `company-capf` is enabled out of the box. `CIDER` users are advised
+  to use `company-mode` instead of `auto-complete-mode` for optimal
+  results.
+
 * [ac-nrepl](https://github.com/clojure-emacs/ac-nrepl) provides
   completion source for the popular Emacs interactive auto-completion
   framework [auto-complete](http://cx4a.org/software/auto-complete/).
   Where nREPL provides it, pop-up documentation for completed symbols
   will be displayed.
-
-* [company-cider](https://github.com/clojure-emacs/company-cider)
-  provides completion back-end with similar functionality for
-  [company-mode](http://company-mode.github.io/).
-
-* As long as `company-mode` has the `company-capf` back-end enabled,
-  it will retrieve completion information from
-  `cider-complete-at-point`, requiring no additional setup.
 
 ## Basic Usage
 
