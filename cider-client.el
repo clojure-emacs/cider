@@ -166,8 +166,16 @@ loaded."
     (buffer-local-value 'nrepl-repl-buffer
                         (get-buffer (nrepl-current-connection-buffer)))))
 
+(defun cider--dict-to-alist (val)
+  "Transforms a nREPL bdecoded dict VAL into an alist.  Simply returns
+it if it's not a dict."
+  (if (and (listp val)
+           (eq (car val) 'dict))
+      (-map '-cons-to-list (cdr val))
+    val))
+
 (defun cider-var-info (var)
-  "Return VAR's info as an alist."
+  "Return VAR's info as an alist with list cdrs."
   (when var
     (let ((val (plist-get (nrepl-send-request-sync
                            (list "op" "info"
@@ -175,7 +183,7 @@ loaded."
                                  "ns" (cider-current-ns)
                                  "symbol" var))
                           :value)))
-      (-partition 2 val))))
+      (cider--dict-to-alist val))))
 
 (defun cider-get-var-attr (var attr)
   "Return VAR's ATTR."
