@@ -26,7 +26,7 @@
 ;;; Code:
 
 (require 'button)
-
+(require 'dash)
 
 ;; Variables
 
@@ -139,7 +139,7 @@ Update `cider-stacktrace-hidden-frame-count' and indicate filters applied."
             (hidden 0))
         (while (not (eobp))
           (let* ((flags (get-text-property (point) 'flags))
-                 (hide (if (intersection filters flags) t nil)))
+                 (hide (if (-intersection filters flags) t nil)))
             (when hide (setq hidden (+ 1 hidden)))
             (put-text-property (point) (line-beginning-position 2) 'invisible hide))
           (forward-line 1))
