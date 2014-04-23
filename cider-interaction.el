@@ -641,9 +641,10 @@ added as a prefix to the LOCATION."
   "Return a list of completions for STR.
 Dispatch to the nREPL \"complete\" op if supported,
 otherwise dispatch to internal completion function."
-  (if (nrepl-op-supported-p "complete")
-      (cider-completion-complete-op-fn str)
-    (cider-completion-complete-core-fn str)))
+  (let ((str (substring-no-properties str)))
+    (if (nrepl-op-supported-p "complete")
+       (cider-completion-complete-op-fn str)
+     (cider-completion-complete-core-fn str))))
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
