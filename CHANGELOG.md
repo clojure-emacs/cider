@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.6.0 / 2014-04-24
+
 ### New features
 
 * New interactive command `cider-change-buffers-designation`.
