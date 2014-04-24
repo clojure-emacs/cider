@@ -124,12 +124,15 @@ Emacs Live you're already good to go.
 
 ## CIDER nREPL middleware
 
-Some of CIDER's functionality (like the inspector, ClojureScript
-completion, etc) depends on the presence of CIDER's own
+Much of CIDER's functionality depends on the presence of CIDER's own
 [nREPL middleware](https://github.com/clojure-emacs/cider-nrepl).
 
-Other functionality will work out of the box, but will be enhanced in the presence of the
-extra middleware. All CIDER users are encouraged to use it.
+Use the convenient plugin for defaults, either in your project's
+`project.clj` file or in the :user profile in `~/.lein/profiles.clj`.
+
+```clojure
+:plugins [[cider/cider-nrepl "0.6.0"]]
+```
 
 ## Configuration
 
@@ -616,17 +619,6 @@ change `*cider-repl localhost*` to `*cider-repl foo*`.
 ## Caveats
 
 ### Completion
-
-The built-in completion logic in CIDER relies on the library
-[clojure-complete](https://github.com/ninjudd/clojure-complete), so
-you'll have to have it your classpath for completion to work.  If
-you're connecting to an nREPL server started from `lein` (e.g. you
-invoked `M-x cider-jack-in`) - there's nothing for you to do.  This
-is, however, an issue if you're embedding nREPL in an application for
-instance, because nREPL itself does not depend on `clojure-complete`.
-
-Note that if you're using an nREPL middleware providing a `complete` op,
-CIDER will use it instead of its built-in completion.
 
 ClojureScript completion is provided by the
 [cider-nrepl](https://github.com/clojure-emacs/cider-nrepl) 'complete'

@@ -109,6 +109,12 @@ which will use the default REPL connection."
   "Face used to highlight compilation warnings in Clojure buffers."
   :group 'cider)
 
+(defun cider-ensure-op-supported (op)
+  "Check for support of middleware op OP.
+Signal an error if it is not supported."
+  (unless (nrepl-op-supported-p op)
+    (error "Can't find nREPL middleware providing op %s.  Please, install cider-nrepl and restart CIDER" op)))
+
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."
@@ -549,56 +555,6 @@ added as a prefix to the LOCATION."
     (goto-char (point-min))
     (forward-line (1- line))))
 
-(defun cider--jump-to-def-eval-fn-1 (response)
-  "Handle the synchronous RESPONSE."
-  (let ((value (plist-get response :value))
-        (out (plist-get response :stdout))
-        (err (plist-get response :stderr)))
-    (cond
-     (value
-      (cider-jump-to-def-for (car (read-from-string value))))
-     (out (error out))
-     (err (error err)))))
-
-(defun cider--jump-to-def-eval-fn (var)
-  "Jump to VAR def by evaluating inlined Clojure code."
-  (let ((form (format "(let [ns-symbol    '%s
-                             ns-var       '%s
-                             ns-file      (clojure.core/comp :file
-                                                             clojure.core/meta
-                                                             clojure.core/second
-                                                             clojure.core/first
-                                                             clojure.core/ns-publics)
-                             resource-str (clojure.core/comp clojure.core/str
-                                                             clojure.java.io/resource
-                                                             ns-file)
-                             file-str     (clojure.core/comp clojure.core/str
-                                                             clojure.java.io/file
-                                                             ns-file)]
-                         (cond ((clojure.core/ns-aliases ns-symbol) ns-var)
-                               (let [resolved-ns ((clojure.core/ns-aliases ns-symbol) ns-var)]
-                                 [(resource-str resolved-ns)
-                                  (file-str resolved-ns)
-                                  1])
-
-                               (find-ns ns-var)
-                               [(resource-str ns-var)
-                                (file-str ns-var)
-                                1]
-
-                               (clojure.core/ns-resolve ns-symbol ns-var)
-                               ((clojure.core/juxt
-                                 (clojure.core/comp clojure.core/str
-                                                    clojure.java.io/resource
-                                                    :file)
-                                 (clojure.core/comp clojure.core/str
-                                                    clojure.java.io/file
-                                                    :file)
-                                 :line)
-                                (clojure.core/meta (clojure.core/ns-resolve ns-symbol ns-var)))))"
-                      (cider-current-ns) var)))
-    (cider--jump-to-def-eval-fn-1 (cider-tooling-eval-sync form (cider-current-ns)))))
-
 (defun cider--jump-to-def-op-fn (var)
   "Jump to VAR def by using the nREPL info op."
   (let* ((var-info (cider-var-info var))
@@ -608,9 +564,9 @@ added as a prefix to the LOCATION."
 
 (defun cider-jump-to-def (var)
   "Jump to the definition of the VAR at point."
-  (if (nrepl-op-supported-p "info")
-      (cider--jump-to-def-op-fn var)
-    (cider--jump-to-def-eval-fn var)))
+  (cider-ensure-op-supported "info")
+  (cider--jump-to-def-op-fn var)
+  (cider--jump-to-def-eval-fn var))
 
 (defun cider-jump (query)
   "Jump to the definition of QUERY."
@@ -618,13 +574,6 @@ added as a prefix to the LOCATION."
   (cider-read-symbol-name "Symbol: " 'cider-jump-to-def query))
 
 (defalias 'cider-jump-back 'pop-tag-mark)
-
-(defun cider-completion-complete-core-fn (str)
-  "Return a list of completions for STR using complete.core/completions."
-  (cider-eval-and-get-value
-   (format "(clojure.core/require 'complete.core) (complete.core/completions \"%s\" *ns*)" str)
-   nrepl-buffer-ns
-   (nrepl-current-tooling-session)))
 
 (defun cider-completion-complete-op-fn (str)
   "Return a list of completions for STR using the nREPL \"complete\" op."
@@ -643,9 +592,8 @@ added as a prefix to the LOCATION."
 Dispatch to the nREPL \"complete\" op if supported,
 otherwise dispatch to internal completion function."
   (let ((str (substring-no-properties str)))
-    (if (nrepl-op-supported-p "complete")
-       (cider-completion-complete-op-fn str)
-     (cider-completion-complete-core-fn str))))
+    (cider-ensure-op-supported "complete")
+    (cider-completion-complete-op-fn str)))
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
@@ -834,27 +782,6 @@ They exist for compatibility with `next-error'."
       (goto-next-note-boundary))
     (goto-next-note-boundary)))
 
-(defun cider-default-err-eval-handler (buffer ex root-ex session)
-  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION without middleware support."
-  ;; TODO: use ex and root-ex as fallback values to display when pst/print-stack-trace-not-found
-  (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
-    (if (or (and cider-repl-popup-stacktraces replp)
-            (and cider-popup-stacktraces (not replp)))
-        (let ((cider-popup-on-error cider-popup-on-error))
-          (with-current-buffer buffer
-            (cider-eval "(if-let [pst+ (clojure.core/resolve 'clj-stacktrace.repl/pst+)]
-                        (pst+ *e) (clojure.stacktrace/print-cause-trace *e))"
-                        (nrepl-make-response-handler
-                         (cider-make-popup-buffer cider-error-buffer)
-                         nil
-                         (lambda (buffer value)
-                           (cider-emit-into-color-buffer buffer value)
-                           (when cider-popup-on-error
-                             (cider-popup-buffer-display buffer cider-auto-select-error-buffer)))
-                         nil nil) nil session))
-          (with-current-buffer cider-error-buffer
-            (compilation-minor-mode +1))))))
-
 (defun cider-default-err-op-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION with middleware support."
   (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
@@ -876,9 +803,8 @@ They exist for compatibility with `next-error'."
 
 (defun cider-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
-  (if (nrepl-op-supported-p "stacktrace")
-      (cider-default-err-op-handler buffer ex root-ex session)
-    (cider-default-err-eval-handler buffer ex root-ex session)))
+  (cider-ensure-op-supported "stacktrace")
+  (cider-default-err-op-handler buffer ex root-ex session))
 
 (defvar cider-compilation-regexp
   '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))

@@ -2,6 +2,10 @@
 
 ## master
 
+### Changes
+
+* `cider-nrepl` is now required. Without it pretty much nothing will work.
+
 ## 0.6.0 / 2014-04-24
 
 ### New features
