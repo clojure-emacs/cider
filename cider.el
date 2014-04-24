@@ -59,13 +59,12 @@
   :link '(url-link :tag "Github" "https://github.com/clojure-emacs/cider")
   :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
-(require 'pkg-info)
-
 (require 'cider-client)
 (require 'cider-interaction)
 (require 'cider-eldoc)
 (require 'cider-repl)
 (require 'cider-mode)
+(require 'cider-util)
 
 (defvar cider-version "0.7.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
@@ -84,8 +83,7 @@ This variable is used by the CIDER command."
 (defun cider-version ()
   "Display CIDER's version."
   (interactive)
-  (let ((version (pkg-info-version-info 'cider)))
-    (message "CIDER %s" version)))
+  (message "CIDER %s" (cider--version)))
 
 ;;;###autoload
 (defun cider-jack-in (&optional prompt-project)
