@@ -629,7 +629,7 @@ Refreshes EWOC."
 (defun nrepl-next-request-id ()
   "Return the next request id."
   (with-current-buffer (nrepl-current-connection-buffer)
-    (number-to-string (incf nrepl-request-counter))))
+    (number-to-string (cl-incf nrepl-request-counter))))
 
 (defun nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK."

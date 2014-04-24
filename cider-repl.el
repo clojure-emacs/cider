@@ -558,7 +558,7 @@ If NEWLINE is true then add a newline at the end of the input."
       (add-text-properties cider-repl-input-start-mark
                            (point)
                            `(cider-old-input
-                             ,(incf cider-repl-old-input-counter))))
+                             ,(cl-incf cider-repl-old-input-counter))))
     (if cider-repl-use-clojure-font-lock
         (let ((input-string (buffer-substring cider-repl-input-start-mark end)))
           (save-excursion
@@ -743,7 +743,7 @@ Empty strings and duplicates are ignored."
   (unless (or (equal string "")
               (equal string (car cider-repl-input-history)))
     (push string cider-repl-input-history)
-    (incf cider-repl-input-history-items-added)))
+    (cl-incf cider-repl-input-history-items-added)))
 
 (defun cider-repl-delete-current-input ()
   "Delete all text after the prompt."
