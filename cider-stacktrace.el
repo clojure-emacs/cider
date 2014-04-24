@@ -201,14 +201,18 @@ Update `cider-stacktrace-hidden-frame-count' and indicate filters applied."
     (sit-for 5)))
 
 (defun cider-stacktrace-navigate (button)
-  "Navigate to the stack frame represented by the BUTTON."
+  "Navigate to the stack frame source represented by the BUTTON."
   (let ((var (button-get button 'var))
+        (class (button-get button 'class))
+        (method (button-get button 'method))
         (line (button-get button 'line)))
-    (condition-case nil
-        (let* ((info (cider-var-info var))
-               (file (cadr (assoc "file" info))))
-          (cider-jump-to-def-for (vector file file line)))
-      (error "No source info"))))
+    (let* ((info (if var
+                     (cider-var-info var)
+                   (cider-member-info class method)))
+           (file (cadr (assoc "file" info))))
+      (if (and file line)
+          (cider-jump-to-def-for (vector file file line))
+        (error "No source info")))))
 
 
 ;; Rendering
@@ -254,7 +258,8 @@ This associates text properties to enable filtering and source navigation."
                                     (if (member 'repl flags) "REPL" file) line
                                     (if (member 'clj flags) ns class)
                                     (if (member 'clj flags) fn method))
-                            'name name 'var var 'line line 'flags flags
+                            'var var 'class class 'method method
+                            'name name 'line line 'flags flags
                             'follow-link t
                             'action 'cider-stacktrace-navigate
                             'help-echo "View source at this location"

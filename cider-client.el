@@ -185,6 +185,17 @@ it if it's not a dict."
                           :value)))
       (cider--dict-to-alist val))))
 
+(defun cider-member-info (class member)
+  "Return the CLASS MEMBER's info as an alist with list cdrs."
+  (when (and class member)
+    (let ((val (plist-get (nrepl-send-request-sync
+                           (list "op" "info"
+                                 "session" (nrepl-current-session)
+                                 "class" class
+                                 "member" member))
+                          :value)))
+      (cider--dict-to-alist val))))
+
 (defun cider-get-var-attr (var attr)
   "Return VAR's ATTR."
   (cadr (assoc attr (cider-var-info var))))
