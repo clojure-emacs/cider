@@ -92,7 +92,8 @@ which will use the default REPL connection."
 (defcustom cider-prompt-save-file-on-load t
   "Controls whether to prompt to save the file when loading a buffer."
   :type 'boolean
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.6.0"))
 
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
