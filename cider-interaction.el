@@ -565,8 +565,7 @@ added as a prefix to the LOCATION."
 (defun cider-jump-to-def (var)
   "Jump to the definition of the VAR at point."
   (cider-ensure-op-supported "info")
-  (cider--jump-to-def-op-fn var)
-  (cider--jump-to-def-eval-fn var))
+  (cider--jump-to-def-op-fn var))
 
 (defun cider-jump (query)
   "Jump to the definition of QUERY."
