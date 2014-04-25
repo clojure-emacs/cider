@@ -553,7 +553,8 @@ added as a prefix to the LOCATION."
      ((and path (file-exists-p path)) (find-file path))
      (t (cider-find-resource resource)))
     (goto-char (point-min))
-    (forward-line (1- line))))
+    (forward-line (1- line))
+    (cider-mode 1))) ; enable cider-jump keybindings on java sources
 
 (defun cider--jump-to-def-op-fn (var)
   "Jump to VAR def by using the nREPL info op."

@@ -564,7 +564,7 @@ Keyboard shortcut               | Description
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
-<kbd>Return</kbd> | navigate to the source location (if available) for the stacktrace frame
+<kbd>Return</kbd> and <kbd>M-.</kbd> | navigate to the source location (if available) for the stacktrace frame
 <kbd>j</kbd> | toggle display of java frames
 <kbd>c</kbd> | toggle display of clj frames
 <kbd>r</kbd> | toggle display of repl frames

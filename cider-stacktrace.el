@@ -78,6 +78,7 @@
 
 (defvar cider-stacktrace-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-.") 'cider-stacktrace-jump)
     (define-key map "j" 'cider-stacktrace-toggle-java)
     (define-key map "c" 'cider-stacktrace-toggle-clj)
     (define-key map "r" 'cider-stacktrace-toggle-repl)
@@ -213,6 +214,14 @@ Update `cider-stacktrace-hidden-frame-count' and indicate filters applied."
       (if (and file line)
           (cider-jump-to-def-for (vector file file line))
         (error "No source info")))))
+
+(defun cider-stacktrace-jump ()
+  "Like `cider-jump', but uses the stack frame source at point, if available."
+  (interactive)
+  (let ((button (button-at (point))))
+    (if (and button (button-get button 'line))
+        (cider-stacktrace-navigate button)
+      (call-interactively 'cider-jump))))
 
 
 ;; Rendering
