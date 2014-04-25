@@ -56,6 +56,7 @@
     (should (equal (cider-repl--banner) "; CIDER 0.2.0 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)"))))
 
 (ert-deftest test-cider-repl--banner-version-fallback ()
+  (require 'pkg-info)
   (noflet ((pkg-info-version-info (library) (error "No package version"))
            (cider--java-version () "1.7")
            (cider--clojure-version () "1.5.1")

@@ -33,10 +33,10 @@
 (require 'cider-client)
 (require 'cider-interaction)
 (require 'cider-eldoc) ; for cider-turn-on-eldoc-mode
+(require 'cider-util)
 
 (require 'clojure-mode)
 (require 'easymenu)
-(require 'pkg-info)
 
 (eval-when-compile
   (defvar paredit-version)
@@ -224,9 +224,7 @@ positions before and after executing BODY."
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
   (format "; CIDER %s (Java %s, Clojure %s, nREPL %s)"
-          (condition-case nil
-              (pkg-info-version-info 'cider)
-            (error cider-version))
+          (cider--version)
           (cider--java-version)
           (cider--clojure-version)
           (cider--nrepl-version)))
