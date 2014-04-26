@@ -265,7 +265,7 @@ To remove the prefix altogether just set it to an empty string(`""`).
 
 * Normally code you input in the REPL is font-locked with
 `cider-repl-input-face` (after you press `RET`) and results are
-font-locked with `cider-repl-output-face`. If you want them to be
+font-locked with `cider-repl-result-face`. If you want them to be
 font-locked as in `clojure-mode` use the following:
 
 ```el
