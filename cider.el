@@ -164,8 +164,4 @@ The returned endpoint has the label removed."
 
 (provide 'cider)
 
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
-
 ;;; cider.el ends here

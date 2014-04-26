@@ -153,8 +153,4 @@ is chosen.  The returned buffer is selected with
 
 (provide 'cider-selector)
 
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
-
 ;;; cider-selector.el ends here

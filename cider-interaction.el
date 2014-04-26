@@ -1369,8 +1369,4 @@ restart the server."
 
 (provide 'cider-interaction)
 
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
-
 ;;; cider-interaction.el ends here

@@ -123,8 +123,4 @@
 
 (provide 'cider-mode)
 
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
-
 ;;; cider-mode.el ends here

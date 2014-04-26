@@ -1107,8 +1107,4 @@ ENDP) DELIM."
 
 (provide 'cider-repl)
 
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
-
 ;;; cider-repl.el ends here

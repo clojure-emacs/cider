@@ -83,8 +83,4 @@ buffer-local wherever it is set."
 
 (provide 'cider-util)
 
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
-
 ;;; cider-util.el ends here
