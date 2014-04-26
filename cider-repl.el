@@ -229,10 +229,18 @@ positions before and after executing BODY."
           (cider--clojure-version)
           (cider--nrepl-version)))
 
+(defun cider-middleware-available-p ()
+  "Check whether the CIDER nREPL middlware is available."
+  (nrepl-op-supported-p "stacktrace"))
+
 (defun cider-repl--insert-banner-and-prompt (ns)
   "Insert REPL banner and REPL prompt, taking into account NS."
   (when (zerop (buffer-size))
-    (insert (propertize (cider-repl--banner) 'face 'font-lock-comment-face)))
+    (insert (propertize (cider-repl--banner) 'face 'font-lock-comment-face))
+    (unless (cider-middleware-available-p)
+      (insert (propertize "\nCIDER nREPL middleware not available! CIDER will not function properly!"
+                          'face
+                          'font-lock-warning-face))))
   (goto-char (point-max))
   (cider-repl--mark-output-start)
   (cider-repl--mark-input-start)
