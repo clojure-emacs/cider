@@ -174,6 +174,19 @@ it if it's not a dict."
       (-map '-cons-to-list (cdr val))
     val))
 
+(defun cider--var-choice (var-info)
+  "Prompt to choose from among multiple VAR-INFO candidates, if required.
+This is needed only when the symbol queried is an unqualified host platform
+method, and multiple classes have a so-named member. If VAR-INFO does not
+contain a `candidates' key, it is returned as is."
+  (let ((candidates (cdadr (assoc "candidates" var-info))))
+    (if candidates
+        (let* ((classes (mapcar (lambda (x) (cdr (assoc "class" x))) candidates))
+               (choice (completing-read "Method in class: " classes nil t))
+               (info (cdr (assoc choice candidates))))
+          (cider--dict-to-alist info))
+      var-info)))
+
 (defun cider-var-info (var)
   "Return VAR's info as an alist with list cdrs."
   (when var
@@ -183,7 +196,8 @@ it if it's not a dict."
                                  "ns" (cider-current-ns)
                                  "symbol" var))
                           :value)))
-      (cider--dict-to-alist val))))
+      (cider--var-choice
+       (cider--dict-to-alist val)))))
 
 (defun cider-member-info (class member)
   "Return the CLASS MEMBER's info as an alist with list cdrs."
