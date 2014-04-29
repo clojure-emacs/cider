@@ -2,6 +2,8 @@
 
 ## master
 
+* New interactive command `cider-toggle-trace`.
+
 ### Changes
 
 * `cider-nrepl` is now required. Without it pretty much nothing will work.

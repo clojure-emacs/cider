@@ -1228,6 +1228,22 @@ if there is no symbol at point, or if QUERY is non-nil."
         (funcall callback symbol-name)
       (cider-completing-read-var prompt nrepl-buffer-ns callback))))
 
+(defun cider-toggle-trace (query)
+  "Toggle tracing for the given QUERY.
+Defaults to the symbol at point.  With prefix arg or no symbol at
+point, prompts for a var."
+  (interactive "P")
+  (cider-ensure-op-supported "toggle-trace")
+  (cider-read-symbol-name
+   "Toggle trace for var: "
+   (lambda (sym)
+     (nrepl-send-request
+      (list "op" "toggle-trace"
+            "ns" (cider-current-ns)
+            "var" sym)
+      (cider-interactive-eval-handler (current-buffer))))
+   query))
+
 (defun cider-doc-buffer-for (symbol)
   "Return buffer with documentation for SYMBOL."
   (let* ((form (format "(clojure.repl/doc %s)" symbol))
