@@ -36,7 +36,6 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 - [Requirements](#requirements)
 - [Caveats](#caveats)
 - [Changelog](#changelog)
-- [Extensions](#extensions)
 - [Team](#team)
 - [Contributing](#contributing)
 - [License](#license)
@@ -658,15 +657,6 @@ from your Emacs config.
 ## Changelog
 
 An extensive changelog is available [here](CHANGELOG.md).
-
-## Extensions
-
-There are a couple of CIDER extensions that add some extra functionality to it:
-
-* [cider-tracing](https://github.com/clojure-emacs/cider-tracing) adds basic tracing support
-* [cider-decompile](https://github.com/clojure-emacs/cider-decompile) adds some Java bytecode decompilation commands
-* [troncle](https://github.com/coventry/troncle) adds advanced tracing support. If you don't mind installing some extra nREPL middleware
-you should use it instead of `cider-tracing`.
 
 ## Team
 
