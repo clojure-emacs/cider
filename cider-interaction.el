@@ -1237,16 +1237,35 @@ point, prompts for a var."
 
 (defun cider-doc-buffer-for (symbol)
   "Return buffer with documentation for SYMBOL."
-  (let* ((form (format "(clojure.repl/doc %s)" symbol))
-         (doc-buffer (cider-make-popup-buffer cider-doc-buffer))
-         (response
-          (cider-tooling-eval-sync form nrepl-buffer-ns))
-         (str
-          (or (plist-get response :stdout)
-              (plist-get response :stderr))))
-    (unless (member str '("nil" nil))
-      (cider-emit-into-popup-buffer doc-buffer str)
-      doc-buffer)))
+  (let* ((info  (cider-var-info symbol))
+         (ns    (cadr (assoc "ns" info)))
+         (name  (cadr (assoc "name" info)))
+         (added (cadr (assoc "added" info)))
+         (macro (cadr (assoc "macro" info)))
+         (doc   (cadr (assoc "doc" info)))
+         (args  (cadr (assoc "arglists-str" info))))
+    (when info
+      (with-current-buffer (cider-popup-buffer cider-doc-buffer t)
+        (let ((inhibit-read-only t))
+          (insert (propertize (concat ns "/" name)
+                              'font-lock-face
+                              'font-lock-function-name-face))
+          (newline)
+          (insert (cider-font-lock-as-clojure args))
+          (newline)
+          (when added
+            (insert (propertize (concat "Added in " added)
+                                'font-lock-face
+                                'font-lock-comment-face))
+            (newline))
+          (when macro
+            (insert (propertize "Macro"
+                                'font-lock-face
+                                'font-lock-comment-face))
+            (newline))
+          (when doc
+            (insert (concat "  " doc))))
+        (current-buffer)))))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
