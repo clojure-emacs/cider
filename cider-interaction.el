@@ -43,6 +43,7 @@
 (require 'cl-lib)
 (require 'compile)
 (require 'tramp)
+(require 'button)
 
 (defconst cider-error-buffer "*cider-error*")
 (defconst cider-doc-buffer "*cider-doc*")
@@ -1237,35 +1238,57 @@ point, prompts for a var."
 
 (defun cider-doc-buffer-for (symbol)
   "Return buffer with documentation for SYMBOL."
-  (let* ((info  (cider-var-info symbol))
-         (ns    (cadr (assoc "ns" info)))
-         (name  (cadr (assoc "name" info)))
-         (added (cadr (assoc "added" info)))
-         (macro (cadr (assoc "macro" info)))
-         (doc   (cadr (assoc "doc" info)))
-         (args  (cadr (assoc "arglists-str" info))))
+  (let* ((info    (cider-var-info symbol))
+         (ns      (cadr (assoc "ns" info)))
+         (name    (cadr (assoc "name" info)))
+         (added   (cadr (assoc "added" info)))
+         (depr    (cadr (assoc "deprecated" info)))
+         (macro   (cadr (assoc "macro" info)))
+         (special (cadr (assoc "special-form" info)))
+         (forms   (cadr (assoc "forms-str" info)))
+         (args    (cadr (assoc "arglists-str" info)))
+         (doc     (cadr (assoc "doc" info)))
+         (url     (cadr (assoc "url" info)))
+         (class   (cadr (assoc "class" info)))
+         (method  (cadr (assoc "method" info)))
+         (javadoc (cadr (assoc "javadoc" info)))
+         (clj-name  (if ns (concat ns "/" name) name))
+         (java-name (if (string= method "<init>")
+                        class
+                      (concat class "/" method))))
     (when info
       (with-current-buffer (cider-popup-buffer cider-doc-buffer t)
         (let ((inhibit-read-only t))
-          (insert (propertize (concat ns "/" name)
-                              'font-lock-face
-                              'font-lock-function-name-face))
-          (newline)
-          (insert (cider-font-lock-as-clojure args))
-          (newline)
-          (when added
-            (insert (propertize (concat "Added in " added)
-                                'font-lock-face
-                                'font-lock-comment-face))
-            (newline))
-          (when macro
-            (insert (propertize "Macro"
-                                'font-lock-face
-                                'font-lock-comment-face))
-            (newline))
-          (when doc
-            (insert (concat "  " doc))))
-        (current-buffer)))))
+          (cl-flet ((emit (text &optional face)
+                      (insert (if face
+                                  (propertize text 'font-lock-face face)
+                                text))
+                      (newline)))
+            (emit (or clj-name java-name) 'font-lock-function-name-face)
+            (when (or forms args)
+              (emit (cider-font-lock-as-clojure (or forms args))))
+            (when (or special macro)
+              (emit (if special "Special Form" "Macro") 'font-lock-comment-face))
+            (when added
+              (emit (concat "Added in " added) 'font-lock-comment-face))
+            (when depr
+              (emit (concat "Deprecated in " depr) 'font-lock-comment-face))
+            (when doc
+              (emit (concat "  " doc)))
+            (when (or url javadoc)
+              (newline)
+              (insert (if url "  Please see " "  For documentation, please see "))
+              (insert-text-button (or url "Javadoc")
+                                  'url (or url javadoc)
+                                  'follow-link t
+                                  'action (lambda (x)
+                                            (browse-url (button-get x 'url))))
+              (newline))
+            (let ((beg (point-min))
+                  (end (point-max)))
+              (dolist (x info)
+                (put-text-property beg end (car x) (cadr x)))))
+          (current-buffer))))))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
@@ -1273,6 +1296,8 @@ point, prompts for a var."
     (when buffer
       (with-current-buffer buffer
         (setq buffer-read-only t)
+        (goto-char (point-min))
+        (cider-mode 1)
         (cider-popup-buffer-display (current-buffer) t)))))
 
 (defun cider-doc (query)
