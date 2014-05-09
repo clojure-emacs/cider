@@ -35,6 +35,12 @@
   :prefix "cider-stacktrace-"
   :group 'cider)
 
+(defcustom cider-stacktrace-fill-column t
+  "Fill column for error messages in stacktrace display.  If nil, messages will
+not be wrapped. If truthy but non-numeric, `fill-column' will be used."
+  :type 'list
+  :group 'cider-stacktrace)
+
 (defcustom cider-stacktrace-default-filters '(tooling dup)
   "Frame types to omit from initial stacktrace display."
   :type 'list
@@ -289,6 +295,11 @@ This associates text properties to enable filtering and source navigation."
       (cider-stacktrace-render-cause buffer (first causes) "Unhandled")
       (dolist (cause (rest causes))
         (cider-stacktrace-render-cause buffer cause "Caused by"))
+      ;; Message wrapping
+      (when cider-stacktrace-fill-column
+        (when (numberp cider-stacktrace-fill-column)
+          (setq-local fill-column cider-stacktrace-fill-column))
+        (fill-region 0 (point)))
       (newline)
       ;; Stacktrace filters
       (cider-stacktrace-render-filters

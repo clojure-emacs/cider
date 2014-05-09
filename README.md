@@ -207,6 +207,14 @@ stacktrace frames.
 (setq cider-stacktrace-default-filters '(tooling dup))
 ```
 
+* Error messages may be wrapped for readability. If this value is nil, messages
+will not be wrapped; if it is truthy but non-numeric, the default `fill-column`
+will be used.
+
+```el
+(setq cider-stacktrace-fill-column 80)
+```
+
 * The REPL buffer name has the format `*cider-repl project-name*`.
 Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 
