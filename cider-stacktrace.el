@@ -39,12 +39,14 @@
   "Fill column for error messages in stacktrace display.  If nil, messages will
 not be wrapped. If truthy but non-numeric, `fill-column' will be used."
   :type 'list
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.7.0"))
 
 (defcustom cider-stacktrace-default-filters '(tooling dup)
   "Frame types to omit from initial stacktrace display."
   :type 'list
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
 
 
 ;; Faces
@@ -52,32 +54,38 @@ not be wrapped. If truthy but non-numeric, `fill-column' will be used."
 (defface cider-stacktrace-error-class-face
   '((t (:inherit font-lock-warning-face)))
   "Face for exception class names"
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-filter-shown-face
   '((t (:inherit button :underline t)))
   "Face for filter buttons representing frames currently visible"
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-filter-hidden-face
   '((t (:inherit button :underline nil)))
   "Face for filter buttons representing frames currently filtered out"
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-face
   '((t (:inherit default)))
   "Face for stack frame text"
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-ns-face
   '((t (:inherit font-lock-comment-face)))
   "Face for stack frame namespace name"
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-fn-face
   '((t (:inherit cider-stacktrace-face :weight bold)))
   "Face for stack frame function name"
-  :group 'cider-stacktrace)
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
 
 
 ;; Mode & key bindings
