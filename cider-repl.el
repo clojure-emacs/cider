@@ -877,7 +877,8 @@ It does not yet set the input history."
   (if (file-readable-p filename)
       (with-temp-buffer
         (insert-file-contents filename)
-        (read (current-buffer)))
+        (when (> (buffer-size (current-buffer)) 0)
+            (read (current-buffer))))
     '()))
 
 (defun cider-repl-history-load (&optional filename)
