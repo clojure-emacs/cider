@@ -299,6 +299,7 @@ This associates text properties to enable filtering and source navigation."
       (when cider-stacktrace-fill-column
         (when (numberp cider-stacktrace-fill-column)
           (setq-local fill-column cider-stacktrace-fill-column))
+        (setq-local fill-prefix "   ")
         (fill-region 0 (point)))
       (newline)
       ;; Stacktrace filters
