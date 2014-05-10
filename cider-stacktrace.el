@@ -36,8 +36,9 @@
   :group 'cider)
 
 (defcustom cider-stacktrace-fill-column t
-  "Fill column for error messages in stacktrace display.  If nil, messages will
-not be wrapped. If truthy but non-numeric, `fill-column' will be used."
+  "Fill column for error messages in stacktrace display.
+If nil, messages will not be wrapped.  If truthy but non-numeric,
+`fill-column' will be used."
   :type 'list
   :group 'cider-stacktrace
   :package-version '(cider . "0.7.0"))
