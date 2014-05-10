@@ -95,6 +95,12 @@ which will use the default REPL connection."
   :group 'cider
   :package-version '(cider . "0.6.0"))
 
+(defcustom cider-completion-use-context t
+  "When true, uses context at point to improve completion suggestions."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.7.0"))
+
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
      (:underline (:style wave :color "red") :inherit unspecified))
@@ -575,6 +581,51 @@ added as a prefix to the LOCATION."
 
 (defalias 'cider-jump-back 'pop-tag-mark)
 
+(defvar cider-completion-last-context nil)
+
+(defun cider-completion-symbol-start-pos ()
+  "Find the starting position of the symbol at point, unless inside a string."
+  (let ((sap (symbol-at-point)))
+    (when (and sap (not (in-string-p)))
+      (car (bounds-of-thing-at-point 'symbol)))))
+
+(defun cider-completion-get-context-at-point ()
+  "Extract the context at point.
+If point is not inside the list, returns nil; otherwise return top-level
+form, with symbol at point replaced by __prefix__."
+  (when (save-excursion
+          (condition-case foo
+              (progn
+                (up-list)
+                (check-parens)
+                t)
+            (scan-error nil)
+            (user-error nil)))
+    (save-excursion
+      (let* ((pref-end (point))
+             (pref-start (cider-completion-symbol-start-pos))
+             (context (cider-defun-at-point))
+             (_ (beginning-of-defun))
+             (expr-start (point)))
+        (concat (substring context 0 (- pref-start expr-start))
+                "__prefix__"
+                (substring context (- pref-end expr-start)))))))
+
+(defun cider-completion-get-context ()
+  "Extract context depending on `cider-completion-use-context' and major mode."
+  (let ((context (if (and cider-completion-use-context
+                          ;; Important because `beginning-of-defun' and
+                          ;; `ending-of-defun' work incorrectly in the REPL
+                          ;; buffer, so context extraction fails there.
+                          (not (eq major-mode 'cider-repl-buffer)))
+                     (or (cider-completion-get-context-at-point)
+                         "nil")
+                   "nil")))
+    (if (string= cider-completion-last-context context)
+        ":same"
+      (setq cider-completion-last-context context)
+      context)))
+
 (defun cider-completion-complete-op-fn (str)
   "Return a list of completions for STR using the nREPL \"complete\" op."
   (let ((strlst (plist-get
@@ -582,7 +633,8 @@ added as a prefix to the LOCATION."
                   (list "op" "complete"
                         "session" (nrepl-current-session)
                         "ns" nrepl-buffer-ns
-                        "symbol" str))
+                        "symbol" str
+                        "context" (cider-completion-get-context)))
                  :value)))
     (when strlst
       strlst)))
