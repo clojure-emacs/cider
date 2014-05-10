@@ -1,3 +1,4 @@
+[![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://travis-ci.org/clojure-emacs/cider.png?branch=master)](https://travis-ci.org/clojure-emacs/cider)
 [![Gittip](http://img.shields.io/gittip/bbatsov.svg)](https://www.gittip.com/bbatsov/)
 
@@ -738,3 +739,5 @@ Duncan, Steve Purcell and
 [contributors](https://github.com/clojure-emacs/cider/contributors).
 
 Distributed under the GNU General Public License, version 3
+
+[badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
