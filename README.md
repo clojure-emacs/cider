@@ -686,7 +686,8 @@ The logo is licensed under a
 
 ### Discussion
 
-For questions, suggestions and support refer to our [official mailing list](https://groups.google.com/forum/#!forum/cider-emacs).
+For questions, suggestions and support refer to our [official mailing list](https://groups.google.com/forum/#!forum/cider-emacs)
+or the Freenode channel `#clojure-emacs`.
 Please, don't report issues there, as this makes them harder to track.
 
 ### Issues
