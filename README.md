@@ -709,6 +709,12 @@ guidelines](CONTRIBUTING.md).
 
 Consider improving and extending the [community wiki](https://github.com/clojure-emacs/cider/wiki).
 
+### Gittip
+
+I'm also accepting financial contributions via [gittip](https://www.gittip.com/bbatsov).
+
+[![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.2.0/dist/gittip.png)](https://www.gittip.com/bbatsov)
+
 ### Running the tests in batch mode
 
 Install [cask](https://github.com/rejeep/cask.el) if you haven't
