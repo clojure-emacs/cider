@@ -694,9 +694,9 @@ Please, don't report issues there, as this makes them harder to track.
 ### Issues
 
 Report issues and suggest features and improvements on the
-[GitHub issue tracker](https://github.com/clojure-emacs/cider/issues). Don't
-ask questions on the issue tracker - the mailing list is the place for
-questions.
+[GitHub issue tracker](https://github.com/clojure-emacs/cider/issues). Don't ask
+questions on the issue tracker - the mailing list and the IRC channel are the
+places for questions.
 
 ### Patches
 
