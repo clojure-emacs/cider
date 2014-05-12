@@ -131,16 +131,14 @@ you'd like to use the default Emacs behavior use
   :group 'cider-repl)
 
 (defcustom cider-lein-command
-  "lein"
+  (or (executable-find "lein")
+      (executable-find "lein.bat"))
   "The command used to execute leiningen 2.x."
   :type 'string
   :group 'cider-repl)
 
-(defcustom cider-server-command
-  (if (or (locate-file cider-lein-command exec-path)
-          (locate-file (format "%s.bat" cider-lein-command) exec-path))
-      (format "%s repl :headless" cider-lein-command)
-    (format "echo \"%s repl :headless\" | eval $SHELL -l" cider-lein-command))
+(defcustom cider-lein-parameters
+  "repl :headless"
   "The command used to start the nREPL via command `cider-jack-in'.
 For a remote nREPL server lein must be in your PATH.  The remote
 proc is launched via sh rather than bash, so it might be necessary
