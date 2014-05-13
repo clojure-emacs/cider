@@ -1026,7 +1026,6 @@ ENDP) DELIM."
     (define-key map (kbd "C-<return>") 'cider-repl-closing-return)
     (define-key map (kbd "C-j") 'cider-repl-newline-and-indent)
     (define-key map (kbd "C-c C-d") 'cider-doc)
-    (define-key map (kbd "C-c C-s") 'cider-src)
     (define-key map (kbd "C-c C-o") 'cider-repl-clear-output)
     (define-key map (kbd "C-c M-o") 'cider-repl-clear-buffer)
     (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
@@ -1091,7 +1090,6 @@ ENDP) DELIM."
     ["Complete symbol" complete-symbol]
     "--"
     ["Display documentation" cider-doc]
-    ["Display source" cider-src]
     ["Display JavaDoc" cider-javadoc]
     ["Inspect" cider-inspect]
     "--"

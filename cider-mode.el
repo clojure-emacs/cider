@@ -55,7 +55,6 @@
     (define-key map (kbd "C-c M-i") 'cider-inspect)
     (define-key map (kbd "C-c M-t") 'cider-toggle-trace)
     (define-key map (kbd "C-c C-d") 'cider-doc)
-    (define-key map (kbd "C-c C-s") 'cider-src)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'cider-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'cider-load-current-buffer)
@@ -104,7 +103,6 @@
     ["Macroexpand-all last expression" cider-macroexpand-all]
     "--"
     ["Display documentation" cider-doc]
-    ["Display source" cider-src]
     ["Display JavaDoc" cider-javadoc]
     ["Inspect" cider-inspect]
     "--"

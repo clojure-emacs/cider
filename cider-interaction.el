@@ -47,7 +47,6 @@
 
 (defconst cider-error-buffer "*cider-error*")
 (defconst cider-doc-buffer "*cider-doc*")
-(defconst cider-src-buffer "*cider-src*")
 (defconst cider-result-buffer "*cider-result*")
 
 (defcustom cider-use-local-resources t
@@ -1359,24 +1358,6 @@ under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
-(defun cider-src-handler (symbol)
-  "Create a handler to lookup source for SYMBOL."
-  (let ((form (format "(clojure.repl/source %s)" symbol))
-        (src-buffer (cider-popup-buffer cider-src-buffer t)))
-    (with-current-buffer src-buffer
-      (clojure-mode)
-      (cider-popup-buffer-mode +1))
-    (cider-tooling-eval form
-                        (cider-popup-eval-out-handler src-buffer)
-                        nrepl-buffer-ns)))
-
-(defun cider-src (query)
-  "Open a window with the source for the given QUERY.
-Defaults to the symbol at point.  With prefix arg or no symbol
-under point, prompts for a var."
-  (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-src-handler query))
-
 ;; TODO: implement reloading ns
 (defun cider-eval-load-file (form)
   "Load FORM."
@@ -1433,7 +1414,6 @@ under point, prompts for a var."
 (defvar cider-ancilliary-buffers
   (list cider-error-buffer
         cider-doc-buffer
-        cider-src-buffer
         nrepl-event-buffer-name))
 
 (defun cider-close-ancilliary-buffers ()
