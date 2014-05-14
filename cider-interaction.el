@@ -521,7 +521,8 @@ Removes any leading slash if on Windows."
   "Switch to a buffer visiting FILENAME.
 Adjusts for HOME location using `cider-home-prefix-adjustment'.
 Uses `find-file'."
-  (find-file (cider-emacs-or-clojure-side-adjustment filename)))
+  (let ((large-file-warning-threshold nil))
+    (find-file (cider-emacs-or-clojure-side-adjustment filename))))
 
 (defun cider-find-resource (resource)
   "Find and display RESOURCE."
