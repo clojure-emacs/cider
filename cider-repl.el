@@ -1084,10 +1084,10 @@ ENDP) DELIM."
 (easy-menu-define cider-repl-mode-menu cider-repl-mode-map
   "Menu for CIDER's REPL mode"
   '("REPL"
-    ["Jump" cider-jump]
-    ["Jump back" cider-jump-back]
-    "--"
     ["Complete symbol" complete-symbol]
+    "--"
+    ["Jump to source" cider-jump]
+    ["Jump back" cider-jump-back]
     "--"
     ["Display documentation" cider-doc]
     ["Display JavaDoc" cider-javadoc]

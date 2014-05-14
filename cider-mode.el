@@ -82,9 +82,6 @@
 (easy-menu-define cider-mode-menu cider-mode-map
   "Menu for CIDER mode"
   '("CIDER"
-    ["Jump" cider-jump]
-    ["Jump back" cider-jump-back]
-    "--"
     ["Complete symbol" complete-symbol]
     "--"
     ["Eval top-level sexp at point" cider-eval-defun-at-point]
@@ -101,6 +98,9 @@
     "--"
     ["Macroexpand-1 last expression" cider-macroexpand-1]
     ["Macroexpand-all last expression" cider-macroexpand-all]
+    "--"
+    ["Jump to source" cider-jump]
+    ["Jump back" cider-jump-back]
     "--"
     ["Display documentation" cider-doc]
     ["Display JavaDoc" cider-javadoc]
