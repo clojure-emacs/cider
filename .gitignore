@@ -9,3 +9,4 @@ cider-pkg.el
 packages/*
 TAGS
 .DS_STORE
+dist
