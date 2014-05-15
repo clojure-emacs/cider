@@ -1368,7 +1368,7 @@ under point, prompts for a var."
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
   (with-current-buffer (find-file-noselect file)
-    (buffer-string)))
+    (substring-no-properties (buffer-string))))
 
 (defun cider-load-file-op (filename)
   "Send \"load-file\" op for FILENAME."
