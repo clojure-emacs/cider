@@ -167,8 +167,8 @@ loaded."
                         (get-buffer (nrepl-current-connection-buffer)))))
 
 (defun cider--dict-to-alist (val)
-  "Transforms a nREPL bdecoded dict VAL into an alist.  Simply returns
-it if it's not a dict."
+  "Transforms a nREPL bdecoded dict VAL into an alist.
+Simply returns it if it's not a dict."
   (if (and (listp val)
            (eq (car val) 'dict))
       (-map '-cons-to-list (cdr val))
@@ -177,7 +177,7 @@ it if it's not a dict."
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
 This is needed only when the symbol queried is an unqualified host platform
-method, and multiple classes have a so-named member. If VAR-INFO does not
+method, and multiple classes have a so-named member.  If VAR-INFO does not
 contain a `candidates' key, it is returned as is."
   (let ((candidates (cdadr (assoc "candidates" var-info))))
     (if candidates
