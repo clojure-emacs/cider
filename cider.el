@@ -71,6 +71,18 @@
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
 
+(defcustom cider-lein-command
+  "lein"
+  "The command used to execute Leiningen 2.x."
+  :type 'string
+  :group 'cider)
+
+(defcustom cider-lein-parameters
+  "repl :headless"
+  "Params passed to lein to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider)
+
 (defcustom cider-known-endpoints nil
   "Specify a list of custom endpoints where each endpoint is a list.
 For example: '((\"label\" \"host\" \"port\")).
@@ -78,6 +90,11 @@ The label is optional so that '(\"host\" \"port\") will suffice.
 This variable is used by the CIDER command."
   :type 'list
   :group 'cider)
+
+(defun cider--lein-present-p ()
+  "Check if `cider-lein-command' is on the `exec-path'."
+  (or (executable-find cider-lein-command)
+      (executable-find (concat cider-lein-command ".bat"))))
 
 ;;;###autoload
 (defun cider-version ()
@@ -92,7 +109,7 @@ If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
-  (if cider-lein-command
+  (if (cider--lein-present-p)
       (let* ((project (when prompt-project
                         (read-directory-name "Project: ")))
              (project-dir (nrepl-project-directory-for

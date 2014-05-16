@@ -130,22 +130,6 @@ you'd like to use the default Emacs behavior use
   :type 'symbol
   :group 'cider-repl)
 
-(defcustom cider-lein-command
-  (or (executable-find "lein")
-      (executable-find "lein.bat"))
-  "The command used to execute leiningen 2.x."
-  :type 'string
-  :group 'cider-repl)
-
-(defcustom cider-lein-parameters
-  "repl :headless"
-  "The command used to start the nREPL via command `cider-jack-in'.
-For a remote nREPL server lein must be in your PATH.  The remote
-proc is launched via sh rather than bash, so it might be necessary
-to specific the full path to it.  Localhost is assumed."
-  :type 'string
-  :group 'cider-repl)
-
 ;;;; REPL buffer local variables
 (defvar-local cider-repl-input-start-mark nil)
 
