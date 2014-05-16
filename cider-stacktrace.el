@@ -101,7 +101,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
     (define-key map "r" 'cider-stacktrace-toggle-repl)
     (define-key map "t" 'cider-stacktrace-toggle-tooling)
     (define-key map "d" 'cider-stacktrace-toggle-duplicates)
-    (define-key map "a" 'cider-stacktrace-show-all)
+    (define-key map "a" 'cider-stacktrace-toggle-all)
     map))
 
 (easy-menu-define cider-stacktrace-mode-menu cider-stacktrace-mode-map
@@ -112,7 +112,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
     ["Show/hide REPL frames" cider-stacktrace-toggle-repl]
     ["Show/hide tooling frames" cider-stacktrace-toggle-tooling]
     ["Show/hide duplicate frames" cider-stacktrace-toggle-duplicates]
-    ["Show/hide all frames" cider-stacktrace-show-all]))
+    ["Show/hide all frames" cider-stacktrace-toggle-all]))
 
 (define-derived-mode cider-stacktrace-mode fundamental-mode "Stacktrace"
   "Major mode for filtering and navigating CIDER stacktraces
@@ -121,6 +121,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   (setq buffer-read-only t)
   (setq-local truncate-lines t)
   (setq-local electric-indent-functions (list (lambda (x) 'no-indent)))
+  (setq-local cider-stacktrace-prior-filters nil)
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters))
 
@@ -177,11 +178,16 @@ Update `cider-stacktrace-hidden-frame-count' and indicate filters applied."
 
 ;; Interactive functions
 
-(defun cider-stacktrace-show-all ()
-  "Reset `cider-stacktrace-filters', and apply filters."
+(defun cider-stacktrace-toggle-all ()
+  "Reset `cider-stacktrace-filters' if present; otherwise restore prior filters."
   (interactive)
+  (when cider-stacktrace-filters
+    (setq-local cider-stacktrace-prior-filters
+                cider-stacktrace-filters))
   (cider-stacktrace-apply-filters
-   (setq cider-stacktrace-filters nil)))
+   (setq cider-stacktrace-filters
+         (unless cider-stacktrace-filters      ; when current filters are nil,
+           cider-stacktrace-prior-filters))))  ;  reenable prior filter set
 
 (defun cider-stacktrace-toggle (flag)
   "Update `cider-stacktrace-filters' to add or remove FLAG, and apply filters."
@@ -225,7 +231,7 @@ Update `cider-stacktrace-hidden-frame-count' and indicate filters applied."
     (let ((flag (button-get button 'filter)))
       (if flag
           (cider-stacktrace-toggle flag)
-        (cider-stacktrace-show-all)))
+        (cider-stacktrace-toggle-all)))
     (sit-for 5)))
 
 (defun cider-stacktrace-navigate (button)
