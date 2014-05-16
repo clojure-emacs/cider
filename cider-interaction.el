@@ -565,10 +565,12 @@ added as a prefix to the LOCATION."
 
 (defun cider--jump-to-def-op-fn (var)
   "Jump to VAR def by using the nREPL info op."
-  (let* ((var-info (cider-var-info var))
-         (file (cadr (assoc "file" var-info)))
-         (line (cadr (assoc "line" var-info))))
-    (cider-jump-to-def-for (vector file file line))))
+  (let* ((info (cider-var-info var))
+         (file (cadr (assoc "file" info)))
+         (line (cadr (assoc "line" info))))
+    (if (and file line)
+        (cider-jump-to-def-for (vector file file line))
+      (message "Symbol %s not resolved" var))))
 
 (defun cider-jump-to-def (var)
   "Jump to the definition of the VAR at point."
