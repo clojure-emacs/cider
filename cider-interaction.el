@@ -767,7 +767,8 @@ The handler simply inserts the result value in BUFFER."
                                (lambda (buffer value)
                                  (with-current-buffer buffer
                                    (insert (format "\n%s" value))))
-                               '()
+                               (lambda (_buffer value)
+                                 (cider-repl-emit-interactive-output value))
                                (lambda (_buffer err)
                                  (message "%s" err))
                                '()))
