@@ -84,9 +84,9 @@
           (should (equal (cadr (assoc "doc" (cider-var-info "str"))) "stub" ))))
 
 (ert-deftest test-cider-get-var-attr ()
-  (noflet ((cider-var-info (var) '(("doc" "var doc") ("arglists" "var arglists"))))
-          (should (equal (cider-get-var-attr "test" "doc") "var doc"))
-          (should (equal (cider-get-var-attr "test" "arglists") "var arglists"))))
+  (let ((var-info '(("doc" "var doc") ("arglists" "var arglists"))))
+    (should (equal (cider-get-var-attr var-info "doc") "var doc"))
+    (should (equal (cider-get-var-attr var-info "arglists") "var arglists"))))
 
 (defmacro cider-test-with-buffers (buffer-names &rest body)
   (let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))

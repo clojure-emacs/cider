@@ -94,7 +94,17 @@ POS is the index of current argument."
 
 (defun cider-eldoc--arglist-op-fn (thing)
   "Return the arglist for THING using nREPL info op."
-  (cider-get-var-attr thing "arglists"))
+  (let* ((var-info (cider-var-info thing t))
+         (candidates (cdadr (assoc "candidates" var-info))))
+    (if candidates
+        (->> candidates
+          (-map (lambda (x) (cdr (assoc "arglists-str" x))))
+          (-map 'read)
+          -flatten
+          -distinct)
+      (let ((arglists (cider-get-var-attr var-info "arglists-str")))
+        (when arglists
+          (read arglists))))))
 
 (defun cider-eldoc-arglist (thing)
   "Return the arglist for THING."

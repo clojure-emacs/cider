@@ -187,8 +187,11 @@ contain a `candidates' key, it is returned as is."
           (cider--dict-to-alist info))
       var-info)))
 
-(defun cider-var-info (var)
-  "Return VAR's info as an alist with list cdrs."
+(defun cider-var-info (var &optional all)
+  "Return VAR's info as an alist with list cdrs.
+
+When multiple matching vars are returned you'll be prompted to select one,
+unless ALL is truthy."
   (when var
     (let ((val (plist-get (nrepl-send-request-sync
                            (list "op" "info"
@@ -196,8 +199,10 @@ contain a `candidates' key, it is returned as is."
                                  "ns" (cider-current-ns)
                                  "symbol" var))
                           :value)))
-      (cider--var-choice
-       (cider--dict-to-alist val)))))
+      (if all
+          (cider--dict-to-alist val)
+        (cider--var-choice
+         (cider--dict-to-alist val))))))
 
 (defun cider-member-info (class member)
   "Return the CLASS MEMBER's info as an alist with list cdrs."
@@ -210,9 +215,9 @@ contain a `candidates' key, it is returned as is."
                           :value)))
       (cider--dict-to-alist val))))
 
-(defun cider-get-var-attr (var attr)
-  "Return VAR's ATTR."
-  (cadr (assoc attr (cider-var-info var))))
+(defun cider-get-var-attr (var-info attr)
+  "Return VAR-INFO's ATTR."
+  (cadr (assoc attr var-info)))
 
 (provide 'cider-client)
 
