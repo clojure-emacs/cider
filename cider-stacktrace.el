@@ -27,6 +27,7 @@
 
 (require 'button)
 (require 'dash)
+(require 'easymenu)
 
 ;; Variables
 
@@ -94,6 +95,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
 (defvar cider-stacktrace-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-.") 'cider-stacktrace-jump)
+    (define-key map "q" 'cider-popup-buffer-quit-function)
     (define-key map "j" 'cider-stacktrace-toggle-java)
     (define-key map "c" 'cider-stacktrace-toggle-clj)
     (define-key map "r" 'cider-stacktrace-toggle-repl)
@@ -102,13 +104,23 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
     (define-key map "a" 'cider-stacktrace-show-all)
     map))
 
-(define-minor-mode cider-stacktrace-mode
-  "CIDER Stacktrace Buffer Mode."
-  nil
-  (" CIDER Stacktrace")
-  cider-stacktrace-mode-map
+(easy-menu-define cider-stacktrace-mode-menu cider-stacktrace-mode-map
+  "Menu for CIDER's stacktrace mode"
+  '("Stacktrace"
+    ["Show/hide Java frames" cider-stacktrace-toggle-java]
+    ["Show/hide Clojure frames" cider-stacktrace-toggle-clj]
+    ["Show/hide REPL frames" cider-stacktrace-toggle-repl]
+    ["Show/hide tooling frames" cider-stacktrace-toggle-tooling]
+    ["Show/hide duplicate frames" cider-stacktrace-toggle-duplicates]
+    ["Show/hide all frames" cider-stacktrace-show-all]))
+
+(define-derived-mode cider-stacktrace-mode fundamental-mode "Stacktrace"
+  "Major mode for filtering and navigating CIDER stacktraces
+
+\\{cider-stacktrace-mode-map}"
   (setq buffer-read-only t)
   (setq-local truncate-lines t)
+  (setq-local electric-indent-functions (list (lambda (x) 'no-indent)))
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters))
 
@@ -299,6 +311,7 @@ This associates text properties to enable filtering and source navigation."
 (defun cider-stacktrace-render (buffer causes frames)
   "Emit into BUFFER useful stacktrace information for the CAUSES and FRAMES."
   (with-current-buffer buffer
+    (cider-stacktrace-mode)
     (let ((inhibit-read-only t))
       ;; Exceptions
       (cider-stacktrace-render-cause buffer (first causes) "Unhandled")
@@ -320,8 +333,7 @@ This associates text properties to enable filtering and source navigation."
       ;; Stacktrace frames
       (dolist (frame frames)
         (cider-stacktrace-render-frame buffer frame)))
-    ;; Set mode, apply filters, move point to first stacktrace frame.
-    (cider-stacktrace-mode 1)
+    ;; Apply filters, move point to first stacktrace frame, and fontify.
     (cider-stacktrace-apply-filters cider-stacktrace-filters)
     (goto-char (next-single-property-change (point-min) 'flags))
     (font-lock-refresh-defaults)))
