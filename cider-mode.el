@@ -109,7 +109,7 @@
     ["Set ns" cider-repl-set-ns]
     ["Switch to REPL" cider-switch-to-repl-buffer]
     ["Switch to Relevant REPL" cider-switch-to-relevant-repl-buffer]
-    ["Toggle REPL Pretty Print" cider-pretty-toggle]
+    ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
     ["Clear REPL" cider-find-and-clear-repl-buffer]
     ["Interrupt" cider-interrupt]
     ["Quit" cider-quit]
