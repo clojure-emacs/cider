@@ -120,7 +120,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
 \\{cider-stacktrace-mode-map}"
   (setq buffer-read-only t)
   (setq-local truncate-lines t)
-  (setq-local electric-indent-functions (list (lambda (x) 'no-indent)))
+  (setq-local electric-indent-chars nil)
   (setq-local cider-stacktrace-prior-filters nil)
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters))
