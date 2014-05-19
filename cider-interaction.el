@@ -629,8 +629,9 @@ form, with symbol at point replaced by __prefix__."
       (setq cider-completion-last-context context)
       context)))
 
-(defun cider-completion-complete-op-fn (str)
-  "Return a list of completions for STR using the nREPL \"complete\" op."
+(defun cider-complete (str)
+  "Return a list of completions for STR using nREPL's \"complete\" op."
+  (cider-ensure-op-supported "complete")
   (let ((strlst (plist-get
                  (nrepl-send-request-sync
                   (list "op" "complete"
@@ -642,21 +643,13 @@ form, with symbol at point replaced by __prefix__."
     (when strlst
       strlst)))
 
-(defun cider-dispatch-complete-symbol (str)
-  "Return a list of completions for STR.
-Dispatch to the nREPL \"complete\" op if supported,
-otherwise dispatch to internal completion function."
-  (let ((str (substring-no-properties str)))
-    (cider-ensure-op-supported "complete")
-    (cider-completion-complete-op-fn str)))
-
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
   (let ((sap (symbol-at-point)))
     (when (and sap (not (in-string-p)))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
-              (completion-table-dynamic #'cider-dispatch-complete-symbol)
+              (completion-table-dynamic #'cider-complete)
               :company-doc-buffer #'cider-doc-buffer-for
               :company-location #'cider-company-location
               :company-docsig #'cider-company-docsig)))))
