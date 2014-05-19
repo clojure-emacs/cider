@@ -671,22 +671,15 @@ form, with symbol at point replaced by __prefix__."
               (cider-eldoc-format-thing thing)
               arglist))))
 
-;;; JavaDoc Browsing
-
-(defun cider-javadoc-op (symbol-name)
-  "Invoke the nREPL \"info\" op on SYMBOL-NAME and browse to the Javadoc URL."
-  (let* ((info (cider-var-info symbol-name))
-         (url (cadr (assoc "javadoc" info))))
-    (if url
-        (browse-url url)
-      (error "No javadoc available for %s" symbol-name))))
-
 (defun cider-javadoc-handler (symbol-name)
   "Invoke the nREPL \"info\" op on SYMBOL-NAME if available."
   (when symbol-name
-    (if (nrepl-op-supported-p "info")
-        (cider-javadoc-op symbol-name)
-      (message "No Javadoc middleware available"))))
+    (cider-ensure-op-supported "info")
+    (let* ((info (cider-var-info symbol-name))
+           (url (cadr (assoc "javadoc" info))))
+      (if url
+          (browse-url url)
+        (error "No Javadoc available for %s" symbol-name)))))
 
 (defun cider-javadoc (query)
   "Browse Javadoc on the Java symbol QUERY at point."
