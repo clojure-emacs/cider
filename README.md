@@ -63,14 +63,10 @@ README for more details.
 
 `package.el` is the built-in package manager in Emacs.
 
-`CIDER` is available on both major `package.el` community
+`CIDER` is available on two major `package.el` community
 maintained repos -
-[Marmalade](http://marmalade-repo.org/packages/cider) and
+[MELPA Stable](http://melpa-stable.milkbox.net) and
 [MELPA](http://melpa.milkbox.net).
-
-If you're not already using one of them, follow their installation instructions:
-[Marmalade](http://marmalade-repo.org/),
-[MELPA](http://melpa.milkbox.net/#/getting-started).
 
 You can install `CIDER` with the following command:
 
