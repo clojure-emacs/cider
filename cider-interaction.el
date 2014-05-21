@@ -1358,12 +1358,6 @@ under point, prompts for a var."
   (with-current-buffer (find-file-noselect file)
     (substring-no-properties (buffer-string))))
 
-(defun cider-load-file-op (filename)
-  "Send \"load-file\" op for FILENAME."
-  (cider-send-load-file (cider-file-string filename)
-                        (cider--server-filename filename)
-                        (file-name-nondirectory filename)))
-
 (defun cider-load-file (filename)
   "Load the Clojure file FILENAME."
   (interactive (list
@@ -1372,7 +1366,9 @@ under point, prompts for a var."
                                         (file-name-nondirectory
                                          (buffer-file-name))))))
   (remove-overlays (point-min) (point-max) 'cider-note-p t)
-  (cider-load-file-op filename)
+  (cider-send-load-file (cider-file-string filename)
+                        (cider--server-filename filename)
+                        (file-name-nondirectory filename))
   (message "Loading %s..." filename))
 
 (defun cider-load-current-buffer ()
