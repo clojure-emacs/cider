@@ -339,6 +339,39 @@ If BACKWARD is non-nil search backward."
          (goto-char cider-repl-input-start-mark))
         (t (beginning-of-line 1))))
 
+(defun cider-repl-mode-beginning-of-defun (&optional arg)
+  (if (and arg (< arg 0))
+      (cider-repl-mode-end-of-defun (- arg))
+    (dotimes (i (or arg 1))
+      (cider-repl-previous-prompt))))
+
+(defun cider-repl-mode-end-of-defun (&optional arg)
+  (if (and arg (< arg 0))
+      (cider-repl-mode-beginning-of-defun (- arg))
+    (dotimes (i (or arg 1))
+      (cider-repl-next-prompt))))
+
+(defun cider-repl-beginning-of-defun ()
+  "Move to beginning of defun."
+  (interactive)
+  ;; We call `beginning-of-defun' if we're at the start of a prompt
+  ;; already, to trigger `cider-repl-mode-beginning-of-defun' by means
+  ;; of the locally bound `beginning-of-defun-function', in order to
+  ;; jump to the start of the previous prompt.
+  (if (and (not (cider-repl--at-prompt-start-p))
+           (cider-repl--in-input-area-p))
+      (goto-char cider-repl-input-start-mark)
+    (beginning-of-defun)))
+
+(defun cider-repl-end-of-defun ()
+  "Move to end of defun."
+  (interactive)
+  ;; C.f. `cider-repl-beginning-of-defun.'
+  (if (and (not (= (point) (point-max)))
+           (cider-repl--in-input-area-p))
+      (goto-char (point-max))
+    (end-of-defun)))
+
 (defun cider-repl-bol ()
   "Go to the beginning of line or the prompt."
   (interactive)
@@ -1049,6 +1082,11 @@ ENDP) DELIM."
                'cider-complete-at-point)
   (set-syntax-table cider-repl-mode-syntax-table)
   (cider-turn-on-eldoc-mode)
+  ;; At the REPL, we define beginning-of-defun and end-of-defun to be
+  ;; the start of the previous prompt or next prompt respectively.
+  ;; Notice the interplay with `cider-repl-beginning-of-defun'.
+  (setq-local beginning-of-defun-function 'cider-repl-mode-beginning-of-defun)
+  (setq-local end-of-defun-function 'cider-repl-mode-end-of-defun)
   (if (fboundp 'hack-dir-local-variables-non-file-buffer)
       (hack-dir-local-variables-non-file-buffer))
   (when cider-repl-history-file
