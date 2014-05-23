@@ -185,7 +185,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 ;;; and modified to work with utf-8
 (defun nrepl-bdecode-buffer ()
   "Decode a bencoded string in the current buffer starting at point."
-  (cond ((looking-at "i\\([0-9]+\\)e")
+  (cond ((looking-at "i\\(-*[0-9]+\\)e")
          (goto-char (match-end 0))
          (string-to-number (match-string 1)))
         ((looking-at "\\([0-9]+\\):")
