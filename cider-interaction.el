@@ -568,8 +568,10 @@ added as a prefix to the LOCATION."
   (let* ((info (cider-var-info var))
          (file (cadr (assoc "file" info)))
          (line (cadr (assoc "line" info))))
-    (if (and file line)
-        (cider-jump-to-def-for (vector file file line))
+    (if info
+        (if (and file line)
+            (cider-jump-to-def-for (vector file file line))
+          (message "No source available for %s" var))
       (message "Symbol %s not resolved" var))))
 
 (defun cider-jump-to-def (var)
@@ -1291,12 +1293,12 @@ point, prompts for a var."
          (doc     (cadr (assoc "doc" info)))
          (url     (cadr (assoc "url" info)))
          (class   (cadr (assoc "class" info)))
-         (method  (cadr (assoc "method" info)))
+         (member  (cadr (assoc "member" info)))
          (javadoc (cadr (assoc "javadoc" info)))
          (clj-name  (if ns (concat ns "/" name) name))
-         (java-name (if (string= method "<init>")
+         (java-name (if (string= class member)
                         class
-                      (concat class "/" method))))
+                      (concat class "/" member))))
     (when info
       (with-current-buffer (cider-popup-buffer cider-doc-buffer t)
         (let ((inhibit-read-only t))

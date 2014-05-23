@@ -182,7 +182,7 @@ contain a `candidates' key, it is returned as is."
   (let ((candidates (cdadr (assoc "candidates" var-info))))
     (if candidates
         (let* ((classes (mapcar (lambda (x) (cdr (assoc "class" x))) candidates))
-               (choice (completing-read "Method in class: " classes nil t))
+               (choice (completing-read "Member in class: " classes nil t))
                (info (cdr (assoc choice candidates))))
           (cider--dict-to-alist info))
       var-info)))
