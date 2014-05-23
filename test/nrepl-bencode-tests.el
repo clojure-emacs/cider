@@ -6,6 +6,9 @@
 (ert-deftest test-nrepl-decode-integer ()
   (should (equal '(3) (nrepl-decode "i3e"))))
 
+(ert-deftest test-nrepl-decode-negative-integer ()
+  (should (equal '(-3) (nrepl-decode "i-3e"))))
+
 (ert-deftest test-nrepl-bdecode-list ()
   (should (equal '(("spam" "eggs"))
                  (nrepl-decode "l4:spam4:eggse"))))
