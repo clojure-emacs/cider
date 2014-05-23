@@ -119,7 +119,7 @@ start the server."
                                cider-lein-parameters)))
         (when (nrepl-check-for-repl-buffer nil project-dir)
           (let* ((nrepl-project-dir project-dir)
-                 (cmd (format "cd %s && %s %s" (or project ".") cider-lein-command cider-lein-parameters))
+                 (cmd (format "%s %s" cider-lein-command cider-lein-parameters))
                  (default-directory (or project-dir default-directory))
                  (nrepl-buffer-name (generate-new-buffer-name
                                      (nrepl-server-buffer-name)))
@@ -137,7 +137,7 @@ start the server."
             (with-current-buffer (process-buffer process)
               (setq nrepl-project-dir project-dir))
             (message "Starting nREPL server..."))))
-    (message "The lein executable isn't on your exec-path or set absolutely as cider-lein-command")))
+    (message "The %s executable (specified by `cider-lein-command') isn't on your exec-path" cider-lein-command)))
 
 (defun cider-known-endpoint-candidates ()
   "Known endpoint candidates for establishing an nREPL connection.
