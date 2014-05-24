@@ -328,7 +328,8 @@ Remove the processed data from the buffer if the decode successful."
 Assume that any error during decoding indicates an incomplete message."
   (with-current-buffer (process-buffer process)
     (let ((nrepl-connection-dispatch (current-buffer)))
-      (ignore-errors
+      ;; TODO: Implement fine-grained error handling
+      (with-demoted-errors
         (while (> (buffer-size) 1)
           (let ((responses (nrepl-net-decode)))
             (dolist (response responses)
