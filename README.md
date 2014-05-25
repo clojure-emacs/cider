@@ -249,7 +249,7 @@ Buffer name will look like *cider-repl project-name:port*.
 * Change the result prefix for REPL evaluation (by default there's no prefix):
 
 ```el
-(set cider-repl-result-prefix ";; => ")
+(setq cider-repl-result-prefix ";; => ")
 ```
 
 And here's the result of that change:
@@ -262,7 +262,7 @@ user> (+ 1 2)
 * Change the result prefix for interactive evaluation (by default it's `=> `):
 
 ```el
-(set cider-interactive-eval-result-prefix ";; => ")
+(setq cider-interactive-eval-result-prefix ";; => ")
 ```
 
 To remove the prefix altogether just set it to an empty string(`""`).
