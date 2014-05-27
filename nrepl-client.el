@@ -305,7 +305,7 @@ Handles message contained in RESPONSE."
 First we check the list of pending requests for the callback to invoke
 and afterwards we check the completed requests as well, since responses
 could be received even for requests with status \"done\"."
-  (nrepl-log-event response)
+  (nrepl-log-message response)
   (nrepl-dbind-response response (id)
     (let ((callback (or (gethash id nrepl-pending-requests)
                         (gethash id nrepl-completed-requests))))
@@ -359,57 +359,63 @@ process buffer and run the hook `nrepl-disconnected-hook'."
   "Send the PROCESS the MESSAGE."
   (process-send-string process message))
 
-;;; Log nREPL events
+;;; Log nREPL messages
 
-(defcustom nrepl-log-events nil
-  "Log protocol events to the *nrepl-events* buffer."
+(defconst nrepl-message-buffer-name "*nrepl-messages*"
+  "Buffer for nREPL message logging.")
+
+(defcustom nrepl-log-messages nil
+  "Log protocol messages to the `nrepl-message-buffer-name' buffer."
   :type 'boolean
   :group 'nrepl)
 
-(defconst nrepl-event-buffer-name "*nrepl-events*"
-  "Event buffer for nREPL message logging.")
+(define-obsolete-variable-alias 'nrepl-log-events 'nrepl-log-messages "0.7.0")
 
-(defconst nrepl-event-buffer-max-size 50000
-  "Maximum size for the nREPL event buffer.
+(defconst nrepl-message-buffer-max-size 50000
+  "Maximum size for the nREPL message buffer.
 Defaults to 50000 characters, which should be an insignificant
 memory burdon, while providing reasonable history.")
 
-(defconst nrepl-event-buffer-reduce-denominator 4
-  "Divisor by which to reduce event buffer size.
-When the maximum size for the nREPL event buffer is exceed, the
+(defconst nrepl-message-buffer-reduce-denominator 4
+  "Divisor by which to reduce message buffer size.
+When the maximum size for the nREPL message buffer is exceed, the
 size of the buffer is reduced by one over this value.  Defaults
 to 4, so that 1/4 of the buffer is removed, which should ensure
 the buffer's maximum is reasonably utilised, while limiting the
 number of buffer shrinking operations.")
 
-(defun nrepl-log-event (msg)
-  "Log the given MSG to the buffer given by `nrepl-event-buffer-name'.
-The default buffer name is *nrepl-events*."
-  (when nrepl-log-events
-    (with-current-buffer (nrepl-events-buffer)
-      (when (> (buffer-size) nrepl-event-buffer-max-size)
-        (goto-char (/ (buffer-size) nrepl-event-buffer-reduce-denominator))
+(defun nrepl-log-message (msg)
+  "Log the given MSG to the buffer given by `nrepl-message-buffer-name'."
+  (when nrepl-log-messages
+    (with-current-buffer (nrepl-messages-buffer)
+      (when (> (buffer-size) nrepl-message-buffer-max-size)
+        (goto-char (/ (buffer-size) nrepl-message-buffer-reduce-denominator))
         (re-search-forward "^(" nil t)
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
       (pp msg (current-buffer)))))
 
-(defun nrepl-events-buffer ()
-  "Return or create the buffer given by `nrepl-event-buffer-name'.
-The default buffer name is *nrepl-events*."
-  (or (get-buffer nrepl-event-buffer-name)
-      (let ((buffer (get-buffer-create nrepl-event-buffer-name)))
+(defun nrepl-messages-buffer ()
+  "Return or create the buffer given by `nrepl-message-buffer-name'.
+The default buffer name is *nrepl-messages*."
+  (or (get-buffer nrepl-message-buffer-name)
+      (let ((buffer (get-buffer-create nrepl-message-buffer-name)))
         (with-current-buffer buffer
           (buffer-disable-undo)
           (setq-local comment-start ";")
           (setq-local comment-end ""))
         buffer)))
 
-(defun nrepl-log-events (&optional disable)
-  "Turn on event logging to *nrepl-events*.
+(defun nrepl-log-messages (&optional disable)
+  "Turn on message logging to `nrepl-message-buffer-name'.
 With a prefix argument DISABLE, turn it off."
   (interactive "P")
-  (setq nrepl-log-events (not disable)))
+  (if disable
+      (message "nREPL message logging disabled")
+    (message "nREPL message logging enabled"))
+  (setq nrepl-log-messages (not disable)))
+
+(define-obsolete-function-alias 'nrepl-log-events 'nrepl-log-messages "0.7.0")
 
 
 ;;; Connections
@@ -637,7 +643,7 @@ Refreshes EWOC."
   (let* ((request-id (nrepl-next-request-id))
          (request (append (list "id" request-id) request))
          (message (nrepl-bencode request)))
-    (nrepl-log-event request)
+    (nrepl-log-message request)
     (puthash request-id callback nrepl-pending-requests)
     (nrepl-write-message (nrepl-current-connection-buffer) message)))
 

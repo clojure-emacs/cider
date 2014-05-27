@@ -8,6 +8,9 @@
 
 * `cider-nrepl` is now required. Without it pretty much nothing will work.
 * Removed redundant command `cider-src`.
+* Renamed `nrepl-log-events` variable to `nrepl-log-messages`.
+* Renamed `nrepl-log-events` command to `nrepl-log-messages`.
+
 
 ## 0.6.0 / 2014-04-24
 

@@ -142,9 +142,9 @@ is chosen.  The returned buffer is selected with
   (nrepl-connection-browser)
   nrepl--connection-browser-buffer-name)
 
-(def-cider-selector-method ?v
-  "*nrepl-events* buffer."
-  nrepl-event-buffer-name)
+(def-cider-selector-method ?m
+  "*nrepl-messages* buffer."
+  nrepl-message-buffer-name)
 
 (def-cider-selector-method ?s
  "Cycle to the next CIDER connection's REPL."
