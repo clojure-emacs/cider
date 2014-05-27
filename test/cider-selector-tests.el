@@ -47,11 +47,11 @@
           (cider-invoke-selector-method-by-key ?e)
           (should (equal (current-buffer) b1)))))))
 
-(ert-deftest test-cider-selector-v ()
+(ert-deftest test-cider-selector-m ()
   (with-temp-buffer
-    (rename-buffer "*nrepl-events*")
+    (rename-buffer "*nrepl-messages*")
     (let ((b1 (current-buffer)))
       (with-temp-buffer
         (should (not (equal (current-buffer) b1)))
-        (cider-invoke-selector-method-by-key ?v)
+        (cider-invoke-selector-method-by-key ?m)
         (should (equal (current-buffer) b1))))))

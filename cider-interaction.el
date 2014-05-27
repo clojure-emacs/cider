@@ -1400,7 +1400,7 @@ under point, prompts for a var."
 (defvar cider-ancilliary-buffers
   (list cider-error-buffer
         cider-doc-buffer
-        nrepl-event-buffer-name))
+        nrepl-message-buffer-name))
 
 (defun cider-close-ancilliary-buffers ()
   "Close buffers that are shared across connections."
