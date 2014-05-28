@@ -959,7 +959,7 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
 (defun nrepl-connect (host port &optional no-repl-p)
   "Connect to a running nREPL server running on HOST and PORT.
 When NO-REPL-P is truthy, suppress creation of a REPL buffer."
-  (message "Connecting to nREPL on %s:%s..." host port)
+  (message "Connecting to nREPL server on %s:%s..." host port)
   (let* ((nrepl-endpoint `(,host ,port))
          (process (open-network-stream "nrepl"
                                        (nrepl-make-connection-buffer) host
