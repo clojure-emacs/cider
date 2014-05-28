@@ -962,7 +962,8 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
   (message "Connecting to nREPL server on %s:%s..." host port)
   (let* ((nrepl-endpoint `(,host ,port))
          (process (open-network-stream "nrepl"
-                                       (nrepl-make-connection-buffer) host
+                                       (nrepl-make-connection-buffer)
+                                       host
                                        port)))
     (set-process-filter process 'nrepl-net-filter)
     (set-process-sentinel process 'nrepl-sentinel)
