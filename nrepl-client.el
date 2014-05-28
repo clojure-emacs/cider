@@ -371,10 +371,10 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 
 (define-obsolete-variable-alias 'nrepl-log-events 'nrepl-log-messages "0.7.0")
 
-(defconst nrepl-message-buffer-max-size 50000
+(defconst nrepl-message-buffer-max-size 1000000
   "Maximum size for the nREPL message buffer.
-Defaults to 50000 characters, which should be an insignificant
-memory burdon, while providing reasonable history.")
+Defaults to 1000000 characters, which should be an insignificant
+memory burden, while providing reasonable history.")
 
 (defconst nrepl-message-buffer-reduce-denominator 4
   "Divisor by which to reduce message buffer size.
