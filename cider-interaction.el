@@ -33,6 +33,7 @@
 (require 'cider-client)
 (require 'cider-util)
 (require 'cider-stacktrace)
+(require 'cider-doc)
 
 (require 'clojure-mode)
 (require 'dash)
@@ -1279,69 +1280,13 @@ point, prompts for a var."
       (cider-interactive-eval-handler (current-buffer))))
    query))
 
-(defun cider-doc-buffer-for (symbol)
-  "Return buffer with documentation for SYMBOL."
-  (let* ((info    (cider-var-info symbol))
-         (ns      (cadr (assoc "ns" info)))
-         (name    (cadr (assoc "name" info)))
-         (added   (cadr (assoc "added" info)))
-         (depr    (cadr (assoc "deprecated" info)))
-         (macro   (cadr (assoc "macro" info)))
-         (special (cadr (assoc "special-form" info)))
-         (forms   (cadr (assoc "forms-str" info)))
-         (args    (cadr (assoc "arglists-str" info)))
-         (doc     (cadr (assoc "doc" info)))
-         (url     (cadr (assoc "url" info)))
-         (class   (cadr (assoc "class" info)))
-         (member  (cadr (assoc "member" info)))
-         (javadoc (cadr (assoc "javadoc" info)))
-         (clj-name  (if ns (concat ns "/" name) name))
-         (java-name (if (string= class member)
-                        class
-                      (concat class "/" member))))
-    (when info
-      (with-current-buffer (cider-popup-buffer cider-doc-buffer t)
-        (let ((inhibit-read-only t))
-          (cl-flet ((emit (text &optional face)
-                      (insert (if face
-                                  (propertize text 'font-lock-face face)
-                                text))
-                      (newline)))
-            (emit (or clj-name java-name) 'font-lock-function-name-face)
-            (when (or forms args)
-              (emit (cider-font-lock-as-clojure (or forms args))))
-            (when (or special macro)
-              (emit (if special "Special Form" "Macro") 'font-lock-comment-face))
-            (when added
-              (emit (concat "Added in " added) 'font-lock-comment-face))
-            (when depr
-              (emit (concat "Deprecated in " depr) 'font-lock-comment-face))
-            (when doc
-              (emit (concat "  " doc)))
-            (when (or url javadoc)
-              (newline)
-              (insert (if url "  Please see " "  For documentation, please see "))
-              (insert-text-button (or url "Javadoc")
-                                  'url (or url javadoc)
-                                  'follow-link t
-                                  'action (lambda (x)
-                                            (browse-url (button-get x 'url))))
-              (newline))
-            (let ((beg (point-min))
-                  (end (point-max)))
-              (dolist (x info)
-                (put-text-property beg end (car x) (cadr x)))))
-          (current-buffer))))))
-
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
-  (let ((buffer (cider-doc-buffer-for symbol)))
-    (when buffer
-      (with-current-buffer buffer
-        (setq buffer-read-only t)
-        (goto-char (point-min))
-        (cider-mode 1)
-        (cider-popup-buffer-display (current-buffer) t)))))
+  (let ((info (cider-var-info symbol)))
+    (if info
+        (let ((buffer (cider-popup-buffer cider-doc-buffer t)))
+          (cider-doc-render buffer symbol info))
+      (message "Symbol %s not resolved" symbol))))
 
 (defun cider-doc (query)
   "Open a window with the docstring for the given QUERY.

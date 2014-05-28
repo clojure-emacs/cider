@@ -63,13 +63,25 @@ buffer-local wherever it is set."
    (lambda (buffer) (with-current-buffer buffer (derived-mode-p 'clojure-mode)))
    (buffer-list)))
 
-(defun cider-font-lock-as-clojure (string)
-  "Font-lock STRING as Clojure code."
+(defun cider-font-lock-as (mode string)
+  "Use MODE to font-lock the STRING."
   (with-temp-buffer
     (insert string)
-    (clojure-mode)
+    (funcall mode)
     (font-lock-fontify-buffer)
     (buffer-string)))
+
+(defun cider-font-lock-region-as (mode beg end &optional buffer)
+  "Use MODE to font-lock text between BEG and END."
+  (with-current-buffer (or buffer (current-buffer))
+    (let ((text (buffer-substring beg end)))
+      (delete-region beg end)
+      (goto-char beg)
+      (insert (cider-font-lock-as mode text)))))
+
+(defun cider-font-lock-as-clojure (string)
+  "Font-lock STRING as Clojure code."
+  (cider-font-lock-as 'clojure-mode string))
 
 (defun cider-format-pprint-eval (form)
   "Return a string of Clojure code that will eval and pretty-print FORM."
