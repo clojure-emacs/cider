@@ -223,7 +223,8 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
          ;; as a sentinel value and check for equality.
          :end)
         (t
-         (error "Cannot decode object: %d" (point)))))
+         (error "Cannot decode message: \"%s\""
+                (buffer-substring-no-properties (point) (point-max))))))
 
 (defun nrepl-decode (str)
   "Decode bencoded STR."
