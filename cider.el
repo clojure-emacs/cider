@@ -91,6 +91,7 @@ This variable is used by the CIDER command."
   :type 'list
   :group 'cider)
 
+;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-present-p ()
   "Check if `cider-lein-command' is on the `exec-path'.
 
