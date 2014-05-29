@@ -48,13 +48,13 @@
     (define-key map [backtab] 'cider-inspector-previous-inspectable-object) ; to BACKTAB on X.
     map))
 
-(define-minor-mode cider-inspector-buffer-mode
-  "CIDER Inspector Buffer Mode."
-  nil
-  (" CIDER Inspector")
-  cider-inspector-mode-map
+(define-derived-mode cider-inspector-mode fundamental-mode "Inspector"
+  "Major mode for inspecting Clojure data structures.
+
+\\{cider-inspector-mode-map}"
   (set-syntax-table clojure-mode-syntax-table)
   (setq buffer-read-only t)
+  (setq-local electric-indent-chars nil)
   (setq-local truncate-lines t))
 
 ;;;###autoload
@@ -113,7 +113,7 @@ positions before and after executing BODY."
 ;; Render Inspector from Structured Values
 (defun cider-irender (buffer str)
   (with-current-buffer buffer
-    (cider-inspector-buffer-mode 1)
+    (cider-inspector-mode)
     (let ((inhibit-read-only t))
       (condition-case nil
           (cider-irender* (car (read-from-string str)))
