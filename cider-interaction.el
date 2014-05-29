@@ -433,9 +433,9 @@ With a PREFIX argument, print the result in the current buffer."
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
   (let ((str (or (thing-at-point 'symbol t) "")))
-    (and str
-         (not (equal str (concat (cider-find-ns) "> ")))
-         (not (equal str "")))))
+    (if (equal str (concat (cider-find-ns) "> "))
+        ""
+      str)))
 
 (defun cider-sexp-at-point ()
   "Return the sexp at point as a string, otherwise nil."
