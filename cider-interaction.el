@@ -429,13 +429,13 @@ With a PREFIX argument, print the result in the current buffer."
              (bounds-of-thing-at-point 'sexp)))
       (bounds-of-thing-at-point 'sexp)))
 
+;; FIXME: This doesn't have properly at the beginning of the REPL prompt
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
-  (let ((str (substring-no-properties (or (thing-at-point 'symbol) ""))))
+  (let ((str (or (thing-at-point 'symbol t) "")))
     (and str
          (not (equal str (concat (cider-find-ns) "> ")))
-         (not (equal str ""))
-         (substring-no-properties str))))
+         (not (equal str "")))))
 
 (defun cider-sexp-at-point ()
   "Return the sexp at point as a string, otherwise nil."
