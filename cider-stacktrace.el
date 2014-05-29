@@ -115,7 +115,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
     ["Show/hide all frames" cider-stacktrace-toggle-all]))
 
 (define-derived-mode cider-stacktrace-mode fundamental-mode "Stacktrace"
-  "Major mode for filtering and navigating CIDER stacktraces
+  "Major mode for filtering and navigating CIDER stacktraces.
 
 \\{cider-stacktrace-mode-map}"
   (setq buffer-read-only t)
@@ -129,10 +129,12 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
 ;; Stacktrace filtering
 
 (defun cider-stacktrace-indicate-filters (filters)
-  "Update enabled state of filter buttons. Find buttons with a 'filter property;
-if filter is a member of FILTERS, or if filter is nil ('show all') and the
-argument list is non-nil, fontify the button as disabled. Upon finding text with
-a 'hidden-count property, stop searching and update the hidden count text."
+  "Update enabled state of filter buttons.
+
+Find buttons with a 'filter property; if filter is a member of FILTERS, or
+if filter is nil ('show all') and the argument list is non-nil, fontify the
+button as disabled.  Upon finding text with a 'hidden-count property, stop
+searching and update the hidden count text."
   (with-current-buffer (get-buffer cider-error-buffer)
     (save-excursion
       (goto-char (point-min))
