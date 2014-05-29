@@ -925,31 +925,28 @@ If so ask the user for confirmation."
 
 (defun nrepl-new-tooling-session-handler (process)
   "Create a new tooling session handler for PROCESS."
-  (let ((process process))
-    (lambda (response)
-      (nrepl-dbind-response response (id new-session)
-        (cond (new-session
-               (with-current-buffer (process-buffer process)
-                 (setq nrepl-tooling-session new-session)
-                 (remhash id nrepl-pending-requests)
-                 (nrepl-setup-default-namespaces process))))))))
+  (lambda (response)
+    (nrepl-dbind-response response (id new-session)
+      (cond (new-session
+             (with-current-buffer (process-buffer process)
+               (setq nrepl-tooling-session new-session)
+               (remhash id nrepl-pending-requests)
+               (nrepl-setup-default-namespaces process)))))))
 
 (defun nrepl-new-session-handler (process no-repl-p)
   "Create a new session handler for PROCESS.
 When NO-REPL-P is truthy, suppress creation of a REPL buffer."
-  (let ((process process)
-                (no-repl-p no-repl-p))
-    (lambda (response)
-      (nrepl-dbind-response response (id new-session)
-        (remhash id nrepl-pending-requests)
-        (cond (new-session
-               (let ((connection-buffer (process-buffer process)))
-                 (setq nrepl-session new-session
-                       nrepl-connection-buffer connection-buffer)
-                 (unless no-repl-p
-                   (cider-make-repl process)
-                   (nrepl-make-repl-connection-default connection-buffer))
-                 (run-hooks 'nrepl-connected-hook))))))))
+  (lambda (response)
+    (nrepl-dbind-response response (id new-session)
+      (remhash id nrepl-pending-requests)
+      (cond (new-session
+             (let ((connection-buffer (process-buffer process)))
+               (setq nrepl-session new-session
+                     nrepl-connection-buffer connection-buffer)
+               (unless no-repl-p
+                 (cider-make-repl process)
+                 (nrepl-make-repl-connection-default connection-buffer))
+               (run-hooks 'nrepl-connected-hook)))))))
 
 (defun nrepl-init-client-sessions (process no-repl-p)
   "Initialize client sessions for PROCESS.
