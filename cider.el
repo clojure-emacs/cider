@@ -96,9 +96,9 @@ This variable is used by the CIDER command."
   "Check if `cider-lein-command' is on the `exec-path'.
 
 In case `default-directory' is non-local we assume the command is available."
-  ((or (file-remote-p default-directory)
-       (executable-find cider-lein-command)
-       (executable-find (concat cider-lein-command ".bat")))))
+  (or (file-remote-p default-directory)
+      (executable-find cider-lein-command)
+      (executable-find (concat cider-lein-command ".bat"))))
 
 ;;;###autoload
 (defun cider-version ()
