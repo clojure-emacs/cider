@@ -880,30 +880,32 @@ See `compilation-error-regexp-alist' for help on their format.")
 
 (defun cider-highlight-compilation-errors (buffer message)
   "Highlight compilation error line in BUFFER, using MESSAGE."
-  (with-current-buffer buffer
-    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
-      (when info
-        (let ((file (nth 0 info))
-              (line (nth 1 info))
-              (col (nth 2 info))
-              (face (nth 3 info))
-              (note (nth 4 info)))
-          (save-excursion
-            ;; when we don't have a filename the line number
-            ;; is relative to form start
-            (if file
-                (goto-char (point-min)) ; start of file
-              (beginning-of-defun))
-            (forward-line (1- line))
-            ;; if have column, highlight sexp at that point otherwise whole line.
-            (move-to-column (or col 0))
-            (let ((begin (progn (if col (backward-up-list) (back-to-indentation)) (point)))
-                  (end (progn (if col (forward-sexp) (move-end-of-line nil)) (point))))
-              (let ((overlay (make-overlay begin end)))
-                (overlay-put overlay 'cider-note-p t)
-                (overlay-put overlay 'face face)
-                (overlay-put overlay 'cider-note note)
-                (overlay-put overlay 'help-echo note)))))))))
+  (condition-case nil
+      (message "Failed to highlight source for %s" message)
+    (with-current-buffer buffer
+      (let ((info (cider-extract-error-info cider-compilation-regexp message)))
+        (when info
+          (let ((file (nth 0 info))
+                (line (nth 1 info))
+                (col (nth 2 info))
+                (face (nth 3 info))
+                (note (nth 4 info)))
+            (save-excursion
+              ;; when we don't have a filename the line number
+              ;; is relative to form start
+              (if file
+                  (goto-char (point-min)) ; start of file
+                (beginning-of-defun))
+              (forward-line (1- line))
+              ;; if have column, highlight sexp at that point otherwise whole line.
+              (move-to-column (or col 0))
+              (let ((begin (progn (if col (backward-up-list) (back-to-indentation)) (point)))
+                    (end (progn (if col (forward-sexp) (move-end-of-line nil)) (point))))
+                (let ((overlay (make-overlay begin end)))
+                  (overlay-put overlay 'cider-note-p t)
+                  (overlay-put overlay 'face face)
+                  (overlay-put overlay 'cider-note note)
+                  (overlay-put overlay 'help-echo note))))))))))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
