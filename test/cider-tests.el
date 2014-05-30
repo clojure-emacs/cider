@@ -61,8 +61,8 @@
            (cider--java-version () "1.7")
            (cider--clojure-version () "1.5.1")
            (cider--nrepl-version () "0.2.1"))
-          (let ((cider-version "0.5.1"))
-              (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+    (let ((cider-version "0.5.1"))
+      (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-var-info ()
   (noflet ((nrepl-send-request-sync (list)
@@ -81,7 +81,7 @@
                                       :done t))
            (nrepl-current-session () nil)
            (cider-current-ns () "user"))
-          (should (equal (cadr (assoc "doc" (cider-var-info "str"))) "stub" ))))
+    (should (equal (cadr (assoc "doc" (cider-var-info "str"))) "stub" ))))
 
 (ert-deftest test-cider-get-var-attr ()
   (let ((var-info '(("doc" "var doc") ("arglists" "var arglists"))))
@@ -134,34 +134,34 @@
        (noflet ((cider--java-version () "")
                 (cider--clojure-version () "")
                 (cider--nrepl-version () ""))
-               (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
-               (cider-rotate-connection)
-               (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
-               (cider-rotate-connection)
-               (should (equal (buffer-name c) (nrepl-current-connection-buffer)))
-               (cider-rotate-connection)
-               (should (equal (buffer-name a) (nrepl-current-connection-buffer))))))))
+         (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
+         (cider-rotate-connection)
+         (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
+         (cider-rotate-connection)
+         (should (equal (buffer-name c) (nrepl-current-connection-buffer)))
+         (cider-rotate-connection)
+         (should (equal (buffer-name a) (nrepl-current-connection-buffer))))))))
 
 (ert-deftest test-cider--current-connection-info ()
   (with-temp-buffer
     (noflet ((cider--java-version () "1.7")
              (cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
-            (setq-local nrepl-endpoint '("localhost" 4005))
-            (setq-local nrepl-project-dir "proj")
-            (setq-local nrepl-buffer-ns "somens")
-            (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                             "Active nREPL connection: proj:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+      (setq-local nrepl-endpoint '("localhost" 4005))
+      (setq-local nrepl-project-dir "proj")
+      (setq-local nrepl-buffer-ns "somens")
+      (should (string= (cider--connection-info (buffer-name (current-buffer)))
+                       "Active nREPL connection: proj:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-current-connection-info-no-project ()
   (with-temp-buffer
     (noflet ((cider--java-version () "1.7")
              (cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
-            (setq-local nrepl-endpoint '("localhost" 4005))
-            (setq-local nrepl-buffer-ns "somens")
-            (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                             "Active nREPL connection: <no project>:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+      (setq-local nrepl-endpoint '("localhost" 4005))
+      (setq-local nrepl-buffer-ns "somens")
+      (should (string= (cider--connection-info (buffer-name (current-buffer)))
+                       "Active nREPL connection: <no project>:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-close ()
   (let ((connections (nrepl-connection-buffers)))
@@ -332,7 +332,7 @@
 
 (ert-deftest test-cider-switch-to-relevant-repl-buffer ()
   (noflet ((nrepl-project-directory-for (dontcare)
-             nrepl-project-dir))
+                                        nrepl-project-dir))
     (let* ((b1 (generate-new-buffer "temp"))
            (b2 (generate-new-buffer "temp"))
            (b3 (generate-new-buffer "temp"))
@@ -382,7 +382,7 @@
 
 (ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-project-dir ()
   (noflet ((nrepl-project-directory-for (dontcare)
-             nrepl-project-dir))
+                                        nrepl-project-dir))
     (let* ((b1 (generate-new-buffer "temp"))
            (b2 (generate-new-buffer "temp"))
            (b1-repl (generate-new-buffer "temp"))
@@ -406,7 +406,7 @@
 
 (ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-if-two-projects ()
   (noflet ((nrepl-project-directory-for (dontcare)
-             nrepl-project-dir))
+                                        nrepl-project-dir))
     (let* ((b1 (generate-new-buffer "temp"))
            (b2 (generate-new-buffer "temp"))
            (b3 (generate-new-buffer "temp"))
@@ -454,7 +454,7 @@
 (ert-deftest test-cider-select-known-endpoint-remove-label ()
   (noflet ((cider-known-endpoint-candidates () '())
            (completing-read (dontcare dontcare) "label host port"))
-      (should (equal '("host" "port") (cider-select-known-endpoint)))))
+    (should (equal '("host" "port") (cider-select-known-endpoint)))))
 
 (ert-deftest test-cider-change-buffers-designation ()
   (with-temp-buffer
@@ -485,20 +485,20 @@
             (rename-buffer "*cider-repl bob*") ;; Make a buffer that already has the designation
             (with-temp-buffer
               (let* ((repl-buffer (current-buffer))
-                    (before-repl-buffer-name (buffer-name repl-buffer))
-                    (before-connection-buffer-name (buffer-name connection-buffer))
-                    (before-server-buffer-name (buffer-name server-buffer)))
+                     (before-repl-buffer-name (buffer-name repl-buffer))
+                     (before-connection-buffer-name (buffer-name connection-buffer))
+                     (before-server-buffer-name (buffer-name server-buffer)))
 
                 (with-current-buffer connection-buffer
                   (setq-local nrepl-repl-buffer (buffer-name repl-buffer))
                   (setq-local nrepl-server-buffer (buffer-name server-buffer)))
 
                 (noflet ((read-string (dontcare) "bob"))
-                        (should-error
-                         (cider-change-buffers-designation))
-                        (should (equal before-repl-buffer-name (buffer-name repl-buffer)))
-                        (should (equal before-connection-buffer-name (buffer-name connection-buffer)))
-                        (should (equal before-server-buffer-name (buffer-name server-buffer))))))))))))
+                  (should-error
+                   (cider-change-buffers-designation))
+                  (should (equal before-repl-buffer-name (buffer-name repl-buffer)))
+                  (should (equal before-connection-buffer-name (buffer-name connection-buffer)))
+                  (should (equal before-server-buffer-name (buffer-name server-buffer))))))))))))
 
 (ert-deftest cider-extract-designation-from-current-repl-buffer ()
   (with-temp-buffer
@@ -512,7 +512,7 @@
               (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))
             (should (equal "bob" (cider-extract-designation-from-current-repl-buffer)))))))))
 
-(ert-deftest cider-extract-designation-from-current-repl-buffer-no-designation()
+(ert-deftest cider-extract-designation-from-current-repl-buffer-no-designation ()
   (with-temp-buffer
     (let* ((connection-buffer (current-buffer))
            (nrepl-connection-list (list (buffer-name connection-buffer))))
