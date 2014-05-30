@@ -432,7 +432,7 @@ With a PREFIX argument, print the result in the current buffer."
 ;; FIXME: This doesn't have properly at the beginning of the REPL prompt
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
-  (let ((str (or (substring-no-properties (thing-at-point 'symbol)) "")))
+  (let ((str (substring-no-properties (or (thing-at-point 'symbol) ""))))
     (if (equal str (concat (cider-find-ns) "> "))
         ""
       str)))
