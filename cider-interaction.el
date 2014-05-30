@@ -653,7 +653,7 @@ form, with symbol at point replaced by __prefix__."
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
               (completion-table-dynamic #'cider-complete)
-              :company-doc-buffer #'cider-doc-buffer-for
+              :company-doc-buffer #'cider-create-doc-buffer
               :company-location #'cider-company-location
               :company-docsig #'cider-company-docsig)))))
 
@@ -1280,13 +1280,16 @@ point, prompts for a var."
       (cider-interactive-eval-handler (current-buffer))))
    query))
 
+(defun cider-create-doc-buffer (symbol)
+  "Populates *cider-doc* with the documentation for SYMBOL."
+  (-when-let (info (cider-var-info symbol))
+    (cider-doc-render (cider-make-popup-buffer cider-doc-buffer) symbol info)))
+
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
-  (let ((info (cider-var-info symbol)))
-    (if info
-        (let ((buffer (cider-popup-buffer cider-doc-buffer t)))
-          (cider-doc-render buffer symbol info))
-      (message "Symbol %s not resolved" symbol))))
+  (-if-let (buffer (cider-create-doc-buffer symbol))
+      (cider-popup-buffer-display buffer t)
+    (message "Symbol %s not resolved" symbol)))
 
 (defun cider-doc (query)
   "Open a window with the docstring for the given QUERY.
