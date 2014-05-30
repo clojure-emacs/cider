@@ -523,3 +523,13 @@
             (with-current-buffer connection-buffer
               (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))
             (should (equal "<no designation>" (cider-extract-designation-from-current-repl-buffer)))))))))
+
+
+(ert-deftest cider-symbol-at-point-no-symbol ()
+  (noflet ((thing-at-point (thing) nil))
+    (should (string= (cider-symbol-at-point) ""))))
+
+(ert-deftest cider-symbol-at-point-at-repl-prompt ()
+  (noflet ((thing-at-point (thing) "user> ")
+           (cider-find-ns () "user"))
+    (should (string= (cider-symbol-at-point) ""))))
