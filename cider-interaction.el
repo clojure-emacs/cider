@@ -532,18 +532,19 @@ Uses `find-file'."
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
          (let* ((jar (match-string 2 resource))
                 (path (match-string 3 resource))
-                (buffer-already-open (get-buffer (file-name-nondirectory jar))))
-           (cider-find-file jar)
-           (goto-char (point-min))
-           ;; Make sure the file path is followed by a newline to
-           ;; prevent eg. clj matching cljs.
-           (search-forward (concat path "\n"))
-           ;; moves up to matching line
-           (forward-line -1)
-           (let ((opened-buffer (current-buffer)))
-             (archive-extract)
-             (unless buffer-already-open
-               (kill-buffer opened-buffer)))))
+                (file (cider-emacs-or-clojure-side-adjustment jar))
+                (name (format "%s:%s" jar path)))
+           (switch-to-buffer
+            (or (get-file-buffer name)
+                (with-current-buffer (generate-new-buffer
+                                      (file-name-nondirectory path))
+                  (archive-zip-extract file path)
+                  (set-visited-file-name name)
+                  (setq-local default-directory (file-name-directory file))
+                  (setq-local buffer-read-only t)
+                  (set-buffer-modified-p nil)
+                  (set-auto-mode)
+                  (current-buffer))))))
         (t (error "Unknown resource path %s" resource))))
 
 (defun cider-jump-to-def-for (location)
