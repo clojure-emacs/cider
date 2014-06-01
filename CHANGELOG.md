@@ -2,6 +2,12 @@
 
 ## master
 
+* [#537](https://github.com/clojure-emacs/cider/pull/537) New support for
+Java symbol lookup from cider-nrepl's info middleware.
+* [#570](https://github.com/clojure-emacs/cider/pull/570) Enable toggling
+of the 'all' filter on stacktraces.
+* [#588](https://github.com/clojure-emacs/cider/pull/588) New `doc-mode`
+for presenting fontified documentation, including Javadoc.
 * New interactive command `cider-toggle-trace`.
 
 ### Changes
@@ -10,7 +16,13 @@
 * Removed redundant command `cider-src`.
 * Renamed `nrepl-log-events` variable to `nrepl-log-messages`.
 * Renamed `nrepl-log-events` command to `nrepl-log-messages`.
-
+* Remove redundant cider-src command.
+* [#577](https://github.com/clojure-emacs/cider/pull/577) Fix bencode decoding
+of negative integers.
+* [#582](https://github.com/clojure-emacs/cider/pull/582) Enable efficient
+loading of jar/zip resources.
+* [#589](https://github.com/clojure-emacs/cider/pull/589) Don't prefer local
+paths over tramp by default.
 
 ## 0.6.0 / 2014-04-24
 

@@ -169,6 +169,12 @@ following snippet:
 (setq cider-repl-tab-command 'indent-for-tab-command)
 ```
 
+* To prefer local resources to remote (tramp) ones when both are available:
+
+```el
+(setq cider-prefer-local-resources t)
+```
+
 * Prevent the auto-display of the REPL buffer in a separate window
   after connection is established:
 
