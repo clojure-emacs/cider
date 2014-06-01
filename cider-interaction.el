@@ -50,8 +50,11 @@
 (defconst cider-doc-buffer "*cider-doc*")
 (defconst cider-result-buffer "*cider-result*")
 
-(defcustom cider-use-local-resources t
-  "Use local resources under HOME if possible."
+(define-obsolete-variable-alias 'cider-use-local-resources
+  'cider-prefer-local-resources "0.7.0")
+
+(defcustom cider-prefer-local-resources nil
+  "Prefer local resources to remote (tramp) ones when both are available."
   :type 'boolean
   :group 'cider)
 
@@ -491,30 +494,16 @@ otherwise, nil."
         localname)
     name))
 
-(defun cider-home-prefix-adjustment (resource)
-  "System-dependent HOME location will be adjusted in RESOURCE.
-Removes any leading slash if on Windows."
-  (save-match-data
-    (cond ((string-match "^\\/\\(Users\\|home\\)\\/\\w+\\(\\/.+\\)" resource)
-           (concat (getenv "HOME") (match-string 2 resource)))
-          ((and (eq system-type 'windows-nt)
-                (string-match "^/" resource)
-                (not (tramp-tramp-file-p resource)))
-           (substring resource 1))
-          (t
-           resource))))
-
-(defun cider-emacs-or-clojure-side-adjustment (resource)
-  "Fix the RESOURCE path depending on `cider-use-local-resources`."
-  (let ((resource         (cider-home-prefix-adjustment resource))
-        (clojure-side-res (concat (cider-tramp-prefix) resource))
-        (emacs-side-res   resource))
-    (cond ((equal resource "") resource)
-          ((and cider-use-local-resources
-                (file-exists-p emacs-side-res))
-           emacs-side-res)
-          ((file-exists-p clojure-side-res)
-           clojure-side-res)
+(defun cider-file-path (resource)
+  "Return RESOURCE's local or remote path using `cider-prefer-local-resources'."
+  (let ((local-path resource)
+        (remote-path (concat (cider-tramp-prefix) resource)))
+    (cond ((equal resource "") "")
+          ((and cider-prefer-local-resources
+                (file-exists-p local-path))
+           local-path)
+          ((file-exists-p remote-path)
+           remote-path)
           (t
            resource))))
 
@@ -523,7 +512,7 @@ Removes any leading slash if on Windows."
 Adjusts for HOME location using `cider-home-prefix-adjustment'.
 Uses `find-file'."
   (let ((large-file-warning-threshold nil))
-    (find-file (cider-emacs-or-clojure-side-adjustment filename))))
+    (find-file (cider-file-path filename))))
 
 (defun cider-find-resource (resource)
   "Find and display RESOURCE."
@@ -532,7 +521,7 @@ Uses `find-file'."
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
          (let* ((jar (match-string 2 resource))
                 (path (match-string 3 resource))
-                (file (cider-emacs-or-clojure-side-adjustment jar))
+                (file (cider-file-path jar))
                 (name (format "%s:%s" jar path)))
            (switch-to-buffer
             (or (get-file-buffer name)
