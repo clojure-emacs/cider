@@ -508,9 +508,7 @@ otherwise, nil."
            resource))))
 
 (defun cider-find-file (filename)
-  "Switch to a buffer visiting FILENAME.
-Adjusts for HOME location using `cider-home-prefix-adjustment'.
-Uses `find-file'."
+  "Switch to a buffer visiting FILENAME."
   (let ((large-file-warning-threshold nil))
     (find-file (cider-file-path filename))))
 
