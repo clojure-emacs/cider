@@ -206,11 +206,10 @@ Buffer names changed are cider-repl, nrepl-connection and nrepl-server."
     (message "CIDER buffer designation changed to: %s" designation)))
 
 ;;; Switching between REPL & source buffers
-(make-variable-buffer-local
- (defvar cider-last-clojure-buffer nil
-   "A buffer-local variable holding the last Clojure source buffer.
+(defvar-local cider-last-clojure-buffer nil
+  "A buffer-local variable holding the last Clojure source buffer.
 `cider-switch-to-last-clojure-buffer' uses this variable to jump
-back to last Clojure source buffer."))
+back to last Clojure source buffer.")
 
 (defvar cider-current-clojure-buffer nil
   "This variable holds current buffer temporarily when connecting to a REPL.
@@ -907,9 +906,8 @@ See `compilation-error-regexp-alist' for help on their format.")
   (" cider-tmp")
   '(("q" .  cider-popup-buffer-quit-function)))
 
-(make-variable-buffer-local
- (defvar cider-popup-buffer-quit-function 'cider-popup-buffer-quit
-   "The function that is used to quit a temporary popup buffer."))
+(defvar-local cider-popup-buffer-quit-function 'cider-popup-buffer-quit
+  "The function that is used to quit a temporary popup buffer.")
 
 (defun cider-popup-buffer-quit-function (&optional kill-buffer-p)
   "Wrapper to invoke the function `cider-popup-buffer-quit-function'.
