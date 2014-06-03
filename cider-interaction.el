@@ -506,66 +506,73 @@ otherwise, nil."
           (t
            resource))))
 
-(defun cider-find-file (filename)
-  "Switch to a buffer visiting FILENAME."
+(defun cider-find-or-create-file-buffer (filename)
+  "Return a buffer visiting FILENAME."
   (let ((large-file-warning-threshold nil))
-    (find-file (cider-file-path filename))))
+    (find-file-noselect (cider-file-path filename))))
 
-(defun cider-find-resource (resource)
-  "Find and display RESOURCE."
+(defun cider-find-or-create-resource-buffer (resource)
+  "Return a buffer displaying RESOURCE."
   (cond ((string-match "^file:\\(.+\\)" resource)
-         (cider-find-file (match-string 1 resource)))
+         (cider-find-or-create-file-buffer (match-string 1 resource)))
         ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
          (let* ((jar (match-string 2 resource))
                 (path (match-string 3 resource))
                 (file (cider-file-path jar))
                 (name (format "%s:%s" jar path)))
-           (switch-to-buffer
-            (or (get-file-buffer name)
-                (with-current-buffer (generate-new-buffer
-                                      (file-name-nondirectory path))
-                  (archive-zip-extract file path)
-                  (set-visited-file-name name)
-                  (setq-local default-directory (file-name-directory file))
-                  (setq-local buffer-read-only t)
-                  (set-buffer-modified-p nil)
-                  (set-auto-mode)
-                  (current-buffer))))))
+           (or (get-file-buffer name)
+               (with-current-buffer (generate-new-buffer
+                                     (file-name-nondirectory path))
+                 (archive-zip-extract file path)
+                 (set-visited-file-name name)
+                 (setq-local default-directory (file-name-directory file))
+                 (setq-local buffer-read-only t)
+                 (set-buffer-modified-p nil)
+                 (set-auto-mode)
+                 (current-buffer)))))
         (t (error "Unknown resource path %s" resource))))
 
-(defun cider-jump-to-def-for (location)
-  "Jump to LOCATION's definition in the source code.
-The current buffer is used to determine a tramp prefix, which is
-added as a prefix to the LOCATION."
-  (ring-insert find-tag-marker-ring (point-marker))
+(defun cider-find-or-create-definition-buffer (location)
+  "Return a buffer with point at LOCATION's definition in the source code.
+
+The current buffer is used to determine a tramp prefix, which (if it
+exists) is added as a prefix to LOCATION."
   ;; ugh; elisp destructuring doesn't work for vectors
   (let* ((resource (aref location 0))
          (path (aref location 1))
          (line (aref location 2))
-         (tpath (if path (cider--client-tramp-filename path))))
-    (cond
-     (tpath (find-file tpath))
-     ((and path (file-exists-p path)) (find-file path))
-     (t (cider-find-resource resource)))
-    (goto-char (point-min))
-    (forward-line (1- line))
-    (cider-mode 1))) ; enable cider-jump keybindings on java sources
+         (tramp-path (and path (cider--client-tramp-filename path)))
+         (buffer (cond (tramp-path (find-file-noselect tramp-path))
+                       ((and path (file-exists-p path)) (find-file-noselect path))
+                       (t (cider-find-or-create-resource-buffer resource)))))
+    (with-current-buffer buffer
+      (goto-char (point-min))
+      (forward-line (1- line))
+      (cider-mode 1) ; enable cider-jump keybindings on java sources
+      buffer)))
 
-(defun cider--jump-to-def-op-fn (var)
-  "Jump to VAR def by using the nREPL info op."
+(defun cider-jump-to-def-for (def-location)
+  "Jump to DEF-LOCATION in the source code."
+  (-when-let (buffer (cider-find-or-create-definition-buffer def-location))
+    (ring-insert find-tag-marker-ring (point-marker))
+    (switch-to-buffer buffer)))
+
+(defun cider-get-def-location (var)
+  "Return the location of the definition of VAR."
   (let* ((info (cider-var-info var))
          (file (cadr (assoc "file" info)))
          (line (cadr (assoc "line" info))))
     (if info
         (if (and file line)
-            (cider-jump-to-def-for (vector file file line))
+            (vector file file line)
           (message "No source available for %s" var))
       (message "Symbol %s not resolved" var))))
 
 (defun cider-jump-to-def (var)
   "Jump to the definition of the VAR at point."
   (cider-ensure-op-supported "info")
-  (cider--jump-to-def-op-fn var))
+  (-when-let (location (cider-get-def-location var))
+    (cider-jump-to-def-for location)))
 
 (defun cider-jump (query)
   "Jump to the definition of QUERY."
@@ -645,13 +652,14 @@ form, with symbol at point replaced by __prefix__."
               :company-docsig #'cider-company-docsig)))))
 
 (defun cider-company-location (var)
-  "Open VAR definition in a buffer and return its location."
-  (save-excursion
-    (save-window-excursion
-      (let ((find-tag-marker-ring (make-ring 1)))
-        (cider-jump-to-def var)
-        (unless (string-match-p "Namespace not found" (current-message))
-          (cons (current-buffer) (point)))))))
+  "Open VAR's definition in a buffer.
+
+Returns the cons of the buffer itself and the location of VAR's definition
+in the buffer."
+  (-when-let* ((location (cider-get-def-location var))
+               (buffer (cider-find-or-create-definition-buffer location)))
+    (with-current-buffer buffer
+      (cons buffer (point)))))
 
 (defun cider-company-docsig (thing)
   "Return signature for THING."
