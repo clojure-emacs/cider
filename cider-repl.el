@@ -1047,6 +1047,7 @@ ENDP) DELIM."
     (define-key map (kbd "C-c C-u") 'cider-repl-kill-input)
     (define-key map (kbd "C-a") 'cider-repl-bol)
     (define-key map (kbd "C-S-a") 'cider-repl-bol-mark)
+    (define-key map (kbd "C-c `") 'cider-visit-error-buffer)
     (define-key map [home] 'cider-repl-bol)
     (define-key map [S-home] 'cider-repl-bol-mark)
     (define-key map (kbd "C-<up>") 'cider-repl-backward-input)

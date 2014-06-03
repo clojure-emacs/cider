@@ -773,8 +773,9 @@ The handler simply inserts the result value in BUFFER."
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
   (interactive)
   (let ((buffer (get-buffer cider-error-buffer)))
-    (when buffer
-      (cider-popup-buffer-display buffer))))
+    (if buffer
+        (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
+      (message "No %s buffer found" cider-error-buffer))))
 
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.
