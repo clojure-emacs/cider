@@ -195,10 +195,10 @@ than the REPL:
 (setq cider-repl-popup-stacktraces t)
 ```
 
-* To auto-select the error buffer when it's displayed:
+* To disable auto-selection of the error (stacktrace) buffer when it's displayed:
 
 ```el
-(setq cider-auto-select-error-buffer t)
+(setq cider-auto-select-error-buffer nil)
 ```
 
 * If using the `wrap-stacktrace` middleware from `cider-nrepl`, error buffer

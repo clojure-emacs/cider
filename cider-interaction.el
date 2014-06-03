@@ -73,7 +73,7 @@ in the `cider-error-buffer', which defaults to *cider-error*."
   :type 'boolean
   :group 'cider)
 
-(defcustom cider-auto-select-error-buffer nil
+(defcustom cider-auto-select-error-buffer t
   "Controls whether to auto-select the error popup buffer."
   :type 'boolean
   :group 'cider)
