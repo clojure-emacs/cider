@@ -68,6 +68,8 @@ buffer-local wherever it is set."
   (with-temp-buffer
     (insert string)
     (funcall mode)
+    ;; prevent whitespace mode from obscuring the output
+    (whitespace-mode -1)
     (font-lock-fontify-buffer)
     (buffer-string)))
 
