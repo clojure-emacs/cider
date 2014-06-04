@@ -34,7 +34,7 @@
 
 ;;; Compatibility
 (eval-and-compile
-  ;; `setq-local' for Emacs 24.2 and below
+  ;; `defvar-local' for Emacs 24.2 and below
   (unless (fboundp 'defvar-local)
     (defmacro defvar-local (var val &optional docstring)
       "Define VAR as a buffer-local variable with default value VAL.
