@@ -72,7 +72,9 @@ buffer-local wherever it is set."
     (buffer-string)))
 
 (defun cider-font-lock-region-as (mode beg end &optional buffer)
-  "Use MODE to font-lock text between BEG and END."
+  "Use MODE to font-lock text between BEG and END.
+
+Unless you specify a BUFFER it will default to the current one."
   (with-current-buffer (or buffer (current-buffer))
     (let ((text (buffer-substring beg end)))
       (delete-region beg end)
