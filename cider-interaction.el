@@ -155,6 +155,10 @@ Signal an error if it is not supported."
   "Retrieve the underlying connection's nREPL version."
   (cider-eval-and-get-value "(:version-string clojure.tools.nrepl/version)"))
 
+(defun cider--nrepl-middleware-version ()
+  "Retrieve the underlying connection's CIDER nREPL version."
+  (cider-eval-and-get-value "(require 'cider.nrepl) (:version-string cider.nrepl/version)"))
+
 (defun cider--connection-info (connection-buffer)
   "Return info about CONNECTION-BUFFER.
 
