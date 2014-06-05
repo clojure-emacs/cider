@@ -900,7 +900,8 @@ If so ask the user for confirmation."
       (nrepl-dbind-response response (ops)
         (cond (ops
                (with-current-buffer buffer
-                 (setq nrepl-ops ops))))))))
+                 (setq nrepl-ops ops)
+                 (cider-verify-required-nrepl-ops))))))))
 
 (defun nrepl-describe-session (process)
   "Peform describe for the given server PROCESS."
