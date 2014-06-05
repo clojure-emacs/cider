@@ -216,6 +216,9 @@ positions before and after executing BODY."
   "Insert REPL banner and REPL prompt, taking into account NS."
   (when (zerop (buffer-size))
     (insert (propertize (cider-repl--banner) 'face 'font-lock-comment-face)))
+  (let ((middleware-version (cider--nrepl-middleware-version)))
+    (unless (equal cider-version middleware-version)
+      (insert (propertize (format "WARNING: CIDER's version (%s) does not match cider-nrepl's version (%s)" cider-version middleware-version) 'face 'font-lock-warning-face))))
   (goto-char (point-max))
   (cider-repl--mark-output-start)
   (cider-repl--mark-input-start)
