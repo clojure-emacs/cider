@@ -138,8 +138,8 @@
 
 (defun cider-doc-fontify-code-blocks (buffer mode)
   "Font lock BUFFER code blocks using MODE and remove markdown characters.
-This processes the triple backtick GFM markdown extension. An overlay is used
-to shade the background. Blocks are marked to be ignored by other fonification
+This processes the triple backtick GFM markdown extension.  An overlay is used
+to shade the background.  Blocks are marked to be ignored by other fonification
 and line wrap."
   (with-current-buffer buffer
     (save-excursion
