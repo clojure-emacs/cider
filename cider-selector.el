@@ -146,6 +146,10 @@ is chosen.  The returned buffer is selected with
   "*nrepl-messages* buffer."
   nrepl-message-buffer-name)
 
+(def-cider-selector-method ?x
+  "*cider-error* buffer."
+  cider-error-buffer)
+
 (def-cider-selector-method ?s
  "Cycle to the next CIDER connection's REPL."
  (cider-rotate-connection)

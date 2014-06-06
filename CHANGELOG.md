@@ -2,6 +2,8 @@
 
 ## master
 
+### New features
+
 * [#537](https://github.com/clojure-emacs/cider/pull/537) New support for
 Java symbol lookup from cider-nrepl's info middleware.
 * [#570](https://github.com/clojure-emacs/cider/pull/570) Enable toggling
@@ -9,6 +11,7 @@ of the 'all' filter on stacktraces.
 * [#588](https://github.com/clojure-emacs/cider/pull/588) New `doc-mode`
 for presenting fontified documentation, including Javadoc.
 * New interactive command `cider-toggle-trace`.
+* `cider-select` can now switch to the `*cider-error*` buffer (bound to `x`).
 
 ### Changes
 
