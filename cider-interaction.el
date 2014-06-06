@@ -906,9 +906,9 @@ See `compilation-error-regexp-alist' for help on their format.")
               (face (nth 3 info))
               (note (nth 4 info)))
           (save-excursion
-            ;; when we don't have a filename the line number
-            ;; is relative to form start
-            (if file
+            ;; when we don't have a filename or it's different from the one of
+            ;; the current buffer, the line number is relative to form start
+            (if (and file (equal file (file-truename (buffer-file-name))))
                 (goto-char (point-min)) ; start of file
               (beginning-of-defun))
             (forward-line (1- line))
