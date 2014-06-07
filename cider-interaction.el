@@ -840,19 +840,17 @@ They exist for compatibility with `next-error'."
   (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
     (when (or (and cider-repl-popup-stacktraces replp)
               (and cider-popup-stacktraces (not replp)))
-      (let (causes frames)
+      (let (causes)
         (nrepl-send-request
          (list "op" "stacktrace" "session" session)
          (lambda (response)
            (nrepl-dbind-response response (message name status)
              (cond (message (setq causes (cons response causes)))
-                   (name    (setq frames (cons response frames)))
-                   (status  (when (and causes frames)
+                   (status  (when causes
                               (cider-stacktrace-render
                                (cider-popup-buffer cider-error-buffer
                                                    cider-auto-select-error-buffer)
-                               (reverse causes)
-                               (reverse frames))))))))))))
+                               (reverse causes))))))))))))
 
 (defun cider-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
