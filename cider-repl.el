@@ -166,17 +166,6 @@ joined together.")
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
-(defmacro cider-propertize-region (props &rest body)
-  "Add PROPS to all text inserted by executing BODY.
-More precisely, PROPS are added to the region between the point's
-positions before and after executing BODY."
-  (let ((start (make-symbol "start-pos")))
-    `(let ((,start (point)))
-       (prog1 (progn ,@body)
-         (add-text-properties ,start (point) ,props)))))
-
-(put 'cider-propertize-region 'lisp-indent-function 1)
-
 ;;; REPL init
 (defun cider-repl-buffer-name ()
   "Generate a REPL buffer name based on current connection buffer."
@@ -261,12 +250,6 @@ Insert a banner, unless NOPROMPT is non-nil."
                                   (cider-repl-buffer-name))))))))))
 
 ;;; REPL interaction
-(defun cider-property-bounds (prop)
-  "Return the the positions of the previous and next change to PROP.
-PROP is the name of a text property."
-  (assert (get-text-property (point) prop))
-  (let ((end (next-single-char-property-change (point) prop)))
-    (list (previous-single-char-property-change end prop) end)))
 
 (defun cider-repl--in-input-area-p ()
   "Return t if in input area."
