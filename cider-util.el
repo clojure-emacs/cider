@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'dash)
+(require 'cl-lib)
 
 ;;; Compatibility
 (eval-and-compile
@@ -62,6 +63,27 @@ buffer-local wherever it is set."
   (-filter
    (lambda (buffer) (with-current-buffer buffer (derived-mode-p 'clojure-mode)))
    (buffer-list)))
+
+;;; Text properties
+
+(defmacro cider-propertize-region (props &rest body)
+  "Execute BODY and add PROPS to all the text it inserts.
+More precisely, PROPS are added to the region between the point's
+positions before and after executing BODY."
+  (let ((start (cl-gensym)))
+    `(let ((,start (point)))
+       (prog1 (progn ,@body)
+         (add-text-properties ,start (point) ,props)))))
+
+(put 'cider-propertize-region 'lisp-indent-function 1)
+
+(defun cider-property-bounds (prop)
+  "Return the the positions of the previous and next change to PROP.
+PROP is the name of a text property."
+  (assert (get-text-property (point) prop))
+  (let ((end (next-single-char-property-change (point) prop)))
+    (list (previous-single-char-property-change end prop) end)))
+;;; Font lock
 
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
@@ -123,6 +145,22 @@ respectively."
                         clojure-mode-syntax-table
                         nil
                         nil))
+
+;;; Colors
+
+(defun cider-scale-color (color scale)
+  "For a COLOR hex string or name, adjust intensity of RGB components by SCALE."
+  (let* ((rgb (color-values color))
+         (scaled-rgb (mapcar (lambda (n)
+                               (format "%04x" (round (+ n (* scale 65535)))))
+                             rgb)))
+    (apply 'concat "#" scaled-rgb)))
+
+(defun cider-scale-background-color ()
+  "Scale the current background color to get a slighted muted version."
+  (let ((color (frame-parameter nil 'background-color))
+        (dark (eq (frame-parameter nil 'background-mode) 'dark)))
+    (cider-scale-color color (if dark 0.05 -0.05))))
 
 (defun cider-format-pprint-eval (form)
   "Return a string of Clojure code that will eval and pretty-print FORM."

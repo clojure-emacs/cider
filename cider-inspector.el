@@ -99,17 +99,6 @@
     (nrepl-send-request (list "op" "inspect-refresh")
                         (cider-render-response buffer))))
 
-;; Utilities
-(defmacro cider-propertize-region (props &rest body)
-  "Execute BODY and add PROPS to all the text it inserts.
-More precisely, PROPS are added to the region between the point's
-positions before and after executing BODY."
-  (let ((start (cl-gensym)))
-    `(let ((,start (point)))
-       (prog1 (progn ,@body)
-         (add-text-properties ,start (point) ,props)))))
-
-
 ;; Render Inspector from Structured Values
 (defun cider-irender (buffer str)
   (with-current-buffer buffer

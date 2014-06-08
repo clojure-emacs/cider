@@ -72,32 +72,15 @@
   :package-version '(cider . "0.7.0"))
 
 
-;; Colors
-
-(defun cider-doc-scale-color (color scale)
-  "For a COLOR hex string or name, adjust intensity of RGB components by SCALE."
-  (let* ((rgb (color-values color))
-         (scaled-rgb (mapcar (lambda (n)
-                               (format "%04x" (round (+ n (* scale 65535)))))
-                             rgb)))
-    (apply 'concat "#" scaled-rgb)))
-
-(defun cider-doc-scale-background-color ()
-  "Scale the current background color to get a slighted muted version."
-  (let ((color (frame-parameter nil 'background-color))
-        (dark (eq (frame-parameter nil 'background-mode) 'dark)))
-    (cider-doc-scale-color color (if dark 0.05 -0.05))))
+;; Colors & Theme Support
 
 (defvar cider-doc-code-background-color
-  (cider-doc-scale-background-color)
+  (cider-scale-background-color)
   "Background color for code blocks.")
-
-
-;; Theme Support
 
 (defadvice enable-theme (after cider-doc-adapt-to-theme activate)
   "When theme is changed, update `cider-doc-code-background-color'."
-  (setq cider-doc-code-background-color (cider-doc-scale-background-color)))
+  (setq cider-doc-code-background-color (cider-scale-background-color)))
 
 
 ;; Mode & key bindings
