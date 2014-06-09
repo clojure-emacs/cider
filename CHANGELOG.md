@@ -27,6 +27,8 @@ loading of jar/zip resources.
 * [#589](https://github.com/clojure-emacs/cider/pull/589) Don't prefer local
 paths over tramp by default.
 * [#554](https://github.com/clojure-emacs/cider/issues/554): `cider-auto-select-error-buffer` is set to `t` by default.
+* [#610](https://github.com/clojure-emacs/cider/pull/610) Present error and
+stacktrace info for all exception causes.
 
 ## 0.6.0 / 2014-04-24
 

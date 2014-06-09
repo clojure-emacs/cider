@@ -575,7 +575,16 @@ Keyboard shortcut               | Description
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
-<kbd>Return</kbd> and <kbd>M-.</kbd> | navigate to the source location (if available) for the stacktrace frame
+<kbd>M-p</kbd> | move point to previous cause
+<kbd>M-n</kbd> | move point to next cause
+<kbd>M-.</kbd> and <kbd>Return</kbd> | navigate to the source location (if available) for the stacktrace frame
+<kbd>Tab</kbd> | Cycle current cause detail
+<kbd>0</kbd> and <kbd>S-Tab</kbd> | Cycle all cause detail
+<kbd>1</kbd> | Cycle cause #1 detail
+<kbd>2</kbd> | Cycle cause #2 detail
+<kbd>3</kbd> | Cycle cause #3 detail
+<kbd>4</kbd> | Cycle cause #4 detail
+<kbd>5</kbd> | Cycle cause #5 detail
 <kbd>j</kbd> | toggle display of java frames
 <kbd>c</kbd> | toggle display of clj frames
 <kbd>r</kbd> | toggle display of repl frames
