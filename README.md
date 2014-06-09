@@ -128,8 +128,15 @@ Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the :user profile in `~/.lein/profiles.clj`.
 
 ```clojure
-:plugins [[cider/cider-nrepl "0.6.0"]]
+:plugins [[cider/cider-nrepl "x.y.z"]]
 ```
+
+`x.y.z` should match the version of CIDER you're currently using (say `0.7.1`).
+For snapshot releases of CIDER you should use the snapshot of the plugin as well
+(say `0.7.1-SNAPSHOT`).
+
+**Note that you need to use at least CIDER 0.7 for the nREPL middleware to work
+properly.  Don't use cider-nrepl with CIDER 0.6**
 
 ## Configuration
 
