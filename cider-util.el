@@ -174,6 +174,12 @@ respectively."
       (pkg-info-version-info 'cider)
     (error cider-version)))
 
+;;; Strings
+
+(defun cider-string-join (strings &optional separator)
+  "Join all STRINGS using SEPARATOR."
+  (mapconcat 'identity strings separator))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

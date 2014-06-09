@@ -149,7 +149,7 @@ A default will be included consisting of `nrepl-default-host' and
 `nrepl-default-port'."
   (-distinct
    (mapcar (lambda (endpoint)
-             (mapconcat 'identity endpoint " "))
+             (cider-string-join endpoint " "))
            (cons (list (nrepl-current-host) (nrepl-default-port))
                  cider-known-endpoints))))
 

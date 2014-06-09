@@ -140,7 +140,7 @@ Signal an error if it is not supported."
     (when missing-ops
       (cider-repl-emit-interactive-output
        (format "WARNING: The following required nREPL ops are not supported: \n%s\nPlease, install cider-nrepl %s and restart CIDER"
-               (mapconcat 'identity missing-ops " ")
+               (cider-string-join missing-ops " ")
                cider-version)))))
 
 ;;; Connection info
@@ -1204,7 +1204,7 @@ See command `cider-mode'."
 (defun cider-parent-ns (ns)
   "Go up a level of NS.
 For example \"foo.bar.tar\" -> \"foo.bar\"."
-  (mapconcat 'identity (butlast (split-string ns "\\.")) "."))
+  (cider-string-join (butlast (split-string ns "\\.")) "."))
 
 (defun cider-completing-read-var-select (prompt callback ns selected targets)
   "Peform completing read using SELECTED and TARGETS.
