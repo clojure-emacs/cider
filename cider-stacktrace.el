@@ -25,6 +25,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'button)
 (require 'dash)
 (require 'easymenu)
@@ -496,6 +497,20 @@ This associates text properties to enable filtering and source navigation."
           (cider-propertize-region '(detail 0)
             (newline)))))))
 
+(defun cider-stacktrace-initialize (causes)
+  "Set and apply CAUSES initial visibility, filters, and cursor position."
+  ;; Partially display outermost cause if it's a compiler exception (the
+  ;; description reports reader location of the error).
+  (nrepl-dbind-response (first causes) (class)
+    (when (equal class "clojure.lang.Compiler$CompilerException")
+      (cider-stacktrace-cycle-cause (length causes) 1)))
+  ;; Fully display innermost cause. This also applies visibility/filters.
+  (cider-stacktrace-cycle-cause 1 cider-stacktrace-detail-max)
+  ;; Move point to first stacktrace frame in displayed cause.
+  (goto-char (point-min))
+  (while (cider-stacktrace-next-cause))
+  (goto-char (next-single-property-change (point) 'flags)))
+
 (defun cider-stacktrace-render (buffer causes)
   "Emit into BUFFER useful stacktrace information for the CAUSES."
   (with-current-buffer buffer
@@ -514,13 +529,8 @@ This associates text properties to enable filtering and source navigation."
           (let ((note (if (= num (length causes)) "Unhandled" "Caused by")))
             (cider-stacktrace-render-cause buffer cause num note)
             (setq num (1- num))))))
-    ;; Fully display innermost cause, apply visibility/filters, and fontify.
-    (cider-stacktrace-cycle-cause 1 cider-stacktrace-detail-max)
-    (font-lock-refresh-defaults)
-    ;; Move point to first stacktrace frame in displayed cause.
-    (goto-char (point-min))
-    (while (cider-stacktrace-next-cause))
-    (goto-char (next-single-property-change (point) 'flags))))
+    (cider-stacktrace-initialize causes)
+    (font-lock-refresh-defaults)))
 
 (provide 'cider-stacktrace)
 
