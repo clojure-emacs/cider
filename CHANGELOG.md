@@ -35,6 +35,12 @@ paths over tramp by default.
 * [#610](https://github.com/clojure-emacs/cider/pull/610) Present error and
 stacktrace info for all exception causes.
 
+### Bugs fixed
+
+* [#607](https://github.com/clojure-emacs/cider/pull/607): Respect
+  `*print-length*` in `cider-pprint-eval-defun-at-point` and
+  `cider-pprint-eval-last-sexp`.
+
 ## 0.6.0 / 2014-04-24
 
 ### New features

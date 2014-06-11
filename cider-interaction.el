@@ -1089,22 +1089,22 @@ Print its value into the current buffer."
   (cider-interactive-eval-print (cider-last-sexp)))
 
 (defun cider-pprint-eval-last-sexp ()
-  "Evaluate the expression preceding point and pprint its value in a popup buffer."
+  "Evaluate the sexp preceding point and pprint its value in a popup buffer."
   (interactive)
   (let ((form (cider-last-sexp))
         (result-buffer (cider-popup-buffer cider-result-buffer nil)))
-    (cider-tooling-eval (cider-format-pprint-eval form)
-                        (cider-popup-eval-out-handler result-buffer)
-                        (cider-current-ns))))
+    (cider-eval (cider-format-pprint-eval form)
+                (cider-popup-eval-out-handler result-buffer)
+                (cider-current-ns))))
 
 (defun cider-pprint-eval-defun-at-point ()
-  "Evaluate the current top-level form at point and pprint its value in a popup buffer."
+  "Evaluate the top-level form at point and pprint its value in a popup buffer."
   (interactive)
   (let ((form (cider-defun-at-point))
         (result-buffer (cider-popup-buffer cider-result-buffer nil)))
-    (cider-tooling-eval (cider-format-pprint-eval form)
-                        (cider-popup-eval-out-handler result-buffer)
-                        (cider-current-ns))))
+    (cider-eval (cider-format-pprint-eval form)
+                (cider-popup-eval-out-handler result-buffer)
+                (cider-current-ns))))
 
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
