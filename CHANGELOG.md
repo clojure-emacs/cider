@@ -15,6 +15,10 @@ for presenting fontified documentation, including Javadoc.
 
 ### Changes
 
+* [#603](https://github.com/clojure-emacs/cider/pull/603) New variable
+`cider-show-error-buffer` to control the behavior of the error buffer. Obsoletes
+`cider-popup-on-error`, `cider-popup-stacktraces` and
+`cider-repl-popup-stacktraces`.
 * `cider-nrepl` is now required. Without it pretty much nothing will work.
 * Removed redundant command `cider-src`.
 * Renamed `nrepl-log-events` variable to `nrepl-log-messages`.

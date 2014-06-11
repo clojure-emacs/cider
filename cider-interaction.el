@@ -58,20 +58,23 @@
   :type 'boolean
   :group 'cider)
 
-(defcustom cider-popup-stacktraces t
-  "Non-nil means pop-up error stacktraces for evaluation errors.
-Nil means show only an error message in the minibuffer.  See also
-`cider-repl-popup-stacktraces', which overrides this setting
-for REPL buffers."
-  :type 'boolean
+(defcustom cider-show-error-buffer t
+  "Control the popup behavior of cider stacktraces.
+The following values are possible t or 'always, 'except-in-repl,
+'only-in-repl. Any other value, including nil, will cause the stacktrace
+not to be automatically shown.
+
+Irespective of the value of this variable, the `cider-error-buffer' is
+always generated in the background. Use `cider-visit-error-buffer' to
+navigate to this buffer."
+  :type '(choice (const :tag "always" t)
+                 (const except-in-repl)
+                 (const only-in-repl)
+                 (const :tag "never" nil))
   :group 'cider)
 
-(defcustom cider-popup-on-error t
-  "When `cider-popup-on-error' is set to t, stacktraces will be displayed.
-When set to nil, stactraces will not be displayed, but will be available
-in the `cider-error-buffer', which defaults to *cider-error*."
-  :type 'boolean
-  :group 'cider)
+(define-obsolete-variable-alias 'cider-popup-stacktraces
+  'cider-show-error-buffer "0.7.0")
 
 (defcustom cider-auto-select-error-buffer t
   "Controls whether to auto-select the error popup buffer."
@@ -764,9 +767,8 @@ The handler simply inserts the result value in BUFFER."
                                   buffer err))
                                '()
                                (lambda (buffer ex root-ex session)
-                                 (let ((cider-popup-on-error nil))
-                                   (funcall nrepl-err-handler
-                                            buffer ex root-ex session)))))
+                                 (funcall nrepl-err-handler
+                                          buffer ex root-ex session))))
 
 (defun cider-interactive-eval-print-handler (buffer)
   "Make a handler for evaluating and printing result in BUFFER."
@@ -804,8 +806,9 @@ The handler simply inserts the result value in BUFFER."
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
   (interactive)
   (let ((buffer (get-buffer cider-error-buffer)))
-    (when buffer
-      (cider-popup-buffer-display buffer))))
+    (if buffer
+        (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
+      (error "No %s buffer" cider-error-buffer))))
 
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.
@@ -836,27 +839,29 @@ They exist for compatibility with `next-error'."
       (goto-next-note-boundary))
     (goto-next-note-boundary)))
 
-(defun cider-default-err-op-handler (buffer ex root-ex session)
-  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION with middleware support."
-  (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
-    (when (or (and cider-repl-popup-stacktraces replp)
-              (and cider-popup-stacktraces (not replp)))
-      (let (causes)
-        (nrepl-send-request
-         (list "op" "stacktrace" "session" session)
-         (lambda (response)
-           (nrepl-dbind-response response (message name status)
-             (cond (message (setq causes (cons response causes)))
-                   (status  (when causes
-                              (cider-stacktrace-render
-                               (cider-popup-buffer cider-error-buffer
-                                                   cider-auto-select-error-buffer)
-                               (reverse causes))))))))))))
 
 (defun cider-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
   (cider-ensure-op-supported "stacktrace")
-  (cider-default-err-op-handler buffer ex root-ex session))
+  (let* ((replp (with-current-buffer buffer
+                  (derived-mode-p 'cider-repl-mode)))
+         (showp (memq cider-show-error-buffer
+                      (if replp
+                          '(t always only-in-repl)
+                        '(t always except-in-repl)))))
+    (let (causes)
+      (nrepl-send-request
+       (list "op" "stacktrace" "session" session)
+       (lambda (response)
+         (nrepl-dbind-response response (message name status)
+           (cond (message (setq causes (cons response causes)))
+                 (status  (when causes
+                            (cider-stacktrace-render
+                             (if showp
+                                 (cider-popup-buffer cider-error-buffer
+                                                     cider-auto-select-error-buffer)
+                               (cider-make-popup-buffer cider-error-buffer))
+                             (reverse causes)))))))))))
 
 (defvar cider-compilation-regexp
   '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
@@ -948,7 +953,6 @@ KILL-BUFFER-P is passed along."
   "Create new popup buffer called NAME.
 If SELECT is non-nil, select the newly created window"
   (with-current-buffer (cider-make-popup-buffer name)
-    (setq buffer-read-only t)
     (cider-popup-buffer-display (current-buffer) select)))
 
 (defun cider-popup-buffer-display (popup-buffer &optional select)
@@ -975,6 +979,7 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
     (erase-buffer)
     (set-syntax-table clojure-mode-syntax-table)
     (cider-popup-buffer-mode 1)
+    (setq buffer-read-only t)
     (current-buffer)))
 
 (defun cider-emit-into-popup-buffer (buffer value)
