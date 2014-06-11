@@ -14,6 +14,7 @@ for presenting fontified documentation, including Javadoc.
 * `cider-select` can now switch to the `*cider-error*` buffer (bound to `x`).
 
 ### Changes
+
 * [#597](https://github.com/clojure-emacs/cider/issues/597) Don't process nREPL
   messages unless the whole message has been received.
 * [#603](https://github.com/clojure-emacs/cider/pull/603) New variable
@@ -25,8 +26,6 @@ for presenting fontified documentation, including Javadoc.
 * Renamed `nrepl-log-events` variable to `nrepl-log-messages`.
 * Renamed `nrepl-log-events` command to `nrepl-log-messages`.
 * Remove redundant cider-src command.
-* [#577](https://github.com/clojure-emacs/cider/pull/577) Fix bencode decoding
-of negative integers.
 * [#582](https://github.com/clojure-emacs/cider/pull/582) Enable efficient
 loading of jar/zip resources.
 * [#589](https://github.com/clojure-emacs/cider/pull/589) Don't prefer local
@@ -37,6 +36,8 @@ stacktrace info for all exception causes.
 
 ### Bugs fixed
 
+* [#577](https://github.com/clojure-emacs/cider/pull/577) Fix bencode decoding
+of negative integers.
 * [#607](https://github.com/clojure-emacs/cider/pull/607): Respect
   `*print-length*` in `cider-pprint-eval-defun-at-point` and
   `cider-pprint-eval-last-sexp`.
