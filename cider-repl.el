@@ -73,13 +73,6 @@
   "Face for the result of an evaluation in the REPL buffer."
   :group 'cider-repl)
 
-(defcustom cider-repl-popup-stacktraces nil
-  "Non-nil means pop-up error stacktraces in the REPL buffer.
-Nil means show only an error message in the minibuffer.  This variable
-overrides `cider-popup-stacktraces' in REPL buffers."
-  :type 'boolean
-  :group 'cider-repl)
-
 (defcustom cider-repl-pop-to-buffer-on-connect t
   "Controls whether to pop to the REPL buffer on connect.
 

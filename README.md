@@ -189,20 +189,28 @@ following snippet:
 (setq cider-repl-pop-to-buffer-on-connect nil)
 ```
 
-* Stop the error buffer from popping up while working in buffers other
-than the REPL:
+* Configure whether the error buffer with stacktraces should be automatically
+  shown on error:
 
+  - Don't show on error:
+    
 ```el
-(setq cider-popup-stacktraces nil)
+    (setq cider-show-error-buffer nil)
+```    
+
+   Independently of the value of `cider-show-error-buffer`, the error buffer is
+   always generated in the background. Use `cider-visit-error-buffer` to visit
+   this buffer.
+
+  - Selective strategies:
+    
+```el
+    (setq cider-show-error-buffer 'except-in-repl) ; or
+    (setq cider-show-error-buffer 'only-in-repl)
 ```
 
-* Enable error buffer popping also in the REPL:
 
-```el
-(setq cider-repl-popup-stacktraces t)
-```
-
-* To disable auto-selection of the error (stacktrace) buffer when it's displayed:
+* To disable auto-selection of the error buffer when it's displayed:
 
 ```el
 (setq cider-auto-select-error-buffer nil)
