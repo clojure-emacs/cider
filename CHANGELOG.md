@@ -14,7 +14,8 @@ for presenting fontified documentation, including Javadoc.
 * `cider-select` can now switch to the `*cider-error*` buffer (bound to `x`).
 
 ### Changes
-
+* [#597](https://github.com/clojure-emacs/cider/issues/597) Don't process nREPL
+  messages unless the whole message has been received.
 * [#603](https://github.com/clojure-emacs/cider/pull/603) New variable
 `cider-show-error-buffer` to control the behavior of the error buffer. Obsoletes
 `cider-popup-on-error`, `cider-popup-stacktraces` and

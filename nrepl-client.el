@@ -313,7 +313,7 @@ could be received even for requests with status \"done\"."
           (funcall callback response)
         (nrepl-default-handler response)))))
 
-(defun nrepl-net-decode ()
+(defun nrepl-decode-current-buffer ()
   "Decode the data in the current buffer.
 Remove the processed data from the buffer if the decode successful."
   (let* ((start (point-min))
@@ -323,7 +323,7 @@ Remove the processed data from the buffer if the decode successful."
         (nrepl-decode data)
       (delete-region start end))))
 
-(defun nrepl-net-process-input (process)
+(defun nrepl-handle-process-output (process)
   "Handle all complete messages from PROCESS.
 Assume that any error during decoding indicates an incomplete message."
   (with-current-buffer (process-buffer process)
@@ -331,16 +331,23 @@ Assume that any error during decoding indicates an incomplete message."
       ;; TODO: Implement fine-grained error handling
       (with-demoted-errors
         (while (> (buffer-size) 1)
-          (let ((responses (nrepl-net-decode)))
-            (dolist (response responses)
-              (nrepl-dispatch response))))))))
+          (let ((responses (nrepl-decode-current-buffer)))
+            (dolist (r responses)
+              (nrepl-dispatch r))))))))
+
+(defvar nrepl-decode-timeout 0.01
+  "Seconds to wait before decoding nREPL output.")
 
 (defun nrepl-net-filter (process string)
   "Decode the message(s) from PROCESS contained in STRING and dispatch."
   (with-current-buffer (process-buffer process)
     (goto-char (point-max))
     (insert string))
-  (nrepl-net-process-input process))
+  ;; end of the dict maybe?
+  (when (eq ?e (aref string (1- (length string))))
+    ;; wait a bit to make sure we are at the real end
+    (unless (accept-process-output process nrepl-decode-timeout)
+      (nrepl-handle-process-output process))))
 
 (defun nrepl-sentinel (process message)
   "Handle sentinel events from PROCESS.
