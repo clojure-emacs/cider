@@ -194,7 +194,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
                (end (byte-to-position (+ (position-bytes (point))
                                          (string-to-number (match-string 1))))))
            (goto-char end)
-           (buffer-substring-no-properties start end)))
+           (buffer-substring start end)))
         ((looking-at "l")
          (goto-char (match-end 0))
          (let (result item)
@@ -223,7 +223,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
          ;; as a sentinel value and check for equality.
          :end)
         (t
-         (error "Cannot decode message: %s" (buffer-substring-no-properties (point-min) (point-max))))))
+         (error "Cannot decode message: %s" (buffer-substring (point-min) (point-max))))))
 
 (defun nrepl-decode (str)
   "Decode bencoded STR."
@@ -316,7 +316,7 @@ could be received even for requests with status \"done\"."
 Remove the processed data from the buffer if the decode successful."
   (let* ((start (point-min))
          (end (point-max))
-         (data (buffer-substring start end)))
+         (data (buffer-substring-no-properties start end)))
     (prog1
         (nrepl-decode data)
       (delete-region start end))))
