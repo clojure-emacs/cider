@@ -295,9 +295,7 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
   "Default handler which is invoked when no handler is found.
 Handles message contained in RESPONSE."
   (nrepl-dbind-response response (out _value)
-    (cond
-     (out
-      (cider-repl-emit-interactive-output out)))))
+    (cider-repl-emit-interactive-output out)))
 
 (defun nrepl-dispatch (response)
   "Dispatch the RESPONSE to associated callback.
@@ -901,13 +899,13 @@ If so ask the user for confirmation."
 
 (defun nrepl-describe-handler (process-buffer)
   "Return a handler to describe into PROCESS-BUFFER."
-  (let ((buffer process-buffer))
-    (lambda (response)
-      (nrepl-dbind-response response (ops)
-        (cond (ops
-               (with-current-buffer buffer
-                 (setq nrepl-ops ops)
-                 (cider-verify-required-nrepl-ops))))))))
+  (lambda (response)
+    (nrepl-dbind-response response (ops)
+      (with-current-buffer process-buffer
+        (setq nrepl-ops ops)))
+    (cider-make-repl (get-buffer-process process-buffer))
+    (nrepl-make-repl-connection-default process-buffer)
+    (cider-verify-required-nrepl-ops)))
 
 (defun nrepl-describe-session (process)
   "Peform describe for the given server PROCESS."
@@ -933,11 +931,10 @@ If so ask the user for confirmation."
   "Create a new tooling session handler for PROCESS."
   (lambda (response)
     (nrepl-dbind-response response (id new-session)
-      (cond (new-session
-             (with-current-buffer (process-buffer process)
-               (setq nrepl-tooling-session new-session)
-               (remhash id nrepl-pending-requests)
-               (nrepl-setup-default-namespaces process)))))))
+      (with-current-buffer (process-buffer process)
+        (setq nrepl-tooling-session new-session)
+        (remhash id nrepl-pending-requests)
+        (nrepl-setup-default-namespaces process)))))
 
 (defun nrepl-new-session-handler (process no-repl-p)
   "Create a new session handler for PROCESS.
@@ -945,14 +942,10 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
   (lambda (response)
     (nrepl-dbind-response response (id new-session)
       (remhash id nrepl-pending-requests)
-      (cond (new-session
-             (let ((connection-buffer (process-buffer process)))
-               (setq nrepl-session new-session
-                     nrepl-connection-buffer connection-buffer)
-               (unless no-repl-p
-                 (cider-make-repl process)
-                 (nrepl-make-repl-connection-default connection-buffer))
-               (run-hooks 'nrepl-connected-hook)))))))
+      (let ((connection-buffer (process-buffer process)))
+        (setq nrepl-session new-session
+              nrepl-connection-buffer connection-buffer)
+        (run-hooks 'nrepl-connected-hook)))))
 
 (defun nrepl-init-client-sessions (process no-repl-p)
   "Initialize client sessions for PROCESS.
