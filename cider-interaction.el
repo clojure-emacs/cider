@@ -161,7 +161,9 @@ Signal an error if it is not supported."
 
 (defun cider--nrepl-middleware-version ()
   "Retrieve the underlying connection's CIDER nREPL version."
-  (cider-eval-and-get-value "(require 'cider.nrepl) (:version-string cider.nrepl/version)"))
+  (cider-eval-and-get-value "(try (require 'cider.nrepl)
+                                  (:version-string @(resolve 'cider.nrepl/version))
+                               (catch Throwable _ \"not installed\"))"))
 
 (defun cider--connection-info (connection-buffer)
   "Return info about CONNECTION-BUFFER.
@@ -839,29 +841,45 @@ They exist for compatibility with `next-error'."
       (goto-next-note-boundary))
     (goto-next-note-boundary)))
 
+(defun cider-default-err-eval-handler (buffer session)
+  "Display in BUFFER the last SESSION exception, without middleware support."
+  (cider-eval "(clojure.stacktrace/print-cause-trace *e)"
+              (lambda (response)
+                (nrepl-dbind-response response (out)
+                  (when out
+                    (with-current-buffer buffer
+                      (cider-emit-into-color-buffer buffer out)
+                      (compilation-minor-mode +1)))))
+              nil
+              session))
+
+(defun cider-default-err-op-handler (buffer session)
+  "Display in BUFFER the last SESSION exception, with middleware support."
+  (let (causes)
+    (nrepl-send-request
+     (list "op" "stacktrace" "session" session)
+     (lambda (response)
+       (nrepl-dbind-response response (message status)
+         (cond (message (setq causes (cons response causes)))
+               (status  (when causes
+                          (cider-stacktrace-render buffer (reverse causes))))))))))
 
 (defun cider-default-err-handler (buffer ex root-ex session)
-  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION."
-  (cider-ensure-op-supported "stacktrace")
-  (let* ((replp (with-current-buffer buffer
-                  (derived-mode-p 'cider-repl-mode)))
+  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
+This function determines how the error buffer is shown, and then delegates
+the actual error content to the eval or op handler."
+  (let* ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode)))
          (showp (memq cider-show-error-buffer
                       (if replp
                           '(t always only-in-repl)
-                        '(t always except-in-repl)))))
-    (let (causes)
-      (nrepl-send-request
-       (list "op" "stacktrace" "session" session)
-       (lambda (response)
-         (nrepl-dbind-response response (message name status)
-           (cond (message (setq causes (cons response causes)))
-                 (status  (when causes
-                            (cider-stacktrace-render
-                             (if showp
-                                 (cider-popup-buffer cider-error-buffer
-                                                     cider-auto-select-error-buffer)
-                               (cider-make-popup-buffer cider-error-buffer))
-                             (reverse causes)))))))))))
+                        '(t always except-in-repl))))
+         (error-buffer (if (not showp)
+                           (cider-make-popup-buffer cider-error-buffer)
+                         (cider-popup-buffer cider-error-buffer
+                                             cider-auto-select-error-buffer))))
+    (if (nrepl-op-supported-p "stacktrace")
+        (cider-default-err-op-handler error-buffer session)
+      (cider-default-err-eval-handler error-buffer session))))
 
 (defvar cider-compilation-regexp
   '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
