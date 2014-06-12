@@ -936,9 +936,8 @@ If so ask the user for confirmation."
         (remhash id nrepl-pending-requests)
         (nrepl-setup-default-namespaces process)))))
 
-(defun nrepl-new-session-handler (process no-repl-p)
-  "Create a new session handler for PROCESS.
-When NO-REPL-P is truthy, suppress creation of a REPL buffer."
+(defun nrepl-new-session-handler (process)
+  "Create a new session handler for PROCESS."
   (lambda (response)
     (nrepl-dbind-response response (id new-session)
       (remhash id nrepl-pending-requests)
@@ -947,15 +946,13 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
               nrepl-connection-buffer connection-buffer)
         (run-hooks 'nrepl-connected-hook)))))
 
-(defun nrepl-init-client-sessions (process no-repl-p)
-  "Initialize client sessions for PROCESS.
-When NO-REPL-P is truthy, suppress creation of a REPL buffer."
-  (nrepl-create-client-session (nrepl-new-session-handler process no-repl-p))
+(defun nrepl-init-client-sessions (process)
+  "Initialize client sessions for PROCESS."
+  (nrepl-create-client-session (nrepl-new-session-handler process))
   (nrepl-create-client-session (nrepl-new-tooling-session-handler process)))
 
-(defun nrepl-connect (host port &optional no-repl-p)
-  "Connect to a running nREPL server running on HOST and PORT.
-When NO-REPL-P is truthy, suppress creation of a REPL buffer."
+(defun nrepl-connect (host port)
+  "Connect to a running nREPL server running on HOST and PORT."
   (message "Connecting to nREPL server on %s:%s..." host port)
   (let* ((nrepl-endpoint `(,host ,port))
          (process (open-network-stream "nrepl"
@@ -968,7 +965,7 @@ When NO-REPL-P is truthy, suppress creation of a REPL buffer."
     (with-current-buffer (process-buffer process)
       (setq nrepl-endpoint `(,host ,port)))
     (let ((nrepl-connection-dispatch (buffer-name (process-buffer process))))
-      (nrepl-init-client-sessions process no-repl-p)
+      (nrepl-init-client-sessions process)
       (nrepl-describe-session process))
     process))
 
