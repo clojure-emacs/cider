@@ -325,12 +325,11 @@ Remove the processed data from the buffer if the decode successful."
   "Handle all complete messages from PROCESS."
   (with-current-buffer (process-buffer process)
     (let ((nrepl-connection-dispatch (current-buffer)))
-      ;; TODO: Implement fine-grained error handling
-      (with-demoted-errors
-        (while (> (buffer-size) 1)
-          (let ((responses (nrepl-decode-current-buffer)))
-            (dolist (r responses)
-              (nrepl-dispatch r))))))))
+      ;; FIXME: An ugly fix for https://github.com/clojure-emacs/cider/issues/583
+      (while (and (not (derived-mode-p 'cider-repl-mode)) (> (buffer-size) 1))
+        (let ((responses (nrepl-decode-current-buffer)))
+          (dolist (r responses)
+            (nrepl-dispatch r)))))))
 
 (defvar nrepl-decode-timeout 0.01
   "Seconds to wait before decoding nREPL output.")
