@@ -232,10 +232,12 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
         (setq result (cons (nrepl-bdecode-buffer) result)))
       (nreverse result))))
 
-(defun nrepl-netstring (string)
-  "Encode STRING in bencode."
-  (let ((size (string-bytes string)))
-    (format "%s:%s" size string)))
+(defun nrepl-netstring (val)
+  "Encode VAL in bencode."
+  (cond
+   ((integerp val) (format "i%de" val))
+   ((listp val)    (format "l%se" (apply 'concat (-map 'nrepl-netstring val))))
+   (t              (format "%s:%s" (string-bytes val) val))))
 
 (defun nrepl-bencode (message)
   "Encode with bencode MESSAGE."

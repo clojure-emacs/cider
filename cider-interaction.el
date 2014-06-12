@@ -33,6 +33,7 @@
 (require 'cider-client)
 (require 'cider-util)
 (require 'cider-stacktrace)
+(require 'cider-test)
 (require 'cider-doc)
 
 (require 'clojure-mode)
@@ -599,11 +600,12 @@ exists) is added as a prefix to LOCATION."
           (message "No source available for %s" var))
       (message "Symbol %s not resolved" var))))
 
-(defun cider-jump-to-def (var)
-  "Jump to the definition of the VAR at point."
+(defun cider-jump-to-def (var &optional line)
+  "Jump to the definition of the VAR, and optionally to the given LINE."
   (cider-ensure-op-supported "info")
   (-when-let (location (cider-get-def-location var))
-    (cider-jump-to-def-for location)))
+    (cider-jump-to-def-for location)
+    (when line (goto-line line))))
 
 (defun cider-jump (query)
   "Jump to the definition of QUERY."
