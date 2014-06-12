@@ -324,8 +324,7 @@ Remove the processed data from the buffer if the decode successful."
       (delete-region start end))))
 
 (defun nrepl-handle-process-output (process)
-  "Handle all complete messages from PROCESS.
-Assume that any error during decoding indicates an incomplete message."
+  "Handle all complete messages from PROCESS."
   (with-current-buffer (process-buffer process)
     (let ((nrepl-connection-dispatch (current-buffer)))
       ;; TODO: Implement fine-grained error handling
