@@ -1,6 +1,6 @@
 ;;; cider-client.el --- A layer of abstraction above the actual client code. -*- lexical-binding: t -*-
 
-;; Copyright © 2013 Bozhidar Batsov
+;; Copyright © 2013-2014 Bozhidar Batsov
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 
