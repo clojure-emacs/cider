@@ -485,9 +485,11 @@ With a PREFIX argument, print the result in the current buffer."
                       (set-marker (make-marker) end)))))))
 
 (defun cider-last-sexp ()
-  "Return the last sexp."
+  "Return the sexp preceding the point."
   (buffer-substring-no-properties
-   (save-excursion (backward-sexp) (point))
+   (save-excursion
+     (backward-sexp)
+     (point))
    (point)))
 
 ;;;
