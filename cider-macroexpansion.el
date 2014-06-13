@@ -47,24 +47,24 @@ ARG is passed along to `undo-only'."
   "Specify the last macroexpansion preformed.
 This variable specifies both what was expanded and the expander.")
 
-(defun cider-macroexpand-form (expander expr)
+(defun cider-macroexpansion (expander expr)
   "Macroexpand, using EXPANDER, the given EXPR."
-  (format
-   "(clojure.pprint/write (%s '%s) :suppress-namespaces false :dispatch clojure.pprint/code-dispatch)"
-   expander expr))
+  (cider-ensure-op-supported expander)
+  (plist-get (nrepl-send-request-sync
+              (list "op" expander
+                    "code" expr
+                    "suppress-namespaces" "false")) :value))
 
 (defun cider-macroexpand-expr (expander expr)
   "Macroexpand, use EXPANDER, the given EXPR."
-  (let* ((form (cider-macroexpand-form expander expr))
-         (expansion (plist-get (cider-eval-sync form nrepl-buffer-ns) :stdout)))
-    (setq cider-last-macroexpand-expression form)
+  (let* ((expansion (cider-macroexpansion expander expr)))
+    (setq cider-last-macroexpand-expression expr)
     (cider-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
 
 (defun cider-macroexpand-expr-inplace (expander)
   "Substitute the form preceding point with its macroexpansion using EXPANDER."
   (interactive)
-  (let* ((form (cider-macroexpand-form expander (cider-last-sexp)))
-         (expansion (plist-get (cider-eval-sync form nrepl-buffer-ns) :stdout))
+  (let* ((expansion (cider-macroexpansion expander (cider-last-sexp)))
          (bounds (cons (save-excursion (backward-sexp) (point)) (point))))
     (cider-redraw-macroexpansion-buffer
      expansion (current-buffer) (car bounds) (cdr bounds) (point))))
@@ -72,9 +72,7 @@ This variable specifies both what was expanded and the expander.")
 (defun cider-macroexpand-again ()
   "Repeat the last macroexpansion."
   (interactive)
-  (let ((expansion
-         (plist-get (cider-eval-sync cider-last-macroexpand-expression nrepl-buffer-ns) :stdout)))
-    (cider-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
+  (cider-initialize-macroexpansion-buffer cider-last-macroexpansion-expression nrepl-buffer-ns))
 
 ;;;###autoload
 (defun cider-macroexpand-1 (&optional prefix)
@@ -82,7 +80,7 @@ This variable specifies both what was expanded and the expander.")
 If invoked with a PREFIX argument, use 'macroexpand' instead of
 'macroexpand-1'."
   (interactive "P")
-  (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
+  (let ((expander (if prefix "macroexpand" "macroexpand-1")))
     (cider-macroexpand-expr expander (cider-last-sexp))))
 
 (defun cider-macroexpand-1-inplace (&optional prefix)
@@ -90,20 +88,19 @@ If invoked with a PREFIX argument, use 'macroexpand' instead of
 If invoked with a PREFIX argument, use 'macroexpand' instead of
 'macroexpand-1'."
   (interactive "P")
-  (let ((expander (if prefix 'macroexpand 'macroexpand-1)))
+  (let ((expander (if prefix "macroexpand" "macroexpand-1")))
     (cider-macroexpand-expr-inplace expander)))
 
 ;;;###autoload
 (defun cider-macroexpand-all ()
   "Invoke 'clojure.walk/macroexpand-all' on the expression preceding point."
   (interactive)
-  (cider-macroexpand-expr
-   'clojure.walk/macroexpand-all (cider-last-sexp)))
+  (cider-macroexpand-expr "macroexpand-all" (cider-last-sexp)))
 
 (defun cider-macroexpand-all-inplace ()
   "Perform inplace 'clojure.walk/macroexpand-all' on the expression preceding point."
   (interactive)
-  (cider-macroexpand-expr-inplace 'clojure.walk/macroexpand-all))
+  (cider-macroexpand-expr-inplace "macroexpand-all"))
 
 (defun cider-initialize-macroexpansion-buffer (expansion ns)
   "Create a new Macroexpansion buffer with EXPANSION and namespace NS."
