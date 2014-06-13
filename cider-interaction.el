@@ -766,6 +766,7 @@ The handler simply inserts the result value in BUFFER."
                                (lambda (_buffer value)
                                  (cider-repl-emit-interactive-output value))
                                (lambda (buffer err)
+                                 (cider-repl-emit-interactive-output err)
                                  (message "%s" err)
                                  (cider-highlight-compilation-errors
                                   buffer err))
