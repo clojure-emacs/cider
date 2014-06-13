@@ -154,7 +154,7 @@ and point is placed at CURRENT-POINT."
     map))
 
 (define-minor-mode cider-macroexpansion-minor-mode
-  "Minor mode for nrepl macroexpansion.
+  "Minor mode for CIDER macroexpansion.
 
 \\{cider-macroexpansion-minor-mode-map}"
   nil
