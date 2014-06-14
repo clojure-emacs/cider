@@ -131,6 +131,12 @@ Use the convenient plugin for defaults, either in your project's
 :plugins [[cider/cider-nrepl "x.y.z"]]
 ```
 
+A minimal `profiles.clj` for CIDER would be:
+
+```clojure
+{:user {:plugins [[cider/cider-nrepl "0.7.0-SNAPSHOT"]]}}
+```
+
 `x.y.z` should match the version of CIDER you're currently using (say `0.7.1`).
 For snapshot releases of CIDER you should use the snapshot of the plugin as well
 (say `0.7.1-SNAPSHOT`).
@@ -193,17 +199,17 @@ following snippet:
   shown on error:
 
   - Don't show on error:
-    
+
 ```el
     (setq cider-show-error-buffer nil)
-```    
+```
 
    Independently of the value of `cider-show-error-buffer`, the error buffer is
    always generated in the background. Use `cider-visit-error-buffer` to visit
    this buffer.
 
   - Selective strategies:
-    
+
 ```el
     (setq cider-show-error-buffer 'except-in-repl) ; or
     (setq cider-show-error-buffer 'only-in-repl)
