@@ -472,7 +472,7 @@ If BOL is non-nil insert at the beginning of the line."
           (if cider-repl-use-clojure-font-lock
               (insert-before-markers (cider-font-lock-as-clojure string))
             (cider-propertize-region
-                `(face cider-repl-result-face rear-nonsticky (face))
+                '(face cider-repl-result-face rear-nonsticky (face))
               (insert-before-markers string))))))
     (cider-repl--show-maximum-output)))
 
