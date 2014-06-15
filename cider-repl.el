@@ -212,11 +212,6 @@ Insert a banner, unless NOPROMPT is non-nil."
   (with-current-buffer buffer
     (unless (eq major-mode 'cider-repl-mode)
       (cider-repl-mode))
-    ;; use the same requires by default as clojure.main does
-    ;; load them a with a delay to avoid a possible race condition
-    ;; TODO: Do this async
-    (sleep-for 1)
-    (cider-eval-sync nrepl-repl-requires-sexp)
     (when cider-repl-print-length
       (cider-repl-set-print-length cider-repl-print-length))
     (cider-repl-reset-markers)

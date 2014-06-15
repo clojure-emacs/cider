@@ -92,9 +92,6 @@ should be an `plist` of the form
   :type 'function
   :group 'nrepl)
 
-(defvar nrepl-repl-requires-sexp "(clojure.core/apply clojure.core/require '[[clojure.repl :refer (source apropos dir pst doc find-doc)] [clojure.java.javadoc :refer (javadoc)] [clojure.pprint :refer (pp pprint)]])"
-  "Things to require in the tooling session and the REPL buffer.")
-
 (defvar-local nrepl-connection-buffer nil)
 (defvar-local nrepl-server-buffer nil)
 (defvar-local nrepl-repl-buffer nil)
@@ -912,28 +909,13 @@ If so ask the user for confirmation."
     (nrepl-send-request (list "op" "describe")
                         (nrepl-describe-handler buffer))))
 
-(defun nrepl-setup-default-namespaces (process)
-  "Setup default namespaces for PROCESS."
-  (let ((buffer (process-buffer process)))
-    (with-current-buffer buffer
-      (nrepl-send-string
-       nrepl-repl-requires-sexp
-       (nrepl-make-response-handler
-        buffer nil
-        (lambda (_buffer out) (message out))
-        (lambda (_buffer err) (message err))
-        nil)
-       nrepl-buffer-ns
-       nrepl-tooling-session))))
-
 (defun nrepl-new-tooling-session-handler (process)
   "Create a new tooling session handler for PROCESS."
   (lambda (response)
     (nrepl-dbind-response response (id new-session)
       (with-current-buffer (process-buffer process)
         (setq nrepl-tooling-session new-session)
-        (remhash id nrepl-pending-requests)
-        (nrepl-setup-default-namespaces process)))))
+        (remhash id nrepl-pending-requests)))))
 
 (defun nrepl-new-session-handler (process)
   "Create a new session handler for PROCESS."
