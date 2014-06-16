@@ -80,6 +80,12 @@ The `nrepl-buffer-name-separator' separates cider-repl from the project name."
   :type 'string
   :group 'nrepl)
 
+(defcustom nrepl-sync-request-timeout 10
+  "The number of seconds to wait for a sync response.
+Setting this to nil disables the timeout functionality."
+  :type 'integer
+  :group 'nrepl)
+
 (defcustom nrepl-connection-endpoint
   'nrepl-connection-ssh-tunnel
   "A function that is called to determine command that will be run
@@ -170,6 +176,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 
 (defvar-local nrepl-sync-response nil
   "Result of the last sync request.")
+
+(defvar-local nrepl-sync-request-start-time nil
+  "The time when the last sync request was initiated.")
 
 (defvar nrepl-err-handler 'cider-default-err-handler
   "Evaluation error handler.")
@@ -709,10 +718,16 @@ See command `nrepl-eval-request' for details on how NS and SESSION are processed
 The result is a plist with keys :value, :stderr and :stdout."
   (with-current-buffer (nrepl-current-connection-buffer)
     (setq nrepl-sync-response nil)
+    (setq nrepl-sync-request-start-time (current-time))
     (nrepl-send-request request (nrepl-sync-request-handler (current-buffer)))
     (while (or (null nrepl-sync-response)
                (null (plist-get nrepl-sync-response :done)))
-      (accept-process-output nil 0.005))
+      (accept-process-output nil 0.005)
+      ;; break out in case we don't receive a response for a while
+      (when nrepl-sync-request-timeout
+        (let ((seconds-ellapsed (cadr (time-subtract (current-time) nrepl-sync-request-start-time))))
+          (if (> seconds-ellapsed nrepl-sync-request-timeout)
+              (keyboard-quit)))))
     nrepl-sync-response))
 
 (defun nrepl-send-string-sync (input &optional ns session)
