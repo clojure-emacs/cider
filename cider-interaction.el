@@ -748,8 +748,9 @@ The handler simply inserts the result value in BUFFER."
                                  (message "%s%s"
                                           cider-interactive-eval-result-prefix
                                           (cider-font-lock-as-clojure value)))
-                               (lambda (_buffer value)
-                                 (cider-repl-emit-interactive-output value))
+                               (lambda (_buffer out)
+                                 (message "%s" out)
+                                 (cider-repl-emit-interactive-output out))
                                (lambda (buffer err)
                                  (message "%s" err)
                                  (cider-highlight-compilation-errors
@@ -1338,6 +1339,12 @@ Defaults to the symbol at point.  With prefix arg or no symbol
 under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
+
+(defun cider-refresh ()
+  "Refresh loaded code."
+  (interactive)
+  (cider-tooling-eval "(clojure.tools.namespace.repl/refresh)"
+                      (cider-interactive-eval-handler (current-buffer))))
 
 ;; TODO: implement reloading ns
 (defun cider-eval-load-file (form)

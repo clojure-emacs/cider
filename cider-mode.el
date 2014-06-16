@@ -64,6 +64,7 @@
     (define-key map (kbd "C-c M-s") 'cider-selector)
     (define-key map (kbd "C-c M-r") 'cider-rotate-connection)
     (define-key map (kbd "C-c M-d") 'cider-display-current-connection-info)
+    (define-key map (kbd "C-c C-x") 'cider-refresh)
     (define-key map (kbd "C-c C-q") 'cider-quit)
     map))
 
@@ -111,6 +112,7 @@
     ["Switch to Relevant REPL" cider-switch-to-relevant-repl-buffer]
     ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
     ["Clear REPL" cider-find-and-clear-repl-buffer]
+    ["Refresh loaded code" cider-refresh]
     ["Interrupt" cider-interrupt]
     ["Quit" cider-quit]
     ["Restart" cider-restart]

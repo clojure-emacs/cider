@@ -1043,6 +1043,7 @@ ENDP) DELIM."
     (define-key map (kbd "C-c C-q") 'cider-quit)
     (define-key map (kbd "C-c M-i") 'cider-inspect)
     (define-key map (kbd "C-c M-t") 'cider-toggle-trace)
+    (define-key map (kbd "C-c C-x") 'cider-refresh)
     (define-key map (string cider-repl-shortcut-dispatch-char) 'cider-repl-handle-shortcut)
     map))
 
@@ -1092,6 +1093,7 @@ ENDP) DELIM."
     ["Toggle pretty printing of results" cider-repl-toggle-pretty-printing]
     ["Clear output" cider-repl-clear-output]
     ["Clear buffer" cider-repl-clear-buffer]
+    ["Refresh loaded code" cider-refresh]
     ["Kill input" cider-repl-kill-input]
     ["Interrupt" cider-interrupt]
     ["Quit" cider-quit]
