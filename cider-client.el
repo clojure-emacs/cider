@@ -174,6 +174,15 @@ Simply returns it if it's not a dict."
       (-map '-cons-to-list (cdr val))
     val))
 
+(defun cider--dict-to-plist (val)
+  "Transforms a nREPL bdecoded dict VAL into a plist with symbol keys.
+Simply returns it if it's not a dict."
+  (if (and (listp val)
+           (eq (car val) 'dict))
+      (-interleave (-map 'intern (-map 'car (cdr val)))
+                   (-map 'cdr (cdr val)))
+    val))
+
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
 This is needed only when the symbol queried is an unqualified host platform

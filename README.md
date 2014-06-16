@@ -539,6 +539,9 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-t</kbd>                   | Toggle var tracing.
+<kbd>C-c ,</kbd>                     | Run tests for namespace.
+<kbd>C-c C-,</kbd>                   | Re-run test failures/errors for namespace.
+<kbd>C-c M-,</kbd>                   | Run test at point.
 <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
@@ -591,6 +594,19 @@ Keyboard shortcut               | Description
 <kbd>Return</kbd> | inspect sub-objects
 <kbd>l</kbd> | pop to the parent object
 <kbd>g</kbd> | refresh the inspector (e.g. if viewing an atom/ref/agent)
+
+### cider-test-report-mode
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>C-c ,</kbd>                | Run tests for namespace.
+<kbd>C-c C-,</kbd>              | Re-run test failures/errors for namespace.
+<kbd>C-c M-,</kbd>              | Run test at point.
+<kbd>M-p</kbd>                  | Move point to previous test.
+<kbd>M-n</kbd>                  | Move point to next test.
+<kbd>t</kbd> and <kbd>M-.</kbd> | Jump to test definition.
+<kbd>d</kbd>                    | Display diff of actual vs expected.
+<kbd>e</kbd>                    | Display test error cause and stacktrace info.
 
 ### cider-stacktrace-mode
 

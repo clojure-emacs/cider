@@ -83,6 +83,13 @@ PROP is the name of a text property."
   (assert (get-text-property (point) prop))
   (let ((end (next-single-char-property-change (point) prop)))
     (list (previous-single-char-property-change end prop) end)))
+
+(defun cider-insert (text &optional face break more-text)
+  "Insert TEXT with FACE, optionally followed by a line BREAK and MORE-TEXT."
+  (insert (if face (propertize text 'face face) text))
+  (when more-text (insert more-text))
+  (when break (insert "\n")))
+
 ;;; Font lock
 
 (defun cider-font-lock-as (mode string)
