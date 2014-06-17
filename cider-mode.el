@@ -91,6 +91,7 @@
         ["Macroexpand-all last expression" cider-macroexpand-all]
         "--"
         ["Jump to source" cider-jump]
+        ["Jump to resource" cider-jump-to-resource]
         ["Jump back" cider-jump-back]
         "--"
         ["Display documentation" cider-doc]

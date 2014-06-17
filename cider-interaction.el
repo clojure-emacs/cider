@@ -137,7 +137,7 @@ which will use the default REPL connection."
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
     "macroexpand" "macroexpand-1" "macroexpand-all"
-    "stacktrace" "toggle-trace")
+    "resource" "stacktrace" "toggle-trace")
   "A list of nREPL ops required by CIDER to function properly.
 
 All of them are provided by CIDER's nREPL middleware(cider-nrepl).")
@@ -620,6 +620,17 @@ exists) is added as a prefix to LOCATION."
   "Jump to the definition of QUERY."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-jump-to-def query))
+
+(defun cider-jump-to-resource ()
+  "Jump to resource file at point."
+  (interactive)
+  (cider-ensure-op-supported "resource")
+  (let ((resource (thing-at-point 'filename)))
+    (-when-let (resource-path (plist-get (nrepl-send-request-sync
+                                         (list "op" "resource"
+                                               "name" resource)) :value))
+     (ring-insert find-tag-marker-ring (point-marker))
+     (find-file resource-path))))
 
 (defalias 'cider-jump-back 'pop-tag-mark)
 
