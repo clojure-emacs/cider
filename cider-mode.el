@@ -63,6 +63,7 @@
     (define-key map (kbd "C-c C-j") 'cider-javadoc)
     (define-key map (kbd "C-c ,")   'cider-test-run-tests)
     (define-key map (kbd "C-c C-,") 'cider-test-rerun-tests)
+    (define-key map (kbd "C-c M-,") 'cider-test-run-test)
     (define-key map (kbd "C-c r")   'cider-test-show-report)
     (define-key map (kbd "C-c M-s") 'cider-selector)
     (define-key map (kbd "C-c M-r") 'cider-rotate-connection)
@@ -109,6 +110,11 @@
     ["Display documentation" cider-doc]
     ["Display JavaDoc" cider-javadoc]
     ["Inspect" cider-inspect]
+    "--"
+    ["Run test" cider-test-run-test]
+    ["Run all tests" cider-test-run-tests]
+    ["Rerun failed/erring tests" cider-test-rerun-tests]
+    ["Show test report" cider-test-show-report]
     "--"
     ["Set ns" cider-repl-set-ns]
     ["Switch to REPL" cider-switch-to-repl-buffer]

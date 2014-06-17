@@ -542,6 +542,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c ,</kbd>                     | Run tests for namespace.
 <kbd>C-c C-,</kbd>                   | Re-run test failures/errors for namespace.
 <kbd>C-c M-,</kbd>                   | Run test at point.
+<kbd>C-c r</kbd>                     | Show the test report buffer.
 <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
