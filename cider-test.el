@@ -206,10 +206,16 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
             (clojure-mode))
           (with-current-buffer actual-buffer
             (insert actual)
-            (clojure-mode)
-            (paredit-backward-down)
-            (paredit-backward)
-            (paredit-splice-sexp-killing-backward))
+            (goto-char (point-min))
+            (forward-char)
+            (forward-sexp)
+            (forward-whitespace 1)
+            (let ((beg (point)))
+              (forward-sexp)
+              (let ((actual* (buffer-substring beg (point))))
+                (erase-buffer)
+                (insert actual*)))
+            (clojure-mode))
           (apply 'ediff-buffers
                  (setq cider-test-ediff-buffers
                        (list (buffer-name expected-buffer)
@@ -323,9 +329,10 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     (nrepl-dbind-response test (type line message expected actual)
       (save-excursion
         (goto-line line)
-        (paredit-forward-down)
+        (forward-whitespace 1)
+        (forward-char)
         (let ((beg (point)))
-          (paredit-forward)
+          (forward-sexp)
           (let ((overlay (make-overlay beg (point))))
             (overlay-put overlay 'face (cider-test-type-face type))
             (overlay-put overlay 'type type)
