@@ -1045,6 +1045,29 @@ ENDP) DELIM."
     (define-key map (kbd "C-c M-t") 'cider-toggle-trace)
     (define-key map (kbd "C-c C-x") 'cider-refresh)
     (define-key map (string cider-repl-shortcut-dispatch-char) 'cider-repl-handle-shortcut)
+    (easy-menu-define cider-repl-mode-menu map
+      "Menu for CIDER's REPL mode"
+      '("REPL"
+        ["Complete symbol" complete-symbol]
+        "--"
+        ["Jump to source" cider-jump]
+        ["Jump back" cider-jump-back]
+        "--"
+        ["Display documentation" cider-doc]
+        ["Display JavaDoc" cider-javadoc]
+        ["Inspect" cider-inspect]
+        "--"
+        ["Set REPL ns" cider-repl-set-ns]
+        ["Toggle pretty printing of results" cider-repl-toggle-pretty-printing]
+        ["Clear output" cider-repl-clear-output]
+        ["Clear buffer" cider-repl-clear-buffer]
+        ["Refresh loaded code" cider-refresh]
+        ["Kill input" cider-repl-kill-input]
+        ["Interrupt" cider-interrupt]
+        ["Quit" cider-quit]
+        ["Restart" cider-restart]
+        "--"
+        ["Version info" cider-version]))
     map))
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
@@ -1076,30 +1099,6 @@ ENDP) DELIM."
                 (define-key cider-repl-mode-map "}" 'paredit-close-curly)
                 (add-to-list 'paredit-space-for-delimiter-predicates
                              'cider-space-for-delimiter-p)))))
-
-(easy-menu-define cider-repl-mode-menu cider-repl-mode-map
-  "Menu for CIDER's REPL mode"
-  '("REPL"
-    ["Complete symbol" complete-symbol]
-    "--"
-    ["Jump to source" cider-jump]
-    ["Jump back" cider-jump-back]
-    "--"
-    ["Display documentation" cider-doc]
-    ["Display JavaDoc" cider-javadoc]
-    ["Inspect" cider-inspect]
-    "--"
-    ["Set REPL ns" cider-repl-set-ns]
-    ["Toggle pretty printing of results" cider-repl-toggle-pretty-printing]
-    ["Clear output" cider-repl-clear-output]
-    ["Clear buffer" cider-repl-clear-buffer]
-    ["Refresh loaded code" cider-refresh]
-    ["Kill input" cider-repl-kill-input]
-    ["Interrupt" cider-interrupt]
-    ["Quit" cider-quit]
-    ["Restart" cider-restart]
-    "--"
-    ["Version info" cider-version]))
 
 
 (provide 'cider-repl)

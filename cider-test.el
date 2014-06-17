@@ -101,6 +101,19 @@
     (define-key map (kbd "d") 'cider-test-ediff)
     (define-key map (kbd "e") 'cider-test-stacktrace)
     (define-key map "q" 'cider-popup-buffer-quit-function)
+    (easy-menu-define cider-test-report-mode-menu map
+      "Menu for CIDER's test result mode"
+      '("Test-Report"
+        ["Previous result" cider-test-previous-result]
+        ["Next result" cider-test-next-result]
+        "--"
+        ["Rerun current test" cider-test-run-test]
+        ["Rerun failed/erring tests" cider-test-rerun-tests]
+        ["Rerun all tests" cider-test-run-tests]
+        "--"
+        ["Jump to test definition" cider-test-jump]
+        ["Display test error" cider-test-stacktrace]
+        ["Display expected/actual diff" cider-test-ediff]))
     map))
 
 (define-derived-mode cider-test-report-mode fundamental-mode "Test Report"
@@ -110,21 +123,6 @@
   (setq buffer-read-only t)
   (setq-local truncate-lines t)
   (setq-local electric-indent-chars nil))
-
-(easy-menu-define cider-test-report-mode-menu cider-test-report-mode-map
-  "Menu for CIDER's test result mode"
-  '("Test-Report"
-    ["Previous result" cider-test-previous-result]
-    ["Next result" cider-test-next-result]
-    "--"
-    ["Rerun current test" cider-test-run-test]
-    ["Rerun failed/erring tests" cider-test-rerun-tests]
-    ["Rerun all tests" cider-test-run-tests]
-    "--"
-    ["Jump to test definition" cider-test-jump]
-    ["Display test error" cider-test-stacktrace]
-    ["Display expected/actual diff" cider-test-ediff]))
-
 
 ;; Report navigation
 

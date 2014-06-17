@@ -89,12 +89,11 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "q" 'cider-popup-buffer-quit-function)
     (define-key map "j" 'cider-doc-javadoc)
+    (easy-menu-define cider-doc-mode-menu map
+      "Menu for CIDER's doc mode"
+      '("Doc"
+        ["Go to Javadoc" cider-doc-javadoc]))
     map))
-
-(easy-menu-define cider-doc-mode-menu cider-doc-mode-map
-  "Menu for CIDER's doc mode"
-  '("Doc"
-    ["Go to Javadoc" cider-doc-javadoc]))
 
 (define-derived-mode cider-doc-mode fundamental-mode "Doc"
   "Major mode for displaying CIDER documentation

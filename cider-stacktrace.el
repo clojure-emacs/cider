@@ -132,30 +132,29 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
     (define-key map "0" 'cider-stacktrace-cycle-all-causes)
     (define-key map [tab] 'cider-stacktrace-cycle-current-cause)
     (define-key map [backtab] 'cider-stacktrace-cycle-all-causes)
+    (easy-menu-define cider-stacktrace-mode-menu map
+      "Menu for CIDER's stacktrace mode"
+      '("Stacktrace"
+        ["Previous cause" cider-stacktrace-previous-cause]
+        ["Next cause" cider-stacktrace-next-cause]
+        "--"
+        ["Jump to frame source" cider-stacktrace-jump]
+        "--"
+        ["Cycle current cause detail" cider-stacktrace-cycle-current-cause]
+        ["Cycle cause #1 detail" cider-stacktrace-cycle-cause-1]
+        ["Cycle cause #2 detail" cider-stacktrace-cycle-cause-2]
+        ["Cycle cause #3 detail" cider-stacktrace-cycle-cause-3]
+        ["Cycle cause #4 detail" cider-stacktrace-cycle-cause-4]
+        ["Cycle cause #5 detail" cider-stacktrace-cycle-cause-5]
+        ["Cycle all cause detail" cider-stacktrace-cycle-all-causes]
+        "--"
+        ["Show/hide Java frames" cider-stacktrace-toggle-java]
+        ["Show/hide Clojure frames" cider-stacktrace-toggle-clj]
+        ["Show/hide REPL frames" cider-stacktrace-toggle-repl]
+        ["Show/hide tooling frames" cider-stacktrace-toggle-tooling]
+        ["Show/hide duplicate frames" cider-stacktrace-toggle-duplicates]
+        ["Show/hide all frames" cider-stacktrace-toggle-all]))
     map))
-
-(easy-menu-define cider-stacktrace-mode-menu cider-stacktrace-mode-map
-  "Menu for CIDER's stacktrace mode"
-  '("Stacktrace"
-    ["Previous cause" cider-stacktrace-previous-cause]
-    ["Next cause" cider-stacktrace-next-cause]
-    "--"
-    ["Jump to frame source" cider-stacktrace-jump]
-    "--"
-    ["Cycle current cause detail" cider-stacktrace-cycle-current-cause]
-    ["Cycle cause #1 detail" cider-stacktrace-cycle-cause-1]
-    ["Cycle cause #2 detail" cider-stacktrace-cycle-cause-2]
-    ["Cycle cause #3 detail" cider-stacktrace-cycle-cause-3]
-    ["Cycle cause #4 detail" cider-stacktrace-cycle-cause-4]
-    ["Cycle cause #5 detail" cider-stacktrace-cycle-cause-5]
-    ["Cycle all cause detail" cider-stacktrace-cycle-all-causes]
-    "--"
-    ["Show/hide Java frames" cider-stacktrace-toggle-java]
-    ["Show/hide Clojure frames" cider-stacktrace-toggle-clj]
-    ["Show/hide REPL frames" cider-stacktrace-toggle-repl]
-    ["Show/hide tooling frames" cider-stacktrace-toggle-tooling]
-    ["Show/hide duplicate frames" cider-stacktrace-toggle-duplicates]
-    ["Show/hide all frames" cider-stacktrace-toggle-all]))
 
 (define-derived-mode cider-stacktrace-mode fundamental-mode "Stacktrace"
   "Major mode for filtering and navigating CIDER stacktraces.
@@ -230,9 +229,9 @@ hidden count."
     (save-excursion
       (goto-char (point-min))
       (cl-flet ((next-detail (end)
-                  (-when-let (pos (next-single-property-change (point) 'detail))
-                    (when (< pos end)
-                      (goto-char pos)))))
+                             (-when-let (pos (next-single-property-change (point) 'detail))
+                               (when (< pos end)
+                                 (goto-char pos)))))
         (let ((inhibit-read-only t))
           ;; For each cause...
           (while (cider-stacktrace-next-cause)
