@@ -425,13 +425,20 @@ displayed. When test failures/errors occur, their sources are highlighted."
     (message "No namespace to test in current context")))
 
 (defun cider-test-run-test ()
-  "Run the test at point."
+  "Run the test at point.
+The test ns/var exist as text properties on report items and on highlighted
+failed/erred test definitions. When not found, a test definition at point
+is searched."
   (interactive)
   (let ((ns  (get-text-property (point) 'ns))
         (var (get-text-property (point) 'var)))
     (if (and ns var)
         (cider-test-execute ns nil (list var))
-      (message "No test at point"))))
+      (let ((ns  (clojure-find-ns))
+            (def (clojure-find-def)))
+        (if (and ns (member (first def) '("deftest" "defspec")))
+            (cider-test-execute ns nil (rest def))
+          (message "No test at point"))))))
 
 (provide 'cider-test)
 
