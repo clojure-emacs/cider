@@ -64,7 +64,7 @@
     (define-key map (kbd "C-c ,")   'cider-test-run-tests)
     (define-key map (kbd "C-c C-,") 'cider-test-rerun-tests)
     (define-key map (kbd "C-c M-,") 'cider-test-run-test)
-    (define-key map (kbd "C-c r")   'cider-test-show-report)
+    (define-key map (kbd "C-c C-t") 'cider-test-show-report)
     (define-key map (kbd "C-c M-s") 'cider-selector)
     (define-key map (kbd "C-c M-r") 'cider-rotate-connection)
     (define-key map (kbd "C-c M-d") 'cider-display-current-connection-info)
