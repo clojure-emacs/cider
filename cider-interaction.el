@@ -109,6 +109,15 @@ which will use the default REPL connection."
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
+(defconst cider-output-buffer "*cider-out*")
+
+(defcustom cider-interactive-eval-output-destination 'repl-buffer
+  "The destination for stdout and stderr produced from interactive evaluation."
+  :type '(choice (const output-buffer)
+                 (const repl-buffer))
+  :group 'cider
+  :package-version '(cider . "0.7.0"))
+
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
      (:underline (:style wave :color "red") :inherit unspecified))
@@ -743,6 +752,19 @@ The handler simply inserts the result value in BUFFER."
                                   buffer err))
                                '()))
 
+(defun cider-emit-interactive-eval-output (output)
+  "Emit standard or error output resulting from interactive code evaluation.
+
+The output can be send to either a dedicated output buffer or the current REPL buffer.
+This is controlled via `cider-interactive-eval-output-destination'."
+  (pcase cider-interactive-eval-output-destination
+    (`output-buffer (let ((output-buffer (or (get-buffer cider-output-buffer)
+                                             (cider-popup-buffer cider-output-buffer t))))
+                      (cider-emit-into-popup-buffer output-buffer output)
+                      (pop-to-buffer output-buffer)))
+    (`repl-buffer (cider-repl-emit-interactive-output output))
+    (t (error "Unsupported value %s for `cider-interactive-eval-output'"))))
+
 (defun cider-interactive-eval-handler (buffer)
   "Make an interactive eval handler for BUFFER."
   (nrepl-make-response-handler buffer
@@ -751,10 +773,9 @@ The handler simply inserts the result value in BUFFER."
                                           cider-interactive-eval-result-prefix
                                           (cider-font-lock-as-clojure value)))
                                (lambda (_buffer out)
-                                 (message "%s" out)
-                                 (cider-repl-emit-interactive-output out))
+                                 (cider-emit-interactive-eval-output out))
                                (lambda (buffer err)
-                                 (message "%s" err)
+                                 (cider-emit-interactive-eval-output err)
                                  (cider-highlight-compilation-errors
                                   buffer err))
                                '()))
@@ -768,9 +789,9 @@ The handler simply inserts the result value in BUFFER."
                                    (setq nrepl-buffer-ns (clojure-find-ns))
                                    (run-hooks 'cider-file-loaded-hook)))
                                (lambda (_buffer value)
-                                 (cider-repl-emit-interactive-output value))
+                                 (cider-emit-interactive-eval-output value))
                                (lambda (buffer err)
-                                 (message "%s" err)
+                                 (cider-emit-interactive-eval-output value)
                                  (cider-highlight-compilation-errors
                                   buffer err))
                                '()
@@ -784,10 +805,10 @@ The handler simply inserts the result value in BUFFER."
                                (lambda (buffer value)
                                  (with-current-buffer buffer
                                    (insert (format "\n%s" value))))
-                               (lambda (_buffer value)
-                                 (cider-repl-emit-interactive-output value))
+                               (lambda (_buffer out)
+                                 (cider-emit-interactive-eval-output out))
                                (lambda (_buffer err)
-                                 (message "%s" err))
+                                 (cider-emit-interactive-eval-output err))
                                '()))
 
 (defun cider-popup-eval-print-handler (buffer)
