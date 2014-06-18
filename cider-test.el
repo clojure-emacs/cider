@@ -167,13 +167,13 @@
      (list "op" "test-stacktrace" "session" (nrepl-current-session)
            "ns" ns "var" var "index" index)
      (lambda (response)
-       (nrepl-dbind-response response (message status)
-         (cond (message (setq causes (cons response causes)))
-               (status  (when causes
-                          (cider-stacktrace-render
-                           (cider-popup-buffer cider-error-buffer
-                                               cider-auto-select-error-buffer)
-                           (reverse causes))))))))))
+       (nrepl-dbind-response response (class status)
+         (cond (class  (setq causes (cons response causes)))
+               (status (when causes
+                         (cider-stacktrace-render
+                          (cider-popup-buffer cider-error-buffer
+                                              cider-auto-select-error-buffer)
+                          (reverse causes))))))))))
 
 (defun cider-test-stacktrace (&optional button)
   "Display stacktrace for the erring test at point, optionally from BUTTON."
