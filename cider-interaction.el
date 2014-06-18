@@ -809,7 +809,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                (lambda (_buffer value)
                                  (cider-emit-interactive-eval-output value))
                                (lambda (buffer err)
-                                 (cider-emit-interactive-eval-output value)
+                                 (cider-emit-interactive-eval-output err)
                                  (cider-highlight-compilation-errors
                                   buffer err))
                                '()
