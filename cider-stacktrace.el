@@ -392,7 +392,7 @@ it wraps to 0."
                    (cider-member-info class method)))
            (file (cadr (assoc "file" info))))
       (if (and file line)
-          (cider-jump-to-def-for (vector file file line))
+          (cider-jump-to-def-for (vector file line))
         (error "No source info")))))
 
 (defun cider-stacktrace-jump ()
