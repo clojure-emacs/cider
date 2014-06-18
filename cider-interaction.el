@@ -574,29 +574,26 @@ otherwise, nil."
         (t (error "Unknown resource path %s" resource))))
 
 (defun cider-find-or-create-definition-buffer (location)
-  "Return a buffer with point at LOCATION's definition in the source code.
+  "Return a buffer containing LOCATION's definition in the source code.
 
 The current buffer is used to determine a tramp prefix, which (if it
 exists) is added as a prefix to LOCATION."
-  ;; ugh; elisp destructuring doesn't work for vectors
-  (let* ((resource (aref location 0))
-         (path (aref location 1))
-         (line (aref location 2))
+  (let* ((path (cider-get-path-for location))
          (tramp-path (and path (cider--client-tramp-filename path)))
-         (buffer (cond (tramp-path (find-file-noselect tramp-path))
-                       ((and path (file-exists-p path)) (find-file-noselect path))
-                       (t (cider-find-or-create-resource-buffer resource)))))
+         (buffer (cond (tramp-path (cider-find-or-create-file-buffer tramp-path))
+                       ((and path (file-exists-p path)) (cider-find-or-create-file-buffer path))
+                       (t (cider-find-or-create-resource-buffer path)))))
     (with-current-buffer buffer
-      (goto-char (point-min))
-      (forward-line (1- line))
       (cider-mode 1) ; enable cider-jump keybindings on java sources
       buffer)))
 
 (defun cider-jump-to-def-for (def-location)
   "Jump to DEF-LOCATION in the source code."
-  (-when-let (buffer (cider-find-or-create-definition-buffer def-location))
+  (-when-let* ((buffer (cider-find-or-create-definition-buffer def-location))
+               (line (cider-get-line-for def-location)))
     (ring-insert find-tag-marker-ring (point-marker))
-    (switch-to-buffer buffer)))
+    (switch-to-buffer buffer)
+    (goto-line line)))
 
 (defun cider-get-def-location (var)
   "Return the location of the definition of VAR."
@@ -605,9 +602,17 @@ exists) is added as a prefix to LOCATION."
          (line (cadr (assoc "line" info))))
     (if info
         (if (and file line)
-            (vector file file line)
-          (message "No source available for %s" var))
-      (message "Symbol %s not resolved" var))))
+            (vector file line)
+          (message "No source available for %s" var) nil)
+      (message "Symbol %s not resolved" var) nil)))
+
+(defun cider-get-path-for (location)
+  "Return the path of LOCATION's definition."
+  (aref location 0))
+
+(defun cider-get-line-for (location)
+  "Return the line number of LOCATION's definition."
+  (aref location 1))
 
 (defun cider-jump-to-def (var &optional line)
   "Jump to the definition of the VAR, and optionally to the given LINE."
@@ -710,8 +715,10 @@ form, with symbol at point replaced by __prefix__."
 Returns the cons of the buffer itself and the location of VAR's definition
 in the buffer."
   (-when-let* ((location (cider-get-def-location var))
-               (buffer (cider-find-or-create-definition-buffer location)))
+               (buffer (cider-find-or-create-definition-buffer location))
+               (line (cider-get-line-for location)))
     (with-current-buffer buffer
+      (goto-line line)
       (cons buffer (point)))))
 
 (defun cider-company-docsig (thing)
