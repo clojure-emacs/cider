@@ -1011,7 +1011,7 @@ ENDP) DELIM."
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "M-.") 'cider-jump)
     (define-key map (kbd "M-,") 'cider-jump-back)
-    (derine-key map (kbd "C-c M-." 'cider-jump-to-resource))
+    (derine-key map (kbd "C-c M-.") 'cider-jump-to-resource)
     (define-key map (kbd "RET") 'cider-repl-return)
     (define-key map (kbd "TAB") 'cider-repl-tab)
     (define-key map (kbd "C-<return>") 'cider-repl-closing-return)
