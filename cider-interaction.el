@@ -632,10 +632,10 @@ exists) is added as a prefix to LOCATION."
   (cider-ensure-op-supported "resource")
   (let ((resource (thing-at-point 'filename)))
     (-when-let (resource-path (plist-get (nrepl-send-request-sync
-                                         (list "op" "resource"
-                                               "name" resource)) :value))
-     (ring-insert find-tag-marker-ring (point-marker))
-     (find-file resource-path))))
+                                          (list "op" "resource"
+                                                "name" resource)) :value))
+      (ring-insert find-tag-marker-ring (point-marker))
+      (find-file resource-path))))
 
 (defalias 'cider-jump-back 'pop-tag-mark)
 
@@ -904,10 +904,10 @@ They exist for compatibility with `next-error'."
     (nrepl-send-request
      (list "op" "stacktrace" "session" session)
      (lambda (response)
-       (nrepl-dbind-response response (message status)
-         (cond (message (setq causes (cons response causes)))
-               (status  (when causes
-                          (cider-stacktrace-render buffer (reverse causes))))))))))
+       (nrepl-dbind-response response (class status)
+         (cond (class  (setq causes (cons response causes)))
+               (status (when causes
+                         (cider-stacktrace-render buffer (reverse causes))))))))))
 
 (defun cider-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
@@ -1439,6 +1439,7 @@ under point, prompts for a var."
 (defvar cider-ancilliary-buffers
   (list cider-error-buffer
         cider-doc-buffer
+        cider-test-report-buffer
         nrepl-message-buffer-name))
 
 (defun cider-close-ancilliary-buffers ()

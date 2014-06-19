@@ -479,7 +479,7 @@ This associates text properties to enable filtering and source navigation."
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
             (cider-stacktrace-emit-indented
-             (propertize message 'face message-face) indent t)
+             (propertize (or message "(No message)") 'face message-face) indent t)
             (newline)
             (when data
               (cider-stacktrace-emit-indented
