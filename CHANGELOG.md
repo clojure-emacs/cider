@@ -12,7 +12,7 @@ of the 'all' filter on stacktraces.
 for presenting fontified documentation, including Javadoc.
 * New interactive command `cider-toggle-trace`.
 * `cider-select` can now switch to the `*cider-error*` buffer (bound to `x`).
-* [#613](https://github.com/clojure-emacs/cider/issues/613) New `clojure.test'
+* [#613](https://github.com/clojure-emacs/cider/issues/613) New `clojure.test`
 integration.
 * [#22](https://github.com/clojure-emacs/cider/issues/22): New command
 `cider-jump-to-resource` (bound to <kbd>C-c M-.</kbd>.
