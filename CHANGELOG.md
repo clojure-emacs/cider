@@ -15,7 +15,7 @@ for presenting fontified documentation, including Javadoc.
 * [#613](https://github.com/clojure-emacs/cider/issues/613): New `clojure.test`
 integration.
 * [#22](https://github.com/clojure-emacs/cider/issues/22): New command
-`cider-jump-to-resource` (bound to <kbd>C-c M-.</kbd>.
+`cider-jump-to-resource` (bound to <kbd>C-c M-.</kbd>).
 
 ### Changes
 
