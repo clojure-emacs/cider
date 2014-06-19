@@ -36,7 +36,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-.") 'cider-jump)
     (define-key map (kbd "M-,") 'cider-jump-back)
-    (derine-key map (kbd "C-c M-.") 'cider-jump-to-resource)
+    (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
     (define-key map (kbd "M-TAB") 'complete-symbol)
     (define-key map (kbd "C-M-x") 'cider-eval-defun-at-point)
     (define-key map (kbd "C-c C-c") 'cider-eval-defun-at-point)
