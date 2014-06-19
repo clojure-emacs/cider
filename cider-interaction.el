@@ -631,11 +631,15 @@ exists) is added as a prefix to LOCATION."
   (interactive)
   (cider-ensure-op-supported "resource")
   (let ((resource (thing-at-point 'filename)))
-    (-when-let (resource-path (plist-get (nrepl-send-request-sync
+    (-if-let (resource-path (plist-get (nrepl-send-request-sync
                                           (list "op" "resource"
                                                 "name" resource)) :value))
-      (ring-insert find-tag-marker-ring (point-marker))
-      (find-file resource-path))))
+        (progn
+          (ring-insert find-tag-marker-ring (point-marker))
+          (find-file resource-path)
+          ;; enable cider-mode in the resource buffer so that jump back will work
+          (cider-mode +1))
+      (message "Cannot find resource %s" resource))))
 
 (defalias 'cider-jump-back 'pop-tag-mark)
 
