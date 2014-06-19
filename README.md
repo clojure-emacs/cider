@@ -121,6 +121,8 @@ Emacs Live you're already good to go.
 
 ## CIDER nREPL middleware
 
+### Using Leiningen
+
 Much of CIDER's functionality depends on the presence of CIDER's own
 [nREPL middleware](https://github.com/clojure-emacs/cider-nrepl).
 
@@ -136,6 +138,25 @@ A minimal `profiles.clj` for CIDER would be:
 ```clojure
 {:user {:plugins [[cider/cider-nrepl "0.7.0-SNAPSHOT"]]}}
 ```
+
+### Using embedded nREPL server
+
+If you're embedding nREPL in your application you'll have to start the
+server with CIDER's own nREPL handler.
+
+```clojure
+(ns my-app
+  (:require [clojure.tools.nrepl.server :as nrepl-server]
+            [cider.nrepl :refer (cider-nrepl-handler)]))
+
+(defn -main
+  []
+  (nrepl-server/start-server :port 7888 :handler cider-nrepl-handler))
+```
+
+It goes without saying that your project should depend on `cider-nrepl`.
+
+***
 
 `x.y.z` should match the version of CIDER you're currently using (say `0.7.1`).
 For snapshot releases of CIDER you should use the snapshot of the plugin as well
