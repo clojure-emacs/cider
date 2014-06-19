@@ -29,7 +29,7 @@ integration.
 * Removed redundant command `cider-src`.
 * Renamed `nrepl-log-events` variable to `nrepl-log-messages`.
 * Renamed `nrepl-log-events` command to `nrepl-log-messages`.
-* Remove redundant cider-src command.
+* Remove redundant `cider-src` command.
 * [#582](https://github.com/clojure-emacs/cider/pull/582): Enable efficient
 loading of jar/zip resources.
 * [#589](https://github.com/clojure-emacs/cider/pull/589): Don't prefer local
