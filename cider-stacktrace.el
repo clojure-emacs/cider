@@ -86,6 +86,12 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
+(defface cider-stacktrace-face
+  '((t (:inherit default)))
+  "Face for stack frame text"
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.6.0"))
+
 (defface cider-stacktrace-ns-face
   '((t (:inherit font-lock-comment-face)))
   "Face for stack frame namespace name"
