@@ -87,7 +87,7 @@ version from the CIDER package or library.")
   "Specify a list of custom endpoints where each endpoint is a list.
 For example: '((\"label\" \"host\" \"port\")).
 The label is optional so that '(\"host\" \"port\") will suffice.
-This variable is used by the CIDER command."
+This variable is used by `cider-connect'."
   :type 'list
   :group 'cider)
 
