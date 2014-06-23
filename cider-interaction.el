@@ -1347,7 +1347,10 @@ Use CALLBACK as the completing read var callback.
 The user is prompted with PROMPT if a prefix argument is in effect,
 if there is no symbol at point, or if QUERY is non-nil."
   (let ((symbol-name (cider-symbol-at-point)))
-    (if (not (or current-prefix-arg query (not symbol-name)))
+    (if (not (or current-prefix-arg
+                 query
+                 (not symbol-name)
+                 (equal "" symbol-name)))
         (funcall callback symbol-name)
       (cider-completing-read-var prompt nrepl-buffer-ns callback))))
 
