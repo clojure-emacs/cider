@@ -140,7 +140,8 @@ start the server."
             (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
             (with-current-buffer (process-buffer process)
               (setq nrepl-project-dir project-dir))
-            (message "Starting nREPL server..."))))
+            (message "Starting nREPL server via %s..."
+                     (propertize cmd 'face 'font-lock-keyword-face)))))
     (message "The %s executable (specified by `cider-lein-command') isn't on your exec-path" cider-lein-command)))
 
 (defun cider-known-endpoint-candidates ()
