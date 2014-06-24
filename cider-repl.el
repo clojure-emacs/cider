@@ -1045,6 +1045,8 @@ ENDP) DELIM."
     (define-key map (kbd "C-c M-i") 'cider-inspect)
     (define-key map (kbd "C-c M-t") 'cider-toggle-trace)
     (define-key map (kbd "C-c C-x") 'cider-refresh)
+    (define-key map (kbd "C-x C-e") 'cider-eval-last-sexp)
+    (define-key map (kbd "C-c C-r") 'cider-eval-region)
     (define-key map (string cider-repl-shortcut-dispatch-char) 'cider-repl-handle-shortcut)
     (easy-menu-define cider-repl-mode-menu map
       "Menu for CIDER's REPL mode"
