@@ -55,8 +55,8 @@
   "Create a new scratch buffer."
   (with-current-buffer (get-buffer-create cider-scratch-buffer-name)
     (clojure-mode)
-    (insert ";; This buffer is for Clojure experiments and evaluation.\n")
-    (insert ";; Press C-j to evaluate the last expression.")
+    (insert ";; This buffer is for Clojure experiments and evaluation.\n"
+            ";; Press C-j to evaluate the last expression.\n\n")
     (use-local-map cider-scratch-mode-map)
     (current-buffer)))
 
