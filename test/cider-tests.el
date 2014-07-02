@@ -538,3 +538,7 @@
   (noflet ((thing-at-point (thing) "user> ")
            (cider-find-ns () "user"))
     (should (string= (cider-symbol-at-point) ""))))
+
+(ert-deftest test-cider--resource-file-url-to-filename ()
+  (should (equal "/space test" (cider--resource-file-url-to-filename "file:/space%20test")))
+  (should (equal "C:/space test" (cider--resource-file-url-to-filename "file:/C:/space%20test"))))
