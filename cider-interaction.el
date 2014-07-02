@@ -568,9 +568,10 @@ path."
   "Return a buffer displaying RESOURCE."
   (cond ((string-match "^file:\\(.+\\)" resource)
          (cider-find-or-create-file-buffer (cider--resource-file-url-to-filename resource)))
-        ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
-         (let* ((jar (match-string 2 resource))
+        ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" resource)
+         (let* ((jar-url (match-string 2 resource))
                 (path (match-string 3 resource))
+                (jar (cider--resource-file-url-to-filename jar-url))
                 (file (cider-file-path jar))
                 (name (format "%s:%s" jar path)))
            (or (get-file-buffer name)
