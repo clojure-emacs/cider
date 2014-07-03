@@ -552,13 +552,26 @@ otherwise, nil."
   (let ((large-file-warning-threshold nil))
     (find-file-noselect (cider-file-path filename))))
 
+(defun cider--resource-file-url-to-filename (resource-url)
+  "Return the filename from RESOURCE-URL.
+Uses `url-generic-parse-url' to parse the url.  The filename is
+extracted and then url decoded. If the decoded filename has a
+Windows device letter followed by a colon immediately after the
+leading '/' then the leading '/' is dropped to create a valid
+path."
+  (let ((filename (url-unhex-string (url-filename (url-generic-parse-url resource-url)))))
+    (if (string-match "^/\\([a-zA-Z]:/.*\\)" filename)
+        (match-string 1 filename)
+      filename)))
+
 (defun cider-find-or-create-resource-buffer (resource)
   "Return a buffer displaying RESOURCE."
   (cond ((string-match "^file:\\(.+\\)" resource)
-         (cider-find-or-create-file-buffer (match-string 1 resource)))
-        ((string-match "^\\(jar\\|zip\\):file:\\(.+\\)!/\\(.+\\)" resource)
-         (let* ((jar (match-string 2 resource))
+         (cider-find-or-create-file-buffer (cider--resource-file-url-to-filename resource)))
+        ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" resource)
+         (let* ((jar-url (match-string 2 resource))
                 (path (match-string 3 resource))
+                (jar (cider--resource-file-url-to-filename jar-url))
                 (file (cider-file-path jar))
                 (name (format "%s:%s" jar path)))
            (or (get-file-buffer name)
