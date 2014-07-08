@@ -534,126 +534,101 @@ otherwise, nil."
         localname)
     name))
 
-(defun cider-file-path (resource)
-  "Return RESOURCE's local or remote path using `cider-prefer-local-resources'."
-  (let ((local-path resource)
-        (remote-path (concat (cider-tramp-prefix) resource)))
-    (cond ((equal resource "") "")
-          ((and cider-prefer-local-resources
-                (file-exists-p local-path))
+(defun cider--file-path (path)
+  "Return PATH's local or tramp path using `cider-prefer-local-resources'.
+If no local or remote file exists, return nil."
+  (let ((local-path path)
+        (tramp-path (and path (cider--client-tramp-filename path))))
+    (cond ((equal path "") "")
+          ((and cider-prefer-local-resources (file-exists-p local-path))
            local-path)
-          ((file-exists-p remote-path)
-           remote-path)
-          (t
-           resource))))
+          ((file-exists-p tramp-path)
+           tramp-path)
+          ((file-exists-p local-path)
+           local-path))))
 
-(defun cider-find-or-create-file-buffer (filename)
-  "Return a buffer visiting FILENAME."
-  (let ((large-file-warning-threshold nil))
-    (find-file-noselect (cider-file-path filename))))
-
-(defun cider--resource-file-url-to-filename (resource-url)
-  "Return the filename from RESOURCE-URL.
-Uses `url-generic-parse-url' to parse the url.  The filename is
-extracted and then url decoded. If the decoded filename has a
-Windows device letter followed by a colon immediately after the
-leading '/' then the leading '/' is dropped to create a valid
-path."
-  (let ((filename (url-unhex-string (url-filename (url-generic-parse-url resource-url)))))
+(defun cider--url-to-file (url)
+  "Return the filename from the resource URL.
+Uses `url-generic-parse-url' to parse the url. The filename is extracted and
+then url decoded. If the decoded filename has a Windows device letter followed
+by a colon immediately after the leading '/' then the leading '/' is dropped to
+create a valid path."
+  (let ((filename (url-unhex-string (url-filename (url-generic-parse-url url)))))
     (if (string-match "^/\\([a-zA-Z]:/.*\\)" filename)
         (match-string 1 filename)
       filename)))
 
-(defun cider-find-or-create-resource-buffer (resource)
-  "Return a buffer displaying RESOURCE."
-  (cond ((string-match "^file:\\(.+\\)" resource)
-         (cider-find-or-create-file-buffer (cider--resource-file-url-to-filename resource)))
-        ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" resource)
-         (let* ((jar-url (match-string 2 resource))
-                (path (match-string 3 resource))
-                (jar (cider--resource-file-url-to-filename jar-url))
-                (file (cider-file-path jar))
-                (name (format "%s:%s" jar path)))
+(defun cider-find-file (url)
+  "Return a buffer visiting the file URL if it exists, or nil otherwise.
+The argument should have a scheme prefix, and represent a fully-qualified file
+path or an entry within a zip/jar archive."
+  (cond ((string-match "^file:\\(.+\\)" url)
+         (-when-let* ((file (cider--url-to-file (match-string 1 url)))
+                      (path (cider--file-path file)))
+           (find-file-noselect path)))
+        ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" url)
+         (-when-let* ((entry (match-string 3 url))
+                      (file  (cider--url-to-file (match-string 2 url)))
+                      (path  (cider--file-path file))
+                      (name  (format "%s:%s" path entry)))
            (or (get-file-buffer name)
                (with-current-buffer (generate-new-buffer
-                                     (file-name-nondirectory path))
-                 (archive-zip-extract file path)
+                                     (file-name-nondirectory entry))
+                 (archive-zip-extract path entry)
                  (set-visited-file-name name)
-                 (setq-local default-directory (file-name-directory file))
+                 (setq-local default-directory (file-name-directory path))
                  (setq-local buffer-read-only t)
                  (set-buffer-modified-p nil)
                  (set-auto-mode)
-                 (current-buffer)))))
-        (t (error "Unknown resource path %s" resource))))
+                 (current-buffer)))))))
 
-(defun cider-find-or-create-definition-buffer (location)
-  "Return a buffer containing LOCATION's definition in the source code.
-
-The current buffer is used to determine a tramp prefix, which (if it
-exists) is added as a prefix to LOCATION."
-  (let* ((path (cider-get-path-for location))
-         (tramp-path (and path (cider--client-tramp-filename path)))
-         (buffer (cond (tramp-path (cider-find-or-create-file-buffer tramp-path))
-                       ((and path (file-exists-p path)) (cider-find-or-create-file-buffer path))
-                       (t (cider-find-or-create-resource-buffer path)))))
+(defun cider-find-var (var)
+  "Return a buffer visiting the definition for VAR, or nil if not found."
+  (cider-ensure-op-supported "info")
+  (-when-let* ((info (cider-var-info var))
+               (file (cadr (assoc "file" info)))
+               (line (cadr (assoc "line" info)))
+               (buffer (cider-find-file file)))
     (with-current-buffer buffer
-      (cider-mode 1) ; enable cider-jump keybindings on java sources
+      (goto-line line)
       buffer)))
 
-(defun cider-jump-to-def-for (def-location)
-  "Jump to DEF-LOCATION in the source code."
-  (-when-let* ((buffer (cider-find-or-create-definition-buffer def-location))
-               (line (cider-get-line-for def-location)))
-    (ring-insert find-tag-marker-ring (point-marker))
-    (switch-to-buffer buffer)
-    (goto-line line)))
+(defun cider-jump-to (buffer &optional line)
+  "Push current point onto marker ring, and jump to BUFFER, optionally at LINE.
+`cider-mode' is enabled on BUFFER to ensure `cider-jump' and `cider-jump-back'
+are available."
+  (ring-insert find-tag-marker-ring (point-marker))
+  (with-current-buffer buffer
+    (goto-line (or line 1))
+    (cider-mode +1))
+  (switch-to-buffer buffer))
 
-(defun cider-get-def-location (var)
-  "Return the location of the definition of VAR."
-  (let* ((info (cider-var-info var))
-         (file (cadr (assoc "file" info)))
-         (line (cadr (assoc "line" info))))
-    (if info
-        (if (and file line)
-            (vector file line)
-          (message "No source available for %s" var) nil)
-      (message "Symbol %s not resolved" var) nil)))
-
-(defun cider-get-path-for (location)
-  "Return the path of LOCATION's definition."
-  (aref location 0))
-
-(defun cider-get-line-for (location)
-  "Return the line number of LOCATION's definition."
-  (aref location 1))
-
-(defun cider-jump-to-def (var &optional line)
-  "Jump to the definition of the VAR, and optionally to the given LINE."
-  (cider-ensure-op-supported "info")
-  (-when-let (location (cider-get-def-location var))
-    (cider-jump-to-def-for location)
-    (when line (goto-line line))))
-
-(defun cider-jump (query)
-  "Jump to the definition of QUERY."
-  (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-jump-to-def query))
-
-(defun cider-jump-to-resource ()
-  "Jump to resource file at point."
-  (interactive)
+(defun cider-jump-to-resource (path &optional line)
+  "Jump to the resource at the relative PATH, optionally at a specific LINE.
+When called interactively, this operates on point."
+  (interactive (list (thing-at-point 'filename)))
   (cider-ensure-op-supported "resource")
-  (let ((resource (thing-at-point 'filename)))
-    (-if-let (resource-path (plist-get (nrepl-send-request-sync
-                                          (list "op" "resource"
-                                                "name" resource)) :value))
-        (progn
-          (ring-insert find-tag-marker-ring (point-marker))
-          (find-file resource-path)
-          ;; enable cider-mode in the resource buffer so that jump back will work
-          (cider-mode +1))
-      (message "Cannot find resource %s" resource))))
+  (-if-let* ((resource (-> (list "op" "resource" "name" path)
+                         (nrepl-send-request-sync)
+                         (plist-get :value)))
+             (buffer (cider-find-file resource)))
+      (cider-jump-to buffer line)
+    (message "Cannot find resource %s" path)))
 
+(defun cider-jump-to-var (var &optional line)
+  "Jump to the definition of VAR, optionally at a specific LINE.
+When called interactively, this operates on point, or falls back to a prompt."
+  (interactive (list (cider-read-symbol-name "Symbol: " 'identity)))
+  (cider-ensure-op-supported "info")
+  (-if-let (info (cider-var-info var))
+      (-if-let* ((file (cadr (assoc "file" info)))
+                 (line (or line (cadr (assoc "line" info))))
+                 (buffer (cider-find-file file)))
+          (cider-jump-to buffer line)
+        (message "No source available for %s" var))
+    (message "Symbol %s not resolved" var)))
+
+(defalias 'cider-jump 'cider-jump-to-var)
 (defalias 'cider-jump-back 'pop-tag-mark)
 
 (defvar cider-completion-last-context nil)
@@ -731,11 +706,8 @@ form, with symbol at point replaced by __prefix__."
 
 Returns the cons of the buffer itself and the location of VAR's definition
 in the buffer."
-  (-when-let* ((location (cider-get-def-location var))
-               (buffer (cider-find-or-create-definition-buffer location))
-               (line (cider-get-line-for location)))
+  (-when-let (buffer (cider-find-var var))
     (with-current-buffer buffer
-      (goto-line line)
       (cons buffer (point)))))
 
 (defun cider-company-docsig (thing)

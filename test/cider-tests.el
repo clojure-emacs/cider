@@ -539,6 +539,6 @@
            (cider-find-ns () "user"))
     (should (string= (cider-symbol-at-point) ""))))
 
-(ert-deftest test-cider--resource-file-url-to-filename ()
-  (should (equal "/space test" (cider--resource-file-url-to-filename "file:/space%20test")))
-  (should (equal "C:/space test" (cider--resource-file-url-to-filename "file:/C:/space%20test"))))
+(ert-deftest test-cider--url-to-file ()
+  (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
+  (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))

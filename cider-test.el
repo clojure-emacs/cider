@@ -154,7 +154,7 @@
         (var  (get-text-property (point) 'var))
         (line (get-text-property (point) 'line)))
     (if (and ns var)
-        (cider-jump-to-def (concat ns "/" var) line)
+        (cider-jump-to-var (concat ns "/" var) line)
       (call-interactively 'cider-jump))))
 
 
@@ -344,10 +344,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test-highlight-problems (ns results)
   "Highlight all non-passing tests in the NS test RESULTS."
   (dolist (result (rest results))
-    (let* ((var (first result))
-           (loc (cider-get-def-location (concat ns "/" var)))
-           (buffer (cider-find-or-create-definition-buffer loc))
-           (tests (rest result)))
+    (-when-let* ((var (first result))
+                 (tests (rest result))
+                 (buffer (cider-find-var (concat ns "/" var))))
       (dolist (test tests)
         (nrepl-dbind-response test (type)
           (unless (equal "pass" type)
@@ -356,14 +355,12 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test-clear-highlights ()
   "Clear highlighting of non-passing tests from the last test run."
   (interactive)
-  (-when-let (results cider-test-last-results)
-    (let ((ns cider-test-last-test-ns))
-      (dolist (result (rest results))
-        (let* ((var (first result))
-               (loc (cider-get-def-location (concat ns "/" var)))
-               (buffer (cider-find-or-create-definition-buffer loc)))
-          (with-current-buffer buffer
-            (remove-overlays)))))))
+  (-when-let (ns cider-test-last-test-ns)
+    (dolist (result (rest cider-test-last-results))
+      (-when-let* ((var (first result))
+                   (buffer (cider-find-var (concat ns "/" var))))
+        (with-current-buffer buffer
+          (remove-overlays))))))
 
 
 ;;; Test namespaces
