@@ -393,13 +393,13 @@ it wraps to 0."
         (class (button-get button 'class))
         (method (button-get button 'method))
         (line (button-get button 'line)))
-    (let* ((info (if var
-                     (cider-var-info var)
-                   (cider-member-info class method)))
-           (file (cadr (assoc "file" info))))
-      (if (and file line)
-          (cider-jump-to-def-for (vector file line))
-        (error "No source info")))))
+    (-if-let* ((info (if var
+                         (cider-var-info var)
+                       (cider-member-info class method)))
+               (file (cadr (assoc "file" info)))
+               (buffer (cider-find-file file)))
+        (cider-jump-to buffer line)
+      (message "No source info"))))
 
 (defun cider-stacktrace-jump ()
   "Like `cider-jump', but uses the stack frame source at point, if available."
