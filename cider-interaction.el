@@ -46,10 +46,12 @@
 (require 'compile)
 (require 'tramp)
 (require 'button)
+(require 'apropos)
 
 (defconst cider-error-buffer "*cider-error*")
 (defconst cider-doc-buffer "*cider-doc*")
 (defconst cider-result-buffer "*cider-result*")
+(defconst cider-apropos-buffer "*cider-apropos*")
 
 (define-obsolete-variable-alias 'cider-use-local-resources
   'cider-prefer-local-resources "0.7.0")
@@ -1373,6 +1375,97 @@ under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
+(defun cider-apropos-doc (button)
+  "Display documentation for the symbol represented at BUTTON."
+  (cider-doc-lookup (button-get button 'apropos-symbol)))
+
+(defun cider-apropos-summary (query ns docs-p include-private-p case-sensitive-p)
+  "Return a short description for the performed apropos search."
+  (concat (if case-sensitive-p "Case-sensitive " "")
+          (if docs-p "Documentation " "")
+          (format "Apropos for %S" query)
+          (if ns (format " in namespace %S" ns) "")
+          (if include-private-p
+              " (public and private symbols)"
+            " (public symbols only)")))
+
+(defun cider-apropos-highlight (doc query)
+  "Return the DOC string propertized to highlight QUERY matches."
+  (let ((pos 0))
+    (while (string-match query doc pos)
+      (setq pos (match-end 0))
+      (put-text-property (match-beginning 0)
+                         (match-end 0)
+                         'face apropos-match-face doc)))
+  doc)
+
+(defun cider-apropos-result (result query docs-p)
+  "Emit a RESULT matching QUERY into current buffer, formatted for DOCS-P."
+  (nrepl-dbind-response result (name type doc)
+    (let* ((label (capitalize (if (string= type "variable") "var" type)))
+           (help (concat "Display doc for this " (downcase label))))
+      (cider-propertize-region (list 'apropos-symbol name
+                                     'action 'cider-apropos-doc
+                                     'help-echo help)
+        (insert-text-button name 'type 'apropos-symbol)
+        (insert "\n  ")
+        (insert-text-button label 'type (intern (concat "apropos-" type)))
+        (insert ": ")
+        (let ((beg (point)))
+          (if docs-p
+              (progn (insert (cider-apropos-highlight doc query))
+                     (newline))
+            (progn (insert doc)
+                   (fill-region beg (point)))))
+        (newline)))))
+
+(defun cider-show-apropos (summary results query docs-p)
+  "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
+  (with-current-buffer (cider-popup-buffer cider-apropos-buffer t)
+    (let ((inhibit-read-only t))
+      (set-syntax-table clojure-mode-syntax-table)
+      (apropos-mode)
+      (cider-mode)
+      (if (boundp 'header-line-format)
+          (setq-local header-line-format summary)
+        (insert summary "\n\n"))
+      (dolist (result results)
+        (cider-apropos-result result query docs-p))
+      (goto-char (point-min)))))
+
+(defun cider-apropos (query &optional ns docs-p privates-p case-sensitive-p)
+  "Show all symbols whose names match QUERY, a regular expression.
+The search may be limited to the namespace NS, and may optionally search doc
+strings, include private vars, and be case sensitive."
+  (interactive
+   (if current-prefix-arg
+       (list (read-string "Clojure Apropos: ")
+             (let ((ns (read-string "Namespace: ")))
+               (if (string= ns "") nil ns))
+             (y-or-n-p "Search doc strings? ")
+             (y-or-n-p "Include private symbols? ")
+             (y-or-n-p "Case-sensitive? "))
+     (list (read-string "Clojure Apropos: "))))
+  (cider-ensure-op-supported "apropos")
+  (-if-let* ((summary (cider-apropos-summary
+                       query ns docs-p privates-p case-sensitive-p))
+             (results (-> `("op" "apropos"
+                            "ns" ,(cider-current-ns)
+                            "query" ,query
+                            ,@(when ns `("search-ns" ,ns))
+                            ,@(when docs-p '("docs?" "t"))
+                            ,@(when privates-p '("privates?" "t"))
+                            ,@(when case-sensitive-p '("case-sensitive?" "t")))
+                        (nrepl-send-request-sync)
+                        (plist-get :value))))
+      (cider-show-apropos summary results query docs-p)
+    (message "No apropos matches for %S" query)))
+
+(defun cider-apropos-documentation ()
+  "Shortcut for (cider-apropos <query> nil t)."
+  (interactive)
+  (cider-apropos (read-string "Clojure documentation Apropos: ") nil t))
+
 (defun cider-refresh ()
   "Refresh loaded code."
   (interactive)
@@ -1430,6 +1523,7 @@ under point, prompts for a var."
 
 (defvar cider-ancilliary-buffers
   (list cider-error-buffer
+        cider-apropos-buffer
         cider-doc-buffer
         cider-test-report-buffer
         nrepl-message-buffer-name))

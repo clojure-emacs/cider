@@ -16,6 +16,9 @@ for presenting fontified documentation, including Javadoc.
 integration.
 * [#22](https://github.com/clojure-emacs/cider/issues/22): New command
 `cider-jump-to-resource` (bound to <kbd>C-c M-.</kbd>).
+* [#664](https://github.com/clojure-emacs/cider/pull/664): New apropos support:
+search function/var names (bound to <kbd>C-c C-h a</kbd>) or documentation
+(bound to <kbd>C-c C-h d</kbd>).
 
 ### Changes
 
