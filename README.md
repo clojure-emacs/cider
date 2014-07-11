@@ -568,6 +568,8 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
+<kbd>C-c C-h a</kbd>                 | Apropos search for functions/vars.
+<kbd>C-c C-h d</kbd>                 | Apropos search for documentation.
 
 ### cider-repl-mode
 

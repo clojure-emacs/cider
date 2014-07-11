@@ -38,7 +38,9 @@
     (define-key map (kbd "M-,") 'cider-jump-back)
     (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
     (define-key map (kbd "M-TAB") 'complete-symbol)
-    (define-key map (kbd "C-M-x") 'cider-eval-defun-at-point)
+    (define-key map (kbd "C-c C-h a") 'cider-apropos)
+    (define-key map (kbd "C-c C-h d") 'cider-apropos-documentation)
+    (define-key map (kbd "C-M-x")   'cider-eval-defun-at-point)
     (define-key map (kbd "C-c C-c") 'cider-eval-defun-at-point)
     (define-key map (kbd "C-x C-e") 'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") 'cider-eval-last-sexp)
@@ -94,6 +96,9 @@
         ["Jump to source" cider-jump]
         ["Jump to resource" cider-jump-to-resource]
         ["Jump back" cider-jump-back]
+        "--"
+        ["Search functions/vars" cider-apropos]
+        ["Search documentation" cider-apropos-documentation]
         "--"
         ["Display documentation" cider-doc]
         ["Display JavaDoc" cider-javadoc]
