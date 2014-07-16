@@ -89,6 +89,8 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "q" 'cider-popup-buffer-quit-function)
     (define-key map "j" 'cider-doc-javadoc)
+    (define-key map (kbd "<backtab>") 'backward-button)
+    (define-key map (kbd "TAB") 'forward-button)
     (easy-menu-define cider-doc-mode-menu map
       "Menu for CIDER's doc mode"
       '("Doc"
