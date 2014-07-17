@@ -40,6 +40,8 @@ paths over tramp by default.
 * [#554](https://github.com/clojure-emacs/cider/issues/554): `cider-auto-select-error-buffer` is set to `t` by default.
 * [#610](https://github.com/clojure-emacs/cider/pull/610): Present error and
 stacktrace info for all exception causes.
+* Removed `cider-repl-print-length` config option and
+  `cider-repl-toggle-print-length-limiting` command.
 
 ### Bugs fixed
 

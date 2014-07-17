@@ -280,13 +280,6 @@ Buffer name will look like *cider-repl project-name:port*.
 (setq cider-repl-display-in-current-window t)
 ```
 
-* Limit the number of items of each collection the printer will print
-  to 100:
-
-```el
-(setq cider-repl-print-length 100) ; the default is nil, no limit
-```
-
 * Prevent <kbd>C-c C-k</kbd> from prompting to save the file corresponding to
   the buffer being loaded, if it's modified:
 
@@ -516,11 +509,12 @@ and it expects `clojure.pprint` to have been required already
 Accidentally printing large objects can be detrimental to your
 productivity. Clojure provides the `*print-length*` var which, if set,
 controls how many items of each collection the printer will print. You
-can supply a default value for REPL sessions by setting the
-`cider-repl-print-length` variable to an integer value. The
-enforcement of this limit can then be toggled using:
+can supply a default value for REPL sessions via the `global-vars`
+section of your Leiningen project's configuration.
 
-<kbd>M-x cider-repl-toggle-print-length-limiting</kbd>
+```clojure
+:global-vars {*print-length* 100}
+```
 
 ## Keyboard shortcuts
 
