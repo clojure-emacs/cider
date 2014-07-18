@@ -824,18 +824,24 @@ This is controlled via `cider-interactive-eval-output-destination'."
   "Make a handler for evaluating and printing result in popup BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer buffer str))
+                                 (cider-emit-into-popup-buffer
+                                  buffer
+                                  (cider-font-lock-as-clojure str)))
                                '()
                                (lambda (buffer str)
                                  (cider-emit-into-popup-buffer buffer str))
                                '()))
 
 (defun cider-popup-eval-out-handler (buffer)
-  "Make a handler for evaluating and printing stdout/stderr in popup BUFFER."
+  "Make a handler for evaluating and printing stdout/stderr in popup BUFFER.
+
+This is used by pretty-printing commands and intentionally discards their results."
   (nrepl-make-response-handler buffer
                                '()
                                (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer buffer str))
+                                 (cider-emit-into-popup-buffer
+                                  buffer
+                                  (cider-font-lock-as-clojure str)))
                                (lambda (buffer str)
                                  (cider-emit-into-popup-buffer buffer str))
                                '()))
@@ -1052,8 +1058,7 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
     (let ((inhibit-read-only t)
           (buffer-undo-list t))
       (insert (format "%s" value))
-      (indent-sexp)
-      (font-lock-fontify-buffer))))
+      (indent-sexp))))
 
 (defun cider-emit-into-color-buffer (buffer value)
   "Emit into color BUFFER the provided VALUE."
