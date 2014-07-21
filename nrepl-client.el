@@ -305,7 +305,7 @@ Handles message contained in RESPONSE."
   (nrepl-make-response-handler (cider-current-repl-buffer)
                                '()
                                (lambda (buffer out)
-                                 (cider-repl-emit-interactive-output buffer out))
+                                 (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
                                  (cider-repl-emit-err-output buffer err))
                                '()))
@@ -322,7 +322,7 @@ could be received even for requests with status \"done\"."
                         (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
-        ((nrepl-default-handler) response)))))
+        (funcall (nrepl-default-handler) response)))))
 
 (defun nrepl-decode-current-buffer ()
   "Decode the data in the current buffer.
