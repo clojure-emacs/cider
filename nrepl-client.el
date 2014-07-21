@@ -927,9 +927,9 @@ If so ask the user for confirmation."
 
 (defun nrepl-describe-session (process)
   "Peform describe for the given server PROCESS."
-  (let ((buffer (process-buffer process)))
-    (nrepl-send-request (list "op" "describe")
-                        (nrepl-describe-handler buffer))))
+  (nrepl-send-request
+   (list "op" "describe")
+   (nrepl-describe-handler (process-buffer process))))
 
 (defun nrepl-new-tooling-session-handler (process)
   "Create a new tooling session handler for PROCESS."
