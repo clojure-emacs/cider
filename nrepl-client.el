@@ -299,11 +299,16 @@ DONE-HANDLER, and EVAL-ERROR-HANDLER as appropriate."
                  (funcall done-handler buffer))))))))
 
 ;;; communication
-(defun nrepl-default-handler (response)
+(defun nrepl-default-handler ()
   "Default handler which is invoked when no handler is found.
 Handles message contained in RESPONSE."
-  (nrepl-dbind-response response (out _value)
-    (cider-repl-emit-interactive-output out)))
+  (nrepl-make-response-handler (cider-current-repl-buffer)
+                               '()
+                               (lambda (buffer out)
+                                 (cider-repl-emit-interactive-output buffer out))
+                               (lambda (buffer err)
+                                 (cider-repl-emit-err-output buffer err))
+                               '()))
 
 (defun nrepl-dispatch (response)
   "Dispatch the RESPONSE to associated callback.
@@ -317,7 +322,7 @@ could be received even for requests with status \"done\"."
                         (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
-        (nrepl-default-handler response)))))
+        ((nrepl-default-handler) response)))))
 
 (defun nrepl-decode-current-buffer ()
   "Decode the data in the current buffer.
