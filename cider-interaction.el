@@ -1060,6 +1060,7 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
     (erase-buffer)
     (when major-mode
       (funcall major-mode))
+    (setq-local cider-popup-output-marker (point-marker))
     (cider-popup-buffer-mode 1)
     (setq buffer-read-only t)
     (current-buffer)))
@@ -1068,9 +1069,14 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
   "Emit into BUFFER the provided VALUE."
   (with-current-buffer buffer
     (let ((inhibit-read-only t)
-          (buffer-undo-list t))
-      (insert (format "%s" value))
-      (indent-sexp))))
+          (buffer-undo-list t)
+          (moving (= (point) cider-popup-output-marker)))
+      (save-excursion
+        (goto-char cider-popup-output-marker)
+        (insert (format "%s" value))
+        (indent-sexp)
+        (set-marker cider-popup-output-marker (point)))
+      (when moving (goto-char cider-popup-output-marker)))))
 
 (defun cider-emit-into-color-buffer (buffer value)
   "Emit into color BUFFER the provided VALUE."
