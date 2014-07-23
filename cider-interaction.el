@@ -838,9 +838,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
   "Make a handler for evaluating and printing result in popup BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer
-                                  buffer
-                                  (cider-font-lock-as-clojure str)))
+                                 (cider-emit-into-popup-buffer buffer str))
                                '()
                                (lambda (buffer str)
                                  (cider-emit-into-popup-buffer buffer str))
@@ -853,9 +851,7 @@ This is used by pretty-printing commands and intentionally discards their result
   (nrepl-make-response-handler buffer
                                '()
                                (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer
-                                  buffer
-                                  (cider-font-lock-as-clojure str)))
+                                 (cider-emit-into-popup-buffer buffer str))
                                (lambda (buffer str)
                                  (cider-emit-into-popup-buffer buffer str))
                                '()))
@@ -1033,10 +1029,11 @@ KILL-BUFFER-P is passed along."
   (interactive)
   (funcall cider-popup-buffer-quit-function kill-buffer-p))
 
-(defun cider-popup-buffer (name &optional select)
+(defun cider-popup-buffer (name &optional select major-mode)
   "Create new popup buffer called NAME.
-If SELECT is non-nil, select the newly created window"
-  (with-current-buffer (cider-make-popup-buffer name)
+If SELECT is non-nil, select the newly created window.
+If MAJOR-MODE is non-nil enabled it for the popup buffer."
+  (with-current-buffer (cider-make-popup-buffer name major-mode)
     (cider-popup-buffer-display (current-buffer) select)))
 
 (defun cider-popup-buffer-display (popup-buffer &optional select)
@@ -1055,13 +1052,14 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
   (interactive)
   (quit-window kill-buffer-p (selected-window)))
 
-(defun cider-make-popup-buffer (name)
-  "Create a temporary buffer called NAME."
+(defun cider-make-popup-buffer (name &optional major-mode)
+  "Create a temporary buffer called NAME using MAJOR-mode (if specified)."
   (with-current-buffer (get-buffer-create name)
     (kill-all-local-variables)
     (setq buffer-read-only nil)
     (erase-buffer)
-    (set-syntax-table clojure-mode-syntax-table)
+    (when major-mode
+      (funcall major-mode))
     (cider-popup-buffer-mode 1)
     (setq buffer-read-only t)
     (current-buffer)))
@@ -1175,7 +1173,7 @@ Print its value into the current buffer."
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
   (interactive)
   (let ((form (cider-last-sexp))
-        (result-buffer (cider-popup-buffer cider-result-buffer nil)))
+        (result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode)))
     (cider-eval (cider-format-pprint-eval form)
                 (cider-popup-eval-out-handler result-buffer)
                 (cider-current-ns))))
@@ -1184,7 +1182,7 @@ Print its value into the current buffer."
   "Evaluate the top-level form at point and pprint its value in a popup buffer."
   (interactive)
   (let ((form (cider-defun-at-point))
-        (result-buffer (cider-popup-buffer cider-result-buffer nil)))
+        (result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode)))
     (cider-eval (cider-format-pprint-eval form)
                 (cider-popup-eval-out-handler result-buffer)
                 (cider-current-ns))))
