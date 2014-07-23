@@ -574,15 +574,29 @@ path or an entry within a zip/jar archive."
                       (path  (cider--file-path file))
                       (name  (format "%s:%s" path entry)))
            (or (get-file-buffer name)
-               (with-current-buffer (generate-new-buffer
-                                     (file-name-nondirectory entry))
-                 (archive-zip-extract path entry)
-                 (set-visited-file-name name)
-                 (setq-local default-directory (file-name-directory path))
-                 (setq-local buffer-read-only t)
-                 (set-buffer-modified-p nil)
-                 (set-auto-mode)
-                 (current-buffer)))))))
+               (if (tramp-tramp-file-p path)
+                   (progn
+                     ;; Use emacs built in archiving
+                     (find-file path)
+                     (goto-char (point-min))
+                     ;; Make sure the file path is followed by a newline to
+                     ;; prevent eg. clj matching cljs.
+                     (search-forward (concat entry "\n"))
+                     ;; moves up to matching line
+                     (forward-line -1)
+                     (let ((opened-buffer (current-buffer)))
+                       (archive-extract)
+                       (current-buffer)))
+                 ;; Use external zip program to just extract the single file
+                 (with-current-buffer (generate-new-buffer
+                                         (file-name-nondirectory entry))
+                     (archive-zip-extract path entry)
+                     (set-visited-file-name name)
+                     (setq-local default-directory (file-name-directory path))
+                     (setq-local buffer-read-only t)
+                     (set-buffer-modified-p nil)
+                     (set-auto-mode)
+                     (current-buffer))))))))
 
 (defun cider-find-var (var)
   "Return a buffer visiting the definition for VAR, or nil if not found."
