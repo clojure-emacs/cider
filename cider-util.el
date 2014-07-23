@@ -96,9 +96,11 @@ PROP is the name of a text property."
   "Use MODE to font-lock the STRING."
   (with-temp-buffer
     (insert string)
-    (funcall mode)
-    ;; prevent whitespace mode from obscuring the output
-    (whitespace-mode -1)
+    ;; suppress major mode hooks as we care only about their font-locking
+    ;; otherwise modes like whitespace-mode and paredit might interfere
+    (let ((delay-mode-hooks t)
+          (delayed-mode-hooks nil))
+      (funcall mode))
     (font-lock-fontify-buffer)
     (buffer-string)))
 
