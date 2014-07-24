@@ -40,6 +40,7 @@
     (define-key map (kbd "M-TAB") 'complete-symbol)
     (define-key map (kbd "C-c C-h a") 'cider-apropos)
     (define-key map (kbd "C-c C-h d") 'cider-apropos-documentation)
+    (define-key map (kbd "C-c C-h g") 'cider-grimoire)
     (define-key map (kbd "C-M-x")   'cider-eval-defun-at-point)
     (define-key map (kbd "C-c C-c") 'cider-eval-defun-at-point)
     (define-key map (kbd "C-x C-e") 'cider-eval-last-sexp)

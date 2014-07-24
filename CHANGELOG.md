@@ -19,6 +19,8 @@ integration.
 * [#664](https://github.com/clojure-emacs/cider/pull/664): New apropos support:
 search function/var names (bound to <kbd>C-c C-h a</kbd>) or documentation
 (bound to <kbd>C-c C-h d</kbd>).
+* You can open Grimoire's entry for a particular Clojure (built-in) symbol with
+  `cider-grimoire` (<kbd>C-c C-h g</kbd>).
 
 ### Changes
 

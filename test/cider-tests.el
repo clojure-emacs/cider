@@ -542,3 +542,15 @@
 (ert-deftest test-cider--url-to-file ()
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
   (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))
+
+;;; grimoire tests
+(ert-deftest cider-grimoire-replace-dashes ()
+  (should (equal (cider-grimoire-replace-dashes "defn-") "defn_DASH"))
+  (should (equal (cider-grimoire-replace-dashes "-map-indexed") "DASH_map_DASH_indexed"))
+  (should (equal (cider-grimoire-replace-dashes "-foo-bar-baz-") "DASH_foo_DASH_bar_DASH_baz_DASH")))
+
+(ert-deftest cider-grimoire-url ()
+  (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/defn_DASH/"
+                 (cider-grimoire-url "defn-" "clojure.core" "1.5.1")))
+  (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/"
+                 (cider-grimoire-url nil "clojure.core" "1.5.1"))))

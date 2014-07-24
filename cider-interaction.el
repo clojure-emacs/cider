@@ -1408,6 +1408,38 @@ under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
+(defun cider-grimoire-replace-dashes (name)
+  "Convert the dashes in NAME to a grimoire friendly format."
+  (setq name (if (string-match "\\`-" name)
+                 (replace-match "DASH_" t t name)
+               name))
+  (setq name (if (string-match "-\\'" name)
+                 (replace-match "_DASH" t t name)
+               name))
+  (replace-regexp-in-string "-" "_DASH_" name))
+
+(defun cider-grimoire-url (name ns clojure-version)
+  "Generate a grimoire url from NAME, NS and CLOJURE-VERSION."
+  (let ((clojure-version (concat (substring clojure-version 0 4) "0"))
+        (base-url "http://grimoire.arrdem.com/"))
+    (if name
+        (concat base-url clojure-version "/" ns "/" (cider-grimoire-replace-dashes name) "/")
+      (concat base-url clojure-version "/" ns "/"))))
+
+(defun cider-grimoire-lookup (symbol)
+  "Look up the grimoire documentation for SYMBOL."
+  (-if-let (var-info (cider-var-info symbol))
+      (let ((name (cider-get-var-attr var-info "name"))
+            (ns (cider-get-var-attr var-info "ns")))
+        ;; TODO: add a whitelist of supported namespaces
+        (browse-url (cider-grimoire-url name ns (cider--clojure-version))))
+    (message "Symbol %s not resolved" symbol)))
+
+(defun cider-grimoire (query)
+  "Open the grimoire documentation for QUERY in the default web browser."
+  (interactive "P")
+  (cider-read-symbol-name "Symbol: " 'cider-grimoire-lookup query))
+
 (defun cider-apropos-doc (button)
   "Display documentation for the symbol represented at BUTTON."
   (cider-doc-lookup (button-get button 'apropos-symbol)))
