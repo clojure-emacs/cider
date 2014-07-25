@@ -1408,8 +1408,11 @@ under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
-(defun cider-grimoire-replace-dashes (name)
+(defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
+  (setq name (if (string-match "\\?\\'" name)
+                 (replace-match "_QMARK" t t name)
+               name))
   (setq name (if (string-match "\\`-" name)
                  (replace-match "DASH_" t t name)
                name))
@@ -1423,7 +1426,7 @@ under point, prompts for a var."
   (let ((clojure-version (concat (substring clojure-version 0 4) "0"))
         (base-url "http://grimoire.arrdem.com/"))
     (if name
-        (concat base-url clojure-version "/" ns "/" (cider-grimoire-replace-dashes name) "/")
+        (concat base-url clojure-version "/" ns "/" (cider-grimoire-replace-special name) "/")
       (concat base-url clojure-version "/" ns "/"))))
 
 (defun cider-grimoire-lookup (symbol)
