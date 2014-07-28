@@ -94,7 +94,8 @@
     (easy-menu-define cider-doc-mode-menu map
       "Menu for CIDER's doc mode"
       '("Doc"
-        ["Go to Javadoc" cider-doc-javadoc]))
+        ["Go to Javadoc" cider-doc-javadoc]
+        ["Quit" cider-popup-buffer-quit-function]))
     map))
 
 (define-derived-mode cider-doc-mode fundamental-mode "Doc"
