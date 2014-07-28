@@ -59,6 +59,12 @@ You'll also need to adjust your config accordingly, as most settings
 were renamed in CIDER. Consult the [Configuration](#configuration) section of the
 README for more details.
 
+#### Upgrading from clojure-test-mode
+
+CIDER 0.7 ships a replacement for the deprecated `clojure-test-mode` called `cider-test`.
+Please, make sure you've uninstalled `clojure-test-mode` if you're using CIDER 0.7 as `clojure-test-mode`
+sometimes interferes with CIDER's REPL initialization.
+
 ### Via package.el
 
 `package.el` is the built-in package manager in Emacs.
