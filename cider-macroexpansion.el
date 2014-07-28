@@ -142,14 +142,14 @@ and point is placed at CURRENT-POINT."
     (cider-macroexpansion-minor-mode 1)
     (current-buffer)))
 
-(defvar cider-macroexpansion-minor-mode-map
+(defvar cider-macroexpansion-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "g") 'cider-macroexpand-again)
     (define-key map (kbd "q") 'cider-popup-buffer-quit-function)
     (define-key map (kbd "d") 'cider-doc)
     (define-key map (kbd "j") 'cider-doc-javadoc)
     (define-key map (kbd ".") 'cider-jump-to-var)
-    (easy-menu-define cider-macroexpansion-minor-mode-menu map
+    (easy-menu-define cider-macroexpansion-mode-menu map
       "Menu for CIDER's doc mode"
       '("Macroexpansion"
         ["Restart expansion" cider-macroexpand-again]
@@ -168,13 +168,13 @@ and point is placed at CURRENT-POINT."
       (redefine-key 'undo 'cider-macroexpand-undo))
     map))
 
-(define-minor-mode cider-macroexpansion-minor-mode
+(define-minor-mode cider-macroexpansion-mode
   "Minor mode for CIDER macroexpansion.
 
-\\{cider-macroexpansion-minor-mode-map}"
+\\{cider-macroexpansion-mode-map}"
   nil
   " Macroexpand"
-  cider-macroexpansion-minor-mode-map)
+  cider-macroexpansion-mode-map)
 
 (provide 'cider-macroexpansion)
 
