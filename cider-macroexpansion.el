@@ -66,7 +66,7 @@ This variable specifies both what was expanded and the expander.")
   "Macroexpand, use EXPANDER, the given EXPR."
   (let* ((expansion (cider-macroexpansion expander expr)))
     (setq cider-last-macroexpand-expression expr)
-    (cider-initialize-macroexpansion-buffer expansion nrepl-buffer-ns)))
+    (cider-initialize-macroexpansion-buffer expansion (cider-current-ns))))
 
 (defun cider-macroexpand-expr-inplace (expander)
   "Substitute the form preceding point with its macroexpansion using EXPANDER."
@@ -146,6 +146,9 @@ and point is placed at CURRENT-POINT."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "g") 'cider-macroexpand-again)
     (define-key map (kbd "q") 'cider-popup-buffer-quit-function)
+    (define-key map (kbd "d") 'cider-doc)
+    (define-key map (kbd "j") 'cider-javadoc)
+    (define-key map (kbd ".") 'cider-jump-to-var)
     (cl-labels ((redefine-key (from to)
                               (dolist (mapping (where-is-internal from cider-mode-map))
                                 (define-key map mapping to))))
