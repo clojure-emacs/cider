@@ -644,7 +644,7 @@ When called interactively, this operates on point, or falls back to a prompt."
         (message "No source available for %s" var))
     (message "Symbol %s not resolved" var)))
 
-(defalias 'cider-jump 'cider-jump-to-var)
+(define-obsolete-function-alias 'cider-jump 'cider-jump-to-var "0.7.0")
 (defalias 'cider-jump-back 'pop-tag-mark)
 
 (defvar cider-completion-last-context nil)
