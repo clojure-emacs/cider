@@ -149,6 +149,16 @@ and point is placed at CURRENT-POINT."
     (define-key map (kbd "d") 'cider-doc)
     (define-key map (kbd "j") 'cider-doc-javadoc)
     (define-key map (kbd ".") 'cider-jump-to-var)
+    (easy-menu-define cider-macroexpansion-minor-mode-menu map
+      "Menu for CIDER's doc mode"
+      '("Macroexpansion"
+        ["Restart expansion" cider-macroexpand-again]
+        ["Macroexpand-1" cider-macroexpand-1-inplace]
+        ["Macroexpand-all" cider-macroexpand-all-inplace]
+        ["Go to source" cider-jump-to-var]
+        ["Go to doc" cider-doc]
+        ["Go to Javadoc" cider-doc-javadoc]
+        ["Quit" cider-popup-buffer-quit-function]))
     (cl-labels ((redefine-key (from to)
                               (dolist (mapping (where-is-internal from cider-mode-map))
                                 (define-key map mapping to))))
