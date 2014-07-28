@@ -437,7 +437,7 @@ enable `paredit` in the REPL buffer as well:
   to use `company-mode` instead of `auto-complete-mode` for optimal
   results.
 
-* [ac-nrepl](https://github.com/clojure-emacs/ac-nrepl) provides
+* [ac-cider-compliment](https://github.com/alexander-yakushev/ac-cider-compliment) provides
   completion source for the popular Emacs interactive auto-completion
   framework [auto-complete](http://cx4a.org/software/auto-complete/).
   Where CIDER provides it, pop-up documentation for completed symbols
