@@ -36,6 +36,12 @@
 
 (push cider-macroexpansion-buffer cider-ancilliary-buffers)
 
+(defcustom cider-macroexpansion-suppress-namespaces nil
+  "When non-nil namespaces won't be displayed in the macroexpansion buffer."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.7.0"))
+
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
 ARG is passed along to `undo-only'."
@@ -54,7 +60,7 @@ This variable specifies both what was expanded and the expander.")
               (list "op" expander
                     "code" expr
                     "ns" (cider-current-ns)
-                    "suppress-namespaces" "false")) :value))
+                    "suppress-namespaces" cider-macroexpansion-suppress-namespaces)) :value))
 
 (defun cider-macroexpand-expr (expander expr)
   "Macroexpand, use EXPANDER, the given EXPR."
