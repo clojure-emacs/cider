@@ -53,6 +53,7 @@ This variable specifies both what was expanded and the expander.")
   (plist-get (nrepl-send-request-sync
               (list "op" expander
                     "code" expr
+                    "ns" (cider-current-ns)
                     "suppress-namespaces" "false")) :value))
 
 (defun cider-macroexpand-expr (expander expr)
