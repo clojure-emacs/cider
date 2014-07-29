@@ -31,7 +31,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 - [Keyboard shortcuts](#keyboard-shortcuts)
 	- [cider-mode](#cider-mode)
 	- [cider-repl-mode](#cider-repl-mode)
-	- [cider-macroexpansion-minor-mode](#cider-macroexpansion-minor-mode)
+	- [cider-macroexpansion-mode](#cider-macroexpansion-mode)
     - [cider-inspector-mode](#cider-inspector-mode)
 	- [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
@@ -603,7 +603,7 @@ In the REPL you can also use "shortcut commands" by pressing `,` at the beginnin
 (setq cider-repl-shortcut-dispatch-char ?\:)
 ```
 
-### cider-macroexpansion-minor-mode
+### cider-macroexpansion-mode
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------

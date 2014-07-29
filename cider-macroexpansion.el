@@ -139,7 +139,7 @@ and point is placed at CURRENT-POINT."
   (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer t)
     (clojure-mode)
     (clojure-disable-cider)
-    (cider-macroexpansion-minor-mode 1)
+    (cider-macroexpansion-mode 1)
     (current-buffer)))
 
 (defvar cider-macroexpansion-mode-map
