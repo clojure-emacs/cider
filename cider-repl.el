@@ -988,7 +988,11 @@ ENDP) DELIM."
     (define-key map (kbd "TAB") 'cider-repl-tab)
     (define-key map (kbd "C-<return>") 'cider-repl-closing-return)
     (define-key map (kbd "C-j") 'cider-repl-newline-and-indent)
-    (define-key map (kbd "C-c C-d") 'cider-doc)
+    (define-key map (kbd "C-c C-d a") 'cider-apropos)
+    (define-key map (kbd "C-c C-d A") 'cider-apropos-documentation)
+    (define-key map (kbd "C-c C-d g") 'cider-grimoire)
+    (define-key map (kbd "C-c C-d d") 'cider-doc)
+    (define-key map (kbd "C-c C-d j") 'cider-javadoc)
     (define-key map (kbd "C-c C-o") 'cider-repl-clear-output)
     (define-key map (kbd "C-c M-o") 'cider-repl-clear-buffer)
     (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
@@ -1007,7 +1011,6 @@ ENDP) DELIM."
     (define-key map (kbd "C-c C-p") 'cider-repl-previous-prompt)
     (define-key map (kbd "C-c C-b") 'cider-interrupt)
     (define-key map (kbd "C-c C-c") 'cider-interrupt)
-    (define-key map (kbd "C-c C-j") 'cider-javadoc)
     (define-key map (kbd "C-c C-m") 'cider-macroexpand-1)
     (define-key map (kbd "C-c M-m") 'cider-macroexpand-all)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-last-clojure-buffer)
@@ -1029,8 +1032,12 @@ ENDP) DELIM."
         ["Jump to resource" cider-jump-to-resource]
         ["Jump back" cider-jump-back]
         "--"
+        ["Search functions/vars" cider-apropos]
+        ["Search documentation" cider-apropos-documentation]
+        "--"
         ["Display documentation" cider-doc]
         ["Display JavaDoc" cider-javadoc]
+        ["Display Grimoire documentation" cider-grimoire]
         ["Inspect" cider-inspect]
         "--"
         ["Set REPL ns" cider-repl-set-ns]

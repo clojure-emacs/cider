@@ -556,8 +556,8 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-o</kbd>                   | Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 <kbd>C-c C-k</kbd>                   | Load the current buffer.
 <kbd>C-c C-l</kbd>                   | Load a file.
-<kbd>C-c C-d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-t</kbd>                   | Toggle var tracing.
 <kbd>C-c ,</kbd>                     | Run tests for namespace.
@@ -568,9 +568,9 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
-<kbd>C-c C-h g</kbd>                 | Lookup symbol in Grimoire.
-<kbd>C-c C-h a</kbd>                 | Apropos search for functions/vars.
-<kbd>C-c C-h d</kbd>                 | Apropos search for documentation.
+<kbd>C-c C-d g</kbd>                 | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
+<kbd>C-c C-d A</kbd>                 | Apropos search for documentation.
 
 ### cider-repl-mode
 
@@ -588,8 +588,11 @@ Keyboard shortcut                    | Description
 <kbd>M-s</kbd> <kbd>M-r</kbd> | Search forward/reverse through command history with regex.
 <kbd>C-c C-n</kbd> <kbd>C-c C-p</kbd> | Move between the current and previous prompts in the REPL buffer. Pressing <kbd>RET</kbd> on a line with old input copies that line to the newest prompt.
 <kbd>TAB</kbd> | Complete symbol at point.
-<kbd>C-c C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
-<kbd>C-c C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+<kbd>C-c C-d j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d g</kbd> | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd> | Apropos search for functions/vars.
+<kbd>C-c C-d A</kbd> | Apropos search for documentation.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
 <kbd>C-c M-f</kbd> | Select a function from the current namespace and insert into the REPL buffer.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.

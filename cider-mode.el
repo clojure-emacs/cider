@@ -38,9 +38,11 @@
     (define-key map (kbd "M-,") 'cider-jump-back)
     (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
     (define-key map (kbd "M-TAB") 'complete-symbol)
-    (define-key map (kbd "C-c C-h a") 'cider-apropos)
-    (define-key map (kbd "C-c C-h d") 'cider-apropos-documentation)
-    (define-key map (kbd "C-c C-h g") 'cider-grimoire)
+    (define-key map (kbd "C-c C-d a") 'cider-apropos)
+    (define-key map (kbd "C-c C-d A") 'cider-apropos-documentation)
+    (define-key map (kbd "C-c C-d g") 'cider-grimoire)
+    (define-key map (kbd "C-c C-d j") 'cider-javadoc)
+    (define-key map (kbd "C-c C-d d") 'cider-doc)
     (define-key map (kbd "C-M-x")   'cider-eval-defun-at-point)
     (define-key map (kbd "C-c C-c") 'cider-eval-defun-at-point)
     (define-key map (kbd "C-x C-e") 'cider-eval-last-sexp)
@@ -58,13 +60,11 @@
     (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
     (define-key map (kbd "C-c M-i") 'cider-inspect)
     (define-key map (kbd "C-c M-t") 'cider-toggle-trace)
-    (define-key map (kbd "C-c C-d") 'cider-doc)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'cider-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") 'cider-load-current-buffer)
     (define-key map (kbd "C-c C-l") 'cider-load-file)
     (define-key map (kbd "C-c C-b") 'cider-interrupt)
-    (define-key map (kbd "C-c C-j") 'cider-javadoc)
     (define-key map (kbd "C-c ,")   'cider-test-run-tests)
     (define-key map (kbd "C-c C-,") 'cider-test-rerun-tests)
     (define-key map (kbd "C-c M-,") 'cider-test-run-test)
@@ -103,6 +103,7 @@
         "--"
         ["Display documentation" cider-doc]
         ["Display JavaDoc" cider-javadoc]
+        ["Display Grimoire documentation" cider-grimoire]
         ["Inspect" cider-inspect]
         "--"
         ["Run test" cider-test-run-test]

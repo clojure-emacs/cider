@@ -17,10 +17,10 @@ integration.
 * [#22](https://github.com/clojure-emacs/cider/issues/22): New command
 `cider-jump-to-resource` (bound to <kbd>C-c M-.</kbd>).
 * [#664](https://github.com/clojure-emacs/cider/pull/664): New apropos support:
-search function/var names (bound to <kbd>C-c C-h a</kbd>) or documentation
-(bound to <kbd>C-c C-h d</kbd>).
+search function/var names (bound to <kbd>C-c C-d a</kbd>) or documentation
+(bound to <kbd>C-c C-d A</kbd>).
 * You can open Grimoire's entry for a particular Clojure (built-in) symbol with
-  `cider-grimoire` (<kbd>C-c C-h g</kbd>).
+  `cider-grimoire` (<kbd>C-c C-d g</kbd>).
 
 ### Changes
 
@@ -43,7 +43,9 @@ paths over tramp by default.
 * [#610](https://github.com/clojure-emacs/cider/pull/610): Present error and
 stacktrace info for all exception causes.
 * Removed `cider-repl-print-length` config option and
-  `cider-repl-toggle-print-length-limiting` command.
+`cider-repl-toggle-print-length-limiting` command.
+* Remapped `cider-doc` to <kbd>C-c C-d d</kbd>.
+* Remapped `cider-javadoc` to <kbd>C-c C-d j</kbd>
 
 ### Bugs fixed
 
