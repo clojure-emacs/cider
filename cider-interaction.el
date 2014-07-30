@@ -90,6 +90,20 @@ navigate to this buffer."
   :group 'cider
   :package-version '(cider . "0.5.0"))
 
+(defcustom cider-interactive-eval-print-value-prefix "\n"
+  "The prefix displayed in buffer before a result value."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.8.0"))
+
+(format "%s%%s" "foo")
+
+(defcustom cider-eval-last-sexp-eval-value-prefix " ; => "
+  "The prefix displayed in buffer before last-sexp result value."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.8.0"))
+
 (defcustom cider-switch-to-repl-command 'cider-switch-to-relevant-repl-buffer
   "Select the command to be invoked when switching-to-repl.
 The default option is `cider-switch-to-relevant-repl-buffer'.  If
@@ -822,17 +836,24 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (funcall nrepl-err-handler
                                           buffer ex root-ex session))))
 
+(defun cider-interactive-eval-insert-thunk ()
+  (let ((prefix cider-interactive-eval-print-value-prefix))
+    (lambda (value)
+      (insert prefix)
+      (insert value))))
+
 (defun cider-interactive-eval-print-handler (buffer)
   "Make a handler for evaluating and printing result in BUFFER."
-  (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
-                                 (with-current-buffer buffer
-                                   (insert (format "\n%s" value))))
-                               (lambda (_buffer out)
-                                 (cider-emit-interactive-eval-output out))
-                               (lambda (_buffer err)
-                                 (cider-emit-interactive-eval-output err))
-                               '()))
+  (let ((insert-thunk (cider-interactive-eval-insert-thunk)))
+    (nrepl-make-response-handler buffer
+                                 (lambda (buffer value)
+                                   (with-current-buffer buffer
+                                     (funcall insert-thunk value)))
+                                 (lambda (_buffer out)
+                                   (cider-emit-interactive-eval-output out))
+                                 (lambda (_buffer err)
+                                   (cider-emit-interactive-eval-output err))
+                                 '())))
 
 (defun cider-popup-eval-print-handler (buffer)
   "Make a handler for evaluating and printing result in popup BUFFER."
@@ -1148,7 +1169,9 @@ search for and read a `ns' form."
 If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
   (if prefix
-      (cider-interactive-eval-print (cider-last-sexp))
+      (let ((cider-interactive-eval-print-value-prefix
+             cider-eval-last-sexp-prefix))
+        (cider-interactive-eval-print (cider-last-sexp)))
     (cider-interactive-eval (cider-last-sexp))))
 
 (defun cider-eval-last-sexp-and-replace ()
