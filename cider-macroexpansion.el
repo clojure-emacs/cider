@@ -36,9 +36,19 @@
 
 (push cider-macroexpansion-buffer cider-ancilliary-buffers)
 
-(defcustom cider-macroexpansion-suppress-namespaces nil
-  "When non-nil namespaces won't be displayed in the macroexpansion buffer."
-  :type 'boolean
+(defcustom cider-macroexpansion-suppress-namespaces 'tidy
+  "Determines if namespaces are displayed in the macroexpansion buffer.
+Possible values are:
+
+  nil   ;=> Vars are fully-qualified in the expansion
+  t     ;=> Vars are displayed without namespace qualification
+  'tidy ;=> Vars that are :refer-ed or defined in the current namespace are
+            displayed with their simple name, non-refered vars from other
+            namespaces are refered using the alias for that namespace (if
+            defined), other vars are displayed fully qualified."
+  :type '(choice (const :tag "Suppress namespaces" t)
+                 (const :tag "Show namespaces" nil)
+                 (const :tag "Show namespace aliases" tidy))
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
