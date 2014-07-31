@@ -827,7 +827,10 @@ This is controlled via `cider-interactive-eval-output-destination'."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
                                  (with-current-buffer buffer
-                                   (insert (format "\n%s" value))))
+                                   (insert
+                                    (if (derived-mode-p 'cider-clojure-interaction-mode)
+                                        (format "\n%s\n" value)
+                                      value))))
                                (lambda (_buffer out)
                                  (cider-emit-interactive-eval-output out))
                                (lambda (_buffer err)

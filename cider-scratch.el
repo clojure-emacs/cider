@@ -32,7 +32,7 @@
 (require 'cider-interaction)
 (require 'clojure-mode)
 
-(defvar cider-scratch-mode-map
+(defvar cider-clojure-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "C-j") 'cider-eval-print-last-sexp)
@@ -51,13 +51,19 @@
   (or (get-buffer cider-scratch-buffer-name)
       (cider-create-scratch-buffer)))
 
+(define-derived-mode cider-clojure-interaction-mode clojure-mode "Clojure Interaction"
+  "Major mode for typing and evaluating Clojure forms.
+Like Lisp mode except that \\[cider-eval-print-last-sexp] evals the Lisp expression
+before point, and prints its value into the buffer, advancing point.
+
+\\{cider-clojure-interaction-mode-map}")
+
 (defun cider-create-scratch-buffer ()
   "Create a new scratch buffer."
   (with-current-buffer (get-buffer-create cider-scratch-buffer-name)
-    (clojure-mode)
+    (cider-clojure-interaction-mode)
     (insert ";; This buffer is for Clojure experiments and evaluation.\n"
             ";; Press C-j to evaluate the last expression.\n\n")
-    (use-local-map cider-scratch-mode-map)
     (current-buffer)))
 
 (provide 'cider-scratch)
