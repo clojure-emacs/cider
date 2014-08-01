@@ -1413,25 +1413,12 @@ under point, prompts for a var."
 
 (defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
-  (setq name (if (string-match "\\?\\'" name)
-                 (replace-match "_QMARK" t t name)
-               name))
-  (setq name (if (string-match "\\!\\'" name)
-                 (replace-match "_BANG" t t name)
-               name))
-  (setq name (if (string-match "\\`*" name)
-                 (replace-match "STAR_" t t name)
-               name))
-  (setq name (if (string-match "*\\'" name)
-                 (replace-match "_STAR" t t name)
-               name))
-  (setq name (if (string-match "\\`-" name)
-                 (replace-match "DASH_" t t name)
-               name))
-  (setq name (if (string-match "-\\'" name)
-                 (replace-match "_DASH" t t name)
-               name))
-  (replace-regexp-in-string "-" "_DASH_" name))
+  (->> name
+    (replace-regexp-in-string "\\?" "_QMARK_")
+    (replace-regexp-in-string "!" "_BANG_")
+    (replace-regexp-in-string "\\*" "_STAR_")
+    (replace-regexp-in-string "\\-" "_DASH_")
+    (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
 
 (defun cider-grimoire-url (name ns clojure-version)
   "Generate a grimoire url from NAME, NS and CLOJURE-VERSION."
