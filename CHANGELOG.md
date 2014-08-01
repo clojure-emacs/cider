@@ -20,7 +20,9 @@ integration.
 search function/var names (bound to <kbd>C-c C-d a</kbd>) or documentation
 (bound to <kbd>C-c C-d A</kbd>).
 * You can open Grimoire's entry for a particular Clojure (built-in) symbol with
-  `cider-grimoire` (<kbd>C-c C-d g</kbd>).
+`cider-grimoire` (<kbd>C-c C-d g</kbd>).
+* `cider-mode` now displays the namespace of the current buffer in the mode-line
+  (as SLIME does).
 
 ### Changes
 

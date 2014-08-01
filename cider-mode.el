@@ -32,6 +32,24 @@
 
 (require 'cider-interaction)
 
+;;;###autoload
+(defcustom cider-mode-line
+  '(" cider" (:eval (format "[%s]" (cider-current-ns))))
+  "Mode line ligher for `cider-mode'.
+
+The value of this variable is a mode line template as in
+`mode-line-format'.  See Info Node `(elisp)Mode Line Format' for
+details about mode line templates.
+
+Customize this variable to change how `cider-mode' displays its
+status in the mode line.  The default value displays the current ns.
+Set this variable to nil to disable the mode line
+entirely."
+  :group 'cider
+  :type 'sexp
+  :risky t
+  :package-version '(cider "0.7.0"))
+
 (defvar cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-.") 'cider-jump)
@@ -133,7 +151,7 @@
 
 \\{cider-mode-map}"
   nil
-  " cider"
+  cider-mode-line
   cider-mode-map
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
