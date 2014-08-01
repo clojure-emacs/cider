@@ -546,15 +546,13 @@
 ;;; grimoire tests
 (ert-deftest cider-grimoire-replace-special ()
   (should (equal (cider-grimoire-replace-special "isa?") "isa_QMARK"))
-  (should (equal (cider-grimoire-replace-special "really-isa?") "really_DASH_isa_QMARK"))
-  (should (equal (cider-grimoire-replace-special "reset!") "reset_BANG"))
-  (should (equal (cider-grimoire-replace-special "*ns*") "STAR_ns_STAR"))
-  (should (equal (cider-grimoire-replace-special "defn-") "defn_DASH"))
-  (should (equal (cider-grimoire-replace-special "-map-indexed") "DASH_map_DASH_indexed"))
-  (should (equal (cider-grimoire-replace-special "-foo-bar-baz-") "DASH_foo_DASH_bar_DASH_baz_DASH")))
+  (should (equal (cider-grimoire-replace-special "really-isa?") "really-isa_QMARK"))
+  (should (equal (cider-grimoire-replace-special "..") "DOT__DOT"))
+  (should (equal (cider-grimoire-replace-special ".") "DOT"))
+  (should (equal (cider-grimoire-replace-special "/") "SLASH")))
 
 (ert-deftest cider-grimoire-url ()
-  (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/defn_DASH/"
-                 (cider-grimoire-url "defn-" "clojure.core" "1.5.1")))
+  (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/even_QMARK/"
+                 (cider-grimoire-url "even?" "clojure.core" "1.5.1")))
   (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/"
                  (cider-grimoire-url nil "clojure.core" "1.5.1"))))

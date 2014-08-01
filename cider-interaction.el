@@ -1415,9 +1415,8 @@ under point, prompts for a var."
   "Convert the dashes in NAME to a grimoire friendly format."
   (->> name
     (replace-regexp-in-string "\\?" "_QMARK_")
-    (replace-regexp-in-string "!" "_BANG_")
-    (replace-regexp-in-string "\\*" "_STAR_")
-    (replace-regexp-in-string "\\-" "_DASH_")
+    (replace-regexp-in-string "\\." "_DOT_")
+    (replace-regexp-in-string "\\/" "_SLASH_")
     (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
 
 (defun cider-grimoire-url (name ns clojure-version)
