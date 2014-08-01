@@ -46,6 +46,7 @@ stacktrace info for all exception causes.
 `cider-repl-toggle-print-length-limiting` command.
 * Remapped `cider-doc` to <kbd>C-c C-d d</kbd>.
 * Remapped `cider-javadoc` to <kbd>C-c C-d j</kbd>
+* cider's scratch is now more consistent with an Emacs Lisp scratch buffer.
 
 ### Bugs fixed
 
