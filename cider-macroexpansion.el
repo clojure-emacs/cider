@@ -84,7 +84,7 @@ This variable specifies both what was expanded and the expander.")
   (let* ((expansion (cider-macroexpansion expander (cider-last-sexp)))
          (bounds (cons (save-excursion (backward-sexp) (point)) (point))))
     (cider-redraw-macroexpansion-buffer
-     expansion (current-buffer) (car bounds) (cdr bounds) (point))))
+     expansion (current-buffer) (car bounds) (cdr bounds))))
 
 (defun cider-macroexpand-again ()
   "Repeat the last macroexpansion."
@@ -128,13 +128,13 @@ If invoked with a PREFIX argument, use 'macroexpand' instead of
         (buffer-undo-list t))
     (erase-buffer)
     (insert (format "%s" expansion))
-    (goto-char (point-min))
+    (goto-char (point-max))
     (font-lock-fontify-buffer)))
 
-(defun cider-redraw-macroexpansion-buffer (expansion buffer start end current-point)
+(defun cider-redraw-macroexpansion-buffer (expansion buffer start end)
   "Redraw the macroexpansion with new EXPANSION.
 Text in BUFFER from START to END is replaced with new expansion,
-and point is placed at CURRENT-POINT."
+and point is placed after the expanded form."
   (with-current-buffer buffer
     (let ((buffer-read-only nil))
       (goto-char start)
@@ -142,7 +142,7 @@ and point is placed at CURRENT-POINT."
       (insert (format "%s" expansion))
       (goto-char start)
       (indent-sexp)
-      (goto-char current-point))))
+      (forward-sexp))))
 
 (defun cider-create-macroexpansion-buffer ()
   "Create a new macroexpansion buffer."
