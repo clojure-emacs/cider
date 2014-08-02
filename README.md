@@ -750,6 +750,7 @@ An extensive changelog is available [here](CHANGELOG.md).
 * [Phil Hagelberg](https://github.com/technomancy)
 * [Hugo Duncan](https://github.com/hugoduncan)
 * [Steve Purcell](https://github.com/purcell)
+* [Jeff Valk](https://github.com/jeffvalk)
 
 ## Logo
 
