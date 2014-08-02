@@ -32,6 +32,7 @@
 
 (require 'cider-client)
 (require 'cider-interaction)
+(require 'cider-doc)
 (require 'cider-eldoc) ; for cider-turn-on-eldoc-mode
 (require 'cider-util)
 
@@ -981,6 +982,7 @@ ENDP) DELIM."
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
+    (define-key map (kbd "C-c C-d") 'cider-doc-map)
     (define-key map (kbd "M-.") 'cider-jump)
     (define-key map (kbd "M-,") 'cider-jump-back)
     (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
@@ -988,12 +990,6 @@ ENDP) DELIM."
     (define-key map (kbd "TAB") 'cider-repl-tab)
     (define-key map (kbd "C-<return>") 'cider-repl-closing-return)
     (define-key map (kbd "C-j") 'cider-repl-newline-and-indent)
-    (define-key map (kbd "C-c C-d a") 'cider-apropos)
-    (define-key map (kbd "C-c C-d A") 'cider-apropos-documentation)
-    (define-key map (kbd "C-c C-d g") 'cider-grimoire)
-    (define-key map (kbd "C-c C-d h") 'cider-grimoire-web)
-    (define-key map (kbd "C-c C-d d") 'cider-doc)
-    (define-key map (kbd "C-c C-d j") 'cider-javadoc)
     (define-key map (kbd "C-c C-o") 'cider-repl-clear-output)
     (define-key map (kbd "C-c M-o") 'cider-repl-clear-buffer)
     (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
@@ -1026,24 +1022,19 @@ ENDP) DELIM."
     (define-key map (string cider-repl-shortcut-dispatch-char) 'cider-repl-handle-shortcut)
     (easy-menu-define cider-repl-mode-menu map
       "Menu for CIDER's REPL mode"
-      '("REPL"
+      `("REPL"
         ["Complete symbol" complete-symbol]
+        "--"
+        ,cider-doc-menu
         "--"
         ["Jump to source" cider-jump]
         ["Jump to resource" cider-jump-to-resource]
         ["Jump back" cider-jump-back]
         "--"
-        ["Search functions/vars" cider-apropos]
-        ["Search documentation" cider-apropos-documentation]
-        "--"
-        ["Display documentation" cider-doc]
-        ["Display JavaDoc" cider-javadoc]
-        ["Display Grimoire documentation" cider-grimoire]
-        ["Display Grimoire documentation in browser" cider-grimoire-web]
         ["Inspect" cider-inspect]
         "--"
         ["Set REPL ns" cider-repl-set-ns]
-        ["Toggle pretty printing of results" cider-repl-toggle-pretty-printing]
+        ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
         ["Clear output" cider-repl-clear-output]
         ["Clear buffer" cider-repl-clear-buffer]
         ["Refresh loaded code" cider-refresh]

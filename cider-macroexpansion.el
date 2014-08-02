@@ -167,7 +167,7 @@ and point is placed after the expanded form."
         ["Macroexpand-all" cider-macroexpand-all-inplace]
         ["Go to source" cider-jump-to-var]
         ["Go to doc" cider-doc]
-        ["Go to Javadoc" cider-doc-javadoc]
+        ["Go to Javadoc" cider-docview-javadoc]
         ["Quit" cider-popup-buffer-quit-function]))
     (cl-labels ((redefine-key (from to)
                               (dolist (mapping (where-is-internal from cider-mode-map))

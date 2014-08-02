@@ -1396,7 +1396,7 @@ point, prompts for a var."
 (defun cider-create-doc-buffer (symbol)
   "Populates *cider-doc* with the documentation for SYMBOL."
   (-when-let (info (cider-var-info symbol))
-    (cider-doc-render (cider-make-popup-buffer cider-doc-buffer) symbol info)))
+    (cider-docview-render (cider-make-popup-buffer cider-doc-buffer) symbol info)))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
