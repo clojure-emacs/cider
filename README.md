@@ -712,7 +712,7 @@ ClojureScript completion is provided by the
 implementation middleware which relies on
 [piggieback](https://github.com/cemerick/piggieback).  Include it in
 your project middlewares and call `(cemerick.piggieback/cljs-repl)` or
-another method to start up the cljs REPL.
+another method to start up the ClojureScript REPL.
 
 ### Microsoft Windows
 
@@ -730,7 +730,7 @@ add `"-Dline.separator=\"\n\""` to `:jvm-opts` in
 
 ### powershell.el
 
-The powershell inferior shell mode truncates cider repl output when
+The powershell inferior shell mode truncates CIDER's REPL output when
 loaded. As a workaround remove
 
 ```el
