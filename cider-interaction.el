@@ -993,7 +993,8 @@ until we find a delimiters that's not inside a string."
           (save-excursion
             ;; when we don't have a filename or it's different from the one of
             ;; the current buffer, the line number is relative to form start
-            (if (and file (equal file (file-truename (buffer-file-name))))
+            (if (and file (equal (file-truename file)
+                                 (file-truename (buffer-file-name))))
                 (goto-char (point-min)) ; start of file
               (beginning-of-defun))
             (forward-line (1- line))
