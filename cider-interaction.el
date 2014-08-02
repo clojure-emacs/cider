@@ -1411,6 +1411,8 @@ under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
+(defconst cider-grimoire-url "http://grimoire.arrdem.com/")
+
 (defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
   (->> name
@@ -1422,12 +1424,12 @@ under point, prompts for a var."
 (defun cider-grimoire-url (name ns clojure-version)
   "Generate a grimoire url from NAME, NS and CLOJURE-VERSION."
   (let ((clojure-version (concat (substring clojure-version 0 4) "0"))
-        (base-url "http://grimoire.arrdem.com/"))
+        (base-url cider-grimoire-url))
     (if name
         (concat base-url clojure-version "/" ns "/" (cider-grimoire-replace-special name) "/")
       (concat base-url clojure-version "/" ns "/"))))
 
-(defun cider-grimoire-lookup (symbol)
+(defun cider-grimoire-web-lookup (symbol)
   "Look up the grimoire documentation for SYMBOL."
   (-if-let (var-info (cider-var-info symbol))
       (let ((name (cider-get-var-attr var-info "name"))
@@ -1436,8 +1438,37 @@ under point, prompts for a var."
         (browse-url (cider-grimoire-url name ns (cider--clojure-version))))
     (message "Symbol %s not resolved" symbol)))
 
-(defun cider-grimoire (query)
+(defun cider-grimoire-web (query)
   "Open the grimoire documentation for QUERY in the default web browser."
+  (interactive "P")
+  (cider-read-symbol-name "Symbol: " 'cider-grimoire-web-lookup query))
+
+(defun cider-grimoire-lookup (symbol)
+  "Look up the grimoire documentation for SYMBOL."
+  (-if-let (var-info (cider-var-info symbol))
+      (let ((name (cider-get-var-attr var-info "name"))
+            (ns (cider-get-var-attr var-info "ns"))
+            (url-request-method "GET")
+            (url-request-extra-headers `(("Content-Type" . "text/plain"))))
+        ;; TODO: add a whitelist of supported namespaces
+        (url-retrieve (cider-grimoire-url name ns (cider--clojure-version))
+                      (lambda (status)
+                        (goto-char (point-min))
+                        (re-search-forward "^$")
+                        (delete-region (point-min) (point))
+                        (delete-blank-lines)
+                        (text-mode)
+                        (cider-popup-buffer-mode +1)
+                        (read-only-mode +1)
+                        (pop-to-buffer (current-buffer))
+                        (goto-char (point-min))
+                        (when (get-buffer "*cider grimoire*")
+                          (kill-buffer "*cider grimoire*"))
+                        (rename-buffer "*cider grimoire*"))))
+    (message "Symbol %s not resolved" symbol)))
+
+(defun cider-grimoire (query)
+  "Open the grimoire documentation for QUERY in a popup buffer."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-grimoire-lookup query))
 

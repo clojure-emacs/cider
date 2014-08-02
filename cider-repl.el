@@ -991,6 +991,7 @@ ENDP) DELIM."
     (define-key map (kbd "C-c C-d a") 'cider-apropos)
     (define-key map (kbd "C-c C-d A") 'cider-apropos-documentation)
     (define-key map (kbd "C-c C-d g") 'cider-grimoire)
+    (define-key map (kbd "C-c C-d h") 'cider-grimoire-web)
     (define-key map (kbd "C-c C-d d") 'cider-doc)
     (define-key map (kbd "C-c C-d j") 'cider-javadoc)
     (define-key map (kbd "C-c C-o") 'cider-repl-clear-output)
@@ -1038,6 +1039,7 @@ ENDP) DELIM."
         ["Display documentation" cider-doc]
         ["Display JavaDoc" cider-javadoc]
         ["Display Grimoire documentation" cider-grimoire]
+        ["Display Grimoire documentation in browser" cider-grimoire-web]
         ["Inspect" cider-inspect]
         "--"
         ["Set REPL ns" cider-repl-set-ns]

@@ -19,8 +19,9 @@ integration.
 * [#664](https://github.com/clojure-emacs/cider/pull/664): New apropos support:
 search function/var names (bound to <kbd>C-c C-d a</kbd>) or documentation
 (bound to <kbd>C-c C-d A</kbd>).
-* You can open Grimoire's entry for a particular Clojure (built-in) symbol with
-`cider-grimoire` (<kbd>C-c C-d g</kbd>).
+* You can view Grimoire's entry for a particular Clojure (built-in) symbol in
+Emacs with `cider-grimoire` (<kbd>C-c C-d g</kbd>) or your default browser with
+`cider-grimoire-web` (<kbd>C-c C-d h</kbd>).
 * `cider-mode` now displays the namespace of the current buffer in the mode-line
   (as SLIME does).
 
