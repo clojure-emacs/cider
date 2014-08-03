@@ -83,7 +83,8 @@
                                       :done t))
            (nrepl-current-session () nil)
            (cider-current-ns () "user"))
-    (should (equal (cadr (assoc "doc" (cider-var-info "str"))) "stub" ))))
+          (should (equal (cadr (assoc "doc" (cider-var-info "str"))) "stub" ))
+          (should (not (cider-var-info "")))))
 
 (ert-deftest test-cider-get-var-attr ()
   (let ((var-info '(("doc" "var doc") ("arglists" "var arglists"))))
