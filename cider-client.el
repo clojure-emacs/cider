@@ -203,7 +203,7 @@ contain a `candidates' key, it is returned as is."
 
 When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
-  (when var
+  (when (and var (not (string= var "")))
     (let ((val (plist-get (nrepl-send-request-sync
                            (list "op" "info"
                                  "session" (nrepl-current-session)
