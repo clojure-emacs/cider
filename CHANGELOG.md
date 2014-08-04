@@ -4,6 +4,8 @@
 
 ### New features
 
+* New `cider-auto-jump-to-error` control variable for auto jumping to error
+  location.
 * [#537](https://github.com/clojure-emacs/cider/pull/537): New support for
 Java symbol lookup from cider-nrepl's info middleware.
 * [#570](https://github.com/clojure-emacs/cider/pull/570): Enable toggling
