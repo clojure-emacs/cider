@@ -64,11 +64,11 @@
 (defcustom cider-show-error-buffer t
   "Control the popup behavior of cider stacktraces.
 The following values are possible t or 'always, 'except-in-repl,
-'only-in-repl. Any other value, including nil, will cause the stacktrace
+'only-in-repl.  Any other value, including nil, will cause the stacktrace
 not to be automatically shown.
 
 Irespective of the value of this variable, the `cider-error-buffer' is
-always generated in the background. Use `cider-visit-error-buffer' to
+always generated in the background.  Use `cider-visit-error-buffer' to
 navigate to this buffer."
   :type '(choice (const :tag "always" t)
                  (const except-in-repl)
@@ -78,6 +78,12 @@ navigate to this buffer."
 
 (define-obsolete-variable-alias 'cider-popup-stacktraces
   'cider-show-error-buffer "0.7.0")
+
+(defcustom cider-auto-jump-to-error t
+  "When non-nill automatically jump to error location during interactive compilation."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.7.0"))
 
 (defcustom cider-auto-select-error-buffer t
   "Controls whether to auto-select the error popup buffer."
@@ -219,7 +225,7 @@ endpoint and Clojure version."
     (or (match-string 1 repl-buffer-name) "<no designation>")))
 
 (defun cider-change-buffers-designation ()
-  "Changes the designation in cider buffer names.
+  "Change the designation in cider buffer names.
 Buffer names changed are cider-repl, nrepl-connection and nrepl-server."
   (interactive)
   (cider-ensure-connected)
@@ -551,8 +557,8 @@ If no local or remote file exists, return nil."
 
 (defun cider--url-to-file (url)
   "Return the filename from the resource URL.
-Uses `url-generic-parse-url' to parse the url. The filename is extracted and
-then url decoded. If the decoded filename has a Windows device letter followed
+Uses `url-generic-parse-url' to parse the url.  The filename is extracted and
+then url decoded.  If the decoded filename has a Windows device letter followed
 by a colon immediately after the leading '/' then the leading '/' is dropped to
 create a valid path."
   (let ((filename (url-unhex-string (url-filename (url-generic-parse-url url)))))
@@ -770,9 +776,8 @@ The handler simply inserts the result value in BUFFER."
                                (lambda (_buffer out)
                                  (cider-repl-emit-interactive-output out))
                                (lambda (buffer err)
-                                 (message "%s" err)
-                                 (cider-highlight-compilation-errors
-                                  buffer err))
+                                 (cider-highlight-compilation-errors buffer err)
+                                 (cider-jump-to-error-maybe buffer err))
                                '()))
 
 (defun cider-emit-interactive-eval-output (output)
@@ -799,8 +804,8 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (cider-emit-interactive-eval-output out))
                                (lambda (buffer err)
                                  (cider-emit-interactive-eval-output err)
-                                 (cider-highlight-compilation-errors
-                                  buffer err))
+                                 (cider-highlight-compilation-errors buffer err)
+                                 (cider-jump-to-error-maybe buffer err))
                                '()))
 
 (defun cider-load-file-handler (buffer)
@@ -815,8 +820,8 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (cider-emit-interactive-eval-output value))
                                (lambda (buffer err)
                                  (cider-emit-interactive-eval-output err)
-                                 (cider-highlight-compilation-errors
-                                  buffer err))
+                                 (cider-highlight-compilation-errors buffer err)
+                                 (cider-jump-to-error-maybe buffer err))
                                '()
                                (lambda (buffer ex root-ex session)
                                  (funcall nrepl-err-handler
@@ -919,19 +924,23 @@ They exist for compatibility with `next-error'."
                (status (when causes
                          (cider-stacktrace-render buffer (reverse causes))))))))))
 
+(defun cider--show-error-buffer-p (buffer)
+  "Return non-nil if stacktrace buffer must be shown on error.
+Takes into account the current BUFFER and the value of `cider-show-error-buffer'."
+  (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
+    (memq cider-show-error-buffer
+          (if replp
+              '(t always only-in-repl)
+            '(t always except-in-repl)))))
+
 (defun cider-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
 This function determines how the error buffer is shown, and then delegates
 the actual error content to the eval or op handler."
-  (let* ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode)))
-         (showp (memq cider-show-error-buffer
-                      (if replp
-                          '(t always only-in-repl)
-                        '(t always except-in-repl))))
-         (error-buffer (if (not showp)
-                           (cider-make-popup-buffer cider-error-buffer)
-                         (cider-popup-buffer cider-error-buffer
-                                             cider-auto-select-error-buffer))))
+  (let* ((error-buffer (if (cider--show-error-buffer-p buffer)
+                           (cider-popup-buffer cider-error-buffer
+                                               cider-auto-select-error-buffer)
+                         (cider-make-popup-buffer cider-error-buffer))))
     (if (nrepl-op-supported-p "stacktrace")
         (cider-default-err-op-handler error-buffer session)
       (cider-default-err-eval-handler error-buffer session))))
@@ -972,42 +981,62 @@ See `compilation-error-regexp-alist' for help on their format.")
              (or type 2))
        message))))
 
-(defun cider--find-expression-start ()
-  "Find the beginning a list, vector, map or set outside of a string.
+(defun cider--goto-expression-start ()
+  "Go to the beginning a list, vector, map or set outside of a string.
 
 We do so by starting and the current position and proceeding backwards
 until we find a delimiters that's not inside a string."
-  (while (or (not (looking-at "[({[]")) (eq 'font-lock-string-face (get-text-property (point) 'face)))
+  (while (or (not (looking-at "[({[]"))
+             (eq 'font-lock-string-face
+                 (get-text-property (point) 'face)))
     (backward-char)))
+
+(defun cider--find-last-error-location (buffer message)
+  "Return the location (begin . end) in BUFFER from the clojure error MESSAGE.
+If location could not be found, return nil."
+  (save-excursion
+    (with-current-buffer buffer
+     (let ((info (cider-extract-error-info cider-compilation-regexp message)))
+       (when info
+         (let ((file (nth 0 info))
+               (line (nth 1 info))
+               (col (nth 2 info)))
+           (save-excursion
+             ;; when we don't have a filename or it's different from the one of
+             ;; the current buffer, the line number is relative to form start
+             (if (and file (equal (file-truename file)
+                                  (file-truename (buffer-file-name))))
+                 (goto-char (point-min)) ; start of file
+               (beginning-of-defun))
+             (forward-line (1- line))
+             (move-to-column (or col 0))
+             (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
+                                 (point)))
+                   (end (progn (if col (forward-list) (move-end-of-line nil))
+                               (point))))
+               (cons begin end)))))))))
 
 (defun cider-highlight-compilation-errors (buffer message)
   "Highlight compilation error line in BUFFER, using MESSAGE."
-  (with-current-buffer buffer
-    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
-      (when info
-        (let ((file (nth 0 info))
-              (line (nth 1 info))
-              (col (nth 2 info))
-              (face (nth 3 info))
-              (note (nth 4 info)))
-          (save-excursion
-            ;; when we don't have a filename or it's different from the one of
-            ;; the current buffer, the line number is relative to form start
-            (if (and file (equal file (file-truename (buffer-file-name))))
-                (goto-char (point-min)) ; start of file
-              (beginning-of-defun))
-            (forward-line (1- line))
-            ;; if have column, highlight sexp at that point otherwise whole line.
-            (move-to-column (or col 0))
-            ;; we need to select a region to which to apply the error overlay
-            ;; we try to select the encompassing list, vector, set or map literal
-            (let ((begin (progn (if col (cider--find-expression-start) (back-to-indentation)) (point)))
-                  (end (progn (if col (forward-list) (move-end-of-line nil)) (point))))
-              (let ((overlay (make-overlay begin end)))
-                (overlay-put overlay 'cider-note-p t)
-                (overlay-put overlay 'face face)
-                (overlay-put overlay 'cider-note note)
-                (overlay-put overlay 'help-echo note)))))))))
+  (-when-let* ((pos (cider--find-last-error-location buffer message))
+               (overlay (make-overlay (car pos) (cdr pos) buffer))
+               (info (cider-extract-error-info cider-compilation-regexp message)))
+    (let ((face (nth 3 info))
+          (note (nth 4 info)))
+      (overlay-put overlay 'cider-note-p t)
+      (overlay-put overlay 'face face)
+      (overlay-put overlay 'cider-note note)
+      (overlay-put overlay 'help-echo note)
+      (overlay-put overlay 'modification-hooks
+                   (list (lambda (o &rest args) (delete-overlay o)))))))
+
+(defun cider-jump-to-error-maybe (buffer err)
+  "If `cider-auto-jump-to-error' is non-nil, retrieve error location from ERR and jump to it."
+  (-when-let (pos (and cider-auto-jump-to-error
+                       (cider--find-last-error-location buffer err)))
+      (with-current-buffer buffer
+        (goto-char (car pos)))))
+
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
