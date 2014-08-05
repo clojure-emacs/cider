@@ -1472,6 +1472,15 @@ under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-grimoire-web-lookup query))
 
+(defun cider-create-grimoire-buffer (content)
+  "Create a new grimoire buffer with CONTENT."
+  (with-current-buffer (cider-popup-buffer "*cider grimoire*" t)
+    (read-only-mode -1)
+    (insert content)
+    (read-only-mode +1)
+    (goto-char (point-min))
+    (current-buffer)))
+
 (defun cider-grimoire-lookup (symbol)
   "Look up the grimoire documentation for SYMBOL."
   (-if-let (var-info (cider-var-info symbol))
@@ -1482,18 +1491,13 @@ under point, prompts for a var."
         ;; TODO: add a whitelist of supported namespaces
         (url-retrieve (cider-grimoire-url name ns (cider--clojure-version))
                       (lambda (status)
+                        ;; we need to strip the http header
                         (goto-char (point-min))
                         (re-search-forward "^$")
                         (delete-region (point-min) (point))
                         (delete-blank-lines)
-                        (text-mode)
-                        (cider-popup-buffer-mode +1)
-                        (read-only-mode +1)
-                        (pop-to-buffer (current-buffer))
-                        (goto-char (point-min))
-                        (when (get-buffer "*cider grimoire*")
-                          (kill-buffer "*cider grimoire*"))
-                        (rename-buffer "*cider grimoire*"))))
+                        ;; and create a new buffer with whatever is left
+                        (pop-to-buffer (cider-create-grimoire-buffer (buffer-string))))))
     (message "Symbol %s not resolved" symbol)))
 
 (defun cider-grimoire (query)
