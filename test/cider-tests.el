@@ -389,8 +389,8 @@
 (ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-project-dir ()
   (noflet ((nrepl-project-directory-for (dontcare)
                                         nrepl-project-dir))
-    (let* ((b1 (generate-new-buffer "temp"))
-           (b2 (generate-new-buffer "temp"))
+    (let* ((b1 (generate-new-buffer "*nrepl-connection temp*"))
+           (b2 (generate-new-buffer "*nrepl-connection temp*"))
            (b1-repl (generate-new-buffer "temp"))
            (b2-repl (generate-new-buffer "temp"))
            (nrepl-connection-list (list (buffer-name b1)
@@ -402,7 +402,7 @@
       (with-current-buffer b2 ;; cider-connect - no relevant buffer
         (setq-local nrepl-endpoint '("localhost" 4006))
         (setq-local nrepl-repl-buffer b2-repl))
-      (with-current-buffer b2
+      (with-current-buffer b1
         (cider-switch-to-relevant-repl-buffer '())
         (should (equal b1-repl (current-buffer)))
         (should (equal (list (buffer-name b1) (buffer-name b2))
@@ -438,7 +438,8 @@
         (cider-switch-to-relevant-repl-buffer '()))
       (with-current-buffer b2
         (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b3-repl (current-buffer))))
+        ;; switch to the (car nrepl-connection-list) 
+        (should (equal b1-repl (current-buffer))))
 
       (dolist (buf (list b1 b2 b3 b1-repl b2-repl b3-repl))
         (kill-buffer buf)))))

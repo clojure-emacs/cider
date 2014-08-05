@@ -22,8 +22,8 @@
 ;;; Commentary:
 
 ;; This file contains tests for CIDER that require an active nREPL connection
-;; with `cider-nrepl' middleware, and can't currently be included in automated
-;; CI builds.
+;; with `cider-nrepl' middleware or explicit user input, and can't currently be
+;; included in automated CI builds.
 
 ;; To run these tests:
 ;;   All tests: M-x ert t
@@ -94,3 +94,29 @@ from the latter. Remaining content is compared for string equality."
 (ert-deftest test-cider-cider-docs ()
   "Test all clojure doc output."
   (should (equal nil (cider-test-all-docs))))
+
+
+(ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-project-dir2 ()
+  (noflet ((nrepl-project-directory-for (dontcare)
+                                        nrepl-project-dir))
+    (let* ((b1 (generate-new-buffer "*nrepl-connection temp:123*"))
+           (b2 (generate-new-buffer "*nrepl-connection temp:124*"))
+           (b1-repl (generate-new-buffer "temp"))
+           (b2-repl (generate-new-buffer "temp"))
+           (nrepl-connection-list (list (buffer-name b1)
+                                        (buffer-name b2))))
+      (with-current-buffer b1 ;; cider-jack-in 1
+        (setq-local nrepl-endpoint '("localhost" 4005))
+        (setq-local nrepl-project-dir "proj1")
+        (setq-local nrepl-repl-buffer b1-repl))
+      (with-current-buffer b2 ;; cider-connect - no relevant buffer
+        (setq-local nrepl-endpoint '("localhost" 4006))
+        (setq-local nrepl-repl-buffer b2-repl))
+      (with-current-buffer b2
+        ;; choose temp:123
+        (cider-switch-to-relevant-repl-buffer '())
+        (should (equal b1-repl (current-buffer)))
+        (should (equal (list (buffer-name b1) (buffer-name b2))
+                       nrepl-connection-list)))
+      (dolist (buf (list b1 b2 b1-repl b2-repl))
+        (kill-buffer buf)))))
