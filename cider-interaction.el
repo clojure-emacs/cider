@@ -298,73 +298,93 @@ of the namespace in the Clojure source buffer."
     (cider-remember-clojure-buffer buffer)
     (goto-char (point-max))))
 
-(defun cider-find-connection-buffer-for-project-directory (project-directory)
-  "Find the relevant connection-buffer for the given PROJECT-DIRECTORY.
-
-A check is made to ensure that all connection buffers have a project-directory
-otherwise there is ambiguity as to which connection buffer should be selected.
-
-If there are multiple connection buffers matching PROJECT-DIRECTORY there
-is ambiguity, therefore nil is returned."
-  (unless (-filter
+(defun cider-find-connection-buffers-for-project-directory (project-directory)
+  "Return a list of relevant connection-buffers for the given PROJECT-DIRECTORY."
+  (when project-directory
+   (let ((matching-connections
+          (-filter
            (lambda (conn)
-             (not
-              (with-current-buffer (get-buffer conn)
-                nrepl-project-dir)))
-           nrepl-connection-list)
-    (let ((matching-connections
-           (-filter
-            (lambda (conn)
-              (let ((conn-proj-dir (with-current-buffer (get-buffer conn)
-                                     nrepl-project-dir)))
-                (when conn-proj-dir
-                  (equal (file-truename project-directory)
-                         (file-truename conn-proj-dir)))))
-            nrepl-connection-list)))
-      (when (= 1 (length matching-connections))
-        (car matching-connections)))))
+             (let ((conn-proj-dir (with-current-buffer (get-buffer conn)
+                                    nrepl-project-dir)))
+               (when conn-proj-dir
+                 (equal (file-truename project-directory)
+                        (file-truename conn-proj-dir)))))
+           (nrepl-connection-buffers))))
+     matching-connections)))
+
+(defun cider-switch-connection ()
+  "Ask for connection and make it current.
+Return the name of the connection buffer."
+  (interactive)
+  (let* ((conbuf (completing-read
+                  "Choose connection: "
+                  (let ((regexp (format (regexp-quote nrepl-connection-buffer-name-template)
+                                        " *\\(.*\\) *")))
+                    (append (mapcar (lambda (nm) 
+                                      (string-match regexp nm)
+                                      (propertize (match-string 1 nm) :conn nm))
+                                    (nrepl-connection-buffers))
+                            '("*new*")))))
+         (conbuf (if (not (string= conbuf "*new*"))
+                     (get-text-property 1 :conn conbuf)
+                   (cider-jack-in)
+                   nil)))
+    ;; fixme: might be nil on new connection.
+    (when conbuf
+      (setq nrepl-connection-buffer conbuf)
+      (setq nrepl-connection-list
+            (cons conbuf
+                  (delq conbuf nrepl-connection-list)))
+      conbuf)))
 
 (defun cider-switch-to-relevant-repl-buffer (&optional arg)
   "Select the REPL buffer, when possible in an existing window.
 The buffer chosen is based on the file open in the current buffer.
 
-If the REPL buffer cannot be unambiguously determined, the REPL
-buffer is chosen based on the current connection buffer and a
-message raised informing the user.
-
-Hint: You can use `display-buffer-reuse-frames' and
-`special-display-buffer-names' to customize the frame in which
-the buffer should appear.
+If there is no connection or the REPL buffer cannot be unambiguously
+determined from the project directory, interactively ask for connection.
 
 With a prefix ARG sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer.
 
-With a second prefix ARG the chosen REPL buffer is based on a
-supplied project directory."
+With a second prefix ARG interactively ask for connection.
+
+Hint: You can use `display-buffer-reuse-frames' and
+`special-display-buffer-names' to customize the frame in which
+the buffer should appear."
   (interactive "p")
   (cider-ensure-connected)
-  (let* ((project-directory
-          (or (when (eq 16 arg) (read-directory-name "Project: "))
-              (nrepl-project-directory-for (nrepl-current-dir))))
-         (connection-buffer
-          (or
-           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
-           (and project-directory
-                (cider-find-connection-buffer-for-project-directory project-directory)))))
-    (when connection-buffer
+  (let ((conbuf (or
+                 ;; C-u C-u: switch to connection or create a new one
+                 (and (eq 16 arg)
+                      (cider-switch-connection))
+                 ;; most recently associated connection
+                 (and (bufferp nrepl-connection-buffer)
+                      nrepl-connection-buffer)
+                 ;; most recent connection within proj dir
+                 (car (cider-find-connection-buffers-for-project-directory
+                       (nrepl-project-directory-for (nrepl-current-dir))))
+                 ;; select or create a new connection
+                 (cider-switch-connection))))
+    (when conbuf
+      ;; fixme: conbuf is nil only if new connection (cider-jack-in) was
+      ;; requested. The connection buffer is created asynchronously so there is
+      ;; no way at this stage to know it.
       (setq nrepl-connection-list
-            (cons connection-buffer (delq connection-buffer nrepl-connection-list))))
-    (cider-switch-to-current-repl-buffer arg)
-    (message
-     (format (if connection-buffer
-                 "Switched to REPL: %s"
-               "Could not determine relevant nREPL connection, using: %s")
-             (with-current-buffer (nrepl-current-connection-buffer)
-               (format "%s:%s, %s:%s"
-                       (or (nrepl--project-name nrepl-project-dir) "<no project>")
-                       nrepl-buffer-ns
-                       (car nrepl-endpoint)
-                       (cadr nrepl-endpoint)))))))
+            (cons conbuf (delq conbuf nrepl-connection-list)))
+      
+      (cider-switch-to-current-repl-buffer arg)
+      (message
+       (format (if conbuf
+                   "Switched to REPL: %s"
+                 ;;else: should never happen
+                 "Could not determine relevant nREPL connection, using: %s")
+               (with-current-buffer (nrepl-current-connection-buffer)
+                 (format "%s:%s, %s:%s"
+                         (or (nrepl--project-name nrepl-project-dir) "<no project>")
+                         nrepl-buffer-ns
+                         (car nrepl-endpoint)
+                         (cadr nrepl-endpoint))))))))
 
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
