@@ -1,6 +1,8 @@
 # Changelog
 
-## master
+## master (unreleased)
+
+## 0.7.0 / 2014-08-05
 
 ### New features
 
