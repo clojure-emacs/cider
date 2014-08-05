@@ -52,16 +52,11 @@ entirely."
 
 (defvar cider-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-.") 'cider-jump)
+    (define-key map (kbd "C-c C-d") 'cider-doc-map)
+    (define-key map (kbd "M-.") 'cider-jump-to-var)
     (define-key map (kbd "M-,") 'cider-jump-back)
     (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
     (define-key map (kbd "M-TAB") 'complete-symbol)
-    (define-key map (kbd "C-c C-d a") 'cider-apropos)
-    (define-key map (kbd "C-c C-d A") 'cider-apropos-documentation)
-    (define-key map (kbd "C-c C-d g") 'cider-grimoire)
-    (define-key map (kbd "C-c C-d h") 'cider-grimoire-web)
-    (define-key map (kbd "C-c C-d j") 'cider-javadoc)
-    (define-key map (kbd "C-c C-d d") 'cider-doc)
     (define-key map (kbd "C-M-x")   'cider-eval-defun-at-point)
     (define-key map (kbd "C-c C-c") 'cider-eval-defun-at-point)
     (define-key map (kbd "C-x C-e") 'cider-eval-last-sexp)
@@ -95,14 +90,16 @@ entirely."
     (define-key map (kbd "C-c C-q") 'cider-quit)
     (easy-menu-define cider-mode-menu map
       "Menu for CIDER mode"
-      '("CIDER"
+      `("CIDER"
         ["Complete symbol" complete-symbol]
+        "--"
+        ,cider-doc-menu
         "--"
         ["Eval top-level sexp at point" cider-eval-defun-at-point]
         ["Eval last sexp" cider-eval-last-sexp]
         ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
         ["Eval last sexp to REPL buffer" cider-eval-last-sexp-to-repl]
-        ["Eval last sexp and replace it with its result" cider-eval-last-sexp-and-replace]
+        ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
         ["Eval region" cider-eval-region]
         ["Eval ns form" cider-eval-ns-form]
         ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
@@ -110,26 +107,19 @@ entirely."
         ["Load current buffer" cider-load-current-buffer]
         ["Load file" cider-load-file]
         "--"
-        ["Macroexpand-1 last expression" cider-macroexpand-1]
-        ["Macroexpand-all last expression" cider-macroexpand-all]
+        ["Macroexpand-1" cider-macroexpand-1]
+        ["Macroexpand-all" cider-macroexpand-all]
         "--"
-        ["Jump to source" cider-jump]
+        ["Jump to source" cider-jump-to-var]
         ["Jump to resource" cider-jump-to-resource]
         ["Jump back" cider-jump-back]
-        "--"
-        ["Search functions/vars" cider-apropos]
-        ["Search documentation" cider-apropos-documentation]
-        "--"
-        ["Display documentation" cider-doc]
-        ["Display JavaDoc" cider-javadoc]
-        ["Display Grimoire documentation" cider-grimoire]
-        ["Display Grimoire documentation in browser" cider-grimoire-web]
-        ["Inspect" cider-inspect]
         "--"
         ["Run test" cider-test-run-test]
         ["Run all tests" cider-test-run-tests]
         ["Rerun failed/erring tests" cider-test-rerun-tests]
         ["Show test report" cider-test-show-report]
+        "--"
+        ["Inspect" cider-inspect]
         "--"
         ["Set ns" cider-repl-set-ns]
         ["Switch to REPL" cider-switch-to-repl-buffer]
@@ -141,8 +131,8 @@ entirely."
         ["Quit" cider-quit]
         ["Restart" cider-restart]
         "--"
-        ["Display current nREPL connection" cider-display-current-connection-info]
-        ["Rotate current nREPL connection" cider-rotate-connection]
+        ["Display nREPL connection" cider-display-current-connection-info]
+        ["Rotate nREPL connection" cider-rotate-connection]
         "--"
         ["Version info" cider-version]))
     map))

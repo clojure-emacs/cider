@@ -1,4 +1,4 @@
-;;; cider-doc.el --- Documentation viewer -*- lexical-binding: t -*-
+;;; cider-doc.el --- CIDER documentation functionality -*- lexical-binding: t -*-
 
 ;; Copyright © 2014 Jeff Valk
 
@@ -31,97 +31,168 @@
 (require 'dash)
 (require 'easymenu)
 
-;; Variables
+
+;;; Variables
 
 (defgroup cider-doc nil
-  "Formatting/fontifying documentation viewer."
+  "Documentation for CIDER."
   :prefix "cider-doc-"
   :group 'cider)
 
-(defcustom cider-doc-fill-column fill-column
+
+(defvar cider-doc-map
+  (let (cider-doc-map)
+    (define-prefix-command 'cider-doc-map)
+    (define-key cider-doc-map (kbd "a") 'cider-apropos)
+    (define-key cider-doc-map (kbd "C-a") 'cider-apropos)
+    (define-key cider-doc-map (kbd "A") 'cider-apropos-documentation)
+    (define-key cider-doc-map (kbd "d") 'cider-doc)
+    (define-key cider-doc-map (kbd "C-d") 'cider-doc)
+    (define-key cider-doc-map (kbd "g") 'cider-grimoire)
+    (define-key cider-doc-map (kbd "C-g") 'cider-grimoire)
+    (define-key cider-doc-map (kbd "h") 'cider-grimoire-web)
+    (define-key cider-doc-map (kbd "j") 'cider-javadoc)
+    (define-key cider-doc-map (kbd "C-j") 'cider-javadoc)
+    cider-doc-map)
+  "CIDER documentation keymap.")
+
+(defvar cider-doc-menu
+  '("Documentation ..."
+    ["CiderDoc" cider-doc]
+    ["JavaDoc in browser" cider-javadoc]
+    ["Grimoire" cider-grimoire]
+    ["Grimoire in browser" cider-grimoire-web]
+    ["Search functions/vars" cider-apropos]
+    ["Search documentation" cider-apropos-documentation])
+  "CIDER documentation submenu.")
+
+
+
+;;; cider-docview-mode
+
+(defgroup cider-docview-mode nil
+  "Formatting/fontifying documentation viewer."
+  :prefix "cider-docview-"
+  :group 'cider)
+
+(defcustom cider-docview-fill-column fill-column
   "Fill column for docstrings in doc buffer."
   :type 'list
-  :group 'cider-doc
+  :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
 
 
+
 ;; Faces
 
-(defface cider-doc-emphasis-face
+(defface cider-docview-emphasis-face
   '((t (:inherit default :underline t)))
   "Face for emphasized text"
-  :group 'cider-doc
+  :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
 
-(defface cider-doc-strong-face
+(defface cider-docview-strong-face
   '((t (:inherit default :underline t :weight bold)))
   "Face for strongly emphasized text"
-  :group 'cider-doc
+  :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
 
-(defface cider-doc-literal-face
+(defface cider-docview-literal-face
   '((t (:inherit font-lock-string-face)))
   "Face for literal text"
-  :group 'cider-doc
+  :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
 
-(defface cider-doc-table-border-face
+(defface cider-docview-table-border-face
   '((t (:inherit shadow)))
   "Face for table borders"
-  :group 'cider-doc
+  :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
 
-
+
 ;; Colors & Theme Support
 
-(defvar cider-doc-code-background-color
+(defvar cider-docview-code-background-color
   (cider-scale-background-color)
   "Background color for code blocks.")
 
-(defadvice enable-theme (after cider-doc-adapt-to-theme activate)
-  "When theme is changed, update `cider-doc-code-background-color'."
-  (setq cider-doc-code-background-color (cider-scale-background-color)))
+(defadvice enable-theme (after cider-docview-adapt-to-theme activate)
+  "When theme is changed, update `cider-docview-code-background-color'."
+  (setq cider-docview-code-background-color (cider-scale-background-color)))
 
-
+
 ;; Mode & key bindings
 
-(defvar cider-doc-mode-map
+(defvar cider-docview-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "q" 'cider-popup-buffer-quit-function)
-    (define-key map "j" 'cider-doc-javadoc)
+    (define-key map "j" 'cider-docview-javadoc)
     (define-key map (kbd "<backtab>") 'backward-button)
     (define-key map (kbd "TAB") 'forward-button)
-    (easy-menu-define cider-doc-mode-menu map
+
+    ;; VS[04-08-2014]: proposed keybindings for the docview mode
+    ;; (define-key map (kbd "<backtab>") 'backward-button)
+    ;; (define-key map (kbd "TAB") 'forward-button)
+    ;; (define-key map (kbd "k") 'kill-this-buffer)
+    
+    ;; (define-key map (kbd "C-c C-d") 'cider-doc-map)
+    ;; (define-key map (kbd "a") 'cider-apropos)
+    ;; (define-key map (kbd "A") 'cider-apropos-documentation)
+    ;; (define-key map (kbd "d") 'cider-doc)
+    ;; (define-key map (kbd "g") 'cider-grimoire)
+    ;; (define-key map (kbd "h") 'cider-grimoire-web)
+    ;; (define-key map (kbd "j") 'cider-javadoc)
+    ;; (define-key map (kbd "J") 'cider-doc-javadoc)
+
+    ;; (define-key map (kbd "M-.") 'cider-jump-to-var)
+    ;; (define-key map (kbd "M-,") 'cider-jump-back)
+    ;; (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
+    ;; (define-key map (kbd "i") 'cider-inspect)
+    ;; (define-key map (kbd "C-c M-i") 'cider-inspect)
+    ;; (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
+
+    (easy-menu-define cider-docview-mode-menu map
       "Menu for CIDER's doc mode"
-      '("Doc"
-        ["Go to Javadoc" cider-doc-javadoc]
-        ["Quit" cider-popup-buffer-quit-function]))
+      `("Doc"
+        ;; ,cider-doc-menu
+        ;; "--"
+        ;; ["Jump to source" cider-jump-to-var]
+        ;; ["Jump to resource" cider-jump-to-resource]
+        ;; ["Jump back" cider-jump-back]
+        ;; "--"
+        ;; ["Switch to REPL" cider-switch-to-repl-buffer]
+        ;; "--"
+        ;; ["Kill" kill-this-buffer]
+        ;; ["Quit" quit-window]
+        ["JavaDoc in browser" cider-docview-javadoc]
+        ["Quit" cider-popup-buffer-quit-function]
+        ))
     map))
 
-(define-derived-mode cider-doc-mode fundamental-mode "Doc"
+(define-derived-mode cider-docview-mode special-mode "Doc"
   "Major mode for displaying CIDER documentation
 
-\\{cider-doc-mode-map}"
+\\{cider-docview-mode-map}"
   (setq buffer-read-only t)
   (setq-local truncate-lines t)
   (setq-local electric-indent-chars nil)
-  (setq-local cider-doc-symbol nil)
-  (setq-local cider-doc-javadoc-url nil))
+  (setq-local cider-docview-symbol nil)
+  (setq-local cider-docview-javadoc-url nil))
 
+
+;;; Interactive functions
 
-;; Interactive functions
-
-(defun cider-doc-javadoc ()
+(defun cider-docview-javadoc ()
   "Open the Javadoc for the current class, if available."
   (interactive)
-  (if cider-doc-javadoc-url
-      (browse-url cider-doc-javadoc-url)
-    (message "No Javadoc available for %s" cider-doc-symbol)))
+  (if cider-docview-javadoc-url
+      (browse-url cider-docview-javadoc-url)
+    (message "No Javadoc available for %s" cider-docview-symbol)))
 
+
+;;; Font Lock and Formatting
 
-;; Font Lock and Formatting
-
-(defun cider-doc-fontify-code-blocks (buffer mode)
+(defun cider-docview-fontify-code-blocks (buffer mode)
   "Font lock BUFFER code blocks using MODE and remove markdown characters.
 This processes the triple backtick GFM markdown extension.  An overlay is used
 to shade the background.  Blocks are marked to be ignored by other fonification
@@ -131,14 +202,14 @@ and line wrap."
       (while (search-forward-regexp "```\n" nil t)
         (replace-match "")
         (let ((beg (point))
-              (bg `(:background ,cider-doc-code-background-color)))
+              (bg `(:background ,cider-docview-code-background-color)))
           (when (search-forward-regexp "```\n" nil t)
             (replace-match "")
             (cider-font-lock-region-as mode beg (point))
             (overlay-put (make-overlay beg (point)) 'face bg)
             (put-text-property beg (point) 'block 'code)))))))
 
-(defun cider-doc-fontify-literals (buffer)
+(defun cider-docview-fontify-literals (buffer)
   "Font lock BUFFER literal text and remove backtick markdown characters.
 Preformatted code text blocks are ignored."
   (with-current-buffer buffer
@@ -151,9 +222,9 @@ Preformatted code text blocks are ignored."
             (let ((beg (point)))
               (when (search-forward "`" (line-end-position) t)
                 (replace-match "")
-                (put-text-property beg (point) 'face 'cider-doc-literal-face)))))))))
+                (put-text-property beg (point) 'face 'cider-docview-literal-face)))))))))
 
-(defun cider-doc-fontify-emphasis (buffer)
+(defun cider-docview-fontify-emphasis (buffer)
   "Font lock BUFFER emphasized text and remove markdown characters.
 One '*' represents emphasis, multiple '**'s represent strong emphasis.
 Preformatted code text blocks are ignored."
@@ -166,19 +237,19 @@ Preformatted code text blocks are ignored."
             (replace-match "\\2")
             (let ((beg (1- (point)))
                   (face (if (> (length (match-string 1)) 1)
-                            'cider-doc-strong-face
-                          'cider-doc-emphasis-face)))
+                            'cider-docview-strong-face
+                          'cider-docview-emphasis-face)))
               (when (search-forward-regexp "\\(\\w\\)\\*+" (line-end-position) t)
                 (replace-match "\\1")
                 (put-text-property beg (point) 'face face)))))))))
 
-(defun cider-doc-format-tables (buffer)
+(defun cider-docview-format-tables (buffer)
   "Align BUFFER tables and dim borders.
 This processes the GFM table markdown extension using `org-table'.
 Tables are marked to be ignored by line wrap."
   (with-current-buffer buffer
     (save-excursion
-      (let ((border 'cider-doc-table-border-face))
+      (let ((border 'cider-docview-table-border-face))
         (org-table-map-tables
          (lambda ()
            (org-table-align)
@@ -187,7 +258,7 @@ Tables are marked to be ignored by line wrap."
              (put-text-property (match-beginning 0) (match-end 0) 'face border))
            (put-text-property (org-table-begin) (org-table-end) 'block 'table)))))))
 
-(defun cider-doc-wrap-text (buffer)
+(defun cider-docview-wrap-text (buffer)
   "For text in BUFFER not propertized as 'block', apply line wrap."
   (with-current-buffer buffer
     (save-excursion
@@ -196,23 +267,23 @@ Tables are marked to be ignored by line wrap."
           (fill-region (point) (line-end-position)))
         (forward-line)))))
 
+
+;;; Rendering
 
-;; Rendering
-
-(defun cider-doc-render-java-doc (buffer text)
+(defun cider-docview-render-java-doc (buffer text)
   "Emit into BUFFER formatted doc TEXT for a Java class or member."
   (with-current-buffer buffer
     (let ((beg (point)))
       (insert text)
       (save-excursion
         (goto-char beg)
-        (cider-doc-fontify-code-blocks buffer 'java-mode) ; left alone hereafter
-        (cider-doc-fontify-literals buffer)
-        (cider-doc-fontify-emphasis buffer)
-        (cider-doc-format-tables buffer) ; may contain literals, emphasis
-        (cider-doc-wrap-text buffer))))) ; ignores code, table blocks
+        (cider-docview-fontify-code-blocks buffer 'java-mode) ; left alone hereafter
+        (cider-docview-fontify-literals buffer)
+        (cider-docview-fontify-emphasis buffer)
+        (cider-docview-format-tables buffer) ; may contain literals, emphasis
+        (cider-docview-wrap-text buffer))))) ; ignores code, table blocks
 
-(defun cider-doc-render-info (buffer info)
+(defun cider-docview-render-info (buffer info)
   "Emit into BUFFER formatted INFO for the Clojure or Java symbol."
   (let* ((ns      (cadr (assoc "ns" info)))
          (name    (cadr (assoc "name" info)))
@@ -256,7 +327,7 @@ Tables are marked to be ignored by line wrap."
           (emit (concat "Deprecated in " depr) 'font-lock-comment-face))
         (when doc
           (if class
-              (cider-doc-render-java-doc (current-buffer) doc)
+              (cider-docview-render-java-doc (current-buffer) doc)
             (emit (concat "  " doc))))
         (when url
           (newline)
@@ -284,21 +355,22 @@ Tables are marked to be ignored by line wrap."
             (put-text-property beg end (car x) (cadr x)))))
       (current-buffer))))
 
-(defun cider-doc-render (buffer symbol info)
+(defun cider-docview-render (buffer symbol info)
   "Emit into BUFFER formatted documentation for SYMBOL's INFO."
   (with-current-buffer buffer
     (let ((javadoc (cadr (assoc "javadoc" info)))
           (inhibit-read-only t))
-      (cider-doc-mode)
+      (cider-docview-mode)
 
-      (setq-local cider-doc-symbol symbol)
-      (setq-local cider-doc-javadoc-url javadoc)
+      (setq-local cider-docview-symbol symbol)
+      (setq-local cider-docview-javadoc-url javadoc)
 
       (remove-overlays)
-      (cider-doc-render-info buffer info)
+      (cider-docview-render-info buffer info)
 
       (goto-char (point-min))
       (current-buffer))))
+
 
 (provide 'cider-doc)
 
