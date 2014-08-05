@@ -134,7 +134,7 @@
     ;; (define-key map (kbd "<backtab>") 'backward-button)
     ;; (define-key map (kbd "TAB") 'forward-button)
     ;; (define-key map (kbd "k") 'kill-this-buffer)
-    
+
     ;; (define-key map (kbd "C-c C-d") 'cider-doc-map)
     ;; (define-key map (kbd "a") 'cider-apropos)
     ;; (define-key map (kbd "A") 'cider-apropos-documentation)
@@ -153,7 +153,7 @@
 
     (easy-menu-define cider-docview-mode-menu map
       "Menu for CIDER's doc mode"
-      `("Doc"
+      `("CiderDoc"
         ;; ,cider-doc-menu
         ;; "--"
         ;; ["Jump to source" cider-jump-to-var]
