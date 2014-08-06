@@ -712,6 +712,16 @@ form, with symbol at point replaced by __prefix__."
     (when strlst
       strlst)))
 
+(defun cider-annotate-symbol (symbol)
+  (-when-let (info (cider-var-info symbol))
+    (let ((macro   (cadr (assoc "macro" info)))
+          (special (cadr (assoc "special-form" info)))
+          (args    (cadr (assoc "arglists-str" info))))
+      (cond
+       (macro " <m>")
+       (special " <s>")
+       (args " <f>")))))
+
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
   (let ((sap (symbol-at-point)))
@@ -719,6 +729,7 @@ form, with symbol at point replaced by __prefix__."
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
               (completion-table-dynamic #'cider-complete)
+              :annotation-function #'cider-annotate-symbol
               :company-doc-buffer #'cider-create-doc-buffer
               :company-location #'cider-company-location
               :company-docsig #'cider-company-docsig)))))
