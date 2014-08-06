@@ -631,7 +631,7 @@ When called interactively, this operates on point."
   (interactive (list (thing-at-point 'filename)))
   (cider-ensure-op-supported "resource")
   (-if-let* ((resource (-> (list "op" "resource" "name" path)
-                         (nrepl-send-request-sync)
+                         (nrepl-send-sync-request)
                          (plist-get :value)))
              (buffer (cider-find-file resource)))
       (cider-jump-to buffer line)
@@ -702,7 +702,7 @@ form, with symbol at point replaced by __prefix__."
   "Return a list of completions for STR using nREPL's \"complete\" op."
   (cider-ensure-op-supported "complete")
   (let ((strlst (plist-get
-                 (nrepl-send-request-sync
+                 (nrepl-send-sync-request
                   (list "op" "complete"
                         "session" (nrepl-current-session)
                         "ns" nrepl-buffer-ns
@@ -1052,7 +1052,7 @@ If location could not be found, return nil."
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
   (with-current-buffer buffer
-    (nrepl-send-stdin (concat (read-from-minibuffer "Stdin: ") "\n")
+    (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
                       (cider-stdin-handler buffer))))
 
 
@@ -1597,7 +1597,7 @@ strings, include private vars, and be case sensitive."
                             ,@(when docs-p '("docs?" "t"))
                             ,@(when privates-p '("privates?" "t"))
                             ,@(when case-sensitive-p '("case-sensitive?" "t")))
-                        (nrepl-send-request-sync)
+                        (nrepl-send-sync-request)
                         (plist-get :value))))
       (cider-show-apropos summary results query docs-p)
     (message "No apropos matches for %S" query)))

@@ -2,6 +2,25 @@
 
 ## master (unreleased)
 
+### Changes
+
+* nrepl-client.el refactoring:
+
+  - `nrepl-send-request-sync` was renamed into `nrepl-send-sync-request` to comply
+  -  with the names of other 'sync' variables.
+
+  - nREPL requests are now named with `nrepl-request:OP` where "OP" stands for
+    the type of the request (eval, clone etc.). The following functions
+    were renamed:
+    
+       nrepl-send-string -> nrepl-request:eval
+       nrepl-send-string-sync -> nrepl-sync-request:eval
+       nrepl-send-interrupt -> nrepl-request:interrupt
+       nrepl-send-stdin -> nrepl-request:stdin
+       nrepl-describe-session -> nrepl-request:describe
+       nrepl-create-client-session -> nrepl-request:clone
+
+
 ## 0.7.0 / 2014-08-05
 
 ### New features

@@ -155,7 +155,7 @@ joined together.")
 (defun cider-repl-buffer-name ()
   "Generate a REPL buffer name based on current connection buffer."
   (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
-    (nrepl-buffer-name nrepl-repl-buffer-name-template)))
+    (nrepl-make-buffer-name nrepl-repl-buffer-name-template)))
 
 (defun cider-create-repl-buffer ()
   "Create a REPL buffer."
