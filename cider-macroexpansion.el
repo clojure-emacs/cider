@@ -70,7 +70,9 @@ This variable specifies both what was expanded and the expander.")
               (list "op" expander
                     "code" expr
                     "ns" (cider-current-ns)
-                    "suppress-namespaces" cider-macroexpansion-suppress-namespaces)) :value))
+                    "suppress-namespaces"
+                    (symbol-name cider-macroexpansion-suppress-namespaces)))
+             :value))
 
 (defun cider-macroexpand-expr (expander expr)
   "Macroexpand, use EXPANDER, the given EXPR."
