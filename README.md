@@ -142,7 +142,7 @@ Use the convenient plugin for defaults, either in your project's
 A minimal `profiles.clj` for CIDER would be:
 
 ```clojure
-{:user {:plugins [[cider/cider-nrepl "0.7.0-SNAPSHOT"]]}}
+{:user {:plugins [[cider/cider-nrepl "0.7.0"]]}}
 ```
 
 ### Using embedded nREPL server
