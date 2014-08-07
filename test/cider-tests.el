@@ -67,7 +67,7 @@
       (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1, cider-nrepl 0.2.1)")))))
 
 (ert-deftest test-cider-var-info ()
-  (noflet ((nrepl-send-request-sync (list)
+  (noflet ((nrepl-send-sync-request (list)
                                     `(:value
                                       (dict
                                        ("arglists" . "([] [x] [x & ys])")
@@ -242,19 +242,19 @@
   (should (equal "*template*"
                  (nrepl-format-buffer-name-template "*template%s*" ""))))
 
-(ert-deftest test-nrepl-buffer-name ()
+(ert-deftest test-nrepl-make-buffer-name ()
   (with-temp-buffer
     (setq-local nrepl-endpoint '("localhost" 1))
     (let ((b1 (current-buffer)))
       (should
-       (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name localhost*")))))
+       (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-name localhost*")))))
 
-(ert-deftest test-nrepl-buffer-name-based-on-project ()
+(ert-deftest test-nrepl-make-buffer-name-based-on-project ()
   (with-temp-buffer
     (let ((b1 (current-buffer)))
       (setq-local nrepl-project-dir "proj")
       (should
-       (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj*")))))
+       (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-name proj*")))))
 
 (ert-deftest test-nrepl-buffer-name-separator ()
   (with-temp-buffer
@@ -262,21 +262,21 @@
       (setq-local nrepl-project-dir "proj")
       (let ((nrepl-buffer-name-separator "X"))
         (should
-         (equal (nrepl-buffer-name "*buff-name%s*") "*buff-nameXproj*"))))))
+         (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-nameXproj*"))))))
 
 (ert-deftest test-nrepl-buffer-name-show-port-t ()
   (with-temp-buffer
     (setq-local nrepl-buffer-name-show-port t)
     (setq-local nrepl-endpoint '("localhost" 4009))
     (should
-     (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name localhost:4009*"))))
+     (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-name localhost:4009*"))))
 
 (ert-deftest test-nrepl-buffer-name-show-port-nil ()
   (with-temp-buffer
     (setq-local nrepl-buffer-name-show-port nil)
     (setq-local nrepl-endpoint '("localhost" 4009))
     (should
-     (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name localhost*"))))
+     (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-name localhost*"))))
 
 (ert-deftest test-nrepl-buffer-name-based-on-project-and-port ()
   (with-temp-buffer
@@ -284,19 +284,19 @@
     (setq-local nrepl-project-dir "proj")
     (setq-local nrepl-endpoint '("localhost" 4009))
     (should
-     (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj:4009*"))))
+     (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-name proj:4009*"))))
 
-(ert-deftest test-nrepl-buffer-name-two-buffers-same-project ()
+(ert-deftest test-nrepl-make-buffer-name-two-buffers-same-project ()
   (with-temp-buffer
     (setq-local nrepl-project-dir "proj")
-    (let* ((cider-new-buffer (nrepl-buffer-name "*buff-name%s*")))
+    (let* ((cider-new-buffer (nrepl-make-buffer-name "*buff-name%s*")))
       (get-buffer-create cider-new-buffer)
       (should
        (equal cider-new-buffer "*buff-name proj*"))
       (with-temp-buffer
         (setq-local nrepl-project-dir "proj")
         (should
-         (equal (nrepl-buffer-name "*buff-name%s*") "*buff-name proj*<2>"))
+         (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-name proj*<2>"))
         (kill-buffer cider-new-buffer)))))
 
 (ert-deftest test-nrepl-buffer-name-duplicate-proj-port ()
@@ -304,7 +304,7 @@
     (setq-local nrepl-buffer-name-show-port t)
     (setq-local nrepl-project-dir "proj")
     (setq-local nrepl-endpoint '("localhost" 4009))
-    (let* ((cider-new-buffer (nrepl-buffer-name "*buff-name%s*")))
+    (let* ((cider-new-buffer (nrepl-make-buffer-name "*buff-name%s*")))
       (get-buffer-create cider-new-buffer)
       (should
        (equal cider-new-buffer "*buff-name proj:4009*"))
@@ -313,7 +313,7 @@
         (setq-local nrepl-project-dir "proj")
         (setq-local nrepl-endpoint '("localhost" 4009))
         (should
-         (equal (nrepl-buffer-name  "*buff-name%s*") "*buff-name proj:4009*<2>"))
+         (equal (nrepl-make-buffer-name "*buff-name%s*") "*buff-name proj:4009*<2>"))
         (kill-buffer cider-new-buffer)))))
 
 (ert-deftest test-cider-clojure-buffer-name ()

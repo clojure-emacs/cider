@@ -103,7 +103,7 @@ NS & SESSION specify the context in which to evaluate the request."
                (not (string= ns nrepl-buffer-ns))
                (not (cider-ns-form-p input)))
       (cider-eval-ns-form))
-    (nrepl-send-string input callback ns session)))
+    (nrepl-request:eval input callback ns session)))
 
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
@@ -114,7 +114,7 @@ NS specifies the namespace in which to evaluate the request."
 (defun cider-eval-sync (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously.
 NS & SESSION specify the evaluation context."
-  (nrepl-send-string-sync input ns session))
+  (nrepl-sync-request:eval input ns session))
 
 (defun cider-eval-and-get-value (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously and return the value.
@@ -160,7 +160,7 @@ loaded."
   (interactive)
   (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
     (dolist (request-id pending-request-ids)
-      (nrepl-send-interrupt request-id (cider-interrupt-handler (current-buffer))))))
+      (nrepl-request:interrupt request-id (cider-interrupt-handler (current-buffer))))))
 
 (defun cider-current-repl-buffer ()
   "The current REPL buffer."
@@ -204,7 +204,7 @@ contain a `candidates' key, it is returned as is."
 When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
   (when (and var (not (string= var "")))
-    (let ((val (plist-get (nrepl-send-request-sync
+    (let ((val (plist-get (nrepl-send-sync-request
                            (list "op" "info"
                                  "session" (nrepl-current-session)
                                  "ns" (cider-current-ns)
@@ -218,7 +218,7 @@ unless ALL is truthy."
 (defun cider-member-info (class member)
   "Return the CLASS MEMBER's info as an alist with list cdrs."
   (when (and class member)
-    (let ((val (plist-get (nrepl-send-request-sync
+    (let ((val (plist-get (nrepl-send-sync-request
                            (list "op" "info"
                                  "session" (nrepl-current-session)
                                  "class" class

@@ -125,16 +125,12 @@ start the server."
           (let* ((nrepl-project-dir project-dir)
                  (cmd (format "%s %s" cider-lein-command cider-lein-parameters))
                  (default-directory (or project-dir default-directory))
-                 (nrepl-buffer-name (generate-new-buffer-name
-                                     (nrepl-server-buffer-name)))
+                 (serv-buf-name (generate-new-buffer-name (nrepl-server-buffer-name)))
                  (process
                   (progn
                     ;; the buffer has to be created before the proc:
-                    (get-buffer-create nrepl-buffer-name)
-                    (start-file-process-shell-command
-                     "nrepl-server"
-                     nrepl-buffer-name
-                     cmd))))
+                    (get-buffer-create serv-buf-name)
+                    (start-file-process-shell-command "nrepl-server" serv-buf-name cmd))))
             (set-process-filter process 'nrepl-server-filter)
             (set-process-sentinel process 'nrepl-server-sentinel)
             (set-process-coding-system process 'utf-8-unix 'utf-8-unix)

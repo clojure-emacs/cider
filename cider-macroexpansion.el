@@ -66,7 +66,7 @@ This variable specifies both what was expanded and the expander.")
 (defun cider-macroexpansion (expander expr)
   "Macroexpand, using EXPANDER, the given EXPR."
   (cider-ensure-op-supported expander)
-  (plist-get (nrepl-send-request-sync
+  (plist-get (nrepl-send-sync-request
               (list "op" expander
                     "code" expr
                     "ns" (cider-current-ns)
