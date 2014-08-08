@@ -1,0 +1,109 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{textcomp}
+\usepackage{fullpage}
+\usepackage{boxedminipage}
+\usepackage{multicol}
+\pagestyle{empty}
+
+\newcommand{\docheading}{\Huge\centering{CIDER Quick Reference Card}\normalsize\bigskip}
+\newcommand{\helpgroup}[1]{\par\noindent\centering{\textbf{\large#1}\medskip}}
+\newcommand{\helpkey}[2]{\par~~\noindent\textbf{#1}\hfill{#2}~~}
+\newcommand{\group}[1]{\bigskip\par\noindent\textbf{\large#1}\medskip}
+\newcommand{\subgroup}[1]{\medskip\par\noindent\textbf{#1}\medskip}
+\newcommand{\key}[2]{\par\noindent\textbf{#1}\hfill{#2}}
+\newcommand{\meta}[1]{\textlangle{#1}\textrangle}
+
+\begin{document}
+
+\renewcommand{\baselinestretch}{1.2}
+
+\docheading
+
+\begin{boxedminipage}[t]{11cm}
+
+\medskip
+
+\helpgroup{Getting help in Emacs}
+
+\helpkey{C-h k \meta{key}}{describe function bound to \meta{key}}
+\helpkey{C-h b}{list the current key-bindings for the focus buffer}
+\helpkey{C-h m}{describe mode}
+\helpkey{C-h l}{show the keys you have pressed}
+\helpkey{\meta{prefix} C-h}{show all key-bindings beginning with \meta{prefix}}
+
+\medskip
+
+\end{boxedminipage}
+
+\bigskip
+
+\setlength{\columnsep}{1cm}
+
+\begin{multicols}{2}
+
+\group{Programming}
+
+\subgroup{Completion}
+
+\key{M-TAB, C-M-i}{complete-symbol}
+
+\subgroup{Navigation}
+
+\key{M-,}{cider-jump-back}
+\key{M-.}{cider-jump-to-var}
+\key{C-c M-.}{cider-jump-to-resource}
+
+\subgroup{Evaluation}
+
+\key{C-c C-k}{cider-load-current-buffer}
+\key{C-c C-l}{cider-load-file}
+\key{C-x C-e}{cider-eval-last-sexp}
+\key{C-c C-p}{cider-pprint-eval-last-sexp}
+\key{C-M-x, C-c C-c}{cider-eval-defun-at-point}
+\key{C-c C-f}{cider-pprint-eval-defun-at-point}
+\key{C-c C-n}{cider-eval-ns-form}
+\key{C-c C-r}{cider-eval-region}
+\key{C-c M-:}{cider-read-and-eval}
+\key{C-c C-w}{cider-eval-last-sexp-and-replace}
+\key{C-c M-e}{cider-eval-last-sexp-to-repl}
+\key{C-c M-i}{cider-inspect}
+\key{C-c RET}{cider-macroexpand-1}
+\key{C-c M-m}{cider-macroexpand-all}
+
+\group{Testing}
+
+\key{C-c M-,}{cider-test-run-test}
+\key{C-c ,}{cider-test-run-tests}
+\key{C-c C-,}{cider-test-rerun-tests}
+\key{C-c C-t}{cider-test-show-report}
+
+\columnbreak
+
+\group{Documentation}
+
+\key{C-c C-d}{cider-doc-map}
+\key{C-c C-d d, C-c C-d C-d}{cider-doc}
+\key{C-c C-d j, C-c C-d C-j}{cider-javadoc}
+\key{C-c C-d a, C-c C-d C-a}{cider-apropos}
+\key{C-c C-d A}{cider-apropos-documentation}
+\key{C-c C-d g, C-c C-d C-g}{cider-grimoire}
+\key{C-c C-d h}{cider-grimoire-web}
+
+\group{CIDER control}
+
+\key{C-c M-p}{cider-insert-last-sexp-in-repl}
+\key{C-c C-z}{cider-switch-to-repl-buffer}
+\key{C-c M-o}{cider-find-and-clear-repl-buffer}
+\key{C-c M-s}{cider-selector}
+\key{C-c M-d}{cider-display-current-connection-info}
+\key{C-c M-r}{cider-rotate-connection}
+\key{C-c M-n}{cider-repl-set-ns}
+\key{C-c M-t}{cider-toggle-trace}
+\key{C-c C-b}{cider-interrupt}
+\key{C-c C-x}{cider-refresh}
+\key{C-c C-q}{cider-quit}
+
+\end{multicols}
+
+\end{document}
