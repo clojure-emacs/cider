@@ -92,24 +92,20 @@ POS is the index of current argument."
           nil
         (list (cider-symbol-at-point) argument-index)))))
 
-(defun cider-eldoc--arglist-op-fn (thing)
-  "Return the arglist for THING using nREPL info op."
-  (let* ((var-info (cider-var-info thing t))
-         (candidates (cdadr (assoc "candidates" var-info))))
-    (if candidates
-        (->> candidates
-          (-map (lambda (x) (cdr (assoc "arglists-str" x))))
-          (-map 'read)
-          -flatten
-          -distinct)
-      (let ((arglists (cider-get-var-attr var-info "arglists-str")))
-        (when arglists
-          (read arglists))))))
-
 (defun cider-eldoc-arglist (thing)
   "Return the arglist for THING."
   (when (nrepl-op-supported-p "info")
-    (cider-eldoc--arglist-op-fn thing)))
+    (let* ((var-info (cider-var-info thing t))
+           (candidates (cdadr (assoc "candidates" var-info))))
+      (if candidates
+          (->> candidates
+            (-map (lambda (x) (cdr (assoc "arglists-str" x))))
+            (-map 'read)
+            -flatten
+            -distinct)
+        (let ((arglists (cider-get-var-attr var-info "arglists-str")))
+          (when arglists
+            (read arglists)))))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
