@@ -18,12 +18,12 @@ simpler to gain understanding of what you're using.
     the type of the request (eval, clone etc.). The following functions
     were renamed:
 
-       nrepl-send-string -> nrepl-request:eval
-       nrepl-send-string-sync -> nrepl-sync-request:eval
-       nrepl-send-interrupt -> nrepl-request:interrupt
-       nrepl-send-stdin -> nrepl-request:stdin
-       nrepl-describe-session -> nrepl-request:describe
-       nrepl-create-client-session -> nrepl-request:clone
+       `nrepl-send-string` -> `nrepl-request:eval`
+       `nrepl-send-string-sync` -> `nrepl-sync-request:eval`
+       `nrepl-send-interrupt` -> `nrepl-request:interrupt`
+       `nrepl-send-stdin` -> `nrepl-request:stdin`
+       `nrepl-describe-session` -> `nrepl-request:describe`
+       `nrepl-create-client-session` -> `nrepl-request:clone`
 
 
 ## 0.7.0 / 2014-08-05
