@@ -36,21 +36,26 @@
 
 (push cider-macroexpansion-buffer cider-ancilliary-buffers)
 
-(defcustom cider-macroexpansion-suppress-namespaces 'tidy
+(defcustom cider-macroexpansion-display-namespaces 'tidy
   "Determines if namespaces are displayed in the macroexpansion buffer.
 Possible values are:
 
-  nil   ;=> Vars are fully-qualified in the expansion
-  t     ;=> Vars are displayed without namespace qualification
-  'tidy ;=> Vars that are :refer-ed or defined in the current namespace are
-            displayed with their simple name, non-refered vars from other
-            namespaces are refered using the alias for that namespace (if
-            defined), other vars are displayed fully qualified."
-  :type '(choice (const :tag "Suppress namespaces" t)
-                 (const :tag "Show namespaces" nil)
+  'qualified ;=> Vars are fully-qualified in the expansion
+  'none      ;=> Vars are displayed without namespace qualification
+  'tidy      ;=> Vars that are :refer-ed or defined in the current namespace are
+                 displayed with their simple name, non-refered vars from other
+                 namespaces are refered using the alias for that namespace (if
+                 defined), other vars are displayed fully qualified."
+  :type '(choice (const :tag "Suppress namespaces" none)
+                 (const :tag "Show fully-qualified namespaces" qualified)
                  (const :tag "Show namespace aliases" tidy))
   :group 'cider
   :package-version '(cider . "0.7.0"))
+
+(define-obsolete-variable-alias
+  'cider-macroexpansion-suppress-namespaces
+  'cider-macroexpansion-display-namespaces
+  "0.8.0")
 
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
@@ -66,11 +71,13 @@ This variable specifies both what was expanded and the expander.")
 (defun cider-macroexpansion (expander expr)
   "Macroexpand, using EXPANDER, the given EXPR."
   (cider-ensure-op-supported expander)
-  (plist-get (nrepl-send-sync-request
-              (list "op" expander
-                    "code" expr
-                    "ns" (cider-current-ns)
-                    "suppress-namespaces" cider-macroexpansion-suppress-namespaces)) :value))
+  (plist-get
+   (nrepl-send-sync-request
+    (list "op" expander
+          "code" expr
+          "ns" (cider-current-ns)
+          "display-namespaces" (symbol-name cider-macroexpansion-display-namespaces)))
+   :value))
 
 (defun cider-macroexpand-expr (expander expr)
   "Macroexpand, use EXPANDER, the given EXPR."

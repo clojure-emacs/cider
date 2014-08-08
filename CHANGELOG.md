@@ -25,6 +25,12 @@ simpler to gain understanding of what you're using.
        `nrepl-describe-session` -> `nrepl-request:describe`
        `nrepl-create-client-session` -> `nrepl-request:clone`
 
+* Renamed `cider-macroexpansion-suppress-namespaces` to `cider-macroexpansion-display-namespaces`.
+
+### Bugs fixed
+
+* [#705](https://github.com/clojure-emacs/cider/pull/705): Fixed macroexpansion
+  bug for `tidy` namespace display.
 
 ## 0.7.0 / 2014-08-05
 
