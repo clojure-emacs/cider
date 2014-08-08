@@ -36,6 +36,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 	- [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
+- [Documentation](#documentation)
 - [Changelog](#changelog)
 - [Team](#team)
 - [Contributing](#contributing)
@@ -736,6 +737,10 @@ loaded. As a workaround remove
 ```
 
 from your Emacs config.
+
+## Documentation
+
+A single-page quick reference PDF for CIDER commands is available [here](doc/cider-refcard.pdf). This PDF can be created manually by running `pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
 
 ## Changelog
 
