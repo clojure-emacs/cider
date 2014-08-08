@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+### New features
+
+* `completion-at-point` now annotates functions, macros and special forms, thus making it
+simpler to gain understanding of what you're using.
+
 ### Changes
 
 * nrepl-client.el refactoring:
@@ -12,7 +17,7 @@
   - nREPL requests are now named with `nrepl-request:OP` where "OP" stands for
     the type of the request (eval, clone etc.). The following functions
     were renamed:
-    
+
        nrepl-send-string -> nrepl-request:eval
        nrepl-send-string-sync -> nrepl-sync-request:eval
        nrepl-send-interrupt -> nrepl-request:interrupt
