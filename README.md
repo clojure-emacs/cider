@@ -792,11 +792,13 @@ guidelines](CONTRIBUTING.md).
 
 Consider improving and extending the [community wiki](https://github.com/clojure-emacs/cider/wiki).
 
-### Gittip
+### Donations
 
-I'm also accepting financial contributions via [gittip](https://www.gittip.com/bbatsov).
+You can also support CIDER with financial contributions via [gittip](https://www.gittip.com/bbatsov) and PayPal.
 
 [![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.2.0/dist/gittip.png)](https://www.gittip.com/bbatsov)
+
+[![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
 ### Running the tests in batch mode
 
