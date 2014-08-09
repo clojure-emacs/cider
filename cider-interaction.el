@@ -145,7 +145,7 @@ which will use the default REPL connection."
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
     "macroexpand" "macroexpand-1" "macroexpand-all"
-    "resource" "stacktrace" "toggle-trace")
+    "resource" "stacktrace" "toggle-trace" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
 All of them are provided by CIDER's nREPL middleware(cider-nrepl).")
@@ -1606,6 +1606,20 @@ strings, include private vars, and be case sensitive."
   "Shortcut for (cider-apropos <query> nil t)."
   (interactive)
   (cider-apropos (read-string "Clojure documentation Apropos: ") nil t))
+
+(defun cider-undef (symbol)
+  "Undefine the SYMBOL."
+  (interactive "P")
+  (cider-ensure-op-supported "undef")
+  (cider-read-symbol-name
+   "Undefine symbol: "
+   (lambda (sym)
+     (nrepl-send-request
+      (list "op" "undef"
+            "ns" (cider-current-ns)
+            "symbol" sym)
+      (cider-interactive-eval-handler (current-buffer))))
+   symbol))
 
 (defun cider-refresh ()
   "Refresh loaded code."
