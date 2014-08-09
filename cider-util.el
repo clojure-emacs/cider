@@ -80,7 +80,6 @@ positions before and after executing BODY."
 (defun cider-property-bounds (prop)
   "Return the the positions of the previous and next change to PROP.
 PROP is the name of a text property."
-  (assert (get-text-property (point) prop))
   (let ((end (next-single-char-property-change (point) prop)))
     (list (previous-single-char-property-change end prop) end)))
 

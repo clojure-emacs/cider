@@ -29,6 +29,8 @@
 (require 'button)
 (require 'dash)
 (require 'easymenu)
+(require 'cider-util)
+(require 'cider-client)
 
 ;; Variables
 
