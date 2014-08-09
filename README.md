@@ -229,9 +229,9 @@ following snippet:
 
   - Don't show on error:
 
-```el
+    ```el
     (setq cider-show-error-buffer nil)
-```
+    ```
 
    Independently of the value of `cider-show-error-buffer`, the error buffer is
    always generated in the background. Use `cider-visit-error-buffer` to visit
@@ -239,11 +239,10 @@ following snippet:
 
   - Selective strategies:
 
-```el
+    ```el
     (setq cider-show-error-buffer 'except-in-repl) ; or
     (setq cider-show-error-buffer 'only-in-repl)
-```
-
+    ```
 
 * To disable auto-selection of the error buffer when it's displayed:
 
