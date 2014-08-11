@@ -48,12 +48,12 @@ DESCRIPTION is a one-line description of what the key selects.")
 (defun cider--recently-visited-buffer (mode)
   "Return the most recently visited buffer whose `major-mode' is MODE.
 Only considers buffers that are not already visible."
-  (loop for buffer in (buffer-list)
-        when (and (with-current-buffer buffer (eq major-mode mode))
-                  (not (string-match "^ " (buffer-name buffer)))
-                  (null (get-buffer-window buffer 'visible)))
-        return buffer
-        finally (error "Can't find unshown buffer in %S" mode)))
+  (cl-loop for buffer in (buffer-list)
+           when (and (with-current-buffer buffer (eq major-mode mode))
+                     (not (string-match "^ " (buffer-name buffer)))
+                     (null (get-buffer-window buffer 'visible)))
+           return buffer
+           finally (error "Can't find unshown buffer in %S" mode)))
 
 ;;;###autoload
 (defun cider-selector (&optional other-window)
@@ -111,8 +111,8 @@ is chosen.  The returned buffer is selected with
   (ignore-errors (kill-buffer cider-selector-help-buffer))
   (with-current-buffer (get-buffer-create cider-selector-help-buffer)
     (insert "CIDER Selector Methods:\n\n")
-    (loop for (key line nil) in cider-selector-methods
-          do (insert (format "%c:\t%s\n" key line)))
+    (cl-loop for (key line nil) in cider-selector-methods
+             do (insert (format "%c:\t%s\n" key line)))
     (goto-char (point-min))
     (help-mode)
     (display-buffer (current-buffer) t))

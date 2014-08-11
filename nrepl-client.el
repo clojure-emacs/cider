@@ -441,8 +441,8 @@ Falls back to `nrepl-port' if not found."
 (defmacro nrepl-dbind-response (response keys &rest body)
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."
-  `(let ,(loop for key in keys
-               collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
+  `(let ,(cl-loop for key in keys
+                  collect `(,key (cdr (assoc ,(format "%s" key) ,response))))
      ,@body))
 
 (put 'nrepl-dbind-response 'lisp-indent-function 2)

@@ -502,9 +502,9 @@ the symbol."
                ;; Keep stepping over blanks and sexps until the end of
                ;; buffer is reached or an error occurs. Tolerate extra
                ;; close parens.
-               (loop do (skip-chars-forward " \t\r\n)")
-                     until (eobp)
-                     do (forward-sexp))
+               (cl-loop do (skip-chars-forward " \t\r\n)")
+                        until (eobp)
+                        do (forward-sexp))
                t)))
           (t t))))
 
@@ -726,10 +726,10 @@ Return -1 resp the length of the history if no item matches."
                  (backward 1)))
          (history cider-repl-input-history)
          (len (length history)))
-    (loop for pos = (+ start-pos step) then (+ pos step)
-          if (< pos 0) return -1
-          if (<= len pos) return len
-          if (string-match regexp (nth pos history)) return pos)))
+    (cl-loop for pos = (+ start-pos step) then (+ pos step)
+             if (< pos 0) return -1
+             if (<= len pos) return len
+             if (string-match regexp (nth pos history)) return pos)))
 
 (defun cider-repl--history-replace (direction &optional regexp)
   "Replace the current input with the next line in DIRECTION.
