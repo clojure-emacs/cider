@@ -725,7 +725,7 @@ form, with symbol at point replaced by __prefix__."
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
   (let ((sap (symbol-at-point)))
-    (when (and sap (not (in-string-p)))
+    (when (and sap (not (in-string-p)) (cider-connected-p))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
               (completion-table-dynamic #'cider-complete)
