@@ -63,7 +63,6 @@
 ;; description.
 
 ;;; Code:
-(require 'clojure-mode)
 (require 'dash)
 (require 'thingatpt)
 (require 'etags)
