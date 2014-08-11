@@ -511,7 +511,7 @@ Handles only stdout and stderr responses."
                                (lambda (buffer out)
                                  ;; fixme: rename into emit-out-output
                                  (cider-repl-emit-output buffer out))
-                               ;; STDERR 
+                               ;; STDERR
                                (lambda (buffer err)
                                  (cider-repl-emit-err-output buffer err))
                                ;; DONE
@@ -1062,7 +1062,6 @@ Refreshes EWOC."
 (define-obsolete-function-alias 'nrepl-send-request-sync 'nrepl-send-sync-request "0.8.0")
 (define-obsolete-function-alias 'nrepl-send-string 'nrepl-request:eval "0.8.0")
 (define-obsolete-variable-alias 'nrepl-log-events 'nrepl-log-messages "0.7.0")
-(define-obsolete-function-alias 'nrepl-log-events 'nrepl-log-messages "0.7.0")
 
 (provide 'nrepl-client)
 
