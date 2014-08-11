@@ -286,7 +286,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
       (nreverse result))))
 
 (defun nrepl-bencode-object (obj)
-  "Encode VAL with bencode."
+  "Encode OBJ using bencode."
   (cond
    ((integerp obj) (format "i%de" obj))
    ((listp obj)    (format "l%se" (apply 'concat (-map 'nrepl-bencode-object obj))))
