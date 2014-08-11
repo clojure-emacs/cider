@@ -713,6 +713,10 @@ form, with symbol at point replaced by __prefix__."
       strlst)))
 
 (defun cider-annotate-symbol (symbol)
+  "Append extra information to SYMBOL's name.
+
+Currently we annotate macros, special-forms and functions,
+as it's not obvious from their names alone which is which."
   (-when-let (info (cider-var-info symbol))
     (let ((macro   (cadr (assoc "macro" info)))
           (special (cadr (assoc "special-form" info)))
