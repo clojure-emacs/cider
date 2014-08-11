@@ -34,7 +34,7 @@
 
 ;;;###autoload
 (defcustom cider-mode-line
-  '(" cider" (:eval (format "[%s]" (cider-current-ns))))
+  '(:eval (format " cider[%s]" (cider-current-ns)))
   "Mode line ligher for `cider-mode'.
 
 The value of this variable is a mode line template as in
