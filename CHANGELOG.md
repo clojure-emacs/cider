@@ -5,6 +5,7 @@
 ### New features
 
 * New interactive command `cider-undef`.
+* New interactive command `cider-clear-compilation-highlights`.
 * First pass at a CIDER quick reference card.
 
 * `completion-at-point` now annotates functions, macros and special forms, thus making it
