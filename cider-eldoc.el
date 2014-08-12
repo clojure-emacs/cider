@@ -109,7 +109,9 @@ POS is the index of current argument."
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
-  (when (cider-connected-p)
+  (when (and (cider-connected-p)
+             ;; don't clobber an error message in the minibuffer
+             (not (member last-command '(next-error previous-error))))
     (let* ((info (cider-eldoc-info-in-current-sexp))
            (thing (car info))
            (pos (cadr info))

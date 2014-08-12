@@ -30,6 +30,8 @@ simpler to gain understanding of what you're using.
        `nrepl-create-client-session` -> `nrepl-request:clone`
 
 * Renamed `cider-macroexpansion-suppress-namespaces` to `cider-macroexpansion-display-namespaces`.
+* [#652](https://github.com/clojure-emacs/cider/issues/652): Suppress eldoc when
+an error message is displayed in the minibuffer.
 
 ### Bugs fixed
 
