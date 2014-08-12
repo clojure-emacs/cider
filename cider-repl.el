@@ -417,6 +417,14 @@ If BOL is non-nil insert at the beginning of line."
       (cider-repl-emit-output-at-pos (current-buffer) string 'cider-repl-output-face pos t)
       (ansi-color-apply-on-region pos (point-max)))))
 
+;; TODO: Factor out repeated code
+(defun cider-repl-emit-interactive-err-output (string)
+  "Emit STRING as interactive err output."
+  (with-current-buffer (cider-current-repl-buffer)
+    (let ((pos (1- (cider-repl--input-line-beginning-position))))
+      (cider-repl-emit-output-at-pos (current-buffer) string 'cider-repl-err-output-face pos t)
+      (ansi-color-apply-on-region pos (point-max)))))
+
 (defun cider-repl-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.
 If BOL is non-nil, emit at the beginning of the line."

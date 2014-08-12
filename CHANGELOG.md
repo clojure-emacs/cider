@@ -36,7 +36,8 @@ an error message is displayed in the minibuffer.
 ### Bugs fixed
 
 * [#705](https://github.com/clojure-emacs/cider/pull/705): Fixed macroexpansion
-  bug for `tidy` namespace display.
+bug for `tidy` namespace display.
+* Font-lock properly error messages in the REPL resulting from interactive evaluation.
 
 ## 0.7.0 / 2014-08-05
 
