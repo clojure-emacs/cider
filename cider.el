@@ -117,10 +117,7 @@ start the server."
       (let* ((project (when prompt-project
                         (read-directory-name "Project: ")))
              (project-dir (nrepl-project-directory-for
-                           (or project (nrepl-current-dir))))
-             (server-command (if prompt-project
-                                 (read-string (format "Server command: %s " cider-lein-command) cider-lein-parameters)
-                               cider-lein-parameters)))
+                           (or project (nrepl-current-dir)))))
         (when (nrepl-check-for-repl-buffer nil project-dir)
           (let* ((nrepl-project-dir project-dir)
                  (cmd (format "%s %s" cider-lein-command cider-lein-parameters))
