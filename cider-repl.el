@@ -410,20 +410,21 @@ If BOL is non-nil insert at the beginning of line."
               (set-marker cider-repl-output-end (1- (point))))))))
     (cider-repl--show-maximum-output)))
 
-(defun cider-repl-emit-interactive-output (string)
-  "Emit STRING as interactive output."
+(defun cider-repl--emit-interactive-output (string face)
+  "Emit STRING as interactive output using face."
   (with-current-buffer (cider-current-repl-buffer)
-    (let ((pos (1- (cider-repl--input-line-beginning-position))))
-      (cider-repl-emit-output-at-pos (current-buffer) string 'cider-repl-output-face pos t)
+    (let ((pos (1- (cider-repl--input-line-beginning-position)))
+          (string (replace-regexp-in-string "\n\\'" "" string)))
+      (cider-repl-emit-output-at-pos (current-buffer) string face pos t)
       (ansi-color-apply-on-region pos (point-max)))))
 
-;; TODO: Factor out repeated code
+(defun cider-repl-emit-interactive-output (string)
+  "Emit STRING as interactive output."
+  (cider-repl--emit-interactive-output string 'cider-repl-output-face))
+
 (defun cider-repl-emit-interactive-err-output (string)
   "Emit STRING as interactive err output."
-  (with-current-buffer (cider-current-repl-buffer)
-    (let ((pos (1- (cider-repl--input-line-beginning-position))))
-      (cider-repl-emit-output-at-pos (current-buffer) string 'cider-repl-err-output-face pos t)
-      (ansi-color-apply-on-region pos (point-max)))))
+  (cider-repl--emit-interactive-output string 'cider-repl-err-output-face))
 
 (defun cider-repl-emit-output (buffer string &optional bol)
   "Using BUFFER, emit STRING.
