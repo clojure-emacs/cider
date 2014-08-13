@@ -795,7 +795,7 @@ The handler simply inserts the result value in BUFFER."
                                  (cider-jump-to-error-maybe buffer err))
                                '()))
 
-(defun cider-emit-interactive-eval-output (output)
+(defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
 
 The output can be send to either a dedicated output buffer or the current REPL buffer.
@@ -805,22 +805,22 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                              (cider-popup-buffer cider-output-buffer t))))
                       (cider-emit-into-popup-buffer output-buffer output)
                       (pop-to-buffer output-buffer)))
-    (`repl-buffer (cider-repl-emit-interactive-output output))
+    (`repl-buffer (funcall repl-emit-function output))
     (t (error "Unsupported value %s for `cider-interactive-eval-output'"))))
 
-;; TODO: Factor out repeated code
-(defun cider-emit-interactive-eval-err-output (output)
-  "Emit error output resulting from interactive code evaluation.
+(defun cider-emit-interactive-eval-output (output)
+  "Emit output resulting from interactive code evaluation.
 
 The output can be send to either a dedicated output buffer or the current REPL buffer.
 This is controlled via `cider-interactive-eval-output-destination'."
-  (pcase cider-interactive-eval-output-destination
-    (`output-buffer (let ((output-buffer (or (get-buffer cider-output-buffer)
-                                             (cider-popup-buffer cider-output-buffer t))))
-                      (cider-emit-into-popup-buffer output-buffer output)
-                      (pop-to-buffer output-buffer)))
-    (`repl-buffer (cider-repl-emit-interactive-err-output output))
-    (t (error "Unsupported value %s for `cider-interactive-eval-output'"))))
+  (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-output))
+
+(defun cider-emit-interactive-eval-err-output (output)
+  "Emit err output resulting from interactive code evaluation.
+
+The output can be send to either a dedicated output buffer or the current REPL buffer.
+This is controlled via `cider-interactive-eval-output-destination'."
+  (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-err-output))
 
 (defun cider-interactive-eval-handler (buffer)
   "Make an interactive eval handler for BUFFER."
