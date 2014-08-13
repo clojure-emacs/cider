@@ -96,19 +96,19 @@
            ,@body
          (mapc 'kill-buffer (list ,@buffer-names))))))
 
-(ert-deftest test-nrepl-make-repl-connection-default ()
+(ert-deftest test-nrepl-make-connection-default ()
   (let ((connections (nrepl-connection-buffers)))
     (cider-test-with-buffers
      (a b)
      (should (get-buffer a))
      (should (get-buffer b))
      ;; Add one connection
-     (nrepl-make-repl-connection-default a)
+     (nrepl-make-connection-default a)
      (should (equal (append (list (buffer-name a)) connections)
                     (nrepl-connection-buffers)))
      (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
      ;; Add second connection
-     (nrepl-make-repl-connection-default b)
+     (nrepl-make-connection-default b)
      (should (equal (append (list (buffer-name b) (buffer-name a)) connections)
                     (nrepl-connection-buffers)))
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
@@ -117,8 +117,8 @@
   (let ((connections (nrepl-connection-buffers)))
     (cider-test-with-buffers
      (a b)
-     (nrepl-make-repl-connection-default a)
-     (nrepl-make-repl-connection-default b)
+     (nrepl-make-connection-default a)
+     (nrepl-make-connection-default b)
      ;; killing a buffer should see it purged from the connection list
      (kill-buffer a)
      (should (equal (append (list (buffer-name b)) connections)
@@ -168,8 +168,8 @@
   (let ((connections (nrepl-connection-buffers)))
     (cider-test-with-buffers
      (a b)
-     (nrepl-make-repl-connection-default a)
-     (nrepl-make-repl-connection-default b)
+     (nrepl-make-connection-default a)
+     (nrepl-make-connection-default b)
      ;; closing a buffer should see it removed from the connection list
      (nrepl-close a)
      (should (not (buffer-live-p a)))

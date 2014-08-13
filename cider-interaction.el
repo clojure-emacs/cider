@@ -156,7 +156,7 @@ Signal an error if it is not supported."
   (unless (nrepl-op-supported-p op)
     (error "Can't find nREPL middleware providing op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" op cider-version)))
 
-(defun cider-verify-required-nrepl-ops ()
+(defun cider--check-required-nrepl-ops ()
   "Check whether all required nREPL ops are present."
   (let ((missing-ops (-remove 'nrepl-op-supported-p cider-required-nrepl-ops)))
     (when missing-ops
@@ -317,7 +317,7 @@ of the namespace in the Clojure source buffer."
   (let ((buffer (current-buffer)))
     (when (eq 4 arg)
       (cider-repl-set-ns (cider-current-ns)))
-    (pop-to-buffer (cider-find-or-create-repl-buffer))
+    (pop-to-buffer (cider-get-repl-buffer))
     (cider-remember-clojure-buffer buffer)
     (goto-char (point-max))))
 
