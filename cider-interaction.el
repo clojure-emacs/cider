@@ -806,7 +806,8 @@ This is controlled via `cider-interactive-eval-output-destination'."
                       (cider-emit-into-popup-buffer output-buffer output)
                       (pop-to-buffer output-buffer)))
     (`repl-buffer (funcall repl-emit-function output))
-    (t (error "Unsupported value %s for `cider-interactive-eval-output'"))))
+    (t (error "Unsupported value %s for `cider-interactive-eval-output-destination'"
+              cider-interactive-eval-output-destination))))
 
 (defun cider-emit-interactive-eval-output (output)
   "Emit output resulting from interactive code evaluation.
