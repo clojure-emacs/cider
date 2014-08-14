@@ -627,8 +627,9 @@ The result is a plist with keys :value, :stderr and :stdout."
       ;; break out in case we don't receive a response for a while
       (when nrepl-sync-request-timeout
         (let ((seconds-ellapsed (cadr (time-subtract (current-time) nrepl-last-sync-request-timestamp))))
-          (if (> seconds-ellapsed nrepl-sync-request-timeout)
-              (keyboard-quit)))))
+          (when (> seconds-ellapsed nrepl-sync-request-timeout)
+            (error "Sync nREPL request %s timed out" request)
+            (keyboard-quit)))))
     nrepl-last-sync-response))
 
 (defun nrepl-sync-request:eval (input &optional ns session)
