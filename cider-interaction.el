@@ -1718,12 +1718,13 @@ strings, include private vars, and be case sensitive."
   (dolist (buf-name cider-ancilliary-buffers)
     (cider--close-buffer buf-name)))
 
-(defun cider-quit ()
+(defun cider-quit (&optional arg)
   "Quit CIDER.
 
+With a prefix ARG the command won't ask for confirmation.
 Quitting closes all active nREPL connections and kills all CIDER buffers."
-  (interactive)
-  (when (y-or-n-p "Are you sure you want to quit CIDER? ")
+  (interactive "P")
+  (when (or arg (y-or-n-p "Are you sure you want to quit CIDER? "))
     (dolist (connection nrepl-connection-list)
       (when connection
         (nrepl-close connection)))
