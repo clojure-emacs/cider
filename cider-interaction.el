@@ -1180,10 +1180,12 @@ search for and read a `ns' form."
   "Remove compilation highlights."
   (remove-overlays (point-min) (point-max) 'cider-note-p t))
 
-(defun cider-clear-compilation-highlights ()
-  "Remove compilation highlights."
-  (interactive)
-  (when (y-or-n-p "Are you sure you want to clear the compilation highlights? ")
+(defun cider-clear-compilation-highlights (&optional arg)
+  "Remove compilation highlights.
+
+When invoked with a prefix ARG the command doesn't prompt for confirmation."
+  (interactive "P")
+  (when (or arg (y-or-n-p "Are you sure you want to clear the compilation highlights? "))
     (cider--clear-compilation-highlights)))
 
 (defun cider-popup-eval-print (form)
