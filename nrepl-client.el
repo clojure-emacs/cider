@@ -455,17 +455,17 @@ Bind the value of the provided KEYS and execute BODY."
                                            &optional eval-error-handler)
   "Make a response handler for connection BUFFER.
 A handler is a function that takes one argument - response received from
-the server process. The response is an alist that contains at least 'id'
-and 'session' keys. Other standard response keys are 'value', 'out', 'err'
+the server process.  The response is an alist that contains at least 'id'
+and 'session' keys.  Other standard response keys are 'value', 'out', 'err'
 and 'status'.
 
-The presence of a particular key determines the type of the response. For
+The presence of a particular key determines the type of the response.  For
 example, if 'value' key is present, the response is of type 'value', if
-'out' key is present the response is 'stdout' etc. Depending on the typea,
+'out' key is present the response is 'stdout' etc.  Depending on the typea,
 the handler dispatches the appropriate value to one of the supplied
 handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER, DONE-HANDLER, and
-EVAL-ERROR-HANDLER. If the optional EVAL-ERROR-HANDLER is nil, the default
-`nrepl-err-handler' is used. If any of the other supplied handlers are nil
+EVAL-ERROR-HANDLER.  If the optional EVAL-ERROR-HANDLER is nil, the default
+`nrepl-err-handler' is used.  If any of the other supplied handlers are nil
 nothing happens for the coresponding type of response.
 
 When `nrepl-log-messages' is non-nil, *nrepl-messages* buffer contains
