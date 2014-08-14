@@ -1202,7 +1202,7 @@ search for and read a `ns' form."
 
 (defun cider-interactive-eval (form)
   "Evaluate the given FORM and print value in minibuffer."
-
+  (cider--clear-compilation-highlights)
   (let ((buffer (current-buffer)))
     (cider-eval form
                 (cider-interactive-eval-handler buffer)
