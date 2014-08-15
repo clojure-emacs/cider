@@ -10,6 +10,7 @@
 * `completion-at-point` now annotates functions, macros and special forms, thus making it
 simpler to gain understanding of what you're using.
 * When invoked with a prefix argument `cider-quit` doesn't ask for confirmation.
+* Enhance stacktrace to definition navigation to work for interactively defined vars.
 
 ### Changes
 
