@@ -653,7 +653,13 @@ When called interactively, this operates on point, or falls back to a prompt."
                  (line (or line (cadr (assoc "line" info))))
                  (buffer (cider-find-file file)))
           (cider-jump-to buffer (cons line nil))
-        (message "No source available for %s" var))
+        ;; var was created interactively and has no file info
+        (-if-let* ((ns (cadr (assoc "ns" info)))
+                   (name (cadr (assoc "name" info)))
+                   (buffer (cider-find-buffer ns))
+                   (pos (cider-locate-def buffer name)))
+            (cider-jump-to buffer pos)
+          (message "No source available for %s" var)))
     (message "Symbol %s not resolved" var)))
 
 (define-obsolete-function-alias 'cider-jump 'cider-jump-to-var "0.7.0")

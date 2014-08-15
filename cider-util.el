@@ -160,7 +160,7 @@ forms that start with '(def'."
     (save-restriction
       (widen)
       (goto-char (point-min))
-      (re-search-forward (format "(def.* %s " name)
+      (re-search-forward (format "(def.* %s\\( \\|$\\)" name)
                          nil 'no-error))))
 
 ;;; Strings
