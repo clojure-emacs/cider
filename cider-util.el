@@ -145,6 +145,24 @@ Unless you specify a BUFFER it will default to the current one."
       (pkg-info-version-info 'cider)
     (error cider-version)))
 
+(defun cider-find-buffer (ns)
+  "Find an open buffer by NS."
+  (->> (buffer-list)
+    (--filter (eq (buffer-local-value 'major-mode it) 'clojure-mode))
+    (--filter (equal ns (with-current-buffer it (clojure-find-ns))))
+    (car)))
+
+(defun cider-locate-def (buffer name)
+  "Locate in BUFFER the definition of var NAME.
+This is a regexp search and currently works only for top level clojure
+forms that start with '(def'."
+  (with-current-buffer buffer
+    (save-restriction
+      (widen)
+      (goto-char (point-min))
+      (re-search-forward (format "(def.* %s " name)
+                         nil 'no-error))))
+
 ;;; Strings
 
 (defun cider-string-join (strings &optional separator)

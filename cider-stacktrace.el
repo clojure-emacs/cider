@@ -404,22 +404,10 @@ it wraps to 0."
       ;; when no file info, find the location by regexp search
       (-if-let* ((ns (cadr (assoc "ns" info)))
                  (name (cadr (assoc "name" info)))
-                 (file (cadr (assoc "file" (cider-var-info ns))))
-                 (buffer (cider-find-file file))
-                 (pos (cider-stacktrace-locate-def buffer name)))
+                 (buffer (cider-find-buffer ns))
+                 (pos (cider-locate-def buffer name)))
           (cider-jump-to buffer pos)
         (message "No source info")))))
-
-(defun cider-stacktrace-locate-def (buffer name)
-  "Locate in BUFFER the definition of var NAME.
-This is a regexp search and currently works only for top level clojure
-forms that start with '(def'."
-  (with-current-buffer buffer
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (re-search-forward (format "(def.* %s " name)
-                         nil 'no-error))))
 
 (defun cider-stacktrace-jump ()
   "Like `cider-jump', but uses the stack frame source at point, if available."
