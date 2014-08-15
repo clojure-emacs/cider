@@ -615,13 +615,19 @@ path or an entry within a zip/jar archive."
       (goto-line line)
       buffer)))
 
-(defun cider-jump-to (buffer &optional line)
-  "Push current point onto marker ring, and jump to BUFFER, optionally at LINE.
-`cider-mode' is enabled on BUFFER to ensure `cider-jump' and `cider-jump-back'
-are available."
+(defun cider-jump-to (buffer &optional pos)
+  "Push current point onto marker ring, and jump to BUFFER to position POS.
+POS can be either a cons cell (LINE . COLUMN) or a number representing the
+character position in a buffer. "
   (ring-insert find-tag-marker-ring (point-marker))
   (with-current-buffer buffer
-    (goto-line (or line 1))
+    (widen)
+    (if (not (consp pos))
+        (goto-char (or pos (point-min)))
+      (forward-line (1- (or (car pos) 1)))
+      (if (cdr pos)
+          (move-to-column (cdr pos))
+        (back-to-indentation)))
     (cider-mode +1))
   (switch-to-buffer buffer))
 
@@ -634,7 +640,7 @@ When called interactively, this operates on point."
                          (nrepl-send-sync-request)
                          (plist-get :value)))
              (buffer (cider-find-file resource)))
-      (cider-jump-to buffer line)
+      (cider-jump-to buffer (cons line nil))
     (message "Cannot find resource %s" path)))
 
 (defun cider-jump-to-var (var &optional line)
@@ -646,7 +652,7 @@ When called interactively, this operates on point, or falls back to a prompt."
       (-if-let* ((file (cadr (assoc "file" info)))
                  (line (or line (cadr (assoc "line" info))))
                  (buffer (cider-find-file file)))
-          (cider-jump-to buffer line)
+          (cider-jump-to buffer (cons line nil))
         (message "No source available for %s" var))
     (message "Symbol %s not resolved" var)))
 
