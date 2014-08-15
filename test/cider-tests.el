@@ -557,3 +557,14 @@
                  (cider-grimoire-url "even?" "clojure.core" "1.5.1")))
   (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/"
                  (cider-grimoire-url nil "clojure.core" "1.5.1"))))
+
+;;; Cygwin tests
+
+(ert-deftest cider-translate-filenames ()
+  (let ((windows-file-name "C:/foo/bar")
+        (unix-file-name "/cygdrive/c/foo/bar"))
+    (if (eq system-type 'cygwin)
+        (and (should (equal (funcall cider-from-nrepl-filename-function windows-file-name) unix-file-name))
+             (should (equal (funcall cider-to-nrepl-filename-function unix-file-name) windows-file-name)))
+      (and (should (eq (funcall cider-from-nrepl-filename-function unix-file-name) unix-file-name))
+           (should (eq (funcall cider-to-nrepl-filename-function unix-file-name) unix-file-name))))))
