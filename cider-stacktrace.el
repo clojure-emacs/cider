@@ -164,7 +164,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
         ["Show/hide all frames" cider-stacktrace-toggle-all]))
     map))
 
-(define-derived-mode cider-stacktrace-mode fundamental-mode "Stacktrace"
+(define-derived-mode cider-stacktrace-mode special-mode "Stacktrace"
   "Major mode for filtering and navigating CIDER stacktraces.
 
 \\{cider-stacktrace-mode-map}"
