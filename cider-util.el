@@ -161,7 +161,8 @@ forms that start with '(def'."
       (widen)
       (goto-char (point-min))
       (re-search-forward (format "(def.* %s\\( \\|$\\)" name)
-                         nil 'no-error))))
+                         nil 'no-error)
+      (goto-char (match-beginning 0)))))
 
 ;;; Strings
 
