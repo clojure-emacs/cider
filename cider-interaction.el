@@ -624,6 +624,7 @@ character position in a buffer. "
     (widen)
     (if (not (consp pos))
         (goto-char (or pos (point-min)))
+      (goto-char (point-min))
       (forward-line (1- (or (car pos) 1)))
       (if (cdr pos)
           (move-to-column (cdr pos))
