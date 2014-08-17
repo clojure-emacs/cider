@@ -612,7 +612,8 @@ path or an entry within a zip/jar archive."
                (line (cadr (assoc "line" info)))
                (buffer (cider-find-file file)))
     (with-current-buffer buffer
-      (goto-line line)
+      (goto-char (point-min))
+      (forward-line (1- line))
       buffer)))
 
 (defun cider-jump-to (buffer &optional pos)
