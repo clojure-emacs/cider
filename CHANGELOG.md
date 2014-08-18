@@ -11,6 +11,8 @@
 simpler to gain understanding of what you're using.
 * When invoked with a prefix argument `cider-quit` doesn't ask for confirmation.
 * Enhance stacktrace to definition navigation to work for interactively defined vars.
+* New vars: `cider-to-nrepl-filename-function` and `cider-from-nrepl-filename-function`
+are used to translate filenames from/to the nREPL server (default Cygwin implementation provided).
 
 ### Changes
 
