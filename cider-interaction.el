@@ -623,8 +623,9 @@ character position in a buffer. "
   (ring-insert find-tag-marker-ring (point-marker))
   (with-current-buffer buffer
     (widen)
+    ;; check if we have a (line . column) pair or just a buffer position
     (if (not (consp pos))
-        (goto-char (or pos (point-min)))
+        (goto-char pos)
       (goto-char (point-min))
       (forward-line (1- (or (car pos) 1)))
       (if (cdr pos)
