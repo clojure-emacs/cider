@@ -228,6 +228,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar-local nrepl-ops nil
   "Available nREPL server ops (from describe).")
 
+(defvar-local nrepl-versions nil
+  "Version information received from the describe op.")
+
 
 ;;; Bencode
 
@@ -388,9 +391,10 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 (defun nrepl--make-describe-handler (process-buffer)
   "Return a handler to describe into PROCESS-BUFFER."
   (lambda (response)
-    (nrepl-dbind-response response (ops)
+    (nrepl-dbind-response response (ops versions)
       (with-current-buffer process-buffer
-        (setq nrepl-ops ops)))
+        (setq nrepl-ops ops)
+        (setq nrepl-versions versions)))
     (cider-make-repl (get-buffer-process process-buffer))
     (nrepl-make-repl-connection-default process-buffer)
     (cider-verify-required-nrepl-ops)))

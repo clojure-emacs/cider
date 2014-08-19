@@ -172,11 +172,19 @@ Signal an error if it is not supported."
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
-  (cider-eval-and-get-value "(clojure-version)"))
+  (with-current-buffer (nrepl-current-connection-buffer)
+    (when nrepl-versions
+      (let* ((version-dict (assoc "clojure" nrepl-versions))
+             (major (cdr (assoc "major" version-dict)))
+             (minor (cdr (assoc "minor" version-dict)))
+             (incremental (cdr (assoc "incremental" version-dict))))
+        (format "%s.%s.%s" major minor incremental)))))
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
-  (cider-eval-and-get-value "(:version-string clojure.tools.nrepl/version)"))
+  (with-current-buffer (nrepl-current-connection-buffer)
+    (when nrepl-versions
+      (cdr (assoc "version-string" (assoc "nrepl" nrepl-versions))))))
 
 (defun cider--nrepl-middleware-version ()
   "Retrieve the underlying connection's CIDER nREPL version."
