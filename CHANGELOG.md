@@ -41,6 +41,8 @@ an error message is displayed in the minibuffer.
 * [#705](https://github.com/clojure-emacs/cider/pull/705): Fixed macroexpansion
 bug for `tidy` namespace display.
 * Font-lock properly error messages in the REPL resulting from interactive evaluation.
+* [#671](https://github.com/clojure-emacs/cider/issues/671): Remove problematic code that was
+setting the REPL's initial ns based on lein's `:init-ns` option.
 
 ## 0.7.0 / 2014-08-05
 

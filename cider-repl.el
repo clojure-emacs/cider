@@ -205,8 +205,6 @@ Insert a banner, unless NOPROMPT is non-nil."
     (unless (eq major-mode 'cider-repl-mode)
       (cider-repl-mode))
     (cider-repl-reset-markers)
-    ;; honor :init-ns from lein's :repl-options on startup
-    (setq nrepl-buffer-ns (cider-eval-and-get-value "(str *ns*)"))
     (unless noprompt
       (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
     (cider-remember-clojure-buffer cider-current-clojure-buffer)
