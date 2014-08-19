@@ -993,7 +993,10 @@ They exist for compatibility with `next-error'."
   "Display in BUFFER the last SESSION exception, with middleware support."
   (let (causes)
     (nrepl-send-request
-     (list "op" "stacktrace" "session" session)
+     (append
+      (list "op" "stacktrace" "session" session)
+      (if cider-stacktrace-print-level
+          (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)
        (nrepl-dbind-response response (class status)
          (cond (class  (setq causes (cons response causes)))
