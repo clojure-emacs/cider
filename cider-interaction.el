@@ -1701,8 +1701,9 @@ strings, include private vars, and be case sensitive."
 (defun cider-refresh ()
   "Refresh loaded code."
   (interactive)
-  (cider-tooling-eval "(clojure.tools.namespace.repl/refresh)"
-                      (cider-interactive-eval-handler (current-buffer))))
+  (cider-tooling-eval
+   "(clojure.core/require 'clojure.tools.namespace.repl) (clojure.tools.namespace.repl/refresh)"
+   (cider-interactive-eval-handler (current-buffer))))
 
 ;; TODO: implement reloading ns
 (defun cider-eval-load-file (form)
