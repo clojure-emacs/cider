@@ -252,7 +252,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (cider-insert (format "%d failures" fail) 'cider-test-failure-face t))
       (unless (zerop error)
         (cider-insert (format "%d errors" error) 'cider-test-error-face t))
-      (when (= pass test)
+      (when (zerop (+ fail error))
         (cider-insert (format "%d passed" pass) 'cider-test-success-face t))
       (newline)
       (newline))))
