@@ -168,7 +168,9 @@ Signal an error if it is not supported."
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."
-  (cider-eval-and-get-value "(System/getProperty \"java.version\")"))
+  (with-current-buffer (nrepl-current-connection-buffer)
+    (when nrepl-versions
+      (cdr (assoc "version-string" (assoc "java" nrepl-versions))))))
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
