@@ -194,7 +194,7 @@ Signal an error if it is not supported."
   (nrepl-make-response-handler
    buffer
    (lambda (_buffer middleware-version)
-     (unless (and middleware-version (equal "1.0" middleware-version))
+     (unless (and middleware-version (equal cider-version middleware-version))
        (cider-repl-emit-interactive-err-output (format "WARNING: CIDER's version (%s) does not match cider-nrepl's version (%s)" cider-version middleware-version))))
    '()
    '()
