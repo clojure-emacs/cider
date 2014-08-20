@@ -397,7 +397,8 @@ process buffer and run the hook `nrepl-disconnected-hook'."
         (setq nrepl-versions versions)))
     (cider-make-repl (get-buffer-process process-buffer))
     (nrepl-make-repl-connection-default process-buffer)
-    (cider-verify-required-nrepl-ops)))
+    (cider-verify-required-nrepl-ops)
+    (cider--check-middleware-compatibility)))
 
 (defun nrepl--new-session-handler (process)
   "Create a new session handler for PROCESS."
