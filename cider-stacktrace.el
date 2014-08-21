@@ -53,6 +53,13 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
+(defcustom cider-stacktrace-print-level 50
+  "Set the maximum level of nested data to print.
+Used when displaying stacktrace data (used for clojure's *print-level*)."
+  :type '(choice integer (const nil))
+  :group 'cider
+  :package-version '(cider . "0.8.0"))
+
 (defvar cider-stacktrace-detail-max 2
   "The maximum detail level for causes.")
 

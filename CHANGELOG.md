@@ -4,6 +4,8 @@
 
 ### New features
 
+* New defcustom `cider-stacktrace-print-level`.  Controls the `*print-level*` used when
+  pretty printing an exception cause's data.  Defaults to 50.
 * New interactive command `cider-undef`.
 * New interactive command `cider-clear-compilation-highlights`.
 * First pass at a CIDER quick reference card.
