@@ -348,7 +348,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (dolist (result (rest results))
     (-when-let* ((var (first result))
                  (tests (rest result))
-                 (buffer (cider-find-var (concat ns "/" var))))
+                 (buffer (cider-find-var-file (concat ns "/" var))))
       (dolist (test tests)
         (nrepl-dbind-response test (type)
           (unless (equal "pass" type)
@@ -360,7 +360,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (-when-let (ns cider-test-last-test-ns)
     (dolist (result (rest cider-test-last-results))
       (-when-let* ((var (first result))
-                   (buffer (cider-find-var (concat ns "/" var))))
+                   (buffer (cider-find-var-file (concat ns "/" var))))
         (with-current-buffer buffer
           (remove-overlays))))))
 

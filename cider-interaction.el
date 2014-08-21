@@ -636,17 +636,13 @@ path or an entry within a zip/jar archive."
                      (set-auto-mode)
                      (current-buffer))))))))
 
-(defun cider-find-var (var)
-  "Return a buffer visiting the definition for VAR, or nil if not found."
+(defun cider-find-var-file (var)
+  "Return the buffer visiting the file in which VAR is defined, or nil if
+not found."
   (cider-ensure-op-supported "info")
   (-when-let* ((info (cider-var-info var))
-               (file (cadr (assoc "file" info)))
-               (line (cadr (assoc "line" info)))
-               (buffer (cider-find-file file)))
-    (with-current-buffer buffer
-      (goto-char (point-min))
-      (forward-line (1- line))
-      buffer)))
+               (file (cadr (assoc "file" info))))
+    (cider-find-file file)))
 
 (defun cider-jump-to (buffer &optional pos)
   "Push current point onto marker ring, and jump to BUFFER to position POS.
@@ -790,9 +786,14 @@ as it's not obvious from their names alone which is which."
 
 Returns the cons of the buffer itself and the location of VAR's definition
 in the buffer."
-  (-when-let (buffer (cider-find-var var))
+  (-when-let* ((info (cider-var-info var))
+               (file (cadr (assoc "file" info)))
+               (line (cadr (assoc "line" info)))
+               (buffer (cider-find-file file)))
     (with-current-buffer buffer
-      (cons buffer (point)))))
+      (save-excursion
+        (goto-line line)
+        (cons buffer (point))))))
 
 (defun cider-company-docsig (thing)
   "Return signature for THING."
