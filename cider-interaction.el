@@ -744,16 +744,14 @@ form, with symbol at point replaced by __prefix__."
 (defun cider-complete (str)
   "Return a list of completions for STR using nREPL's \"complete\" op."
   (cider-ensure-op-supported "complete")
-  (let ((strlst (plist-get
-                 (nrepl-send-sync-request
-                  (list "op" "complete"
-                        "session" (nrepl-current-session)
-                        "ns" nrepl-buffer-ns
-                        "symbol" str
-                        "context" (cider-completion-get-context)))
-                 :value)))
-    (when strlst
-      strlst)))
+  (plist-get
+   (nrepl-send-sync-request
+    (list "op" "complete"
+          "session" (nrepl-current-session)
+          "ns" nrepl-buffer-ns
+          "symbol" str
+          "context" (cider-completion-get-context)))
+   :value))
 
 (defun cider-annotate-symbol (symbol)
   "Append extra information to SYMBOL's name.
