@@ -120,7 +120,10 @@ start the server."
                            (or project (nrepl-current-dir)))))
         (when (nrepl-check-for-repl-buffer nil project-dir)
           (let* ((nrepl-project-dir project-dir)
-                 (cmd (format "%s %s" cider-lein-command cider-lein-parameters))
+                 (lein-params (if prompt-project
+                                 (read-string (format "nREPL server command: %s " cider-lein-command) cider-lein-parameters)
+                               cider-lein-parameters))
+                 (cmd (format "%s %s" cider-lein-command lein-params))
                  (default-directory (or project-dir default-directory))
                  (serv-buf-name (generate-new-buffer-name (nrepl-server-buffer-name)))
                  (process
