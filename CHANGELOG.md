@@ -45,13 +45,10 @@ bug for `tidy` namespace display.
 * Font-lock properly error messages in the REPL resulting from interactive evaluation.
 * [#671](https://github.com/clojure-emacs/cider/issues/671): Remove problematic code that was
 setting the REPL's initial ns based on lein's `:init-ns` option.
-<<<<<<< HEAD
 * [#695](https://github.com/clojure-emacs/cider/issues/695): Keep point at
-  original position when clearing or highlighting test results.
-=======
+original position when clearing or highlighting test results.
 * [#744](https://github.com/clojure-emacs/cider/issues/744): Fix the ability to customize the
 lein command invoked by `cider-jack-in`.
->>>>>>> [Fix #744] Restore the ability to customize the command invoked by cider-jack-in
 
 ## 0.7.0 / 2014-08-05
 
