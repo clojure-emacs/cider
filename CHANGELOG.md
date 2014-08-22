@@ -37,6 +37,10 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 * Renamed `cider-macroexpansion-suppress-namespaces` to `cider-macroexpansion-display-namespaces`.
 * [#652](https://github.com/clojure-emacs/cider/issues/652): Suppress eldoc when
 an error message is displayed in the minibuffer.
+* [#719](https://github.com/clojure-emacs/cider/issues/719) The customization
+variable `cider-test-show-report-on-success` controls now, whether to show the
+`*cider-test-report*` buffer on passing tests. The default is to not show the
+buffer.
 
 ### Bugs fixed
 

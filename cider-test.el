@@ -41,6 +41,12 @@
   :prefix "cider-test-"
   :group 'cider)
 
+(defcustom cider-test-show-report-on-success nil
+  "Whether to show the `*cider-test-report*` buffer on passing tests."
+  :type 'boolean
+  :group 'cider-test
+  :package-version '(cider . "0.8.0"))
+
 (defvar cider-test-last-test-ns nil
   "The namespace for which tests were last run.")
 
@@ -403,14 +409,16 @@ displayed. When test failures/errors occur, their sources are highlighted."
        (cond ((member "namespace-not-found" status)
               (message "No tests namespace: %s" ns))
              (results
-              (progn
+              (nrepl-dbind-response summary (error fail)
                 (setq cider-test-last-test-ns ns)
                 (setq cider-test-last-results results)
                 (cider-test-highlight-problems ns results)
                 (cider-test-echo-summary summary)
-                (cider-test-render-report
-                 (cider-popup-buffer cider-test-report-buffer t)
-                 ns summary results))))))))
+                (when (or (cl-plusp (+ error fail))
+                          cider-test-show-report-on-success)
+                  (cider-test-render-report
+                   (cider-popup-buffer cider-test-report-buffer t)
+                   ns summary results)))))))))
 
 (defun cider-test-rerun-tests ()
   "Rerun failed and erring tests from the last tested namespace."
