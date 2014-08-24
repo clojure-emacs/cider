@@ -117,6 +117,12 @@ which will use the default REPL connection."
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
+(defcustom cider-annotate-completion-candidates nil
+  "When true, annotate completion candidates with some extra information."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.8.0"))
+
 (defconst cider-output-buffer "*cider-out*")
 
 (defcustom cider-interactive-eval-output-destination 'repl-buffer
@@ -758,14 +764,16 @@ form, with symbol at point replaced by __prefix__."
 
 Currently we annotate macros, special-forms and functions,
 as it's not obvious from their names alone which is which."
-  (-when-let (info (cider-var-info symbol))
-    (let ((macro   (cadr (assoc "macro" info)))
-          (special (cadr (assoc "special-form" info)))
-          (args    (cadr (assoc "arglists-str" info))))
-      (cond
-       (macro " <m>")
-       (special " <s>")
-       (args " <f>")))))
+  (if cider-annotate-completion-candidates
+      (-when-let (info (cider-var-info symbol))
+        (let ((macro   (cadr (assoc "macro" info)))
+              (special (cadr (assoc "special-form" info)))
+              (args    (cadr (assoc "arglists-str" info))))
+          (cond
+           (macro " <m>")
+           (special " <s>")
+           (args " <f>"))))
+    ""))
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
