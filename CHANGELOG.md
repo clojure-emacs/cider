@@ -18,6 +18,10 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 
 ### Changes
 
+* REPL buffers are now connection buffers for REPL client connections.
+* Server and client cranking were isolated into `nrepl-start-server-process` and
+  `nrepl-start-client-process`.
+
 * nrepl-client.el refactoring:
 
   - `nrepl-send-request-sync` was renamed into `nrepl-send-sync-request` to comply

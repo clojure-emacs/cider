@@ -148,6 +148,7 @@ buffer will be hidden."
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
 (defconst nrepl-on-connection-buffer-name-template "*nrepl-on-connection%s*")
+(defconst nrepl-decoder-buffer-name-template "*nrepl-decoder%s*")
 
 (defun nrepl-format-buffer-name-template (buffer-name-template designation)
   "Apply the DESIGNATION to the corresponding BUFFER-NAME-TEMPLATE."
@@ -156,18 +157,21 @@ buffer will be hidden."
               (concat nrepl-buffer-name-separator designation)
             "")))
 
-(defun nrepl-make-buffer-name (buffer-name-template)
+(defun nrepl-make-buffer-name (buffer-name-template &optional project-dir host port)
   "Generate a buffer name using BUFFER-NAME-TEMPLATE.
 
-The name will include the project name if available or the
-endpoint host if it is not.  The name will also include the
-connection port if `nrepl-buffer-name-show-port' is true."
+If not supplied PROJECT-DIR, PORT and HOST default to the buffer local value of the
+`nrepl-project-dir' and `nrepl-endpoint'.
+
+The name will include the project name if available or the endpoint host if
+it is not.  The name will also include the connection port if
+`nrepl-buffer-name-show-port' is true."
   (generate-new-buffer-name
-   (let ((project-name (nrepl--project-name nrepl-project-dir))
-         (nrepl-proj-port (cadr nrepl-endpoint)))
+   (let ((project-name (nrepl--project-name (or project-dir nrepl-project-dir)))
+         (nrepl-proj-port (or port (cadr nrepl-endpoint))))
      (nrepl-format-buffer-name-template
       buffer-name-template
-      (concat (if project-name project-name (car nrepl-endpoint))
+      (concat (if project-name project-name (or host (car nrepl-endpoint)))
               (if (and nrepl-proj-port nrepl-buffer-name-show-port)
                   (format ":%s" nrepl-proj-port) ""))))))
 
@@ -175,21 +179,34 @@ connection port if `nrepl-buffer-name-show-port' is true."
   "Apply a prefix to BUFFER-NAME that will hide the buffer."
   (concat (if nrepl-hide-special-buffers " " "") buffer-name))
 
-(defun nrepl-connection-buffer-name ()
-  "Return the name of the connection buffer."
+(defun nrepl-connection-buffer-name (&optional project-dir host port)
+  "Return the name of the connection buffer.
+PROJECT-DIR, PORT and HOST are as in `/nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
-   (nrepl-make-buffer-name nrepl-connection-buffer-name-template)))
+   (nrepl-make-buffer-name nrepl-connection-buffer-name-template
+                           project-dir host port)))
 
-(defun nrepl-server-buffer-name ()
-  "Return the name of the server buffer."
+(defun nrepl-server-buffer-name (&optional project-dir host port)
+  "Return the name of the server buffer.
+PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
-   (nrepl-make-buffer-name nrepl-server-buffer-name-template)))
+   (nrepl-make-buffer-name nrepl-server-buffer-name-template
+                           project-dir host port)))
 
-(defun nrepl-on-connection-buffer-name ()
-  "Return the name of the on-connection buffer."
+(defun nrepl-on-connection-buffer-name (&optional project-dir host port)
+  "Return the name of the on-connection buffer.
+PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
-   (nrepl-make-buffer-name nrepl-on-connection-buffer-name-template)))
+   (nrepl-make-buffer-name nrepl-on-connection-buffer-name-template
+                           project-dir host port)))
 
+(defun nrepl-decoder-buffer-name (&optional project-dir host port)
+  "Return the name of the buffer used for bencode decoding.
+PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+  ;; this might go away if bdecode is rewriten by direct decoding of the sring
+  (nrepl--make-hidden-name
+   (nrepl-make-buffer-name nrepl-decoder-buffer-name-template
+                           project-dir host port)))
 
 
 ;;; Buffer Local Declarations
@@ -198,6 +215,7 @@ connection port if `nrepl-buffer-name-show-port' is true."
 (defvar-local nrepl-connection-buffer nil)
 (defvar-local nrepl-server-buffer nil)
 (defvar-local nrepl-repl-buffer nil)
+(defvar-local nrepl-decoder-buffer nil)
 (defvar-local nrepl-endpoint nil)
 (defvar-local nrepl-project-dir nil)
 (defvar-local nrepl-on-connection-buffer nil)
@@ -315,29 +333,25 @@ Remove the processed data from the buffer if the decode successful."
 
 ;; Decoding and dispatching of the server responses happens in
 ;; `nrepl-client-filter'.
-(defvar nrepl-decode-timeout 0.01
+(defvar nrepl-decode-timeout 0.025
   "Seconds to wait before decoding nREPL output.")
 
 (defun nrepl-client-filter (process string)
   "Decode the message(s) from PROCESS contained in STRING and dispatch."
-  (with-current-buffer (process-buffer process)
+  (with-current-buffer (get-buffer-create
+                        (buffer-local-value 'nrepl-decoder-buffer
+                                            (process-buffer process)))
     (goto-char (point-max))
-    (insert string))
-  ;; end of the dict maybe?
-  (when (eq ?e (aref string (1- (length string))))
-    ;; wait a bit to make sure we are at the real end
-    (unless (accept-process-output process nrepl-decode-timeout)
-      (nrepl--handle-process-output process))))
-
-(defun nrepl--handle-process-output (process)
-  "Handle all complete messages from PROCESS."
-  (with-current-buffer (process-buffer process)
-    (let ((nrepl-connection-dispatch (current-buffer)))
-      ;; FIXME: An ugly fix for https://github.com/clojure-emacs/cider/issues/583
-      (while (and (not (derived-mode-p 'cider-repl-mode)) (> (buffer-size) 1))
+    (insert string)
+    ;; at the end of the dict?
+    (when (eq ?e (aref string (1- (length string))))
+      ;; we are good to go if no new output came within the timeout
+      (unless (accept-process-output process nrepl-decode-timeout)
         (let ((responses (nrepl-decode-current-buffer)))
-          (dolist (r responses)
-            (nrepl--dispatch-response r)))))))
+          ;; callbacks are executed in the connection buffer
+          (with-current-buffer (process-buffer process)
+            (dolist (r responses)
+              (nrepl--dispatch-response r))))))))
 
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
@@ -360,7 +374,8 @@ process buffer and run the hook `nrepl-disconnected-hook'."
   (if (equal (process-status process) 'closed)
       (progn
         (with-current-buffer (process-buffer process)
-          (when (get-buffer nrepl-repl-buffer)
+          (when (and nrepl-repl-buffer
+                     (get-buffer nrepl-repl-buffer))
             (kill-buffer nrepl-repl-buffer))
           (kill-buffer (current-buffer)))
         (run-hooks 'nrepl-disconnected-hook))))
@@ -368,60 +383,87 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 
 ;;; Client: Initialization
 
-;; `nrepl-connect' is called from `nrepl-server-filter' and starts the client
-;; process described by `nrepl-client-filter' and `nrepl-client-sentinel'.
-(defun nrepl-connect (host port)
-  "Connect to a running nREPL server running on HOST and PORT."
-  (message "Connecting to nREPL server on %s:%s..." host port)
-  (let* ((nrepl-endpoint `(,host ,port))
-         (process (open-network-stream "nrepl"
-                                       (nrepl-make-connection-buffer)
-                                       host
-                                       port)))
-    (set-process-filter process 'nrepl-client-filter)
-    (set-process-sentinel process 'nrepl-client-sentinel)
-    (set-process-coding-system process 'utf-8-unix 'utf-8-unix)
-    (with-current-buffer (process-buffer process)
-      (setq nrepl-endpoint `(,host ,port)))
-    (let ((nrepl-connection-dispatch (buffer-name (process-buffer process))))
-      (nrepl-init-client-sessions process)
-      (nrepl-request:describe (nrepl--make-describe-handler (process-buffer process))))
-    process))
+;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
+;; starts the client process described by `nrepl-client-filter' and
+;; `nrepl-client-sentinel'.
+(defun nrepl-start-client-process (&optional directory host port replp server-proc)
+  "Create new client process identified by DIRECTORY, HOST and PORT.
+If DIRECTORY is nil, use `default-directory'. If eitehr HOST or PORT are
+nil, pick them from the value returned by `nrepl-connection-endpoint'. If
+REPLP is non-nil create a client connection which is associated with a repl
+buffer. When non-nil, SERVER-PROC must be a running nrepl server process
+within emacs. Return the newly created client connection process."
+  (let* ((endpoint (if (functionp nrepl-connection-endpoint)
+                       (funcall nrepl-connection-endpoint directory port)
+                     (nrepl--default-endpoint directory port)))
+         (directory (or directory default-directory))
+         (host (or host (plist-get endpoint :hostname)))
+         (port (or port (plist-get endpoint :port)))
+         (proc-buffer-name (plist-get endpoint :proc-buffer-name))
+         (server-buf (and server-proc
+                          (buffer-name (process-buffer server-proc))))
+         (client-buf (if replp
+                         (cider-repl-create directory host port)
+                       (nrepl-create-connection-buffer directory host port)))
+         (client-proc (open-network-stream "nrepl" client-buf host port))
+         (nrepl-connection-dispatch client-buf))
 
-(defun nrepl--make-describe-handler (process-buffer)
-  "Return a handler to describe into PROCESS-BUFFER."
+    (set-process-filter client-proc 'nrepl-client-filter)
+    (set-process-sentinel client-proc 'nrepl-client-sentinel)
+    (set-process-coding-system client-proc 'utf-8-unix 'utf-8-unix)
+
+    (with-current-buffer client-buf
+      (when server-buf
+        (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir
+                                                    (get-buffer server-buf))
+              nrepl-server-buffer server-buf))
+      (setq nrepl-endpoint `(,host ,port)
+            ;; fixme: repl and connection buffers are the same thing
+            nrepl-connection-buffer client-buf
+            nrepl-repl-buffer (when replp client-buf)
+            nrepl-on-connection-buffer proc-buffer-name
+            nrepl-decoder-buffer (nrepl-decoder-buffer-name directory host port)))
+
+    ;; Everything is set. We are ready to send requests.
+    (nrepl-request:clone (nrepl--new-tooling-session-handler client-proc))
+    (nrepl-request:clone (nrepl--new-session-handler client-proc))
+    (when replp
+      (nrepl-request:describe (nrepl--init-repl-handler client-buf t)))
+    client-proc))
+
+(defun nrepl--init-repl-handler (connection-buffer replp)
+  "Return a handler to describe into CONNECTION-BUFFER."
   (lambda (response)
     (nrepl-dbind-response response (ops versions)
-      (with-current-buffer process-buffer
+      (with-current-buffer connection-buffer
         (setq nrepl-ops ops)
         (setq nrepl-versions versions)))
-    (cider-make-repl (get-buffer-process process-buffer))
-    (nrepl-make-repl-connection-default process-buffer)
-    (cider-verify-required-nrepl-ops)
+    (when replp
+      (cider-repl-init connection-buffer))
+    (nrepl-make-connection-default connection-buffer)
+    (cider--check-required-nrepl-ops)
     (cider--check-middleware-compatibility)))
 
 (defun nrepl--new-session-handler (process)
   "Create a new session handler for PROCESS."
   (lambda (response)
-    (nrepl-dbind-response response (id new-session)
+    (nrepl-dbind-response response (id new-session err)
       (remhash id nrepl-pending-requests)
-      (let ((connection-buffer (process-buffer process)))
-        (setq nrepl-session new-session
-              nrepl-connection-buffer connection-buffer)
-        (run-hooks 'nrepl-connected-hook)))))
+      (if new-session
+          (with-current-buffer (process-buffer process)
+            (setq nrepl-session new-session))
+        (error "Could not create new session (%s)" err))
+      (run-hooks 'nrepl-connected-hook))))
 
 (defun nrepl--new-tooling-session-handler (process)
   "Create a new tooling session handler for PROCESS."
   (lambda (response)
-    (nrepl-dbind-response response (id new-session)
-      (with-current-buffer (process-buffer process)
-        (setq nrepl-tooling-session new-session)
-        (remhash id nrepl-pending-requests)))))
-
-(defun nrepl-init-client-sessions (process)
-  "Initialize client sessions for PROCESS."
-  (nrepl-request:clone (nrepl--new-session-handler process))
-  (nrepl-request:clone (nrepl--new-tooling-session-handler process)))
+    (nrepl-dbind-response response (id new-session err)
+      (if new-session
+          (with-current-buffer (process-buffer process)
+            (remhash id nrepl-pending-requests)
+            (setq nrepl-tooling-session new-session))
+        (error "Could not create new tooling session (%s)")))))
 
 (defun nrepl--port-from-file (file)
   "Attempts to read port from a file named by FILE."
@@ -628,13 +670,12 @@ The result is a plist with keys :value, :stderr and :stdout."
     (nrepl-send-request request (nrepl-sync-request-handler (current-buffer)))
     (while (or (null nrepl-last-sync-response)
                (null (plist-get nrepl-last-sync-response :done)))
-      (accept-process-output nil 0.005)
+      (accept-process-output nil 0.01)
       ;; break out in case we don't receive a response for a while
       (when nrepl-sync-request-timeout
         (let ((seconds-ellapsed (cadr (time-subtract (current-time) nrepl-last-sync-request-timestamp))))
           (when (> seconds-ellapsed nrepl-sync-request-timeout)
-            (error "Sync nREPL request %s timed out" request)
-            (keyboard-quit)))))
+            (error "nREPL sync request timed out %s" request)))))
     nrepl-last-sync-response))
 
 (defun nrepl-sync-request:eval (input &optional ns session)
@@ -646,11 +687,29 @@ If NS is non-nil, include it in the request. SESSION defaults to current session
 
 ;;; Server
 
-;; The server side process is started by `cider-jack-in' and has a very simple
-;; filter that pipes its output directly into its process buffer
+;; The server side process is started by `nrepl-start-server-process' and has a
+;; very simple filter that pipes its output directly into its process buffer
 ;; (*nrepl-server*). The main purpose of this process is to start the actual
-;; nrepl communication client (`nrepl-client-filter') once the message "nREPL
+;; nrepl communication client (`nrepl-client-filter') when the message "nREPL
 ;; server started on port ..." is detected.
+
+(defun nrepl-start-server-process (directory cmd)
+  "Start nREPL server process in DIRECTORY using shell command CMD.
+Return a newly created process."
+  (let* ((default-directory (or directory default-directory))
+         (serv-buf (get-buffer-create (generate-new-buffer-name
+                                       (nrepl-server-buffer-name directory))))
+         (serv-proc (start-file-process-shell-command
+                     "nrepl-server" serv-buf cmd)))
+    (set-process-filter serv-proc 'nrepl-server-filter)
+    (set-process-sentinel serv-proc 'nrepl-server-sentinel)
+    (set-process-coding-system serv-proc 'utf-8-unix 'utf-8-unix)
+    (with-current-buffer serv-buf
+      (setq nrepl-project-dir directory))
+    (message "Starting nREPL server via %s..."
+             (propertize cmd 'face 'font-lock-keyword-face))
+    serv-proc))
+
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT."
   (with-current-buffer (process-buffer process)
@@ -661,21 +720,11 @@ If NS is non-nil, include it in the request. SESSION defaults to current session
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
       (with-current-buffer (process-buffer process)
-        (let* ((endpoint (if (functionp nrepl-connection-endpoint)
-                             (funcall nrepl-connection-endpoint
-                                      default-directory port)
-                           (nrepl--default-endpoint default-directory port)))
-               (hostname (plist-get endpoint :hostname))
-               (port (plist-get endpoint :port))
-               (proc-buffer-name (plist-get endpoint :proc-buffer-name)))
-          (let ((nrepl-process (nrepl-connect hostname port)))
-            (setq nrepl-connection-buffer
-                  (buffer-name (process-buffer nrepl-process)))
-            (with-current-buffer (process-buffer nrepl-process)
-              (setq nrepl-server-buffer (buffer-name (process-buffer process))
-                    nrepl-project-dir (buffer-local-value
-                                       'nrepl-project-dir (process-buffer process))
-                    nrepl-on-connection-buffer proc-buffer-name))))))))
+        (let ((client-proc (nrepl-start-client-process
+                            default-directory nil port t process)))
+          ;; fixme: Bad connection tracking system. There can be multiple client
+          ;; connections per server
+          (setq nrepl-connection-buffer (buffer-name (process-buffer client-proc))))))))
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
@@ -877,9 +926,10 @@ This is bound for the duration of the handling of that message")
       tramp-current-host
     nrepl-host))
 
-(defun nrepl-make-connection-buffer ()
-  "Create an nREPL connection buffer."
-  (let ((buffer (generate-new-buffer (nrepl-connection-buffer-name))))
+(defun nrepl-create-connection-buffer (&optional project-dir host port)
+  "Create an nREPL connection buffer.
+PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+  (let ((buffer (generate-new-buffer (nrepl-connection-buffer-name project-dir host port))))
     (with-current-buffer buffer
       (buffer-disable-undo)
       (setq-local kill-buffer-query-functions nil))
@@ -902,7 +952,7 @@ Purge the dead buffers from the `nrepl-connection-list' beforehand."
 
 ;; VS[06-08-2014]: FIXME: Bad user api; don't burden users with management of
 ;; the connection list, same holds for `cider-rotate-connection'.
-(defun nrepl-make-repl-connection-default (connection-buffer)
+(defun nrepl-make-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
 Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
   (interactive (list nrepl-connection-buffer))
@@ -922,10 +972,9 @@ Also closes associated REPL and server buffers."
       (setq nrepl-connection-list
             (delq (buffer-name buffer) nrepl-connection-list))
       (when (buffer-live-p buffer)
-        (dolist (buf-name `(,(buffer-local-value 'nrepl-repl-buffer buffer)
-                            ,(buffer-local-value 'nrepl-server-buffer buffer)
-                            ,(buffer-local-value
-                              'nrepl-on-connection-buffer buffer)
+        (dolist (buf-name `(,(buffer-local-value 'nrepl-server-buffer buffer)
+                            ,(buffer-local-value 'nrepl-on-connection-buffer buffer)
+                            ,(buffer-local-value 'nrepl-decoder-buffer buffer)
                             ,buffer))
           (when buf-name
             (cider--close-buffer buf-name)))))))
@@ -1039,7 +1088,7 @@ F is a function of two arguments, the ewoc and the data at point."
   "Make the connection in EWOC specified by DATA default.
 Refreshes EWOC."
   (interactive)
-  (nrepl-make-repl-connection-default data)
+  (nrepl-make-connection-default data)
   (ewoc-refresh ewoc))
 
 (defun nrepl-connections-close-connection ()

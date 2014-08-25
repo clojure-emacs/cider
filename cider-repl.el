@@ -43,6 +43,7 @@
   (defvar paredit-version)
   (defvar paredit-space-for-delimiter-predicates))
 
+
 (defgroup cider-repl nil
   "Interaction with the REPL."
   :prefix "cider-repl-"
@@ -115,6 +116,7 @@ you'd like to use the default Emacs behavior use
   :type 'symbol
   :group 'cider-repl)
 
+
 ;;;; REPL buffer local variables
 (defvar-local cider-repl-input-start-mark nil)
 
@@ -151,31 +153,42 @@ joined together.")
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
+
 ;;; REPL init
-(defun cider-repl-buffer-name ()
-  "Generate a REPL buffer name based on current connection buffer."
-  (with-current-buffer (get-buffer (nrepl-current-connection-buffer))
-    (nrepl-make-buffer-name nrepl-repl-buffer-name-template)))
+(defun cider-repl-buffer-name (&optional project-dir host port)
+  "Generate a REPL buffer name based on current connection buffer.
+PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+  (with-current-buffer (or (get-buffer (nrepl-current-connection-buffer))
+                           (current-buffer))
+    (nrepl-make-buffer-name nrepl-repl-buffer-name-template project-dir host port)))
 
-(defun cider-create-repl-buffer ()
-  "Create a REPL buffer."
-  (cider-init-repl-buffer
-   (let ((buffer-name (cider-repl-buffer-name)))
-     (if cider-repl-display-in-current-window
-         (add-to-list 'same-window-buffer-names buffer-name))
-     (if cider-repl-pop-to-buffer-on-connect
-         (pop-to-buffer buffer-name)
-       (generate-new-buffer buffer-name))
-     buffer-name)))
+(defun cider-repl-create (&optional project-dir host port)
+  "Create a REPL buffer and install `cider-repl-mode'.
+PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+  ;; Connection might not have been set as yet. Please don't send requests here.
+  (let ((buf (nrepl-make-buffer-name nrepl-repl-buffer-name-template
+                                     project-dir host port)))
+    (with-current-buffer (get-buffer-create buf)
+      (unless (derived-mode-p 'cider-repl-mode)
+        (cider-repl-mode))
+      (cider-repl-reset-markers))
+    buf))
 
-(defun cider-make-repl (process)
-  "Make a REPL for the connection PROCESS."
-  (let ((connection-buffer (process-buffer process))
-        (repl-buffer (cider-create-repl-buffer)))
-    (with-current-buffer repl-buffer
-      (setq nrepl-connection-buffer (buffer-name connection-buffer)))
-    (with-current-buffer connection-buffer
-      (setq nrepl-repl-buffer (buffer-name repl-buffer)))))
+(defun cider-repl-init (buffer &optional no-banner)
+  "Initialize the REPL in BUFFER.
+BUFFER must be a REPL buffer with `cider-repl-mode' and a running
+clienprocessL connection. Unless NO-BANNER is non-nil, insert a banner."
+  (with-current-buffer buffer
+    ;; honor :init-ns from lein's :repl-options on startup
+    (setq nrepl-buffer-ns (cider-eval-and-get-value "(str *ns*)"))
+    (unless no-banner
+      (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
+    (when cider-repl-display-in-current-window
+      (add-to-list 'same-window-buffer-names buf))
+    (when cider-repl-pop-to-buffer-on-connect
+      (pop-to-buffer buffer))
+    (cider-remember-clojure-buffer cider-current-clojure-buffer)
+    buffer))
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
@@ -194,33 +207,14 @@ joined together.")
   (cider-repl--mark-input-start)
   (cider-repl--insert-prompt ns))
 
-(defun cider-init-repl-buffer (buffer &optional noprompt)
-  "Initialize the REPL in BUFFER.
-Insert a banner, unless NOPROMPT is non-nil."
-  (with-current-buffer buffer
-    (unless (eq major-mode 'cider-repl-mode)
-      (cider-repl-mode))
-    (cider-repl-reset-markers)
-    (unless noprompt
-      (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
-    (cider-remember-clojure-buffer cider-current-clojure-buffer)
-    (current-buffer)))
+(defun cider-get-repl-buffer ()
+  "Return the REPL buffer for current connection."
+  (let ((buffer (get-buffer-create (cider-current-repl-buffer))))
+    (if (buffer-live-p buffer)
+        buffer
+      (error "No active REPL"))))
 
-(defun cider-find-or-create-repl-buffer ()
-  "Return the REPL buffer, create it if necessary."
-  (let ((buffer (cider-current-repl-buffer)))
-        (if (null buffer)
-                (error "No active nREPL connection")
-          (let ((buffer (get-buffer buffer)))
-                (or (when (buffer-live-p buffer) buffer)
-                        (let ((buffer (nrepl-current-connection-buffer)))
-                          (if (null buffer)
-                                  (error "No active nREPL connection")
-                                (cider-init-repl-buffer
-                                 (get-process buffer)
-                                 (get-buffer-create
-                                  (cider-repl-buffer-name))))))))))
-
+
 ;;; REPL interaction
 
 (defun cider-repl--in-input-area-p ()
@@ -685,6 +679,7 @@ namespace to switch to."
          (cider-repl-handler (current-buffer))))
     (error "Cannot determine the current namespace")))
 
+
 ;;;;; History
 
 (defcustom cider-repl-wrap-history nil
@@ -904,6 +899,7 @@ constructs."
   (append (cl-subseq session-hist 0 n-added-items)
           file-hist))
 
+
 ;;; REPL shortcuts
 (defcustom cider-repl-shortcut-dispatch-char ?\,
   "Character used to distinguish REPL commands from Lisp forms."
@@ -952,7 +948,7 @@ constructs."
          (call-interactively (gethash command cider-repl-shortcuts))
        (error "No command selected")))))
 
-
+
 ;;;;; CIDER REPL mode
 
 ;;; Prevent paredit from inserting some inappropriate spaces.
