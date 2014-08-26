@@ -184,7 +184,7 @@ clienprocessL connection. Unless NO-BANNER is non-nil, insert a banner."
     (unless no-banner
       (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
     (when cider-repl-display-in-current-window
-      (add-to-list 'same-window-buffer-names buf))
+      (add-to-list 'same-window-buffer-names buffer))
     (when cider-repl-pop-to-buffer-on-connect
       (pop-to-buffer buffer))
     (cider-remember-clojure-buffer cider-current-clojure-buffer)
