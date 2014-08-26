@@ -754,7 +754,7 @@ form, with symbol at point replaced by __prefix__."
    (nrepl-send-sync-request
     (list "op" "complete"
           "session" (nrepl-current-session)
-          "ns" nrepl-buffer-ns
+          "ns" (cider-current-ns)
           "symbol" str
           "context" (cider-completion-get-context)))
    :value))
