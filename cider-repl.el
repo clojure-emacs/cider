@@ -178,15 +178,14 @@ PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
 client process connection. Unless NO-BANNER is non-nil, insert a banner."
-  (with-current-buffer buffer
-    (unless no-banner
-      (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
-    (when cider-repl-display-in-current-window
-      (add-to-list 'same-window-buffer-names buffer))
-    (when cider-repl-pop-to-buffer-on-connect
-      (pop-to-buffer buffer))
-    (cider-remember-clojure-buffer cider-current-clojure-buffer)
-    buffer))
+  (unless no-banner
+    (cider-repl--insert-banner-and-prompt buffer))
+  (when cider-repl-display-in-current-window
+    (add-to-list 'same-window-buffer-names buffer))
+  (when cider-repl-pop-to-buffer-on-connect
+    (pop-to-buffer buffer))
+  (cider-remember-clojure-buffer cider-current-clojure-buffer)
+  buffer)
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
@@ -196,14 +195,15 @@ client process connection. Unless NO-BANNER is non-nil, insert a banner."
           (cider--clojure-version)
           (cider--nrepl-version)))
 
-(defun cider-repl--insert-banner-and-prompt (ns)
-  "Insert REPL banner and REPL prompt, taking into account NS."
-  (when (zerop (buffer-size))
-    (insert (propertize (cider-repl--banner) 'face 'font-lock-comment-face)))
-  (goto-char (point-max))
-  (cider-repl--mark-output-start)
-  (cider-repl--mark-input-start)
-  (cider-repl--insert-prompt ns))
+(defun cider-repl--insert-banner-and-prompt (buffer)
+  "Insert REPL banner and REPL prompt in BUFFER."
+  (with-current-buffer buffer
+    (when (zerop (buffer-size))
+      (insert (propertize (cider-repl--banner) 'face 'font-lock-comment-face)))
+    (goto-char (point-max))
+    (cider-repl--mark-output-start)
+    (cider-repl--mark-input-start)
+    (cider-repl--insert-prompt nrepl-buffer-ns)))
 
 (defun cider-get-repl-buffer ()
   "Return the REPL buffer for current connection."
