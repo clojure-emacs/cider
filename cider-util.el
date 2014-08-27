@@ -135,7 +135,7 @@ Unless you specify a BUFFER it will default to the current one."
 
 (defun cider-format-pprint-eval (form)
   "Return a string of Clojure code that will eval and pretty-print FORM."
-  (format "(let [x %s] (clojure.pprint/pprint x) x)" form))
+  (format "(clojure.core/let [x %s] (clojure.pprint/pprint x) x)" form))
 
 (autoload 'pkg-info-version-info "pkg-info.el")
 
