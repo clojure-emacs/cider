@@ -177,14 +177,12 @@ PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
-clienprocessL connection. Unless NO-BANNER is non-nil, insert a banner."
+client process connection. Unless NO-BANNER is non-nil, insert a banner."
   (with-current-buffer buffer
-    ;; honor :init-ns from lein's :repl-options on startup
-    (setq nrepl-buffer-ns (cider-eval-and-get-value "(str *ns*)"))
     (unless no-banner
       (cider-repl--insert-banner-and-prompt nrepl-buffer-ns))
     (when cider-repl-display-in-current-window
-      (add-to-list 'same-window-buffer-names buf))
+      (add-to-list 'same-window-buffer-names buffer))
     (when cider-repl-pop-to-buffer-on-connect
       (pop-to-buffer buffer))
     (cider-remember-clojure-buffer cider-current-clojure-buffer)
