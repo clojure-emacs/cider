@@ -243,7 +243,7 @@ point."
   "Find the next prompt.
 If BACKWARD is non-nil look backward."
   (let ((origin (point))
-        (prop 'cider-prompt))
+        (prop 'cider-repl-prompt))
     (while (progn
              (cider-search-property-change prop backward)
              (not (or (cider-end-of-proprange-p prop) (bobp) (eobp)))))
@@ -371,8 +371,8 @@ Return the position of the prompt beginning."
             (prompt (format "%s> " namespace)))
         (cider-propertize-region
             '(face cider-repl-prompt-face read-only t intangible t
-                   cider-prompt t
-                   rear-nonsticky (cider-prompt read-only face intangible))
+                   cider-repl-prompt t
+                   rear-nonsticky (cider-repl-prompt read-only face intangible))
           (insert-before-markers prompt))
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
