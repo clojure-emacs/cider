@@ -659,6 +659,17 @@ text property `cider-old-input'."
   (cider-eval-and-get-value
    "(clojure.core/map clojure.core/str (clojure.core/all-ns))"))
 
+(defun cider-repl-switch-ns-handler (buffer)
+  "Make a nREPL evaluation handler for the REPL ns switching."
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value))
+                               (lambda (buffer out)
+                                 (cider-repl-emit-output buffer out))
+                               (lambda (buffer err)
+                                 (cider-repl-emit-err-output buffer err))
+                               (lambda (buffer)
+                                 (cider-repl-emit-prompt buffer))))
+
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
 
@@ -672,7 +683,7 @@ namespace to switch to."
       (with-current-buffer (cider-current-repl-buffer)
         (cider-eval
          (format "(in-ns '%s)" ns)
-         (cider-repl-handler (current-buffer))))
+         (cider-repl-switch-ns-handler (current-buffer))))
     (error "Cannot determine the current namespace")))
 
 
