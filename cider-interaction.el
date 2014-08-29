@@ -798,7 +798,8 @@ in the buffer."
                (buffer (cider-find-file file)))
     (with-current-buffer buffer
       (save-excursion
-        (goto-line line)
+        (goto-char (point-min))
+        (forward-line (1- line))
         (cons buffer (point))))))
 
 (defun cider-company-docsig (thing)
