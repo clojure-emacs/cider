@@ -293,13 +293,13 @@ If BACKWARD is non-nil search backward."
 (defun cider-repl-mode-beginning-of-defun (&optional arg)
   (if (and arg (< arg 0))
       (cider-repl-mode-end-of-defun (- arg))
-    (dotimes (i (or arg 1))
+    (dotimes (_ (or arg 1))
       (cider-repl-previous-prompt))))
 
 (defun cider-repl-mode-end-of-defun (&optional arg)
   (if (and arg (< arg 0))
       (cider-repl-mode-beginning-of-defun (- arg))
-    (dotimes (i (or arg 1))
+    (dotimes (_ (or arg 1))
       (cider-repl-next-prompt))))
 
 (defun cider-repl-beginning-of-defun ()
@@ -420,14 +420,12 @@ If BOL is non-nil, emit at the beginning of the line."
       (cider-repl-emit-output-at-pos buffer string face cider-repl-input-start-mark bol)
       (ansi-color-apply-on-region pos (point-max)))))
 
-(defun cider-repl-emit-output (buffer string &optional bol)
-  "Using BUFFER, emit STRING as standard output.
-If BOL is non-nil, emit at the beginning of the line."
+(defun cider-repl-emit-output (buffer string)
+  "Using BUFFER, emit STRING as standard output."
   (cider-repl--emit-output buffer string 'cider-repl-output-face))
 
-(defun cider-repl-emit-err-output (buffer string &optional bol)
-  "Using BUFFER, emit STRING as error output.
-If BOL is non-nil, emit at the beginning of the line."
+(defun cider-repl-emit-err-output (buffer string)
+  "Using BUFFER, emit STRING as error output."
   (cider-repl--emit-output buffer string 'cider-repl-err-output-face))
 
 (defun cider-repl-emit-prompt (buffer)
