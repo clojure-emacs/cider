@@ -714,7 +714,7 @@ When called interactively, this operates on point, or falls back to a prompt."
 If point is not inside the list, returns nil; otherwise return top-level
 form, with symbol at point replaced by __prefix__."
   (when (save-excursion
-          (condition-case foo
+          (condition-case _
               (progn
                 (up-list)
                 (check-parens)
@@ -1115,7 +1115,7 @@ If location could not be found, return nil."
       (overlay-put overlay 'cider-note note)
       (overlay-put overlay 'help-echo note)
       (overlay-put overlay 'modification-hooks
-                   (list (lambda (o &rest args) (delete-overlay o)))))))
+                   (list (lambda (o &rest _args) (delete-overlay o)))))))
 
 (defun cider-jump-to-error-maybe (buffer err)
   "If `cider-auto-jump-to-error' is non-nil, retrieve error location from ERR and jump to it."
