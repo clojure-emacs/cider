@@ -181,28 +181,28 @@ it is not.  The name will also include the connection port if
 
 (defun nrepl-connection-buffer-name (&optional project-dir host port)
   "Return the name of the connection buffer.
-PROJECT-DIR, PORT and HOST are as in `/nrepl-make-buffer-name'."
+PROJECT-DIR, HOST and PORT are as in `/nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
    (nrepl-make-buffer-name nrepl-connection-buffer-name-template
                            project-dir host port)))
 
 (defun nrepl-server-buffer-name (&optional project-dir host port)
   "Return the name of the server buffer.
-PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
    (nrepl-make-buffer-name nrepl-server-buffer-name-template
                            project-dir host port)))
 
 (defun nrepl-on-connection-buffer-name (&optional project-dir host port)
   "Return the name of the on-connection buffer.
-PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
    (nrepl-make-buffer-name nrepl-on-connection-buffer-name-template
                            project-dir host port)))
 
 (defun nrepl-decoder-buffer-name (&optional project-dir host port)
   "Return the name of the buffer used for bencode decoding.
-PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   ;; this might go away if bdecode is rewriten by direct decoding of the sring
   (nrepl--make-hidden-name
    (nrepl-make-buffer-name nrepl-decoder-buffer-name-template
@@ -928,7 +928,7 @@ This is bound for the duration of the handling of that message")
 
 (defun nrepl-create-connection-buffer (&optional project-dir host port)
   "Create an nREPL connection buffer.
-PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   (let ((buffer (generate-new-buffer (nrepl-connection-buffer-name project-dir host port))))
     (with-current-buffer buffer
       (buffer-disable-undo)
