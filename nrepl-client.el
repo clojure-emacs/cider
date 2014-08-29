@@ -463,7 +463,7 @@ within emacs. Return the newly created client connection process."
           (with-current-buffer (process-buffer process)
             (remhash id nrepl-pending-requests)
             (setq nrepl-tooling-session new-session))
-        (error "Could not create new tooling session (%s)")))))
+        (error "Could not create new tooling session (%s)" err)))))
 
 (defun nrepl--port-from-file (file)
   "Attempts to read port from a file named by FILE."
