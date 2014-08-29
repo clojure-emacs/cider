@@ -336,7 +336,8 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (with-current-buffer buffer
     (nrepl-dbind-response test (type line message expected actual)
       (save-excursion
-        (goto-line line)
+        (goto-char (point-min))
+        (forward-line (1- line))
         (forward-whitespace 1)
         (forward-char)
         (let ((beg (point)))
