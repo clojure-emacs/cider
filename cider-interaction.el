@@ -628,9 +628,8 @@ path or an entry within a zip/jar archive."
                      (search-forward (concat entry "\n"))
                      ;; moves up to matching line
                      (forward-line -1)
-                     (let ((opened-buffer (current-buffer)))
-                       (archive-extract)
-                       (current-buffer)))
+                     (archive-extract)
+                     (current-buffer))
                  ;; Use external zip program to just extract the single file
                  (with-current-buffer (generate-new-buffer
                                          (file-name-nondirectory entry))
