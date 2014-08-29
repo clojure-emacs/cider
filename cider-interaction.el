@@ -1148,11 +1148,11 @@ KILL-BUFFER-P is passed along."
   (interactive)
   (funcall cider-popup-buffer-quit-function kill-buffer-p))
 
-(defun cider-popup-buffer (name &optional select major-mode)
+(defun cider-popup-buffer (name &optional select mode)
   "Create new popup buffer called NAME.
 If SELECT is non-nil, select the newly created window.
-If MAJOR-MODE is non-nil enabled it for the popup buffer."
-  (with-current-buffer (cider-make-popup-buffer name major-mode)
+If major MODE is non-nil, enable it for the popup buffer."
+  (with-current-buffer (cider-make-popup-buffer name mode)
     (cider-popup-buffer-display (current-buffer) select)))
 
 (defun cider-popup-buffer-display (popup-buffer &optional select)
@@ -1171,14 +1171,14 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
   (interactive)
   (quit-window kill-buffer-p (selected-window)))
 
-(defun cider-make-popup-buffer (name &optional major-mode)
-  "Create a temporary buffer called NAME using MAJOR-mode (if specified)."
+(defun cider-make-popup-buffer (name &optional mode)
+  "Create a temporary buffer called NAME using major MODE (if specified)."
   (with-current-buffer (get-buffer-create name)
     (kill-all-local-variables)
     (setq buffer-read-only nil)
     (erase-buffer)
-    (when major-mode
-      (funcall major-mode))
+    (when mode
+      (funcall mode))
     (setq-local cider-popup-output-marker (point-marker))
     (cider-popup-buffer-mode 1)
     (setq buffer-read-only t)
