@@ -32,6 +32,7 @@
 
 (require 'dash)
 (require 'cl-lib)
+(require 'clojure-mode)
 
 ;;; Compatibility
 (eval-and-compile
@@ -147,8 +148,7 @@ Unless you specify a BUFFER it will default to the current one."
 
 (defun cider-find-buffer (ns)
   "Find an open buffer by NS."
-  (->> (buffer-list)
-    (--filter (eq (buffer-local-value 'major-mode it) 'clojure-mode))
+  (->> (cider-util--clojure-buffers)
     (--filter (equal ns (with-current-buffer it (clojure-find-ns))))
     (car)))
 
