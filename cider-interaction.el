@@ -696,7 +696,7 @@ When called interactively, this operates on point, or falls back to a prompt."
         (-if-let* ((ns (cadr (assoc "ns" info)))
                    (name (cadr (assoc "name" info)))
                    (buffer (cider-find-buffer ns))
-                   (pos (cider-locate-def buffer name)))
+                   (pos (cider-locate-def name buffer)))
             (cider-jump-to buffer pos)
           (message "No source available for %s" var)))
     (message "Symbol %s not resolved" var)))

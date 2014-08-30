@@ -412,7 +412,7 @@ it wraps to 0."
       (-if-let* ((ns (cadr (assoc "ns" info)))
                  (name (cadr (assoc "name" info)))
                  (buffer (cider-find-buffer ns))
-                 (pos (cider-locate-def buffer name)))
+                 (pos (cider-locate-def name buffer line)))
           (cider-jump-to buffer pos)
         (message "No source info")))))
 
