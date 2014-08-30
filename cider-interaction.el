@@ -649,11 +649,15 @@ not found."
                (file (cadr (assoc "file" info))))
     (cider-find-file file)))
 
-(defun cider-jump-to (buffer &optional pos)
+(defun cider-jump-to (buffer &optional pos other-buffer)
   "Push current point onto marker ring, and jump to BUFFER to position POS.
 POS can be either a cons cell (LINE . COLUMN) or a number representing the
-character position in a buffer. "
+character position in a buffer. If OTHER-BUFFER is non-nil use
+`pop-to-buffer' to jump to the location, otherwise `switch-to-buffer'."
   (ring-insert find-tag-marker-ring (point-marker))
+  (if other-buffer
+      (pop-to-buffer buffer)
+    (switch-to-buffer buffer))
   (with-current-buffer buffer
     (widen)
     ;; check if we have a (line . column) pair or just a buffer position
@@ -664,8 +668,7 @@ character position in a buffer. "
       (if (cdr pos)
           (move-to-column (cdr pos))
         (back-to-indentation)))
-    (cider-mode +1))
-  (switch-to-buffer buffer))
+    (cider-mode +1)))
 
 (defun cider-jump-to-resource (path &optional line)
   "Jump to the resource at the relative PATH, optionally at a specific LINE.
