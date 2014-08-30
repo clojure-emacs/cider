@@ -1589,7 +1589,7 @@ under point, prompts for a var."
             (url-request-extra-headers `(("Content-Type" . "text/plain"))))
         ;; TODO: add a whitelist of supported namespaces
         (url-retrieve (cider-grimoire-url name ns (cider--clojure-version))
-                      (lambda (status)
+                      (lambda (_status)
                         ;; we need to strip the http header
                         (goto-char (point-min))
                         (re-search-forward "^$")
