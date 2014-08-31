@@ -402,7 +402,8 @@ it wraps to 0."
          (class (button-get button 'class))
          (method (button-get button 'method))
          (info (or (and var (cider-var-info var))
-                   (and class method (cider-member-info class method))))
+                   (and class method (cider-member-info class method))
+                   `(("file" ,(button-get button 'file)))))
          ;; stacktrace returns more accurate line numbers
          (info (cons `("line" ,(button-get button 'line))
                      info)))
@@ -461,8 +462,8 @@ This associates text properties to enable filtering and source navigation."
                                     (if (member 'clj flags) ns class)
                                     (if (member 'clj flags) fn method))
                             'var var 'class class 'method method
-                            'name name 'line line 'flags flags
-                            'follow-link t
+                            'name name 'file file 'line line
+                            'flags flags 'follow-link t
                             'action 'cider-stacktrace-navigate
                             'help-echo "View source at this location"
                             'face 'cider-stacktrace-face)
