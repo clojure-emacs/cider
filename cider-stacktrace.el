@@ -401,20 +401,12 @@ it wraps to 0."
   (let* ((var (button-get button 'var))
          (class (button-get button 'class))
          (method (button-get button 'method))
-         (line (button-get button 'line))
-         (info (if var
-                   (cider-var-info var)
-                 (cider-member-info class method))))
-    (-if-let* ((file (cadr (assoc "file" info)))
-               (buffer (cider-find-file file)))
-        (cider-jump-to buffer (cons line nil))
-      ;; when no file info, find the location by regexp search
-      (-if-let* ((ns (cadr (assoc "ns" info)))
-                 (name (cadr (assoc "name" info)))
-                 (buffer (cider-find-buffer ns))
-                 (pos (cider-locate-def name buffer line)))
-          (cider-jump-to buffer pos)
-        (message "No source info")))))
+         (info (or (and var (cider-var-info var))
+                   (and class method (cider-member-info class method))))
+         ;; stacktrace returns more accurate line numbers
+         (info (cons `("line" ,(button-get button 'line))
+                     info)))
+    (cider--jump-to-loc-from-info info t)))
 
 (defun cider-stacktrace-jump ()
   "Like `cider-jump', but uses the stack frame source at point, if available."

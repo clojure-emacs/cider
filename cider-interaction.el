@@ -682,24 +682,34 @@ When called interactively, this operates on point."
       (cider-jump-to buffer (cons line nil))
     (message "Cannot find resource %s" path)))
 
-(defun cider-jump-to-var (var &optional line)
-  "Jump to the definition of VAR, optionally at a specific LINE.
-When called interactively, this operates on point, or falls back to a prompt."
-  (interactive (list (cider-read-symbol-name "Symbol: " 'identity)))
-  (cider-ensure-op-supported "info")
-  (-if-let (info (cider-var-info var))
-      (-if-let* ((file (cadr (assoc "file" info)))
-                 (line (or line (cadr (assoc "line" info))))
-                 (buffer (cider-find-file file)))
-          (cider-jump-to buffer (cons line nil))
+(defun cider--jump-to-loc-from-info (info &optional other-buffer)
+  "Jump to location give by INFO.
+INFO object is returned by `cider-var-info' or `cider-member-info'.
+OTHER-BUFFER is passed to `cider-jamp-to'."
+  (-if-let* ((file (cadr (assoc "file" info)))
+             (line (cadr (assoc "line" info)))
+             (buffer (cider-find-file file)))
+      (cider-jump-to buffer (cons line nil) other-buffer)
         ;; var was created interactively and has no file info
         (-if-let* ((ns (cadr (assoc "ns" info)))
                    (name (cadr (assoc "name" info)))
                    (buffer (cider-find-buffer ns))
-                   (pos (cider-locate-def name buffer)))
-            (cider-jump-to buffer pos)
-          (message "No source available for %s" var)))
-    (message "Symbol %s not resolved" var)))
+                   (pos (cider-locate-def name buffer line)))
+            (cider-jump-to buffer pos other-buffer)
+          (-if-let (name (cadr (assoc "name" info)))
+              (message "No location found for %s" name)
+            (message "No source info")))))
+
+(defun cider-jump-to-var (&optional var line)
+  "Jump to the definition of VAR, optionally at a specific LINE.
+When called interactively, this operates on point, or falls back to a prompt."
+  (interactive)
+  (cider-ensure-op-supported "info")
+  (cider-read-symbol-name
+   "Symbol: " (lambda (var)
+                (-if-let (info (cider-var-info var))
+                    (cider--jump-to-loc-from-info info)
+                  (message "Symbol %s not resolved" var)))))
 
 (define-obsolete-function-alias 'cider-jump 'cider-jump-to-var "0.7.0")
 (defalias 'cider-jump-back 'pop-tag-mark)
