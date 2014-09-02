@@ -72,28 +72,36 @@
   (let* ((bol (line-beginning-position))
          (eol (line-end-position))
          (line (buffer-substring-no-properties bol eol)))
-    (if (file-directory-p line)
-        (dired line)
-      (find-file-other-window line))))
+    (find-file-other-window line)))
 
 (defun cider-classpath-handle-mouse (event)
   "Handle mouse click EVENT."
   (interactive "e")
   (cider-classpath-operate-on-point))
 
+(defun cider--classpath-entries ()
+  "Return a list of classpath entries."
+  (plist-get
+   (nrepl-send-sync-request (list "op" "classpath"
+                                  "session" (nrepl-current-session)))
+   :value))
+
 ;;;###autoload
 (defun cider-classpath ()
   "List all classpath entries."
   (interactive)
   (with-current-buffer (cider-popup-buffer cider-classpath-buffer t)
-    (let ((names (plist-get
-                  (nrepl-send-sync-request (list "op" "classpath"
-                                                 "session" (nrepl-current-session)))
-                  :value)))
-      (cider-classpath-list (current-buffer)
-                            (mapcar (lambda (name)
-                                      (cider-classpath-properties name))
-                                    names)))))
+    (cider-classpath-list (current-buffer)
+                          (mapcar (lambda (name)
+                                    (cider-classpath-properties name))
+                                  (cider--classpath-entries)))))
+
+;;;###autoload
+(defun cider-open-classpath-entry ()
+  "Open a classpath entry."
+  (interactive)
+  (-when-let (entry (completing-read "Classpath entries: " (cider--classpath-entries)))
+    (find-file-other-window entry)))
 
 (defvar cider-classpath-mouse-map (make-sparse-keymap))
 (define-key cider-classpath-mouse-map [mouse-1] 'cider-classpath-handle-mouse)
