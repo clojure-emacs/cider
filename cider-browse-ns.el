@@ -61,7 +61,7 @@
     (define-key map "p" 'previous-line)
     map))
 
-(define-derived-mode cider-browse-ns-mode fundamental-mode "browse-ns"
+(define-derived-mode cider-browse-ns-mode special-mode "browse-ns"
   "Major mode for browsing Clojure namespaces.
 
 \\{cider-browse-ns-mode-map}"
