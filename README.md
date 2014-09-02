@@ -388,6 +388,31 @@ If you are using `ido`, be sure to use both `ido-everywhere`
 and [`ido-ubiquitous`](https://github.com/DarwinAwardWinner/ido-ubiquitous).
 You might also want to install [`ido-flex`](https://github.com/lewang/flx).
 
+### Auto-completion
+
+`CIDER` users are advised to use [`company-mode`](http://company-mode.github.io/) to enable auto-completion
+inside of source code and REPL buffers. This can be done globally, like so --
+
+```el
+(global-company-mode)
+```
+
+-- or through mode-specific hooks:
+
+```el
+(add-hook 'cider-repl-mode-hook 'company-mode)
+(add-hook 'cider-mode-hook 'company-mode)
+```
+
+When `company-mode` is thus enabled, it will receive completion information
+from `cider-complete-at-point`, and requires no additional setup or plugins.
+
+#### Migrating from `auto-complete-mode`
+
+* Disable `ac-cider-setup` or `ac-nrepl-setup` from running on `CIDER` hooks
+
+* Remove `cider-mode` and `cider-repl-mode` from the `ac-modes` list
+
 ### Integration with other modes
 
 * Enabling `CamelCase` support for editing commands(like
@@ -430,17 +455,10 @@ enable `paredit` in the REPL buffer as well:
 (add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
 ```
 
-* [company-mode](http://company-mode.github.io/) provides in-buffer completion
-  framework. When `company-mode` is enabled, it will retrieve completion
-  information from `cider-complete-at-point`, requiring no additional setup (and
-  no `company-mode` plugins). `CIDER` users are advised to use `company-mode`
-  instead of `auto-complete-mode` for optimal results.
-
-* [ac-cider](https://github.com/clojure-emacs/ac-cider) provides
-  completion source for the popular Emacs interactive auto-completion
-  framework [auto-complete](http://cx4a.org/software/auto-complete/).
-  Where CIDER provides it, pop-up documentation for completed symbols
-  will be displayed.
+* [auto-complete](http://cx4a.org/software/auto-complete/) is a popular Emacs
+  interactive auto-completion framework. [ac-cider](https://github.com/clojure-emacs/ac-cider)
+  provides a completion source for auto-complete-mode, including, where CIDER provides it,
+  pop-up documentation for completed symbols.
 
 ## Basic Usage
 
