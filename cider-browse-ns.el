@@ -38,10 +38,7 @@
 (require 'cider-interaction)
 
 (defvar cider-browse-ns-buffer "*Browse NS*")
-(defvar cider-browse-ns-current-ns nil)
-
-(make-variable-buffer-local 'cider-browse-ns-current-ns)
-
+(defvar-local cider-browse-ns-current-ns nil)
 
 ;; Utility Functions
 
