@@ -60,7 +60,9 @@ original position when clearing or highlighting test results.
 * [#744](https://github.com/clojure-emacs/cider/issues/744): Fix the ability to customize the
 lein command invoked by `cider-jack-in`.
 * [#752](https://github.com/clojure-emacs/cider/issues/752): Don't assume
-  `clojure.core/let` is always available as `let`.
+`clojure.core/let` is always available as `let`.
+* [#772](https://github.com/clojure-emacs/cider/issues/772): Don't try to read Clojure results as
+Emacs Lisp code.
 
 ## 0.7.0 / 2014-08-05
 

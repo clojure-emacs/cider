@@ -132,7 +132,8 @@ NS specifies the namespace in which to evaluate the request."
 
 (defun cider-get-value (eval-result)
   "Get the value from EVAL-RESULT."
-  (read (cider-get-raw-value eval-result)))
+  (with-output-to-string
+    (message "%s" (cider-get-raw-value eval-result))))
 
 (defun cider-send-op (op attributes handler)
   "Send the specified OP with ATTRIBUTES and response HANDLER."
