@@ -978,7 +978,7 @@ ENDP) DELIM."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
-    (define-key map (kbd "M-.") 'cider-jump)
+    (define-key map (kbd "M-.") 'cider-jump-to-var)
     (define-key map (kbd "M-,") 'cider-jump-back)
     (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
     (define-key map (kbd "RET") 'cider-repl-return)
@@ -1022,7 +1022,7 @@ ENDP) DELIM."
         "--"
         ,cider-doc-menu
         "--"
-        ["Jump to source" cider-jump]
+        ["Jump to source" cider-jump-to-var]
         ["Jump to resource" cider-jump-to-resource]
         ["Jump back" cider-jump-back]
         "--"

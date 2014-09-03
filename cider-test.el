@@ -156,14 +156,14 @@
       (goto-char pos))))
 
 (defun cider-test-jump ()
-  "Like `cider-jump', but uses the test at point's definition, if available."
+  "Like `cider-jump-to-var', but uses the test at point's definition, if available."
   (interactive)
   (let ((ns   (get-text-property (point) 'ns))
         (var  (get-text-property (point) 'var))
         (line (get-text-property (point) 'line)))
     (if (and ns var)
         (cider-jump-to-var (concat ns "/" var) line)
-      (call-interactively 'cider-jump))))
+      (call-interactively 'cider-jump-to-var))))
 
 
 ;;; Error stacktraces
