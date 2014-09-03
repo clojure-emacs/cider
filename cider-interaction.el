@@ -1134,8 +1134,9 @@ If location could not be found, return nil."
   "If `cider-auto-jump-to-error' is non-nil, retrieve error location from ERR and jump to it."
   (-when-let (pos (and cider-auto-jump-to-error
                        (cider--find-last-error-location buffer err)))
-      (with-current-buffer buffer
-        (goto-char (car pos)))))
+    (display-buffer buffer)
+    (-when-let (win (get-buffer-window buffer))
+      (set-window-point win (car pos)))))
 
 
 (defun cider-need-input (buffer)
