@@ -372,13 +372,7 @@ Display MESSAGE and if the process is closed kill the
 process buffer and run the hook `nrepl-disconnected-hook'."
   (message "nREPL connection closed: %s" message)
   (if (equal (process-status process) 'closed)
-      (progn
-        (with-current-buffer (process-buffer process)
-          (when (and nrepl-repl-buffer
-                     (get-buffer nrepl-repl-buffer))
-            (kill-buffer nrepl-repl-buffer))
-          (kill-buffer (current-buffer)))
-        (run-hooks 'nrepl-disconnected-hook))))
+      (run-hooks 'nrepl-disconnected-hook)))
 
 
 ;;; Client: Initialization
