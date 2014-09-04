@@ -452,7 +452,8 @@ reading input."
 The two arguments START and END are character positions;
 they can be in either order."
   (interactive "r")
-  (cider-interactive-eval (buffer-substring-no-properties start end)))
+  (let ((code (buffer-substring-no-properties start end)))
+    (cider-interactive-eval code start)))
 
 (defun cider-eval-buffer ()
   "Evaluate the current buffer."
@@ -477,10 +478,11 @@ they can be in either order."
   "Evaluate the current toplevel form, and print result in the minibuffer.
 With a PREFIX argument, print the result in the current buffer."
   (interactive "P")
-  (let ((form (cider-defun-at-point)))
+  (let ((form (cider-defun-at-point))
+        (start-pos (car (cider--region-for-defun-at-point))))
     (if prefix
         (cider-interactive-eval-print form)
-      (cider-interactive-eval form))))
+      (cider-interactive-eval form start-pos))))
 
 (defun cider-ns-form ()
   "Retrieve the ns form."
@@ -539,6 +541,11 @@ With a PREFIX argument, print the result in the current buffer."
      (backward-sexp)
      (point))
    (point)))
+
+(defun cider-last-sexp-start-pos ()
+  (save-excursion
+    (backward-sexp)
+    (point)))
 
 ;;;
 (defun cider-tramp-prefix (&optional buffer)
@@ -1291,13 +1298,31 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
                 (cider-interactive-eval-print-handler buffer)
                 (cider-current-ns))))
 
-(defun cider-interactive-eval (form)
+(defun cider--dummy-file-contents (form start-pos)
+  (let ((current-ns (cider-current-ns))
+        (start-line (line-number-at-pos start-pos)))
+    (with-temp-buffer
+      (insert (format "(ns %s)" current-ns))
+      (dotimes (_ (1- start-line))
+        (insert "\n"))
+      (insert form)
+      (buffer-string))))
+
+(defun cider-interactive-eval (form &optional start-pos)
   "Evaluate the given FORM and print value in minibuffer."
   (cider--clear-compilation-highlights)
-  (let ((buffer (current-buffer)))
-    (cider-eval form
-                (cider-interactive-eval-handler buffer)
-                (cider-current-ns))))
+  (let ((buffer (current-buffer))
+        (filename (buffer-file-name)))
+    (if buffer-file-name
+        (nrepl-send-request (list "op" "load-file"
+                                  "session" (nrepl-current-session)
+                                  "file" (cider--dummy-file-contents form start-pos)
+                                  "file-path" (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
+                                  "file-name" (file-name-nondirectory filename))
+                            (cider-interactive-eval-handler buffer))
+      (cider-eval form
+                  (cider-interactive-eval-handler buffer)
+                  (cider-current-ns)))))
 
 (defun cider-interactive-eval-to-repl (form)
   "Evaluate the given FORM and print it's value in REPL buffer."
@@ -1312,7 +1337,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
   (if prefix
       (cider-interactive-eval-print (cider-last-sexp))
-    (cider-interactive-eval (cider-last-sexp))))
+    (cider-interactive-eval (cider-last-sexp) (cider-last-sexp-start-pos))))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."

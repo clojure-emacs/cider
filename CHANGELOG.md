@@ -63,6 +63,8 @@ lein command invoked by `cider-jack-in`.
 `clojure.core/let` is always available as `let`.
 * [#772](https://github.com/clojure-emacs/cider/issues/772): Don't try to read Clojure results as
 Emacs Lisp code.
+* [#631](https://github.com/clojure-emacs/cider/issues/631): Set `file` and `line` metadata when
+doing interactive evaluation.
 
 ## 0.7.0 / 2014-08-05
 
