@@ -588,9 +588,9 @@ If no local or remote file exists, return nil."
     (cond ((equal local-path "") "")
           ((and cider-prefer-local-resources (file-exists-p local-path))
            local-path)
-          ((file-exists-p tramp-path)
+          ((and tramp-path (file-exists-p tramp-path))
            tramp-path)
-          ((file-exists-p local-path)
+          ((and local-path (file-exists-p local-path))
            local-path))))
 
 (defun cider--url-to-file (url)
@@ -604,10 +604,19 @@ create a valid path."
         (match-string 1 filename)
       filename)))
 
+(defun cider--tooling-file-p (file-name)
+  "Return t if FILE-NAME is not a 'real' source file.
+Currently, only check if the relative file name starts with 'form-init'
+which nREPL uses for temporary evaluation file names."
+  (string-match-p "\\bform-init" (file-name-nondirectory file-name)))
+
 (defun cider-find-file (url)
   "Return a buffer visiting the file URL if it exists, or nil otherwise.
-The argument should have a scheme prefix, and represent a fully-qualified file
-path or an entry within a zip/jar archive."
+If URL has a scheme prefix, it must represent a fully-qualified file path
+or an entry within a zip/jar archive. If URL doesn't contain a scheme
+prefix and is an absolute path, it is treated as such. Finally, if URL is
+relative, it is expanded within each of the open Clojure buffers till an
+existing file ending with URL has been found."
   (cond ((string-match "^file:\\(.+\\)" url)
          (-when-let* ((file (cider--url-to-file (match-string 1 url)))
                       (path (cider--file-path file)))
@@ -639,7 +648,15 @@ path or an entry within a zip/jar archive."
                      (setq-local buffer-read-only t)
                      (set-buffer-modified-p nil)
                      (set-auto-mode)
-                     (current-buffer))))))))
+                     (current-buffer))))))
+        (t (-if-let (path (cider--file-path url))
+               (find-file-noselect path)
+             (unless (file-name-absolute-p url)
+               (cl-loop for bf in (cider-util--clojure-buffers)
+                        for path = (with-current-buffer bf
+                                     (expand-file-name url))
+                        if (and path (file-exists-p path))
+                        return (find-file-noselect path)))))))
 
 (defun cider-find-var-file (var)
   "Return the buffer visiting the file in which VAR is defined, or nil if
@@ -686,9 +703,10 @@ When called interactively, this operates on point."
   "Jump to location give by INFO.
 INFO object is returned by `cider-var-info' or `cider-member-info'.
 OTHER-BUFFER is passed to `cider-jamp-to'."
-  (-if-let* ((file (cadr (assoc "file" info)))
-             (line (cadr (assoc "line" info)))
-             (buffer (cider-find-file file)))
+  (-if-let* ((line (cadr (assoc "line" info)))
+             (file (cadr (assoc "file" info)))
+             (buffer (unless (cider--tooling-file-p file)
+                       (cider-find-file file))))
       (cider-jump-to buffer (cons line nil) other-buffer)
         ;; var was created interactively and has no file info
         (-if-let* ((ns (cadr (assoc "ns" info)))
@@ -1092,7 +1110,7 @@ until we find a delimiters that's not inside a string."
     (backward-char)))
 
 (defun cider--find-last-error-location (buffer message)
-  "Return the location (begin . end) in BUFFER from the clojure error MESSAGE.
+  "Return the location (begin . end) in BUFFER from the Clojure error MESSAGE.
 If location could not be found, return nil."
   (save-excursion
     (with-current-buffer buffer
