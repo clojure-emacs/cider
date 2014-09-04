@@ -1300,11 +1300,14 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 (defun cider--dummy-file-contents (form start-pos)
   (let ((current-ns (cider-current-ns))
-        (start-line (line-number-at-pos start-pos)))
+        (start-line (line-number-at-pos start-pos))
+        (start-column (save-excursion (goto-char start-pos) (current-column))))
     (with-temp-buffer
       (insert (format "(ns %s)" current-ns))
       (dotimes (_ (1- start-line))
         (insert "\n"))
+      (dotimes (_ start-column)
+        (insert " "))
       (insert form)
       (buffer-string))))
 
