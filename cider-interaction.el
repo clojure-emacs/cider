@@ -1302,14 +1302,11 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   (let ((current-ns (cider-current-ns))
         (start-line (line-number-at-pos start-pos))
         (start-column (save-excursion (goto-char start-pos) (current-column))))
-    (with-temp-buffer
-      (insert (format "(ns %s)" current-ns))
-      (dotimes (_ (1- start-line))
-        (insert "\n"))
-      (dotimes (_ start-column)
-        (insert " "))
-      (insert form)
-      (buffer-string))))
+    (concat
+     (format "(ns %s)" current-ns)
+     (make-string (1- start-line) ?\n)
+     (make-string start-column ? )
+     form)))
 
 (defun cider-interactive-eval (form &optional start-pos)
   "Evaluate the given FORM and print value in minibuffer."
