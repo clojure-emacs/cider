@@ -97,6 +97,13 @@ time. Never-the-less, installing from MELPA is the recommended way of
 obtaining CIDER, as the `master` branch is normally quite stable and
 "stable" (tagged) builds are released somewhat infrequently.
 
+With the most recent builds of Emacs, you can pin CIDER to always
+use MELPA Stable by adding this to your Emacs initialization:
+
+```el
+(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+```
+
 ### Via el-get
 
 [el-get](https://github.com/dimitri/el-get) is another popular package manager for Emacs.
