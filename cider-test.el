@@ -172,8 +172,11 @@
   "Display stacktrace for the erring NS VAR test with the assertion INDEX."
   (let (causes)
     (nrepl-send-request
-     (list "op" "test-stacktrace" "session" (nrepl-current-session)
-           "ns" ns "var" var "index" index)
+     (append
+      (list "op" "test-stacktrace" "session" (nrepl-current-session)
+            "ns" ns "var" var "index" index)
+      (when cider-stacktrace-print-level
+        (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)
        (nrepl-dbind-response response (class status)
          (cond (class  (setq causes (cons response causes)))

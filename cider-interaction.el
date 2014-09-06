@@ -1041,8 +1041,8 @@ They exist for compatibility with `next-error'."
     (nrepl-send-request
      (append
       (list "op" "stacktrace" "session" session)
-      (if cider-stacktrace-print-level
-          (list "print-level" cider-stacktrace-print-level)))
+      (when cider-stacktrace-print-level
+        (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)
        (nrepl-dbind-response response (class status)
          (cond (class  (setq causes (cons response causes)))
