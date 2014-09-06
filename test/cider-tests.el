@@ -184,9 +184,15 @@
     (let ((b1 (current-buffer)))
       (setq-local nrepl-endpoint '("localhost" 4005))
       (setq-local nrepl-project-dir "proj")
+      (let ((p (start-process "b1process" b1
+                              "/bin/bash" "-c" "sleep 10")))
+        (set-process-sentinel p 'nrepl-client-sentinel))
       (with-temp-buffer
         (let ((b2 (current-buffer)))
           (setq-local nrepl-endpoint '("123.123.123.123" 4006))
+          (let ((p (start-process "b2process" b2
+                                  "/bin/bash" "-c" "sleep 10")))
+            (set-process-sentinel p 'nrepl-client-sentinel))
           (let ((nrepl-connection-list
                  (list (buffer-name b1) (buffer-name b2))))
             (nrepl-connection-browser)

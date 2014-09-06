@@ -371,7 +371,8 @@ older requests with \"done\" status."
 Display MESSAGE and if the process is closed kill the
 process buffer and run the hook `nrepl-disconnected-hook'."
   (message "nREPL connection closed: %s" message)
-  (when (equal (process-status process) 'closed)
+  (when (or (equal (process-status process) 'closed)
+            (equal (process-status process) 'signal))
     (let ((buffer (process-buffer process)))
       (setq nrepl-connection-list
             (delq (buffer-name buffer) nrepl-connection-list))
