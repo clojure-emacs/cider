@@ -20,6 +20,11 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 
 ### Changes
 
+* bencode decoder was rewriten:
+  - nREPL dicts are now plists and accessor api is given by `nrepl-dict-p`,
+    `nrepl-dict-get` and `nrepl-dict-put`.
+  - nested stack is used for decoded messages to avoid re-parsing of incomplete messages
+  - queues are used for incoming strings from the server and for the decoded responses
 * REPL buffers are now connection buffers for REPL client connections.
 * Server and client cranking were isolated into `nrepl-start-server-process` and
   `nrepl-start-client-process`.

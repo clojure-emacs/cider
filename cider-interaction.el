@@ -176,24 +176,27 @@ Signal an error if it is not supported."
   "Retrieve the underlying connection's Java version."
   (with-current-buffer (nrepl-current-connection-buffer)
     (when nrepl-versions
-      (cdr (assoc "version-string" (assoc "java" nrepl-versions))))))
+      (-> nrepl-versions
+        (nrepl-dict-get "java")
+        (nrepl-dict-get "version-string")))))
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
   (with-current-buffer (nrepl-current-connection-buffer)
     (when nrepl-versions
-      (let* ((version-dict (assoc "clojure" nrepl-versions))
-             (major (cdr (assoc "major" version-dict)))
-             (minor (cdr (assoc "minor" version-dict)))
-             (incremental (cdr (assoc "incremental" version-dict))))
+      (let* ((version-dict (nrepl-dict-get nrepl-versions "clojure"))
+             (major (nrepl-dict-get version-dict "major"))
+             (minor (nrepl-dict-get version-dict "minor"))
+             (incremental (nrepl-dict-get version-dict "incremental")))
         (format "%s.%s.%s" major minor incremental)))))
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
   (with-current-buffer (nrepl-current-connection-buffer)
     (when nrepl-versions
-      (cdr (assoc "version-string" (assoc "nrepl" nrepl-versions))))))
-
+      (-> nrepl-versions
+        (nrepl-dict-get "nrepl")
+        (nrepl-dict-get "version-string")))))
 
 (defun cider--check-middleware-compatibility-callback (buffer)
   "A callback to check if the middleware used is compatible with CIDER."
@@ -670,7 +673,7 @@ existing file ending with URL has been found."
 not found."
   (cider-ensure-op-supported "info")
   (-when-let* ((info (cider-var-info var))
-               (file (cadr (assoc "file" info))))
+               (file (nrepl-dict-get info "file")))
     (cider-find-file file)))
 
 (defun cider-jump-to (buffer &optional pos other-buffer)
@@ -710,20 +713,20 @@ When called interactively, this operates on point."
   "Jump to location give by INFO.
 INFO object is returned by `cider-var-info' or `cider-member-info'.
 OTHER-BUFFER is passed to `cider-jamp-to'."
-  (-if-let* ((line (cadr (assoc "line" info)))
-             (file (cadr (assoc "file" info)))
+  (-if-let* ((line (nrepl-dict-get info "line"))
+             (file (nrepl-dict-get info "file"))
              (buffer (unless (cider--tooling-file-p file)
                        (cider-find-file file))))
       (cider-jump-to buffer (cons line nil) other-buffer)
         ;; var was created interactively and has no file info
-        (-if-let* ((ns (cadr (assoc "ns" info)))
-                   (name (cadr (assoc "name" info)))
-                   (buffer (cider-find-buffer ns))
-                   (pos (cider-locate-def name buffer line)))
-            (cider-jump-to buffer pos other-buffer)
-          (-if-let (name (cadr (assoc "name" info)))
-              (message "No location found for %s" name)
-            (message "No source info")))))
+    (-if-let* ((ns (nrepl-dict-get info "ns"))
+               (name (nrepl-dict-get info "name"))
+               (buffer (cider-find-buffer ns))
+               (pos (cider-locate-def name buffer line)))
+        (cider-jump-to buffer pos other-buffer)
+      (-if-let (name (nrepl-dict-get info "name"))
+          (message "No location found for %s" name)
+        (message "No source info")))))
 
 (defun cider-jump-to-var (&optional var line)
   "Jump to the definition of VAR, optionally at a specific LINE.
@@ -803,9 +806,9 @@ Currently we annotate macros, special-forms and functions,
 as it's not obvious from their names alone which is which."
   (if cider-annotate-completion-candidates
       (-when-let (info (cider-var-info symbol))
-        (let ((macro   (cadr (assoc "macro" info)))
-              (special (cadr (assoc "special-form" info)))
-              (args    (cadr (assoc "arglists-str" info))))
+        (let ((macro   (nrepl-dict-get info "macro"))
+              (special (nrepl-dict-get info "special-form"))
+              (args    (nrepl-dict-get info "arglists-str")))
           (cond
            (macro " <m>")
            (special " <s>")
@@ -830,8 +833,8 @@ as it's not obvious from their names alone which is which."
 Returns the cons of the buffer itself and the location of VAR's definition
 in the buffer."
   (-when-let* ((info (cider-var-info var))
-               (file (cadr (assoc "file" info)))
-               (line (cadr (assoc "line" info)))
+               (file (nrepl-dict-get info "file"))
+               (line (nrepl-dict-get info "line"))
                (buffer (cider-find-file file)))
     (with-current-buffer buffer
       (save-excursion
@@ -852,7 +855,7 @@ in the buffer."
   (when symbol-name
     (cider-ensure-op-supported "info")
     (let* ((info (cider-var-info symbol-name))
-           (url (cadr (assoc "javadoc" info))))
+           (url (nrepl-dict-get info "javadoc")))
       (if url
           (browse-url url)
         (error "No Javadoc available for %s" symbol-name)))))
@@ -1620,8 +1623,8 @@ under point, prompts for a var."
 (defun cider-grimoire-web-lookup (symbol)
   "Look up the grimoire documentation for SYMBOL."
   (-if-let (var-info (cider-var-info symbol))
-      (let ((name (cider-get-var-attr var-info "name"))
-            (ns (cider-get-var-attr var-info "ns")))
+      (let ((name (nrepl-dict-get var-info "name"))
+            (ns (nrepl-dict-get var-info "ns")))
         ;; TODO: add a whitelist of supported namespaces
         (browse-url (cider-grimoire-url name ns (cider--clojure-version))))
     (message "Symbol %s not resolved" symbol)))
@@ -1643,8 +1646,8 @@ under point, prompts for a var."
 (defun cider-grimoire-lookup (symbol)
   "Look up the grimoire documentation for SYMBOL."
   (-if-let (var-info (cider-var-info symbol))
-      (let ((name (cider-get-var-attr var-info "name"))
-            (ns (cider-get-var-attr var-info "ns"))
+      (let ((name (nrepl-dict-get var-info "name"))
+            (ns (nrepl-dict-get var-info "ns"))
             (url-request-method "GET")
             (url-request-extra-headers `(("Content-Type" . "text/plain"))))
         ;; TODO: add a whitelist of supported namespaces
