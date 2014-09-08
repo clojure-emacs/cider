@@ -224,6 +224,7 @@
                   (with-current-buffer "*nrepl-connections*"
                     (nrepl-connections-goto-connection)
                     (should (equal b3 (current-buffer))))))
+              (cider--close-buffer b1)
               (kill-buffer "*nrepl-connections*"))))))))
 
 (ert-deftest test-nrepl-format-buffer-name-template ()
