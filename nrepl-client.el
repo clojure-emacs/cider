@@ -371,8 +371,21 @@ older requests with \"done\" status."
 Display MESSAGE and if the process is closed kill the
 process buffer and run the hook `nrepl-disconnected-hook'."
   (message "nREPL connection closed: %s" message)
-  (if (equal (process-status process) 'closed)
-      (run-hooks 'nrepl-disconnected-hook)))
+  (when (or (equal (process-status process) 'closed)
+            (equal (process-status process) 'signal))
+    (let ((buffer (process-buffer process)))
+      (setq nrepl-connection-list
+            (delq (buffer-name buffer) nrepl-connection-list))
+      (when (buffer-live-p buffer)
+        (dolist (buf-name `(,(buffer-local-value 'nrepl-server-buffer buffer)
+                            ,(buffer-local-value 'nrepl-on-connection-buffer buffer)
+                            ,(buffer-local-value 'nrepl-decoder-buffer buffer)
+                            ,buffer))
+          (when buf-name
+            (cider--close-buffer buf-name)))))
+    (nrepl--connections-refresh)
+    (run-hooks 'nrepl-disconnected-hook)))
+
 
 
 ;;; Client: Initialization
@@ -898,9 +911,7 @@ If so ask the user for confirmation."
 (defun nrepl-close (connection-buffer)
   "Close the nrepl connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
-  (nrepl--close-connection-buffer connection-buffer)
-  (run-hooks 'nrepl-disconnected-hook)
-  (nrepl--connections-refresh))
+  (cider--close-buffer connection-buffer))
 
 
 
@@ -957,21 +968,6 @@ Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
               (cons buf-name (delq buf-name nrepl-connection-list)))
         (nrepl--connections-refresh))
     (message "Not in an nREPL REPL buffer.")))
-
-(defun nrepl--close-connection-buffer (connection-buffer)
-  "Closes CONNECTION-BUFFER, removing it from `nrepl-connection-list'.
-Also closes associated REPL and server buffers."
-  (let ((nrepl-connection-dispatch connection-buffer))
-    (let ((buffer (get-buffer connection-buffer)))
-      (setq nrepl-connection-list
-            (delq (buffer-name buffer) nrepl-connection-list))
-      (when (buffer-live-p buffer)
-        (dolist (buf-name `(,(buffer-local-value 'nrepl-server-buffer buffer)
-                            ,(buffer-local-value 'nrepl-on-connection-buffer buffer)
-                            ,(buffer-local-value 'nrepl-decoder-buffer buffer)
-                            ,buffer))
-          (when buf-name
-            (cider--close-buffer buf-name)))))))
 
 
 
