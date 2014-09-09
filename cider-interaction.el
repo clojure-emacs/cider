@@ -676,25 +676,18 @@ not found."
                (file (nrepl-dict-get info "file")))
     (cider-find-file file)))
 
-(defun cider-jump-to (buffer &optional pos other-buffer)
-  "Push current point onto marker ring, and jump to BUFFER to position POS.
-POS can be either a cons cell (LINE . COLUMN) or a number representing the
-character position in a buffer. If OTHER-BUFFER is non-nil use
-`pop-to-buffer' to jump to the location, otherwise `switch-to-buffer'."
+(defun cider-jump-to (buffer &optional line other-buffer)
+  "Push current point onto marker ring, and jump to BUFFER and LINE.
+If OTHER-BUFFER is non-nil use `pop-to-buffer' to jump to the location,
+otherwise `switch-to-buffer'."
   (ring-insert find-tag-marker-ring (point-marker))
   (if other-buffer
       (pop-to-buffer buffer)
     (switch-to-buffer buffer))
   (with-current-buffer buffer
     (widen)
-    ;; check if we have a (line . column) pair or just a buffer position
-    (if (not (consp pos))
-        (goto-char pos)
-      (goto-char (point-min))
-      (forward-line (1- (or (car pos) 1)))
-      (if (cdr pos)
-          (move-to-column (cdr pos))
-        (back-to-indentation)))
+    (forward-line (1- (or line 1)))
+    (back-to-indentation)
     (cider-mode +1)))
 
 (defun cider-jump-to-resource (path &optional line)
@@ -706,7 +699,7 @@ When called interactively, this operates on point."
                          (nrepl-send-sync-request)
                          (plist-get :value)))
              (buffer (cider-find-file resource)))
-      (cider-jump-to buffer (cons line nil))
+      (cider-jump-to buffer line)
     (message "Cannot find resource %s" path)))
 
 (defun cider--jump-to-loc-from-info (info &optional other-buffer)
@@ -717,7 +710,7 @@ OTHER-BUFFER is passed to `cider-jamp-to'."
          (file (nrepl-dict-get info "file"))
          (buffer (unless (cider--tooling-file-p file)
                    (cider-find-file file))))
-    (cider-jump-to buffer (cons line nil) other-buffer)))
+    (cider-jump-to buffer line other-buffer)))
 
 (defun cider-jump-to-var (&optional var line)
   "Jump to the definition of VAR, optionally at a specific LINE.
