@@ -662,7 +662,7 @@ server responses."
 (defun nrepl--make-default-handler ()
   "Default handler which is invoked when no handler is found.
 Handles only stdout and stderr responses."
-  (nrepl-make-response-handler (cider-current-repl-buffer)
+  (nrepl-make-response-handler (cider-get-repl-buffer)
                                ;; VALUE
                                '()
                                ;; STDOUT
