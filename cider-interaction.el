@@ -713,20 +713,11 @@ When called interactively, this operates on point."
   "Jump to location give by INFO.
 INFO object is returned by `cider-var-info' or `cider-member-info'.
 OTHER-BUFFER is passed to `cider-jamp-to'."
-  (-if-let* ((line (nrepl-dict-get info "line"))
-             (file (nrepl-dict-get info "file"))
-             (buffer (unless (cider--tooling-file-p file)
-                       (cider-find-file file))))
-      (cider-jump-to buffer (cons line nil) other-buffer)
-        ;; var was created interactively and has no file info
-    (-if-let* ((ns (nrepl-dict-get info "ns"))
-               (name (nrepl-dict-get info "name"))
-               (buffer (cider-find-buffer ns))
-               (pos (cider-locate-def name buffer line)))
-        (cider-jump-to buffer pos other-buffer)
-      (-if-let (name (nrepl-dict-get info "name"))
-          (message "No location found for %s" name)
-        (message "No source info")))))
+  (let* ((line (nrepl-dict-get info "line"))
+         (file (nrepl-dict-get info "file"))
+         (buffer (unless (cider--tooling-file-p file)
+                   (cider-find-file file))))
+    (cider-jump-to buffer (cons line nil) other-buffer)))
 
 (defun cider-jump-to-var (&optional var line)
   "Jump to the definition of VAR, optionally at a specific LINE.

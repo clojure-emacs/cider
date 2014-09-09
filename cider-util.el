@@ -146,28 +146,6 @@ Unless you specify a BUFFER it will default to the current one."
       (pkg-info-version-info 'cider)
     (error cider-version)))
 
-(defun cider-find-buffer (ns)
-  "Find an open buffer by NS."
-  (->> (cider-util--clojure-buffers)
-    (--filter (equal ns (with-current-buffer it (clojure-find-ns))))
-    (car)))
-
-(defun cider-locate-def (name buffer &optional offset-lines)
-  "Locate the definition of var NAME in BUFFER.
-When OFFSET-LINES is non-nil, adjust the returned position by this many
-lines. This is a regexp search and currently works only for top level
-clojure forms that start with '(def'."
-  (with-current-buffer buffer
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (re-search-forward (format "(def.* %s\\( \\|$\\)" name)
-                         nil 'no-error)
-      (goto-char (match-beginning 0))
-      (when offset-lines
-        (forward-line (1- offset-lines)))
-      (point))))
-
 ;;; Strings
 
 (defun cider-string-join (strings &optional separator)
