@@ -169,34 +169,17 @@ loaded."
     (buffer-local-value 'nrepl-repl-buffer
                         (get-buffer (nrepl-current-connection-buffer)))))
 
-(defun cider--dict-to-alist (val)
-  "Transforms a nREPL bdecoded dict VAL into an alist.
-Simply returns it if it's not a dict."
-  (if (and (listp val)
-           (eq (car val) 'dict))
-      (-map '-cons-to-list (cdr val))
-    val))
-
-(defun cider--dict-to-plist (val)
-  "Transforms a nREPL bdecoded dict VAL into a plist with symbol keys.
-Simply returns it if it's not a dict."
-  (if (and (listp val)
-           (eq (car val) 'dict))
-      (-interleave (-map 'intern (-map 'car (cdr val)))
-                   (-map 'cdr (cdr val)))
-    val))
-
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
 This is needed only when the symbol queried is an unqualified host platform
 method, and multiple classes have a so-named member.  If VAR-INFO does not
 contain a `candidates' key, it is returned as is."
-  (let ((candidates (cdadr (assoc "candidates" var-info))))
+  (let ((candidates (nrepl-dict-get var-info "candidates")))
     (if candidates
-        (let* ((classes (mapcar (lambda (x) (cdr (assoc "class" x))) candidates))
+        (let* ((classes (nrepl-dict-keys candidates))
                (choice (completing-read "Member in class: " classes nil t))
-               (info (cdr (assoc choice candidates))))
-          (cider--dict-to-alist info))
+               (info (nrepl-dict-get candidates choice)))
+          info)
       var-info)))
 
 (defun cider-var-info (var &optional all)
@@ -211,25 +194,17 @@ unless ALL is truthy."
                                  "ns" (cider-current-ns)
                                  "symbol" var))
                           :value)))
-      (if all
-          (cider--dict-to-alist val)
-        (cider--var-choice
-         (cider--dict-to-alist val))))))
+      (if all val (cider--var-choice val)))))
 
 (defun cider-member-info (class member)
   "Return the CLASS MEMBER's info as an alist with list cdrs."
   (when (and class member)
-    (let ((val (plist-get (nrepl-send-sync-request
-                           (list "op" "info"
-                                 "session" (nrepl-current-session)
-                                 "class" class
-                                 "member" member))
-                          :value)))
-      (cider--dict-to-alist val))))
-
-(defun cider-get-var-attr (var-info attr)
-  "Return VAR-INFO's ATTR."
-  (cadr (assoc attr var-info)))
+    (plist-get (nrepl-send-sync-request
+                (list "op" "info"
+                      "session" (nrepl-current-session)
+                      "class" class
+                      "member" member))
+               :value)))
 
 (provide 'cider-client)
 

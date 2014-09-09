@@ -33,7 +33,9 @@
 (require 'cider)
 (require 'noflet)
 
+
 ;;;; generic
+
 (ert-deftest test-cider-connection-buffer-name ()
   (setq-local nrepl-endpoint '("localhost" 1))
   (let ((nrepl-hide-special-buffers nil))
@@ -68,26 +70,26 @@
   (noflet ((nrepl-send-sync-request (list)
                                     `(:value
                                       (dict
-                                       ("arglists" . "([] [x] [x & ys])")
-                                       ("ns" . "clojure.core")
-                                       ("name" . "str")
-                                       ("column" . 1)
-                                       ("added" . "1.0")
-                                       ("static" . "true")
-                                       ("doc" . "stub")
-                                       ("line" . 504)
-                                       ("file" . "jar:file:/clojure-1.5.1.jar!/clojure/core.clj")
-                                       ("tag" . "class java.lang.String"))
+                                       "arglists" "([] [x] [x & ys])"
+                                       "ns" "clojure.core"
+                                       "name" "str"
+                                       "column" 1
+                                       "added" "1.0"
+                                       "static" "true"
+                                       "doc" "stub"
+                                       "line" 504
+                                       "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
+                                       "tag" "class java.lang.String")
                                       :done t))
            (nrepl-current-session () nil)
            (cider-current-ns () "user"))
-          (should (equal (cadr (assoc "doc" (cider-var-info "str"))) "stub" ))
+          (should (equal (nrepl-dict-get (cider-var-info "str") "doc") "stub" ))
           (should (not (cider-var-info "")))))
 
-(ert-deftest test-cider-get-var-attr ()
-  (let ((var-info '(("doc" "var doc") ("arglists" "var arglists"))))
-    (should (equal (cider-get-var-attr var-info "doc") "var doc"))
-    (should (equal (cider-get-var-attr var-info "arglists") "var arglists"))))
+(ert-deftest test-nrepl-dict-get ()
+  (let ((var-info '(dict "doc" "var doc" "arglists" "var arglists")))
+    (should (equal (nrepl-dict-get var-info "doc") "var doc"))
+    (should (equal (nrepl-dict-get var-info "arglists") "var arglists"))))
 
 (defmacro cider-test-with-buffers (buffer-names &rest body)
   (let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
@@ -177,6 +179,20 @@
                     (nrepl-connection-buffers)))
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
 
+
+;;; response handling
+(ert-deftest test-cider-dbind-response ()
+  (should (equal '("2" "39f630b9-9545-4ea0-860e-9846681d0741" ("done"))
+                 (nrepl-dbind-response
+                     '(dict
+                       "id" "2"
+                       "new-session" "531acc73-bce4-4e77-a82b-537beeb581e9"
+                       "session" "39f630b9-9545-4ea0-860e-9846681d0741"
+                       "status" ("done"))
+                     (id session status)
+                   (list id session status)))))
+
+
 ;;; connection browser
 
 (ert-deftest test-cider-connections-buffer ()
@@ -539,7 +555,9 @@
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
   (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))
 
+
 ;;; grimoire tests
+
 (ert-deftest cider-grimoire-replace-special ()
   (should (equal (cider-grimoire-replace-special "isa?") "isa_QMARK"))
   (should (equal (cider-grimoire-replace-special "really-isa?") "really-isa_QMARK"))

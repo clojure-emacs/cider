@@ -96,14 +96,14 @@ POS is the index of current argument."
   "Return the arglist for THING."
   (when (nrepl-op-supported-p "info")
     (let* ((var-info (cider-var-info thing t))
-           (candidates (cdadr (assoc "candidates" var-info))))
+           (candidates (cdr (nrepl-dict-get var-info "candidates"))))
       (if candidates
           (->> candidates
-            (-map (lambda (x) (cdr (assoc "arglists-str" x))))
+            (-map (lambda (x) (nrepl-dict-get "arglists-str" x)))
             (-map 'read)
             -flatten
             -distinct)
-        (let ((arglists (cider-get-var-attr var-info "arglists-str")))
+        (let ((arglists (nrepl-dict-get var-info "arglists-str")))
           (when arglists
             (read arglists)))))))
 
