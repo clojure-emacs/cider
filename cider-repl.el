@@ -656,7 +656,7 @@ text property `cider-old-input'."
 
 (defun cider--all-ns ()
   "Get a list of the available namespaces."
-  (cider-eval-and-get-value
+  (cider-sync-eval-and-parse
    "(clojure.core/map clojure.core/str (clojure.core/all-ns))"))
 
 (defun cider-repl-set-ns (ns)

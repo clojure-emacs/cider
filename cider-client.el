@@ -116,24 +116,17 @@ NS specifies the namespace in which to evaluate the request."
 NS & SESSION specify the evaluation context."
   (nrepl-sync-request:eval input ns session))
 
-(defun cider-eval-and-get-value (input &optional ns session)
+(defun cider-sync-eval-and-parse (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously and return the value.
-NS & SESSION specify the evaluation context."
-  (cider-get-value (cider-eval-sync input ns session)))
+NS & SESSION specify the evaluation context.  The output must be a readable
+Emacs list or a vector of other lists and vectors as `read' is used to
+convert the output into an Emacs object."
+  (read (plist-get (cider-eval-sync input ns session) :value)))
 
 (defun cider-tooling-eval-sync (input &optional ns)
   "Send the INPUT to the nREPL server using a tooling session synchronously.
 NS specifies the namespace in which to evaluate the request."
   (cider-eval-sync input ns (nrepl-current-tooling-session)))
-
-(defun cider-get-raw-value (eval-result)
-  "Get the raw value (as string) from EVAL-RESULT."
-  (plist-get eval-result :value))
-
-(defun cider-get-value (eval-result)
-  "Get the value from EVAL-RESULT."
-  (with-output-to-string
-    (message "%s" (cider-get-raw-value eval-result))))
 
 (defun cider-send-op (op attributes handler)
   "Send the specified OP with ATTRIBUTES and response HANDLER."

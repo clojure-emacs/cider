@@ -96,7 +96,7 @@
   (interactive (list (completing-read "Browse namespace: " (cider--all-ns))))
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
     (let* ((form "(sort (map name (keys (ns-publics (quote %s)))))")
-           (vars (cider-eval-and-get-value (format form namespace))))
+           (vars (cider-sync-eval-and-parse (format form namespace))))
       (cider-browse-ns-list (current-buffer)
                             namespace
                             (mapcar (lambda (var)
@@ -110,7 +110,7 @@
   "List all loaded namespaces in BUFFER."
   (interactive)
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
-    (let ((names (cider-eval-and-get-value
+    (let ((names (cider-sync-eval-and-parse
                   "(->> (all-ns)
                         (map ns-name)
                         (map name)
@@ -139,6 +139,8 @@
   (interactive "e")
   (cider-browse-ns-operate-on-point))
 
+
+(define-obsolete-variable-alias 'cider-eval-and-get-value 'cider-sync-eval-and-parse "0.8.0")
 
 (provide 'cider-browse-ns)
 

@@ -69,7 +69,7 @@ from the latter. Remaining content is compared for string equality."
 
 (defun cider-test-all-docs ()
   "Verify docs for all special forms and every public var in `clojure/core'."
-  (let ((syms (cider-eval-and-get-value
+  (let ((syms (cider-sync-eval-and-parse
                "(->> (merge @#'clojure.repl/special-doc-map
                      (->> (ns-map 'clojure.core)
                           (filter (every-pred
