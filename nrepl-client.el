@@ -535,6 +535,8 @@ within Emacs.  Return the newly created client connection process."
             nrepl-repl-buffer (when replp client-buf)
             nrepl-on-connection-buffer proc-buffer-name))
 
+    (nrepl-make-connection-default client-buf)
+    
     ;; Everything is set. We are ready to send requests.
     (nrepl-request:clone (nrepl--new-tooling-session-handler client-proc))
     (nrepl-request:clone (nrepl--new-session-handler client-proc))
@@ -553,7 +555,6 @@ If REPLP is non-nil, also initialize it as a REPL buffer."
         (setq nrepl-versions versions)))
     (when replp
       (cider-repl-init conn-buffer))
-    (nrepl-make-connection-default conn-buffer)
     (cider--check-required-nrepl-ops)
     (cider--check-middleware-compatibility)))
 
