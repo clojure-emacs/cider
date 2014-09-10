@@ -686,6 +686,7 @@ otherwise `switch-to-buffer'."
     (switch-to-buffer buffer))
   (with-current-buffer buffer
     (widen)
+    (goto-char (point-min))
     (forward-line (1- (or line 1)))
     (back-to-indentation)
     (cider-mode +1)))
