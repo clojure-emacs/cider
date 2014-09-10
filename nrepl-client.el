@@ -463,11 +463,10 @@ specification.  Everything else is encoded as string."
     ;; Start decoding only if the last letter is 'e'
     (when (eq ?e (aref string (1- (length string))))
       (let ((response-q (process-get proc :response-q)))
-        ;; (nrepl-log-message string-q)
-        ;; (nrepl-log-message response-q)
         (nrepl-bdecode string-q response-q)
-        (while (queue-head response-q)
-          (nrepl--dispatch-response (queue-dequeue response-q)))))))
+        (with-current-buffer (process-buffer proc)
+          (while (queue-head response-q)
+            (nrepl--dispatch-response (queue-dequeue response-q))))))))
 
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
