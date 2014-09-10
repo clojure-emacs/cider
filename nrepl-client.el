@@ -475,6 +475,7 @@ First we check the callbacks of pending requests.  If no callback was found,
 we check the completed requests, since responses could be received even for
 older requests with \"done\" status."
   (nrepl-dbind-response response (id)
+    (nrepl-log-message response)
     (let ((callback (or (gethash id nrepl-pending-requests)
                         (gethash id nrepl-completed-requests))))
       (if callback
