@@ -151,6 +151,7 @@ which will use the default REPL connection."
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
     "macroexpand" "macroexpand-1" "macroexpand-all"
+    "ns-list" "ns-vars"
     "resource" "stacktrace" "toggle-trace" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
@@ -1447,6 +1448,18 @@ See command `cider-mode'."
   "If not connected, disable `cider-mode' on existing Clojure buffers."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
+
+(defun cider--all-ns ()
+  "Get a list of the available namespaces."
+  (-> (list "op" "ns-list")
+    (nrepl-send-sync-request)
+    (plist-get :value)))
+
+(defun cider--ns-vars (ns)
+  "Get a list of the vars in NS."
+  (-> (list "op" "ns-vars" "ns" ns)
+    (nrepl-send-sync-request)
+    (plist-get :value)))
 
 (defun cider-fetch-vars-form (ns)
   "Construct a Clojure form to read vars inside for NS."

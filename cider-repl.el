@@ -654,11 +654,6 @@ text property `cider-old-input'."
           (insert
            (propertize ";;; output cleared" 'face 'font-lock-comment-face)))))))
 
-(defun cider--all-ns ()
-  "Get a list of the available namespaces."
-  (cider-sync-eval-and-parse
-   "(clojure.core/map clojure.core/str (clojure.core/all-ns))"))
-
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
 

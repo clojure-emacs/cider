@@ -95,8 +95,7 @@
   "List all NAMESPACE's vars in BUFFER."
   (interactive (list (completing-read "Browse namespace: " (cider--all-ns))))
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
-    (let* ((form "(sort (map name (keys (ns-publics (quote %s)))))")
-           (vars (cider-sync-eval-and-parse (format form namespace))))
+    (let ((vars (cider--ns-vars namespace)))
       (cider-browse-ns-list (current-buffer)
                             namespace
                             (mapcar (lambda (var)
@@ -110,11 +109,7 @@
   "List all loaded namespaces in BUFFER."
   (interactive)
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
-    (let ((names (cider-sync-eval-and-parse
-                  "(->> (all-ns)
-                        (map ns-name)
-                        (map name)
-                        (sort))")))
+    (let ((names (cider--all-ns)))
       (cider-browse-ns-list (current-buffer)
                             "All loaded namespaces"
                             (mapcar (lambda (name)
