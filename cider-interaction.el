@@ -856,9 +856,9 @@ in the buffer."
                                (lambda (buffer value)
                                  (cider-repl-emit-result buffer value t))
                                (lambda (buffer out)
-                                 (cider-repl-emit-output buffer out t))
+                                 (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
-                                 (cider-repl-emit-output buffer err t))
+                                 (cider-repl-emit-output buffer err))
                                nil))
 
 (defun cider-insert-eval-handler (buffer)
