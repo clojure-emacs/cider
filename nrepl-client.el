@@ -221,9 +221,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar-local nrepl-request-counter 0
   "Continuation serial number counter.")
 
-(defvar-local nrepl-pending-requests (make-hash-table :test 'equal))
+(defvar-local nrepl-pending-requests nil)
 
-(defvar-local nrepl-completed-requests (make-hash-table :test 'equal))
+(defvar-local nrepl-completed-requests nil)
 
 (defvar-local nrepl-buffer-ns "user"
   "Current Clojure namespace of this buffer.")
@@ -533,7 +533,9 @@ within Emacs.  Return the newly created client connection process."
             ;; fixme: repl and connection buffers are the same thing
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer (when replp client-buf)
-            nrepl-on-connection-buffer proc-buffer-name))
+            nrepl-on-connection-buffer proc-buffer-name
+            nrepl-pending-requests (make-hash-table :test 'equal)
+            nrepl-completed-requests (make-hash-table :test 'equal)))
 
     (nrepl-make-connection-default client-buf)
     
@@ -549,8 +551,9 @@ within Emacs.  Return the newly created client connection process."
   "Return a handler to setup CONN-BUFFER as a connection buffer.
 If REPLP is non-nil, also initialize it as a REPL buffer."
   (lambda (response)
-    (nrepl-dbind-response response (ops versions)
+    (nrepl-dbind-response response (id ops versions)
       (with-current-buffer conn-buffer
+        (remhash id nrepl-pending-requests)
         (setq nrepl-ops ops)
         (setq nrepl-versions versions)))
     (when replp
@@ -562,9 +565,9 @@ If REPLP is non-nil, also initialize it as a REPL buffer."
   "Create a new session handler for PROCESS."
   (lambda (response)
     (nrepl-dbind-response response (id new-session err)
-      (remhash id nrepl-pending-requests)
       (if new-session
           (with-current-buffer (process-buffer process)
+            (remhash id nrepl-pending-requests)
             (setq nrepl-session new-session))
         (error "Could not create new session (%s)" err))
       (run-hooks 'nrepl-connected-hook))))
@@ -696,9 +699,9 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
          (request (append (list 'dict "id" request-id) request))
          (message (nrepl-bencode request)))
     (nrepl-log-message request)
-    (puthash request-id callback nrepl-pending-requests)
-    (process-send-string (nrepl-current-connection-buffer)
-                         message)))
+    (with-current-buffer (nrepl-current-connection-buffer)
+      (puthash request-id callback nrepl-pending-requests)
+      (process-send-string nil message))))
 
 (defun nrepl-request:clone (callback)
   "Sent a :clone request to create a new client session.
