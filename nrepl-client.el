@@ -221,9 +221,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar-local nrepl-request-counter 0
   "Continuation serial number counter.")
 
-(defvar-local nrepl-pending-requests (make-hash-table :test 'equal))
+(defvar-local nrepl-pending-requests nil)
 
-(defvar-local nrepl-completed-requests (make-hash-table :test 'equal))
+(defvar-local nrepl-completed-requests nil)
 
 (defvar-local nrepl-buffer-ns "user"
   "Current Clojure namespace of this buffer.")
@@ -463,11 +463,10 @@ specification.  Everything else is encoded as string."
     ;; Start decoding only if the last letter is 'e'
     (when (eq ?e (aref string (1- (length string))))
       (let ((response-q (process-get proc :response-q)))
-        ;; (nrepl-log-message string-q)
-        ;; (nrepl-log-message response-q)
         (nrepl-bdecode string-q response-q)
-        (while (queue-head response-q)
-          (nrepl--dispatch-response (queue-dequeue response-q)))))))
+        (with-current-buffer (process-buffer proc)
+          (while (queue-head response-q)
+            (nrepl--dispatch-response (queue-dequeue response-q))))))))
 
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
@@ -480,7 +479,7 @@ older requests with \"done\" status."
                         (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
-        (funcall (nrepl--make-default-handler) response)))))
+        (error "No response handler with id %s found" id)))))
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
@@ -534,7 +533,9 @@ within Emacs.  Return the newly created client connection process."
             ;; fixme: repl and connection buffers are the same thing
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer (when replp client-buf)
-            nrepl-on-connection-buffer proc-buffer-name))
+            nrepl-on-connection-buffer proc-buffer-name
+            nrepl-pending-requests (make-hash-table :test 'equal)
+            nrepl-completed-requests (make-hash-table :test 'equal)))
 
     (nrepl-make-connection-default client-buf)
     
@@ -550,8 +551,9 @@ within Emacs.  Return the newly created client connection process."
   "Return a handler to setup CONN-BUFFER as a connection buffer.
 If REPLP is non-nil, also initialize it as a REPL buffer."
   (lambda (response)
-    (nrepl-dbind-response response (ops versions)
+    (nrepl-dbind-response response (id ops versions)
       (with-current-buffer conn-buffer
+        (remhash id nrepl-pending-requests)
         (setq nrepl-ops ops)
         (setq nrepl-versions versions)))
     (when replp
@@ -563,9 +565,9 @@ If REPLP is non-nil, also initialize it as a REPL buffer."
   "Create a new session handler for PROCESS."
   (lambda (response)
     (nrepl-dbind-response response (id new-session err)
-      (remhash id nrepl-pending-requests)
       (if new-session
           (with-current-buffer (process-buffer process)
+            (remhash id nrepl-pending-requests)
             (setq nrepl-session new-session))
         (error "Could not create new session (%s)" err))
       (run-hooks 'nrepl-connected-hook))))
@@ -661,22 +663,6 @@ server responses."
                (when done-handler
                  (funcall done-handler buffer))))))))
 
-(defun nrepl--make-default-handler ()
-  "Default handler which is invoked when no handler is found.
-Handles only stdout and stderr responses."
-  (nrepl-make-response-handler (cider-current-repl-buffer)
-                               ;; VALUE
-                               '()
-                               ;; STDOUT
-                               (lambda (buffer out)
-                                 ;; fixme: rename into emit-out-output
-                                 (cider-repl-emit-output buffer out))
-                               ;; STDERR
-                               (lambda (buffer err)
-                                 (cider-repl-emit-err-output buffer err))
-                               ;; DONE
-                               '()))
-
 
 ;;; Client: Request Handling
 
@@ -713,9 +699,9 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
          (request (append (list 'dict "id" request-id) request))
          (message (nrepl-bencode request)))
     (nrepl-log-message request)
-    (puthash request-id callback nrepl-pending-requests)
-    (process-send-string (nrepl-current-connection-buffer)
-                         message)))
+    (with-current-buffer (nrepl-current-connection-buffer)
+      (puthash request-id callback nrepl-pending-requests)
+      (process-send-string nil message))))
 
 (defun nrepl-request:clone (callback)
   "Sent a :clone request to create a new client session.
