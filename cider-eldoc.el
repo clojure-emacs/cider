@@ -98,8 +98,8 @@ POS is the index of current argument."
     (let* ((var-info (cider-var-info thing t))
            (candidates (cdr (nrepl-dict-get var-info "candidates"))))
       (if candidates
-          (->> candidates
-            (-map (lambda (x) (nrepl-dict-get "arglists-str" x)))
+          (->> (cl-loop for x on candidates by #'cddr
+                        collect (nrepl-dict-get (cadr x) "arglists-str"))
             (-map 'read)
             -flatten
             -distinct)
