@@ -235,6 +235,10 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
   (and (listp object)
        (eq (car object) 'dict)))
 
+(defun nrepl-dict-empty-p (dict)
+  "Return t if nREPL dict is empty."
+  (null (cdr dict)))
+
 (defun nrepl-dict-get (dict key)
   "Get from DICT value associated with KEY.
 If dict is nil, return nil."
@@ -254,10 +258,25 @@ Return new dict.  Dict is modified by side effects."
       dict)))
 
 (defun nrepl-dict-keys (dict)
-  "Return all the keys in the nREPL dict."
+  "Return all the keys in the nREPL DICT."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (car l))
+    (error "Not a nREPL dict.")))
+
+(defun nrepl-dict-vals (dict)
+  "Return all the values in the nREPL DICT."
+  (if (nrepl-dict-p dict)
+      (cl-loop for l on (cdr dict) by #'cddr
+               collect (cadr l))
+    (error "Not a nREPL dict.")))
+
+(defun nrepl-dict-map (fn dict)
+  "Map FN on nREPL DICT.
+FN must accept two arguments key and value."
+  (if (nrepl-dict-p dict)
+      (cl-loop for l on (cdr dict) by #'cddr
+               collect (funcall fn (car l) (cadr l)))
     (error "Not a nREPL dict.")))
 
 (defun nrepl--cons (car list-or-dict)
@@ -591,7 +610,7 @@ Falls back to `nrepl-port' if not found."
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."
   `(let ,(cl-loop for key in keys
-                  collect `(,key (lax-plist-get (cdr ,response) ,(format "%s" key))))
+                  collect `(,key (nrepl-dict-get ,response ,(format "%s" key))))
      ,@body))
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
 
