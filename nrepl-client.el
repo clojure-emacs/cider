@@ -273,7 +273,6 @@ Return new dict.  Dict is modified by side effects."
                collect (car l))
     (error "Not a nREPL dict.")))
 
-
 (defun nrepl--cons (car list-or-dict)
   "Generic cons of CAR to LIST-OR-DICT."
   (if (eq (car list-or-dict) 'dict)
@@ -474,7 +473,7 @@ First we check the callbacks of pending requests.  If no callback was found,
 we check the completed requests, since responses could be received even for
 older requests with \"done\" status."
   (nrepl-dbind-response response (id)
-    (nrepl-log-message response)
+    (nrepl-log-message (cons '<- (cdr response)))
     (let ((callback (or (gethash id nrepl-pending-requests)
                         (gethash id nrepl-completed-requests))))
       (if callback
@@ -698,7 +697,7 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
   (let* ((request-id (nrepl-next-request-id))
          (request (append (list 'dict "id" request-id) request))
          (message (nrepl-bencode request)))
-    (nrepl-log-message request)
+    (nrepl-log-message (cons '---> (cdr request)))
     (with-current-buffer (nrepl-current-connection-buffer)
       (puthash request-id callback nrepl-pending-requests)
       (process-send-string nil message))))
@@ -948,21 +947,37 @@ number of buffer shrinking operations.")
         (re-search-forward "^(" nil t)
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
-      (nrepl--pp msg (current-buffer)))))
+      (nrepl--pp msg)
+      (-when-let (win (get-buffer-window))
+       (set-window-point win (point-max))))))
 
-(defun nrepl--pp (object &optional stream)
-  "Pretty print nREPL objects."
-  (let ((stream (or stream standard-output)))
-    (if (not (nrepl-dict-p object))
-        (pp object stream)
-      (princ "(dict\n" stream)
-      (cl-loop for l on (cdr object) by #'cddr
-               do (princ (format "  %s\t%s%s"
-                                 (car l) (pp-to-string (cadr l))
-                                 (if (cddr l) "\n" ""))
-                         stream))
-      (princ ")\n" stream))
-    (if (stringp object) (princ "\n" stream))))
+(defvar nrepl--message-colors
+  '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
+  "Colors used in `nrepl-messages-buffer'.")
+
+(defun nrepl--pp (object)
+  "Pretty print nREPL OBJECT."
+  (if (not (and (listp object)
+                (memq (car object) '(<- ---> dict))))
+      (progn (pp object (current-buffer))
+             (unless (listp object) (insert "\n")))
+    (let* ((id (lax-plist-get (cdr object) "id"))
+           (id (and id (mod (string-to-number id)
+                            (length nrepl--message-colors))))
+           (head (format "(%s" (car object)))
+           (foreground (and id (nth id nrepl--message-colors))))
+      (cl-flet ((color (str)
+                       (propertize str 'face `(:weight ultra-bold :foreground ,foreground))))
+        (insert (color head))
+        (let ((indent (+ 2 (- (current-column) (length head)))))
+          (if (null (cdr object))
+              (insert ")\n")
+            (insert "\n")
+            (cl-loop for l on (cdr object) by #'cddr
+                     do (let ((str (format "%s%s  " (make-string indent ? ) (car l))))
+                          (insert str)
+                          (nrepl--pp (cadr l))))
+           (insert (color (format "%s)\n" (make-string (- indent 2) ? ))))))))))
 
 (defun nrepl-messages-buffer ()
   "Return or create the buffer given by `nrepl-message-buffer-name'.
