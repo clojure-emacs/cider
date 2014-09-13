@@ -132,7 +132,7 @@ buffer will be hidden."
 
 ;;; nREPL Buffer Names
 
-(defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
+(defconst nrepl-repl-buffer-name-template "*clojure%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
 (defconst nrepl-tunnel-buffer-name-template "*nrepl-tunnel%s*")
