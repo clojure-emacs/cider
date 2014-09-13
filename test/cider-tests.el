@@ -333,7 +333,7 @@
     (let ((b1 (current-buffer)))
       (let ((nrepl-connection-list (list (buffer-name b1))))
         (should
-         (equal (cider-repl-buffer-name) "*cider-repl localhost*"))))))
+         (equal (cider-repl-buffer-name) "*clojure localhost*"))))))
 
 (ert-deftest test-cider-clojure-buffer-name-w/project ()
   (with-temp-buffer
@@ -341,7 +341,7 @@
       (let ((nrepl-connection-list (list (buffer-name b1)))
             (nrepl-project-dir "/a/test/directory/project"))
         (should
-         (equal (cider-repl-buffer-name) "*cider-repl project*"))))))
+         (equal (cider-repl-buffer-name) "*clojure project*"))))))
 
 (ert-deftest test-cider--find-rest-args-position ()
   (should (= (cider--find-rest-args-position [fmt & arg]) 1))
@@ -486,7 +486,7 @@
                 (setq-local nrepl-server-buffer (buffer-name server-buffer)))
               (noflet ((read-string (dontcare) "bob"))
                 (cider-change-buffers-designation)
-                (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
+                (should (equal "*clojure bob*" (buffer-name repl-buffer)))
                 (should (equal "*nrepl-connection bob*" (buffer-name connection-buffer)))
                 (should (equal "*nrepl-server bob*" (buffer-name server-buffer))))
               (with-current-buffer repl-buffer
@@ -499,7 +499,7 @@
         (let* ((connection-buffer (current-buffer))
                (nrepl-connection-list (list (buffer-name connection-buffer))))
           (with-temp-buffer
-            (rename-buffer "*cider-repl bob*") ;; Make a buffer that already has the designation
+            (rename-buffer "*clojure bob*") ;; Make a buffer that already has the designation
             (with-temp-buffer
               (let* ((repl-buffer (current-buffer))
                      (before-repl-buffer-name (buffer-name repl-buffer))
@@ -523,7 +523,7 @@
            (nrepl-connection-list (list (buffer-name connection-buffer))))
       (with-temp-buffer
         (let ((repl-buffer (current-buffer)))
-          (rename-buffer "*cider-repl bob*")
+          (rename-buffer "*clojure bob*")
           (with-temp-buffer
             (with-current-buffer connection-buffer
               (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))
@@ -535,7 +535,7 @@
            (nrepl-connection-list (list (buffer-name connection-buffer))))
       (with-temp-buffer
         (let ((repl-buffer (current-buffer)))
-          (rename-buffer "*cider-repl*")
+          (rename-buffer "*clojure*")
           (with-temp-buffer
             (with-current-buffer connection-buffer
               (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))

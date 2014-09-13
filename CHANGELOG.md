@@ -20,6 +20,7 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 
 ### Changes
 
+* Cider REPL buffers are now named with `clojure` prefix. 
 * bencode decoder was rewriten:
   - nREPL dicts are now plists and accessor api is given by `nrepl-dict-p`,
     `nrepl-dict-get` and `nrepl-dict-put`.
