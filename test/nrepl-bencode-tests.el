@@ -288,7 +288,7 @@ If object is incomplete, return a decoded path."
 
 (ert-deftest test-nrepl-dict ()
   (should (equal '(dict (23 . 44) (2 . 3) (3 . 4) (4 . 5))
-                 (nrepl--cons '(23 . 44) '(dict (2 . 3) (3 . 4) (4 . 5 )))))
+                 (nrepl--cons '(23 . 44) '(dict (2 . 3) (3 . 4) (4 . 5)))))
   (should (equal '((34))
                  (nrepl--push 34 '(()))))
   (should (equal '(((34)) (1 2 3))
@@ -300,7 +300,14 @@ If object is incomplete, return a decoded path."
   (should (equal '(((34) 1) (2))
                  (nrepl--push '(34) '((1) (2)))))
   (should (equal '((dict 34 a b) (2))
-                 (nrepl--push 34 '((dict a b) (2))))))
+                 (nrepl--push 34 '((dict a b) (2)))))
+  (should (equal '((3 . 4) nil)
+                 (nrepl-dict-vals '(dict (2 . 3) (3 . 4) (4 . 5)))))
+  (should (equal '((2 . 3) (4 . 5))
+                 (nrepl-dict-keys '(dict (2 . 3) (3 . 4) (4 . 5)))))
+  (should (equal '(1 5 9)
+                 (nrepl-dict-map (lambda (k v) (+ k v))
+                                 '(dict 0 1 2 3 4 5)))))
 
 
 ;; benchmarks

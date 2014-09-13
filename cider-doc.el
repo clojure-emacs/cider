@@ -351,8 +351,9 @@ Tables are marked to be ignored by line wrap."
           (newline))
         (let ((beg (point-min))
               (end (point-max)))
-          (cl-loop for x on info by #'cddr 
-                   do (put-text-property beg end (car x) (cadr x)))))
+          (nrepl-dict-map (lambda (k v)
+                            (put-text-property beg end k v))
+                          info)))
       (current-buffer))))
 
 (defun cider-docview-render (buffer symbol info)

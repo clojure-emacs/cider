@@ -96,16 +96,16 @@ POS is the index of current argument."
   "Return the arglist for THING."
   (when (nrepl-op-supported-p "info")
     (let* ((var-info (cider-var-info thing t))
-           (candidates (cdr (nrepl-dict-get var-info "candidates"))))
-      (if candidates
-          (->> (cl-loop for x on candidates by #'cddr
-                        collect (nrepl-dict-get (cadr x) "arglists-str"))
-            (-map 'read)
-            -flatten
-            -distinct)
-        (let ((arglists (nrepl-dict-get var-info "arglists-str")))
-          (when arglists
-            (read arglists)))))))
+           (candidates (nrepl-dict-get var-info "candidates")))
+      (if (nrepl-dict-empty-p candidates)
+          (let ((arglists (nrepl-dict-get var-info "arglists-str")))
+            (when arglists
+              (read arglists)))
+        (->> candidates
+          (nrepl-dict-map (lambda (_ v) (nrepl-dict-get v "arglists-str") ))
+          (-map 'read)
+          -flatten
+          -distinct)))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
