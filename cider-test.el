@@ -346,7 +346,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (let ((beg (point)))
           (forward-sexp)
           (let ((overlay (make-overlay beg (point))))
-            (overlay-put overlay 'face (cider-test-type-face type))
+            (overlay-put overlay 'font-lock-face (cider-test-type-face type))
             (overlay-put overlay 'type type)
             (overlay-put overlay 'help-echo message)
             (overlay-put overlay 'message message)

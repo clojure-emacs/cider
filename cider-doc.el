@@ -206,7 +206,7 @@ and line wrap."
           (when (search-forward-regexp "```\n" nil t)
             (replace-match "")
             (cider-font-lock-region-as mode beg (point))
-            (overlay-put (make-overlay beg (point)) 'face bg)
+            (overlay-put (make-overlay beg (point)) 'font-lock-face bg)
             (put-text-property beg (point) 'block 'code)))))))
 
 (defun cider-docview-fontify-literals (buffer)
@@ -222,7 +222,7 @@ Preformatted code text blocks are ignored."
             (let ((beg (point)))
               (when (search-forward "`" (line-end-position) t)
                 (replace-match "")
-                (put-text-property beg (point) 'face 'cider-docview-literal-face)))))))))
+                (put-text-property beg (point) 'font-lock-face 'cider-docview-literal-face)))))))))
 
 (defun cider-docview-fontify-emphasis (buffer)
   "Font lock BUFFER emphasized text and remove markdown characters.
@@ -241,7 +241,7 @@ Preformatted code text blocks are ignored."
                           'cider-docview-emphasis-face)))
               (when (search-forward-regexp "\\(\\w\\)\\*+" (line-end-position) t)
                 (replace-match "\\1")
-                (put-text-property beg (point) 'face face)))))))))
+                (put-text-property beg (point) 'font-lock-face face)))))))))
 
 (defun cider-docview-format-tables (buffer)
   "Align BUFFER tables and dim borders.
@@ -255,7 +255,7 @@ Tables are marked to be ignored by line wrap."
            (org-table-align)
            (goto-char (org-table-begin))
            (while (search-forward-regexp "[+|-]" (org-table-end) t)
-             (put-text-property (match-beginning 0) (match-end 0) 'face border))
+             (put-text-property (match-beginning 0) (match-end 0) 'font-lock-face border))
            (put-text-property (org-table-begin) (org-table-end) 'block 'table)))))))
 
 (defun cider-docview-wrap-text (buffer)

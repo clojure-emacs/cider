@@ -126,7 +126,7 @@
   (cider-propertize-region
       (list 'cider-value-idx idx
             'mouse-face 'highlight
-            'face 'font-lock-keyword-face)
+            'font-lock-face 'font-lock-keyword-face)
     (cider-irender-el* value)))
 
 

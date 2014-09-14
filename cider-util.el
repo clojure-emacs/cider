@@ -86,7 +86,7 @@ PROP is the name of a text property."
 
 (defun cider-insert (text &optional face break more-text)
   "Insert TEXT with FACE, optionally followed by a line BREAK and MORE-TEXT."
-  (insert (if face (propertize text 'face face) text))
+  (insert (if face (propertize text 'font-lock-face face) text))
   (when more-text (insert more-text))
   (when break (insert "\n")))
 

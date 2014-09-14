@@ -1135,7 +1135,7 @@ If location could not be found, return nil."
     (let ((face (nth 3 info))
           (note (nth 4 info)))
       (overlay-put overlay 'cider-note-p t)
-      (overlay-put overlay 'face face)
+      (overlay-put overlay 'font-lock-face face)
       (overlay-put overlay 'cider-note note)
       (overlay-put overlay 'help-echo note)
       (overlay-put overlay 'modification-hooks
@@ -1683,7 +1683,7 @@ under point, prompts for a var."
       (setq pos (match-end 0))
       (put-text-property (match-beginning 0)
                          (match-end 0)
-                         'face apropos-match-face doc)))
+                         'font-lock-face apropos-match-face doc)))
   doc)
 
 (defun cider-apropos-result (result query docs-p)

@@ -199,7 +199,7 @@ client process connection. Unless NO-BANNER is non-nil, insert a banner."
   "Insert REPL banner and REPL prompt in BUFFER."
   (with-current-buffer buffer
     (when (zerop (buffer-size))
-      (insert (propertize (cider-repl--banner) 'face 'font-lock-comment-face)))
+      (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face)))
     (goto-char (point-max))
     (cider-repl--mark-output-start)
     (cider-repl--mark-input-start)
@@ -447,7 +447,7 @@ If BOL is non-nil insert at the beginning of the line."
           (goto-char cider-repl-input-start-mark)
           (when (and bol (not (bolp)))
             (insert-before-markers "\n"))
-          (insert-before-markers (propertize cider-repl-result-prefix 'face 'font-lock-comment-face))
+          (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face))
           (if cider-repl-use-clojure-font-lock
               (insert-before-markers (cider-font-lock-as-clojure string))
             (cider-propertize-region
@@ -542,7 +542,7 @@ If NEWLINE is true then add a newline at the end of the input."
         ;; These properties are on an overlay so that they won't be taken
         ;; by kill/yank.
         (overlay-put overlay 'read-only t)
-        (overlay-put overlay 'face 'cider-repl-input-face))))
+        (overlay-put overlay 'font-lock-face 'cider-repl-input-face))))
   (let* ((input (cider-repl--current-input))
          (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
                         cider-repl-use-pretty-printing)
@@ -652,7 +652,7 @@ text property `cider-old-input'."
         (save-excursion
           (goto-char start)
           (insert
-           (propertize ";;; output cleared" 'face 'font-lock-comment-face)))))))
+           (propertize ";;; output cleared" 'font-lock-face 'font-lock-comment-face)))))))
 
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.

@@ -209,7 +209,7 @@ searching and update the hidden count text."
                      (face (funcall get-face (if filter
                                                  (member filter filters)
                                                filters))))
-                (button-put button 'face face)))
+                (button-put button 'font-lock-face face)))
             (goto-char (or (next-property-change (point))
                            (point-max)))))
         ;; Update hidden count
@@ -465,14 +465,14 @@ This associates text properties to enable filtering and source navigation."
                             'flags flags 'follow-link t
                             'action 'cider-stacktrace-navigate
                             'help-echo "View source at this location"
-                            'face 'cider-stacktrace-face)
+                            'font-lock-face 'cider-stacktrace-face)
         (save-excursion
           (let ((p4 (point))
                 (p1 (search-backward " "))
                 (p2 (search-forward "/"))
                 (p3 (search-forward-regexp "[^/$]+")))
-            (put-text-property p1 p4 'face 'cider-stacktrace-ns-face)
-            (put-text-property p2 p3 'face 'cider-stacktrace-fn-face)))
+            (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
+            (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)))
         (newline)))))
 
 (defun cider-stacktrace-render-cause (buffer cause num note)
@@ -486,13 +486,13 @@ This associates text properties to enable filtering and source navigation."
           ;; Detail level 0: exception class
           (cider-propertize-region '(detail 0)
             (insert (format "%d. " num)
-                    (propertize note 'face 'font-lock-comment-face) " "
-                    (propertize class 'face class-face))
+                    (propertize note 'font-lock-face 'font-lock-comment-face) " "
+                    (propertize class 'font-lock-face class-face))
             (newline))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
             (cider-stacktrace-emit-indented
-             (propertize (or message "(No message)") 'face message-face) indent t)
+             (propertize (or message "(No message)") 'font-lock-face message-face) indent t)
             (newline)
             (when data
               (cider-stacktrace-emit-indented
@@ -504,7 +504,7 @@ This associates text properties to enable filtering and source navigation."
                   (bg `(:background ,cider-stacktrace-frames-background-color)))
               (dolist (frame stacktrace)
                 (cider-stacktrace-render-frame buffer frame))
-              (overlay-put (make-overlay beg (point)) 'face bg)))
+              (overlay-put (make-overlay beg (point)) 'font-lock-face bg)))
           ;; Add line break between causes, even when collapsed.
           (cider-propertize-region '(detail 0)
             (newline)))))))
