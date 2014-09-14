@@ -1052,6 +1052,7 @@ ENDP) DELIM."
   ;; Notice the interplay with `cider-repl-beginning-of-defun'.
   (setq-local beginning-of-defun-function 'cider-repl-mode-beginning-of-defun)
   (setq-local end-of-defun-function 'cider-repl-mode-end-of-defun)
+  (setq-local prettify-symbols-alist clojure--prettify-symbols-alist)
   (if (fboundp 'hack-dir-local-variables-non-file-buffer)
       (hack-dir-local-variables-non-file-buffer))
   (when cider-repl-history-file
