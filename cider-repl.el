@@ -940,29 +940,6 @@ constructs."
 
 
 ;;;;; CIDER REPL mode
-
-;;; Prevent paredit from inserting some inappropriate spaces.
-;;; C.f. clojure-mode.el
-(defun cider-space-for-delimiter-p (endp delim)
-  "Hook for paredit's `paredit-space-for-delimiter-predicates'.
-
-Decides if paredit should insert a space after/before (if/unless
-ENDP) DELIM."
-  (if (derived-mode-p 'cider-repl-mode)
-      (save-excursion
-        (backward-char)
-        (if (and (or (char-equal delim ?\()
-                     (char-equal delim ?\")
-                     (char-equal delim ?{))
-                 (not endp))
-            (if (char-equal (char-after) ?#)
-                (and (not (bobp))
-                     (or (char-equal ?w (char-syntax (char-before)))
-                         (char-equal ?_ (char-syntax (char-before)))))
-              t)
-          t))
-    t))
-
 (defvar cider-repl-mode-hook nil
   "Hook executed when entering `cider-repl-mode'.")
 
@@ -1059,13 +1036,7 @@ ENDP) DELIM."
     (cider-repl-history-load cider-repl-history-file)
     (add-hook 'kill-buffer-hook 'cider-repl-history-just-save t t)
     (add-hook 'kill-emacs-hook 'cider-repl-history-just-save))
-  (add-hook 'paredit-mode-hook
-            (lambda ()
-              (when (>= paredit-version 21)
-                (define-key cider-repl-mode-map "{" 'paredit-open-curly)
-                (define-key cider-repl-mode-map "}" 'paredit-close-curly)
-                (add-to-list 'paredit-space-for-delimiter-predicates
-                             'cider-space-for-delimiter-p)))))
+  (add-hook 'paredit-mode-hook 'clojure-paredit-setup))
 
 
 (provide 'cider-repl)
