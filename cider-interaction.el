@@ -1451,13 +1451,16 @@ See command `cider-mode'."
 
 (defun cider--all-ns ()
   "Get a list of the available namespaces."
-  (-> (list "op" "ns-list")
+  (-> (list "op" "ns-list"
+            "session" (nrepl-current-session))
     (nrepl-send-sync-request)
     (plist-get :value)))
 
 (defun cider--ns-vars (ns)
   "Get a list of the vars in NS."
-  (-> (list "op" "ns-vars" "ns" ns)
+  (-> (list "op" "ns-vars"
+            "session" (nrepl-current-session)
+            "ns" ns)
     (nrepl-send-sync-request)
     (plist-get :value)))
 
