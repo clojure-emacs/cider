@@ -104,6 +104,10 @@ use MELPA Stable by adding this to your Emacs initialization:
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 ```
 
+**CIDER has deps (e.g. `queue`) that are only available in the
+  [GNU ELPA repository](https://elpa.gnu.org/). It's the only repository enabled
+  by default and you should not disable it!**
+
 ### Via el-get
 
 [el-get](https://github.com/dimitri/el-get) is another popular package manager for Emacs.
