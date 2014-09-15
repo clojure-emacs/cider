@@ -45,7 +45,8 @@ leading line of all dashes and trailing nil (when no doc is present) are removed
 from the latter. Remaining content is compared for string equality."
   (let ((repl-doc (with-temp-buffer
                     (let ((form (format "(clojure.repl/doc %s)" sym)))
-                      (insert (plist-get (nrepl-send-sync-request form) :stdout))
+                      (insert (nrepl-dict-get (nrepl-send-sync-request form)
+                                              "out"))
                       (goto-char (point-min))
                       (while (re-search-forward "^  nil\n" nil t)
                         (replace-match ""))
@@ -69,14 +70,16 @@ from the latter. Remaining content is compared for string equality."
 
 (defun cider-test-all-docs ()
   "Verify docs for all special forms and every public var in `clojure/core'."
-  (let ((syms (cider-sync-eval-and-parse
-               "(->> (merge @#'clojure.repl/special-doc-map
+  (let ((syms (read
+               (nrepl-sync-request:eval
+                "(->> (merge @#'clojure.repl/special-doc-map
                      (->> (ns-map 'clojure.core)
                           (filter (every-pred
                                   (comp var? val)
                                   (complement (comp :private meta val))))))
                      (keys)
-                     (remove '#{.}))"))) ; emacs lisp chokes on the dot symbol
+                     (remove '#{.}))" ; emacs lisp chokes on the dot symbol
+                nil nil t))))
     (let (untested diffs)
       (dolist (sym syms)
         (let ((name (cond ((symbolp sym) (symbol-name sym))

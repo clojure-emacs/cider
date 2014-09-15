@@ -150,8 +150,7 @@ which will use the default REPL connection."
   '("classpath" "complete" "info"
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
-    "macroexpand" "macroexpand-1" "macroexpand-all"
-    "ns-list" "ns-vars"
+    "macroexpand" "ns-list" "ns-vars"
     "resource" "stacktrace" "toggle-trace" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
@@ -697,9 +696,7 @@ otherwise `switch-to-buffer'."
 When called interactively, this operates on point."
   (interactive (list (thing-at-point 'filename)))
   (cider-ensure-op-supported "resource")
-  (-if-let* ((resource (-> (list "op" "resource" "name" path)
-                         (nrepl-send-sync-request)
-                         (plist-get :value)))
+  (-if-let* ((resource cider-sync-request:resource path)
              (buffer (cider-find-file resource)))
       (cider-jump-to buffer line)
     (message "Cannot find resource %s" path)))
@@ -774,16 +771,8 @@ form, with symbol at point replaced by __prefix__."
       context)))
 
 (defun cider-complete (str)
-  "Return a list of completions for STR using nREPL's \"complete\" op."
-  (cider-ensure-op-supported "complete")
-  (plist-get
-   (nrepl-send-sync-request
-    (list "op" "complete"
-          "session" (nrepl-current-session)
-          "ns" (cider-current-ns)
-          "symbol" str
-          "context" (cider-completion-get-context)))
-   :value))
+  "Complete STR with context at point."
+  (cider-sync-request:complete str (cider-completion-get-context)))
 
 (defun cider-annotate-symbol (symbol)
   "Append extra information to SYMBOL's name.
@@ -1330,7 +1319,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive)
   (let ((last-sexp (cider-last-sexp)))
     ;; we have to be sure the evaluation won't result in an error
-    (cider-eval-sync last-sexp)
+    (nrepl-sync-request:eval last-sexp)
     ;; seems like the sexp is valid, so we can safely kill it
     (backward-kill-sexp)
     (cider-interactive-eval-print last-sexp)))
@@ -1401,7 +1390,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (defun cider-ping ()
   "Check that communication with the server works."
   (interactive)
-  (message "%s" (cider-sync-eval-and-parse "\"PONG\"")))
+  (message (read (nrepl-sync-request:eval "\"PONG\"" nil nil t))))
 
 (defun clojure-enable-cider ()
   "Turn on CIDER mode (see command `cider-mode').
@@ -1448,21 +1437,6 @@ See command `cider-mode'."
   "If not connected, disable `cider-mode' on existing Clojure buffers."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
-
-(defun cider--all-ns ()
-  "Get a list of the available namespaces."
-  (-> (list "op" "ns-list"
-            "session" (nrepl-current-session))
-    (nrepl-send-sync-request)
-    (plist-get :value)))
-
-(defun cider--ns-vars (ns)
-  "Get a list of the vars in NS."
-  (-> (list "op" "ns-vars"
-            "session" (nrepl-current-session)
-            "ns" ns)
-    (nrepl-send-sync-request)
-    (plist-get :value)))
 
 (defun cider-fetch-vars-form (ns)
   "Construct a Clojure form to read vars inside for NS."
@@ -1736,15 +1710,7 @@ strings, include private vars, and be case sensitive."
   (cider-ensure-op-supported "apropos")
   (-if-let* ((summary (cider-apropos-summary
                        query ns docs-p privates-p case-sensitive-p))
-             (results (-> `("op" "apropos"
-                            "ns" ,(cider-current-ns)
-                            "query" ,query
-                            ,@(when ns `("search-ns" ,ns))
-                            ,@(when docs-p '("docs?" "t"))
-                            ,@(when privates-p '("privates?" "t"))
-                            ,@(when case-sensitive-p '("case-sensitive?" "t")))
-                        (nrepl-send-sync-request)
-                        (plist-get :value))))
+             (results (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p)))
       (cider-show-apropos summary results query docs-p)
     (message "No apropos matches for %S" query)))
 
@@ -1804,9 +1770,9 @@ strings, include private vars, and be case sensitive."
                                         (file-name-nondirectory
                                          (buffer-file-name))))))
   (cider--clear-compilation-highlights)
-  (cider-send-load-file (cider-file-string filename)
-                        (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
-                        (file-name-nondirectory filename))
+  (cider-request:load-file (cider-file-string filename)
+                           (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
+                           (file-name-nondirectory filename))
   (message "Loading %s..." filename))
 
 (defun cider-load-current-buffer ()

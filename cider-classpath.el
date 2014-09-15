@@ -79,13 +79,6 @@
   (interactive "e")
   (cider-classpath-operate-on-point))
 
-(defun cider--classpath-entries ()
-  "Return a list of classpath entries."
-  (plist-get
-   (nrepl-send-sync-request (list "op" "classpath"
-                                  "session" (nrepl-current-session)))
-   :value))
-
 ;;;###autoload
 (defun cider-classpath ()
   "List all classpath entries."
@@ -94,13 +87,13 @@
     (cider-classpath-list (current-buffer)
                           (mapcar (lambda (name)
                                     (cider-classpath-properties name))
-                                  (cider--classpath-entries)))))
+                                  (cider-sync-request:classpath)))))
 
 ;;;###autoload
 (defun cider-open-classpath-entry ()
   "Open a classpath entry."
   (interactive)
-  (-when-let (entry (completing-read "Classpath entries: " (cider--classpath-entries)))
+  (-when-let (entry (completing-read "Classpath entries: " (cider-sync-request:classpath)))
     (find-file-other-window entry)))
 
 (defvar cider-classpath-mouse-map (make-sparse-keymap))
