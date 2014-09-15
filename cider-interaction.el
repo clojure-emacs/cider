@@ -712,7 +712,9 @@ OTHER-BUFFER is passed to `cider-jamp-to'."
          (file (nrepl-dict-get info "file"))
          (buffer (unless (cider--tooling-file-p file)
                    (cider-find-file file))))
-    (cider-jump-to buffer line other-buffer)))
+    (if buffer
+        (cider-jump-to buffer line other-buffer)
+      (message "No source location"))))
 
 (defun cider-jump-to-var (&optional var line)
   "Jump to the definition of VAR, optionally at a specific LINE.
