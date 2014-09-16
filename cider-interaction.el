@@ -707,9 +707,10 @@ INFO object is returned by `cider-var-info' or `cider-member-info'.
 OTHER-BUFFER is passed to `cider-jamp-to'."
   (let* ((line (nrepl-dict-get info "line"))
          (file (nrepl-dict-get info "file"))
-         (buffer (unless (cider--tooling-file-p file)
-                   (cider-find-file file))))
-    (if buffer
+         (buffer (and file
+                      (not (cider--tooling-file-p file))
+                      (cider-find-file file))))
+    (if buffer 
         (cider-jump-to buffer line other-buffer)
       (message "No source location"))))
 
@@ -1276,12 +1277,15 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
                 (cider-current-ns))))
 
 (defun cider--dummy-file-contents (form start-pos)
-  (let ((current-ns (cider-current-ns))
-        (start-line (line-number-at-pos start-pos))
-        (start-column (save-excursion (goto-char start-pos) (current-column))))
+  (let* ((ns-form (if (cider-ns-form-p form)
+                      ""
+                    (cider-ns-form)))
+         (ns-form-lines (length (split-string ns-form "\n")))
+         (start-line (line-number-at-pos start-pos))
+         (start-column (save-excursion (goto-char start-pos) (current-column))))
     (concat
-     (format "(ns %s)" current-ns)
-     (make-string (1- start-line) ?\n)
+     ns-form
+     (make-string (- start-line ns-form-lines) ?\n)
      (make-string start-column ? )
      form)))
 
