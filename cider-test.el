@@ -299,13 +299,13 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
       (nrepl-dbind-response summary (fail error)
         (unless (zerop (+ fail error))
           (cider-insert "Results" 'bold t "\n")
-          (dolist (result (rest results))
-            (let ((var (first result))
-                  (tests (rest result)))
-              (dolist (test tests)
-                (nrepl-dbind-response test (type)
-                  (unless (equal "pass" type)
-                    (cider-test-render-assertion buffer test))))))))
+          (nrepl-dict-map
+           (lambda (var tests)
+             (dolist (test tests)
+               (nrepl-dbind-response test (type)
+                 (unless (equal "pass" type)
+                   (cider-test-render-assertion buffer test)))))
+           results)))
       (goto-char (point-min))
       (current-buffer))))
 
@@ -355,22 +355,21 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 
 (defun cider-test-highlight-problems (ns results)
   "Highlight all non-passing tests in the NS test RESULTS."
-  (dolist (result (rest results))
-    (-when-let* ((var (first result))
-                 (tests (rest result))
-                 (buffer (cider-find-var-file (concat ns "/" var))))
-      (dolist (test tests)
-        (nrepl-dbind-response test (type)
-          (unless (equal "pass" type)
-            (cider-test-highlight-problem buffer test)))))))
+  (nrepl-dict-map
+   (lambda (var tests)
+     (-when-let (buffer (cider-find-var-file (concat ns "/" var)))
+       (dolist (test tests)
+         (nrepl-dbind-response test (type)
+           (unless (equal "pass" type)
+             (cider-test-highlight-problem buffer test))))))
+   results))
 
 (defun cider-test-clear-highlights ()
   "Clear highlighting of non-passing tests from the last test run."
   (interactive)
   (-when-let (ns cider-test-last-test-ns)
-    (dolist (result (rest cider-test-last-results))
-      (-when-let* ((var (first result))
-                   (buffer (cider-find-var-file (concat ns "/" var))))
+    (dolist (var (nrepl-dict-keys cider-test-last-results))
+      (-when-let (buffer (cider-find-var-file (concat ns "/" var)))
         (with-current-buffer buffer
           (remove-overlays))))))
 
