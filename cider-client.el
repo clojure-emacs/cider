@@ -235,8 +235,10 @@ The default for DISPLAY-NAMESPACES is taken from
 
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
-  (cider--sync-request-value (list "op" "resource"
-                                   "name" name)))
+  (-> (list "op" "resource"
+            "name" name)
+    (nrepl-send-sync-request)
+    (nrepl-dict-get "resource-path")))
 
 (provide 'cider-client)
 
