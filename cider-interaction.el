@@ -691,14 +691,14 @@ otherwise `switch-to-buffer'."
     (back-to-indentation)
     (cider-mode +1)))
 
-(defun cider-jump-to-resource (path &optional line)
-  "Jump to the resource at the relative PATH, optionally at a specific LINE.
+(defun cider-jump-to-resource (path)
+  "Jump to the resource at the resource-relative PATH.
 When called interactively, this operates on point."
   (interactive (list (thing-at-point 'filename)))
   (cider-ensure-op-supported "resource")
   (-if-let* ((resource (cider-sync-request:resource path))
              (buffer (cider-find-file resource)))
-      (cider-jump-to buffer line)
+      (cider-jump-to buffer)
     (message "Cannot find resource %s" path)))
 
 (defun cider--jump-to-loc-from-info (info &optional other-buffer)
