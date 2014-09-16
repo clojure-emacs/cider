@@ -152,9 +152,10 @@ loaded."
 (defun cider-interrupt ()
   "Interrupt any pending evaluations."
   (interactive)
-  (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
-    (dolist (request-id pending-request-ids)
-      (nrepl-request:interrupt request-id (cider-interrupt-handler (current-buffer))))))
+  (with-current-buffer (nrepl-current-connection-buffer)
+    (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
+      (dolist (request-id pending-request-ids)
+        (nrepl-request:interrupt request-id (cider-interrupt-handler (current-buffer)))))))
 
 (defun cider-current-repl-buffer ()
   "The current REPL buffer."
