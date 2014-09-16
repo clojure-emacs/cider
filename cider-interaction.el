@@ -696,7 +696,7 @@ otherwise `switch-to-buffer'."
 When called interactively, this operates on point."
   (interactive (list (thing-at-point 'filename)))
   (cider-ensure-op-supported "resource")
-  (-if-let* ((resource cider-sync-request:resource path)
+  (-if-let* ((resource (cider-sync-request:resource path))
              (buffer (cider-find-file resource)))
       (cider-jump-to buffer line)
     (message "Cannot find resource %s" path)))
