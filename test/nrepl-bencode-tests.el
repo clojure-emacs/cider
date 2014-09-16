@@ -307,7 +307,30 @@ If object is incomplete, return a decoded path."
                  (nrepl-dict-keys '(dict (2 . 3) (3 . 4) (4 . 5)))))
   (should (equal '(1 5 9)
                  (nrepl-dict-map (lambda (k v) (+ k v))
-                                 '(dict 0 1 2 3 4 5)))))
+                                 '(dict 0 1 2 3 4 5))))
+  (should (equal '(dict "id" "1"
+                        "session" "blabla"
+                        "a" (1 11)
+                        "a2" (1 2 11)
+                        "b" (1 2 11 22)
+                        "c" "aaaaaAAAAA"
+                        "d" (dict "a" "aaaaaAAAAA"
+                                  "b" "BBBBB"))
+                 (nrepl--merge '(dict "id" "1"
+                                      "session" "blabla"
+                                      "a" 1
+                                      "a2" (1 2)
+                                      "b" (1 2)
+                                      "c" "aaaaa"
+                                      "d" (dict "a" "aaaaa"))
+                               '(dict "id" "2"
+                                      "session" "bombom"
+                                      "a" 11
+                                      "a2" 11
+                                      "b" (11 22)
+                                      "c" "AAAAA"
+                                      "d" (dict "a" "AAAAA"
+                                                "b" "BBBBB"))))))
 
 
 ;; benchmarks

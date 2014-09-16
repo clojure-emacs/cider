@@ -68,23 +68,24 @@
 
 (ert-deftest test-cider-var-info ()
   (noflet ((nrepl-send-sync-request (list)
-                                    `(:value
-                                      (dict
-                                       "arglists" "([] [x] [x & ys])"
-                                       "ns" "clojure.core"
-                                       "name" "str"
-                                       "column" 1
-                                       "added" "1.0"
-                                       "static" "true"
-                                       "doc" "stub"
-                                       "line" 504
-                                       "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
-                                       "tag" "class java.lang.String")
-                                      :done t))
+                                    '(dict
+                                      "value" (dict
+                                               "arglists" "([] [x] [x & ys])"
+                                               "ns" "clojure.core"
+                                               "name" "str"
+                                               "column" 1
+                                               "added" "1.0"
+                                               "static" "true"
+                                               "doc" "stub"
+                                               "line" 504
+                                               "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
+                                               "tag" "class java.lang.String")
+                                      "status" ("done")))
+           (cider-ensure-op-supported (op) t)
            (nrepl-current-session () nil)
            (cider-current-ns () "user"))
-          (should (equal (nrepl-dict-get (cider-var-info "str") "doc") "stub" ))
-          (should (not (cider-var-info "")))))
+    (should (equal "stub" (nrepl-dict-get (cider-var-info "str") "doc")))
+    (should (null (cider-var-info "")))))
 
 (ert-deftest test-nrepl-dict-get ()
   (let ((var-info '(dict "doc" "var doc" "arglists" "var arglists")))

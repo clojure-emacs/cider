@@ -661,7 +661,7 @@ If invoked in a REPL buffer the command will prompt you for the name of the
 namespace to switch to."
   (interactive (list (if (derived-mode-p 'cider-repl-mode)
                          (completing-read "Switch to namespace: "
-                                          (cider--all-ns))
+                                          (cider-sync-request:ns-list))
                        (cider-current-ns))))
   (if ns
       (with-current-buffer (cider-current-repl-buffer)

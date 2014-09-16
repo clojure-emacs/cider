@@ -302,6 +302,29 @@ FN must accept two arguments key and value."
             (cons obj (car stack)))
           (cdr stack))))
 
+(defun nrepl--merge (dict1 dict2 &optional no-join)
+  "Join nREPL dicts DICT1 and DICT2 in a meaningful way.
+String values for non \"id\" and \"session\" keys are concatenated. Lists
+are appended. nREPL dicts merged recursively. All other objects are
+accumulated accumulated into a list. DICT1 is modified destructively and
+then returned."
+  (if no-join
+      (or dict1 dict2)
+    (cond ((null dict1) dict2)
+          ((null dict2) dict1)
+          ((stringp dict1) (concat dict1 dict2))
+          ((nrepl-dict-p dict1)
+           (nrepl-dict-map
+            (lambda (k2 v2)
+              (nrepl-dict-put dict1 k2
+                              (nrepl--merge (nrepl-dict-get dict1 k2) v2
+                                           (member k2 '("id" "session")))))
+            dict2)
+           dict1)
+          ((and (listp dict2) (listp dict1)) (append dict1 dict2))
+          ((listp dict1) (append dict1 (list dict2)))
+          (t (list dict1 dict2)))))
+
 
 ;;; Bencode
 
@@ -668,7 +691,7 @@ server responses."
                  (funcall done-handler buffer))))))))
 
 
-;;; Client: Request Handling
+;;; Client: Request Core API
 
 ;; Requests are messages from an nREPL client (like CIDER) to an nREPL server.
 ;; Requests can be asynchronous (sent with `nrepl-send-request') or
@@ -693,19 +716,33 @@ server responses."
   (with-current-buffer (nrepl-current-connection-buffer)
     (number-to-string (cl-incf nrepl-request-counter))))
 
-;; asynchronous requests
 (defun nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
 `nrepl-request:stdin', etc."
-  (let* ((request-id (nrepl-next-request-id))
-         (request (append (list 'dict "id" request-id) request))
+  (let* ((id (nrepl-next-request-id))
+         (request (cons 'dict (lax-plist-put request "id" id)))
          (message (nrepl-bencode request)))
     (nrepl-log-message (cons '---> (cdr request)))
     (with-current-buffer (nrepl-current-connection-buffer)
-      (puthash request-id callback nrepl-pending-requests)
+      (puthash id callback nrepl-pending-requests)
       (process-send-string nil message))))
+
+(defun nrepl-send-sync-request (request)
+  "Send REQUEST to the nREPL server synchronously (discouraged).
+Hold till final \"done\" message has arrived and join all response messages
+of the same \"op\" that came along."
+  (let* ((time0 (current-time))
+         (response (cons 'dict nil)))
+    (nrepl-send-request request (lambda (resp) (nrepl--merge response resp)))
+    (while (not (member "done" (nrepl-dict-get response "status")))
+      (accept-process-output nil 0.01)
+      ;; break out in case we don't receive a response for a while
+      (when (> (cadr (time-subtract (current-time) time0))
+               nrepl-sync-request-timeout)
+        (error "Sync nREPL request timed out %s" request)))
+    response))
 
 (defun nrepl-request:clone (callback)
   "Sent a :clone request to create a new client session.
@@ -732,7 +769,7 @@ Register CALLBACK as the response handler."
                             "interrupt-id" pending-request-id)
                       callback))
 
-(defun nrepl--make-eval-request (input &optional ns session)
+(defun nrepl--eval-request (input &optional ns session)
   "Prepare :eval request message for INPUT in the context of NS ans SESSION."
   (append (and ns (list "ns" ns))
           (list "op" "eval"
@@ -742,50 +779,13 @@ Register CALLBACK as the response handler."
 (defun nrepl-request:eval (input callback &optional ns session)
   "Send the request INPUT and register the CALLBACK as the response handler.
 If NS is non-nil, include it in the request. SESSION defaults to current session."
-  (nrepl-send-request (nrepl--make-eval-request input ns session) callback))
-
-;; synchronous requests
-(defun nrepl-sync-request-handler (buffer)
-  "Make a synchronous request handler for BUFFER."
-  (nrepl-make-response-handler buffer
-                               (lambda (_buffer value)
-                                 (setq nrepl-last-sync-response
-                                       (plist-put nrepl-last-sync-response :value value)))
-                               (lambda (_buffer out)
-                                 (let ((so-far (plist-get nrepl-last-sync-response :stdout)))
-                                   (setq nrepl-last-sync-response
-                                         (plist-put nrepl-last-sync-response
-                                                    :stdout (concat so-far out)))))
-                               (lambda (_buffer err)
-                                 (let ((so-far (plist-get nrepl-last-sync-response :stderr)))
-                                   (setq nrepl-last-sync-response
-                                         (plist-put nrepl-last-sync-response
-                                                    :stderr (concat so-far err)))))
-                               (lambda (_buffer)
-                                 (setq nrepl-last-sync-response
-                                       (plist-put nrepl-last-sync-response :done t)))))
-
-(defun nrepl-send-sync-request (request)
-  "Send REQUEST to the nREPL server synchronously (discouraged).
-The result is a plist with keys :value, :stderr and :stdout."
-  (with-current-buffer (nrepl-current-connection-buffer)
-    (setq nrepl-last-sync-response nil)
-    (setq nrepl-last-sync-request-timestamp (current-time))
-    (nrepl-send-request request (nrepl-sync-request-handler (current-buffer)))
-    (while (or (null nrepl-last-sync-response)
-               (null (plist-get nrepl-last-sync-response :done)))
-      (accept-process-output nil 0.01)
-      ;; break out in case we don't receive a response for a while
-      (when nrepl-sync-request-timeout
-        (let ((seconds-ellapsed (cadr (time-subtract (current-time) nrepl-last-sync-request-timestamp))))
-          (when (> seconds-ellapsed nrepl-sync-request-timeout)
-            (error "nREPL sync request timed out %s" request)))))
-    nrepl-last-sync-response))
+  (nrepl-send-request (nrepl--eval-request input ns session) callback))
 
 (defun nrepl-sync-request:eval (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously.
-If NS is non-nil, include it in the request. SESSION defaults to current session."
-  (nrepl-send-sync-request (nrepl--make-eval-request input ns session)))
+If NS is non-nil, include it in the request. SESSION defaults to current
+session."
+  (nrepl-send-sync-request (nrepl--eval-request input ns session)))
 
 
 ;;; Server
