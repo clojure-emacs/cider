@@ -707,9 +707,10 @@ INFO object is returned by `cider-var-info' or `cider-member-info'.
 OTHER-BUFFER is passed to `cider-jamp-to'."
   (let* ((line (nrepl-dict-get info "line"))
          (file (nrepl-dict-get info "file"))
-         (buffer (unless (cider--tooling-file-p file)
-                   (cider-find-file file))))
-    (if buffer
+         (buffer (and file
+                      (not (cider--tooling-file-p file))
+                      (cider-find-file file))))
+    (if buffer 
         (cider-jump-to buffer line other-buffer)
       (message "No source location"))))
 
