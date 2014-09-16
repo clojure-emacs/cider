@@ -188,7 +188,7 @@ loaded."
   (-> (list "op" "classpath"
             "session" (nrepl-current-session))
     (nrepl-send-sync-request)
-    (nrepl-dic-get "classpath")))
+    (nrepl-dict-get "classpath")))
 
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op."
