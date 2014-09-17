@@ -65,6 +65,7 @@
 (require 'cider-repl)
 (require 'cider-mode)
 (require 'cider-util)
+(require 'tramp-sh)
 
 (defvar cider-version "0.8.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
@@ -91,14 +92,17 @@ This variable is used by `cider-connect'."
   :type 'list
   :group 'cider)
 
-;; TODO: Implement a check for `cider-lein-command' over tramp
-(defun cider--lein-present-p ()
-  "Check if `cider-lein-command' is on the `exec-path'.
+(defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
+  "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
-In case `default-directory' is non-local we assume the command is available."
-  (or (file-remote-p default-directory)
-      (executable-find cider-lein-command)
-      (executable-find (concat cider-lein-command ".bat"))))
+(defvar cider-ps-running-nrepl-path-regexp-list
+  '("\\(?:leiningen.original.pwd=\\)\\([^ ]+\\)"
+    "\\(?:-classpath +:?\\(.+\\)/self-installs\\)")
+  "Regexp list to extract project paths from output of `cider-ps-running-nrepls-command'.
+Sub-match 1 must be the project path.")
+
+(defvar cider-host-history nil
+  "Completion history for connection hosts.")
 
 ;;;###autoload
 (defun cider-version ()
@@ -129,49 +133,109 @@ start the server."
     (message "The %s executable (specified by `cider-lein-command') isn't on your exec-path"
              cider-lein-command)))
 
-(defun cider-known-endpoint-candidates ()
-  "Known endpoint candidates for establishing an nREPL connection.
-A default will be included consisting of `nrepl-default-host' and
-`nrepl-default-port'."
-  (-distinct
-   (mapcar (lambda (endpoint)
-             (cider-string-join endpoint " "))
-           (cons (list (nrepl-current-host) (nrepl-default-port))
-                 cider-known-endpoints))))
-
-(defun cider-select-known-endpoint ()
-  "Select an endpoint from known endpoints.
-The returned endpoint has the label removed."
-  (let ((selected-endpoint (split-string
-                            (completing-read
-                             "Host: " (cider-known-endpoint-candidates)))))
-    (if (= 3 (length selected-endpoint))
-        (cdr selected-endpoint)
-      selected-endpoint)))
-
 ;;;###autoload
 (defun cider-connect (host port)
   "Connect to an nREPL server identified by HOST and PORT.
 Create REPL buffer and start an nREPL client connection."
-  (interactive (let ((known-endpoint (when cider-known-endpoints
-                                       (cider-select-known-endpoint))))
-                 (list (or (car known-endpoint)
-                           (read-string "Host: " (nrepl-current-host) nil (nrepl-current-host)))
-                       (string-to-number (let ((port (or (cadr known-endpoint) (nrepl-default-port))))
-                                           (read-string "Port: " port nil port))))))
+  (interactive (cider-select-endpoint))
   (setq cider-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
-    (nrepl-start-client-process default-directory host port t)))
+    (nrepl-start-client-process host port t)))
 
-(define-obsolete-function-alias
-  'cider
-  'cider-connect)
+(defun cider-select-endpoint ()
+  "Interactively select the host and port to connect to."
+  (let* ((ssh-hosts (cider--ssh-hosts))
+         (hosts (-distinct (append (when cider-host-history 
+                                     (list (car cider-host-history )))
+                                   (list (list (nrepl-current-host)))
+                                   cider-known-endpoints
+                                   ssh-hosts
+                                   (when (file-remote-p default-directory)
+                                     ;; add localhost even in remote buffers
+                                     (list (list "localhost"))))))
+         (sel-host (cider--completing-read-host hosts))
+         (host (car sel-host))
+         (local-p (or  (nrepl-local-host-p host)
+                       (not (assoc-string host ssh-hosts))))
+         ;; Each lein-port is a list of the form (dir port)
+         (lein-ports (if local-p
+                         (let ((default-directory (if (file-remote-p default-directory)
+                                                      "~/"
+                                                    default-directory)))
+                           (cider-locate-running-nrepl-ports))
+                       (let ((vec (vector "ssh" nil host "" nil)))
+                         (tramp-maybe-open-connection vec)
+                         (with-current-buffer (tramp-get-connection-buffer vec)
+                           (cider-locate-running-nrepl-ports)))))
+         (ports (append (cdr sel-host) lein-ports))
+         (port (cider--completing-read-port host ports)))
+    (setq cider-host-history (cons sel-host (delete sel-host cider-host-history)))
+    (list host port)))
+
+(defun cider--ssh-hosts ()
+  "Retrieve all ssh host from local configuration files."
+  (-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
+        (let ((tramp-completion-mode t))
+          (tramp-completion-handle-file-name-all-completions "" "/ssh:"))))
+
+(defun cider--completing-read-host (hosts)
+  "Interactively select host from HOSTS.
+Each element in HOSTS is one of: (host), (host port) or (label host port).
+Return a list of the form (HOST PORT), where PORT can be nil."
+  (let* ((sel-host (completing-read "Host: " (cider-join-with-val-prop hosts)))
+         (host (or (get-text-property 1 :val sel-host) (list sel-host))))
+    ;; remove the label
+    (if (= 3 (length host)) (cdr host) host)))
+
+(defun cider--completing-read-port (host ports)
+  "Interactively select port for HOST from PORTS."
+  (let* ((sel-port (completing-read (format "Port for %s: " host)
+                                    (cider-join-with-val-prop ports)))
+         (port (or (get-text-property 1 :val sel-port) sel-port)))
+    (if (listp port) (second port) port)))
+
+(defun cider-locate-running-nrepl-ports ()
+  "Locate ports of running nREPL servers.
+Return a list of list of the form (project-dir port)."
+  (let ((paths (cider--get-running-nrepl-paths)))
+    (delq nil
+          (mapcar (lambda (f)
+                    (-when-let (port-file (or (cider--file-path (concat f "/.nrepl-port"))
+                                              (cider--file-path (concat f "/repl-port"))))
+                      (with-temp-buffer
+                        (insert-file-contents port-file)
+                        (list (file-name-nondirectory f) (buffer-string)))))
+                  paths))))
+
+(defun cider--get-running-nrepl-paths ()
+  "Retrieve project paths of running nREPL servers.
+use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-list'."
+  (let (paths)
+    (with-temp-buffer
+      (insert (shell-command-to-string cider-ps-running-nrepls-command))
+      (dolist (regexp cider-ps-running-nrepl-path-regexp-list)
+        (goto-char 1)
+        (while (re-search-forward regexp nil t)
+          (setq paths (cons (match-string 1) paths)))))
+    (-distinct paths)))
+
+;; TODO: Implement a check for `cider-lein-command' over tramp
+(defun cider--lein-present-p ()
+  "Check if `cider-lein-command' is on the `exec-path'.
+
+In case `default-directory' is non-local we assume the command is available."
+  (or (file-remote-p default-directory)
+      (executable-find cider-lein-command)
+      (executable-find (concat cider-lein-command ".bat"))))
 
 ;;;###autoload
 (eval-after-load 'clojure-mode
   '(progn
      (define-key clojure-mode-map (kbd "C-c M-j") 'cider-jack-in)
      (define-key clojure-mode-map (kbd "C-c M-c") 'cider-connect)))
+
+
+(define-obsolete-function-alias 'cider 'cider-connect)
 
 (provide 'cider)
 
