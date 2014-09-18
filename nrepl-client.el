@@ -599,8 +599,7 @@ within Emacs.  Return the newly created client connection process."
          (directory (or directory default-directory))
          (host (or host (plist-get endpoint :hostname)))
          (port (or port (plist-get endpoint :port)))
-         (server-buf (and server-proc
-                          (buffer-name (process-buffer server-proc))))
+         (server-buf (and server-proc (process-buffer server-proc)))
          (client-buf (if replp
                          (cider-repl-create directory host port)
                        (nrepl-create-connection-buffer directory host port)))
@@ -617,8 +616,7 @@ within Emacs.  Return the newly created client connection process."
     
     (with-current-buffer client-buf
       (when server-buf
-        (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir
-                                                    (get-buffer server-buf))
+        (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
             ;; fixme: repl and connection buffers are the same thing
@@ -629,49 +627,39 @@ within Emacs.  Return the newly created client connection process."
             nrepl-completed-requests (make-hash-table :test 'equal)))
     
     (nrepl-make-connection-default client-buf)
-    
-    ;; Everything is set. We are ready to send requests.
-    (nrepl-request:clone (nrepl--new-tooling-session-handler client-proc))
-    (nrepl-request:clone (nrepl--new-session-handler client-proc))
-    (when replp
-      (nrepl-request:describe
-       (nrepl--connection-buffer-init-handler client-buf t)))
+    (nrepl--init-client-sessions client-proc)
+    (nrepl--init-connection-buffer client-buf replp)
+    (cider--check-required-nrepl-ops)
+    (cider--check-middleware-compatibility)
+    (run-hooks 'nrepl-connected-hook)
+
     client-proc))
 
-(defun nrepl--connection-buffer-init-handler (conn-buffer replp)
-  "Return a handler to setup CONN-BUFFER as a connection buffer.
-If REPLP is non-nil, also initialize it as a REPL buffer."
-  (lambda (response)
-    (nrepl-dbind-response response (id ops versions)
+(defun nrepl--init-client-sessions (client)
+  "Initialize CLIENT sessions."
+  (let ((response-main (nrepl-sync-request:clone))
+        (response-tooling (nrepl-sync-request:clone)))
+    (nrepl-dbind-response response-main (new-session err)
+      (if new-session
+          (with-current-buffer (process-buffer client)
+            (setq nrepl-session new-session))
+        (error "Could not create new session (%s)" err)))
+    (nrepl-dbind-response response-tooling (new-session err)
+      (if new-session
+          (with-current-buffer (process-buffer client)
+            (setq nrepl-tooling-session new-session))
+        (error "Could not create new tooling session (%s)" err)))))
+
+(defun nrepl--init-connection-buffer (conn-buffer replp)
+  "Initialize CONN-BUFFER as a connection buffer.
+If REPLP is non-nil, initialize as a REPL buffer."
+  (let ((description (nrepl-sync-request:describe)))
+    (nrepl-dbind-response description (ops versions)
       (with-current-buffer conn-buffer
-        (remhash id nrepl-pending-requests)
         (setq nrepl-ops ops)
         (setq nrepl-versions versions)))
     (when replp
-      (cider-repl-init conn-buffer))
-    (cider--check-required-nrepl-ops)
-    (cider--check-middleware-compatibility)))
-
-(defun nrepl--new-session-handler (process)
-  "Create a new session handler for PROCESS."
-  (lambda (response)
-    (nrepl-dbind-response response (id new-session err)
-      (if new-session
-          (with-current-buffer (process-buffer process)
-            (remhash id nrepl-pending-requests)
-            (setq nrepl-session new-session))
-        (error "Could not create new session (%s)" err))
-      (run-hooks 'nrepl-connected-hook))))
-
-(defun nrepl--new-tooling-session-handler (process)
-  "Create a new tooling session handler for PROCESS."
-  (lambda (response)
-    (nrepl-dbind-response response (id new-session err)
-      (if new-session
-          (with-current-buffer (process-buffer process)
-            (remhash id nrepl-pending-requests)
-            (setq nrepl-tooling-session new-session))
-        (error "Could not create new tooling session (%s)" err)))))
+      (cider-repl-init conn-buffer))))
 
 (defun nrepl-close (connection-buffer)
   "Close the nrepl connection for CONNECTION-BUFFER."
@@ -790,16 +778,12 @@ of the same \"op\" that came along."
       (when (> (cadr (time-subtract (current-time) time0))
                nrepl-sync-request-timeout)
         (error "Sync nREPL request timed out %s" request)))
+    (-when-let (id (nrepl-dict-get response "id"))
+      ;; fixme: this should go away eventually when we get rid of
+      ;; pending-request hash table
+      (with-current-buffer (nrepl-current-connection-buffer)
+        (remhash id nrepl-pending-requests)))
     response))
-
-(defun nrepl-request:clone (callback)
-  "Sent a :clone request to create a new client session.
-Response will be handled by CALLBACK."
-  (nrepl-send-request '("op" "clone") callback))
-
-(defun nrepl-request:describe (callback)
-  "Peform describe for the given server PROCESS."
-  (nrepl-send-request (list "op" "describe") callback))
 
 (defun nrepl-request:stdin (input callback)
   "Send a :stdin request with INPUT.
@@ -828,6 +812,14 @@ Register CALLBACK as the response handler."
   "Send the request INPUT and register the CALLBACK as the response handler.
 If NS is non-nil, include it in the request. SESSION defaults to current session."
   (nrepl-send-request (nrepl--eval-request input ns session) callback))
+
+(defun nrepl-sync-request:clone ()
+  "Sent a :clone request to create a new client session."
+  (nrepl-send-sync-request '("op" "clone")))
+
+(defun nrepl-sync-request:describe ()
+  "Perform :describe request."
+  (nrepl-send-sync-request (list "op" "describe")))
 
 (defun nrepl-sync-request:eval (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously.
