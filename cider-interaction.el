@@ -1344,23 +1344,24 @@ Print its value into the current buffer."
   (interactive)
   (cider-interactive-eval-print (cider-last-sexp)))
 
+(defun cider--pprint-form (form)
+  "Pretty print FORM in popup buffer."
+  (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode))
+         (right-margin (max fill-column
+                            (1- (window-width (get-buffer-window result-buffer))))))
+    (cider-eval (cider-format-pprint-eval form right-margin)
+                (cider-popup-eval-out-handler result-buffer)
+                (cider-current-ns))))
+
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
   (interactive)
-  (let ((form (cider-last-sexp))
-        (result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode)))
-    (cider-eval (cider-format-pprint-eval form)
-                (cider-popup-eval-out-handler result-buffer)
-                (cider-current-ns))))
+  (cider--pprint-form (cider-last-sexp)))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the top-level form at point and pprint its value in a popup buffer."
   (interactive)
-  (let ((form (cider-defun-at-point))
-        (result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode)))
-    (cider-eval (cider-format-pprint-eval form)
-                (cider-popup-eval-out-handler result-buffer)
-                (cider-current-ns))))
+  (cider--pprint-form (cider-defun-at-point)))
 
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
