@@ -71,6 +71,7 @@
 (require 'cl-lib)
 (require 'cider-util)
 (require 'queue)
+(require 'tramp)
 
 
 ;;; Custom
@@ -132,6 +133,7 @@ buffer will be hidden."
 
 ;;; nREPL Buffer Names
 
+(defconst nrepl-message-buffer-name "*nrepl-messages*")
 (defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
@@ -226,6 +228,68 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 
 (defvar-local nrepl-versions nil
   "Version information received from the describe op.")
+
+
+;;; Utilities
+(defmacro nrepl-dbind-response (response keys &rest body)
+  "Destructure an nREPL RESPONSE dict.
+Bind the value of the provided KEYS and execute BODY."
+  `(let ,(cl-loop for key in keys
+                  collect `(,key (nrepl-dict-get ,response ,(format "%s" key))))
+     ,@body))
+(put 'nrepl-dbind-response 'lisp-indent-function 2)
+
+(defun nrepl-op-supported-p (op)
+  "Return t iff the given operation OP is supported by nREPL server."
+  (with-current-buffer (nrepl-current-connection-buffer)
+    (and nrepl-ops (nrepl-dict-get nrepl-ops op))))
+
+(defun nrepl-current-dir ()
+  "Return the directory of the current buffer."
+  (let ((file-name (buffer-file-name (current-buffer))))
+    (or (when file-name
+          (file-name-directory file-name))
+        list-buffers-directory)))
+
+(defun nrepl-project-directory-for (dir-name)
+  "Return the project directory for the specified DIR-NAME."
+  (when dir-name
+    (locate-dominating-file dir-name "project.clj")))
+
+(defun nrepl-check-for-repl-buffer (endpoint project-directory)
+  "Check whether a matching connection buffer already exists.
+Looks for buffers where `nrepl-endpoint' matches ENDPOINT,
+or `nrepl-project-dir' matches PROJECT-DIRECTORY.
+If so ask the user for confirmation."
+  (if (cl-find-if
+       (lambda (buffer)
+         (let ((buffer (get-buffer buffer)))
+           (or (and endpoint
+                    (equal endpoint
+                           (buffer-local-value 'nrepl-endpoint buffer)))
+               (and project-directory
+                    (equal project-directory
+                           (buffer-local-value 'nrepl-project-dir buffer))))))
+       (nrepl-connection-buffers))
+      (y-or-n-p
+       "An nREPL connection buffer already exists.  Do you really want to create a new one? ")
+    t))
+
+(defun nrepl-default-port ()
+  "Attempt to read port from .nrepl-port or target/repl-port.
+Falls back to `nrepl-port' if not found."
+  (or (nrepl--port-from-file ".nrepl-port")
+      (nrepl--port-from-file "target/repl-port")
+      nrepl-port))
+
+(defun nrepl--port-from-file (file)
+  "Attempts to read port from a file named by FILE."
+  (let* ((dir (nrepl-project-directory-for (nrepl-current-dir)))
+         (f (expand-file-name file dir)))
+    (when (file-exists-p f)
+      (with-temp-buffer
+        (insert-file-contents f)
+        (buffer-string)))))
 
 
 ;;; nREPL dict
@@ -518,7 +582,7 @@ process buffer and run the hook `nrepl-disconnected-hook'."
       (run-hooks 'nrepl-disconnected-hook)))
 
 
-;;; Client: Initialization
+;;; Client: Process Handling
 
 ;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
 ;; starts the client process described by `nrepl-client-filter' and
@@ -609,33 +673,17 @@ If REPLP is non-nil, also initialize it as a REPL buffer."
             (setq nrepl-tooling-session new-session))
         (error "Could not create new tooling session (%s)" err)))))
 
-(defun nrepl--port-from-file (file)
-  "Attempts to read port from a file named by FILE."
-  (let* ((dir (nrepl-project-directory-for (nrepl-current-dir)))
-         (f (expand-file-name file dir)))
-    (when (file-exists-p f)
-      (with-temp-buffer
-        (insert-file-contents f)
-        (buffer-string)))))
-
-(defun nrepl-default-port ()
-  "Attempt to read port from .nrepl-port or target/repl-port.
-Falls back to `nrepl-port' if not found."
-  (or (nrepl--port-from-file ".nrepl-port")
-      (nrepl--port-from-file "target/repl-port")
-      nrepl-port))
+(defun nrepl-close (connection-buffer)
+  "Close the nrepl connection for CONNECTION-BUFFER."
+  (interactive (list (nrepl-current-connection-buffer)))
+  (nrepl--close-connection-buffer connection-buffer)
+  (run-hooks 'nrepl-disconnected-hook)
+  (nrepl--connections-refresh))
 
 
 ;;; Client: Response Handling
 ;; After being decoded, responses (aka, messages from the server) are dispatched
 ;; to handlers. Handlers are constructed with `nrepl-make-response-handler'.
-(defmacro nrepl-dbind-response (response keys &rest body)
-  "Destructure an nREPL RESPONSE dict.
-Bind the value of the provided KEYS and execute BODY."
-  `(let ,(cl-loop for key in keys
-                  collect `(,key (nrepl-dict-get ,response ,(format "%s" key))))
-     ,@body))
-(put 'nrepl-dbind-response 'lisp-indent-function 2)
 
 (defvar nrepl-err-handler 'cider-default-err-handler
   "Evaluation error handler.")
@@ -909,11 +957,7 @@ fall back to specifying a direct connection to the remote host."
             (if moving (goto-char (process-mark proc)))))))))
 
 
-;;; Utilities
-
-;; message logging
-(defconst nrepl-message-buffer-name "*nrepl-messages*"
-  "Buffer for nREPL message logging.")
+;;; Messages
 
 (defcustom nrepl-log-messages nil
   "If non-nil, log protocol messages to the `nrepl-message-buffer-name' buffer."
@@ -944,7 +988,7 @@ number of buffer shrinking operations.")
       (goto-char (point-max))
       (nrepl--pp msg)
       (-when-let (win (get-buffer-window))
-       (set-window-point win (point-max))))))
+        (set-window-point win (point-max))))))
 
 (defvar nrepl--message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
@@ -972,7 +1016,7 @@ number of buffer shrinking operations.")
                      do (let ((str (format "%s%s  " (make-string indent ? ) (car l))))
                           (insert str)
                           (nrepl--pp (cadr l))))
-           (insert (color (format "%s)\n" (make-string (- indent 2) ? ))))))))))
+            (insert (color (format "%s)\n" (make-string (- indent 2) ? ))))))))))
 
 (defun nrepl-messages-buffer ()
   "Return or create the buffer given by `nrepl-message-buffer-name'.
@@ -984,52 +1028,6 @@ The default buffer name is *nrepl-messages*."
           (setq-local comment-start ";")
           (setq-local comment-end ""))
         buffer)))
-
-
-;; other utility functions
-(defun nrepl-op-supported-p (op)
-  "Return t iff the given operation OP is supported by nREPL server."
-  (with-current-buffer (nrepl-current-connection-buffer)
-    (and nrepl-ops (nrepl-dict-get nrepl-ops op))))
-
-(defun nrepl-current-dir ()
-  "Return the directory of the current buffer."
-  (let ((file-name (buffer-file-name (current-buffer))))
-    (or (when file-name
-          (file-name-directory file-name))
-        list-buffers-directory)))
-
-(defun nrepl-project-directory-for (dir-name)
-  "Return the project directory for the specified DIR-NAME."
-  (when dir-name
-    (locate-dominating-file dir-name "project.clj")))
-
-(defun nrepl-check-for-repl-buffer (endpoint project-directory)
-  "Check whether a matching connection buffer already exists.
-Looks for buffers where `nrepl-endpoint' matches ENDPOINT,
-or `nrepl-project-dir' matches PROJECT-DIRECTORY.
-If so ask the user for confirmation."
-  (if (cl-find-if
-       (lambda (buffer)
-         (let ((buffer (get-buffer buffer)))
-           (or (and endpoint
-                    (equal endpoint
-                           (buffer-local-value 'nrepl-endpoint buffer)))
-               (and project-directory
-                    (equal project-directory
-                           (buffer-local-value 'nrepl-project-dir buffer))))))
-       (nrepl-connection-buffers))
-      (y-or-n-p
-       "An nREPL connection buffer already exists.  Do you really want to create a new one? ")
-    t))
-
-(defun nrepl-close (connection-buffer)
-  "Close the nrepl connection for CONNECTION-BUFFER."
-  (interactive (list (nrepl-current-connection-buffer)))
-  (nrepl--close-connection-buffer connection-buffer)
-  (run-hooks 'nrepl-disconnected-hook)
-  (nrepl--connections-refresh))
-
 
 
 ;;; Connection Buffer Management
