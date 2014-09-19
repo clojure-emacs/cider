@@ -658,7 +658,10 @@ for functionality like pretty-printing won't clobber the values of *1, *2, etc."
 
 (defun nrepl--init-connection-buffer (conn-buffer replp)
   "Initialize CONN-BUFFER as a connection buffer.
-If REPLP is non-nil, initialize as a REPL buffer."
+If REPLP is non-nil, initialize as a REPL buffer.
+
+Here we determine the main session's capabilities using the \"describe\" op
+and store that information as buffer-local data in the connection buffer."
   (let ((description (nrepl-sync-request:describe)))
     (nrepl-dbind-response description (ops versions)
       (with-current-buffer conn-buffer
