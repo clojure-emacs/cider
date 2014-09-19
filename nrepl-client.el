@@ -619,7 +619,7 @@ within Emacs.  Return the newly created client connection process."
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
-            ;; fixme: repl and connection buffers are the same thing
+            ;; FIXME: REPL and connection buffers are the same thing
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer (when replp client-buf)
             nrepl-tunnel-buffer (and tunnel-proc (process-buffer tunnel-proc))
@@ -788,7 +788,7 @@ of the same \"op\" that came along."
                nrepl-sync-request-timeout)
         (error "Sync nREPL request timed out %s" request)))
     (-when-let (id (nrepl-dict-get response "id"))
-      ;; fixme: this should go away eventually when we get rid of
+      ;; FIXME: This should go away eventually when we get rid of
       ;; pending-request hash table
       (with-current-buffer (nrepl-current-connection-buffer)
         (remhash id nrepl-pending-requests)))
@@ -874,7 +874,7 @@ Return a newly created process."
       (with-current-buffer (process-buffer process)
         (let ((client-proc (nrepl-start-client-process
                             default-directory nil port t process)))
-          ;; fixme: Bad connection tracking system. There can be multiple client
+          ;; FIXME: Bad connection tracking system. There can be multiple client
           ;; connections per server
           (setq nrepl-connection-buffer (buffer-name (process-buffer client-proc))))))))
 
@@ -1071,7 +1071,7 @@ Purge the dead buffers from the `nrepl-connection-list' beforehand."
                    (not (buffer-live-p (get-buffer buffer))))
                  nrepl-connection-list)))
 
-;; VS[06-08-2014]: FIXME: Bad user api; don't burden users with management of
+;; FIXME: Bad user api; don't burden users with management of
 ;; the connection list, same holds for `cider-rotate-connection'.
 (defun nrepl-make-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
@@ -1102,7 +1102,7 @@ Also closes associated REPL and server buffers."
 
 ;;; Connection Browser
 
-;; VS[06-08-2014]: FIXME: Naming conventions are pretty messy here. Some
+;; FIXME: Naming conventions are pretty messy here. Some
 ;; interactive commands are named with "--". nrepl--project-name` is pretty
 ;; often used across cider, so it's not very internal.
 (defvar nrepl-connections-buffer-mode-map
