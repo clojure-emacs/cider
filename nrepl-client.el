@@ -636,7 +636,13 @@ within Emacs.  Return the newly created client connection process."
     client-proc))
 
 (defun nrepl--init-client-sessions (client)
-  "Initialize CLIENT sessions."
+  "Initialize CLIENT nREPL sessions.
+
+We create two client nREPL sessions per connection - a main session and a tooling
+session. The main session is general purpose and is used for pretty much
+every request that needs a session. The tooling session is used only for
+functionality that's implemented in terms of the \"eval\" op, so that eval requests
+for functionality like pretty-printing won't clobber the values of *1, *2, etc."
   (let ((response-main (nrepl-sync-request:clone))
         (response-tooling (nrepl-sync-request:clone)))
     (nrepl-dbind-response response-main (new-session err)
