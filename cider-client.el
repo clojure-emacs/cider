@@ -154,16 +154,17 @@ unless ALL is truthy."
 
 ;;; Requests
 
-(defun cider-request:load-file (file-contents file-path file-name)
+(defun cider-request:load-file (file-contents file-path file-name &optional callback)
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
-loaded."
+loaded. If CALLBACK is nil, use `cider-load-file-handler'."
   (nrepl-send-request (list "op" "load-file"
                             "session" (nrepl-current-session)
                             "file" file-contents
                             "file-path" file-path
                             "file-name" file-name)
-                      (cider-load-file-handler (current-buffer))))
+                      (or callback
+                          (cider-load-file-handler (current-buffer)))))
 
 
 ;;; Sync Requests
