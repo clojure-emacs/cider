@@ -649,11 +649,15 @@ existing file ending with URL has been found."
         (t (-if-let (path (cider--file-path url))
                (find-file-noselect path)
              (unless (file-name-absolute-p url)
-               (cl-loop for bf in (cider-util--clojure-buffers)
-                        for path = (with-current-buffer bf
-                                     (expand-file-name url))
-                        if (and path (file-exists-p path))
-                        return (find-file-noselect path)))))))
+               (let ((cider-buffers (cider-util--clojure-buffers)))
+                (or (cl-loop for bf in cider-buffers
+                             for path = (with-current-buffer bf
+                                          (expand-file-name url))
+                             if (and path (file-exists-p path))
+                             return (find-file-noselect path))
+                    (cl-loop for bf in cider-buffers
+                             if (string= (buffer-name bf) url)
+                             return bf))))))))
 
 (defun cider-find-var-file (var)
   "Return the buffer visiting the file in which VAR is defined, or nil if
@@ -1235,7 +1239,8 @@ function is the main entry point in CIDER's interactive evaluation API.  All
 other interactive eval functions should rely on this function.  If CALLBACK
 is nil use `cider-interactive-eval-handler'."
   (cider--clear-compilation-highlights)
-  (let ((filename (buffer-file-name)))
+  (let ((filename (or (buffer-file-name)
+                      (buffer-name))))
     (cider-request:load-file
      (cider--dummy-file-contents form start-pos)
      (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
@@ -1247,14 +1252,19 @@ is nil use `cider-interactive-eval-handler'."
 START-POS is a starting position of the form in the original context."
   (let* ((ns-form (if (cider-ns-form-p form)
                       ""
-                    (cider-ns-form)))
+                    (or (-when-let (form (cider-ns-form))
+                          (replace-regexp-in-string ":reload\\(-all\\)?\\>" "" form))
+                        (->> (get-buffer (cider-current-repl-buffer))
+                          (buffer-local-value 'nrepl-buffer-ns)
+                          (setq nrepl-buffer-ns)
+                          (format "(ns %s)")))))
          (ns-form-lines (length (split-string ns-form "\n")))
          (start-pos (or start-pos 1))
          (start-line (line-number-at-pos start-pos))
          (start-column (save-excursion (goto-char start-pos) (current-column))))
     (concat
      ns-form
-     (make-string (- start-line ns-form-lines) ?\n)
+     (make-string (max 0 (- start-line ns-form-lines)) ?\n)
      (make-string start-column ? )
      form)))
 
