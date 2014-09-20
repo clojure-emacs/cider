@@ -1252,7 +1252,8 @@ is nil use `cider-interactive-eval-handler'."
 START-POS is a starting position of the form in the original context."
   (let* ((ns-form (if (cider-ns-form-p form)
                       ""
-                    (or (cider-ns-form)
+                    (or (-when-let (form (cider-ns-form))
+                          (replace-regexp-in-string ":reload\\(-all\\)?\\>" "" form))
                         (->> (get-buffer (cider-current-repl-buffer))
                           (buffer-local-value 'nrepl-buffer-ns)
                           (setq nrepl-buffer-ns)
