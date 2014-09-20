@@ -193,11 +193,13 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op."
-  (cider--sync-request-value (list "op" "complete"
-                                   "session" (nrepl-current-session)
-                                   "ns" (cider-current-ns)
-                                   "symbol" str
-                                   "context" context)))
+  (-> (list "op" "complete"
+            "session" (nrepl-current-session)
+            "ns" (cider-current-ns)
+            "symbol" str
+            "context" context)
+    (nrepl-send-sync-request)
+    (nrepl-dict-get "completions")))
 
 (defun cider-sync-request:info (symbol &optional class member)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
