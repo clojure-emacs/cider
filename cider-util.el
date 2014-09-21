@@ -157,6 +157,16 @@ to `fill-column'."
   "Join all STRINGS using SEPARATOR."
   (mapconcat 'identity strings separator))
 
+(defun cider-join-with-val-prop (candidates &optional sep)
+  "Each element EL in CANDIDATES join with SEP and set :val property to EL.
+Useful for `completing-read' when candidates are complex objects."
+  (mapcar (lambda (el)
+            (propertize (if (listp el)
+                            (cider-string-join el (or sep ":"))
+                          (format "%s" el))
+                        :val el))
+          candidates))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

@@ -3,7 +3,9 @@
 ## master (unreleased)
 
 ### New features
-
+* `cider-connect` now asks for remote hosts defined in machine-wide `ssh`
+  configuration files and automatically detects running instances of lein
+  server, both on local and remote machines.
 * New defcustom `cider-stacktrace-print-level`.  Controls the `*print-level*` used when
   pretty printing an exception cause's data.  Defaults to 50.
 * New interactive command `cider-undef`.

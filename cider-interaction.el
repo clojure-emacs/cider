@@ -543,7 +543,9 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 Defaults to the current buffer.
 Return the tramp prefix, or nil if BUFFER is local."
   (let* ((buffer (or buffer (current-buffer)))
-         (name (buffer-file-name buffer)))
+         (name (or (buffer-file-name buffer)
+                   (with-current-buffer buffer
+                     default-directory))))
     (when (tramp-tramp-file-p name)
       (let ((vec (tramp-dissect-file-name name)))
         (tramp-make-tramp-file-name (tramp-file-name-method vec)
