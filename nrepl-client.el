@@ -1061,12 +1061,15 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
       (setq-local kill-buffer-query-functions nil))
     buffer))
 
-(defun nrepl-current-connection-buffer ()
-  "The connection to use for nREPL interaction."
+(defun nrepl-current-connection-buffer (&optional no-error)
+  "The connection to use for nREPL interaction.
+When NO-ERROR is non-nil, don't throw an error when no connection has been
+found."
   (or nrepl-connection-dispatch
       nrepl-connection-buffer
       (car (nrepl-connection-buffers))
-      (error "No nREPL connection buffer")))
+      (unless no-error
+        (error "No nREPL connection buffer"))))
 
 (defun nrepl-connection-buffers ()
   "Return the connection list.

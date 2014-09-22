@@ -121,9 +121,8 @@ NS specifies the namespace in which to evaluate the request."
 
 (defun cider-current-repl-buffer ()
   "The current REPL buffer."
-  (when (nrepl-current-connection-buffer)
-    (buffer-local-value 'nrepl-repl-buffer
-                        (get-buffer (nrepl-current-connection-buffer)))))
+  (-when-let (repl-buf (nrepl-current-connection-buffer 'no-error))
+    (buffer-local-value 'nrepl-repl-buffer (get-buffer repl-buf))))
 
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.

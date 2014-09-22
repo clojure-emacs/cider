@@ -158,7 +158,7 @@ joined together.")
 (defun cider-repl-buffer-name (&optional project-dir host port)
   "Generate a REPL buffer name based on current connection buffer.
 PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
-  (with-current-buffer (or (get-buffer (nrepl-current-connection-buffer))
+  (with-current-buffer (or (nrepl-current-connection-buffer 'no-error)
                            (current-buffer))
     (nrepl-make-buffer-name nrepl-repl-buffer-name-template project-dir host port)))
 

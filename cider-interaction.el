@@ -1400,9 +1400,7 @@ Useful in hooks."
 
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
-  (condition-case nil
-      (nrepl-current-connection-buffer)
-    (error nil)))
+  (nrepl-current-connection-buffer 'no-error))
 
 (defun cider-ensure-connected ()
   "Ensure there is a cider connection present, otherwise
