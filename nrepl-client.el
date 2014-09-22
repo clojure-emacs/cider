@@ -214,7 +214,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 
 (defvar-local nrepl-completed-requests nil)
 
-(defvar-local nrepl-buffer-ns "user"
+(defvar-local nrepl-buffer-ns nil
   "Current Clojure namespace of this buffer.")
 
 (defvar-local nrepl-last-sync-response nil
@@ -624,6 +624,7 @@ the newly created client connection process."
             ;; FIXME: REPL and connection buffers are the same thing
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer (when replp client-buf)
+            nrepl-buffer-ns "user"
             nrepl-tunnel-buffer (and tunnel-proc (process-buffer tunnel-proc))
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)))
@@ -711,8 +712,6 @@ server responses."
     (nrepl-dbind-response response (value ns out err status id ex root-ex
                                           session)
       (cond (value
-             (with-current-buffer buffer
-               (when ns (setq nrepl-buffer-ns ns)))
              (when value-handler
                (funcall value-handler buffer value)))
             (out
@@ -1061,12 +1060,15 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
       (setq-local kill-buffer-query-functions nil))
     buffer))
 
-(defun nrepl-current-connection-buffer ()
-  "The connection to use for nREPL interaction."
+(defun nrepl-current-connection-buffer (&optional no-error)
+  "The connection to use for nREPL interaction.
+When NO-ERROR is non-nil, don't throw an error when no connection has been
+found."
   (or nrepl-connection-dispatch
       nrepl-connection-buffer
       (car (nrepl-connection-buffers))
-      (error "No nREPL connection buffer")))
+      (unless no-error
+        (error "No nREPL connection buffer"))))
 
 (defun nrepl-connection-buffers ()
   "Return the connection list.

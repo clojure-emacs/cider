@@ -96,13 +96,7 @@ NS & SESSION specify the context in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
   (let ((ns (if (cider-ns-form-p input)
                 "user"
-              ns)))
-    ;; prevent forms from being evaluated in the wrong or a non-existing namespace
-    (when (and ns
-               (derived-mode-p 'clojure-mode)
-               (not (string= ns nrepl-buffer-ns))
-               (not (cider-ns-form-p input)))
-      (cider-eval-ns-form))
+              (or ns (cider-current-ns)))))
     (nrepl-request:eval input callback ns session)))
 
 (defun cider-tooling-eval (input callback &optional ns)
@@ -121,9 +115,8 @@ NS specifies the namespace in which to evaluate the request."
 
 (defun cider-current-repl-buffer ()
   "The current REPL buffer."
-  (when (nrepl-current-connection-buffer)
-    (buffer-local-value 'nrepl-repl-buffer
-                        (get-buffer (nrepl-current-connection-buffer)))))
+  (-when-let (repl-buf (nrepl-current-connection-buffer 'no-error))
+    (buffer-local-value 'nrepl-repl-buffer (get-buffer repl-buf))))
 
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.

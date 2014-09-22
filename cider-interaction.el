@@ -503,7 +503,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
   (let ((str (substring-no-properties (or (thing-at-point 'symbol) ""))))
-    (if (equal str (concat (cider-find-ns) "> "))
+    (if (equal str (concat (cider-current-ns) "> "))
         ""
       str)))
 
@@ -910,7 +910,6 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                (lambda (buffer value)
                                  (message "%s" value)
                                  (with-current-buffer buffer
-                                   (setq nrepl-buffer-ns (clojure-find-ns))
                                    (run-hooks 'cider-file-loaded-hook)))
                                (lambda (_buffer value)
                                  (cider-emit-interactive-eval-output value))
@@ -1207,29 +1206,17 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
       (ansi-color-apply-on-region (point-min) (point-max)))
     (goto-char (point-min))))
 
-;;; Namespace handling
-(defun cider-find-ns ()
-  "Return the ns of the current buffer.
-
-For Clojure buffers the ns is extracted from the ns header.  If
-it's missing \"user\" is used as fallback."
-  (cond
-   ((derived-mode-p 'clojure-mode)
-    (or (save-restriction
-          (widen)
-          (clojure-find-ns))
-        "user"))
-   ((derived-mode-p 'cider-repl-mode)
-    nrepl-buffer-ns)))
-
 (defun cider-current-ns ()
-  "Return the ns in the current context.
-If `nrepl-buffer-ns' has a value then return that, otherwise
-search for and read a `ns' form."
-  (let ((ns nrepl-buffer-ns))
-    (or (and (string= ns "user")
-             (cider-find-ns))
-        ns)))
+  "Return current ns.
+The ns is extracted from the ns form.  If missing, use current REPL's ns,
+otherwise fall back to \"user\"."
+  (if (derived-mode-p 'cider-repl-mode)
+      nrepl-buffer-ns
+    (or (clojure-find-ns)
+        (-when-let (repl-buf (cider-current-repl-buffer))
+          (buffer-local-value 'nrepl-buffer-ns (get-buffer repl-buf)))
+        nrepl-buffer-ns
+        "user")))
 
 
 ;;; Evaluation
@@ -1256,10 +1243,7 @@ START-POS is a starting position of the form in the original context."
                       ""
                     (or (-when-let (form (cider-ns-form))
                           (replace-regexp-in-string ":reload\\(-all\\)?\\>" "" form))
-                        (->> (get-buffer (cider-current-repl-buffer))
-                          (buffer-local-value 'nrepl-buffer-ns)
-                          (setq nrepl-buffer-ns)
-                          (format "(ns %s)")))))
+                        (format "(ns %s)" (cider-current-ns)))))
          (ns-form-lines (length (split-string ns-form "\n")))
          (start-pos (or start-pos 1))
          (start-line (line-number-at-pos start-pos))
@@ -1400,9 +1384,7 @@ Useful in hooks."
 
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
-  (condition-case nil
-      (nrepl-current-connection-buffer)
-    (error nil)))
+  (nrepl-current-connection-buffer 'no-error))
 
 (defun cider-ensure-connected ()
   "Ensure there is a cider connection present, otherwise
@@ -1425,7 +1407,6 @@ See command `cider-mode'."
   (interactive)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
-      (setq nrepl-buffer-ns "user")
       (clojure-disable-cider))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
@@ -1490,8 +1471,7 @@ The result of the completing read will be passed to COMPLETING-READ-CALLBACK."
 
 (defun cider-completing-read-sym-form (label form callback)
   "Eval the FORM and pass the result to the response handler."
-  (cider-tooling-eval form (cider-completing-read-sym-handler label callback (current-buffer))
-                      nrepl-buffer-ns))
+  (cider-tooling-eval form (cider-completing-read-sym-handler label callback (current-buffer))))
 
 (defun cider-completing-read-var (prompt ns callback)
   "Perform completing read var in NS using CALLBACK."
@@ -1515,12 +1495,13 @@ The result of the completing read will be passed to COMPLETING-READ-CALLBACK."
 Once selected, the name of the fn will appear in the repl buffer in parens
 ready to call."
   (interactive)
-  (cider-completing-read-sym-form (format "Fn: %s/" nrepl-buffer-ns)
-                                  (cider-fetch-fns-form (cider-current-ns))
-                                  (lambda (f _targets)
-                                    (with-current-buffer (cider-current-repl-buffer)
-                                      (cider-repl--replace-input (format "(%s)" f))
-                                      (goto-char (- (point-max) 1))))))
+  (let ((ns (cider-current-ns)))
+    (cider-completing-read-sym-form (format "Fn: %s/" ns)
+                                    (cider-fetch-fns-form ns)
+                                    (lambda (f _targets)
+                                      (with-current-buffer (cider-current-repl-buffer)
+                                        (cider-repl--replace-input (format "(%s)" f))
+                                        (goto-char (- (point-max) 1)))))))
 
 (defun cider-read-symbol-name (prompt callback &optional query)
   "Either read a symbol name using PROMPT or choose the one at point.
@@ -1533,7 +1514,7 @@ if there is no symbol at point, or if QUERY is non-nil."
                  (not symbol-name)
                  (equal "" symbol-name)))
         (funcall callback symbol-name)
-      (cider-completing-read-var prompt nrepl-buffer-ns callback))))
+      (cider-completing-read-var prompt (cider-current-ns) callback))))
 
 (defun cider-toggle-trace (query)
   "Toggle tracing for the given QUERY.
@@ -1737,12 +1718,6 @@ strings, include private vars, and be case sensitive."
   (cider-tooling-eval
    "(clojure.core/require 'clojure.tools.namespace.repl) (clojure.tools.namespace.repl/refresh)"
    (cider-interactive-eval-handler (current-buffer))))
-
-;; TODO: implement reloading ns
-(defun cider-eval-load-file (form)
-  "Load FORM."
-  (let ((buffer (current-buffer)))
-    (cider-eval form (cider-interactive-eval-handler buffer))))
 
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
