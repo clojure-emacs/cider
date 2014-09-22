@@ -864,14 +864,20 @@ Return a newly created process."
              (propertize cmd 'face 'font-lock-keyword-face))
     serv-proc))
 
-(defun nrepl-server-filter (process output)
-  "Process nREPL server output from PROCESS contained in OUTPUT."
+(defun nrepl-server-filter (process string)
+  "Process server PROCESS output contained in STRING."
   (with-current-buffer (process-buffer process)
-    (save-excursion
-      (goto-char (point-max))
-      (insert output)))
-  (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
-    (let ((port (string-to-number (match-string 1 output))))
+    (let ((moving (= (point) (process-mark process))))
+      (save-excursion
+        (goto-char (process-mark process))
+        (insert string)
+        (set-marker (process-mark process) (point)))
+      (when moving
+        (goto-char (process-mark process))
+        (-when-let (win (get-buffer-window))
+          (set-window-point win (point))))))
+  (when (string-match "nREPL server started on port \\([0-9]+\\)" string)
+    (let ((port (string-to-number (match-string 1 string))))
       (message (format "nREPL server started on %s" port))
       (with-current-buffer (process-buffer process)
         (let ((client-proc (nrepl-start-client-process nil port t process)))
