@@ -85,7 +85,7 @@ This variable specifies both what was expanded and the expander.")
 (defun cider-macroexpand-again ()
   "Repeat the last macroexpansion."
   (interactive)
-  (cider-initialize-macroexpansion-buffer cider-last-macroexpand-expression nrepl-buffer-ns))
+  (cider-initialize-macroexpansion-buffer cider-last-macroexpand-expression (cider-current-ns)))
 
 ;;;###autoload
 (defun cider-macroexpand-1 (&optional prefix)

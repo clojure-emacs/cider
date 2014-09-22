@@ -96,13 +96,7 @@ NS & SESSION specify the context in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
   (let ((ns (if (cider-ns-form-p input)
                 "user"
-              ns)))
-    ;; prevent forms from being evaluated in the wrong or a non-existing namespace
-    (when (and ns
-               (derived-mode-p 'clojure-mode)
-               (not (string= ns nrepl-buffer-ns))
-               (not (cider-ns-form-p input)))
-      (cider-eval-ns-form))
+              (or ns (cider-current-ns)))))
     (nrepl-request:eval input callback ns session)))
 
 (defun cider-tooling-eval (input callback &optional ns)

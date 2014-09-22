@@ -530,7 +530,7 @@
 
 (ert-deftest cider-symbol-at-point-at-repl-prompt ()
   (noflet ((thing-at-point (thing) "user> ")
-           (cider-find-ns () "user"))
+           (cider-current-ns () "user"))
     (should (string= (cider-symbol-at-point) ""))))
 
 (ert-deftest test-cider--url-to-file ()

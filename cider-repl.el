@@ -551,7 +551,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
-    (cider-eval form (cider-repl-handler (current-buffer)) nrepl-buffer-ns)))
+    (cider-eval form (cider-repl-handler (current-buffer)))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
