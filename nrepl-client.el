@@ -712,6 +712,9 @@ server responses."
     (nrepl-dbind-response response (value ns out err status id ex root-ex
                                           session)
       (cond (value
+             (with-current-buffer buffer
+               (when (and ns (not (derived-mode-p 'clojure-mode)))
+                 (setq nrepl-buffer-ns ns)))
              (when value-handler
                (funcall value-handler buffer value)))
             (out
