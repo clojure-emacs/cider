@@ -107,9 +107,14 @@ The `nrepl-buffer-name-separator' separates cider-repl from the project name."
   :type 'hook
   :group 'nrepl)
 
-(defcustom nrepl-host "127.0.0.1"
+(defcustom nrepl-host "localhost"
   "The default hostname (or IP address) to connect to."
   :type 'string
+  :group 'nrepl)
+
+(defcustom nrepl-force-ssh-for-remote-hosts nil
+  "If non-nil, do not attempt a direct connection for remote hosts."
+  :type 'boolean
   :group 'nrepl)
 
 (defcustom nrepl-port nil
@@ -581,9 +586,95 @@ older requests with \"done\" status."
   "Handle sentinel events from PROCESS.
 Display MESSAGE and if the process is closed kill the
 process buffer and run the hook `nrepl-disconnected-hook'."
-  (message "nREPL connection closed: %s" message)
+  (message "nREPL: Connection closed (%s)" message)
   (if (equal (process-status process) 'closed)
       (run-hooks 'nrepl-disconnected-hook)))
+
+
+;;; Network
+
+(defun nrepl-connect (host port)
+  "Connect to machine identified by HOST and PORT.
+For local hosts use a direct connection. For remote hosts, if
+`nrepl-force-ssh-for-remote-hosts' is nil, attempt a direct connection
+first. If `nrepl-force-ssh-for-remote-hosts' is non-nil or the direct
+connection failed, try to start a SSH tunneled connection. Return a plist
+of the form (:proc PROC :host \"HOST\" :port PORT) that might contain
+additional key-values depending on the connection type."
+  (let ((localp (if host
+                    (nrepl-local-host-p host)
+                  (not (file-remote-p default-directory)))))
+    (if  localp
+        (nrepl--direct-connect (or host "localhost") port)
+      (or (and host (not nrepl-force-ssh-for-remote-hosts)
+               (nrepl--direct-connect host port 'no-error))
+          (nrepl--ssh-tunnel-connect host port)))))
+
+(defun nrepl--direct-connect (host port &optional no-error)
+  "If HOST and PORT are given, try to `open-network-stream'.
+If NO-ERROR is non-nil, show messages instead of throwing an error."
+  (if (not (and host port))
+      (unless no-error
+        (error "Host (%s) and port (%s) must be provided" host port))
+    (message "nREPL: Establishing direct connection to %s:%s ..." host port)
+    (condition-case nil
+        (prog1 (list :proc (open-network-stream "nrepl" nil host port)
+                     :host host :port port)
+          (message "nREPL: Direct connection established"))
+      (error (let ((mes "nREPL: Direct connection failed"))
+               (if no-error (message mes) (error mes))
+               nil)))))
+
+(defun nrepl--ssh-tunnel-connect (host port)
+  "Connect to a remote machine identified by HOST and PORT through SSH tunnel."
+  (message "nREPL: Establishing SSH tunneled connection ...")
+  (let* ((remote-dir (if host (format "/ssh:%s:" host) default-directory))
+         (ssh (or (executable-find "ssh")
+                  (error "nREPL: Cannot locate 'ssh' executable")))
+         (cmd (nrepl--ssh-tunnel-command ssh remote-dir port))
+         (tunnel-buf (nrepl-tunnel-buffer-name))
+         (tunnel (start-process-shell-command "nrepl-tunnel" tunnel-buf cmd)))
+    (process-put tunnel :waiting-for-port t)
+    (set-process-filter tunnel (nrepl--ssh-tunnel-filter port))
+    (while (and (process-live-p tunnel)
+                (process-get tunnel :waiting-for-port))
+      (accept-process-output nil 0.005))
+    (if (not (process-live-p tunnel))
+        (error "nREPL: SSH port forwarding failed. Check the '%s' buffer." tunnel-buf)
+      (message "nREPL: SSH port forwarding established to localhost:%s" port)
+      (let ((endpoint (nrepl--direct-connect "localhost" port)))
+        (-> endpoint
+          (plist-put :tunnel tunnel)
+          (plist-put :remote-host host))))))
+
+(defun nrepl--ssh-tunnel-command (ssh dir port)
+  "Command string to open SSH tunnel to the host associated with DIR's PORT."
+  (with-parsed-tramp-file-name dir nil
+    ;; this abuses the -v option for ssh to get output when the port
+    ;; forwarding is set up, which is used to synchronise on, so that
+    ;; the port forwarding is up when we try to connect.
+    (format-spec
+     "%s -v -N -L %p:localhost:%p %u'%h'"
+     `((?s . ,ssh)
+       (?p . ,port)
+       (?h . ,host)
+       (?u . ,(if user (format "-l '%s' " user) ""))))))
+
+(defun nrepl--ssh-tunnel-filter (port)
+  "Return a process filter that waits for PORT to appear in process output."
+  (let ((port-string (format "LOCALHOST:%s" port)))
+    (lambda (proc string)
+      (when (string-match port-string string)
+        (process-put proc :waiting-for-port nil))
+      (when (and (process-live-p proc)
+                 (buffer-live-p (process-buffer proc)))
+        (with-current-buffer (process-buffer proc)
+          (let ((moving (= (point) (process-mark proc))))
+            (save-excursion
+              (goto-char (process-mark proc))
+              (insert string)
+              (set-marker (process-mark proc) (point)))
+            (if moving (goto-char (process-mark proc)))))))))
 
 
 ;;; Client: Process Handling
@@ -598,16 +689,15 @@ If eitehr HOST or PORT are nil, pick them from the value returned by
 connection which is associated with a repl buffer.  When non-nil,
 SERVER-PROC must be a running nrepl server process within Emacs.  Return
 the newly created client connection process."
-  (let* ((endpoint (nrepl-connection-endpoint host port))
+  (let* ((endpoint (nrepl-connect host port))
+         (client-proc (plist-get endpoint :proc))
          (host (plist-get endpoint :host))
          (port (plist-get endpoint :port))
-         (server-buf (and server-proc (process-buffer server-proc)))
          (client-buf (if replp
                          (cider-repl-create default-directory host port)
-                       (nrepl-create-connection-buffer default-directory host port)))
-         (client-proc (open-network-stream "nrepl" client-buf host port))
-         (tunnel-proc (plist-get endpoint :proc))
-         (nrepl-connection-dispatch client-buf))
+                       (nrepl-create-connection-buffer default-directory host port))))
+
+    (set-process-buffer client-proc (get-buffer client-buf))
 
     (set-process-filter client-proc 'nrepl-client-filter)
     (set-process-sentinel client-proc 'nrepl-client-sentinel)
@@ -617,7 +707,7 @@ the newly created client connection process."
     (process-put client-proc :response-q (nrepl-response-queue))
     
     (with-current-buffer client-buf
-      (when server-buf
+      (-when-let (server-buf (and server-proc (process-buffer server-proc)))
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
@@ -625,7 +715,8 @@ the newly created client connection process."
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer (when replp client-buf)
             nrepl-buffer-ns "user"
-            nrepl-tunnel-buffer (and tunnel-proc (process-buffer tunnel-proc))
+            nrepl-tunnel-buffer (-when-let (tunnel (plist-get endpoint :tunnel))
+                                  (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)))
     
@@ -901,69 +992,6 @@ Return a newly created process."
       (error "Leiningen 2.x is required by CIDER"))
      (t (error "Could not start nREPL server: %s" problem)))))
 
-(defun nrepl-connection-endpoint (host port)
-  "Return a connection endpoint.
-The returned endpoint is a `plist` of the form:
-
- (:proc PROCESS :host \"hostname\" :port 1234)
-
-If HOST is local :proc will be nil, :host - \"localhost\" and :port - PORT.
-
-If HOST is nil and `default-directory' is remote, or if HOST is remote
-attempt to start an SSH tunnel and return it as :proc slot.  If no `ssh'
-executable has been found, fall back to specifying a direct connection to
-the remote host."
-  (let ((localp (if host
-                    (nrepl-local-host-p host)
-                  (not (file-remote-p default-directory)))))
-    (if localp
-        (list :host (or host "localhost") :port port :proc nil)
-      (let ((ssh (executable-find "ssh")))
-          (if ssh
-              ;; create a tunnel
-              (let* ((remote-dir (if host (format "/ssh:%s:" host) default-directory))
-                     (cmd (nrepl--ssh-tunnel-command ssh remote-dir port))
-                     (proc (start-process-shell-command
-                            "nrepl-tunnel" (nrepl-tunnel-buffer-name) cmd)))
-                (process-put proc :waiting-for-port t)
-                (set-process-filter proc (nrepl--ssh-tunnel-filter port))
-                (while (and (process-live-p proc)
-                            (process-get proc :waiting-for-port))
-                  (accept-process-output nil 0.005))
-                (unless (process-live-p proc)
-                  (message "SSH port forwarding failed"))
-                (list :host "localhost" :port port :proc proc))
-            ;; try a direct connection
-            (list :host tramp-current-host :port port :proc nil))))))
-
-(defun nrepl--ssh-tunnel-command (ssh dir port)
-  "Command string to open SSH tunnel to the host associated with DIR's PORT."
-  (with-parsed-tramp-file-name dir nil
-    ;; this abuses the -v option for ssh to get output when the port
-    ;; forwarding is set up, which is used to synchronise on, so that
-    ;; the port forwarding is up when we try to connect.
-    (format-spec
-     "%s -v -N -L %p:localhost:%p %u'%h'"
-     `((?s . ,ssh)
-       (?p . ,port)
-       (?h . ,host)
-       (?u . ,(if user (format "-l '%s' " user) ""))))))
-
-(defun nrepl--ssh-tunnel-filter (port)
-  "Return a filter function for waiting on PORT to appear in output."
-  (let ((port-string (format "LOCALHOST:%s" port)))
-    (lambda (proc string)
-      (when (string-match port-string string)
-        (process-put proc :waiting-for-port nil))
-      (when (buffer-live-p (process-buffer proc))
-        (with-current-buffer (process-buffer proc)
-          (let ((moving (= (point) (process-mark proc))))
-            (save-excursion
-              (goto-char (process-mark proc))
-              (insert string)
-              (set-marker (process-mark proc) (point)))
-            (if moving (goto-char (process-mark proc)))))))))
-
 
 ;;; Messages
 
@@ -1040,10 +1068,6 @@ The default buffer name is *nrepl-messages*."
 
 ;;; Connection Buffer Management
 
-(defvar nrepl-connection-dispatch nil
-  "Bound to the connection a message was received on.
-This is bound for the duration of the handling of that message")
-
 (defvar nrepl-connection-list nil
   "A list of connections.")
 
@@ -1067,8 +1091,7 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   "The connection to use for nREPL interaction.
 When NO-ERROR is non-nil, don't throw an error when no connection has been
 found."
-  (or nrepl-connection-dispatch
-      nrepl-connection-buffer
+  (or nrepl-connection-buffer
       (car (nrepl-connection-buffers))
       (unless no-error
         (error "No nREPL connection buffer"))))
@@ -1098,16 +1121,15 @@ Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
 (defun nrepl--close-connection-buffer (conn-buffer)
   "Closes CONN-BUFFER, removing it from `nrepl-connection-list'.
 Also closes associated REPL and server buffers."
-  (let ((nrepl-connection-dispatch conn-buffer))
-    (let ((buffer (get-buffer conn-buffer)))
-      (setq nrepl-connection-list
-            (delq (buffer-name buffer) nrepl-connection-list))
-      (when (buffer-live-p buffer)
-        (dolist (buf `(,(buffer-local-value 'nrepl-server-buffer buffer)
-                       ,(buffer-local-value 'nrepl-tunnel-buffer buffer)
-                       ,buffer))
-          (when buf
-            (cider--close-buffer buf)))))))
+  (let ((buffer (get-buffer conn-buffer)))
+    (setq nrepl-connection-list
+          (delq (buffer-name buffer) nrepl-connection-list))
+    (when (buffer-live-p buffer)
+      (dolist (buf `(,(buffer-local-value 'nrepl-server-buffer buffer)
+                     ,(buffer-local-value 'nrepl-tunnel-buffer buffer)
+                     ,buffer))
+        (when buf
+          (cider--close-buffer buf))))))
 
 
 ;;; Connection Browser
