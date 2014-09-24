@@ -191,8 +191,9 @@ Return a list of the form (HOST PORT), where PORT can be nil."
   "Interactively select port for HOST from PORTS."
   (let* ((sel-port (completing-read (format "Port for %s: " host)
                                     (cider-join-with-val-prop ports)))
-         (port (or (get-text-property 1 :val sel-port) sel-port)))
-    (if (listp port) (second port) port)))
+         (port (or (get-text-property 1 :val sel-port) sel-port))
+         (port (if (listp port) (second port) port)))
+    (if (stringp port) (string-to-number port) port)))
 
 (defun cider-locate-running-nrepl-ports ()
   "Locate ports of running nREPL servers.
