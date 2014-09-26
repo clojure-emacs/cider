@@ -251,10 +251,9 @@ Bind the value of the provided KEYS and execute BODY."
 
 (defun nrepl-current-dir ()
   "Return the directory of the current buffer."
-  (let ((file-name (buffer-file-name (current-buffer))))
-    (or (when file-name
-          (file-name-directory file-name))
-        list-buffers-directory)))
+  (or (-when-let (file-name (buffer-file-name (current-buffer)))
+        (file-name-directory file-name))
+      list-buffers-directory))
 
 (defun nrepl-local-host-p (host)
   "Return t if HOST is local."
@@ -284,21 +283,19 @@ If so ask the user for confirmation."
        "An nREPL connection buffer already exists.  Do you really want to create a new one? ")
     t))
 
-(defun nrepl-default-port ()
-  "Attempt to read port from .nrepl-port or target/repl-port.
-Falls back to `nrepl-port' if not found."
-  (or (nrepl--port-from-file ".nrepl-port")
-      (nrepl--port-from-file "target/repl-port")
-      nrepl-port))
+(defun nrepl-extract-port (&optional dir)
+  "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
+  (-when-let (dir (or dir (nrepl-project-directory-for (nrepl-current-dir))))
+    (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
+        (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
+        (nrepl--port-from-file (expand-file-name "target/repl-port" dir)))))
 
 (defun nrepl--port-from-file (file)
   "Attempts to read port from a file named by FILE."
-  (let* ((dir (nrepl-project-directory-for (nrepl-current-dir)))
-         (f (expand-file-name file dir)))
-    (when (file-exists-p f)
-      (with-temp-buffer
-        (insert-file-contents f)
-        (buffer-string)))))
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (buffer-string))))
 
 
 ;;; nREPL dict

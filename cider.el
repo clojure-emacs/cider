@@ -146,7 +146,7 @@ Create REPL buffer and start an nREPL client connection."
   "Interactively select the host and port to connect to."
   (let* ((ssh-hosts (cider--ssh-hosts))
          (hosts (-distinct (append (when cider-host-history 
-                                     (list (car cider-host-history )))
+                                     (list (list (car cider-host-history))))
                                    (list (list (nrepl-current-host)))
                                    cider-known-endpoints
                                    ssh-hosts
@@ -159,17 +159,20 @@ Create REPL buffer and start an nREPL client connection."
                        (not (assoc-string host ssh-hosts))))
          ;; Each lein-port is a list of the form (dir port)
          (lein-ports (if local-p
-                         (let ((default-directory (if (file-remote-p default-directory)
-                                                      "~/"
-                                                    default-directory)))
-                           (cider-locate-running-nrepl-ports))
-                       (let ((vec (vector "ssh" nil host "" nil)))
+                         ;; might connect to localhost from a remote file
+                         (let* ((change-dir-p (file-remote-p default-directory))
+                                (default-directory (if change-dir-p "~/" default-directory)))
+                           (cider-locate-running-nrepl-ports (unless change-dir-p default-directory)))
+                       (let ((vec (vector "ssh" nil host "" nil))
+                             ;; might connect to a different remote
+                             (dir (when (file-remote-p default-directory)
+                                    (with-parsed-tramp-file-name default-directory cur
+                                      (when (string= cur-host host) default-directory)))))
                          (tramp-maybe-open-connection vec)
                          (with-current-buffer (tramp-get-connection-buffer vec)
-                           (cider-locate-running-nrepl-ports)))))
+                           (cider-locate-running-nrepl-ports dir)))))
          (ports (append (cdr sel-host) lein-ports))
          (port (cider--completing-read-port host ports)))
-    (setq cider-host-history (cons sel-host (delete sel-host cider-host-history)))
     (list host port)))
 
 (defun cider--ssh-hosts ()
@@ -182,33 +185,35 @@ Create REPL buffer and start an nREPL client connection."
   "Interactively select host from HOSTS.
 Each element in HOSTS is one of: (host), (host port) or (label host port).
 Return a list of the form (HOST PORT), where PORT can be nil."
-  (let* ((sel-host (completing-read "Host: " (cider-join-with-val-prop hosts)))
-         (host (or (get-text-property 1 :val sel-host) (list sel-host))))
+  (let* ((hosts (cider-join-into-alist hosts))
+         (sel-host (completing-read "Host: " hosts nil nil nil
+                                    'cider-host-history (caar hosts)))
+         (host (or (cdr (assoc sel-host hosts)) (list sel-host))))
     ;; remove the label
     (if (= 3 (length host)) (cdr host) host)))
 
 (defun cider--completing-read-port (host ports)
   "Interactively select port for HOST from PORTS."
-  (let* ((sel-port (completing-read (format "Port for %s: " host)
-                                    (cider-join-with-val-prop ports)))
-         (port (or (get-text-property 1 :val sel-port) sel-port))
+  (let* ((ports (cider-join-into-alist ports))
+         (sel-port (completing-read (format "Port for %s: " host) ports
+                                    nil nil nil nil (caar ports)))
+         (port (or (cdr (assoc sel-port ports)) sel-port))
          (port (if (listp port) (second port) port)))
     (if (stringp port) (string-to-number port) port)))
 
-(defun cider-locate-running-nrepl-ports ()
+(defun cider-locate-running-nrepl-ports (&optional dir)
   "Locate ports of running nREPL servers.
-Return a list of list of the form (project-dir port)."
-  (let ((paths (cider--get-running-nrepl-paths)))
-    (delq nil
-          (mapcar (lambda (f)
-                    (-when-let (port-file (or (cider--file-path (concat f "/.nrepl-port"))
-                                              (cider--file-path (concat f "/repl-port"))))
-                      (with-temp-buffer
-                        (insert-file-contents port-file)
-                        (list (file-name-nondirectory f) (buffer-string)))))
-                  paths))))
+When DIR is non-nil also look for nREPL port files in DIR.  Return a list
+of list of the form (project-dir port)."
+  (let* ((paths (cider--running-nrepl-paths))
+         (proj-ports (mapcar (lambda (d)
+                               (-when-let (port (and d (nrepl-extract-port (cider--file-path d))))
+                                 (list (file-name-nondirectory (directory-file-name d)) port)))
+                             (cons (nrepl-project-directory-for dir)
+                                   paths))))
+    (-distinct (delq nil proj-ports))))
 
-(defun cider--get-running-nrepl-paths ()
+(defun cider--running-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
 use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-list'."
   (let (paths)
