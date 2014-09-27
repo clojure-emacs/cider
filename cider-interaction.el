@@ -49,6 +49,7 @@
 (require 'apropos)
 
 (defconst cider-error-buffer "*cider-error*")
+(defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-doc-buffer "*cider-doc*")
 (defconst cider-result-buffer "*cider-result*")
 (defconst cider-apropos-buffer "*cider-apropos*")
@@ -419,7 +420,6 @@ Returns to the buffer in which the command was invoked."
     (cider-repl-clear-buffer)
     (switch-to-buffer origin-buffer)))
 
-;;; Minibuffer eval
 (defvar cider-minibuffer-history '()
   "History list of expressions read from the minibuffer.")
 
@@ -442,12 +442,7 @@ reading input."
         (run-hooks 'eval-expression-minibuffer-setup-hook))
     (read-from-minibuffer prompt initial-value
                           cider-minibuffer-map nil
-                          cider-minibuffer-history)))
-
-(defun cider-read-and-eval ()
-  "Read a sexp from the minibuffer and output its result to the echo area."
-  (interactive)
-  (cider-interactive-eval (cider-read-from-minibuffer "CIDER Eval: ")))
+                          'cider-minibuffer-history)))
 
 
 ;;; Utilities
@@ -1333,6 +1328,19 @@ With a PREFIX argument, print the result in the current buffer."
     (save-excursion
       (goto-char (match-beginning 0))
       (cider-eval-defun-at-point))))
+
+(defun cider-read-and-eval ()
+  "Read a sexp from the minibuffer and output its result to the echo area."
+  (interactive)
+  (let* ((form (cider-read-from-minibuffer "CIDER Eval: "))
+         (ns-form (if (cider-ns-form-p form) "" (cider-ns-form))))
+    (with-current-buffer (get-buffer-create cider-read-eval-buffer)
+      (erase-buffer)
+      (clojure-mode)
+      (insert ns-form "\n")
+      (let ((start-pos (point)))
+        (insert form)
+        (cider-interactive-eval form start-pos)))))
 
 
 ;; Connection and REPL
