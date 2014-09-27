@@ -1228,6 +1228,8 @@ function is the main entry point in CIDER's interactive evaluation API.  All
 other interactive eval functions should rely on this function.  If CALLBACK
 is nil use `cider-interactive-eval-handler'."
   (cider--clear-compilation-highlights)
+  (-when-let (error-win (get-buffer-window cider-error-buffer))
+    (quit-window nil error-win))
   (let ((filename (or (buffer-file-name)
                       (buffer-name))))
     (cider-request:load-file
@@ -1743,6 +1745,8 @@ strings, include private vars, and be case sensitive."
                                         (file-name-nondirectory
                                          (buffer-file-name))))))
   (cider--clear-compilation-highlights)
+  (-when-let (error-win (get-buffer-window cider-error-buffer))
+    (quit-window nil error-win))
   (cider-request:load-file (cider-file-string filename)
                            (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
                            (file-name-nondirectory filename))
