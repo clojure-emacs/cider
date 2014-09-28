@@ -1154,15 +1154,16 @@ If major MODE is non-nil, enable it for the popup buffer."
   (with-current-buffer (cider-make-popup-buffer name mode)
     (cider-popup-buffer-display (current-buffer) select)))
 
-(defun cider-popup-buffer-display (popup-buffer &optional select)
-  "Display POPUP-BUFFER.
-If SELECT is non-nil, select the newly created window"
-  (with-current-buffer popup-buffer
-    (let ((new-window (display-buffer (current-buffer))))
-      (set-window-point new-window (point))
-      (when select
-        (select-window new-window))
-      (current-buffer))))
+(defun cider-popup-buffer-display (buffer &optional select)
+  "Display BUFFER.
+If SELECT is non-nil, select the BUFFER."
+  (-when-let (win (get-buffer-window buffer))
+    (with-current-buffer buffer
+      (set-window-point win (point))))
+  (if select
+      (pop-to-buffer buffer)
+    (display-buffer buffer))
+  buffer)
 
 (defun cider-popup-buffer-quit (&optional kill-buffer-p)
   "Quit the current (temp) window and bury its buffer using `quit-window'.
