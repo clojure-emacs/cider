@@ -36,6 +36,9 @@
 (require 'eldoc)
 (require 'dash)
 
+(unless (fboundp 'eldoc-beginning-of-sexp)                                                                              
+  (defalias 'eldoc-beginning-of-sexp 'elisp--beginning-of-sexp))
+
 (defvar cider-extra-eldoc-commands '("yas-expand")
   "Extra commands to be added to eldoc's safe commands list.")
 
