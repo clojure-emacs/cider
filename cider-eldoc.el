@@ -36,7 +36,8 @@
 (require 'eldoc)
 (require 'dash)
 
-(unless (fboundp 'eldoc-beginning-of-sexp)                                                                              
+(when (and (not (fboundp 'eldoc-beginning-of-sexp))
+           (fboundp 'elisp--beginning-of-sexp))
   (defalias 'eldoc-beginning-of-sexp 'elisp--beginning-of-sexp))
 
 (defvar cider-extra-eldoc-commands '("yas-expand")
