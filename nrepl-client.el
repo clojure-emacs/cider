@@ -1059,7 +1059,9 @@ The default buffer name is *nrepl-messages*."
         (with-current-buffer buffer
           (buffer-disable-undo)
           (setq-local comment-start ";")
-          (setq-local comment-end ""))
+          (setq-local comment-end "")
+          (setq-local paragraph-start "(--->\\|(<-")
+          (setq-local paragraph-separate "(<-"))
         buffer)))
 
 
