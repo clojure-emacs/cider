@@ -16,11 +16,7 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
 - [Installation](#installation)
 	- [Prerequisites](#prerequisites)
-	- [Via package.el](#via-packageel)
-	- [Via el-get](#via-el-get)
-	- [Manual](#manual)
-	- [Emacs Prelude](#emacs-prelude)
-	- [Emacs Live](#emacs-live)
+	- [Installation via package.el](#installation-via-packageel)
 - [Configuration](#configuration)
 - [Basic Usage](#basic-usage)
 	- [Setting up a Leiningen project (optional)](#setting-up-a-leiningen-project-optional)
@@ -45,6 +41,8 @@ of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
 ## Installation
 
+The canonical way to install cider is using `package.el`, but you can choose other possibilities available for your emacs/operating system (see [wiki](https://github.com/clojure-emacs/cider/wiki/Installation)).
+
 ### Prerequisites
 
 You'll need to have Emacs installed (preferably the latest stable
@@ -67,7 +65,7 @@ CIDER 0.7 ships a replacement for the deprecated `clojure-test-mode` called `cid
 Please, make sure you've uninstalled `clojure-test-mode` if you're using CIDER 0.7 as `clojure-test-mode`
 sometimes interferes with CIDER's REPL initialization.
 
-### Via package.el
+### Installation via package.el
 
 `package.el` is the built-in package manager in Emacs.
 
@@ -107,36 +105,6 @@ use MELPA Stable by adding this to your Emacs initialization:
 **CIDER has deps (e.g. `queue`) that are only available in the
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only repository enabled
   by default and you should not disable it!**
-
-### Via el-get
-
-[el-get](https://github.com/dimitri/el-get) is another popular package manager for Emacs.
-If you're an el-get user just do <kbd>M-x el-get-install</kbd>.
-
-### Manual
-
-You can install `CIDER` manually by placing `CIDER` on your `load-path`
-and `require`ing it. Many people favour the folder `~/.emacs.d/vendor`:
-
-```el
-(add-to-list 'load-path "~/emacs.d/vendor")
-(require 'cider)
-```
-
-Keep in mind that `CIDER` depends on `clojure-mode`, `dash.el` and
-`pkg-info` so you'll have to install them as well.
-
-### Emacs Prelude
-
-`CIDER` comes bundled in
-[Emacs Prelude](https://github.com/bbatsov/prelude). If you're a
-Prelude user you can start using it right away.
-
-### Emacs Live
-
-`CIDER` comes bundled in
-[Emacs Live](https://github.com/overtone/emacs-live). If you're using
-Emacs Live you're already good to go.
 
 ## CIDER nREPL middleware
 
