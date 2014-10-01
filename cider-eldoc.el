@@ -80,10 +80,35 @@ POS is the index of current argument."
                      " ")
           ")"))
 
+(defun cider-eldoc-beginning-of-sexp ()
+  "Move to the beginning of current sexp.
+
+Return the number of nested sexp the point was over or after. "
+  (let ((parse-sexp-ignore-comments t)
+        (num-skipped-sexps 0))
+    (condition-case _
+        (progn
+          ;; First account for the case the point is directly over a
+          ;; beginning of a nested sexp.
+          (condition-case _
+              (let ((p (point)))
+                (forward-sexp -1)
+                (forward-sexp 1)
+                (when (< (point) p)
+                  (setq num-skipped-sexps 1)))
+            (error))
+          (while
+              (let ((p (point)))
+                (forward-sexp -1)
+                (when (< (point) p)
+                  (setq num-skipped-sexps (1+ num-skipped-sexps))))))
+      (error))
+    num-skipped-sexps))
+
 (defun cider-eldoc-info-in-current-sexp ()
   "Return a list of the current sexp and the current argument index."
   (save-excursion
-    (let ((argument-index (1- (eldoc-beginning-of-sexp))))
+    (let ((argument-index (1- (cider-eldoc-beginning-of-sexp))))
       ;; If we are at the beginning of function name, this will be -1.
       (when (< argument-index 0)
         (setq argument-index 0))
