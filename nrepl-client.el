@@ -879,6 +879,10 @@ of the same \"op\" that came along."
       (when (> (cadr (time-subtract (current-time) time0))
                nrepl-sync-request-timeout)
         (error "Sync nREPL request timed out %s" request)))
+    (-when-let* ((ex (nrepl-dict-get response "ex"))
+                 (err (nrepl-dict-get response "err")))
+      (cider-repl-emit-interactive-err-output err)
+      (message err))
     (-when-let (id (nrepl-dict-get response "id"))
       ;; FIXME: This should go away eventually when we get rid of
       ;; pending-request hash table
