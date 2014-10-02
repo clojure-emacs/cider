@@ -136,8 +136,8 @@ contain a `candidates' key, it is returned as is."
 When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
   (when (and var (not (string= var "")))
-    (let ((val (cider-sync-request:info var)))
-      (if all val (cider--var-choice val)))))
+    (let ((var-info (cider-sync-request:info var)))
+      (if all var-info (cider--var-choice var-info)))))
 
 (defun cider-member-info (class member)
   "Return the CLASS MEMBER's info as an alist with list cdrs."
