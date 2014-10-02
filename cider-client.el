@@ -196,12 +196,13 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 (defun cider-sync-request:info (symbol &optional class member)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
-  (cider--sync-request-value `("op" "info"
-                               "session" ,(nrepl-current-session)
-                               "ns" ,(cider-current-ns)
-                               ,@(when symbol (list "symbol" symbol))
-                               ,@(when class (list "class" class))
-                               ,@(when member (list "member" member)))))
+  (-> `("op" "info"
+        "session" ,(nrepl-current-session)
+        "ns" ,(cider-current-ns)
+        ,@(when symbol (list "symbol" symbol))
+        ,@(when class (list "class" class))
+        ,@(when member (list "member" member)))
+    (nrepl-send-sync-request)))
 
 (defun cider-sync-request:macroexpand (expander expr &optional display-namespaces)
   "Macroexpand, using EXPANDER, the given EXPR.
