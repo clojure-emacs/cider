@@ -69,17 +69,16 @@
 (ert-deftest test-cider-var-info ()
   (noflet ((nrepl-send-sync-request (list)
                                     '(dict
-                                      "value" (dict
-                                               "arglists" "([] [x] [x & ys])"
-                                               "ns" "clojure.core"
-                                               "name" "str"
-                                               "column" 1
-                                               "added" "1.0"
-                                               "static" "true"
-                                               "doc" "stub"
-                                               "line" 504
-                                               "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
-                                               "tag" "class java.lang.String")
+                                      "arglists" "([] [x] [x & ys])"
+                                      "ns" "clojure.core"
+                                      "name" "str"
+                                      "column" 1
+                                      "added" "1.0"
+                                      "static" "true"
+                                      "doc" "stub"
+                                      "line" 504
+                                      "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
+                                      "tag" "class java.lang.String"
                                       "status" ("done")))
            (cider-ensure-op-supported (op) t)
            (nrepl-current-session () nil)
