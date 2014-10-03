@@ -196,13 +196,16 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 (defun cider-sync-request:info (symbol &optional class member)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
-  (-> `("op" "info"
-        "session" ,(nrepl-current-session)
-        "ns" ,(cider-current-ns)
-        ,@(when symbol (list "symbol" symbol))
-        ,@(when class (list "class" class))
-        ,@(when member (list "member" member)))
-    (nrepl-send-sync-request)))
+  (let ((var-info (-> `("op" "info"
+                        "session" ,(nrepl-current-session)
+                        "ns" ,(cider-current-ns)
+                        ,@(when symbol (list "symbol" symbol))
+                        ,@(when class (list "class" class))
+                        ,@(when member (list "member" member)))
+                    (nrepl-send-sync-request))))
+    (if (member "no-info" (nrepl-dict-get var-info "status"))
+        nil
+      var-info)))
 
 (defun cider-sync-request:macroexpand (expander expr &optional display-namespaces)
   "Macroexpand, using EXPANDER, the given EXPR.
@@ -218,7 +221,7 @@ The default for DISPLAY-NAMESPACES is taken from
                 (symbol-name cider-macroexpansion-display-namespaces)))
     (nrepl-send-sync-request)
     (nrepl-dict-get "expansion")))
-  
+
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (cider--sync-request-value (list "op" "ns-list"
