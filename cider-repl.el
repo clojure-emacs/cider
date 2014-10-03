@@ -546,7 +546,7 @@ If NEWLINE is true then add a newline at the end of the input."
   (let* ((input (cider-repl--current-input))
          (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
                         cider-repl-use-pretty-printing)
-                 (cider-format-pprint-eval input)
+                 (cider-format-pprint-eval input (1- (window-width)))
                  input)))
     (goto-char (point-max))
     (cider-repl--mark-input-start)
