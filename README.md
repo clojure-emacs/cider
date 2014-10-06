@@ -486,10 +486,10 @@ the Maven build tool favoured by Java developers (Leiningen actually
 reuses many things from the Maven ecosystem).
 
 CIDER features a command called `cider-jack-in` that will start an nREPL server
-for a particular Leiningen project and connect to it automatically.
-This functionality depends on Leiningen 2. Older versions are not supported. Follow
-the installation instructions on Leiningen's web site to get it up and running and afterwards
-create a project like this:
+for a particular Leiningen project and connect to it automatically.  This
+functionality depends on Leiningen 2.x (preferably 2.5+). Older versions are not
+supported. Follow the installation instructions on Leiningen's web site to get
+it up and running and afterwards create a project like this:
 
 ```
 $ lein new demo
