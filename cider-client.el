@@ -168,13 +168,15 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 (defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
   "Send \"apropos\" op with args SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
-  (cider--sync-request-value `("op" "apropos"
-                               "ns" ,(cider-current-ns)
-                               "query" ,query
-                               ,@(when search-ns `("search-ns" ,search-ns))
-                               ,@(when docs-p '("docs?" "t"))
-                               ,@(when privates-p '("privates?" "t"))
-                               ,@(when case-sensitive-p '("case-sensitive?" "t")))))
+  (-> `("op" "apropos"
+        "ns" ,(cider-current-ns)
+        "query" ,query
+        ,@(when search-ns `("search-ns" ,search-ns))
+        ,@(when docs-p '("docs?" "t"))
+        ,@(when privates-p '("privates?" "t"))
+        ,@(when case-sensitive-p '("case-sensitive?" "t")))
+    (nrepl-send-sync-request)
+    (nrepl-dict-get "apropos-matches")))
 
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
