@@ -398,14 +398,14 @@ it wraps to 0."
 
 (defun cider-stacktrace-navigate (button)
   "Navigate to the stack frame source represented by the BUTTON."
-  (let* ((var (button-get button 'var))
-         (class (button-get button 'class))
-         (method (button-get button 'method))
-         (info (or (and var (cider-var-info var))
-                   (and class method (cider-member-info class method))
-                   `(dict "file" ,(button-get button 'file))))
-         ;; stacktrace returns more accurate line numbers
-         (info (nrepl-dict-put info "line" (button-get button 'line))))
+  (let ((info (-if-let* ((file (button-get button 'file))
+                         (line (button-get button 'line)))
+                  (nrepl-dict "file" file "line" line)
+                (let* ((var (button-get button 'var))
+                       (class (button-get button 'class))
+                       (method (button-get button 'method)))
+                  (or (and var (cider-var-info var))
+                      (and class method (cider-member-info class method)))))))
     (cider--jump-to-loc-from-info info t)))
 
 (defun cider-stacktrace-jump ()

@@ -300,6 +300,10 @@ If so ask the user for confirmation."
 
 ;;; nREPL dict
 
+(defun nrepl-dict (&rest key-vals)
+  "Create nREPL dict from KEY-VALS."
+  (cons 'dict key-vals))
+
 (defun nrepl-dict-p (object)
   "Return t if OBJECT is a nREPL dict."
   (and (listp object)
