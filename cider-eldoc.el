@@ -112,8 +112,9 @@ Return the number of nested sexp the point was over or after. "
       ;; If we are at the beginning of function name, this will be -1.
       (when (< argument-index 0)
         (setq argument-index 0))
-      ;; Don't do anything if current word is inside a string.
-      (if (= (or (char-after (1- (point))) 0) ?\")
+      ;; Don't do anything if current word is inside a string, vector,
+      ;; hash or set literal.
+      (if (member (or (char-after (1- (point))) 0) '(?\" ?\{ ?\[))
           nil
         (list (cider-symbol-at-point) argument-index)))))
 
