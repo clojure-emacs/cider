@@ -56,6 +56,7 @@
     "Code never lies, comments sometimes do. -Ron Jeffries"
     "The true delight is in the finding out rather than in the knowing.  -Isaac Asimov"
     "If paredit is not for you, then you need to become the sort of person that paredit is for. -Phil Hagelberg"
+    "Express Yourself. -Madonna"
     "Take this REPL, fellow hacker, and may it serve you well."
     "Let the hacking commence!"
     "Hacks and glory await!"
