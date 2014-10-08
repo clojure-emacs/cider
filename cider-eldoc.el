@@ -120,19 +120,12 @@ Return the number of nested sexp the point was over or after. "
 
 (defun cider-eldoc-arglist (thing)
   "Return the arglist for THING."
-  (when (and (nrepl-op-supported-p "info")
+  (when (and (nrepl-op-supported-p "eldoc")
+             thing
+             (not (string= thing ""))
              (not (string-prefix-p ":" thing)))
-    (let* ((var-info (cider-var-info thing t))
-           (candidates (nrepl-dict-get var-info "candidates")))
-      (if (nrepl-dict-empty-p candidates)
-          (let ((arglists (nrepl-dict-get var-info "arglists-str")))
-            (when arglists
-              (read arglists)))
-        (->> candidates
-          (nrepl-dict-map (lambda (_ v) (nrepl-dict-get v "arglists-str") ))
-          (-map 'read)
-          -flatten
-          -distinct)))))
+    (-when-let (eldoc-info (cider-sync-request:eldoc thing))
+      (nrepl-dict-get eldoc-info "eldoc"))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."

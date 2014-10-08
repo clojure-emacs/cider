@@ -210,6 +210,19 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
         nil
       var-info)))
 
+(defun cider-sync-request:eldoc (symbol &optional class member)
+  "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER."
+  (let ((eldoc (-> `("op" "eldoc"
+                     "session" ,(nrepl-current-session)
+                     "ns" ,(cider-current-ns)
+                     ,@(when symbol (list "symbol" symbol))
+                     ,@(when class (list "class" class))
+                     ,@(when member (list "member" member)))
+                 (nrepl-send-sync-request))))
+    (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
+        nil
+      eldoc)))
+
 (defun cider-sync-request:macroexpand (expander expr &optional display-namespaces)
   "Macroexpand, using EXPANDER, the given EXPR.
 The default for DISPLAY-NAMESPACES is taken from

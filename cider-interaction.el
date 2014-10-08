@@ -147,7 +147,7 @@ which will use the default REPL connection."
   :group 'cider)
 
 (defvar cider-required-nrepl-ops
-  '("classpath" "complete" "info"
+  '("classpath" "complete" "eldoc" "info"
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
     "macroexpand" "ns-list" "ns-vars"
