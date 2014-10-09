@@ -124,7 +124,7 @@ Return the number of nested sexp the point was over or after. "
              thing
              (not (string= thing ""))
              (not (string-prefix-p ":" thing)))
-    (-when-let (eldoc-info (cider-sync-request:eldoc thing))
+    (-when-let (eldoc-info (cider-sync-request:eldoc (substring-no-properties thing)))
       (nrepl-dict-get eldoc-info "eldoc"))))
 
 (defun cider-eldoc ()
