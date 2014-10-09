@@ -1078,10 +1078,12 @@ See `compilation-error-regexp-alist' for help on their format.")
 
 We do so by starting and the current position and proceeding backwards
 until we find a delimiters that's not inside a string."
-  (while (or (not (looking-at "[({[]"))
-             (eq 'font-lock-string-face
-                 (get-text-property (point) 'face)))
-    (backward-char)))
+  (if (and (looking-back "[])}]")
+           (null (nth 3 (syntax-ppss))))
+      (backward-sexp)
+    (while (or (not (looking-at "[({[]"))
+               (nth 3 (syntax-ppss)))
+      (backward-char))))
 
 (defun cider--find-last-error-location (buffer message)
   "Return the location (begin . end) in BUFFER from the Clojure error MESSAGE.
