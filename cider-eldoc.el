@@ -39,6 +39,9 @@
 (defvar cider-extra-eldoc-commands '("yas-expand")
   "Extra commands to be added to eldoc's safe commands list.")
 
+(defvar-local cider-eldoc-last-symbol nil
+  "The eldoc information for the last symbol we checked.")
+
 (defun cider-eldoc-format-thing (thing)
   "Format the eldoc THING."
   (propertize thing 'face 'font-lock-function-name-face))
@@ -124,8 +127,13 @@ Return the number of nested sexp the point was over or after. "
              thing
              (not (string= thing ""))
              (not (string-prefix-p ":" thing)))
-    (-when-let (eldoc-info (cider-sync-request:eldoc (substring-no-properties thing)))
-      (nrepl-dict-get eldoc-info "eldoc"))))
+    ;; check if we can used the cached eldoc info
+    (if (string= thing (car cider-eldoc-last-symbol))
+        (cdr cider-eldoc-last-symbol)
+      (-when-let (eldoc-info (cider-sync-request:eldoc (substring-no-properties thing)))
+        (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
+          (setq cider-eldoc-last-symbol (cons thing arglist))
+          arglist)))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
