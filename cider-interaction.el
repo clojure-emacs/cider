@@ -651,7 +651,8 @@ existing file ending with URL has been found."
         (t (-if-let (path (cider--file-path url))
                (find-file-noselect path)
              (unless (file-name-absolute-p url)
-               (let ((cider-buffers (cider-util--clojure-buffers)))
+               (let ((cider-buffers (cider-util--clojure-buffers))
+                     (url (file-name-nondirectory url)))
                 (or (cl-loop for bf in cider-buffers
                              for path = (with-current-buffer bf
                                           (expand-file-name url))
@@ -857,8 +858,8 @@ The handler simply inserts the result value in BUFFER."
                                (lambda (_buffer out)
                                  (cider-repl-emit-interactive-output out))
                                (lambda (buffer err)
-                                 (cider-highlight-compilation-errors buffer err)
-                                 (cider-jump-to-error-maybe buffer err))
+                                 (cider-highlight-compilation-errors err)
+                                 (cider-jump-to-error-maybe err))
                                '()))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
@@ -904,8 +905,8 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (cider-emit-interactive-eval-output out))
                                (lambda (buffer err)
                                  (cider-emit-interactive-eval-err-output err)
-                                 (cider-highlight-compilation-errors buffer err)
-                                 (cider-jump-to-error-maybe buffer err))
+                                 (cider-highlight-compilation-errors err)
+                                 (cider-jump-to-error-maybe err))
                                '()))
 
 (defun cider-load-file-handler (&optional buffer)
@@ -919,8 +920,8 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (cider-emit-interactive-eval-output value))
                                (lambda (buffer err)
                                  (cider-emit-interactive-eval-output err)
-                                 (cider-highlight-compilation-errors buffer err)
-                                 (cider-jump-to-error-maybe buffer err))
+                                 (cider-highlight-compilation-errors err)
+                                 (cider-jump-to-error-maybe err))
                                '()
                                (lambda (buffer ex root-ex session)
                                  (funcall nrepl-err-handler
@@ -1085,32 +1086,33 @@ until we find a delimiters that's not inside a string."
                (nth 3 (syntax-ppss)))
       (backward-char))))
 
-(defun cider--find-last-error-location (buffer message)
-  "Return the location (begin . end) in BUFFER from the Clojure error MESSAGE.
+(defun cider--find-last-error-location (message)
+  "Return the location (begin end buffer) from the Clojure error MESSAGE.
 If location could not be found, return nil."
   (save-excursion
-    (with-current-buffer buffer
-     (let ((info (cider-extract-error-info cider-compilation-regexp message)))
-       (when info
-         (let ((file (nth 0 info))
-               (line (nth 1 info))
-               (col (nth 2 info)))
-           (save-excursion
-             (save-restriction
-               (widen)
-               (goto-char (point-min))
-               (forward-line (1- line))
-               (move-to-column (or col 0))
-               (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
-                                   (point)))
-                     (end (progn (if col (forward-list) (move-end-of-line nil))
-                                 (point))))
-                 (cons begin end))))))))))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
+      (when info
+        (let ((file (nth 0 info))
+              (line (nth 1 info))
+              (col (nth 2 info)))
+          (-when-let (buffer (cider-find-file file))
+            (with-current-buffer buffer
+              (save-excursion
+                (save-restriction
+                  (widen)
+                  (goto-char (point-min))
+                  (forward-line (1- line))
+                  (move-to-column (or col 0))
+                  (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
+                                      (point)))
+                        (end (progn (if col (forward-list) (move-end-of-line nil))
+                                    (point))))
+                    (list begin end buffer)))))))))))
 
-(defun cider-highlight-compilation-errors (buffer message)
-  "Highlight compilation error line in BUFFER, using MESSAGE."
-  (-when-let* ((pos (cider--find-last-error-location buffer message))
-               (overlay (make-overlay (car pos) (cdr pos) buffer))
+(defun cider-highlight-compilation-errors (message)
+  "Highlight compilation error location extracted from MESSAGE."
+  (-when-let* ((loc (cider--find-last-error-location message))
+               (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
                (info (cider-extract-error-info cider-compilation-regexp message)))
     (let ((face (nth 3 info))
           (note (nth 4 info)))
@@ -1121,14 +1123,14 @@ If location could not be found, return nil."
       (overlay-put overlay 'modification-hooks
                    (list (lambda (o &rest _args) (delete-overlay o)))))))
 
-(defun cider-jump-to-error-maybe (buffer err)
-  "If `cider-auto-jump-to-error' is non-nil, retrieve error location from ERR and jump to it."
-  (-when-let (pos (and cider-auto-jump-to-error
-                       (cider--find-last-error-location buffer err)))
-    (display-buffer buffer)
-    (-when-let (win (get-buffer-window buffer))
-      (set-window-point win (car pos)))))
-
+(defun cider-jump-to-error-maybe (err)
+  "If `cider-auto-jump-to-error' is non-nil jump to error location extracted from ERR."
+  (-when-let (loc (and cider-auto-jump-to-error
+                       (cider--find-last-error-location err)))
+    (let ((buffer (nth 2 loc)))
+      (display-buffer buffer)
+      (-when-let (win (get-buffer-window buffer))
+        (set-window-point win (car loc))))))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
