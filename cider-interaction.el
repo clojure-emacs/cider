@@ -1370,9 +1370,9 @@ If invoked with a prefix ARG eval the expression after inserting it."
   (cider-insert-in-repl (cider-ns-form) arg))
 
 (defun cider-ping ()
-  "Check that communication with the server works."
+  "Check that communication with the nREPL server works."
   (interactive)
-  (message (read (nrepl-sync-request:eval "\"PONG\"" nil nil t))))
+  (message (read (nrepl-dict-get (nrepl-sync-request:eval "\"PONG\"") "value"))))
 
 (defun clojure-enable-cider ()
   "Turn on CIDER mode (see command `cider-mode').
