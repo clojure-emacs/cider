@@ -115,7 +115,7 @@
 
 (defun cider-irender-el* (el)
   (cond ((symbolp el) (insert (symbol-name el)))
-        ((stringp el) (insert el))
+        ((stringp el) (insert (propertize el 'font-lock-face 'font-lock-keyword-face)))
         ((and (consp el) (eq (car el) :newline))
          (newline))
         ((and (consp el) (eq (car el) :value))
@@ -125,9 +125,8 @@
 (defun cider-irender-value (value idx)
   (cider-propertize-region
       (list 'cider-value-idx idx
-            'mouse-face 'highlight
-            'font-lock-face 'font-lock-keyword-face)
-    (cider-irender-el* value)))
+            'mouse-face 'highlight)
+    (cider-irender-el* (cider-font-lock-as-clojure value))))
 
 
 ;; ===================================================
