@@ -166,6 +166,14 @@ experience.
 (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
 ```
 
+* Log communication with the nREPL server (**extremely useful for debugging CIDER problems**):
+
+```el
+(setq nrepl-log-messages t)
+```
+
+The log will go to the buffer `*nrepl-messages*`.
+
 * You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
 from appearing in some buffer switching commands like
 `switch-to-buffer`(<kbd>C-x b</kbd>) like this:
