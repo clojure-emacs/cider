@@ -61,7 +61,7 @@
 (defun cider-inspect (expression)
   "Eval the string EXPRESSION and inspect the result."
   (interactive
-   (list (cider-read-from-minibuffer "Inspect value (evaluated): "
+   (list (cider-read-from-minibuffer "Inspect value: "
                                      (cider-sexp-at-point))))
   (cider-ensure-op-supported "inspect-start")
   (cider-inspect-sym expression (cider-current-ns)))
