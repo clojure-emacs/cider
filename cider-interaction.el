@@ -212,8 +212,8 @@ Signal an error if it is not supported."
 
 (defun cider--check-middleware-compatibility ()
   "Retrieve the underlying connection's CIDER nREPL version."
-  (cider-eval "(try (require 'cider.nrepl)
-                                  (:version-string @(resolve 'cider.nrepl/version))
+  (cider-eval "(try (require 'cider.nrepl.version)
+                                  (:version-string @(resolve 'cider.nrepl.version/version))
                                (catch Throwable _ \"not installed\"))"
               (cider--check-middleware-compatibility-callback (current-buffer))))
 
