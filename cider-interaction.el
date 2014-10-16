@@ -889,13 +889,17 @@ The output can be send to either a dedicated output buffer or the current REPL b
 This is controlled via `cider-interactive-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-err-output))
 
+(defun cider--display-interactive-eval-result (value)
+  "Display the result VALUE of an interactive eval operation."
+  (message "%s%s"
+           cider-interactive-eval-result-prefix
+           (cider-font-lock-as-clojure value)))
+
 (defun cider-interactive-eval-handler (&optional buffer)
   "Make an interactive eval handler for BUFFER."
   (nrepl-make-response-handler (or buffer (current-buffer))
                                (lambda (_buffer value)
-                                 (message "%s%s"
-                                          cider-interactive-eval-result-prefix
-                                          (cider-font-lock-as-clojure value)))
+                                 (cider--display-interactive-eval-result value))
                                (lambda (_buffer out)
                                  (cider-emit-interactive-eval-output out))
                                (lambda (buffer err)
@@ -908,7 +912,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
   "Make a load file handler for BUFFER."
   (nrepl-make-response-handler (or buffer (current-buffer))
                                (lambda (buffer value)
-                                 (message "%s" value)
+                                 (cider--display-interactive-eval-result value)
                                  (with-current-buffer buffer
                                    (run-hooks 'cider-file-loaded-hook)))
                                (lambda (_buffer value)
