@@ -1014,10 +1014,29 @@ to 4, so that 1/4 of the buffer is removed, which should ensure
 the buffer's maximum is reasonably utilised, while limiting the
 number of buffer shrinking operations.")
 
+(defvar nrepl-messages-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "n") 'next-line)
+    (define-key map (kbd "p") 'previous-line)
+    map))
+
+(define-derived-mode nrepl-messages-mode special-mode "nREPL Messages"
+  "Major mode for displaying nREPL messages.
+
+\\{nrepl-messages-mode-map}"
+  (setq buffer-read-only t)
+  (setq-local truncate-lines t)
+  (setq-local electric-indent-chars nil)
+  (setq-local comment-start ";")
+  (setq-local comment-end "")
+  (setq-local paragraph-start "(--->\\|(<-")
+  (setq-local paragraph-separate "(<-"))
+
 (defun nrepl-log-message (msg)
   "Log the given MSG to the buffer given by `nrepl-message-buffer-name'."
   (when nrepl-log-messages
     (with-current-buffer (nrepl-messages-buffer)
+      (setq buffer-read-only nil)
       (when (> (buffer-size) nrepl-message-buffer-max-size)
         (goto-char (/ (buffer-size) nrepl-message-buffer-reduce-denominator))
         (re-search-forward "^(" nil t)
@@ -1025,7 +1044,8 @@ number of buffer shrinking operations.")
       (goto-char (point-max))
       (nrepl--pp msg)
       (-when-let (win (get-buffer-window))
-        (set-window-point win (point-max))))))
+        (set-window-point win (point-max)))
+      (setq buffer-read-only t))))
 
 (defvar nrepl--message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
@@ -1062,11 +1082,8 @@ The default buffer name is *nrepl-messages*."
       (let ((buffer (get-buffer-create nrepl-message-buffer-name)))
         (with-current-buffer buffer
           (buffer-disable-undo)
-          (setq-local comment-start ";")
-          (setq-local comment-end "")
-          (setq-local paragraph-start "(--->\\|(<-")
-          (setq-local paragraph-separate "(<-"))
-        buffer)))
+          (nrepl-messages-mode)
+        buffer))))
 
 
 ;;; Connection Buffer Management
