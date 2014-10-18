@@ -819,7 +819,7 @@ in the buffer."
     (when arglist
       (format "%s: %s"
               (cider-eldoc-format-thing thing)
-              arglist))))
+              (cider-eldoc-format-arglist arglist 0)))))
 
 (defun cider-javadoc-handler (symbol-name)
   "Invoke the nREPL \"info\" op on SYMBOL-NAME if available."
