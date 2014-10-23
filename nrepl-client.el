@@ -577,7 +577,7 @@ older requests with \"done\" status."
                         (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
-        (error "No response handler with id %s found" id)))))
+        (funcall (nrepl--make-default-handler) response)))))
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
@@ -826,6 +826,22 @@ server responses."
                (remhash id nrepl-pending-requests)
                (when done-handler
                  (funcall done-handler buffer))))))))
+
+(defun nrepl--make-default-handler ()
+  "Default handler which is invoked when no handler is found.
+Handles only stdout and stderr responses."
+  (nrepl-make-response-handler (cider-current-repl-buffer)
+                               ;; VALUE
+                               '()
+                               ;; STDOUT
+                               (lambda (buffer out)
+                                 ;; fixme: rename into emit-out-output
+                                 (cider-repl-emit-output buffer out))
+                               ;; STDERR
+                               (lambda (buffer err)
+                                 (cider-repl-emit-err-output buffer err))
+                               ;; DONE
+                               '()))
 
 
 ;;; Client: Request Core API
