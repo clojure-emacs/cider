@@ -575,9 +575,16 @@ older requests with \"done\" status."
     (nrepl-log-message (cons '<- (cdr response)))
     (let ((callback (or (gethash id nrepl-pending-requests)
                         (gethash id nrepl-completed-requests))))
+      ;; normally all responses should have an associated callback
+      ;; in some scenarios, however, we get some nREPL responses
+      ;; without a matching request (https://github.com/clojure-emacs/cider/issues/853)
+      ;; until this is resolved we need the fallback handler
       (if callback
           (funcall callback response)
-        (funcall (nrepl--make-default-handler) response)))))
+        (message "nREPL: No response handler with id %s found" id)
+        ;; FIXME: This should be removed when we identify what's causing
+        ;; the problems described in https://github.com/clojure-emacs/cider/issues/853
+        (funcall (nrepl--make-fallback-handler) response)))))
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
@@ -827,8 +834,8 @@ server responses."
                (when done-handler
                  (funcall done-handler buffer))))))))
 
-(defun nrepl--make-default-handler ()
-  "Default handler which is invoked when no handler is found.
+(defun nrepl--make-fallback-handler ()
+  "Fallback handler which is invoked when no handler is found.
 Handles only stdout and stderr responses."
   (nrepl-make-response-handler (cider-current-repl-buffer)
                                ;; VALUE
