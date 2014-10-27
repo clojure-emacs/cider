@@ -71,8 +71,8 @@ sometimes interferes with CIDER's REPL initialization.
 
 `CIDER` is available on two major `package.el` community
 maintained repos -
-[MELPA Stable](http://melpa-stable.milkbox.net) and
-[MELPA](http://melpa.milkbox.net).
+[MELPA Stable](http://stable.melpa.org) and
+[MELPA](http://melpa.org).
 
 You can install `CIDER` with the following command:
 
