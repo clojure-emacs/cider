@@ -1535,7 +1535,7 @@ point, prompts for a var."
      (nrepl-send-request
       (list "op" "toggle-trace"
             "ns" (cider-current-ns)
-            "var" sym)
+            "sym" sym)
       (cider-interactive-eval-handler (current-buffer))))
    query))
 
