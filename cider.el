@@ -96,8 +96,8 @@ This variable is used by `cider-connect'."
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
 (defvar cider-ps-running-nrepl-path-regexp-list
-  '("\\(?:leiningen.original.pwd=\\)\\([^ ]+\\)"
-    "\\(?:-classpath +:?\\(.+\\)/self-installs\\)")
+  '("\\(?:leiningen.original.pwd=\\)\\(.+?\\) -D"
+    "\\(?:-classpath +:?\\(.+?\\)/self-installs\\)")
   "Regexp list to extract project paths from output of `cider-ps-running-nrepls-command'.
 Sub-match 1 must be the project path.")
 
