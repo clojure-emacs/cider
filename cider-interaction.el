@@ -859,15 +859,16 @@ in the buffer."
 (defun cider-insert-eval-handler (&optional buffer)
   "Make a nREPL evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (_buffer value)
-                                 (with-current-buffer buffer
-                                   (insert value)))
-                               (lambda (_buffer out)
-                                 (cider-repl-emit-interactive-output out))
-                               (lambda (buffer err)
-                                 (cider-handle-compilation-errors err))
-                               '()))
+  (let ((eval-buffer (current-buffer)))
+    (nrepl-make-response-handler (or buffer eval-buffer)
+                                 (lambda (_buffer value)
+                                   (with-current-buffer buffer
+                                     (insert value)))
+                                 (lambda (_buffer out)
+                                   (cider-repl-emit-interactive-output out))
+                                 (lambda (buffer err)
+                                   (cider-handle-compilation-errors err eval-buffer))
+                                 '())))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
@@ -905,32 +906,34 @@ This is controlled via `cider-interactive-eval-output-destination'."
 
 (defun cider-interactive-eval-handler (&optional buffer)
   "Make an interactive eval handler for BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (_buffer value)
-                                 (cider--display-interactive-eval-result value))
-                               (lambda (_buffer out)
-                                 (cider-emit-interactive-eval-output out))
-                               (lambda (buffer err)
-                                 (cider-emit-interactive-eval-err-output err)
-                                 (cider-handle-compilation-errors err))
-                               '()))
+  (let ((eval-buffer (current-buffer)))
+    (nrepl-make-response-handler (or buffer eval-buffer)
+                                 (lambda (_buffer value)
+                                   (cider--display-interactive-eval-result value))
+                                 (lambda (_buffer out)
+                                   (cider-emit-interactive-eval-output out))
+                                 (lambda (buffer err)
+                                   (cider-emit-interactive-eval-err-output err)
+                                   (cider-handle-compilation-errors err eval-buffer))
+                                 '())))
 
 (defun cider-load-file-handler (&optional buffer)
   "Make a load file handler for BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (buffer value)
-                                 (cider--display-interactive-eval-result value)
-                                 (with-current-buffer buffer
-                                   (run-hooks 'cider-file-loaded-hook)))
-                               (lambda (_buffer value)
-                                 (cider-emit-interactive-eval-output value))
-                               (lambda (buffer err)
-                                 (cider-emit-interactive-eval-output err)
-                                 (cider-handle-compilation-errors err))
-                               '()
-                               (lambda (buffer ex root-ex session)
-                                 (funcall nrepl-err-handler
-                                          buffer ex root-ex session))))
+  (let ((eval-buffer (current-buffer)))
+    (nrepl-make-response-handler (or buffer eval-buffer)
+                                 (lambda (buffer value)
+                                   (cider--display-interactive-eval-result value)
+                                   (with-current-buffer buffer
+                                     (run-hooks 'cider-file-loaded-hook)))
+                                 (lambda (_buffer value)
+                                   (cider-emit-interactive-eval-output value))
+                                 (lambda (buffer err)
+                                   (cider-emit-interactive-eval-output err)
+                                   (cider-handle-compilation-errors err eval-buffer))
+                                 '()
+                                 (lambda (buffer ex root-ex session)
+                                   (funcall nrepl-err-handler
+                                            buffer ex root-ex session)))))
 
 (defun cider-eval-print-handler (&optional buffer)
   "Make a handler for evaluating and printing result in BUFFER."
@@ -1114,8 +1117,10 @@ If location could not be found, return nil."
                                     (point))))
                     (list begin end buffer)))))))))))
 
-(defun cider-handle-compilation-errors (message)
-  "Highlight and jump to compilation error extracted from MESSAGE."
+(defun cider-handle-compilation-errors (message eval-buffer)
+  "Highlight and jump to compilation error extracted from MESSAGE.
+EVAL-BUFFER is the buffer that was current during user's interactive
+evaluation command. Honor `cider-auto-jump-to-error'."
   (-when-let* ((loc (cider--find-last-error-location message))
                (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
                (info (cider-extract-error-info cider-compilation-regexp message)))
