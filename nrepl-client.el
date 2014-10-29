@@ -562,8 +562,8 @@ specification.  Everything else is encoded as string."
     (when (eq ?e (aref string (1- (length string))))
       (let ((response-q (process-get proc :response-q)))
         (nrepl-bdecode string-q response-q)
-        (with-current-buffer (process-buffer proc)
-          (while (queue-head response-q)
+        (while (queue-head response-q)
+          (with-current-buffer (process-buffer proc)
             (nrepl--dispatch-response (queue-dequeue response-q))))))))
 
 (defun nrepl--dispatch-response (response)
