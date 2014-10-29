@@ -866,8 +866,7 @@ The handler simply inserts the result value in BUFFER."
                                (lambda (_buffer out)
                                  (cider-repl-emit-interactive-output out))
                                (lambda (buffer err)
-                                 (cider-highlight-compilation-errors err)
-                                 (cider-jump-to-error-maybe err))
+                                 (cider-handle-compilation-errors err))
                                '()))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
@@ -913,8 +912,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (cider-emit-interactive-eval-output out))
                                (lambda (buffer err)
                                  (cider-emit-interactive-eval-err-output err)
-                                 (cider-highlight-compilation-errors err)
-                                 (cider-jump-to-error-maybe err))
+                                 (cider-handle-compilation-errors err))
                                '()))
 
 (defun cider-load-file-handler (&optional buffer)
@@ -928,8 +926,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (cider-emit-interactive-eval-output value))
                                (lambda (buffer err)
                                  (cider-emit-interactive-eval-output err)
-                                 (cider-highlight-compilation-errors err)
-                                 (cider-jump-to-error-maybe err))
+                                 (cider-handle-compilation-errors err))
                                '()
                                (lambda (buffer ex root-ex session)
                                  (funcall nrepl-err-handler
@@ -1117,8 +1114,8 @@ If location could not be found, return nil."
                                     (point))))
                     (list begin end buffer)))))))))))
 
-(defun cider-highlight-compilation-errors (message)
-  "Highlight compilation error location extracted from MESSAGE."
+(defun cider-handle-compilation-errors (message)
+  "Highlight and jump to compilation error extracted from MESSAGE."
   (-when-let* ((loc (cider--find-last-error-location message))
                (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
                (info (cider-extract-error-info cider-compilation-regexp message)))
@@ -1129,16 +1126,12 @@ If location could not be found, return nil."
       (overlay-put overlay 'cider-note note)
       (overlay-put overlay 'help-echo note)
       (overlay-put overlay 'modification-hooks
-                   (list (lambda (o &rest _args) (delete-overlay o)))))))
-
-(defun cider-jump-to-error-maybe (err)
-  "If `cider-auto-jump-to-error' is non-nil jump to error location extracted from ERR."
-  (-when-let (loc (and cider-auto-jump-to-error
-                       (cider--find-last-error-location err)))
-    (let ((buffer (nth 2 loc)))
-      (display-buffer buffer)
-      (-when-let (win (get-buffer-window buffer))
-        (set-window-point win (car loc))))))
+                   (list (lambda (o &rest _args) (delete-overlay o))))
+      (when cider-auto-jump-to-error
+        (let ((buffer (nth 2 loc)))
+          (display-buffer buffer)
+          (-when-let (win (get-buffer-window buffer))
+            (set-window-point win (car loc))))))))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
