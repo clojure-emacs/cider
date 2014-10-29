@@ -1133,10 +1133,9 @@ evaluation command. Honor `cider-auto-jump-to-error'."
       (overlay-put overlay 'modification-hooks
                    (list (lambda (o &rest _args) (delete-overlay o))))
       (when cider-auto-jump-to-error
-        (let ((buffer (nth 2 loc)))
-          (display-buffer buffer)
-          (-when-let (win (get-buffer-window buffer))
-            (set-window-point win (car loc))))))))
+        (with-current-buffer eval-buffer
+          (push-mark)
+          (cider-jump-to (nth 2 loc) (car loc)))))))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
