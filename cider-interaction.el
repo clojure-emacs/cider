@@ -670,20 +670,28 @@ not found."
                (file (nrepl-dict-get info "file")))
     (cider-find-file file)))
 
-(defun cider-jump-to (buffer &optional line other-buffer)
-  "Push current point onto marker ring, and jump to BUFFER and LINE.
-If OTHER-BUFFER is non-nil use `pop-to-buffer' to jump to the location,
-otherwise `switch-to-buffer'."
+(defun cider-jump-to (buffer &optional pos other-window)
+  "Push current point onto marker ring, and jump to BUFFER and POS.
+POS can be either a numeric position in BUFFER or a cons (LINE . COLUMN)
+where COLUMN can be nil. If OTHER-WINDOW is non-nil don't reuse current
+window."
   (ring-insert find-tag-marker-ring (point-marker))
-  (if other-buffer
+  (if other-window
       (pop-to-buffer buffer)
-    (switch-to-buffer buffer))
+    ;; like switch-to-buffer, but reuse existing window if BUFFER is visible
+    (pop-to-buffer buffer '((display-buffer-reuse-window display-buffer-same-window))))
   (with-current-buffer buffer
     (widen)
     (goto-char (point-min))
-    (forward-line (1- (or line 1)))
-    (back-to-indentation)
-    (cider-mode +1)))
+    (cider-mode +1)
+    (if (consp pos)
+        (progn 
+          (forward-line (1- (or (car pos) 1)))
+          (if (cdr pos)
+              (move-to-column (cdr pos))
+            (back-to-indentation)))
+      (when pos
+        (goto-char pos)))))
 
 (defun cider-jump-to-resource (path)
   "Jump to the resource at the resource-relative PATH.
@@ -695,17 +703,17 @@ When called interactively, this operates on point."
       (cider-jump-to buffer)
     (message "Cannot find resource %s" path)))
 
-(defun cider--jump-to-loc-from-info (info &optional other-buffer)
+(defun cider--jump-to-loc-from-info (info &optional other-window)
   "Jump to location give by INFO.
 INFO object is returned by `cider-var-info' or `cider-member-info'.
-OTHER-BUFFER is passed to `cider-jamp-to'."
+OTHER-WINDOW is passed to `cider-jamp-to'."
   (let* ((line (nrepl-dict-get info "line"))
          (file (nrepl-dict-get info "file"))
          (buffer (and file
                       (not (cider--tooling-file-p file))
                       (cider-find-file file))))
     (if buffer
-        (cider-jump-to buffer line other-buffer)
+        (cider-jump-to buffer (cons line nil) other-window)
       (message "No source location"))))
 
 (defun cider-jump-to-var (&optional var line)

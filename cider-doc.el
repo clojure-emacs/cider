@@ -169,7 +169,7 @@
       (let ((buffer (and cider-docview-file
                          (not (cider--tooling-file-p cider-docview-file))
                          (cider-find-file cider-docview-file))))
-        (cider-jump-to buffer cider-docview-line nil))
+        (cider-jump-to buffer (cons cider-docview-line nil) nil))
     (message "No source location for %s" cider-docview-symbol)))
 
 
