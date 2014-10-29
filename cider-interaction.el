@@ -704,7 +704,7 @@ OTHER-BUFFER is passed to `cider-jamp-to'."
          (buffer (and file
                       (not (cider--tooling-file-p file))
                       (cider-find-file file))))
-    (if buffer 
+    (if buffer
         (cider-jump-to buffer line other-buffer)
       (message "No source location"))))
 
