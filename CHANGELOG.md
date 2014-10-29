@@ -19,6 +19,7 @@ simpler to gain understanding of what you're using.
 are used to translate filenames from/to the nREPL server (default Cygwin implementation provided).
 * Java classpath browser (`M-x cider-classpath`).
 * Clojure namespace browser (`M-x cider-browse-ns` and `M-x cider-browse-ns-all`).
+* Added the ability to jump to a definition from a docview buffer.
 
 ### Changes
 
