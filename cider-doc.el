@@ -130,41 +130,9 @@
     (define-key map "s" 'cider-docview-source)
     (define-key map (kbd "<backtab>") 'backward-button)
     (define-key map (kbd "TAB") 'forward-button)
-
-    ;; VS[04-08-2014]: proposed keybindings for the docview mode
-    ;; (define-key map (kbd "<backtab>") 'backward-button)
-    ;; (define-key map (kbd "TAB") 'forward-button)
-    ;; (define-key map (kbd "k") 'kill-this-buffer)
-
-    ;; (define-key map (kbd "C-c C-d") 'cider-doc-map)
-    ;; (define-key map (kbd "a") 'cider-apropos)
-    ;; (define-key map (kbd "A") 'cider-apropos-documentation)
-    ;; (define-key map (kbd "d") 'cider-doc)
-    ;; (define-key map (kbd "g") 'cider-grimoire)
-    ;; (define-key map (kbd "h") 'cider-grimoire-web)
-    ;; (define-key map (kbd "j") 'cider-javadoc)
-    ;; (define-key map (kbd "J") 'cider-doc-javadoc)
-
-    ;; (define-key map (kbd "M-.") 'cider-jump-to-var)
-    ;; (define-key map (kbd "M-,") 'cider-jump-back)
-    ;; (define-key map (kbd "C-c M-.") 'cider-jump-to-resource)
-    ;; (define-key map (kbd "i") 'cider-inspect)
-    ;; (define-key map (kbd "C-c M-i") 'cider-inspect)
-    ;; (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
-
     (easy-menu-define cider-docview-mode-menu map
       "Menu for CIDER's doc mode"
       `("CiderDoc"
-        ;; ,cider-doc-menu
-        ;; "--"
-        ;; ["Jump to source" cider-jump-to-var]
-        ;; ["Jump to resource" cider-jump-to-resource]
-        ;; ["Jump back" cider-jump-back]
-        ;; "--"
-        ;; ["Switch to REPL" cider-switch-to-repl-buffer]
-        ;; "--"
-        ;; ["Kill" kill-this-buffer]
-        ;; ["Quit" quit-window]
         ["JavaDoc in browser" cider-docview-javadoc]
         ["Jump to source" cider-docview-source]
         "--"
