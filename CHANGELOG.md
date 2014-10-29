@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 ### New features
+
 * `cider-connect` now asks for remote hosts defined in machine-wide `ssh`
   configuration files and automatically detects running instances of lein
   server, both on local and remote machines.
