@@ -987,6 +987,7 @@ constructs."
     (define-key map (kbd "C-c C-x") 'cider-refresh)
     (define-key map (kbd "C-x C-e") 'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-r") 'cider-eval-region)
+    (define-key map (kbd "C-c C-f") 'cider-pprint-eval-last-sexp)
     (define-key map (string cider-repl-shortcut-dispatch-char) 'cider-repl-handle-shortcut)
     (easy-menu-define cider-repl-mode-menu map
       "Menu for CIDER's REPL mode"
