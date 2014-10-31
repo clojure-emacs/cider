@@ -80,8 +80,11 @@ navigate to this buffer."
   'cider-show-error-buffer "0.7.0")
 
 (defcustom cider-auto-jump-to-error t
-  "When non-nill automatically jump to error location during interactive compilation."
-  :type 'boolean
+  "When non-nil automatically jump to error location during interactive compilation.
+When set to 'errors-only, don't jump to warnings."
+  :type '(choice (const :tag "always" t)
+                 (const errors-only)
+                 (const :tag "never" nil))
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
@@ -670,20 +673,28 @@ not found."
                (file (nrepl-dict-get info "file")))
     (cider-find-file file)))
 
-(defun cider-jump-to (buffer &optional line other-buffer)
-  "Push current point onto marker ring, and jump to BUFFER and LINE.
-If OTHER-BUFFER is non-nil use `pop-to-buffer' to jump to the location,
-otherwise `switch-to-buffer'."
+(defun cider-jump-to (buffer &optional pos other-window)
+  "Push current point onto marker ring, and jump to BUFFER and POS.
+POS can be either a numeric position in BUFFER or a cons (LINE . COLUMN)
+where COLUMN can be nil. If OTHER-WINDOW is non-nil don't reuse current
+window."
   (ring-insert find-tag-marker-ring (point-marker))
-  (if other-buffer
+  (if other-window
       (pop-to-buffer buffer)
-    (switch-to-buffer buffer))
+    ;; like switch-to-buffer, but reuse existing window if BUFFER is visible
+    (pop-to-buffer buffer '((display-buffer-reuse-window display-buffer-same-window))))
   (with-current-buffer buffer
     (widen)
     (goto-char (point-min))
-    (forward-line (1- (or line 1)))
-    (back-to-indentation)
-    (cider-mode +1)))
+    (cider-mode +1)
+    (if (consp pos)
+        (progn 
+          (forward-line (1- (or (car pos) 1)))
+          (if (cdr pos)
+              (move-to-column (cdr pos))
+            (back-to-indentation)))
+      (when pos
+        (goto-char pos)))))
 
 (defun cider-jump-to-resource (path)
   "Jump to the resource at the resource-relative PATH.
@@ -695,17 +706,17 @@ When called interactively, this operates on point."
       (cider-jump-to buffer)
     (message "Cannot find resource %s" path)))
 
-(defun cider--jump-to-loc-from-info (info &optional other-buffer)
+(defun cider--jump-to-loc-from-info (info &optional other-window)
   "Jump to location give by INFO.
 INFO object is returned by `cider-var-info' or `cider-member-info'.
-OTHER-BUFFER is passed to `cider-jamp-to'."
+OTHER-WINDOW is passed to `cider-jamp-to'."
   (let* ((line (nrepl-dict-get info "line"))
          (file (nrepl-dict-get info "file"))
          (buffer (and file
                       (not (cider--tooling-file-p file))
                       (cider-find-file file))))
     (if buffer
-        (cider-jump-to buffer line other-buffer)
+        (cider-jump-to buffer (cons line nil) other-window)
       (message "No source location"))))
 
 (defun cider-jump-to-var (&optional var line)
@@ -851,16 +862,16 @@ in the buffer."
 (defun cider-insert-eval-handler (&optional buffer)
   "Make a nREPL evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (_buffer value)
-                                 (with-current-buffer buffer
-                                   (insert value)))
-                               (lambda (_buffer out)
-                                 (cider-repl-emit-interactive-output out))
-                               (lambda (buffer err)
-                                 (cider-highlight-compilation-errors err)
-                                 (cider-jump-to-error-maybe err))
-                               '()))
+  (let ((eval-buffer (current-buffer)))
+    (nrepl-make-response-handler (or buffer eval-buffer)
+                                 (lambda (_buffer value)
+                                   (with-current-buffer buffer
+                                     (insert value)))
+                                 (lambda (_buffer out)
+                                   (cider-repl-emit-interactive-output out))
+                                 (lambda (buffer err)
+                                   (cider-handle-compilation-errors err eval-buffer))
+                                 '())))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
@@ -898,34 +909,34 @@ This is controlled via `cider-interactive-eval-output-destination'."
 
 (defun cider-interactive-eval-handler (&optional buffer)
   "Make an interactive eval handler for BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (_buffer value)
-                                 (cider--display-interactive-eval-result value))
-                               (lambda (_buffer out)
-                                 (cider-emit-interactive-eval-output out))
-                               (lambda (buffer err)
-                                 (cider-emit-interactive-eval-err-output err)
-                                 (cider-highlight-compilation-errors err)
-                                 (cider-jump-to-error-maybe err))
-                               '()))
+  (let ((eval-buffer (current-buffer)))
+    (nrepl-make-response-handler (or buffer eval-buffer)
+                                 (lambda (_buffer value)
+                                   (cider--display-interactive-eval-result value))
+                                 (lambda (_buffer out)
+                                   (cider-emit-interactive-eval-output out))
+                                 (lambda (buffer err)
+                                   (cider-emit-interactive-eval-err-output err)
+                                   (cider-handle-compilation-errors err eval-buffer))
+                                 '())))
 
 (defun cider-load-file-handler (&optional buffer)
   "Make a load file handler for BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (buffer value)
-                                 (cider--display-interactive-eval-result value)
-                                 (with-current-buffer buffer
-                                   (run-hooks 'cider-file-loaded-hook)))
-                               (lambda (_buffer value)
-                                 (cider-emit-interactive-eval-output value))
-                               (lambda (buffer err)
-                                 (cider-emit-interactive-eval-output err)
-                                 (cider-highlight-compilation-errors err)
-                                 (cider-jump-to-error-maybe err))
-                               '()
-                               (lambda (buffer ex root-ex session)
-                                 (funcall nrepl-err-handler
-                                          buffer ex root-ex session))))
+  (let ((eval-buffer (current-buffer)))
+    (nrepl-make-response-handler (or buffer eval-buffer)
+                                 (lambda (buffer value)
+                                   (cider--display-interactive-eval-result value)
+                                   (with-current-buffer buffer
+                                     (run-hooks 'cider-file-loaded-hook)))
+                                 (lambda (_buffer value)
+                                   (cider-emit-interactive-eval-output value))
+                                 (lambda (buffer err)
+                                   (cider-emit-interactive-eval-output err)
+                                   (cider-handle-compilation-errors err eval-buffer))
+                                 '()
+                                 (lambda (buffer ex root-ex session)
+                                   (funcall nrepl-err-handler
+                                            buffer ex root-ex session)))))
 
 (defun cider-eval-print-handler (&optional buffer)
   "Make a handler for evaluating and printing result in BUFFER."
@@ -1109,28 +1120,36 @@ If location could not be found, return nil."
                                     (point))))
                     (list begin end buffer)))))))))))
 
-(defun cider-highlight-compilation-errors (message)
-  "Highlight compilation error location extracted from MESSAGE."
+(defun cider-handle-compilation-errors (message eval-buffer)
+  "Highlight and jump to compilation error extracted from MESSAGE.
+EVAL-BUFFER is the buffer that was current during user's interactive
+evaluation command. Honor `cider-auto-jump-to-error'."
   (-when-let* ((loc (cider--find-last-error-location message))
                (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
                (info (cider-extract-error-info cider-compilation-regexp message)))
-    (let ((face (nth 3 info))
-          (note (nth 4 info)))
+    (let* ((face (nth 3 info))
+           (note (nth 4 info))
+           (auto-jump (if (eq cider-auto-jump-to-error 'errors-only)
+                          (not (eq face 'cider-warning-highlight-face))
+                        cider-auto-jump-to-error)))
       (overlay-put overlay 'cider-note-p t)
       (overlay-put overlay 'font-lock-face face)
       (overlay-put overlay 'cider-note note)
       (overlay-put overlay 'help-echo note)
       (overlay-put overlay 'modification-hooks
-                   (list (lambda (o &rest _args) (delete-overlay o)))))))
-
-(defun cider-jump-to-error-maybe (err)
-  "If `cider-auto-jump-to-error' is non-nil jump to error location extracted from ERR."
-  (-when-let (loc (and cider-auto-jump-to-error
-                       (cider--find-last-error-location err)))
-    (let ((buffer (nth 2 loc)))
-      (display-buffer buffer)
-      (-when-let (win (get-buffer-window buffer))
-        (set-window-point win (car loc))))))
+                   (list (lambda (o &rest _args) (delete-overlay o))))
+      (when auto-jump
+        (with-current-buffer eval-buffer
+          (push-mark)
+          ;; At this stage selected window commonly is *cider-error* and we need to
+          ;; re-select the original user window. If eval-buffer is not
+          ;; visible it was probably covered as a result of a small screen or user
+          ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
+          ;; that case we don't jump at all in order to avoid covering *cider-error*
+          ;; buffer.
+          (-when-let (win (get-buffer-window eval-buffer))
+            (with-selected-window win
+              (cider-jump-to (nth 2 loc) (car loc)))))))))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
@@ -1159,8 +1178,8 @@ KILL-BUFFER-P is passed along."
   "Create new popup buffer called NAME.
 If SELECT is non-nil, select the newly created window.
 If major MODE is non-nil, enable it for the popup buffer."
-  (with-current-buffer (cider-make-popup-buffer name mode)
-    (cider-popup-buffer-display (current-buffer) select)))
+  (-> (cider-make-popup-buffer name mode)
+    (cider-popup-buffer-display select)))
 
 (defun cider-popup-buffer-display (buffer &optional select)
   "Display BUFFER.
@@ -1169,8 +1188,20 @@ If SELECT is non-nil, select the BUFFER."
     (with-current-buffer buffer
       (set-window-point win (point))))
   (if select
-      (pop-to-buffer buffer)
-    (display-buffer buffer))
+      ;; There is a quirk with `display-buffer-in-previous-window' which
+      ;; overrides current buffer with *cider-error* buffer if *cider-error* was
+      ;; most recently displayed in current buffer's window. The
+      ;; `inhibit-same-window' solution below inhibits
+      ;; `display-buffer-in-previous-window' altogether and allows
+      ;; `display-buffer-use-some-window' to run instead, which in turn doesn't
+      ;; behave that nicely on splits with more than 3 buffers. When
+      ;; `pop-up-windows' is nil, non-nil `inhibit-same-window' pops up a new
+      ;; frame if there is only one buffer in a frame. The
+      ;; `display-buffer-in-previous-window' issue should be followed upstream,
+      ;; but for now the solution below should satisfy all needs with only minor
+      ;; inconvenience on frames with 3 buffer splits.
+      (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
+    (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows)))))
   buffer)
 
 (defun cider-popup-buffer-quit (&optional kill-buffer-p)

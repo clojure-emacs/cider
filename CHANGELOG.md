@@ -4,6 +4,7 @@
 
 ### New features
 
+* `cider-auto-jump-to-error` accepts new option 'errors-only
 * `cider-connect` now asks for remote hosts defined in machine-wide `ssh`
   configuration files and automatically detects running instances of lein
   server, both on local and remote machines.
