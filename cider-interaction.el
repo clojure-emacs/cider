@@ -1178,8 +1178,8 @@ KILL-BUFFER-P is passed along."
   "Create new popup buffer called NAME.
 If SELECT is non-nil, select the newly created window.
 If major MODE is non-nil, enable it for the popup buffer."
-  (with-current-buffer (cider-make-popup-buffer name mode)
-    (cider-popup-buffer-display (current-buffer) select)))
+  (-> (cider-make-popup-buffer name mode)
+    (cider-popup-buffer-display select)))
 
 (defun cider-popup-buffer-display (buffer &optional select)
   "Display BUFFER.
@@ -1188,8 +1188,20 @@ If SELECT is non-nil, select the BUFFER."
     (with-current-buffer buffer
       (set-window-point win (point))))
   (if select
-      (pop-to-buffer buffer)
-    (display-buffer buffer))
+      ;; There is a quirk with `display-buffer-in-previous-window' which
+      ;; overrides current buffer with *cider-error* buffer if *cider-error* was
+      ;; most recently displayed in current buffer's window. The
+      ;; `inhibit-same-window' solution below inhibits
+      ;; `display-buffer-in-previous-window' altogether and allows
+      ;; `display-buffer-use-some-window' to run instead, which in turn doesn't
+      ;; behave that nicely on splits with more than 3 buffers. When
+      ;; `pop-up-windows' is nil, non-nil `inhibit-same-window' pops up a new
+      ;; frame if there is only one buffer in a frame. The
+      ;; `display-buffer-in-previous-window' issue should be followed upstream,
+      ;; but for now the solution below should satisfy all needs with only minor
+      ;; inconvenience on frames with 3 buffer splits.
+      (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
+    (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows)))))
   buffer)
 
 (defun cider-popup-buffer-quit (&optional kill-buffer-p)
