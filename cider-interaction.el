@@ -80,8 +80,11 @@ navigate to this buffer."
   'cider-show-error-buffer "0.7.0")
 
 (defcustom cider-auto-jump-to-error t
-  "When non-nill automatically jump to error location during interactive compilation."
-  :type 'boolean
+  "When non-nil automatically jump to error location during interactive compilation.
+When set to 'errors-only, don't jump to warnings."
+  :type '(choice (const :tag "always" t)
+                 (const errors-only)
+                 (const :tag "never" nil))
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
@@ -1124,15 +1127,18 @@ evaluation command. Honor `cider-auto-jump-to-error'."
   (-when-let* ((loc (cider--find-last-error-location message))
                (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
                (info (cider-extract-error-info cider-compilation-regexp message)))
-    (let ((face (nth 3 info))
-          (note (nth 4 info)))
+    (let* ((face (nth 3 info))
+           (note (nth 4 info))
+           (auto-jump (if (eq cider-auto-jump-to-error 'errors-only)
+                          (not (eq face 'cider-warning-highlight-face))
+                        cider-auto-jump-to-error)))
       (overlay-put overlay 'cider-note-p t)
       (overlay-put overlay 'font-lock-face face)
       (overlay-put overlay 'cider-note note)
       (overlay-put overlay 'help-echo note)
       (overlay-put overlay 'modification-hooks
                    (list (lambda (o &rest _args) (delete-overlay o))))
-      (when cider-auto-jump-to-error
+      (when auto-jump
         (with-current-buffer eval-buffer
           (push-mark)
           (cider-jump-to (nth 2 loc) (car loc)))))))
