@@ -1141,7 +1141,15 @@ evaluation command. Honor `cider-auto-jump-to-error'."
       (when auto-jump
         (with-current-buffer eval-buffer
           (push-mark)
-          (cider-jump-to (nth 2 loc) (car loc)))))))
+          ;; At this stage selected window commonly is *cider-error* and we need to
+          ;; re-select the original user window. If eval-buffer is not
+          ;; visible it was probably covered as a result of a small screen or user
+          ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
+          ;; that case we don't jump at all in order to avoid covering *cider-error*
+          ;; buffer.
+          (-when-let (win (get-buffer-window eval-buffer))
+            (with-selected-window win
+              (cider-jump-to (nth 2 loc) (car loc)))))))))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
