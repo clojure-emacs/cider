@@ -931,7 +931,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                  (lambda (_buffer value)
                                    (cider-emit-interactive-eval-output value))
                                  (lambda (buffer err)
-                                   (cider-emit-interactive-eval-output err)
+                                   (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '()
                                  (lambda (buffer ex root-ex session)
