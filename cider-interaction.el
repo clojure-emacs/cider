@@ -950,7 +950,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                (lambda (_buffer out)
                                  (cider-emit-interactive-eval-output out))
                                (lambda (_buffer err)
-                                 (cider-emit-interactive-eval-output err))
+                                 (cider-emit-interactive-eval-err-output err))
                                '()))
 
 (defun cider-popup-eval-out-handler (&optional buffer)
