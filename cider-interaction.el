@@ -1225,16 +1225,20 @@ If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying 
 
 (defun cider-emit-into-popup-buffer (buffer value)
   "Emit into BUFFER the provided VALUE."
-  (with-current-buffer buffer
-    (let ((inhibit-read-only t)
-          (buffer-undo-list t)
-          (moving (= (point) cider-popup-output-marker)))
-      (save-excursion
-        (goto-char cider-popup-output-marker)
-        (insert (format "%s" value))
-        (indent-sexp)
-        (set-marker cider-popup-output-marker (point)))
-      (when moving (goto-char cider-popup-output-marker)))))
+  ;; Long string output renders emacs unresponsive and users might intentionally
+  ;; kill the frozen popup buffer. Therefore, we don't re-create the buffer and
+  ;; silently ignore the output.
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (let ((inhibit-read-only t)
+            (buffer-undo-list t)
+            (moving (= (point) cider-popup-output-marker)))
+        (save-excursion
+          (goto-char cider-popup-output-marker)
+          (insert (format "%s" value))
+          (indent-sexp)
+          (set-marker cider-popup-output-marker (point)))
+        (when moving (goto-char cider-popup-output-marker))))))
 
 (defun cider-emit-into-color-buffer (buffer value)
   "Emit into color BUFFER the provided VALUE."
