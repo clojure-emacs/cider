@@ -46,6 +46,7 @@
     "The unavoidable price of reliability is simplicity. -C.A.R. Hoare"
     "You're bound to be unhappy if you optimize everything. -Donald Knuth"
     "Simplicity is prerequisite for reliability. -Edsger W. Dijkstra"
+    "Elegance is not a dispensable luxury but a quality that decides between success and failure. -Edsger W. Dijkstra"
     "Deleted code is debugged code. -Jeff Sickel"
     "The key to performance is elegance, not battalions of special cases. -Jon Bentley and Doug McIlroy"
     "First, solve the problem. Then, write the code. -John Johnson"
