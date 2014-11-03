@@ -768,9 +768,15 @@ and store that information as buffer-local data in the connection buffer."
     (when replp
       (cider-repl-init conn-buffer))))
 
+(defun nrepl-close-client-sessions ()
+  "Close the nREPL sessions for the active connection."
+  (nrepl-sync-request:close (nrepl-current-session))
+  (nrepl-sync-request:close (nrepl-current-tooling-session)))
+
 (defun nrepl-close (connection-buffer)
   "Close the nREPL connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
+  (nrepl-close-client-sessions)
   (nrepl--close-connection-buffer connection-buffer)
   (run-hooks 'nrepl-disconnected-hook)
   (nrepl--connections-refresh))
@@ -944,6 +950,10 @@ If NS is non-nil, include it in the request. SESSION defaults to current session
 (defun nrepl-sync-request:clone ()
   "Sent a :clone request to create a new client session."
   (nrepl-send-sync-request '("op" "clone")))
+
+(defun nrepl-sync-request:close (session)
+  "Sent a :close request to close SESSION."
+  (nrepl-send-sync-request (list "op" "close" "session" session)))
 
 (defun nrepl-sync-request:describe ()
   "Perform :describe request."
