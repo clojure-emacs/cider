@@ -1809,6 +1809,14 @@ strings, include private vars, and be case sensitive."
   "Create an interrupt response handler for BUFFER."
   (nrepl-make-response-handler buffer nil nil nil nil))
 
+(defun cider-close-nrepl-session ()
+  "Close an nREPL session for the current connection."
+  (interactive)
+  (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions))))
+    (when selected-session
+      (nrepl-sync-request:close selected-session)
+      (message "Closed nREPL session %s" selected-session))))
+
 ;;; quiting
 (defun cider--close-buffer (buffer)
   "Close the BUFFER and kill its associated process (if any)."
