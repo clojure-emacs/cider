@@ -26,7 +26,7 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 
 ### Changes
 
-* bencode decoder was rewriten:
+* bencode decoder was rewritten:
   - nREPL dicts are now plists and accessor api is given by `nrepl-dict-p`,
     `nrepl-dict-get` and `nrepl-dict-put`.
   - nested stack is used for decoded messages to avoid re-parsing of incomplete messages
