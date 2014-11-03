@@ -959,11 +959,19 @@ If NS is non-nil, include it in the request. SESSION defaults to current session
   "Perform :describe request."
   (nrepl-send-sync-request '("op" "describe")))
 
+(defun nrepl-sync-request:ls-sessions ()
+  "Perform :ls-sessions request."
+  (nrepl-send-sync-request '("op" "ls-sessions")))
+
 (defun nrepl-sync-request:eval (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously.
 If NS is non-nil, include it in the request. SESSION defaults to current
 session."
   (nrepl-send-sync-request (nrepl--eval-request input ns session)))
+
+(defun nrepl-sessions ()
+  "Get a list of active sessions for the current nREPL connections."
+  (nrepl-dict-get (nrepl-sync-request:ls-sessions) "sessions"))
 
 
 ;;; Server
