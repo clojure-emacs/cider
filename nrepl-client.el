@@ -769,7 +769,7 @@ and store that information as buffer-local data in the connection buffer."
       (cider-repl-init conn-buffer))))
 
 (defun nrepl-close (connection-buffer)
-  "Close the nrepl connection for CONNECTION-BUFFER."
+  "Close the nREPL connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
   (nrepl--close-connection-buffer connection-buffer)
   (run-hooks 'nrepl-disconnected-hook)
