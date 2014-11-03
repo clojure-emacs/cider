@@ -22,6 +22,7 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 * Java classpath browser (`M-x cider-classpath`).
 * Clojure namespace browser (`M-x cider-browse-ns` and `M-x cider-browse-ns-all`).
 * Added the ability to jump to a definition from a docview buffer.
+* New interactive command `cider-close-nrepl-session`.
 
 ### Changes
 
@@ -75,6 +76,7 @@ lein command invoked by `cider-jack-in`.
 Emacs Lisp code.
 * [#631](https://github.com/clojure-emacs/cider/issues/631): Set `file` and `line` metadata when
 doing interactive evaluation.
+* nREPL sessions are now closed on `cider-quit`.
 
 ## 0.7.0 / 2014-08-05
 
