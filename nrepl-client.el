@@ -957,7 +957,7 @@ If NS is non-nil, include it in the request. SESSION defaults to current session
 
 (defun nrepl-sync-request:describe ()
   "Perform :describe request."
-  (nrepl-send-sync-request (list "op" "describe")))
+  (nrepl-send-sync-request '("op" "describe")))
 
 (defun nrepl-sync-request:eval (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously.
