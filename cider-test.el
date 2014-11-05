@@ -408,9 +408,11 @@ displayed. When test failures/errors occur, their sources are highlighted."
    (list "ns" ns "op" (if retest "retest" "test")
          "tests" tests "session" (nrepl-current-session))
    (lambda (response)
-     (nrepl-dbind-response response (summary results status)
+     (nrepl-dbind-response response (summary results status out err)
        (cond ((member "namespace-not-found" status)
               (message "No tests namespace: %s" ns))
+             (out (cider-emit-interactive-eval-output out))
+             (err (cider-emit-interactive-eval-err-output err))
              (results
               (nrepl-dbind-response summary (error fail)
                 (setq cider-test-last-test-ns ns)
