@@ -955,9 +955,11 @@ If NS is non-nil, include it in the request. SESSION defaults to current session
   "Sent a :close request to close SESSION."
   (nrepl-send-sync-request (list "op" "close" "session" session)))
 
-(defun nrepl-sync-request:describe ()
+(defun nrepl-sync-request:describe (&optional session)
   "Perform :describe request."
-  (nrepl-send-sync-request '("op" "describe")))
+  (if session
+      (nrepl-send-sync-request (list "session" session "op" "describe"))
+    (nrepl-send-sync-request '("op" "describe"))))
 
 (defun nrepl-sync-request:ls-sessions ()
   "Perform :ls-sessions request."

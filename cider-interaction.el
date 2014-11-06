@@ -52,6 +52,7 @@
 (defconst cider-doc-buffer "*cider-doc*")
 (defconst cider-result-buffer "*cider-result*")
 (defconst cider-apropos-buffer "*cider-apropos*")
+(defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
 
 (define-obsolete-variable-alias 'cider-use-local-resources
   'cider-prefer-local-resources "0.7.0")
@@ -1812,6 +1813,29 @@ strings, include private vars, and be case sensitive."
 (defun cider-interrupt-handler (buffer)
   "Create an interrupt response handler for BUFFER."
   (nrepl-make-response-handler buffer nil nil nil nil))
+
+(defun cider-describe-nrepl-session ()
+  "Describe an nREPL session."
+  (interactive)
+  (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions))))
+    (when (and selected-session (not (equal selected-session "")))
+      (let* ((session-info (nrepl-sync-request:describe selected-session))
+             (ops (nrepl-dict-keys (nrepl-dict-get session-info "ops")))
+             (session-id (nrepl-dict-get session-info "session"))
+             (session-type (cond
+                            ((equal session-id (nrepl-current-session)) "Active eval")
+                            ((equal session-id (nrepl-current-tooling-session)) "Active tooling")
+                            (t "Unknown"))))
+        (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer)
+          (read-only-mode -1)
+          (insert (format "Session: %s" session-id))
+          (newline)
+          (insert (format "Type: %s session" session-type))
+          (newline)
+          (insert (format "Supported ops:"))
+          (newline)
+          (-each ops (lambda (op) (insert (format "  * %s" op)) (newline)))))
+      (display-buffer cider-nrepl-session-buffer))))
 
 (defun cider-close-nrepl-session ()
   "Close an nREPL session for the current connection."

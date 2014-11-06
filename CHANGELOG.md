@@ -23,6 +23,7 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 * Clojure namespace browser (`M-x cider-browse-ns` and `M-x cider-browse-ns-all`).
 * Added the ability to jump to a definition from a docview buffer.
 * New interactive command `cider-close-nrepl-session`.
+* New interactive command `cider-describe-nrepl-session`.
 
 ### Changes
 

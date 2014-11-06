@@ -132,6 +132,8 @@ entirely."
         ["Quit" cider-quit]
         ["Restart" cider-restart]
         "--"
+        ["Describe nREPL session" cider-describe-nrepl-session]
+        ["Close nREPL session" cider-close-nrepl-session]
         ["Display nREPL connection" cider-display-current-connection-info]
         ["Rotate nREPL connection" cider-rotate-connection]
         "--"
