@@ -998,13 +998,19 @@ constructs."
         ["Jump to source" cider-jump-to-var]
         ["Jump to resource" cider-jump-to-resource]
         ["Jump back" cider-jump-back]
+        ["Switch to Clojure buffer" cider-switch-to-last-clojure-buffer]
         "--"
         ["Inspect" cider-inspect]
+        ["Macroexpand" cider-macroexpand-1]
+        ["Macroexpand all" cider-macroexpand-all]
+        ["Refresh loaded code" cider-refresh]
+        ["Toggle tracing" cider-toggle-trace]
         "--"
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
-        ["Refresh loaded code" cider-refresh]
         "--"
+        ["Next prompt" cider-repl-next-prompt]
+        ["Previous prompt" cider-repl-previous-prompt]
         ["Clear output" cider-repl-clear-output]
         ["Clear buffer" cider-repl-clear-buffer]
         ["Kill input" cider-repl-kill-input]
