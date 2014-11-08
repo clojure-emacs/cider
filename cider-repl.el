@@ -1003,11 +1003,13 @@ constructs."
         "--"
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
+        ["Refresh loaded code" cider-refresh]
+        "--"
         ["Clear output" cider-repl-clear-output]
         ["Clear buffer" cider-repl-clear-buffer]
-        ["Refresh loaded code" cider-refresh]
         ["Kill input" cider-repl-kill-input]
         ["Interrupt" cider-interrupt]
+        "--"
         ["Quit" cider-quit]
         ["Restart" cider-restart]
         "--"
