@@ -1800,7 +1800,7 @@ strings, include private vars, and be case sensitive."
    (file-name-nondirectory filename))
   (message "Loading %s..." filename))
 
-(defun cider-load-buffer (&optinal buffer)
+(defun cider-load-buffer (&optional buffer)
   "Load (eval) BUFFER's file in nREPL.
 If no buffer is provided the command acts on the current buffer."
   (interactive)
