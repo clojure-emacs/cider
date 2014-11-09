@@ -1785,12 +1785,12 @@ strings, include private vars, and be case sensitive."
   "Function to translate Emacs filenames to nREPL namestrings.")
 
 (defun cider-load-file (filename)
-  "Load the Clojure file FILENAME."
+  "Load (eval) the Clojure file FILENAME in nREPL."
   (interactive (list
-                (read-file-name "Load file: " nil nil
-                                nil (if (buffer-file-name)
-                                        (file-name-nondirectory
-                                         (buffer-file-name))))))
+                (read-file-name "Load file: " nil nil nil
+                                (if (buffer-file-name)
+                                    (file-name-nondirectory
+                                     (buffer-file-name))))))
   (cider--clear-compilation-highlights)
   (-when-let (error-win (get-buffer-window cider-error-buffer))
     (quit-window nil error-win))
@@ -1800,17 +1800,20 @@ strings, include private vars, and be case sensitive."
    (file-name-nondirectory filename))
   (message "Loading %s..." filename))
 
-(defun cider-load-current-buffer ()
-  "Load current buffer's file."
+(defun cider-load-buffer (&optinal buffer)
+  "Load (eval) BUFFER's file in nREPL.
+If no buffer is provided the command acts on the current buffer."
   (interactive)
   (check-parens)
-  (unless buffer-file-name
-    (error "Buffer %s is not associated with a file" (buffer-name)))
-  (when (and cider-prompt-save-file-on-load
-             (buffer-modified-p)
-             (y-or-n-p (format "Save file %s? " (buffer-file-name))))
-    (save-buffer))
-  (cider-load-file (buffer-file-name)))
+  (setq buffer (or buffer (current-buffer)))
+  (with-current-buffer buffer
+    (unless buffer-file-name
+      (error "Buffer %s is not associated with a file" (buffer-name)))
+    (when (and cider-prompt-save-file-on-load
+               (buffer-modified-p)
+               (y-or-n-p (format "Save file %s? " buffer-file-name)))
+      (save-buffer))
+    (cider-load-file buffer-file-name)))
 
 ;;; interrupt evaluation
 (defun cider-interrupt-handler (buffer)

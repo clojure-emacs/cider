@@ -77,7 +77,7 @@ entirely."
     (define-key map (kbd "C-c M-t") 'cider-toggle-trace)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") 'cider-find-and-clear-repl-buffer)
-    (define-key map (kbd "C-c C-k") 'cider-load-current-buffer)
+    (define-key map (kbd "C-c C-k") 'cider-load-buffer)
     (define-key map (kbd "C-c C-l") 'cider-load-file)
     (define-key map (kbd "C-c C-b") 'cider-interrupt)
     (define-key map (kbd "C-c ,")   'cider-test-run-tests)
@@ -105,7 +105,7 @@ entirely."
         ["Eval ns form" cider-eval-ns-form]
         ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
         "--"
-        ["Load current buffer" cider-load-current-buffer]
+        ["Load buffer" cider-load-buffer]
         ["Load file" cider-load-file]
         "--"
         ["Macroexpand-1" cider-macroexpand-1]
