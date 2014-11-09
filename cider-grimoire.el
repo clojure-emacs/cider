@@ -25,6 +25,8 @@
 
 ;;; Code:
 
+(require 'cider-interaction)
+
 (defconst cider-grimoire-url "http://grimoire.arrdem.com/")
 
 (defun cider-grimoire-replace-special (name)

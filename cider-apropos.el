@@ -25,6 +25,8 @@
 
 ;;; Code:
 
+(require 'cider-interaction)
+
 (defconst cider-apropos-buffer "*cider-apropos*")
 
 (push cider-apropos-buffer cider-ancillary-buffers)
