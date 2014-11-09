@@ -1716,16 +1716,16 @@ If no buffer is provided the command acts on the current buffer."
   (when (get-buffer buffer)
     (kill-buffer buffer)))
 
-(defvar cider-ancilliary-buffers
+(defvar cider-ancillary-buffers
   (list cider-error-buffer
         cider-doc-buffer
         cider-test-report-buffer
         nrepl-message-buffer-name))
 
-(defun cider-close-ancilliary-buffers ()
+(defun cider-close-ancillary-buffers ()
   "Close buffers that are shared across connections."
   (interactive)
-  (dolist (buf-name cider-ancilliary-buffers)
+  (dolist (buf-name cider-ancillary-buffers)
     (cider--close-buffer buf-name)))
 
 (defun cider-quit (&optional arg)
@@ -1739,7 +1739,7 @@ Quitting closes all active nREPL connections and kills all CIDER buffers."
       (when connection
         (nrepl-close connection)))
     (message "All active nREPL connections were closed")
-    (cider-close-ancilliary-buffers)))
+    (cider-close-ancillary-buffers)))
 
 (defun cider-restart (&optional prompt-project)
   "Quit CIDER and restart it.

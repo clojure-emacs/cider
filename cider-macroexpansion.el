@@ -34,7 +34,7 @@
 
 (defconst cider-macroexpansion-buffer "*cider-macroexpansion*")
 
-(push cider-macroexpansion-buffer cider-ancilliary-buffers)
+(push cider-macroexpansion-buffer cider-ancillary-buffers)
 
 (defcustom cider-macroexpansion-display-namespaces 'tidy
   "Determines if namespaces are displayed in the macroexpansion buffer.
