@@ -51,7 +51,6 @@
 (defconst cider-error-buffer "*cider-error*")
 (defconst cider-doc-buffer "*cider-doc*")
 (defconst cider-result-buffer "*cider-result*")
-(defconst cider-apropos-buffer "*cider-apropos*")
 (defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
 
 (define-obsolete-variable-alias 'cider-use-local-resources
@@ -1597,154 +1596,6 @@ under point, prompts for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
 
-(defconst cider-grimoire-url "http://grimoire.arrdem.com/")
-
-(defun cider-grimoire-replace-special (name)
-  "Convert the dashes in NAME to a grimoire friendly format."
-  (->> name
-    (replace-regexp-in-string "\\?" "_QMARK_")
-    (replace-regexp-in-string "\\." "_DOT_")
-    (replace-regexp-in-string "\\/" "_SLASH_")
-    (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
-
-(defun cider-grimoire-url (name ns clojure-version)
-  "Generate a grimoire url from NAME, NS and CLOJURE-VERSION."
-  (let ((clojure-version (concat (substring clojure-version 0 4) "0"))
-        (base-url cider-grimoire-url))
-    (if name
-        (concat base-url clojure-version "/" ns "/" (cider-grimoire-replace-special name) "/")
-      (concat base-url clojure-version "/" ns "/"))))
-
-(defun cider-grimoire-web-lookup (symbol)
-  "Look up the grimoire documentation for SYMBOL."
-  (-if-let (var-info (cider-var-info symbol))
-      (let ((name (nrepl-dict-get var-info "name"))
-            (ns (nrepl-dict-get var-info "ns")))
-        ;; TODO: add a whitelist of supported namespaces
-        (browse-url (cider-grimoire-url name ns (cider--clojure-version))))
-    (message "Symbol %s not resolved" symbol)))
-
-(defun cider-grimoire-web (query)
-  "Open the grimoire documentation for QUERY in the default web browser."
-  (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-grimoire-web-lookup query))
-
-(defun cider-create-grimoire-buffer (content)
-  "Create a new grimoire buffer with CONTENT."
-  (with-current-buffer (cider-popup-buffer "*cider grimoire*" t)
-    (read-only-mode -1)
-    (insert content)
-    (read-only-mode +1)
-    (goto-char (point-min))
-    (current-buffer)))
-
-(defun cider-grimoire-lookup (symbol)
-  "Look up the grimoire documentation for SYMBOL."
-  (-if-let (var-info (cider-var-info symbol))
-      (let ((name (nrepl-dict-get var-info "name"))
-            (ns (nrepl-dict-get var-info "ns"))
-            (url-request-method "GET")
-            (url-request-extra-headers `(("Content-Type" . "text/plain"))))
-        ;; TODO: add a whitelist of supported namespaces
-        (url-retrieve (cider-grimoire-url name ns (cider--clojure-version))
-                      (lambda (_status)
-                        ;; we need to strip the http header
-                        (goto-char (point-min))
-                        (re-search-forward "^$")
-                        (delete-region (point-min) (point))
-                        (delete-blank-lines)
-                        ;; and create a new buffer with whatever is left
-                        (pop-to-buffer (cider-create-grimoire-buffer (buffer-string))))))
-    (message "Symbol %s not resolved" symbol)))
-
-(defun cider-grimoire (query)
-  "Open the grimoire documentation for QUERY in a popup buffer."
-  (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-grimoire-lookup query))
-
-(defun cider-apropos-doc (button)
-  "Display documentation for the symbol represented at BUTTON."
-  (cider-doc-lookup (button-get button 'apropos-symbol)))
-
-(defun cider-apropos-summary (query ns docs-p include-private-p case-sensitive-p)
-  "Return a short description for the performed apropos search."
-  (concat (if case-sensitive-p "Case-sensitive " "")
-          (if docs-p "Documentation " "")
-          (format "Apropos for %S" query)
-          (if ns (format " in namespace %S" ns) "")
-          (if include-private-p
-              " (public and private symbols)"
-            " (public symbols only)")))
-
-(defun cider-apropos-highlight (doc query)
-  "Return the DOC string propertized to highlight QUERY matches."
-  (let ((pos 0))
-    (while (string-match query doc pos)
-      (setq pos (match-end 0))
-      (put-text-property (match-beginning 0)
-                         (match-end 0)
-                         'font-lock-face apropos-match-face doc)))
-  doc)
-
-(defun cider-apropos-result (result query docs-p)
-  "Emit a RESULT matching QUERY into current buffer, formatted for DOCS-P."
-  (nrepl-dbind-response result (name type doc)
-    (let* ((label (capitalize (if (string= type "variable") "var" type)))
-           (help (concat "Display doc for this " (downcase label))))
-      (cider-propertize-region (list 'apropos-symbol name
-                                     'action 'cider-apropos-doc
-                                     'help-echo help)
-        (insert-text-button name 'type 'apropos-symbol)
-        (insert "\n  ")
-        (insert-text-button label 'type (intern (concat "apropos-" type)))
-        (insert ": ")
-        (let ((beg (point)))
-          (if docs-p
-              (progn (insert (cider-apropos-highlight doc query))
-                     (newline))
-            (progn (insert doc)
-                   (fill-region beg (point)))))
-        (newline)))))
-
-(defun cider-show-apropos (summary results query docs-p)
-  "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
-  (with-current-buffer (cider-popup-buffer cider-apropos-buffer t)
-    (let ((inhibit-read-only t))
-      (set-syntax-table clojure-mode-syntax-table)
-      (apropos-mode)
-      (cider-mode)
-      (if (boundp 'header-line-format)
-          (setq-local header-line-format summary)
-        (insert summary "\n\n"))
-      (dolist (result results)
-        (cider-apropos-result result query docs-p))
-      (goto-char (point-min)))))
-
-(defun cider-apropos (query &optional ns docs-p privates-p case-sensitive-p)
-  "Show all symbols whose names match QUERY, a regular expression.
-The search may be limited to the namespace NS, and may optionally search doc
-strings, include private vars, and be case sensitive."
-  (interactive
-   (if current-prefix-arg
-       (list (read-string "Clojure Apropos: ")
-             (let ((ns (read-string "Namespace: ")))
-               (if (string= ns "") nil ns))
-             (y-or-n-p "Search doc strings? ")
-             (y-or-n-p "Include private symbols? ")
-             (y-or-n-p "Case-sensitive? "))
-     (list (read-string "Clojure Apropos: "))))
-  (cider-ensure-op-supported "apropos")
-  (-if-let* ((summary (cider-apropos-summary
-                       query ns docs-p privates-p case-sensitive-p))
-             (results (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p)))
-      (cider-show-apropos summary results query docs-p)
-    (message "No apropos matches for %S" query)))
-
-(defun cider-apropos-documentation ()
-  "Shortcut for (cider-apropos <query> nil t)."
-  (interactive)
-  (cider-apropos (read-string "Clojure documentation Apropos: ") nil t))
-
 (defun cider-undef (symbol)
   "Undefine the SYMBOL."
   (interactive "P")
@@ -1867,7 +1718,6 @@ If no buffer is provided the command acts on the current buffer."
 
 (defvar cider-ancilliary-buffers
   (list cider-error-buffer
-        cider-apropos-buffer
         cider-doc-buffer
         cider-test-report-buffer
         nrepl-message-buffer-name))
