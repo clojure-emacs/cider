@@ -27,7 +27,7 @@
 
 (defconst cider-apropos-buffer "*cider-apropos*")
 
-(push cider-ancillary-buffers cider-ancillary-buffers)
+(push cider-apropos-buffer cider-ancillary-buffers)
 
 (defun cider-apropos-doc (button)
   "Display documentation for the symbol represented at BUTTON."
