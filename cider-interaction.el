@@ -1778,7 +1778,9 @@ strings, include private vars, and be case sensitive."
          "\\\\" "/"
          (replace-regexp-in-string
           "\n" ""
-          (shell-command-to-string  (format "cygpath.exe --windows '%s'" (expand-file-name filename))))))
+          (shell-command-to-string
+           (format "cygpath.exe --windows '%s'"
+                   (expand-file-name filename))))))
     #'identity)
   "Function to translate Emacs filenames to nREPL namestrings.")
 
@@ -1792,9 +1794,10 @@ strings, include private vars, and be case sensitive."
   (cider--clear-compilation-highlights)
   (-when-let (error-win (get-buffer-window cider-error-buffer))
     (quit-window nil error-win))
-  (cider-request:load-file (cider-file-string filename)
-                           (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
-                           (file-name-nondirectory filename))
+  (cider-request:load-file
+   (cider-file-string filename)
+   (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
+   (file-name-nondirectory filename))
   (message "Loading %s..." filename))
 
 (defun cider-load-current-buffer ()
