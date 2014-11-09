@@ -105,8 +105,8 @@ entirely."
         ["Eval ns form" cider-eval-ns-form]
         ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
         "--"
-        ["Load buffer" cider-load-buffer]
-        ["Load file" cider-load-file]
+        ["Load (eval) buffer" cider-load-buffer]
+        ["Load (eval) file" cider-load-file]
         "--"
         ["Macroexpand-1" cider-macroexpand-1]
         ["Macroexpand-all" cider-macroexpand-all]

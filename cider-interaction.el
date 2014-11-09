@@ -1815,6 +1815,9 @@ If no buffer is provided the command acts on the current buffer."
       (save-buffer))
     (cider-load-file buffer-file-name)))
 
+(defalias 'cider-eval-buffer 'cider-load-buffer
+  "A convenience alias as some people are confused by the load-* names.")
+
 ;;; interrupt evaluation
 (defun cider-interrupt-handler (buffer)
   "Create an interrupt response handler for BUFFER."
