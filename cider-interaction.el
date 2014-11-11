@@ -1625,13 +1625,11 @@ under point, prompts for a var."
 (defvar cider-to-nrepl-filename-function
   (if (eq system-type 'cygwin)
       (lambda (filename)
-        (replace-regexp-in-string
-         "\\\\" "/"
-         (replace-regexp-in-string
-          "\n" ""
-          (shell-command-to-string
-           (format "cygpath.exe --windows '%s'"
-                   (expand-file-name filename))))))
+        (->> (expand-file-name filename)
+          (format "cygpath.exe --windows '%s'")
+          (shell-command-to-string)
+          (replace-regexp-in-string "\n" "")
+          (replace-regexp-in-string "\\\\" "/")))
     #'identity)
   "Function to translate Emacs filenames to nREPL namestrings.")
 
