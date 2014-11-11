@@ -34,6 +34,8 @@
 ;; Inspector Key Map and Derived Mode
 ;; ===================================
 
+(defconst cider-inspector-buffer "*cider inspect*")
+
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
@@ -78,24 +80,24 @@
    '()))
 
 (defun cider-inspect-sym (sym ns)
-  (let ((buffer (cider-popup-buffer "*cider inspect*" t)))
+  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
     (nrepl-send-request (list "op" "inspect-start" "sym" sym "ns" ns)
                         (cider-render-response buffer))))
 
 (defun cider-inspector-pop ()
   (interactive)
-  (let ((buffer (cider-popup-buffer "*cider inspect*" t)))
+  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
     (nrepl-send-request (list "op" "inspect-pop")
                         (cider-render-response buffer))))
 
 (defun cider-inspector-push (idx)
-  (let ((buffer (cider-popup-buffer "*cider inspect*" t)))
+  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
     (nrepl-send-request (list "op" "inspect-push" "idx" (number-to-string idx))
                         (cider-render-response buffer))))
 
 (defun cider-inspector-refresh ()
   (interactive)
-  (let ((buffer (cider-popup-buffer "*cider inspect*" t)))
+  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
     (nrepl-send-request (list "op" "inspect-refresh")
                         (cider-render-response buffer))))
 
