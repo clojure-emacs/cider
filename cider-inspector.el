@@ -36,6 +36,8 @@
 
 (defconst cider-inspector-buffer "*cider inspect*")
 
+(push cider-inspector-buffer cider-ancillary-buffers)
+
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
