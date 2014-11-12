@@ -80,7 +80,7 @@ You can install `CIDER` with the following command:
 
 <kbd>M-x package-install [RET] cider [RET]</kbd>
 
-or by adding this bit of Emacs Lisp code to your Emacs initialization file(`.emacs` or `init.el`):
+or by adding this bit of Emacs Lisp code to your Emacs initialization file (`.emacs` or `init.el`):
 
 ```el
 (unless (package-installed-p 'cider)
