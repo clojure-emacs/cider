@@ -1588,11 +1588,23 @@ point, prompts for a var."
   (cider-read-symbol-name
    "Toggle profiling for var: "
    (lambda (sym)
-     (nrepl-send-request
-      (list "op" "toggle-profile"
-            "ns" (cider-current-ns)
-            "sym" sym)
-      (cider-interactive-eval-handler (current-buffer))))
+     (let ((ns (cider-current-ns)))
+       (nrepl-send-request
+        (list "op" "toggle-profile"
+              "ns" ns
+              "sym" sym)
+        (nrepl-make-response-handler
+         (current-buffer)
+         (lambda (_buffer value)
+           (cond ((equal value "profiled")
+                  (message (format "profiling %s/%s." ns sym)))
+                 ((equal value "unprofiled")
+                  (message (format "not profiling %s/%s." ns sym)))
+                 ((equal value "unbound")
+                  (message (format "%s/%s is not bound." ns sym)))))
+         '()
+         '()
+         '()))))
    query))
 
 (defun cider-profile-summary (query)
@@ -1610,7 +1622,14 @@ point, prompts for a var."
   (cider-ensure-op-supported "clear-profile")
   (nrepl-send-request
    (list "op" "clear-profile")
-   (cider-interactive-eval-handler (current-buffer)))
+   (nrepl-make-response-handler
+    (current-buffer)
+    (lambda (_buffer value)
+      (when (equal value "cleared")
+        (message "cleared profile data.")))
+    '()
+    '()
+    '()))
   query)
 
 (defun cider-create-doc-buffer (symbol)
