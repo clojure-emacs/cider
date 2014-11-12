@@ -208,7 +208,7 @@ Signal an error if it is not supported."
    (lambda (_buffer result)
      (let ((middleware-version (read result)))
        (unless (and middleware-version (equal cider-version middleware-version))
-        (cider-repl-emit-interactive-err-output (format "WARNING: CIDER's version (%s) does not match cider-nrepl's version (%s)" cider-version middleware-version)))))
+         (cider-repl-emit-interactive-err-output (format "WARNING: CIDER's version (%s) does not match cider-nrepl's version (%s)" cider-version middleware-version)))))
    '()
    '()
    '()))
@@ -643,27 +643,27 @@ existing file ending with URL has been found."
                      (current-buffer))
                  ;; Use external zip program to just extract the single file
                  (with-current-buffer (generate-new-buffer
-                                         (file-name-nondirectory entry))
-                     (archive-zip-extract path entry)
-                     (set-visited-file-name name)
-                     (setq-local default-directory (file-name-directory path))
-                     (setq-local buffer-read-only t)
-                     (set-buffer-modified-p nil)
-                     (set-auto-mode)
-                     (current-buffer))))))
+                                       (file-name-nondirectory entry))
+                   (archive-zip-extract path entry)
+                   (set-visited-file-name name)
+                   (setq-local default-directory (file-name-directory path))
+                   (setq-local buffer-read-only t)
+                   (set-buffer-modified-p nil)
+                   (set-auto-mode)
+                   (current-buffer))))))
         (t (-if-let (path (cider--file-path url))
                (find-file-noselect path)
              (unless (file-name-absolute-p url)
                (let ((cider-buffers (cider-util--clojure-buffers))
                      (url (file-name-nondirectory url)))
-                (or (cl-loop for bf in cider-buffers
-                             for path = (with-current-buffer bf
-                                          (expand-file-name url))
-                             if (and path (file-exists-p path))
-                             return (find-file-noselect path))
-                    (cl-loop for bf in cider-buffers
-                             if (string= (buffer-name bf) url)
-                             return bf))))))))
+                 (or (cl-loop for bf in cider-buffers
+                              for path = (with-current-buffer bf
+                                           (expand-file-name url))
+                              if (and path (file-exists-p path))
+                              return (find-file-noselect path))
+                     (cl-loop for bf in cider-buffers
+                              if (string= (buffer-name bf) url)
+                              return bf))))))))
 
 (defun cider-find-var-file (var)
   "Return the buffer visiting the file in which VAR is defined, or nil if
@@ -688,7 +688,7 @@ window."
     (goto-char (point-min))
     (cider-mode +1)
     (if (consp pos)
-        (progn 
+        (progn
           (forward-line (1- (or (car pos) 1)))
           (if (cdr pos)
               (move-to-column (cdr pos))
@@ -1155,7 +1155,7 @@ evaluation command. Honor `cider-auto-jump-to-error'."
   "Handle an need-input request from BUFFER."
   (with-current-buffer buffer
     (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
-                      (cider-stdin-handler buffer))))
+                         (cider-stdin-handler buffer))))
 
 
 ;;;; Popup buffers
