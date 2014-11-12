@@ -150,11 +150,12 @@ which will use the default REPL connection."
   :group 'cider)
 
 (defvar cider-required-nrepl-ops
-  '("apropos" "classpath" "complete" "eldoc" "info"
-    "inspect-start" "inspect-refresh"
+  '("apropos" "classpath" "clear-profile" "complete"
+    "eldoc" "info" "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
-    "macroexpand" "ns-list" "ns-vars"
-    "resource" "stacktrace" "toggle-trace" "undef")
+    "macroexpand" "ns-list" "ns-vars" "profile-summary"
+    "resource" "stacktrace" "toggle-profile"
+    "toggle-trace" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
 All of them are provided by CIDER's nREPL middleware(cider-nrepl).")
@@ -1577,6 +1578,40 @@ point, prompts for a var."
             "sym" sym)
       (cider-interactive-eval-handler (current-buffer))))
    query))
+
+(defun cider-toggle-profile (query)
+  "Toggle profiling for the given QUERY.
+Defaults to the symbol at point.  With prefix arg or no symbol at
+point, prompts for a var."
+  (interactive "P")
+  (cider-ensure-op-supported "toggle-profile")
+  (cider-read-symbol-name
+   "Toggle profiling for var: "
+   (lambda (sym)
+     (nrepl-send-request
+      (list "op" "toggle-profile"
+            "ns" (cider-current-ns)
+            "sym" sym)
+      (cider-interactive-eval-handler (current-buffer))))
+   query))
+
+(defun cider-profile-summary (query)
+  "Display a summary of currently collected profile data."
+  (interactive "P")
+  (cider-ensure-op-supported "profile-summary")
+  (nrepl-send-request
+   (list "op" "profile-summary")
+   (cider-interactive-eval-handler (current-buffer)))
+  query)
+
+(defun cider-clear-profile (query)
+  "Clear any collected profile data."
+  (interactive "P")
+  (cider-ensure-op-supported "clear-profile")
+  (nrepl-send-request
+   (list "op" "clear-profile")
+   (cider-interactive-eval-handler (current-buffer)))
+  query)
 
 (defun cider-create-doc-buffer (symbol)
   "Populates *cider-doc* with the documentation for SYMBOL."
