@@ -1583,7 +1583,8 @@ point, prompts for a var."
             (var-name (nrepl-dict-get trace-response "var-name"))
             (var-status (nrepl-dict-get trace-response "var-status")))
        (pcase var-status
-         ("not-found" (message "Var %s not found" sym)) 
+         ("not-found" (message "Var %s not found" sym))
+         ("not-traceable" (message "Var %s can't be traced because it's not bound to a function" var-name))
          (t (message "Var %s %s" var-name var-status)))))
    query))
 
