@@ -1562,6 +1562,14 @@ if there is no symbol at point, or if QUERY is non-nil."
         (funcall callback symbol-name)
       (cider-completing-read-var prompt (cider-current-ns) callback))))
 
+(defun cider-sync-request:toggle-trace (symbol)
+  "Return a list of classpath entries."
+  (cider-ensure-op-supported "toggle-trace")
+  (-> (list "op" "toggle-trace"
+            "ns" (cider-current-ns)
+            "sym" symbol)
+    (nrepl-send-sync-request)))
+
 (defun cider-toggle-trace (query)
   "Toggle tracing for the given QUERY.
 Defaults to the symbol at point.  With prefix arg or no symbol at
@@ -1571,11 +1579,12 @@ point, prompts for a var."
   (cider-read-symbol-name
    "Toggle trace for var: "
    (lambda (sym)
-     (nrepl-send-request
-      (list "op" "toggle-trace"
-            "ns" (cider-current-ns)
-            "sym" sym)
-      (cider-interactive-eval-handler (current-buffer))))
+     (let* ((trace-response (cider-sync-request:toggle-trace sym))
+            (var-name (nrepl-dict-get trace-response "var-name"))
+            (var-status (nrepl-dict-get trace-response "var-status")))
+       (pcase var-status
+         ("not-found" (message "Var %s not found" sym))
+         (t (message "Var %s %s" var-name var-status)))))
    query))
 
 (defun cider-create-doc-buffer (symbol)
