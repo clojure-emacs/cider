@@ -24,6 +24,7 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 * Added the ability to jump to a definition from a docview buffer.
 * New interactive command `cider-close-nrepl-session`.
 * New interactive command `cider-describe-nrepl-session`.
+* New interactive command `cider-toggle-trace-ns` (mapped to <kbd>C-c M-t n</kbd>)
 
 ### Changes
 
@@ -59,6 +60,7 @@ an error message is displayed in the minibuffer.
 variable `cider-test-show-report-on-success` controls now, whether to show the
 `*cider-test-report*` buffer on passing tests. The default is to not show the
 buffer.
+* Renamed `cider-toggle-trace` to `cider-toggle-trace-var` and remapped it to <kbd>C-c M-t v</kbd>.
 
 ### Bugs fixed
 

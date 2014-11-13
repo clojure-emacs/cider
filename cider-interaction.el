@@ -154,7 +154,7 @@ which will use the default REPL connection."
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
     "macroexpand" "ns-list" "ns-vars"
-    "resource" "stacktrace" "toggle-trace" "undef")
+    "resource" "stacktrace" "toggle-trace-var" "toggle-trace-ns" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
 All of them are provided by CIDER's nREPL middleware(cider-nrepl).")
@@ -1562,30 +1562,51 @@ if there is no symbol at point, or if QUERY is non-nil."
         (funcall callback symbol-name)
       (cider-completing-read-var prompt (cider-current-ns) callback))))
 
-(defun cider-sync-request:toggle-trace (symbol)
+(defun cider-sync-request:toggle-trace-var (symbol)
   "Return a list of classpath entries."
-  (cider-ensure-op-supported "toggle-trace")
+  (cider-ensure-op-supported "toggle-trace-var")
   (-> (list "op" "toggle-trace"
             "ns" (cider-current-ns)
             "sym" symbol)
     (nrepl-send-sync-request)))
 
-(defun cider-toggle-trace (query)
+(defun cider-toggle-trace-var (query)
   "Toggle tracing for the given QUERY.
 Defaults to the symbol at point.  With prefix arg or no symbol at
 point, prompts for a var."
   (interactive "P")
-  (cider-ensure-op-supported "toggle-trace")
+  (cider-ensure-op-supported "toggle-trace-var")
   (cider-read-symbol-name
    "Toggle trace for var: "
    (lambda (sym)
-     (let* ((trace-response (cider-sync-request:toggle-trace sym))
+     (let* ((trace-response (cider-sync-request:toggle-trace-var sym))
             (var-name (nrepl-dict-get trace-response "var-name"))
             (var-status (nrepl-dict-get trace-response "var-status")))
        (pcase var-status
-         ("not-found" (message "Var %s not found" sym))
+         ("not-found" (message "Var %s not found" sym)) 
          (t (message "Var %s %s" var-name var-status)))))
    query))
+
+(defun cider-sync-request:toggle-trace-ns (ns)
+  "Return a list of classpath entries."
+  (cider-ensure-op-supported "toggle-trace-ns")
+  (-> (list "op" "toggle-trace-ns"
+            "ns" ns)
+    (nrepl-send-sync-request)))
+
+(defun cider-toggle-trace-ns (query)
+  "Toggle ns tracing.
+Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
+  (interactive "P")
+  (cider-ensure-op-supported "toggle-trace-ns")
+  (let ((ns (if query
+                (completing-read "Toggle trace for ns: " (cider-sync-request:ns-list))
+              (cider-current-ns))))
+    (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
+           (ns-status (nrepl-dict-get trace-response "ns-status")))
+      (pcase ns-status
+        ("not-found" (message "ns %s not found" ns))
+        (t (message "ns %s %s" ns ns-status))))))
 
 (defun cider-create-doc-buffer (symbol)
   "Populates *cider-doc* with the documentation for SYMBOL."
