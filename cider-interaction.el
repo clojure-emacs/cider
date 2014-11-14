@@ -1563,7 +1563,7 @@ if there is no symbol at point, or if QUERY is non-nil."
       (cider-completing-read-var prompt (cider-current-ns) callback))))
 
 (defun cider-sync-request:toggle-trace-var (symbol)
-  "Return a list of classpath entries."
+  "Toggle var tracing for SYMBOL."
   (cider-ensure-op-supported "toggle-trace-var")
   (-> (list "op" "toggle-trace"
             "ns" (cider-current-ns)
@@ -1589,7 +1589,7 @@ point, prompts for a var."
    query))
 
 (defun cider-sync-request:toggle-trace-ns (ns)
-  "Return a list of classpath entries."
+  "Toggle namespace tracing for NS."
   (cider-ensure-op-supported "toggle-trace-ns")
   (-> (list "op" "toggle-trace-ns"
             "ns" ns)
