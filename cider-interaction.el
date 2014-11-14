@@ -1571,8 +1571,8 @@ if there is no symbol at point, or if QUERY is non-nil."
     (nrepl-send-sync-request)))
 
 (defun cider-toggle-trace-var (query)
-  "Toggle tracing for the given QUERY.
-Defaults to the symbol at point.  With prefix arg or no symbol at
+  "Toggle var tracing.
+Defaults to the symbol at point.  With prefix arg QUERY or no symbol at
 point, prompts for a var."
   (interactive "P")
   (cider-ensure-op-supported "toggle-trace-var")
