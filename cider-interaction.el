@@ -157,7 +157,7 @@ which will use the default REPL connection."
     "resource" "stacktrace" "toggle-trace-var" "toggle-trace-ns" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
-All of them are provided by CIDER's nREPL middleware(cider-nrepl).")
+All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
 
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
