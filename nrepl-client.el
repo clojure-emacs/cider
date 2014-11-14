@@ -896,7 +896,7 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
       (process-send-string nil message))))
 
 (defun nrepl-send-sync-request (request)
-  "Send REQUEST to the nREPL server synchronously (discouraged).
+  "Send REQUEST to the nREPL server synchronously.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along."
   (let* ((time0 (current-time))
