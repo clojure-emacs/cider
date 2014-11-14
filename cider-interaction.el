@@ -1565,7 +1565,7 @@ if there is no symbol at point, or if QUERY is non-nil."
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
   (cider-ensure-op-supported "toggle-trace-var")
-  (-> (list "op" "toggle-trace"
+  (-> (list "op" "toggle-trace-var"
             "ns" (cider-current-ns)
             "sym" symbol)
     (nrepl-send-sync-request)))
