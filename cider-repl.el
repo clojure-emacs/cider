@@ -182,10 +182,21 @@ PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
       (clojure.core/map clojure.core/require clojure.main/repl-requires))"
    (lambda (response) nil)))
 
+(defun cider-repl-set-initial-ns (buffer)
+  "Set the REPL BUFFER's initial namespace (by altering `nrepl-buffer-ns').
+This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
+  ;; we don't want to get a timeout during init
+  (let ((nrepl-sync-request-timeout nil))
+    (with-current-buffer buffer
+      (let ((initial-ns (read (nrepl-dict-get (nrepl-sync-request:eval "(str *ns*)") "value"))))
+        (when initial-ns
+          (setq nrepl-buffer-ns initial-ns))))))
+
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
 client process connection. Unless NO-BANNER is non-nil, insert a banner."
+  (cider-repl-set-initial-ns buffer)
   (cider-repl-require-repl-utils)
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
