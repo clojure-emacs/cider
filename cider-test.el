@@ -435,12 +435,17 @@ displayed. When test failures/errors occur, their sources are highlighted."
       (cider-test-execute ns t)
     (message "No namespace to retest")))
 
-(defun cider-test-run-tests ()
-  "Run all tests for the current Clojure source or test report context."
-  (interactive)
-  (-if-let (ns (or (funcall cider-test-infer-test-ns (clojure-find-ns))
-                   (when (eq major-mode 'cider-test-report-mode)
-                     cider-test-last-test-ns)))
+(defun cider-test-run-tests (suppress-inference)
+  "Run all tests for the current Clojure source or test report context.
+
+With a prefix arg SUPPRESS-INFERENCE it will try to run the tests in the
+current ns."
+  (interactive "P")
+  (-if-let (ns (if suppress-inference
+                   (clojure-find-ns)
+                 (or (funcall cider-test-infer-test-ns (clojure-find-ns))
+                     (when (eq major-mode 'cider-test-report-mode)
+                      cider-test-last-test-ns))))
       (cider-test-execute ns nil)
     (message "No namespace to test in current context")))
 
