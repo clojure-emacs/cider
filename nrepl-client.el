@@ -388,7 +388,7 @@ then returned."
             (lambda (k2 v2)
               (nrepl-dict-put dict1 k2
                               (nrepl--merge (nrepl-dict-get dict1 k2) v2
-                                           (member k2 '("id" "session")))))
+                                            (member k2 '("id" "session")))))
             dict2)
            dict1)
           ((and (listp dict2) (listp dict1)) (append dict1 dict2))
@@ -412,7 +412,7 @@ The STUB slot stores a stack of nested, incompletely parsed objects.")
   "Decode a bencode list or dict starting at point.
 STACK is as in `nrepl--bdecode-1'."
   ;; skip leading l or d
-  (forward-char 1) 
+  (forward-char 1)
   (let* ((istack (nrepl--bdecode-1 stack))
          (pos0 (point))
          (info (car istack)))
@@ -709,7 +709,7 @@ the newly created client connection process."
 
     (process-put client-proc :string-q (queue-create))
     (process-put client-proc :response-q (nrepl-response-queue))
-    
+
     (with-current-buffer client-buf
       (-when-let (server-buf (and server-proc (process-buffer server-proc)))
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
@@ -723,7 +723,7 @@ the newly created client connection process."
                                   (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)))
-    
+
     (nrepl-make-connection-default client-buf)
     (nrepl--init-client-sessions client-proc)
     (nrepl--init-connection-buffer client-buf replp)
@@ -1126,7 +1126,7 @@ The default buffer name is *nrepl-messages*."
         (with-current-buffer buffer
           (buffer-disable-undo)
           (nrepl-messages-mode)
-        buffer))))
+          buffer))))
 
 
 ;;; Connection Buffer Management
