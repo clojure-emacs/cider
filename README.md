@@ -333,6 +333,20 @@ helpful for identifying each host.
 (setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
 ```
 
+### Running tests
+
+* If your tests are not following the `some.ns-test` naming convention you can
+customize the variable `cider-test-infer-test-ns`. It should be bound to a
+function that takes the current ns and returns the matching test ns (which may
+be the same as the current ns).
+
+* If you want to view the test report regardless of whether the tests have
+passed or failed:
+
+```el
+(setq cider-test-show-report-on-success t)
+```
+
 ### REPL History
 
 * To make the REPL history wrap around when its end is reached:
@@ -355,11 +369,6 @@ helpful for identifying each host.
 
 Note that the history is written to the file when you kill the REPL
 buffer (which includes invoking `cider-quit`) or you quit Emacs.
-
-* If your tests are not following the `some.ns-test` naming convention you can
-customize the variable `cider-test-infer-test-ns`. It should be bound to a
-function that takes the current ns and returns the matching test ns (which may
-be the same as the current ns).
 
 ### Minibuffer completion
 
