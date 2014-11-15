@@ -83,6 +83,7 @@ Emacs Lisp code.
 * [#631](https://github.com/clojure-emacs/cider/issues/631): Set `file` and `line` metadata when
 doing interactive evaluation.
 * nREPL sessions are now closed on `cider-quit`.
+* Fix minibuffer history for `cider-read-and-eval`.
 
 ## 0.7.0 / 2014-08-05
 
