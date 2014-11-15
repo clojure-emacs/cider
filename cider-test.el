@@ -380,10 +380,13 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 ;; its corresponding test namespace. To provide this, we need to map the
 ;; relationship between those namespaces.
 
-(defvar cider-test-infer-test-ns 'cider-test-default-test-ns-fn
+(defcustom cider-test-infer-test-ns 'cider-test-default-test-ns-fn
   "Function to infer the test namespace for NS.
 The default implementation uses the simple Leiningen convention of appending
-'-test' to the namespace name.")
+'-test' to the namespace name."
+  :type 'symbol
+  :group 'cider-test
+  :package-version '(cider . "0.7.0"))
 
 (defun cider-test-default-test-ns-fn (ns)
   "For a NS, return the test namespace, which may be the argument itself.

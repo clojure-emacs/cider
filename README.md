@@ -356,6 +356,11 @@ helpful for identifying each host.
 Note that the history is written to the file when you kill the REPL
 buffer (which includes invoking `cider-quit`) or you quit Emacs.
 
+* If your tests are not following the `some.ns-test` naming convention you can
+customize the variable `cider-test-infer-test-ns`. It should be bound to a
+function that takes the current ns and returns the matching test ns (which may
+be the same as the current ns).
+
 ### Minibuffer completion
 
 Out-of-the box `CIDER` uses the standard `completing-read` Emacs mechanism. While it's not
