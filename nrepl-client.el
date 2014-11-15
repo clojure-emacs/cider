@@ -905,8 +905,9 @@ of the same \"op\" that came along."
     (while (not (member "done" (nrepl-dict-get response "status")))
       (accept-process-output nil 0.01)
       ;; break out in case we don't receive a response for a while
-      (when (> (cadr (time-subtract (current-time) time0))
-               nrepl-sync-request-timeout)
+      (when (and nrepl-sync-request-timeout
+                 (> (cadr (time-subtract (current-time) time0))
+                    nrepl-sync-request-timeout))
         (error "Sync nREPL request timed out %s" request)))
     (-when-let* ((ex (nrepl-dict-get response "ex"))
                  (err (nrepl-dict-get response "err")))
