@@ -174,10 +174,19 @@ PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
       (cider-repl-reset-markers))
     buf))
 
+(defun cider-repl-require-repl-utils ()
+  "Require standard REPL util functions into the current REPL."
+  (interactive)
+  (cider-eval
+   "(when (clojure.core/resolve 'clojure.main/repl-requires)
+      (clojure.core/map clojure.core/require clojure.main/repl-requires))"
+   (lambda (response) nil)))
+
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
 client process connection. Unless NO-BANNER is non-nil, insert a banner."
+  (cider-repl-require-repl-utils)
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
   (when cider-repl-display-in-current-window

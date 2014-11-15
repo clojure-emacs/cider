@@ -25,6 +25,7 @@ are used to translate filenames from/to the nREPL server (default Cygwin impleme
 * New interactive command `cider-close-nrepl-session`.
 * New interactive command `cider-describe-nrepl-session`.
 * New interactive command `cider-toggle-trace-ns` (mapped to <kbd>C-c M-t n</kbd>)
+* New interactive command `cider-repl-require-repl-utils`.
 
 ### Changes
 
