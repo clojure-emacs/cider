@@ -1753,6 +1753,7 @@ If no buffer is provided the command acts on the current buffer."
   (list cider-error-buffer
         cider-doc-buffer
         cider-test-report-buffer
+        cider-nrepl-session-buffer
         nrepl-message-buffer-name))
 
 (defun cider-close-ancillary-buffers ()
