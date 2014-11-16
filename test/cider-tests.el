@@ -461,19 +461,17 @@
     (let ((server-buffer (current-buffer)))
       (with-temp-buffer
         (let* ((connection-buffer (current-buffer))
+               (repl-buffer connection-buffer)
                (nrepl-connection-list (list (buffer-name connection-buffer))))
-          (with-temp-buffer
-            (let ((repl-buffer (current-buffer)))
-              (with-current-buffer connection-buffer
-                (setq-local nrepl-repl-buffer (buffer-name repl-buffer))
-                (setq-local nrepl-server-buffer (buffer-name server-buffer)))
-              (noflet ((read-string (dontcare) "bob"))
-                (cider-change-buffers-designation)
-                (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
-                (should (equal "*nrepl-connection bob*" (buffer-name connection-buffer)))
-                (should (equal "*nrepl-server bob*" (buffer-name server-buffer))))
-              (with-current-buffer repl-buffer
-                (should (equal "*nrepl-connection bob*" nrepl-connection-buffer))))))))))
+          (with-current-buffer connection-buffer
+            (setq-local nrepl-repl-buffer (buffer-name repl-buffer))
+            (setq-local nrepl-server-buffer (buffer-name server-buffer)))
+          (noflet ((read-string (dontcare) "bob"))
+                  (cider-change-buffers-designation)
+                  (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
+                  (should (equal "*nrepl-server bob*" (buffer-name server-buffer))))
+          (with-current-buffer repl-buffer
+            (should (equal "*cider-repl bob*" nrepl-connection-buffer))))))))
 
 (ert-deftest test-cider-change-buffers-designation-to-existing-designation-has-no-effect ()
   (with-temp-buffer
