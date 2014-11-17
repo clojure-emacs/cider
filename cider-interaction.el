@@ -1177,28 +1177,17 @@ If SELECT is non-nil, select the BUFFER."
   (-when-let (win (get-buffer-window buffer))
     (with-current-buffer buffer
       (set-window-point win (point))))
+  ;; Non nil `inhibit-same-window' ensures that current window is not covered
   (if select
-      ;; There is a quirk with `display-buffer-in-previous-window' which
-      ;; overrides current buffer with *cider-error* buffer if *cider-error* was
-      ;; most recently displayed in current buffer's window. The
-      ;; `inhibit-same-window' solution below inhibits
-      ;; `display-buffer-in-previous-window' altogether and allows
-      ;; `display-buffer-use-some-window' to run instead, which in turn doesn't
-      ;; behave that nicely on splits with more than 3 buffers. When
-      ;; `pop-up-windows' is nil, non-nil `inhibit-same-window' pops up a new
-      ;; frame if there is only one buffer in a frame. The
-      ;; `display-buffer-in-previous-window' issue should be followed upstream,
-      ;; but for now the solution below should satisfy all needs with only minor
-      ;; inconvenience on frames with 3 buffer splits.
       (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
     (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows)))))
   buffer)
 
-(defun cider-popup-buffer-quit (&optional kill-buffer-p)
-  "Quit the current (temp) window and bury its buffer using `quit-window'.
-If prefix argument KILL-BUFFER-P is non-nil, kill the buffer instead of burying it."
+(defun cider-popup-buffer-quit (&optional kill)
+  "Quit the current (temp) window and bury its buffer using `quit-restore-window'.
+If prefix argument KILL is non-nil, kill the buffer instead of burying it."
   (interactive)
-  (quit-window kill-buffer-p (selected-window)))
+  (quit-restore-window (selected-window) (if kill 'kill 'append)))
 
 (defun cider-make-popup-buffer (name &optional mode)
   "Create a temporary buffer called NAME using major MODE (if specified)."
