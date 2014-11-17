@@ -14,6 +14,8 @@
 REPL server. It's a great alternative to the now deprecated combination
 of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
+![CIDER Screenshot](https://github.com/clojure-emacs/cider/raw/master/screenshots/cider-overview.png)
+
 ***
 
 - [Installation](#installation)
