@@ -14,6 +14,29 @@
 REPL server. It's a great alternative to the now deprecated combination
 of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
+CIDER packs plenty of features. Here are some of them (in no particular order):
+
+* Powerful REPL
+* Interactive code evaluation
+* Compilation notes (error and warning highlighting)
+* Human-friendly stacktraces
+* Smart code completion
+* Definition lookup
+* Documentation lookup
+* Resource lookup
+* Apropos
+* Value inspector
+* Function tracing
+* Interactive macroexpansion
+* [Grimoire](http://grimoire.arrdem.com/) integration
+* `clojure.test` integration
+* Classpath browser
+* Namespace browser
+* nREPL session management
+* Scratchpad
+* Minibuffer code evaluation
+* Integration with [company-mode](http://company-mode.github.io/) and [auto-complete-mode](https://github.com/clojure-emacs/ac-cider)
+
 ![CIDER Screenshot](https://github.com/clojure-emacs/cider/raw/master/screenshots/cider-overview.png)
 
 ***
