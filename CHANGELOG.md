@@ -2,9 +2,11 @@
 
 ## master (unreleased)
 
+## 0.8.0 / 2014-11-20
+
 ### New features
 
-* `cider-auto-jump-to-error` accepts new option 'errors-only
+* `cider-auto-jump-to-error` accepts new option `'errors-only`
 * `cider-connect` now asks for remote hosts defined in machine-wide `ssh`
   configuration files and automatically detects running instances of lein
   server, both on local and remote machines.
@@ -14,7 +16,7 @@
 * New interactive command `cider-clear-compilation-highlights`.
 * First pass at a CIDER quick reference card.
 * `completion-at-point` now annotates functions, macros and special forms, thus making it
-simpler to gain understanding of what you're using.
+simpler to gain understanding of what you're using (disabled by default).
 * When invoked with a prefix argument `cider-quit` doesn't ask for confirmation.
 * Enhance stacktrace to definition navigation to work for interactively defined vars.
 * New vars: `cider-to-nrepl-filename-function` and `cider-from-nrepl-filename-function`
