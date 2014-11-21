@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 0.8.1 / 2014-11-20
+
+### Bugs fixed
+
+* Fixed version mismatch warning on CIDER startup (the actual bug was in `cider-nrepl`).
+
 ## 0.8.0 / 2014-11-20
 
 ### New features
