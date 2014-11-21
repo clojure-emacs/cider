@@ -492,13 +492,22 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
              (bounds-of-thing-at-point 'sexp)))
       (bounds-of-thing-at-point 'sexp)))
 
+(defun cider--clean-symbol (symbol)
+  "Return SYMBOL cleaned so a dictionary match can be found."
+  (if (string-equal symbol "")
+      symbol
+      (let* ((symbol (if (string-equal (substring symbol 0 1) "@")
+                         (substring symbol 1)
+                       symbol)))
+        symbol)))
+
 ;; FIXME: This doesn't have properly at the beginning of the REPL prompt
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
   (let ((str (substring-no-properties (or (thing-at-point 'symbol) ""))))
     (if (equal str (concat (cider-current-ns) "> "))
         ""
-      str)))
+      (cider--clean-symbol str))))
 
 (defun cider-sexp-at-point ()
   "Return the sexp at point as a string, otherwise nil."
