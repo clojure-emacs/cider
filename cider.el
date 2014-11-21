@@ -9,7 +9,7 @@
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 0.8.0
+;; Version: 0.8.1
 ;; Package-Requires: ((clojure-mode "3.0.0") (cl-lib "0.5") (dash "2.4.1") (pkg-info "0.4") (emacs "24") (queue "0.1.1"))
 ;; Keywords: languages, clojure, cider
 
@@ -67,7 +67,7 @@
 (require 'cider-util)
 (require 'tramp-sh)
 
-(defvar cider-version "0.8.0"
+(defvar cider-version "0.8.1"
   "Fallback version used when it cannot be extracted automatically.
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
