@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+* [#883](https://github.com/clojure-emacs/cider/issues/883): Encode properly the javadoc url.
+
 ## 0.8.1 / 2014-11-20
 
 ### Bugs fixed
