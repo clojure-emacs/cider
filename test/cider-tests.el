@@ -532,6 +532,10 @@
            (cider-current-ns () "user"))
     (should (string= (cider-symbol-at-point) ""))))
 
+(ert-deftest cider-symbol-at-point-deref ()
+  (noflet ((thing-at-point (thing) "@user"))
+          (should (string= (cider-symbol-at-point) "user"))))
+
 (ert-deftest test-cider--url-to-file ()
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
   (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))
