@@ -604,7 +604,8 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
-<kbd>C-c M-t</kbd>                   | Toggle var tracing.
+<kbd>C-c M-t v</kbd>                 | Toggle var tracing.
+<kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
 <kbd>C-c C-u</kbd>                   | Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c ,</kbd>                     | Run tests for namespace.
 <kbd>C-c C-,</kbd>                   | Re-run test failures/errors for namespace.
@@ -643,7 +644,9 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-f</kbd> | Select a function from the current namespace and insert into the REPL buffer.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-n</kbd> | Select a namespace and switch to it.
-<kbd>C-c M-t</kbd> | Toggle var tracing.
+<kbd>C-c M-t v</kbd> | Toggle var tracing.
+<kbd>C-c M-t n</kbd> | Toggle namespace tracing.
+
 
 
 In the REPL you can also use "shortcut commands" by pressing `,` at the beginning of a REPL line. You'll be presented with a list of commands you can quickly run (like quitting, displaying some info, clearing the REPL, etc). The character used to trigger the shortcuts is configurable via `cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
