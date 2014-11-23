@@ -22,18 +22,6 @@ elpa:
 	$(CASK) update
 	touch $@
 
-package:
-	$(CASK) package
-	mkdir -p packages/$(PACKAGE_NAME)
-	cp cider-pkg.el packages/$(PACKAGE_NAME)
-	cp $(ELS) packages/$(PACKAGE_NAME)
-	tar cf packages/$(PACKAGE_NAME).tar -C packages $(PACKAGE_NAME)
-
-packageclean:
-	rm cider-pkg.el
-	rm -rf packages/$(PACKAGE_NAME)
-	rm packages/$(PACKAGE_NAME).tar
-
 .PHONY: build
 build : elpa $(OBJECTS)
 
