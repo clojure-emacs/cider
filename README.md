@@ -96,16 +96,17 @@ sometimes interferes with CIDER's REPL initialization.
 
 `package.el` is the built-in package manager in Emacs.
 
-`CIDER` is available on two major `package.el` community
+`CIDER` is available on all major `package.el` community
 maintained repos -
-[MELPA Stable](http://stable.melpa.org) and
-[MELPA](http://melpa.org).
+[MELPA Stable](http://stable.melpa.org),
+[MELPA](http://melpa.org) and [Marmalade](https://marmalade-repo.org/).
 
 You can install `CIDER` with the following command:
 
 <kbd>M-x package-install [RET] cider [RET]</kbd>
 
-or by adding this bit of Emacs Lisp code to your Emacs initialization file (`.emacs` or `init.el`):
+or by adding this bit of Emacs Lisp code to your Emacs initialization file
+(`.emacs` or `init.el`):
 
 ```el
 (unless (package-installed-p 'cider)
@@ -122,8 +123,8 @@ time. Never-the-less, installing from MELPA is the recommended way of
 obtaining CIDER, as the `master` branch is normally quite stable and
 "stable" (tagged) builds are released somewhat infrequently.
 
-With the most recent builds of Emacs, you can pin CIDER to always
-use MELPA Stable by adding this to your Emacs initialization:
+With the most recent builds of Emacs, you can pin CIDER to always use MELPA
+Stable (or Marmalade) by adding this to your Emacs initialization:
 
 ```el
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
