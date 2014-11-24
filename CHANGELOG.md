@@ -4,6 +4,7 @@
 
 ### Bugs fixed
 
+* [#894](https://github.com/clojure-emacs/cider/issues/894): Fix (cider-javadoc) regression "unable to input Java class name when not (symbol-at-point)" due to complecting (cider-read-symbol-name) and (cider-completing-read-var): Not all symbols are vars, e.g., Java classes on JVM.
 * [#867](https://github.com/clojure-emacs/cider/issues/867): Update Grimoire URL to fix (cider-grimoire-lookup) regression due to HTTP 301 (Moved Permanently).
 * [#883](https://github.com/clojure-emacs/cider/issues/883): Encode properly the javadoc url.
 

@@ -836,7 +836,7 @@ in the buffer."
 (defun cider-javadoc (query)
   "Browse Javadoc on the Java symbol QUERY at point."
   (interactive "P")
-  (cider-read-symbol-name "Javadoc for: " 'cider-javadoc-handler query))
+  (cider-read-symbol-name "Javadoc for: " 'cider-javadoc-handler query t))
 
 (defun cider-stdin-handler (&optional buffer)
   "Make a stdin response handler for BUFFER."
@@ -1542,18 +1542,19 @@ ready to call."
                                         (cider-repl--replace-input (format "(%s)" f))
                                         (goto-char (- (point-max) 1)))))))
 
-(defun cider-read-symbol-name (prompt callback &optional query)
+(defun cider-read-symbol-name (prompt callback &optional query notvarp)
   "Either read a symbol name using PROMPT or choose the one at point.
-Use CALLBACK as the completing read var callback.
-The user is prompted with PROMPT if a prefix argument is in effect,
-if there is no symbol at point, or if QUERY is non-nil."
+
+Use CALLBACK as the completing read var callback. The user is prompted with PROMPT if a prefix argument is in effect, if there is no symbol at point, or if QUERY is non-nil. Signal that the symbol is not a var (and hence not completing by var) if NOTVARP is t."
   (let ((symbol-name (cider-symbol-at-point)))
     (if (not (or current-prefix-arg
                  query
                  (not symbol-name)
                  (equal "" symbol-name)))
         (funcall callback symbol-name)
-      (cider-completing-read-var prompt (cider-current-ns) callback))))
+      (if notvarp
+          (funcall callback (cider-read-from-minibuffer prompt))
+        (cider-completing-read-var prompt (cider-current-ns) callback)))))
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
