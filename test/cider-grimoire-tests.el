@@ -11,7 +11,7 @@
   (should (equal (cider-grimoire-replace-special "/") "SLASH")))
 
 (ert-deftest cider-grimoire-url ()
-  (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/even_QMARK/"
+  (should (equal "http://conj.io/1.5.0/clojure.core/even_QMARK/"
                  (cider-grimoire-url "even?" "clojure.core" "1.5.1")))
-  (should (equal "http://grimoire.arrdem.com/1.5.0/clojure.core/"
+  (should (equal "http://conj.io/1.5.0/clojure.core/"
                  (cider-grimoire-url nil "clojure.core" "1.5.1"))))

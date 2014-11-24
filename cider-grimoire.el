@@ -27,7 +27,7 @@
 
 (require 'cider-interaction)
 
-(defconst cider-grimoire-url "http://grimoire.arrdem.com/")
+(defconst cider-grimoire-url "http://conj.io/")
 
 (defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
