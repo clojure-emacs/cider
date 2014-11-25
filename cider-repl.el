@@ -1025,7 +1025,8 @@ constructs."
         ["Macroexpand" cider-macroexpand-1]
         ["Macroexpand all" cider-macroexpand-all]
         ["Refresh loaded code" cider-refresh]
-        ["Toggle tracing" cider-toggle-trace]
+        ["Toggle var tracing" cider-toggle-trace-var]
+        ["Toggle ns tracing" cider-toggle-trace-ns]
         "--"
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
