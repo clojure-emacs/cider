@@ -41,6 +41,7 @@
     "A point of view is worth 80 IQ points. -Alan Kay"
     "Lisp isn't a language, it's a building material. -Alan Kay"
     "Simple things should be simple, complex things should be possible. -Alan Kay"
+    "Everything should be as simple as possible, but not simpler. -Albert Einstein"
     "Measuring programming progress by lines of code is like measuring aircraft building progress by weight. -Bill Gates"
     "Controlling complexity is the essence of computer programming. -Brian Kernighan"
     "The unavoidable price of reliability is simplicity. -C.A.R. Hoare"
