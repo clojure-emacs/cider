@@ -1035,7 +1035,7 @@ constructs."
         ["Clear output" cider-repl-clear-output]
         ["Clear buffer" cider-repl-clear-buffer]
         ["Kill input" cider-repl-kill-input]
-        ["Interrupt" cider-interrupt]
+        ["Interrupt evaluation" cider-interrupt]
         "--"
         ["Quit" cider-quit]
         ["Restart" cider-restart]

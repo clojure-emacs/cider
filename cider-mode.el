@@ -129,7 +129,7 @@ entirely."
         ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
         ["Clear REPL" cider-find-and-clear-repl-buffer]
         ["Refresh loaded code" cider-refresh]
-        ["Interrupt" cider-interrupt]
+        ["Interrupt evaluation" cider-interrupt]
         ["Quit" cider-quit]
         ["Restart" cider-restart]
         "--"
