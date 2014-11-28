@@ -5,6 +5,9 @@
 ### New features
 
 * Trigger Grimoire doc lookup from doc buffers by pressing <kbd>g</kbd> (in Emacs) and <kbd>G</kbd> (in browser).
+* [#903](https://github.com/clojure-emacs/cider/pull/903): Isolate
+  `nrepl-client` connection logic from CIDER. New hooks `cider-connected-hook`
+  and `cider-disconnected-hook`.
 
 ## 0.8.2 / 2014-12-21
 

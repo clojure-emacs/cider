@@ -92,6 +92,18 @@ This variable is used by `cider-connect'."
   :type 'list
   :group 'cider)
 
+(defcustom cider-connected-hook nil
+  "List of functions to call when connected to Clojure nREPL server."
+  :type 'hook
+  :group 'cider
+  :version "0.9.0")
+
+(defcustom cider-disconnected-hook nil
+  "List of functions to call when disconnected from the Clojure nREPL server."
+  :type 'hook
+  :group 'cider
+  :version "0.9.0")
+
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
@@ -118,7 +130,8 @@ start the server."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
   (if (cider--lein-present-p)
-      (let* ((project (when prompt-project
+      (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
+             (project (when prompt-project
                         (read-directory-name "Project: ")))
              (project-dir (nrepl-project-directory-for
                            (or project (nrepl-current-dir))))
@@ -140,7 +153,8 @@ Create REPL buffer and start an nREPL client connection."
   (interactive (cider-select-endpoint))
   (setq cider-current-clojure-buffer (current-buffer))
   (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
-    (nrepl-start-client-process host port t)))
+    (let ((nrepl-create-client-buffer-function  #'cider-repl-create))
+      (nrepl-start-client-process host port))))
 
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
@@ -233,6 +247,25 @@ In case `default-directory' is non-local we assume the command is available."
   (or (file-remote-p default-directory)
       (executable-find cider-lein-command)
       (executable-find (concat cider-lein-command ".bat"))))
+
+(defun cider--connected-handler ()
+  "Handle cider initialization after nREPL connection has been established.
+This function is appended to `nrepl-connected-hook' in the client process
+buffer."
+  ;; `nrepl-connected-hook' is run in connection buffer
+  (cider-repl-init (current-buffer))
+  (cider--check-required-nrepl-ops)
+  (cider--check-middleware-compatibility)
+  (cider-enable-on-existing-clojure-buffers)
+  (run-hooks 'cider-connected-hook))
+
+(defun cider--disconnected-handler ()
+  "Cleanup after nREPL connection has been lost or closed.
+This function is appended to `nrepl-disconnected-hook' in the client
+process buffer."
+  ;; `nrepl-connected-hook' is run in connection buffer
+  (cider-possibly-disable-on-existing-clojure-buffers)
+  (run-hooks 'cider-disconnected-hook))
 
 ;;;###autoload
 (eval-after-load 'clojure-mode

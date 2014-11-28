@@ -162,16 +162,19 @@ PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
                            (current-buffer))
     (nrepl-make-buffer-name nrepl-repl-buffer-name-template project-dir host port)))
 
-(defun cider-repl-create (&optional project-dir host port)
+(defun cider-repl-create (endpoint)
   "Create a REPL buffer and install `cider-repl-mode'.
-PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
+ENDPOINT is a plist as returned by `nrepl-connect'."
   ;; Connection might not have been set as yet. Please don't send requests here.
-  (let ((buf (nrepl-make-buffer-name nrepl-repl-buffer-name-template
-                                     project-dir host port)))
+  (let ((buf (nrepl-make-buffer-name nrepl-repl-buffer-name-template nil
+                                     (plist-get endpoint :host)
+                                     (plist-get endpoint :port))))
     (with-current-buffer (get-buffer-create buf)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
-      (cider-repl-reset-markers))
+      (cider-repl-reset-markers)
+      (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
+      (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local))
     buf))
 
 (defun cider-repl-require-repl-utils ()
