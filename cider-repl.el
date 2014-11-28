@@ -392,7 +392,7 @@ Return the position of the prompt beginning."
         (cider-propertize-region
             '(font-lock-face cider-repl-prompt-face read-only t intangible t
                              cider-repl-prompt t
-                             rear-nonsticky (cider-repl-prompt read-only face intangible))
+                             rear-nonsticky (cider-repl-prompt read-only font-lock-face intangible))
           (insert-before-markers prompt))
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
@@ -408,7 +408,7 @@ If BOL is non-nil insert at the beginning of line."
           ;; TODO: Review the need for bol
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
           (cider-propertize-region `(font-lock-face ,output-face
-                                                    rear-nonsticky (face))
+                                                    rear-nonsticky (font-lock-face))
             (insert-before-markers string)
             (when (and (= (point) cider-repl-prompt-start-mark)
                        (not (bolp)))
@@ -471,7 +471,7 @@ If BOL is non-nil insert at the beginning of the line."
           (if cider-repl-use-clojure-font-lock
               (insert-before-markers (cider-font-lock-as-clojure string))
             (cider-propertize-region
-                '(font-lock-face cider-repl-result-face rear-nonsticky (face))
+                '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
               (insert-before-markers string))))))
     (cider-repl--show-maximum-output)))
 
