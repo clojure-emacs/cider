@@ -1049,6 +1049,8 @@ constructs."
 
 \\{cider-repl-mode-map}"
   (lisp-mode-variables nil)
+  (setq-local comment-start ";")
+  (setq-local comment-end "")
   (setq-local lisp-indent-function 'clojure-indent-function)
   (setq-local indent-line-function 'lisp-indent-line)
   (make-local-variable 'completion-at-point-functions)
