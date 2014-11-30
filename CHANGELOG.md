@@ -7,6 +7,7 @@
 * [#867](https://github.com/clojure-emacs/cider/issues/867): Update Grimoire URL to fix (cider-grimoire-lookup) regression due to HTTP 301 (Moved Permanently).
 * [#883](https://github.com/clojure-emacs/cider/issues/883): Encode properly the javadoc url.
 * [#824](https://github.com/clojure-emacs/cider/issues/824): Fix REPL font-locking.
+* [#888](https://github.com/clojure-emacs/cider/issues/888): Handle comments in `cider-repl-mode`.
 
 ## 0.8.1 / 2014-11-20
 
