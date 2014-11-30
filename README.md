@@ -723,7 +723,7 @@ against the default connection.
 You can display the default nREPL connection using <kbd>C-c M-d</kbd>
 and rotate the default connection using <kbd>C-c M-r</kbd>. Another
 option for setting the default connection is to execute the command
-<kbd>M-x nrepl-make-repl-connection-default</kbd> in the appropriate
+<kbd>M-x nrepl-make-connection-default</kbd> in the appropriate
 REPL buffer.
 
 To switch to the relevant REPL buffer based on the Clojure namespace
