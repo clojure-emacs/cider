@@ -398,7 +398,7 @@ Return the position of the prompt beginning."
         prompt-start))))
 
 (defun cider-repl-emit-output-at-pos (buffer string output-face position &optional bol)
-  "Using BUFFER, insert STRING at POSITION and mark it as output.
+  "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
 If BOL is non-nil insert at the beginning of line."
   (with-current-buffer buffer
     (save-excursion
