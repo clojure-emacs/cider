@@ -417,7 +417,7 @@ If BOL is non-nil insert at the beginning of line."
     (cider-repl--show-maximum-output)))
 
 (defun cider-repl--emit-interactive-output (string face)
-  "Emit STRING as interactive output using face."
+  "Emit STRING as interactive output using FACE."
   (with-current-buffer (cider-current-repl-buffer)
     (let ((pos (1- (cider-repl--input-line-beginning-position)))
           (string (replace-regexp-in-string "\n\\'" "" string)))
