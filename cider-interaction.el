@@ -1244,11 +1244,11 @@ otherwise fall back to \"user\"."
 
 ;;; Evaluation
 
-(defun cider-interactive-eval (form &optional start-pos callback)
+(defun cider-interactive-source-tracking-eval (form &optional start-pos callback)
   "Evaluate FORM and dispatch the response to CALLBACK.
-START-POS is a starting position of the form in the original context.  This
-function is the main entry point in CIDER's interactive evaluation API.  All
-other interactive eval functions should rely on this function.  If CALLBACK
+START-POS is a starting position of the form in the original context.
+Unlike `cider-interactive-eval' this command will set proper metadata for var
+definitions.  If CALLBACK
 is nil use `cider-interactive-eval-handler'."
   (cider--clear-compilation-highlights)
   (-when-let (error-win (get-buffer-window cider-error-buffer))
@@ -1260,6 +1260,19 @@ is nil use `cider-interactive-eval-handler'."
      (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
      (file-name-nondirectory filename)
      (or callback (cider-interactive-eval-handler)))))
+
+(defun cider-interactive-eval (form &optional callback)
+  "Evaluate FORM and dispatch the response to CALLBACK.
+This function is the main entry point in CIDER's interactive evaluation
+API.  Most other interactive eval functions should rely on this function.
+If CALLBACK is nil use `cider-interactive-eval-handler'."
+  (cider--clear-compilation-highlights)
+  (-when-let (error-win (get-buffer-window cider-error-buffer))
+    (quit-window nil error-win))
+  (nrepl-request:eval
+   form
+   (or callback (cider-interactive-eval-handler))
+   (cider-current-ns)))
 
 (defun cider--dummy-file-contents (form start-pos)
   "Wrap FORM to make it suitable for `cider-request:load-file'.
@@ -1283,7 +1296,7 @@ START-POS is a starting position of the form in the original context."
   "Evaluate the region between START and END."
   (interactive "r")
   (let ((code (buffer-substring-no-properties start end)))
-    (cider-interactive-eval code start)))
+    (cider-interactive-source-tracking-eval code start)))
 
 (defun cider-eval-buffer ()
   "Evaluate the current buffer."
@@ -1294,7 +1307,7 @@ START-POS is a starting position of the form in the original context."
   "Evaluate the expression preceding point.
 If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
-  (cider-interactive-eval (cider-last-sexp) (cider-last-sexp-start-pos)
+  (cider-interactive-eval (cider-last-sexp)
                           (when prefix (cider-eval-print-handler))))
 
 (defun cider-eval-last-sexp-and-replace ()
@@ -1306,13 +1319,13 @@ If invoked with a PREFIX argument, print the result in the current buffer."
     (nrepl-sync-request:eval last-sexp)
     ;; seems like the sexp is valid, so we can safely kill it
     (backward-kill-sexp)
-    (cider-interactive-eval last-sexp start-pos (cider-eval-print-handler))))
+    (cider-interactive-eval last-sexp (cider-eval-print-handler))))
 
 (defun cider-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider-interactive-eval (cider-last-sexp) (cider-last-sexp-start-pos)
+  (cider-interactive-eval (cider-last-sexp)
                           (cider-insert-eval-handler (cider-current-repl-buffer)))
   (when prefix
     (cider-switch-to-repl-buffer)))
@@ -1321,33 +1334,35 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
   "Evaluate the expression preceding point.
 Print its value into the current buffer."
   (interactive)
-  (cider-interactive-eval (cider-last-sexp) (cider-last-sexp-start-pos)
+  (cider-interactive-eval (cider-last-sexp)
                           (cider-eval-print-handler)))
 
-(defun cider--pprint-eval-form (form start-pos)
-  "Pretty print FORM starting at START-POS in popup buffer."
+(defun cider--pprint-eval-form (form)
+  "Pretty print FORM in popup buffer."
   (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode))
          (right-margin (max fill-column
                             (1- (window-width (get-buffer-window result-buffer))))))
-    (cider-interactive-eval (cider-format-pprint-eval form right-margin) start-pos
+    (cider-interactive-eval (cider-format-pprint-eval form right-margin)
                             (cider-popup-eval-out-handler result-buffer))))
 
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
   (interactive)
-  (cider--pprint-eval-form (cider-last-sexp) (cider-last-sexp-start-pos)))
+  (cider--pprint-eval-form (cider-last-sexp)))
 
 (defun cider-eval-defun-at-point (&optional prefix)
   "Evaluate the current toplevel form, and print result in the minibuffer.
 With a PREFIX argument, print the result in the current buffer."
   (interactive "P")
-  (cider-interactive-eval (cider-defun-at-point) (cider-defun-at-point-start-pos)
-                          (when prefix (cider-eval-print-handler))))
+  (cider-interactive-source-tracking-eval
+   (cider-defun-at-point)
+   (cider-defun-at-point-start-pos)
+   (when prefix (cider-eval-print-handler))))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the top-level form at point and pprint its value in a popup buffer."
   (interactive)
-  (cider--pprint-eval-form (cider-defun-at-point) (cider-defun-at-point-start-pos)))
+  (cider--pprint-eval-form (cider-defun-at-point)))
 
 (defun cider-eval-ns-form ()
   "Evaluate the current buffer's namespace form."
@@ -1367,9 +1382,8 @@ With a PREFIX argument, print the result in the current buffer."
       (clojure-mode)
       (unless (string= "" ns-form)
         (insert ns-form "\n\n"))
-      (let ((start-pos (point)))
-        (insert form)
-        (cider-interactive-eval form start-pos)))))
+      (insert form)
+      (cider-interactive-eval form))))
 
 
 ;; Connection and REPL
