@@ -159,7 +159,7 @@
   "Open the Javadoc for the current class, if available."
   (interactive)
   (if cider-docview-javadoc-url
-      (browse-url cider-docview-javadoc-url)
+      (browse-url (url-encode-url cider-docview-javadoc-url))
     (message "No Javadoc available for %s" cider-docview-symbol)))
 
 (defun cider-docview-source ()
@@ -319,7 +319,7 @@ Tables are marked to be ignored by line wrap."
                               'url url
                               'follow-link t
                               'action (lambda (x)
-                                        (browse-url (button-get x 'url))))
+                                        (browse-url (url-encode-url (button-get x 'url)))))
           (newline))
         (when javadoc
           (newline)
@@ -329,7 +329,7 @@ Tables are marked to be ignored by line wrap."
                               'url javadoc
                               'follow-link t
                               'action (lambda (x)
-                                        (browse-url (button-get x 'url))))
+                                        (browse-url (url-encode-url (button-get x 'url)))))
           (insert ".")
           (newline))
         (let ((beg (point-min))
