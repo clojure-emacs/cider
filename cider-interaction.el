@@ -830,7 +830,7 @@ in the buffer."
     (let* ((info (cider-var-info symbol-name))
            (url (nrepl-dict-get info "javadoc")))
       (if url
-          (browse-url (url-encode-url url))
+          (browse-url url)
         (error "No Javadoc available for %s" symbol-name)))))
 
 (defun cider-javadoc (query)
