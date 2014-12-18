@@ -270,7 +270,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
     (nrepl-dbind-response test (var context type message expected actual error)
-      (cider-propertize-region (cdr test)
+      (cider-propertize-region (cider-intern-keys (cdr test))
         (cider-insert (capitalize type) (cider-test-type-face type) nil " in ")
         (cider-insert var 'font-lock-function-name-face t)
         (when context  (cider-insert context 'font-lock-doc-face t))

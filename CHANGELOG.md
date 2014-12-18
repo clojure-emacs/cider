@@ -9,6 +9,7 @@
 * [#824](https://github.com/clojure-emacs/cider/issues/824): Fix REPL font-locking.
 * [#888](https://github.com/clojure-emacs/cider/issues/888): Handle comments in `cider-repl-mode`.
 * [#830](https://github.com/clojure-emacs/cider/issues/830): Stop using `load-file` for most interactive evaluation commands.
+* [#885](https://github.com/clojure-emacs/cider/issues/885): Translate nREPL-delivered map keys to symbols before adding as text properties.
 
 ## 0.8.1 / 2014-11-20
 

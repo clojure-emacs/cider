@@ -67,6 +67,14 @@ buffer-local wherever it is set."
 
 ;;; Text properties
 
+(defun cider-maybe-intern (name)
+  "If NAME is a symbol, return it; otherwise, intern it."
+  (if (symbolp name) name (intern name)))
+
+(defun cider-intern-keys (props)
+  "Copy plist-style PROPS with any non-symbol keys replaced with symbols."
+  (-map-indexed (lambda (i x) (if (oddp i) x (cider-maybe-intern x))) props))
+
 (defmacro cider-propertize-region (props &rest body)
   "Execute BODY and add PROPS to all the text it inserts.
 More precisely, PROPS are added to the region between the point's
