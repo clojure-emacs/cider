@@ -44,28 +44,49 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 - [Installation](#installation)
 	- [Prerequisites](#prerequisites)
 	- [Installation via package.el](#installation-via-packageel)
+- [CIDER nREPL middleware](#cider-nrepl-middleware)
+  - [Using Leiningen](#using-leiningen)
+  - [Using embedded nREPL server](#using-embedded-nrepl-server)
 - [Configuration](#configuration)
+  - [Basic configuration](#basic-configuration)
+  - [Running tests](#running-tests)
+  - [REPL history](#repl-history)
+  - [Minibuffer completion](#minibuffer-completion)
+  - [Auto-completion](#auto-completion)
+  - [Integration with other modes](#integration-with-other-modes)
 - [Basic Usage](#basic-usage)
-	- [Setting up a Leiningen project (optional)](#setting-up-a-leiningen-project-optional)
-	- [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
-	- [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
-	- [Using the cider minor mode](#using-the-cider-minor-mode)
-	- [Pretty printing in the REPL](#pretty-printing-in-the-repl)
-    - [Limiting printed output in the REPL](#limiting-printed-output-in-the-repl)
-    - [ClojureScript usage](#clojurescript-usage)
-	- [ClojureScript usage](#clojurescript-usage)
+  - [Setting up a Leiningen project (optional)](#setting-up-a-leiningen-project-optional)
+  - [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
+  - [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
+  - [Using the cider minor mode](#using-the-cider-minor-mode)
+  - [Pretty printing in the REPL](#pretty-printing-in-the-repl)
+  - [Limiting printed output in the REPL](#limiting-printed-output-in-the-repl)
+  - [ClojureScript usage](#clojurescript-usage)
 - [Keyboard shortcuts](#keyboard-shortcuts)
-	- [cider-mode](#cider-mode)
-	- [cider-repl-mode](#cider-repl-mode)
-	- [cider-macroexpansion-mode](#cider-macroexpansion-mode)
-    - [cider-inspector-mode](#cider-inspector-mode)
-	- [Managing multiple sessions](#managing-multiple-sessions)
+  - [cider-mode](#cider-mode)
+  - [cider-repl-mode](#cider-repl-mode)
+  - [cider-macroexpansion-mode](#cider-macroexpansion-mode)
+  - [cider-inspector-mode](#cider-inspector-mode)
+  - [cider-test-report-mode](#cider-test-report-mode)
+  - [cider-stacktrace-mode](#cider-stacktrace-mode)
+  - [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
+  - [ClojureScript limitations](#clojurescript-limitations)
+  - [Microsoft Windows](#microsoft-windows)
+  - [powershell.el](#powershell-el)
 - [Documentation](#documentation)
 - [Changelog](#changelog)
 - [Team](#team)
+- [Release policy](#release-policy)
+- [Logo](#logo)
 - [Contributing](#contributing)
+  - [Discussion](#discussion)
+  - [Issues](#issues)
+  - [Patches](#patches)
+  - [Documentation](#documentation)
+  - [Donations](#donations)
+  - [Running the tests in batch mode](#running-the-tests-in-batch-mode)
 - [License](#license)
 
 ## Installation
@@ -375,7 +396,7 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ```
 
-### REPL History
+### REPL history
 
 * To make the REPL history wrap around when its end is reached:
 
@@ -808,7 +829,7 @@ change `*cider-repl localhost*` to `*cider-repl foo*`.
 
 ## Caveats
 
-### ClojureScript
+### ClojureScript limitations
 
 Currently, the following features are not supported for ClojureScript
 development:
