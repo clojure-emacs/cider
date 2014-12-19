@@ -759,7 +759,7 @@ form, with symbol at point replaced by __prefix__."
                           ;; Important because `beginning-of-defun' and
                           ;; `ending-of-defun' work incorrectly in the REPL
                           ;; buffer, so context extraction fails there.
-                          (not (eq major-mode 'cider-repl-mode)))
+                          (derived-mode-p 'clojure-mode))
                      (or (cider-completion-get-context-at-point)
                          "nil")
                    "nil")))
