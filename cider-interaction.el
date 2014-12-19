@@ -435,6 +435,7 @@ If INITIAL-VALUE is non-nil, it is inserted into the minibuffer before
 reading input."
   (minibuffer-with-setup-hook
       (lambda ()
+        (set-syntax-table clojure-mode-syntax-table)
         (add-hook 'completion-at-point-functions
                   #'cider-complete-at-point nil t)
         (run-hooks 'eval-expression-minibuffer-setup-hook))
