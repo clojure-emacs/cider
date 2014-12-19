@@ -44,26 +44,49 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 - [Installation](#installation)
 	- [Prerequisites](#prerequisites)
 	- [Installation via package.el](#installation-via-packageel)
+- [CIDER nREPL middleware](#cider-nrepl-middleware)
+  - [Using Leiningen](#using-leiningen)
+  - [Using embedded nREPL server](#using-embedded-nrepl-server)
 - [Configuration](#configuration)
+  - [Basic configuration](#basic-configuration)
+  - [Running tests](#running-tests)
+  - [REPL history](#repl-history)
+  - [Minibuffer completion](#minibuffer-completion)
+  - [Auto-completion](#auto-completion)
+  - [Integration with other modes](#integration-with-other-modes)
 - [Basic Usage](#basic-usage)
-	- [Setting up a Leiningen project (optional)](#setting-up-a-leiningen-project-optional)
-	- [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
-	- [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
-	- [Using the cider minor mode](#using-the-cider-minor-mode)
-	- [Pretty printing in the REPL](#pretty-printing-in-the-repl)
-    - [Limiting printed output in the REPL](#limiting-printed-output-in-the-repl)
+  - [Setting up a Leiningen project (optional)](#setting-up-a-leiningen-project-optional)
+  - [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
+  - [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
+  - [Using the cider minor mode](#using-the-cider-minor-mode)
+  - [Pretty printing in the REPL](#pretty-printing-in-the-repl)
+  - [Limiting printed output in the REPL](#limiting-printed-output-in-the-repl)
+  - [ClojureScript usage](#clojurescript-usage)
 - [Keyboard shortcuts](#keyboard-shortcuts)
-	- [cider-mode](#cider-mode)
-	- [cider-repl-mode](#cider-repl-mode)
-	- [cider-macroexpansion-mode](#cider-macroexpansion-mode)
-    - [cider-inspector-mode](#cider-inspector-mode)
-	- [Managing multiple sessions](#managing-multiple-sessions)
+  - [cider-mode](#cider-mode)
+  - [cider-repl-mode](#cider-repl-mode)
+  - [cider-macroexpansion-mode](#cider-macroexpansion-mode)
+  - [cider-inspector-mode](#cider-inspector-mode)
+  - [cider-test-report-mode](#cider-test-report-mode)
+  - [cider-stacktrace-mode](#cider-stacktrace-mode)
+  - [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
+  - [ClojureScript limitations](#clojurescript-limitations)
+  - [Microsoft Windows](#microsoft-windows)
+  - [powershell.el](#powershell-el)
 - [Documentation](#documentation)
 - [Changelog](#changelog)
 - [Team](#team)
+- [Release policy](#release-policy)
+- [Logo](#logo)
 - [Contributing](#contributing)
+  - [Discussion](#discussion)
+  - [Issues](#issues)
+  - [Patches](#patches)
+  - [Documentation](#documentation)
+  - [Donations](#donations)
+  - [Running the tests in batch mode](#running-the-tests-in-batch-mode)
 - [License](#license)
 
 ## Installation
@@ -373,7 +396,7 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ```
 
-### REPL History
+### REPL history
 
 * To make the REPL history wrap around when its end is reached:
 
@@ -568,6 +591,57 @@ section of your Leiningen project's configuration.
 :global-vars {*print-length* 100}
 ```
 
+### ClojureScript usage
+
+ClojureScript support relies on the
+[piggieback](https://github.com/cemerick/piggieback) nREPL middleware being
+present in your REPL session. This is supported by (and is the recommended
+method for using) both the [Austin](https://github.com/cemerick/austin) and
+[Weasel](https://github.com/tomjakubowski/weasel) ClojureScript REPLs.
+
+* Example usage of a non-browser connected Austin REPL (requires
+e.g. `[com.cemerick/austin "0.1.5"]` in your project's `:plugins`):
+
+  - At the Clojure REPL:
+
+    ```clojure
+    (cemerick.piggieback/cljs-repl
+      :repl-env (cemerick.austin/exec-env))
+    ```
+
+* Example usage of browser-connected Weasel REPL (requires e.g. `[weasel "0.4.2"]` in your project's
+`:dependencies`):
+
+  - At the Clojure REPL:
+
+    ```clojure
+    (require 'weasel.repl.websocket)
+    (cemerick.piggieback/cljs-repl
+      :repl-env (weasel.repl.websocket/repl-env :ip "0.0.0.0"
+                                                :port 9001))
+    ```
+
+  - and in your ClojureScript:
+
+    ```clojure
+    (ns my.cljs.core
+      (:require [weasel.repl :as ws-repl]))
+
+    (ws-repl/connect "ws://localhost:9001")
+    ```
+
+The [clojure-quick-repls](https://github.com/symfrog/clojure-quick-repls)
+library provides helper functions to automate REPL creation for both Clojure and
+Clojurescript, and will also automatically route requests to the correct REPL
+according to the file extension of the current buffer (note that CIDER does not
+provide the latter functionality out-of-the-box).
+
+Provided that a Piggieback-enabled ClojureScript environment is active in your
+REPL session, code loading and evaluation will work seamlessly regardless of the
+presence of the `cider-nrepl` middleware. If the middleware is present then most
+other features of CIDER will also be enabled (including code completion,
+documentation lookup, the namespace browser, and macroexpansion).
+
 ## Keyboard shortcuts
 
 * <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a REPL client.
@@ -755,14 +829,25 @@ change `*cider-repl localhost*` to `*cider-repl foo*`.
 
 ## Caveats
 
-### Completion
+### ClojureScript limitations
 
-ClojureScript completion is provided by the
-[cider-nrepl](https://github.com/clojure-emacs/cider-nrepl) 'complete'
-implementation middleware which relies on
-[piggieback](https://github.com/cemerick/piggieback).  Include it in
-your project middlewares and call `(cemerick.piggieback/cljs-repl)` or
-another method to start up the ClojureScript REPL.
+Currently, the following features are not supported for ClojureScript
+development:
+
+* Grimoire lookup
+* The inspector
+* Reloading
+* Running tests
+* Tracing
+
+There is currently no support for both Clojure and ClojureScript evaluation in
+the same nREPL session. If Piggieback is active, code evaluation and all
+features will assume ClojureScript.
+
+The aforementioned
+[clojure-quick-repls](https://github.com/symfrog/clojure-quick-repls) aids this
+situation by routing requests to the correct REPL according to the file
+extension of the current buffer.
 
 ### Microsoft Windows
 
