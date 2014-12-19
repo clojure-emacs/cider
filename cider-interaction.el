@@ -1567,7 +1567,7 @@ if there is no symbol at point, or if QUERY is non-nil."
                  (not symbol-name)
                  (equal "" symbol-name)))
         (funcall callback symbol-name)
-      (cider-completing-read-var prompt (cider-current-ns) callback))))
+      (funcall callback (cider-read-from-minibuffer prompt)))))
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
