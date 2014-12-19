@@ -424,8 +424,8 @@ Returns to the buffer in which the command was invoked."
 (defvar cider-minibuffer-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map minibuffer-local-map)
-    (define-key map "TAB" 'complete-symbol)
-    (define-key map "M-TAB" 'complete-symbol)
+    (define-key map (kbd "TAB") 'complete-symbol)
+    (define-key map (kbd "M-TAB") 'complete-symbol)
     map)
   "Minibuffer keymap used for reading Clojure expressions.")
 
