@@ -12,6 +12,7 @@
 * [#885](https://github.com/clojure-emacs/cider/issues/885): Translate nREPL-delivered map keys to symbols before adding as text properties.
 * Fix tab completion in `cider-read-from-minibuffer`.
 * [#894](https://github.com/clojure-emacs/cider/issues/894): Make it possible to enter any symbol with `cider-read-symbol-name`.
+* Report Clojure's version including its qualifier (e.g. `alpha4`) if present.
 
 ## 0.8.1 / 2014-11-20
 

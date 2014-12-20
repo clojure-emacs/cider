@@ -188,11 +188,9 @@ Signal an error if it is not supported."
   "Retrieve the underlying connection's Clojure version."
   (with-current-buffer (nrepl-current-connection-buffer)
     (when nrepl-versions
-      (let* ((version-dict (nrepl-dict-get nrepl-versions "clojure"))
-             (major (nrepl-dict-get version-dict "major"))
-             (minor (nrepl-dict-get version-dict "minor"))
-             (incremental (nrepl-dict-get version-dict "incremental")))
-        (format "%s.%s.%s" major minor incremental)))))
+      (-> nrepl-versions
+        (nrepl-dict-get "clojure")
+        (nrepl-dict-get "version-string")))))
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
