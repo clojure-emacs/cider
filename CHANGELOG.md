@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.8.2 / 2014-12-21
+
 ### Bugs fixed
 
 * [#867](https://github.com/clojure-emacs/cider/issues/867): Update Grimoire URL to fix (cider-grimoire-lookup) regression due to HTTP 301 (Moved Permanently).
