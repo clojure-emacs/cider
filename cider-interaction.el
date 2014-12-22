@@ -1236,7 +1236,7 @@ otherwise fall back to \"user\"."
       nrepl-buffer-ns
     (or (clojure-find-ns)
         nrepl-buffer-ns
-        cider-docview-ns
+        (and (boundp 'cider-docview-ns) cider-docview-ns)
         (-when-let (repl-buf (cider-current-repl-buffer))
           (buffer-local-value 'nrepl-buffer-ns (get-buffer repl-buf)))
         "user")))
