@@ -46,6 +46,4 @@ elpaclean : clean
 	rm -rf .cask # Clean packages installed for development
 
 %.elc : %.el
-	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
-	$(EMACSFLAGS) \
-	-f batch-byte-compile $<
+	$(CASK) build
