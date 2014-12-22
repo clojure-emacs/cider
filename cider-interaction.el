@@ -1235,9 +1235,9 @@ otherwise fall back to \"user\"."
   (if (derived-mode-p 'cider-repl-mode)
       nrepl-buffer-ns
     (or (clojure-find-ns)
+        nrepl-buffer-ns
         (-when-let (repl-buf (cider-current-repl-buffer))
           (buffer-local-value 'nrepl-buffer-ns (get-buffer repl-buf)))
-        nrepl-buffer-ns
         "user")))
 
 
