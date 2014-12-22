@@ -126,6 +126,7 @@
 (defvar cider-docview-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "q" 'cider-popup-buffer-quit-function)
+    (define-key map "g" 'cider-docview-grimoire)
     (define-key map "j" 'cider-docview-javadoc)
     (define-key map "s" 'cider-docview-source)
     (define-key map (kbd "<backtab>") 'backward-button)
@@ -133,6 +134,7 @@
     (easy-menu-define cider-docview-mode-menu map
       "Menu for CIDER's doc mode"
       `("CiderDoc"
+        ["Look up in Grimoire" cider-docview-grimoire]
         ["JavaDoc in browser" cider-docview-javadoc]
         ["Jump to source" cider-docview-source]
         "--"
@@ -147,6 +149,7 @@
   (setq buffer-read-only t)
   (setq-local truncate-lines t)
   (setq-local electric-indent-chars nil)
+  (setq-local cider-docview-ns nil)
   (setq-local cider-docview-symbol nil)
   (setq-local cider-docview-javadoc-url nil)
   (setq-local cider-docview-file nil)
@@ -171,6 +174,12 @@
                          (cider-find-file cider-docview-file))))
         (cider-jump-to buffer (cons cider-docview-line nil) nil))
     (message "No source location for %s" cider-docview-symbol)))
+
+(defun cider-docview-grimoire ()
+  (interactive)
+  (if cider-docview-ns
+      (cider-grimoire-lookup cider-docview-symbol)
+    (message "%s cannot be looked up on Grimoire")))
 
 
 ;;; Font Lock and Formatting
@@ -345,9 +354,11 @@ Tables are marked to be ignored by line wrap."
     (let ((javadoc (nrepl-dict-get info "javadoc"))
           (file (nrepl-dict-get info "file"))
           (line (nrepl-dict-get info "line"))
+          (ns (nrepl-dict-get info "ns"))
           (inhibit-read-only t))
       (cider-docview-mode)
 
+      (setq-local cider-docview-ns ns)
       (setq-local cider-docview-symbol symbol)
       (setq-local cider-docview-javadoc-url javadoc)
       (setq-local cider-docview-file file)

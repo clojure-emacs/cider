@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+* Trigger Grimoire doc lookup from doc buffers by pressing <kbd>g</kbd>.
+
 ## 0.8.2 / 2014-12-21
 
 ### Bugs fixed
