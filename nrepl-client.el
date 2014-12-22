@@ -648,8 +648,8 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
       (message "nREPL: SSH port forwarding established to localhost:%s" port)
       (let ((endpoint (nrepl--direct-connect "localhost" port)))
         (-> endpoint
-          (plist-put :tunnel tunnel)
-          (plist-put :remote-host host))))))
+            (plist-put :tunnel tunnel)
+            (plist-put :remote-host host))))))
 
 (defun nrepl--ssh-tunnel-command (ssh dir port)
   "Command string to open SSH tunnel to the host associated with DIR's PORT."

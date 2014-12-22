@@ -178,16 +178,16 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
         ,@(when docs-p '("docs?" "t"))
         ,@(when privates-p '("privates?" "t"))
         ,@(when case-sensitive-p '("case-sensitive?" "t")))
-    (nrepl-send-sync-request)
-    (nrepl-dict-get "apropos-matches")))
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "apropos-matches")))
 
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
   (cider-ensure-op-supported "classpath")
   (-> (list "op" "classpath"
             "session" (nrepl-current-session))
-    (nrepl-send-sync-request)
-    (nrepl-dict-get "classpath")))
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "classpath")))
 
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op."
@@ -196,8 +196,8 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
             "ns" (cider-current-ns)
             "symbol" str
             "context" context)
-    (nrepl-send-sync-request)
-    (nrepl-dict-get "completions")))
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "completions")))
 
 (defun cider-sync-request:info (symbol &optional class member)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
@@ -207,7 +207,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
                         ,@(when symbol (list "symbol" symbol))
                         ,@(when class (list "class" class))
                         ,@(when member (list "member" member)))
-                    (nrepl-send-sync-request))))
+                      (nrepl-send-sync-request))))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
       var-info)))
@@ -220,7 +220,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
                      ,@(when symbol (list "symbol" symbol))
                      ,@(when class (list "class" class))
                      ,@(when member (list "member" member)))
-                 (nrepl-send-sync-request))))
+                   (nrepl-send-sync-request))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
@@ -237,8 +237,8 @@ The default for DISPLAY-NAMESPACES is taken from
             "display-namespaces"
             (or display-namespaces
                 (symbol-name cider-macroexpansion-display-namespaces)))
-    (nrepl-send-sync-request)
-    (nrepl-dict-get "expansion")))
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "expansion")))
 
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
@@ -255,8 +255,8 @@ The default for DISPLAY-NAMESPACES is taken from
   "Perform nREPL \"resource\" op with resource name NAME."
   (-> (list "op" "resource"
             "name" name)
-    (nrepl-send-sync-request)
-    (nrepl-dict-get "resource-path")))
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "resource-path")))
 
 (provide 'cider-client)
 

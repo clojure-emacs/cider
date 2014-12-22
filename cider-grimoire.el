@@ -32,10 +32,10 @@
 (defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
   (->> name
-    (replace-regexp-in-string "\\?" "_QMARK_")
-    (replace-regexp-in-string "\\." "_DOT_")
-    (replace-regexp-in-string "\\/" "_SLASH_")
-    (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
+       (replace-regexp-in-string "\\?" "_QMARK_")
+       (replace-regexp-in-string "\\." "_DOT_")
+       (replace-regexp-in-string "\\/" "_SLASH_")
+       (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
 
 (defun cider-grimoire-url (name ns clojure-version)
   "Generate a grimoire url from NAME, NS and CLOJURE-VERSION."

@@ -181,24 +181,24 @@ Signal an error if it is not supported."
   (with-current-buffer (nrepl-current-connection-buffer)
     (when nrepl-versions
       (-> nrepl-versions
-        (nrepl-dict-get "java")
-        (nrepl-dict-get "version-string")))))
+          (nrepl-dict-get "java")
+          (nrepl-dict-get "version-string")))))
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
   (with-current-buffer (nrepl-current-connection-buffer)
     (when nrepl-versions
       (-> nrepl-versions
-        (nrepl-dict-get "clojure")
-        (nrepl-dict-get "version-string")))))
+          (nrepl-dict-get "clojure")
+          (nrepl-dict-get "version-string")))))
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
   (with-current-buffer (nrepl-current-connection-buffer)
     (when nrepl-versions
       (-> nrepl-versions
-        (nrepl-dict-get "nrepl")
-        (nrepl-dict-get "version-string")))))
+          (nrepl-dict-get "nrepl")
+          (nrepl-dict-get "version-string")))))
 
 (defun cider--check-middleware-compatibility-callback (buffer)
   "A callback to check if the middleware used is compatible with CIDER."
@@ -1168,7 +1168,7 @@ KILL-BUFFER-P is passed along."
 If SELECT is non-nil, select the newly created window.
 If major MODE is non-nil, enable it for the popup buffer."
   (-> (cider-make-popup-buffer name mode)
-    (cider-popup-buffer-display select)))
+      (cider-popup-buffer-display select)))
 
 (defun cider-popup-buffer-display (buffer &optional select)
   "Display BUFFER.
@@ -1473,14 +1473,14 @@ See command `cider-mode'."
                                  (keys (ns-refers (symbol ,ns))))))
            (if (not= "" ,ns) [".."])
            (->> (all-ns)
-             (map (fn [n]
-                      (re-find (re-pattern (str "^" (if (not= ,ns "")
-                                                        (str ,ns "\\."))
-                                                "[^\\.]+"))
-                               (str n))))
-             (filter identity)
-             (map (fn [n] (str n "/")))
-             (into (hash-set)))))
+                (map (fn [n]
+                         (re-find (re-pattern (str "^" (if (not= ,ns "")
+                                                           (str ,ns "\\."))
+                                                   "[^\\.]+"))
+                                  (str n))))
+                (filter identity)
+                (map (fn [n] (str n "/")))
+                (into (hash-set)))))
 
 (defun cider-parent-ns (ns)
   "Go up a level of NS.
@@ -1574,7 +1574,7 @@ if there is no symbol at point, or if QUERY is non-nil."
   (-> (list "op" "toggle-trace-var"
             "ns" (cider-current-ns)
             "sym" symbol)
-    (nrepl-send-sync-request)))
+      (nrepl-send-sync-request)))
 
 (defun cider-toggle-trace-var (query)
   "Toggle var tracing.
@@ -1599,7 +1599,7 @@ point, prompts for a var."
   (cider-ensure-op-supported "toggle-trace-ns")
   (-> (list "op" "toggle-trace-ns"
             "ns" ns)
-    (nrepl-send-sync-request)))
+      (nrepl-send-sync-request)))
 
 (defun cider-toggle-trace-ns (query)
   "Toggle ns tracing.
@@ -1663,10 +1663,10 @@ under point, prompts for a var."
   (if (eq system-type 'cygwin)
       (lambda (filename)
         (->> (expand-file-name filename)
-          (format "cygpath.exe --windows '%s'")
-          (shell-command-to-string)
-          (replace-regexp-in-string "\n" "")
-          (replace-regexp-in-string "\\\\" "/")))
+             (format "cygpath.exe --windows '%s'")
+             (shell-command-to-string)
+             (replace-regexp-in-string "\n" "")
+             (replace-regexp-in-string "\\\\" "/")))
     #'identity)
   "Function to translate Emacs filenames to nREPL namestrings.")
 
