@@ -152,9 +152,9 @@
              (cider--nrepl-version () "0.2.1"))
       (setq-local nrepl-endpoint '("localhost" 4005))
       (setq-local nrepl-project-dir "proj")
-      (setq-local nrepl-buffer-ns "somens")
+      (setq-local cider-buffer-ns "some-ns")
       (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                       "Active nREPL connection: proj:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+                       "Active nREPL connection: proj:some-ns, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-current-connection-info-no-project ()
   (with-temp-buffer
@@ -162,9 +162,9 @@
              (cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
       (setq-local nrepl-endpoint '("localhost" 4005))
-      (setq-local nrepl-buffer-ns "somens")
+      (setq-local cider-buffer-ns "some-ns")
       (should (string= (cider--connection-info (buffer-name (current-buffer)))
-                       "Active nREPL connection: <no project>:somens, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+                       "Active nREPL connection: <no project>:some-ns, localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-close ()
   (let ((connections (nrepl-connection-buffers)))

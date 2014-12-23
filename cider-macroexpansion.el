@@ -118,7 +118,7 @@ If invoked with a PREFIX argument, use 'macroexpand' instead of
 (defun cider-initialize-macroexpansion-buffer (expansion ns)
   "Create a new Macroexpansion buffer with EXPANSION and namespace NS."
   (pop-to-buffer (cider-create-macroexpansion-buffer))
-  (setq nrepl-buffer-ns ns)
+  (setq cider-buffer-ns ns)
   (setq buffer-undo-list nil)
   (let ((inhibit-read-only t)
         (buffer-undo-list t))

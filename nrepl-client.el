@@ -219,9 +219,6 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 
 (defvar-local nrepl-completed-requests nil)
 
-(defvar-local nrepl-buffer-ns nil
-  "Current Clojure namespace of this buffer.")
-
 (defvar-local nrepl-last-sync-response nil
   "Result of the last sync request.")
 
@@ -718,7 +715,6 @@ the newly created client connection process."
             ;; FIXME: REPL and connection buffers are the same thing
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer (when replp client-buf)
-            nrepl-buffer-ns "user"
             nrepl-tunnel-buffer (-when-let (tunnel (plist-get endpoint :tunnel))
                                   (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
@@ -815,7 +811,7 @@ server responses."
       (cond (value
              (with-current-buffer buffer
                (when (and ns (not (derived-mode-p 'clojure-mode)))
-                 (setq nrepl-buffer-ns ns)))
+                 (setq cider-buffer-ns ns)))
              (when value-handler
                (funcall value-handler buffer value)))
             (out

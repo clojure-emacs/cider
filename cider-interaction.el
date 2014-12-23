@@ -160,6 +160,15 @@ which will use the default REPL connection."
 
 All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
 
+(defvar-local cider-buffer-ns nil
+  "Current Clojure namespace of some buffer.
+
+Useful for special buffers (e.g. REPL, doc buffers) that have to
+keep track of a namespace.
+
+This should never be set in Clojure buffers, as there the namespace
+should be extracted from the buffer's ns form.")
+
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
@@ -227,7 +236,7 @@ endpoint and Clojure version."
   (with-current-buffer (get-buffer connection-buffer)
     (format "Active nREPL connection: %s:%s, %s:%s (Java %s, Clojure %s, nREPL %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
-            nrepl-buffer-ns
+            cider-buffer-ns
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
             (cider--java-version)
@@ -391,7 +400,7 @@ supplied project directory."
              (with-current-buffer (nrepl-current-connection-buffer)
                (format "%s:%s, %s:%s"
                        (or (nrepl--project-name nrepl-project-dir) "<no project>")
-                       nrepl-buffer-ns
+                       cider-buffer-ns
                        (car nrepl-endpoint)
                        (cadr nrepl-endpoint)))))))
 
@@ -1230,16 +1239,14 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
 
 (defun cider-current-ns ()
   "Return current ns.
-The ns is extracted from the ns form.  If missing, use current REPL's ns,
+The ns is extracted from the ns form for Clojure buffers and from
+`cider-buffer-ns' for all other buffers.  If missing, use current REPL's ns,
 otherwise fall back to \"user\"."
-  (if (derived-mode-p 'cider-repl-mode)
-      nrepl-buffer-ns
-    (or (clojure-find-ns)
-        nrepl-buffer-ns
-        (and (boundp 'cider-docview-ns) cider-docview-ns)
-        (-when-let (repl-buf (cider-current-repl-buffer))
-          (buffer-local-value 'nrepl-buffer-ns (get-buffer repl-buf)))
-        "user")))
+  (or cider-buffer-ns
+      (clojure-find-ns)
+      (-when-let (repl-buf (cider-current-repl-buffer))
+        (buffer-local-value 'cider-buffer-ns (get-buffer repl-buf)))
+      "user"))
 
 
 ;;; Evaluation

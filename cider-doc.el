@@ -149,7 +149,6 @@
   (setq buffer-read-only t)
   (setq-local truncate-lines t)
   (setq-local electric-indent-chars nil)
-  (setq-local cider-docview-ns nil)
   (setq-local cider-docview-symbol nil)
   (setq-local cider-docview-javadoc-url nil)
   (setq-local cider-docview-file nil)
@@ -177,7 +176,7 @@
 
 (defun cider-docview-grimoire ()
   (interactive)
-  (if cider-docview-ns
+  (if cider-buffer-ns
       (cider-grimoire-lookup cider-docview-symbol)
     (message "%s cannot be looked up on Grimoire")))
 
@@ -358,7 +357,7 @@ Tables are marked to be ignored by line wrap."
           (inhibit-read-only t))
       (cider-docview-mode)
 
-      (setq-local cider-docview-ns ns)
+      (setq-local cider-buffer-ns ns)
       (setq-local cider-docview-symbol symbol)
       (setq-local cider-docview-javadoc-url javadoc)
       (setq-local cider-docview-file file)
