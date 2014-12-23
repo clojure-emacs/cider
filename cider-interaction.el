@@ -1205,8 +1205,8 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
     (erase-buffer)
     (when mode
       (funcall mode))
-    (setq-local cider-popup-output-marker (point-marker))
     (cider-popup-buffer-mode 1)
+    (setq-local cider-popup-output-marker (point-marker))
     (setq buffer-read-only t)
     (current-buffer)))
 
