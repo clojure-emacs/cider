@@ -967,6 +967,9 @@ Run all tests with:
 $ make test
 ```
 
+(Note: tests may not run correctly inside Emacs' shell-mode buffers. Running
+in a terminal is recommended.)
+
 ## License
 
 Copyright © 2012-2014 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
