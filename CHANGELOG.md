@@ -4,7 +4,7 @@
 
 ### New features
 
-* Trigger Grimoire doc lookup from doc buffers by pressing <kbd>g</kbd>.
+* Trigger Grimoire doc lookup from doc buffers by pressing <kbd>g</kbd> (in Emacs) and <kbd>G</kbd> (in browser).
 
 ## 0.8.2 / 2014-12-21
 

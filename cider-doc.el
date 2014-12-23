@@ -127,6 +127,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "q" 'cider-popup-buffer-quit-function)
     (define-key map "g" 'cider-docview-grimoire)
+    (define-key map "G" 'cider-docview-grimoire-web)
     (define-key map "j" 'cider-docview-javadoc)
     (define-key map "s" 'cider-docview-source)
     (define-key map (kbd "<backtab>") 'backward-button)
@@ -135,6 +136,7 @@
       "Menu for CIDER's doc mode"
       `("CiderDoc"
         ["Look up in Grimoire" cider-docview-grimoire]
+        ["Look up in Grimoire (browser)" cider-docview-grimoire-web]
         ["JavaDoc in browser" cider-docview-javadoc]
         ["Jump to source" cider-docview-source]
         "--"
@@ -178,6 +180,12 @@
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-lookup cider-docview-symbol)
+    (message "%s cannot be looked up on Grimoire")))
+
+(defun cider-docview-grimoire-web ()
+  (interactive)
+  (if cider-buffer-ns
+      (cider-grimoire-web-lookup cider-docview-symbol)
     (message "%s cannot be looked up on Grimoire")))
 
 
