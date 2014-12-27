@@ -1801,10 +1801,6 @@ restart the server."
           (cider-jack-in prompt-project))
       (error "Can't restart CIDER for unknown project"))))
 
-(add-hook 'nrepl-connected-hook 'cider-enable-on-existing-clojure-buffers)
-(add-hook 'nrepl-disconnected-hook
-          'cider-possibly-disable-on-existing-clojure-buffers)
-
 (provide 'cider-interaction)
 
 ;;; cider-interaction.el ends here
