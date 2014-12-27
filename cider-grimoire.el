@@ -29,6 +29,14 @@
 
 (defconst cider-grimoire-url "http://conj.io/")
 
+(defvar cider-grimoire-remap-version
+  '(("1.7.0" . "1.6.0"))
+  "Map real Clojure version to Grimoire version.")
+
+(defvar cider-grimoire-remap-namespace
+  '(("cljs.core" .          "clojure.core")
+    ("cemerick.cljs.test" . "clojure.test")))
+
 (defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
   (->> name
@@ -39,8 +47,11 @@
 
 (defun cider-grimoire-url (name ns clojure-version)
   "Generate a grimoire url from NAME, NS and CLOJURE-VERSION."
-  (let ((clojure-version (concat (substring clojure-version 0 4) "0"))
-        (base-url cider-grimoire-url))
+  (let* ((clojure-version (concat (substring clojure-version 0 4) "0"))
+         (clojure-version (or (cdr (assoc clojure-version cider-grimoire-remap-version))
+                              clojure-version))
+         (ns (or (cdr (assoc ns cider-grimoire-remap-namespace)) ns))
+         (base-url cider-grimoire-url))
     (if name
         (concat base-url clojure-version "/" ns "/" (cider-grimoire-replace-special name) "/")
       (concat base-url clojure-version "/" ns "/"))))
