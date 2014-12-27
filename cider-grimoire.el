@@ -37,21 +37,18 @@
        (replace-regexp-in-string "\\/" "_SLASH_")
        (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
 
-(defun cider-grimoire-url (name ns clojure-version)
-  "Generate a grimoire url from NAME, NS and CLOJURE-VERSION."
-  (let ((clojure-version (concat (substring clojure-version 0 4) "0"))
-        (base-url cider-grimoire-url))
-    (if name
-        (concat base-url clojure-version "/" ns "/" (cider-grimoire-replace-special name) "/")
-      (concat base-url clojure-version "/" ns "/"))))
+(defun cider-grimoire-url (name ns)
+  "Generate a grimoire search v0 url from NAME, NS."
+  (let ((base-url cider-grimoire-url))
+    (when (and name ns)
+      (concat base-url  "search/v0/" ns "/" (cider-grimoire-replace-special name) "/"))))
 
 (defun cider-grimoire-web-lookup (symbol)
   "Look up the grimoire documentation for SYMBOL."
   (-if-let (var-info (cider-var-info symbol))
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns")))
-        ;; TODO: add a whitelist of supported namespaces
-        (browse-url (cider-grimoire-url name ns (cider--clojure-version))))
+        (browse-url (cider-grimoire-url name ns)))
     (message "Symbol %s not resolved" symbol)))
 
 ;;;###autoload
@@ -76,8 +73,7 @@
             (ns (nrepl-dict-get var-info "ns"))
             (url-request-method "GET")
             (url-request-extra-headers `(("Content-Type" . "text/plain"))))
-        ;; TODO: add a whitelist of supported namespaces
-        (url-retrieve (cider-grimoire-url name ns (cider--clojure-version))
+        (url-retrieve (cider-grimoire-url name ns)
                       (lambda (_status)
                         ;; we need to strip the http header
                         (goto-char (point-min))
