@@ -382,6 +382,20 @@ helpful for identifying each host.
 (setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
 ```
 
+* If you are targeting the JVM and prefer a local copy of the JDK API documentation over Oracle's official copy (e.g., for [JavaSE 8](http://docs.oracle.com/javase/8/docs/api/)), per nREPL's [`javadoc-info` logic (accurate as of 29 Dec 2014)](http://docs.oracle.com/javase/8/docs/api/), you can arrange your project to include the **root** path of the local API doc (i.e., where the `index.html` is located) to be included on your classpath (i.e., where the doc HTML files can be located by `clojure.java.io/resource`). For example, for Leiningen, with the local API path being `/usr/share/doc/java/api/`, put the following line in `project.clj`:
+
+```clj
+:dev {:resource-paths ["/usr/share/doc/java/api/"]}
+```
+
+**or** the following line in `$HOME/.lein/profiles.clj`:
+
+```clj
+:user {:resource-paths ["/usr/share/doc/java/api/"]}
+```
+
+More detail can be found [here](https://github.com/clojure-emacs/cider/issues/930).
+
 ### Running tests
 
 * If your tests are not following the `some.ns-test` naming convention you can
