@@ -269,11 +269,11 @@ point."
   "Find the next prompt.
 If BACKWARD is non-nil look backward."
   (let ((origin (point))
-        (prop 'cider-repl-prompt))
+        (cider-repl-prompt-property 'field))
     (while (progn
-             (cider-search-property-change prop backward)
-             (not (or (cider-end-of-proprange-p prop) (bobp) (eobp)))))
-    (unless (cider-end-of-proprange-p prop)
+             (cider-search-property-change cider-repl-prompt-property backward)
+             (not (or (cider-end-of-proprange-p cider-repl-prompt-property) (bobp) (eobp)))))
+    (unless (cider-end-of-proprange-p cider-repl-prompt-property)
       (goto-char origin))))
 
 (defun cider-search-property-change (prop &optional backward)
@@ -303,18 +303,6 @@ If BACKWARD is non-nil search backward."
   (add-text-properties cider-repl-output-start cider-repl-output-end
                        '(face cider-repl-output-face
                               rear-nonsticky (face))))
-
-(defun cider-repl--same-line-p (pos1 pos2)
-  "Return t if buffer positions POS1 and POS2 are on the same line."
-  (save-excursion (goto-char (min pos1 pos2))
-                  (<= (max pos1 pos2) (line-end-position))))
-
-(defun cider-repl--bol-internal ()
-  "Go to the beginning of line or the prompt."
-  (cond ((and (>= (point) cider-repl-input-start-mark)
-              (cider-repl--same-line-p (point) cider-repl-input-start-mark))
-         (goto-char cider-repl-input-start-mark))
-        (t (beginning-of-line 1))))
 
 (defun cider-repl-mode-beginning-of-defun (&optional arg)
   (if (and arg (< arg 0))
@@ -349,18 +337,12 @@ If BACKWARD is non-nil search backward."
       (goto-char (point-max))
     (end-of-defun)))
 
-(defun cider-repl-bol ()
-  "Go to the beginning of line or the prompt."
-  (interactive)
-  (deactivate-mark)
-  (cider-repl--bol-internal))
-
 (defun cider-repl-bol-mark ()
   "Set the mark and go to the beginning of line or the prompt."
   (interactive)
   (unless mark-active
     (set-mark (point)))
-  (cider-repl--bol-internal))
+  (move-beginning-of-line 1))
 
 (defun cider-repl--at-prompt-start-p ()
   "Return t if point is at the start of prompt.
@@ -397,8 +379,8 @@ Return the position of the prompt beginning."
             (prompt (format "%s> " namespace)))
         (cider-propertize-region
             '(font-lock-face cider-repl-prompt-face read-only t intangible t
-                             cider-repl-prompt t
-                             rear-nonsticky (cider-repl-prompt read-only font-lock-face intangible))
+                             field cider-repl-prompt
+                             rear-nonsticky (field read-only font-lock-face intangible))
           (insert-before-markers prompt))
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
@@ -998,9 +980,7 @@ constructs."
     (define-key map (kbd "C-c M-o") 'cider-repl-clear-buffer)
     (define-key map (kbd "C-c M-n") 'cider-repl-set-ns)
     (define-key map (kbd "C-c C-u") 'cider-repl-kill-input)
-    (define-key map (kbd "C-a") 'cider-repl-bol)
     (define-key map (kbd "C-S-a") 'cider-repl-bol-mark)
-    (define-key map [home] 'cider-repl-bol)
     (define-key map [S-home] 'cider-repl-bol-mark)
     (define-key map (kbd "C-<up>") 'cider-repl-backward-input)
     (define-key map (kbd "C-<down>") 'cider-repl-forward-input)
