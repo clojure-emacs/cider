@@ -154,6 +154,8 @@ Return the number of nested sexp the point was over or after. "
   (setq-local eldoc-documentation-function #'cider-eldoc)
   (apply #'eldoc-add-command cider-extra-eldoc-commands))
 
+(define-obsolete-function-alias 'cider-turn-on-eldoc-mode 'eldoc-mode)
+
 (provide 'cider-eldoc)
 
 ;;; cider-eldoc.el ends here
