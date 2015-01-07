@@ -1055,27 +1055,27 @@ constructs."
 
 \\{cider-repl-mode-map}"
   (lisp-mode-variables nil)
-  (setq-local lisp-indent-function 'clojure-indent-function)
-  (setq-local indent-line-function 'lisp-indent-line)
+  (setq-local lisp-indent-function #'clojure-indent-function)
+  (setq-local indent-line-function #'lisp-indent-line)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
-               'cider-complete-at-point)
+               #'cider-complete-at-point)
   (set-syntax-table cider-repl-mode-syntax-table)
   (cider-eldoc-setup)
   (eldoc-mode +1)
   ;; At the REPL, we define beginning-of-defun and end-of-defun to be
   ;; the start of the previous prompt or next prompt respectively.
   ;; Notice the interplay with `cider-repl-beginning-of-defun'.
-  (setq-local beginning-of-defun-function 'cider-repl-mode-beginning-of-defun)
-  (setq-local end-of-defun-function 'cider-repl-mode-end-of-defun)
+  (setq-local beginning-of-defun-function #'cider-repl-mode-beginning-of-defun)
+  (setq-local end-of-defun-function #'cider-repl-mode-end-of-defun)
   (setq-local prettify-symbols-alist clojure--prettify-symbols-alist)
   (if (fboundp 'hack-dir-local-variables-non-file-buffer)
       (hack-dir-local-variables-non-file-buffer))
   (when cider-repl-history-file
     (cider-repl-history-load cider-repl-history-file)
-    (add-hook 'kill-buffer-hook 'cider-repl-history-just-save t t)
-    (add-hook 'kill-emacs-hook 'cider-repl-history-just-save))
-  (add-hook 'paredit-mode-hook 'clojure-paredit-setup))
+    (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
+    (add-hook 'kill-emacs-hook #'cider-repl-history-just-save))
+  (add-hook 'paredit-mode-hook #'clojure-paredit-setup))
 
 
 (provide 'cider-repl)

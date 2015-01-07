@@ -153,7 +153,7 @@ entirely."
   (cider-eldoc-setup)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
-               'cider-complete-at-point))
+               #'cider-complete-at-point))
 
 (provide 'cider-mode)
 
