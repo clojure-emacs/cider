@@ -9,6 +9,11 @@
   `nrepl-client` connection logic from CIDER. New hooks `cider-connected-hook`
   and `cider-disconnected-hook`.
 
+### Changes
+
+* [#934](https://github.com/clojure-emacs/cider/issues/934): Remove
+  `cider-turn-on-eldoc-mode` in favor of simply using `eldoc-mode`.
+
 ## 0.8.2 / 2014-12-21
 
 ### Bugs fixed

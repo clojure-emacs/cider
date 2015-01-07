@@ -149,11 +149,10 @@ Return the number of nested sexp the point was over or after. "
                 (cider-eldoc-format-thing thing)
                 (cider-eldoc-format-arglist value pos))))))
 
-(defun cider-turn-on-eldoc-mode ()
+(defun cider-eldoc-setup ()
   "Turn on eldoc mode in the current buffer."
   (setq-local eldoc-documentation-function 'cider-eldoc)
-  (apply 'eldoc-add-command cider-extra-eldoc-commands)
-  (eldoc-mode +1))
+  (apply 'eldoc-add-command cider-extra-eldoc-commands))
 
 (provide 'cider-eldoc)
 

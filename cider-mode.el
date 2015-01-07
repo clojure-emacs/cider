@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'cider-interaction)
+(require 'cider-eldoc)
 
 ;;;###autoload
 (defcustom cider-mode-line
@@ -149,6 +150,7 @@ entirely."
   nil
   cider-mode-line
   cider-mode-map
+  (cider-eldoc-setup)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                'cider-complete-at-point))

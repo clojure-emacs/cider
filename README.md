@@ -214,7 +214,7 @@ experience.
 * Enable `eldoc` in Clojure buffers:
 
 ```el
-(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+(add-hook 'cider-mode-hook 'eldoc-mode)
 ```
 
 * Log communication with the nREPL server (**extremely useful for debugging CIDER problems**):
