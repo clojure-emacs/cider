@@ -214,7 +214,7 @@ experience.
 * Enable `eldoc` in Clojure buffers:
 
 ```el
-(add-hook 'cider-mode-hook 'eldoc-mode)
+(add-hook 'cider-mode-hook #'eldoc-mode)
 ```
 
 * Log communication with the nREPL server (**extremely useful for debugging CIDER problems**):
@@ -246,7 +246,7 @@ because you're used to completing with <kbd>M-TAB</kbd>) use the
 following snippet:
 
 ```el
-(setq cider-repl-tab-command 'indent-for-tab-command)
+(setq cider-repl-tab-command #'indent-for-tab-command)
 ```
 
 * To prefer local resources to remote (tramp) ones when both are available:
@@ -370,7 +370,7 @@ where CIDER will not attempt to match the correct REPL buffer based on
 underlying project directories:
 
 ```el
-(setq cider-switch-to-repl-command 'cider-switch-to-current-repl-buffer)
+(setq cider-switch-to-repl-command #'cider-switch-to-current-repl-buffer)
 ```
 
 * You can configure known endpoints used by the cider command offered via a
@@ -466,8 +466,8 @@ inside of source code and REPL buffers. This can be done globally, like so --
 -- or through mode-specific hooks:
 
 ```el
-(add-hook 'cider-repl-mode-hook 'company-mode)
-(add-hook 'cider-mode-hook 'company-mode)
+(add-hook 'cider-repl-mode-hook #'company-mode)
+(add-hook 'cider-mode-hook #'company-mode)
 ```
 
 When `company-mode` is thus enabled, it will receive completion information
@@ -487,7 +487,7 @@ we often have to deal with Java class and method names. The built-in
 Emacs minor mode `subword-mode` provides such functionality:
 
 ```el
-(add-hook 'cider-repl-mode-hook 'subword-mode)
+(add-hook 'cider-repl-mode-hook #'subword-mode)
 ```
 
 * The use of [paredit](http://mumble.net/~campbell/emacs/paredit.html)
@@ -497,7 +497,7 @@ buffers (if you're not you probably should). You might also want to
 enable `paredit` in the REPL buffer as well:
 
 ```el
-(add-hook 'cider-repl-mode-hook 'paredit-mode)
+(add-hook 'cider-repl-mode-hook #'paredit-mode)
 ```
 
 * [smartparens](https://github.com/Fuco1/smartparens) is an excellent
@@ -506,7 +506,7 @@ enable `paredit` in the REPL buffer as well:
   `smartparens` in the REPL buffer use the following code:
 
 ```el
-(add-hook 'cider-repl-mode-hook 'smartparens-strict-mode)
+(add-hook 'cider-repl-mode-hook #'smartparens-strict-mode)
 ```
 
 * [RainbowDelimiters](https://github.com/jlr/rainbow-delimiters) is a
@@ -518,7 +518,7 @@ enable `paredit` in the REPL buffer as well:
   enable it in the REPL like this:
 
 ```el
-(add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
 ```
 
 * [auto-complete](http://cx4a.org/software/auto-complete/) is a popular Emacs
