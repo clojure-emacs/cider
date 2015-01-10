@@ -14,6 +14,11 @@
 * [#934](https://github.com/clojure-emacs/cider/issues/934): Remove
   `cider-turn-on-eldoc-mode` in favor of simply using `eldoc-mode`.
 
+### Bugs fixed
+
+* [#921](https://github.com/clojure-emacs/cider/issues/921): Fixed
+  non-functioning `cider-test-jump` from test reports.
+
 ## 0.8.2 / 2014-12-21
 
 ### Bugs fixed

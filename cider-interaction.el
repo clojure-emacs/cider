@@ -717,16 +717,22 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
         (cider-jump-to buffer (cons line nil) other-window)
       (message "No source location"))))
 
+(defun cider--jump-to-var (var &optional line)
+  "Jump to the definition of VAR, optionally at a specific LINE."
+  (-if-let (info (cider-var-info var))
+      (progn
+        (if line (setq info (nrepl-dict-put info "line" line)))
+        (cider--jump-to-loc-from-info info))
+    (message "Symbol %s not resolved" var)))
+
 (defun cider-jump-to-var (&optional var line)
   "Jump to the definition of VAR, optionally at a specific LINE.
 When called interactively, this operates on point, or falls back to a prompt."
   (interactive)
   (cider-ensure-op-supported "info")
-  (cider-read-symbol-name
-   "Symbol: " (lambda (var)
-                (-if-let (info (cider-var-info var))
-                    (cider--jump-to-loc-from-info info)
-                  (message "Symbol %s not resolved" var)))))
+  (if var
+      (cider--jump-to-var var line)
+    (cider-read-symbol-name "Symbol: " #'cider--jump-to-var)))
 
 (define-obsolete-function-alias 'cider-jump 'cider-jump-to-var "0.7.0")
 (defalias 'cider-jump-back 'pop-tag-mark)
