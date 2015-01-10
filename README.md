@@ -91,6 +91,8 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 
 ## Installation
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The canonical way to install cider is using `package.el`, but you can choose other possibilities available for your emacs/operating system (see [wiki](https://github.com/clojure-emacs/cider/wiki/Installation)).
 
 ### Prerequisites
