@@ -14,6 +14,8 @@
 REPL server. It's a great alternative to the now deprecated combination
 of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 CIDER packs plenty of features. Here are some of them (in no particular order):
 
 * Powerful REPL
@@ -90,8 +92,6 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 - [License](#license)
 
 ## Installation
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 The canonical way to install cider is using `package.el`, but you can choose other possibilities available for your emacs/operating system (see [wiki](https://github.com/clojure-emacs/cider/wiki/Installation)).
 
@@ -937,7 +937,7 @@ The logo is licensed under a
 ### Discussion
 
 For questions, suggestions and support refer to our [official mailing list](https://groups.google.com/forum/#!forum/cider-emacs)
-or the Freenode channel `#clojure-emacs`.
+, the Freenode channel `#clojure-emacs` or our [gitter channel](https://gitter.im/clojure-emacs/cider).
 Please, don't report issues there, as this makes them harder to track.
 
 ### Issues
