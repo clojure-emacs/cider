@@ -17,7 +17,9 @@
 ### Bugs fixed
 
 * [#921](https://github.com/clojure-emacs/cider/issues/921): Fixed
-  non-functioning `cider-test-jump` from test reports.
+non-functioning `cider-test-jump` from test reports.
+* [#909](https://github.com/clojure-emacs/cider/issues/909): Fixed
+`cider-repl-set-ns`'s behavior for ClojureScript.
 
 ## 0.8.2 / 2014-12-21
 

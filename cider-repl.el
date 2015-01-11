@@ -680,6 +680,17 @@ text property `cider-old-input'."
           (insert
            (propertize ";;; output cleared" 'font-lock-face 'font-lock-comment-face)))))))
 
+(defun cider-repl-switch-ns-handler (buffer)
+  "Make a nREPL evaluation handler for the REPL BUFFER's ns switching."
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer value))
+                               (lambda (buffer out)
+                                 (cider-repl-emit-output buffer out))
+                               (lambda (buffer err)
+                                 (cider-repl-emit-err-output buffer err))
+                               (lambda (buffer)
+                                 (cider-repl-emit-prompt buffer))))
+
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
 
@@ -690,11 +701,10 @@ namespace to switch to."
                          (completing-read "Switch to namespace: "
                                           (cider-sync-request:ns-list))
                        (cider-current-ns))))
-  (if ns
-      (with-current-buffer (cider-current-repl-buffer)
-        (setq cider-buffer-ns ns)
-        (cider-repl-emit-prompt (current-buffer)))
-    (error "Cannot determine the current namespace")))
+  (if (and ns (not (equal ns "")))
+      (cider-eval (format "(in-ns '%s)" ns)
+                  (cider-repl-switch-ns-handler (cider-current-repl-buffer)))
+    (error "No namespace selected")))
 
 
 ;;;;; History
