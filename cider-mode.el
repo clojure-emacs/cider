@@ -36,7 +36,7 @@
 ;;;###autoload
 (defcustom cider-mode-line
   '(:eval (format " cider[%s]" (cider-current-ns)))
-  "Mode line ligher for `cider-mode'.
+  "Mode line lighter for `cider-mode'.
 
 The value of this variable is a mode line template as in
 `mode-line-format'.  See Info Node `(elisp)Mode Line Format' for
