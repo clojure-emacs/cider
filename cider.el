@@ -84,6 +84,20 @@ version from the CIDER package or library.")
   :type 'string
   :group 'cider)
 
+(defcustom cider-boot-command
+  "boot"
+  "The command used to execute Boot."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-boot-parameters
+  "repl -s wait"
+  "Params passed to boot to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
 (defcustom cider-known-endpoints nil
   "Specify a list of custom endpoints where each endpoint is a list.
 For example: '((\"label\" \"host\" \"port\")).
@@ -122,6 +136,21 @@ Sub-match 1 must be the project path.")
   (interactive)
   (message "CIDER %s" (cider--version)))
 
+(defun cider-command-present-p (project-type)
+  (pcase project-type
+    ("lein" 'cider--lein-present-p)
+    ("boot" 'cider--boot-present-p)))
+
+(defun cider-jack-in-command (project-type)
+  (pcase project-type
+    ("lein" cider-lein-command)
+    ("boot" cider-boot-command)))
+
+(defun cider-jack-in-params (project-type)
+  (pcase project-type
+    ("lein" cider-lein-parameters)
+    ("boot" cider-boot-parameters)))
+
 ;;;###autoload
 (defun cider-jack-in (&optional prompt-project)
   "Start a nREPL server for the current project and connect to it.
@@ -129,22 +158,23 @@ If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
-  (if (cider--lein-present-p)
-      (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
-             (project (when prompt-project
-                        (read-directory-name "Project: ")))
-             (project-dir (nrepl-project-directory-for
-                           (or project (nrepl-current-dir))))
-             (lein-params (if prompt-project
-                              (read-string (format "nREPL server command: %s "
-                                                   cider-lein-command)
-                                           cider-lein-parameters)
-                            cider-lein-parameters))
-             (cmd (format "%s %s" cider-lein-command lein-params)))
-        (when (nrepl-check-for-repl-buffer nil project-dir)
-          (nrepl-start-server-process project-dir cmd)))
-    (message "The %s executable (specified by `cider-lein-command') isn't on your exec-path"
-             cider-lein-command)))
+  (let ((project-type (cider-project-type)))
+    (if (funcall (cider-command-present-p project-type))
+        (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
+               (project (when prompt-project
+                          (read-directory-name "Project: ")))
+               (project-dir (nrepl-project-directory-for
+                             (or project (nrepl-current-dir))))
+               (params (if prompt-project
+                           (read-string (format "nREPL server command: %s "
+                                                (cider-jack-in-params project-type))
+                                        (cider-jack-in-params project-type))
+                         (cider-jack-in-params project-type)))
+               (cmd (format "%s %s" (cider-jack-in-command project-type) params)))
+          (when (nrepl-check-for-repl-buffer nil project-dir)
+            (nrepl-start-server-process project-dir cmd)))
+      (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your exec-path"
+               (cider-jack-in-command project-type)))))
 
 ;;;###autoload
 (defun cider-connect (host port)
@@ -239,6 +269,18 @@ use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
           (setq paths (cons (match-string 1) paths)))))
     (-distinct paths)))
 
+(defun cider-project-type ()
+  "Determine the type, either leiningen or boot, of the current project.
+If both project file types are present, prompt the user to choose."
+  (let* ((default-directory (nrepl-project-directory-for (nrepl-current-dir)))
+         (lein-project-exists (file-exists-p "project.clj"))
+         (boot-project-exists (file-exists-p "build.boot")))
+    (cond ((and lein-project-exists boot-project-exists)
+           (completing-read "Which command should be used? " '("lein" "boot") nil
+                            t "lein"))
+          (lein-project-exists "lein")
+          (boot-project-exists "boot"))))
+
 ;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-present-p ()
   "Check if `cider-lein-command' is on the `exec-path'.
@@ -247,6 +289,14 @@ In case `default-directory' is non-local we assume the command is available."
   (or (file-remote-p default-directory)
       (executable-find cider-lein-command)
       (executable-find (concat cider-lein-command ".bat"))))
+
+(defun cider--boot-present-p ()
+  "Check if `cider-boot-command' is on the `exec-path'.
+
+In case `default-directory' is non-local we assume the command is available."
+  (or (file-remote-p default-directory)
+      (executable-find cider-boot-command)
+      (executable-find (concat cider-boot-command ".exe"))))
 
 (defun cider--connected-handler ()
   "Handle cider initialization after nREPL connection has been established.

@@ -8,6 +8,7 @@
 * [#903](https://github.com/clojure-emacs/cider/pull/903): Isolate
   `nrepl-client` connection logic from CIDER. New hooks `cider-connected-hook`
   and `cider-disconnected-hook`.
+* [#920](https://github.com/clojure-emacs/cider/issues/920): Support `cider-jack-in` for boot-based projects.
 
 ### Changes
 
