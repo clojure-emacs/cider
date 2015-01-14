@@ -48,6 +48,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 	- [Installation via package.el](#installation-via-packageel)
 - [CIDER nREPL middleware](#cider-nrepl-middleware)
   - [Using Leiningen](#using-leiningen)
+  - [Using Boot](#using-boot)
   - [Using embedded nREPL server](#using-embedded-nrepl-server)
 - [Configuration](#configuration)
   - [Basic configuration](#basic-configuration)
@@ -57,7 +58,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
   - [Auto-completion](#auto-completion)
   - [Integration with other modes](#integration-with-other-modes)
 - [Basic Usage](#basic-usage)
-  - [Setting up a Leiningen project (optional)](#setting-up-a-leiningen-project-optional)
+  - [Setting up a Leiningen or Boot project (optional)](#setting-up-a-leiningen-or-boot-project-optional)
   - [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
   - [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
   - [Using the cider minor mode](#using-the-cider-minor-mode)
@@ -177,6 +178,21 @@ A minimal `profiles.clj` for CIDER would be:
 
 ```clojure
 {:user {:plugins [[cider/cider-nrepl "0.8.2"]]}}
+```
+
+### Using Boot
+
+Boot users can configure the tool to include the middleware automatically in
+all of their projects using a `~/.profile.boot` file like so:
+
+```clojure
+(require 'boot.repl)
+
+(swap! boot.repl/*default-dependencies*
+       concat '[[cider/cider-nrepl "0.8.2"]])
+
+(swap! boot.repl/*default-middleware*
+       conj 'cider.nrepl/cider-middleware)
 ```
 
 ### Using embedded nREPL server
