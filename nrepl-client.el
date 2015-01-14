@@ -264,7 +264,8 @@ Bind the value of the provided KEYS and execute BODY."
 (defun nrepl-project-directory-for (dir-name)
   "Return the project directory for the specified DIR-NAME."
   (when dir-name
-    (locate-dominating-file dir-name "project.clj")))
+    (or (locate-dominating-file dir-name "project.clj")
+        (locate-dominating-file dir-name "build.boot"))))
 
 (defun nrepl-check-for-repl-buffer (endpoint project-directory)
   "Check whether a matching connection buffer already exists.

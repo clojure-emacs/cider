@@ -531,22 +531,24 @@ enable `paredit` in the REPL buffer as well:
 ## Basic Usage
 
 The only requirement to use CIDER is to have a nREPL server to
-which it may connect. Many Clojurians favour the use of the Leiningen tool
-to start a nREPL server, but the use of Leiningen is not a prerequisite to use
-CIDER (but it's required if you want to use the `cider-jack-in` command).
+which it may connect. Many Clojurians favour the use of the Leiningen or Boot tools
+to start an nREPL server, but the use of Leiningen or Boot is not a prerequisite to use
+CIDER (but it *is* required if you want to use the `cider-jack-in` command).
 
-### Setting up a Leiningen project (optional)
+### Setting up a Leiningen or Boot project (optional)
 
-[Leiningen](http://leiningen.org/) is the de facto standard
-build/project management tool for Clojure.  It has a similar scope to
-the Maven build tool favoured by Java developers (Leiningen actually
-reuses many things from the Maven ecosystem).
+[Leiningen](http://leiningen.org/) is the de facto standard build/project
+management tool for Clojure. [Boot](http://boot-clj.com/) is a newer build tool
+offering abstractions and libraries to construct more complex build
+scenarios. Both have a similar scope to the Maven build tool favoured by Java
+developers (and they actually reuse many things from the Maven ecosystem).
 
 CIDER features a command called `cider-jack-in` that will start an nREPL server
-for a particular Leiningen project and connect to it automatically.  This
-functionality depends on Leiningen 2.x (preferably 2.5+). Older versions are not
-supported. Follow the installation instructions on Leiningen's web site to get
-it up and running and afterwards create a project like this:
+for a particular Leiningen or Boot project and connect to it automatically.
+This functionality depends on Leiningen 2.x (preferably 2.5+) or Boot
+2.0.0+. Older versions are not supported. For Leiningen, follow the installation
+instructions on its web site to get it up and running and afterwards create a
+project like this:
 
 ```
 $ lein new demo
@@ -556,12 +558,12 @@ The two main ways to obtain an nREPL connection are discussed in the following s
 
 ### Launch a nREPL server and client from Emacs
 
-Simply open in Emacs a file belonging to your `lein` project (like
+Simply open in Emacs a file belonging to your `lein` or `boot` project (like
 `foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL with
 all the deps loaded in, plus an `CIDER` client connected to it.
 
 Alternative you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
-a lein project, without having to visit any file in it.
+a `lein` or `boot` project, without having to visit any file in it.
 
 ### Connect to a running nREPL server
 
@@ -570,6 +572,12 @@ You can go to your project's dir in a terminal and type there
 
 ```
 $ lein repl
+```
+
+Or with Boot:
+
+```
+$ boot repl wait
 ```
 
 Alternatively you can start nREPL either manually or by the facilities provided by your
