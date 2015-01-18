@@ -1257,6 +1257,17 @@ otherwise fall back to \"user\"."
 
 ;;; Evaluation
 
+(defvar cider-to-nrepl-filename-function
+  (if (eq system-type 'cygwin)
+      (lambda (filename)
+        (->> (expand-file-name filename)
+             (format "cygpath.exe --windows '%s'")
+             (shell-command-to-string)
+             (replace-regexp-in-string "\n" "")
+             (replace-regexp-in-string "\\\\" "/")))
+    #'identity)
+  "Function to translate Emacs filenames to nREPL namestrings.")
+
 (defun cider-interactive-source-tracking-eval (form &optional start-pos callback)
   "Evaluate FORM and dispatch the response to CALLBACK.
 START-POS is a starting position of the form in the original context.
@@ -1672,17 +1683,6 @@ under point, prompts for a var."
   "Read the contents of a FILE and return as a string."
   (with-current-buffer (find-file-noselect file)
     (substring-no-properties (buffer-string))))
-
-(defvar cider-to-nrepl-filename-function
-  (if (eq system-type 'cygwin)
-      (lambda (filename)
-        (->> (expand-file-name filename)
-             (format "cygpath.exe --windows '%s'")
-             (shell-command-to-string)
-             (replace-regexp-in-string "\n" "")
-             (replace-regexp-in-string "\\\\" "/")))
-    #'identity)
-  "Function to translate Emacs filenames to nREPL namestrings.")
 
 (defun cider-load-file (filename)
   "Load (eval) the Clojure file FILENAME in nREPL."
