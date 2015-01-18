@@ -207,7 +207,7 @@ Create REPL buffer and start an nREPL client connection."
                          (let* ((change-dir-p (file-remote-p default-directory))
                                 (default-directory (if change-dir-p "~/" default-directory)))
                            (cider-locate-running-nrepl-ports (unless change-dir-p default-directory)))
-                       (let ((vec (vector "ssh" nil host "" nil))
+                       (let ((vec (vector "sshx" nil host "" nil))
                              ;; might connect to a different remote
                              (dir (when (file-remote-p default-directory)
                                     (with-parsed-tramp-file-name default-directory cur
@@ -223,15 +223,16 @@ Create REPL buffer and start an nREPL client connection."
   "Retrieve all ssh host from local configuration files."
   (-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
         (let ((tramp-completion-mode t))
-          (tramp-completion-handle-file-name-all-completions "" "/ssh:"))))
+          (tramp-completion-handle-file-name-all-completions "" "/sshx:"))))
 
 (defun cider--completing-read-host (hosts)
   "Interactively select host from HOSTS.
 Each element in HOSTS is one of: (host), (host port) or (label host port).
 Return a list of the form (HOST PORT), where PORT can be nil."
   (let* ((hosts (cider-join-into-alist hosts))
-         (sel-host (completing-read "Host: " hosts nil nil nil
-                                    'cider-host-history (caar hosts)))
+         (default-host (caar hosts))
+         (sel-host (completing-read "Host: " hosts nil nil default-host
+                                    'cider-host-history default-host))
          (host (or (cdr (assoc sel-host hosts)) (list sel-host))))
     ;; remove the label
     (if (= 3 (length host)) (cdr host) host)))
@@ -239,8 +240,9 @@ Return a list of the form (HOST PORT), where PORT can be nil."
 (defun cider--completing-read-port (host ports)
   "Interactively select port for HOST from PORTS."
   (let* ((ports (cider-join-into-alist ports))
+         (default-port (caar ports))
          (sel-port (completing-read (format "Port for %s: " host) ports
-                                    nil nil nil nil (caar ports)))
+                                    nil nil default-port nil default-port))
          (port (or (cdr (assoc sel-port ports)) sel-port))
          (port (if (listp port) (second port) port)))
     (if (stringp port) (string-to-number port) port)))
