@@ -168,7 +168,7 @@ to `fill-column'."
 (defun cider-join-into-alist (candidates &optional separator)
   "Make an alist from CANDIDATES.
 The keys are the elements joined with SEPARATOR and values are the original
-elements. Useful for `completing-read' when candidates are complex
+elements.  Useful for `completing-read' when candidates are complex
 objects."
   (mapcar (lambda (el)
             (if (listp el)
