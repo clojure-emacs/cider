@@ -207,7 +207,7 @@ Create REPL buffer and start an nREPL client connection."
                          (let* ((change-dir-p (file-remote-p default-directory))
                                 (default-directory (if change-dir-p "~/" default-directory)))
                            (cider-locate-running-nrepl-ports (unless change-dir-p default-directory)))
-                       (let ((vec (vector "ssh" nil host "" nil))
+                       (let ((vec (vector "sshx" nil host "" nil))
                              ;; might connect to a different remote
                              (dir (when (file-remote-p default-directory)
                                     (with-parsed-tramp-file-name default-directory cur
