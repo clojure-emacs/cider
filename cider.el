@@ -98,6 +98,15 @@ version from the CIDER package or library.")
   :group 'cider
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-default-repl-command
+  "lein"
+  "Determines the default command and parameters to use when connecting to nREPL.
+This value will only be consulted when no identifying file types, ie project.clj for
+leiningen or build.boot for boot, could be found."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
 (defcustom cider-known-endpoints nil
   "Specify a list of custom endpoints where each endpoint is a list.
 For example: '((\"label\" \"host\" \"port\")).
@@ -158,7 +167,7 @@ If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
-  (let ((project-type (cider-project-type)))
+  (let ((project-type (or (cider-project-type) cider-default-repl-command)))
     (if (funcall (cider-command-present-p project-type))
         (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
                (project (when prompt-project
