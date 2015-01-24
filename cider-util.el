@@ -73,7 +73,7 @@ buffer-local wherever it is set."
 
 (defun cider-intern-keys (props)
   "Copy plist-style PROPS with any non-symbol keys replaced with symbols."
-  (-map-indexed (lambda (i x) (if (oddp i) x (cider-maybe-intern x))) props))
+  (-map-indexed (lambda (i x) (if (cl-oddp i) x (cider-maybe-intern x))) props))
 
 (defmacro cider-propertize-region (props &rest body)
   "Execute BODY and add PROPS to all the text it inserts.
