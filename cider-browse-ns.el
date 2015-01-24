@@ -40,16 +40,6 @@
 (defvar cider-browse-ns-buffer "*Browse NS*")
 (defvar-local cider-browse-ns-current-ns nil)
 
-;; Utility Functions
-
-(defun cider-browse-ns-properties (text)
-  "Decorate TEXT with a clickable keymap and function face."
-  (propertize text
-              'font-lock-face 'font-lock-function-name-face
-              'mouse-face 'highlight
-              'keymap cider-browse-ns-mouse-map))
-
-
 ;; Mode Definition
 
 (defvar cider-browse-ns-mode-map
@@ -61,6 +51,11 @@
     (define-key map "p" 'previous-line)
     map))
 
+(defvar cider-browse-ns-mouse-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] 'cider-browse-ns-handle-mouse)
+    map))
+
 (define-derived-mode cider-browse-ns-mode special-mode "browse-ns"
   "Major mode for browsing Clojure namespaces.
 
@@ -70,6 +65,13 @@
   (setq-local electric-indent-chars nil)
   (setq-local truncate-lines t)
   (setq-local cider-browse-ns-current-ns nil))
+
+(defun cider-browse-ns-properties (text)
+  "Decorate TEXT with a clickable keymap and function face."
+  (propertize text
+              'font-lock-face 'font-lock-function-name-face
+              'mouse-face 'highlight
+              'keymap cider-browse-ns-mouse-map))
 
 (defun cider-browse-ns-list (buffer title items)
   "Reset contents of BUFFER.  Then display TITLE at the top and ITEMS are indented underneath."
@@ -83,10 +85,6 @@
         (insert "  " item)
         (newline))
       (goto-char (point-min)))))
-
-(defvar cider-browse-ns-mouse-map (make-sparse-keymap))
-(define-key cider-browse-ns-mouse-map [mouse-1] 'cider-browse-ns-handle-mouse)
-
 
 ;; Interactive Functions
 
