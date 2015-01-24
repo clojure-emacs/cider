@@ -31,14 +31,14 @@
 (defvar cider-classpath-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map [return] 'cider-classpath-operate-on-point)
-    (define-key map "n" 'next-line)
-    (define-key map "p" 'previous-line)
+    (define-key map [return] #'cider-classpath-operate-on-point)
+    (define-key map "n" #'next-line)
+    (define-key map "p" #'previous-line)
     map))
 
 (defvar cider-classpath-mouse-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'cider-classpath-handle-mouse)
+    (define-key map [mouse-1] #'cider-classpath-handle-mouse)
     map))
 
 (define-derived-mode cider-classpath-mode special-mode "classpath"

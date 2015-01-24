@@ -45,15 +45,15 @@
 (defvar cider-browse-ns-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map [return] 'cider-browse-ns-operate-on-point)
-    (define-key map "^" 'cider-browse-ns-all)
-    (define-key map "n" 'next-line)
-    (define-key map "p" 'previous-line)
+    (define-key map [return] #'cider-browse-ns-operate-on-point)
+    (define-key map "^" #'cider-browse-ns-all)
+    (define-key map "n" #'next-line)
+    (define-key map "p" #'previous-line)
     map))
 
 (defvar cider-browse-ns-mouse-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'cider-browse-ns-handle-mouse)
+    (define-key map [mouse-1] #'cider-browse-ns-handle-mouse)
     map))
 
 (define-derived-mode cider-browse-ns-mode special-mode "browse-ns"
