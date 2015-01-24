@@ -36,6 +36,11 @@
     (define-key map "p" 'previous-line)
     map))
 
+(defvar cider-classpath-mouse-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] 'cider-classpath-handle-mouse)
+    map))
+
 (define-derived-mode cider-classpath-mode special-mode "classpath"
   "Major mode for browsing the entries in Java's classpath.
 
@@ -95,9 +100,6 @@
   (interactive)
   (-when-let (entry (completing-read "Classpath entries: " (cider-sync-request:classpath)))
     (find-file-other-window entry)))
-
-(defvar cider-classpath-mouse-map (make-sparse-keymap))
-(define-key cider-classpath-mouse-map [mouse-1] 'cider-classpath-handle-mouse)
 
 (provide 'cider-classpath)
 
