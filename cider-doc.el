@@ -180,13 +180,13 @@
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-lookup cider-docview-symbol)
-    (message "%s cannot be looked up on Grimoire")))
+    (message "%s cannot be looked up on Grimoire" cider-docview-symbol)))
 
 (defun cider-docview-grimoire-web ()
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-web-lookup cider-docview-symbol)
-    (message "%s cannot be looked up on Grimoire")))
+    (message "%s cannot be looked up on Grimoire" cider-docview-symbol)))
 
 
 ;;; Font Lock and Formatting
