@@ -577,7 +577,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
-    (cider-eval form (cider-repl-handler (current-buffer)))))
+    (nrepl-request:eval form (cider-repl-handler (current-buffer)))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -702,8 +702,8 @@ namespace to switch to."
                                           (cider-sync-request:ns-list))
                        (cider-current-ns))))
   (if (and ns (not (equal ns "")))
-      (cider-eval (format "(in-ns '%s)" ns)
-                  (cider-repl-switch-ns-handler (cider-current-repl-buffer)))
+      (nrepl-request:eval (format "(in-ns '%s)" ns)
+                          (cider-repl-switch-ns-handler (cider-current-repl-buffer)))
     (error "No namespace selected")))
 
 

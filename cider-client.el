@@ -93,20 +93,13 @@
   "Check if FORM is an ns form."
   (string-match "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
 
-(defun cider-eval (input callback &optional ns session)
-  "Send the request INPUT and register the CALLBACK as the response handler.
-NS & SESSION specify the context in which to evaluate the request."
-  ;; namespace forms are always evaluated in the "user" namespace
-  (let ((ns (if (cider-ns-form-p input)
-                "user"
-              (or ns (cider-current-ns)))))
-    (nrepl-request:eval input callback ns session)))
+(define-obsolete-function-alias 'cider-eval 'nrepl-request:eval)
 
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
 NS specifies the namespace in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
-  (cider-eval input callback ns (nrepl-current-tooling-session)))
+  (nrepl-request:eval input callback ns (nrepl-current-tooling-session)))
 
 (defun cider-interrupt ()
   "Interrupt any pending evaluations."

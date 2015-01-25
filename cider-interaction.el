@@ -221,10 +221,12 @@ Signal an error if it is not supported."
 
 (defun cider--check-middleware-compatibility ()
   "Retrieve the underlying connection's CIDER nREPL version."
-  (cider-eval "(try (require 'cider.nrepl.version)
-                                  (:version-string @(resolve 'cider.nrepl.version/version))
-                               (catch Throwable _ \"not installed\"))"
-              (cider--check-middleware-compatibility-callback (current-buffer))))
+  (nrepl-request:eval
+   "(try
+      (require 'cider.nrepl.version)
+      (:version-string @(resolve 'cider.nrepl.version/version))
+    (catch Throwable _ \"not installed\"))"
+   (cider--check-middleware-compatibility-callback (current-buffer))))
 
 (defun cider--connection-info (connection-buffer)
   "Return info about CONNECTION-BUFFER.
@@ -1006,15 +1008,16 @@ They exist for compatibility with `next-error'."
 
 (defun cider-default-err-eval-handler (buffer session)
   "Display in BUFFER the last SESSION exception, without middleware support."
-  (cider-eval "(clojure.stacktrace/print-cause-trace *e)"
-              (lambda (response)
-                (nrepl-dbind-response response (out)
-                  (when out
-                    (with-current-buffer buffer
-                      (cider-emit-into-color-buffer buffer out)
-                      (compilation-minor-mode +1)))))
-              nil
-              session))
+  (nrepl-request:eval
+   "(clojure.stacktrace/print-cause-trace *e)"
+   (lambda (response)
+     (nrepl-dbind-response response (out)
+       (when out
+         (with-current-buffer buffer
+           (cider-emit-into-color-buffer buffer out)
+           (compilation-minor-mode +1)))))
+   nil
+   session))
 
 (defun cider-default-err-op-handler (buffer session)
   "Display in BUFFER the last SESSION exception, with middleware support."
