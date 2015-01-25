@@ -225,21 +225,6 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
         nil
       eldoc)))
 
-(defun cider-sync-request:macroexpand (expander expr &optional display-namespaces)
-  "Macroexpand, using EXPANDER, the given EXPR.
-The default for DISPLAY-NAMESPACES is taken from
-`cider-macroexpansion-display-namespaces'."
-  (cider-ensure-op-supported "macroexpand")
-  (-> (list "op" "macroexpand"
-            "expander" expander
-            "code" expr
-            "ns" (cider-current-ns)
-            "display-namespaces"
-            (or display-namespaces
-                (symbol-name cider-macroexpansion-display-namespaces)))
-      (nrepl-send-sync-request)
-      (nrepl-dict-get "expansion")))
-
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (cider--sync-request-value (list "op" "ns-list"

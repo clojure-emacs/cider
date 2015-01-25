@@ -57,6 +57,21 @@ Possible values are:
   'cider-macroexpansion-display-namespaces
   "0.8.0")
 
+(defun cider-sync-request:macroexpand (expander expr &optional display-namespaces)
+  "Macroexpand, using EXPANDER, the given EXPR.
+The default for DISPLAY-NAMESPACES is taken from
+`cider-macroexpansion-display-namespaces'."
+  (cider-ensure-op-supported "macroexpand")
+  (-> (list "op" "macroexpand"
+            "expander" expander
+            "code" expr
+            "ns" (cider-current-ns)
+            "display-namespaces"
+            (or display-namespaces
+                (symbol-name cider-macroexpansion-display-namespaces)))
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "expansion")))
+
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
 ARG is passed along to `undo-only'."
