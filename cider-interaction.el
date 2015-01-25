@@ -1291,10 +1291,15 @@ If CALLBACK is nil use `cider-interactive-eval-handler'."
   (cider--clear-compilation-highlights)
   (-when-let (error-win (get-buffer-window cider-error-buffer))
     (quit-window nil error-win))
-  (nrepl-request:eval
-   form
-   (or callback (cider-interactive-eval-handler))
-   (cider-current-ns)))
+  ;; always eval ns forms in the user namespace
+  ;; otherwise trying to eval ns form for the first time will produce an error
+  (let ((ns (if (cider-ns-form-p input)
+                "user"
+              (cider-current-ns))))
+    (nrepl-request:eval
+     form
+     (or callback (cider-interactive-eval-handler))
+     ns)))
 
 (defun cider--dummy-file-contents (form start-pos)
   "Wrap FORM to make it suitable for `cider-request:load-file'.
