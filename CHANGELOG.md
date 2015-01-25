@@ -39,6 +39,7 @@ non-functioning `cider-test-jump` from test reports.
 * Fix tab completion in `cider-read-from-minibuffer`.
 * [#894](https://github.com/clojure-emacs/cider/issues/894): Make it possible to enter any symbol with `cider-read-symbol-name`.
 * Report Clojure's version including its qualifier (e.g. `alpha4`) if present.
+* Use the `field` text property to make move-beginning-of-line respect the repl prompt instead of writing our own beginning-of-line commands.
 
 ## 0.8.1 / 2014-11-20
 
