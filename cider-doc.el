@@ -26,8 +26,6 @@
 ;;; Code:
 
 (require 'cider-util)
-(require 'cider-apropos)
-(require 'cider-grimoire)
 (require 'org-table)
 (require 'button)
 (require 'dash)
