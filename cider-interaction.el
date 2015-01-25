@@ -45,8 +45,6 @@
 (require 'cl-lib)
 (require 'compile)
 (require 'tramp)
-(require 'button)
-(require 'apropos)
 
 (defconst cider-error-buffer "*cider-error*")
 (defconst cider-read-eval-buffer "*cider-read-eval*")

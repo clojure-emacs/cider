@@ -26,6 +26,8 @@
 ;;; Code:
 
 (require 'cider-interaction)
+(require 'apropos)
+(require 'button)
 
 (defconst cider-apropos-buffer "*cider-apropos*")
 
