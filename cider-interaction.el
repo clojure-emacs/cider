@@ -1296,7 +1296,7 @@ If CALLBACK is nil use `cider-interactive-eval-handler'."
     (quit-window nil error-win))
   ;; always eval ns forms in the user namespace
   ;; otherwise trying to eval ns form for the first time will produce an error
-  (let ((ns (if (cider-ns-form-p input)
+  (let ((ns (if (cider-ns-form-p form)
                 "user"
               (cider-current-ns))))
     (nrepl-request:eval
