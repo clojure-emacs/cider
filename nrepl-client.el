@@ -253,9 +253,9 @@ Bind the value of the provided KEYS and execute BODY."
 
 (defun nrepl-current-dir ()
   "Return the directory of the current buffer."
-  (or (-when-let (file-name (buffer-file-name (current-buffer)))
-        (file-name-directory file-name))
-      list-buffers-directory))
+  (if buffer-file-name
+      (file-name-directory buffer-file-name)
+    default-directory))
 
 (defun nrepl-local-host-p (host)
   "Return t if HOST is local."
@@ -726,7 +726,7 @@ process."
     (nrepl-make-connection-default client-buf)
     (nrepl--init-client-sessions client-proc)
     (nrepl--init-capabilities client-buf)
-    
+
     (with-current-buffer client-buf
       (run-hooks 'nrepl-connected-hook))
 

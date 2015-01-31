@@ -25,6 +25,8 @@ non-functioning `cider-test-jump` from test reports.
 `cider-repl-set-ns`'s behavior for ClojureScript.
 * [#950](https://github.com/clojure-emacs/cider/issues/950): Eval `ns` form in the
 `user` namespace when using `cider-interactive-eval`.
+* [#954](https://github.com/clojure-emacs/cider/issues/954): Detect properly a project's root
+when in buffer that's not visiting a file (e.g. a REPL buffer).
 
 ## 0.8.2 / 2014-12-21
 
