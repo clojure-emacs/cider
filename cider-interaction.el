@@ -1271,6 +1271,9 @@ otherwise fall back to \"user\"."
     #'identity)
   "Function to translate Emacs filenames to nREPL namestrings.")
 
+(defvar-local cider--cached-ns-form nil
+  "Cached ns form in the current buffer.")
+
 (defun cider-interactive-source-tracking-eval (form &optional start-pos callback)
   "Evaluate FORM and dispatch the response to CALLBACK.
 START-POS is a starting position of the form in the original context.
@@ -1300,7 +1303,13 @@ If CALLBACK is nil use `cider-interactive-eval-handler'."
   ;; otherwise trying to eval ns form for the first time will produce an error
   (let ((ns (if (cider-ns-form-p form)
                 "user"
-              (cider-current-ns))))
+              (cider-current-ns)))
+        (cur-ns-form (cider-ns-form)))
+    (when (and cur-ns-form
+               (not (string= cur-ns-form cider--cached-ns-form))
+               (not (string= ns "user")))
+      (cider-eval-ns-form))
+    (setq cider--cached-ns-form cur-ns-form)
     (nrepl-request:eval
      form
      (or callback (cider-interactive-eval-handler))
@@ -1309,15 +1318,22 @@ If CALLBACK is nil use `cider-interactive-eval-handler'."
 (defun cider--dummy-file-contents (form start-pos)
   "Wrap FORM to make it suitable for `cider-request:load-file'.
 START-POS is a starting position of the form in the original context."
-  (let* ((ns-form (if (cider-ns-form-p form)
-                      ""
-                    (or (-when-let (form (cider-ns-form))
-                          (replace-regexp-in-string ":reload\\(-all\\)?\\>" "" form))
-                        (format "(ns %s)" (cider-current-ns)))))
+  (let* ((cur-ns-form (cider-ns-form))
+         (ns-form (cond
+                   ((or (null cur-ns-form)
+                        (cider-ns-form-p form))
+                    "")
+                   ((string= cur-ns-form cider--cached-ns-form)
+                    (format "(ns %s)" (cider-current-ns)))
+                   ((null cider--cached-ns-form)
+                    cur-ns-form)
+                   (t
+                    (replace-regexp-in-string ":reload\\(-all\\)?\\>" "" cur-ns-form))))
          (ns-form-lines (length (split-string ns-form "\n")))
          (start-pos (or start-pos 1))
          (start-line (line-number-at-pos start-pos))
          (start-column (save-excursion (goto-char start-pos) (current-column))))
+    (setq cider--cached-ns-form cur-ns-form)
     (concat
      ns-form
      (make-string (max 0 (- start-line ns-form-lines)) ?\n)
@@ -1702,6 +1718,7 @@ under point, prompts for a var."
   (cider--clear-compilation-highlights)
   (-when-let (error-win (get-buffer-window cider-error-buffer))
     (quit-window nil error-win))
+  (setq cider--cached-ns-form (cider-ns-form))
   (cider-request:load-file
    (cider-file-string filename)
    (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
