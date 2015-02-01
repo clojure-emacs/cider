@@ -403,9 +403,12 @@ it wraps to 0."
          (method (button-get button 'method))
          (info (or (and var (cider-var-info var))
                    (and class method (cider-member-info class method))
-                   `(dict "file" ,(button-get button 'file))))
+                   (nrepl-dict)))
          ;; stacktrace returns more accurate line numbers
-         (info (nrepl-dict-put info "line" (button-get button 'line))))
+         (info (nrepl-dict-put info "line" (button-get button 'line)))
+         ;; give priority to `info` files as `info` returns full paths.
+         (info (nrepl-dict-put info "file" (or (nrepl-dict-get info "file")
+                                               (button-get button 'file)))))
     (cider--jump-to-loc-from-info info t)))
 
 (defun cider-stacktrace-jump ()
