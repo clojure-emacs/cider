@@ -146,16 +146,19 @@ Sub-match 1 must be the project path.")
   (message "CIDER %s" (cider--version)))
 
 (defun cider-command-present-p (project-type)
+  "Check if the command matching PROJECT-TYPE is present."
   (pcase project-type
     ("lein" 'cider--lein-present-p)
     ("boot" 'cider--boot-present-p)))
 
 (defun cider-jack-in-command (project-type)
+  "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-lein-command)
     ("boot" cider-boot-command)))
 
 (defun cider-jack-in-params (project-type)
+  "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)))
