@@ -149,7 +149,7 @@ which will use the default REPL connection."
   :group 'cider)
 
 (defvar cider-required-nrepl-ops
-  '("apropos" "classpath" "complete" "eldoc" "info"
+  '("apropos" "classpath" "complete" "eldoc" "format-code" "info"
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
     "macroexpand" "ns-list" "ns-vars"
@@ -1745,6 +1745,33 @@ If no buffer is provided the command acts on the current buffer."
 
 (defalias 'cider-eval-buffer 'cider-load-buffer
   "A convenience alias as some people are confused by the load-* names.")
+
+(defun cider-format-buffer ()
+  "Format the code in the current buffer."
+  (interactive)
+  (unless buffer-file-name
+    (error "Buffer %s is not associated with a file" (buffer-name)))
+  (let* ((original-code (cider-file-string buffer-file-name))
+         (formatted-code (cider-sync-request:format-code original-code)))
+    (unless (equal original-code formatted-code)
+      (erase-buffer)
+      (insert formatted-code))))
+
+(defun cider-format-region (start end)
+  "Format the code in the current region."
+  (interactive "r")
+  (let* ((original-code (buffer-substring-no-properties start end))
+         (formatted-code (cider-sync-request:format-code original-code)))
+    (unless (equal original-code formatted-code)
+      (delete-region start end)
+      (insert formatted-code))))
+
+(defun cider-format-defun ()
+  "Format the code in the current defun."
+  (interactive)
+  (save-excursion
+    (mark-defun)
+    (cider-format-region (region-beginning) (region-end))))
 
 ;;; interrupt evaluation
 (defun cider-interrupt-handler (buffer)

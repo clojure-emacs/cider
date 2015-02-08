@@ -236,6 +236,13 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
       (nrepl-send-sync-request)
       (nrepl-dict-get "resource-path")))
 
+(defun cider-sync-request:format-code (code)
+  "Perform nREPL \"format-code\" op with CODE."
+  (-> (list "op" "format-code"
+            "code" code)
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "formatted-code")))
+
 (provide 'cider-client)
 
 ;;; cider-client.el ends here
