@@ -945,6 +945,22 @@ Register CALLBACK as the response handler."
 If NS is non-nil, include it in the request. SESSION defaults to current session."
   (nrepl-send-request (nrepl--eval-request input ns session) callback))
 
+(defun nrepl--pprint-eval-request (input &optional ns session right-margin)
+  "Prepare :pprint-eval request message for INPUT.
+NS and SESSION are used for the context of the evaluation. RIGHT-MARGIN
+specifies the maximum column-width of the pretty-printed result, and is
+included in the request if non-nil."
+  (append (list "pprint" "true")
+          (and right-margin (list "right-margin" right-margin))
+          (nrepl--eval-request input ns session)))
+
+(defun nrepl-request:pprint-eval (input callback &optional ns session right-margin)
+  "Send the request INPUT and register the CALLBACK as the response handler.
+If NS is non-nil, include it in the request. SESSION defaults to current
+session. RIGHT-MARGIN specifies the maximum column width of the
+pretty-printed result, and is included in the request if non-nil."
+  (nrepl-send-request (nrepl--pprint-eval-request input ns session right-margin) callback))
+
 (defun nrepl-sync-request:clone ()
   "Sent a :clone request to create a new client session."
   (nrepl-send-sync-request '("op" "clone")))
@@ -968,6 +984,13 @@ If NS is non-nil, include it in the request. SESSION defaults to current session
 If NS is non-nil, include it in the request. SESSION defaults to current
 session."
   (nrepl-send-sync-request (nrepl--eval-request input ns session)))
+
+(defun nrepl-sync-request:pprint-eval (input &optional ns session right-margin)
+  "Send the INPUT to the nREPL server synchronously.
+If NS is non-nil, include it in the request. SESSION defaults to current
+session. RIGHT-MARGIN specifies the maximum column width of the
+pretty-printed result, and is included in the request if non-nil."
+  (nrepl-send-sync-request (nrepl--pprint-eval-request input ns session right-margin)))
 
 (defun nrepl-sessions ()
   "Get a list of active sessions for the current nREPL connections."

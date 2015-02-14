@@ -465,6 +465,11 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   (when (or arg (y-or-n-p "Are you sure you want to clear the compilation highlights? "))
     (cider--clear-compilation-highlights)))
 
+(defun cider--quit-error-window ()
+  "Buries the `cider-error-buffer' and quits its containing window."
+  (-when-let (error-win (get-buffer-window cider-error-buffer))
+    (quit-window nil error-win)))
+
 (defun cider-defun-at-point ()
   "Return the text of the top-level sexp at point."
   (apply #'buffer-substring-no-properties
@@ -1281,8 +1286,7 @@ Unlike `cider-interactive-eval' this command will set proper metadata for var
 definitions.  If CALLBACK
 is nil use `cider-interactive-eval-handler'."
   (cider--clear-compilation-highlights)
-  (-when-let (error-win (get-buffer-window cider-error-buffer))
-    (quit-window nil error-win))
+  (cider--quit-error-window)
   (let ((filename (or (buffer-file-name)
                       (buffer-name))))
     (cider-request:load-file
@@ -1291,14 +1295,16 @@ is nil use `cider-interactive-eval-handler'."
      (file-name-nondirectory filename)
      (or callback (cider-interactive-eval-handler)))))
 
-(defun cider-interactive-eval (form &optional callback)
-  "Evaluate FORM and dispatch the response to CALLBACK.
-This function is the main entry point in CIDER's interactive evaluation
-API.  Most other interactive eval functions should rely on this function.
-If CALLBACK is nil use `cider-interactive-eval-handler'."
+(defun cider--prep-interactive-eval (form)
+  "Prepares the environment for an interactive eval of FORM.
+
+If FORM is an ns-form, ensure that it is evaluated in the `user`
+namespace. Otherwise, ensure the current ns declaration has been
+evaluated (so that the ns containing FORM exists).
+
+Clears any compilation highlights and kills the error window."
   (cider--clear-compilation-highlights)
-  (-when-let (error-win (get-buffer-window cider-error-buffer))
-    (quit-window nil error-win))
+  (cider--quit-error-window)
   ;; always eval ns forms in the user namespace
   ;; otherwise trying to eval ns form for the first time will produce an error
   (let ((ns (if (cider-ns-form-p form)
@@ -1309,11 +1315,30 @@ If CALLBACK is nil use `cider-interactive-eval-handler'."
                (not (string= cur-ns-form cider--cached-ns-form))
                (not (string= ns "user")))
       (cider-eval-ns-form))
-    (setq cider--cached-ns-form cur-ns-form)
-    (nrepl-request:eval
-     form
-     (or callback (cider-interactive-eval-handler))
-     ns)))
+    (setq cider--cached-ns-form cur-ns-form)))
+
+(defun cider-interactive-eval (form &optional callback)
+  "Evaluate FORM and dispatch the response to CALLBACK.
+This function is the main entry point in CIDER's interactive evaluation
+API.  Most other interactive eval functions should rely on this function.
+If CALLBACK is nil use `cider-interactive-eval-handler'."
+  (cider--prep-interactive-eval form)
+  (nrepl-request:eval
+   form
+   (or callback (cider-interactive-eval-handler))))
+
+(defun cider-interactive-pprint-eval (form &optional callback right-margin)
+  "Evaluate FORM and dispatch the response to CALLBACK.
+This function is the same as `cider-interactive-eval', except the result is
+pretty-printed to *out*. RIGHT-MARGIN specifies the maximum column width of
+the printed result, and defaults to `fill-column'."
+  (cider--prep-interactive-eval form)
+  (nrepl-request:pprint-eval
+   form
+   (or callback (cider-interactive-eval-handler))
+   nil
+   nil
+   (or right-margin fill-column)))
 
 (defun cider--dummy-file-contents (form start-pos)
   "Wrap FORM to make it suitable for `cider-request:load-file'.
@@ -1390,8 +1415,8 @@ Print its value into the current buffer."
   (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode))
          (right-margin (max fill-column
                             (1- (window-width (get-buffer-window result-buffer))))))
-    (cider-interactive-eval (cider-format-pprint-eval form right-margin)
-                            (cider-popup-eval-out-handler result-buffer))))
+    (cider-interactive-pprint-eval form
+                                   (cider-popup-eval-out-handler result-buffer))))
 
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
@@ -1716,8 +1741,7 @@ under point, prompts for a var."
                                     (file-name-nondirectory
                                      (buffer-file-name))))))
   (cider--clear-compilation-highlights)
-  (-when-let (error-win (get-buffer-window cider-error-buffer))
-    (quit-window nil error-win))
+  (cider--quit-error-window)
   (setq cider--cached-ns-form (cider-ns-form))
   (cider-request:load-file
    (cider-file-string filename)
