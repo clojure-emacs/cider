@@ -849,7 +849,7 @@ It does not yet set the input history."
       (with-temp-buffer
         (insert-file-contents filename)
         (when (> (buffer-size (current-buffer)) 0)
-            (read (current-buffer))))
+          (read (current-buffer))))
     '()))
 
 (defun cider-repl-history-load (&optional filename)
@@ -952,10 +952,10 @@ constructs."
   (if (> (point) cider-repl-input-start-mark)
       (insert (string cider-repl-shortcut-dispatch-char))
     (let ((command (completing-read "Command: "
-                                   (cider-repl--available-shortcuts))))
-     (if (not (equal command ""))
-         (call-interactively (gethash command cider-repl-shortcuts))
-       (error "No command selected")))))
+                                    (cider-repl--available-shortcuts))))
+      (if (not (equal command ""))
+          (call-interactively (gethash command cider-repl-shortcuts))
+        (error "No command selected")))))
 
 
 ;;;;; CIDER REPL mode
