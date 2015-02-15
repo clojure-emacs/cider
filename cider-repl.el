@@ -551,15 +551,14 @@ If NEWLINE is true then add a newline at the end of the input."
         ;; by kill/yank.
         (overlay-put overlay 'read-only t)
         (overlay-put overlay 'font-lock-face 'cider-repl-input-face))))
-  (let* ((input (cider-repl--current-input))
-         (form (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
-                        cider-repl-use-pretty-printing)
-                 (cider-format-pprint-eval input (1- (window-width)))
-                 input)))
+  (let* ((input (cider-repl--current-input)))
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
-    (nrepl-request:eval form (cider-repl-handler (current-buffer)))))
+    (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
+             cider-repl-use-pretty-printing)
+        (nrepl-request:pprint-eval input (cider-repl-handler (current-buffer)) nil nil (1- (window-width)))
+      (nrepl-request:eval input (cider-repl-handler (current-buffer))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
