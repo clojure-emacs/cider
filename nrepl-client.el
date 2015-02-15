@@ -934,7 +934,7 @@ Register CALLBACK as the response handler."
                       callback))
 
 (defun nrepl--eval-request (input &optional ns session)
-  "Prepare :eval request message for INPUT in the context of NS ans SESSION."
+  "Prepare :eval request message for INPUT in the context of NS and SESSION."
   (append (and ns (list "ns" ns))
           (list "op" "eval"
                 "session" (or session (nrepl-current-session))
