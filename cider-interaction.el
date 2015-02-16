@@ -149,7 +149,7 @@ which will use the default REPL connection."
   :group 'cider)
 
 (defvar cider-required-nrepl-ops
-  '("apropos" "classpath" "complete" "eldoc" "format-code" "info"
+  '("apropos" "classpath" "complete" "eldoc" "format-code" "format-edn" "info"
     "inspect-start" "inspect-refresh"
     "inspect-pop" "inspect-push" "inspect-reset"
     "macroexpand" "ns-list" "ns-vars"
@@ -1770,25 +1770,55 @@ If no buffer is provided the command acts on the current buffer."
 (defalias 'cider-eval-buffer 'cider-load-buffer
   "A convenience alias as some people are confused by the load-* names.")
 
-(defun cider-format-buffer ()
-  "Format the code in the current buffer."
-  (interactive)
+(defun cider--format-buffer (formatter)
+  "Format the contents of the current buffer.
+
+Uses FORMATTER, a function of one argument, to convert the string contents
+of the buffer into a formatted string."
   (unless buffer-file-name
     (error "Buffer %s is not associated with a file" (buffer-name)))
   (let* ((original-code (cider-file-string buffer-file-name))
-         (formatted-code (cider-sync-request:format-code original-code)))
+         (formatted-code (funcall formatter)))
     (unless (equal original-code formatted-code)
       (erase-buffer)
       (insert formatted-code))))
 
-(defun cider-format-region (start end)
-  "Format the code in the current region."
-  (interactive "r")
-  (let* ((original-code (buffer-substring-no-properties start end))
-         (formatted-code (cider-sync-request:format-code original-code)))
-    (unless (equal original-code formatted-code)
+(defun cider-format-buffer ()
+  "Format the Clojure code in the current buffer."
+  (interactive)
+  (cider--format-buffer #'cider-sync-request:format-code))
+
+(defun cider-format-edn-buffer ()
+  "Format the EDN data in the current buffer."
+  (interactive)
+  (cider--format-buffer (lambda (edn)
+                          (cider-sync-request:format-edn edn fill-column))))
+
+(defun cider--format-region (start end formatter)
+  "Format the contents of the given region.
+
+START and END are the character positions of the start and end of the
+region.  FORMATTER is a function of one argument which is used to convert
+the string contents of the region into a formatted string."
+  (let* ((original (buffer-substring-no-properties start end))
+         (formatted (funcall formatter original)))
+    (unless (equal original indented)
       (delete-region start end)
-      (insert formatted-code))))
+      (insert formatted))))
+
+(defun cider-format-region (start end)
+  "Format the Clojure code in the current region."
+  (interactive "r")
+  (cider--format-region start end #'cider-sync-request:format-code))
+
+(defun cider-format-edn-region (start end)
+  "Format the EDN data in the current region."
+  (interactive "r")
+  (let* ((start-column (save-excursion (goto-char start) (current-column)))
+         (right-margin (- fill-column start-column)))
+    (cider--format-region start end
+                          (lambda (edn)
+                            (cider-sync-request:format-edn edn right-margin)))))
 
 (defun cider-format-defun ()
   "Format the code in the current defun."
