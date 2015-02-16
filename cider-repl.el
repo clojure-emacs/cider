@@ -134,10 +134,12 @@ joined together.")
   "Variable counting the items added in the current session.")
 
 (defvar-local cider-repl-output-start nil
-  "Marker for the start of output.")
+  "Marker for the start of output.
+Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 
 (defvar-local cider-repl-output-end nil
-  "Marker for the end of output.")
+  "Marker for the end of output.
+Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 
 (defun cider-repl-tab ()
   "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
