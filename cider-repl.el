@@ -298,12 +298,6 @@ If BACKWARD is non-nil search backward."
   (set-marker cider-repl-output-start (point))
   (set-marker cider-repl-output-end (point)))
 
-(defun cider-repl--mark-output-end ()
-  "Mark the output end."
-  (add-text-properties cider-repl-output-start cider-repl-output-end
-                       '(face cider-repl-output-face
-                              rear-nonsticky (face))))
-
 (defun cider-repl-mode-beginning-of-defun (&optional arg)
   (if (and arg (< arg 0))
       (cider-repl-mode-end-of-defun (- arg))
