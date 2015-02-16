@@ -1794,6 +1794,12 @@ of the buffer into a formatted string."
   (cider--format-buffer (lambda (edn)
                           (cider-sync-request:format-edn edn fill-column))))
 
+(defun cider--format-reindent (formatted start)
+  "Reindent FORMATTED to align with buffer position START."
+  (let* ((start-column (save-excursion (goto-char start) (current-column)))
+         (indent-line (concat "\n" (make-string start-column ? ))))
+    (replace-regexp-in-string "\n" indent-line formatted)))
+
 (defun cider--format-region (start end formatter)
   "Format the contents of the given region.
 
@@ -1801,10 +1807,11 @@ START and END are the character positions of the start and end of the
 region.  FORMATTER is a function of one argument which is used to convert
 the string contents of the region into a formatted string."
   (let* ((original (buffer-substring-no-properties start end))
-         (formatted (funcall formatter original)))
+         (formatted (funcall formatter original))
+         (indented (cider--format-reindent formatted start)))
     (unless (equal original indented)
       (delete-region start end)
-      (insert formatted))))
+      (insert indented))))
 
 (defun cider-format-region (start end)
   "Format the Clojure code in the current region."
