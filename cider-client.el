@@ -243,6 +243,19 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
       (nrepl-send-sync-request)
       (nrepl-dict-get "formatted-code")))
 
+(defun cider-sync-request:format-edn (edn &optional right-margin)
+  "Perform \"format-edn\" op with EDN and RIGHT-MARGIN."
+  (let* ((response (-> (list "op" "format-edn"
+                             "edn" edn)
+                       (append (and right-margin (list "right-margin" right-margin)))
+                       (nrepl-send-sync-request)))
+         (err (nrepl-dict-get response "err")))
+    (when err
+      ;; err will be a stacktrace with a first line that looks like:
+      ;; "clojure.lang.ExceptionInfo: Unmatched delimiter ]"
+      (error (first (split-string err "\n"))))
+    (nrepl-dict-get response "formatted-edn")))
+
 (provide 'cider-client)
 
 ;;; cider-client.el ends here

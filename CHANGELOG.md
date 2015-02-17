@@ -11,6 +11,7 @@
 * [#920](https://github.com/clojure-emacs/cider/issues/920): Support `cider-jack-in` for boot-based projects.
 * [#949](https://github.com/clojure-emacs/cider/issues/949): New custom var: `cider-default-repl-command`.
 * New code formatting commands - `cider-format-buffer`, `cider-format-region` and `cider-format-defun`.
+* New data formatting commands - `cider-format-edn-buffer` and `cider-format-edn-region`.
 * Pretty printing functionality moved to middleware, adding support for ClojureScript.
   - New command to eval and pprint result: `cider-interactive-pprint-eval`.
   - `cider-format-pprint-eval` has been removed.
@@ -31,6 +32,7 @@ non-functioning `cider-test-jump` from test reports.
 `user` namespace when using `cider-interactive-eval`.
 * [#954](https://github.com/clojure-emacs/cider/issues/954): Detect properly a project's root
 when in buffer that's not visiting a file (e.g. a REPL buffer).
+* [#977](https://github.com/clojure-emacs/cider/issues/977): `cider-format-region` now respects indentation of the region start position
 
 ## 0.8.2 / 2014-12-21
 
