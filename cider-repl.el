@@ -134,10 +134,12 @@ joined together.")
   "Variable counting the items added in the current session.")
 
 (defvar-local cider-repl-output-start nil
-  "Marker for the start of output.")
+  "Marker for the start of output.
+Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 
 (defvar-local cider-repl-output-end nil
-  "Marker for the end of output.")
+  "Marker for the end of output.
+Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 
 (defun cider-repl-tab ()
   "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
@@ -298,12 +300,6 @@ If BACKWARD is non-nil search backward."
   (set-marker cider-repl-output-start (point))
   (set-marker cider-repl-output-end (point)))
 
-(defun cider-repl--mark-output-end ()
-  "Mark the output end."
-  (add-text-properties cider-repl-output-start cider-repl-output-end
-                       '(face cider-repl-output-face
-                              rear-nonsticky (face))))
-
 (defun cider-repl-mode-beginning-of-defun (&optional arg)
   (if (and arg (< arg 0))
       (cider-repl-mode-end-of-defun (- arg))
@@ -407,7 +403,7 @@ If BOL is non-nil insert at the beginning of line."
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
   (with-current-buffer (cider-current-repl-buffer)
-    (let ((pos (1- (cider-repl--input-line-beginning-position)))
+    (let ((pos (cider-repl--end-of-line-before-input-start))
           (string (replace-regexp-in-string "\n\\'" "" string)))
       (cider-repl-emit-output-at-pos (current-buffer) string face pos t)
       (ansi-color-apply-on-region pos (point-max)))))
@@ -424,7 +420,7 @@ If BOL is non-nil insert at the beginning of line."
   "Using BUFFER, emit STRING font-locked with FACE.
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
-    (let ((pos (1- (cider-repl--input-line-beginning-position))))
+    (let ((pos (cider-repl--end-of-line-before-input-start)))
       (cider-repl-emit-output-at-pos buffer string face cider-repl-input-start-mark bol)
       (ansi-color-apply-on-region pos (point-max)))))
 
@@ -638,11 +634,12 @@ text property `cider-old-input'."
     (recenter t))
   (run-hooks 'cider-repl-clear-buffer-hook))
 
-(defun cider-repl--input-line-beginning-position ()
-  "Return the position of the beginning of input."
+(defun cider-repl--end-of-line-before-input-start ()
+  "Return the position of the end of the line preceding the beginning of input."
   (save-excursion
     (goto-char cider-repl-input-start-mark)
-    (line-beginning-position)))
+    (previous-line)
+    (line-end-position)))
 
 (defun cider-repl-clear-output ()
   "Delete the output inserted since the last input."
@@ -652,7 +649,7 @@ text property `cider-old-input'."
                  (ignore-errors (forward-sexp))
                  (forward-line)
                  (point)))
-        (end (1- (cider-repl--input-line-beginning-position))))
+        (end (cider-repl--end-of-line-before-input-start)))
     (when (< start end)
       (let ((inhibit-read-only t))
         (delete-region start end)
