@@ -33,6 +33,7 @@ non-functioning `cider-test-jump` from test reports.
 * [#954](https://github.com/clojure-emacs/cider/issues/954): Detect properly a project's root
 when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#977](https://github.com/clojure-emacs/cider/issues/977): `cider-format-region` now respects indentation of the region start position
+* [#979](https://github.com/clojure-emacs/cider/issues/979): Fixed the inspector buffer popping up needlessly.
 
 ## 0.8.2 / 2014-12-21
 
