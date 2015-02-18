@@ -1196,13 +1196,14 @@ If major MODE is non-nil, enable it for the popup buffer."
 (defun cider-popup-buffer-display (buffer &optional select)
   "Display BUFFER.
 If SELECT is non-nil, select the BUFFER."
-  (-when-let (win (get-buffer-window buffer))
-    (with-current-buffer buffer
-      (set-window-point win (point))))
-  ;; Non nil `inhibit-same-window' ensures that current window is not covered
-  (if select
-      (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
-    (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows)))))
+  (unless (eq (get-buffer buffer) (current-buffer))
+    (-when-let (win (get-buffer-window buffer))
+      (with-current-buffer buffer
+        (set-window-point win (point))))
+    ;; Non nil `inhibit-same-window' ensures that current window is not covered
+    (if select
+        (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
+      (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))))
   buffer)
 
 (defun cider-popup-buffer-quit (&optional kill)
