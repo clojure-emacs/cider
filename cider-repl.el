@@ -379,6 +379,14 @@ This will not work on non-current prompts."
 
 (put 'cider-save-marker 'lisp-indent-function 1)
 
+(defun cider-repl-default-prompt (namespace)
+  "Return a prompt string."
+  (format "%s> " namespace))
+
+(defvar cider-repl-prompt-function #'cider-repl-default-prompt
+  "A function that returns a prompt string.
+Takes one argument, a namespace name.")
+
 (defun cider-repl--insert-prompt (namespace)
   "Insert the prompt (before markers!), taking into account NAMESPACE.
 Set point after the prompt.
@@ -388,7 +396,7 @@ Return the position of the prompt beginning."
     (cider-save-marker cider-repl-output-end
       (unless (bolp) (insert-before-markers "\n"))
       (let ((prompt-start (point))
-            (prompt (format "%s> " namespace)))
+            (prompt (funcall cider-repl-prompt-function namespace)))
         (cider-propertize-region
             '(font-lock-face cider-repl-prompt-face read-only t intangible t
                              cider-repl-prompt t
