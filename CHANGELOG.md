@@ -34,6 +34,7 @@ non-functioning `cider-test-jump` from test reports.
 when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#977](https://github.com/clojure-emacs/cider/issues/977): `cider-format-region` now respects indentation of the region start position.
 * [#979](https://github.com/clojure-emacs/cider/issues/979): Fixed the inspector buffer popping up needlessly.
+* [#981](https://github.com/clojure-emacs/cider/issues/981): Updated `cider-find-file` to use `find-buffer-visiting` instead of `get-file-buffer`.
 
 ## 0.8.2 / 2014-12-21
 

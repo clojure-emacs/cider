@@ -632,7 +632,7 @@ existing file ending with URL has been found."
                       (file  (cider--url-to-file (match-string 2 url)))
                       (path  (cider--file-path file))
                       (name  (format "%s:%s" path entry)))
-           (or (get-file-buffer name)
+           (or (find-buffer-visiting name)
                (if (tramp-tramp-file-p path)
                    (progn
                      ;; Use emacs built in archiving
