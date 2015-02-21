@@ -16,6 +16,7 @@
   - New command to eval and pprint result: `cider-interactive-pprint-eval`.
   - `cider-format-pprint-eval` has been removed.
 * Warn when used with incompatible nREPL server.
+* Allow the prompt to be tailored by adding `cider-repl-prompt-function` and `cider-repl-default-prompt`.
 
 ### Changes
 
