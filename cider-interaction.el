@@ -158,6 +158,9 @@ which will use the default REPL connection."
 
 All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
 
+(defvar cider-required-nrepl-version "0.2.7"
+  "The minimum nREPL version that's known to work properly with CIDER.")
+
 (defvar-local cider-buffer-ns nil
   "Current Clojure namespace of some buffer.
 
@@ -206,6 +209,12 @@ Signal an error if it is not supported."
       (-> nrepl-versions
           (nrepl-dict-get "nrepl")
           (nrepl-dict-get "version-string")))))
+
+(defun cider--check-required-nrepl-version ()
+  "Check whether we're using a compatible nREPL version."
+  (when (version< (cider--nrepl-version) cider-required-nrepl-version)
+    (cider-repl-emit-interactive-err-output
+     (format "WARNING: CIDER requires nREPL %s to work properly" cider-required-nrepl-version))))
 
 (defun cider--check-middleware-compatibility-callback (buffer)
   "A callback to check if the middleware used is compatible with CIDER."

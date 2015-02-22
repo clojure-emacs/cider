@@ -15,6 +15,7 @@
 * Pretty printing functionality moved to middleware, adding support for ClojureScript.
   - New command to eval and pprint result: `cider-interactive-pprint-eval`.
   - `cider-format-pprint-eval` has been removed.
+* Warn when used with incompatible nREPL server.
 
 ### Changes
 

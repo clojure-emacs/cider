@@ -316,6 +316,7 @@ This function is appended to `nrepl-connected-hook' in the client process
 buffer."
   ;; `nrepl-connected-hook' is run in connection buffer
   (cider-repl-init (current-buffer))
+  (cider--check-required-nrepl-version)
   (cider--check-required-nrepl-ops)
   (cider--check-middleware-compatibility)
   (cider-enable-on-existing-clojure-buffers)
