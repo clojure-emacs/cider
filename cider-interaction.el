@@ -180,7 +180,7 @@ Signal an error if it is not supported."
   "Check whether all required nREPL ops are present."
   (let ((missing-ops (-remove 'nrepl-op-supported-p cider-required-nrepl-ops)))
     (when missing-ops
-      (cider-repl-emit-interactive-output
+      (cider-repl-emit-interactive-err-output
        (format "WARNING: The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
                (cider-string-join missing-ops " ")
                (upcase cider-version))))))
