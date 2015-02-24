@@ -1496,6 +1496,13 @@ If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "P")
   (cider-insert-in-repl (cider-defun-at-point) arg))
 
+(defun cider-insert-region-in-repl (start end &optional arg)
+  "Insert the curent region in the REPL buffer.
+If invoked with a prefix ARG eval the expression after inserting it."
+  (interactive "rP")
+  (cider-insert-in-repl
+   (buffer-substring-no-properties start end) arg))
+
 (defun cider-insert-ns-form-in-repl (&optional arg)
   "Insert the current buffer's ns form in the REPL buffer.
 If invoked with a prefix ARG eval the expression after inserting it."
