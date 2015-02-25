@@ -39,7 +39,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Minibuffer code evaluation
 * Integration with [company-mode](http://company-mode.github.io/) and [auto-complete-mode](https://github.com/clojure-emacs/ac-cider)
 
-![CIDER Screenshot](https://github.com/clojure-emacs/cider/raw/master/screenshots/cider-overview.png)
+![CIDER Screenshot](screenshots/cider-overview.png)
 
 ***
 
