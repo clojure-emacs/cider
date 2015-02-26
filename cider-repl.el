@@ -963,7 +963,7 @@ constructs."
       (if (not (equal command ""))
           (let ((command-func (gethash command cider-repl-shortcuts)))
             (if command-func
-              (call-interactively (gethash command cider-repl-shortcuts))
+                (call-interactively (gethash command cider-repl-shortcuts))
               (error "Unknown command %S. Available commands: %s"
                      command-func
                      (mapconcat 'identity (cider-repl--available-shortcuts) ", "))))
