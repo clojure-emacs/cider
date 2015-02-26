@@ -928,14 +928,14 @@ constructs."
   "Add a REPL shortcut command, defined by NAME and HANDLER."
   (puthash name handler cider-repl-shortcuts))
 
-(cider-repl-add-shortcut "hasta la vista" 'cider-quit)
-(cider-repl-add-shortcut "quit" 'cider-quit)
-(cider-repl-add-shortcut "version" 'cider-version)
-(cider-repl-add-shortcut "conn-info" 'cider-display-current-connection-info)
-(cider-repl-add-shortcut "conn-rotate" 'cider-rotate-connection)
-(cider-repl-add-shortcut "clear" 'cider-repl-clear-buffer)
-(cider-repl-add-shortcut "ns" 'cider-repl-set-ns)
-(cider-repl-add-shortcut "help" 'cider-repl-shortcuts-help)
+(cider-repl-add-shortcut "hasta la vista" #'cider-quit)
+(cider-repl-add-shortcut "quit" #'cider-quit)
+(cider-repl-add-shortcut "version" #'cider-version)
+(cider-repl-add-shortcut "conn-info" #'cider-display-current-connection-info)
+(cider-repl-add-shortcut "conn-rotate" #'cider-rotate-connection)
+(cider-repl-add-shortcut "clear" #'cider-repl-clear-buffer)
+(cider-repl-add-shortcut "ns" #'cider-repl-set-ns)
+(cider-repl-add-shortcut "help" #'cider-repl-shortcuts-help)
 
 (defun cider-repl-shortcuts-help ()
   "Display a help buffer."
