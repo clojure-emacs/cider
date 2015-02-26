@@ -4,6 +4,8 @@
 
 ### New features
 
+* New defcustom, `cider-auto-select-test-report-buffer` (boolean).
+  Controls whether the test report buffer is selected after running a test. Defaults to true.
 * Trigger Grimoire doc lookup from doc buffers by pressing <kbd>g</kbd> (in Emacs) and <kbd>G</kbd> (in browser).
 * [#903](https://github.com/clojure-emacs/cider/pull/903): Isolate
   `nrepl-client` connection logic from CIDER. New hooks `cider-connected-hook`
