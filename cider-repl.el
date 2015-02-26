@@ -371,7 +371,8 @@ This will not work on non-current prompts."
   "A function that returns a prompt string.
 Takes one argument, a namespace name."
   :type 'function
-  :group 'cider-repl)
+  :group 'cider-repl
+  :package-version '(cider . "0.9.0"))
 
 (defun cider-repl--insert-prompt (namespace)
   "Insert the prompt (before markers!), taking into account NAMESPACE.
