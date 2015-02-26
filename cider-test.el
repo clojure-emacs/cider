@@ -47,6 +47,12 @@
   :group 'cider-test
   :package-version '(cider . "0.8.0"))
 
+(defcustom cider-auto-select-test-report-buffer t
+  "Determines if the test-report buffer should be auto-selected."
+  :type 'boolean
+  :group 'cider-test
+  :package-version '(cider . "0.9.0"))
+
 (defvar cider-test-last-test-ns nil
   "The namespace for which tests were last run.")
 
@@ -425,7 +431,8 @@ displayed. When test failures/errors occur, their sources are highlighted."
                 (when (or (not (zerop (+ error fail)))
                           cider-test-show-report-on-success)
                   (cider-test-render-report
-                   (cider-popup-buffer cider-test-report-buffer t)
+                   (cider-popup-buffer cider-test-report-buffer
+                                       cider-auto-select-test-report-buffer)
                    ns summary results)))))))))
 
 (defun cider-test-rerun-tests ()
