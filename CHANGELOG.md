@@ -19,6 +19,7 @@
   - `cider-format-pprint-eval` has been removed.
 * Warn when used with incompatible nREPL server.
 * Allow the prompt to be tailored by adding `cider-repl-prompt-function` and `cider-repl-default-prompt`.
+* Support for middleware-annotated completion candidates.
 
 ### Changes
 

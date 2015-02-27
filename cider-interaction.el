@@ -797,25 +797,39 @@ form, with symbol at point replaced by __prefix__."
       (setq cider-completion-last-context context)
       context)))
 
+(defun cider-completion--parse-candidate-map (candidate-map)
+  (let ((candidate (nrepl-dict-get candidate-map "candidate"))
+        (type (nrepl-dict-get candidate-map "type")))
+    (put-text-property 0 1 'type type candidate)
+    candidate))
+
 (defun cider-complete (str)
   "Complete STR with context at point."
-  (cider-sync-request:complete str (cider-completion-get-context)))
+  (let* ((context (cider-completion-get-context))
+         (candidates (cider-sync-request:complete str context)))
+    (map 'list #'cider-completion--parse-candidate-map candidates)))
 
 (defun cider-annotate-symbol (symbol)
-  "Append extra information to SYMBOL's name.
+  "Return a string suitable for annotating SYMBOL.
 
-Currently we annotate macros, special-forms and functions,
-as it's not obvious from their names alone which is which."
-  (if cider-annotate-completion-candidates
-      (-when-let (info (cider-var-info symbol))
-        (let ((macro   (nrepl-dict-get info "macro"))
-              (special (nrepl-dict-get info "special-form"))
-              (args    (nrepl-dict-get info "arglists-str")))
-          (cond
-           (macro " <m>")
-           (special " <s>")
-           (args " <f>"))))
-    ""))
+If SYMBOL has a text property `type` whose value is recognised, use an
+abbreviation; if `type` is present but not recognised, its value is used
+unaltered. Otherwise, return nil."
+  (-when-let* ((_  cider-annotate-completion-candidates)
+               (type (pcase (get-text-property 0 'type symbol)
+                       (`"class" "c")
+                       (`"function" "f")
+                       (`"import" "i")
+                       (`"macro" "m")
+                       (`"namespace" "n")
+                       (`"protocol" "p")
+                       (`"protocol-function" "pf")
+                       (`"record" "r")
+                       (`"special-form" "s")
+                       (`"type" "t")
+                       (`"var" "v")
+                       (type type))))
+    (format " <%s>" type)))
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
