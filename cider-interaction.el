@@ -119,7 +119,7 @@ which will use the default REPL connection."
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
-(defcustom cider-annotate-completion-candidates nil
+(defcustom cider-annotate-completion-candidates t
   "When true, annotate completion candidates with some extra information."
   :type 'boolean
   :group 'cider

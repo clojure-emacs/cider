@@ -26,6 +26,7 @@
 * [#934](https://github.com/clojure-emacs/cider/issues/934): Remove
   `cider-turn-on-eldoc-mode` in favor of simply using `eldoc-mode`.
 * [#953](https://github.com/clojure-emacs/cider/pull/953) Use `sshx` instead of `ssh` in `cider-select-endpoint`
+* Enable annotated completion candidates by default.
 
 ### Bugs fixed
 
