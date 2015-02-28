@@ -167,6 +167,10 @@ objects."
               (cons el el)))
           candidates))
 
+(defun cider-namespace-qualified-p (sym)
+  "Return t if SYM is namespace-qualified."
+  (string-match-p "[^/]+/" sym))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
