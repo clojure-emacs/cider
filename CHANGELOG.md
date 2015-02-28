@@ -20,12 +20,14 @@
   - `cider-format-pprint-eval` has been removed.
 * Warn when used with incompatible nREPL server.
 * Allow the prompt to be tailored by adding `cider-repl-prompt-function` and `cider-repl-default-prompt`.
+* Support for middleware-annotated completion candidates.
 
 ### Changes
 
 * [#934](https://github.com/clojure-emacs/cider/issues/934): Remove
   `cider-turn-on-eldoc-mode` in favor of simply using `eldoc-mode`.
 * [#953](https://github.com/clojure-emacs/cider/pull/953) Use `sshx` instead of `ssh` in `cider-select-endpoint`
+* Enable annotated completion candidates by default.
 
 ### Bugs fixed
 
