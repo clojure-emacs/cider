@@ -44,8 +44,8 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 ***
 
 - [Installation](#installation)
-	- [Prerequisites](#prerequisites)
-	- [Installation via package.el](#installation-via-packageel)
+  - [Prerequisites](#prerequisites)
+  - [Installation via package.el](#installation-via-packageel)
 - [CIDER nREPL middleware](#cider-nrepl-middleware)
   - [Using Leiningen](#using-leiningen)
   - [Using Boot](#using-boot)
