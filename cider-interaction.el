@@ -807,7 +807,7 @@ form, with symbol at point replaced by __prefix__."
   "Complete STR with context at point."
   (let* ((context (cider-completion-get-context))
          (candidates (cider-sync-request:complete str context)))
-    (map 'list #'cider-completion--parse-candidate-map candidates)))
+    (mapcar #'cider-completion--parse-candidate-map candidates)))
 
 (defun cider-annotate-symbol (symbol)
   "Return a string suitable for annotating SYMBOL.
