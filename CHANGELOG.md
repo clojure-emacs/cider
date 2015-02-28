@@ -21,6 +21,9 @@
 * Warn when used with incompatible nREPL server.
 * Allow the prompt to be tailored by adding `cider-repl-prompt-function` and `cider-repl-default-prompt`.
 * Support for middleware-annotated completion candidates.
+  - `cider-annotate-completion-function` controls how the annotations are formatted.
+  - `cider-completion-annotations-alist` controls the abbreviations used in annotations.
+  - `cider-completion-annotations-include-ns` controls when to include the candidate namespace in annotations.
 
 ### Changes
 

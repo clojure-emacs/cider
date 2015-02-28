@@ -498,6 +498,22 @@ from `cider-complete-at-point`, and requires no additional setup or plugins.
 
 * Remove `cider-mode` and `cider-repl-mode` from the `ac-modes` list
 
+#### Completion annotations
+
+Completion candidates will be annotated by default with an abbreviation
+corresponding to their type, and (contextually) their ns. The function used to
+format the annotation can be configured by `cider-annotate-completion-function.`
+The abbreviations used are configured by `cider-completion-annotations-alist`
+and the context in which their namespace is included is configured by
+`cider-completion-annotations-include-ns.`
+
+Completion annotations can be disabled by setting
+`cider-annotate-completion-candidates` to nil.
+
+<p align="center">
+  <img src="screenshots/completion-annotations.png" width="400" />
+</p>
+
 ### Integration with other modes
 
 * Enabling `CamelCase` support for editing commands(like

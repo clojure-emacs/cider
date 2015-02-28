@@ -125,6 +125,50 @@ which will use the default REPL connection."
   :group 'cider
   :package-version '(cider . "0.8.0"))
 
+(defcustom cider-annotate-completion-function
+  #'cider-default-annotate-completion-function
+  "Controls how the annotations for completion candidates are formatted.
+
+Must be a function that takes two arguments: the abbreviation of the
+candidate type according to `cider-completion-annotations-alist' and the
+candidate's namespace."
+  :type 'function
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-completion-annotations-alist
+  '(("class" "c")
+    ("function" "f")
+    ("import" "i")
+    ("macro" "m")
+    ("namespace" "n")
+    ("protocol" "p")
+    ("protocol-function" "pf")
+    ("record" "r")
+    ("special-form" "s")
+    ("type" "t")
+    ("var" "v"))
+  "Controls the abbreviations used when annotating completion candidates.
+
+Must be a list of elements with the form (TYPE . ABBREVIATION), where TYPE
+is a possible value of the candidate's type returned from the completion
+backend, and ABBREVIATION is a short form of that type."
+  :type '(alist :key-type string :value-type string)
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-completion-annotations-include-ns 'unqualified
+  "Controls passing of namespaces to `cider-annotate-completion-function.'
+
+When set to 'always, the candidate's namespace will always be passed if it
+is available. When set to 'unqualified, the namespace will only be passed
+if the candidate is not namespace-qualified."
+  :type '(choice (const always)
+                 (const unqualified)
+                 (const :tag "never" nil))
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
 (defconst cider-output-buffer "*cider-out*")
 
 (defcustom cider-interactive-eval-output-destination 'repl-buffer
@@ -799,8 +843,10 @@ form, with symbol at point replaced by __prefix__."
 
 (defun cider-completion--parse-candidate-map (candidate-map)
   (let ((candidate (nrepl-dict-get candidate-map "candidate"))
-        (type (nrepl-dict-get candidate-map "type")))
+        (type (nrepl-dict-get candidate-map "type"))
+        (ns (nrepl-dict-get candidate-map "ns")))
     (put-text-property 0 1 'type type candidate)
+    (put-text-property 0 1 'ns ns candidate)
     candidate))
 
 (defun cider-complete (str)
@@ -809,27 +855,37 @@ form, with symbol at point replaced by __prefix__."
          (candidates (cider-sync-request:complete str context)))
     (mapcar #'cider-completion--parse-candidate-map candidates)))
 
+(defun cider-completion--get-candidate-type (symbol)
+  (let ((type (get-text-property 0 'type symbol)))
+    (or (cl-second (assoc type cider-completion-annotations-alist))
+        type)))
+
+(defun cider-completion--get-candidate-ns (symbol)
+  (when (or (eq 'always cider-completion-annotations-include-ns)
+            (and (eq 'unqualified cider-completion-annotations-include-ns)
+                 (not (cider-namespace-qualified-p symbol))))
+    (get-text-property 0 'ns symbol)))
+
+(defun cider-default-annotate-completion-function (type ns)
+  (concat (when ns (format " (%s)" ns))
+          (when type (format " <%s>" type))))
+
 (defun cider-annotate-symbol (symbol)
   "Return a string suitable for annotating SYMBOL.
 
-If SYMBOL has a text property `type` whose value is recognised, use an
-abbreviation; if `type` is present but not recognised, its value is used
-unaltered. Otherwise, return nil."
-  (-when-let* ((_  cider-annotate-completion-candidates)
-               (type (pcase (get-text-property 0 'type symbol)
-                       (`"class" "c")
-                       (`"function" "f")
-                       (`"import" "i")
-                       (`"macro" "m")
-                       (`"namespace" "n")
-                       (`"protocol" "p")
-                       (`"protocol-function" "pf")
-                       (`"record" "r")
-                       (`"special-form" "s")
-                       (`"type" "t")
-                       (`"var" "v")
-                       (type type))))
-    (format " <%s>" type)))
+If SYMBOL has a text property `type` whose value is recognised, its
+abbreviation according to `cider-completion-annotations-alist' will be
+used. If `type` is present but not recognised, its value will be used
+unaltered.
+
+If SYMBOL has a text property `ns`, then its value will be used according
+to `cider-completion-annotations-include-ns'.
+
+The formatting is performed by `cider-annotate-completion-function'."
+  (when cider-annotate-completion-candidates
+    (let* ((type (cider-completion--get-candidate-type symbol))
+           (ns (cider-completion--get-candidate-ns symbol)))
+      (funcall cider-annotate-completion-function type ns))))
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."

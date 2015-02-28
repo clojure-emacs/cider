@@ -547,3 +547,14 @@
              (should (equal (funcall cider-to-nrepl-filename-function unix-file-name) windows-file-name)))
       (and (should (eq (funcall cider-from-nrepl-filename-function unix-file-name) unix-file-name))
            (should (eq (funcall cider-to-nrepl-filename-function unix-file-name) unix-file-name))))))
+
+
+;;; Util tests
+
+(ert-deftest cider-namespace-qualified-p-test ()
+  (should (cider-namespace-qualified-p "a/a"))
+  (should (cider-namespace-qualified-p "a.a/a"))
+  (should (cider-namespace-qualified-p "a-a/a"))
+  (should (cider-namespace-qualified-p "a.a-a/a-a"))
+  (should (not (cider-namespace-qualified-p "/")))
+  (should (not (cider-namespace-qualified-p "/a"))))
