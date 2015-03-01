@@ -1,6 +1,6 @@
 ;;; cider-stacktrace.el --- Stacktrace navigator -*- lexical-binding: t -*-
 
-;; Copyright © 2014 Jeff Valk
+;; Copyright © 2014-2015 Jeff Valk
 
 ;; Author: Jeff Valk <jv@jeffvalk.com>
 

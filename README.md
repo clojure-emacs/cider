@@ -1029,7 +1029,7 @@ in a terminal is recommended.)
 
 ## License
 
-Copyright © 2012-2014 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
+Copyright © 2012-2015 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
 Duncan, Steve Purcell and
 [contributors](https://github.com/clojure-emacs/cider/contributors).
 

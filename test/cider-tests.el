@@ -1,6 +1,6 @@
 ;;; cider-tests.el
 
-;; Copyright © 2012-2014 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2015 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
