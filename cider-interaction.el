@@ -1866,7 +1866,7 @@ of the buffer into a formatted string."
   (unless buffer-file-name
     (error "Buffer %s is not associated with a file" (buffer-name)))
   (let* ((original-code (cider-file-string buffer-file-name))
-         (formatted-code (funcall formatter)))
+         (formatted-code (funcall formatter original-code)))
     (unless (equal original-code formatted-code)
       (erase-buffer)
       (insert formatted-code))))
