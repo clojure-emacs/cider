@@ -1865,11 +1865,11 @@ Uses FORMATTER, a function of one argument, to convert the string contents
 of the buffer into a formatted string."
   (unless buffer-file-name
     (error "Buffer %s is not associated with a file" (buffer-name)))
-  (let* ((original-code (cider-file-string buffer-file-name))
-         (formatted-code (funcall formatter)))
-    (unless (equal original-code formatted-code)
+  (let* ((original (cider-file-string buffer-file-name))
+         (formatted (funcall formatter original)))
+    (unless (equal original formatted)
       (erase-buffer)
-      (insert formatted-code))))
+      (insert formatted))))
 
 (defun cider-format-buffer ()
   "Format the Clojure code in the current buffer."
