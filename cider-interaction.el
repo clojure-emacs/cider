@@ -140,6 +140,7 @@ candidate's namespace."
   '(("class" "c")
     ("function" "f")
     ("import" "i")
+    ("keyword" "k")
     ("local" "l")
     ("macro" "m")
     ("namespace" "n")
