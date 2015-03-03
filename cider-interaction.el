@@ -1407,7 +1407,8 @@ If CALLBACK is nil use `cider-interactive-eval-handler'."
   (cider--prep-interactive-eval form)
   (nrepl-request:eval
    form
-   (or callback (cider-interactive-eval-handler))))
+   (or callback (cider-interactive-eval-handler))
+   (cider-current-ns)))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
   "Evaluate FORM and dispatch the response to CALLBACK.
@@ -1418,7 +1419,7 @@ the printed result, and defaults to `fill-column'."
   (nrepl-request:pprint-eval
    form
    (or callback (cider-interactive-eval-handler))
-   nil
+   (cider-current-ns)
    nil
    (or right-margin fill-column)))
 
