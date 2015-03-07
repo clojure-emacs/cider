@@ -67,41 +67,62 @@
   (interactive
    (list (cider-read-from-minibuffer "Inspect value: "
                                      (cider-sexp-at-point))))
-  (cider-ensure-op-supported "inspect-start")
-  (cider-inspect-sym expression (cider-current-ns)))
+  (cider-inspect-expr expression (cider-current-ns)))
 
 ;; Operations
-(defun cider-render-response (buffer)
-  (nrepl-make-response-handler
-   buffer
-   (lambda (buffer str)
-     (cider-irender buffer str))
-   '()
-   (lambda (buffer _str)
-     (cider-emit-into-popup-buffer buffer "Oops"))
-   '()))
+(defun cider-inspector--value-handler (buffer value)
+  (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode)
+  (cider-irender cider-inspector-buffer value))
 
-(defun cider-inspect-sym (sym ns)
-  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
-    (nrepl-send-request (list "op" "inspect-start" "sym" sym "ns" ns)
-                        (cider-render-response buffer))))
+(defun cider-inspector--out-handler (buffer value)
+  (cider-emit-interactive-eval-output value))
+
+(defun cider-inspector--err-handler (buffer err)
+  (cider-emit-interactive-eval-err-output err))
+
+(defun cider-inspector--done-handler (buffer)
+  (when (get-buffer cider-inspector-buffer)
+    (with-current-buffer buffer
+      (cider-popup-buffer-display cider-inspector-buffer t))))
+
+(defun cider-inspector-response-handler (buffer)
+  "Create an inspector response handler for BUFFER.
+
+The \"value\" slot of each successive response (if it exists) will be
+rendered into `cider-inspector-buffer'. Once a response is received with a
+\"status\" slot containing \"done\", `cider-inspector-buffer' will be
+displayed.
+
+Used for all inspector nREPL ops."
+  (nrepl-make-response-handler buffer
+                               #'cider-inspector--value-handler
+                               #'cider-inspector--out-handler
+                               #'cider-inspector--err-handler
+                               #'cider-inspector--done-handler))
+
+(defun cider-inspect-expr (expr ns)
+  (cider--prep-interactive-eval expr)
+  (nrepl-send-request (append (nrepl--eval-request expr ns)
+                              (list "inspect" "true"))
+                      (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-pop ()
   (interactive)
-  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
-    (nrepl-send-request (list "op" "inspect-pop")
-                        (cider-render-response buffer))))
+  (nrepl-send-request (list "op" "inspect-pop"
+                            "session" (nrepl-current-session))
+                      (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-push (idx)
-  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
-    (nrepl-send-request (list "op" "inspect-push" "idx" (number-to-string idx))
-                        (cider-render-response buffer))))
+  (nrepl-send-request (list "op" "inspect-push"
+                            "idx" (number-to-string idx)
+                            "session" (nrepl-current-session))
+                      (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-refresh ()
   (interactive)
-  (let ((buffer (cider-popup-buffer cider-inspector-buffer t)))
-    (nrepl-send-request (list "op" "inspect-refresh")
-                        (cider-render-response buffer))))
+  (nrepl-send-request (list "op" "inspect-refresh"
+                            "session" (nrepl-current-session))
+                      (cider-inspector-response-handler (current-buffer))))
 
 ;; Render Inspector from Structured Values
 (defun cider-irender (buffer str)

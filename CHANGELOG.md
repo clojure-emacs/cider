@@ -24,6 +24,7 @@
   - `cider-annotate-completion-function` controls how the annotations are formatted.
   - `cider-completion-annotations-alist` controls the abbreviations used in annotations.
   - `cider-completion-annotations-include-ns` controls when to include the candidate namespace in annotations.
+* Inspector middleware now relies on `eval` middleware, adding support for ClojureScript.
 
 ### Changes
 

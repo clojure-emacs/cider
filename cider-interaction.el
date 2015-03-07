@@ -196,8 +196,7 @@ if the candidate is not namespace-qualified."
 
 (defvar cider-required-nrepl-ops
   '("apropos" "classpath" "complete" "eldoc" "format-code" "format-edn" "info"
-    "inspect-start" "inspect-refresh"
-    "inspect-pop" "inspect-push" "inspect-reset"
+    "inspect-pop" "inspect-push" "inspect-refresh"
     "macroexpand" "ns-list" "ns-vars"
     "resource" "stacktrace" "toggle-trace-var" "toggle-trace-ns" "undef")
   "A list of nREPL ops required by CIDER to function properly.
