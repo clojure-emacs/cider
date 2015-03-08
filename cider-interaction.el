@@ -138,16 +138,20 @@ candidate's namespace."
 
 (defcustom cider-completion-annotations-alist
   '(("class" "c")
+    ("field" "fi")
     ("function" "f")
     ("import" "i")
     ("keyword" "k")
     ("local" "l")
     ("macro" "m")
+    ("method" "me")
     ("namespace" "n")
     ("protocol" "p")
     ("protocol-function" "pf")
     ("record" "r")
     ("special-form" "s")
+    ("static-field" "sf")
+    ("static-method" "sm")
     ("type" "t")
     ("var" "v"))
   "Controls the abbreviations used when annotating completion candidates.
