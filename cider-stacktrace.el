@@ -531,6 +531,7 @@ This associates text properties to enable filtering and source navigation."
   (with-current-buffer buffer
     (cider-stacktrace-mode)
     (let ((inhibit-read-only t))
+      (erase-buffer)
       (newline)
       ;; Stacktrace filters
       (cider-stacktrace-render-filters
