@@ -564,8 +564,16 @@ If NEWLINE is true then add a newline at the end of the input."
     (cider-repl--mark-output-start)
     (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
              cider-repl-use-pretty-printing)
-        (nrepl-request:pprint-eval input (cider-repl-handler (current-buffer)) nil nil (1- (window-width)))
-      (nrepl-request:eval input (cider-repl-handler (current-buffer))))))
+        (nrepl-request:pprint-eval
+         input
+         (cider-repl-handler (current-buffer))
+         (cider-current-ns)
+         nil
+         (1- (window-width)))
+      (nrepl-request:eval
+       input
+       (cider-repl-handler (current-buffer))
+       (cider-current-ns)))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
