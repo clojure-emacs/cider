@@ -1285,8 +1285,8 @@ If SELECT is non-nil, select the BUFFER."
       (with-current-buffer buffer
         (set-window-point win (point))))
     (if select
-        (pop-to-buffer buffer)
-      (display-buffer buffer)))
+        (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
+      (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))))
   buffer)
 
 (defun cider-popup-buffer-quit (&optional kill)
