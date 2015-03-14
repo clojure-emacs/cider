@@ -696,7 +696,7 @@ namespace to switch to."
   (interactive (list (if (or (derived-mode-p 'cider-repl-mode)
                              (null (cider-ns-form)))
                          (completing-read "Switch to namespace: "
-                                          (cider-sync-request:ns-list))
+                                          (first (read-from-string (cider-sync-request:ns-list))))
                        (cider-current-ns))))
   (if (and ns (not (equal ns "")))
       (nrepl-request:eval (format "(in-ns '%s)" ns)
