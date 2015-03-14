@@ -25,6 +25,8 @@
   - `cider-completion-annotations-alist` controls the abbreviations used in annotations.
   - `cider-completion-annotations-include-ns` controls when to include the candidate namespace in annotations.
 * Inspector middleware now relies on `eval` middleware, adding support for ClojureScript.
+* Better printing of large amounts of exception cause data in the error buffer.
+  - New defcustom, `cider-stacktrace-print-length` (boolean).
 
 ### Changes
 

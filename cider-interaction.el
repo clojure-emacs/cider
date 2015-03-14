@@ -1115,6 +1115,8 @@ They exist for compatibility with `next-error'."
     (nrepl-send-request
      (append
       (list "op" "stacktrace" "session" session)
+      (when cider-stacktrace-print-length
+        (list "print-length" cider-stacktrace-print-length))
       (when cider-stacktrace-print-level
         (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)
