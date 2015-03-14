@@ -261,9 +261,13 @@ Signal an error if it is not supported."
 
 (defun cider--check-required-nrepl-version ()
   "Check whether we're using a compatible nREPL version."
-  (when (version< (cider--nrepl-version) cider-required-nrepl-version)
-    (cider-repl-emit-interactive-err-output
-     (format "WARNING: CIDER requires nREPL %s to work properly" cider-required-nrepl-version))))
+  (let ((nrepl-version (cider--nrepl-version)))
+    (if nrepl-version
+        (when (version< nrepl-version cider-required-nrepl-version)
+          (cider-repl-emit-interactive-err-output
+           (format "WARNING: CIDER requires nREPL %s to work properly" cider-required-nrepl-version)))
+      (cider-repl-emit-interactive-err-output
+       (format "WARNING: Can't determine nREPL's version. Please, update nREPL to %s." cider-required-nrepl-version)))))
 
 (defun cider--check-middleware-compatibility-callback (buffer)
   "A callback to check if the middleware used is compatible with CIDER."
@@ -1102,10 +1106,10 @@ They exist for compatibility with `next-error'."
    "(clojure.stacktrace/print-cause-trace *e)"
    (lambda (response)
      (nrepl-dbind-response response (out)
-       (when out
-         (with-current-buffer buffer
-           (cider-emit-into-color-buffer buffer out)
-           (compilation-minor-mode +1)))))
+                           (when out
+                             (with-current-buffer buffer
+                               (cider-emit-into-color-buffer buffer out)
+                               (compilation-minor-mode +1)))))
    nil
    session))
 
@@ -1119,9 +1123,9 @@ They exist for compatibility with `next-error'."
         (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)
        (nrepl-dbind-response response (class status)
-         (cond (class  (setq causes (cons response causes)))
-               (status (when causes
-                         (cider-stacktrace-render buffer (reverse causes))))))))))
+                             (cond (class  (setq causes (cons response causes)))
+                                   (status (when causes
+                                             (cider-stacktrace-render buffer (reverse causes))))))))))
 
 (defun cider--show-error-buffer-p (buffer)
   "Return non-nil if stacktrace buffer must be shown on error.
