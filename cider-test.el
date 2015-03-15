@@ -181,6 +181,8 @@
      (append
       (list "op" "test-stacktrace" "session" (nrepl-current-session)
             "ns" ns "var" var "index" index)
+      (when cider-stacktrace-print-length
+        (list "print-length" cider-stacktrace-print-length))
       (when cider-stacktrace-print-level
         (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)

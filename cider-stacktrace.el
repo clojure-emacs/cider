@@ -53,11 +53,30 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
-(defcustom cider-stacktrace-print-level 50
-  "Set the maximum level of nested data to print.
-Used when displaying stacktrace data (used for clojure's *print-level*)."
+(defcustom cider-stacktrace-print-length 50
+  "Set the maximum length of sequences in displayed cause data.
+
+This sets the value of Clojure's `*print-length*` when pretty printing the
+`ex-data` map for exception causes in the stacktrace that are instances of
+`IExceptionInfo`.
+
+Be advised that setting this to `nil` will cause the attempted printing of
+infinite data structures."
   :type '(choice integer (const nil))
-  :group 'cider
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-stacktrace-print-level 50
+  "Set the maximum level of nesting in displayed cause data.
+
+This sets the value of Clojure's `*print-level*` when pretty printing the
+`ex-data` map for exception causes in the stacktrace that are instances of
+`IExceptionInfo`.
+
+Be advised that setting this to `nil` will cause the attempted printing of
+cyclical data structures."
+  :type '(choice integer (const nil))
+  :group 'cider-stacktrace
   :package-version '(cider . "0.8.0"))
 
 (defvar cider-stacktrace-detail-max 2
