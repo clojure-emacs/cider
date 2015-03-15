@@ -1284,13 +1284,21 @@ If major MODE is non-nil, enable it for the popup buffer."
 (defun cider-popup-buffer-display (buffer &optional select)
   "Display BUFFER.
 If SELECT is non-nil, select the BUFFER."
-  (unless (eq (get-buffer buffer) (current-buffer))
-    (-when-let (win (get-buffer-window buffer))
+  (let ((window (get-buffer-window buffer)))
+    (when window
       (with-current-buffer buffer
-        (set-window-point win (point))))
-    (if select
-        (pop-to-buffer buffer)
-      (display-buffer buffer)))
+        (set-window-point window (point))))
+    ;; If the buffer we are popping up is already displayed in the selected
+    ;; window, the below `inhibit-same-window' logic will cause it to be
+    ;; displayed twice - so we early out in this case. Note that we must check
+    ;; `selected-window', as async request handlers are executed in the context
+    ;; of the current connection buffer (i.e. `current-buffer' is dynamically
+    ;; bound to that).
+    (unless (eq window (selected-window))
+      ;; Non nil `inhibit-same-window' ensures that current window is not covered
+      (if select
+          (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
+        (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows)))))))
   buffer)
 
 (defun cider-popup-buffer-quit (&optional kill)
