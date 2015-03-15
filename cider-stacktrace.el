@@ -521,10 +521,15 @@ This associates text properties to enable filtering and source navigation."
       (cider-stacktrace-cycle-cause (length causes) 1)))
   ;; Fully display innermost cause. This also applies visibility/filters.
   (cider-stacktrace-cycle-cause 1 cider-stacktrace-detail-max)
-  ;; Move point to first stacktrace frame in displayed cause.
-  (goto-char (point-min))
-  (while (cider-stacktrace-next-cause))
-  (goto-char (next-single-property-change (point) 'flags)))
+  ;; Move point to first stacktrace frame in displayed cause.  If the error
+  ;; buffer is visible in a window, ensure that window is selected while moving
+  ;; point, so as to move both the buffer's and the window's point.
+  (with-selected-window (or (get-buffer-window cider-error-buffer)
+                            (selected-window))
+    (with-current-buffer cider-error-buffer
+      (goto-char (point-min))
+      (while (cider-stacktrace-next-cause))
+      (goto-char (next-single-property-change (point) 'flags)))))
 
 (defun cider-stacktrace-render (buffer causes)
   "Emit into BUFFER useful stacktrace information for the CAUSES."
