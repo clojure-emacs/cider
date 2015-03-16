@@ -1025,6 +1025,9 @@ Return a newly created process."
              (propertize cmd 'face 'font-lock-keyword-face))
     serv-proc))
 
+(defvar nrepl-server-ready-function nil
+  "Function to call when the nREPL server is finally ready.")
+
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT."
   (with-current-buffer (process-buffer process)
@@ -1038,7 +1041,10 @@ Return a newly created process."
         (let ((client-proc (nrepl-start-client-process nil port process)))
           ;; FIXME: Bad connection tracking system. There can be multiple client
           ;; connections per server
-          (setq nrepl-connection-buffer (buffer-name (process-buffer client-proc))))))))
+          (setq nrepl-connection-buffer (buffer-name (process-buffer client-proc)))))))
+  (when nrepl-server-ready-function
+    (funcall nrepl-server-ready-function)
+    (setq nrepl-server-ready-function nil)))
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
