@@ -157,11 +157,6 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 
 ;;; Sync Requests
-(defun cider--sync-request-value (request)
-  "Send sync REQUEST and return the \"value\" slot."
-  (cider-ensure-op-supported (lax-plist-get request "op"))
-  (nrepl-dict-get (nrepl-send-sync-request request) "value"))
-
 (defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
   "Send \"apropos\" op with args SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
   (-> `("op" "apropos"
