@@ -212,7 +212,7 @@ Find buttons with a 'filter property; if filter is a member of FILTERS, or
 if filter is nil ('show all') and the argument list is non-nil, fontify the
 button as disabled.  Upon finding text with a 'hidden-count property, stop
 searching and update the hidden count text."
-  (with-current-buffer (get-buffer cider-error-buffer)
+  (with-current-buffer cider-error-buffer
     (save-excursion
       (goto-char (point-min))
       (let ((inhibit-read-only t)
@@ -242,7 +242,7 @@ searching and update the hidden count text."
 Update `cider-stacktrace-hidden-frame-count' and indicate filters applied.
 Currently collapsed stacktraces are ignored, and do not contribute to the
 hidden count."
-  (with-current-buffer (get-buffer cider-error-buffer)
+  (with-current-buffer cider-error-buffer
     (save-excursion
       (goto-char (point-min))
       (let ((inhibit-read-only t)
@@ -259,7 +259,7 @@ hidden count."
 
 (defun cider-stacktrace-apply-cause-visibility ()
   "Apply `cider-stacktrace-cause-visibility' to causes and reapply filters."
-  (with-current-buffer (get-buffer cider-error-buffer)
+  (with-current-buffer cider-error-buffer
     (save-excursion
       (goto-char (point-min))
       (cl-flet ((next-detail (end)
@@ -289,17 +289,16 @@ hidden count."
 (defun cider-stacktrace-previous-cause ()
   "Move point to the previous exception cause, if one exists."
   (interactive)
-  (with-current-buffer (get-buffer cider-error-buffer)
+  (with-current-buffer cider-error-buffer
     (-when-let (pos (previous-single-property-change (point) 'cause))
       (goto-char pos))))
 
 (defun cider-stacktrace-next-cause ()
   "Move point to the next exception cause, if one exists."
   (interactive)
-  (with-current-buffer (get-buffer cider-error-buffer)
+  (with-current-buffer cider-error-buffer
     (-when-let (pos (next-single-property-change (point) 'cause))
       (goto-char pos))))
-
 
 (defun cider-stacktrace-cycle-cause (num &optional level)
   "Update element NUM of `cider-stacktrace-cause-visibility', optionally to LEVEL.
@@ -312,7 +311,7 @@ it wraps to 0."
 (defun cider-stacktrace-cycle-all-causes ()
   "Cycle the visibility of all exception causes."
   (interactive)
-  (with-current-buffer (get-buffer cider-error-buffer)
+  (with-current-buffer cider-error-buffer
     (save-excursion
       ;; Find nearest cause.
       (unless (get-text-property (point) 'cause)
@@ -329,7 +328,7 @@ it wraps to 0."
 (defun cider-stacktrace-cycle-current-cause ()
   "Cycle the visibility of current exception at point, if any."
   (interactive)
-  (with-current-buffer (get-buffer cider-error-buffer)
+  (with-current-buffer cider-error-buffer
     (-when-let (num (get-text-property (point) 'cause))
       (cider-stacktrace-cycle-cause num))))
 
@@ -540,10 +539,15 @@ This associates text properties to enable filtering and source navigation."
       (cider-stacktrace-cycle-cause (length causes) 1)))
   ;; Fully display innermost cause. This also applies visibility/filters.
   (cider-stacktrace-cycle-cause 1 cider-stacktrace-detail-max)
-  ;; Move point to first stacktrace frame in displayed cause.
-  (goto-char (point-min))
-  (while (cider-stacktrace-next-cause))
-  (goto-char (next-single-property-change (point) 'flags)))
+  ;; Move point to first stacktrace frame in displayed cause.  If the error
+  ;; buffer is visible in a window, ensure that window is selected while moving
+  ;; point, so as to move both the buffer's and the window's point.
+  (with-selected-window (or (get-buffer-window cider-error-buffer)
+                            (selected-window))
+    (with-current-buffer cider-error-buffer
+      (goto-char (point-min))
+      (while (cider-stacktrace-next-cause))
+      (goto-char (next-single-property-change (point) 'flags)))))
 
 (defun cider-stacktrace-render (buffer causes)
   "Emit into BUFFER useful stacktrace information for the CAUSES."
