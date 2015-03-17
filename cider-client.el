@@ -220,14 +220,18 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
-  (cider--sync-request-value (list "op" "ns-list"
-                                   "session" (nrepl-current-session))))
+  (-> (list "op" "ns-list"
+            "session" (nrepl-current-session))
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "ns-list")))
 
 (defun cider-sync-request:ns-vars (ns)
   "Get a list of the vars in NS."
-  (cider--sync-request-value (list "op" "ns-vars"
-                                   "session" (nrepl-current-session)
-                                   "ns" ns)))
+  (-> (list "op" "ns-vars"
+            "session" (nrepl-current-session)
+            "ns" ns)
+      (nrepl-send-sync-request)
+      (nrepl-dict-get "ns-vars")))
 
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
