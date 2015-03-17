@@ -657,7 +657,9 @@ text property `cider-old-input'."
   "Return the position of the end of the line preceding the beginning of input."
   (save-excursion
     (goto-char cider-repl-input-start-mark)
-    (previous-line)
+    ;; do not use previous-line, but line-move with noerror
+    ;; moving up from the first line should not throw error
+    (line-move -1 t nil nil)
     (line-end-position)))
 
 (defun cider-repl-clear-output ()
