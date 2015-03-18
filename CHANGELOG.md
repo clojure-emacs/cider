@@ -37,6 +37,7 @@
 
 ### Bugs fixed
 
+* Tunneled ssh connections now deal correctly with ssh password requests.
 * [#921](https://github.com/clojure-emacs/cider/issues/921): Fixed
 non-functioning `cider-test-jump` from test reports.
 * [#909](https://github.com/clojure-emacs/cider/issues/909): Fixed
