@@ -1187,12 +1187,19 @@ found."
         (error "No nREPL connection buffer"))))
 
 (defun nrepl-connection-buffers ()
-  "Return the connection list.
-Purge the dead buffers from the `nrepl-connection-list' beforehand."
+  "Return the list of connection buffers."
   (setq nrepl-connection-list
         (-remove (lambda (buffer)
                    (not (buffer-live-p (get-buffer buffer))))
                  nrepl-connection-list)))
+
+(defun nrepl-repl-buffers ()
+  "Return the list of REPL buffers.
+Purge the dead buffers from the `nrepl-connection-list' beforehand."
+  (-filter
+   (lambda (buffer)
+     (with-current-buffer buffer (derived-mode-p 'cider-repl-mode)))
+   (buffer-list)))
 
 ;; FIXME: Bad user api; don't burden users with management of
 ;; the connection list, same holds for `cider-rotate-connection'.
