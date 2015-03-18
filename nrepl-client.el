@@ -671,6 +671,8 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
        (?h . ,host)
        (?u . ,(if user (format "-l '%s' " user) ""))))))
 
+(autoload 'comint-watch-for-password-prompt "comint"  "(autoload).")
+
 (defun nrepl--ssh-tunnel-filter (port)
   "Return a process filter that waits for PORT to appear in process output."
   (let ((port-string (format "LOCALHOST:%s" port)))
@@ -684,7 +686,8 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
             (save-excursion
               (goto-char (process-mark proc))
               (insert string)
-              (set-marker (process-mark proc) (point)))
+              (set-marker (process-mark proc) (point))
+              (comint-watch-for-password-prompt string))
             (if moving (goto-char (process-mark proc)))))))))
 
 
