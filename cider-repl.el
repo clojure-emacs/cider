@@ -168,16 +168,25 @@ PROJECT-DIR, PORT and HOST are as in `nrepl-make-buffer-name'."
   "Create a REPL buffer and install `cider-repl-mode'.
 ENDPOINT is a plist as returned by `nrepl-connect'."
   ;; Connection might not have been set as yet. Please don't send requests here.
-  (let ((buf (nrepl-make-buffer-name nrepl-repl-buffer-name-template nil
-                                     (plist-get endpoint :host)
-                                     (plist-get endpoint :port))))
-    (with-current-buffer (get-buffer-create buf)
+  (let* ((reuse-buff (not (eq 'new nrepl-use-this-as-repl-buffer)))
+         (buff-name (nrepl-make-buffer-name nrepl-repl-buffer-name-template nil
+                                            (plist-get endpoint :host)
+                                            (plist-get endpoint :port)
+                                            reuse-buff)))
+    ;; when reusing, rename the buffer accordingly
+    (when (and reuse-buff
+               (not (equal buff-name nrepl-use-this-as-repl-buffer)))
+      ;; uniquify as it might be Nth connection to the same endpoint
+      (setq buff-name (generate-new-buffer-name buff-name))
+      (with-current-buffer nrepl-use-this-as-repl-buffer
+        (rename-buffer buff-name)))
+    (with-current-buffer (get-buffer-create buff-name)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
       (cider-repl-reset-markers)
       (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
       (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local))
-    buf))
+    buff-name))
 
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
