@@ -27,19 +27,27 @@
 * Inspector middleware now relies on `eval` middleware, adding support for ClojureScript.
 * Better printing of large amounts of exception cause data in the error buffer.
   - New defcustom, `cider-stacktrace-print-length` (boolean).
+* [#958](https://github.com/clojure-emacs/cider/pull/958) Reuse existing repl
+  buffers with dead processes. Users are now informed about existing zombie repl
+  buffers and are offered the choice to reuse those for new connections.
 
 ### Changes
 
+* [#854](https://github.com/clojure-emacs/cider/pull/854) Error navigation now
+  favors line information reported by the stacktrace, being more detailed than
+  the info reported by `info` middleware.
+* [#854](https://github.com/clojure-emacs/cider/pull/854) Add `nrepl-dict` constructor.
 * [#934](https://github.com/clojure-emacs/cider/issues/934): Remove
   `cider-turn-on-eldoc-mode` in favor of simply using `eldoc-mode`.
 * [#953](https://github.com/clojure-emacs/cider/pull/953) Use `sshx` instead of `ssh` in `cider-select-endpoint`
+* [#956](https://github.com/clojure-emacs/cider/pull/956) Eval full ns form only when needed.
 * Enable annotated completion candidates by default.
 
 ### Bugs fixed
 
-* Tunneled ssh connections now deal correctly with ssh password requests.
 * [#921](https://github.com/clojure-emacs/cider/issues/921): Fixed
 non-functioning `cider-test-jump` from test reports.
+* [#962](https://github.com/clojure-emacs/cider/pull/962) On error don't auto-jump to tooling files.
 * [#909](https://github.com/clojure-emacs/cider/issues/909): Fixed
 `cider-repl-set-ns`'s behavior for ClojureScript.
 * [#950](https://github.com/clojure-emacs/cider/issues/950): Eval `ns` form in the
@@ -50,6 +58,7 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#979](https://github.com/clojure-emacs/cider/issues/979): Fixed the inspector buffer popping up needlessly.
 * [#981](https://github.com/clojure-emacs/cider/issues/981): Updated `cider-find-file` to use `find-buffer-visiting` instead of `get-file-buffer`.
 * [#1004](https://github.com/clojure-emacs/cider/issues/1004): `:repl-env` key is now filtered from exception causes, as it contains unprintably large strings of compiled javascript when using ClojureScript.
+* Tunneled ssh connection now deals correctly with the ssh password request.
 
 ## 0.8.2 / 2014-12-21
 
