@@ -172,8 +172,7 @@ start the server."
   (setq cider-current-clojure-buffer (current-buffer))
   (let ((project-type (or (cider-project-type) cider-default-repl-command)))
     (if (funcall (cider-command-present-p project-type))
-        (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
-               (project (when prompt-project
+        (let* ((project (when prompt-project
                           (read-directory-name "Project: ")))
                (project-dir (nrepl-project-directory-for
                              (or project (nrepl-current-dir))))
@@ -183,8 +182,10 @@ start the server."
                                         (cider-jack-in-params project-type))
                          (cider-jack-in-params project-type)))
                (cmd (format "%s %s" (cider-jack-in-command project-type) params)))
-          (when (nrepl-check-for-repl-buffer nil project-dir)
-            (nrepl-start-server-process project-dir cmd)))
+          (-when-let (repl-buff (nrepl-find-reusable-repl-buffer nil project-dir))
+            (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
+                  (nrepl-use-this-as-repl-buffer repl-buff))
+              (nrepl-start-server-process project-dir cmd))))
       (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your exec-path"
                (cider-jack-in-command project-type)))))
 
@@ -194,9 +195,10 @@ start the server."
 Create REPL buffer and start an nREPL client connection."
   (interactive (cider-select-endpoint))
   (setq cider-current-clojure-buffer (current-buffer))
-  (when (nrepl-check-for-repl-buffer `(,host ,port) nil)
-    (let ((nrepl-create-client-buffer-function  #'cider-repl-create))
-      (nrepl-start-client-process host port))))
+  (-when-let (repl-buff (nrepl-find-reusable-repl-buffer `(,host ,port) nil))
+    (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
+          (nrepl-use-this-as-repl-buffer repl-buff))
+       (nrepl-start-client-process host port))))
 
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."

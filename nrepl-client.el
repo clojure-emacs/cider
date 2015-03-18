@@ -140,6 +140,10 @@ buffer will be hidden."
 It is called with one argument, a plist containing :host, :port and :proc
 as returned by `nrepl-connect'. ")
 
+(defvar nrepl-use-this-as-repl-buffer 'new
+  "Name of the buffer to use as REPL buffer.
+In case of a special value 'new, a new buffer is created.")
+
 
 ;;; nREPL Buffer Names
 
@@ -156,7 +160,7 @@ as returned by `nrepl-connect'. ")
               (concat nrepl-buffer-name-separator designation)
             "")))
 
-(defun nrepl-make-buffer-name (buffer-name-template &optional project-dir host port)
+(defun nrepl-make-buffer-name (buffer-name-template &optional project-dir host port dup-ok)
   "Generate a buffer name using BUFFER-NAME-TEMPLATE.
 
 If not supplied PROJECT-DIR, PORT and HOST default to the buffer local
@@ -164,15 +168,20 @@ value of the `nrepl-project-dir' and `nrepl-endpoint'.
 
 The name will include the project name if available or the endpoint host if
 it is not.  The name will also include the connection port if
-`nrepl-buffer-name-show-port' is true."
-  (generate-new-buffer-name
-   (let ((project-name (nrepl--project-name (or project-dir nrepl-project-dir)))
-         (nrepl-proj-port (or port (cadr nrepl-endpoint))))
-     (nrepl-format-buffer-name-template
-      buffer-name-template
-      (concat (if project-name project-name (or host (car nrepl-endpoint)))
-              (if (and nrepl-proj-port nrepl-buffer-name-show-port)
-                  (format ":%s" nrepl-proj-port) ""))))))
+`nrepl-buffer-name-show-port' is true.
+
+If optional DUP-OK is non-nil, the returned buffer is not \"uniquefied\" by
+`generate-new-buffer-name'."
+  (let* ((project-name (nrepl--project-name (or project-dir nrepl-project-dir)))
+         (nrepl-proj-port (or port (cadr nrepl-endpoint)))
+         (name (nrepl-format-buffer-name-template
+                buffer-name-template
+                (concat (if project-name project-name (or host (car nrepl-endpoint)))
+                        (if (and nrepl-proj-port nrepl-buffer-name-show-port)
+                            (format ":%s" nrepl-proj-port) "")))))
+    (if dup-ok
+        name
+      (generate-new-buffer-name name))))
 
 (defun nrepl--make-hidden-name (buffer-name)
   "Apply a prefix to BUFFER-NAME that will hide the buffer."
@@ -267,25 +276,41 @@ Bind the value of the provided KEYS and execute BODY."
     (or (locate-dominating-file dir-name "project.clj")
         (locate-dominating-file dir-name "build.boot"))))
 
-(defun nrepl-check-for-repl-buffer (endpoint project-directory)
-  "Check whether a matching connection buffer already exists.
-Looks for buffers where `nrepl-endpoint' matches ENDPOINT,
-or `nrepl-project-dir' matches PROJECT-DIRECTORY.
-If so ask the user for confirmation."
-  (if (cl-find-if
-       (lambda (buffer)
-         (let ((buffer (get-buffer buffer)))
-           (or (and endpoint
-                    (equal endpoint
-                           (buffer-local-value 'nrepl-endpoint buffer)))
-               (and project-directory
-                    (equal project-directory
-                           (buffer-local-value 'nrepl-project-dir buffer))))))
-       (nrepl-connection-buffers))
-      (y-or-n-p
-       "An nREPL connection buffer already exists.  Do you really want to create a new one? ")
-    t))
-
+(defun nrepl-find-reusable-repl-buffer (endpoint project-directory)
+  "Check whether a reusable connection buffer already exists.
+Looks for buffers where `nrepl-endpoint' matches ENDPOINT, or
+`nrepl-project-dir' matches PROJECT-DIRECTORY.  If such a buffer was found,
+and has no process, return it.  If the process is alive, ask the user for
+confirmation and return 'new/nil for y/n answer respectively.  If other
+REPL buffers with dead process exist, ask the user if any of those should
+be reused."
+  (let* ((repl-buffs (-map #'buffer-name (nrepl-repl-buffers)))
+         (exact-buff (-first (lambda (buff)
+                               (with-current-buffer buff
+                                 (or (and endpoint (equal endpoint nrepl-endpoint))
+                                     (and project-directory (equal project-directory nrepl-project-dir)))))
+                             repl-buffs)))
+    (cl-flet ((zombi-buffer-or-new
+               () (let ((zombi-buffs (-remove (lambda (buff)
+                                                (process-live-p (get-buffer-process buff)))
+                                              repl-buffs)))
+                    (if zombi-buffs
+                        (if (y-or-n-p (format "Zombi REPL buffers exist (%s).  Reuse? "
+                                              (cider-string-join zombi-buffs ", ")))
+                            (if (= (length zombi-buffs) 1)
+                                (car zombi-buffs)
+                              (completing-read "Choose REPL buffer: " zombi-buffs nil t))
+                          'new)
+                      'new))))
+      (if exact-buff
+          (if (process-live-p (get-buffer-process exact-buff))
+              (when (y-or-n-p
+                     (format "REPL buffer already exists (%s).  Do you really want to create a new one? "
+                             exact-buff))
+                (zombi-buffer-or-new))
+            exact-buff)
+        (zombi-buffer-or-new)))))
+        
 (defun nrepl-extract-port (&optional dir)
   "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
   (-when-let (dir (or dir (nrepl-project-directory-for (nrepl-current-dir))))
@@ -1018,9 +1043,11 @@ Return a newly created process."
     (set-process-coding-system serv-proc 'utf-8-unix 'utf-8-unix)
     (with-current-buffer serv-buf
       (setq nrepl-project-dir directory)
-      ;; ensure that `nrepl-start-client-process' sees right function
+      ;; ensure that `nrepl-start-client-process' sees right things:
       (setq-local nrepl-create-client-buffer-function
-                  nrepl-create-client-buffer-function))
+                  nrepl-create-client-buffer-function)
+      (setq-local nrepl-use-this-as-repl-buffer
+                  nrepl-use-this-as-repl-buffer))
     (message "Starting nREPL server via %s..."
              (propertize cmd 'face 'font-lock-keyword-face))
     serv-proc))
