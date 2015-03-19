@@ -1439,25 +1439,36 @@ the printed result, and defaults to `fill-column'."
    nil
    (or right-margin fill-column)))
 
+(defun cider--dummy-file-ns-form (form)
+  "Construct a `(ns ...)` form for `cider--dummy-file-contents'.
+
+If there is no current ns form, or if FORM is a ns form itself, returns an
+empty string. If the current ns form has not yet been evaluated, returns
+the current ns form. Otherwise, returns the current ns form with
+all :reload and :reload-all directives removed."
+  (let ((current-ns-form (cider-ns-form))
+        (ns-form (cond
+                  ((null current-ns-form) "")
+                  ((cider-ns-form-p form) "")
+                  ((null cider--cached-ns-form) current-ns-form)
+                  ;; previously, we were sending a truncated version of
+                  ;; the current ns form if it was equal to the cached ns
+                  ;; form, but this causes problems with ClojureScript,
+                  ;; where evaluating ns forms is not additive - see #1026
+                  (:default (replace-regexp-in-string ":reload\\(-all\\)?\\>"
+                                                      ""
+                                                      current-ns-form)))))
+    (setq cider--cached-ns-form current-ns-form)
+    ns-form))
+
 (defun cider--dummy-file-contents (form start-pos)
   "Wrap FORM to make it suitable for `cider-request:load-file'.
 START-POS is a starting position of the form in the original context."
-  (let* ((cur-ns-form (cider-ns-form))
-         (ns-form (cond
-                   ((or (null cur-ns-form)
-                        (cider-ns-form-p form))
-                    "")
-                   ((string= cur-ns-form cider--cached-ns-form)
-                    (format "(ns %s)" (cider-current-ns)))
-                   ((null cider--cached-ns-form)
-                    cur-ns-form)
-                   (t
-                    (replace-regexp-in-string ":reload\\(-all\\)?\\>" "" cur-ns-form))))
+  (let* ((ns-form (cider--dummy-file-ns-form form))
          (ns-form-lines (length (split-string ns-form "\n")))
          (start-pos (or start-pos 1))
          (start-line (line-number-at-pos start-pos))
          (start-column (save-excursion (goto-char start-pos) (current-column))))
-    (setq cider--cached-ns-form cur-ns-form)
     (concat
      ns-form
      (make-string (max 0 (- start-line ns-form-lines)) ?\n)
