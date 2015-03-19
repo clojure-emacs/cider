@@ -795,7 +795,7 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
 
 (defun cider-jump-to-var (&optional var line)
   "Jump to the definition of VAR, optionally at a specific LINE.
-When called interactively, this operates on point, or falls back to a prompt."
+When called interactively, prompts with symbol at point."
   (interactive)
   (cider-ensure-op-supported "info")
   (if var
@@ -941,10 +941,10 @@ in the buffer."
           (browse-url url)
         (error "No Javadoc available for %s" symbol-name)))))
 
-(defun cider-javadoc (query)
-  "Browse Javadoc on the Java symbol QUERY at point."
-  (interactive "P")
-  (cider-read-symbol-name "Javadoc for: " 'cider-javadoc-handler query))
+(defun cider-javadoc ()
+  "Browse Javadoc on the Java symbol at point."
+  (interactive)
+  (cider-read-symbol-name "Javadoc for: " 'cider-javadoc-handler))
 
 (defun cider-stdin-handler (&optional buffer)
   "Make a stdin response handler for BUFFER."
@@ -1746,17 +1746,9 @@ ready to call."
                                         (goto-char (- (point-max) 1)))))))
 
 (defun cider-read-symbol-name (prompt callback &optional query)
-  "Either read a symbol name using PROMPT or choose the one at point.
-Use CALLBACK as the completing read var callback.
-The user is prompted with PROMPT if a prefix argument is in effect,
-if there is no symbol at point, or if QUERY is non-nil."
-  (let ((symbol-name (cider-symbol-at-point)))
-    (if (not (or current-prefix-arg
-                 query
-                 (not symbol-name)
-                 (equal "" symbol-name)))
-        (funcall callback symbol-name)
-      (funcall callback (cider-read-from-minibuffer prompt)))))
+  "Read a symbol name using PROMPT with a default of the one at point.
+Use CALLBACK as the completing read var callback."
+  (funcall callback (cider-read-from-minibuffer prompt (cider-symbol-at-point))))
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
@@ -1766,11 +1758,10 @@ if there is no symbol at point, or if QUERY is non-nil."
             "sym" symbol)
       (nrepl-send-sync-request)))
 
-(defun cider-toggle-trace-var (query)
+(defun cider-toggle-trace-var ()
   "Toggle var tracing.
-Defaults to the symbol at point.  With prefix arg QUERY or no symbol at
-point, prompts for a var."
-  (interactive "P")
+Defaults to the symbol at point."
+  (interactive)
   (cider-ensure-op-supported "toggle-trace-var")
   (cider-read-symbol-name
    "Toggle trace for var: "
@@ -1781,8 +1772,7 @@ point, prompts for a var."
        (pcase var-status
          ("not-found" (message "Var %s not found" sym))
          ("not-traceable" (message "Var %s can't be traced because it's not bound to a function" var-name))
-         (t (message "Var %s %s" var-name var-status)))))
-   query))
+         (t (message "Var %s %s" var-name var-status)))))))
 
 (defun cider-sync-request:toggle-trace-ns (ns)
   "Toggle namespace tracing for NS."
@@ -1816,16 +1806,15 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
       (cider-popup-buffer-display buffer t)
     (message "Symbol %s not resolved" symbol)))
 
-(defun cider-doc (query)
-  "Open a window with the docstring for the given QUERY.
-Defaults to the symbol at point.  With prefix arg or no symbol
-under point, prompts for a var."
-  (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-doc-lookup query))
+(defun cider-doc ()
+  "Open a window with the docstring for the given symbol.
+Defaults to the symbol at point."
+  (interactive)
+  (cider-read-symbol-name "Doc for: " 'cider-doc-lookup))
 
-(defun cider-undef (symbol)
+(defun cider-undef ()
   "Undefine the SYMBOL."
-  (interactive "P")
+  (interactive)
   (cider-ensure-op-supported "undef")
   (cider-read-symbol-name
    "Undefine symbol: "
@@ -1834,8 +1823,7 @@ under point, prompts for a var."
       (list "op" "undef"
             "ns" (cider-current-ns)
             "symbol" sym)
-      (cider-interactive-eval-handler (current-buffer))))
-   symbol))
+      (cider-interactive-eval-handler (current-buffer))))))
 
 (defun cider-refresh ()
   "Refresh loaded code."
