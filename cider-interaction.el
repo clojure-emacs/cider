@@ -1879,9 +1879,7 @@ If no buffer is provided the command acts on the current buffer."
 
 Uses FORMATTER, a function of one argument, to convert the string contents
 of the buffer into a formatted string."
-  (unless buffer-file-name
-    (error "Buffer %s is not associated with a file" (buffer-name)))
-  (let* ((original (cider-file-string buffer-file-name))
+  (let* ((original (substring-no-properties (buffer-string)))
          (formatted (funcall formatter original)))
     (unless (equal original formatted)
       (erase-buffer)
