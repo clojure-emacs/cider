@@ -1106,10 +1106,10 @@ They exist for compatibility with `next-error'."
    "(clojure.stacktrace/print-cause-trace *e)"
    (lambda (response)
      (nrepl-dbind-response response (out)
-                           (when out
-                             (with-current-buffer buffer
-                               (cider-emit-into-color-buffer buffer out)
-                               (compilation-minor-mode +1)))))
+       (when out
+         (with-current-buffer buffer
+           (cider-emit-into-color-buffer buffer out)
+           (compilation-minor-mode +1)))))
    nil
    session))
 
@@ -1125,9 +1125,9 @@ They exist for compatibility with `next-error'."
         (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)
        (nrepl-dbind-response response (class status)
-                             (cond (class  (setq causes (cons response causes)))
-                                   (status (when causes
-                                             (cider-stacktrace-render buffer (reverse causes))))))))))
+         (cond (class  (setq causes (cons response causes)))
+               (status (when causes
+                         (cider-stacktrace-render buffer (reverse causes))))))))))
 
 (defun cider--show-error-buffer-p (buffer)
   "Return non-nil if stacktrace buffer must be shown on error.

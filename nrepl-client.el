@@ -310,7 +310,7 @@ be reused."
                 (zombi-buffer-or-new))
             exact-buff)
         (zombi-buffer-or-new)))))
-        
+
 (defun nrepl-extract-port (&optional dir)
   "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
   (-when-let (dir (or dir (nrepl-project-directory-for (nrepl-current-dir))))
