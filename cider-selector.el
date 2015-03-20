@@ -105,7 +105,7 @@ is chosen.  The returned buffer is selected with
     `(setq cider-selector-methods
            (cl-sort (cons (list ,key ,description ,method)
                           (cl-remove ,key cider-selector-methods :key #'car))
-                  #'< :key #'car))))
+                    #'< :key #'car))))
 
 (def-cider-selector-method ?? "Selector help buffer."
   (ignore-errors (kill-buffer cider-selector-help-buffer))
@@ -151,9 +151,9 @@ is chosen.  The returned buffer is selected with
   cider-error-buffer)
 
 (def-cider-selector-method ?s
- "Cycle to the next CIDER connection's REPL."
- (cider-rotate-connection)
- (cider-get-repl-buffer))
+  "Cycle to the next CIDER connection's REPL."
+  (cider-rotate-connection)
+  (cider-get-repl-buffer))
 
 (provide 'cider-selector)
 

@@ -454,7 +454,7 @@ current ns."
                    (clojure-find-ns)
                  (or (funcall cider-test-infer-test-ns (clojure-find-ns))
                      (when (eq major-mode 'cider-test-report-mode)
-                      cider-test-last-test-ns))))
+                       cider-test-last-test-ns))))
       (cider-test-execute ns nil)
     (message "No namespace to test in current context")))
 
