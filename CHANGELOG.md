@@ -40,6 +40,9 @@
 * [#1032](https://github.com/clojure-emacs/cider/issues/1032) New functions, `cider-find-dwim` and
   `cider-find-dwim-other-window`. These functions combine the functionality of `cider-jump-to-var` and
   `cider-jump-to-resource`. Which are now renamed to `cider-find-var` and `cider-find-resource` respectively.
+* [#1014](https://github.com/clojure-emacs/cider/issues/1014) A prefix of <kbd>-</kbd> causes `cider-find-var` and 
+  `cider-find-resource` to show results in other window. Additionally, a double prefix argument <kbd>C-u C-u</kbd>
+  inverts the meaning of `cider-prompt-for-symbol` and shows the results in other window.
 
 ### Changes
 
