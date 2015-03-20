@@ -60,6 +60,7 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#1004](https://github.com/clojure-emacs/cider/issues/1004): `:repl-env` key is now filtered from exception causes, as it contains unprintably large strings of compiled javascript when using ClojureScript.
 * Tunneled ssh connection now deals correctly with the ssh password request.
 * [#1026](https://github.com/clojure-emacs/cider/issues/1026): The full `(ns ...)` form for the current buffer is now sent with all source-tracking eval requests, to fix ClojureScript compatibility.
+* [#1033](https://github.com/clojure-emacs/cider/issues/1033): Removed erroneous underlining from stacktrace frames and disabled frame filters in the error buffer.
 
 ## 0.8.2 / 2014-12-21
 
