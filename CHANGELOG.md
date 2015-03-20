@@ -42,6 +42,8 @@
 * [#953](https://github.com/clojure-emacs/cider/pull/953) Use `sshx` instead of `ssh` in `cider-select-endpoint`
 * [#956](https://github.com/clojure-emacs/cider/pull/956) Eval full ns form only when needed.
 * Enable annotated completion candidates by default.
+* [#1031] (https://github.com/clojure-emacs/cider/pull/1031) Interactive functions prompt with
+  symbol at point as a default value.
 
 ### Bugs fixed
 

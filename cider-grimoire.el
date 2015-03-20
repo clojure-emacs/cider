@@ -52,10 +52,10 @@
     (message "Symbol %s not resolved" symbol)))
 
 ;;;###autoload
-(defun cider-grimoire-web (query)
+(defun cider-grimoire-web ()
   "Open the grimoire documentation for QUERY in the default web browser."
-  (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-grimoire-web-lookup query))
+  (interactive)
+  (cider-read-symbol-name "Grimoire doc for: " 'cider-grimoire-web-lookup))
 
 (defun cider-create-grimoire-buffer (content)
   "Create a new grimoire buffer with CONTENT."
@@ -85,9 +85,9 @@
     (message "Symbol %s not resolved" symbol)))
 
 ;;;###autoload
-(defun cider-grimoire (query)
+(defun cider-grimoire ()
   "Open the grimoire documentation for QUERY in a popup buffer."
-  (interactive "P")
-  (cider-read-symbol-name "Symbol: " 'cider-grimoire-lookup query))
+  (interactive)
+  (cider-read-symbol-name "Grimoire doc for: " 'cider-grimoire-lookup))
 
 (provide 'cider-grimoire)
