@@ -169,14 +169,14 @@ and point is placed after the expanded form."
     (define-key map (kbd "q") 'cider-popup-buffer-quit-function)
     (define-key map (kbd "d") 'cider-doc)
     (define-key map (kbd "j") 'cider-javadoc)
-    (define-key map (kbd ".") 'cider-jump-to-var)
+    (define-key map (kbd ".") 'cider-find-var)
     (easy-menu-define cider-macroexpansion-mode-menu map
       "Menu for CIDER's doc mode"
       '("Macroexpansion"
         ["Restart expansion" cider-macroexpand-again]
         ["Macroexpand-1" cider-macroexpand-1-inplace]
         ["Macroexpand-all" cider-macroexpand-all-inplace]
-        ["Go to source" cider-jump-to-var]
+        ["Go to source" cider-find-var]
         ["Go to doc" cider-doc]
         ["Go to Javadoc" cider-docview-javadoc]
         ["Quit" cider-popup-buffer-quit-function]))

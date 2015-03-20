@@ -775,7 +775,44 @@ window."
       (when pos
         (goto-char pos)))))
 
-(defun cider-jump-to-resource (path)
+(defun cider-find-dwim-other-window (symbol-file)
+  "Jump to SYMBOL-FILE at point, place results in other window."
+  (interactive (cider--find-dwim-interactive "Jump to: "))
+  (cider--find-dwim symbol-file 'cider-find-dwim-other-window t))
+
+(defun cider-find-dwim (symbol-file)
+  "Try to jump to the SYMBOL-FILE at point. If thing at point is empty dired
+on project. If var is not found, try to jump to resource of the same name.
+When called interactively, A prompt is given according to the variable
+cider-prompt-for-symbol. A prefix inverts the meaning. A default value of
+thing at point is given when prompted."
+  (interactive (cider--find-dwim-interactive "Jump to: "))
+  (cider--find-dwim symbol-file 'cider-find-dwim))
+
+(defun cider--find-dwim (symbol-file callback &optional other-window)
+  "Try to jump to the SYMBOL-FILE at point, show results in OTHER-WINDOW as indicated.
+CALLBACK upon failure to invoke prompt if not prompted previously.
+If thing at point is empty dired on project."
+  (-if-let (info (cider-var-info symbol-file))
+      (cider--jump-to-loc-from-info info other-window)
+    (progn
+      (cider-ensure-op-supported "resource")
+      (-if-let* ((resource (cider-sync-request:resource symbol-file))
+                 (buffer (cider-find-file resource)))
+          (cider-jump-to buffer 0 other-window)
+        (if (cider--should-prompt-for-symbol current-prefix-arg)
+            (error "Resource or var %s not resolved" symbol-file)
+          (let ((current-prefix-arg (if current-prefix-arg nil '(4))))
+            (call-interactively callback)))))))
+
+(defun cider--find-dwim-interactive (prompt)
+  "Get interactive arguments for jump-to functions using PROMPT as needed."
+  (if (cider--should-prompt-for-symbol current-prefix-arg)
+      (list
+       (cider-read-from-minibuffer prompt (thing-at-point 'filename)))
+    (list (or (thing-at-point 'filename) ""))))  ; No prompt.
+
+(defun cider-find-resource (path)
   "Jump to the resource at the resource-relative PATH.
 When called interactively, this operates on point."
   (interactive (list (thing-at-point 'filename)))
@@ -798,7 +835,7 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
         (cider-jump-to buffer (cons line nil) other-window)
       (error "No source location"))))
 
-(defun cider--jump-to-var (var &optional line)
+(defun cider--find-var (var &optional line)
   "Jump to the definition of VAR, optionally at a specific LINE."
   (-if-let (info (cider-var-info var))
       (progn
@@ -806,9 +843,8 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
         (cider--jump-to-loc-from-info info))
     (error "Symbol %s not resolved" var)))
 
-(defun cider-jump-to-var (&optional arg var line)
+(defun cider-find-var (&optional arg var line)
   "Jump to the definition of VAR, optionally at a specific LINE.
-
 Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
 opposite of what that option dictates."
@@ -820,6 +856,8 @@ opposite of what that option dictates."
              "Symbol: "
              #'cider--jump-to-var)))
 
+(define-obsolete-function-alias 'cider-jump-to-resource 'cider-find-resource "0.9.0")
+(define-obsolete-function-alias 'cider-jump-to-var 'cider-find-var "0.9.0")
 (define-obsolete-function-alias 'cider-jump 'cider-jump-to-var "0.7.0")
 (defalias 'cider-jump-back 'pop-tag-mark)
 

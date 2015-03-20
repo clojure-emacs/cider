@@ -37,6 +37,10 @@
 * New defcustom, `cider-prompt-for-symbol`. Controls whether to prompt for
   symbol when interactive commands require one. Defaults to t, which always
   prompts. Currently applies to all documentation and source lookup commands.
+* [#1032](https://github.com/clojure-emacs/cider/issues/1032) New functions, `cider-find-dwim` and 
+  `cider-find-dwim-other-window`. These functions combine the functionality of `cider-jump-to-var` and 
+  `cider-jump-to-resource`. Which are now renamed to `cider-find-var` and `cider-find-resource` respectively.
+
 
 ### Changes
 
@@ -51,7 +55,7 @@
 * [#953](https://github.com/clojure-emacs/cider/pull/953) Use `sshx` instead of `ssh` in `cider-select-endpoint`
 * [#956](https://github.com/clojure-emacs/cider/pull/956) Eval full ns form only when needed.
 * Enable annotated completion candidates by default.
-* [#1031] (https://github.com/clojure-emacs/cider/pull/1031) Interactive functions prompt with
+* [#1031](https://github.com/clojure-emacs/cider/pull/1031) Interactive functions prompt with
   symbol at point as a default value.
 
 ### Bugs fixed
