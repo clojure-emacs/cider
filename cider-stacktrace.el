@@ -228,7 +228,7 @@ searching and update the hidden count text."
                      (face (funcall get-face (if filter
                                                  (member filter filters)
                                                filters))))
-                (button-put button 'font-lock-face face)))
+                (button-put button 'face face)))
             (goto-char (or (next-property-change (point))
                            (point-max)))))
         ;; Update hidden count
@@ -486,7 +486,7 @@ This associates text properties to enable filtering and source navigation."
                             'flags flags 'follow-link t
                             'action 'cider-stacktrace-navigate
                             'help-echo "View source at this location"
-                            'font-lock-face 'cider-stacktrace-face)
+                            'face 'cider-stacktrace-face)
         (save-excursion
           (let ((p4 (point))
                 (p1 (search-backward " "))
