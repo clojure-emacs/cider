@@ -250,6 +250,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defmacro nrepl-dbind-response (response keys &rest body)
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."
+  (declare (debug (form (&rest symbolp) body)))
   `(let ,(cl-loop for key in keys
                   collect `(,key (nrepl-dict-get ,response ,(format "%s" key))))
      ,@body))
