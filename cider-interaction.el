@@ -214,7 +214,7 @@ if the candidate is not namespace-qualified."
 (defvar cider-required-nrepl-ops
   '("apropos" "classpath" "complete" "eldoc" "format-code" "format-edn" "info"
     "inspect-pop" "inspect-push" "inspect-refresh"
-    "macroexpand" "ns-list" "ns-vars"
+    "macroexpand" "ns-list" "ns-vars" "refresh"
     "resource" "stacktrace" "toggle-trace-var" "toggle-trace-ns" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
@@ -1947,12 +1947,27 @@ opposite of what that option dictates."
             "symbol" sym)
       (cider-interactive-eval-handler (current-buffer))))))
 
-(defun cider-refresh ()
-  "Refresh loaded code."
-  (interactive)
-  (cider-tooling-eval
-   "(clojure.core/require 'clojure.tools.namespace.repl) (clojure.tools.namespace.repl/refresh)"
-   (cider-interactive-eval-handler (current-buffer))))
+(defun cider-refresh--handle-response (response)
+  (nrepl-dbind-response response (reloading status error error-ns)
+    (cond (reloading
+           (message "Reloading: %s" reloading))
+          ((member "ok" status)
+           (message "Reloading successful"))
+          ((member "error" status)
+           (progn (message "Error reloading %s" error-ns)
+                  (cider--render-stacktrace-causes error))))))
+
+(defun cider-refresh (&optional arg)
+  "Reload modified and unloaded namespaces on the classpath.
+
+With a non-nil prefix ARG, reload all namespaces on the classpath
+unconditionally."
+  (interactive "P")
+  (cider-ensure-op-supported "refresh")
+  (nrepl-send-request (list "op" (if arg "refresh-all" "refresh")
+                            "print-length" cider-stacktrace-print-length
+                            "print-level" cider-stacktrace-print-level)
+                      #'cider-refresh--handle-response))
 
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
