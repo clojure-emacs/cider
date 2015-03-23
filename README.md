@@ -674,7 +674,7 @@ e.g. `[com.cemerick/austin "0.1.5"]` in your project's `:plugins`):
     ```clojure
     (require 'weasel.repl.websocket)
     (cemerick.piggieback/cljs-repl
-      :repl-env (weasel.repl.websocket/repl-env :ip "0.0.0.0"
+      :repl-env (weasel.repl.websocket/repl-env :ip "127.0.0.1"
                                                 :port 9001))
     ```
 
