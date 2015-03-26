@@ -256,6 +256,11 @@ When using `switch-to-buffer`, pressing <kbd>SPC</kbd> after the command will
 make the hidden buffers visible. They'll always be visible in
 `list-buffers` (<kbd>C-x C-b</kbd>).
 
+* By default, interactive commands that require a symbol will prompt for the
+  symbol, with the prompt defaulting to the symbol at point. You can set
+  `cider-prompt-for-symbol` to nil to instead try the command with the symbol at
+  point first, and only prompt if that fails.
+
 * You can control the <kbd>TAB</kbd> key behavior in the REPL via the
 `cider-repl-tab-command` variable.  While the default command
 `cider-repl-indent-and-complete-symbol` should be an adequate choice for

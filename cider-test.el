@@ -161,15 +161,15 @@
     (-when-let (pos (next-single-property-change (point) 'type))
       (goto-char pos))))
 
-(defun cider-test-jump ()
+(defun cider-test-jump (&optional arg)
   "Like `cider-jump-to-var', but uses the test at point's definition, if available."
-  (interactive)
+  (interactive "P")
   (let ((ns   (get-text-property (point) 'ns))
         (var  (get-text-property (point) 'var))
         (line (get-text-property (point) 'line)))
     (if (and ns var)
-        (cider-jump-to-var (concat ns "/" var) line)
-      (call-interactively 'cider-jump-to-var))))
+        (cider-jump-to-var arg (concat ns "/" var) line)
+      (cider-jump-to-var arg))))
 
 
 ;;; Error stacktraces

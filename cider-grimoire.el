@@ -49,13 +49,19 @@
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns")))
         (browse-url (cider-grimoire-url name ns)))
-    (message "Symbol %s not resolved" symbol)))
+    (error "Symbol %s not resolved" symbol)))
 
 ;;;###autoload
-(defun cider-grimoire-web ()
-  "Open the grimoire documentation for QUERY in the default web browser."
-  (interactive)
-  (cider-read-symbol-name "Grimoire doc for: " 'cider-grimoire-web-lookup))
+(defun cider-grimoire-web (&optional arg)
+  "Open grimoire documentation in the default web browser.
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
+  (funcall (cider-prompt-for-symbol-function arg)
+           "Grimoire doc for: "
+           #'cider-grimoire-web-lookup))
 
 (defun cider-create-grimoire-buffer (content)
   "Create a new grimoire buffer with CONTENT."
@@ -82,12 +88,18 @@
                         (delete-blank-lines)
                         ;; and create a new buffer with whatever is left
                         (pop-to-buffer (cider-create-grimoire-buffer (buffer-string))))))
-    (message "Symbol %s not resolved" symbol)))
+    (error "Symbol %s not resolved" symbol)))
 
 ;;;###autoload
-(defun cider-grimoire ()
-  "Open the grimoire documentation for QUERY in a popup buffer."
-  (interactive)
-  (cider-read-symbol-name "Grimoire doc for: " 'cider-grimoire-lookup))
+(defun cider-grimoire (&optional arg)
+  "Open grimoire documentation in a popup buffer.
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
+  (funcall (cider-prompt-for-symbol-function arg)
+           "Grimoire doc for:"
+           #'cider-grimoire-lookup))
 
 (provide 'cider-grimoire)

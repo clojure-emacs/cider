@@ -169,7 +169,7 @@
   (interactive)
   (if cider-docview-javadoc-url
       (browse-url cider-docview-javadoc-url)
-    (message "No Javadoc available for %s" cider-docview-symbol)))
+    (error "No Javadoc available for %s" cider-docview-symbol)))
 
 (defun cider-docview-source ()
   "Open the source for the current symbol, if available."
@@ -179,19 +179,19 @@
                          (not (cider--tooling-file-p cider-docview-file))
                          (cider-find-file cider-docview-file))))
         (cider-jump-to buffer (cons cider-docview-line nil) nil))
-    (message "No source location for %s" cider-docview-symbol)))
+    (error "No source location for %s" cider-docview-symbol)))
 
 (defun cider-docview-grimoire ()
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-lookup cider-docview-symbol)
-    (message "%s cannot be looked up on Grimoire" cider-docview-symbol)))
+    (error "%s cannot be looked up on Grimoire" cider-docview-symbol)))
 
 (defun cider-docview-grimoire-web ()
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-web-lookup cider-docview-symbol)
-    (message "%s cannot be looked up on Grimoire" cider-docview-symbol)))
+    (error "%s cannot be looked up on Grimoire" cider-docview-symbol)))
 
 
 ;;; Font Lock and Formatting

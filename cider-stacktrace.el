@@ -429,13 +429,13 @@ it wraps to 0."
                                                (button-get button 'file)))))
     (cider--jump-to-loc-from-info info t)))
 
-(defun cider-stacktrace-jump ()
+(defun cider-stacktrace-jump (&optional arg)
   "Like `cider-jump-to-var', but uses the stack frame source at point, if available."
-  (interactive)
+  (interactive "P")
   (let ((button (button-at (point))))
     (if (and button (button-get button 'line))
         (cider-stacktrace-navigate button)
-      (call-interactively 'cider-jump-to-var))))
+      (cider-jump-to-var arg))))
 
 
 ;; Rendering
