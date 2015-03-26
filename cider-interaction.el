@@ -113,6 +113,19 @@ which will use the default REPL connection."
   :group 'cider
   :package-version '(cider . "0.6.0"))
 
+(defcustom cider-prompt-for-symbol t
+  "Controls when to prompt for symbol when a command requires one.
+
+When non-nil, always prompt, and use the symbol at point as the default
+value at the prompt.
+
+When nil, attempt to use the symbol at point for the command, and only
+prompt if that throws an error."
+  :type '(choice (const :tag "always" t)
+                 (const :tag "dwim" nil))
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
 (defcustom cider-completion-use-context t
   "When true, uses context at point to improve completion suggestions."
   :type 'boolean
@@ -770,7 +783,7 @@ When called interactively, this operates on point."
   (-if-let* ((resource (cider-sync-request:resource path))
              (buffer (cider-find-file resource)))
       (cider-jump-to buffer)
-    (message "Cannot find resource %s" path)))
+    (error "Cannot find resource %s" path)))
 
 (defun cider--jump-to-loc-from-info (info &optional other-window)
   "Jump to location give by INFO.
@@ -783,7 +796,7 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
                       (cider-find-file file))))
     (if buffer
         (cider-jump-to buffer (cons line nil) other-window)
-      (message "No source location"))))
+      (error "No source location"))))
 
 (defun cider--jump-to-var (var &optional line)
   "Jump to the definition of VAR, optionally at a specific LINE."
@@ -791,16 +804,21 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info))
-    (message "Symbol %s not resolved" var)))
+    (error "Symbol %s not resolved" var)))
 
-(defun cider-jump-to-var (&optional var line)
+(defun cider-jump-to-var (&optional arg var line)
   "Jump to the definition of VAR, optionally at a specific LINE.
-When called interactively, prompts with symbol at point."
-  (interactive)
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
   (cider-ensure-op-supported "info")
   (if var
       (cider--jump-to-var var line)
-    (cider-read-symbol-name "Symbol: " #'cider--jump-to-var)))
+    (funcall (cider-prompt-for-symbol-function arg)
+             "Symbol: "
+             #'cider--jump-to-var)))
 
 (define-obsolete-function-alias 'cider-jump 'cider-jump-to-var "0.7.0")
 (defalias 'cider-jump-back 'pop-tag-mark)
@@ -941,10 +959,16 @@ in the buffer."
           (browse-url url)
         (error "No Javadoc available for %s" symbol-name)))))
 
-(defun cider-javadoc ()
-  "Browse Javadoc on the Java symbol at point."
-  (interactive)
-  (cider-read-symbol-name "Javadoc for: " 'cider-javadoc-handler))
+(defun cider-javadoc (arg)
+  "Open Javadoc documentation in a popup buffer.
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
+  (funcall (cider-prompt-for-symbol-function arg)
+           "Javadoc for: "
+           #'cider-javadoc-handler))
 
 (defun cider-stdin-handler (&optional buffer)
   "Make a stdin response handler for BUFFER."
@@ -1745,10 +1769,24 @@ ready to call."
                                         (cider-repl--replace-input (format "(%s)" f))
                                         (goto-char (- (point-max) 1)))))))
 
-(defun cider-read-symbol-name (prompt callback &optional query)
+(defun cider-read-symbol-name (prompt callback)
   "Read a symbol name using PROMPT with a default of the one at point.
 Use CALLBACK as the completing read var callback."
   (funcall callback (cider-read-from-minibuffer prompt (cider-symbol-at-point))))
+
+(defun cider-try-symbol-at-point (prompt callback)
+  "Call CALLBACK with symbol at point.
+On failure, read a symbol name using PROMPT and call CALLBACK with that."
+  (condition-case nil (funcall callback (cider-symbol-at-point))
+    ('error (funcall callback (cider-read-from-minibuffer prompt)))))
+
+(defun cider--should-prompt-for-symbol (&optional invert)
+  (if invert (not cider-prompt-for-symbol) cider-prompt-for-symbol))
+
+(defun cider-prompt-for-symbol-function (&optional invert)
+  (if (cider--should-prompt-for-symbol invert)
+      #'cider-read-symbol-name
+    #'cider-try-symbol-at-point))
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
@@ -1758,21 +1796,26 @@ Use CALLBACK as the completing read var callback."
             "sym" symbol)
       (nrepl-send-sync-request)))
 
-(defun cider-toggle-trace-var ()
+(defun cider--toggle-trace-var (sym)
+  (let* ((trace-response (cider-sync-request:toggle-trace-var sym))
+         (var-name (nrepl-dict-get trace-response "var-name"))
+         (var-status (nrepl-dict-get trace-response "var-status")))
+    (pcase var-status
+      ("not-found" (error "Var %s not found" sym))
+      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" var-name))
+      (t (message "Var %s %s" var-name var-status)))))
+
+(defun cider-toggle-trace-var (arg)
   "Toggle var tracing.
-Defaults to the symbol at point."
-  (interactive)
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
   (cider-ensure-op-supported "toggle-trace-var")
-  (cider-read-symbol-name
-   "Toggle trace for var: "
-   (lambda (sym)
-     (let* ((trace-response (cider-sync-request:toggle-trace-var sym))
-            (var-name (nrepl-dict-get trace-response "var-name"))
-            (var-status (nrepl-dict-get trace-response "var-status")))
-       (pcase var-status
-         ("not-found" (message "Var %s not found" sym))
-         ("not-traceable" (message "Var %s can't be traced because it's not bound to a function" var-name))
-         (t (message "Var %s %s" var-name var-status)))))))
+  (funcall (cider-prompt-for-symbol-function arg)
+           "Toggle trace for var: "
+           #'cider--toggle-trace-var))
 
 (defun cider-sync-request:toggle-trace-ns (ns)
   "Toggle namespace tracing for NS."
@@ -1792,7 +1835,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
     (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
            (ns-status (nrepl-dict-get trace-response "ns-status")))
       (pcase ns-status
-        ("not-found" (message "ns %s not found" ns))
+        ("not-found" (error "ns %s not found" ns))
         (t (message "ns %s %s" ns ns-status))))))
 
 (defun cider-create-doc-buffer (symbol)
@@ -1804,13 +1847,18 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   "Look up documentation for SYMBOL."
   (-if-let (buffer (cider-create-doc-buffer symbol))
       (cider-popup-buffer-display buffer t)
-    (message "Symbol %s not resolved" symbol)))
+    (error "Symbol %s not resolved" symbol)))
 
-(defun cider-doc ()
-  "Open a window with the docstring for the given symbol.
-Defaults to the symbol at point."
-  (interactive)
-  (cider-read-symbol-name "Doc for: " 'cider-doc-lookup))
+(defun cider-doc (&optional arg)
+  "Open Clojure documentation in a popup buffer.
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
+  (funcall (cider-prompt-for-symbol-function arg)
+           "Doc for: "
+           #'cider-doc-lookup))
 
 (defun cider-undef ()
   "Undefine the SYMBOL."

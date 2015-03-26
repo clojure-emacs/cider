@@ -30,6 +30,9 @@
 * [#958](https://github.com/clojure-emacs/cider/pull/958) Reuse existing repl
   buffers with dead processes. Users are now informed about existing zombie repl
   buffers and are offered the choice to reuse those for new connections.
+* New defcustom, `cider-prompt-for-symbol`. Controls whether to prompt for
+  symbol when interactive commands require one. Defaults to t, which always
+  prompts. Currently applies to all documentation and source lookup commands.
 
 ### Changes
 
