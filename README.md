@@ -724,7 +724,8 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
 <kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer.
 <kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer.
-<kbd>C-M-x</kbd> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
+<kbd>C-M-x</kbd> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
+<kbd>C-u C-M-x</kbd> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
 <kbd>C-c C-r</kbd>                   | Evaluate the region and display the result in the echo area.
 <kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
 <kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
@@ -843,6 +844,19 @@ Keyboard shortcut               | Description
 <kbd>t</kbd> | toggle display of tooling frames (e.g. compiler, nREPL middleware)
 <kbd>d</kbd> | toggle display of duplicate frames
 <kbd>a</kbd> | toggle display of all frames
+
+### cider-debug
+<!-- Technically this is not a mode (yet), but let's not burden the user with that knowledge. -->
+
+cider-debug (invoked with <kbd>C-u C-M-x</kbd>) tries to be consistent with
+Edebug. So it makes available the following bindings while stepping through
+code.
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>n</kbd> | Next step
+<kbd>c</kbd> | Continue without stopping
+<kbd>i</kbd> | Inject a value into running code
 
 ### Managing multiple sessions
 

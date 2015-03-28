@@ -1558,12 +1558,16 @@ Print its value into the current buffer."
 
 (defun cider-eval-defun-at-point (&optional prefix)
   "Evaluate the current toplevel form, and print result in the minibuffer.
-With a PREFIX argument, print the result in the current buffer."
+With a PREFIX argument, debug the form instead by invoking
+`cider-debug-defun-at-point'."
   (interactive "P")
-  (cider-interactive-source-tracking-eval
-   (cider-defun-at-point)
-   (cider-defun-at-point-start-pos)
-   (when prefix (cider-eval-print-handler))))
+  (if prefix
+      (progn (require 'cider-debug)
+             (cider-debug-defun-at-point))
+    (cider-interactive-source-tracking-eval
+     (cider-defun-at-point)
+     (cider-defun-at-point-start-pos)
+     (when prefix (cider-eval-print-handler)))))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the top-level form at point and pprint its value in a popup buffer."

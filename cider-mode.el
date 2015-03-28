@@ -123,6 +123,7 @@ entirely."
         ["Show test report" cider-test-show-report]
         "--"
         ["Inspect" cider-inspect]
+        ["Debug top-level form" cider-debug-defun-at-point]
         "--"
         ["Set ns" cider-repl-set-ns]
         ["Switch to REPL" cider-switch-to-repl-buffer]

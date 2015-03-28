@@ -65,6 +65,7 @@
 (require 'cider-repl)
 (require 'cider-mode)
 (require 'cider-util)
+(require 'cider-debug)
 (require 'tramp-sh)
 
 (defvar cider-version "0.9.0-snapshot"
