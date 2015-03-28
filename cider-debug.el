@@ -1,6 +1,6 @@
 ;;; cider-debug.el --- CIDER interaction with clj-debugger  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015 Artur Malabarba
+;; Copyright © 2015 Artur Malabarba
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 
