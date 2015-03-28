@@ -27,6 +27,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Documentation lookup
 * Resource lookup
 * Apropos
+* Debugger
 * Value inspector
 * Function tracing
 * Interactive macroexpansion
