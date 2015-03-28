@@ -1,6 +1,6 @@
 ;;; cider-debug.el --- CIDER interaction with clj-debugger  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  Artur Malabarba
+;; Copyright (C) 2015 Artur Malabarba
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 
@@ -132,11 +132,11 @@ CONNECTION-BUFFER is the nrepl buffer."
 ;;;###autoload
 (defun cider-debug-defun-at-point ()
   "Instrument the top-level expression at point.
-If it is a defn, dispatch the instrumented definition. Otherwise,
+If it is a defn, dispatch the instrumented definition.  Otherwise,
 immediately evaluate the instrumented expression.
 
 While debugged code is being evaluated, the user is taken through the
-source code and displayed the value of various expressions. At each step,
+source code and displayed the value of various expressions.  At each step,
 the following keys are available:
     n: Next step
     c: Continue without stopping
