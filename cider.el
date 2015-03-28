@@ -1,4 +1,4 @@
-;;; cider.el --- Clojure Integrated Development Environment and REPL -*- lexical-binding: t -*-
+;;; cider.el --- Clojure Interactive Development Environment that Rocks -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2015 Tim King, Phil Hagelberg
 ;; Copyright © 2013-2015 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -30,7 +30,8 @@
 
 ;;; Commentary:
 
-;; Provides a Clojure IDE and REPL for Emacs, built on top of nREPL.
+;; Provides a Clojure interactive development environment for Emacs, built on
+;; top of nREPL..
 
 ;;; Installation:
 
