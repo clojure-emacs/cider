@@ -1546,10 +1546,10 @@ Print its value into the current buffer."
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
   (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode))
+         (handler (cider-popup-eval-out-handler result-buffer))
          (right-margin (max fill-column
                             (1- (window-width (get-buffer-window result-buffer))))))
-    (cider-interactive-pprint-eval form
-                                   (cider-popup-eval-out-handler result-buffer))))
+    (cider-interactive-pprint-eval form handler right-margin)))
 
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
