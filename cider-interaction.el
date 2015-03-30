@@ -1124,21 +1124,68 @@ They exist for compatibility with `next-error'."
       (goto-next-note-boundary))
     (goto-next-note-boundary)))
 
-(defun cider-default-err-eval-handler (buffer session)
-  "Display in BUFFER the last SESSION exception, without middleware support."
-  (nrepl-request:eval
-   "(clojure.stacktrace/print-cause-trace *e)"
-   (lambda (response)
-     (nrepl-dbind-response response (out)
-       (when out
-         (with-current-buffer buffer
-           (cider-emit-into-color-buffer buffer out)
-           (compilation-minor-mode +1)))))
-   nil
-   session))
+(defun cider--show-error-buffer-p ()
+  "Return non-nil if the error buffer must be shown on error.
 
-(defun cider-default-err-op-handler (buffer session)
-  "Display in BUFFER the last SESSION exception, with middleware support."
+Takes into account both the value of `cider-show-error-buffer' and the
+currently selected buffer."
+  (let* ((selected-buffer (window-buffer (selected-window)))
+         (replp (with-current-buffer selected-buffer (derived-mode-p 'cider-repl-mode))))
+    (memq cider-show-error-buffer
+          (if replp
+              '(t always only-in-repl)
+            '(t always except-in-repl)))))
+
+(defun cider-new-error-buffer ()
+  "Return an empty error buffer, possibly displaying and/or selecting it.
+
+When deciding whether to display the buffer, takes into account both the
+value of `cider-show-error-buffer' and the currently selected buffer.
+
+When deciding whether to select the buffer, takes into account the value of
+`cider-auto-select-error-buffer'."
+  (if (cider--show-error-buffer-p)
+      (cider-popup-buffer cider-error-buffer cider-auto-select-error-buffer)
+    (cider-make-popup-buffer cider-error-buffer)))
+
+(defun cider--handle-err-eval-response (response)
+  "Render eval RESPONSE into a new error buffer.
+
+Uses the value of the `out' slot in RESPONSE."
+  (nrepl-dbind-response response (out)
+    (when out
+      (let ((error-buffer (cider-new-error-buffer)))
+        (cider-emit-into-color-buffer error-buffer out)
+        (with-current-buffer error-buffer
+          (compilation-minor-mode +1))))))
+
+(defun cider-default-err-eval-handler (session)
+  "Display the last exception for SESSION, without middleware support."
+  (cider--handle-err-eval-response
+   (nrepl-sync-request:eval
+    "(clojure.stacktrace/print-cause-trace *e)"
+    nil
+    session)))
+
+(defun cider--render-stacktrace-causes (causes)
+  "If CAUSES is non-nil, render its contents into a new error buffer."
+  (when causes
+    (let ((error-buffer (cider-new-error-buffer)))
+      (cider-stacktrace-render error-buffer (reverse causes)))))
+
+(defun cider--handle-stacktrace-response (response causes)
+  "Handle stacktrace op RESPONSE, aggregating the result into CAUSES.
+
+If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
+RESPONSE is the final message (i.e. it contains a status), render CAUSES
+into a new error buffer."
+  (nrepl-dbind-response response (class status)
+    (cond (class (cons response causes))
+          (status (cider--render-stacktrace-causes causes)))))
+
+(defun cider-default-err-op-handler (session)
+  "Display the last exception for SESSION, with middleware support."
+  ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes)
     (nrepl-send-request
      (append
@@ -1148,31 +1195,18 @@ They exist for compatibility with `next-error'."
       (when cider-stacktrace-print-level
         (list "print-level" cider-stacktrace-print-level)))
      (lambda (response)
-       (nrepl-dbind-response response (class status)
-         (cond (class  (setq causes (cons response causes)))
-               (status (when causes
-                         (cider-stacktrace-render buffer (reverse causes))))))))))
-
-(defun cider--show-error-buffer-p (buffer)
-  "Return non-nil if stacktrace buffer must be shown on error.
-Takes into account the current BUFFER and the value of `cider-show-error-buffer'."
-  (let ((replp (with-current-buffer buffer (derived-mode-p 'cider-repl-mode))))
-    (memq cider-show-error-buffer
-          (if replp
-              '(t always only-in-repl)
-            '(t always except-in-repl)))))
+       ;; While the return value of `cider--handle-stacktrace-response' is not
+       ;; meaningful for the last message, we do not need the value of `causes'
+       ;; after it has been handled, so it's fine to set it unconditionally here
+       (setq causes (cider--handle-stacktrace-response response causes))))))
 
 (defun cider-default-err-handler (buffer ex root-ex session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
 This function determines how the error buffer is shown, and then delegates
 the actual error content to the eval or op handler."
-  (let* ((error-buffer (if (cider--show-error-buffer-p buffer)
-                           (cider-popup-buffer cider-error-buffer
-                                               cider-auto-select-error-buffer)
-                         (cider-make-popup-buffer cider-error-buffer))))
-    (if (nrepl-op-supported-p "stacktrace")
-        (cider-default-err-op-handler error-buffer session)
-      (cider-default-err-eval-handler error-buffer session))))
+  (if (nrepl-op-supported-p "stacktrace")
+      (cider-default-err-op-handler session)
+    (cider-default-err-eval-handler session)))
 
 (defvar cider-compilation-regexp
   '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
