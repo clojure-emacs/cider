@@ -212,7 +212,7 @@ This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
-client process connection. Unless NO-BANNER is non-nil, insert a banner."
+client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (cider-repl-set-initial-ns buffer)
   (cider-repl-require-repl-utils)
   (unless no-banner
