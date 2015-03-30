@@ -278,7 +278,7 @@ Signal an error if it is not supported."
     (if nrepl-version
         (when (version< nrepl-version cider-required-nrepl-version)
           (cider-repl-emit-interactive-err-output
-           (format "WARNING: CIDER requires nREPL %s to work properly" cider-required-nrepl-version)))
+           (format "WARNING: CIDER requires nREPL %s (or newer) to work properly" cider-required-nrepl-version)))
       (cider-repl-emit-interactive-err-output
        (format "WARNING: Can't determine nREPL's version. Please, update nREPL to %s." cider-required-nrepl-version)))))
 
