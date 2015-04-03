@@ -851,10 +851,10 @@ opposite of what that option dictates."
   (interactive "P")
   (cider-ensure-op-supported "info")
   (if var
-      (cider--jump-to-var var line)
+      (cider--find-var var line)
     (funcall (cider-prompt-for-symbol-function arg)
              "Symbol: "
-             #'cider--jump-to-var)))
+             #'cider--find-var)))
 
 (define-obsolete-function-alias 'cider-jump-to-resource 'cider-find-resource "0.9.0")
 (define-obsolete-function-alias 'cider-jump-to-var 'cider-find-var "0.9.0")
