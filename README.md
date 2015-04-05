@@ -571,6 +571,14 @@ enable `paredit` in the REPL buffer as well:
   provides a completion source for auto-complete-mode, including, where CIDER provides it,
   pop-up documentation for completed symbols.
 
+* [eval-sexp-fu](https://github.com/hchbaw/eval-sexp-fu.el) provides some visual
+feedback when evaluating expressions. [cider-eval-sexp-fu](https://github.com/clojure-emacs/cider-eval-sexp-fu) provides
+CIDER integration for `eval-sexp-fu`.
+
+```el
+(require 'cider-eval-sexp-fu)
+```
+
 ## Basic Usage
 
 The only requirement to use CIDER is to have a nREPL server to
