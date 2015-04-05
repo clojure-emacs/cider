@@ -41,7 +41,6 @@
   `cider-find-dwim-other-window`. These functions combine the functionality of `cider-jump-to-var` and
   `cider-jump-to-resource`. Which are now renamed to `cider-find-var` and `cider-find-resource` respectively.
 
-
 ### Changes
 
 * [#1019](https://github.com/clojure-emacs/cider/pull/1019):
