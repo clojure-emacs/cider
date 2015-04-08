@@ -948,15 +948,27 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along."
   (let* ((time0 (current-time))
-         (response (cons 'dict nil)))
+         (response (cons 'dict nil))
+         status)
     (nrepl-send-request request (lambda (resp) (nrepl--merge response resp)))
-    (while (not (member "done" (nrepl-dict-get response "status")))
-      (accept-process-output nil 0.01)
-      ;; break out in case we don't receive a response for a while
-      (when (and nrepl-sync-request-timeout
-                 (> (cadr (time-subtract (current-time) time0))
-                    nrepl-sync-request-timeout))
-        (error "Sync nREPL request timed out %s" request)))
+    (catch 'done
+      (while t
+        (setq status (nrepl-dict-get response "status"))
+        (if (member "done" status)
+            (throw 'done t)
+          (if (member "need-input" status)
+              (let ((handler
+                     (with-current-buffer (nrepl-current-connection-buffer)
+                       (or (queue-dequeue nrepl--input-handler-queue)
+                           #'cider-need-input))))
+                (funcall handler (current-buffer))
+                (throw 'done nil))
+            (accept-process-output nil 0.01)
+            ;; break out in case we don't receive a response for a while
+            (when (and nrepl-sync-request-timeout
+                       (> (cadr (time-subtract (current-time) time0))
+                          nrepl-sync-request-timeout))
+              (error "Sync nREPL request timed out %s" request))))))
     (-when-let* ((ex (nrepl-dict-get response "ex"))
                  (err (nrepl-dict-get response "err")))
       (cider-repl-emit-interactive-err-output err)
