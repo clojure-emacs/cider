@@ -101,7 +101,7 @@ CONNECTION-BUFFER is the nrepl buffer."
   (let ((cider-interactive-eval-result-prefix
          "(n)ext (c)ontinue (i)nject => "))
     (cider--display-interactive-eval-result
-     cider--current-debug-value))
+     (or cider--current-debug-value "#unknown#")))
   (let ((input
          (cl-case (read-char)
            ;; These keys were chosen to match edebug rather than clj-debugger.
