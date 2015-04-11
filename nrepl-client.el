@@ -832,6 +832,17 @@ FUNCTION is added to the bottom of `nrepl--input-handler-queue'."
     (with-current-buffer (nrepl-current-connection-buffer)
       (queue-enqueue nrepl--input-handler-queue function))))
 
+(defun nrepl--handle-input (buffer)
+  "Handle need-input message in BUFFER.
+Check whether there's a handler waiting to be used in
+`nrepl--input-handler-queue', otherwise default to `cider-need-input'."
+  (let ((handler
+         (with-current-buffer buffer
+           (with-current-buffer (nrepl-current-connection-buffer)
+             (or (queue-dequeue nrepl--input-handler-queue)
+                 #'cider-need-input)))))
+    (funcall handler buffer)))
+
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler)
@@ -876,12 +887,7 @@ server responses."
              (when (member "namespace-not-found" status)
                (message "Namespace not found."))
              (when (member "need-input" status)
-               (let ((handler
-                      (with-current-buffer buffer
-                        (with-current-buffer (nrepl-current-connection-buffer)
-                          (or (queue-dequeue nrepl--input-handler-queue)
-                              #'cider-need-input)))))
-                 (funcall handler buffer)))
+               (nrepl--handle-input buffer))
              (when (member "done" status)
                (puthash id (gethash id nrepl-pending-requests) nrepl-completed-requests)
                (remhash id nrepl-pending-requests)
@@ -948,15 +954,26 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along."
   (let* ((time0 (current-time))
-         (response (cons 'dict nil)))
+         (response (cons 'dict nil))
+         status)
     (nrepl-send-request request (lambda (resp) (nrepl--merge response resp)))
-    (while (not (member "done" (nrepl-dict-get response "status")))
-      (accept-process-output nil 0.01)
-      ;; break out in case we don't receive a response for a while
-      (when (and nrepl-sync-request-timeout
-                 (> (cadr (time-subtract (current-time) time0))
-                    nrepl-sync-request-timeout))
-        (error "Sync nREPL request timed out %s" request)))
+    (while (not (member "done" status))
+      (setq status (nrepl-dict-get response "status"))
+      ;; If we get a need-input message then the repl probably isn't going
+      ;; anywhere, and we'll just timeout. So we forward it to the user.
+      (if (member "need-input" status)
+          (progn (nrepl--handle-input (current-buffer))
+                 ;; If the used took a few seconds to respond, we might
+                 ;; unnecessarily timeout, so let's reset the timer.
+                 (setq time0 (current-time)))
+        ;; break out in case we don't receive a response for a while
+        (when (and nrepl-sync-request-timeout
+                   (> (cadr (time-subtract (current-time) time0))
+                      nrepl-sync-request-timeout))
+          (error "Sync nREPL request timed out %s" request)))
+      ;; Clean up the response, otherwise we might repeatedly ask for input.
+      (nrepl-dict-put response "status" nil)
+      (accept-process-output nil 0.01))
     (-when-let* ((ex (nrepl-dict-get response "ex"))
                  (err (nrepl-dict-get response "err")))
       (cider-repl-emit-interactive-err-output err)
