@@ -297,7 +297,7 @@ If BACKWARD is non-nil search backward."
 
 (defun cider-end-of-proprange-p (property)
   "Return t if at the the end of a property range for PROPERTY."
-  (and (get-char-property (max 1 (1- (point))) property)
+  (and (get-char-property (max (point-min) (1- (point))) property)
        (not (get-char-property (point) property))))
 
 (defun cider-repl--mark-input-start ()
