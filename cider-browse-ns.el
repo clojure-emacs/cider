@@ -124,7 +124,7 @@
       'nothing-to-do)
      ((string-match " +/\\(.+\\)" line)
       (cider-doc-lookup (format "%s/%s" cider-browse-ns-current-ns (match-string 1 line))))
-     ('else
+     (t
       (cider-browse-ns (replace-regexp-in-string " " "" line))))))
 
 (defun cider-browse-ns-handle-mouse (event)
