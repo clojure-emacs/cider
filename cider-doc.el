@@ -297,7 +297,8 @@ Tables are marked to be ignored by line wrap."
          (special (nrepl-dict-get info "special-form"))
          (forms   (nrepl-dict-get info "forms-str"))
          (args    (nrepl-dict-get info "arglists-str"))
-         (doc     (nrepl-dict-get info "doc"))
+         (doc     (or (nrepl-dict-get info "doc")
+                      "Not documented."))
          (url     (nrepl-dict-get info "url"))
          (class   (nrepl-dict-get info "class"))
          (member  (nrepl-dict-get info "member"))
@@ -329,10 +330,9 @@ Tables are marked to be ignored by line wrap."
           (emit (concat "Added in " added) 'font-lock-comment-face))
         (when depr
           (emit (concat "Deprecated in " depr) 'font-lock-comment-face))
-        (when doc
-          (if class
-              (cider-docview-render-java-doc (current-buffer) doc)
-            (emit (concat "  " doc))))
+        (if class
+            (cider-docview-render-java-doc (current-buffer) doc)
+          (emit (concat "  " doc)))
         (when url
           (newline)
           (insert "  Please see ")
