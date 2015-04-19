@@ -353,6 +353,11 @@ Tables are marked to be ignored by line wrap."
                                         (browse-url (button-get x 'url))))
           (insert ".")
           (newline))
+        (newline)
+        (insert-text-button "[source]"
+                            'follow-link t
+                            'action (lambda (x)
+                                      (cider-docview-source)))
         (let ((beg (point-min))
               (end (point-max)))
           (nrepl-dict-map (lambda (k v)
