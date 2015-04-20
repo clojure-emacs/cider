@@ -694,8 +694,8 @@ which nREPL uses for temporary evaluation file names."
 (defun cider-find-file (url)
   "Return a buffer visiting the file URL if it exists, or nil otherwise.
 If URL has a scheme prefix, it must represent a fully-qualified file path
-or an entry within a zip/jar archive. If URL doesn't contain a scheme
-prefix and is an absolute path, it is treated as such. Finally, if URL is
+or an entry within a zip/jar archive.  If URL doesn't contain a scheme
+prefix and is an absolute path, it is treated as such.  Finally, if URL is
 relative, it is expanded within each of the open Clojure buffers till an
 existing file ending with URL has been found."
   (cond ((string-match "^file:\\(.+\\)" url)
@@ -781,18 +781,24 @@ window."
   (cider--find-dwim symbol-file 'cider-find-dwim-other-window t))
 
 (defun cider-find-dwim (symbol-file)
-  "Try to jump to the SYMBOL-FILE at point. If thing at point is empty dired
-on project. If var is not found, try to jump to resource of the same name.
-When called interactively, A prompt is given according to the variable
-cider-prompt-for-symbol. A prefix inverts the meaning. A default value of
-thing at point is given when prompted."
+  "Find and display the SYMBOL-FILE at point.
+
+SYMBOL-FILE could be a var or a resource.  If thing at point is empty
+then show dired on project.  If var is not found, try to jump to resource
+of the same name.  When called interactively, a prompt is given according
+to the variable `cider-prompt-for-symbol'.  A single or double prefix argument
+inverts the meaning.  A prefix of `-` or a double prefix argument causes the
+results to be displayed in a different window.
+A default value of thing at point is given when prompted."
   (interactive (cider--find-dwim-interactive "Jump to: "))
-  (cider--find-dwim symbol-file 'cider-find-dwim))
+  (cider--find-dwim symbol-file `cider-find-dwim
+                    (cider--open-other-window-p current-prefix-arg)))
 
 (defun cider--find-dwim (symbol-file callback &optional other-window)
-  "Try to jump to the SYMBOL-FILE at point, show results in OTHER-WINDOW as indicated.
+  "Find the SYMBOL-FILE at point.
+
 CALLBACK upon failure to invoke prompt if not prompted previously.
-If thing at point is empty dired on project."
+Show results in a different window if OTHER-WINDOW is true."
   (-if-let (info (cider-var-info symbol-file))
       (cider--jump-to-loc-from-info info other-window)
     (progn
@@ -800,27 +806,75 @@ If thing at point is empty dired on project."
       (-if-let* ((resource (cider-sync-request:resource symbol-file))
                  (buffer (cider-find-file resource)))
           (cider-jump-to buffer 0 other-window)
-        (if (cider--should-prompt-for-symbol current-prefix-arg)
+        (if (cider--prompt-for-symbol-p current-prefix-arg)
             (error "Resource or var %s not resolved" symbol-file)
           (let ((current-prefix-arg (if current-prefix-arg nil '(4))))
             (call-interactively callback)))))))
 
 (defun cider--find-dwim-interactive (prompt)
   "Get interactive arguments for jump-to functions using PROMPT as needed."
-  (if (cider--should-prompt-for-symbol current-prefix-arg)
+  (if (cider--prompt-for-symbol-p current-prefix-arg)
       (list
        (cider-read-from-minibuffer prompt (thing-at-point 'filename)))
     (list (or (thing-at-point 'filename) ""))))  ; No prompt.
 
 (defun cider-find-resource (path)
-  "Jump to the resource at the resource-relative PATH.
-When called interactively, this operates on point."
-  (interactive (list (thing-at-point 'filename)))
+  "Find the resource at PATH.
+
+Prompt for input as indicated by the variable `cider-prompt-for-symbol`.
+A single or double prefix argument inverts the meaning of
+`cider-prompt-for-symbol`.  A prefix argument of `-` or a double prefix
+argument causes the results to be displayed in other window.  The default
+value is thing at point."
+  (interactive
+   (list
+    (if (cider--prompt-for-symbol-p current-prefix-arg)
+        (cider-read-from-minibuffer "Resource: " (thing-at-point 'filename))
+      (or (thing-at-point 'filename) ""))))
+
   (cider-ensure-op-supported "resource")
   (-if-let* ((resource (cider-sync-request:resource path))
              (buffer (cider-find-file resource)))
-      (cider-jump-to buffer)
-    (error "Cannot find resource %s" path)))
+      (cider-jump-to buffer nil (cider--open-other-window-p current-prefix-arg))
+    (if (cider--prompt-for-symbol-p current-prefix-arg)
+        (error "Cannot find resource %s" path)
+      (let ((current-prefix-arg (cider--invert-prefix-arg current-prefix-arg)))
+        (call-interactively `cider-find-resource)))))
+
+(defun cider--open-other-window-p (arg)
+  "Test prefix value ARG to see if it indicates displaying results in other window."
+  (let ((narg (prefix-numeric-value arg)))
+    (pcase narg
+      (-1 t) ; -
+      (16 t) ; empty empty
+      (narg nil))))
+
+(defun cider--invert-prefix-arg (arg)
+  "Invert the effect of prefix value ARG on `cider-prompt-for-symbol'.
+
+This function preserves the `other-window' meaning of ARG."
+  (let ((narg (prefix-numeric-value arg)))
+    (pcase narg
+      (16 -1)   ; empty empty -> -
+      (-1 16)   ; - -> empty empty
+      (4 nil)   ; empty -> no-prefix
+      (nil 4)))) ; no-prefix -> empty
+
+(defun cider--prefix-invert-prompt-p (arg)
+  "Test prefix value ARG for its effect on `cider-prompt-for-symbol`."
+  (let ((narg (prefix-numeric-value arg)))
+    (pcase narg
+      (16 t) ; empty empty
+      (4 t)  ; empty
+      (narg nil))))
+
+(defun cider--prompt-for-symbol-p (&optional prefix)
+  "Check if cider should prompt for symbol.
+
+Tests againsts PREFIX and the value of `cider-prompt-for-symbol'.
+Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
+  (if (cider--prefix-invert-prompt-p prefix)
+      (not cider-prompt-for-symbol) cider-prompt-for-symbol))
 
 (defun cider--jump-to-loc-from-info (info &optional other-window)
   "Jump to location give by INFO.
@@ -835,8 +889,18 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
         (cider-jump-to buffer (cons line nil) other-window)
       (error "No source location"))))
 
+(defun cider--find-var-other-window (var &optional line)
+  "Find the definition of VAR, optionally at a specific LINE.
+
+Display the results in a different window."
+  (-if-let (info (cider-var-info var))
+      (progn
+        (if line (setq info (nrepl-dict-put info "line" line)))
+        (cider--jump-to-loc-from-info info t))
+    (error "Symbol %s not resolved" var)))
+
 (defun cider--find-var (var &optional line)
-  "Jump to the definition of VAR, optionally at a specific LINE."
+  "Find the definition of VAR, optionally at a specific LINE."
   (-if-let (info (cider-var-info var))
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
@@ -844,17 +908,22 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
     (error "Symbol %s not resolved" var)))
 
 (defun cider-find-var (&optional arg var line)
-  "Jump to the definition of VAR, optionally at a specific LINE.
-Prompts for the symbol to use, or uses the symbol at point, depending on
-the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
-opposite of what that option dictates."
+  "Find definition for VAR at LINE. Prompt according to prefix ARG
+and `cider-prompt-for-symbol'.
+
+A single or double prefix argument inverts the meaning of
+`cider-prompt-for-symbol. A prefix of `-` or a double prefix argument causes
+the results to be displayed in a different window.  The default value is
+thing at point."
   (interactive "P")
   (cider-ensure-op-supported "info")
   (if var
       (cider--find-var var line)
     (funcall (cider-prompt-for-symbol-function arg)
              "Symbol: "
-             #'cider--find-var)))
+             (if (cider--open-other-window-p arg)
+                 #'cider--find-var-other-window
+               #'cider--find-var))))
 
 (define-obsolete-function-alias 'cider-jump-to-resource 'cider-find-resource "0.9.0")
 (define-obsolete-function-alias 'cider-jump-to-var 'cider-find-var "0.9.0")
