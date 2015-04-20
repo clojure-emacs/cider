@@ -40,6 +40,12 @@ can act on it when input is requested."
 Is used to print the value with `cider--debug-read-command' and to step
 through code using the coordinate.")
 
+(defvar cider--debug-point-to-pass nil
+  "Breakpoints are silently skipped until we're past this point.
+Used but debug commands which allow the user to navigate the code, such as
+\"o\". Debug messages will be automatically replied to for as long as the
+point reached by `cider--debug-read-command' is less than this.")
+
 (defconst cider--instrument-format
   (concat "(cider.nrepl.middleware.debug/instrument-and-eval"
           ;; filename and point are passed in a map. Eventually, this should be
@@ -116,25 +122,35 @@ the user:
       ;; Avoid throwing actual errors, since this happens on every breakpoint.
       (error (message "Can't find instrumented sexp, did you edit the source?")))
     
-    (let ((cider-interactive-eval-result-prefix
-           "(n)ext (c)ontinue (i)nject => "))
-      (cider--display-interactive-eval-result
-       (or (cider--dm-value msg)
-           "#unknown#")))
-    (let ((input
-           (cl-case (read-char)
-             ;; These keys were chosen to match edebug rather than clj-debugger.
-             (?n "(c)")
-             (?c "(q)")
-             ;; Inject
-             (?i (condition-case nil
-                     (concat (read-from-minibuffer "Expression to inject (non-nil): ")
-                             "\n(c)")
-                   (quit nil))))))
-      (if (and input (not (string= "" input)))
-          (progn (setq cider--current-debug-message nil)
-                 input)
-        (cider--debug-read-command)))))
+    (if (and cider--debug-point-to-pass
+             (< (point) cider--debug-point-to-pass))
+        ;; Silently reply.
+        "(c)"
+      ;; Get user input.
+      (setq cider--debug-point-to-pass nil)
+      (let ((cider-interactive-eval-result-prefix
+             "(n)ext (c)ontinue (i)nject (o)ut\n => "))
+        (cider--display-interactive-eval-result
+         (or (cider--dm-value msg)
+             "#unknown#")))
+      (let* ((input
+              (cl-case (read-char)
+                ;; These keys were chosen to match edebug rather than
+                ;; clj-debugger.
+                (?n "(c)")
+                (?c "(q)")
+                (?o (ignore-errors (up-list 1)
+                                   (setq cider--debug-point-to-pass (point)))
+                    "(c)")
+                ;; Inject
+                (?i (condition-case nil
+                        (concat (read-from-minibuffer "Expression to inject (non-nil): ")
+                                "\n(c)")
+                      (quit nil))))))
+        (if (and input (not (string= "" input)))
+            (progn (setq cider--current-debug-message nil)
+                   input)
+          (cider--debug-read-command))))))
 
 (defun cider--need-debug-input (buffer)
   "Handle an need-input request from BUFFER."
