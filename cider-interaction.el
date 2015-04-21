@@ -908,9 +908,9 @@ Display the results in a different window."
     (error "Symbol %s not resolved" var)))
 
 (defun cider-find-var (&optional arg var line)
-  "Find definition for VAR at LINE. Prompt according to prefix ARG
-and `cider-prompt-for-symbol'.
+  "Find definition for VAR at LINE.
 
+Prompt according to prefix ARG and `cider-prompt-for-symbol'.
 A single or double prefix argument inverts the meaning of
 `cider-prompt-for-symbol. A prefix of `-` or a double prefix argument causes
 the results to be displayed in a different window.  The default value is
