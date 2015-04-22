@@ -103,9 +103,9 @@ version from the CIDER package or library.")
 
 (defcustom cider-default-repl-command
   "lein"
-  "Determines the default command and parameters to use when connecting to nREPL.
-This value will only be consulted when no identifying file types, ie project.clj for
-leiningen or build.boot for boot, could be found."
+  "The default command and parameters to use when connecting to nREPL.
+This value will only be consulted when no identifying file types, ie
+project.clj for leiningen or build.boot for boot, could be found."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.9.0"))
