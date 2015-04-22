@@ -670,39 +670,38 @@ section of your Leiningen project's configuration.
 
 ClojureScript support relies on the
 [piggieback](https://github.com/cemerick/piggieback) nREPL middleware being
-present in your REPL session. This is supported by (and is the recommended
-method for using) both the [Austin](https://github.com/cemerick/austin) and
-[Weasel](https://github.com/tomjakubowski/weasel) ClojureScript REPLs.
+present in your REPL session. Version 0.2.0 or higher is recommended, and the
+below examples assume this, but version 0.1.5 is currently also supported.
 
-* Example usage of a non-browser connected Austin REPL (requires
-e.g. `[com.cemerick/austin "0.1.5"]` in your project's `:plugins`):
+* Example usage of a non-browser connected Node.js REPL:
 
   - At the Clojure REPL:
 
     ```clojure
-    (cemerick.piggieback/cljs-repl
-      :repl-env (cemerick.austin/exec-env))
+    (require '[cemerick.piggieback :as piggieback])
+    (require '[cljs.repl.node :as node])
+    (piggieback/cljs-repl (node/repl-env))
     ```
 
-* Example usage of browser-connected Weasel REPL (requires e.g. `[weasel "0.4.2"]` in your project's
-`:dependencies`):
+* Example usage of browser-connected Weasel REPL (requires
+e.g. `[weasel "0.6.0"]` in your project's `:dependencies`):
 
   - At the Clojure REPL:
 
     ```clojure
-    (require 'weasel.repl.websocket)
-    (cemerick.piggieback/cljs-repl
-      :repl-env (weasel.repl.websocket/repl-env :ip "127.0.0.1"
-                                                :port 9001))
+    (require '[cemerick.piggieback :as piggieback])
+    (require '[weasel.repl.websocket :as weasel])
+    (piggieback/cljs-repl (weasel/repl-env :ip "127.0.0.1"
+                                           :port 9001))
     ```
 
   - and in your ClojureScript:
 
     ```clojure
     (ns my.cljs.core
-      (:require [weasel.repl :as ws-repl]))
+      (:require [weasel.repl :as repl]))
 
-    (ws-repl/connect "ws://localhost:9001")
+    (repl/connect "ws://localhost:9001")
     ```
 
 The [clojure-quick-repls](https://github.com/symfrog/clojure-quick-repls)
@@ -923,7 +922,6 @@ Currently, the following features are not supported for ClojureScript
 development:
 
 * Grimoire lookup
-* The inspector
 * Reloading
 * Running tests
 * Tracing
