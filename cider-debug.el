@@ -29,7 +29,7 @@
 (require 'nrepl-client)
 (require 'cider-interaction)
 
-(cl-defstruct cider--dm
+(cl-defstruct cider--debug-message
   "Cider debug-message object.
 Holds all information about the latest debug message received, so that we
 can act on it when input is requested."
@@ -63,7 +63,7 @@ point reached by `cider--debug-read-command' is less than this.")
      (lambda (response)
        (nrepl-dbind-response response (debug-value coor filename point status id)
          (if (not (member "done" status))
-             (cider--handle-debug (make-cider--dm
+             (cider--handle-debug (make-cider--debug-message
                                    :value debug-value
                                    :coordinates coor
                                    :filename filename
@@ -88,7 +88,7 @@ This will skip over sexps that don't represent objects, such as ^{}."
 
 (defun cider--handle-debug (message connection-buffer)
   "Handle debugging notification.
-MESSAGE should be a `cider--dm' object and is saved in
+MESSAGE should be a `cider--debug-message' object and is saved in
 `cider--current-debug-message'. Its fields will be used by
 `cider--debug-read-command'.
 CONNECTION-BUFFER is the nrepl buffer."
@@ -107,12 +107,12 @@ the user:
   sexp."
   (let ((msg cider--current-debug-message))
     ;; Navigate to the instrumented sexp, wherever we might be.
-    (find-file (cider--dm-filename msg))
+    (find-file (cider--debug-message-filename msg))
     ;; Position of the sexp.
-    (goto-char (cider--dm-point msg))
+    (goto-char (cider--debug-message-point msg))
     (condition-case nil
         ;; Make sure it is a list.
-        (let ((coordinates (append (cider--dm-coordinates msg) nil)))
+        (let ((coordinates (append (cider--debug-message-coordinates msg) nil)))
           ;; Navigate through sexps inside the sexp.
           (while coordinates
             (down-list)
@@ -131,7 +131,7 @@ the user:
       (let ((cider-interactive-eval-result-prefix
              "(n)ext (c)ontinue (i)nject (o)ut\n => "))
         (cider--display-interactive-eval-result
-         (or (cider--dm-value msg)
+         (or (cider--debug-message-value msg)
              "#unknown#")))
       (let* ((input
               (cl-case (read-char)
