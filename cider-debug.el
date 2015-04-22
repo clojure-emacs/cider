@@ -134,7 +134,7 @@ the user:
          (or (cider--debug-message-value msg)
              "#unknown#")))
       (let* ((input
-              (cl-case (read-char)
+              (pcase (read-char)
                 ;; These keys were chosen to match edebug rather than
                 ;; clj-debugger.
                 (?n "(c)")
