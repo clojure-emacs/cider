@@ -613,11 +613,6 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
      (point))
    (point)))
 
-(defun cider-last-sexp-start-pos ()
-  (save-excursion
-    (backward-sexp)
-    (point)))
-
 ;;;
 (defun cider-tramp-prefix (&optional buffer)
   "Use the filename for BUFFER to determine a tramp prefix.
