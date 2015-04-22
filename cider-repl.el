@@ -191,7 +191,7 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
   (interactive)
-  (cider-eval
+  (nrepl-request:eval
    "(when (clojure.core/resolve 'clojure.main/repl-requires)
       (clojure.core/map clojure.core/require clojure.main/repl-requires))"
    (lambda (response) nil)))
