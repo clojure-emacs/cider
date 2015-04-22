@@ -1661,8 +1661,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
   (interactive)
-  (let ((last-sexp (cider-last-sexp))
-        (start-pos (cider-last-sexp-start-pos)))
+  (let ((last-sexp (cider-last-sexp)))
     ;; we have to be sure the evaluation won't result in an error
     (nrepl-sync-request:eval last-sexp)
     ;; seems like the sexp is valid, so we can safely kill it
