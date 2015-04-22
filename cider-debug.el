@@ -147,7 +147,7 @@ the following keys are available:
          (eval-buffer (current-buffer))
          (position (cider-defun-at-point-start-pos))
          (prefix
-          (if (string-match "\\`(defn-? " expression)
+          (if (string-match-p "\\`(defn-? " expression)
               "Instrumented => " "=> "))
          (instrumented (format cider--instrument-format
                          (buffer-file-name)
