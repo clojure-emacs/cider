@@ -1473,6 +1473,8 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
   (interactive)
   (quit-restore-window (selected-window) (if kill 'kill 'append)))
 
+(defvar-local cider-popup-output-marker nil)
+
 (defun cider-make-popup-buffer (name &optional mode)
   "Create a temporary buffer called NAME using major MODE (if specified)."
   (with-current-buffer (get-buffer-create name)
@@ -1482,7 +1484,7 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
     (when mode
       (funcall mode))
     (cider-popup-buffer-mode 1)
-    (setq-local cider-popup-output-marker (point-marker))
+    (setq cider-popup-output-marker (point-marker))
     (setq buffer-read-only t)
     (current-buffer)))
 
