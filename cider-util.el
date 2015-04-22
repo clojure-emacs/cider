@@ -134,7 +134,7 @@ Unless you specify a BUFFER it will default to the current one."
          (scaled-rgb (mapcar (lambda (n)
                                (format "%04x" (round (+ n (* scale 65535)))))
                              rgb)))
-    (apply 'concat "#" scaled-rgb)))
+    (apply #'concat "#" scaled-rgb)))
 
 (defun cider-scale-background-color ()
   "Scale the current background color to get a slighted muted version."
@@ -154,7 +154,7 @@ Unless you specify a BUFFER it will default to the current one."
 
 (defun cider-string-join (strings &optional separator)
   "Join all STRINGS using SEPARATOR."
-  (mapconcat 'identity strings separator))
+  (mapconcat #'identity strings separator))
 
 (defun cider-join-into-alist (candidates &optional separator)
   "Make an alist from CANDIDATES.
