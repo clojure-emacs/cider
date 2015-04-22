@@ -50,7 +50,7 @@ DESCRIPTION is a one-line description of what the key selects.")
 Only considers buffers that are not already visible."
   (cl-loop for buffer in (buffer-list)
            when (and (with-current-buffer buffer (eq major-mode mode))
-                     (not (string-match "^ " (buffer-name buffer)))
+                     (not (string-match-p "^ " (buffer-name buffer)))
                      (null (get-buffer-window buffer 'visible)))
            return buffer
            finally (error "Can't find unshown buffer in %S" mode)))

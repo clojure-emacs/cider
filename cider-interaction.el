@@ -1358,7 +1358,7 @@ until we find a delimiters that's not inside a string."
   (if (and (looking-back "[])}]")
            (null (nth 3 (syntax-ppss))))
       (backward-sexp)
-    (while (or (not (looking-at "[({[]"))
+    (while (or (not (looking-at-p "[({[]"))
                (nth 3 (syntax-ppss)))
       (backward-char))))
 

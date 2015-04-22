@@ -513,7 +513,7 @@ the symbol."
   "Return t if the region from START to END is a complete sexp."
   (save-excursion
     (goto-char start)
-    (cond ((looking-at "\\s *[@'`#]?[(\"]")
+    (cond ((looking-at-p "\\s *[@'`#]?[(\"]")
            (ignore-errors
              (save-restriction
                (narrow-to-region start end)
@@ -571,7 +571,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
-    (if (and (not (string-match "\\`[ \t\r\n]*\\'" input))
+    (if (and (not (string-match-p "\\`[ \t\r\n]*\\'" input))
              cider-repl-use-pretty-printing)
         (nrepl-request:pprint-eval
          input
@@ -763,7 +763,7 @@ Return -1 resp the length of the history if no item matches."
     (cl-loop for pos = (+ start-pos step) then (+ pos step)
              if (< pos 0) return -1
              if (<= len pos) return len
-             if (string-match regexp (nth pos history)) return pos)))
+             if (string-match-p regexp (nth pos history)) return pos)))
 
 (defun cider-repl--history-replace (direction &optional regexp)
   "Replace the current input with the next line in DIRECTION.
@@ -846,7 +846,7 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
         (use-current-input
          (assert (<= cider-repl-input-start-mark (point)))
          (let ((str (cider-repl--current-input t)))
-           (cond ((string-match "^[ \n]*$" str) nil)
+           (cond ((string-match-p "^[ \n]*$" str) nil)
                  (t (concat "^" (regexp-quote str))))))
         (t nil)))
 

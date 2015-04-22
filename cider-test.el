@@ -401,7 +401,7 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
   (when ns
     (let ((suffix "-test"))
       ;; string-suffix-p is only available in Emacs 24.4+
-      (if (string-match (rx-to-string `(: ,suffix eos) t) ns)
+      (if (string-match-p (rx-to-string `(: ,suffix eos) t) ns)
           ns
         (concat ns suffix)))))
 

@@ -511,7 +511,7 @@ object is a root list or dict."
    ((eobp)
     (cons :eob stack))
    ;; truncation in the middle of an integer or in 123: string prefix
-   ((looking-at "[0-9i]")
+   ((looking-at-p "[0-9i]")
     (cons :stub stack))
    ;; else, throw a quiet error
    (t
@@ -703,7 +703,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
   "Return a process filter that waits for PORT to appear in process output."
   (let ((port-string (format "LOCALHOST:%s" port)))
     (lambda (proc string)
-      (when (string-match port-string string)
+      (when (string-match-p port-string string)
         (process-put proc :waiting-for-port nil))
       (when (and (process-live-p proc)
                  (buffer-live-p (process-buffer proc)))
@@ -1121,12 +1121,12 @@ Return a newly created process."
     (when nrepl-buffer
       (kill-buffer nrepl-buffer))
     (cond
-     ((string-match "^killed" event)
+     ((string-match-p "^killed" event)
       nil)
-     ((string-match "^hangup" event)
+     ((string-match-p "^hangup" event)
       (when connection-buffer
         (nrepl-close connection-buffer)))
-     ((string-match "Wrong number of arguments to repl task" problem)
+     ((string-match-p "Wrong number of arguments to repl task" problem)
       (error "Leiningen 2.x is required by CIDER"))
      (t (error "Could not start nREPL server: %s" problem)))))
 

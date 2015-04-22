@@ -91,7 +91,7 @@
 ;;; Evaluation helpers
 (defun cider-ns-form-p (form)
   "Check if FORM is an ns form."
-  (string-match "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
+  (string-match-p "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
 
 (define-obsolete-function-alias 'cider-eval 'nrepl-request:eval)
 
