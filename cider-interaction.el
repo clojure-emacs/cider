@@ -1848,71 +1848,6 @@ For example \"foo.bar.tar\" -> \"foo.bar\"."
 
 ;;; Completion
 
-(defun cider-completing-read-var-select (prompt callback ns selected targets)
-  "Peform completing read using SELECTED and TARGETS.
-If SELECTED is \"..\" then another selection is made for vars in the parent namespace of
-NS using PROMPT.
-If SELECTED is a namespace then another selection is made against that namespace
-using PROMPT.
-Once a selecton is made CALLBACK is called with SELECTED."
-  ;; TODO: immediate RET gives "" as selected for some reason
-  ;; this is an OK workaround though
-  (cond ((equal "" selected)
-         (cider-completing-read-var-select prompt callback ns (car targets) targets))
-        ((equal "/" (substring selected -1)) ; selected a namespace
-         (cider-completing-read-var prompt (substring selected 0 -1) callback))
-        ((equal ".." selected)
-         (cider-completing-read-var prompt (cider-parent-ns ns) callback))
-        ;; non ido variable selection techniques don't return qualified symbols, so this shouldn't either
-        (t (funcall callback selected))))
-
-(defun cider-completing-read-sym-handler (label completing-read-callback buffer)
-  "Create an nrepl response handler for BUFFER.
-The handler will parse the response from nrepl to create targets for a completing read.
-The result of the completing read will be passed to COMPLETING-READ-CALLBACK."
-  (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
-                                 ;; make sure to eval the callback in the buffer that the symbol was requested from so we get the right namespace
-                                 (with-current-buffer buffer
-                                   (let* ((targets (car (read-from-string value)))
-                                          (selected (completing-read label targets nil t)))
-                                     (funcall completing-read-callback selected targets))))
-                               nil nil nil))
-
-(defun cider-completing-read-sym-form (label form callback)
-  "Eval the FORM and pass the result to the response handler."
-  (cider-tooling-eval form (cider-completing-read-sym-handler label callback (current-buffer))))
-
-(defun cider-completing-read-var (prompt ns callback)
-  "Perform completing read var in NS using CALLBACK."
-  (cider-completing-read-sym-form prompt (prin1-to-string (cider-fetch-vars-form ns))
-                                  (lambda (selected targets)
-                                    (cider-completing-read-var-select prompt callback ns selected targets))))
-
-(defun cider-fetch-fns-form (ns)
-  "Construct a Clojure form for reading fns using supplied NS."
-  (format "(let [fn-pred (fn [[k v]] (and (fn? (.get v))
-                                     (not (re-find #\"clojure.\" (str v)))))]
-              (sort
-                (map (comp name key)
-                     (filter fn-pred
-                         (concat
-                           (ns-interns '%s)
-                           (ns-refers '%s))))))" ns ns))
-
-(defun cider-load-fn-into-repl-buffer ()
-  "Browse functions available in current repl buffer.
-Once selected, the name of the fn will appear in the repl buffer in parens
-ready to call."
-  (interactive)
-  (let ((ns (cider-current-ns)))
-    (cider-completing-read-sym-form (format "Fn: %s/" ns)
-                                    (cider-fetch-fns-form ns)
-                                    (lambda (f _targets)
-                                      (with-current-buffer (cider-current-repl-buffer)
-                                        (cider-repl--replace-input (format "(%s)" f))
-                                        (goto-char (- (point-max) 1)))))))
-
 (defun cider-read-symbol-name (prompt callback)
   "Read a symbol name using PROMPT with a default of the one at point.
 Use CALLBACK as the completing read var callback."

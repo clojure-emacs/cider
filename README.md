@@ -792,7 +792,6 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d a</kbd> | Apropos search for functions/vars.
 <kbd>C-c C-d A</kbd> | Apropos search for documentation.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
-<kbd>C-c M-f</kbd> | Select a function from the current namespace and insert into the REPL buffer.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-n</kbd> | Select a namespace and switch to it.
 <kbd>C-c M-t v</kbd> | Toggle var tracing.

@@ -1029,7 +1029,6 @@ constructs."
     (define-key map (kbd "C-c M-m") 'cider-macroexpand-all)
     (define-key map (kbd "C-c C-z") 'cider-switch-to-last-clojure-buffer)
     (define-key map (kbd "C-c M-s") 'cider-selector)
-    (define-key map (kbd "C-c M-f") 'cider-load-fn-into-repl-buffer)
     (define-key map (kbd "C-c C-q") 'cider-quit)
     (define-key map (kbd "C-c M-i") 'cider-inspect)
     (define-key map (kbd "C-c M-t v") 'cider-toggle-trace-var)
