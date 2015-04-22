@@ -111,7 +111,7 @@ project.clj for leiningen or build.boot for boot, could be found."
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-known-endpoints nil
-  "Specify a list of custom endpoints where each endpoint is a list.
+  "A list of connection endpoints where each endpoint is a list.
 For example: '((\"label\" \"host\" \"port\")).
 The label is optional so that '(\"host\" \"port\") will suffice.
 This variable is used by `cider-connect'."
