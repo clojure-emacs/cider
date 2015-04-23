@@ -45,7 +45,7 @@
 (defvar cider-browse-ns-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map [return] #'cider-browse-ns-operate-on-point)
+    (define-key map [return] #'cider-browse-ns-doc-at-point)
     (define-key map "^" #'cider-browse-ns-all)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
@@ -115,22 +115,21 @@
                                     names))
       (setq-local cider-browse-ns-current-ns nil))))
 
-(defun cider-browse-ns-operate-on-point ()
+(defun cider-browse-ns--var-at-point ()
+  (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+    (when (string-match " +\\(.+\\)" line)
+      (format "%s/%s" cider-browse-ns-current-ns (match-string 1 line)))))
+
+(defun cider-browse-ns-doc-at-point ()
   "Expand browser according to thing at current point."
   (interactive)
-  (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-    (cond
-     ((= 1 (line-number-at-pos))
-      'nothing-to-do)
-     ((string-match " +\\(.+\\)" line)
-      (cider-doc-lookup (format "%s/%s" cider-browse-ns-current-ns (match-string 1 line))))
-     (t
-      (cider-browse-ns (replace-regexp-in-string " " "" line))))))
+  (-when-let (var (cider-browse-ns--var-at-point))
+    (cider-doc-lookup var)))
 
 (defun cider-browse-ns-handle-mouse (event)
   "Handle mouse click EVENT."
   (interactive "e")
-  (cider-browse-ns-operate-on-point))
+  (cider-browse-ns-doc-at-point))
 
 (provide 'cider-browse-ns)
 
