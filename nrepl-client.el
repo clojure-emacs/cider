@@ -812,7 +812,8 @@ for functionality like pretty-printing won't clobber the values of *1, *2, etc."
 ;; After being decoded, responses (aka, messages from the server) are dispatched
 ;; to handlers. Handlers are constructed with `nrepl-make-response-handler'.
 
-(defvar nrepl-err-handler 'cider-default-err-handler
+(defvar nrepl-err-handler '(lambda (_buffer _ex _root-ex session)
+                             (cider-default-err-handler session))
   "Evaluation error handler.")
 
 (defvar-local nrepl--input-handler-queue (make-queue)

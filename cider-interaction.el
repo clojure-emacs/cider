@@ -1301,7 +1301,7 @@ into a new error buffer."
        ;; after it has been handled, so it's fine to set it unconditionally here
        (setq causes (cider--handle-stacktrace-response response causes))))))
 
-(defun cider-default-err-handler (buffer ex root-ex session)
+(defun cider-default-err-handler (session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
 This function determines how the error buffer is shown, and then delegates
 the actual error content to the eval or op handler."
