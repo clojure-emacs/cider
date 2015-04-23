@@ -193,8 +193,8 @@
                                               cider-auto-select-error-buffer)
                           (reverse causes))))))))))
 
-(defun cider-test-stacktrace (&optional button)
-  "Display stacktrace for the erring test at point, optionally from BUTTON."
+(defun cider-test-stacktrace ()
+  "Display stacktrace for the erring test at point."
   (interactive)
   (let ((ns    (get-text-property (point) 'ns))
         (var   (get-text-property (point) 'var))
@@ -289,7 +289,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                   (progn (insert-text-button
                           error
                           'follow-link t
-                          'action 'cider-test-stacktrace
+                          'action '(lambda (_button) (cider-test-stacktrace))
                           'help-echo "View causes and stacktrace")
                          (newline))
                 (insert (cider-font-lock-as-clojure actual)))))
