@@ -143,6 +143,42 @@ entirely."
         ["Version info" cider-version]))
     map))
 
+(defcustom cider-cljs-hook nil
+  "List of functions to call when `cider-mode' is activated in a cljs
+file."
+  :type 'hook
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-clj-hook nil
+  "List of functions to call when `cider-mode' is activated in a clj
+file."
+  :type 'hook
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-cljx-hook nil
+  "List of functions to call when `cider-mode' is activated in a cljx
+file."
+  :type 'hook
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-cljc-hook nil
+  "List of functions to call when `cider-mode' is activated in a cljc
+file."
+  :type 'hook
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defun cider--after-hook ()
+  "Called after `cider-mode' is turned on."
+  (pcase (file-name-extension (buffer-file-name (current-buffer)))
+    ("cljs" (run-hooks cider-cljs-hook))
+    ("clj" (run-hooks cider-clj-hook))
+    ("cljx" (run-hooks cider-cljx-hook))
+    ("cljc" (run-hooks cider-cljc-hook))))
+
 ;;;###autoload
 (define-minor-mode cider-mode
   "Minor mode for REPL interaction from a Clojure buffer.
@@ -151,6 +187,7 @@ entirely."
   nil
   cider-mode-line
   cider-mode-map
+  :after-hook cider--after-hook
   (cider-eldoc-setup)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
