@@ -97,7 +97,7 @@
       (cider-browse-ns-list (current-buffer)
                             namespace
                             (mapcar (lambda (var)
-                                      (format "/%s"
+                                      (format "%s"
                                               (cider-browse-ns-properties var)))
                                     vars))
       (setq-local cider-browse-ns-current-ns namespace))))
@@ -122,7 +122,7 @@
     (cond
      ((= 1 (line-number-at-pos))
       'nothing-to-do)
-     ((string-match " +/\\(.+\\)" line)
+     ((string-match " +\\(.+\\)" line)
       (cider-doc-lookup (format "%s/%s" cider-browse-ns-current-ns (match-string 1 line))))
      (t
       (cider-browse-ns (replace-regexp-in-string " " "" line))))))
