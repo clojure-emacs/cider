@@ -307,7 +307,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (unless (zerop (+ fail error))
           (cider-insert "Results" 'bold t "\n")
           (nrepl-dict-map
-           (lambda (var tests)
+           (lambda (_var tests)
              (dolist (test tests)
                (nrepl-dbind-response test (type)
                  (unless (equal "pass" type)

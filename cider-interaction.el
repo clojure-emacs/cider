@@ -842,7 +842,7 @@ value is thing at point."
     (pcase narg
       (-1 t) ; -
       (16 t) ; empty empty
-      (narg nil))))
+      (_ nil))))
 
 (defun cider--invert-prefix-arg (arg)
   "Invert the effect of prefix value ARG on `cider-prompt-for-symbol'.
@@ -853,7 +853,7 @@ This function preserves the `other-window' meaning of ARG."
       (16 -1)   ; empty empty -> -
       (-1 16)   ; - -> empty empty
       (4 nil)   ; empty -> no-prefix
-      (nil 4)))) ; no-prefix -> empty
+      (_ 4)))) ; no-prefix -> empty
 
 (defun cider--prefix-invert-prompt-p (arg)
   "Test prefix value ARG for its effect on `cider-prompt-for-symbol`."
@@ -861,7 +861,7 @@ This function preserves the `other-window' meaning of ARG."
     (pcase narg
       (16 t) ; empty empty
       (4 t)  ; empty
-      (narg nil))))
+      (_ nil))))
 
 (defun cider--prompt-for-symbol-p (&optional prefix)
   "Check if cider should prompt for symbol.
@@ -1092,7 +1092,7 @@ The handler simply inserts the result value in BUFFER."
                                      (insert value)))
                                  (lambda (_buffer out)
                                    (cider-repl-emit-interactive-output out))
-                                 (lambda (buffer err)
+                                 (lambda (_buffer err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '())))
 
@@ -1138,7 +1138,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                    (cider--display-interactive-eval-result value))
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
-                                 (lambda (buffer err)
+                                 (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '())))
@@ -1153,7 +1153,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                      (run-hooks 'cider-file-loaded-hook)))
                                  (lambda (_buffer value)
                                    (cider-emit-interactive-eval-output value))
-                                 (lambda (buffer err)
+                                 (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '()
