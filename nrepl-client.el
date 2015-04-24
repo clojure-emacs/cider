@@ -145,6 +145,43 @@ as returned by `nrepl-connect'. ")
 In case of a special value 'new, a new buffer is created.")
 
 
+;;; Buffer Local Declarations
+
+;; These variables are used to track the state of nREPL connections
+(defvar-local nrepl-connection-buffer nil)
+(defvar-local nrepl-server-buffer nil)
+(defvar-local nrepl-repl-buffer nil)
+(defvar-local nrepl-endpoint nil)
+(defvar-local nrepl-project-dir nil)
+(defvar-local nrepl-tunnel-buffer nil)
+
+(defvar-local nrepl-session nil
+  "Current nREPL session id.")
+
+(defvar-local nrepl-tooling-session nil
+  "Current nREPL tooling session id.
+To be used for tooling calls (i.e. completion, eldoc, etc)")
+
+(defvar-local nrepl-request-counter 0
+  "Continuation serial number counter.")
+
+(defvar-local nrepl-pending-requests nil)
+
+(defvar-local nrepl-completed-requests nil)
+
+(defvar-local nrepl-last-sync-response nil
+  "Result of the last sync request.")
+
+(defvar-local nrepl-last-sync-request-timestamp nil
+  "The time when the last sync request was initiated.")
+
+(defvar-local nrepl-ops nil
+  "Available nREPL server ops (from describe).")
+
+(defvar-local nrepl-versions nil
+  "Version information received from the describe op.")
+
+
 ;;; nREPL Buffer Names
 
 (defconst nrepl-message-buffer-name "*nrepl-messages*")
@@ -207,43 +244,6 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
    (nrepl-make-buffer-name nrepl-tunnel-buffer-name-template
                            project-dir host port)))
-
-
-;;; Buffer Local Declarations
-
-;; These variables are used to track the state of nREPL connections
-(defvar-local nrepl-connection-buffer nil)
-(defvar-local nrepl-server-buffer nil)
-(defvar-local nrepl-repl-buffer nil)
-(defvar-local nrepl-endpoint nil)
-(defvar-local nrepl-project-dir nil)
-(defvar-local nrepl-tunnel-buffer nil)
-
-(defvar-local nrepl-session nil
-  "Current nREPL session id.")
-
-(defvar-local nrepl-tooling-session nil
-  "Current nREPL tooling session id.
-To be used for tooling calls (i.e. completion, eldoc, etc)")
-
-(defvar-local nrepl-request-counter 0
-  "Continuation serial number counter.")
-
-(defvar-local nrepl-pending-requests nil)
-
-(defvar-local nrepl-completed-requests nil)
-
-(defvar-local nrepl-last-sync-response nil
-  "Result of the last sync request.")
-
-(defvar-local nrepl-last-sync-request-timestamp nil
-  "The time when the last sync request was initiated.")
-
-(defvar-local nrepl-ops nil
-  "Available nREPL server ops (from describe).")
-
-(defvar-local nrepl-versions nil
-  "Version information received from the describe op.")
 
 
 ;;; Utilities
