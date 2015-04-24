@@ -815,34 +815,6 @@ for functionality like pretty-printing won't clobber the values of *1, *2, etc."
 (defvar nrepl-err-handler 'cider-default-err-handler
   "Evaluation error handler.")
 
-(defvar-local nrepl--input-handler-queue (make-queue)
-  "A queue of handlers (functions) for incoming \"need-input\" messages.
-Functions are passed the connection buffer as the only argument and should
-send a string to stdin on that connection. See `cider-need-input' for an
-example.
-
-This variable is designed as a queue, so new elements should be added to
-the bottom using `nrepl-push-input-handler', and they are removed from the
-top when used. Whenever the variable is nil, `cider-need-input' is used.")
-
-(defun nrepl-push-input-handler (function buffer)
-  "Add FUNCTION to input handlers queue on BUFFER's connection.
-FUNCTION is added to the bottom of `nrepl--input-handler-queue'."
-  (with-current-buffer buffer
-    (with-current-buffer (nrepl-current-connection-buffer)
-      (queue-enqueue nrepl--input-handler-queue function))))
-
-(defun nrepl--handle-input (buffer)
-  "Handle need-input message in BUFFER.
-Check whether there's a handler waiting to be used in
-`nrepl--input-handler-queue', otherwise default to `cider-need-input'."
-  (let ((handler
-         (with-current-buffer buffer
-           (with-current-buffer (nrepl-current-connection-buffer)
-             (or (queue-dequeue nrepl--input-handler-queue)
-                 #'cider-need-input)))))
-    (funcall handler buffer)))
-
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler)
@@ -887,7 +859,7 @@ server responses."
              (when (member "namespace-not-found" status)
                (message "Namespace not found."))
              (when (member "need-input" status)
-               (nrepl--handle-input buffer))
+               (cider-need-input buffer))
              (when (member "done" status)
                (puthash id (gethash id nrepl-pending-requests) nrepl-completed-requests)
                (remhash id nrepl-pending-requests)
@@ -962,7 +934,7 @@ of the same \"op\" that came along."
       ;; If we get a need-input message then the repl probably isn't going
       ;; anywhere, and we'll just timeout. So we forward it to the user.
       (if (member "need-input" status)
-          (progn (nrepl--handle-input (current-buffer))
+          (progn (cider-need-input (current-buffer))
                  ;; If the used took a few seconds to respond, we might
                  ;; unnecessarily timeout, so let's reset the timer.
                  (setq time0 (current-time)))

@@ -867,7 +867,10 @@ Keyboard shortcut               | Description
 --------------------------------|-------------------------------
 <kbd>n</kbd> | Next step
 <kbd>c</kbd> | Continue without stopping
+<kbd>o</kbd> | Move out of the current sexp (like `up-list`)
 <kbd>i</kbd> | Inject a value into running code
+<kbd>e</kbd> | Eval code in current context
+<kbd>q</kbd> | Quit execution
 
 ### Managing multiple sessions
 
