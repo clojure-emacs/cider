@@ -45,6 +45,8 @@
 (defvar cider-browse-ns-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
+    (define-key map "d" #'cider-browse-ns-doc-at-point)
+    (define-key map "s" #'cider-browse-ns-find-at-point)
     (define-key map [return] #'cider-browse-ns-doc-at-point)
     (define-key map "^" #'cider-browse-ns-all)
     (define-key map "n" #'next-line)
@@ -125,6 +127,11 @@
   (interactive)
   (-when-let (var (cider-browse-ns--var-at-point))
     (cider-doc-lookup var)))
+
+(defun cider-browse-ns-find-at-point ()
+  (interactive)
+  (when-let (var (cider-browse-ns--var-at-point))
+    (cider-find-var current-prefix-arg var)))
 
 (defun cider-browse-ns-handle-mouse (event)
   "Handle mouse click EVENT."
