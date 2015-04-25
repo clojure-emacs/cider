@@ -43,6 +43,7 @@
 * [#1014](https://github.com/clojure-emacs/cider/issues/1014) A prefix of <kbd>-</kbd> causes `cider-find-var` and
   `cider-find-resource` to show results in other window. Additionally, a double prefix argument <kbd>C-u C-u</kbd>
   inverts the meaning of `cider-prompt-for-symbol` and shows the results in other window.
+* [#1062](https://github.com/clojure-emacs/cider/issues/1062): Added completion candidates to `cider-find-resource`.
 
 ### Changes
 

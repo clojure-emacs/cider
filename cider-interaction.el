@@ -829,9 +829,11 @@ value is thing at point."
   (interactive
    (list
     (if (cider--prompt-for-symbol-p current-prefix-arg)
-        (cider-read-from-minibuffer "Resource: " (thing-at-point 'filename))
+        (completing-read "Resource: "
+                         (cider-sync-request:resources-list)
+                         nil nil
+                         (thing-at-point 'filename))
       (or (thing-at-point 'filename) ""))))
-
   (cider-ensure-op-supported "resource")
   (-if-let* ((resource (cider-sync-request:resource path))
              (buffer (cider-find-file resource)))
