@@ -31,16 +31,16 @@
 * Inspector middleware now relies on `eval` middleware, adding support for ClojureScript.
 * Better printing of large amounts of exception cause data in the error buffer.
   - New defcustom, `cider-stacktrace-print-length` (boolean).
-* [#958](https://github.com/clojure-emacs/cider/pull/958) Reuse existing repl
+* [#958](https://github.com/clojure-emacs/cider/pull/958): Reuse existing repl
   buffers with dead processes. Users are now informed about existing zombie repl
   buffers and are offered the choice to reuse those for new connections.
 * New defcustom, `cider-prompt-for-symbol`. Controls whether to prompt for
   symbol when interactive commands require one. Defaults to t, which always
   prompts. Currently applies to all documentation and source lookup commands.
-* [#1032](https://github.com/clojure-emacs/cider/issues/1032) New functions, `cider-find-dwim` and
+* [#1032](https://github.com/clojure-emacs/cider/issues/1032): New functions, `cider-find-dwim` and
   `cider-find-dwim-other-window`. These functions combine the functionality of `cider-jump-to-var` and
   `cider-jump-to-resource`. Which are now renamed to `cider-find-var` and `cider-find-resource` respectively.
-* [#1014](https://github.com/clojure-emacs/cider/issues/1014) A prefix of <kbd>-</kbd> causes `cider-find-var` and
+* [#1014](https://github.com/clojure-emacs/cider/issues/1014): A prefix of <kbd>-</kbd> causes `cider-find-var` and
   `cider-find-resource` to show results in other window. Additionally, a double prefix argument <kbd>C-u C-u</kbd>
   inverts the meaning of `cider-prompt-for-symbol` and shows the results in other window.
 * [#1062](https://github.com/clojure-emacs/cider/issues/1062): Added completion candidates to `cider-find-resource`.
@@ -50,16 +50,16 @@
 * [#1078] Removed `cider-load-fn-into-repl-buffer`, bound to `C-c M-f` in the repl.
 * [#1019](https://github.com/clojure-emacs/cider/pull/1019):
   <kbd>C-u C-M-x</kbd> no longer does `eval-defun`+print-result. Instead it debugs the form at point.
-* [#854](https://github.com/clojure-emacs/cider/pull/854) Error navigation now
+* [#854](https://github.com/clojure-emacs/cider/pull/854): Error navigation now
   favors line information reported by the stacktrace, being more detailed than
   the info reported by `info` middleware.
-* [#854](https://github.com/clojure-emacs/cider/pull/854) Add `nrepl-dict` constructor.
+* [#854](https://github.com/clojure-emacs/cider/pull/854): Add `nrepl-dict` constructor.
 * [#934](https://github.com/clojure-emacs/cider/issues/934): Remove
   `cider-turn-on-eldoc-mode` in favor of simply using `eldoc-mode`.
-* [#953](https://github.com/clojure-emacs/cider/pull/953) Use `sshx` instead of `ssh` in `cider-select-endpoint`
-* [#956](https://github.com/clojure-emacs/cider/pull/956) Eval full ns form only when needed.
+* [#953](https://github.com/clojure-emacs/cider/pull/953): Use `sshx` instead of `ssh` in `cider-select-endpoint`
+* [#956](https://github.com/clojure-emacs/cider/pull/956): Eval full ns form only when needed.
 * Enable annotated completion candidates by default.
-* [#1031](https://github.com/clojure-emacs/cider/pull/1031) Interactive functions prompt with
+* [#1031](https://github.com/clojure-emacs/cider/pull/1031): Interactive functions prompt with
 symbol at point as a default value.
 * Remapped `cider-grimoire` to <kbd>C-c C-d r</kbd> & <kbd>C-c C-d C-r</kbd> to avoid
 conflicts with `<kbd>C-g</kbd>`.
@@ -68,7 +68,7 @@ conflicts with `<kbd>C-g</kbd>`.
 
 * [#921](https://github.com/clojure-emacs/cider/issues/921): Fixed
 non-functioning `cider-test-jump` from test reports.
-* [#962](https://github.com/clojure-emacs/cider/pull/962) On error don't auto-jump to tooling files.
+* [#962](https://github.com/clojure-emacs/cider/pull/962): On error don't auto-jump to tooling files.
 * [#909](https://github.com/clojure-emacs/cider/issues/909): Fixed
 `cider-repl-set-ns`'s behavior for ClojureScript.
 * [#950](https://github.com/clojure-emacs/cider/issues/950): Eval `ns` form in the
