@@ -868,6 +868,7 @@ Keyboard shortcut               | Description
 <kbd>n</kbd> | Next step
 <kbd>c</kbd> | Continue without stopping
 <kbd>i</kbd> | Inject a value into running code
+<kbd>o</kbd> | Move out of the current sexp (like `up-list`)
 
 ### Managing multiple sessions
 

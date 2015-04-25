@@ -25,13 +25,26 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'nrepl-client)
 (require 'cider-interaction)
 
-(defvar cider--current-debug-value nil
-  "Last value received from the debugger.
-Is printed by `cider--debug-read-command' while stepping through
-code.")
+(cl-defstruct cider--debug-message
+  "Cider debug-message object.
+Holds all information about the latest debug message received, so that we
+can act on it when input is requested."
+  value coordinates filename point)
+
+(defvar cider--current-debug-message nil
+  "Last message received from the debugger.
+Is used to print the value with `cider--debug-read-command' and to step
+through code using the coordinate.")
+
+(defvar cider--debug-point-to-pass nil
+  "Breakpoints are silently skipped until we're past this point.
+Used but debug commands which allow the user to navigate the code, such as
+\"o\". Debug messages will be automatically replied to for as long as the
+point reached by `cider--debug-read-command' is less than this.")
 
 (defconst cider--instrument-format
   (concat "(cider.nrepl.middleware.debug/instrument-and-eval"
@@ -50,7 +63,12 @@ code.")
      (lambda (response)
        (nrepl-dbind-response response (debug-value coor filename point status id)
          (if (not (member "done" status))
-             (cider--handle-debug debug-value coor filename point connection-buffer)
+             (cider--handle-debug (make-cider--debug-message
+                                   :value debug-value
+                                   :coordinates coor
+                                   :filename filename
+                                   :point point)
+                                  connection-buffer)
            (puthash id (gethash id nrepl-pending-requests)
                     nrepl-completed-requests)
            (remhash id nrepl-pending-requests)))))))
@@ -68,54 +86,71 @@ This will skip over sexps that don't represent objects, such as ^{}."
     (forward-sexp 1)
     (setq n (1- n))))
 
-(defun cider--handle-debug (value coordinates file point connection-buffer)
+(defun cider--handle-debug (message connection-buffer)
   "Handle debugging notification.
-VALUE is saved in `cider--current-debug-value' to be printed
-while waiting for user input.
-COORDINATES, FILE and POINT are used to place point at the instrumented sexp.
+MESSAGE should be a `cider--debug-message' object and is saved in
+`cider--current-debug-message'. Its fields will be used by
+`cider--debug-read-command'.
 CONNECTION-BUFFER is the nrepl buffer."
   ;; Be ready to prompt the user when debugger.core/break is
   ;; triggers a need-input request.
   (nrepl-push-input-handler #'cider--need-debug-input connection-buffer)
-
-  ;; Navigate to the instrumented sexp, wherever we might be.
-  (find-file file)
-  ;; Position of the sexp.
-  (goto-char point)
-  (condition-case nil
-      ;; Make sure it is a list.
-      (let ((coordinates (append coordinates nil)))
-        ;; Navigate through sexps inside the sexp.
-        (while coordinates
-          (down-list)
-          (cider--forward-sexp (pop coordinates)))
-        ;; Place point at the end of instrumented sexp.
-        (cider--forward-sexp 1))
-    ;; Avoid throwing actual errors, since this happens on every breakpoint.
-    (error (message "Can't find instrumented sexp, did you edit the source?")))
   ;; Prepare to notify the user.
-  (setq cider--current-debug-value value))
+  (setq cider--current-debug-message message))
 
 (defun cider--debug-read-command ()
-  "Receive input from the user representing a command to do."
-  (let ((cider-interactive-eval-result-prefix
-         "(n)ext (c)ontinue (i)nject => "))
-    (cider--display-interactive-eval-result
-     (or cider--current-debug-value "#unknown#")))
-  (let ((input
-         (cl-case (read-char)
-           ;; These keys were chosen to match edebug rather than clj-debugger.
-           (?n "(c)")
-           (?c "(q)")
-           ;; Inject
-           (?i (condition-case nil
-                   (concat (read-from-minibuffer "Expression to inject (non-nil): ")
-                           "\n(c)")
-                 (quit nil))))))
-    (if (and input (not (string= "" input)))
-        (progn (setq cider--current-debug-value nil)
-               input)
-      (cider--debug-read-command))))
+  "Receive input from the user representing a command to do.
+Use the following fields of `cider--current-debug-message' to interact with
+the user:
+  VALUE is printed while waiting for user input.
+  COORDINATES, FILE and POINT are used to place point at the instrumented
+  sexp."
+  (let ((msg cider--current-debug-message))
+    ;; Navigate to the instrumented sexp, wherever we might be.
+    (find-file (cider--debug-message-filename msg))
+    ;; Position of the sexp.
+    (goto-char (cider--debug-message-point msg))
+    (condition-case nil
+        ;; Make sure it is a list.
+        (let ((coordinates (append (cider--debug-message-coordinates msg) nil)))
+          ;; Navigate through sexps inside the sexp.
+          (while coordinates
+            (down-list)
+            (cider--forward-sexp (pop coordinates)))
+          ;; Place point at the end of instrumented sexp.
+          (cider--forward-sexp 1))
+      ;; Avoid throwing actual errors, since this happens on every breakpoint.
+      (error (message "Can't find instrumented sexp, did you edit the source?")))
+    
+    (if (and cider--debug-point-to-pass
+             (< (point) cider--debug-point-to-pass))
+        ;; Silently reply.
+        "(c)"
+      ;; Get user input.
+      (setq cider--debug-point-to-pass nil)
+      (let ((cider-interactive-eval-result-prefix
+             "(n)ext (c)ontinue (i)nject (o)ut\n => "))
+        (cider--display-interactive-eval-result
+         (or (cider--debug-message-value msg)
+             "#unknown#")))
+      (let* ((input
+              (pcase (read-char)
+                ;; These keys were chosen to match edebug rather than
+                ;; clj-debugger.
+                (?n "(c)")
+                (?c "(q)")
+                (?o (ignore-errors (up-list 1)
+                                   (setq cider--debug-point-to-pass (point)))
+                    "(c)")
+                ;; Inject
+                (?i (condition-case nil
+                        (concat (read-from-minibuffer "Expression to inject (non-nil): ")
+                                "\n(c)")
+                      (quit nil))))))
+        (if (and input (not (string= "" input)))
+            (progn (setq cider--current-debug-message nil)
+                   input)
+          (cider--debug-read-command))))))
 
 (defun cider--need-debug-input (buffer)
   "Handle an need-input request from BUFFER."
