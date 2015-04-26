@@ -31,7 +31,7 @@
 ;; A connection is an abstract idea of the communication between Emacs (client)
 ;; and nREPL server.  On Emacs side connections are represented by two running
 ;; processes.  The two processes are the server process and client process.  Each
-;; of these is represented by it's own process buffer, filter and sentinel.
+;; of these is represented by its own process buffer, filter and sentinel.
 ;;
 ;; The nREPL communication process can be broadly represented as follows:
 ;;
@@ -207,7 +207,7 @@ The name will include the project name if available or the endpoint host if
 it is not.  The name will also include the connection port if
 `nrepl-buffer-name-show-port' is true.
 
-If optional DUP-OK is non-nil, the returned buffer is not \"uniquefied\" by
+If optional DUP-OK is non-nil, the returned buffer is not \"uniquified\" by
 `generate-new-buffer-name'."
   (let* ((project-name (nrepl--project-name (or project-dir nrepl-project-dir)))
          (nrepl-proj-port (or port (cadr nrepl-endpoint)))
@@ -409,7 +409,7 @@ FN must accept two arguments key and value."
   "Join nREPL dicts DICT1 and DICT2 in a meaningful way.
 String values for non \"id\" and \"session\" keys are concatenated. Lists
 are appended. nREPL dicts merged recursively. All other objects are
-accumulated accumulated into a list. DICT1 is modified destructively and
+accumulated into a list. DICT1 is modified destructively and
 then returned."
   (if no-join
       (or dict1 dict2)
@@ -827,12 +827,12 @@ and 'status'.
 
 The presence of a particular key determines the type of the response.  For
 example, if 'value' key is present, the response is of type 'value', if
-'out' key is present the response is 'stdout' etc.  Depending on the typea,
+'out' key is present the response is 'stdout' etc.  Depending on the type,
 the handler dispatches the appropriate value to one of the supplied
 handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER, DONE-HANDLER, and
 EVAL-ERROR-HANDLER.  If the optional EVAL-ERROR-HANDLER is nil, the default
 `nrepl-err-handler' is used.  If any of the other supplied handlers are nil
-nothing happens for the coresponding type of response.
+nothing happens for the corresponding type of response.
 
 When `nrepl-log-messages' is non-nil, *nrepl-messages* buffer contains
 server responses."
@@ -1118,11 +1118,11 @@ memory burden, while providing reasonable history.")
 
 (defconst nrepl-message-buffer-reduce-denominator 4
   "Divisor by which to reduce message buffer size.
-When the maximum size for the nREPL message buffer is exceed, the
-size of the buffer is reduced by one over this value.  Defaults
-to 4, so that 1/4 of the buffer is removed, which should ensure
-the buffer's maximum is reasonably utilised, while limiting the
-number of buffer shrinking operations.")
+When the maximum size for the nREPL message buffer is exceeded, the size of
+the buffer is reduced by one over this value.  Defaults to 4, so that 1/4
+of the buffer is removed, which should ensure the buffer's maximum is
+reasonably utilised, while limiting the number of buffer shrinking
+operations.")
 
 (defvar nrepl-messages-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1248,7 +1248,7 @@ Purge the dead buffers from the `nrepl-connection-list' beforehand."
 ;; the connection list, same holds for `cider-rotate-connection'.
 (defun nrepl-make-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
-Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
+Moves CONNECTION-BUFFER to the front of `nrepl-connection-list'."
   (interactive (list nrepl-connection-buffer))
   (if connection-buffer
       ;; maintain the connection list in most recently used order
@@ -1259,8 +1259,8 @@ Moves CONNECITON-BUFFER to the front of `nrepl-connection-list'."
     (message "Not in an nREPL REPL buffer.")))
 
 (defun nrepl--close-connection-buffer (conn-buffer)
-  "Closes CONN-BUFFER, removing it from `nrepl-connection-list'.
-Also closes associated REPL and server buffers."
+  "Close CONN-BUFFER, removing it from `nrepl-connection-list'.
+Also close associated REPL and server buffers."
   (let ((buffer (get-buffer conn-buffer)))
     (setq nrepl-connection-list
           (delq (buffer-name buffer) nrepl-connection-list))
