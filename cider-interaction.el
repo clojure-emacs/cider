@@ -830,6 +830,8 @@ value is thing at point."
                          (thing-at-point 'filename))
       (or (thing-at-point 'filename) ""))))
   (cider-ensure-op-supported "resource")
+  (if (= (length path) 0)
+      (error "Cannot find resource for empty path"))
   (-if-let* ((resource (cider-sync-request:resource path))
              (buffer (cider-find-file resource)))
       (cider-jump-to buffer nil (cider--open-other-window-p current-prefix-arg))
