@@ -70,14 +70,14 @@
   (cider-inspect-expr expression (cider-current-ns)))
 
 ;; Operations
-(defun cider-inspector--value-handler (buffer value)
+(defun cider-inspector--value-handler (_buffer value)
   (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode)
   (cider-irender cider-inspector-buffer value))
 
-(defun cider-inspector--out-handler (buffer value)
+(defun cider-inspector--out-handler (_buffer value)
   (cider-emit-interactive-eval-output value))
 
-(defun cider-inspector--err-handler (buffer err)
+(defun cider-inspector--err-handler (_buffer err)
   (cider-emit-interactive-eval-err-output err))
 
 (defun cider-inspector--done-handler (buffer)

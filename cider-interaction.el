@@ -613,11 +613,6 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
      (point))
    (point)))
 
-(defun cider-last-sexp-start-pos ()
-  (save-excursion
-    (backward-sexp)
-    (point)))
-
 ;;;
 (defun cider-tramp-prefix (&optional buffer)
   "Use the filename for BUFFER to determine a tramp prefix.
@@ -849,7 +844,7 @@ value is thing at point."
     (pcase narg
       (-1 t) ; -
       (16 t) ; empty empty
-      (narg nil))))
+      (_ nil))))
 
 (defun cider--invert-prefix-arg (arg)
   "Invert the effect of prefix value ARG on `cider-prompt-for-symbol'.
@@ -860,7 +855,7 @@ This function preserves the `other-window' meaning of ARG."
       (16 -1)   ; empty empty -> -
       (-1 16)   ; - -> empty empty
       (4 nil)   ; empty -> no-prefix
-      (nil 4)))) ; no-prefix -> empty
+      (_ 4)))) ; no-prefix -> empty
 
 (defun cider--prefix-invert-prompt-p (arg)
   "Test prefix value ARG for its effect on `cider-prompt-for-symbol`."
@@ -868,7 +863,7 @@ This function preserves the `other-window' meaning of ARG."
     (pcase narg
       (16 t) ; empty empty
       (4 t)  ; empty
-      (narg nil))))
+      (_ nil))))
 
 (defun cider--prompt-for-symbol-p (&optional prefix)
   "Check if cider should prompt for symbol.
@@ -1099,7 +1094,7 @@ The handler simply inserts the result value in BUFFER."
                                      (insert value)))
                                  (lambda (_buffer out)
                                    (cider-repl-emit-interactive-output out))
-                                 (lambda (buffer err)
+                                 (lambda (_buffer err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '())))
 
@@ -1145,7 +1140,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                    (cider--display-interactive-eval-result value))
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
-                                 (lambda (buffer err)
+                                 (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '())))
@@ -1160,7 +1155,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                                      (run-hooks 'cider-file-loaded-hook)))
                                  (lambda (_buffer value)
                                    (cider-emit-interactive-eval-output value))
-                                 (lambda (buffer err)
+                                 (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '()
@@ -1308,7 +1303,7 @@ into a new error buffer."
        ;; after it has been handled, so it's fine to set it unconditionally here
        (setq causes (cider--handle-stacktrace-response response causes))))))
 
-(defun cider-default-err-handler (buffer ex root-ex session)
+(defun cider-default-err-handler (session)
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
 This function determines how the error buffer is shown, and then delegates
 the actual error content to the eval or op handler."
@@ -1475,6 +1470,8 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
   (interactive)
   (quit-restore-window (selected-window) (if kill 'kill 'append)))
 
+(defvar-local cider-popup-output-marker nil)
+
 (defun cider-make-popup-buffer (name &optional mode)
   "Create a temporary buffer called NAME using major MODE (if specified)."
   (with-current-buffer (get-buffer-create name)
@@ -1484,7 +1481,7 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
     (when mode
       (funcall mode))
     (cider-popup-buffer-mode 1)
-    (setq-local cider-popup-output-marker (point-marker))
+    (setq cider-popup-output-marker (point-marker))
     (setq buffer-read-only t)
     (current-buffer)))
 
@@ -1661,8 +1658,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
   (interactive)
-  (let ((last-sexp (cider-last-sexp))
-        (start-pos (cider-last-sexp-start-pos)))
+  (let ((last-sexp (cider-last-sexp)))
     ;; we have to be sure the evaluation won't result in an error
     (nrepl-sync-request:eval last-sexp)
     ;; seems like the sexp is valid, so we can safely kill it

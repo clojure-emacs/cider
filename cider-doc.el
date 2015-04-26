@@ -356,7 +356,7 @@ Tables are marked to be ignored by line wrap."
         (newline)
         (insert-text-button "[source]"
                             'follow-link t
-                            'action (lambda (x)
+                            'action (lambda (_x)
                                       (cider-docview-source)))
         (let ((beg (point-min))
               (end (point-max)))

@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'cider-interaction)
+(require 'url-vars)
 
 (defconst cider-grimoire-url "http://conj.io/")
 

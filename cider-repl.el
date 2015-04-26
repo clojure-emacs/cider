@@ -191,10 +191,10 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
   (interactive)
-  (cider-eval
+  (nrepl-request:eval
    "(when (clojure.core/resolve 'clojure.main/repl-requires)
       (clojure.core/map clojure.core/require clojure.main/repl-requires))"
-   (lambda (response) nil)))
+   (lambda (_response) nil)))
 
 (defun cider-repl-set-initial-ns (buffer)
   "Set the REPL BUFFER's initial namespace (by altering `cider-buffer-ns').
@@ -691,7 +691,7 @@ text property `cider-old-input'."
 (defun cider-repl-switch-ns-handler (buffer)
   "Make a nREPL evaluation handler for the REPL BUFFER's ns switching."
   (nrepl-make-response-handler buffer
-                               (lambda (buffer value))
+                               (lambda (_buffer _value))
                                (lambda (buffer out)
                                  (cider-repl-emit-output buffer out))
                                (lambda (buffer err)
