@@ -875,7 +875,7 @@ Handles only stdout and stderr responses."
                                '()
                                ;; STDOUT
                                (lambda (buffer out)
-                                 ;; fixme: rename into emit-out-output
+                                 ;; FIXME: rename into emit-out-output
                                  (cider-repl-emit-output buffer out))
                                ;; STDERR
                                (lambda (buffer err)
