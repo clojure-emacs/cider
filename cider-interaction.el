@@ -1643,11 +1643,6 @@ the printed result, and defaults to `fill-column'."
   (let ((code (buffer-substring-no-properties start end)))
     (cider-interactive-source-tracking-eval code start)))
 
-(defun cider-eval-buffer ()
-  "Evaluate the current buffer."
-  (interactive)
-  (cider-eval-region (point-min) (point-max)))
-
 (defun cider-eval-last-sexp (&optional prefix)
   "Evaluate the expression preceding point.
 If invoked with a PREFIX argument, print the result in the current buffer."
