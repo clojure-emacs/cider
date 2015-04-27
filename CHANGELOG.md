@@ -44,25 +44,29 @@
   `cider-find-resource` to show results in other window. Additionally, a double prefix argument <kbd>C-u C-u</kbd>
   inverts the meaning of `cider-prompt-for-symbol` and shows the results in other window.
 * [#1062](https://github.com/clojure-emacs/cider/issues/1062): Added completion candidates to `cider-find-resource`.
+* Middleware support for Piggieback 0.2.x.
+* In the namespace browser, `d` and `s` are now bound to show the documentation
+  or the source respectively for the symbol at point.
 
 ### Changes
 
-* [#1078] Removed `cider-load-fn-into-repl-buffer`, bound to `C-c M-f` in the repl.
+* [#1078](https://github.com/clojure-emacs/cider/issues/1078): Removed
+  `cider-load-fn-into-repl-buffer`, previously bound to `C-c M-f` in the REPL.
 * [#1019](https://github.com/clojure-emacs/cider/pull/1019):
-  <kbd>C-u C-M-x</kbd> no longer does `eval-defun`+print-result. Instead it debugs the form at point.
+  `<kbd>C-u C-M-x</kbd>` no longer does `eval-defun`+print-result. Instead it debugs the form at point.
 * [#854](https://github.com/clojure-emacs/cider/pull/854): Error navigation now
   favors line information reported by the stacktrace, being more detailed than
   the info reported by `info` middleware.
 * [#854](https://github.com/clojure-emacs/cider/pull/854): Add `nrepl-dict` constructor.
 * [#934](https://github.com/clojure-emacs/cider/issues/934): Remove
   `cider-turn-on-eldoc-mode` in favor of simply using `eldoc-mode`.
-* [#953](https://github.com/clojure-emacs/cider/pull/953): Use `sshx` instead of `ssh` in `cider-select-endpoint`
+* [#953](https://github.com/clojure-emacs/cider/pull/953): Use `sshx` instead of `ssh` in `cider-select-endpoint`.
 * [#956](https://github.com/clojure-emacs/cider/pull/956): Eval full ns form only when needed.
 * Enable annotated completion candidates by default.
 * [#1031](https://github.com/clojure-emacs/cider/pull/1031): Interactive functions prompt with
-symbol at point as a default value.
-* Remapped `cider-grimoire` to <kbd>C-c C-d r</kbd> & <kbd>C-c C-d C-r</kbd> to avoid
-conflicts with `<kbd>C-g</kbd>`.
+  symbol at point as a default value.
+* Remapped `cider-grimoire` to `<kbd>C-c C-d r</kbd>` & `<kbd>C-c C-d C-r</kbd>`
+  to avoid conflicts with `<kbd>C-g</kbd>`.
 
 ### Bugs fixed
 
@@ -83,6 +87,7 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#1026](https://github.com/clojure-emacs/cider/issues/1026): The full `(ns ...)` form for the current buffer is now sent with all source-tracking eval requests, to fix ClojureScript compatibility.
 * [#1033](https://github.com/clojure-emacs/cider/issues/1033): Removed erroneous underlining from stacktrace frames and disabled frame filters in the error buffer.
 * The error buffer no longer pops up when there is no error to display.
+* `cider-find-resource` now correctly throws an error when no path is provided.
 
 ## 0.8.2 / 2014-12-21
 
