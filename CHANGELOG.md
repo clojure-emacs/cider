@@ -53,7 +53,7 @@
 * [#1078](https://github.com/clojure-emacs/cider/issues/1078): Removed
   `cider-load-fn-into-repl-buffer`, previously bound to `C-c M-f` in the REPL.
 * [#1019](https://github.com/clojure-emacs/cider/pull/1019):
-  `<kbd>C-u C-M-x</kbd>` no longer does `eval-defun`+print-result. Instead it debugs the form at point.
+  <kbd>C-u C-M-x</kbd> no longer does `eval-defun`+print-result. Instead it debugs the form at point.
 * [#854](https://github.com/clojure-emacs/cider/pull/854): Error navigation now
   favors line information reported by the stacktrace, being more detailed than
   the info reported by `info` middleware.
@@ -65,8 +65,8 @@
 * Enable annotated completion candidates by default.
 * [#1031](https://github.com/clojure-emacs/cider/pull/1031): Interactive functions prompt with
   symbol at point as a default value.
-* Remapped `cider-grimoire` to `<kbd>C-c C-d r</kbd>` & `<kbd>C-c C-d C-r</kbd>`
-  to avoid conflicts with `<kbd>C-g</kbd>`.
+* Remapped `cider-grimoire` to <kbd>C-c C-d r</kbd> & <kbd>C-c C-d C-r</kbd>
+  to avoid conflicts with <kbd>C-g</kbd>.
 
 ### Bugs fixed
 
