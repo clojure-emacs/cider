@@ -470,7 +470,7 @@ upon the standard completion if you wish to.
 
 #### icomplete
 
-`icomplete` is bundled with Emacs and enhances the default minubuffer completion:
+`icomplete` is bundled with Emacs and enhances the default minibuffer completion:
 
 ```el
 (require 'icomplete)
