@@ -552,7 +552,6 @@ This associates text properties to enable filtering and source navigation."
 (defun cider-stacktrace-render (buffer causes)
   "Emit into BUFFER useful stacktrace information for the CAUSES."
   (with-current-buffer buffer
-    (cider-stacktrace-mode)
     (let ((inhibit-read-only t))
       (erase-buffer)
       (newline)

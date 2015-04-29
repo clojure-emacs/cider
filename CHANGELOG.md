@@ -88,6 +88,7 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#1033](https://github.com/clojure-emacs/cider/issues/1033): Removed erroneous underlining from stacktrace frames and disabled frame filters in the error buffer.
 * The error buffer no longer pops up when there is no error to display.
 * `cider-find-resource` now correctly throws an error when no path is provided.
+* [#946](https://github.com/clojure-emacs/cider/issues/946): `cider-stacktrace-mode` is now enabled before the error buffer is displayed.
 
 ## 0.8.2 / 2014-12-21
 
