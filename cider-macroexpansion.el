@@ -57,6 +57,12 @@ Possible values are:
   'cider-macroexpansion-display-namespaces
   "0.8.0")
 
+(defcustom cider-macroexpansion-print-metadata nil
+  "Determines if metadata is included in macroexpansion results."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
 (defun cider-sync-request:macroexpand (expander expr &optional display-namespaces)
   "Macroexpand, using EXPANDER, the given EXPR.
 The default for DISPLAY-NAMESPACES is taken from
@@ -69,6 +75,8 @@ The default for DISPLAY-NAMESPACES is taken from
             "display-namespaces"
             (or display-namespaces
                 (symbol-name cider-macroexpansion-display-namespaces)))
+      (append (when cider-macroexpansion-print-metadata
+                (list "print-meta" "true")))
       (nrepl-send-sync-request)
       (nrepl-dict-get "expansion")))
 
