@@ -7,7 +7,6 @@
 * [#1019](https://github.com/clojure-emacs/cider/pull/1019): New file, cider-debug.el.
   Provides a new command, `cider-debug-defun-at-point`, bound to <kbd>C-u C-M-x</kbd>.
   Interactively debug top-level clojure forms.
-
 * New defcustom, `cider-auto-select-test-report-buffer` (boolean).
   Controls whether the test report buffer is selected after running a test. Defaults to true.
 * Trigger Grimoire doc lookup from doc buffers by pressing <kbd>g</kbd> (in Emacs) and <kbd>G</kbd> (in browser).
