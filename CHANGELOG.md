@@ -47,8 +47,9 @@
 * Middleware support for Piggieback 0.2.x.
 * In the namespace browser, `d` and `s` are now bound to show the documentation
   or the source respectively for the symbol at point.
-* [#1090](https://github.com/clojure-emacs/cider/issues/1090): New defcustom, `cider-macroexpansion-print-metadata` (boolean.)
-  Controls whether metadata of forms is included in macroexpansion results. Defaults to nil.
+* [#1090](https://github.com/clojure-emacs/cider/issues/1090): New defcustom,
+  `cider-macroexpansion-print-metadata` (boolean). Controls whether metadata of
+  forms is included in macroexpansion results. Defaults to nil.
 
 ### Changes
 
