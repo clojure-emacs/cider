@@ -763,6 +763,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-t</kbd>                   | Show the test report buffer.
 <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
+<kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
 <kbd>C-c C-d g</kbd>                 | Lookup symbol in Grimoire.
@@ -793,6 +794,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-n</kbd> | Select a namespace and switch to it.
+<kbd>C-c C-.</kbd> | Jump to some namespace on the classpath.
 <kbd>C-c M-t v</kbd> | Toggle var tracing.
 <kbd>C-c M-t n</kbd> | Toggle namespace tracing.
 
