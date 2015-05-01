@@ -70,6 +70,7 @@ opposite of what that option dictates."
     (read-only-mode -1)
     (insert content)
     (read-only-mode +1)
+    (clojure-mode)
     (goto-char (point-min))
     (current-buffer)))
 
