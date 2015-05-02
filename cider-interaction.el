@@ -214,7 +214,7 @@ if the candidate is not namespace-qualified."
 (defvar cider-required-nrepl-ops
   '("apropos" "classpath" "complete" "eldoc" "format-code" "format-edn" "info"
     "inspect-pop" "inspect-push" "inspect-refresh"
-    "macroexpand" "ns-list" "ns-vars" "refresh"
+    "macroexpand" "ns-list" "ns-vars" "ns-path" "refresh"
     "resource" "stacktrace" "toggle-trace-var" "toggle-trace-ns" "undef")
   "A list of nREPL ops required by CIDER to function properly.
 
@@ -923,6 +923,31 @@ thing at point."
              (if (cider--open-other-window-p arg)
                  #'cider--find-var-other-window
                #'cider--find-var))))
+
+(defun cider-sync-request:ns-path (ns)
+  "Get the path to the file containing NS."
+  (-> (list "op" "ns-path"
+            "ns" ns)
+      nrepl-send-sync-request
+      (nrepl-dict-get "path")))
+
+(defun cider--find-ns (ns &optional other-window)
+  (-if-let (path (cider-sync-request:ns-path ns))
+      (cider-jump-to (cider-find-file path) nil other-window)
+    (error "Can't find %s" ns)))
+
+(defun cider-find-ns (&optional arg ns)
+  "Find the file containing NS.
+
+A prefix of `-` or a double prefix argument causes
+the results to be displayed in a different window."
+  (interactive "P")
+  (cider-ensure-op-supported "ns-path")
+  (if ns
+      (cider--find-ns ns)
+    (let* ((namespaces (cider-sync-request:ns-list))
+           (ns (completing-read "Find namespace: " namespaces)))
+      (cider--find-ns ns (cider--open-other-window-p arg)))))
 
 (define-obsolete-function-alias 'cider-jump-to-resource 'cider-find-resource "0.9.0")
 (define-obsolete-function-alias 'cider-jump-to-var 'cider-find-var "0.9.0")
