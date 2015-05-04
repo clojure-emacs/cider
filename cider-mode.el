@@ -33,9 +33,22 @@
 (require 'cider-interaction)
 (require 'cider-eldoc)
 
+(defun cider--modeline-info ()
+  "Return info for the `cider-mode' modeline.
+
+Info contains project name and host:port endpoint."
+  (let ((current-connection (nrepl-current-connection-buffer t)))
+    (if current-connection
+        (with-current-buffer current-connection
+          (format "%s@%s:%s"
+                  (or (nrepl--project-name nrepl-project-dir) "<no project>")
+                  (car nrepl-endpoint)
+                  (cadr nrepl-endpoint)))
+      "not connected")))
+
 ;;;###autoload
 (defcustom cider-mode-line
-  '(:eval (format " cider[%s]" (cider-current-ns)))
+  '(:eval (format " cider[%s]" (cider--modeline-info)))
   "Mode line lighter for `cider-mode'.
 
 The value of this variable is a mode line template as in
@@ -43,7 +56,7 @@ The value of this variable is a mode line template as in
 details about mode line templates.
 
 Customize this variable to change how `cider-mode' displays its
-status in the mode line.  The default value displays the current ns.
+status in the mode line.  The default value displays the current connection.
 Set this variable to nil to disable the mode line
 entirely."
   :group 'cider

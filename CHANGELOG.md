@@ -53,6 +53,7 @@
 
 ### Changes
 
+* Display the current connection instead of the current namespace in `cider-mode`'s modeline.
 * [#1078](https://github.com/clojure-emacs/cider/issues/1078): Removed
   `cider-load-fn-into-repl-buffer`, previously bound to `C-c M-f` in the REPL.
 * [#1019](https://github.com/clojure-emacs/cider/pull/1019):
