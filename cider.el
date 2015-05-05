@@ -104,7 +104,7 @@ version from the CIDER package or library.")
 (defcustom cider-default-repl-command
   "lein"
   "The default command and parameters to use when connecting to nREPL.
-This value will only be consulted when no identifying file types, ie
+This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found."
   :type 'string
   :group 'cider
@@ -270,13 +270,12 @@ of list of the form (project-dir port)."
          (proj-ports (mapcar (lambda (d)
                                (-when-let (port (and d (nrepl-extract-port (cider--file-path d))))
                                  (list (file-name-nondirectory (directory-file-name d)) port)))
-                             (cons (nrepl-project-directory-for dir)
-                                   paths))))
+                             (cons (nrepl-project-directory-for dir) paths))))
     (-distinct (delq nil proj-ports))))
 
 (defun cider--running-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
-use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-list'."
+Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-list'."
   (let (paths)
     (with-temp-buffer
       (insert (shell-command-to-string cider-ps-running-nrepls-command))
@@ -293,8 +292,8 @@ If both project file types are present, prompt the user to choose."
          (lein-project-exists (file-exists-p "project.clj"))
          (boot-project-exists (file-exists-p "build.boot")))
     (cond ((and lein-project-exists boot-project-exists)
-           (completing-read "Which command should be used? " '("lein" "boot") nil
-                            t "lein"))
+           (completing-read "Which command should be used? "
+                            '("lein" "boot") nil t "lein"))
           (lein-project-exists "lein")
           (boot-project-exists "boot"))))
 
