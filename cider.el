@@ -338,8 +338,8 @@ process buffer."
 ;;;###autoload
 (eval-after-load 'clojure-mode
   '(progn
-     (define-key clojure-mode-map (kbd "C-c M-j") 'cider-jack-in)
-     (define-key clojure-mode-map (kbd "C-c M-c") 'cider-connect)))
+     (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in)
+     (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect)))
 
 (provide 'cider)
 
