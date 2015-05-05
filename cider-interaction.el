@@ -309,9 +309,8 @@ Signal an error if it is not supported."
 Info contains project name, current REPL namespace, host:port
 endpoint and Clojure version."
   (with-current-buffer (get-buffer connection-buffer)
-    (format "Active nREPL connection: %s:%s, %s:%s (Java %s, Clojure %s, nREPL %s)"
+    (format "Active nREPL connection: %s@%s:%s (Java %s, Clojure %s, nREPL %s)"
             (or (nrepl--project-name nrepl-project-dir) "<no project>")
-            cider-buffer-ns
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
             (cider--java-version)
