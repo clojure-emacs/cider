@@ -341,9 +341,6 @@ process buffer."
      (define-key clojure-mode-map (kbd "C-c M-j") 'cider-jack-in)
      (define-key clojure-mode-map (kbd "C-c M-c") 'cider-connect)))
 
-
-(define-obsolete-function-alias 'cider 'cider-connect)
-
 (provide 'cider)
 
 ;;; cider.el ends here
