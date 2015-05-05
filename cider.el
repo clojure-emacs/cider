@@ -55,7 +55,7 @@
 ;;; Code:
 
 (defgroup cider nil
-  "Clojure Interactive Development Environment Reimagined."
+  "Clojure Interactive Development Environment that Rocks."
   :prefix "cider-"
   :group 'applications
   :link '(url-link :tag "Github" "https://github.com/clojure-emacs/cider")
