@@ -81,7 +81,7 @@
     (cider-browse-ns-mode)
     (let ((inhibit-read-only t))
       (erase-buffer)
-      (insert (propertize title 'font-lock-face 'cider-doc-strong-face))
+      (insert (propertize title 'font-lock-face 'font-lock-type-face))
       (newline)
       (dolist (item items)
         (insert "  " item)
