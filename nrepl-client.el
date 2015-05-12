@@ -839,16 +839,19 @@ When `nrepl-log-messages' is non-nil, *nrepl-messages* buffer contains
 server responses."
   (lambda (response)
     (nrepl-dbind-response response (value ns out err status id ex root-ex
-                                          session)
+                                          session pprint-out)
+      (with-current-buffer buffer
+        (when (and ns (not (derived-mode-p 'clojure-mode)))
+          (setq cider-buffer-ns ns)))
       (cond (value
-             (with-current-buffer buffer
-               (when (and ns (not (derived-mode-p 'clojure-mode)))
-                 (setq cider-buffer-ns ns)))
              (when value-handler
                (funcall value-handler buffer value)))
             (out
              (when stdout-handler
                (funcall stdout-handler buffer out)))
+            (pprint-out
+             (when stdout-handler
+               (funcall stdout-handler buffer pprint-out)))
             (err
              (when stderr-handler
                (funcall stderr-handler buffer err)))
