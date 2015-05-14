@@ -926,15 +926,19 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
       (puthash id callback nrepl-pending-requests)
       (process-send-string nil message))))
 
-(defun nrepl-send-sync-request (request)
+(defun nrepl-send-sync-request (request &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously.
 Hold till final \"done\" message has arrived and join all response messages
-of the same \"op\" that came along."
+of the same \"op\" that came along.
+If ABORT-ON-INPUT is non-nil, the function will return nil at the first
+sign of user input, so as not to hang the interface."
   (let* ((time0 (current-time))
          (response (cons 'dict nil))
          status)
     (nrepl-send-request request (lambda (resp) (nrepl--merge response resp)))
-    (while (not (member "done" status))
+    (while (and (not (member "done" status))
+                (not (and abort-on-input
+                          (input-pending-p))))
       (setq status (nrepl-dict-get response "status"))
       ;; If we get a need-input message then the repl probably isn't going
       ;; anywhere, and we'll just timeout. So we forward it to the user.
@@ -951,16 +955,18 @@ of the same \"op\" that came along."
       ;; Clean up the response, otherwise we might repeatedly ask for input.
       (nrepl-dict-put response "status" nil)
       (accept-process-output nil 0.01))
-    (-when-let* ((ex (nrepl-dict-get response "ex"))
-                 (err (nrepl-dict-get response "err")))
-      (cider-repl-emit-interactive-err-output err)
-      (message err))
-    (-when-let (id (nrepl-dict-get response "id"))
-      ;; FIXME: This should go away eventually when we get rid of
-      ;; pending-request hash table
-      (with-current-buffer (nrepl-current-connection-buffer)
-        (remhash id nrepl-pending-requests)))
-    response))
+    ;; If we couldn't finish, return nil.
+    (when (member "done" status)
+      (-when-let* ((ex (nrepl-dict-get response "ex"))
+                   (err (nrepl-dict-get response "err")))
+        (cider-repl-emit-interactive-err-output err)
+        (message err))
+      (-when-let (id (nrepl-dict-get response "id"))
+        ;; FIXME: This should go away eventually when we get rid of
+        ;; pending-request hash table
+        (with-current-buffer (nrepl-current-connection-buffer)
+          (remhash id nrepl-pending-requests)))
+      response)))
 
 (defun nrepl-request:stdin (input callback)
   "Send a :stdin request with INPUT.
