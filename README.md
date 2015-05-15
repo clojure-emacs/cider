@@ -554,7 +554,7 @@ enable `paredit` in the REPL buffer as well:
 (add-hook 'cider-repl-mode-hook #'smartparens-strict-mode)
 ```
 
-* [RainbowDelimiters](https://github.com/jlr/rainbow-delimiters) is a
+* [RainbowDelimiters](https://github.com/Fanael/rainbow-delimiters) is a
   minor mode which highlights parentheses, brackets, and braces
   according to their depth. Each successive level is highlighted in a
   different color. This makes it easy to spot matching delimiters,
