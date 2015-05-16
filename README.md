@@ -916,7 +916,7 @@ change `*cider-repl localhost*` to `*cider-repl foo*`.
 ## Requirements
 
 * [Leiningen](http://leiningen.org) 2.x (only for `cider-jack-in`)
-* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 24.1+.
+* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 24.3+.
 * [Clojure](http://clojure.org) 1.5.0+
 
 ## Caveats
