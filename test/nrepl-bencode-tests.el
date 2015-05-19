@@ -21,6 +21,12 @@ If object is incomplete, return a decoded path."
 (ert-deftest test-nrepl-bdecode-string ()
   (should (equal '("spam") (nrepl-bdecode-string "4:spam"))))
 
+(ert-deftest test-nrepl-bdecode-string-platform-specific-newlines ()
+  (should (equal '("spam\n") (nrepl-bdecode-string "5:spam
+")))
+  (should (equal '("spam\n") (nrepl-bdecode-string "6:spam
+"))))
+
 (ert-deftest test-nrepl-bdecode-integer ()
   (should (equal '(3) (nrepl-bdecode-string "i3e"))))
 
