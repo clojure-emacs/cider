@@ -519,6 +519,7 @@ reading input."
         (set-syntax-table clojure-mode-syntax-table)
         (add-hook 'completion-at-point-functions
                   #'cider-complete-at-point nil t)
+        (setq-local eldoc-documentation-function #'cider-eldoc)
         (run-hooks 'eval-expression-minibuffer-setup-hook))
     (read-from-minibuffer prompt initial-value
                           cider-minibuffer-map nil
