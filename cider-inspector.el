@@ -41,15 +41,15 @@
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map [return] 'cider-inspector-operate-on-point)
-    (define-key map "\C-m"   'cider-inspector-operate-on-point)
-    (define-key map [mouse-1] 'cider-inspector-operate-on-click)
-    (define-key map "l" 'cider-inspector-pop)
-    (define-key map "g" 'cider-inspector-refresh)
-    (define-key map [tab] 'cider-inspector-next-inspectable-object)
-    (define-key map "\C-i" 'cider-inspector-next-inspectable-object)
-    (define-key map [(shift tab)] 'cider-inspector-previous-inspectable-object) ; Emacs translates S-TAB
-    (define-key map [backtab] 'cider-inspector-previous-inspectable-object) ; to BACKTAB on X.
+    (define-key map [return] #'cider-inspector-operate-on-point)
+    (define-key map "\C-m"   #'cider-inspector-operate-on-point)
+    (define-key map [mouse-1] #'cider-inspector-operate-on-click)
+    (define-key map "l" #'cider-inspector-pop)
+    (define-key map "g" #'cider-inspector-refresh)
+    (define-key map [tab] #'cider-inspector-next-inspectable-object)
+    (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
+    (define-key map [(shift tab)] 3'cider-inspector-previous-inspectable-object) ; Emacs translates S-TAB
+    (define-key map [backtab] #'cider-inspector-previous-inspectable-object) ; to BACKTAB on X.
     map))
 
 (define-derived-mode cider-inspector-mode fundamental-mode "Inspector"

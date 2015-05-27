@@ -1138,8 +1138,8 @@ operations.")
 
 (defvar nrepl-messages-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "n") 'next-line)
-    (define-key map (kbd "p") 'previous-line)
+    (define-key map (kbd "n") #'next-line)
+    (define-key map (kbd "p") #'previous-line)
     map))
 
 (define-derived-mode nrepl-messages-mode special-mode "nREPL Messages"
@@ -1291,10 +1291,10 @@ Also close associated REPL and server buffers."
 ;; often used across cider, so it's not very internal.
 (defvar nrepl-connections-buffer-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "d" 'nrepl-connections-make-default)
-    (define-key map "g" 'nrepl-connection-browser)
-    (define-key map (kbd "C-k") 'nrepl-connections-close-connection)
-    (define-key map (kbd "RET") 'nrepl-connections-goto-connection)
+    (define-key map "d" #'nrepl-connections-make-default)
+    (define-key map "g" #'nrepl-connection-browser)
+    (define-key map (kbd "C-k") #'nrepl-connections-close-connection)
+    (define-key map (kbd "RET") #'nrepl-connections-goto-connection)
     map))
 
 (define-derived-mode nrepl-connections-buffer-mode cider-popup-buffer-mode

@@ -173,11 +173,11 @@ and point is placed after the expanded form."
 
 (defvar cider-macroexpansion-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "g") 'cider-macroexpand-again)
-    (define-key map (kbd "q") 'cider-popup-buffer-quit-function)
-    (define-key map (kbd "d") 'cider-doc)
-    (define-key map (kbd "j") 'cider-javadoc)
-    (define-key map (kbd ".") 'cider-find-var)
+    (define-key map (kbd "g") #'cider-macroexpand-again)
+    (define-key map (kbd "q") #'cider-popup-buffer-quit-function)
+    (define-key map (kbd "d") #'cider-doc)
+    (define-key map (kbd "j") #'cider-javadoc)
+    (define-key map (kbd ".") #'cider-find-var)
     (easy-menu-define cider-macroexpansion-mode-menu map
       "Menu for CIDER's doc mode"
       '("Macroexpansion"
@@ -191,10 +191,10 @@ and point is placed after the expanded form."
     (cl-labels ((redefine-key (from to)
                               (dolist (mapping (where-is-internal from cider-mode-map))
                                 (define-key map mapping to))))
-      (redefine-key 'cider-macroexpand-1 'cider-macroexpand-1-inplace)
-      (redefine-key 'cider-macroexpand-all 'cider-macroexpand-all-inplace)
-      (redefine-key 'advertised-undo 'cider-macroexpand-undo)
-      (redefine-key 'undo 'cider-macroexpand-undo))
+      (redefine-key 'cider-macroexpand-1 #'cider-macroexpand-1-inplace)
+      (redefine-key 'cider-macroexpand-all #'cider-macroexpand-all-inplace)
+      (redefine-key 'advertised-undo #'cider-macroexpand-undo)
+      (redefine-key 'undo #'cider-macroexpand-undo))
     map))
 
 (define-minor-mode cider-macroexpansion-mode
