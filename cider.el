@@ -130,6 +130,11 @@ This variable is used by `cider-connect'."
   :group 'cider
   :version "0.9.0")
 
+(defcustom cider-auto-mode t
+  "When non-nil, automatically enable `cider-mode' for all Clojure buffers."
+  :type 'boolean
+  :version "0.9.0")
+
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
@@ -323,7 +328,8 @@ buffer."
   (cider--check-required-nrepl-version)
   (cider--check-required-nrepl-ops)
   (cider--check-middleware-compatibility)
-  (cider-enable-on-existing-clojure-buffers)
+  (when cider-auto-mode
+    (cider-enable-on-existing-clojure-buffers))
   (run-hooks 'cider-connected-hook))
 
 (defun cider--disconnected-handler ()
