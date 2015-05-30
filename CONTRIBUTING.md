@@ -41,4 +41,4 @@ do so.
 [3]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [4]: https://help.github.com/articles/using-pull-requests
 [5]: http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html
-[6]: https://github.com/clojure-emacs/clojure-mode/blob/master/CHANGELOG.md
+[6]: https://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md
