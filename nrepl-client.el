@@ -138,7 +138,7 @@ buffer will be hidden."
 (defvar nrepl-create-client-buffer-function 'nrepl-create-client-buffer-default
   "Name of a function that returns a client process buffer.
 It is called with one argument, a plist containing :host, :port and :proc
-as returned by `nrepl-connect'. ")
+as returned by `nrepl-connect'.")
 
 (defvar nrepl-use-this-as-repl-buffer 'new
   "Name of the buffer to use as REPL buffer.
