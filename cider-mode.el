@@ -112,47 +112,54 @@ entirely."
         "--"
         ,cider-doc-menu
         "--"
-        ["Eval top-level sexp at point" cider-eval-defun-at-point]
-        ["Eval last sexp" cider-eval-last-sexp]
-        ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
-        ["Eval last sexp to REPL buffer" cider-eval-last-sexp-to-repl]
-        ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
-        ["Eval region" cider-eval-region]
-        ["Eval ns form" cider-eval-ns-form]
+        ("Eval"
+         ["Eval top-level sexp at point" cider-eval-defun-at-point]
+         ["Eval last sexp" cider-eval-last-sexp]
+         ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
+         ["Eval last sexp to REPL buffer" cider-eval-last-sexp-to-repl]
+         ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
+         ["Eval region" cider-eval-region]
+         ["Eval ns form" cider-eval-ns-form]
+         ["Load (eval) buffer" cider-load-buffer]
+         "--"
+         ["Load (eval) file" cider-load-file]
+         )
         ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
-        "--"
-        ["Load (eval) buffer" cider-load-buffer]
-        ["Load (eval) file" cider-load-file]
         "--"
         ["Macroexpand-1" cider-macroexpand-1]
         ["Macroexpand-all" cider-macroexpand-all]
         "--"
-        ["Jump to source" cider-find-var]
-        ["Jump to resource" cider-find-resource]
-        ["Jump back" cider-jump-back]
+        ("Navigate"
+         ["Jump to source" cider-find-var]
+         ["Jump to resource" cider-find-resource]
+         ["Jump back" cider-jump-back]
+         )
         "--"
-        ["Run test" cider-test-run-test]
-        ["Run all tests" cider-test-run-tests]
-        ["Rerun failed/erring tests" cider-test-rerun-tests]
-        ["Show test report" cider-test-show-report]
+        ("Test"
+         ["Run test" cider-test-run-test]
+         ["Run all tests" cider-test-run-tests]
+         ["Rerun failed/erring tests" cider-test-rerun-tests]
+         ["Show test report" cider-test-show-report])
         "--"
         ["Inspect" cider-inspect]
         ["Debug top-level form" cider-debug-defun-at-point]
         "--"
-        ["Set ns" cider-repl-set-ns]
-        ["Switch to REPL" cider-switch-to-repl-buffer]
-        ["Switch to Relevant REPL" cider-switch-to-relevant-repl-buffer]
-        ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
-        ["Clear REPL" cider-find-and-clear-repl-buffer]
-        ["Refresh loaded code" cider-refresh]
-        ["Interrupt evaluation" cider-interrupt]
-        ["Quit" cider-quit]
-        ["Restart" cider-restart]
-        "--"
-        ["Describe nREPL session" cider-describe-nrepl-session]
-        ["Close nREPL session" cider-close-nrepl-session]
-        ["Display nREPL connection" cider-display-current-connection-info]
-        ["Rotate nREPL connection" cider-rotate-connection]
+        ("Run"
+         ["Set ns" cider-repl-set-ns]
+         ["Switch to REPL" cider-switch-to-repl-buffer]
+         ["Switch to Relevant REPL" cider-switch-to-relevant-repl-buffer]
+         ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
+         ["Clear REPL" cider-find-and-clear-repl-buffer]
+         ["Refresh loaded code" cider-refresh]
+         ["Interrupt evaluation" cider-interrupt]
+         ["Quit" cider-quit]
+         ["Restart" cider-restart]
+         "--"
+         ["Describe nREPL session" cider-describe-nrepl-session]
+         ["Close nREPL session" cider-close-nrepl-session]
+         ["Display nREPL connection" cider-display-current-connection-info]
+         ["Rotate nREPL connection" cider-rotate-connection]
+         )
         "--"
         ["Version info" cider-version]))
     map))
