@@ -1822,7 +1822,7 @@ an error is signalled."
     (error "No active nREPL connection")))
 
 (defun cider-enable-on-existing-clojure-buffers ()
-  "Enable interaction mode on existing Clojure buffers.
+  "Enable CIDER's minor mode on existing Clojure buffers.
 See command `cider-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook #'clojure-enable-cider)
