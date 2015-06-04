@@ -48,7 +48,7 @@
     (define-key map "g" #'cider-inspector-refresh)
     (define-key map [tab] #'cider-inspector-next-inspectable-object)
     (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
-    (define-key map [(shift tab)] 3'cider-inspector-previous-inspectable-object) ; Emacs translates S-TAB
+    (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object) ; Emacs translates S-TAB
     (define-key map [backtab] #'cider-inspector-previous-inspectable-object) ; to BACKTAB on X.
     map))
 
