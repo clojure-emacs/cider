@@ -1804,7 +1804,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
   "Turn on CIDER mode (see command `cider-mode').
 Useful in hooks."
   (cider-mode 1)
-  (setq next-error-function 'cider-jump-to-compilation-error))
+  (setq next-error-function #'cider-jump-to-compilation-error))
 
 (defun clojure-disable-cider ()
   "Turn off CIDER mode (see command `cider-mode').
@@ -1825,7 +1825,7 @@ an error is signalled."
   "Enable interaction mode on existing Clojure buffers.
 See command `cider-mode'."
   (interactive)
-  (add-hook 'clojure-mode-hook 'clojure-enable-cider)
+  (add-hook 'clojure-mode-hook #'clojure-enable-cider)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
       (clojure-enable-cider))))
