@@ -1817,7 +1817,7 @@ Useful in hooks."
 
 (defun cider-ensure-connected ()
   "Ensure there is a cider connection present, otherwise
-an error is signalled."
+an error is signaled."
   (unless (cider-connected-p)
     (error "No active nREPL connection")))
 
