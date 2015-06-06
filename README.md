@@ -189,7 +189,7 @@ A minimal `profiles.clj` for CIDER would be:
 ### Using Boot
 
 Boot users can configure the tool to include the middleware automatically in
-all of their projects using a `~/.profile.boot` file like so:
+all of their projects using a `~/.boot/profile.boot` file like so:
 
 ```clojure
 (require 'boot.repl)
