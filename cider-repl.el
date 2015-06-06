@@ -1045,17 +1045,21 @@ constructs."
         "--"
         ,cider-doc-menu
         "--"
-        ["Jump to source" cider-find-var]
-        ["Jump to resource" cider-find-resource]
-        ["Jump back" cider-jump-back]
+        ("Find"
+         ["Find definition" cider-find-var]
+         ["Find resource" cider-find-resource]
+         ["Jump back" cider-jump-back])
+        "--"
         ["Switch to Clojure buffer" cider-switch-to-last-clojure-buffer]
         "--"
+        ("Macroexpand"
+         ["Macroexpand-1" cider-macroexpand-1]
+         ["Macroexpand-all" cider-macroexpand-all])
+        "--"
         ["Inspect" cider-inspect]
-        ["Macroexpand" cider-macroexpand-1]
-        ["Macroexpand all" cider-macroexpand-all]
-        ["Refresh loaded code" cider-refresh]
         ["Toggle var tracing" cider-toggle-trace-var]
         ["Toggle ns tracing" cider-toggle-trace-ns]
+        ["Refresh loaded code" cider-refresh]
         "--"
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
@@ -1065,6 +1069,7 @@ constructs."
         ["Clear output" cider-repl-clear-output]
         ["Clear buffer" cider-repl-clear-buffer]
         ["Kill input" cider-repl-kill-input]
+        "--"
         ["Interrupt evaluation" cider-interrupt]
         "--"
         ["Quit" cider-quit]
