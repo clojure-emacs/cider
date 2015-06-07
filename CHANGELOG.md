@@ -75,6 +75,7 @@ On by default, when `nil` don't automatically enable `cider-mode` in all Clojure
 to avoid conflicts with <kbd>C-g</kbd>.
 * [#1088](https://github.com/clojure-emacs/cider/issues/1088): Kill the
 source-tracking evaluation hack as it wasn't compatible with ClojureScript.
+* Removed `clojure-enable-cider` and `clojure-disable-cider`.
 
 ### Bugs fixed
 

@@ -1748,17 +1748,6 @@ If invoked with a prefix ARG eval the expression after inserting it."
   (interactive)
   (message (read (nrepl-dict-get (nrepl-sync-request:eval "\"PONG\"") "value"))))
 
-(defun clojure-enable-cider ()
-  "Turn on CIDER mode (see command `cider-mode').
-Useful in hooks."
-  (cider-mode 1)
-  (setq next-error-function #'cider-jump-to-compilation-error))
-
-(defun clojure-disable-cider ()
-  "Turn off CIDER mode (see command `cider-mode').
-Useful in hooks."
-  (cider-mode -1))
-
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
   (nrepl-current-connection-buffer 'no-error))
@@ -1773,10 +1762,10 @@ an error is signaled."
   "Enable CIDER's minor mode on existing Clojure buffers.
 See command `cider-mode'."
   (interactive)
-  (add-hook 'clojure-mode-hook #'clojure-enable-cider)
+  (add-hook 'clojure-mode-hook #'cider-mode)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
-      (clojure-enable-cider))))
+      (cider-mode +1))))
 
 (defun cider-disable-on-existing-clojure-buffers ()
   "Disable `cider-mode' on existing Clojure buffers.
@@ -1784,7 +1773,7 @@ See command `cider-mode'."
   (interactive)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
-      (clojure-disable-cider))))
+      (cider-mode -1))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
   "If not connected, disable `cider-mode' on existing Clojure buffers."

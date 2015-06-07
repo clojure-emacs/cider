@@ -175,7 +175,8 @@ entirely."
   (cider-eldoc-setup)
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
-               #'cider-complete-at-point))
+               #'cider-complete-at-point)
+  (setq next-error-function #'cider-jump-to-compilation-error))
 
 (provide 'cider-mode)
 

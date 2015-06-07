@@ -167,7 +167,7 @@ and point is placed after the expanded form."
   "Create a new macroexpansion buffer."
   (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer t)
     (clojure-mode)
-    (clojure-disable-cider)
+    (cider-mode -1)
     (cider-macroexpansion-mode 1)
     (current-buffer)))
 
