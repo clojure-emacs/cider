@@ -144,13 +144,13 @@ a number of keys will be prompted to the user."
     ;; Once the code has been instrumented, it can be sent as a
     ;; regular evaluation. Any debug messages will be received by the
     ;; callback specified in `cider--debug-init-connection'.
-    (cider-interactive-source-tracking-eval
-     instrumented position
+    (cider-interactive-eval
+     instrumented
      (nrepl-make-response-handler (current-buffer)
                                   (lambda (_buffer value)
                                     (let ((cider-interactive-eval-result-prefix prefix))
                                       (cider--display-interactive-eval-result value)))
-                                  ;; Below is the default for `cider-interactive-source-tracking-eval'.
+                                  ;; Below is the default for `cider-interactive-eval'.
                                   (lambda (_buffer out)
                                     (cider-emit-interactive-eval-output out))
                                   (lambda (_buffer err)

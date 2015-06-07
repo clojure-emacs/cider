@@ -70,7 +70,9 @@
 * [#1031](https://github.com/clojure-emacs/cider/pull/1031): Interactive functions prompt with
   symbol at point as a default value.
 * Remapped `cider-grimoire` to <kbd>C-c C-d r</kbd> & <kbd>C-c C-d C-r</kbd>
-  to avoid conflicts with <kbd>C-g</kbd>.
+to avoid conflicts with <kbd>C-g</kbd>.
+* [#1088](https://github.com/clojure-emacs/cider/issues/1088): Kill the
+source-tracking evaluation hack as it wasn't compatible with ClojureScript.
 
 ### Bugs fixed
 

@@ -1567,57 +1567,6 @@ otherwise fall back to \"user\"."
 (defvar-local cider--cached-ns-form nil
   "Cached ns form in the current buffer.")
 
-(defun cider--ns-form-for-dummy-file (form)
-  "Construct a `(ns ...)` form for `cider--dummy-file-contents'.
-
-If FORM is a ns form itself, or there is no current ns form, returns an
-empty string. If the current ns form has not yet been evaluated, returns
-the current ns form. Otherwise, returns the current ns form with
-all :reload and :reload-all directives removed."
-  (let ((current-ns-form (cider-ns-form)))
-    (cond
-     ((cider-ns-form-p form) "")
-     ((null current-ns-form) "")
-     ((null cider--cached-ns-form) current-ns-form)
-     ;; previously, we were sending a truncated version of
-     ;; the current ns form if it was equal to the cached ns
-     ;; form, but this causes problems with ClojureScript,
-     ;; where evaluating ns forms is not additive - see #1026
-     (:default (replace-regexp-in-string ":reload\\(-all\\)?\\>"
-                                         ""
-                                         current-ns-form)))))
-
-(defun cider--dummy-file-contents (form start-pos)
-  "Wrap FORM to make it suitable for `cider-request:load-file'.
-START-POS is a starting position of the form in the original context."
-  (let* ((ns-form (cider--ns-form-for-dummy-file form))
-         (ns-form-lines (length (split-string ns-form "\n")))
-         (start-pos (or start-pos 1))
-         (start-line (line-number-at-pos start-pos))
-         (start-column (save-excursion (goto-char start-pos) (current-column))))
-    (concat
-     ns-form
-     (make-string (max 0 (- start-line ns-form-lines)) ?\n)
-     (make-string start-column ? )
-     form)))
-
-(defun cider-interactive-source-tracking-eval (form &optional start-pos callback)
-  "Evaluate FORM and dispatch the response to CALLBACK.
-START-POS is a starting position of the form in the original context.
-Unlike `cider-interactive-eval' this command will set proper metadata for var
-definitions.  If CALLBACK
-is nil use `cider-interactive-eval-handler'."
-  (cider--clear-compilation-highlights)
-  (cider--quit-error-window)
-  (setq cider--cached-ns-form (cider-ns-form))
-  (let ((filename (or (buffer-file-name)
-                      (buffer-name))))
-    (cider-request:load-file
-     (cider--dummy-file-contents form start-pos)
-     (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
-     (file-name-nondirectory filename)
-     (or callback (cider-interactive-eval-handler)))))
-
 (defun cider--prep-interactive-eval (form)
   "Prepares the environment for an interactive eval of FORM.
 
@@ -1668,7 +1617,7 @@ the printed result, and defaults to `fill-column'."
   "Evaluate the region between START and END."
   (interactive "r")
   (let ((code (buffer-substring-no-properties start end)))
-    (cider-interactive-source-tracking-eval code start)))
+    (cider-interactive-eval code)))
 
 (defun cider-eval-last-sexp (&optional prefix)
   "Evaluate the expression preceding point.
@@ -1724,9 +1673,8 @@ the command `cider-debug-defun-at-point'."
   (if debug-it
       (progn (require 'cider-debug)
              (cider-debug-defun-at-point))
-    (cider-interactive-source-tracking-eval
-     (cider-defun-at-point)
-     (cider-defun-at-point-start-pos))))
+    (cider-interactive-eval
+     (cider-defun-at-point))))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the top-level form at point and pprint its value in a popup buffer."
