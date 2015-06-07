@@ -1953,7 +1953,8 @@ unconditionally."
 
 (defun cider-load-buffer (&optional buffer)
   "Load (eval) BUFFER's file in nREPL.
-If no buffer is provided the command acts on the current buffer."
+If no buffer is provided the command acts on the current buffer.
+The heavy lifting is done by `cider-load-file'."
   (interactive)
   (check-parens)
   (setq buffer (or buffer (current-buffer)))
