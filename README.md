@@ -83,6 +83,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
   - [ClojureScript limitations](#clojurescript-limitations)
   - [Microsoft Windows](#microsoft-windows)
   - [powershell.el](#powershell-el)
+- [Troubleshooting](#troubleshooting)
 - [Documentation](#documentation)
 - [Changelog](#changelog)
 - [Team](#team)
