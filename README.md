@@ -1012,7 +1012,7 @@ The logo is licensed under a
 ### Discussion
 
 For questions, suggestions and support refer to our [official mailing list](https://groups.google.com/forum/#!forum/cider-emacs)
-, the Freenode channel `#clojure-emacs` or our [gitter channel](https://gitter.im/clojure-emacs/cider).
+, the Freenode channel `#clojure-emacs`, `#cider` on [slack](https://clojurians.slack.com/) or our [gitter channel](https://gitter.im/clojure-emacs/cider).
 Please, don't report issues there, as this makes them harder to track.
 
 ### Issues
