@@ -2102,7 +2102,13 @@ Quitting closes all active nREPL connections and kills all CIDER buffers."
       (when connection
         (nrepl-close connection)))
     (message "All active nREPL connections were closed")
-    (cider-close-ancillary-buffers)))
+    (cider-close-ancillary-buffers)
+    ;; clean the cached ns forms in all Clojure buffers
+    ;; as we don't track which buffer is associated with
+    ;; which connection we simply clean the cache for all buffers
+    (dolist (clojure-buffer (cider-util--clojure-buffers))
+      (with-current-buffer clojure-buffer
+        (setq cider--cached-ns-form nil)))))
 
 (defun cider-restart (&optional prompt-project)
   "Quit CIDER and restart it.
