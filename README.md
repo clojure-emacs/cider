@@ -965,6 +965,40 @@ loaded. As a workaround remove
 
 from your Emacs config.
 
+## Troubleshooting
+
+In case you run into issues here are a few tips that can help you diagnose the
+problem.
+
+Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
+(instead of just logging the error in the `*Messages*` buffer. You can toggle
+this behavior by using `M-x toggle-debug-on-error`.
+
+### REPL not starting
+
+Make sure that your `CIDER` version matches your `cider-nrepl` version. Check
+the contents of the `*Messages*` buffer for `CIDER`-related errors. You should
+also check the nREPL messages passed between CIDER and nREPL in
+`*nrepl-messages*`. If you don't see anything useful there it's time to bring
+out the big guns.
+
+#### Debugging the REPL init
+
+Emacs features a super powerful built-in
+[Emacs Lisp debugger](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html)
+and using it is the best way to diagnose problems of any kind. To debug CIDER's
+REPL initialization it's a good idea to hook into one of its entry points. Add a
+breakpoint to `cider-make-repl` (`C-u C-M-x`, while its body). Next time you
+start CIDER you'll be dropped in the debugger and you can step forward until you
+find the problem.
+
+Here's a [great crash course](https://www.youtube.com/watch?v=odkYXXYOxpo) on
+using the debugger.
+
+### Missing `*nrepl-messages*` buffer
+
+Check the value of `nrepl-log-messages`. It should be non-nil.
+
 ## Documentation
 
 A single-page quick reference PDF for CIDER commands is available [here](doc/cider-refcard.pdf). This PDF can be created manually by running `pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).

@@ -22,6 +22,13 @@ do so.
 
 * Include any relevant code to the issue summary.
 
+### Reporting bugs
+
+When reporting bugs it's a good idea to go through the `Troubleshooting` section
+of the README.  Adding information like the backtrace and the nREPL messages to
+the bug report makes it easier to track down bugs. Some steps to reproduce a bug
+reliably would also make a huge difference.
+
 ## Pull requests
 
 * Read [how to properly contribute to open source projects on Github][2].
