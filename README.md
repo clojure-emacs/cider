@@ -242,6 +242,18 @@ experience.
 (add-hook 'cider-mode-hook #'eldoc-mode)
 ```
 
+* Suppress auto-enabling of `cider-mode` in `clojure-mode` buffers, when starting
+  CIDER:
+
+```el
+(setq cider-auto-mode nil)
+```
+
+By default CIDER will enable `cider-mode` in all `clojure-mode` buffers when the
+first CIDER connection is established. It will also add a `clojure-mode` hook to
+enable it on newly created `clojure-mode` buffers. The configuration snippet
+above allows you to override this (somewhat non-standard) behavior.
+
 * Log communication with the nREPL server (**extremely useful for debugging CIDER problems**):
 
 ```el
