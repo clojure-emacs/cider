@@ -1012,6 +1012,15 @@ using the debugger.
 
 Check the value of `nrepl-log-messages`. It should be non-nil.
 
+### `cider-debug` complains that it “failed to instrument ...”
+
+In the REPL buffer, issue the following.
+
+    your.namespace> (ns cider.nrepl.middleware.util.instrument)
+    cider.nrepl.middleware.util.instrument> (def verbose-debug true)
+
+This will cause cider to print extensive information on the REPL buffer when you try to debug an expression (e.g., with `C-u C-M-x`). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new) and copy this information.
+
 ## Documentation
 
 A single-page quick reference PDF for CIDER commands is available [here](doc/cider-refcard.pdf). This PDF can be created manually by running `pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
