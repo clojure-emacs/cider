@@ -955,7 +955,7 @@ sign of user input, so as not to hang the interface."
                       nrepl-sync-request-timeout))
           (error "Sync nREPL request timed out %s" request)))
       ;; Clean up the response, otherwise we might repeatedly ask for input.
-      (nrepl-dict-put response "status" nil)
+      (nrepl-dict-put response "status" (remove "need-input" status))
       (accept-process-output nil 0.01))
     ;; If we couldn't finish, return nil.
     (when (member "done" status)
