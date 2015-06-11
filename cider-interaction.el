@@ -650,10 +650,12 @@ otherwise, nil."
 
 (defvar cider-from-nrepl-filename-function
   (if (eq system-type 'cygwin)
-      (lambda (resource) (let ((fixed-resource (replace-regexp-in-string "^/" "" resource)))
-                           (replace-regexp-in-string
-                            "\n" ""
-                            (shell-command-to-string (format "cygpath --unix '%s'" fixed-resource)))))
+      (lambda (resource)
+        (let ((fixed-resource (replace-regexp-in-string "^/" "" resource)))
+          (replace-regexp-in-string
+           "\n"
+           ""
+           (shell-command-to-string (format "cygpath --unix '%s'" fixed-resource)))))
     #'identity)
   "Function to translate nREPL namestrings to Emacs filenames.")
 
