@@ -87,7 +87,7 @@ sexp."
 RESPONSE is a message received form the nrepl describing the input
 needed. It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
-  (nrepl-dbind-response response (debug-value key coor filename point input-type prompt)
+  (nrepl-dbind-response response (debug-value key coor filename point input-type prompt locals)
     (let ((input))
       (unwind-protect
           (setq input
@@ -97,7 +97,7 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
                   ((pred sequencep)
                    (when (and filename point)
                      (cider--debug-move-point filename point coor))
-                   (cider--debug-read-command input-type debug-value prompt))))
+                   (cider--debug-read-command input-type debug-value prompt locals))))
         ;; No matter what, we want to send this request or the session will stay
         ;; hanged.
         (nrepl-send-request
@@ -107,16 +107,39 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
                "input" (or input ":quit"))
          #'ignore)))))
 
-(defun cider--debug-read-command (command-list value prompt)
+(defvar cider--debug-display-locals nil
+  "If non-nil, local variables are displayed while debugging.
+Can be toggled while debugging with `l'.")
+
+(defun cider--debug-format-locals-list (locals)
+  "Return a string description of list LOCALS.
+Each element of LOCALS should be a list of at least two elements."
+  (let ((left-col-width
+         ;; To right-indent the variable names.
+         (apply #'max (mapcar (lambda (l) (string-width (car l))) locals))))
+    ;; A format string to build a format string. :-P
+    (mapconcat (lambda (l) (format (format "%%%ds: %%s\n" left-col-width)
+                        (propertize (car l) 'face 'font-lock-variable-name-face)
+                        (cider-font-lock-as-clojure (cadr l))))
+               locals "")))
+
+(defun cider--debug-read-command (command-list value prompt locals)
   "Receive input from the user representing a command to do.
 VALUE is displayed to the user as the output of last evaluated sexp."
-  (let ((cider-interactive-eval-result-prefix (concat prompt "\n => ")))
+  (let* ((prompt (concat (when cider--debug-display-locals
+                           (cider--debug-format-locals-list locals))
+                         prompt))
+         (cider-interactive-eval-result-prefix (concat prompt " (l)ocals\n => ")))
     (cider--display-interactive-eval-result (or value "#unknown#")))
   (let ((alist `((?\C-\[ . ":quit") (?\C-g  . ":quit")
                  ,@(mapcar (lambda (k) (cons (string-to-char k) (concat ":" k)))
-                           command-list))))
-    (or (cdr (assq (read-char) alist))
-        (cider--debug-read-command command-list value))))
+                           command-list)))
+        (input (read-char)))
+    (pcase input
+      (?l (setq cider--debug-display-locals (not cider--debug-display-locals))
+          (cider--debug-read-command command-list value prompt locals))
+      (_ (or (cdr (assq input alist))
+             (cider--debug-read-command command-list value prompt locals))))))
 
 
 ;;; User commands
