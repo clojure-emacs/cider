@@ -47,3 +47,6 @@ elpaclean : clean
 
 %.elc : %.el
 	$(CASK) build
+
+run-cider: elpa
+	cask exec emacs -Q -L . --eval "(require 'cider)"
