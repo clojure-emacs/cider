@@ -1785,22 +1785,6 @@ See command `cider-mode'."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
-(defun cider-fetch-vars-form (ns)
-  "Construct a Clojure form to read vars inside for NS."
-  `(concat (if (find-ns (symbol ,ns))
-               (map name (concat (keys (ns-interns (symbol ,ns)))
-                                 (keys (ns-refers (symbol ,ns))))))
-           (if (not= "" ,ns) [".."])
-           (->> (all-ns)
-                (map (fn [n]
-                         (re-find (re-pattern (str "^" (if (not= ,ns "")
-                                                           (str ,ns "\\."))
-                                                   "[^\\.]+"))
-                                  (str n))))
-                (filter identity)
-                (map (fn [n] (str n "/")))
-                (into (hash-set)))))
-
 (defun cider-parent-ns (ns)
   "Go up a level of NS.
 For example \"foo.bar.tar\" -> \"foo.bar\"."
