@@ -264,7 +264,7 @@ Return a list of the form (HOST PORT), where PORT can be nil."
          (sel-port (completing-read (format "Port for %s: " host) ports
                                     nil nil nil nil (caar ports)))
          (port (or (cdr (assoc sel-port ports)) sel-port))
-         (port (if (listp port) (second port) port)))
+         (port (if (listp port) (cadr port) port)))
     (if (stringp port) (string-to-number port) port)))
 
 (defun cider-locate-running-nrepl-ports (&optional dir)

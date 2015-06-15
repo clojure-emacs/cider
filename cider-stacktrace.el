@@ -459,12 +459,12 @@ it wraps to 0."
   (with-current-buffer buffer
     (insert "  Show: ")
     (dolist (filter filters)
-      (insert-text-button (first filter)
-                          'filter (second filter)
+      (insert-text-button (car filter)
+                          'filter (cadr filter)
                           'follow-link t
                           'action 'cider-stacktrace-filter
                           'help-echo (format "Toggle %s stack frames"
-                                             (first filter)))
+                                             (car filter)))
       (insert " "))
     (let ((hidden "(0 frames hidden)"))
       (put-text-property 0 (length hidden) 'hidden-count t hidden)
@@ -534,7 +534,7 @@ This associates text properties to enable filtering and source navigation."
   "Set and apply CAUSES initial visibility, filters, and cursor position."
   ;; Partially display outermost cause if it's a compiler exception (the
   ;; description reports reader location of the error).
-  (nrepl-dbind-response (first causes) (class)
+  (nrepl-dbind-response (car causes) (class)
     (when (equal class "clojure.lang.Compiler$CompilerException")
       (cider-stacktrace-cycle-cause (length causes) 1)))
   ;; Fully display innermost cause. This also applies visibility/filters.

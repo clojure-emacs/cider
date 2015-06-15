@@ -258,7 +258,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
     (when err
       ;; err will be a stacktrace with a first line that looks like:
       ;; "clojure.lang.ExceptionInfo: Unmatched delimiter ]"
-      (error (first (split-string err "\n"))))
+      (error (car (split-string err "\n"))))
     (nrepl-dict-get response "formatted-edn")))
 
 (provide 'cider-client)

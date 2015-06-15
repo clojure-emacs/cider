@@ -469,7 +469,7 @@ is searched."
         (cider-test-execute ns nil (list var))
       (let ((ns  (clojure-find-ns))
             (def (clojure-find-def)))
-        (if (and ns (member (first def) '("deftest" "defspec")))
+        (if (and ns (member (car def) '("deftest" "defspec")))
             (cider-test-execute ns nil (rest def))
           (message "No test at point"))))))
 

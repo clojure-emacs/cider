@@ -1018,7 +1018,7 @@ form, with symbol at point replaced by __prefix__."
 
 (defun cider-completion--get-candidate-type (symbol)
   (let ((type (get-text-property 0 'type symbol)))
-    (or (cl-second (assoc type cider-completion-annotations-alist))
+    (or (cadr (assoc type cider-completion-annotations-alist))
         type)))
 
 (defun cider-completion--get-candidate-ns (symbol)

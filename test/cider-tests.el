@@ -213,7 +213,7 @@
                              (buffer-string)))
               (goto-char 80)         ; somewhere in the second connection listed
               (nrepl-connections-make-default)
-              (should (equal (buffer-name b2) (first nrepl-connection-list)))
+              (should (equal (buffer-name b2) (car nrepl-connection-list)))
               (should (equal "  Host              Port   Project
 
   localhost         4005   proj
