@@ -755,7 +755,7 @@ Empty strings and duplicates are ignored."
 Search in DIRECTION for REGEXP.
 Return -1 resp the length of the history if no item matches."
   ;; Loop through the history list looking for a matching line
-  (let* ((step (ecase direction
+  (let* ((step (cl-ecase direction
                  (forward -1)
                  (backward 1)))
          (history cider-repl-input-history)
