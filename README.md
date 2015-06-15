@@ -1078,6 +1078,9 @@ Report issues and suggest features and improvements on the
 questions on the issue tracker - the mailing list and the IRC channel are the
 places for questions.
 
+If you want to file a bug, please clone this repo and provide sufficient details to reproduce the issue. Start by running `make run-cider`.
+This will bring up Emacs with only the latest version of CIDER loaded. By starting fresh, with the latest code, we can ensure that the problem at hand isn't already fixed or caused by interactions with other packages.
+
 ### Patches
 
 Patches under any form are always welcome! GitHub pull requests are even better! :-)
