@@ -1712,14 +1712,15 @@ the command `cider-debug-defun-at-point'."
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
 If EVAL is non-nil the form will also be evaluated."
-  (let ((start-pos (point)))
-    (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
-      (setq form (replace-match "" t t form)))
-    (with-current-buffer (cider-current-repl-buffer)
+  (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
+    (setq form (replace-match "" t t form)))
+  (with-current-buffer (cider-current-repl-buffer)
+    (goto-char (point-max))
+    (let ((beg (point)))
       (insert form)
-      (indent-region start-pos (point))
-      (when eval
-        (cider-repl-return))))
+      (indent-region beg (point)))
+    (when eval
+      (cider-repl-return)))
   (cider-switch-to-repl-buffer))
 
 (defun cider-insert-last-sexp-in-repl (&optional arg)
