@@ -1715,9 +1715,10 @@ If EVAL is non-nil the form will also be evaluated."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
   (with-current-buffer (cider-current-repl-buffer)
-    (let ((start-pos (point)))
+    (goto-char (point-max))
+    (let ((beg (point)))
       (insert form)
-      (indent-region start-pos (point)))
+      (indent-region beg (point)))
     (when eval
       (cider-repl-return)))
   (cider-switch-to-repl-buffer))
