@@ -184,7 +184,7 @@ Use the convenient plugin for defaults, either in your project's
 A minimal `profiles.clj` for CIDER would be:
 
 ```clojure
-{:user {:plugins [[cider/cider-nrepl "0.8.2"]]}}
+{:user {:plugins [[cider/cider-nrepl "0.9.0"]]}}
 ```
 
 ### Using Boot
@@ -196,7 +196,7 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 (require 'boot.repl)
 
 (swap! boot.repl/*default-dependencies*
-       concat '[[cider/cider-nrepl "0.8.2"]])
+       concat '[[cider/cider-nrepl "0.9.0"]])
 
 (swap! boot.repl/*default-middleware*
        conj 'cider.nrepl/cider-middleware)

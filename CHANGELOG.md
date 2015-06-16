@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.9.0 / 2015-06-16
+
 ### New features
 
 * [#1109](https://github.com/clojure-emacs/cider/issues/1061) New defcustom `cider-auto-mode`.
