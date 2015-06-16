@@ -114,14 +114,16 @@ Can be toggled while debugging with `l'.")
 (defun cider--debug-format-locals-list (locals)
   "Return a string description of list LOCALS.
 Each element of LOCALS should be a list of at least two elements."
-  (let ((left-col-width
-         ;; To right-indent the variable names.
-         (apply #'max (mapcar (lambda (l) (string-width (car l))) locals))))
-    ;; A format string to build a format string. :-P
-    (mapconcat (lambda (l) (format (format "%%%ds: %%s\n" left-col-width)
-                        (propertize (car l) 'face 'font-lock-variable-name-face)
-                        (cider-font-lock-as-clojure (cadr l))))
-               locals "")))
+  (if locals
+      (let ((left-col-width
+             ;; To right-indent the variable names.
+             (apply #'max (mapcar (lambda (l) (string-width (car l))) locals))))
+        ;; A format string to build a format string. :-P
+        (mapconcat (lambda (l) (format (format "%%%ds: %%s\n" left-col-width)
+                            (propertize (car l) 'face 'font-lock-variable-name-face)
+                            (cider-font-lock-as-clojure (cadr l))))
+                   locals ""))
+    ""))
 
 (defun cider--debug-read-command (command-list value prompt locals)
   "Receive input from the user representing a command to do.

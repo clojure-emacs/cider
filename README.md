@@ -885,6 +885,7 @@ Keyboard shortcut               | Description
 <kbd>o</kbd> | Move out of the current sexp (like `up-list`)
 <kbd>i</kbd> | Inject a value into running code
 <kbd>e</kbd> | Eval code in current context
+<kbd>l</kbd> | List local variables
 <kbd>q</kbd> | Quit execution
 
 ### Managing multiple sessions
