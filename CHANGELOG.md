@@ -95,7 +95,6 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#981](https://github.com/clojure-emacs/cider/issues/981): Updated `cider-find-file` to use `find-buffer-visiting` instead of `get-file-buffer`.
 * [#1004](https://github.com/clojure-emacs/cider/issues/1004): `:repl-env` key is now filtered from exception causes, as it contains unprintably large strings of compiled javascript when using ClojureScript.
 * Tunneled ssh connection now deals correctly with the ssh password request.
-* [#1026](https://github.com/clojure-emacs/cider/issues/1026): The full `(ns ...)` form for the current buffer is now sent with all source-tracking eval requests, to fix ClojureScript compatibility.
 * [#1033](https://github.com/clojure-emacs/cider/issues/1033): Removed erroneous underlining from stacktrace frames and disabled frame filters in the error buffer.
 * The error buffer no longer pops up when there is no error to display.
 * `cider-find-resource` now correctly throws an error when no path is provided.
