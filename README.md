@@ -1022,6 +1022,20 @@ In the REPL buffer, issue the following.
 
 This will cause cider to print extensive information on the REPL buffer when you try to debug an expression (e.g., with `C-u C-M-x`). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new) and copy this information.
 
+### Warning saying you have to use nREPL 0.2.7+
+
+CIDER currently requires at least nREPL 0.2.7 to work properly (there were some
+nasty bugs in 0.2.6). Unfortunately the latest `leiningen` (2.5.1) pulls in exactly
+0.2.6, so you if you're a lein user you'll have to do a bit of manual work. Just
+add this to your `profiles.clj`:
+
+```clojure
+{:user {:dependencies [[org.clojure/tools.nrepl "0.2.10”]]}}
+```
+
+Generally you're advised to use the newest nREPL with CIDER, as bugs get fixed
+in pretty much every release.
+
 ## Documentation
 
 A single-page quick reference PDF for CIDER commands is available [here](doc/cider-refcard.pdf). This PDF can be created manually by running `pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
