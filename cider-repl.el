@@ -844,7 +844,7 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
   (cond ((cider-history-search-in-progress-p)
          cider-repl-history-pattern)
         (use-current-input
-         (assert (<= cider-repl-input-start-mark (point)))
+         (cl-assert (<= cider-repl-input-start-mark (point)))
          (let ((str (cider-repl--current-input t)))
            (cond ((string-match-p "^[ \n]*$" str) nil)
                  (t (concat "^" (regexp-quote str))))))
