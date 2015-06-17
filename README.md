@@ -779,7 +779,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
-<kbd>C-c C-d g</kbd>                 | Lookup symbol in Grimoire.
+<kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
 <kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
 <kbd>C-c C-d A</kbd>                 | Apropos search for documentation.
 
@@ -801,7 +801,7 @@ Keyboard shortcut                    | Description
 <kbd>TAB</kbd> | Complete symbol at point.
 <kbd>C-c C-d d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 <kbd>C-c C-d j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-d g</kbd> | Lookup symbol in Grimoire.
+<kbd>C-c C-d r</kbd> | Lookup symbol in Grimoire.
 <kbd>C-c C-d a</kbd> | Apropos search for functions/vars.
 <kbd>C-c C-d A</kbd> | Apropos search for documentation.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
