@@ -65,8 +65,14 @@ opposite of what that option dictates."
            #'cider-grimoire-web-lookup))
 
 (defun cider-create-grimoire-buffer (content)
-  "Create a new grimoire buffer with CONTENT."
-  (with-current-buffer (cider-popup-buffer "*cider grimoire*" t)
+  "Create a new grimoire buffer with CONTENT.
+
+If `markdown-mode' has been installed and loaded, use it as the major mode
+for the Grimoire buffer."
+  (with-current-buffer
+      (if (fboundp 'markdown-mode)
+          (cider-popup-buffer "*cider grimoire*" t 'markdown-mode)
+        (cider-popup-buffer "*cider grimoire*" t))
     (read-only-mode -1)
     (insert content)
     (read-only-mode +1)
