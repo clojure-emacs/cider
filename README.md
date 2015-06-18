@@ -874,9 +874,9 @@ Keyboard shortcut               | Description
 ### cider-debug
 <!-- Technically this is not a mode (yet), but let's not burden the user with that knowledge. -->
 
-cider-debug (invoked with <kbd>C-u C-M-x</kbd>) tries to be consistent with
-Edebug. So it makes available the following bindings while stepping through
-code.
+`cider-debug` (invoked with <kbd>C-u C-M-x</kbd>) tries to be consistent with
+[Edebug](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html). So
+it makes available the following bindings while stepping through code.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
@@ -887,6 +887,10 @@ Keyboard shortcut               | Description
 <kbd>e</kbd> | Eval code in current context
 <kbd>l</kbd> | List local variables
 <kbd>q</kbd> | Quit execution
+
+To uninstrument a form, after having instrumented it with <kbd>C-u C-M-x</kbd>
+you just have to evaluate the form again as you'd normally do (e.g. with
+<kbd>C-M-x</kbd>).
 
 ### Managing multiple sessions
 
