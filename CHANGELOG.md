@@ -5,6 +5,9 @@
 ### Bugs fixed
 
 * [#1139](https://github.com/clojure-emacs/cider/issues/1139): Fix evaluation of ns forms and of forms with unevaluated namespaces.
+* Replace `assert` with `cl-assert` (we don't use anything from `cl` now).
+* [#1135](https://github.com/clojure-emacs/cider/pull/1135): Fix a corner case with locals display in the debugger.
+* [#1129](https://github.com/clojure-emacs/cider/issues/1129): Fix occasional `(wrong-type-argument stringp nil)` on clojure-android.
 
 ## 0.9.0 / 2015-06-16
 
