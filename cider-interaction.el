@@ -1582,17 +1582,14 @@ evaluated (so that the ns containing FORM exists).
 Clears any compilation highlights and kills the error window."
   (cider--clear-compilation-highlights)
   (cider--quit-error-window)
-  ;; always eval ns forms in the user namespace
-  ;; otherwise trying to eval ns form for the first time will produce an error
-  (let ((ns (if (cider-ns-form-p form)
-                "user"
-              (cider-current-ns)))
-        (cur-ns-form (cider-ns-form)))
+  (let ((cur-ns-form (cider-ns-form)))
     (when (and cur-ns-form
                (not (string= cur-ns-form cider--cached-ns-form))
-               (not (string= ns "user")))
-      (cider-eval-ns-form))
-    (setq cider--cached-ns-form cur-ns-form)))
+               (not (cider-ns-form-p form)))
+      ;; this should probably be done synchronously
+      ;; otherwise an errors in the ns form will go unnoticed
+      (cider-eval-ns-form)
+      (setq cider--cached-ns-form cur-ns-form))))
 
 (defun cider-interactive-eval (form &optional callback)
   "Evaluate FORM and dispatch the response to CALLBACK.
@@ -1603,7 +1600,9 @@ If CALLBACK is nil use `cider-interactive-eval-handler'."
   (nrepl-request:eval
    form
    (or callback (cider-interactive-eval-handler))
-   (cider-current-ns)))
+   ;; always eval ns forms in the user namespace
+   ;; otherwise trying to eval ns form for the first time will produce an error
+   (if (cider-ns-form-p form) "user" (cider-current-ns))))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
   "Evaluate FORM and dispatch the response to CALLBACK.
@@ -1614,7 +1613,9 @@ the printed result, and defaults to `fill-column'."
   (nrepl-request:pprint-eval
    form
    (or callback (cider-interactive-eval-handler))
-   (cider-current-ns)
+   ;; always eval ns forms in the user namespace
+   ;; otherwise trying to eval ns form for the first time will produce an error
+   (if (cider-ns-form-p form) "user" (cider-current-ns))
    nil
    (or right-margin fill-column)))
 
