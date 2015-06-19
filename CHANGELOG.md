@@ -10,9 +10,9 @@
 
 ### New features
 
-* [#1109](https://github.com/clojure-emacs/cider/issues/1061) New defcustom `cider-auto-mode`.
+* [#1109](https://github.com/clojure-emacs/cider/issues/1109): New defcustom `cider-auto-mode`.
 On by default, when `nil` don't automatically enable `cider-mode` in all Clojure buffers.
-* [#1061](https://github.com/clojure-emacs/cider/issues/1061) New command `cider-find-ns`, bound to <kbd>C-c C-.</kbd>, which prompts for an ns and jumps to the corresponding source file.
+* [#1061](https://github.com/clojure-emacs/cider/issues/1061): New command `cider-find-ns`, bound to <kbd>C-c C-.</kbd>, which prompts for an ns and jumps to the corresponding source file.
 * [#1019](https://github.com/clojure-emacs/cider/pull/1019): New file, cider-debug.el.
   Provides a new command, `cider-debug-defun-at-point`, bound to <kbd>C-u C-M-x</kbd>.
   Interactively debug top-level clojure forms.
