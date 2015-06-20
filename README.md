@@ -1037,8 +1037,16 @@ add this to your `profiles.clj`:
 {:user {:dependencies [[org.clojure/tools.nrepl "0.2.10”]]}}
 ```
 
+Make sure you add the newer nREPL dependency to the `:dependencies` key instead
+of `:plugins` (where `cider-nrepl` Lein plugin resides). That's a pretty common
+mistake.
+
 Generally you're advised to use the newest nREPL with CIDER, as bugs get fixed
 in pretty much every release.
+
+Note, that running `cider-jack-in` from outside the scope of a project will
+result in the **older (0.2.6) nREPL dependency being used** (at least on Leiningen
+2.5.1). This is likely a Leiningen bug.
 
 ## Documentation
 
