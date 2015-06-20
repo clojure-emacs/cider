@@ -488,7 +488,7 @@ Clojure buffer and the REPL buffer."
   (if (and (derived-mode-p 'cider-repl-mode)
            (buffer-live-p cider-last-clojure-buffer))
       (if cider-repl-display-in-current-window
-          (switch-to-buffer cider-last-clojure-buffer nil t)
+          (pop-to-buffer-same-window cider-last-clojure-buffer)
         (pop-to-buffer cider-last-clojure-buffer))
     (message "Don't know the original Clojure buffer")))
 
