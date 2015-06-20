@@ -759,8 +759,9 @@ process."
             nrepl-completed-requests (make-hash-table :test 'equal)))
 
     (nrepl-make-connection-default client-buf)
-    (nrepl--init-client-sessions client-proc)
-    (nrepl--init-capabilities client-buf)
+    (with-current-buffer client-buf
+      (nrepl--init-client-sessions client-proc)
+      (nrepl--init-capabilities client-buf))
 
     (with-current-buffer client-buf
       (run-hooks 'nrepl-connected-hook))
