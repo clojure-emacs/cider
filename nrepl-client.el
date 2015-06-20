@@ -987,17 +987,23 @@ Register CALLBACK as the response handler."
                             "interrupt-id" pending-request-id)
                       callback))
 
-(defun nrepl--eval-request (input &optional ns session)
-  "Prepare :eval request message for INPUT in the context of NS and SESSION."
+(defun nrepl--eval-request (input &optional ns session point)
+  "Prepare :eval request message for INPUT in the context of NS and SESSION.
+If POINT is non-nil and current buffer is a file buffer, \"point\" and
+\"file\" are added to the message."
   (append (and ns (list "ns" ns))
           (list "op" "eval"
                 "session" (or session (nrepl-current-session))
-                "code" input)))
+                "code" input)
+          (when (and point (buffer-file-name))
+            (list "file" (buffer-file-name)
+                  "point" point))))
 
-(defun nrepl-request:eval (input callback &optional ns session)
+(defun nrepl-request:eval (input callback &optional ns session point)
   "Send the request INPUT and register the CALLBACK as the response handler.
-If NS is non-nil, include it in the request. SESSION defaults to current session."
-  (nrepl-send-request (nrepl--eval-request input ns session) callback))
+If NS is non-nil, include it in the request. SESSION defaults to current
+session. POINT, if non-nil, is the position of INPUT in its buffer."
+  (nrepl-send-request (nrepl--eval-request input ns session point) callback))
 
 (defun nrepl--pprint-eval-request (input &optional ns session right-margin)
   "Prepare :pprint-eval request message for INPUT.

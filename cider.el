@@ -333,6 +333,7 @@ buffer."
   (cider--check-required-nrepl-version)
   (cider--check-required-nrepl-ops)
   (cider--check-middleware-compatibility)
+  (cider--debug-init-connection)
   (when cider-auto-mode
     (cider-enable-on-existing-clojure-buffers))
   (run-hooks 'cider-connected-hook))
