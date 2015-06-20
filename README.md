@@ -202,6 +202,8 @@ all of their projects using a `~/.boot/profile.boot` file like so:
        conj 'cider.nrepl/cider-middleware)
 ```
 
+For more information visit [boot-clj wiki](https://github.com/boot-clj/boot/wiki/Cider-REPL).
+
 ### Using embedded nREPL server
 
 If you're embedding nREPL in your application you'll have to start the
