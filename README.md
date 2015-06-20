@@ -1034,7 +1034,7 @@ nasty bugs in 0.2.6). Unfortunately the latest `leiningen` (2.5.1) pulls in exac
 add this to your `profiles.clj`:
 
 ```clojure
-{:user {:dependencies [[org.clojure/tools.nrepl "0.2.10”]]}}
+{:user {:dependencies [[org.clojure/tools.nrepl "0.2.10"]]}}
 ```
 
 Make sure you add the newer nREPL dependency to the `:dependencies` key instead
