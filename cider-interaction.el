@@ -1471,11 +1471,13 @@ KILL-BUFFER-P is passed along."
   (interactive)
   (funcall cider-popup-buffer-quit-function kill-buffer-p))
 
-(defun cider-popup-buffer (name &optional select mode)
+(defun cider-popup-buffer (name &optional select mode ancillary)
   "Create new popup buffer called NAME.
 If SELECT is non-nil, select the newly created window.
-If major MODE is non-nil, enable it for the popup buffer."
-  (-> (cider-make-popup-buffer name mode)
+If major MODE is non-nil, enable it for the popup buffer.
+If ANCILLARY is non-nil, the buffer is added to `cider-ancillary-buffers'
+and automatically removed when killed."
+  (-> (cider-make-popup-buffer name mode ancillary)
       (cider-popup-buffer-display select)))
 
 (defun cider-popup-buffer-display (buffer &optional select)
@@ -1506,8 +1508,17 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
 
 (defvar-local cider-popup-output-marker nil)
 
-(defun cider-make-popup-buffer (name &optional mode)
-  "Create a temporary buffer called NAME using major MODE (if specified)."
+(defvar cider-ancillary-buffers
+  (list cider-error-buffer
+        cider-doc-buffer
+        cider-test-report-buffer
+        cider-nrepl-session-buffer
+        nrepl-message-buffer-name))
+
+(defun cider-make-popup-buffer (name &optional mode ancillary)
+  "Create a temporary buffer called NAME using major MODE (if specified).
+If ANCILLARY is non-nil, the buffer is added to `cider-ancillary-buffers'
+and automatically removed when killed."
   (with-current-buffer (get-buffer-create name)
     (kill-all-local-variables)
     (setq buffer-read-only nil)
@@ -1517,6 +1528,10 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
     (cider-popup-buffer-mode 1)
     (setq cider-popup-output-marker (point-marker))
     (setq buffer-read-only t)
+    (when ancillary
+      (add-to-list 'cider-ancillary-buffers name)
+      (add-hook 'kill-buffer-hook
+                (lambda () (setq cider-ancillary-buffers (remove name cider-ancillary-buffers)))))
     (current-buffer)))
 
 (defun cider-emit-into-popup-buffer (buffer value)
@@ -2089,13 +2104,6 @@ the string contents of the region into a formatted string."
     (delete-process (get-buffer-process buffer)))
   (when (get-buffer buffer)
     (kill-buffer buffer)))
-
-(defvar cider-ancillary-buffers
-  (list cider-error-buffer
-        cider-doc-buffer
-        cider-test-report-buffer
-        cider-nrepl-session-buffer
-        nrepl-message-buffer-name))
 
 (defun cider-close-ancillary-buffers ()
   "Close buffers that are shared across connections."

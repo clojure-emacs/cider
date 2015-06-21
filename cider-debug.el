@@ -27,6 +27,7 @@
 
 (require 'nrepl-client)
 (require 'cider-interaction)
+(require 'dash)
 
 (defface cider-result-overlay-face
   '((((class color) (background light)) :foreground "firebrick")
@@ -223,6 +224,30 @@ specific message."
 
 
 ;;; Movement logic
+(defconst cider--debug-buffer-format "*cider-debug %s*")
+
+(defun cider--debug-trim-code (code)
+  (replace-regexp-in-string "\\`#\\(dbg\\|break\\) ?" "" code))
+
+(defun cider--initialize-debug-buffer (code ns id)
+  "Create a new debugging buffer with CODE and namespace NS.
+ID is the id of the message that instrumented CODE."
+  (let ((buffer-name (format cider--debug-buffer-format id)))
+    (-if-let (buffer (get-buffer buffer-name))
+        (cider-popup-buffer-display buffer 'select)
+      (with-current-buffer (cider-popup-buffer buffer-name 'select
+                                               #'clojure-mode 'ancillary)
+        (setq cider-buffer-ns ns)
+        (setq buffer-undo-list nil)
+        (let ((inhibit-read-only t)
+              (buffer-undo-list t))
+          (erase-buffer)
+          (insert
+           (format "%s" (cider--debug-trim-code code)))
+          (font-lock-fontify-buffer)
+          (set-buffer-modified-p nil))))
+    (switch-to-buffer buffer-name)))
+
 (defun cider--forward-sexp (n)
   "Move forward N logical sexps.
 This will skip over sexps that don't represent objects, such as ^hints and
@@ -237,16 +262,11 @@ This will skip over sexps that don't represent objects, such as ^hints and
     (forward-sexp 1)
     (setq n (1- n))))
 
-(defun cider--debug-move-point (file pos coordinates)
+(defun cider--debug-move-point (coordinates)
   "Place point on POS in FILE, then navigate into the next sexp.
 COORDINATES is a list of integers that specify how to navigate into the
 sexp."
-  ;; Navigate to the instrumented sexp, wherever we might be.
-  (find-file file)
-  ;; Position of the sexp.
-  (goto-char pos)
   (condition-case nil
-      ;; Make sure it is a list.
       ;; Navigate through sexps inside the sexp.
       (progn
         (while coordinates
@@ -262,21 +282,31 @@ sexp."
 RESPONSE is a message received from the nrepl describing the input
 needed. It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
-  (nrepl-dbind-response response (debug-value key coor file point input-type prompt)
+  (nrepl-dbind-response response (debug-value key coor code file point ns original-id input-type prompt)
     (condition-case nil
         (pcase input-type
           ("expression" (cider-debug-mode-send-reply (cider-read-from-minibuffer
                                                       (or prompt "Expression: "))
                                                      key))
           ((pred sequencep)
-           (when (and file point)
-             (cider--debug-move-point file point coor))
+           (when (or code (and file point))
+             ;; We prefer in-source debugging.
+             (when (and file point)
+               (find-file file)
+               (goto-char point))
+             ;; But we can create a temp buffer if that fails.
+             (unless (or (looking-at-p (regexp-quote code))
+                         (looking-at-p (regexp-quote (cider--debug-trim-code code))))
+               (cider--initialize-debug-buffer code ns original-id))
+             (when coor
+               (cider--debug-move-point coor)))
            (when cider-debug-use-overlays
              (cider--debug-display-result-overlay debug-value))
            (setq cider--debug-mode-response response)
            (cider--debug-mode 1)))
       ;; If something goes wrong, we send a "quit" or the session hangs.
-      (error (cider-debug-mode-send-reply ":quit" key)))))
+      (error (cider-debug-mode-send-reply ":quit" key)
+        (cider-popup-buffer-quit-function (not (buffer-modified-p)))))))
 
 
 ;;; User commands
