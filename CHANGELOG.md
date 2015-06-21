@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+* [#1155](https://github.com/clojure-emacs/cider/pull/1155): The debugger displays overlays highlighting the current sexp and its return value.
+
 ### Bugs fixed
 
 * [#1153](https://github.com/clojure-emacs/cider/pull/1153): Fix behavior of `cider-switch-to-current-repl-buffer`.
