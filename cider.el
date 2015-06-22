@@ -212,7 +212,8 @@ Create REPL buffer and start an nREPL client connection."
   "Interactively select the host and port to connect to."
   (let* ((ssh-hosts (cider--ssh-hosts))
          (hosts (-distinct (append (when cider-host-history
-                                     (list (list (car cider-host-history))))
+                                     ;; history elements are strings of the form "host:port"
+                                     (list (split-string (car cider-host-history) ":")))
                                    (list (list (nrepl-current-host)))
                                    cider-known-endpoints
                                    ssh-hosts
@@ -221,24 +222,8 @@ Create REPL buffer and start an nREPL client connection."
                                      (list (list "localhost"))))))
          (sel-host (cider--completing-read-host hosts))
          (host (car sel-host))
-         (local-p (or  (nrepl-local-host-p host)
-                       (not (assoc-string host ssh-hosts))))
-         ;; Each lein-port is a list of the form (dir port)
-         (lein-ports (if local-p
-                         ;; might connect to localhost from a remote file
-                         (let* ((change-dir-p (file-remote-p default-directory))
-                                (default-directory (if change-dir-p "~/" default-directory)))
-                           (cider-locate-running-nrepl-ports (unless change-dir-p default-directory)))
-                       (let ((vec (vector "sshx" nil host "" nil))
-                             ;; might connect to a different remote
-                             (dir (when (file-remote-p default-directory)
-                                    (with-parsed-tramp-file-name default-directory cur
-                                      (when (string= cur-host host) default-directory)))))
-                         (tramp-maybe-open-connection vec)
-                         (with-current-buffer (tramp-get-connection-buffer vec)
-                           (cider-locate-running-nrepl-ports dir)))))
-         (ports (append (cdr sel-host) lein-ports))
-         (port (cider--completing-read-port host ports)))
+         (port (or (cadr sel-host)
+                   (cider--completing-read-port host (cider--infer-ports host ssh-hosts)))))
     (list host port)))
 
 (defun cider--ssh-hosts ()
@@ -257,6 +242,26 @@ Return a list of the form (HOST PORT), where PORT can be nil."
          (host (or (cdr (assoc sel-host hosts)) (list sel-host))))
     ;; remove the label
     (if (= 3 (length host)) (cdr host) host)))
+
+(defun cider--infer-ports (host ssh-hosts)
+  "Infer nREPL ports on HOST.
+Return a list of elements of the form (directory port). SSH-HOSTS is a list
+of remote SSH hosts."
+  (let ((localp (or (nrepl-local-host-p host)
+                    (not (assoc-string host ssh-hosts)))))
+    (if localp
+        ;; change dir: current file might be remote
+        (let* ((change-dir-p (file-remote-p default-directory))
+               (default-directory (if change-dir-p "~/" default-directory)))
+          (cider-locate-running-nrepl-ports (unless change-dir-p default-directory)))
+      (let ((vec (vector "sshx" nil host "" nil))
+            ;; change dir: user might want to connect to a different remote
+            (dir (when (file-remote-p default-directory)
+                   (with-parsed-tramp-file-name default-directory cur
+                     (when (string= cur-host host) default-directory)))))
+        (tramp-maybe-open-connection vec)
+        (with-current-buffer (tramp-get-connection-buffer vec)
+          (cider-locate-running-nrepl-ports dir))))))
 
 (defun cider--completing-read-port (host ports)
   "Interactively select port for HOST from PORTS."
