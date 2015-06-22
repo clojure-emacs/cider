@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+* [#1155](https://github.com/clojure-emacs/cider/pull/1155): The debugger displays overlays highlighting the current sexp and its return value.
+
 ### Bugs fixed
 
 * [#1142](https://github.com/clojure-emacs/cider/issues/1142): Don't retrive nrepl ports when `cider-known-endpoints` entry already contains the port.

@@ -28,6 +28,31 @@
 (require 'nrepl-client)
 (require 'cider-interaction)
 
+(defface cider-result-overlay-face
+  '((((class color) (background light)) :foreground "firebrick")
+    (((class color) (background dark))  :foreground "orange red"))
+  "Face used to display result of debug step at point."
+  :group 'cider
+  :package-version "0.9.1")
+
+(defface cider-debug-code-overlay-face
+  '((((class color) (background light)) :background "grey80")
+    (((class color) (background dark))  :background "grey20"))
+  "Face used to mark code being debugged."
+  :group 'cider
+  :package-version "0.9.1")
+
+(defcustom cider-debug-use-overlays 'end-of-line
+  "Whether to higlight debugging information with overlays.
+Only applies to \"*cider-debug ...*\" buffers, which are used in debugging
+sessions.
+Possible values are inline, end-of-line, or nil."
+  :type '(choice (const :tag "End of line" end-of-line)
+                 (const :tag "Inline" inline)
+                 (const :tag "No overlays" nil))
+  :group 'cider
+  :package-version "0.9.1")
+
 (defconst cider--instrument-format
   (concat "(cider.nrepl.middleware.debug/instrument-and-eval"
           ;; filename and point are passed in a map. Eventually, this should be
@@ -49,6 +74,59 @@
                   nrepl-completed-requests)
          (remhash id nrepl-pending-requests))))))
 
+
+;;; Overlay logic
+(defun cider--delete-overlay (ov &rest _)
+  "Safely delete overlay OV.
+Never throws errors, and can be used in an overlay's modification-hooks."
+  (ignore-errors (delete-overlay ov)))
+
+(defun cider--make-overlay (l r type &rest props)
+  "Place an overlay between L and R and return it.
+TYPE is a symbol put on the overlay's cider-type property. It is used to
+easily remove all overlays from a region with:
+    (remove-overlays start end 'cider-type TYPE)
+PROPS is a plist of properties and values to add to the overlay."
+  (let ((o (make-overlay l r (current-buffer))))
+    (overlay-put o 'cider-type type)
+    (overlay-put o 'modification-hooks (list #'cider--delete-overlay))
+    (while props (overlay-put o (pop props) (pop props)))
+    o))
+
+(defun cider--make-result-overlay (value type &optional where)
+  "Place an overlay displaying VALUE at the end of the line.
+TYPE is passed to `cider--make-overlay'.
+The overlay is placed from beginning to end of current line.
+If WHERE is the symbol inline, instead, the overlay ends at point and VALUE
+is displayed at point."
+  (cider--make-overlay
+   (line-beginning-position)
+   (if (eq where 'inline) (point) (line-end-position))
+   'debug-result
+   'after-string
+   (propertize (concat (propertize " " 'cursor 1000)
+                       cider-interactive-eval-result-prefix
+                       (format "%s" value))
+               'face 'cider-result-overlay-face)))
+
+(defun cider--debug-display-result-overlay (value)
+  "Place an overlay at point displaying VALUE."
+  (when cider-debug-use-overlays
+    ;; This is cosmetic, let's ensure it doesn't break the session no matter what.
+    (ignore-errors
+      (remove-overlays nil nil 'cider-type 'debug-result)
+      (remove-overlays nil nil 'cider-type 'debug-code)
+      ;; Result
+      (cider--make-result-overlay value 'debug-result cider-debug-use-overlays)
+      ;; Code
+      (cider--make-overlay (save-excursion (forward-sexp -1) (point))
+                           (point) 'debug-code
+                           'face 'cider-debug-code-overlay-face
+                           ;; Higher priority than `show-paren'.
+                           'priority 2000))))
+
+
+;;; Movement logic
 (defun cider--forward-sexp (n)
   "Move forward N logical sexps.
 This will skip over sexps that don't represent objects, such as ^{}."
@@ -84,7 +162,7 @@ sexp."
 
 (defun cider--handle-debug (response)
   "Handle debugging notification.
-RESPONSE is a message received form the nrepl describing the input
+RESPONSE is a message received from the nrepl describing the input
 needed. It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
   (nrepl-dbind-response response (debug-value key coor filename point input-type prompt locals)
@@ -97,6 +175,7 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
                   ((pred sequencep)
                    (when (and filename point)
                      (cider--debug-move-point filename point coor))
+                   (cider--debug-display-result-overlay debug-value)
                    (cider--debug-read-command input-type debug-value prompt locals))))
         ;; No matter what, we want to send this request or the session will stay
         ;; hanged.
