@@ -80,6 +80,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
   - [Managing multiple sessions](#managing-multiple-sessions)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
+  - [Var Metadata](#var-metadata)
   - [ClojureScript limitations](#clojurescript-limitations)
   - [Microsoft Windows](#microsoft-windows)
   - [powershell.el](#powershell-el)
@@ -940,6 +941,17 @@ change `*cider-repl localhost*` to `*cider-repl foo*`.
 * [Clojure](http://clojure.org) 1.5.0+
 
 ## Caveats
+
+### Var Metadata
+
+Currently var metadata about the location of the var's definition within the
+source code (file, line & column) is set only when evaluating the entire source
+buffer (<kbd>C-c C-k</kbd>). All other interactive code evaluation commands
+(e.g. <kbd>C-c C-e</kbd>) don't set this metadata and you won't be able to use
+commands like `find-var` on such vars.  That's a
+[limitation of nREPL](http://dev.clojure.org/jira/browse/NREPL-59), that's
+beyond CIDER. If you want to see interactive evaluation working properly in
+CIDER you'll have to push for the aforementioned nREPL issue to be resolved.
 
 ### ClojureScript limitations
 
