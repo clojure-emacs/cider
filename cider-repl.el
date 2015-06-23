@@ -336,7 +336,7 @@ If BACKWARD is non-nil search backward."
 (defun cider-repl-end-of-defun ()
   "Move to end of defun."
   (interactive)
-  ;; C.f. `cider-repl-beginning-of-defun.'
+  ;; C.f. `cider-repl-beginning-of-defun'
   (if (and (not (= (point) (point-max)))
            (cider-repl--in-input-area-p))
       (goto-char (point-max))
