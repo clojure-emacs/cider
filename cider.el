@@ -245,7 +245,7 @@ Return a list of the form (HOST PORT), where PORT can be nil."
 
 (defun cider--infer-ports (host ssh-hosts)
   "Infer nREPL ports on HOST.
-Return a list of elements of the form (directory port). SSH-HOSTS is a list
+Return a list of elements of the form (directory port).  SSH-HOSTS is a list
 of remote SSH hosts."
   (let ((localp (or (nrepl-local-host-p host)
                     (not (assoc-string host ssh-hosts)))))
