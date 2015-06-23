@@ -177,10 +177,10 @@ backend, and ABBREVIATION is a short form of that type."
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-completion-annotations-include-ns 'unqualified
-  "Controls passing of namespaces to `cider-annotate-completion-function.'
+  "Controls passing of namespaces to `cider-annotate-completion-function'.
 
 When set to 'always, the candidate's namespace will always be passed if it
-is available. When set to 'unqualified, the namespace will only be passed
+is available.  When set to 'unqualified, the namespace will only be passed
 if the candidate is not namespace-qualified."
   :type '(choice (const always)
                  (const unqualified)
