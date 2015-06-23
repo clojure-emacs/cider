@@ -257,7 +257,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     ("pass"  'cider-test-success-face)
     ("fail"  'cider-test-failure-face)
     ("error" 'cider-test-error-face)
-    (t       'default)))
+    (_       'default)))
 
 (defun cider-test-render-summary (buffer summary)
   "Emit into BUFFER the report SUMMARY statistics."
