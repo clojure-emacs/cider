@@ -1571,8 +1571,22 @@ otherwise fall back to \"user\"."
     #'identity)
   "Function to translate Emacs filenames to nREPL namestrings.")
 
-(defvar-local cider--cached-ns-form nil
-  "Cached ns form in the current buffer.")
+(defvar-local cider--ns-form-cache (make-hash-table :test 'equal)
+  "ns form cache for the current buffer.
+
+The cache is a hash where the keys are connection names and the values
+are ns forms. This allows every connection to keep track of the ns
+form independently.")
+
+(defun cider--cache-ns-form ()
+  "Cache the form in the current buffer for the current connection."
+  (puthash (nrepl-current-connection-buffer)
+           (cider-ns-form)
+           cider--ns-form-cache))
+
+(defun cider--cached-ns-form ()
+  "Retrieve the cached ns form for the current buffer & connection."
+  (gethash (nrepl-current-connection-buffer) cider--ns-form-cache))
 
 (defun cider--prep-interactive-eval (form)
   "Prepares the environment for an interactive eval of FORM.
@@ -1586,12 +1600,12 @@ Clears any compilation highlights and kills the error window."
   (cider--quit-error-window)
   (let ((cur-ns-form (cider-ns-form)))
     (when (and cur-ns-form
-               (not (string= cur-ns-form cider--cached-ns-form))
+               (not (string= cur-ns-form (cider--cached-ns-form)))
                (not (cider-ns-form-p form)))
       ;; this should probably be done synchronously
       ;; otherwise an errors in the ns form will go unnoticed
       (cider-eval-ns-form)
-      (setq cider--cached-ns-form cur-ns-form))))
+      (cider--cache-ns-form))))
 
 (defun cider-interactive-eval (form &optional callback)
   "Evaluate FORM and dispatch the response to CALLBACK.
@@ -1937,7 +1951,7 @@ unconditionally."
                                      (buffer-file-name))))))
   (cider--clear-compilation-highlights)
   (cider--quit-error-window)
-  (setq cider--cached-ns-form (cider-ns-form))
+  (cider--cache-ns-form)
   (cider-request:load-file
    (cider-file-string filename)
    (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
@@ -2102,7 +2116,7 @@ Quitting closes all active nREPL connections and kills all CIDER buffers."
     ;; which connection we simply clean the cache for all buffers
     (dolist (clojure-buffer (cider-util--clojure-buffers))
       (with-current-buffer clojure-buffer
-        (setq cider--cached-ns-form nil)))))
+        (setq cider--ns-form-cache (make-hash-table :test 'equal))))))
 
 (defun cider-restart (&optional prompt-project)
   "Quit CIDER and restart it.
