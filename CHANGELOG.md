@@ -15,6 +15,7 @@
 * [#1135](https://github.com/clojure-emacs/cider/pull/1135): Fix a corner case with locals display in the debugger.
 * [#1129](https://github.com/clojure-emacs/cider/issues/1129): Fix occasional `(wrong-type-argument stringp nil)` on clojure-android.
 * [#1122](https://github.com/clojure-emacs/cider/issues/1122): Run client initialization in new client buffer.
+* [#1143](https://github.com/clojure-emacs/cider/issues/1143): Handle tests without location metadata.
 
 ## 0.9.0 / 2015-06-16
 
