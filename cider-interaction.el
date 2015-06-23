@@ -1142,7 +1142,7 @@ This is controlled via `cider-interactive-eval-output-destination'."
                       (cider-emit-into-popup-buffer output-buffer output)
                       (pop-to-buffer output-buffer)))
     (`repl-buffer (funcall repl-emit-function output))
-    (t (error "Unsupported value %s for `cider-interactive-eval-output-destination'"
+    (_ (error "Unsupported value %s for `cider-interactive-eval-output-destination'"
               cider-interactive-eval-output-destination))))
 
 (defun cider-emit-interactive-eval-output (output)
@@ -1845,7 +1845,7 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
     (pcase var-status
       ("not-found" (error "Var %s not found" sym))
       ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" var-name))
-      (t (message "Var %s %s" var-name var-status)))))
+      (_ (message "Var %s %s" var-name var-status)))))
 
 (defun cider-toggle-trace-var (arg)
   "Toggle var tracing.
@@ -1878,7 +1878,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
            (ns-status (nrepl-dict-get trace-response "ns-status")))
       (pcase ns-status
         ("not-found" (error "ns %s not found" ns))
-        (t (message "ns %s %s" ns ns-status))))))
+        (_ (message "ns %s %s" ns ns-status))))))
 
 (defun cider-create-doc-buffer (symbol)
   "Populates *cider-doc* with the documentation for SYMBOL."
