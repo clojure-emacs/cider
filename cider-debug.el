@@ -37,7 +37,7 @@
 
 (defface cider-debug-code-overlay-face
   '((((class color) (background light)) :background "grey80")
-    (((class color) (background dark))  :background "grey20"))
+    (((class color) (background dark))  :background "grey30"))
   "Face used to mark code being debugged."
   :group 'cider
   :package-version "0.9.1")
@@ -93,13 +93,14 @@ PROPS is a plist of properties and values to add to the overlay."
     (while props (overlay-put o (pop props) (pop props)))
     o))
 
-(defun cider--make-result-overlay (value type &optional where)
+(defun cider--make-result-overlay (value type &optional where &rest props)
   "Place an overlay displaying VALUE at the end of the line.
-TYPE is passed to `cider--make-overlay'.
+TYPE and PROPS are passed to `cider--make-overlay'.
 The overlay is placed from beginning to end of current line.
 If WHERE is the symbol inline, instead, the overlay ends at point and VALUE
 is displayed at point."
-  (cider--make-overlay
+  (apply
+   #'cider--make-overlay
    (line-beginning-position)
    (if (eq where 'inline) (point) (line-end-position))
    'debug-result
@@ -107,7 +108,12 @@ is displayed at point."
    (propertize (concat (propertize " " 'cursor 1000)
                        cider-interactive-eval-result-prefix
                        (format "%s" value))
-               'face 'cider-result-overlay-face)))
+               'face 'cider-result-overlay-face)
+   props))
+
+(defconst cider--fringe-arrow-string
+  #("." 0 1 (display (left-fringe right-triangle)))
+  "Used as an overlay's before-string prop to place a fringe arrow.")
 
 (defun cider--debug-display-result-overlay (value)
   "Place an overlay at point displaying VALUE."
@@ -117,7 +123,8 @@ is displayed at point."
       (remove-overlays nil nil 'cider-type 'debug-result)
       (remove-overlays nil nil 'cider-type 'debug-code)
       ;; Result
-      (cider--make-result-overlay value 'debug-result cider-debug-use-overlays)
+      (cider--make-result-overlay value 'debug-result cider-debug-use-overlays
+                                  'before-string cider--fringe-arrow-string)
       ;; Code
       (cider--make-overlay (save-excursion (forward-sexp -1) (point))
                            (point) 'debug-code
