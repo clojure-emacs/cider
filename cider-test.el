@@ -246,7 +246,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (mapc (lambda (b) (when (get-buffer b) (kill-buffer b)))
         cider-test-ediff-buffers))
 
-(add-hook 'ediff-cleanup-hook 'cider-test-ediff-cleanup)
+(add-hook 'ediff-cleanup-hook #'cider-test-ediff-cleanup)
 
 
 ;;; Report rendering
