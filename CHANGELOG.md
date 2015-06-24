@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.9.1 / 2015-06-24
+
 ### New features
 
 * [#1155](https://github.com/clojure-emacs/cider/pull/1155): The debugger displays overlays highlighting the current sexp and its return value.
