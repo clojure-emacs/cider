@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+* [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
+
 ## 0.9.1 / 2015-06-24
 
 ### New features
