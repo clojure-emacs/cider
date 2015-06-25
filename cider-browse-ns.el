@@ -130,7 +130,7 @@
 
 (defun cider-browse-ns--find-at-point ()
   (interactive)
-  (when-let (var (cider-browse-ns--var-at-point))
+  (-when-let (var (cider-browse-ns--var-at-point))
     (cider-find-var current-prefix-arg var)))
 
 (defun cider-browse-ns--handle-mouse (event)
