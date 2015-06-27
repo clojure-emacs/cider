@@ -279,6 +279,12 @@ This will skip over sexps that don't represent objects, such as ^hints and
     (forward-sexp 1)
     (setq n (1- n))))
 
+(defun cider--debug-goto-keyval (key)
+  "Find KEY in current sexp or return nil."
+  (-when-let (limit (ignore-errors (save-excursion (up-list) (point))))
+    (search-forward-regexp (concat "\\_<" (regexp-quote key) "\\_>")
+                           limit 'noerror)))
+
 (defun cider--debug-move-point (coordinates)
   "Place point on POS in FILE, then navigate into the next sexp.
 COORDINATES is a list of integers that specify how to navigate into the
@@ -292,7 +298,11 @@ sexp."
           (when (looking-back "#(")
             (pop coordinates))
           (if coordinates
-              (cider--forward-sexp (pop coordinates))
+              (let ((next (pop coordinates)))
+                ;; String coordinates are map keys.
+                (if (stringp next)
+                    (cider--debug-goto-keyval next)
+                  (cider--forward-sexp next)))
             ;; If that extra pop was the last coordinate, this represents the
             ;; entire #(...), so we should move back out.
             (backward-up-list)))
