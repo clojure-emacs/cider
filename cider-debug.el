@@ -271,7 +271,14 @@ sexp."
       (progn
         (while coordinates
           (down-list)
-          (cider--forward-sexp (pop coordinates)))
+          ;; #(...) is read as (fn* ([] ...)), so we patch that here.
+          (when (looking-back "#(")
+            (pop coordinates))
+          (if coordinates
+              (cider--forward-sexp (pop coordinates))
+            ;; If that extra pop was the last coordinate, this represents the
+            ;; entire #(...), so we should move back out.
+            (backward-up-list)))
         ;; Place point at the end of instrumented sexp.
         (cider--forward-sexp 1))
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
@@ -298,8 +305,7 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
              (unless (or (looking-at-p (regexp-quote code))
                          (looking-at-p (regexp-quote (cider--debug-trim-code code))))
                (cider--initialize-debug-buffer code ns original-id))
-             (when coor
-               (cider--debug-move-point coor)))
+             (cider--debug-move-point coor))
            (when cider-debug-use-overlays
              (cider--debug-display-result-overlay debug-value))
            (setq cider--debug-mode-response response)
