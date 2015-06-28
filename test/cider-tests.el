@@ -36,6 +36,18 @@
 
 ;;;; generic
 
+(ert-deftest test-debug-prompt ()
+  (should (equal-including-properties
+           (cider--debug-prompt '("a" "b" "c"))
+           #("a b c" 0 1 (face cider-debug-prompt-face) 2 3
+             (face cider-debug-prompt-face) 4 5 (face cider-debug-prompt-face))))
+  (should (equal-including-properties
+           (cider--debug-prompt '("a" "bc"))
+           #("a bc" 0 1 (face cider-debug-prompt-face) 2 3 (face cider-debug-prompt-face))))
+  (should (equal-including-properties
+           (cider--debug-prompt '("abc"))
+           #("abc" 0 1 (face cider-debug-prompt-face)))))
+
 (ert-deftest test-cider-connection-buffer-name ()
   (setq-local nrepl-endpoint '("localhost" 1))
   (let ((nrepl-hide-special-buffers nil))
