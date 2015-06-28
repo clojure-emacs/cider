@@ -178,6 +178,18 @@ Each element of LOCALS should be a list of at least two elements."
   (setq cider--debug-display-locals (not cider--debug-display-locals))
   (cider--debug-mode-redisplay))
 
+(defun cider--debug-lexical-eval (key form &optional callback _point)
+  "Eval FORM in the lexical context of debug session given by KEY.
+Do nothing if CALLBACK is provided.
+Designed to be used as `cider-interactive-eval-override' and called instead
+of `cider-interactive-eval' in debug sessions."
+  ;; The debugger uses its own callback, so if the caller is passing a callback
+  ;; we return nil and let `cider-interactive-eval' do its thing.
+  (unless callback
+    (cider-debug-mode-send-reply (format "{:response :eval, :code %s}" form)
+                                 key)
+    t))
+
 (defvar cider--debug-mode-map)
 
 (define-minor-mode cider--debug-mode
@@ -190,6 +202,10 @@ In order to work properly, this mode must be activated by
           (nrepl-dbind-response cider--debug-mode-response (input-type)
             (unless (consp input-type)
               (error "debug-mode activated on a message not asking for commands: %s" cider--debug-mode-response))
+            ;; Integrate with eval commands.
+            (setq cider-interactive-eval-override
+                  (apply-partially #'cider--debug-lexical-eval
+                                   (nrepl-dict-get cider--debug-mode-response "key")))
             ;; Set the keymap.
             (let ((alist `((?\C-g  . ":quit")
                            ,@(mapcar (lambda (k) (cons (string-to-char k) (concat ":" k)))
@@ -206,6 +222,7 @@ In order to work properly, this mode must be activated by
     (setq buffer-read-only nil)
     (remove-overlays nil nil 'cider-type 'debug-result)
     (remove-overlays nil nil 'cider-type 'debug-code)
+    (setq cider-interactive-eval-override nil)
     (setq cider--debug-mode-commands-alist nil)
     (setq cider--debug-mode-response nil)))
 
