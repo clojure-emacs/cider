@@ -178,6 +178,14 @@
                     (nrepl-connection-buffers)))
      (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
 
+(ert-deftest test-cider--var-namespace ()
+  (should (string= (cider--var-namespace "#'a/var-two") "a"))
+  (should (string= (cider--var-namespace "#'a-two/var") "a-two"))
+  (should (string= (cider--var-namespace "#'a.two-three.b/var-c") "a.two-three.b"))
+  (should (string= (cider--var-namespace "a/var-two") "a"))
+  (should (string= (cider--var-namespace "a-two/var") "a-two"))
+  (should (string= (cider--var-namespace "a.two-three.b/var-c") "a.two-three.b")))
+
 
 ;;; response handling
 (ert-deftest test-cider-dbind-response ()
