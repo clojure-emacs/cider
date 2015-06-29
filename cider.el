@@ -10,7 +10,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 0.9.1
+;; Version: 0.10.0-cvs
 ;; Package-Requires: ((clojure-mode "4.0.0") (dash "2.4.1") (pkg-info "0.4") (emacs "24.3") (queue "0.1.1"))
 ;; Keywords: languages, clojure, cider
 
@@ -70,7 +70,7 @@
 (require 'cider-debug)
 (require 'tramp-sh)
 
-(defvar cider-version "0.9.1"
+(defvar cider-version "0.10.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
