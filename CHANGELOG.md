@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
+* [#1149](https://github.com/clojure-emacs/cider/pull/1149): [Two new ways](https://github.com/clojure-emacs/cider#cider-debug) to debug code, the `#break` and `#dbg` reader macros.
 
 ## 0.9.1 / 2015-06-24
 

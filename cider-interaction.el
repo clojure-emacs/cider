@@ -1607,18 +1607,21 @@ Clears any compilation highlights and kills the error window."
       (cider-eval-ns-form)
       (cider--cache-ns-form))))
 
-(defun cider-interactive-eval (form &optional callback)
+(defun cider-interactive-eval (form &optional callback point)
   "Evaluate FORM and dispatch the response to CALLBACK.
 This function is the main entry point in CIDER's interactive evaluation
 API.  Most other interactive eval functions should rely on this function.
-If CALLBACK is nil use `cider-interactive-eval-handler'."
+If CALLBACK is nil use `cider-interactive-eval-handler'.
+POINT, if non-nil, is the position of FORM in its buffer."
   (cider--prep-interactive-eval form)
   (nrepl-request:eval
    form
    (or callback (cider-interactive-eval-handler))
    ;; always eval ns forms in the user namespace
    ;; otherwise trying to eval ns form for the first time will produce an error
-   (if (cider-ns-form-p form) "user" (cider-current-ns))))
+   (if (cider-ns-form-p form) "user" (cider-current-ns))
+   nil
+   point))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
   "Evaluate FORM and dispatch the response to CALLBACK.
@@ -1639,14 +1642,15 @@ the printed result, and defaults to `fill-column'."
   "Evaluate the region between START and END."
   (interactive "r")
   (let ((code (buffer-substring-no-properties start end)))
-    (cider-interactive-eval code)))
+    (cider-interactive-eval code nil start)))
 
 (defun cider-eval-last-sexp (&optional prefix)
   "Evaluate the expression preceding point.
 If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
   (cider-interactive-eval (cider-last-sexp)
-                          (when prefix (cider-eval-print-handler))))
+                          (when prefix (cider-eval-print-handler))
+                          (save-excursion (backward-sexp 1) (point))))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
@@ -1689,14 +1693,14 @@ Print its value into the current buffer."
 
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
-With DEBUG-IT prefix argument, debug the form instead by invoking
-the command `cider-debug-defun-at-point'."
+With DEBUG-IT prefix argument, also debug the entire form as with the
+command `cider-debug-defun-at-point'."
   (interactive "P")
-  (if debug-it
-      (progn (require 'cider-debug)
-             (cider-debug-defun-at-point))
-    (cider-interactive-eval
-     (cider-defun-at-point))))
+  (cider-interactive-eval
+   (concat (if debug-it "#dbg ")
+           (cider-defun-at-point))
+   nil
+   (cider-defun-at-point-start-pos)))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the top-level form at point and pprint its value in a popup buffer."

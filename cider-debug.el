@@ -53,13 +53,6 @@ Possible values are inline, end-of-line, or nil."
   :group 'cider
   :package-version "0.9.1")
 
-(defconst cider--instrument-format
-  (concat "(cider.nrepl.middleware.debug/instrument-and-eval"
-          ;; filename and point are passed in a map. Eventually, this should be
-          ;; part of the message (which the nrepl sees as a map anyway).
-          " {:filename %S :point %S} '%s)")
-  "Format to instrument an expression given a file and a coordinate.")
-
 
 ;;; Implementation
 (defun cider--debug-init-connection ()
@@ -136,12 +129,13 @@ is displayed at point."
 ;;; Movement logic
 (defun cider--forward-sexp (n)
   "Move forward N logical sexps.
-This will skip over sexps that don't represent objects, such as ^{}."
+This will skip over sexps that don't represent objects, such as ^hints and
+#reader.macros."
   (while (> n 0)
     ;; Non-logical sexps.
     (while (progn (forward-sexp 1)
                   (forward-sexp -1)
-                  (looking-at-p "\\^"))
+                  (looking-at-p "\\^\\|#[[:alpha:]]"))
       (forward-sexp 1))
     ;; The actual sexp
     (forward-sexp 1)
@@ -172,7 +166,7 @@ sexp."
 RESPONSE is a message received from the nrepl describing the input
 needed. It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
-  (nrepl-dbind-response response (debug-value key coor filename point input-type prompt locals)
+  (nrepl-dbind-response response (debug-value key coor file point input-type prompt locals)
     (let ((input))
       (unwind-protect
           (setq input
@@ -180,9 +174,10 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
                   ("expression" (cider-read-from-minibuffer
                                  (or prompt "Expression: ")))
                   ((pred sequencep)
-                   (when (and filename point)
-                     (cider--debug-move-point filename point coor))
-                   (cider--debug-display-result-overlay debug-value)
+                   (when (and file point)
+                     (cider--debug-move-point file point coor))
+                   (when cider-debug-use-overlays
+                     (cider--debug-display-result-overlay debug-value))
                    (cider--debug-read-command input-type debug-value prompt locals))))
         ;; No matter what, we want to send this request or the session will stay
         ;; hanged.
@@ -241,33 +236,7 @@ While debugged code is being evaluated, the user is taken through the
 source code and displayed the value of various expressions.  At each step,
 a number of keys will be prompted to the user."
   (interactive)
-  (cider--debug-init-connection)
-  (let* ((expression (cider-defun-at-point))
-         (eval-buffer (current-buffer))
-         (position (cider-defun-at-point-start-pos))
-         (prefix
-          (if (string-match-p "\\`(defn-? " expression)
-              "Instrumented => " "=> "))
-         (instrumented (format cider--instrument-format
-                         (buffer-file-name)
-                         position
-                         expression)))
-    ;; Once the code has been instrumented, it can be sent as a
-    ;; regular evaluation. Any debug messages will be received by the
-    ;; callback specified in `cider--debug-init-connection'.
-    (cider-interactive-eval
-     instrumented
-     (nrepl-make-response-handler (current-buffer)
-                                  (lambda (_buffer value)
-                                    (let ((cider-interactive-eval-result-prefix prefix))
-                                      (cider--display-interactive-eval-result value)))
-                                  ;; Below is the default for `cider-interactive-eval'.
-                                  (lambda (_buffer out)
-                                    (cider-emit-interactive-eval-output out))
-                                  (lambda (_buffer err)
-                                    (cider-emit-interactive-eval-err-output err)
-                                    (cider-handle-compilation-errors err eval-buffer))
-                                  '()))))
+  (cider-eval-defun-at-point 'debug-it))
 
 (provide 'cider-debug)
 ;;; cider-debug.el ends here
