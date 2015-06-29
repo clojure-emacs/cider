@@ -446,8 +446,13 @@ directory."
   (interactive "P")
   (cider-ensure-connected)
   (let* ((project-directory
-          (or (when do-prompt (read-directory-name "Project: "))
-              (nrepl-project-directory-for (nrepl-current-dir))))
+          (nrepl-project-directory-for
+           (or (when do-prompt
+                 (read-directory-name "Project: "
+                                      (nrepl-project-directory-for (buffer-file-name))
+                                      nil
+                                      'confirm))
+               (nrepl-current-dir))))
          (connection-buffer
           (or
            (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
