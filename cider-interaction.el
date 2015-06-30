@@ -2164,6 +2164,35 @@ restart the server."
           (cider-jack-in prompt-project))
       (error "Can't restart CIDER for unknown project"))))
 
+(defvar cider--namespace-history nil
+  "History of user input for namespace prompts.")
+
+(defun cider--var-namespace (var)
+  "Return the namespace of VAR.
+VAR is a fully qualified Clojure variable name as a string."
+  (replace-regexp-in-string "\\(?:#'\\)?\\(.*\\)/.*" "\\1" var))
+
+(defun cider-run (&optional function)
+  "Run -main or FUNCTION, prompting for its namespace if necessary.
+With a prefix argument, prompt for function to run instead of -main."
+  (interactive (list (when current-prefix-arg (read-string "Function name: "))))
+  (let ((name (or function "-main")))
+    (-when-let (response (nrepl-send-sync-request
+                          (list "op" "ns-list-vars-by-name" "name" name)))
+      (-if-let (vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1)))
+          (cider-interactive-eval
+           (if (= (length vars) 1)
+               (concat "(" (car vars) ")")
+             (let* ((completions (mapcar #'cider--var-namespace vars))
+                    (def (or (car cider--namespace-history)
+                             (car completions))))
+               (format "(#'%s/%s)"
+                       (completing-read (format "Namespace (%s): " def)
+                                        completions nil t nil
+                                        'cider--namespace-history def)
+                       name))))
+        (user-error "No %s var defined in any namespace" name)))))
+
 (provide 'cider-interaction)
 
 ;;; cider-interaction.el ends here
