@@ -133,7 +133,7 @@ is displayed at point."
       (cider--make-result-overlay value 'debug-result cider-debug-use-overlays
                                   'before-string cider--fringe-arrow-string)
       ;; Code
-      (cider--make-overlay (save-excursion (forward-sexp -1) (point))
+      (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
                            (point) 'debug-code
                            'face 'cider-debug-code-overlay-face
                            ;; Higher priority than `show-paren'.
@@ -281,20 +281,6 @@ ID is the id of the message that instrumented CODE."
           (set-buffer-modified-p nil))))
     (switch-to-buffer buffer-name)))
 
-(defun cider--forward-sexp (n)
-  "Move forward N logical sexps.
-This will skip over sexps that don't represent objects, such as ^hints and
-#reader.macros."
-  (while (> n 0)
-    ;; Non-logical sexps.
-    (while (progn (forward-sexp 1)
-                  (forward-sexp -1)
-                  (looking-at-p "\\^\\|#[[:alpha:]]"))
-      (forward-sexp 1))
-    ;; The actual sexp
-    (forward-sexp 1)
-    (setq n (1- n))))
-
 (defun cider--debug-goto-keyval (key)
   "Find KEY in current sexp or return nil."
   (-when-let (limit (ignore-errors (save-excursion (up-list) (point))))
@@ -318,12 +304,12 @@ sexp."
                 ;; String coordinates are map keys.
                 (if (stringp next)
                     (cider--debug-goto-keyval next)
-                  (cider--forward-sexp next)))
+                  (clojure-forward-logical-sexp (pop coordinates))))
             ;; If that extra pop was the last coordinate, this represents the
             ;; entire #(...), so we should move back out.
             (backward-up-list)))
         ;; Place point at the end of instrumented sexp.
-        (cider--forward-sexp 1))
+        (clojure-forward-logical-sexp 1))
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
     (error (message "Can't find instrumented sexp, did you edit the source?"))))
 

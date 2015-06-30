@@ -631,7 +631,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   "Return the sexp preceding the point."
   (buffer-substring-no-properties
    (save-excursion
-     (backward-sexp)
+     (clojure-backward-logical-sexp 1)
      (point))
    (point)))
 
@@ -1715,7 +1715,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
   (cider-interactive-eval (cider-last-sexp)
                           (when prefix (cider-eval-print-handler))
-                          (save-excursion (backward-sexp 1) (point))))
+                          (save-excursion (clojure-backward-logical-sexp 1) (point))))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
