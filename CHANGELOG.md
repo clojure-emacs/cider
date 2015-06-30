@@ -2,11 +2,16 @@
 
 ## master (unreleased)
 
+### New features
+
 * [#1174](https://github.com/clojure-emacs/cider/pull/1174): New command `cider-run`, runs the project's `-main` function.
-* [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 * [#1149](https://github.com/clojure-emacs/cider/pull/1149): [Two new ways](https://github.com/clojure-emacs/cider#cider-debug) to debug code, the `#break` and `#dbg` reader macros.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Extract `cider-set-relevant-connection` from `cider-switch-to-relevant-repl-buffer`.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Make `(cider-set-relevant-connection t)` and `(cider-switch-to-relevant-repl-buffer 16)` default to project directory.
+
+### Bugs fixed
+
+* [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 
 ## 0.9.1 / 2015-06-24
 
