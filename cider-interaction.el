@@ -392,19 +392,19 @@ to jump back to the last Clojure source buffer."
   (interactive "p")
   (funcall cider-switch-to-repl-command arg))
 
-(defun cider-switch-to-current-repl-buffer (&optional arg)
+(defun cider-switch-to-current-repl-buffer (&optional set-namespace)
   "Select the REPL buffer, when possible in an existing window.
 
 Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear.
 
-With a prefix ARG sets the namespace in the REPL buffer to that
-of the namespace in the Clojure source buffer."
-  (interactive "p")
+With a prefix argument SET-NAMESPACE, sets the namespace in the REPL buffer to
+that of the namespace in the Clojure source buffer."
+  (interactive "P")
   (cider-ensure-connected)
   (let ((buffer (current-buffer)))
-    (when (eq 4 arg)
+    (when set-namespace
       (cider-repl-set-ns (cider-current-ns)))
     (if cider-repl-display-in-current-window
 	(pop-to-buffer-same-window (cider-get-repl-buffer))
@@ -438,6 +438,35 @@ is ambiguity, therefore nil is returned."
       (when (= 1 (length matching-connections))
         (car matching-connections)))))
 
+(defun cider-set-relevant-connection (&optional do-prompt)
+  "Try to set the current REPL buffer based on the the current Clojure source buffer.
+If succesful, return the new connection buffer.
+With a prefix argument DO-PROMPT, the chosen REPL buffer is based on a supplied project
+directory."
+  (interactive "P")
+  (cider-ensure-connected)
+  (let* ((project-directory
+          (nrepl-project-directory-for
+           (or (when do-prompt
+                 (read-directory-name "Project: "
+                                      (nrepl-project-directory-for (buffer-file-name))
+                                      nil
+                                      'confirm))
+               (nrepl-current-dir))))
+         (connection-buffer
+          (or
+           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
+           (and project-directory
+                (cider-find-connection-buffer-for-project-directory project-directory))))
+         (previous-connection-list nrepl-connection-list))
+    (when (and connection-buffer
+               (not (string= connection-buffer
+                             (car nrepl-connection-list))))
+      (setq nrepl-connection-list
+            (cons connection-buffer (delq connection-buffer nrepl-connection-list)))
+      (message (cider--connection-info (car nrepl-connection-list))))
+    connection-buffer))
+
 (defun cider-switch-to-relevant-repl-buffer (&optional arg)
   "Select the REPL buffer, when possible in an existing window.
 The buffer chosen is based on the file open in the current buffer.
@@ -456,19 +485,8 @@ of the namespace in the Clojure source buffer.
 With a second prefix ARG the chosen REPL buffer is based on a
 supplied project directory."
   (interactive "p")
-  (cider-ensure-connected)
-  (let* ((project-directory
-          (or (when (eq 16 arg) (read-directory-name "Project: "))
-              (nrepl-project-directory-for (nrepl-current-dir))))
-         (connection-buffer
-          (or
-           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
-           (and project-directory
-                (cider-find-connection-buffer-for-project-directory project-directory)))))
-    (when connection-buffer
-      (setq nrepl-connection-list
-            (cons connection-buffer (delq connection-buffer nrepl-connection-list))))
-    (cider-switch-to-current-repl-buffer arg)
+  (let ((connection-buffer (cider-set-relevant-connection (eq 16 arg))))
+    (cider-switch-to-current-repl-buffer (eq 4 arg))
     (message
      (format (if connection-buffer
                  "Switched to REPL: %s"
