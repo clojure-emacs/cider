@@ -137,6 +137,7 @@ entirely."
          ["Rerun failed/erring tests" cider-test-rerun-tests]
          ["Show test report" cider-test-show-report])
         "--"
+        ["Run project (-main function)" cider-run]
         ["Inspect" cider-inspect]
         ["Toggle var tracing" cider-toggle-trace-var]
         ["Toggle ns tracing" cider-toggle-trace-ns]
