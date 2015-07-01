@@ -29,24 +29,31 @@
 (require 'cider-interaction)
 (require 'dash)
 
+
+;;; Customization
+(defgroup cider-debug nil
+  "Presentation and behaviour of the cider debugger."
+  :prefix "cider-debug-"
+  :package-version '(cider-debug . "0.10.0"))
+
 (defface cider-result-overlay-face
   '((((class color) (background light)) :foreground "firebrick")
     (((class color) (background dark))  :foreground "orange red"))
   "Face used to display result of debug step at point."
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.9.1")
 
 (defface cider-debug-code-overlay-face
   '((((class color) (background light)) :background "grey80")
     (((class color) (background dark))  :background "grey30"))
   "Face used to mark code being debugged."
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.9.1")
 
 (defface cider-debug-prompt-face
   '((t :underline t :inherit font-lock-builtin-face))
   "Face used to mark code being debugged."
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.10.0")
 
 (defcustom cider-debug-use-overlays 'end-of-line
@@ -57,7 +64,7 @@ Possible values are inline, end-of-line, or nil."
   :type '(choice (const :tag "End of line" end-of-line)
                  (const :tag "Inline" inline)
                  (const :tag "No overlays" nil))
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.9.1")
 
 
@@ -103,7 +110,7 @@ is displayed at point."
    #'cider--make-overlay
    (line-beginning-position)
    (if (eq where 'inline) (point) (line-end-position))
-   'debug-result
+   type
    'after-string
    (propertize (concat (propertize " " 'cursor 1000)
                        cider-interactive-eval-result-prefix
@@ -146,7 +153,7 @@ Set by `cider--turn-on-debug-mode'.")
   "If non-nil, local variables are displayed while debugging.
 Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
   :type 'boolean
-  :group 'cider
+  :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
 (defun cider--debug-format-locals-list (locals)
