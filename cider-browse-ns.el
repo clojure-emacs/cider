@@ -75,17 +75,21 @@
               'mouse-face 'highlight
               'keymap cider-browse-ns-mouse-map))
 
-(defun cider-browse-ns--list (buffer title items)
-  "Reset contents of BUFFER.  Then display TITLE at the top and ITEMS are indented underneath."
+(defun cider-browse-ns--list (buffer title items &optional ns noerase)
+  "Reset contents of BUFFER.  Then display TITLE at the top and ITEMS are indented underneath.
+If NS is non-nil, it is added to each item as the
+`cider-browse-ns-current-ns' text property. If NOERASE is non-nil, the
+contents of the buffer are not reset before inserting TITLE and ITEMS."
   (with-current-buffer buffer
     (cider-browse-ns-mode)
     (let ((inhibit-read-only t))
-      (erase-buffer)
-      (insert (propertize title 'font-lock-face 'font-lock-type-face))
-      (newline)
+      (unless noerase (erase-buffer))
+      (goto-char (point-max))
+      (insert (propertize title 'font-lock-face 'font-lock-type-face)
+              "\n")
       (dolist (item items)
-        (insert "  " item)
-        (newline))
+        (insert (propertize (concat "  " item "\n")
+                            'cider-browse-ns-current-ns ns)))
       (goto-char (point-min)))))
 
 ;; Interactive Functions
@@ -118,9 +122,12 @@
       (setq-local cider-browse-ns-current-ns nil))))
 
 (defun cider-browse-ns--var-at-point ()
-  (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-    (when (string-match " +\\(.+\\)" line)
-      (format "%s/%s" cider-browse-ns-current-ns (match-string 1 line)))))
+  (let ((line (thing-at-point 'line)))
+    (when (string-match " +\\(.+\\)\n?" line)
+      (format "%s/%s"
+              (or (get-text-property (point) 'cider-browse-ns-current-ns)
+                  cider-browse-ns-current-ns)
+              (match-string 1 line)))))
 
 (defun cider-browse-ns--doc-at-point ()
   "Expand browser according to thing at current point."
