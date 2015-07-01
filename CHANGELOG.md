@@ -5,6 +5,7 @@
 ### New features
 
 * [#1174](https://github.com/clojure-emacs/cider/pull/1174): New command `cider-run`, runs the project's `-main` function.
+* [#1176](https://github.com/clojure-emacs/cider/pull/1176): While debugging, cider's usual eval commands will evaluate code in the current lexical context. Additionally, the <kbd>l</kbd> key now inspects local variables.
 * [#1149](https://github.com/clojure-emacs/cider/pull/1149): [Two new ways](https://github.com/clojure-emacs/cider#cider-debug) to debug code, the `#break` and `#dbg` reader macros.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Extract `cider-set-relevant-connection` from `cider-switch-to-relevant-repl-buffer`.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Make `(cider-set-relevant-connection t)` and `(cider-switch-to-relevant-repl-buffer 16)` default to project directory.

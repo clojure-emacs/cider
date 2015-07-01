@@ -918,8 +918,12 @@ Keyboard shortcut               | Description
 <kbd>o</kbd> | Move out of the current sexp (like `up-list`)
 <kbd>i</kbd> | Inject a value into running code
 <kbd>e</kbd> | Eval code in current context
-<kbd>l</kbd> | List local variables
+<kbd>l</kbd> | Inspect local variables
 <kbd>q</kbd> | Quit execution
+
+In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
+<kbd>C-c M-:</kbd>) will use the current lexical context (local variables) while
+the debugger is active.
 
 ### Managing multiple sessions
 

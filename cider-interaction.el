@@ -1640,21 +1640,30 @@ Clears any compilation highlights and kills the error window."
       (cider-eval-ns-form)
       (cider--cache-ns-form))))
 
+(defvar-local cider-interactive-eval-override nil
+  "Function to call instead of `cider-interactive-eval'.")
+
 (defun cider-interactive-eval (form &optional callback point)
   "Evaluate FORM and dispatch the response to CALLBACK.
 This function is the main entry point in CIDER's interactive evaluation
 API.  Most other interactive eval functions should rely on this function.
 If CALLBACK is nil use `cider-interactive-eval-handler'.
-POINT, if non-nil, is the position of FORM in its buffer."
-  (cider--prep-interactive-eval form)
-  (nrepl-request:eval
-   form
-   (or callback (cider-interactive-eval-handler))
-   ;; always eval ns forms in the user namespace
-   ;; otherwise trying to eval ns form for the first time will produce an error
-   (if (cider-ns-form-p form) "user" (cider-current-ns))
-   nil
-   point))
+POINT, if non-nil, is the position of FORM in its buffer.
+
+If `cider-interactive-eval-override' is a function, call it with the same
+arguments and only proceed with evaluation if it returns nil."
+  (unless (and cider-interactive-eval-override
+               (functionp cider-interactive-eval-override)
+               (funcall cider-interactive-eval-override form callback point))
+    (cider--prep-interactive-eval form)
+    (nrepl-request:eval
+     form
+     (or callback (cider-interactive-eval-handler))
+     ;; always eval ns forms in the user namespace
+     ;; otherwise trying to eval ns form for the first time will produce an error
+     (if (cider-ns-form-p form) "user" (cider-current-ns))
+     nil
+     point)))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
   "Evaluate FORM and dispatch the response to CALLBACK.
@@ -1752,6 +1761,7 @@ command `cider-debug-defun-at-point'."
   "Read a sexp from the minibuffer and output its result to the echo area."
   (interactive)
   (let* ((form (cider-read-from-minibuffer "CIDER Eval: "))
+         (override cider-interactive-eval-override)
          (ns-form (if (cider-ns-form-p form) "" (format "(ns %s)" (cider-current-ns)))))
     (with-current-buffer (get-buffer-create cider-read-eval-buffer)
       (erase-buffer)
@@ -1759,7 +1769,8 @@ command `cider-debug-defun-at-point'."
       (unless (string= "" ns-form)
         (insert ns-form "\n\n"))
       (insert form)
-      (cider-interactive-eval form))))
+      (let ((cider-interactive-eval-override override))
+        (cider-interactive-eval form)))))
 
 
 ;; Connection and REPL
