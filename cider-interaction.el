@@ -2020,7 +2020,10 @@ unconditionally."
                                 (if (buffer-file-name)
                                     (file-name-nondirectory
                                      (buffer-file-name))))))
-  (cider--clear-compilation-highlights)
+  (-when-let (buf (find-buffer-visiting filename))
+    (with-current-buffer buf
+      (remove-overlays nil nil 'cider-type 'instrumented-defs)
+      (cider--clear-compilation-highlights)))
   (cider--quit-error-window)
   (cider--cache-ns-form)
   (cider-request:load-file

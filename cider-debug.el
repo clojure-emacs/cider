@@ -76,6 +76,27 @@ Possible values are inline, end-of-line, or nil."
 
 
 ;;; Implementation
+(defun cider--update-instrumented-defs (defs)
+  "Update which defs in current buffer are instrumented."
+  (remove-overlays nil nil 'cider-type 'instrumented-defs)
+  (save-excursion
+    (dolist (name defs)
+      (goto-char (point-min))
+      (when (search-forward-regexp
+             (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
+             nil 'noerror)
+        (cider--make-overlay
+         (match-beginning 1) (match-end 1) 'instrumented-defs
+         'face 'cider-instrumented-face)))))
+
+(defun cider--debug-handle-instrumented-defs (defs ns)
+  "Update display of NS according to instrumented DEFS."
+  (-when-let (buf (-first (lambda (b) (with-current-buffer b
+                                   (string= ns (cider-current-ns))))
+                          (buffer-list)))
+    (with-current-buffer buf
+      (cider--update-instrumented-defs defs))))
+
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
@@ -99,9 +120,11 @@ Possible values are inline, end-of-line, or nil."
   (nrepl-send-request
    '("op" "init-debugger")
    (lambda (response)
-     (nrepl-dbind-response response (status id)
+     (nrepl-dbind-response response (status id instrumented-defs ns)
        (if (not (member "done" status))
-           (cider--handle-debug response)
+           (if (member "instrumented-defs" response)
+               (cider--debug-handle-instrumented-defs instrumented-defs ns)
+             (cider--handle-debug response))
          (puthash id (gethash id nrepl-pending-requests)
                   nrepl-completed-requests)
          (remhash id nrepl-pending-requests))))))
