@@ -631,7 +631,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   "Return the sexp preceding the point."
   (buffer-substring-no-properties
    (save-excursion
-     (backward-sexp)
+     (clojure-backward-logical-sexp 1)
      (point))
    (point)))
 
@@ -773,9 +773,12 @@ not found."
 
 (defun cider-jump-to (buffer &optional pos other-window)
   "Push current point onto marker ring, and jump to BUFFER and POS.
-POS can be either a numeric position in BUFFER or a cons (LINE . COLUMN)
-where COLUMN can be nil. If OTHER-WINDOW is non-nil don't reuse current
-window."
+POS can be either a number, a cons, or a symbol.
+If a number, it is the character position (the point).
+If a cons, it specifies the position as (LINE . COLUMN). COLUMN can be nil.
+If a symbol, `cider-jump-to' searches for something that looks like the
+symbol's definition in the file.
+If OTHER-WINDOW is non-nil don't reuse current window."
   (ring-insert find-tag-marker-ring (point-marker))
   (if other-window
       (pop-to-buffer buffer)
@@ -785,14 +788,33 @@ window."
     (widen)
     (goto-char (point-min))
     (cider-mode +1)
-    (if (consp pos)
-        (progn
-          (forward-line (1- (or (car pos) 1)))
-          (if (cdr pos)
-              (move-to-column (cdr pos))
-            (back-to-indentation)))
-      (when pos
-        (goto-char pos)))))
+    (cond
+     ;; Line-column specification.
+     ((consp pos)
+      (forward-line (1- (or (car pos) 1)))
+      (if (cdr pos)
+          (move-to-column (cdr pos))
+        (back-to-indentation)))
+     ;; Point specification.
+     ((numberp pos)
+      (goto-char pos))
+     ;; Symbol or string.
+     (pos
+      ;; Try to find (def full-name ...).
+      (if (or (save-excursion
+                (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote pos))
+                                       nil 'noerror))
+              (let ((name (replace-regexp-in-string ".*/" "" pos)))
+                ;; Try to find (def name ...).
+                (or (save-excursion
+                      (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
+                                             nil 'noerror))
+                    ;; Last resort, just find the first occurrence of `name'.
+                    (save-excursion
+                      (search-forward name nil 'noerror)))))
+          (goto-char (match-beginning 0))
+        (message "Can't find %s in %s" pos (buffer-file-name))))
+     (t nil))))
 
 (defun cider-find-dwim-other-window (symbol-file)
   "Jump to SYMBOL-FILE at point, place results in other window."
@@ -905,11 +927,12 @@ INFO object is returned by `cider-var-info' or `cider-member-info'.
 OTHER-WINDOW is passed to `cider-jamp-to'."
   (let* ((line (nrepl-dict-get info "line"))
          (file (nrepl-dict-get info "file"))
+         (name (nrepl-dict-get info "name"))
          (buffer (and file
                       (not (cider--tooling-file-p file))
                       (cider-find-file file))))
     (if buffer
-        (cider-jump-to buffer (cons line nil) other-window)
+        (cider-jump-to buffer (if line (cons line nil) name) other-window)
       (error "No source location"))))
 
 (defun cider--find-var-other-window (var &optional line)
@@ -1692,7 +1715,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
   (cider-interactive-eval (cider-last-sexp)
                           (when prefix (cider-eval-print-handler))
-                          (save-excursion (backward-sexp 1) (point))))
+                          (save-excursion (clojure-backward-logical-sexp 1) (point))))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."

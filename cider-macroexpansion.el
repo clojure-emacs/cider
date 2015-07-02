@@ -101,7 +101,7 @@ This variable specifies both what was expanded and the expander.")
   "Substitute the form preceding point with its macroexpansion using EXPANDER."
   (interactive)
   (let* ((expansion (cider-sync-request:macroexpand expander (cider-last-sexp)))
-         (bounds (cons (save-excursion (backward-sexp) (point)) (point))))
+         (bounds (cons (save-excursion (clojure-backward-logical-sexp 1) (point)) (point))))
     (cider-redraw-macroexpansion-buffer
      expansion (current-buffer) (car bounds) (cdr bounds))))
 

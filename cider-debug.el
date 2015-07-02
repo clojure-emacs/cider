@@ -29,24 +29,31 @@
 (require 'cider-interaction)
 (require 'dash)
 
+
+;;; Customization
+(defgroup cider-debug nil
+  "Presentation and behaviour of the cider debugger."
+  :prefix "cider-debug-"
+  :package-version '(cider-debug . "0.10.0"))
+
 (defface cider-result-overlay-face
   '((((class color) (background light)) :foreground "firebrick")
     (((class color) (background dark))  :foreground "orange red"))
   "Face used to display result of debug step at point."
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.9.1")
 
 (defface cider-debug-code-overlay-face
   '((((class color) (background light)) :background "grey80")
     (((class color) (background dark))  :background "grey30"))
   "Face used to mark code being debugged."
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.9.1")
 
 (defface cider-debug-prompt-face
   '((t :underline t :inherit font-lock-builtin-face))
   "Face used to mark code being debugged."
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.10.0")
 
 (defcustom cider-debug-use-overlays 'end-of-line
@@ -57,7 +64,7 @@ Possible values are inline, end-of-line, or nil."
   :type '(choice (const :tag "End of line" end-of-line)
                  (const :tag "Inline" inline)
                  (const :tag "No overlays" nil))
-  :group 'cider
+  :group 'cider-debug
   :package-version "0.9.1")
 
 
@@ -103,7 +110,7 @@ is displayed at point."
    #'cider--make-overlay
    (line-beginning-position)
    (if (eq where 'inline) (point) (line-end-position))
-   'debug-result
+   type
    'after-string
    (propertize (concat (propertize " " 'cursor 1000)
                        cider-interactive-eval-result-prefix
@@ -126,7 +133,7 @@ is displayed at point."
       (cider--make-result-overlay value 'debug-result cider-debug-use-overlays
                                   'before-string cider--fringe-arrow-string)
       ;; Code
-      (cider--make-overlay (save-excursion (forward-sexp -1) (point))
+      (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
                            (point) 'debug-code
                            'face 'cider-debug-code-overlay-face
                            ;; Higher priority than `show-paren'.
@@ -146,7 +153,7 @@ Set by `cider--turn-on-debug-mode'.")
   "If non-nil, local variables are displayed while debugging.
 Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
   :type 'boolean
-  :group 'cider
+  :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
 (defun cider--debug-format-locals-list (locals)
@@ -274,20 +281,6 @@ ID is the id of the message that instrumented CODE."
           (set-buffer-modified-p nil))))
     (switch-to-buffer buffer-name)))
 
-(defun cider--forward-sexp (n)
-  "Move forward N logical sexps.
-This will skip over sexps that don't represent objects, such as ^hints and
-#reader.macros."
-  (while (> n 0)
-    ;; Non-logical sexps.
-    (while (progn (forward-sexp 1)
-                  (forward-sexp -1)
-                  (looking-at-p "\\^\\|#[[:alpha:]]"))
-      (forward-sexp 1))
-    ;; The actual sexp
-    (forward-sexp 1)
-    (setq n (1- n))))
-
 (defun cider--debug-goto-keyval (key)
   "Find KEY in current sexp or return nil."
   (-when-let (limit (ignore-errors (save-excursion (up-list) (point))))
@@ -311,12 +304,12 @@ sexp."
                 ;; String coordinates are map keys.
                 (if (stringp next)
                     (cider--debug-goto-keyval next)
-                  (cider--forward-sexp next)))
+                  (clojure-forward-logical-sexp (pop coordinates))))
             ;; If that extra pop was the last coordinate, this represents the
             ;; entire #(...), so we should move back out.
             (backward-up-list)))
         ;; Place point at the end of instrumented sexp.
-        (cider--forward-sexp 1))
+        (clojure-forward-logical-sexp 1))
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
     (error (message "Can't find instrumented sexp, did you edit the source?"))))
 

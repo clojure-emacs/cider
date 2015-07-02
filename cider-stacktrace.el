@@ -422,12 +422,17 @@ it wraps to 0."
          (info (or (and var (cider-var-info var))
                    (and class method (cider-member-info class method))
                    (nrepl-dict)))
-         ;; stacktrace returns more accurate line numbers
-         (info (nrepl-dict-put info "line" (button-get button 'line)))
+         ;; Stacktrace returns more accurate line numbers, but if the function's
+         ;; line was unreliable, then so is the stacktrace by the same amount.
+         ;; Set `line-shift' to the number of lines from the beginning of defn.
+         (line-shift (- (or (button-get button 'line) 0)
+                        (or (nrepl-dict-get info "line") 1)))
          ;; give priority to `info` files as `info` returns full paths.
          (info (nrepl-dict-put info "file" (or (nrepl-dict-get info "file")
                                                (button-get button 'file)))))
-    (cider--jump-to-loc-from-info info t)))
+    (cider--jump-to-loc-from-info info t)
+    (forward-line line-shift)
+    (back-to-indentation)))
 
 (defun cider-stacktrace-jump (&optional arg)
   "Like `cider-find-var', but uses the stack frame source at point, if available."
