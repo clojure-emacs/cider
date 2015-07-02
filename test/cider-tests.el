@@ -48,6 +48,23 @@
            (cider--debug-prompt '("abc"))
            #("abc" 0 1 (face cider-debug-prompt-face)))))
 
+(ert-deftest test-debug-move-point ()
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(defn a [] (let [x 1] (inc x)) {:a 1, :b 2})"))
+    (cider--debug-move-point '(3 2 1))
+    (should (string= (thing-at-point 'symbol) "x"))
+    (goto-char (point-min))
+    (cider--debug-move-point '(3 1 1))
+    (should (string= (thing-at-point 'symbol) "1"))
+    (goto-char (point-min))
+    (cider--debug-move-point '(2))
+    (should (looking-back (rx "[]")))
+    (goto-char (point-min))
+    (cider--debug-move-point '(4 ":b"))
+    (message "%S" (point))
+    (should (string= (thing-at-point 'symbol) "2"))))
+
 (ert-deftest test-cider-connection-buffer-name ()
   (setq-local nrepl-endpoint '("localhost" 1))
   (let ((nrepl-hide-special-buffers nil))

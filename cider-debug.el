@@ -304,7 +304,7 @@ sexp."
                 ;; String coordinates are map keys.
                 (if (stringp next)
                     (cider--debug-goto-keyval next)
-                  (clojure-forward-logical-sexp (pop coordinates))))
+                  (clojure-forward-logical-sexp next)))
             ;; If that extra pop was the last coordinate, this represents the
             ;; entire #(...), so we should move back out.
             (backward-up-list)))
