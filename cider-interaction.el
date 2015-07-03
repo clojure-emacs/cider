@@ -1572,7 +1572,8 @@ and automatically removed when killed."
     (when ancillary
       (add-to-list 'cider-ancillary-buffers name)
       (add-hook 'kill-buffer-hook
-                (lambda () (setq cider-ancillary-buffers (remove name cider-ancillary-buffers)))))
+                (lambda () (setq cider-ancillary-buffers (remove name cider-ancillary-buffers)))
+                nil 'local))
     (current-buffer)))
 
 (defun cider-emit-into-popup-buffer (buffer value)
