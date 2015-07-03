@@ -120,6 +120,11 @@ You'll also need to adjust your config accordingly, as most settings
 were renamed in CIDER. Consult the [Configuration](#configuration) section of the
 README for more details.
 
+If you were using
+[nrepl-ritz](https://github.com/pallet/ritz/tree/develop/nrepl), you'll also
+have to remove its plugin and middleware from your `profiles.clj` (or
+`project.clj`).
+
 #### Upgrading from clojure-test-mode
 
 CIDER 0.7 ships a replacement for the deprecated `clojure-test-mode` called `cider-test`.
