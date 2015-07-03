@@ -884,7 +884,6 @@ Keyboard shortcut               | Description
 <kbd>a</kbd> | toggle display of all frames
 
 ### cider-debug
-<!-- Technically this is not a mode (yet), but let's not burden the user with that knowledge. -->
 
 The debugger can be invoked in several ways, the simplest one is to type
 <kbd>C-u C-M-x</kbd>. This will take the current top-level form, place as many
@@ -914,7 +913,11 @@ been paying attention, you may have noticed that the first option (<kbd>C-u
 C-M-x</kbd>) is a quick way of evaluating the current top-level form with `#dbg`
 in front.
 
-### Keys
+At any point, you can bring up a list of all currently instrumented `def`s with
+the command `cider-browse-instrumented-defs`. Protocols and types can be
+instrumented as well, but they will not be listed by this command.
+
+#### Keys
 
 `cider-debug` tries to be consistent with
 [Edebug](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html). So

@@ -27,6 +27,7 @@
 
 (require 'nrepl-client)
 (require 'cider-interaction)
+(require 'cider-browse-ns)
 (require 'dash)
 
 
@@ -56,6 +57,12 @@
   :group 'cider-debug
   :package-version "0.10.0")
 
+(defface cider-instrumented-face
+  '((t :box (:color "red" :line-width -1)))
+  "Face used to mark code being debugged."
+  :group 'cider-debug
+  :package-version "0.10.0")
+
 (defcustom cider-debug-use-overlays 'end-of-line
   "Whether to higlight debugging information with overlays.
 Only applies to \"*cider-debug ...*\" buffers, which are used in debugging
@@ -69,14 +76,55 @@ Possible values are inline, end-of-line, or nil."
 
 
 ;;; Implementation
+(defun cider--update-instrumented-defs (defs)
+  "Update which defs in current buffer are instrumented."
+  (remove-overlays nil nil 'cider-type 'instrumented-defs)
+  (save-excursion
+    (dolist (name defs)
+      (goto-char (point-min))
+      (when (search-forward-regexp
+             (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
+             nil 'noerror)
+        (cider--make-overlay
+         (match-beginning 1) (match-end 1) 'instrumented-defs
+         'face 'cider-instrumented-face)))))
+
+(defun cider--debug-handle-instrumented-defs (defs ns)
+  "Update display of NS according to instrumented DEFS."
+  (-when-let (buf (-first (lambda (b) (with-current-buffer b
+                                   (string= ns (cider-current-ns))))
+                          (buffer-list)))
+    (with-current-buffer buf
+      (cider--update-instrumented-defs defs))))
+
+(defun cider-browse-instrumented-defs ()
+  "List all instrumented definitions."
+  (interactive)
+  (-if-let (all (-> (nrepl-send-sync-request (list "op" "debug-instrumented-defs"))
+                    (nrepl-dict-get "list")))
+      (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (dolist (list all)
+            (let ((ns (car list)))
+              (cider-browse-ns--list (current-buffer) ns
+                                     (mapcar #'cider-browse-ns--properties (cdr list))
+                                     ns 'noerase)
+              (goto-char (point-max))
+              (insert "\n"))))
+        (goto-char (point-min)))
+    (message "No currently instrumented definitions")))
+
 (defun cider--debug-init-connection ()
   "Initialize a connection with clj-debugger."
   (nrepl-send-request
    '("op" "init-debugger")
    (lambda (response)
-     (nrepl-dbind-response response (status id)
+     (nrepl-dbind-response response (status id instrumented-defs ns)
        (if (not (member "done" status))
-           (cider--handle-debug response)
+           (if (member "instrumented-defs" response)
+               (cider--debug-handle-instrumented-defs instrumented-defs ns)
+             (cider--handle-debug response))
          (puthash id (gethash id nrepl-pending-requests)
                   nrepl-completed-requests)
          (remhash id nrepl-pending-requests))))))
