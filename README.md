@@ -507,7 +507,7 @@ You might also want to install [`ido-flex`](https://github.com/lewang/flx).
 ### Auto-completion
 
 `CIDER` users are advised to use [`company-mode`](http://company-mode.github.io/) to enable auto-completion
-inside of source code and REPL buffers.  To install company-mode do:
+inside of source code and REPL buffers.  To install `company-mode` do:
 
 `M-x package-install <RET> company <RET>`
 
@@ -526,6 +526,21 @@ After installation, company can be turned on  globally, like so --
 
 When `company-mode` is thus enabled, it will receive completion information
 from `cider-complete-at-point`, and requires no additional setup or plugins.
+
+If you'd prefer to trigger completions manually you can add this to you config:
+
+```el
+(setq company-idle-delay nil) ; never start completions automatically
+(global-set-key (kbd "M-TAB") #'company-complete) ; use meta+tab, aka C-M-i, as manual trigger
+```
+
+To make `tab` complete, without losing the ability to manually indent, you can add this to your config:
+
+```el
+(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+```
+
+`company-indent-or-complete-common` requires a version of `company-mode` newer than `0.8.12`.
 
 #### Migrating from `auto-complete-mode`
 
