@@ -70,7 +70,7 @@
 (require 'cider-debug)
 (require 'tramp-sh)
 
-(defvar cider-version "0.10.0-snapshot"
+(defconst cider-version "0.10.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
