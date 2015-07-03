@@ -507,7 +507,11 @@ You might also want to install [`ido-flex`](https://github.com/lewang/flx).
 ### Auto-completion
 
 `CIDER` users are advised to use [`company-mode`](http://company-mode.github.io/) to enable auto-completion
-inside of source code and REPL buffers. This can be done globally, like so --
+inside of source code and REPL buffers.  To install company-mode do:
+
+`M-x package-install <RET> company <RET>`
+
+After installation, company can be turned on  globally, like so --
 
 ```el
 (global-company-mode)
