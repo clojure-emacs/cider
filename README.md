@@ -540,7 +540,8 @@ To make `tab` complete, without losing the ability to manually indent, you can a
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 ```
 
-`company-indent-or-complete-common` requires a version of `company-mode` newer than `0.8.12`.
+`company-indent-or-complete-common` in available only in `company-mode` 0.9+ (at
+the time of this writing it's still in development).
 
 #### Migrating from `auto-complete-mode`
 
