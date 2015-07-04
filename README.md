@@ -481,7 +481,7 @@ passed or failed:
 ```
 
 Note that the history is written to the file when you kill the REPL
-buffer (which includes invoking `cider-quit`) or you quit Emacs.
+buffer (which includes invoking `cider-quit`) or you quitting Emacs.
 
 ### Minibuffer completion
 
@@ -956,8 +956,7 @@ the debugger is active.
 
 You can connect to multiple nREPL servers using <kbd>M-x
 cider-jack-in</kbd> multiple times.  To close the current nREPL
-connection, use <kbd>M-x nrepl-close</kbd>. <kbd>M-x cider-quit</kbd>
-closes all connections.
+connection, use <kbd>M-x cider-quit</kbd>.
 
 CIDER maintains a list of nREPL connections and a single 'default'
 connection. When you execute CIDER commands in a Clojure editing

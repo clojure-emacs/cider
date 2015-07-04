@@ -2166,40 +2166,53 @@ the string contents of the region into a formatted string."
   (dolist (buf-name cider-ancillary-buffers)
     (cider--close-buffer buf-name)))
 
-(defun cider-quit (&optional arg)
-  "Quit CIDER.
-
-With a prefix ARG the command won't ask for confirmation.
-Quitting closes all active nREPL connections and kills all CIDER buffers."
-  (interactive "P")
-  (when (or arg (y-or-n-p "Are you sure you want to quit CIDER? "))
-    (dolist (connection nrepl-connection-list)
-      (when connection
-        (nrepl-close connection)))
-    (message "All active nREPL connections were closed")
-    (cider-close-ancillary-buffers)
-    ;; clean the cached ns forms in all Clojure buffers
-    ;; as we don't track which buffer is associated with
-    ;; which connection we simply clean the cache for all buffers
+(defun cider--quit-connection (conn)
+  "Quit the connection CONN."
+  (when conn
+    (nrepl-close conn)
+    ;; clean the cached ns forms for this connection in all Clojure buffers
     (dolist (clojure-buffer (cider-util--clojure-buffers))
       (with-current-buffer clojure-buffer
-        (setq cider--ns-form-cache (make-hash-table :test 'equal))))))
+        (remhash conn cider--ns-form-cache)))))
 
-(defun cider-restart (&optional prompt-project)
-  "Quit CIDER and restart it.
-If PROMPT-PROJECT is t, then prompt for the project in which to
-restart the server."
+(defun cider-quit (&optional quit-all)
+  "Quit the currently active CIDER connection.
+
+With a prefix argument QUIT-ALL the command will kill all connections
+and all ancillary CIDER buffers."
   (interactive "P")
-  (let ((project-dir (with-current-buffer (nrepl-current-connection-buffer) nrepl-project-dir)))
-    (cider-quit)
+  (when (y-or-n-p "Are you sure you want to quit the current CIDER connection? ")
+    (if quit-all
+        (progn
+          (dolist (connection nrepl-connection-list)
+            (cider--quit-connection connection))
+          (message "All active nREPL connections were closed"))
+      (cider--quit-connection (nrepl-current-connection-buffer)))
+    ;; if there are no more connections we can kill all ancillary buffers
+    (unless (cider-connected-p)
+      (cider-close-ancillary-buffers))))
+
+(defun cider--restart-connection (conn)
+  "Restart the connection CONN."
+  (let ((project-dir (with-current-buffer conn nrepl-project-dir)))
+    (cider--quit-connection conn)
     ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
     ;; TODO: Find a better way to ensure `cider-quit' has finished
     (message "Waiting for CIDER to quit...")
     (sleep-for 2)
     (if project-dir
         (let ((default-directory project-dir))
-          (cider-jack-in prompt-project))
+          (cider-jack-in))
       (error "Can't restart CIDER for unknown project"))))
+
+(defun cider-restart (&optional restart-all)
+  "Restart the currently active CIDER connection.
+If RESTART-ALL is t, then restarts all connections."
+  (interactive "P")
+  (if restart-all
+      (dolist (conn nrepl-connection-list)
+        (cider--restart-connection conn))
+    (cider--restart-connection (nrepl-current-connection-buffer))))
 
 (defvar cider--namespace-history nil
   "History of user input for namespace prompts.")

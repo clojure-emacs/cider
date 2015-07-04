@@ -4,13 +4,14 @@
 
 ### New features
 
-* [#1182](https://github.com/clojure-emacs/cider/pull/1182): New command `cider-browse-instrumented-defs`, displays a buffer listing all defitions currently instrumented by the debugger. 
+* [#1182](https://github.com/clojure-emacs/cider/pull/1182): New command `cider-browse-instrumented-defs`, displays a buffer listing all defitions currently instrumented by the debugger.
 * [#1182](https://github.com/clojure-emacs/cider/pull/1182): Definitions currently instrumented by the debugger are marked with a red box in the source buffer.
 * [#1174](https://github.com/clojure-emacs/cider/pull/1174): New command `cider-run`, runs the project's `-main` function.
 * [#1176](https://github.com/clojure-emacs/cider/pull/1176): While debugging, cider's usual eval commands will evaluate code in the current lexical context. Additionally, the <kbd>l</kbd> key now inspects local variables.
 * [#1149](https://github.com/clojure-emacs/cider/pull/1149): [Two new ways](https://github.com/clojure-emacs/cider#cider-debug) to debug code, the `#break` and `#dbg` reader macros.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Extract `cider-set-relevant-connection` from `cider-switch-to-relevant-repl-buffer`.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Make `(cider-set-relevant-connection t)` and `(cider-switch-to-relevant-repl-buffer 16)` default to project directory.
+* [#732](https://github.com/clojure-emacs/cider/issues/732): `cider-quit` and `cider-restart` now operate on the current connection only. With a prefix argument they operate on all connections.
 
 ### Bugs fixed
 
