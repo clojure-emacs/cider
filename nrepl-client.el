@@ -626,8 +626,9 @@ older requests with \"done\" status."
 Display MESSAGE and if the process is closed kill the
 process buffer and run the hook `nrepl-disconnected-hook'."
   (message "nREPL: Connection closed (%s)" message)
-  (if (equal (process-status process) 'closed)
-      (run-hooks 'nrepl-disconnected-hook)))
+  (when (equal (process-status process) 'closed)
+    (run-hooks 'nrepl-disconnected-hook)
+    (nrepl--maybe-kill-server-buffer 'process-only)))
 
 
 ;;; Network
@@ -721,6 +722,19 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 ;;; Client: Process Handling
 
+(defun nrepl--maybe-kill-server-buffer (&optional process-only)
+  "Kill the `nrepl-server-buffer' and its process, subject to user confirmation.
+If PROCESS-ONLY is non-nil, don't kill the buffer and don't ask for
+confirmation."
+  (when (and (buffer-live-p nrepl-server-buffer)
+             (or process-only
+                 (y-or-n-p "Also kill server process and buffer? ")))
+    (let ((proc (get-buffer-process nrepl-server-buffer)))
+      (when (process-live-p proc)
+        (kill-process proc))
+      (unless process-only
+        (kill-buffer nrepl-server-buffer)))))
+
 ;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
 ;; starts the client process described by `nrepl-client-filter' and
 ;; `nrepl-client-sentinel'.
@@ -748,6 +762,7 @@ process."
 
     (with-current-buffer client-buf
       (-when-let (server-buf (and server-proc (process-buffer server-proc)))
+        (add-hook 'kill-buffer-hook #'nrepl--maybe-kill-server-buffer 'append 'local)
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
