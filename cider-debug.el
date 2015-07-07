@@ -63,16 +63,32 @@
   :group 'cider-debug
   :package-version "0.10.0")
 
+(defcustom cider-debug-prompt 'overlay
+  "If and where to show the keys while debugging.
+If `minibuffer', show it in the minibuffer along with the return value.
+If `overlay', show it in an overlay above the current function.
+If t, do both.
+If nil, don't list available keys at all."
+  :type '(choice (const :tag "Show in minibuffer" minibuffer)
+                 (const :tag "Show above function" overlay)
+                 (const :tag "Show in both places" t)
+                 (const :tag "Don't list keys" nil))
+  :group 'cider-debug
+  :package-version "0.10.0")
+
 (defcustom cider-debug-use-overlays 'end-of-line
   "Whether to higlight debugging information with overlays.
 Only applies to \"*cider-debug ...*\" buffers, which are used in debugging
 sessions.
-Possible values are inline, end-of-line, or nil."
+Possible values are inline, end-of-line, or nil.
+
+To control the overlay that lists possible keys above the current function,
+configure `cider-debug-prompt' instead."
   :type '(choice (const :tag "End of line" end-of-line)
                  (const :tag "Inline" inline)
                  (const :tag "No overlays" nil))
-  :group 'cider-debug
-  :package-version "0.9.1")
+  :group'cider-debug
+  :package-version"0.9.1")
 
 
 ;;; Implementation
@@ -142,7 +158,7 @@ TYPE is a symbol put on the overlay's cider-type property. It is used to
 easily remove all overlays from a region with:
     (remove-overlays start end 'cider-type TYPE)
 PROPS is a plist of properties and values to add to the overlay."
-  (let ((o (make-overlay l r (current-buffer))))
+  (let ((o (make-overlay l (or r l) (current-buffer))))
     (overlay-put o 'cider-type type)
     (overlay-put o 'modification-hooks (list #'cider--delete-overlay))
     (while props (overlay-put o (pop props) (pop props)))
@@ -220,20 +236,37 @@ Each element of LOCALS should be a list of at least two elements."
 
 (defun cider--debug-prompt (command-list)
   "Return prompt to display for COMMAND-LIST."
-  (mapconcat (lambda (x) (put-text-property 0 1 'face 'cider-debug-prompt-face x) x)
-             ;; `eval' is now integrated with things like `C-x C-e' and `C-c M-:'
-             ;; so we don't advertise this key to reduce clutter.
-             ;; `inspect' would conflict with `inject'.
-             (-difference command-list '("eval" "inspect")) " "))
+  (concat
+   (mapconcat (lambda (x) (put-text-property 0 1 'face 'cider-debug-prompt-face x) x)
+              ;; `eval' is now integrated with things like `C-x C-e' and `C-c M-:'
+              ;; so we don't advertise this key to reduce clutter.
+              ;; `inspect' would conflict with `inject'.
+              (-difference command-list '("eval" "inspect")) " ")
+   "\n"))
+
+(defvar cider--debug-prompt-overlay nil)
 
 (defun cider--debug-mode-redisplay ()
   "Display the input prompt to the user."
   (nrepl-dbind-response cider--debug-mode-response (debug-value input-type locals)
+    (when (or (eq cider-debug-prompt t)
+              (eq cider-debug-prompt 'overlay))
+      (if (overlayp cider--debug-prompt-overlay)
+          (overlay-put cider--debug-prompt-overlay
+                       'before-string (cider--debug-prompt input-type))
+        (setq cider--debug-prompt-overlay
+              (cider--make-overlay
+               (max (cider-defun-at-point-start-pos)
+                    (window-start))
+               nil 'debug-prompt
+               'before-string (cider--debug-prompt input-type)))))
     (let ((cider-interactive-eval-result-prefix
            (concat (when cider-debug-display-locals
                      (cider--debug-format-locals-list locals))
-                   (cider--debug-prompt input-type)
-                   "\n => ")))
+                   (when (or (eq cider-debug-prompt t)
+                             (eq cider-debug-prompt 'minibuffer))
+                     (cider--debug-prompt input-type))
+                   " => ")))
       (cider--display-interactive-eval-result (or debug-value "#unknown#")))))
 
 (defun cider-debug-toggle-locals ()
@@ -286,13 +319,20 @@ In order to work properly, this mode must be activated by
     (setq buffer-read-only nil)
     (remove-overlays nil nil 'cider-type 'debug-result)
     (remove-overlays nil nil 'cider-type 'debug-code)
+    (setq cider--debug-prompt-overlay nil)
+    (remove-overlays nil nil 'cider-type 'debug-prompt)
     (setq cider-interactive-eval-override nil)
     (setq cider--debug-mode-commands-alist nil)
     (setq cider--debug-mode-response nil)))
 
+(defun cider--debug-set-prompt (value)
+  "Set `cider-debug-prompt' to VALUE, then redisplay."
+  (setq cider-debug-prompt value)
+  (cider--debug-mode-redisplay))
+
 (easy-menu-define cider-debug-mode-menu cider--debug-mode-map
   "Menu for CIDER debug mode"
-  `("CIDER DEBUG"
+  `("CIDER DEBUGGER"
     ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
     ["Continue non-stop" (cider-debug-mode-send-reply ":continue") :keys "c"]
     ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
@@ -302,6 +342,13 @@ In order to work properly, this mode must be activated by
     ["Inspect value" (cider-debug-mode-send-reply ":inspect")]
     ["Inspect local variables" (cider-debug-mode-send-reply ":locals") :keys "l"]
     "--"
+    ("Configure keys prompt"
+     ["Don't show keys"     (cider--debug-set-prompt nil)         :style toggle :selected (eq cider-debug-prompt nil)]
+     ["Show in minibuffer"  (cider--debug-set-prompt 'minibuffer) :style toggle :selected (eq cider-debug-prompt 'minibuffer)]
+     ["Show above function" (cider--debug-set-prompt 'overlay)    :style toggle :selected (eq cider-debug-prompt 'overlay)]
+     ["Show in both places" (cider--debug-set-prompt t)           :style toggle :selected (eq cider-debug-prompt t)]
+     "--"
+     ["List locals" cider-debug-toggle-locals :style toggle :selected cider-debug-display-locals])
     ["Customize" (customize-group 'cider-debug)]))
 
 (defun cider-debug-mode-send-reply (command &optional key)
