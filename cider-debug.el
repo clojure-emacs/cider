@@ -290,6 +290,20 @@ In order to work properly, this mode must be activated by
     (setq cider--debug-mode-commands-alist nil)
     (setq cider--debug-mode-response nil)))
 
+(easy-menu-define cider-debug-mode-menu cider--debug-mode-map
+  "Menu for CIDER debug mode"
+  `("CIDER DEBUG"
+    ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
+    ["Continue non-stop" (cider-debug-mode-send-reply ":continue") :keys "c"]
+    ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
+    "--"
+    ["Evaluate in current scope" (cider-debug-mode-send-reply ":eval") :keys "e"]
+    ["Inject value" (cider-debug-mode-send-reply ":inject") :keys "i"]
+    ["Inspect value" (cider-debug-mode-send-reply ":inspect")]
+    ["Inspect local variables" (cider-debug-mode-send-reply ":locals") :keys "l"]
+    "--"
+    ["Customize" (customize-group 'cider-debug)]))
+
 (defun cider-debug-mode-send-reply (command &optional key)
   "Reply to the message that started current bufer's debugging session.
 COMMAND is sent as the input option. KEY can be provided to reply to a

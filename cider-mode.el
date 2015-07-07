@@ -144,6 +144,7 @@ entirely."
         ["Refresh loaded code" cider-refresh]
         "--"
         ["Debug top-level form" cider-debug-defun-at-point]
+        ["List instrumented defs" cider-browse-instrumented-defs]
         "--"
         ["Set ns" cider-repl-set-ns]
         ["Switch to REPL" cider-switch-to-repl-buffer]
