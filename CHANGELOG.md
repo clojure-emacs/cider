@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1188](https://github.com/clojure-emacs/cider/pull/1188): New debugging tool-bar.
 * [#1187](https://github.com/clojure-emacs/cider/pull/1187): The list of keys displayed by the debugger can be configured with `cider-debug-prompt`.
 * [#1187](https://github.com/clojure-emacs/cider/pull/1187): While debugging, there is a menu on the menu-bar listing available commands.
 * [#1184](https://github.com/clojure-emacs/cider/pull/1184): When the user kills the repl buffer, CIDER will offer to kill the nrepl buffer and process too. Also, when the client (repl) process dies, the server (nrepl) process is killed too.
