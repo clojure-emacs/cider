@@ -302,9 +302,8 @@ In order to work properly, this mode must be activated by
                   (apply-partially #'cider--debug-lexical-eval
                                    (nrepl-dict-get cider--debug-mode-response "key")))
             ;; Set the keymap.
-            (let ((alist `((?\C-g  . ":quit")
-                           ,@(mapcar (lambda (k) (cons (string-to-char k) (concat ":" k)))
-                                     (-difference input-type '("inspect"))))))
+            (let ((alist (mapcar (lambda (k) (cons (string-to-char k) (concat ":" k)))
+                                 (-difference input-type '("inspect")))))
               (setq cider--debug-mode-commands-alist alist)
               (dolist (it alist)
                 (define-key cider--debug-mode-map (vector (car it)) #'cider-debug-mode-send-reply)))
