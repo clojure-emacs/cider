@@ -285,6 +285,14 @@ of `cider-interactive-eval' in debug sessions."
                                  key)
     t))
 
+(defvar cider--debug-mode-tool-bar-map
+  (let ((tool-bar-map (make-sparse-keymap)))
+    (tool-bar-add-item "right-arrow" #'cider-debug-mode-send-reply :next :label "Next step")
+    (tool-bar-add-item "next-node" #'cider-debug-mode-send-reply :continue :label "Continue non-stop")
+    (tool-bar-add-item "jump-to" #'cider-debug-mode-send-reply :out :label "Out of sexp")
+    (tool-bar-add-item "exit" #'cider-debug-mode-send-reply :quit :label "Quit")
+    tool-bar-map))
+
 (defvar cider--debug-mode-map)
 
 (define-minor-mode cider--debug-mode
@@ -295,6 +303,7 @@ In order to work properly, this mode must be activated by
   (if cider--debug-mode
       (if cider--debug-mode-response
           (nrepl-dbind-response cider--debug-mode-response (input-type)
+            (setq-local tool-bar-map cider--debug-mode-tool-bar-map)
             (unless (consp input-type)
               (error "debug-mode activated on a message not asking for commands: %s" cider--debug-mode-response))
             ;; Integrate with eval commands.
@@ -324,6 +333,7 @@ In order to work properly, this mode must be activated by
   (when (or (not buffer) (buffer-live-p buffer))
     (with-current-buffer (or buffer (current-buffer))
       (unless cider--debug-mode
+        (kill-local-variable 'tool-bar-map)
         (remove-overlays nil nil 'cider-type 'debug-result)
         (remove-overlays nil nil 'cider-type 'debug-code)
         (setq cider--debug-prompt-overlay nil)
@@ -339,6 +349,7 @@ In order to work properly, this mode must be activated by
   `("CIDER DEBUGGER"
     ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
     ["Continue non-stop" (cider-debug-mode-send-reply ":continue") :keys "c"]
+    ["Move out of sexp" (cider-debug-mode-send-reply ":out") :keys "o"]
     ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
     "--"
     ["Evaluate in current scope" (cider-debug-mode-send-reply ":eval") :keys "e"]
@@ -359,9 +370,11 @@ In order to work properly, this mode must be activated by
   "Reply to the message that started current bufer's debugging session.
 COMMAND is sent as the input option. KEY can be provided to reply to a
 specific message."
-  (interactive (list (cdr (assq last-command-event
-                                cider--debug-mode-commands-alist))
-                     nil))
+  (interactive (list
+                (if (symbolp last-command-event)
+                    (symbol-name last-command-event)
+                  (cdr (assq last-command-event cider--debug-mode-commands-alist)))
+                nil))
   (nrepl-send-request
    (list "op" "debug-input" "input" (or command ":quit")
          "key" (or key (nrepl-dict-get cider--debug-mode-response "key")))
