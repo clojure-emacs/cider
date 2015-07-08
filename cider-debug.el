@@ -191,8 +191,6 @@ is displayed at point."
   (when cider-debug-use-overlays
     ;; This is cosmetic, let's ensure it doesn't break the session no matter what.
     (ignore-errors
-      (remove-overlays nil nil 'cider-type 'debug-result)
-      (remove-overlays nil nil 'cider-type 'debug-code)
       ;; Result
       (cider--make-result-overlay value 'debug-result cider-debug-use-overlays
                                   'before-string cider--fringe-arrow-string)
@@ -244,7 +242,7 @@ Each element of LOCALS should be a list of at least two elements."
               (-difference command-list '("eval" "inspect")) " ")
    "\n"))
 
-(defvar cider--debug-prompt-overlay nil)
+(defvar-local cider--debug-prompt-overlay nil)
 
 (defun cider--debug-mode-redisplay ()
   "Display the input prompt to the user."
@@ -317,13 +315,20 @@ In order to work properly, this mode must be activated by
             (user-error (substitute-command-keys "Don't call this mode manually, use `\\[universal-argument] \\[cider-eval-defun-at-point]' instead"))
           (error "Attempt to activate `cider--debug-mode' without setting `cider--debug-mode-response' first")))
     (setq buffer-read-only nil)
-    (remove-overlays nil nil 'cider-type 'debug-result)
-    (remove-overlays nil nil 'cider-type 'debug-code)
-    (setq cider--debug-prompt-overlay nil)
-    (remove-overlays nil nil 'cider-type 'debug-prompt)
+    (run-at-time 0.3 nil #'cider--debug-remove-overlays (current-buffer))
     (setq cider-interactive-eval-override nil)
     (setq cider--debug-mode-commands-alist nil)
     (setq cider--debug-mode-response nil)))
+
+(defun cider--debug-remove-overlays (&optional buffer)
+  "Remove CIDER debug overlays from BUFFER if `cider--debug-mode' is nil."
+  (when (or (not buffer) (buffer-live-p buffer))
+    (with-current-buffer (or buffer (current-buffer))
+      (unless cider--debug-mode
+        (remove-overlays nil nil 'cider-type 'debug-result)
+        (remove-overlays nil nil 'cider-type 'debug-code)
+        (setq cider--debug-prompt-overlay nil)
+        (remove-overlays nil nil 'cider-type 'debug-prompt)))))
 
 (defun cider--debug-set-prompt (value)
   "Set `cider-debug-prompt' to VALUE, then redisplay."
@@ -446,6 +451,7 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
                            (looking-at-p (regexp-quote (cider--debug-trim-code code))))
                  (cider--initialize-debug-buffer code ns original-id))
                (cider--debug-move-point coor))
+             (cider--debug-remove-overlays)
              (when cider-debug-use-overlays
                (cider--debug-display-result-overlay debug-value))
              (setq cider--debug-mode-response response)
