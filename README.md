@@ -46,6 +46,12 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 
 ![CIDER Screenshot](screenshots/cider-overview.png)
 
+**This documentation tracks the `master` branch of CIDER. Some of
+the features and settings discussed here might not be available in
+older releases (including the current stable release). Please, consult
+the relevant git tag (e.g. v0.9.1) if you need documentation for a
+specific CIDER release.**
+
 ***
 
 - [Installation](#installation)
