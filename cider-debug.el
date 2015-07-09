@@ -368,7 +368,7 @@ In order to work properly, this mode must be activated by
 
 (defun cider-debug-mode-send-reply (command &optional key)
   "Reply to the message that started current bufer's debugging session.
-COMMAND is sent as the input option. KEY can be provided to reply to a
+COMMAND is sent as the input option.  KEY can be provided to reply to a
 specific message."
   (interactive (list
                 (if (symbolp last-command-event)
