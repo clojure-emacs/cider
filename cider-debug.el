@@ -93,7 +93,7 @@ configure `cider-debug-prompt' instead."
 
 ;;; Implementation
 (defun cider--update-instrumented-defs (defs)
-  "Update which defs in current buffer are instrumented."
+  "Update which DEFS in current buffer are instrumented."
   (remove-overlays nil nil 'cider-type 'instrumented-defs)
   (save-excursion
     (dolist (name defs)
