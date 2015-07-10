@@ -232,6 +232,9 @@ keep track of a namespace.
 This should never be set in Clojure buffers, as there the namespace
 should be extracted from the buffer's ns form.")
 
+(defvar-local cider-repl-type nil
+  "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
+
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
