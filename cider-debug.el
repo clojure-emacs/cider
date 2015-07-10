@@ -150,9 +150,11 @@ This variable must be set before starting the repl connection."
 (defun cider--debug-init-connection ()
   "Initialize a connection with clj-debugger."
   (nrepl-send-request
-   (list "op" "init-debugger"
-         "print-level" cider-debug-print-level
-         "print-length" cider-debug-print-length)
+   (append '("op" "init-debugger")
+           (when cider-debug-print-level
+             (list "print-level" cider-debug-print-level))
+           (when cider-debug-print-length
+             (list "print-length" cider-debug-print-length)))
    (lambda (response)
      (nrepl-dbind-response response (status id instrumented-defs ns)
        (if (not (member "done" status))
