@@ -90,6 +90,22 @@ configure `cider-debug-prompt' instead."
   :group'cider-debug
   :package-version"0.9.1")
 
+(defcustom cider-debug-print-level nil
+  "print-level for values displayed by the debugger.
+This variable must be set before starting the repl connection."
+  :type '(choice (const :tag "No limit" nil)
+                 (integer :tag "Max depth" 2))
+  :group 'cider-debug
+  :package-version '(cider-debug . "0.10.0"))
+
+(defcustom cider-debug-print-length nil
+  "print-length for values displayed by the debugger.
+This variable must be set before starting the repl connection."
+  :type '(choice (const :tag "No limit" nil)
+                 (integer :tag "Max depth" 4))
+  :group 'cider-debug
+  :package-version '(cider-debug . "0.10.0"))
+
 
 ;;; Implementation
 (defun cider--update-instrumented-defs (defs)
@@ -134,7 +150,9 @@ configure `cider-debug-prompt' instead."
 (defun cider--debug-init-connection ()
   "Initialize a connection with clj-debugger."
   (nrepl-send-request
-   '("op" "init-debugger")
+   '("op" "init-debugger"
+     "print-level" cider-debug-print-level
+     "print-length" cider-debug-print-length)
    (lambda (response)
      (nrepl-dbind-response response (status id instrumented-defs ns)
        (if (not (member "done" status))
