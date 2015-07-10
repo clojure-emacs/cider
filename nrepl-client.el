@@ -1114,9 +1114,18 @@ pretty-printed result, and is included in the request if non-nil."
 ;; nrepl communication client (`nrepl-client-filter') when the message "nREPL
 ;; server started on port ..." is detected.
 
-(defun nrepl-start-server-process (directory cmd)
+(defvar-local nrepl-post-client-callback nil
+  "Function called after the client process is started.
+Used by `nrepl-start-server-process'.")
+
+(defun nrepl-start-server-process (directory cmd &optional callback)
   "Start nREPL server process in DIRECTORY using shell command CMD.
-Return a newly created process."
+Return a newly created process.
+Set `nrepl-server-filter' as the process filter, which starts REPL process
+with its own buffer once the server has started.
+If CALLBACK is non-nil, it should be function of 3 arguments. Once the
+client process is started, the function is called with the server process,
+the port, and the client buffer."
   (let* ((default-directory (or directory default-directory))
          (serv-buf (get-buffer-create (generate-new-buffer-name
                                        (nrepl-server-buffer-name directory))))
@@ -1127,6 +1136,7 @@ Return a newly created process."
     (set-process-coding-system serv-proc 'utf-8-unix 'utf-8-unix)
     (with-current-buffer serv-buf
       (setq nrepl-project-dir directory)
+      (setq nrepl-post-client-callback callback)
       ;; ensure that `nrepl-start-client-process' sees right things:
       (setq-local nrepl-create-client-buffer-function
                   nrepl-create-client-buffer-function)
@@ -1146,10 +1156,14 @@ Return a newly created process."
     (let ((port (string-to-number (match-string 1 output))))
       (message (format "nREPL server started on %s" port))
       (with-current-buffer (process-buffer process)
-        (let ((client-proc (nrepl-start-client-process nil port process)))
+        (let* ((client-proc (nrepl-start-client-process nil port process))
+               (client-buffer (process-buffer client-proc)))
           ;; FIXME: Bad connection tracking system. There can be multiple client
           ;; connections per server
-          (setq nrepl-connection-buffer (buffer-name (process-buffer client-proc))))))))
+          (setq nrepl-connection-buffer (buffer-name client-buffer))
+
+          (when (functionp nrepl-post-client-callback)
+            (funcall nrepl-post-client-callback client-buffer)))))))
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
