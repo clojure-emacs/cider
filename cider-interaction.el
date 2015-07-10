@@ -323,7 +323,7 @@ endpoint and Clojure version."
 (defun cider-display-current-connection-info ()
   "Display information about the current connection."
   (interactive)
-  (message (cider--connection-info (nrepl-current-connection-buffer))))
+  (message (cider--connection-info (cider-current-repl-buffer))))
 
 (defun cider-rotate-connection ()
   "Rotate and display the current nREPL connection."
@@ -494,7 +494,7 @@ supplied project directory."
      (format (if connection-buffer
                  "Switched to REPL: %s"
                "Could not determine relevant nREPL connection, using: %s")
-             (with-current-buffer (nrepl-current-connection-buffer)
+             (with-current-buffer (cider-current-repl-buffer)
                (format "%s:%s, %s:%s"
                        (or (nrepl--project-name nrepl-project-dir) "<no project>")
                        cider-buffer-ns
@@ -1640,13 +1640,13 @@ form independently.")
 
 (defun cider--cache-ns-form ()
   "Cache the form in the current buffer for the current connection."
-  (puthash (nrepl-current-connection-buffer)
+  (puthash (cider-current-repl-buffer)
            (cider-ns-form)
            cider--ns-form-cache))
 
 (defun cider--cached-ns-form ()
   "Retrieve the cached ns form for the current buffer & connection."
-  (gethash (nrepl-current-connection-buffer) cider--ns-form-cache))
+  (gethash (cider-current-repl-buffer) cider--ns-form-cache))
 
 (defun cider--prep-interactive-eval (form)
   "Prepares the environment for an interactive eval of FORM.
@@ -1688,7 +1688,7 @@ arguments and only proceed with evaluation if it returns nil."
      ;; always eval ns forms in the user namespace
      ;; otherwise trying to eval ns form for the first time will produce an error
      (if (cider-ns-form-p form) "user" (cider-current-ns))
-     nil
+     (cider-current-session)
      point)))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
@@ -1725,7 +1725,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive)
   (let ((last-sexp (cider-last-sexp)))
     ;; we have to be sure the evaluation won't result in an error
-    (nrepl-sync-request:eval last-sexp)
+    (nrepl-sync-request:eval last-sexp nil (cider-current-session))
     ;; seems like the sexp is valid, so we can safely kill it
     (backward-kill-sexp)
     (cider-interactive-eval last-sexp (cider-eval-print-handler))))
@@ -1848,7 +1848,10 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (defun cider-ping ()
   "Check that communication with the nREPL server works."
   (interactive)
-  (message (read (nrepl-dict-get (nrepl-sync-request:eval "\"PONG\"") "value"))))
+  (-> (nrepl-sync-request:eval "\"PONG\"" nil (cider-current-session))
+      (nrepl-dict-get "value")
+      (read)
+      (message)))
 
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
@@ -2199,7 +2202,7 @@ and all ancillary CIDER buffers."
           (dolist (connection nrepl-connection-list)
             (cider--quit-connection connection))
           (message "All active nREPL connections were closed"))
-      (cider--quit-connection (nrepl-current-connection-buffer)))
+      (cider--quit-connection (cider-current-repl-buffer)))
     ;; if there are no more connections we can kill all ancillary buffers
     (unless (cider-connected-p)
       (cider-close-ancillary-buffers))))
@@ -2224,7 +2227,7 @@ If RESTART-ALL is t, then restarts all connections."
   (if restart-all
       (dolist (conn nrepl-connection-list)
         (cider--restart-connection conn))
-    (cider--restart-connection (nrepl-current-connection-buffer))))
+    (cider--restart-connection (cider-current-repl-buffer))))
 
 (defvar cider--namespace-history nil
   "History of user input for namespace prompts.")
