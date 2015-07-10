@@ -814,14 +814,15 @@ values of *1, *2, etc."
         (setq nrepl-versions versions)))))
 
 (defun nrepl-close-client-sessions ()
-  "Close the nREPL sessions for the active connection."
+  "Close the nREPL sessions for the active connection.
+If BUFFER is non-nil, close that buffer's connection."
   (nrepl-sync-request:close (nrepl-current-session))
   (nrepl-sync-request:close (nrepl-current-tooling-session)))
+(make-obsolete 'nrepl-close-client-sessions 'cider--close-buffer "0.10.0")
 
 (defun nrepl-close (connection-buffer)
   "Close the nREPL connection for CONNECTION-BUFFER."
   (interactive (list (nrepl-current-connection-buffer)))
-  (nrepl-close-client-sessions)
   (nrepl--close-connection-buffer connection-buffer)
   (run-hooks 'nrepl-disconnected-hook)
   (nrepl--connections-refresh))

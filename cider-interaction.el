@@ -2160,6 +2160,10 @@ the string contents of the region into a formatted string."
 ;;; quiting
 (defun cider--close-buffer (buffer)
   "Close the BUFFER and kill its associated process (if any)."
+  (when nrepl-session
+    (nrepl-sync-request:close nrepl-session))
+  (when nrepl-tooling-session
+    (nrepl-sync-request:close nrepl-tooling-session))
   (when (get-buffer-process buffer)
     (delete-process (get-buffer-process buffer)))
   (when (get-buffer buffer)
