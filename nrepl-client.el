@@ -1421,13 +1421,17 @@ The connections buffer is determined by
          (buffer (get-buffer connection))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
-     (format "%s %-16s %5s   %s"
+     (format "%s %-16s %5s   %s%s"
              (if (equal connection (car nrepl-connection-list)) "*" " ")
              (car endpoint)
              (prin1-to-string (cadr endpoint))
              (or (nrepl--project-name
                   (buffer-local-value 'nrepl-project-dir buffer))
-                 "")))))
+                 "")
+             (with-current-buffer buffer
+               (if nrepl-sibling-buffer-alist
+                   (concat " " cider-repl-type)
+                 ""))))))
 
 (defun nrepl--project-name (stack)
   "Extracts a project name from STACK, possibly nil.
