@@ -185,6 +185,25 @@ if the candidate is not namespace-qualified."
 
 (defconst cider-refresh-log-buffer "*cider-refresh-log*")
 
+(defcustom cider-refresh-before-fn nil
+  "Clojure function for `cider-refresh' to call before reloading.
+
+If nil, nothing will be invoked before reloading. Must be a
+namespace-qualified function of zero arity. Any thrown exception will
+prevent reloading from occuring."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-refresh-after-fn nil
+  "Clojure function for `cider-refresh' to call after reloading.
+
+If nil, nothing will be invoked after reloading. Must be a
+namespace-qualified function of zero arity."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
 (defconst cider-output-buffer "*cider-out*")
 
 (defcustom cider-interactive-eval-output-destination 'repl-buffer
@@ -2003,12 +2022,22 @@ opposite of what that option dictates."
       (cider-interactive-eval-handler (current-buffer))))))
 
 (defun cider-refresh--handle-response (response buffer)
-  (nrepl-dbind-response response (out err reloading status error error-ns)
+  (nrepl-dbind-response response (out err reloading status error error-ns after before)
     (cond (out
            (cider-emit-into-popup-buffer buffer out))
 
           (err
            (cider-emit-into-popup-buffer buffer err 'font-lock-warning-face))
+
+          ((member "invoking-before" status)
+           (cider-emit-into-popup-buffer buffer
+                                         (format "Calling %s\n" before)
+                                         'font-lock-string-face))
+
+          ((member "invoked-before" status)
+           (cider-emit-into-popup-buffer buffer
+                                         (format "Successfully called %s\n" before)
+                                         'font-lock-string-face))
 
           (reloading
            (cider-emit-into-popup-buffer buffer
@@ -2028,7 +2057,17 @@ opposite of what that option dictates."
           (error-ns
            (cider-emit-into-popup-buffer buffer
                                          (format "Error reloading %s\n" error-ns)
-                                         'font-lock-warning-face)))
+                                         'font-lock-warning-face))
+
+          ((member "invoking-after" status)
+           (cider-emit-into-popup-buffer buffer
+                                         (format "Calling %s\n" after)
+                                         'font-lock-string-face))
+
+          ((member "invoked-after" status)
+           (cider-emit-into-popup-buffer buffer
+                                         (format "Successfully called %s\n" after)
+                                         'font-lock-string-face)))
 
     (with-selected-window (or (get-buffer-window cider-refresh-log-buffer)
                               (selected-window))
@@ -2047,9 +2086,11 @@ unconditionally."
   (cider-ensure-op-supported "refresh")
   (let ((buffer (cider-popup-buffer-display (or (get-buffer cider-refresh-log-buffer)
                                                 (cider-make-popup-buffer cider-refresh-log-buffer)))))
-    (nrepl-send-request (list "op" (if arg "refresh-all" "refresh")
-                              "print-length" cider-stacktrace-print-length
-                              "print-level" cider-stacktrace-print-level)
+    (nrepl-send-request (append (list "op" (if arg "refresh-all" "refresh")
+                                      "print-length" cider-stacktrace-print-length
+                                      "print-level" cider-stacktrace-print-level)
+                                (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
+                                (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
                         (lambda (response)
                           (cider-refresh--handle-response response buffer)))))
 
