@@ -1659,9 +1659,8 @@ Clears any compilation highlights and kills the error window."
     (when (and cur-ns-form
                (not (string= cur-ns-form (cider--cached-ns-form)))
                (not (cider-ns-form-p form)))
-      ;; this should probably be done synchronously
-      ;; otherwise an errors in the ns form will go unnoticed
-      (cider-eval-ns-form)
+      ;; TODO: check for evaluation errors
+      (cider-eval-ns-form 'sync)
       (cider--cache-ns-form))))
 
 (defvar-local cider-interactive-eval-override nil
@@ -1773,13 +1772,18 @@ command `cider-debug-defun-at-point'."
   (interactive)
   (cider--pprint-eval-form (cider-defun-at-point)))
 
-(defun cider-eval-ns-form ()
-  "Evaluate the current buffer's namespace form."
+(defun cider-eval-ns-form (&optional sync)
+  "Evaluate the current buffer's namespace form.
+
+When SYNC is true the form is evaluated synchronously,
+otherwise it's evaluated interactively."
   (interactive)
   (when (clojure-find-ns)
     (save-excursion
       (goto-char (match-beginning 0))
-      (cider-eval-defun-at-point))))
+      (if sync
+          (nrepl-sync-request:eval (cider-defun-at-point))
+        (cider-eval-defun-at-point)))))
 
 (defun cider-read-and-eval ()
   "Read a sexp from the minibuffer and output its result to the echo area."

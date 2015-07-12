@@ -21,6 +21,7 @@
 ### Bugs fixed
 
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
+* [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.
 
 ## 0.9.1 / 2015-06-24
 
