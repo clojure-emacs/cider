@@ -27,6 +27,7 @@
 
 (require 'nrepl-client)
 (require 'cider-interaction)
+(require 'cider-inspector)
 (require 'cider-browse-ns)
 (require 'dash)
 
