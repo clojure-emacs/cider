@@ -467,7 +467,7 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
   (nrepl-dbind-response response (debug-value key coor code file point ns original-id
                                               input-type prompt inspect)
-    (condition-case nil
+    (condition-case-unless-debug e
         (progn
           (pcase input-type
             ("expression" (cider-debug-mode-send-reply (cider-read-from-minibuffer
@@ -494,7 +494,7 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
             (cider-inspector--done-handler (current-buffer))))
       ;; If something goes wrong, we send a "quit" or the session hangs.
       (error (cider-debug-mode-send-reply ":quit" key)
-        (cider-popup-buffer-quit-function (not (buffer-modified-p)))))))
+             (message "Error encountered while handling the debug message: %S" e)))))
 
 
 ;;; User commands

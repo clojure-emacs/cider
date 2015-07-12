@@ -943,7 +943,7 @@ Display the results in a different window."
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info t))
-    (error "Symbol %s not resolved" var)))
+    (user-error "Symbol %s not resolved" var)))
 
 (defun cider--find-var (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE."
@@ -951,7 +951,7 @@ Display the results in a different window."
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info))
-    (error "Symbol %s not resolved" var)))
+    (user-error "Symbol %s not resolved" var)))
 
 (defun cider-find-var (&optional arg var line)
   "Find definition for VAR at LINE.
@@ -981,7 +981,7 @@ thing at point."
 (defun cider--find-ns (ns &optional other-window)
   (-if-let (path (cider-sync-request:ns-path ns))
       (cider-jump-to (cider-find-file path) nil other-window)
-    (error "Can't find %s" ns)))
+    (user-error "Can't find %s" ns)))
 
 (defun cider-find-ns (&optional arg ns)
   "Find the file containing NS.
@@ -1134,7 +1134,7 @@ in the buffer."
            (url (nrepl-dict-get info "javadoc")))
       (if url
           (browse-url url)
-        (error "No Javadoc available for %s" symbol-name)))))
+        (user-error "No Javadoc available for %s" symbol-name)))))
 
 (defun cider-javadoc (arg)
   "Open Javadoc documentation in a popup buffer.
@@ -1270,7 +1270,7 @@ This is used by pretty-printing commands and intentionally discards their result
   (let ((buffer (get-buffer cider-error-buffer)))
     (if buffer
         (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
-      (error "No %s buffer" cider-error-buffer))))
+      (user-error "No %s buffer" cider-error-buffer))))
 
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.
@@ -1965,7 +1965,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   "Look up documentation for SYMBOL."
   (-if-let (buffer (cider-create-doc-buffer symbol))
       (cider-popup-buffer-display buffer t)
-    (error "Symbol %s not resolved" symbol)))
+    (user-error "Symbol %s not resolved" symbol)))
 
 (defun cider-doc (&optional arg)
   "Open Clojure documentation in a popup buffer.
@@ -2046,7 +2046,7 @@ The heavy lifting is done by `cider-load-file'."
   (setq buffer (or buffer (current-buffer)))
   (with-current-buffer buffer
     (unless buffer-file-name
-      (error "Buffer %s is not associated with a file" (buffer-name)))
+      (user-error "Buffer %s is not associated with a file" (buffer-name)))
     (when (and cider-prompt-save-file-on-load
                (buffer-modified-p)
                (y-or-n-p (format "Save file %s? " buffer-file-name)))
