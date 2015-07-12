@@ -1577,7 +1577,7 @@ and automatically removed when killed."
                 nil 'local))
     (current-buffer)))
 
-(defun cider-emit-into-popup-buffer (buffer value)
+(defun cider-emit-into-popup-buffer (buffer value &optional face)
   "Emit into BUFFER the provided VALUE."
   ;; Long string output renders emacs unresponsive and users might intentionally
   ;; kill the frozen popup buffer. Therefore, we don't re-create the buffer and
@@ -1589,7 +1589,9 @@ and automatically removed when killed."
             (moving (= (point) cider-popup-output-marker)))
         (save-excursion
           (goto-char cider-popup-output-marker)
-          (insert (format "%s" value))
+          (let ((value-str (format "%s" value)))
+            (when face (add-face-text-property 0 (length value-str) face nil value-str))
+            (insert value-str))
           (indent-sexp)
           (set-marker cider-popup-output-marker (point)))
         (when moving (goto-char cider-popup-output-marker))))))
