@@ -717,45 +717,48 @@ section of your Leiningen project's configuration.
 
 ClojureScript support relies on the
 [piggieback](https://github.com/cemerick/piggieback) nREPL middleware being
-present in your REPL session. Version 0.2.0 or higher is recommended, and the
-below examples assume this, but version 0.1.5 is currently also supported.
+present in your REPL session.
 
-* Example usage of a non-browser connected Node.js REPL:
+1. Add the following dependencies to your `project.clj`
 
-  - At the Clojure REPL:
+   ```clojure
+   [com.cemerick/piggieback "0.2.1"]
+   [org.clojure/clojure "1.7.0"]
+   ```
 
-    ```clojure
-    (require '[cemerick.piggieback :as piggieback])
-    (require '[cljs.repl.node :as node])
-    (piggieback/cljs-repl (node/repl-env))
-    ```
+   as well as the following option:
 
-* Example usage of browser-connected Weasel REPL (requires
-e.g. `[weasel "0.6.0"]` in your project's `:dependencies`):
+   ```clojure
+   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+   ```
 
-  - At the Clojure REPL:
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl` if
+   you'd like to change the REPL used (the default is `rhino`).
 
-    ```clojure
-    (require '[cemerick.piggieback :as piggieback])
-    (require '[weasel.repl.websocket :as weasel])
-    (piggieback/cljs-repl (weasel/repl-env :ip "127.0.0.1"
-                                           :port 9001))
-    ```
+3. Open a file in your project and issue <kbd>M-x</kbd>
+   `cider-jack-in-cljs`. This will start up the nREPL server, and then create
+   two REPL buffers for you, one in Clojure and one in ClojureScript. All usual
+   CIDER commands will be automatically directed to the appropriate REPL,
+   depending on whether you're visiting a `clj` or a `cljs` file.
 
-  - and in your ClojureScript:
+#### Browser-connected ClojureScript REPL
 
-    ```clojure
-    (ns my.cljs.core
-      (:require [weasel.repl :as repl]))
+Using Weasel, you can also have a browser-connected REPL.
 
-    (repl/connect "ws://localhost:9001")
-    ```
+1. Add `[weasel "0.6.0"]` to your project's `:dependencies`.
 
-The [clojure-quick-repls](https://github.com/symfrog/clojure-quick-repls)
-library provides helper functions to automate REPL creation for both Clojure and
-Clojurescript, and will also automatically route requests to the correct REPL
-according to the file extension of the current buffer (note that CIDER does not
-provide the latter functionality out-of-the-box).
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl`
+   and choose the `Weasel` option.
+
+3. Add this to your code:
+
+   ```clojure
+   (ns my.cljs.core
+     (:require [weasel.repl :as repl]))
+   (repl/connect "ws://localhost:9001")
+   ```
+
+4. Open a file in your project and issue `M-x cider-jack-in-cljs`.
 
 Provided that a Piggieback-enabled ClojureScript environment is active in your
 REPL session, code loading and evaluation will work seamlessly regardless of the
