@@ -268,6 +268,10 @@ Each element of LOCALS should be a list of at least two elements."
 (defun cider--debug-mode-redisplay ()
   "Display the input prompt to the user."
   (nrepl-dbind-response cider--debug-mode-response (debug-value input-type locals)
+    ;; The overlay code relies on window boundaries, but point could have been
+    ;; moved outside the window by some other code. Redisplay here to ensure the
+    ;; visible window includes point.
+    (redisplay)
     (when (or (eq cider-debug-prompt t)
               (eq cider-debug-prompt 'overlay))
       (if (overlayp cider--debug-prompt-overlay)
