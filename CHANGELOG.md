@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1201](https://github.com/clojure-emacs/cider/pull/1201): Integrate overlays with interactive evaluation. `cider-use-overlays` can be used to turn this on or off.
 * [#1195](https://github.com/clojure-emacs/cider/pull/1195): CIDER can [create cljs REPLs](https://github.com/clojure-emacs/cider#clojurescript-usage). 
 * [#1191](https://github.com/clojure-emacs/cider/pull/1191): New custom variables `cider-debug-print-level` and `cider-debug-print-length`.
 * [#1188](https://github.com/clojure-emacs/cider/pull/1188): New debugging tool-bar.

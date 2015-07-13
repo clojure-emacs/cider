@@ -35,6 +35,7 @@
 (require 'cider-stacktrace)
 (require 'cider-test)
 (require 'cider-doc)
+(require 'cider-overlays)
 
 (require 'clojure-mode)
 (require 'dash)
@@ -91,12 +92,6 @@ When set to 'errors-only, don't jump to warnings."
   "Controls whether to auto-select the error popup buffer."
   :type 'boolean
   :group 'cider)
-
-(defcustom cider-interactive-eval-result-prefix "=> "
-  "The prefix displayed in the minibuffer before a result value."
-  :type 'string
-  :group 'cider
-  :package-version '(cider . "0.5.0"))
 
 (defcustom cider-switch-to-repl-command 'cider-switch-to-relevant-repl-buffer
   "Select the command to be invoked when switching-to-repl.
@@ -1206,18 +1201,13 @@ The output can be send to either a dedicated output buffer or the current REPL b
 This is controlled via `cider-interactive-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-err-output))
 
-(defun cider--display-interactive-eval-result (value)
-  "Display the result VALUE of an interactive eval operation."
-  (message "%s%s"
-           cider-interactive-eval-result-prefix
-           (cider-font-lock-as-clojure value)))
-
 (defun cider-interactive-eval-handler (&optional buffer)
   "Make an interactive eval handler for BUFFER."
-  (let ((eval-buffer (current-buffer)))
+  (let ((eval-buffer (current-buffer))
+        (point (point-marker)))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (_buffer value)
-                                   (cider--display-interactive-eval-result value))
+                                   (cider--display-interactive-eval-result value point))
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
                                  (lambda (_buffer err)
