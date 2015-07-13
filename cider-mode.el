@@ -33,17 +33,29 @@
 (require 'cider-interaction)
 (require 'cider-eldoc)
 
+(defcustom cider-mode-line-show-connection t
+  "If the mode-line lighter should detail the connection."
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider "0.10.0"))
+
 (defun cider--modeline-info ()
   "Return info for the `cider-mode' modeline.
 
 Info contains project name and host:port endpoint."
-  (let ((current-connection (nrepl-current-connection-buffer t)))
+  (let ((current-connection (cider-current-repl-buffer)))
     (if current-connection
         (with-current-buffer current-connection
-          (format "%s@%s:%s"
-                  (or (nrepl--project-name nrepl-project-dir) "<no project>")
-                  (car nrepl-endpoint)
-                  (cadr nrepl-endpoint)))
+          (concat
+           (when nrepl-sibling-buffer-alist
+             (concat cider-repl-type ":"))
+           (when cider-mode-line-show-connection
+             (format "%s@%s:%s"
+                     (or (nrepl--project-name nrepl-project-dir) "<no project>")
+                     (pcase (car nrepl-endpoint)
+                       ("localhost" "")
+                       (x x))
+                     (cadr nrepl-endpoint)))))
       "not connected")))
 
 ;;;###autoload

@@ -171,11 +171,58 @@ Sub-match 1 must be the project path.")
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)))
 
+(defcustom cider-cljs-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
+  "Clojure form that returns a ClojureScript REPL environment.
+This is evaluated in a Clojure REPL and it should start a ClojureScript
+REPL."
+  :type '(choice (const :tag "Rhyno"
+                        "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))")
+                 (const :tag "Node (requires NodeJS to be installed)"
+                        "(cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env))")
+                 (const :tag "Weasel (see Readme for additional configuration)"
+                        "(cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001))")
+                 (string :tag "Custom"))
+  :group 'cider)
+
+(defun cider-create-sibling-cljs-repl (client-buffer)
+  "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
+Link the new buffer with CLIENT-BUFFER, which should be the regular Clojure
+REPL started by the server process filter."
+  (interactive (list (cider-current-repl-buffer)))
+  (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
+         (nrepl-create-client-buffer-function  #'cider-repl-create)
+         (nrepl-use-this-as-repl-buffer 'new)
+         (client-process-args (with-current-buffer client-buffer
+                                (unless (or nrepl-server-buffer nrepl-endpoint)
+                                  (error "This is not a REPL buffer, is there a REPL active?"))
+                                (list (car nrepl-endpoint)
+                                      (elt nrepl-endpoint 1)
+                                      (when (buffer-live-p nrepl-server-buffer)
+                                        (get-buffer-process nrepl-server-buffer)))))
+         (cljs-proc (apply #'nrepl-start-client-process client-process-args))
+         (cljs-buffer (process-buffer cljs-proc))
+         (alist `(("cljs" . ,cljs-buffer)
+                  ("clj"  . ,client-buffer))))
+    (with-current-buffer client-buffer
+      (setq cider-repl-type "clj")
+      (setq nrepl-sibling-buffer-alist alist))
+    (with-current-buffer cljs-buffer
+      (setq cider-repl-type "cljs")
+      (setq nrepl-sibling-buffer-alist alist)
+      (nrepl-send-request
+       (list "op" "eval"
+             "ns" (cider-current-ns)
+             "session" nrepl-session
+             "code" cider-cljs-repl)
+       (cider-repl-handler (current-buffer))))))
+
 ;;;###autoload
-(defun cider-jack-in (&optional prompt-project)
+(defun cider-jack-in (&optional prompt-project cljs-too)
   "Start a nREPL server for the current project and connect to it.
 If PROMPT-PROJECT is t, then prompt for the project for which to
-start the server."
+start the server.
+If CLJS-TOO is non-nil, also start a ClojureScript REPL session with its
+own buffer."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
   (let ((project-type (or (cider-project-type) cider-default-repl-command)))
@@ -193,9 +240,19 @@ start the server."
           (-when-let (repl-buff (nrepl-find-reusable-repl-buffer nil project-dir))
             (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
                   (nrepl-use-this-as-repl-buffer repl-buff))
-              (nrepl-start-server-process project-dir cmd))))
+              (nrepl-start-server-process
+               project-dir cmd
+               (when cljs-too #'cider-create-sibling-cljs-repl)))))
       (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your exec-path"
                (cider-jack-in-command project-type)))))
+
+;;;###autoload
+(defun cider-jack-in-clojurescript (&optional prompt-project)
+  "Start a nREPL server and connect to it both Clojure and ClojureScript REPLs.
+If PROMPT-PROJECT is t, then prompt for the project for which to
+start the server."
+  (interactive "P")
+  (cider-jack-in prompt-project 'cljs-too))
 
 ;;;###autoload
 (defun cider-connect (host port)
