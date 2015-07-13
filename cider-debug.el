@@ -36,33 +36,26 @@
 (defgroup cider-debug nil
   "Presentation and behaviour of the cider debugger."
   :prefix "cider-debug-"
-  :package-version '(cider-debug . "0.10.0"))
-
-(defface cider-result-overlay-face
-  '((((class color) (background light)) :foreground "firebrick")
-    (((class color) (background dark))  :foreground "orange red"))
-  "Face used to display result of debug step at point."
-  :group 'cider-debug
-  :package-version "0.9.1")
+  :package-version '(cider . "0.10.0"))
 
 (defface cider-debug-code-overlay-face
   '((((class color) (background light)) :background "grey80")
     (((class color) (background dark))  :background "grey30"))
   "Face used to mark code being debugged."
   :group 'cider-debug
-  :package-version "0.9.1")
+  :package-version '(cider . "0.9.1"))
 
 (defface cider-debug-prompt-face
   '((t :underline t :inherit font-lock-builtin-face))
   "Face used to mark code being debugged."
   :group 'cider-debug
-  :package-version "0.10.0")
+  :package-version '(cider . "0.10.0"))
 
 (defface cider-instrumented-face
   '((t :box (:color "red" :line-width -1)))
   "Face used to mark code being debugged."
   :group 'cider-debug
-  :package-version "0.10.0")
+  :package-version '(cider . "0.10.0"))
 
 (defcustom cider-debug-prompt 'overlay
   "If and where to show the keys while debugging.
@@ -75,21 +68,19 @@ If nil, don't list available keys at all."
                  (const :tag "Show in both places" t)
                  (const :tag "Don't list keys" nil))
   :group 'cider-debug
-  :package-version "0.10.0")
+  :package-version '(cider . "0.10.0"))
 
-(defcustom cider-debug-use-overlays 'end-of-line
+(defcustom cider-debug-use-overlays t
   "Whether to higlight debugging information with overlays.
-Only applies to \"*cider-debug ...*\" buffers, which are used in debugging
-sessions.
-Possible values are inline, end-of-line, or nil.
-
+Takes the same possible values as `cider-use-overlays', but only applies to
+values displayed during debugging sessions.
 To control the overlay that lists possible keys above the current function,
 configure `cider-debug-prompt' instead."
-  :type '(choice (const :tag "End of line" end-of-line)
-                 (const :tag "Inline" inline)
-                 (const :tag "No overlays" nil))
-  :group'cider-debug
-  :package-version"0.9.1")
+  :type '(choice (const :tag "End of line" t)
+                 (const :tag "Bottom of screen" nil)
+                 (const :tag "Both" both))
+  :group 'cider-debug
+  :package-version '(cider . "0.9.1"))
 
 (defcustom cider-debug-print-level nil
   "print-level for values displayed by the debugger.
@@ -97,7 +88,7 @@ This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Max depth" 2))
   :group 'cider-debug
-  :package-version '(cider-debug . "0.10.0"))
+  :package-version '(cider . "0.10.0"))
 
 (defcustom cider-debug-print-length nil
   "print-length for values displayed by the debugger.
@@ -105,7 +96,7 @@ This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Max depth" 4))
   :group 'cider-debug
-  :package-version '(cider-debug . "0.10.0"))
+  :package-version '(cider . "0.10.0"))
 
 
 ;;; Implementation
@@ -167,42 +158,7 @@ This variable must be set before starting the repl connection."
          (remhash id nrepl-pending-requests))))))
 
 
-;;; Overlay logic
-(defun cider--delete-overlay (ov &rest _)
-  "Safely delete overlay OV.
-Never throws errors, and can be used in an overlay's modification-hooks."
-  (ignore-errors (delete-overlay ov)))
-
-(defun cider--make-overlay (l r type &rest props)
-  "Place an overlay between L and R and return it.
-TYPE is a symbol put on the overlay's cider-type property. It is used to
-easily remove all overlays from a region with:
-    (remove-overlays start end 'cider-type TYPE)
-PROPS is a plist of properties and values to add to the overlay."
-  (let ((o (make-overlay l (or r l) (current-buffer))))
-    (overlay-put o 'cider-type type)
-    (overlay-put o 'modification-hooks (list #'cider--delete-overlay))
-    (while props (overlay-put o (pop props) (pop props)))
-    o))
-
-(defun cider--make-result-overlay (value type &optional where &rest props)
-  "Place an overlay displaying VALUE at the end of the line.
-TYPE and PROPS are passed to `cider--make-overlay'.
-The overlay is placed from beginning to end of current line.
-If WHERE is the symbol inline, instead, the overlay ends at point and VALUE
-is displayed at point."
-  (apply
-   #'cider--make-overlay
-   (line-beginning-position)
-   (if (eq where 'inline) (point) (line-end-position))
-   type
-   'after-string
-   (propertize (concat (propertize " " 'cursor 1000)
-                       cider-interactive-eval-result-prefix
-                       (format "%s" value))
-               'face 'cider-result-overlay-face)
-   props))
-
+;;; Debugging overlays
 (defconst cider--fringe-arrow-string
   #("." 0 1 (display (left-fringe right-triangle)))
   "Used as an overlay's before-string prop to place a fringe arrow.")
@@ -213,7 +169,7 @@ is displayed at point."
     ;; This is cosmetic, let's ensure it doesn't break the session no matter what.
     (ignore-errors
       ;; Result
-      (cider--make-result-overlay value 'debug-result cider-debug-use-overlays
+      (cider--make-result-overlay (cider-font-lock-as-clojure value) (point) nil
                                   'before-string cider--fringe-arrow-string)
       ;; Code
       (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
@@ -268,10 +224,6 @@ Each element of LOCALS should be a list of at least two elements."
 (defun cider--debug-mode-redisplay ()
   "Display the input prompt to the user."
   (nrepl-dbind-response cider--debug-mode-response (debug-value input-type locals)
-    ;; The overlay code relies on window boundaries, but point could have been
-    ;; moved outside the window by some other code. Redisplay here to ensure the
-    ;; visible window includes point.
-    (redisplay)
     (when (or (eq cider-debug-prompt t)
               (eq cider-debug-prompt 'overlay))
       (if (overlayp cider--debug-prompt-overlay)
@@ -283,14 +235,24 @@ Each element of LOCALS should be a list of at least two elements."
                     (window-start))
                nil 'debug-prompt
                'before-string (cider--debug-prompt input-type)))))
-    (let ((cider-interactive-eval-result-prefix
-           (concat (when cider-debug-display-locals
-                     (cider--debug-format-locals-list locals))
-                   (when (or (eq cider-debug-prompt t)
-                             (eq cider-debug-prompt 'minibuffer))
-                     (cider--debug-prompt input-type))
-                   " => ")))
-      (cider--display-interactive-eval-result (or debug-value "#unknown#")))))
+    (let* ((value (concat " " cider-eval-result-prefix
+                          (cider-font-lock-as-clojure
+                           (or debug-value "#unknown#"))))
+           (to-display
+            (concat (when cider-debug-display-locals
+                      (cider--debug-format-locals-list locals))
+                    (when (or (eq cider-debug-prompt t)
+                              (eq cider-debug-prompt 'minibuffer))
+                      (cider--debug-prompt input-type))
+                    (when (or (not cider-debug-use-overlays)
+                              (eq cider-debug-use-overlays 'both))
+                      value))))
+      (if (> (string-width to-display) 0)
+          (message "%s" to-display)
+        ;; If there's nothing to display in the minibuffer. Just send the value
+        ;; to the Messages buffer.
+        (message "%s" value)
+        (message nil)))))
 
 (defun cider-debug-toggle-locals ()
   "Toggle display of local variables."
@@ -359,7 +321,7 @@ In order to work properly, this mode must be activated by
     (with-current-buffer (or buffer (current-buffer))
       (unless cider--debug-mode
         (kill-local-variable 'tool-bar-map)
-        (remove-overlays nil nil 'cider-type 'debug-result)
+        (remove-overlays nil nil 'cider-type 'result)
         (remove-overlays nil nil 'cider-type 'debug-code)
         (setq cider--debug-prompt-overlay nil)
         (remove-overlays nil nil 'cider-type 'debug-prompt)))))
@@ -488,6 +450,10 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
                            (looking-at-p (regexp-quote (cider--debug-trim-code code))))
                  (cider--initialize-debug-buffer code ns original-id))
                (cider--debug-move-point coor))
+             ;; The overlay code relies on window boundaries, but point could have been
+             ;; moved outside the window by some other code. Redisplay here to ensure the
+             ;; visible window includes point.
+             (redisplay)
              (cider--debug-remove-overlays)
              (when cider-debug-use-overlays
                (cider--debug-display-result-overlay debug-value))
