@@ -978,6 +978,9 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
       (puthash id callback nrepl-pending-requests)
       (process-send-string nil message))))
 
+(defvar nrepl-ongoing-sync-request nil
+  "Dynamically bound to t while a sync request is ongoing.")
+
 (defun nrepl-send-sync-request (request &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously.
 Hold till final \"done\" message has arrived and join all response messages
@@ -986,6 +989,7 @@ If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface."
   (let* ((time0 (current-time))
          (response (cons 'dict nil))
+         (nrepl-ongoing-sync-request t)
          status)
     (nrepl-send-request request (lambda (resp) (nrepl--merge response resp)))
     (while (and (not (member "done" status))
