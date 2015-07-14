@@ -303,8 +303,12 @@ In order to work properly, this mode must be activated by
               (setq cider--debug-mode-commands-alist alist)
               (dolist (it alist)
                 (define-key cider--debug-mode-map (vector (car it)) #'cider-debug-mode-send-reply)))
-            ;; And show the prompt.
-            (cider--debug-mode-redisplay))
+            ;; Show the prompt.
+            (cider--debug-mode-redisplay)
+            ;; If a sync request is ongoing, the user can't act normally to
+            ;; provide input, so we enter `recursive-edit'.
+            (when nrepl-ongoing-sync-request
+              (recursive-edit)))
         (cider--debug-mode -1)
         (if (called-interactively-p 'any)
             (user-error (substitute-command-keys "Don't call this mode manually, use `\\[universal-argument] \\[cider-eval-defun-at-point]' instead"))
@@ -313,7 +317,9 @@ In order to work properly, this mode must be activated by
     (run-at-time 0.3 nil #'cider--debug-remove-overlays (current-buffer))
     (setq cider-interactive-eval-override nil)
     (setq cider--debug-mode-commands-alist nil)
-    (setq cider--debug-mode-response nil)))
+    (setq cider--debug-mode-response nil)
+    (when nrepl-ongoing-sync-request
+      (ignore-errors (exit-recursive-edit)))))
 
 (defun cider--debug-remove-overlays (&optional buffer)
   "Remove CIDER debug overlays from BUFFER if `cider--debug-mode' is nil."
