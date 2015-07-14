@@ -449,7 +449,11 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
              (when (or code (and file point))
                ;; We prefer in-source debugging.
                (when (and file point)
-                 (find-file file)
+                 (-if-let (buf (find-buffer-visiting file))
+                     (-if-let (win (get-buffer-window buf))
+                         (select-window win)
+                       (pop-to-buffer buf))
+                   (find-file file))
                  (goto-char point))
                ;; But we can create a temp buffer if that fails.
                (unless (or (looking-at-p (regexp-quote code))
