@@ -1,4 +1,4 @@
-;;; cider-debug.el --- CIDER interaction with clj-debugger  -*- lexical-binding: t; -*-
+;;; cider-debug.el --- CIDER interaction with the cider.debug nREPL middleware  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2015 Artur Malabarba
 
@@ -36,6 +36,7 @@
 (defgroup cider-debug nil
   "Presentation and behaviour of the cider debugger."
   :prefix "cider-debug-"
+  :group 'cider
   :package-version '(cider . "0.10.0"))
 
 (defface cider-debug-code-overlay-face
@@ -47,7 +48,7 @@
 
 (defface cider-debug-prompt-face
   '((t :underline t :inherit font-lock-builtin-face))
-  "Face used to mark code being debugged."
+  "Face used to highlight keys in the debug prompt."
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
@@ -82,19 +83,19 @@ configure `cider-debug-prompt' instead."
   :group 'cider-debug
   :package-version '(cider . "0.9.1"))
 
-(defcustom cider-debug-print-level nil
+(defcustom cider-debug-print-level 10
   "print-level for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
-                 (integer :tag "Max depth" 2))
+                 (integer :tag "Max depth" 10))
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-debug-print-length nil
+(defcustom cider-debug-print-length 10
   "print-length for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
-                 (integer :tag "Max depth" 4))
+                 (integer :tag "Max depth" 10))
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
