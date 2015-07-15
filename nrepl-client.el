@@ -1192,7 +1192,7 @@ the port, and the client buffer."
 
 ;;; Messages
 
-(defcustom nrepl-log-messages nil
+(defcustom nrepl-log-messages t
   "If non-nil, log protocol messages to the `nrepl-message-buffer-name' buffer."
   :type 'boolean
   :group 'nrepl)

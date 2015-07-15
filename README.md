@@ -268,13 +268,15 @@ first CIDER connection is established. It will also add a `clojure-mode` hook to
 enable it on newly created `clojure-mode` buffers. The configuration snippet
 above allows you to override this (somewhat non-standard) behavior.
 
-* Log communication with the nREPL server (**extremely useful for debugging CIDER problems**):
+* Don't log communication with the nREPL server:
 
 ```el
-(setq nrepl-log-messages t)
+(setq nrepl-log-messages nil)
 ```
 
-The log will go to the buffer `*nrepl-messages*`.
+Basically, this will dispose of the buffer `*nrepl-messages*`. The communication
+log is invaluable for debugging CIDER issues, so you're generally advised to keep
+it around.
 
 * You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
 from appearing in some buffer switching commands like

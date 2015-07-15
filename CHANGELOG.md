@@ -5,7 +5,7 @@
 ### New features
 
 * [#1201](https://github.com/clojure-emacs/cider/pull/1201): Integrate overlays with interactive evaluation. `cider-use-overlays` can be used to turn this on or off.
-* [#1195](https://github.com/clojure-emacs/cider/pull/1195): CIDER can [create cljs REPLs](https://github.com/clojure-emacs/cider#clojurescript-usage). 
+* [#1195](https://github.com/clojure-emacs/cider/pull/1195): CIDER can [create cljs REPLs](https://github.com/clojure-emacs/cider#clojurescript-usage).
 * [#1191](https://github.com/clojure-emacs/cider/pull/1191): New custom variables `cider-debug-print-level` and `cider-debug-print-length`.
 * [#1188](https://github.com/clojure-emacs/cider/pull/1188): New debugging tool-bar.
 * [#1187](https://github.com/clojure-emacs/cider/pull/1187): The list of keys displayed by the debugger can be configured with `cider-debug-prompt`.
@@ -19,6 +19,10 @@
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Extract `cider-set-relevant-connection` from `cider-switch-to-relevant-repl-buffer`.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Make `(cider-set-relevant-connection t)` and `(cider-switch-to-relevant-repl-buffer 16)` default to project directory.
 * [#732](https://github.com/clojure-emacs/cider/issues/732): `cider-quit` and `cider-restart` now operate on the current connection only. With a prefix argument they operate on all connections.
+
+### Changes
+
+* `nrepl-log-messages` is now set to `t` by default.
 
 ### Bugs fixed
 
