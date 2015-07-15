@@ -628,13 +628,15 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
                 (cons (set-marker (make-marker) start)
                       (set-marker (make-marker) end)))))))
 
-(defun cider-last-sexp ()
-  "Return the sexp preceding the point."
-  (buffer-substring-no-properties
-   (save-excursion
-     (clojure-backward-logical-sexp 1)
-     (point))
-   (point)))
+(defun cider-last-sexp (&optional bounds)
+  "Return the sexp preceding the point.
+If BOUNDS is non-nil, return a list of its starting and ending position
+instead."
+  (funcall (if bounds #'list #'buffer-substring-no-properties)
+           (save-excursion
+             (clojure-backward-logical-sexp 1)
+             (point))
+           (point)))
 
 ;;;
 (defun cider-tramp-prefix (&optional buffer)
@@ -1201,10 +1203,12 @@ The output can be send to either a dedicated output buffer or the current REPL b
 This is controlled via `cider-interactive-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-err-output))
 
-(defun cider-interactive-eval-handler (&optional buffer)
-  "Make an interactive eval handler for BUFFER."
+(defun cider-interactive-eval-handler (&optional buffer point)
+  "Make an interactive eval handler for BUFFER.
+If POINT is non-nil, it is the position where the evaluated sexp ends. It
+can be used to display the evaluation result."
   (let ((eval-buffer (current-buffer))
-        (point (point-marker)))
+        (point (if point (copy-marker point) (point-marker))))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (_buffer value)
                                    (cider--display-interactive-eval-result value point))
@@ -1662,27 +1666,31 @@ Clears any compilation highlights and kills the error window."
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
 
-(defun cider-interactive-eval (form &optional callback point)
+(defun cider-interactive-eval (form &optional callback bounds)
   "Evaluate FORM and dispatch the response to CALLBACK.
 This function is the main entry point in CIDER's interactive evaluation
 API.  Most other interactive eval functions should rely on this function.
 If CALLBACK is nil use `cider-interactive-eval-handler'.
-POINT, if non-nil, is the position of FORM in its buffer.
+BOUNDS, if non-nil, is a list of two numbers marking the start and end
+positions of FORM in its buffer.
 
 If `cider-interactive-eval-override' is a function, call it with the same
 arguments and only proceed with evaluation if it returns nil."
-  (unless (and cider-interactive-eval-override
-               (functionp cider-interactive-eval-override)
-               (funcall cider-interactive-eval-override form callback point))
-    (cider--prep-interactive-eval form)
-    (nrepl-request:eval
-     form
-     (or callback (cider-interactive-eval-handler))
-     ;; always eval ns forms in the user namespace
-     ;; otherwise trying to eval ns form for the first time will produce an error
-     (if (cider-ns-form-p form) "user" (cider-current-ns))
-     (cider-current-session)
-     point)))
+  (let ((form  (or form (apply #'buffer-substring bounds)))
+        (start (car-safe bounds))
+        (end   (car-safe (cdr-safe bounds))))
+    (unless (and cider-interactive-eval-override
+                 (functionp cider-interactive-eval-override)
+                 (funcall cider-interactive-eval-override form callback bounds))
+      (cider--prep-interactive-eval form)
+      (nrepl-request:eval
+       form
+       (or callback (cider-interactive-eval-handler nil end))
+       ;; always eval ns forms in the user namespace
+       ;; otherwise trying to eval ns form for the first time will produce an error
+       (if (cider-ns-form-p form) "user" (cider-current-ns))
+       (cider-current-session)
+       start))))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
   "Evaluate FORM and dispatch the response to CALLBACK.
@@ -1702,16 +1710,15 @@ the printed result, and defaults to `fill-column'."
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
   (interactive "r")
-  (let ((code (buffer-substring-no-properties start end)))
-    (cider-interactive-eval code nil start)))
+  (cider-interactive-eval nil nil (list start end)))
 
 (defun cider-eval-last-sexp (&optional prefix)
   "Evaluate the expression preceding point.
 If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
-  (cider-interactive-eval (cider-last-sexp)
+  (cider-interactive-eval nil
                           (when prefix (cider-eval-print-handler))
-                          (save-excursion (clojure-backward-logical-sexp 1) (point))))
+                          (cider-last-sexp 'bounds)))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
@@ -1761,7 +1768,7 @@ command `cider-debug-defun-at-point'."
    (concat (if debug-it "#dbg ")
            (cider-defun-at-point))
    nil
-   (cider-defun-at-point-start-pos)))
+   (cider--region-for-defun-at-point)))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the top-level form at point and pprint its value in a popup buffer."
