@@ -1027,7 +1027,7 @@ form, with symbol at point replaced by __prefix__."
              (context (cider-defun-at-point))
              (_ (beginning-of-defun))
              (expr-start (point)))
-        (concat (substring context 0 (- pref-start expr-start))
+        (concat (when pref-start (substring context 0 (- pref-start expr-start)))
                 "__prefix__"
                 (substring context (- pref-end expr-start)))))))
 
