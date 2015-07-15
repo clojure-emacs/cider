@@ -100,25 +100,28 @@ overlay will be deleted after the next command (this mimics the behaviour
 of the echo area).
 
 PROPS are passed to `cider--make-overlay' with a type of result."
-  (with-current-buffer (if (markerp where) (marker-buffer where)
-                         (current-buffer))
-    (remove-overlays nil nil 'cider-type 'result)
-    (save-excursion
-      (when where (goto-char where))
-      (let ((o (apply
-                #'cider--make-overlay
-                (line-beginning-position) (line-end-position)
-                'result
-                'after-string
-                (concat (propertize " " 'cursor 1000)
-                        (propertize cider-eval-result-prefix
-                                    'face 'cider-result-overlay-face)
-                        (format "%s" value))
-                props)))
-        (pcase duration
-          ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
-          (`command (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local)))
-        o))))
+  ;; If the marker points to a dead buffer, don't do anything.
+  (-if-let (buffer (if (markerp where) (marker-buffer where)
+                     (current-buffer)))
+      (with-current-buffer buffer
+        (remove-overlays nil nil 'cider-type 'result)
+        (save-excursion
+          (when where (goto-char where))
+          (let ((o (apply
+                    #'cider--make-overlay
+                    (line-beginning-position) (line-end-position)
+                    'result
+                    'after-string
+                    (concat (propertize " " 'cursor 1000)
+                            (propertize cider-eval-result-prefix
+                                        'face 'cider-result-overlay-face)
+                            (format "%s" value))
+                    props)))
+            (pcase duration
+              ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
+              (`command (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local)))
+            o)))
+    (message "%s%s" cider-eval-result-prefix value)))
 
 
 ;;; Displaying eval result

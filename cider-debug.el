@@ -298,6 +298,8 @@ In order to work properly, this mode must be activated by
       (if cider--debug-mode-response
           (nrepl-dbind-response cider--debug-mode-response (input-type)
             (setq-local tool-bar-map cider--debug-mode-tool-bar-map)
+            (add-hook 'kill-buffer-hook #'cider--debug-quit nil 'local)
+            (add-hook 'before-revert-hook #'cider--debug-quit nil 'local)
             (unless (consp input-type)
               (error "debug-mode activated on a message not asking for commands: %s" cider--debug-mode-response))
             ;; Integrate with eval commands.
@@ -380,6 +382,12 @@ specific message."
          "key" (or key (nrepl-dict-get cider--debug-mode-response "key")))
    #'ignore)
   (ignore-errors (cider--debug-mode -1)))
+
+(defun cider--debug-quit ()
+  "Send a :quit reply to the debugger. Used in hooks."
+  (when cider--debug-mode
+    (cider-debug-mode-send-reply ":quit")
+    (message "Quitting debug session")))
 
 
 ;;; Movement logic
