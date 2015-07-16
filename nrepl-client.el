@@ -892,9 +892,10 @@ server responses."
   (lambda (response)
     (nrepl-dbind-response response (value ns out err status id ex root-ex
                                           session pprint-out)
-      (with-current-buffer buffer
-        (when (and ns (not (derived-mode-p 'clojure-mode)))
-          (setq cider-buffer-ns ns)))
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (when (and ns (not (derived-mode-p 'clojure-mode)))
+            (setq cider-buffer-ns ns))))
       (cond (value
              (when value-handler
                (funcall value-handler buffer value)))

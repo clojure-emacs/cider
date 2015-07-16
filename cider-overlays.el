@@ -91,6 +91,10 @@ PROPS is a plist of properties and values to add to the overlay."
 VALUE is used as the overlay's after-string property, meaning it is
 displayed at the end of the overlay. The overlay itself is placed from
 beginning to end of current line.
+Return nil if the overlay was not placed or is not visible, and return the
+overlay otherwise.
+
+Return the overlay if it was placed successfully, and nil if it failed.
 
 If WHERE is a number or a marker, it is the character position of the line
 to use, otherwise use `point'.
@@ -100,25 +104,30 @@ overlay will be deleted after the next command (this mimics the behaviour
 of the echo area).
 
 PROPS are passed to `cider--make-overlay' with a type of result."
-  (with-current-buffer (if (markerp where) (marker-buffer where)
-                         (current-buffer))
-    (remove-overlays nil nil 'cider-type 'result)
-    (save-excursion
-      (when where (goto-char where))
-      (let ((o (apply
-                #'cider--make-overlay
-                (line-beginning-position) (line-end-position)
-                'result
-                'after-string
-                (concat (propertize " " 'cursor 1000)
-                        (propertize cider-eval-result-prefix
-                                    'face 'cider-result-overlay-face)
-                        (format "%s" value))
-                props)))
-        (pcase duration
-          ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
-          (`command (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local)))
-        o))))
+  ;; If the marker points to a dead buffer, don't do anything.
+  (-if-let (buffer (if (markerp where) (marker-buffer where)
+                     (current-buffer)))
+      (with-current-buffer buffer
+        (remove-overlays nil nil 'cider-type 'result)
+        (save-excursion
+          (when where (goto-char where))
+          (let ((o (apply
+                    #'cider--make-overlay
+                    (line-beginning-position) (line-end-position)
+                    'result
+                    'after-string
+                    (concat (propertize " " 'cursor 1000)
+                            (propertize cider-eval-result-prefix
+                                        'face 'cider-result-overlay-face)
+                            (format "%s" value))
+                    props)))
+            (pcase duration
+              ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
+              (`command (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local)))
+            (-when-let (win (get-buffer-window buffer))
+              (when (pos-visible-in-window-p (point) win)
+                o)))))
+    nil))
 
 
 ;;; Displaying eval result
@@ -132,16 +141,22 @@ This function also removes itself from `post-command-hook'."
   "Display the result VALUE of an interactive eval operation.
 VALUE is syntax-highlighted and displayed in the echo area.
 If POINT and `cider-use-overlays' are non-nil, it is also displayed in an
-overlay at point."
-  (let ((font-value (cider-font-lock-as-clojure value)))
-    (when (and point cider-use-overlays)
-      (cider--make-result-overlay font-value point cider-eval-result-duration))
-    (message "%s%s" cider-eval-result-prefix font-value)
-    ;; Display the message anyway, but quickly erase it if we shouldn't have
-    ;; displayed it. This way it's always available in the Messages buffer.
-    (when (and cider-use-overlays
-               (not (eq cider-use-overlays 'both)))
-      (message nil))))
+overlay at the end of the line containing POINT.
+Note that, while POINT can be a number, it's preferable to be a marker, as
+that will better handle some corner cases where the original buffer is not
+focused."
+  (let* ((font-value (cider-font-lock-as-clojure value))
+         (used-overlay
+          (when (and point cider-use-overlays)
+            (cider--make-result-overlay font-value point cider-eval-result-duration))))
+    (message
+     "%s"
+     (propertize (format "%s%s" cider-eval-result-prefix font-value)
+                 ;; The following hides the message from the echo-area, but
+                 ;; displays it in the Messages buffer. We only hide the message
+                 ;; if the user wants to AND if the overlay succeeded.
+                 'invisible (and used-overlay
+                                 (not (eq cider-use-overlays 'both)))))))
 
 (provide 'cider-overlays)
 ;;; cider-overlays.el ends here
