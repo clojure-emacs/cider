@@ -1,4 +1,4 @@
-;;; cider-debug.el --- CIDER interaction with clj-debugger  -*- lexical-binding: t; -*-
+;;; cider-debug.el --- CIDER interaction with the cider.debug nREPL middleware  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2015 Artur Malabarba
 
@@ -36,6 +36,7 @@
 (defgroup cider-debug nil
   "Presentation and behaviour of the cider debugger."
   :prefix "cider-debug-"
+  :group 'cider
   :package-version '(cider . "0.10.0"))
 
 (defface cider-debug-code-overlay-face
@@ -47,7 +48,7 @@
 
 (defface cider-debug-prompt-face
   '((t :underline t :inherit font-lock-builtin-face))
-  "Face used to mark code being debugged."
+  "Face used to highlight keys in the debug prompt."
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
@@ -82,19 +83,19 @@ configure `cider-debug-prompt' instead."
   :group 'cider-debug
   :package-version '(cider . "0.9.1"))
 
-(defcustom cider-debug-print-level nil
+(defcustom cider-debug-print-level 10
   "print-level for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
-                 (integer :tag "Max depth" 2))
+                 (integer :tag "Max depth" 10))
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-debug-print-length nil
+(defcustom cider-debug-print-length 10
   "print-length for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
-                 (integer :tag "Max depth" 4))
+                 (integer :tag "Max depth" 10))
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
@@ -139,23 +140,29 @@ This variable must be set before starting the repl connection."
         (goto-char (point-min)))
     (message "No currently instrumented definitions")))
 
+(defun cider--debug-response-handler (response)
+  "Handle responses from the cider.debug middleware."
+  (nrepl-dbind-response response (status id instrumented-defs ns causes)
+    (when (member "instrumented-defs" status)
+      (cider--debug-handle-instrumented-defs instrumented-defs ns))
+    (when (member "eval-error" status)
+      (cider--render-stacktrace-causes causes))
+    (when (member "need-debug-input" status)
+      (cider--handle-debug response))
+    (when (member "done" status)
+      (puthash id (gethash id nrepl-pending-requests)
+               nrepl-completed-requests)
+      (remhash id nrepl-pending-requests))))
+
 (defun cider--debug-init-connection ()
-  "Initialize a connection with clj-debugger."
+  "Initialize a connection with the cider.debug middleware."
   (nrepl-send-request
    (append '("op" "init-debugger")
            (when cider-debug-print-level
              (list "print-level" cider-debug-print-level))
            (when cider-debug-print-length
              (list "print-length" cider-debug-print-length)))
-   (lambda (response)
-     (nrepl-dbind-response response (status id instrumented-defs ns)
-       (if (not (member "done" status))
-           (if (member "instrumented-defs" response)
-               (cider--debug-handle-instrumented-defs instrumented-defs ns)
-             (cider--handle-debug response))
-         (puthash id (gethash id nrepl-pending-requests)
-                  nrepl-completed-requests)
-         (remhash id nrepl-pending-requests))))))
+   #'cider--debug-response-handler))
 
 
 ;;; Debugging overlays
@@ -449,7 +456,11 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
              (when (or code (and file point))
                ;; We prefer in-source debugging.
                (when (and file point)
-                 (find-file file)
+                 (-if-let (buf (find-buffer-visiting file))
+                     (-if-let (win (get-buffer-window buf))
+                         (select-window win)
+                       (pop-to-buffer buf))
+                   (find-file file))
                  (goto-char point))
                ;; But we can create a temp buffer if that fails.
                (unless (or (looking-at-p (regexp-quote code))
