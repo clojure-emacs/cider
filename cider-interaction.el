@@ -536,7 +536,8 @@ Returns to the buffer in which the command was invoked."
 (defun cider-read-from-minibuffer (prompt &optional initial-value)
   "Read a string from the minibuffer, prompting with PROMPT.
 If INITIAL-VALUE is non-nil, it is inserted into the minibuffer before
-reading input."
+reading input.
+PROMPT need not end with \": \"."
   (minibuffer-with-setup-hook
       (lambda ()
         (set-syntax-table clojure-mode-syntax-table)
@@ -544,7 +545,8 @@ reading input."
                   #'cider-complete-at-point nil t)
         (setq-local eldoc-documentation-function #'cider-eldoc)
         (run-hooks 'eval-expression-minibuffer-setup-hook))
-    (read-from-minibuffer prompt initial-value
+    (read-from-minibuffer (if (string-match ": \\'" prompt) prompt (concat prompt ": "))
+                          initial-value
                           cider-minibuffer-map nil
                           'cider-minibuffer-history)))
 
@@ -603,11 +605,10 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
              (bounds-of-thing-at-point 'sexp)))
       (bounds-of-thing-at-point 'sexp)))
 
-;; FIXME: This doesn't have properly at the beginning of the REPL prompt
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
-  (let ((str (substring-no-properties (or (thing-at-point 'symbol) ""))))
-    (if (equal str (concat (cider-current-ns) "> "))
+  (let ((str (or (thing-at-point 'symbol) "")))
+    (if (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
         ""
       str)))
 
@@ -967,7 +968,7 @@ thing at point."
   (if var
       (cider--find-var var line)
     (funcall (cider-prompt-for-symbol-function arg)
-             "Symbol: "
+             "Symbol"
              (if (cider--open-other-window-p arg)
                  #'cider--find-var-other-window
                #'cider--find-var))))
@@ -1145,7 +1146,7 @@ the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
   (funcall (cider-prompt-for-symbol-function arg)
-           "Javadoc for: "
+           "Javadoc for"
            #'cider-javadoc-handler))
 
 (defun cider-stdin-handler (&optional buffer)
@@ -1931,7 +1932,7 @@ opposite of what that option dictates."
   (interactive "P")
   (cider-ensure-op-supported "toggle-trace-var")
   (funcall (cider-prompt-for-symbol-function arg)
-           "Toggle trace for var: "
+           "Toggle trace for var"
            #'cider--toggle-trace-var))
 
 (defun cider-sync-request:toggle-trace-ns (ns)
@@ -1974,7 +1975,7 @@ the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
   (funcall (cider-prompt-for-symbol-function arg)
-           "Doc for: "
+           "Doc for"
            #'cider-doc-lookup))
 
 (defun cider-undef ()

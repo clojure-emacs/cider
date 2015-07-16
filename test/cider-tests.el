@@ -563,9 +563,12 @@
     (should (string= (cider-symbol-at-point) ""))))
 
 (ert-deftest cider-symbol-at-point-at-repl-prompt ()
-  (noflet ((thing-at-point (thing) "user> ")
-           (cider-current-ns () "user"))
-    (should (string= (cider-symbol-at-point) ""))))
+  (noflet ((thing-at-point (thing) (propertize "user>" 'field 'cider-repl-prompt)))
+    (should (string= (cider-symbol-at-point) "")))
+  (noflet ((thing-at-point (thing) (propertize "boogie>" 'field 'cider-repl-prompt)))
+    (should (string= (cider-symbol-at-point) "")))
+  (noflet ((thing-at-point (thing) "boogie>"))
+    (should (string= (cider-symbol-at-point) "boogie>"))))
 
 (ert-deftest test-cider--url-to-file ()
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
