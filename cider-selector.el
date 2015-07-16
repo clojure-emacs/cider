@@ -119,8 +119,8 @@ is chosen.  The returned buffer is selected with
   (cider-selector)
   (current-buffer))
 
-(pushnew (list ?4 "Select in other window" (lambda () (cider-selector t)))
-         cider-selector-methods :key #'car)
+(cl-pushnew (list ?4 "Select in other window" (lambda () (cider-selector t)))
+            cider-selector-methods :key #'car)
 
 (def-cider-selector-method ?c
   "Most recently visited clojure-mode buffer."
