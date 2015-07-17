@@ -46,6 +46,9 @@
     (define-key map [mouse-1] #'cider-inspector-operate-on-click)
     (define-key map "l" #'cider-inspector-pop)
     (define-key map "g" #'cider-inspector-refresh)
+    (define-key map "SPC" #'cider-inspector-next-page)
+    (define-key map "M-SPC" #'cider-inspector-prev-page)
+    (define-key map "s" #'cider-inspector-set-page-size)
     (define-key map [tab] #'cider-inspector-next-inspectable-object)
     (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object) ; Emacs translates S-TAB
@@ -122,6 +125,34 @@ Used for all inspector nREPL ops."
   (interactive)
   (nrepl-send-request (list "op" "inspect-refresh"
                             "session" (nrepl-current-session))
+                      (cider-inspector-response-handler (current-buffer))))
+
+(defun cider-inspector-next-page ()
+  "Jump to the next page when inspecting a paginated sequence/map.
+
+Does nothing if already on the last page."
+  (interactive)
+  (nrepl-send-request (list "op" "inspect-next-page"
+                            "session" (nrepl-current-session))
+                      (cider-inspector-response-handler (current-buffer))))
+
+(defun cider-inspector-prev-page ()
+  "Jump to the previous page when expecting a paginated sequence/map.
+
+Does nothing if already on the first page."
+  (interactive)
+  (nrepl-send-request (list "op" "inspect-prev-page"
+                            "session" (nrepl-current-session))
+                      (cider-inspector-response-handler (current-buffer))))
+
+(defun cider-inspector-set-page-size (page-size)
+  "Set the page size in pagination mode to the specified value.
+
+Current page will be reset to zero."
+  (interactive "nPage size:")
+  (nrepl-send-request (list "op" "inspect-set-page-size"
+                            "session" (nrepl-current-session)
+                            "page-size" page-size)
                       (cider-inspector-response-handler (current-buffer))))
 
 ;; Render Inspector from Structured Values
