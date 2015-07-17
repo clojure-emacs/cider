@@ -628,10 +628,15 @@ older requests with \"done\" status."
   "Handle sentinel events from PROCESS.
 Display MESSAGE and if the process is closed kill the
 process buffer and run the hook `nrepl-disconnected-hook'."
-  (message "nREPL: Connection closed (%s)" message)
+  (if (string-match "deleted\\b" message)
+      (message "nREPL: Connection properly closed")
+    (message "nREPL: Connection unexpectedly closed (%s)"
+             (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
-    (run-hooks 'nrepl-disconnected-hook)
-    (nrepl--maybe-kill-server-and-sibling-buffers 'process-only)))
+    (when (buffer-live-p (process-buffer process))
+      (with-current-buffer (process-buffer process)
+        (run-hooks 'nrepl-disconnected-hook)
+        (nrepl--maybe-kill-server-and-sibling-buffers 'process-only)))))
 
 (defun nrepl--get-sibling-buffers (&optional buffer)
   "Return a list of live siblings to BUFFER."
@@ -733,6 +738,9 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 ;;; Client: Process Handling
 
+(defvar-local nrepl--closing-connection nil
+  "Signals the current buffer is being closed.")
+
 (defun nrepl--maybe-kill-server-and-sibling-buffers (&optional process-only)
   "Kill the `nrepl-server-buffer' and its process, subject to user confirmation.
 If PROCESS-ONLY is non-nil, don't kill the buffer and don't ask for
@@ -740,7 +748,8 @@ confirmation."
   ;; If this is being called as the process filter and it has siblings, don't
   ;; kill anything else automatically. If it has called because the user
   ;; manually killed the buffer, then fine, offer to kill everything.
-  (unless (and process-only nrepl-sibling-buffer-alist)
+  (unless (or nrepl--closing-connection
+              (and process-only nrepl-sibling-buffer-alist))
     (let ((server-buffer nrepl-server-buffer)
           (siblings (nrepl--get-sibling-buffers)))
       (when (or process-only
@@ -748,8 +757,7 @@ confirmation."
                 (y-or-n-p "Also kill sibling REPL buffers? "))
         (dolist (buffer siblings)
           (with-current-buffer buffer
-            (setq nrepl-sibling-buffer-alist nil)
-            (setq nrepl-server-buffer nil)
+            (setq nrepl--closing-connection t)
             (ignore-errors
               (kill-process (get-buffer-process buffer))))
           (unless process-only
@@ -799,6 +807,7 @@ process."
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
+            nrepl--closing-connection nil
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer client-buf
             nrepl-tunnel-buffer (-when-let (tunnel (plist-get endpoint :tunnel))
@@ -1352,10 +1361,10 @@ Also close associated REPL and server buffers."
     (setq nrepl-connection-list
           (delq (buffer-name buffer) nrepl-connection-list))
     (when (buffer-live-p buffer)
-      (dolist (buf `(,(buffer-local-value 'nrepl-server-buffer buffer)
+      (dolist (buf `(,@(or (nrepl--get-sibling-buffers buffer)
+                           (list buffer))
                      ,(buffer-local-value 'nrepl-tunnel-buffer buffer)
-                     ,@(or (nrepl--get-sibling-buffers buffer)
-                           (list buffer))))
+                     ,(buffer-local-value 'nrepl-server-buffer buffer)))
         (when buf
           (cider--close-buffer buf))))))
 
