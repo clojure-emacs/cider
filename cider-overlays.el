@@ -111,6 +111,8 @@ PROPS are passed to `cider--make-overlay' with a type of result."
         (remove-overlays nil nil 'cider-type 'result)
         (save-excursion
           (when where (goto-char where))
+          ;; Make sure the overlay is actually at the end of the sexp.
+          (skip-chars-backward "\r\n[:blank:]")
           (let ((o (apply
                     #'cider--make-overlay
                     (line-beginning-position) (line-end-position)
