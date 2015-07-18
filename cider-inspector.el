@@ -36,6 +36,20 @@
 
 (defconst cider-inspector-buffer "*cider inspect*")
 
+;;; Customization
+(defgroup cider-inspector nil
+  "Presentation and behaviour of the cider value inspector."
+  :prefix "cider-inspector-"
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-inspector-page-size 32
+  "Default page size in paginated inspector view.
+The page size can be also changed interactively within the inspector."
+  :type '(integer :tag "Page size" 32)
+  :group 'cider-inspector
+  :package-version '(cider . "0.10.0"))
+
 (push cider-inspector-buffer cider-ancillary-buffers)
 
 (defvar cider-inspector-mode-map
@@ -106,7 +120,8 @@ Used for all inspector nREPL ops."
 (defun cider-inspect-expr (expr ns)
   (cider--prep-interactive-eval expr)
   (nrepl-send-request (append (nrepl--eval-request expr ns)
-                              (list "inspect" "true"))
+                              (list "inspect" "true"
+                                    "page-size" (or cider-inspector-page-size 32)))
                       (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-pop ()
