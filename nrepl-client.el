@@ -901,7 +901,7 @@ server responses."
   (lambda (response)
     (nrepl-dbind-response response (value ns out err status id ex root-ex
                                           session pprint-out)
-      (when (buffer-live-p buffer)
+      (when (buffer-live-p (get-buffer buffer))
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
             (setq cider-buffer-ns ns))))
