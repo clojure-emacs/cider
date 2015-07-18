@@ -875,6 +875,9 @@ Keyboard shortcut               | Description
 <kbd>Return</kbd> | inspect sub-objects
 <kbd>l</kbd> | pop to the parent object
 <kbd>g</kbd> | refresh the inspector (e.g. if viewing an atom/ref/agent)
+<kbd>SPC</kbd> | jump to next page in paginated view
+<kbd>M-SPC</kbd> | jump to previous page in paginated view
+<kbd>s</kbd> | set a new page size in paginated view
 
 ### cider-test-report-mode
 
