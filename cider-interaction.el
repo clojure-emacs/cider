@@ -2021,53 +2021,39 @@ opposite of what that option dictates."
             "symbol" sym)
       (cider-interactive-eval-handler (current-buffer))))))
 
-(defun cider-refresh--handle-response (response buffer)
+(defun cider-refresh--handle-response (response log-buffer)
   (nrepl-dbind-response response (out err reloading status error error-ns after before)
-    (cond (out
-           (cider-emit-into-popup-buffer buffer out))
+    (cl-flet ((log (message &optional face)
+                   (cider-emit-into-popup-buffer log-buffer message face)))
+      (cond (out
+             (log out))
 
-          (err
-           (cider-emit-into-popup-buffer buffer err 'font-lock-warning-face))
+            (err
+             (log err 'font-lock-warning-face))
 
-          ((member "invoking-before" status)
-           (cider-emit-into-popup-buffer buffer
-                                         (format "Calling %s\n" before)
-                                         'font-lock-string-face))
+            ((member "invoking-before" status)
+             (log (format "Calling %s\n" before) 'font-lock-string-face))
 
-          ((member "invoked-before" status)
-           (cider-emit-into-popup-buffer buffer
-                                         (format "Successfully called %s\n" before)
-                                         'font-lock-string-face))
+            ((member "invoked-before" status)
+             (log (format "Successfully called %s\n" before) 'font-lock-string-face))
 
-          (reloading
-           (cider-emit-into-popup-buffer buffer
-                                         (format "Reloading %s\n" reloading)
-                                         'font-lock-string-face))
+            (reloading
+             (log (format "Reloading %s\n" reloading) 'font-lock-string-face))
 
-          ((member "reloading" (nrepl-dict-keys response))
-           (cider-emit-into-popup-buffer buffer
-                                         "Nothing to reload\n"
-                                         'font-lock-string-face))
+            ((member "reloading" (nrepl-dict-keys response))
+             (log "Nothing to reload\n" 'font-lock-string-face))
 
-          ((member "ok" status)
-           (cider-emit-into-popup-buffer buffer
-                                         "Reloading successful\n"
-                                         'font-lock-string-face))
+            ((member "ok" status)
+             (log "Reloading successful\n" 'font-lock-string-face))
 
-          (error-ns
-           (cider-emit-into-popup-buffer buffer
-                                         (format "Error reloading %s\n" error-ns)
-                                         'font-lock-warning-face))
+            (error-ns
+             (log (format "Error reloading %s\n" error-ns) 'font-lock-warning-face))
 
-          ((member "invoking-after" status)
-           (cider-emit-into-popup-buffer buffer
-                                         (format "Calling %s\n" after)
-                                         'font-lock-string-face))
+            ((member "invoking-after" status)
+             (log (format "Calling %s\n" after) 'font-lock-string-face))
 
-          ((member "invoked-after" status)
-           (cider-emit-into-popup-buffer buffer
-                                         (format "Successfully called %s\n" after)
-                                         'font-lock-string-face)))
+            ((member "invoked-after" status)
+             (log (format "Successfully called %s\n" after) 'font-lock-string-face))))
 
     (with-selected-window (or (get-buffer-window cider-refresh-log-buffer)
                               (selected-window))
@@ -2084,15 +2070,15 @@ With a non-nil prefix ARG, reload all namespaces on the classpath
 unconditionally."
   (interactive "P")
   (cider-ensure-op-supported "refresh")
-  (let ((buffer (cider-popup-buffer-display (or (get-buffer cider-refresh-log-buffer)
-                                                (cider-make-popup-buffer cider-refresh-log-buffer)))))
+  (let ((log-buffer (cider-popup-buffer-display (or (get-buffer cider-refresh-log-buffer)
+                                                    (cider-make-popup-buffer cider-refresh-log-buffer)))))
     (nrepl-send-request (append (list "op" (if arg "refresh-all" "refresh")
                                       "print-length" cider-stacktrace-print-length
                                       "print-level" cider-stacktrace-print-level)
                                 (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
                                 (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
                         (lambda (response)
-                          (cider-refresh--handle-response response buffer)))))
+                          (cider-refresh--handle-response response log-buffer)))))
 
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
