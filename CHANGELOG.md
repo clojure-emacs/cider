@@ -20,6 +20,8 @@
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Extract `cider-set-relevant-connection` from `cider-switch-to-relevant-repl-buffer`.
 * [#1165](https://github.com/clojure-emacs/cider/pull/1165): Make `(cider-set-relevant-connection t)` and `(cider-switch-to-relevant-repl-buffer 16)` default to project directory.
 * [#732](https://github.com/clojure-emacs/cider/issues/732): `cider-quit` and `cider-restart` now operate on the current connection only. With a prefix argument they operate on all connections.
+* [#1219](https://github.com/clojure-emacs/cider/pull/1219): The output of `cider-refresh` is now sent to a dedicated `*cider-refresh-log*` buffer.
+* [#1219](https://github.com/clojure-emacs/cider/pull/1219): New custom variables `cider-refresh-before-fn` and `cider-refresh-after-fn`.
 
 ### Changes
 

@@ -183,6 +183,27 @@ if the candidate is not namespace-qualified."
   :group 'cider
   :package-version '(cider . "0.9.0"))
 
+(defconst cider-refresh-log-buffer "*cider-refresh-log*")
+
+(defcustom cider-refresh-before-fn nil
+  "Clojure function for `cider-refresh' to call before reloading.
+
+If nil, nothing will be invoked before reloading. Must be a
+namespace-qualified function of zero arity. Any thrown exception will
+prevent reloading from occuring."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-refresh-after-fn nil
+  "Clojure function for `cider-refresh' to call after reloading.
+
+If nil, nothing will be invoked after reloading. Must be a
+namespace-qualified function of zero arity."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
 (defconst cider-output-buffer "*cider-out*")
 
 (defcustom cider-interactive-eval-output-destination 'repl-buffer
@@ -1577,7 +1598,7 @@ and automatically removed when killed."
                 nil 'local))
     (current-buffer)))
 
-(defun cider-emit-into-popup-buffer (buffer value)
+(defun cider-emit-into-popup-buffer (buffer value &optional face)
   "Emit into BUFFER the provided VALUE."
   ;; Long string output renders emacs unresponsive and users might intentionally
   ;; kill the frozen popup buffer. Therefore, we don't re-create the buffer and
@@ -1589,7 +1610,9 @@ and automatically removed when killed."
             (moving (= (point) cider-popup-output-marker)))
         (save-excursion
           (goto-char cider-popup-output-marker)
-          (insert (format "%s" value))
+          (let ((value-str (format "%s" value)))
+            (when face (add-face-text-property 0 (length value-str) face nil value-str))
+            (insert value-str))
           (indent-sexp)
           (set-marker cider-popup-output-marker (point)))
         (when moving (goto-char cider-popup-output-marker))))))
@@ -1998,15 +2021,47 @@ opposite of what that option dictates."
             "symbol" sym)
       (cider-interactive-eval-handler (current-buffer))))))
 
-(defun cider-refresh--handle-response (response)
-  (nrepl-dbind-response response (reloading status error error-ns)
-    (cond (reloading
-           (message "Reloading: %s" reloading))
-          ((member "ok" status)
-           (message "Reloading successful"))
-          ((member "error" status)
-           (progn (message "Error reloading %s" error-ns)
-                  (cider--render-stacktrace-causes error))))))
+(defun cider-refresh--handle-response (response log-buffer)
+  (nrepl-dbind-response response (out err reloading status error error-ns after before)
+    (cl-flet ((log (message &optional face)
+                   (cider-emit-into-popup-buffer log-buffer message face)))
+      (cond (out
+             (log out))
+
+            (err
+             (log err 'font-lock-warning-face))
+
+            ((member "invoking-before" status)
+             (log (format "Calling %s\n" before) 'font-lock-string-face))
+
+            ((member "invoked-before" status)
+             (log (format "Successfully called %s\n" before) 'font-lock-string-face))
+
+            (reloading
+             (log (format "Reloading %s\n" reloading) 'font-lock-string-face))
+
+            ((member "reloading" (nrepl-dict-keys response))
+             (log "Nothing to reload\n" 'font-lock-string-face))
+
+            ((member "ok" status)
+             (log "Reloading successful\n" 'font-lock-string-face))
+
+            (error-ns
+             (log (format "Error reloading %s\n" error-ns) 'font-lock-warning-face))
+
+            ((member "invoking-after" status)
+             (log (format "Calling %s\n" after) 'font-lock-string-face))
+
+            ((member "invoked-after" status)
+             (log (format "Successfully called %s\n" after) 'font-lock-string-face))))
+
+    (with-selected-window (or (get-buffer-window cider-refresh-log-buffer)
+                              (selected-window))
+      (with-current-buffer cider-refresh-log-buffer
+        (goto-char (point-max))))
+
+    (when (member "error" status)
+      (cider--render-stacktrace-causes error))))
 
 (defun cider-refresh (&optional arg)
   "Reload modified and unloaded namespaces on the classpath.
@@ -2015,10 +2070,15 @@ With a non-nil prefix ARG, reload all namespaces on the classpath
 unconditionally."
   (interactive "P")
   (cider-ensure-op-supported "refresh")
-  (nrepl-send-request (list "op" (if arg "refresh-all" "refresh")
-                            "print-length" cider-stacktrace-print-length
-                            "print-level" cider-stacktrace-print-level)
-                      #'cider-refresh--handle-response))
+  (let ((log-buffer (cider-popup-buffer-display (or (get-buffer cider-refresh-log-buffer)
+                                                    (cider-make-popup-buffer cider-refresh-log-buffer)))))
+    (nrepl-send-request (append (list "op" (if arg "refresh-all" "refresh")
+                                      "print-length" cider-stacktrace-print-length
+                                      "print-level" cider-stacktrace-print-level)
+                                (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
+                                (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
+                        (lambda (response)
+                          (cider-refresh--handle-response response log-buffer)))))
 
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."

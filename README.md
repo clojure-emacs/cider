@@ -64,6 +64,7 @@ specific CIDER release.**
 - [Configuration](#configuration)
   - [Basic configuration](#basic-configuration)
   - [Running tests](#running-tests)
+  - [Code reloading](#code-reloading)
   - [REPL history](#repl-history)
   - [Minibuffer completion](#minibuffer-completion)
   - [Auto-completion](#auto-completion)
@@ -468,6 +469,21 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ```
 
+### Code reloading
+
+* You can define Clojure functions to be called before reloading, and after a
+  successful reload, when using `cider-refresh`:
+
+```el
+(setq cider-refresh-before-fn "user/stop-system!"
+      cider-refresh-after-fn "user/start-system!")
+```
+
+* These must be set to the namespace-qualified names of vars bound to functions
+  of no arguments. The functions must be synchronous (blocking), and are
+  expected to be side-effecting - they will always be executed serially, without
+  retries.
+
 ### REPL history
 
 * To make the REPL history wrap around when its end is reached:
@@ -803,6 +819,8 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-o</kbd>                   | Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 <kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 <kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
+<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath.
+<kbd>C-u C-c C-x</kbd>               | Reload all files on the classpath.
 <kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
@@ -837,6 +855,8 @@ Keyboard shortcut                    | Description
 <kbd>M-p</kbd> <kbd>M-n</kbd> | Search the previous/next item in history using the current input as search pattern. If <kbd>M-p/M-n</kbd> is typed two times in a row, the second invocation uses the same search pattern (even if the current input has changed).
 <kbd>M-s</kbd> <kbd>M-r</kbd> | Search forward/reverse through command history with regex.
 <kbd>C-c C-n</kbd> <kbd>C-c C-p</kbd> | Move between the current and previous prompts in the REPL buffer. Pressing <kbd>RET</kbd> on a line with old input copies that line to the newest prompt.
+<kbd>C-c C-x</kbd>     | Reload all modified files on the classpath.
+<kbd>C-u C-c C-x</kbd> | Reload all files on the classpath.
 <kbd>TAB</kbd> | Complete symbol at point.
 <kbd>C-c C-d d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
 <kbd>C-c C-d j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
