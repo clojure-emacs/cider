@@ -754,7 +754,7 @@ present in your REPL session.
    you'd like to change the REPL used (the default is `rhino`).
 
 3. Open a file in your project and issue <kbd>M-x</kbd>
-   `cider-jack-in-cljs`. This will start up the nREPL server, and then create
+   `cider-jack-in-clojurescript`. This will start up the nREPL server, and then create
    two REPL buffers for you, one in Clojure and one in ClojureScript. All usual
    CIDER commands will be automatically directed to the appropriate REPL,
    depending on whether you're visiting a `clj` or a `cljs` file.
@@ -763,12 +763,12 @@ present in your REPL session.
 
 Using Weasel, you can also have a browser-connected REPL.
 
-1. Add `[weasel "0.6.0"]` to your project's `:dependencies`.
+1. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
 
 2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl`
    and choose the `Weasel` option.
 
-3. Add this to your code:
+3. Add this to your ClojureScript code:
 
    ```clojure
    (ns my.cljs.core
@@ -776,7 +776,7 @@ Using Weasel, you can also have a browser-connected REPL.
    (repl/connect "ws://localhost:9001")
    ```
 
-4. Open a file in your project and issue `M-x cider-jack-in-cljs`.
+4. Open a file in your project and issue `M-x cider-jack-in-clojurescript`.
 
 Provided that a Piggieback-enabled ClojureScript environment is active in your
 REPL session, code loading and evaluation will work seamlessly regardless of the
