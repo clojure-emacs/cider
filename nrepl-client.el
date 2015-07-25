@@ -1137,7 +1137,7 @@ Used by `nrepl-start-server-process'.")
 Return a newly created process.
 Set `nrepl-server-filter' as the process filter, which starts REPL process
 with its own buffer once the server has started.
-If CALLBACK is non-nil, it should be function of 3 arguments. Once the
+If CALLBACK is non-nil, it should be function of 3 arguments.  Once the
 client process is started, the function is called with the server process,
 the port, and the client buffer."
   (let* ((default-directory (or directory default-directory))
