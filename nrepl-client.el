@@ -780,9 +780,9 @@ confirmation."
 (defun nrepl-start-client-process (&optional host port server-proc)
   "Create new client process identified by HOST and PORT.
 In remote buffers, HOST and PORT are taken from the current tramp
-connection. SERVER-PROC must be a running nREPL server process within
-Emacs. This function creates connection buffer by a call to
-`nrepl-create-client-buffer-function'. Return newly created client
+connection.  SERVER-PROC must be a running nREPL server process within
+Emacs.  This function creates connection buffer by a call to
+`nrepl-create-client-buffer-function'.  Return newly created client
 process."
   (let* ((endpoint (nrepl-connect host port))
          (client-proc (plist-get endpoint :proc))
