@@ -264,21 +264,9 @@ Bind the value of the provided KEYS and execute BODY."
   (with-current-buffer (nrepl-current-connection-buffer)
     (and nrepl-ops (nrepl-dict-get nrepl-ops op))))
 
-(defun nrepl-current-dir ()
-  "Return the directory of the current buffer."
-  (if buffer-file-name
-      (file-name-directory buffer-file-name)
-    default-directory))
-
 (defun nrepl-local-host-p (host)
   "Return t if HOST is local."
   (string-match-p tramp-local-host-regexp host))
-
-(defun nrepl-project-directory-for (dir-name)
-  "Return the project directory for the specified DIR-NAME."
-  (when dir-name
-    (or (locate-dominating-file dir-name "project.clj")
-        (locate-dominating-file dir-name "build.boot"))))
 
 (defun nrepl-find-reusable-repl-buffer (endpoint project-directory)
   "Check whether a reusable connection buffer already exists.
@@ -315,12 +303,11 @@ be reused."
             exact-buff)
         (zombi-buffer-or-new)))))
 
-(defun nrepl-extract-port (&optional dir)
+(defun nrepl-extract-port (dir)
   "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
-  (-when-let (dir (or dir (nrepl-project-directory-for (nrepl-current-dir))))
-    (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
-        (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
-        (nrepl--port-from-file (expand-file-name "target/repl-port" dir)))))
+  (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
+      (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
+      (nrepl--port-from-file (expand-file-name "target/repl-port" dir))))
 
 (defun nrepl--port-from-file (file)
   "Attempts to read port from a file named by FILE."

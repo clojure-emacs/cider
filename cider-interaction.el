@@ -462,6 +462,18 @@ is ambiguity, therefore nil is returned."
       (when (= 1 (length matching-connections))
         (car matching-connections)))))
 
+(defun cider-current-dir ()
+  "Return the directory of the current buffer."
+  (if buffer-file-name
+      (file-name-directory buffer-file-name)
+    default-directory))
+
+(defun cider-project-directory-for (dir-name)
+  "Return the project directory for the specified DIR-NAME."
+  (when dir-name
+    (or (locate-dominating-file dir-name "project.clj")
+        (locate-dominating-file dir-name "build.boot"))))
+
 (defun cider-set-relevant-connection (&optional do-prompt)
   "Try to set the current REPL buffer based on the the current Clojure source buffer.
 If succesful, return the new connection buffer.
@@ -470,13 +482,13 @@ directory."
   (interactive "P")
   (cider-ensure-connected)
   (let* ((project-directory
-          (nrepl-project-directory-for
+          (cider-project-directory-for
            (or (when do-prompt
                  (read-directory-name "Project: "
-                                      (nrepl-project-directory-for (buffer-file-name))
+                                      (cider-project-directory-for (buffer-file-name))
                                       nil
                                       'confirm))
-               (nrepl-current-dir))))
+               (cider-current-dir))))
          (connection-buffer
           (or
            (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
