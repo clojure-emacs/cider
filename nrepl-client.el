@@ -368,14 +368,14 @@ Return new dict.  Dict is modified by side effects."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (car l))
-    (error "Not a nREPL dict.")))
+    (error "Not a nREPL dict")))
 
 (defun nrepl-dict-vals (dict)
   "Return all the values in the nREPL DICT."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (cadr l))
-    (error "Not a nREPL dict.")))
+    (error "Not a nREPL dict")))
 
 (defun nrepl-dict-map (fn dict)
   "Map FN on nREPL DICT.
@@ -383,7 +383,7 @@ FN must accept two arguments key and value."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (funcall fn (car l) (cadr l)))
-    (error "Not a nREPL dict.")))
+    (error "Not a nREPL dict")))
 
 (defun nrepl--cons (car list-or-dict)
   "Generic cons of CAR to LIST-OR-DICT."
