@@ -342,7 +342,7 @@ be reused."
        (eq (car object) 'dict)))
 
 (defun nrepl-dict-empty-p (dict)
-  "Return t if nREPL dict is empty."
+  "Return t if nREPL dict DICT is empty."
   (null (cdr dict)))
 
 (defun nrepl-dict-get (dict key)
