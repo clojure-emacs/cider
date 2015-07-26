@@ -1931,15 +1931,23 @@ For example \"foo.bar.tar\" -> \"foo.bar\"."
 
 ;;; Completion
 
+(defun cider--kw-to-symbol (kw)
+  "Converts a keyword KW to a symbol."
+  (when kw
+    (replace-regexp-in-string "\\`:+" "" kw)))
+
 (defun cider-read-symbol-name (prompt callback)
   "Read a symbol name using PROMPT with a default of the one at point.
 Use CALLBACK as the completing read var callback."
-  (funcall callback (cider-read-from-minibuffer prompt (cider-symbol-at-point))))
+  (funcall callback (cider-read-from-minibuffer
+                     prompt
+                     ;; if the thing at point is a keyword we treat it as symbol
+                     (cider--kw-to-symbol (cider-symbol-at-point)))))
 
 (defun cider-try-symbol-at-point (prompt callback)
   "Call CALLBACK with symbol at point.
 On failure, read a symbol name using PROMPT and call CALLBACK with that."
-  (condition-case nil (funcall callback (cider-symbol-at-point))
+  (condition-case nil (funcall callback (cider--kw-to-symbol (cider-symbol-at-point)))
     ('error (funcall callback (cider-read-from-minibuffer prompt)))))
 
 (defun cider--should-prompt-for-symbol (&optional invert)

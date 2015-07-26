@@ -596,3 +596,9 @@
   (should (cider-namespace-qualified-p "a.a-a/a-a"))
   (should (not (cider-namespace-qualified-p "/")))
   (should (not (cider-namespace-qualified-p "/a"))))
+
+(ert-deftest cider--kw-to-symbol ()
+  (should (equal (cider--kw-to-symbol "symbol") "symbol"))
+  (should (equal (cider--kw-to-symbol ":clj.core/str") "clj.core/str"))
+  (should (equal (cider--kw-to-symbol "::keyword") "keyword"))
+  (should (equal (cider--kw-to-symbol nil) nil)))
