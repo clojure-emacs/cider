@@ -997,7 +997,7 @@ Display the results in a different window."
 
 Prompt according to prefix ARG and `cider-prompt-for-symbol'.
 A single or double prefix argument inverts the meaning of
-`cider-prompt-for-symbol. A prefix of `-` or a double prefix argument causes
+`cider-prompt-for-symbol'. A prefix of `-` or a double prefix argument causes
 the results to be displayed in a different window.  The default value is
 thing at point."
   (interactive "P")
