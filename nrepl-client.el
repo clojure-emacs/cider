@@ -638,10 +638,10 @@ process buffer and run the hook `nrepl-disconnected-hook'."
 
 (defun nrepl-connect (host port)
   "Connect to machine identified by HOST and PORT.
-For local hosts use a direct connection. For remote hosts, if
+For local hosts use a direct connection.  For remote hosts, if
 `nrepl-force-ssh-for-remote-hosts' is nil, attempt a direct connection
-first. If `nrepl-force-ssh-for-remote-hosts' is non-nil or the direct
-connection failed, try to start a SSH tunneled connection. Return a plist
+first.  If `nrepl-force-ssh-for-remote-hosts' is non-nil or the direct
+connection failed, try to start a SSH tunneled connection.  Return a plist
 of the form (:proc PROC :host \"HOST\" :port PORT) that might contain
 additional key-values depending on the connection type."
   (let ((localp (if host
