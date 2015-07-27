@@ -1057,7 +1057,7 @@ session. POINT, if non-nil, is the position of INPUT in its buffer."
 
 (defun nrepl--pprint-eval-request (input &optional ns session right-margin)
   "Prepare :pprint-eval request message for INPUT.
-NS and SESSION are used for the context of the evaluation. RIGHT-MARGIN
+NS and SESSION are used for the context of the evaluation.  RIGHT-MARGIN
 specifies the maximum column-width of the pretty-printed result, and is
 included in the request if non-nil."
   (append (list "pprint" "true")
