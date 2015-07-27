@@ -661,7 +661,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
         (error "Host (%s) and port (%s) must be provided" host port))
     (message "nREPL: Establishing direct connection to %s:%s ..." host port)
     (condition-case nil
-        (prog1 (list :proc (open-network-stream "nrepl" nil host port)
+        (prog1 (list :proc (open-network-stream "nrepl-connection" nil host port)
                      :host host :port port)
           (message "nREPL: Direct connection established"))
       (error (let ((mes "nREPL: Direct connection failed"))
