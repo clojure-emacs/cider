@@ -683,7 +683,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
                 (process-get tunnel :waiting-for-port))
       (accept-process-output nil 0.005))
     (if (not (process-live-p tunnel))
-        (error "nREPL: SSH port forwarding failed. Check the '%s' buffer." tunnel-buf)
+        (error "nREPL: SSH port forwarding failed.  Check the '%s' buffer" tunnel-buf)
       (message "nREPL: SSH port forwarding established to localhost:%s" port)
       (let ((endpoint (nrepl--direct-connect "localhost" port)))
         (-> endpoint
