@@ -175,7 +175,7 @@ Sub-match 1 must be the project path.")
   "Clojure form that returns a ClojureScript REPL environment.
 This is evaluated in a Clojure REPL and it should start a ClojureScript
 REPL."
-  :type '(choice (const :tag "Rhyno"
+  :type '(choice (const :tag "Rhino"
                         "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))")
                  (const :tag "Node (requires NodeJS to be installed)"
                         "(cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env))")
