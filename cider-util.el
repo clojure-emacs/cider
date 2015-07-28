@@ -152,6 +152,17 @@ objects."
   "Return t if SYM is namespace-qualified."
   (string-match-p "[^/]+/" sym))
 
+(defun cider--insert-readme-button (label section-id)
+  "Insert a button that links to the online readme.
+LABEL is the displayed string, and SECTION-ID is where it points
+to."
+  (insert-button
+   label
+   'follow-link t
+   'action (lambda (&rest _) (interactive)
+             (browse-url (concat "https://github.com/clojure-emacs/cider#"
+                                 section-id)))))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
