@@ -310,7 +310,7 @@ Signal an error if it is not supported."
        (unless (and middleware-version (equal cider-version middleware-version))
          (cider-repl-emit-interactive-err-output
           (format "ERROR: CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
-                  cider-version middleware-version)))))
+                  (upcase cider-version) middleware-version)))))
    '()
    '()
    '()))
