@@ -413,7 +413,8 @@ ID is the id of the message that instrumented CODE."
            (format "%s" (cider--debug-trim-code code)))
           (font-lock-fontify-buffer)
           (set-buffer-modified-p nil))))
-    (switch-to-buffer buffer-name)))
+    (switch-to-buffer buffer-name)
+    (goto-char (point-min))))
 
 (defun cider--debug-goto-keyval (key)
   "Find KEY in current sexp or return nil."
