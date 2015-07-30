@@ -322,11 +322,21 @@ In order to work properly, this mode must be activated by
         (if (called-interactively-p 'any)
             (user-error (substitute-command-keys "Don't call this mode manually, use `\\[universal-argument] \\[cider-eval-defun-at-point]' instead"))
           (error "Attempt to activate `cider--debug-mode' without setting `cider--debug-mode-response' first")))
-    (setq buffer-read-only nil)
-    (run-at-time 0.3 nil #'cider--debug-remove-overlays (current-buffer))
     (setq cider-interactive-eval-override nil)
     (setq cider--debug-mode-commands-alist nil)
     (setq cider--debug-mode-response nil)
+    ;; We wait a moment before clearing overlays and the read-onlyness, so that
+    ;; cider-nrepl has a chance to send the next message, and so that the user
+    ;; doesn't accidentally hit `n' between two messages (thus editing the code).
+    (-when-let (proc (unless nrepl-ongoing-sync-request
+                       (get-buffer-process (nrepl-current-connection-buffer))))
+      ;; This is for the `:done' sent in reply to the debug-input we provided.
+      (when (accept-process-output proc 0.2)
+        ;; This is for actually waiting for the next message.
+        (accept-process-output proc 1)))
+    (unless cider--debug-mode
+      (setq buffer-read-only nil)
+      (cider--debug-remove-overlays (current-buffer)))
     (when nrepl-ongoing-sync-request
       (ignore-errors (exit-recursive-edit)))))
 
@@ -413,7 +423,8 @@ ID is the id of the message that instrumented CODE."
            (format "%s" (cider--debug-trim-code code)))
           (font-lock-fontify-buffer)
           (set-buffer-modified-p nil))))
-    (switch-to-buffer buffer-name)))
+    (switch-to-buffer buffer-name)
+    (goto-char (point-min))))
 
 (defun cider--debug-goto-keyval (key)
   "Find KEY in current sexp or return nil."

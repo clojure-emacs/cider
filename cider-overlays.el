@@ -127,7 +127,13 @@ PROPS are passed to `cider--make-overlay' with a type of result."
               ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
               (`command (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local)))
             (-when-let (win (get-buffer-window buffer))
-              (when (pos-visible-in-window-p (point) win)
+              ;; Left edge is visible.
+              (when (and (pos-visible-in-window-p (point) win)
+                         ;; Right edge is visible. This is a little conservative
+                         ;; if the overlay contains line breaks.
+                         (or (< (+ (current-column) (string-width value))
+                                (window-width win))
+                             (not truncate-lines)))
                 o)))))
     nil))
 
