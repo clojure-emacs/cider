@@ -385,7 +385,7 @@
   (should (equal (cider--find-rest-args-position [fmt arg]) nil)))
 
 (ert-deftest test-cider-switch-to-relevant-repl-buffer ()
-  (noflet ((cider-project-directory-for (dontcare)
+  (noflet ((clojure-project-dir (dontcare)
                                         nrepl-project-dir))
     (let* ((b1 (generate-new-buffer "temp"))
            (b2 (generate-new-buffer "temp"))
@@ -435,7 +435,7 @@
         (kill-buffer buf)))))
 
 (ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-project-dir ()
-  (noflet ((cider-project-directory-for (dontcare)
+  (noflet ((clojure-project-dir (dontcare)
                                         nrepl-project-dir))
     (let* ((b1 (generate-new-buffer "temp"))
            (b2 (generate-new-buffer "temp"))
@@ -459,7 +459,7 @@
         (kill-buffer buf)))))
 
 (ert-deftest test-cider-switch-to-relevant-repl-buffer-ambiguous-if-two-projects ()
-  (noflet ((cider-project-directory-for (dontcare)
+  (noflet ((clojure-project-dir (dontcare)
                                         nrepl-project-dir))
     (let* ((b1 (generate-new-buffer "temp"))
            (b2 (generate-new-buffer "temp"))

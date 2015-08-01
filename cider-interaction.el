@@ -472,12 +472,6 @@ is ambiguity, therefore nil is returned."
       (file-name-directory buffer-file-name)
     default-directory))
 
-(defun cider-project-directory-for (dir-name)
-  "Return the project directory for the specified DIR-NAME."
-  (when dir-name
-    (or (locate-dominating-file dir-name "project.clj")
-        (locate-dominating-file dir-name "build.boot"))))
-
 (defun cider-set-relevant-connection (&optional do-prompt)
   "Try to set the current REPL buffer based on the the current Clojure source buffer.
 If succesful, return the new connection buffer.
@@ -486,10 +480,10 @@ directory."
   (interactive "P")
   (cider-ensure-connected)
   (let* ((project-directory
-          (cider-project-directory-for
+          (clojure-project-dir
            (or (when do-prompt
                  (read-directory-name "Project: "
-                                      (cider-project-directory-for (buffer-file-name))
+                                      (clojure-project-dir (buffer-file-name))
                                       nil
                                       'confirm))
                (cider-current-dir))))

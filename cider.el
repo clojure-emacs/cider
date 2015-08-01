@@ -229,7 +229,7 @@ own buffer."
     (if (funcall (cider-command-present-p project-type))
         (let* ((project (when prompt-project
                           (read-directory-name "Project: ")))
-               (project-dir (cider-project-directory-for
+               (project-dir (clojure-project-dir
                              (or project (cider-current-dir))))
                (params (if prompt-project
                            (read-string (format "nREPL server command: %s "
@@ -337,7 +337,7 @@ of list of the form (project-dir port)."
          (proj-ports (mapcar (lambda (d)
                                (-when-let (port (and d (nrepl-extract-port (cider--file-path d))))
                                  (list (file-name-nondirectory (directory-file-name d)) port)))
-                             (cons (cider-project-directory-for dir) paths))))
+                             (cons (clojure-project-dir dir) paths))))
     (-distinct (delq nil proj-ports))))
 
 (defun cider--running-nrepl-paths ()
@@ -355,7 +355,7 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
 (defun cider-project-type ()
   "Determine the type, either leiningen or boot, of the current project.
 If both project file types are present, prompt the user to choose."
-  (let* ((default-directory (cider-project-directory-for (cider-current-dir)))
+  (let* ((default-directory (clojure-project-dir (cider-current-dir)))
          (lein-project-exists (file-exists-p "project.clj"))
          (boot-project-exists (file-exists-p "build.boot")))
     (cond ((and lein-project-exists boot-project-exists)
