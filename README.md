@@ -134,9 +134,10 @@ have to remove its plugin and middleware from your `profiles.clj` (or
 
 #### Upgrading from clojure-test-mode
 
-CIDER 0.7 ships a replacement for the deprecated `clojure-test-mode` called `cider-test`.
-Please, make sure you've uninstalled `clojure-test-mode` if you're using CIDER 0.7 as `clojure-test-mode`
-sometimes interferes with CIDER's REPL initialization.
+CIDER 0.7 introduced a replacement for the deprecated `clojure-test-mode` called
+`cider-test`.  Please, make sure you've uninstalled `clojure-test-mode` if
+you're using CIDER 0.7 or newer, as `clojure-test-mode` sometimes interferes
+with CIDER's REPL initialization.
 
 ### Installation via package.el
 
