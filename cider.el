@@ -178,7 +178,7 @@ REPL."
   :type '(choice (const :tag "Rhino"
                         "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))")
                  (const :tag "Node (requires NodeJS to be installed)"
-                        "(cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env))")
+                        "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))")
                  (const :tag "Weasel (see Readme for additional configuration)"
                         "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))")
                  (string :tag "Custom"))
