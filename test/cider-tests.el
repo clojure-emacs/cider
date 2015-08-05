@@ -570,6 +570,14 @@
   (noflet ((thing-at-point (thing) "boogie>"))
     (should (string= (cider-symbol-at-point) "boogie>"))))
 
+(ert-deftest cider-repl-prompt-function ()
+  (should (equal (cider-repl-prompt-default "some.pretty.long.namespace.name")
+                 "some.pretty.long.namespace.name> "))
+  (should (equal (cider-repl-prompt-lastname "some.pretty.long.namespace.name")
+                 "name> "))
+  (should (equal (cider-repl-prompt-abbreviated "some.pretty.long.namespace.name")
+                 "s.p.l.n.name> ")))
+
 (ert-deftest test-cider--url-to-file ()
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
   (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))
