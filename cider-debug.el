@@ -438,18 +438,48 @@ COORDINATES is a list of integers that specify how to navigate into the
 sexp."
   (condition-case nil
       ;; Navigate through sexps inside the sexp.
-      (progn
+      (let ((in-syntax-quote nil))
         (while coordinates
           (down-list)
+          ;; Are we entering a syntax-quote?
+          (when (looking-back "`\\(#{\\|[{[(]\\)")
+            ;; If we are, this affects all nested structures until the next `~',
+            ;; so we set this variable for all following steps in the loop.
+            (setq in-syntax-quote t))
+          (when in-syntax-quote
+            ;; A `(. .) is read as (seq (concat (list .) (list .))). This pops
+            ;; the `seq', since the real coordinates are inside the `concat'.
+            (pop coordinates)
+            ;; Non-list seqs like `[] and `{} are read with
+            ;; an extra (apply vector ...), so pop it too.
+            (unless (eq ?\( (char-before))
+              (pop coordinates)))
           ;; #(...) is read as (fn* ([] ...)), so we patch that here.
           (when (looking-back "#(")
             (pop coordinates))
           (if coordinates
               (let ((next (pop coordinates)))
+                (when in-syntax-quote
+                  ;; We're inside the `concat' form, but we need to discard the
+                  ;; actual `concat' symbol from the coordinate.
+                  (setq next (1- next)))
                 ;; String coordinates are map keys.
                 (if (stringp next)
                     (cider--debug-goto-keyval next)
-                  (clojure-forward-logical-sexp next)))
+                  (clojure-forward-logical-sexp next)
+                  (when in-syntax-quote
+                    (clojure-forward-logical-sexp 1)
+                    (forward-sexp -1)
+                    ;; Here a syntax-quote is ending.
+                    (when (looking-at "~@?")
+                      (setq in-syntax-quote nil))
+                    ;; A `~@' is read as the object itself, so we don't pop
+                    ;; anything.
+                    (unless (equal "~@" (match-string 0))
+                      ;; Anything else (including a `~') is read as a `list'
+                      ;; form inside the `concat', so we need to pop the list
+                      ;; from the coordinates.
+                      (pop coordinates)))))
             ;; If that extra pop was the last coordinate, this represents the
             ;; entire #(...), so we should move back out.
             (backward-up-list)))

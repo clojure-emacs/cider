@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1235](https://github.com/clojure-emacs/cider/pull/1235): Add support for syntax-quoted forms to the debugger.
 * [#1212](https://github.com/clojure-emacs/cider/pull/1212): Add pagination of long collections to inspector.
 * [#1237](https://github.com/clojure-emacs/cider/pull/1237): Add two functions for use with `cider-repl-prompt-function`, `cider-repl-prompt-lastname` and `repl-prompt-abbreviated`.
 * [#1201](https://github.com/clojure-emacs/cider/pull/1201): Integrate overlays with interactive evaluation. `cider-use-overlays` can be used to turn this on or off.
