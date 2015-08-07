@@ -2086,13 +2086,22 @@ opposite of what that option dictates."
 (defun cider-refresh (&optional arg)
   "Reload modified and unloaded namespaces on the classpath.
 
-With a non-nil prefix ARG, reload all namespaces on the classpath
-unconditionally."
-  (interactive "P")
+With a single prefix argument ARG, reload all namespaces on the classpath
+unconditionally.
+
+With a double prefix argument ARG, clear the state of the namespace tracker
+before reloading.  This is useful for recovering from some classes of
+error (for example, those caused by circular dependencies) that a normal
+reload would not otherwise recover from.  The trade-off of clearing is that
+stale code from any deleted files may not be completely unloaded."
+  (interactive "p")
   (cider-ensure-op-supported "refresh")
   (let ((log-buffer (cider-popup-buffer-display (or (get-buffer cider-refresh-log-buffer)
-                                                    (cider-make-popup-buffer cider-refresh-log-buffer)))))
-    (nrepl-send-request (append (list "op" (if arg "refresh-all" "refresh")
+                                                    (cider-make-popup-buffer cider-refresh-log-buffer))))
+        (clear? (>= arg 16))
+        (refresh-all? (>= arg 4)))
+    (when clear? (nrepl-send-request-sync (list "op" "refresh-clear")))
+    (nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
                                       "print-length" cider-stacktrace-print-length
                                       "print-level" cider-stacktrace-print-level)
                                 (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
