@@ -820,8 +820,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-o</kbd>                   | Clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 <kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 <kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
-<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath.
-<kbd>C-u C-c C-x</kbd>               | Reload all files on the classpath.
+<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
 <kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
