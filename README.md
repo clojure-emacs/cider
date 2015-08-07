@@ -472,6 +472,26 @@ passed or failed:
 
 ### Code reloading
 
+* `cider-refresh` wraps
+  [clojure.tools.namespace](https://github.com/clojure/tools.namespace), and as
+  such the same
+  [benefits](https://github.com/clojure/tools.namespace#reloading-code-motivation)
+  and
+  [caveats](https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application)
+  regarding writing reloadable code also apply.
+
+* Calling `cider-refresh` will cause all modified Clojure files on the classpath
+  to be reloaded. You can also provide a single prefix argument to reload all
+  Clojure files on the classpath unconditionally, or a double prefix argument to
+  first clear the state of the namespace tracker before reloading.
+
+* The above three operations are analogous to
+  [`clojure.tools.namespace.repl/refresh`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh),
+  [`clojure.tools.namespace.repl/refresh-all`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh-all)
+  and
+  [`clojure.tools.namespace.repl/clear`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear)
+  (followed by a normal refresh), respectively.
+
 * You can define Clojure functions to be called before reloading, and after a
   successful reload, when using `cider-refresh`:
 
