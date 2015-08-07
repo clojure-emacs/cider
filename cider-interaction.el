@@ -666,11 +666,12 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   "Return the sexp preceding the point.
 If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
-  (funcall (if bounds #'list #'buffer-substring-no-properties)
-           (save-excursion
-             (clojure-backward-logical-sexp 1)
-             (point))
-           (point)))
+  (apply (if bounds #'list #'buffer-substring-no-properties)
+         (save-excursion
+           (clojure-backward-logical-sexp 1)
+           (list (point)
+                 (progn (clojure-forward-logical-sexp 1)
+                        (point))))))
 
 ;;;
 (defun cider-tramp-prefix (&optional buffer)
