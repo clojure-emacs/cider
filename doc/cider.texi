@@ -1,13 +1,21 @@
-
 \input texinfo   @c -*-texinfo-*-
 @tex
 \global\urefurlonlylinktrue
 \global\def\linkcolor{0.4 0 0}
 \global\def\urlcolor{0.4 0 0}
 @end tex
+
 @alias pkg = file
+@alias branch = t
+@alias pkgrepo = t
+@alias buffer = t
+@alias prog = t
+@alias clojar = file
+@alias clojf = t
+
 @setfilename cider.info
 @settitle CIDER
+
 @copying
 CIDER, the Clojure Interactive Development Environment that Rocks.
 
@@ -37,7 +45,7 @@ The document was typeset with
 @author @url{http://www.github.com/clojure-emacs/cider}
 @page
 @vskip 0pt plus 1 filll
-CIDER (formerly @file{nrepl.el}) is an @emph{awesome} Clojure IDE for
+CIDER (formerly @pkg{nrepl.el}) is an @emph{awesome} Clojure IDE for
 Emacs built on top of @uref{http://github.com/clojure/tools.nrepl,
 nREPL}, the Clojure networked REPL server.  It's a great alternative to
 the now-deprecated combination of SLIME and
@@ -106,7 +114,7 @@ CIDER packs plenty of features.  Here are some of them (in no particular order):
 @item Function tracing
 @item Interactive macroexpansion
 @item @uref{http://conj.io, Grimoire} integration
-@item @file{clojure.test} integration
+@item @pkg{clojure.test} integration
 @item Classpath browser
 @item Namespace browser
 @item nREPL session management
@@ -120,7 +128,7 @@ CIDER packs plenty of features.  Here are some of them (in no particular order):
 
 @node Installation
 @chapter Installation
-The canonical way to install CIDER is via @file{package.el}, but you can
+The canonical way to install CIDER is via @pkg{package.el}, but you can
 choose other possibilities available for your Emacs or operating system.
 
 @section Prerequisites
@@ -129,9 +137,9 @@ you're new to Emacs you might want to read
 @uref{http://clojure-doc.org/articles/tutorials/emacs.html, this tutorial},
 dedicated to setting up Emacs for Clojure development, first.
 
-@subsection Upgrading from @file{nrepl.el}
+@subsection Upgrading from @pkg{nrepl.el}
 
-Before installing CIDER make sure you've removed the old @file{nrepl.el}
+Before installing CIDER make sure you've removed the old @pkg{nrepl.el}
 package and all packages that depend on it.  Use only packages updated to work
 with CIDER!
 
@@ -140,7 +148,7 @@ You'll also need to adjust your config accordingly, as most settings were
 renamed in CIDER.  Consult the @uref{#configuration, Configuration} section of the
 @file{README} for more details.
 
-@subsection Upgrading from @file{clojure-test-mode}
+@subsection Upgrading from @pkg{clojure-test-mode}
 
 CIDER 0.7 ships a replacement for the deprecated @command{clojure-test-mode}
 called @command{cider-test}.  Please, make sure you've uninstalled
@@ -148,11 +156,11 @@ called @command{cider-test}.  Please, make sure you've uninstalled
 @command{clojure-test-mode} sometimes interferes with CIDER's REPL
 initialization.
 
-@section Via @file{package.el}
+@section Via @pkg{package.el}
 
-@file{package.el} is the built-in package manager in Emacs.
+@pkg{package.el} is the built-in package manager in Emacs.
 
-CIDER is available on all major, community-maintained @file{package.el}
+CIDER is available on all major, community-maintained @pkg{package.el}
 repositories: @uref{http://melpa.milkbox.net, MELPA},
 @uref{http://melpa-stable.milkbox.net, MELPA-stable}, and
 @uref{http://marmalade-repo.org, Marmalade}.
@@ -170,10 +178,10 @@ adding this bit of code to your initialization file:
 If the installation doesn't work, try refreshing the package list with @kbd{M-x
 package-refresh-contents RET}.
 
-Keep in mind that MELPA packages are built automatically from the @t{master}
+Keep in mind that MELPA packages are built automatically from the @branch{master}
 branch, meaning bugs might creep in there from time to time.  Nevertheless,
 installing from MELPA is the recommended way of obtaining CIDER, as the
-@t{master} branch is normally quite stable and ``stable'' (tagged) builds are
+@branch{master} branch is normally quite stable and ``stable'' (tagged) builds are
 released somewhat infrequently.
 
 With the most recent builds of Emacs, you can pin CIDER to always use
@@ -183,21 +191,21 @@ MELPA-stable by adding this to your Emacs initialization:
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 @end lisp
 
-@strong{CIDER has dependencies (e.g. @file{queue}) that are only available in
+@strong{CIDER has dependencies (e.g. @pkg{queue}) that are only available in
 the @uref{http://elpa.gnu.org, GNU ELPA repository}.  It's the only repository
 enabled by default and you should not disable it!}
 
-@section Via @file{el-get}
+@section Via @pkg{el-get}
 
-@uref{http://github.com/dimitri/el-get, @file{el-get}} is another popular package
-manager for Emacs.  If you're an @file{el-get} user, just use @kbd{M-x
+@uref{http://github.com/dimitri/el-get, @pkg{el-get}} is another popular package
+manager for Emacs.  If you're an @pkg{el-get} user, just use @kbd{M-x
 el-get-install}.
 
 @section Gentoo Distribution
 
 On Gentoo, CIDER can be installed using
 @uref{http://github.com/jauhien/gs-elpa, gs-elpa tool}.  Just add the
-@t{gnu-elpa} and @t{melpa-stable} repositories (if they are still not added) and
+@pkgrepo{gnu-elpa} and @pkgrepo{melpa-stable} repositories (if they are still not added) and
 emerge CIDER as normal package:
 @verbatim
 layman -a gnu-elpa
@@ -219,8 +227,8 @@ and @command{require}ing it.  Many people favor the folder
 (add-to-list 'load-path "~/emacs.d/vendor")
 (require 'cider)
 @end lisp
-Keep in mind that CIDER depends on @file{clojure-mode}, @file{dash.el} and
-@file{pkg-info} so you'll have to install them as well.
+Keep in mind that CIDER depends on @pkg{clojure-mode}, @pkg{dash.el} and
+@pkg{pkg-info} so you'll have to install them as well.
 
 @section Emacs Prelude
 
@@ -266,7 +274,7 @@ all of their projects using a @file{~/.boot/profile.boot} file like so:
 @end lisp
 
 For more information, visit
-@uref{http://github.com/boot-clj/boot/wiki/Cider-REPL, @file{boot-clj}
+@uref{http://github.com/boot-clj/boot/wiki/Cider-REPL, @pkg{boot-clj}
 wiki}.
 
 @section Using embedded nREPL server
@@ -284,14 +292,14 @@ server with CIDER's own nREPL handler.
   (nrepl-server/start-server :port 7888 :handler cider-nrepl-handler))
 @end lisp
 
-It goes without saying that your project should depend on @file{cider-nrepl}.
+It goes without saying that your project should depend on @pkg{cider-nrepl}.
 
 @samp{x.y.z} should match the version of CIDER you're currently using
 (say @samp{0.7.1}).  For snapshot releases of CIDER you should use the
 snapshot of the plugin as well (say @samp{0.7.1-SNAPSHOT}).
 
 Note that you need to use at least CIDER 0.7 for the nREPL middleware to work
-properly.  Don't use @file{cider-nrepl} with CIDER 0.6.
+properly.  Don't use @pkg{cider-nrepl} with CIDER 0.6.
 
 @node Configuration
 @chapter Configuration
@@ -328,13 +336,13 @@ Don't log communication with the nREPL server:
 (setq nrepl-log-messages nil)
 @end lisp
 
-Basically, this will dispose of the buffer @t{*nrepl-messages*}.  The
+Basically, this will dispose of the buffer @buffer{*nrepl-messages*}.  The
 @c alias buffers
 communication log is invaluable for debugging CIDER issues, so you're
 generally advised to keep it around.
 
 @item
-You can hide the @t{*nrepl-connection*} and @t{*nrepl-server*} buffers
+You can hide the @buffer{*nrepl-connection*} and @buffer{*nrepl-server*} buffers
 @c alias buffers
 from appearing in some buffer switching commands like
 @command{switch-to-buffer} (@kbd{C-x b}) like this:
@@ -409,7 +417,7 @@ To disable auto-selection of the error buffer when it's displayed:
 @end lisp
 
 @item
-If using the @file{wrap-stacktrace} middleware from @file{cider-nrepl},
+If using the @pkg{wrap-stacktrace} middleware from @pkg{cider-nrepl},
 error buffer stacktraces may be filtered by default.  Valid filter types
 include @samp{java}, @samp{clj}, @samp{repl}, @samp{tooling}, and
 @samp{dup}.  Setting this to @samp{nil} will show all stacktrace frames.
@@ -426,7 +434,7 @@ will not be wrapped; if it is truthy but non-numeric, the default
 @end lisp
 
 @item
-The REPL buffer name has the format @t{*cider-repl
+The REPL buffer name has the format @buffer{*cider-repl
 @samp{project-name}*}.  Change the separator from space to something
 else by overriding @var{nrepl-buffer-name-separator}:
 @lisp
@@ -435,7 +443,7 @@ else by overriding @var{nrepl-buffer-name-separator}:
 
 @item
 The REPL buffer name can also display the port on which the nREPL server
-is running.  Buffer name will look like @t{*cider-repl
+is running.  Buffer name will look like @buffer{*cider-repl
 @samp{project-name}:@samp{port}*}.
 @lisp
 (setq nrepl-buffer-name-show-port t)
@@ -515,10 +523,10 @@ optional label is helpful for identifying each host.
 If you are targeting the JVM and prefer a local copy of the JDK API
 documentation over Oracle's official copy (e.g., for
 @uref{http://docs.oracle.com/javase/8/docs/api, JavaSE 8}), per nREPL's
-@file{javadoc-info} logic (accurate as of 29 Dec 2014), you can arrange your
+@pkg{javadoc-info} logic (accurate as of 29 Dec 2014), you can arrange your
 project to include the root path of the local API doc (i.e., where the
 @file{index.html} is located) to be included on your classpath (i.e., where the
-doc HTML files can be located by @file{clojure.java.io/resource}).  For example,
+doc HTML files can be located by @clojar{clojure.java.io/resource}).  For example,
 for Leiningen, with the local API path being @file{/usr/share/doc/java/api/},
 put the following line in @file{project.clj}:
 @lisp
@@ -549,7 +557,7 @@ passed or failed:
 @section Code reloading
 
 @command{cider-refresh} wraps @uref{http://github.com/clojure/tools.namespace,
-@file{clojure.tools.namespace}}, and as such the same
+@clojar{clojure.tools.namespace}}, and as such the same
 @uref{http://github.com/clojure/tools.namespace#reloading-code-motivation,
 benefits} and
 @uref{http://github.com/clojure/tools.namespace#reloading-code-preparing-your-application,
@@ -562,11 +570,11 @@ argument to first clear the state of the namespace tracker before reloading.
 
 The above three operations are analogous to
 @uref{http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh,
-@file{clojure.tools.namespace.repl/refresh}},
+@clojf{clojure.tools.namespace.repl/refresh}},
 @uref{http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh-all,
-@file{clojure.tools.namespace.repl/refresh-all}} and
+@clojf{clojure.tools.namespace.repl/refresh-all}} and
 @uref{http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear,
-@file{clojure.tools.namespace.repl/clear}} (followed by a normal refresh),
+@clojf{clojure.tools.namespace.repl/clear}} (followed by a normal refresh),
 respectively.
 
 You can define Clojure functions to be called before reloading, and
@@ -613,20 +621,20 @@ mechanism.  While it's not fancy, it certainly gets the job done (just
 press @key{TAB}).  There are, however, ways to improve upon the standard
 completion if you wish to.
 
-@subsection @file{icomplete}
-@file{icomplete} is bundled with Emacs and enhances the default
+@subsection @pkg{icomplete}
+@pkg{icomplete} is bundled with Emacs and enhances the default
 minibuffer completion:
 @lisp
 (require 'icomplete)
 @end lisp
 
-@subsection @file{ido}
-@file{ido} is also bundled with Emacs and offers more features than
-@file{icomplete}.  If you are using @file{ido}, be sure to use both
-@file{ido-everywhere} and
+@subsection @pkg{ido}
+@pkg{ido} is also bundled with Emacs and offers more features than
+@pkg{icomplete}.  If you are using @pkg{ido}, be sure to use both
+@pkg{ido-everywhere} and
 @uref{http://github.com/DarwinAwardWinner/ido-ubiquitous,
-@file{ido-ubiquitous}}.  You might also want to install
-@uref{http://github.com/lewang/flx, @file{flx-ido}}.
+@pkg{ido-ubiquitous}}.  You might also want to install
+@uref{http://github.com/lewang/flx, @pkg{flx-ido}}.
 
 @section Auto-completion
 CIDER users are advised to use @uref{http://company-mode.github.io, Company} to
@@ -666,7 +674,7 @@ indent, you can add this to your configuration:
 @command{company-mode} v0.9+ (at the time of writing, it's still in
 development).
 
-@subsection Migrating from @file{auto-complete-mode}
+@subsection Migrating from @pkg{auto-complete-mode}
 @enumerate
 @item
 Disable @command{ac-cider-setup} or @command{ac-nrepl-setup} from
@@ -738,18 +746,18 @@ the REPL like this:
 @end lisp
 
 @item
-@uref{http://cx4a.org/software/auto-complete, @file{auto-complete}} is a popular
+@uref{http://cx4a.org/software/auto-complete, @pkg{auto-complete}} is a popular
 Emacs interactive auto-completion framework.
 @uref{http://github.com/clojure-emacs/ac-cider, ac-cider} provides a completion
 source for @command{auto-complete-mode}, including, where CIDER provides it,
 pop-up documentation for completed symbols.
 
 @item
-@uref{http://github.com/hchbaw/eval-sexp-fu.el, @file{eval-sexp-fu}}
+@uref{http://github.com/hchbaw/eval-sexp-fu.el, @pkg{eval-sexp-fu}}
 provides some visual feedback when evaluating expressions.
 @uref{http://github.com/clojure-emacs/cider-eval-sexp-fu,
-@file{cider-eval-sexp-fu}} provides CIDER integration for
-@file{eval-sexp-fu}.
+@pkg{cider-eval-sexp-fu}} provides CIDER integration for
+@pkg{eval-sexp-fu}.
 @lisp
 (require 'cider-eval-sexp-fu)
 @end lisp
@@ -806,7 +814,7 @@ Simply open in Emacs a file belonging to your @t{lein} or @t{boot} project (like
 all the dependencies loaded in, plus a CIDER client connected to it.
 
 Alternative you can use @kbd{C-u M-x cider-jack-in} to specify the name of
-a @t{lein} or @t{boot} project, without having to visit any file in it.
+a @prog{lein} or @prog{boot} project, without having to visit any file in it.
 
 @section Connect to a running nREPL server
 You can go to your project's directory in a terminal and use:
@@ -832,7 +840,7 @@ available in the CIDER menu and in the following section of this manual.
 @section Pretty printing in the REPL
 Make the REPL always pretty-print the results of your commands.  Note that this
 will not work correctly with forms such as @code{(def a 1) (def b2)} and it
-expects @t{clojure.pprint} to have been required already (the default in more
+expects @clojar{clojure.pprint} to have been required already (the default in more
 recent versions of Clojure):
 @kbd{M-x cider-repl-toggle-pretty-printing}
 
@@ -865,7 +873,7 @@ as well as the following option:
 
 @item
 Issue @kbd{M-x customize-variable @kbd{RET} cider-cljs-repl} if you'd like to
-change the REPL used (the default is @t{rhino}).
+change the REPL used (the default is @samp{rhino}).
 
 @item
 Open a file in your project and issue @kbd{M-x cider-jack-in-clojurescript}.
@@ -885,7 +893,7 @@ Add @code{[weasel "0.7.0"]} to your project's @code{:dependencies}.
 
 @item
 Issue @kbd{M-x customize-variable @kbd{RET} cider-cljs-repl} and choose the
-`Weasel' option.
+@samp{Weasel} option.
 
 @item
 Add this to your ClojureScript code:
@@ -901,7 +909,7 @@ Open a file in your project and issue @kbd{M-x cider-jack-in-clojurescript}.
 
 Provided that a Piggieback-enabled ClojureScript environment is active in your
 REPL session, code loading and evaluation will work seamlessly regardless of the
-presence of the @file{cider-nrepl} middleware.  If the middleware is present,
+presence of the @pkg{cider-nrepl} middleware.  If the middleware is present,
 most other features of CIDER will also be enabled (including code completion,
 documentation lookup, the namespace browser, and macro-expansion).
 
@@ -960,12 +968,12 @@ Evaluate the region and display the result in the echo area.
 Interrupt any pending evaluations.
 
 @item @kbd{C-c C-m}
-Invoke `macroexpand-1` on the form at point and display the result in a
-macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used
-instead of `macroexpand-1`.
+Invoke @command{macroexpand-1} on the form at point and display the result in a
+macroexpansion buffer.  If invoked with a prefix argument, @command{macroexpand}
+is used instead of @command{macroexpand-1}.
 
 @item @kbd{C-c M-m}
-Invoke `clojure.walk/macroexpand-all` on the form at point and display the
+Invoke @clojf{clojure.walk/macroexpand-all} on the form at point and display the
 result in a macroexpansion buffer.
 
 @item @kbd{C-c C-n}
@@ -1172,12 +1180,12 @@ character used to trigger the shortcuts is configurable via
 
 @ftable @command
 @item @kbd{C-c C-m}
-Invoke `macroexpand-1` on the form at point and replace the original form with
-its expansion.  If invoked with a prefix argument, `macroexpand` is used instead
-of `macroexpand-1`.
+Invoke @command{macroexpand-1} on the form at point and replace the original
+form with its expansion.  If invoked with a prefix argument,
+@command{macroexpand} is used instead of @command{macroexpand-1}.
 
 @item @kbd{C-c M-m}
-Invoke `clojure.walk/macroexpand-all` on the form at point and replace the
+Invoke @clojf{clojure.walk/macroexpand-all} on the form at point and replace the
 original form with its expansion.
 
 @item @kbd{g}
@@ -1347,7 +1355,7 @@ Next step
 Continue without stopping
 
 @item @kbd{o}
-Move out of the current sexp (like `up-list`)
+Move out of the current sexp (like @command{up-list})
 
 @item @kbd{i}
 Inject a value into running code
@@ -1397,7 +1405,7 @@ To change the designation used for CIDER buffers use @kbd{M-x
 cider-change-buffers-designation}.  This changes the CIDER REPL buffer, nREPL
 connection buffer and nREPL server buffer.  For example using
 @command{cider-change-buffers-designation} with the string @code{"foo"} would
-change @t{*cider-repl localhost*} to @t{*cider-repl foo*}.
+change @buffer{*cider-repl localhost*} to @buffer{*cider-repl foo*}.
 
 @node Requirements
 @chapter Requirements
@@ -1459,7 +1467,7 @@ at JVM startup will stop the carriage return from being printed and will fix
 output in all cider buffers.  To do so add @code{"-Dline.separator=\"\n\""} to
 @code{:jvm-opts} in @file{~/.lein/profiles.clj}.
 
-@section @file{powershell.el}
+@section @pkg{powershell.el}
 The powershell inferior shell mode truncates CIDER's REPL output when loaded.
 As a workaround, remove
 @lisp
@@ -1473,15 +1481,15 @@ In case you run into issues here are a few tips that can help you diagnose the
 problem.
 
 Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
-(instead of just logging the error in the @t{*Messages*} buffer.  You can toggle
+(instead of just logging the error in the @buffer{*Messages*} buffer.  You can toggle
 this behavior by using @kbd{M-x toggle-debug-on-error}.
 
 @section REPL not starting
 
 Make sure that your CIDER version matches your @file{cider-nrepl} version.
-Check the contents of the @t{*Messages*} buffer for CIDER-related errors.  You
+Check the contents of the @buffer{*Messages*} buffer for CIDER-related errors.  You
 should also check the nREPL messages passed between CIDER and nREPL in
-@t{*nrepl-messages*}.  If you don't see anything useful there it's time to bring
+@buffer{*nrepl-messages*}.  If you don't see anything useful there it's time to bring
 out the big guns.
 
 @heading Debugging the REPL init
@@ -1497,7 +1505,7 @@ debugger and you can step forward until you find the problem.
 Here's a @uref{http://www.youtube.com/watch?v=odkYXXYOxpo, great crash course} on
 using the debugger.
 
-@section Missing @t{*nrepl-messages*} buffer
+@section Missing @buffer{*nrepl-messages*} buffer
 
 Check the value of @var{nrepl-log-messages}.  It should be non-nil.
 
@@ -1516,14 +1524,14 @@ copy this information.
 @section Warning saying you have to use nREPL 0.2.7+
 
 CIDER currently requires at least nREPL 0.2.7 to work properly (there were some
-nasty bugs in 0.2.6).  Unfortunately, the latest @t{leiningen} (2.5.1) pulls in
+nasty bugs in 0.2.6).  Unfortunately, the latest Leiningen (2.5.1) pulls in
 exactly 0.2.6, so you if you're a lein user you'll have to do a bit of manual
 work.  Just add this to your @file{profiles.clj}:
 @lisp
 @{:user @{:dependencies [[org.clojure/tools.nrepl "0.2.10"]]@}@}
 @end lisp
 Make sure you add the newer nREPL dependency to the @code{:dependencies} key
-instead of @code{:plugins} (where @file{cider-nrepl} Lein plugin resides).
+instead of @code{:plugins} (where @pkg{cider-nrepl} Lein plugin resides).
 That's a pretty common mistake.
 
 Generally you're advised to use the newest nREPL with CIDER, as bugs get fixed
@@ -1588,8 +1596,8 @@ after the previous one has been shipped.  Bugfix/point releases (if any)
 address only serious bugs and never contain new features.
 
 The versions of CIDER and @file{cider-nrepl} are always kept in sync.
-If you're tracking the @t{master} branch of CIDER, you should also be
-tracking the @t{master} branch of @file{cider-nrepl}.
+If you're tracking the @branch{master} branch of CIDER, you should also be
+tracking the @branch{master} branch of @file{cider-nrepl}.
 
 @node Logo
 @chapter Logo
@@ -1647,7 +1655,7 @@ Consider improving and extending the
 
 @section Donations
 
-You can support my work on CIDER, @file{clojure-mode} and
+You can support my work on CIDER, @pkg{clojure-mode} and
 @uref{http://github.com/bbatsov, all my other projects} via
 @uref{https://www.gratipay.com/bbatsov, Gratipay} and
 @uref{https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ,
