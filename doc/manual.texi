@@ -549,6 +549,27 @@ passed or failed:
 
 @section Code reloading
 
+@command{cider-refresh} wraps @uref{https://github.com/clojure/tools.namespace,
+@file{clojure.tools.namespace}}, and as such the same
+@uref{https://github.com/clojure/tools.namespace#reloading-code-motivation,
+benefits} and
+@uref{https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application,
+caveats} regarding writing reloadable code also apply.
+
+Calling @command{cider-refresh} will cause all modified Clojure files on the
+classpath to be reloaded.  You can also provide a single prefix argument to
+reload all Clojure files on the classpath unconditionally, or a double prefix
+argument to first clear the state of the namespace tracker before reloading.
+
+The above three operations are analogous to
+@uref{http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh,
+@file{clojure.tools.namespace.repl/refresh}},
+@uref{http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh-all,
+@file{clojure.tools.namespace.repl/refresh-all}} and
+@uref{http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear,
+@file{clojure.tools.namespace.repl/clear}} (followed by a normal refresh),
+respectively.
+
 You can define Clojure functions to be called before reloading, and
 after a successful reload, when using @command{cider-refresh}:
 @lisp
@@ -732,6 +753,22 @@ provides some visual feedback when evaluating expressions.
 (require 'cider-eval-sexp-fu)
 @end lisp
 @end itemize
+
+@section Overlays
+
+When you evaluate code in Clojure files, the result is displayed in the buffer
+itself, in an overlay right after the evaluated code.  If you want this overlay
+to be font-locked (syntax-highlighted) like Clojure code, customize
+@var{cider-overlays-use-font-lock}:
+@lisp
+(setq cider-overlays-use-font-lock t)
+@end lisp
+
+You can disable overlays entirely (and display results in the echo-area at the
+bottom) with @var{cider-use-overlays}:
+@lisp
+(setq cider-use-overlays nil)
+@end lisp
 
 @node Basic Usage, Keyboard Shortcuts, Configuration, Top
 @chapter Basic Usage
@@ -961,10 +998,9 @@ Load (eval) the current buffer.
 Load (eval) a Clojure file.
 
 @item @kbd{C-c C-x}
-Reload all modified files on the classpath.
-
-@item @kbd{C-u C-c C-x}
-Reload all files on the classpath.
+Reload all modified files on the classpath.  If invoked with a prefix argument,
+reload all files on the classpath.  If invoked with a double prefix argument,
+clear the state of the namespace tracker before reloading.
 
 @item @kbd{C-c C-d d}
 Display doc string for the symbol at point.  If invoked with a prefix argument,
