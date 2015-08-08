@@ -8,3 +8,16 @@ elpa
 TAGS
 .DS_STORE
 dist
+# Texinfo auxiliary files
+/doc/manual.aux
+/doc/manual.cp
+/doc/manual.fn
+/doc/manual.ky
+/doc/manual.log
+/doc/manual.pdf
+/doc/manual.pg
+/doc/manual.toc
+/doc/manual.tp
+/doc/manual.vr
+/doc/logo.png
+/doc/fdl.texi
