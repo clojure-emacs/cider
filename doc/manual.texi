@@ -60,7 +60,7 @@ check out the Clojure/conj presentation
 @end direntry
 
 @ifnottex
-@node Top, Summary of Features, (dir), (dir)
+@node Top
 @top CIDER
 
 @insertcopying
@@ -85,10 +85,10 @@ check out the Clojure/conj presentation
 * Contributing::
 * License::
 * Copying This Manual::
-* Index::
+* Command Index::
 @end menu
 
-@node Summary of Features, Installation, Top, Top
+@node Summary of Features
 @chapter Summary of Features
 CIDER packs plenty of features.  Here are some of them (in no particular order):
 
@@ -119,7 +119,7 @@ CIDER packs plenty of features.  Here are some of them (in no particular order):
 @end itemize
 
 
-@node Installation, CIDER nREPL Middleware, Summary of Features, Top
+@node Installation
 @chapter Installation
 The canonical way to install CIDER is via @file{package.el}, but you can
 choose other possibilities available for your Emacs or operating system.
@@ -234,7 +234,7 @@ CIDER comes bundled in @uref{http://github.com/overtone/emacs-live, Emacs Live}.
 If you're using Emacs Live, you're already good to go.
 
 
-@node CIDER nREPL Middleware, Configuration, Installation, Top
+@node CIDER nREPL Middleware
 @chapter CIDER nREPL Middleware
 @section Using Leiningen
 
@@ -296,7 +296,7 @@ snapshot of the plugin as well (say @samp{0.7.1-SNAPSHOT}).
 Note that you need to use at least CIDER 0.7 for the nREPL middleware to work
 properly.  Don't use @file{cider-nrepl} with CIDER 0.6.
 
-@node Configuration, Basic Usage, CIDER nREPL Middleware, Top
+@node Configuration
 @chapter Configuration
 
 You can certainly use CIDER without configuring it any further, but here
@@ -775,7 +775,7 @@ bottom) with @var{cider-use-overlays}:
 (setq cider-use-overlays nil)
 @end lisp
 
-@node Basic Usage, Keyboard Shortcuts, Configuration, Top
+@node Basic Usage
 @chapter Basic Usage
 The only requirement to use CIDER is to have a nREPL server to which it may
 connect.  Many Clojurians favour the use of the Leiningen or Boot tools to start
@@ -909,7 +909,7 @@ presence of the @file{cider-nrepl} middleware.  If the middleware is present,
 most other features of CIDER will also be enabled (including code completion,
 documentation lookup, the namespace browser, and macro-expansion).
 
-@node Keyboard Shortcuts, Requirements, Basic Usage, Top
+@node Keyboard Shortcuts
 @chapter Keyboard shortcuts
 
 @itemize
@@ -1403,7 +1403,7 @@ connection buffer and nREPL server buffer.  For example using
 @command{cider-change-buffers-designation} with the string @code{"foo"} would
 change @t{*cider-repl localhost*} to @t{*cider-repl foo*}.
 
-@node Requirements, Caveats, Keyboard Shortcuts, Top
+@node Requirements
 @chapter Requirements
 
 @itemize
@@ -1417,7 +1417,7 @@ change @t{*cider-repl localhost*} to @t{*cider-repl foo*}.
 @uref{http://clojure.org, Clojure} 1.5.0+
 @end itemize
 
-@node Caveats, Troubleshooting, Requirements, Top
+@node Caveats
 @chapter Caveats
 @section Var Metadata
 
@@ -1472,7 +1472,7 @@ As a workaround, remove
 @end lisp
 from your Emacs config.
 
-@node Troubleshooting, Documentation, Caveats, Top
+@node Troubleshooting
 @chapter Troubleshooting
 In case you run into issues here are a few tips that can help you diagnose the
 problem.
@@ -1538,7 +1538,7 @@ Note, that running @command{cider-jack-in} from outside the scope of a project
 will result in the @strong{older (0.2.6) nREPL dependency being used} (at least
 on Leiningen 2.5.1).  This is likely a Leiningen bug.
 
-@node Documentation, Changelog, Troubleshooting, Top
+@node Documentation
 @chapter Documentation
 
 A single-page quick reference PDF for CIDER commands is available
@@ -1547,14 +1547,14 @@ running @code{pdflatex} on the CIDER refcard LaTeX file,
 @uref{http://github.com/clojure-emacs/cider/blob/master/doc/cider-refcard.tex,
 @file{doc/cider-refcard.tex}}.
 
-@node Changelog, Team, Documentation, Top
+@node Changelog
 @chapter Changelog
 
 An extensive changelog is available in
 @uref{http://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md,
 @file{CHANGELOG.md}}.
 
-@node Team, Release Policy, Changelog, Top
+@node Team
 @chapter Team
 
 @itemize
@@ -1578,7 +1578,7 @@ An extensive changelog is available in
 @end itemize
 
 
-@node Release Policy, Logo, Team, Top
+@node Release Policy
 @chapter Release Policy
 
 We're following @uref{http://semver.org, SemVer} (as much as one can be
@@ -1596,7 +1596,7 @@ The versions of CIDER and @file{cider-nrepl} are always kept in sync.
 If you're tracking the @t{master} branch of CIDER, you should also be
 tracking the @t{master} branch of @file{cider-nrepl}.
 
-@node Logo, Contributing, Release Policy, Top
+@node Logo
 @chapter Logo
 
 CIDER's logo was created by @uref{http://github.com/ndr-qef, @@ndr-qef}.
@@ -1608,7 +1608,7 @@ The logo is licensed under a
 @uref{http://creativecommons.org/licenses/by-nc/4.0/deed.en_GB, Creative
 Commons Attribution-NonCommercial 4.0 International License}.
 
-@node Contributing, License, Logo, Top
+@node Contributing
 @chapter Contributing
 
 
@@ -1679,7 +1679,7 @@ $ make test
 (Note: tests may not run correctly inside Emacs' @command{shell-mode}
 buffers.  Running in a terminal is recommended.)
 
-@node License, Copying This Manual, Contributing, Top
+@node License
 @chapter License
 
 Copyright @copyright{} 2012--2015
@@ -1692,19 +1692,19 @@ Steve Purcell and
 
 Distributed under the GNU General Public License, version 3.
 
-@node Copying This Manual, Index, License, Top
+@node Copying This Manual
 @appendix Copying This Manual
 
 @menu
 * GNU Free Documentation License:: License for copying this manual.
 @end menu
 
-@node GNU Free Documentation License,  , Copying This Manual, Copying This Manual
+@node GNU Free Documentation License
 @section GNU Free Documentation License
 @include fdl.texi
 
-@node Index,  , Copying This Manual, Top
-@unnumbered Index
+@node Command Index
+@unnumbered Command Index
 
 @printindex cp
 

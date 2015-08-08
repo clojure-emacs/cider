@@ -6,6 +6,9 @@ all: | clean manual.pdf
 html-manual: logo.png gratipay.png paypal.png fdl.texi
 	makeinfo --html manual.texi
 
+manual.html: logo.png gratipay.png paypal.png fdl.texi
+	makeinfo --html --no-split manual.texi
+
 manual.info: fdl.texi
 	makeinfo manual.texi
 
