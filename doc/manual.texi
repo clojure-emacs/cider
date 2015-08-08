@@ -549,11 +549,11 @@ passed or failed:
 
 @section Code reloading
 
-@command{cider-refresh} wraps @uref{https://github.com/clojure/tools.namespace,
+@command{cider-refresh} wraps @uref{http://github.com/clojure/tools.namespace,
 @file{clojure.tools.namespace}}, and as such the same
-@uref{https://github.com/clojure/tools.namespace#reloading-code-motivation,
+@uref{http://github.com/clojure/tools.namespace#reloading-code-motivation,
 benefits} and
-@uref{https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application,
+@uref{http://github.com/clojure/tools.namespace#reloading-code-preparing-your-application,
 caveats} regarding writing reloadable code also apply.
 
 Calling @command{cider-refresh} will cause all modified Clojure files on the
@@ -847,7 +847,7 @@ Leiningen project's configuration.
 
 @section ClojureScript usage
 ClojureScript support relies on the
-[piggieback](https://github.com/cemerick/piggieback) nREPL middleware being
+[piggieback](http://github.com/cemerick/piggieback) nREPL middleware being
 present in your REPL session.
 
 @enumerate
@@ -1493,7 +1493,7 @@ its entry points.  Add a breakpoint to @command{cider-make-repl} (@kbd{C-u
 C-M-x}, while its body).  Next time you start CIDER you'll be dropped in the
 debugger and you can step forward until you find the problem.
 
-Here's a @uref{https://www.youtube.com/watch?v=odkYXXYOxpo, great crash course} on
+Here's a @uref{http://www.youtube.com/watch?v=odkYXXYOxpo, great crash course} on
 using the debugger.
 
 @subsection Missing @t{*nrepl-messages*} buffer
@@ -1507,9 +1507,9 @@ In the REPL buffer, issue the following.
 your.namespace> (ns cider.nrepl.middleware.util.instrument)
 cider.nrepl.middleware.util.instrument> (def verbose-debug true)
 @end verbatim
-This will cause cider to print extensive information on the REPL buffer when you
+This will cause CIDER to print extensive information on the REPL buffer when you
 try to debug an expression (e.g., with @kbd{C-u C-M-x}).
-@uref{https://github.com/clojure-emacs/cider-repl/issues/new, File an issue} and
+@uref{http://github.com/clojure-emacs/cider/issues/new, File an issue} and
 copy this information.
 
 @subsection Warning saying you have to use nREPL 0.2.7+
