@@ -13,8 +13,10 @@ cider.info: fdl.texi
 	makeinfo cider.texi
 
 cider.pdf: logo.png gratipay.png paypal.png fdl.texi
-	pdftex cider.texi
-	pdftex cider.texi
+	$(if $(shell which pdftex),pdftex cider.texi && pdftex cider.texi,$(info pdfTeX unavailable))	
+# which pdftex && pdftex cider.texi && pdftex cider.texi	
+# which pdftex || echo "pdfTeX is unavailable"
+
 
 clean:
 	rm -f {logo,gratipay,paypal}.{png,gif,pdf}

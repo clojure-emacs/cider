@@ -85,7 +85,6 @@ check out the Clojure/conj presentation
 * Contributing::
 * License::
 * Copying This Manual::
-* Command Index::
 @end menu
 
 @node Summary of Features
@@ -286,8 +285,6 @@ server with CIDER's own nREPL handler.
 @end lisp
 
 It goes without saying that your project should depend on @file{cider-nrepl}.
-
-***
 
 @samp{x.y.z} should match the version of CIDER you're currently using
 (say @samp{0.7.1}).  For snapshot releases of CIDER you should use the
@@ -518,13 +515,12 @@ optional label is helpful for identifying each host.
 If you are targeting the JVM and prefer a local copy of the JDK API
 documentation over Oracle's official copy (e.g., for
 @uref{http://docs.oracle.com/javase/8/docs/api, JavaSE 8}), per nREPL's
-@file{javadoc-info} logic (accurate as of 29 Dec 2014), you can arrange
-your project to include the **root** path of the local API doc (i.e.,
-where the @file{index.html} is located) to be included on your classpath
-(i.e., where the doc HTML files can be located by
-@file{clojure.java.io/resource}).  For example, for Leiningen, with the
-local API path being @file{/usr/share/doc/java/api/}, put the following
-line in @file{project.clj}:
+@file{javadoc-info} logic (accurate as of 29 Dec 2014), you can arrange your
+project to include the root path of the local API doc (i.e., where the
+@file{index.html} is located) to be included on your classpath (i.e., where the
+doc HTML files can be located by @file{clojure.java.io/resource}).  For example,
+for Leiningen, with the local API path being @file{/usr/share/doc/java/api/},
+put the following line in @file{project.clj}:
 @lisp
 :dev @{:resource-paths ["/usr/share/doc/java/api/"]@}
 @end lisp
@@ -694,7 +690,7 @@ Completion annotations can be disabled by setting
 @var{cider-annotate-completion-candidates} to @samp{nil}.
 
 @iftex
-@hfill@image{../screenshots/completion-annotations, 4in}@hfill@null
+@center @image{../screenshots/completion-annotations, 4in}
 @end iftex
 
 @section Integration with other modes
@@ -1659,7 +1655,8 @@ You can support my work on CIDER, @file{clojure-mode} and
 PayPal}.
 
 @iftex
-@hfill@image{gratipay}@hfill@image{paypal}@hfill@null
+@center @image{gratipay}
+@center @image{paypal}
 @end iftex
 
 @section Running the tests in batch mode
@@ -1702,11 +1699,6 @@ Distributed under the GNU General Public License, version 3.
 @node GNU Free Documentation License
 @section GNU Free Documentation License
 @include fdl.texi
-
-@node Command Index
-@unnumbered Command Index
-
-@printindex cp
 
 @bye
 
