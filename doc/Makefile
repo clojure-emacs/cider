@@ -4,21 +4,21 @@ all: | clean manual.pdf
 
 .PHONY: manual-html
 html-manual: logo.png gratipay.png paypal.png fdl.texi
-	makeinfo --html manual.texi
+	makeinfo --html cider.texi
 
-manual.html: logo.png gratipay.png paypal.png fdl.texi
-	makeinfo --html --no-split manual.texi
+cider.html: logo.png gratipay.png paypal.png fdl.texi
+	makeinfo --html --no-split cider.texi
 
-manual.info: fdl.texi
-	makeinfo manual.texi
+cider.info: fdl.texi
+	makeinfo cider.texi
 
-manual.pdf: logo.png gratipay.png paypal.png fdl.texi
-	pdftex manual.texi
-	pdftex manual.texi
+cider.pdf: logo.png gratipay.png paypal.png fdl.texi
+	pdftex cider.texi
+	pdftex cider.texi
 
 clean:
 	rm -f {logo,gratipay,paypal}.{png,gif,pdf}
-	rm -f manual.{aux,cp,fn,ky,log,pg,toc,tp,vr}
+	rm -f cider.{aux,cp,fn,ky,log,pg,toc,tp,vr}
 
 logo.png:
 	convert -background none ../logo/cider-logo.svg logo.png

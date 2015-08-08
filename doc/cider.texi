@@ -6,7 +6,7 @@
 \global\def\urlcolor{0.4 0 0}
 @end tex
 @alias pkg = file
-@setfilename manual.info
+@setfilename cider.info
 @settitle CIDER
 @copying
 CIDER, the Clojure Interactive Development Environment that Rocks.
@@ -1710,4 +1710,4 @@ Distributed under the GNU General Public License, version 3.
 
 @bye
 
-@c manual.texi ends here
+@c cider.texi ends here

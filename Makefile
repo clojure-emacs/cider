@@ -47,6 +47,7 @@ run-cider: elpa
 
 .PHONY: manual
 manual:
-	$(MAKE) -C doc manual.pdf
-	$(MAKE) -C doc manual.info
+	$(MAKE) -C doc cider.pdf
+	$(MAKE) -C doc cider.info
+	$(MAKE) -C doc cider.html
 	$(MAKE) -C doc html-manual
