@@ -44,3 +44,9 @@ elpaclean : clean
 
 run-cider: elpa
 	cask exec emacs -Q -L . --eval "(require 'cider)"
+
+.PHONY: manual
+manual:
+	$(MAKE) -C doc manual.pdf
+	$(MAKE) -C doc manual.info
+	$(MAKE) -C doc html-manual

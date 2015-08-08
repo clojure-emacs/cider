@@ -3,7 +3,10 @@ env:
   - EMACS=emacs24
 #  - EMACS=emacs-snapshot
 before_script:
+  - sudo apt-get install texinfo
+  - makeinfo --version
   - sh vagrant/provision.sh
   - make EMACS=${EMACS} elpa
 script:
   - make EMACS=${EMACS} test
+  - make manual

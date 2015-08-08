@@ -244,7 +244,7 @@ project's @file{project.clj} file or in the @var{:user} profile in
 
 A minimal @file{profiles.clj} for CIDER would be:
 @lisp
-{:user {:plugins [[cider/cider-nrepl "0.9.1"]]}}
+@{:user @{:plugins [[cider/cider-nrepl "0.9.1"]]@}@}
 @end lisp
 
 @section Using Boot
@@ -289,9 +289,8 @@ It goes without saying that your project should depend on @file{cider-nrepl}.
 (say @samp{0.7.1}).  For snapshot releases of CIDER you should use the
 snapshot of the plugin as well (say @samp{0.7.1-SNAPSHOT}).
 
-@strong{Note that you need to use at least CIDER 0.7 for the nREPL
-middleware to work properly.  Don't use @file{cider-nrepl} with CIDER
-0.6.}
+Note that you need to use at least CIDER 0.7 for the nREPL middleware to work
+properly.  Don't use @file{cider-nrepl} with CIDER 0.6.
 
 @node Configuration, Basic Usage, CIDER nREPL Middleware, Top
 @chapter Configuration
@@ -523,11 +522,11 @@ where the @file{index.html} is located) to be included on your classpath
 local API path being @file{/usr/share/doc/java/api/}, put the following
 line in @file{project.clj}:
 @lisp
-:dev {:resource-paths ["/usr/share/doc/java/api/"]}
+:dev @{:resource-paths ["/usr/share/doc/java/api/"]@}
 @end lisp
 @emph{or} the following line in @file{@env{$HOME}/.lein/profiles.clj}:
 @lisp
-:user {:resource-paths ["/usr/share/doc/java/api/"]}
+:user @{:resource-paths ["/usr/share/doc/java/api/"]@}
 @end lisp
 More detail can be found
 @uref{http://github.com/clojure-emacs/cider/issues/930, on issue #930}.
@@ -690,7 +689,9 @@ in which their namespace is included is configured by
 Completion annotations can be disabled by setting
 @var{cider-annotate-completion-candidates} to @samp{nil}.
 
+@iftex
 @hfill@image{../screenshots/completion-annotations, 4in}@hfill@null
+@end iftex
 
 @section Integration with other modes
 
@@ -842,7 +843,7 @@ controls how many items of each collection the printer will print.  You can
 supply a default value for REPL sessions via the @t{global-vars} section of your
 Leiningen project's configuration.
 @lisp
-:global-vars {*print-length* 100}
+:global-vars @{*print-length* 100@}
 @end lisp
 
 @section ClojureScript usage
@@ -859,7 +860,7 @@ Add the following dependencies to your @file{project.clj}:
 @end lisp
 as well as the following option:
 @lisp
-:repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+:repl-options @{:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]@}
 @end lisp
 
 @item
@@ -1314,7 +1315,7 @@ write @code{#break} before a form, and the debugger will popup every time that
 form is evaluated. For instance, if you hit @kbd{C-M-x} on the following, a
 breakpoint is triggered every time @code{(inspector msg)} is evaluated.
 @lisp
-(defn eval-msg [{:keys [inspect] :as msg}]
+(defn eval-msg [@{:keys [inspect] :as msg@}]
   (if inspect
     #break (inspector msg)
     msg))
@@ -1448,14 +1449,15 @@ clojure-quick-repls} aids this situation by routing requests to the correct REPL
 according to the file extension of the current buffer.
 
 @section Microsoft Windows
-On Microsoft Windows the JVM default line separator string is @code{"@\r@\n"} which
-can appear in Emacs as @code{^M} characters at the end of lines printed out by
-the JVM.  One option is to set the @var{buffer-display-table} to not show these
-characters as detailed @uref{http://stackoverflow.com/a/11787550, here}
-(changing @var{slime-repl-mode-hook} to @var{cider-repl-mode-hook}).
-Alternatively, setting the system property @code{line.separator} to @code{"@\n"} at
-JVM startup will stop the carriage return from being printed and will fix output
-in all cider buffers.  To do so add @code{"-Dline.separator=\"\n\""} to
+On Microsoft Windows the JVM default line separator string is
+@code{"@backslashchar{}r@backslashchar{}n"} which can appear in Emacs as
+@code{^M} characters at the end of lines printed out by the JVM.  One option is
+to set the @var{buffer-display-table} to not show these characters as detailed
+@uref{http://stackoverflow.com/a/11787550, here} (changing
+@var{slime-repl-mode-hook} to @var{cider-repl-mode-hook}).  Alternatively,
+setting the system property @code{line.separator} to @code{"@backslashchar{}n"}
+at JVM startup will stop the carriage return from being printed and will fix
+output in all cider buffers.  To do so add @code{"-Dline.separator=\"\n\""} to
 @code{:jvm-opts} in @file{~/.lein/profiles.clj}.
 
 @section @file{powershell.el}
@@ -1475,7 +1477,7 @@ Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
 (instead of just logging the error in the @t{*Messages*} buffer. You can toggle
 this behavior by using @kbd{M-x toggle-debug-on-error}.
 
-@subsection REPL not starting
+@section REPL not starting
 
 Make sure that your CIDER version matches your @file{cider-nrepl} version. Check
 the contents of the @t{*Messages*} buffer for CIDER-related errors. You should
@@ -1496,11 +1498,11 @@ debugger and you can step forward until you find the problem.
 Here's a @uref{http://www.youtube.com/watch?v=odkYXXYOxpo, great crash course} on
 using the debugger.
 
-@subsection Missing @t{*nrepl-messages*} buffer
+@section Missing @t{*nrepl-messages*} buffer
 
 Check the value of @var{nrepl-log-messages}.  It should be non-nil.
 
-@subsection @command{cider-debug} complains that it ``failed to instrument ...''
+@section @command{cider-debug} complains that it ``failed to instrument ...''
 
 In the REPL buffer, issue the following.
 @verbatim
@@ -1512,14 +1514,14 @@ try to debug an expression (e.g., with @kbd{C-u C-M-x}).
 @uref{http://github.com/clojure-emacs/cider/issues/new, File an issue} and
 copy this information.
 
-@subsection Warning saying you have to use nREPL 0.2.7+
+@section Warning saying you have to use nREPL 0.2.7+
 
 CIDER currently requires at least nREPL 0.2.7 to work properly (there were some
 nasty bugs in 0.2.6).  Unfortunately, the latest @t{leiningen} (2.5.1) pulls in
 exactly 0.2.6, so you if you're a lein user you'll have to do a bit of manual
 work. Just add this to your @file{profiles.clj}:
 @lisp
-{:user {:dependencies [[org.clojure/tools.nrepl "0.2.10"]]}}
+@{:user @{:dependencies [[org.clojure/tools.nrepl "0.2.10"]]@}@}
 @end lisp
 Make sure you add the newer nREPL dependency to the @code{:dependencies} key
 instead of @code{:plugins} (where @file{cider-nrepl} Lein plugin resides).
@@ -1575,7 +1577,7 @@ An extensive changelog is available in
 @node Release Policy, Logo, Team, Top
 @chapter Release Policy
 
-We’re following @uref{http://semver.org, SemVer} (as much as one can be
+We're following @uref{http://semver.org, SemVer} (as much as one can be
 following it when the major version is @samp{0}).  At this point bumps
 to the minor version number are considered major releases and always
 include new features or significant changes to existing features.  API
@@ -1653,7 +1655,9 @@ You can support my work on CIDER, @file{clojure-mode} and
 @uref{https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ,
 PayPal}.
 
+@iftex
 @hfill@image{gratipay}@hfill@image{paypal}@hfill@null
+@end iftex
 
 @section Running the tests in batch mode
 

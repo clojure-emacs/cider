@@ -2,6 +2,13 @@
 
 all: | clean manual.pdf
 
+.PHONY: manual-html
+html-manual: logo.png gratipay.png paypal.png fdl.texi
+	makeinfo --html manual.texi
+
+manual.info: fdl.texi
+	makeinfo manual.texi
+
 manual.pdf: logo.png gratipay.png paypal.png fdl.texi
 	pdftex manual.texi
 	pdftex manual.texi
