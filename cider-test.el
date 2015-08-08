@@ -109,12 +109,13 @@
     (define-key map (kbd "M-p") #'cider-test-previous-result)
     (define-key map (kbd "M-n") #'cider-test-next-result)
     (define-key map (kbd "M-.") #'cider-test-jump)
+    (define-key map (kbd "<backtab>") #'cider-test-previous-result)
+    (define-key map (kbd "TAB") #'cider-test-next-result)
+    (define-key map (kbd "RET") #'cider-test-jump)
     (define-key map (kbd "t") #'cider-test-jump)
     (define-key map (kbd "d") #'cider-test-ediff)
     (define-key map (kbd "e") #'cider-test-stacktrace)
     (define-key map "q" #'cider-popup-buffer-quit-function)
-    (define-key map (kbd "<backtab>") #'backward-button)
-    (define-key map (kbd "TAB") #'forward-button)
     (easy-menu-define cider-test-report-mode-menu map
       "Menu for CIDER's test result mode"
       '("Test-Report"
