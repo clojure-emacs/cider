@@ -54,6 +54,11 @@ check out the Clojure/conj presentation
 
 @contents
 
+@dircategory Emacs
+@direntry
+* Cider: (cider). The Clojure Interactive Development Environment that Rocks
+@end direntry
+
 @ifnottex
 @node Top, Summary of Features, (dir), (dir)
 @top CIDER
