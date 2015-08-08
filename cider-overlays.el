@@ -31,10 +31,19 @@
 ;;; Customization
 (defface cider-result-overlay-face
   '((t :inherit font-lock-builtin-face))
-  "Face used to display result of debug step at point."
-  :group 'cider-debug
+  "Face used to display evaluation results at the end of line.
+Only used on the result string if `cider-ovelays-use-font-lock' is nil.
+If it is non-nil, this face is only used on the prefix (usually a \"=>\")."
   :group 'cider
   :package-version "0.9.1")
+
+(defcustom cider-ovelays-use-font-lock nil
+  "If non-nil, results overlays are font-locked as Clojure code.
+If nil, apply `cider-result-overlay-face' to the entire overlay instead of
+font-locking it."
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider . "0.10.0"))
 
 (defcustom cider-use-overlays 'both
   "Whether to display evaluation results with overlays.
@@ -47,7 +56,7 @@ see `cider-debug-use-overlays'."
                  (const :tag "Bottom of screen" nil)
                  (const :tag "Both" both))
   :group 'cider
-  :package-version "0.10.0")
+  :package-version '(cider . "0.10.0"))
 
 (defcustom cider-eval-result-prefix "=> "
   "The prefix displayed in the minibuffer before a result value."
@@ -113,16 +122,17 @@ PROPS are passed to `cider--make-overlay' with a type of result."
           (when where (goto-char where))
           ;; Make sure the overlay is actually at the end of the sexp.
           (skip-chars-backward "\r\n[:blank:]")
-          (let ((o (apply
-                    #'cider--make-overlay
-                    (line-beginning-position) (line-end-position)
-                    'result
-                    'after-string
-                    (concat (propertize " " 'cursor 1000)
-                            (propertize cider-eval-result-prefix
-                                        'face 'cider-result-overlay-face)
-                            (format "%s" value))
-                    props)))
+          (let* ((display-string (concat (propertize " " 'cursor 1000)
+                                         cider-eval-result-prefix
+                                         (format "%s" value)))
+                 (o (apply #'cider--make-overlay
+                           (line-beginning-position) (line-end-position)
+                           'result
+                           'after-string
+                           (if cider-ovelays-use-font-lock
+                               display-string
+                             (propertize display-string 'face 'cider-result-overlay-face))
+                           props)))
             (pcase duration
               ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
               (`command (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local)))

@@ -372,14 +372,36 @@ This will not work on non-current prompts."
 
 (put 'cider-save-marker 'lisp-indent-function 1)
 
-(defun cider-repl-default-prompt (namespace)
+(defun cider-repl-prompt-default (namespace)
   "Return a prompt string that mentions NAMESPACE."
   (format "%s> " namespace))
+(define-obsolete-function-alias 'cider-repl-default-prompt 'cider-repl-prompt-default "0.10.0")
 
-(defcustom cider-repl-prompt-function #'cider-repl-default-prompt
+(defun cider-repl-prompt-abbreviated (namespace)
+  "Return a prompt string that abbreviates NAMESPACE."
+  (let* ((names (reverse (split-string namespace "\\.")))
+         (lastname (car names)))
+    (concat (mapconcat (lambda (s) (concat (substring s 0 1) "."))
+                       (reverse (cdr names))
+                       "")
+            lastname
+            "> ")))
+
+(defun cider-repl-prompt-lastname (namespace)
+  "Return a prompt string with the last name in NAMESPACE."
+  (let* ((name (car (reverse (split-string namespace "\\.")))))
+    (concat name "> ")))
+
+(defcustom cider-repl-prompt-function #'cider-repl-prompt-default
   "A function that returns a prompt string.
-Takes one argument, a namespace name."
-  :type 'function
+Takes one argument, a namespace name.
+For convenience, three functions are already provided for this purpose:
+`cider-repl-prompt-lastname', `cider-repl-prompt-abbreviated', and
+`cider-repl-prompt-default'"
+  :type '(choice (const :tag "Full namespace" cider-repl-prompt-default)
+                 (const :tag "Abbreviated namespace" cider-repl-prompt-abbreviated)
+                 (const :tag "Last name in namespace" cider-repl-prompt-lastname)
+                 (function :tag "Custom function"))
   :group 'cider-repl
   :package-version '(cider . "0.9.0"))
 

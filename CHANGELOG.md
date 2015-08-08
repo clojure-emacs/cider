@@ -5,7 +5,10 @@
 ### New features
 
 * [#1246](https://github.com/clojure-emacs/cider/pull/1246): Port the manual in README.md to Texinfo.
+* [#1245](https://github.com/clojure-emacs/cider/pull/1245): New variable, `cider-ovelays-use-font-lock` controls whether results overlay should be font-locked or just use a single face.
+* [#1235](https://github.com/clojure-emacs/cider/pull/1235): Add support for syntax-quoted forms to the debugger.
 * [#1212](https://github.com/clojure-emacs/cider/pull/1212): Add pagination of long collections to inspector.
+* [#1237](https://github.com/clojure-emacs/cider/pull/1237): Add two functions for use with `cider-repl-prompt-function`, `cider-repl-prompt-lastname` and `repl-prompt-abbreviated`.
 * [#1201](https://github.com/clojure-emacs/cider/pull/1201): Integrate overlays with interactive evaluation. `cider-use-overlays` can be used to turn this on or off.
 * [#1195](https://github.com/clojure-emacs/cider/pull/1195): CIDER can [create cljs REPLs](https://github.com/clojure-emacs/cider#clojurescript-usage).
 * [#1191](https://github.com/clojure-emacs/cider/pull/1191): New custom variables `cider-debug-print-level` and `cider-debug-print-length`.
@@ -24,6 +27,7 @@
 * [#1219](https://github.com/clojure-emacs/cider/pull/1219): The output of `cider-refresh` is now sent to a dedicated `*cider-refresh-log*` buffer.
 * [#1219](https://github.com/clojure-emacs/cider/pull/1219): New custom variables `cider-refresh-before-fn` and `cider-refresh-after-fn`.
 * [#1220](https://github.com/clojure-emacs/cider/issues/1220): Treat keywords as symbols in lookup commands like `cider-find-var`.
+* [#1241](https://github.com/clojure-emacs/cider/pull/1241): Passing a double prefix argument to `cider-refresh` will now clear the state of the namespace tracker used by the refresh middleware. This is useful for recovering from errors that a normal reload would not otherwise recover from, but may cause stale code in any deleted files to not be completely unloaded.
 
 ### Changes
 

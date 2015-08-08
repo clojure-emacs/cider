@@ -65,6 +65,43 @@
     (message "%S" (point))
     (should (string= (thing-at-point 'symbol) "2"))))
 
+(ert-deftest test-debug-move-point-syntax-quote ()
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(let [b 1] `((~b)))"))
+    (cider--debug-move-point '(2 1 1 1 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "(let [b 1] `((~b"))
+    (goto-char (point-min))
+    (cider--debug-move-point '(2 1 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "(let [b 1] `((~b)")))
+
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "`((~a))"))
+    (cider--debug-move-point '(1 1 1 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "`((~a"))
+    (goto-char (point-min))
+    (cider--debug-move-point '(1 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "`((~a)")))
+
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "`#{(~c)}"))
+    (cider--debug-move-point '(2 1 1 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "`#{(~c"))
+    (goto-char (point-min))
+    (cider--debug-move-point '(2 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "`#{(~c)")))
+
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "`[(~d)]"))
+    (cider--debug-move-point '(2 1 1 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "`[(~d"))
+    (goto-char (point-min))
+    (cider--debug-move-point '(2 1 1 1))
+    (should (string= (buffer-substring (point-min) (point)) "`[(~d)"))))
+
 (ert-deftest test-cider-connection-buffer-name ()
   (setq-local nrepl-endpoint '("localhost" 1))
   (let ((nrepl-hide-special-buffers nil))
@@ -569,6 +606,14 @@
     (should (string= (cider-symbol-at-point) "")))
   (noflet ((thing-at-point (thing) "boogie>"))
     (should (string= (cider-symbol-at-point) "boogie>"))))
+
+(ert-deftest cider-repl-prompt-function ()
+  (should (equal (cider-repl-prompt-default "some.pretty.long.namespace.name")
+                 "some.pretty.long.namespace.name> "))
+  (should (equal (cider-repl-prompt-lastname "some.pretty.long.namespace.name")
+                 "name> "))
+  (should (equal (cider-repl-prompt-abbreviated "some.pretty.long.namespace.name")
+                 "s.p.l.n.name> ")))
 
 (ert-deftest test-cider--url-to-file ()
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
