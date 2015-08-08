@@ -90,7 +90,7 @@ check out the Clojure/conj presentation
 
 @node Summary of Features, Installation, Top, Top
 @chapter Summary of Features
-CIDER packs plenty of features. Here are some of them (in no particular order):
+CIDER packs plenty of features.  Here are some of them (in no particular order):
 
 @itemize
 @item Powerful REPL
@@ -125,7 +125,7 @@ The canonical way to install CIDER is via @file{package.el}, but you can
 choose other possibilities available for your Emacs or operating system.
 
 @section Prerequisites
-You'll need to have Emacs installed (preferably the latest stable release). If
+You'll need to have Emacs installed (preferably the latest stable release).  If
 you're new to Emacs you might want to read
 @uref{http://clojure-doc.org/articles/tutorials/emacs.html, this tutorial},
 dedicated to setting up Emacs for Clojure development, first.
@@ -239,10 +239,9 @@ If you're using Emacs Live, you're already good to go.
 @section Using Leiningen
 
 Much of CIDER's functionality depends on the presence of CIDER's own
-@uref{http://github.com/clojure-emacs/cider-nrepl, nREPL
-middleware}. Use the plugin for convenient defaults -- either in your
-project's @file{project.clj} file or in the @var{:user} profile in
-@file{~/.lein/profiles.clj}.
+@uref{http://github.com/clojure-emacs/cider-nrepl, nREPL middleware}.  Use the
+plugin for convenient defaults -- either in your project's @file{project.clj}
+file or in the @var{:user} profile in @file{~/.lein/profiles.clj}.
 @lisp
 :plugins [[cider/cider-nrepl "x.y.z"]]
 @end lisp
@@ -422,9 +421,9 @@ include @samp{java}, @samp{clj}, @samp{repl}, @samp{tooling}, and
 @end lisp
 
 @item
-Error messages may be wrapped for readability. If this value is nil,
-messages will not be wrapped; if it is truthy but non-numeric, the
-default @var{fill-column} will be used.
+Error messages may be wrapped for readability.  If this value is nil, messages
+will not be wrapped; if it is truthy but non-numeric, the default
+@var{fill-column} will be used.
 @lisp
 (setq cider-stacktrace-fill-column 80)
 @end lisp
@@ -842,11 +841,11 @@ recent versions of Clojure):
 @kbd{M-x cider-repl-toggle-pretty-printing}
 
 @section Limiting printed output in the REPL
-Accidentally printing large objects can be detrimental to your
-productivity. Clojure provides the @var{*print-length*} variable which, if set,
-controls how many items of each collection the printer will print.  You can
-supply a default value for REPL sessions via the @t{global-vars} section of your
-Leiningen project's configuration.
+Accidentally printing large objects can be detrimental to your productivity.
+Clojure provides the @var{*print-length*} variable which, if set, controls how
+many items of each collection the printer will print.  You can supply a default
+value for REPL sessions via the @t{global-vars} section of your Leiningen
+project's configuration.
 @lisp
 :global-vars @{*print-length* 100@}
 @end lisp
@@ -980,7 +979,7 @@ Eval the ns form.
 Switch the namespace of the REPL buffer to the namespace of the current buffer.
 
 @item @kbd{C-c C-z}
-Switch to the relevant REPL buffer. Use a prefix argument to change the
+Switch to the relevant REPL buffer.  Use a prefix argument to change the
 namespace of the REPL buffer to match the currently visited source file.
 
 @item @kbd{C-u C-u C-c C-z}
@@ -994,7 +993,7 @@ Switch to the REPL buffer based on a user prompt for a directory.
 Rotate and display the default nREPL connection.
 
 @item @kbd{C-c M-o}
-Clear the entire REPL buffer, leaving only a prompt. Useful if you're running
+Clear the entire REPL buffer, leaving only a prompt.  Useful if you're running
 the REPL buffer in a side by side buffer.
 
 @item @kbd{C-c C-k}
@@ -1017,7 +1016,7 @@ Display JavaDoc (in your default browser) for the symbol at point.  If invoked
 with a prefix argument, or no symbol is found at point, prompt for a symbol.
 
 @item @kbd{C-c M-i}
-Inspect expression. Will act on expression at point if present.
+Inspect expression.  Will act on expression at point if present.
 
 @item @kbd{C-c M-t v}
 Toggle var tracing.
@@ -1026,7 +1025,7 @@ Toggle var tracing.
 Toggle namespace tracing.
 
 @item @kbd{C-c C-u}
-Undefine a symbol. If invoked with a prefix argument, or no symbol is found at
+Undefine a symbol.  If invoked with a prefix argument, or no symbol is found at
 point, prompt for a symbol.
 
 @item @kbd{C-c ,}
@@ -1073,8 +1072,8 @@ Apropos search for documentation.
 
 @ftable @command
 @item @kbd{RET}
-Evaluate the current input in Clojure if it is complete. If incomplete, open a
-new line and indent. If invoked with a prefix argument is given then the input
+Evaluate the current input in Clojure if it is complete.  If incomplete, open a
+new line and indent.  If invoked with a prefix argument is given then the input
 is evaluated without checking for completeness.
 
 @item @kbd{C-RET}
@@ -1103,8 +1102,8 @@ Goto to previous/next input in history.
 @item @kbd{M-p}
 @itemx @kbd{M-n}
 Search the previous/next item in history using the current input as search
-pattern. If @kbd{M-p/M-n}is typed two times in a row, the second invocation uses
-the same search pattern (even if the current input has changed).
+pattern.  If @kbd{M-p/M-n}is typed two times in a row, the second invocation
+uses the same search pattern (even if the current input has changed).
 
 @item @kbd{M-s}
 @itemx @kbd{M-r}
@@ -1112,7 +1111,7 @@ Search forward/reverse through command history with regex.
 
 @item @kbd{C-c C-n}
 @itemx @kbd{C-c C-p}
-Move between the current and previous prompts in the REPL buffer. Pressing
+Move between the current and previous prompts in the REPL buffer.  Pressing
 @kbd{RET}on a line with old input copies that line to the newest prompt.
 
 @item @kbd{C-c C-x}
@@ -1142,11 +1141,11 @@ Apropos search for functions/vars.
 Apropos search for documentation.
 
 @item @kbd{C-c C-z}
-Switch to the previous Clojure buffer. This complements @kbd{C-c C-z}used in
+Switch to the previous Clojure buffer.  This complements @kbd{C-c C-z}used in
 cider-mode.
 
 @item @kbd{C-c M-i}
-Inspect expression. Will act on expression at point if present.
+Inspect expression.  Will act on expression at point if present.
 
 @item @kbd{C-c M-n}
 Select a namespace and switch to it.
@@ -1309,7 +1308,7 @@ toggle display of all frames
 The debugger can be invoked in several ways, the simplest one is to type
 @kbd{C-u C-M-x}.  This will take the current top-level form, place as many
 breakpoints inside it as possible (instrument it), and then evaluate it a
-normal. Whenever a breakpoint is reached, you'll be shown the value and asked
+normal.  Whenever a breakpoint is reached, you'll be shown the value and asked
 for input (see below).  Note that if the current form is a @code{defn}, it will
 stay instrumented, so the debugger will be triggered every time the function is
 called.  To uninstrument @code{defn} (or similar forms), you just have to
@@ -1317,7 +1316,7 @@ evaluate it again as you'd normally do (e.g. with @kbd{C-M-x}).
 
 Another way to trigger the debugger is by placing breakpoints yourself.  Just
 write @code{#break} before a form, and the debugger will popup every time that
-form is evaluated. For instance, if you hit @kbd{C-M-x} on the following, a
+form is evaluated.  For instance, if you hit @kbd{C-M-x} on the following, a
 breakpoint is triggered every time @code{(inspector msg)} is evaluated.
 @lisp
 (defn eval-msg [@{:keys [inspect] :as msg@}]
@@ -1479,15 +1478,15 @@ In case you run into issues here are a few tips that can help you diagnose the
 problem.
 
 Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
-(instead of just logging the error in the @t{*Messages*} buffer. You can toggle
+(instead of just logging the error in the @t{*Messages*} buffer.  You can toggle
 this behavior by using @kbd{M-x toggle-debug-on-error}.
 
 @section REPL not starting
 
-Make sure that your CIDER version matches your @file{cider-nrepl} version. Check
-the contents of the @t{*Messages*} buffer for CIDER-related errors. You should
-also check the nREPL messages passed between CIDER and nREPL in
-@t{*nrepl-messages*}. If you don't see anything useful there it's time to bring
+Make sure that your CIDER version matches your @file{cider-nrepl} version.
+Check the contents of the @t{*Messages*} buffer for CIDER-related errors.  You
+should also check the nREPL messages passed between CIDER and nREPL in
+@t{*nrepl-messages*}.  If you don't see anything useful there it's time to bring
 out the big guns.
 
 @heading Debugging the REPL init
@@ -1524,7 +1523,7 @@ copy this information.
 CIDER currently requires at least nREPL 0.2.7 to work properly (there were some
 nasty bugs in 0.2.6).  Unfortunately, the latest @t{leiningen} (2.5.1) pulls in
 exactly 0.2.6, so you if you're a lein user you'll have to do a bit of manual
-work. Just add this to your @file{profiles.clj}:
+work.  Just add this to your @file{profiles.clj}:
 @lisp
 @{:user @{:dependencies [[org.clojure/tools.nrepl "0.2.10"]]@}@}
 @end lisp
@@ -1626,16 +1625,15 @@ track and resolve.
 @section Issues
 
 Report issues and suggest features and improvements on the
-@uref{http://github.com/clojure-emacs/cider/issues, GitHub issue
-tracker}. Don't ask questions on the issue tracker -- the mailing list
-and the IRC channel are the places for questions.
+@uref{http://github.com/clojure-emacs/cider/issues, GitHub issue tracker}.
+Don't ask questions on the issue tracker -- the mailing list and the IRC channel
+are the places for questions.
 
-If you want to file a bug, please clone this repo and provide sufficient
-details to reproduce the issue. Start by running @code{make run-cider}.
-This will bring up Emacs with only the latest version of CIDER loaded.
-By starting fresh, with the latest code, we can ensure that the problem
-at hand isn't already fixed or caused by interactions with other
-packages.
+If you want to file a bug, please clone this repo and provide sufficient details
+to reproduce the issue.  Start by running @code{make run-cider}.  This will
+bring up Emacs with only the latest version of CIDER loaded.  By starting fresh,
+with the latest code, we can ensure that the problem at hand isn't already fixed
+or caused by interactions with other packages.
 
 @section Patches
 
