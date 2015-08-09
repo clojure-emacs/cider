@@ -34,10 +34,13 @@
 (require 'cl-lib)
 (require 'clojure-mode)
 
-(defconst cider-font-lock-max-length 10000
+(defcustom cider-font-lock-max-length 10000
   "The max length of strings to fontify in `cider-font-lock-as'.
 
-Setting this to nil removes the fontification restriction.")
+Setting this to nil removes the fontification restriction."
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider . "0.10.0"))
 
 (defun cider-util--hash-keys (hashtable)
   "Return a list of keys in HASHTABLE."
