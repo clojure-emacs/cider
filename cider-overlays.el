@@ -53,10 +53,10 @@ font-locking it."
 
 (defcustom cider-use-overlays 'both
   "Whether to display evaluation results with overlays.
-If t, use overlays. If nil, display on the echo area. If both, display on
+If t, use overlays.  If nil, display on the echo area.  If both, display on
 both places.
 
-Only applies to evaluation commands. To configure the debugger overlays,
+Only applies to evaluation commands.  To configure the debugger overlays,
 see `cider-debug-use-overlays'."
   :type '(choice (const :tag "End of line" t)
                  (const :tag "Bottom of screen" nil)
@@ -73,7 +73,7 @@ see `cider-debug-use-overlays'."
 
 (defcustom cider-eval-result-duration 'command
   "Duration, in seconds, of CIDER's eval-result overlays.
-If nil, overlays last indefinitely. If command, they're erased after the
+If nil, overlays last indefinitely.  If command, they're erased after the
 next command.
 Also see `cider-use-overlays'."
   :type '(choice (integer :tag "Duration in seconds")
@@ -91,7 +91,7 @@ Never throws errors, and can be used in an overlay's modification-hooks."
 
 (defun cider--make-overlay (l r type &rest props)
   "Place an overlay between L and R and return it.
-TYPE is a symbol put on the overlay's cider-type property. It is used to
+TYPE is a symbol put on the overlay's cider-type property.  It is used to
 easily remove all overlays from a region with:
     (remove-overlays start end 'cider-type TYPE)
 PROPS is a plist of properties and values to add to the overlay."
@@ -104,7 +104,7 @@ PROPS is a plist of properties and values to add to the overlay."
 (defun cider--make-result-overlay (value &optional where duration &rest props)
   "Place an overlay displaying VALUE at the end of line.
 VALUE is used as the overlay's after-string property, meaning it is
-displayed at the end of the overlay. The overlay itself is placed from
+displayed at the end of the overlay.  The overlay itself is placed from
 beginning to end of current line.
 Return nil if the overlay was not placed or is not visible, and return the
 overlay otherwise.
@@ -114,7 +114,7 @@ Return the overlay if it was placed successfully, and nil if it failed.
 If WHERE is a number or a marker, it is the character position of the line
 to use, otherwise use `point'.
 If DURATION is non-nil it should be a number, and the overlay will be
-deleted after that many seconds. It can also be the symbol command, so the
+deleted after that many seconds.  It can also be the symbol command, so the
 overlay will be deleted after the next command (this mimics the behaviour
 of the echo area).
 
