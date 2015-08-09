@@ -435,7 +435,7 @@ that of the namespace in the Clojure source buffer."
     (when set-namespace
       (cider-repl-set-ns (cider-current-ns)))
     (if cider-repl-display-in-current-window
-	(pop-to-buffer-same-window (cider-get-repl-buffer))
+        (pop-to-buffer-same-window (cider-get-repl-buffer))
       (pop-to-buffer (cider-get-repl-buffer)))
     (cider-remember-clojure-buffer buffer)
     (goto-char (point-max))))
