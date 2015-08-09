@@ -37,6 +37,12 @@ If it is non-nil, this face is only used on the prefix (usually a \"=>\")."
   :group 'cider
   :package-version "0.9.1")
 
+(defcustom cider-result-use-clojure-font-lock t
+  "If non-nil, interactive eval results are font-locked as Clojure code."
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider . "0.10.0"))
+
 (defcustom cider-ovelays-use-font-lock nil
   "If non-nil, results overlays are font-locked as Clojure code.
 If nil, apply `cider-result-overlay-face' to the entire overlay instead of
@@ -163,7 +169,9 @@ overlay at the end of the line containing POINT.
 Note that, while POINT can be a number, it's preferable to be a marker, as
 that will better handle some corner cases where the original buffer is not
 focused."
-  (let* ((font-value (cider-font-lock-as-clojure value))
+  (let* ((font-value (if cider-result-use-clojure-font-lock
+                         (cider-font-lock-as-clojure value)
+                       value))
          (used-overlay
           (when (and point cider-use-overlays)
             (cider--make-result-overlay font-value point cider-eval-result-duration))))
