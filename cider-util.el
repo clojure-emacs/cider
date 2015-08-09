@@ -34,6 +34,9 @@
 (require 'cl-lib)
 (require 'clojure-mode)
 
+(defconst cider-font-lock-max-length 10000
+  "The max length of strings to fontify in `cider-font-lock-as'.")
+
 (defun cider-util--hash-keys (hashtable)
   "Return a list of keys in HASHTABLE."
   (let ((keys '()))
@@ -83,15 +86,17 @@ PROP is the name of a text property."
 
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
-  (with-temp-buffer
-    (insert string)
-    ;; suppress major mode hooks as we care only about their font-locking
-    ;; otherwise modes like whitespace-mode and paredit might interfere
-    (setq-local delay-mode-hooks t)
-    (setq delayed-mode-hooks nil)
-    (funcall mode)
-    (font-lock-ensure)
-    (buffer-string)))
+  (if (< (length string) cider-font-lock-max-length)
+      (with-temp-buffer
+        (insert string)
+        ;; suppress major mode hooks as we care only about their font-locking
+        ;; otherwise modes like whitespace-mode and paredit might interfere
+        (setq-local delay-mode-hooks t)
+        (setq delayed-mode-hooks nil)
+        (funcall mode)
+        (font-lock-ensure)
+        (buffer-string))
+    string))
 
 (defun cider-font-lock-region-as (mode beg end &optional buffer)
   "Use MODE to font-lock text between BEG and END.
