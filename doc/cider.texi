@@ -1653,19 +1653,6 @@ contribution guidelines}.
 Consider improving and extending the
 @uref{http://github.com/clojure-emacs/cider/wiki, community wiki}.
 
-@section Donations
-
-You can support my work on CIDER, @pkg{clojure-mode} and
-@uref{http://github.com/bbatsov, all my other projects} via
-@uref{https://www.gratipay.com/bbatsov, Gratipay} and
-@uref{https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ,
-PayPal}.
-
-@iftex
-@center @image{gratipay}
-@center @image{paypal}
-@end iftex
-
 @section Running the tests in batch mode
 
 Install @uref{http://github.com/rejeep/cask.el, Cask} if you haven't
