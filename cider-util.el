@@ -35,7 +35,9 @@
 (require 'clojure-mode)
 
 (defconst cider-font-lock-max-length 10000
-  "The max length of strings to fontify in `cider-font-lock-as'.")
+  "The max length of strings to fontify in `cider-font-lock-as'.
+
+Setting this to nil removes the fontification restriction.")
 
 (defun cider-util--hash-keys (hashtable)
   "Return a list of keys in HASHTABLE."
@@ -86,7 +88,8 @@ PROP is the name of a text property."
 
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
-  (if (< (length string) cider-font-lock-max-length)
+  (if (or (null cider-font-lock-max-length)
+          (< (length string) cider-font-lock-max-length))
       (with-temp-buffer
         (insert string)
         ;; suppress major mode hooks as we care only about their font-locking
