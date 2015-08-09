@@ -5,6 +5,7 @@
 ### New features
 
 * [#1246](https://github.com/clojure-emacs/cider/pull/1246): Port the manual in README.md to Texinfo.
+* [#1248](https://github.com/clojure-emacs/cider/pull/1248): Add <kbd>TAB</kbd> and <kbd>RET</kbd> keys to the test-report buffer.
 * [#1245](https://github.com/clojure-emacs/cider/pull/1245): New variable, `cider-ovelays-use-font-lock` controls whether results overlay should be font-locked or just use a single face.
 * [#1235](https://github.com/clojure-emacs/cider/pull/1235): Add support for syntax-quoted forms to the debugger.
 * [#1212](https://github.com/clojure-emacs/cider/pull/1212): Add pagination of long collections to inspector.
@@ -28,6 +29,7 @@
 * [#1219](https://github.com/clojure-emacs/cider/pull/1219): New custom variables `cider-refresh-before-fn` and `cider-refresh-after-fn`.
 * [#1220](https://github.com/clojure-emacs/cider/issues/1220): Treat keywords as symbols in lookup commands like `cider-find-var`.
 * [#1241](https://github.com/clojure-emacs/cider/pull/1241): Passing a double prefix argument to `cider-refresh` will now clear the state of the namespace tracker used by the refresh middleware. This is useful for recovering from errors that a normal reload would not otherwise recover from, but may cause stale code in any deleted files to not be completely unloaded.
+* New defcustom `cider-result-use-clojure-font-lock` allows you disable the use of Clojure font-locking for interactive results.
 
 ### Changes
 
@@ -37,6 +39,7 @@
 
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 * [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.
+* [#1079](https://github.com/clojure-emacs/cider/issues/1079): Don't try to font-lock very long results. The maximum font-lockable result length is controlled by `cider-font-lock-max-length`.
 
 ## 0.9.1 / 2015-06-24
 
