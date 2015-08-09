@@ -9,4 +9,3 @@ before_script:
   - make EMACS=${EMACS} elpa
 script:
   - make EMACS=${EMACS} test
-  - make manual
