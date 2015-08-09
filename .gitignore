@@ -8,3 +8,22 @@ elpa
 TAGS
 .DS_STORE
 dist
+# Texinfo auxiliary files
+/doc/cider.aux
+/doc/cider.cp
+/doc/cider.fn
+/doc/cider.ky
+/doc/cider.log
+/doc/cider.pdf
+/doc/cider.pg
+/doc/cider.toc
+/doc/cider.tp
+/doc/cider.vr
+/doc/logo.png
+/doc/fdl.texi
+/doc/gratipay.png
+/doc/paypal.gif
+/doc/paypal.png
+/doc/cider/
+/doc/cider.info
+/doc/cider.html
