@@ -90,7 +90,7 @@ PROP is the name of a text property."
     (setq-local delay-mode-hooks t)
     (setq delayed-mode-hooks nil)
     (funcall mode)
-    (font-lock-fontify-buffer)
+    (font-lock-ensure)
     (buffer-string)))
 
 (defun cider-font-lock-region-as (mode beg end &optional buffer)
