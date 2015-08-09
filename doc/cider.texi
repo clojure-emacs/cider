@@ -1457,12 +1457,12 @@ clojure-quick-repls} aids this situation by routing requests to the correct REPL
 according to the file extension of the current buffer.
 
 @section Microsoft Windows
-On Microsoft Windows the JVM default line separator string is @code{"@\r@\n"}
+On Microsoft Windows the JVM default line separator string is @code{"@backslashcahr{}r@backslashcahr{}n"}
 which can appear in Emacs as @code{^M} characters at the end of lines printed
 out by the JVM.  One option is to set the @var{buffer-display-table} to not show
 these characters as detailed @uref{http://stackoverflow.com/a/11787550, here}
 (changing @var{slime-repl-mode-hook} to @var{cider-repl-mode-hook}).
-Alternatively, setting the system property @code{line.separator} to @code{"@\n"}
+Alternatively, setting the system property @code{line.separator} to @code{"@backslashcahr{}n"}
 at JVM startup will stop the carriage return from being printed and will fix
 output in all cider buffers.  To do so add @code{"-Dline.separator=\"\n\""} to
 @code{:jvm-opts} in @file{~/.lein/profiles.clj}.
