@@ -1491,11 +1491,6 @@ Refreshes EWOC."
     (when buffer
       (select-window (display-buffer buffer)))))
 
-
-(define-obsolete-function-alias 'nrepl-send-request-sync 'nrepl-send-sync-request "0.8.0")
-(define-obsolete-function-alias 'nrepl-send-string 'nrepl-request:eval "0.8.0")
-(define-obsolete-function-alias 'nrepl-send-string-sync 'nrepl-sync-request:eval "0.8.0")
-
 (provide 'nrepl-client)
 
 ;;; nrepl-client.el ends here

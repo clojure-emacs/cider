@@ -53,9 +53,6 @@
 (defconst cider-result-buffer "*cider-result*")
 (defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
 
-(define-obsolete-variable-alias 'cider-use-local-resources
-  'cider-prefer-local-resources "0.7.0")
-
 (defcustom cider-prefer-local-resources nil
   "Prefer local resources to remote (tramp) ones when both are available."
   :type 'boolean
@@ -75,9 +72,6 @@ navigate to this buffer."
                  (const only-in-repl)
                  (const :tag "never" nil))
   :group 'cider)
-
-(define-obsolete-variable-alias 'cider-popup-stacktraces
-  'cider-show-error-buffer "0.7.0")
 
 (defcustom cider-auto-jump-to-error t
   "When non-nil automatically jump to error location during interactive compilation.

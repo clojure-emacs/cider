@@ -52,11 +52,6 @@ Possible values are:
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
-(define-obsolete-variable-alias
-  'cider-macroexpansion-suppress-namespaces
-  'cider-macroexpansion-display-namespaces
-  "0.8.0")
-
 (defcustom cider-macroexpansion-print-metadata nil
   "Determines if metadata is included in macroexpansion results."
   :type 'boolean
