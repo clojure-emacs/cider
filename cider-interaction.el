@@ -479,21 +479,12 @@ such a link cannot be established automatically."
       (with-current-buffer conn-buf
         (setq nrepl-project-dir project-dir)))))
 
-(defun cider-set-relevant-connection (&optional do-prompt)
+(defun cider-set-relevant-connection ()
   "Try to set the current REPL buffer based on the the current Clojure source buffer.
-If succesful, return the new connection buffer.
-With a prefix argument DO-PROMPT, the chosen REPL buffer is based on a supplied project
-directory."
+If succesful, return the new connection buffer."
   (interactive "P")
   (cider-ensure-connected)
-  (let* ((project-directory
-          (clojure-project-dir
-           (or (when do-prompt
-                 (read-directory-name "Project: "
-                                      (clojure-project-dir (buffer-file-name))
-                                      nil
-                                      'confirm))
-               (cider-current-dir))))
+  (let* ((project-directory (clojure-project-dir (cider-current-dir)))
          (connection-buffer
           (or
            (and (= 1 (length nrepl-connection-list)) (cider-current-repl-buffer))
@@ -517,12 +508,9 @@ Hint: You can use `display-buffer-reuse-frames' and
 the buffer should appear.
 
 With a prefix ARG sets the namespace in the REPL buffer to that
-of the namespace in the Clojure source buffer.
-
-With a second prefix ARG the chosen REPL buffer is based on a
-supplied project directory."
+of the namespace in the Clojure source buffer."
   (interactive "p")
-  (let ((connection-buffer (cider-set-relevant-connection (eq 16 arg))))
+  (let ((connection-buffer (cider-set-relevant-connection)))
     (cider-switch-to-current-repl-buffer (eq 4 arg))
     (message
      (format (if connection-buffer
