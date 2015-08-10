@@ -282,16 +282,16 @@ be reused."
                                  (or (and endpoint (equal endpoint nrepl-endpoint))
                                      (and project-directory (equal project-directory nrepl-project-dir)))))
                              repl-buffs)))
-    (cl-flet ((zombi-buffer-or-new
-               () (let ((zombi-buffs (-remove (lambda (buff)
+    (cl-flet ((zombie-buffer-or-new
+               () (let ((zombie-buffs (-remove (lambda (buff)
                                                 (process-live-p (get-buffer-process buff)))
                                               repl-buffs)))
-                    (if zombi-buffs
-                        (if (y-or-n-p (format "Zombi REPL buffers exist (%s).  Reuse? "
-                                              (cider-string-join zombi-buffs ", ")))
-                            (if (= (length zombi-buffs) 1)
-                                (car zombi-buffs)
-                              (completing-read "Choose REPL buffer: " zombi-buffs nil t))
+                    (if zombie-buffs
+                        (if (y-or-n-p (format "Zombie REPL buffers exist (%s).  Reuse? "
+                                              (cider-string-join zombie-buffs ", ")))
+                            (if (= (length zombie-buffs) 1)
+                                (car zombie-buffs)
+                              (completing-read "Choose REPL buffer: " zombie-buffs nil t))
                           'new)
                       'new))))
       (if exact-buff
@@ -299,9 +299,9 @@ be reused."
               (when (y-or-n-p
                      (format "REPL buffer already exists (%s).  Do you really want to create a new one? "
                              exact-buff))
-                (zombi-buffer-or-new))
+                (zombie-buffer-or-new))
             exact-buff)
-        (zombi-buffer-or-new)))))
+        (zombie-buffer-or-new)))))
 
 (defun nrepl-extract-port (dir)
   "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
