@@ -472,6 +472,7 @@ is ambiguity, therefore nil is returned."
 Useful for connections created using `cider-connect', as for them
 such a link cannot be established automatically."
   (interactive)
+  (cider-ensure-connected)
   (let ((conn-buf (completing-read "Connection: " (nrepl-connection-buffers)))
         (project-dir (read-directory-name "Project: " nil (clojure-project-dir))))
     (when conn-buf
