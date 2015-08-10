@@ -496,16 +496,12 @@ directory."
                (cider-current-dir))))
          (connection-buffer
           (or
-           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
+           (and (= 1 (length nrepl-connection-list)) (cider-current-repl-buffer))
            (and project-directory
-                (cider-find-connection-buffer-for-project-directory project-directory))))
-         (previous-connection-list nrepl-connection-list))
+                (cider-find-connection-buffer-for-project-directory project-directory)))))
     (when (and connection-buffer
-               (not (string= connection-buffer
-                             (car nrepl-connection-list))))
-      (setq nrepl-connection-list
-            (cons connection-buffer (delq connection-buffer nrepl-connection-list)))
-      (message (cider--connection-info (car nrepl-connection-list))))
+               (not (equal connection-buffer (cider-current-repl-buffer))))
+      (nrepl-make-connection-default connection-buffer))
     connection-buffer))
 
 (defun cider-switch-to-relevant-repl-buffer (&optional arg)
