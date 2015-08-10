@@ -263,7 +263,9 @@ Create REPL buffer and start an nREPL client connection."
   (-when-let (repl-buff (nrepl-find-reusable-repl-buffer `(,host ,port) nil))
     (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
           (nrepl-use-this-as-repl-buffer repl-buff))
-      (nrepl-start-client-process host port))))
+      (nrepl-start-client-process host port)
+      (when (y-or-n-p "Do you want to associate the new connection with a local project? ")
+        (cider-assoc-project-with-connection)))))
 
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
