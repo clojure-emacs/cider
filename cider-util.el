@@ -54,6 +54,12 @@ Setting this to nil removes the fontification restriction."
    (lambda (buffer) (with-current-buffer buffer (derived-mode-p 'clojure-mode)))
    (buffer-list)))
 
+(defun cider-current-dir ()
+  "Return the directory of the current buffer."
+  (if buffer-file-name
+      (file-name-directory buffer-file-name)
+    default-directory))
+
 ;;; Text properties
 
 (defun cider-maybe-intern (name)

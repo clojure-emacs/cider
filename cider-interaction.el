@@ -466,12 +466,6 @@ is ambiguity, therefore nil is returned."
       (when (= 1 (length matching-connections))
         (car matching-connections)))))
 
-(defun cider-current-dir ()
-  "Return the directory of the current buffer."
-  (if buffer-file-name
-      (file-name-directory buffer-file-name)
-    default-directory))
-
 (defun cider-assoc-project-with-connection ()
   "Associate a Clojure project with an nREPL connection.
 
