@@ -113,7 +113,7 @@ NS specifies the namespace in which to evaluate the request."
   "The current REPL buffer.
 Return the REPL buffer given by `nrepl-current-connection-buffer'.
 If current buffer is a file buffer, and if the REPL has siblings, instead
-return the sibling that corresponds to the current file extension. This
+return the sibling that corresponds to the current file extension.  This
 allows for evaluation to be properly directed to clj or cljs REPLs depending
 on where they come from."
   (-when-let (repl-buf (nrepl-current-connection-buffer 'no-error))
