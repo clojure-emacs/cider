@@ -1339,7 +1339,7 @@ Moves CONNECTION-BUFFER to the front of `nrepl-connection-list'."
         (setq nrepl-connection-list
               (cons buf-name (delq buf-name nrepl-connection-list)))
         (nrepl--connections-refresh))
-    (message "Not in an nREPL REPL buffer.")))
+    (user-error "Not in an REPL buffer")))
 
 (defun nrepl--close-connection-buffer (conn-buffer)
   "Close CONN-BUFFER, removing it from `nrepl-connection-list'.
