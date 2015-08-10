@@ -472,6 +472,18 @@ is ambiguity, therefore nil is returned."
       (file-name-directory buffer-file-name)
     default-directory))
 
+(defun cider-assoc-project-with-connection ()
+  "Associate a Clojure project with an nREPL connection.
+
+Useful for connections created using `cider-connect', as for them
+such a link cannot be established automatically."
+  (interactive)
+  (let ((conn-buf (completing-read "Connection: " (nrepl-connection-buffers)))
+        (project-dir (read-directory-name "Project: " nil (clojure-project-dir))))
+    (when conn-buf
+      (with-current-buffer conn-buf
+        (setq nrepl-project-dir project-dir)))))
+
 (defun cider-set-relevant-connection (&optional do-prompt)
   "Try to set the current REPL buffer based on the the current Clojure source buffer.
 If succesful, return the new connection buffer.

@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1217](https://github.com/clojure-emacs/cider/issues/1217): Add new command `cider-assoc-project-with-connection` to associate a project directory with a connection.
 * [#1248](https://github.com/clojure-emacs/cider/pull/1248): Add <kbd>TAB</kbd> and <kbd>RET</kbd> keys to the test-report buffer.
 * [#1245](https://github.com/clojure-emacs/cider/pull/1245): New variable, `cider-ovelays-use-font-lock` controls whether results overlay should be font-locked or just use a single face.
 * [#1235](https://github.com/clojure-emacs/cider/pull/1235): Add support for syntax-quoted forms to the debugger.
