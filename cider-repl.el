@@ -975,7 +975,7 @@ constructs."
 (cider-repl-add-shortcut "quit" #'cider-quit)
 (cider-repl-add-shortcut "restart" #'cider-restart)
 (cider-repl-add-shortcut "version" #'cider-version)
-(cider-repl-add-shortcut "conn-info" #'cider-display-default-connection-info)
+(cider-repl-add-shortcut "conn-info" #'cider-display-connection-info)
 (cider-repl-add-shortcut "conn-rotate" #'cider-rotate-connection)
 (cider-repl-add-shortcut "clear" #'cider-repl-clear-buffer)
 (cider-repl-add-shortcut "ns" #'cider-repl-set-ns)

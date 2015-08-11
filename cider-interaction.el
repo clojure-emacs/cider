@@ -339,12 +339,17 @@ endpoint and Clojure version."
             (cider--clojure-version)
             (cider--nrepl-version))))
 
-(defun cider-display-default-connection-info ()
-  "Display information about the default connection."
-  (interactive)
-  (message (cider--connection-info (nrepl-default-connection-buffer))))
+(defun cider-display-connection-info (&optional show-default)
+  "Display information about the current connection.
 
-(define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-default-connection-info "0.10")
+With a prefix argument SHOW-DEFAULT it will display info about the
+default connection."
+  (interactive "P")
+  (message (cider--connection-info (if show-default
+                                       (nrepl-default-connection-buffer)
+                                     (cider-current-repl-buffer)))))
+
+(define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-connection-info "0.10")
 
 (defun cider-rotate-connection ()
   "Rotate and display the default nREPL connection."
