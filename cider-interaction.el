@@ -2274,6 +2274,7 @@ the string contents of the region into a formatted string."
 With a prefix argument QUIT-ALL the command will kill all connections
 and all ancillary CIDER buffers."
   (interactive "P")
+  (cider-ensure-connected)
   (when (y-or-n-p "Are you sure you want to quit the current CIDER connection? ")
     (if quit-all
         (progn
