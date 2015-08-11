@@ -101,14 +101,6 @@ NS specifies the namespace in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-request:eval input callback ns (nrepl-current-tooling-session)))
 
-(defun cider-interrupt ()
-  "Interrupt any pending evaluations."
-  (interactive)
-  (with-current-buffer (nrepl-default-connection-buffer)
-    (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
-      (dolist (request-id pending-request-ids)
-        (nrepl-request:interrupt request-id (cider-interrupt-handler (current-buffer)))))))
-
 (defun cider-current-repl-buffer ()
   "The current REPL buffer.
 Return the REPL buffer given by using `cider-find-relevant-connection' and
@@ -130,6 +122,14 @@ on where they come from."
             ;; fallback on the old behavior to just return the currently active
             ;; REPL buffer (which is probably just `repl-buf').
             nrepl-repl-buffer)))))
+
+(defun cider-interrupt ()
+  "Interrupt any pending evaluations."
+  (interactive)
+  (with-current-buffer (cider-current-repl-buffer)
+    (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
+      (dolist (request-id pending-request-ids)
+        (nrepl-request:interrupt request-id (cider-interrupt-handler (current-buffer)))))))
 
 (defun cider-current-session ()
   "The REPL session to use for this buffer."
