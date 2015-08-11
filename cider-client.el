@@ -93,7 +93,7 @@
   "Check if FORM is an ns form."
   (string-match-p "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
 
-(define-obsolete-function-alias 'cider-eval 'nrepl-request:eval)
+(define-obsolete-function-alias 'cider-eval 'nrepl-request:eval "0.9")
 
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
