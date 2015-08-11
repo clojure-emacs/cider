@@ -488,7 +488,7 @@ If succesful, return the new connection buffer."
   (let* ((project-directory (clojure-project-dir (cider-current-dir)))
          (connection-buffer
           (or
-           (and (= 1 (length nrepl-connection-list)) (cider-current-repl-buffer))
+           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
            (and project-directory
                 (cider-find-connection-buffer-for-project-directory project-directory)))))
     connection-buffer))
