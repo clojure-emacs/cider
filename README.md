@@ -1168,7 +1168,10 @@ In the REPL buffer, issue the following.
     your.namespace> (ns cider.nrepl.middleware.util.instrument)
     cider.nrepl.middleware.util.instrument> (def verbose-debug true)
 
-This will cause cider to print extensive information on the REPL buffer when you try to debug an expression (e.g., with `C-u C-M-x`). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new) and copy this information.
+This will cause cider to print extensive information on the REPL buffer when you
+try to debug an expression (e.g., with `C-u
+C-M-x`). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new)
+and copy this information.
 
 ### Warning saying you have to use nREPL 0.2.7+
 
@@ -1194,7 +1197,9 @@ result in the **older (0.2.6) nREPL dependency being used** (at least on Leining
 
 ## Documentation
 
-A single-page quick reference PDF for CIDER commands is available [here](doc/cider-refcard.pdf). This PDF can be created manually by running `pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
+A single-page quick reference PDF for CIDER commands is available
+[here](doc/cider-refcard.pdf). This PDF can be created manually by running
+`pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
 
 ## Changelog
 
