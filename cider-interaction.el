@@ -504,9 +504,6 @@ With a prefix ARG sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "p")
   (let ((connection-buffer (cider-find-relevant-connection)))
-    (when (and connection-buffer
-               (not (equal connection-buffer (cider-current-repl-buffer))))
-      (nrepl-make-connection-default connection-buffer))
     (cider-switch-to-current-repl-buffer (eq 4 arg))
     (message
      (format (if connection-buffer
