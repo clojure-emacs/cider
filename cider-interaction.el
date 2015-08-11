@@ -263,7 +263,7 @@ Signal an error if it is not supported."
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-default-connection-buffer)
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "java")
@@ -271,7 +271,7 @@ Signal an error if it is not supported."
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-default-connection-buffer)
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "clojure")
@@ -279,7 +279,7 @@ Signal an error if it is not supported."
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-default-connection-buffer)
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "nrepl")
@@ -1877,7 +1877,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
-  (nrepl-current-connection-buffer 'no-error))
+  (nrepl-default-connection-buffer 'no-error))
 
 (defun cider-ensure-connected ()
   "Ensure there is a cider connection present, otherwise

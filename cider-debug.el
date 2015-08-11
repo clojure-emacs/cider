@@ -329,7 +329,7 @@ In order to work properly, this mode must be activated by
     ;; cider-nrepl has a chance to send the next message, and so that the user
     ;; doesn't accidentally hit `n' between two messages (thus editing the code).
     (-when-let (proc (unless nrepl-ongoing-sync-request
-                       (get-buffer-process (nrepl-current-connection-buffer))))
+                       (get-buffer-process (nrepl-default-connection-buffer))))
       ;; This is for the `:done' sent in reply to the debug-input we provided.
       (when (accept-process-output proc 0.2)
         ;; This is for actually waiting for the next message.

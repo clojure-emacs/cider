@@ -174,12 +174,12 @@
      (nrepl-make-connection-default a)
      (should (equal (append (list (buffer-name a)) connections)
                     (nrepl-connection-buffers)))
-     (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
+     (should (equal (buffer-name a) (nrepl-default-connection-buffer)))
      ;; Add second connection
      (nrepl-make-connection-default b)
      (should (equal (append (list (buffer-name b) (buffer-name a)) connections)
                     (nrepl-connection-buffers)))
-     (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
+     (should (equal (buffer-name b) (nrepl-default-connection-buffer))))))
 
 (ert-deftest test-nrepl-connection-buffers ()
   (let ((connections (nrepl-connection-buffers)))
@@ -191,7 +191,7 @@
      (kill-buffer a)
      (should (equal (append (list (buffer-name b)) connections)
                     (nrepl-connection-buffers)))
-     (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
+     (should (equal (buffer-name b) (nrepl-default-connection-buffer))))))
 
 (ert-deftest test-cider-rotate-connecton-buffer ()
   (noflet ((nrepl--connection-info (connection-buffer-name)))
@@ -203,13 +203,13 @@
        (noflet ((cider--java-version () "")
                 (cider--clojure-version () "")
                 (cider--nrepl-version () ""))
-         (should (equal (buffer-name a) (nrepl-current-connection-buffer)))
+         (should (equal (buffer-name a) (nrepl-default-connection-buffer)))
          (cider-rotate-connection)
-         (should (equal (buffer-name b) (nrepl-current-connection-buffer)))
+         (should (equal (buffer-name b) (nrepl-default-connection-buffer)))
          (cider-rotate-connection)
-         (should (equal (buffer-name c) (nrepl-current-connection-buffer)))
+         (should (equal (buffer-name c) (nrepl-default-connection-buffer)))
          (cider-rotate-connection)
-         (should (equal (buffer-name a) (nrepl-current-connection-buffer))))))))
+         (should (equal (buffer-name a) (nrepl-default-connection-buffer))))))))
 
 (ert-deftest test-cider--current-connection-info ()
   (with-temp-buffer
@@ -242,7 +242,7 @@
      (should (not (buffer-live-p a)))
      (should (equal (append (list (buffer-name b)) connections)
                     (nrepl-connection-buffers)))
-     (should (equal (buffer-name b) (nrepl-current-connection-buffer))))))
+     (should (equal (buffer-name b) (nrepl-default-connection-buffer))))))
 
 (ert-deftest test-cider--var-namespace ()
   (should (string= (cider--var-namespace "#'a/var-two") "a"))

@@ -261,7 +261,7 @@ Bind the value of the provided KEYS and execute BODY."
 
 (defun nrepl-op-supported-p (op)
   "Return t iff the given operation OP is supported by nREPL server."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-default-connection-buffer)
     (and nrepl-ops (nrepl-dict-get nrepl-ops op))))
 
 (defun nrepl-local-host-p (host)
@@ -851,7 +851,7 @@ If BUFFER is non-nil, close that buffer's connection."
 
 (defun nrepl-close (connection-buffer)
   "Close the nREPL connection for CONNECTION-BUFFER."
-  (interactive (list (nrepl-current-connection-buffer)))
+  (interactive (list (nrepl-default-connection-buffer)))
   (nrepl--close-connection-buffer connection-buffer)
   (run-hooks 'nrepl-disconnected-hook)
   (nrepl--connections-refresh))
@@ -949,17 +949,17 @@ Handles only stdout and stderr responses."
 ;; the up to date list.
 (defun nrepl-current-session ()
   "Return the current session."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-default-connection-buffer)
     nrepl-session))
 
 (defun nrepl-current-tooling-session ()
   "Return the current tooling session."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-default-connection-buffer)
     nrepl-tooling-session))
 
 (defun nrepl-next-request-id ()
   "Return the next request id."
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (nrepl-default-connection-buffer)
     (number-to-string (cl-incf nrepl-request-counter))))
 
 (defun nrepl-send-request (request callback)
@@ -971,7 +971,7 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
          (request (cons 'dict (lax-plist-put request "id" id)))
          (message (nrepl-bencode request)))
     (nrepl-log-message (cons '---> (cdr request)))
-    (with-current-buffer (nrepl-current-connection-buffer)
+    (with-current-buffer (nrepl-default-connection-buffer)
       (puthash id callback nrepl-pending-requests)
       (process-send-string nil message))))
 
@@ -1017,7 +1017,7 @@ sign of user input, so as not to hang the interface."
       (-when-let (id (nrepl-dict-get response "id"))
         ;; FIXME: This should go away eventually when we get rid of
         ;; pending-request hash table
-        (with-current-buffer (nrepl-current-connection-buffer)
+        (with-current-buffer (nrepl-default-connection-buffer)
           (remhash id nrepl-pending-requests)))
       response)))
 
@@ -1303,14 +1303,16 @@ ENDPOINT is a plist returned by `nrepl-connect'."
       (setq-local kill-buffer-query-functions nil))
     buffer))
 
-(defun nrepl-current-connection-buffer (&optional no-error)
-  "The connection to use for nREPL interaction.
+(defun nrepl-default-connection-buffer (&optional no-error)
+  "The default (fallback) connection to use for nREPL interaction.
 When NO-ERROR is non-nil, don't throw an error when no connection has been
 found."
   (or nrepl-connection-buffer
       (car (nrepl-connection-buffers))
       (unless no-error
         (error "No nREPL connection buffer"))))
+
+(define-obsolete-function-alias 'nrepl-current-connection-buffer 'nrepl-default-connection-buffer "0.10")
 
 (defun nrepl-connection-buffers ()
   "Return the list of connection buffers."
