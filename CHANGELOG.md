@@ -454,8 +454,8 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 
 ### New features
 
-* <kbd>C-c M-d</kbd> will display current nREPL connection details.
-* <kbd>C-c M-r</kbd> will rotate and display the current nREPL connection.
+* <kbd>C-c M-d</kbd> will display default nREPL connection details.
+* <kbd>C-c M-r</kbd> will rotate and display the default nREPL connection.
 * Setting the variable `nrepl-buffer-name-show-port` will display the port on which the nREPL server is running.
 * The REPL buffer name uses project directory name; `*nrepl*` will appear as `*nrepl project-directory-name*`.
 * The nREPL connection buffer name uses project directory name; `*nrepl-connection*` will appear as `*nrepl-connection project-directory-name*`.
