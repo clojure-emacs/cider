@@ -292,6 +292,39 @@ When using `switch-to-buffer`, pressing <kbd>SPC</kbd> after the command will
 make the hidden buffers visible. They'll always be visible in
 `list-buffers` (<kbd>C-x C-b</kbd>).
 
+* You can customize the prompt in REPL buffer. To do that you can customize
+  `cider-repl-prompt-function` and set it to a function that takes one argument,
+  a namespace name. For convenience, three functions are already provided:
+  `cider-repl-prompt-lastname`, `cider-repl-prompt-abbreviated`,
+  `cider-repl-prompt-default` and by default the last one is being used.
+  Prompt for each of them for namespace `leiningen.core.ssl`:
+  * `cider-repl-prompt-lastname`:
+  ```
+  ssl>
+  ```
+
+  * `cider-repl-prompt-abbreviated`:
+  ```
+  l.c.ssl>
+  ```
+
+  * `cider-repl-prompt-default`:
+  ```
+  leiningen.core.ssl>
+  ```
+
+  You may of course prepare your own function. For example in `leiningen` there
+  are two namespaces `leiningen.classpath` and `leiningen.core.classpath`. To make
+  them easily recognizable you could just stay at default, but you could also show
+  only two segments of namespace and still be able to be sure in which exactly
+  namespace repl is open. Here is example of function that will do exactly that:
+  ```el
+  (defun cider-repl-prompt-show-two (namespace)
+    "Return a prompt string with the last name in NAMESPACE."
+    (let* ((names (reverse (-take 2 (reverse (split-string namespace "\\."))))))
+      (concat (car names) "." (cadr names) "> ")))
+  ```
+
 * By default, interactive commands that require a symbol will prompt for the
   symbol, with the prompt defaulting to the symbol at point. You can set
   `cider-prompt-for-symbol` to nil to instead try the command with the symbol at
