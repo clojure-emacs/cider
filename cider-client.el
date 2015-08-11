@@ -111,12 +111,14 @@ NS specifies the namespace in which to evaluate the request."
 
 (defun cider-current-repl-buffer ()
   "The current REPL buffer.
-Return the REPL buffer given by `nrepl-current-connection-buffer'.
+Return the REPL buffer given by using `cider-find-relevant-connection' and
+falling back to `nrepl-current-connection-buffer'.
 If current buffer is a file buffer, and if the REPL has siblings, instead
 return the sibling that corresponds to the current file extension.  This
 allows for evaluation to be properly directed to clj or cljs REPLs depending
 on where they come from."
-  (-when-let (repl-buf (nrepl-current-connection-buffer 'no-error))
+  (-when-let (repl-buf (or (cider-find-relevant-connection)
+                           (nrepl-current-connection-buffer 'no-error)))
     ;; Take the extension of current file, or nil if there is none.
     (let ((ext (file-name-extension (or (buffer-file-name) ""))))
       ;; Go to the "globally" active REPL buffer.
