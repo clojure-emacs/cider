@@ -1173,9 +1173,9 @@ This will cause cider to print extensive information on the REPL buffer when you
 ### Warning saying you have to use nREPL 0.2.7+
 
 CIDER currently requires at least nREPL 0.2.7 to work properly (there were some
-nasty bugs in 0.2.6). Unfortunately the latest `leiningen` (2.5.1) pulls in exactly
-0.2.6, so you if you're a lein user you'll have to do a bit of manual work. Just
-add this to your `profiles.clj`:
+nasty bugs in 0.2.6). Unfortunately `leiningen` 2.5.1 (and older) pulls in exactly
+0.2.6, so you if you're a lein user you'll have to upgrade to 2.5.2+. Alternatively,
+you can add this to your `profiles.clj`:
 
 ```clojure
 {:user {:dependencies [[org.clojure/tools.nrepl "0.2.10"]]}}
