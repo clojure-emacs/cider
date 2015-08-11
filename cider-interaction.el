@@ -473,8 +473,8 @@ such a link cannot be established automatically."
       (with-current-buffer conn-buf
         (setq nrepl-project-dir project-dir)))))
 
-(defun cider-set-relevant-connection ()
-  "Try to set the current REPL buffer based on the the current Clojure source buffer.
+(defun cider-find-relevant-connection ()
+  "Try to find the matching REPL buffer for the current Clojure source buffer.
 If succesful, return the new connection buffer."
   (interactive "P")
   (cider-ensure-connected)
@@ -484,9 +484,6 @@ If succesful, return the new connection buffer."
            (and (= 1 (length nrepl-connection-list)) (cider-current-repl-buffer))
            (and project-directory
                 (cider-find-connection-buffer-for-project-directory project-directory)))))
-    (when (and connection-buffer
-               (not (equal connection-buffer (cider-current-repl-buffer))))
-      (nrepl-make-connection-default connection-buffer))
     connection-buffer))
 
 (defun cider-switch-to-relevant-repl-buffer (&optional arg)
@@ -504,7 +501,10 @@ the buffer should appear.
 With a prefix ARG sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "p")
-  (let ((connection-buffer (cider-set-relevant-connection)))
+  (let ((connection-buffer (cider-find-relevant-connection)))
+    (when (and connection-buffer
+               (not (equal connection-buffer (cider-current-repl-buffer))))
+      (nrepl-make-connection-default connection-buffer))
     (cider-switch-to-current-repl-buffer (eq 4 arg))
     (message
      (format (if connection-buffer
