@@ -447,27 +447,19 @@
         (setq-local nrepl-repl-buffer b3-repl))
       (with-current-buffer b1
         (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b1-repl (current-buffer)))
-        (should (equal (list (buffer-name b1) (buffer-name b2) (buffer-name b3))
-                       nrepl-connection-list)))
+        (should (equal b1-repl (current-buffer))))
       (with-current-buffer b2
         (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b2-repl (current-buffer)))
-        (should (equal (list (buffer-name b2) (buffer-name b1) (buffer-name b3))
-                       nrepl-connection-list)))
+        (should (equal b2-repl (current-buffer))))
       (with-current-buffer b3
         (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b3-repl (current-buffer))) ;; didn't switch to anything
-        (should (equal (list (buffer-name b3) (buffer-name b2) (buffer-name b1))
-                       nrepl-connection-list)))
+        (should (equal b3-repl (current-buffer))))  ;; didn't switch to anything
       (let ((nrepl-connection-list (list (buffer-name b3)
                                          (buffer-name b2)
                                          (buffer-name b1))))
         (with-current-buffer b1
           (cider-switch-to-relevant-repl-buffer '())
-          (should (equal b1-repl (current-buffer)))
-          (should (equal (list (buffer-name b1) (buffer-name b3) (buffer-name b2))
-                         nrepl-connection-list))))
+          (should (equal b1-repl (current-buffer)))))
       (dolist (buf (list b1 b2 b3 b1-repl b2-repl b3-repl))
         (kill-buffer buf)))))
 
@@ -489,9 +481,7 @@
         (setq-local nrepl-repl-buffer b2-repl))
       (with-current-buffer b2
         (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b1-repl (current-buffer)))
-        (should (equal (list (buffer-name b1) (buffer-name b2))
-                       nrepl-connection-list)))
+        (should (equal b1-repl (current-buffer))))
       (dolist (buf (list b1 b2 b1-repl b2-repl))
         (kill-buffer buf)))))
 
@@ -523,7 +513,7 @@
         (cider-switch-to-relevant-repl-buffer '()))
       (with-current-buffer b2
         (cider-switch-to-relevant-repl-buffer '())
-        (should (equal b3-repl (current-buffer))))
+        (should (equal b1-repl (current-buffer))))
 
       (dolist (buf (list b1 b2 b3 b1-repl b2-repl b3-repl))
         (kill-buffer buf)))))
