@@ -351,7 +351,7 @@ default connection."
 
 (define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-connection-info "0.10")
 
-(defun cider-rotate-connection ()
+(defun cider-rotate-default-connection ()
   "Rotate and display the default nREPL connection."
   (interactive)
   (cider-ensure-connected)
@@ -359,6 +359,8 @@ default connection."
         (append (cdr nrepl-connection-list)
                 (list (car nrepl-connection-list))))
   (message (cider--connection-info (car nrepl-connection-list))))
+
+(define-obsolete-function-alias 'cider-rotate-connection 'cider-rotate-default-connection "0.10")
 
 (defun cider-extract-designation-from-current-repl-buffer ()
   "Extract the designation from the cider repl buffer name."

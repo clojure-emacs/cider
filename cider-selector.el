@@ -152,7 +152,7 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?s
   "Cycle to the next CIDER connection's REPL."
-  (cider-rotate-connection)
+  (cider-rotate-default-connection)
   (cider-get-repl-buffer))
 
 (provide 'cider-selector)

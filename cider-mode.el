@@ -113,7 +113,7 @@ entirely."
     (define-key map (kbd "C-c M-,") #'cider-test-run-test)
     (define-key map (kbd "C-c C-t") #'cider-test-show-report)
     (define-key map (kbd "C-c M-s") #'cider-selector)
-    (define-key map (kbd "C-c M-r") #'cider-rotate-connection)
+    (define-key map (kbd "C-c M-r") #'cider-rotate-default-connection)
     (define-key map (kbd "C-c M-d") #'cider-display-connection-info)
     (define-key map (kbd "C-c C-x") #'cider-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
@@ -168,7 +168,7 @@ entirely."
          ["Describe session" cider-describe-nrepl-session]
          ["Close session" cider-close-nrepl-session]
          ["Connection info" cider-display-connection-info]
-         ["Rotate connection" cider-rotate-connection])
+         ["Rotate default connection" cider-rotate-default-connection])
         "--"
         ["Interrupt evaluation" cider-interrupt]
         "--"
