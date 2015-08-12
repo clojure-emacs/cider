@@ -467,15 +467,15 @@ is ambiguity, therefore nil is returned."
       (when (= 1 (length matching-connections))
         (car matching-connections)))))
 
-(defun cider-assoc-project-with-connection ()
-  "Associate a Clojure project with an nREPL connection.
+(defun cider-assoc-project-with-connection (&optional project connection)
+  "Associate a Clojure PROJECT with an nREPL CONNECTION.
 
 Useful for connections created using `cider-connect', as for them
 such a link cannot be established automatically."
   (interactive)
   (cider-ensure-connected)
-  (let ((conn-buf (completing-read "Connection: " (nrepl-connection-buffers)))
-        (project-dir (read-directory-name "Project: " nil (clojure-project-dir))))
+  (let ((conn-buf (or connection (completing-read "Connection: " (nrepl-connection-buffers))))
+        (project-dir (or project (read-directory-name "Project: " nil (clojure-project-dir)))))
     (when conn-buf
       (with-current-buffer conn-buf
         (setq nrepl-project-dir project-dir)))))
