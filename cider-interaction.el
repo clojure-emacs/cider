@@ -2090,7 +2090,7 @@ stale code from any deleted files may not be completely unloaded."
                                                     (cider-make-popup-buffer cider-refresh-log-buffer))))
         (clear? (>= arg 16))
         (refresh-all? (>= arg 4)))
-    (when clear? (nrepl-send-request-sync (list "op" "refresh-clear")))
+    (when clear? (nrepl-send-sync-request (list "op" "refresh-clear")))
     (nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
                                       "print-length" cider-stacktrace-print-length
                                       "print-level" cider-stacktrace-print-level)
