@@ -334,7 +334,7 @@ Signal an error if it is not supported."
 Info contains project name, current REPL namespace, host:port
 endpoint and Clojure version."
   (with-current-buffer (get-buffer connection-buffer)
-    (format "Active nREPL connection: %s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
+    (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
             (if nrepl-sibling-buffer-alist
                 (upcase (concat cider-repl-type " "))
               "")
@@ -364,7 +364,7 @@ default connection."
   (setq nrepl-connection-list
         (append (cdr nrepl-connection-list)
                 (list (car nrepl-connection-list))))
-  (message (cider--connection-info (car nrepl-connection-list))))
+  (message "Default nREPL connection:" (cider--connection-info (car nrepl-connection-list))))
 
 (define-obsolete-function-alias 'cider-rotate-connection 'cider-rotate-default-connection "0.10")
 
@@ -553,12 +553,7 @@ of the namespace in the Clojure source buffer."
         (cider--switch-to-repl-buffer connection-buffer set-namespace)
       (cider--switch-to-repl-buffer (nrepl-default-connection-buffer) set-namespace)
       (message "Could not determine relevant nREPL connection, using: %s"
-               (with-current-buffer (cider-current-repl-buffer)
-                 (format "%s:%s, %s:%s"
-                         (or (nrepl--project-name nrepl-project-dir) "<no project>")
-                         cider-buffer-ns
-                         (car nrepl-endpoint)
-                         (cadr nrepl-endpoint)))))))
+               (cider--connection-info (cider-current-repl-buffer))))))
 
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
