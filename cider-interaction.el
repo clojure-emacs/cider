@@ -245,6 +245,12 @@ should be extracted from the buffer's ns form.")
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
 
+(defvar-local cider-buffer-connection nil
+  "A connection associated with a specific buffer.
+
+If this is set to a non-nil value it will take precedence over both
+the project associated with a connection and the default connection.")
+
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
@@ -482,18 +488,37 @@ such a link cannot be established automatically."
       (with-current-buffer conn-buf
         (setq nrepl-project-dir project-dir)))))
 
+(defun cider-assoc-buffer-with-connection ()
+  "Associate the current buffer with a connection.
+
+Useful for connections created using `cider-connect', as for them
+such a link cannot be established automatically."
+  (interactive)
+  (cider-ensure-connected)
+  (let ((conn (completing-read "Connection: " (nrepl-connection-buffers))))
+    (when conn
+      (setq-local cider-buffer-connection conn))))
+
+(defun cider-clear-buffer-local-connection ()
+  "Remove association between the current buffer and a connection."
+  (interactive)
+  (cider-ensure-connected)
+  (setq-local cider-buffer-connection nil))
+
 (defun cider-find-relevant-connection ()
   "Try to find the matching REPL buffer for the current Clojure source buffer.
 If succesful, return the new connection buffer."
   (interactive "P")
   (cider-ensure-connected)
-  (let* ((project-directory (clojure-project-dir (cider-current-dir)))
-         (connection-buffer
-          (or
-           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
-           (and project-directory
-                (cider-find-connection-buffer-for-project-directory project-directory)))))
-    connection-buffer))
+  (if cider-buffer-connection
+      cider-buffer-connection
+    (let* ((project-directory (clojure-project-dir (cider-current-dir)))
+           (connection-buffer
+            (or
+             (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
+             (and project-directory
+                  (cider-find-connection-buffer-for-project-directory project-directory)))))
+      connection-buffer)))
 
 (defun cider-switch-to-relevant-repl-buffer (&optional arg)
   "Select the REPL buffer, when possible in an existing window.
