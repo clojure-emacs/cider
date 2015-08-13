@@ -287,7 +287,7 @@ Create REPL buffer and start an nREPL client connection."
                                    ssh-hosts
                                    (when (file-remote-p default-directory)
                                      ;; add localhost even in remote buffers
-                                     (list (list "localhost"))))))
+                                     '(("localhost"))))))
          (sel-host (cider--completing-read-host hosts))
          (host (car sel-host))
          (port (or (cadr sel-host)
