@@ -61,6 +61,12 @@
   :link '(url-link :tag "Github" "https://github.com/clojure-emacs/cider")
   :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
+(defcustom cider-prompt-for-project-on-connect t
+  "Controls whether to prompt for associated project on `cider-connect'."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
 (require 'cider-client)
 (require 'cider-interaction)
 (require 'cider-eldoc)
@@ -264,7 +270,8 @@ Create REPL buffer and start an nREPL client connection."
     (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
           (nrepl-use-this-as-repl-buffer repl-buff))
       (nrepl-start-client-process host port)
-      (when (y-or-n-p "Do you want to associate the new connection with a local project? ")
+      (when (and cider-prompt-for-project-on-connect
+                 (y-or-n-p "Do you want to associate the new connection with a local project? "))
         (cider-assoc-project-with-connection
          nil
          (nrepl-default-connection-buffer))))))
