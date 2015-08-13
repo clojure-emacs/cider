@@ -1632,10 +1632,10 @@ and automatically removed when killed."
     (goto-char (point-min))))
 
 (defun cider-current-ns ()
-  "Return current ns.
+  "Return the current ns.
 The ns is extracted from the ns form for Clojure buffers and from
-`cider-buffer-ns' for all other buffers.  If missing, use current REPL's ns,
-otherwise fall back to \"user\"."
+`cider-buffer-ns' for all other buffers.  If it's missing, use the current
+REPL's ns, otherwise fall back to \"user\"."
   (or cider-buffer-ns
       (clojure-find-ns)
       (-when-let (repl-buf (cider-current-repl-buffer))
