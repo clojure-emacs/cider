@@ -242,13 +242,6 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
     (cider-repl--mark-input-start)
     (cider-repl--insert-prompt cider-buffer-ns)))
 
-(defun cider-get-repl-buffer ()
-  "Return the REPL buffer for current connection."
-  (let ((buffer (get-buffer-create (cider-current-repl-buffer))))
-    (if (buffer-live-p buffer)
-        buffer
-      (error "No active REPL"))))
-
 
 ;;; REPL interaction
 

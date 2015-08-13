@@ -32,7 +32,6 @@
 
 (require 'cider-client)
 (require 'cider-interaction)
-(require 'cider-repl) ; for cider-get-repl-buffer
 
 (defconst cider-selector-help-buffer "*Selector Help*"
   "The name of the selector's help buffer.")
@@ -135,7 +134,7 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?r
   "Current REPL buffer."
-  (cider-get-repl-buffer))
+  (cider-current-repl-buffer))
 
 (def-cider-selector-method ?n
   "Connections browser buffer."
@@ -149,11 +148,6 @@ is chosen.  The returned buffer is selected with
 (def-cider-selector-method ?x
   "*cider-error* buffer."
   cider-error-buffer)
-
-(def-cider-selector-method ?s
-  "Cycle to the next CIDER connection's REPL."
-  (cider-rotate-default-connection)
-  (cider-get-repl-buffer))
 
 (provide 'cider-selector)
 
