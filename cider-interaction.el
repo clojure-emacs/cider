@@ -460,7 +460,7 @@ that of the namespace in the Clojure source buffer."
   (interactive "P")
   (cider--switch-to-repl-buffer (nrepl-default-connection-buffer) set-namespace))
 
-(define-obsolete-function-alias 'cider-switch-to-current-repl-buffer 'cider-switch-to-default-repl-buffer)
+(define-obsolete-function-alias 'cider-switch-to-current-repl-buffer 'cider-switch-to-default-repl-buffer "0.10")
 
 (defun cider-find-connection-buffer-for-project-directory (project-directory)
   "Find the relevant connection-buffer for the given PROJECT-DIRECTORY.
