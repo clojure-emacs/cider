@@ -29,23 +29,25 @@
 ;; Provides an Emacs Lisp client to connect to Clojure nREPL servers.
 ;;
 ;; A connection is an abstract idea of the communication between Emacs (client)
-;; and nREPL server.  On Emacs side connections are represented by two running
-;; processes.  The two processes are the server process and client process.  Each
-;; of these is represented by its own process buffer, filter and sentinel.
+;; and nREPL server.  On the Emacs side connections are represented by two
+;; running processes.  The two processes are the server process and client
+;; process (the connection to the server).  Each of these is represented by its
+;; own process buffer, filter and sentinel.
 ;;
 ;; The nREPL communication process can be broadly represented as follows:
 ;;
-;;    1) Server process is started as an Emacs subprocess (usually by
+;;    1) The server process is started as an Emacs subprocess (usually by
 ;;      `cider-jack-in')
 ;;
-;;    2) Server's process filter (`nrepl-server-filter') detects the connection
-;;       port from the first plain text response from server and starts
-;;       communication process as another Emacs subprocess.  This is the nREPL
-;;       client process (`nrepl-client-filter').  All requests and responses
-;;       handling happen through this client connection.
+;;    2) The server's process filter (`nrepl-server-filter') detects the
+;;       connection port from the first plain text response from the server and
+;;       starts a communication process (socket connection) as another Emacs
+;;       subprocess.  This is the nREPL client process (`nrepl-client-filter').
+;;       All requests and responses handling happens through this client
+;;       connection.
 ;;
 ;;    3) Requests are sent by `nrepl-send-request' and
-;;       `nrepl-send-sync-request'.  Request is simply a list containing a
+;;       `nrepl-send-sync-request'.  A request is simply a list containing a
 ;;       requested operation name and the parameters required by the
 ;;       operation.  Each request has an associated callback that is called once
 ;;       the response for the request has arrived.  Besides the above functions
