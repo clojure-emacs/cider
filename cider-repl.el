@@ -661,7 +661,7 @@ text property `cider-old-input'."
   "Toggle pretty-printing in the REPL."
   (interactive)
   (setq cider-repl-use-pretty-printing (not cider-repl-use-pretty-printing))
-  (message "Pretty printing in nREPL %s."
+  (message "Pretty printing in REPL %s."
            (if cider-repl-use-pretty-printing "enabled" "disabled")))
 
 (defvar cider-repl-clear-buffer-hook)
