@@ -33,7 +33,7 @@
 (require 'cider-client)
 (require 'cider-interaction)
 (require 'cider-doc)
-(require 'cider-eldoc) ; for cider-turn-on-eldoc-mode
+(require 'cider-eldoc) ; for cider-eldoc-setup
 (require 'cider-util)
 
 (require 'clojure-mode)
