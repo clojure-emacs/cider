@@ -946,7 +946,7 @@ Handles only stdout and stderr responses."
 ;; at https://github.com/clojure/tools.nrepl/blob/master/doc/ops.md. CIDER adds
 ;; many more operations through nREPL middleware. See
 ;; https://github.com/clojure-emacs/cider-nrepl#supplied-nrepl-middleware for
-;; the up to date list.
+;; the up-to-date list.
 (defun nrepl-current-session ()
   "Return the current session."
   (with-current-buffer (nrepl-default-connection-buffer)
