@@ -179,6 +179,20 @@ if the candidate is not namespace-qualified."
 
 (defconst cider-refresh-log-buffer "*cider-refresh-log*")
 
+(defcustom cider-refresh-show-log-buffer nil
+  "Controls when to display the refresh log buffer.
+
+If non-nil, the log buffer will be displayed every time `cider-refresh' is
+called.
+
+If nil, the log buffer will still be written to, but will never be
+displayed automatically.  Instead, the most relevant information will be
+displayed in the echo area."
+  :type '(choice (const :tag "always" t)
+                 (const :tag "never" nil))
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
 (defcustom cider-refresh-before-fn nil
   "Clojure function for `cider-refresh' to call before reloading.
 
@@ -2110,8 +2124,14 @@ opposite of what that option dictates."
 
 (defun cider-refresh--handle-response (response log-buffer)
   (nrepl-dbind-response response (out err reloading status error error-ns after before)
-    (cl-flet ((log (message &optional face)
-                   (cider-emit-into-popup-buffer log-buffer message face)))
+    (cl-flet* ((log (message &optional face)
+                    (cider-emit-into-popup-buffer log-buffer message face))
+
+               (log-echo (message &optional face)
+                         (log message face)
+                         (unless cider-refresh-show-log-buffer
+                           (let ((message-truncate-lines t))
+                             (message "cider-refresh: %s" (s-trim message))))))
       (cond (out
              (log out))
 
@@ -2119,28 +2139,28 @@ opposite of what that option dictates."
              (log err 'font-lock-warning-face))
 
             ((member "invoking-before" status)
-             (log (format "Calling %s\n" before) 'font-lock-string-face))
+             (log-echo (format "Calling %s\n" before) 'font-lock-string-face))
 
             ((member "invoked-before" status)
-             (log (format "Successfully called %s\n" before) 'font-lock-string-face))
+             (log-echo (format "Successfully called %s\n" before) 'font-lock-string-face))
 
             (reloading
-             (log (format "Reloading %s\n" reloading) 'font-lock-string-face))
+             (log-echo (format "Reloading %s\n" reloading) 'font-lock-string-face))
 
             ((member "reloading" (nrepl-dict-keys response))
-             (log "Nothing to reload\n" 'font-lock-string-face))
+             (log-echo "Nothing to reload\n" 'font-lock-string-face))
 
             ((member "ok" status)
-             (log "Reloading successful\n" 'font-lock-string-face))
+             (log-echo "Reloading successful\n" 'font-lock-string-face))
 
             (error-ns
-             (log (format "Error reloading %s\n" error-ns) 'font-lock-warning-face))
+             (log-echo (format "Error reloading %s\n" error-ns) 'font-lock-warning-face))
 
             ((member "invoking-after" status)
-             (log (format "Calling %s\n" after) 'font-lock-string-face))
+             (log-echo (format "Calling %s\n" after) 'font-lock-string-face))
 
             ((member "invoked-after" status)
-             (log (format "Successfully called %s\n" after) 'font-lock-string-face))))
+             (log-echo (format "Successfully called %s\n" after) 'font-lock-string-face))))
 
     (with-selected-window (or (get-buffer-window cider-refresh-log-buffer)
                               (selected-window))
@@ -2163,10 +2183,11 @@ reload would not otherwise recover from.  The trade-off of clearing is that
 stale code from any deleted files may not be completely unloaded."
   (interactive "p")
   (cider-ensure-op-supported "refresh")
-  (let ((log-buffer (cider-popup-buffer-display (or (get-buffer cider-refresh-log-buffer)
-                                                    (cider-make-popup-buffer cider-refresh-log-buffer))))
+  (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
+                        (cider-make-popup-buffer cider-refresh-log-buffer)))
         (clear? (>= arg 16))
         (refresh-all? (>= arg 4)))
+    (when cider-refresh-show-log-buffer (cider-popup-buffer-display log-buffer))
     (when clear? (nrepl-send-sync-request (list "op" "refresh-clear")))
     (nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
                                       "print-length" cider-stacktrace-print-length

@@ -544,6 +544,21 @@ passed or failed:
   expected to be side-effecting - they will always be executed serially, without
   retries.
 
+* By default, messages regarding the status of the in-progress reload will be
+  displayed in the echo area after you call `cider-refresh`. The same
+  information will also be recorded in the `*cider-refresh-log*` buffer, along
+  with anything printed to `*out*` or `*err*` by `cider-refresh-before-fn` and
+  `cider-refresh-start-fn`.
+
+* You can make the `*cider-refresh-log*` buffer display automatically after you
+  call `cider-refresh` by setting the `cider-refresh-show-log-buffer` variable
+  to a non-nil value (this will also prevent any related messages from also
+  being displayed in the echo area):
+
+```el
+(setq cider-refresh-show-log-buffer t)
+```
+
 ### REPL history
 
 * To make the REPL history wrap around when its end is reached:

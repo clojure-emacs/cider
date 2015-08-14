@@ -29,6 +29,7 @@
 * [#1220](https://github.com/clojure-emacs/cider/issues/1220): Treat keywords as symbols in lookup commands like `cider-find-var`.
 * [#1241](https://github.com/clojure-emacs/cider/pull/1241): Passing a double prefix argument to `cider-refresh` will now clear the state of the namespace tracker used by the refresh middleware. This is useful for recovering from errors that a normal reload would not otherwise recover from, but may cause stale code in any deleted files to not be completely unloaded.
 * New defcustom `cider-result-use-clojure-font-lock` allows you disable the use of Clojure font-locking for interactive results.
+* [#1239](https://github.com/clojure-emacs/cider/issues/1239): New defcustom `cider-refresh-show-log-buffer`, controls the behaviour of the `*cider-refresh-log*` buffer when calling `cider-refresh`. When set to nil (the default), the log buffer will still be written to, but not displayed automatically. Instead, the most relevant information will be displayed in the echo area. When set to non-nil, the log buffer will be displayed every time `cider-refresh` is called.
 
 ### Changes
 
