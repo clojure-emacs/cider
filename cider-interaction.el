@@ -440,11 +440,13 @@ When SET-NAMESPACE is t, sets the namespace in the REPL buffer to
 that of the namespace in the Clojure source buffer."
   (cider-ensure-connected)
   (let ((buffer (current-buffer)))
-    (when set-namespace
-      (cider-repl-set-ns (cider-current-ns)))
+    ;; first we switch to the REPL buffer
     (if cider-repl-display-in-current-window
         (pop-to-buffer-same-window repl-buffer)
       (pop-to-buffer repl-buffer))
+    ;; then if necessary we update its namespace
+    (when set-namespace
+      (cider-repl-set-ns (with-current-buffer buffer (cider-current-ns))))
     (cider-remember-clojure-buffer buffer)
     (goto-char (point-max))))
 
