@@ -208,7 +208,7 @@ namespace-qualified function of zero arity."
   :package-version '(cider . "0.7.0"))
 
 (defcustom cider-eval-spinner-type 'progress-bar
-  "Appearance of the evaluation spinner. 
+  "Appearance of the evaluation spinner.
 
 Value is a symbol. The possible values are the symbols in the
 `spinner-types' variable."
@@ -1784,7 +1784,7 @@ arguments and only proceed with evaluation if it returns nil."
                        cider-eval-spinner-delay))
       (nrepl-request:eval
        form
-       (if cider-eval-progress-bar-show
+       (if cider-show-eval-spinner
            (cider-eval-spinner-handler
             (current-buffer)
             (or callback (cider-interactive-eval-handler nil end)))
