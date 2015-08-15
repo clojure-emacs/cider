@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1197](https://github.com/clojure-emacs/cider/issues/1197): Display some indication that we're waiting for a result for long-running evaluations.
 * [#1127](https://github.com/clojure-emacs/cider/issues/1127): Make it possible to associate a buffer with a connection (via `cider-assoc-buffer-with-connection`).
 * [#1217](https://github.com/clojure-emacs/cider/issues/1217): Add new command `cider-assoc-project-with-connection` to associate a project directory with a connection.
 * [#1248](https://github.com/clojure-emacs/cider/pull/1248): Add <kbd>TAB</kbd> and <kbd>RET</kbd> keys to the test-report buffer.
