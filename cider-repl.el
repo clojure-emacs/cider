@@ -416,7 +416,7 @@ Return the position of the prompt beginning."
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
 
-(defun cider-repl-emit-output-at-pos (buffer string output-face position &optional bol)
+(defun cider-repl--emit-output-at-pos (buffer string output-face position &optional bol)
   "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
 If BOL is non-nil insert at the beginning of line."
   (with-current-buffer buffer
@@ -440,7 +440,7 @@ If BOL is non-nil insert at the beginning of line."
   (with-current-buffer (cider-current-repl-buffer)
     (let ((pos (cider-repl--end-of-line-before-input-start))
           (string (replace-regexp-in-string "\n\\'" "" string)))
-      (cider-repl-emit-output-at-pos (current-buffer) string face pos t)
+      (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
       (ansi-color-apply-on-region pos (point-max)))))
 
 (defun cider-repl-emit-interactive-stdout (string)
@@ -456,7 +456,7 @@ If BOL is non-nil insert at the beginning of line."
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
     (let ((pos (cider-repl--end-of-line-before-input-start)))
-      (cider-repl-emit-output-at-pos buffer string face cider-repl-input-start-mark bol)
+      (cider-repl--emit-output-at-pos buffer string face cider-repl-input-start-mark bol)
       (ansi-color-apply-on-region pos (point-max)))))
 
 (defun cider-repl-emit-stdout (buffer string)
