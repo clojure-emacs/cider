@@ -317,12 +317,12 @@ make the hidden buffers visible. They'll always be visible in
   leiningen.core.ssl>
   ```
 
-  You may of course prepare your own function. For example in `leiningen` there
-  are two namespaces `leiningen.classpath` and `leiningen.core.classpath`. To
-  make them easily recognizable you could just stay at default, but you could
-  also show only two segments of namespace and still be able to be sure in which
-  exactly namespace REPL is open. Here is example of function that will do
-  exactly that:
+  You may, of course, write your own function. For example, in `leiningen` there
+  are two namespaces with similar names - `leiningen.classpath` and
+  `leiningen.core.classpath`. To make them easily recognizable you can either
+  use the default value or you can opt to show only two segments of the
+  namespace and still be able to know which is the REPL's current
+  namespace. Here is an example function that will do exactly that:
 
   ```el
   (defun cider-repl-prompt-show-two (namespace)
