@@ -1331,8 +1331,6 @@ Purge the dead buffers from the `nrepl-connection-list' beforehand."
      (with-current-buffer buffer (derived-mode-p 'cider-repl-mode)))
    (buffer-list)))
 
-;; FIXME: Bad user api; don't burden users with management of
-;; the connection list, same holds for `cider-rotate-default-connection'.
 (defun nrepl-make-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
 Moves CONNECTION-BUFFER to the front of `nrepl-connection-list'."
