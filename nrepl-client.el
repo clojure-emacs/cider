@@ -205,7 +205,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defun nrepl-make-buffer-name (buffer-name-template &optional project-dir host port dup-ok)
   "Generate a buffer name using BUFFER-NAME-TEMPLATE.
 
-If not supplied PROJECT-DIR, PORT and HOST default to the buffer local
+If not supplied PROJECT-DIR, HOST and PORT default to the buffer local
 value of the `nrepl-project-dir' and `nrepl-endpoint'.
 
 The name will include the project name if available or the endpoint host if
