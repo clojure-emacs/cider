@@ -298,26 +298,32 @@ make the hidden buffers visible. They'll always be visible in
   `cider-repl-prompt-lastname`, `cider-repl-prompt-abbreviated`,
   `cider-repl-prompt-default` and by default the last one is being used.
   Prompt for each of them for namespace `leiningen.core.ssl`:
+
   * `cider-repl-prompt-lastname`:
+
   ```
   ssl>
   ```
 
   * `cider-repl-prompt-abbreviated`:
+
   ```
   l.c.ssl>
   ```
 
   * `cider-repl-prompt-default`:
+
   ```
   leiningen.core.ssl>
   ```
 
   You may of course prepare your own function. For example in `leiningen` there
-  are two namespaces `leiningen.classpath` and `leiningen.core.classpath`. To make
-  them easily recognizable you could just stay at default, but you could also show
-  only two segments of namespace and still be able to be sure in which exactly
-  namespace repl is open. Here is example of function that will do exactly that:
+  are two namespaces `leiningen.classpath` and `leiningen.core.classpath`. To
+  make them easily recognizable you could just stay at default, but you could
+  also show only two segments of namespace and still be able to be sure in which
+  exactly namespace REPL is open. Here is example of function that will do
+  exactly that:
+
   ```el
   (defun cider-repl-prompt-show-two (namespace)
     "Return a prompt string with the last name in NAMESPACE."
