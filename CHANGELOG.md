@@ -36,6 +36,7 @@
 ### Changes
 
 * `nrepl-log-messages` is now set to `t` by default.
+* Renamed `cider-repl-output-face` to `cider-repl-stdout-face` and `cider-repl-err-output-face` to `cider-repl-stderr-face`.
 
 ### Bugs fixed
 

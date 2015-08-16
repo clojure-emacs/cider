@@ -54,12 +54,12 @@
   "Face for the prompt in the REPL buffer."
   :group 'cider-repl)
 
-(defface cider-repl-output-face
+(defface cider-repl-stdout-face
   '((t (:inherit font-lock-string-face)))
   "Face for STDOUT output in the REPL buffer."
   :group 'cider-repl)
 
-(defface cider-repl-err-output-face
+(defface cider-repl-stderr-face
   '((t (:inherit font-lock-warning-face)))
   "Face for STDERR output in the REPL buffer."
   :group 'cider-repl
@@ -445,11 +445,11 @@ If BOL is non-nil insert at the beginning of line."
 
 (defun cider-repl-emit-interactive-stdout (string)
   "Emit STRING as interactive output."
-  (cider-repl--emit-interactive-output string 'cider-repl-output-face))
+  (cider-repl--emit-interactive-output string 'cider-repl-stdout-face))
 
 (defun cider-repl-emit-interactive-stderr (string)
   "Emit STRING as interactive err output."
-  (cider-repl--emit-interactive-output string 'cider-repl-err-output-face))
+  (cider-repl--emit-interactive-output string 'cider-repl-stderr-face))
 
 (defun cider-repl--emit-output (buffer string face &optional bol)
   "Using BUFFER, emit STRING font-locked with FACE.
@@ -461,11 +461,11 @@ If BOL is non-nil, emit at the beginning of the line."
 
 (defun cider-repl-emit-stdout (buffer string)
   "Using BUFFER, emit STRING as standard output."
-  (cider-repl--emit-output buffer string 'cider-repl-output-face))
+  (cider-repl--emit-output buffer string 'cider-repl-stdout-face))
 
 (defun cider-repl-emit-stderr (buffer string)
   "Using BUFFER, emit STRING as error output."
-  (cider-repl--emit-output buffer string 'cider-repl-err-output-face))
+  (cider-repl--emit-output buffer string 'cider-repl-stderr-face))
 
 (defun cider-repl-emit-prompt (buffer)
   "Emit the REPL prompt into BUFFER."
