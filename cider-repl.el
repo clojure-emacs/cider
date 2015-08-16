@@ -443,11 +443,11 @@ If BOL is non-nil insert at the beginning of line."
       (cider-repl-emit-output-at-pos (current-buffer) string face pos t)
       (ansi-color-apply-on-region pos (point-max)))))
 
-(defun cider-repl-emit-interactive-output (string)
+(defun cider-repl-emit-interactive-stdout (string)
   "Emit STRING as interactive output."
   (cider-repl--emit-interactive-output string 'cider-repl-output-face))
 
-(defun cider-repl-emit-interactive-err-output (string)
+(defun cider-repl-emit-interactive-stderr (string)
   "Emit STRING as interactive err output."
   (cider-repl--emit-interactive-output string 'cider-repl-err-output-face))
 
@@ -459,11 +459,11 @@ If BOL is non-nil, emit at the beginning of the line."
       (cider-repl-emit-output-at-pos buffer string face cider-repl-input-start-mark bol)
       (ansi-color-apply-on-region pos (point-max)))))
 
-(defun cider-repl-emit-output (buffer string)
+(defun cider-repl-emit-stdout (buffer string)
   "Using BUFFER, emit STRING as standard output."
   (cider-repl--emit-output buffer string 'cider-repl-output-face))
 
-(defun cider-repl-emit-err-output (buffer string)
+(defun cider-repl-emit-stderr (buffer string)
   "Using BUFFER, emit STRING as error output."
   (cider-repl--emit-output buffer string 'cider-repl-err-output-face))
 
@@ -548,9 +548,9 @@ the symbol."
                                  (unless cider-repl-use-pretty-printing
                                    (cider-repl-emit-result buffer value t)))
                                (lambda (buffer out)
-                                 (cider-repl-emit-output buffer out))
+                                 (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
-                                 (cider-repl-emit-err-output buffer err))
+                                 (cider-repl-emit-stderr buffer err))
                                (lambda (buffer)
                                  (cider-repl-emit-prompt buffer))))
 
@@ -715,9 +715,9 @@ text property `cider-old-input'."
   (nrepl-make-response-handler buffer
                                (lambda (_buffer _value))
                                (lambda (buffer out)
-                                 (cider-repl-emit-output buffer out))
+                                 (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
-                                 (cider-repl-emit-err-output buffer err))
+                                 (cider-repl-emit-stderr buffer err))
                                (lambda (buffer)
                                  (cider-repl-emit-prompt buffer))))
 

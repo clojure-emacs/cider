@@ -930,11 +930,10 @@ Handles only stdout and stderr responses."
                                '()
                                ;; STDOUT
                                (lambda (buffer out)
-                                 ;; FIXME: rename into emit-out-output
-                                 (cider-repl-emit-output buffer out))
+                                 (cider-repl-emit-stdout buffer out))
                                ;; STDERR
                                (lambda (buffer err)
-                                 (cider-repl-emit-err-output buffer err))
+                                 (cider-repl-emit-stderr buffer err))
                                ;; DONE
                                '()))
 
@@ -1014,7 +1013,7 @@ sign of user input, so as not to hang the interface."
     (when (member "done" status)
       (-when-let* ((ex (nrepl-dict-get response "ex"))
                    (err (nrepl-dict-get response "err")))
-        (cider-repl-emit-interactive-err-output err)
+        (cider-repl-emit-interactive-stderr err)
         (message err))
       (-when-let (id (nrepl-dict-get response "id"))
         ;; FIXME: This should go away eventually when we get rid of

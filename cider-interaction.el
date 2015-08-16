@@ -282,7 +282,7 @@ Signal an error if it is not supported."
   "Check whether all required nREPL ops are present."
   (let ((missing-ops (-remove 'nrepl-op-supported-p cider-required-nrepl-ops)))
     (when missing-ops
-      (cider-repl-emit-interactive-err-output
+      (cider-repl-emit-interactive-stderr
        (format "WARNING: The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
                (cider-string-join missing-ops " ")
                (upcase cider-version))))))
@@ -317,12 +317,12 @@ Signal an error if it is not supported."
   (let ((nrepl-version (cider--nrepl-version)))
     (if nrepl-version
         (when (version< nrepl-version cider-required-nrepl-version)
-          (cider-repl-emit-interactive-err-output
+          (cider-repl-emit-interactive-stderr
            (cider--insert-readme-button
             (format "WARNING: CIDER requires nREPL %s (or newer) to work properly"
                     cider-required-nrepl-version)
             "warning-saying-you-have-to-use-nrepl-027")))
-      (cider-repl-emit-interactive-err-output
+      (cider-repl-emit-interactive-stderr
        (format "WARNING: Can't determine nREPL's version. Please, update nREPL to %s."
                cider-required-nrepl-version)))))
 
@@ -333,7 +333,7 @@ Signal an error if it is not supported."
    (lambda (_buffer result)
      (let ((middleware-version (read result)))
        (unless (and middleware-version (equal cider-version middleware-version))
-         (cider-repl-emit-interactive-err-output
+         (cider-repl-emit-interactive-stderr
           (format "ERROR: CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
                   cider-version middleware-version)))))
    '()
@@ -1237,9 +1237,9 @@ opposite of what that option dictates."
                                (lambda (buffer value)
                                  (cider-repl-emit-result buffer value t))
                                (lambda (buffer out)
-                                 (cider-repl-emit-output buffer out))
+                                 (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
-                                 (cider-repl-emit-output buffer err))
+                                 (cider-repl-emit-stdout buffer err))
                                nil))
 
 (defun cider-insert-eval-handler (&optional buffer)
@@ -1251,7 +1251,7 @@ The handler simply inserts the result value in BUFFER."
                                    (with-current-buffer buffer
                                      (insert value)))
                                  (lambda (_buffer out)
-                                   (cider-repl-emit-interactive-output out))
+                                   (cider-repl-emit-interactive-stdout out))
                                  (lambda (_buffer err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '())))
@@ -1275,14 +1275,14 @@ This is controlled via `cider-interactive-eval-output-destination'."
 
 The output can be send to either a dedicated output buffer or the current REPL buffer.
 This is controlled via `cider-interactive-eval-output-destination'."
-  (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-output))
+  (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stdout))
 
 (defun cider-emit-interactive-eval-err-output (output)
   "Emit err output resulting from interactive code evaluation.
 
 The output can be send to either a dedicated output buffer or the current REPL buffer.
 This is controlled via `cider-interactive-eval-output-destination'."
-  (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-err-output))
+  (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stderr))
 
 (defun cider-interactive-eval-handler (&optional buffer point)
   "Make an interactive eval handler for BUFFER.
