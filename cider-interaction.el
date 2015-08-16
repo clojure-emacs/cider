@@ -2185,9 +2185,9 @@ stale code from any deleted files may not be completely unloaded."
   "Load (eval) the Clojure file FILENAME in nREPL."
   (interactive (list
                 (read-file-name "Load file: " nil nil nil
-                                (if (buffer-file-name)
-                                    (file-name-nondirectory
-                                     (buffer-file-name))))))
+                                (when (buffer-file-name)
+                                  (file-name-nondirectory
+                                   (buffer-file-name))))))
   (-when-let (buf (find-buffer-visiting filename))
     (with-current-buffer buf
       (remove-overlays nil nil 'cider-type 'instrumented-defs)
