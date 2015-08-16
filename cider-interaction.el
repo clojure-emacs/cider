@@ -1239,7 +1239,7 @@ opposite of what that option dictates."
                                (lambda (buffer out)
                                  (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
-                                 (cider-repl-emit-stdout buffer err))
+                                 (cider-repl-emit-stderr buffer err))
                                nil))
 
 (defun cider-insert-eval-handler (&optional buffer)
