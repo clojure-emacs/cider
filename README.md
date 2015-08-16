@@ -706,14 +706,17 @@ CIDER integration for `eval-sexp-fu`.
 
 ### Overlays
 
-When you evaluate code in Clojure files, the result is displayed in the buffer itself, in an overlay right after the evaluated code.
-If you want this overlay to be font-locked (syntax-highlighted) like Clojure code, set the following variable.
+When you evaluate code in Clojure files, the result is displayed in the buffer
+itself, in an overlay right after the evaluated code.  If you want this overlay
+to be font-locked (syntax-highlighted) like Clojure code, set the following
+variable.
 
 ```el
 (setq cider-ovelays-use-font-lock t)
 ```
 
-You can disable overlays entirely (and display results in the echo-area at the bottom) with the `cider-use-overlays` variable.
+You can disable overlays entirely (and display results in the echo-area at the
+bottom) with the `cider-use-overlays` variable.
 
 ```el
 (setq cider-use-overlays nil)
