@@ -1271,6 +1271,7 @@ An extensive changelog is available [here](CHANGELOG.md).
 * [Steve Purcell](https://github.com/purcell)
 * [Jeff Valk](https://github.com/jeffvalk)
 * [Michael Griffiths](https://github.com/cichli)
+* [Lars Andersen](https://github.com/expez)
 
 ## Release policy
 
