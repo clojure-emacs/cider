@@ -1437,11 +1437,11 @@ The connections buffer is determined by
                    (concat " " cider-repl-type)
                  ""))))))
 
-(defun nrepl--project-name (stack)
-  "Extracts a project name from STACK, possibly nil.
-The project name is the final component of STACK if not nil."
-  (when stack
-    (file-name-nondirectory (directory-file-name stack))))
+(defun nrepl--project-name (dir)
+  "Extracts a project name from DIR, possibly nil.
+The project name is the final component of DIR if not nil."
+  (when dir
+    (file-name-nondirectory (directory-file-name dir))))
 
 (defun nrepl--update-connections-display (ewoc connections)
   "Update the connections EWOC to show CONNECTIONS."
