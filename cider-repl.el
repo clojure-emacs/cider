@@ -686,12 +686,8 @@ text property `cider-old-input'."
 
 (defun cider-repl--end-of-line-before-input-start ()
   "Return the position of the end of the line preceding the beginning of input."
-  (save-excursion
-    (goto-char cider-repl-input-start-mark)
-    ;; do not use `previous-line', but `line-move' with noerror
-    ;; moving up from the first line should not throw error
-    (line-move -1 t nil nil)
-    (line-end-position)))
+  (1- (previous-single-property-change cider-repl-input-start-mark 'field nil
+                                       (1+ (point-min)))))
 
 (defun cider-repl-clear-output ()
   "Delete the output inserted since the last input."

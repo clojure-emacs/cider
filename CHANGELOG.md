@@ -39,7 +39,7 @@
 * Renamed `cider-repl-output-face` to `cider-repl-stdout-face` and `cider-repl-err-output-face` to `cider-repl-stderr-face`.
 
 ### Bugs fixed
-
+* [#1252](https://github.com/clojure-emacs/cider/issues/1252) `cider-repl-clear-buffer` stops working in certain circumstances.
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 * [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.
 * [#1079](https://github.com/clojure-emacs/cider/issues/1079): Don't try to font-lock very long results. The maximum font-lockable result length is controlled by `cider-font-lock-max-length`.
