@@ -1270,6 +1270,7 @@ An extensive changelog is available [here](CHANGELOG.md).
 * [Hugo Duncan](https://github.com/hugoduncan)
 * [Steve Purcell](https://github.com/purcell)
 * [Jeff Valk](https://github.com/jeffvalk)
+* [Michael Griffiths](https://github.com/cichli)
 
 ## Release policy
 
