@@ -1272,6 +1272,7 @@ An extensive changelog is available [here](CHANGELOG.md).
 * [Jeff Valk](https://github.com/jeffvalk)
 * [Michael Griffiths](https://github.com/cichli)
 * [Lars Andersen](https://github.com/expez)
+* [Artur Malabarba](https://github.com/malabarba)
 
 ## Release policy
 
