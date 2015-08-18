@@ -9,10 +9,11 @@
   <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
 </p>
 
-`CIDER` (formerly `nrepl.el`) is the **C**lojure **I**nteractive **D**evelopment **E**nvironment that **R**ocks for Emacs, built on top of
-[nREPL](https://github.com/clojure/tools.nrepl), the Clojure networked
-REPL server. It's a great alternative to the now deprecated combination
-of SLIME + [swank-clojure](https://github.com/technomancy/swank-clojure).
+`CIDER` (formerly `nrepl.el`) is the **C**lojure **I**nteractive **D**evelopment
+**E**nvironment that **R**ocks for Emacs! It's built on top of
+[nREPL](https://github.com/clojure/tools.nrepl), the Clojure networked REPL
+server. CIDER is a great alternative to the now deprecated combination of SLIME +
+[swank-clojure](https://github.com/technomancy/swank-clojure).
 
 If you're interested in details about CIDER's history and architecture you can
 check out the Clojure/conj presentation
