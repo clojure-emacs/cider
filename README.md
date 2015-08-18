@@ -1149,6 +1149,7 @@ development:
 * Reloading
 * Running tests
 * Tracing
+* Debugging
 
 There is currently no support for both Clojure and ClojureScript evaluation in
 the same nREPL session. If Piggieback is active, code evaluation and all
