@@ -1155,11 +1155,6 @@ There is currently no support for both Clojure and ClojureScript evaluation in
 the same nREPL session. If Piggieback is active, code evaluation and all
 features will assume ClojureScript.
 
-The aforementioned
-[clojure-quick-repls](https://github.com/symfrog/clojure-quick-repls) aids this
-situation by routing requests to the correct REPL according to the file
-extension of the current buffer.
-
 ### Microsoft Windows
 
 On Microsoft Windows the JVM default line separator string is `\r\n`
