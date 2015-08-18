@@ -99,7 +99,7 @@
   "Send the request INPUT and register the CALLBACK as the response handler.
 NS specifies the namespace in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
-  (nrepl-request:eval input callback ns (nrepl-current-tooling-session)))
+  (nrepl-request:eval input callback ns (cider-current-tooling-session)))
 
 (defun cider-current-repl-buffer ()
   "The current REPL buffer.
@@ -135,6 +135,11 @@ on where they come from."
   "The REPL session to use for this buffer."
   (with-current-buffer (cider-current-repl-buffer)
     nrepl-session))
+
+(defun cider-current-tooling-session ()
+  "Return the current tooling session."
+  (with-current-buffer (cider-current-repl-buffer)
+    nrepl-tooling-session))
 
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
@@ -195,14 +200,14 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
   "Return a list of classpath entries."
   (cider-ensure-op-supported "classpath")
   (-> (list "op" "classpath"
-            "session" (nrepl-current-session))
+            "session" (cider-current-session))
       (nrepl-send-sync-request)
       (nrepl-dict-get "classpath")))
 
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op."
   (-when-let (dict (-> (list "op" "complete"
-                             "session" (nrepl-current-session)
+                             "session" (cider-current-session)
                              "ns" (cider-current-ns)
                              "symbol" str
                              "context" context)
@@ -212,7 +217,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 (defun cider-sync-request:info (symbol &optional class member)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
   (let ((var-info (-> `("op" "info"
-                        "session" ,(nrepl-current-session)
+                        "session" ,(cider-current-session)
                         "ns" ,(cider-current-ns)
                         ,@(when symbol (list "symbol" symbol))
                         ,@(when class (list "class" class))
@@ -225,7 +230,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 (defun cider-sync-request:eldoc (symbol &optional class member)
   "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER."
   (-when-let (eldoc (-> `("op" "eldoc"
-                          "session" ,(nrepl-current-session)
+                          "session" ,(cider-current-session)
                           "ns" ,(cider-current-ns)
                           ,@(when symbol (list "symbol" symbol))
                           ,@(when class (list "class" class))
@@ -238,14 +243,14 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (-> (list "op" "ns-list"
-            "session" (nrepl-current-session))
+            "session" (cider-current-session))
       (nrepl-send-sync-request)
       (nrepl-dict-get "ns-list")))
 
 (defun cider-sync-request:ns-vars (ns)
   "Get a list of the vars in NS."
   (-> (list "op" "ns-vars"
-            "session" (nrepl-current-session)
+            "session" (cider-current-session)
             "ns" ns)
       (nrepl-send-sync-request)
       (nrepl-dict-get "ns-vars")))

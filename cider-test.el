@@ -179,7 +179,7 @@
   (let (causes)
     (nrepl-send-request
      (append
-      (list "op" "test-stacktrace" "session" (nrepl-current-session)
+      (list "op" "test-stacktrace" "session" (cider-current-session)
             "ns" ns "var" var "index" index)
       (when cider-stacktrace-print-length
         (list "print-length" cider-stacktrace-print-length))
@@ -421,7 +421,7 @@ displayed. When test failures/errors occur, their sources are highlighted."
   (message "Testing...")
   (nrepl-send-request
    (list "ns" ns "op" (if retest "retest" "test")
-         "tests" tests "session" (nrepl-current-session))
+         "tests" tests "session" (cider-current-session))
    (lambda (response)
      (nrepl-dbind-response response (summary results status out err)
        (cond ((member "namespace-not-found" status)

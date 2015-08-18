@@ -147,7 +147,7 @@
                                       "tag" "class java.lang.String"
                                       "status" ("done")))
            (cider-ensure-op-supported (op) t)
-           (nrepl-current-session () nil)
+           (cider-current-session () nil)
            (cider-current-ns () "user"))
     (should (equal "stub" (nrepl-dict-get (cider-var-info "str") "doc")))
     (should (null (cider-var-info "")))))

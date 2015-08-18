@@ -131,19 +131,19 @@ Used for all inspector nREPL ops."
 (defun cider-inspector-pop ()
   (interactive)
   (nrepl-send-request (list "op" "inspect-pop"
-                            "session" (nrepl-current-session))
+                            "session" (cider-current-session))
                       (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-push (idx)
   (nrepl-send-request (list "op" "inspect-push"
                             "idx" (number-to-string idx)
-                            "session" (nrepl-current-session))
+                            "session" (cider-current-session))
                       (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-refresh ()
   (interactive)
   (nrepl-send-request (list "op" "inspect-refresh"
-                            "session" (nrepl-current-session))
+                            "session" (cider-current-session))
                       (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-next-page ()
@@ -152,7 +152,7 @@ Used for all inspector nREPL ops."
 Does nothing if already on the last page."
   (interactive)
   (nrepl-send-request (list "op" "inspect-next-page"
-                            "session" (nrepl-current-session))
+                            "session" (cider-current-session))
                       (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-prev-page ()
@@ -161,7 +161,7 @@ Does nothing if already on the last page."
 Does nothing if already on the first page."
   (interactive)
   (nrepl-send-request (list "op" "inspect-prev-page"
-                            "session" (nrepl-current-session))
+                            "session" (cider-current-session))
                       (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-set-page-size (page-size)
@@ -170,7 +170,7 @@ Does nothing if already on the first page."
 Current page will be reset to zero."
   (interactive "nPage size:")
   (nrepl-send-request (list "op" "inspect-set-page-size"
-                            "session" (nrepl-current-session)
+                            "session" (cider-current-session)
                             "page-size" page-size)
                       (cider-inspector-response-handler (current-buffer))))
 

@@ -849,8 +849,8 @@ values of *1, *2, etc."
 (defun nrepl-close-client-sessions ()
   "Close the nREPL sessions for the active connection.
 If BUFFER is non-nil, close that buffer's connection."
-  (nrepl-sync-request:close (nrepl-current-session))
-  (nrepl-sync-request:close (nrepl-current-tooling-session)))
+  (nrepl-sync-request:close (cider-current-session))
+  (nrepl-sync-request:close (cider-current-tooling-session)))
 (make-obsolete 'nrepl-close-client-sessions 'cider--close-buffer "0.10.0")
 
 (defun nrepl-close (connection-buffer)
@@ -950,15 +950,6 @@ Handles only stdout and stderr responses."
 ;; many more operations through nREPL middleware. See
 ;; https://github.com/clojure-emacs/cider-nrepl#supplied-nrepl-middleware for
 ;; the up-to-date list.
-(defun nrepl-current-session ()
-  "Return the current session."
-  (with-current-buffer (nrepl-default-connection-buffer)
-    nrepl-session))
-
-(defun nrepl-current-tooling-session ()
-  "Return the current tooling session."
-  (with-current-buffer (nrepl-default-connection-buffer)
-    nrepl-tooling-session))
 
 (defun nrepl-next-request-id ()
   "Return the next request id."
@@ -1029,14 +1020,14 @@ sign of user input, so as not to hang the interface."
 Register CALLBACK as the response handler."
   (nrepl-send-request (list "op" "stdin"
                             "stdin" input
-                            "session" (nrepl-current-session))
+                            "session" (cider-current-session))
                       callback))
 
 (defun nrepl-request:interrupt (pending-request-id callback)
   "Send an :interrupt request for PENDING-REQUEST-ID.
 Register CALLBACK as the response handler."
   (nrepl-send-request (list "op" "interrupt"
-                            "session" (nrepl-current-session)
+                            "session" (cider-current-session)
                             "interrupt-id" pending-request-id)
                       callback))
 
@@ -1046,7 +1037,7 @@ If POINT is non-nil and current buffer is a file buffer, \"point\" and
 \"file\" are added to the message."
   (append (and ns (list "ns" ns))
           (list "op" "eval"
-                "session" (or session (nrepl-current-session))
+                "session" (or session (cider-current-session))
                 "code" input)
           (when (and point (buffer-file-name))
             (list "file" (buffer-file-name)

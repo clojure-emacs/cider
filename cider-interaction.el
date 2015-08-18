@@ -2319,8 +2319,8 @@ the string contents of the region into a formatted string."
              (ops (nrepl-dict-keys (nrepl-dict-get session-info "ops")))
              (session-id (nrepl-dict-get session-info "session"))
              (session-type (cond
-                            ((equal session-id (nrepl-current-session)) "Active eval")
-                            ((equal session-id (nrepl-current-tooling-session)) "Active tooling")
+                            ((equal session-id (cider-current-session)) "Active eval")
+                            ((equal session-id (cider-current-tooling-session)) "Active tooling")
                             (t "Unknown"))))
         (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer)
           (read-only-mode -1)
