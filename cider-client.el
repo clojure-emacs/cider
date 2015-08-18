@@ -170,7 +170,7 @@ unless ALL is truthy."
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
 loaded. If CALLBACK is nil, use `cider-load-file-handler'."
   (nrepl-send-request (list "op" "load-file"
-                            "session" (nrepl-current-session)
+                            "session" (cider-current-session)
                             "file" file-contents
                             "file-path" file-path
                             "file-name" file-name)
