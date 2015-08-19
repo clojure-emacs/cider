@@ -136,10 +136,14 @@ on where they come from."
   (with-current-buffer (cider-current-repl-buffer)
     nrepl-session))
 
+(define-obsolete-function-alias 'nrepl-current-session 'cider-current-session "0.10")
+
 (defun cider-current-tooling-session ()
   "Return the current tooling session."
   (with-current-buffer (cider-current-repl-buffer)
     nrepl-tooling-session))
+
+(define-obsolete-function-alias 'nrepl-current-tooling-session 'cider-current-tooling-session "0.10")
 
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
