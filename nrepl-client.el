@@ -134,8 +134,7 @@ Setting this to nil disables the timeout functionality."
 
 (defcustom nrepl-hide-special-buffers nil
   "Control the display of some special buffers in buffer switching commands.
-When true some special buffers like the connection and the server
-buffer will be hidden."
+When true some special buffers like the server buffer will be hidden."
   :type 'boolean
   :group 'nrepl)
 
