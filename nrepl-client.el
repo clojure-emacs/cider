@@ -1154,14 +1154,14 @@ the port, and the client buffer."
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
-  (let* ((nrepl-buffer (process-buffer process))
-         (connection-buffer (buffer-local-value 'nrepl-connection-buffer nrepl-buffer))
-         (problem (if (and nrepl-buffer (buffer-live-p nrepl-buffer))
-                      (with-current-buffer nrepl-buffer
+  (let* ((server-buffer (process-buffer process))
+         (connection-buffer (buffer-local-value 'nrepl-connection-buffer server-buffer))
+         (problem (if (and server-buffer (buffer-live-p server-buffer))
+                      (with-current-buffer server-buffer
                         (buffer-substring (point-min) (point-max)))
                     "")))
-    (when nrepl-buffer
-      (kill-buffer nrepl-buffer))
+    (when server-buffer
+      (kill-buffer server-buffer))
     (cond
      ((string-match-p "^killed" event)
       nil)
