@@ -1249,6 +1249,14 @@ Note, that running `cider-jack-in` from outside the scope of a project will
 result in the **older (0.2.6) nREPL dependency being used** (at least on Leiningen
 2.5.1). This is likely a Leiningen bug.
 
+### Missing clojure-... function after CIDER update
+
+Most likely you've updated CIDER, without updating `clojure-mode` as well.
+
+CIDER depends on `clojure-mode` and you should always update them together, as
+the latest CIDER version might depend on functionality present only in the latest
+`clojure-mode` version.
+
 ## Documentation
 
 A single-page quick reference PDF for CIDER commands is available
