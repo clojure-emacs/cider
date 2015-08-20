@@ -237,8 +237,7 @@
      (nrepl-make-connection-default a)
      (nrepl-make-connection-default b)
      ;; closing a buffer should see it removed from the connection list
-     (noflet ((nrepl-close-client-sessions () nil))
-       (nrepl-close a))
+     (nrepl-close a)
      (should (not (buffer-live-p a)))
      (should (equal (append (list (buffer-name b)) connections)
                     (nrepl-connection-buffers)))
@@ -294,8 +293,7 @@
 * 123.123.123.123   4006   \n\n"
                              (buffer-string)))
               (goto-char 80)         ; somewhere in the second connection listed
-              (noflet ((nrepl-close-client-sessions () nil))
-                (nrepl-connections-close-connection))
+              (nrepl-connections-close-connection)
               (should (equal (list (buffer-name b1)) nrepl-connection-list))
               (should (equal "  Host              Port   Project
 
