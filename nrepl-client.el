@@ -111,19 +111,9 @@ The `nrepl-buffer-name-separator' separates cider-repl from the project name."
   :type 'hook
   :group 'nrepl)
 
-(defcustom nrepl-host "localhost"
-  "The default hostname (or IP address) to connect to."
-  :type 'string
-  :group 'nrepl)
-
 (defcustom nrepl-force-ssh-for-remote-hosts nil
   "If non-nil, do not attempt a direct connection for remote hosts."
   :type 'boolean
-  :group 'nrepl)
-
-(defcustom nrepl-port nil
-  "The default port to connect to."
-  :type 'string
   :group 'nrepl)
 
 (defcustom nrepl-sync-request-timeout 10
@@ -1269,13 +1259,6 @@ The default buffer name is *nrepl-messages*."
 
 (defvar nrepl-connection-list nil
   "A list of connections.")
-
-(defun nrepl-current-host ()
-  "Retrieve the current host."
-  (if (and (stringp buffer-file-name)
-           (file-remote-p buffer-file-name))
-      tramp-current-host
-    nrepl-host))
 
 (defun nrepl-create-client-buffer-default (endpoint)
   "Create an nREPL client process buffer.

@@ -276,13 +276,20 @@ Create REPL buffer and start an nREPL client connection."
          nil
          (nrepl-default-connection-buffer))))))
 
+(defun cider-current-host ()
+  "Retrieve the current host."
+  (if (and (stringp buffer-file-name)
+           (file-remote-p buffer-file-name))
+      tramp-current-host
+    "localhost"))
+
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
   (let* ((ssh-hosts (cider--ssh-hosts))
          (hosts (-distinct (append (when cider-host-history
                                      ;; history elements are strings of the form "host:port"
                                      (list (split-string (car cider-host-history) ":")))
-                                   (list (list (nrepl-current-host)))
+                                   (list (list (cider-current-host)))
                                    cider-known-endpoints
                                    ssh-hosts
                                    (when (file-remote-p default-directory)
