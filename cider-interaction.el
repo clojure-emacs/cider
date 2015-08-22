@@ -97,8 +97,13 @@ which will use the default REPL connection."
   :group 'cider)
 
 (defcustom cider-prompt-save-file-on-load t
-  "Controls whether to prompt to save the file when loading a buffer."
-  :type 'boolean
+  "Controls whether to prompt to save the file when loading a buffer.
+If nil, files are not saved.
+If t, the user is prompted to save the file if it's been modified.
+If the symbol `always-save', save the file without confirmation."
+  :type '(choice (const t :tag "Prompt to save the file if it's been modified")
+                 (const nil :tag "Don't save the file")
+                 (const always-save :tag "Save the file without confirmation"))
   :group 'cider
   :package-version '(cider . "0.6.0"))
 
@@ -2233,7 +2238,8 @@ The heavy lifting is done by `cider-load-file'."
       (user-error "Buffer %s is not associated with a file" (buffer-name)))
     (when (and cider-prompt-save-file-on-load
                (buffer-modified-p)
-               (y-or-n-p (format "Save file %s? " buffer-file-name)))
+               (or (eq cider-prompt-save-file-on-load 'always-save)
+                   (y-or-n-p (format "Save file %s? " buffer-file-name))))
       (save-buffer))
     (cider-load-file buffer-file-name)))
 
