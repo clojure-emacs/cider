@@ -429,7 +429,10 @@ Buffer name will look like *cider-repl project-name:port*.
   the buffer being loaded, if it's modified:
 
 ```el
+;; Don't prompt and don't save
 (setq cider-prompt-save-file-on-load nil)
+;; Just save without prompting
+(setq cider-prompt-save-file-on-load 'always-save)
 ```
 
 * Change the result prefix for REPL evaluation (by default there's no prefix):
