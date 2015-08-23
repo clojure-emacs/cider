@@ -1180,7 +1180,7 @@ memory burden, while providing reasonable history.")
 When the maximum size for the nREPL message buffer is exceeded, the size of
 the buffer is reduced by one over this value.  Defaults to 4, so that 1/4
 of the buffer is removed, which should ensure the buffer's maximum is
-reasonably utilised, while limiting the number of buffer shrinking
+reasonably utilized, while limiting the number of buffer shrinking
 operations.")
 
 (defvar nrepl-messages-mode-map
