@@ -160,7 +160,7 @@ Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 (defun cider-repl-buffer-name (&optional project-dir host port)
   "Generate a REPL buffer name based on current connection buffer.
 PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
-  (with-current-buffer (or (nrepl-default-connection-buffer 'no-error)
+  (with-current-buffer (or (cider-default-connection 'no-error)
                            (current-buffer))
     (nrepl-make-buffer-name nrepl-repl-buffer-name-template project-dir host port)))
 

@@ -274,7 +274,7 @@ Create REPL buffer and start an nREPL client connection."
                  (y-or-n-p "Do you want to associate the new connection with a local project? "))
         (cider-assoc-project-with-connection
          nil
-         (nrepl-default-connection-buffer))))))
+         (cider-default-connection))))))
 
 (defun cider-current-host ()
   "Retrieve the current host."

@@ -205,7 +205,7 @@ it is not.  The name will also include the connection port if
 
 If optional DUP-OK is non-nil, the returned buffer is not \"uniquified\" by
 `generate-new-buffer-name'."
-  (let* ((project-name (nrepl--project-name (or project-dir nrepl-project-dir)))
+  (let* ((project-name (cider--project-name (or project-dir nrepl-project-dir)))
          (nrepl-proj-port (or port (cadr nrepl-endpoint)))
          (name (nrepl-format-buffer-name-template
                 buffer-name-template
@@ -254,7 +254,7 @@ Bind the value of the provided KEYS and execute BODY."
 
 (defun nrepl-op-supported-p (op)
   "Return t iff the given operation OP is supported by nREPL server."
-  (with-current-buffer (nrepl-default-connection-buffer)
+  (with-current-buffer (cider-default-connection)
     (and nrepl-ops (nrepl-dict-get nrepl-ops op))))
 
 (defun nrepl-local-host-p (host)
@@ -269,7 +269,7 @@ and has no process, return it.  If the process is alive, ask the user for
 confirmation and return 'new/nil for y/n answer respectively.  If other
 REPL buffers with dead process exist, ask the user if any of those should
 be reused."
-  (let* ((repl-buffs (-map #'buffer-name (nrepl-repl-buffers)))
+  (let* ((repl-buffs (-map #'buffer-name (cider-repl-buffers)))
          (exact-buff (-first (lambda (buff)
                                (with-current-buffer buff
                                  (or (and endpoint (equal endpoint nrepl-endpoint))
@@ -795,7 +795,7 @@ process."
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)))
 
-    (nrepl-make-connection-default client-buf)
+    (cider-make-connection-default client-buf)
     (with-current-buffer client-buf
       (nrepl--init-client-sessions client-proc)
       (nrepl--init-capabilities client-buf))
@@ -837,10 +837,10 @@ values of *1, *2, etc."
 
 (defun nrepl-close (connection-buffer)
   "Close the nREPL connection for CONNECTION-BUFFER."
-  (interactive (list (nrepl-default-connection-buffer)))
-  (nrepl--close-connection-buffer connection-buffer)
+  (interactive (list (cider-default-connection)))
+  (cider--close-connection-buffer connection-buffer)
   (run-hooks 'nrepl-disconnected-hook)
-  (nrepl--connections-refresh))
+  (cider--connections-refresh))
 
 
 ;;; Client: Response Handling
@@ -935,7 +935,7 @@ Handles only stdout and stderr responses."
 
 (defun nrepl-next-request-id ()
   "Return the next request id."
-  (with-current-buffer (nrepl-default-connection-buffer)
+  (with-current-buffer (cider-default-connection)
     (number-to-string (cl-incf nrepl-request-counter))))
 
 (defun nrepl-send-request (request callback)
@@ -947,7 +947,7 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
          (request (cons 'dict (lax-plist-put request "id" id)))
          (message (nrepl-bencode request)))
     (nrepl-log-message (cons '---> (cdr request)))
-    (with-current-buffer (nrepl-default-connection-buffer)
+    (with-current-buffer (cider-default-connection)
       (puthash id callback nrepl-pending-requests)
       (process-send-string nil message))))
 
@@ -993,7 +993,7 @@ sign of user input, so as not to hang the interface."
       (-when-let (id (nrepl-dict-get response "id"))
         ;; FIXME: This should go away eventually when we get rid of
         ;; pending-request hash table
-        (with-current-buffer (nrepl-default-connection-buffer)
+        (with-current-buffer (cider-default-connection)
           (remhash id nrepl-pending-requests)))
       response)))
 
@@ -1254,12 +1254,6 @@ The default buffer name is *nrepl-messages*."
           (nrepl-messages-mode)
           buffer))))
 
-
-;;; Connection Buffer Management
-
-(defvar nrepl-connection-list nil
-  "A list of connections.")
-
 (defun nrepl-create-client-buffer-default (endpoint)
   "Create an nREPL client process buffer.
 ENDPOINT is a plist returned by `nrepl-connect'."
@@ -1271,194 +1265,6 @@ ENDPOINT is a plist returned by `nrepl-connect'."
       (buffer-disable-undo)
       (setq-local kill-buffer-query-functions nil))
     buffer))
-
-(defun nrepl-default-connection-buffer (&optional no-error)
-  "The default (fallback) connection to use for nREPL interaction.
-When NO-ERROR is non-nil, don't throw an error when no connection has been
-found."
-  (or nrepl-connection-buffer
-      (car (nrepl-connection-buffers))
-      (unless no-error
-        (error "No nREPL connection buffer"))))
-
-(define-obsolete-function-alias 'nrepl-current-connection-buffer 'nrepl-default-connection-buffer "0.10")
-
-(defun nrepl-connection-buffers ()
-  "Return the list of connection buffers."
-  (setq nrepl-connection-list
-        (-remove (lambda (buffer)
-                   (not (buffer-live-p (get-buffer buffer))))
-                 nrepl-connection-list)))
-
-(defun nrepl-repl-buffers ()
-  "Return the list of REPL buffers.
-Purge the dead buffers from the `nrepl-connection-list' beforehand."
-  (-filter
-   (lambda (buffer)
-     (with-current-buffer buffer (derived-mode-p 'cider-repl-mode)))
-   (buffer-list)))
-
-(defun nrepl-make-connection-default (connection-buffer)
-  "Make the nREPL CONNECTION-BUFFER the default connection.
-Moves CONNECTION-BUFFER to the front of `nrepl-connection-list'."
-  (interactive (list nrepl-connection-buffer))
-  (if connection-buffer
-      ;; maintain the connection list in most recently used order
-      (let ((buf-name (buffer-name (get-buffer connection-buffer))))
-        (setq nrepl-connection-list
-              (cons buf-name (delq buf-name nrepl-connection-list)))
-        (nrepl--connections-refresh))
-    (user-error "Not in a REPL buffer")))
-
-(defun nrepl--close-connection-buffer (conn-buffer)
-  "Close CONN-BUFFER, removing it from `nrepl-connection-list'.
-Also close associated REPL and server buffers."
-  (let ((buffer (get-buffer conn-buffer)))
-    (setq nrepl-connection-list
-          (delq (buffer-name buffer) nrepl-connection-list))
-    (when (buffer-live-p buffer)
-      (dolist (buf `(,@(or (nrepl--get-sibling-buffers buffer)
-                           (list buffer))
-                     ,(buffer-local-value 'nrepl-tunnel-buffer buffer)
-                     ,(buffer-local-value 'nrepl-server-buffer buffer)))
-        (when buf
-          (cider--close-buffer buf))))))
-
-
-;;; Connection Browser
-
-;; FIXME: Naming conventions are pretty messy here. Some
-;; interactive commands are named with "--". nrepl--project-name` is pretty
-;; often used across cider, so it's not very internal.
-(defvar nrepl-connections-buffer-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "d" #'nrepl-connections-make-default)
-    (define-key map "g" #'nrepl-connection-browser)
-    (define-key map (kbd "C-k") #'nrepl-connections-close-connection)
-    (define-key map (kbd "RET") #'nrepl-connections-goto-connection)
-    map))
-
-(define-derived-mode nrepl-connections-buffer-mode cider-popup-buffer-mode
-  "nREPL-Connections"
-  "nREPL Connections Buffer Mode.
-\\{nrepl-connections-buffer-mode-map}
-\\{cider-popup-buffer-mode-map}"
-  (setq-local truncate-lines t))
-
-(defvar nrepl--connection-ewoc)
-(defconst nrepl--connection-browser-buffer-name "*nrepl-connections*")
-
-(defun nrepl-connection-browser ()
-  "Open a browser buffer for nREPL connections."
-  (interactive)
-  (let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
-    (if buffer
-        (progn
-          (nrepl--connections-refresh-buffer buffer)
-          (unless (get-buffer-window buffer)
-            (select-window (display-buffer buffer))))
-      (nrepl--setup-connection-browser))))
-
-(defun nrepl--connections-refresh ()
-  "Refresh the connections buffer, if the buffer exists.
-The connections buffer is determined by
-`nrepl--connection-browser-buffer-name'"
-  (let ((buffer (get-buffer nrepl--connection-browser-buffer-name)))
-    (when buffer
-      (nrepl--connections-refresh-buffer buffer))))
-
-(defun nrepl--connections-refresh-buffer (buffer)
-  "Refresh the connections BUFFER."
-  (nrepl--update-connections-display
-   (buffer-local-value 'nrepl--connection-ewoc buffer)
-   nrepl-connection-list))
-
-(defun nrepl--setup-connection-browser ()
-  "Create a browser buffer for nREPL connections."
-  (with-current-buffer (get-buffer-create nrepl--connection-browser-buffer-name)
-    (let ((ewoc (ewoc-create
-                 'nrepl--connection-pp
-                 "  Host              Port   Project\n")))
-      (setq-local nrepl--connection-ewoc ewoc)
-      (nrepl--update-connections-display ewoc nrepl-connection-list)
-      (setq buffer-read-only t)
-      (nrepl-connections-buffer-mode)
-      (display-buffer (current-buffer)))))
-
-(defun nrepl--connection-pp (connection)
-  "Print an nREPL CONNECTION to the current buffer."
-  (let* ((buffer-read-only nil)
-         (buffer (get-buffer connection))
-         (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
-    (insert
-     (format "%s %-16s %5s   %s%s"
-             (if (equal connection (car nrepl-connection-list)) "*" " ")
-             (car endpoint)
-             (prin1-to-string (cadr endpoint))
-             (or (nrepl--project-name
-                  (buffer-local-value 'nrepl-project-dir buffer))
-                 "")
-             (with-current-buffer buffer
-               (if nrepl-sibling-buffer-alist
-                   (concat " " cider-repl-type)
-                 ""))))))
-
-(defun nrepl--project-name (dir)
-  "Extracts a project name from DIR, possibly nil.
-The project name is the final component of DIR if not nil."
-  (when dir
-    (file-name-nondirectory (directory-file-name dir))))
-
-(defun nrepl--update-connections-display (ewoc connections)
-  "Update the connections EWOC to show CONNECTIONS."
-  (ewoc-filter ewoc (lambda (n) (member n connections)))
-  (let ((existing))
-    (ewoc-map (lambda (n) (setq existing (cons n existing))) ewoc)
-    (let ((added (-difference connections existing)))
-      (mapc (apply-partially 'ewoc-enter-last ewoc) added)
-      (save-excursion (ewoc-refresh ewoc)))))
-
-(defun nrepl--ewoc-apply-at-point (f)
-  "Apply function F to the ewoc node at point.
-F is a function of two arguments, the ewoc and the data at point."
-  (let* ((ewoc nrepl--connection-ewoc)
-         (node (and ewoc (ewoc-locate ewoc))))
-    (when node
-      (funcall f ewoc (ewoc-data node)))))
-
-(defun nrepl-connections-make-default ()
-  "Make default the connection at point in the connection browser."
-  (interactive)
-  (save-excursion
-    (nrepl--ewoc-apply-at-point #'nrepl--connections-make-default)))
-
-(defun nrepl--connections-make-default (ewoc data)
-  "Make the connection in EWOC specified by DATA default.
-Refreshes EWOC."
-  (interactive)
-  (nrepl-make-connection-default data)
-  (ewoc-refresh ewoc))
-
-(defun nrepl-connections-close-connection ()
-  "Close connection at point in the connection browser."
-  (interactive)
-  (nrepl--ewoc-apply-at-point #'nrepl--connections-close-connection))
-
-(defun nrepl--connections-close-connection (ewoc data)
-  "Close the connection in EWOC specified by DATA."
-  (nrepl-close (get-buffer data))
-  (nrepl--update-connections-display ewoc nrepl-connection-list))
-
-(defun nrepl-connections-goto-connection ()
-  "Goto connection at point in the connection browser."
-  (interactive)
-  (nrepl--ewoc-apply-at-point #'nrepl--connections-goto-connection))
-
-(defun nrepl--connections-goto-connection (_ewoc data)
-  "Goto the REPL for the connection in _EWOC specified by DATA."
-  (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
-    (when buffer
-      (select-window (display-buffer buffer)))))
 
 (provide 'nrepl-client)
 

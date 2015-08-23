@@ -51,7 +51,7 @@ Info contains project name and host:port endpoint."
              (concat cider-repl-type ":"))
            (when cider-mode-line-show-connection
              (format "%s@%s:%s"
-                     (or (nrepl--project-name nrepl-project-dir) "<no project>")
+                     (or (cider--project-name nrepl-project-dir) "<no project>")
                      (pcase (car nrepl-endpoint)
                        ("localhost" "")
                        (x x))

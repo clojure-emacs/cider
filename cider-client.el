@@ -27,6 +27,192 @@
 
 (require 'nrepl-client)
 
+;;; Connection Buffer Management
+
+(defvar cider-connections nil
+  "A list of connections.")
+
+(defun cider-default-connection (&optional no-error)
+  "The default (fallback) connection to use for nREPL interaction.
+When NO-ERROR is non-nil, don't throw an error when no connection has been
+found."
+  (or nrepl-connection-buffer
+      (car (cider-connections))
+      (unless no-error
+        (error "No nREPL connection buffer"))))
+
+(define-obsolete-function-alias 'nrepl-current-connection-buffer 'cider-default-connection "0.10")
+
+(defun cider-connections ()
+  "Return the list of connection buffers."
+  (setq cider-connections
+        (-remove (lambda (buffer)
+                   (not (buffer-live-p (get-buffer buffer))))
+                 cider-connections)))
+
+(defun cider-repl-buffers ()
+  "Return the list of REPL buffers.
+Purge the dead buffers from the `cider-connections' beforehand."
+  (-filter
+   (lambda (buffer)
+     (with-current-buffer buffer (derived-mode-p 'cider-repl-mode)))
+   (buffer-list)))
+
+(defun cider-make-connection-default (connection-buffer)
+  "Make the nREPL CONNECTION-BUFFER the default connection.
+Moves CONNECTION-BUFFER to the front of `cider-connections'."
+  (interactive (list nrepl-connection-buffer))
+  (if connection-buffer
+      ;; maintain the connection list in most recently used order
+      (let ((buf-name (buffer-name (get-buffer connection-buffer))))
+        (setq cider-connections
+              (cons buf-name (delq buf-name cider-connections)))
+        (cider--connections-refresh))
+    (user-error "Not in a REPL buffer")))
+
+(defun cider--close-connection-buffer (conn-buffer)
+  "Close CONN-BUFFER, removing it from `cider-connections'.
+Also close associated REPL and server buffers."
+  (let ((buffer (get-buffer conn-buffer)))
+    (setq cider-connections
+          (delq (buffer-name buffer) cider-connections))
+    (when (buffer-live-p buffer)
+      (dolist (buf `(,@(or (nrepl--get-sibling-buffers buffer)
+                           (list buffer))
+                     ,(buffer-local-value 'nrepl-tunnel-buffer buffer)
+                     ,(buffer-local-value 'nrepl-server-buffer buffer)))
+        (when buf
+          (cider--close-buffer buf))))))
+
+
+;;; Connection Browser
+(defvar cider-connections-buffer-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "d" #'cider-connections-make-default)
+    (define-key map "g" #'cider-connection-browser)
+    (define-key map (kbd "C-k") #'cider-connections-close-connection)
+    (define-key map (kbd "RET") #'cider-connections-goto-connection)
+    map))
+
+(define-derived-mode cider-connections-buffer-mode cider-popup-buffer-mode
+  "CIDER Connections"
+  "CIDER Connections Buffer Mode.
+\\{cider-connections-buffer-mode-map}
+\\{cider-popup-buffer-mode-map}"
+  (setq-local truncate-lines t))
+
+(defvar cider--connection-ewoc)
+(defconst cider--connection-browser-buffer-name "*cider connections*")
+
+(defun cider-connection-browser ()
+  "Open a browser buffer for nREPL connections."
+  (interactive)
+  (let ((buffer (get-buffer cider--connection-browser-buffer-name)))
+    (if buffer
+        (progn
+          (cider--connections-refresh-buffer buffer)
+          (unless (get-buffer-window buffer)
+            (select-window (display-buffer buffer))))
+      (cider--setup-connection-browser))))
+
+(define-obsolete-function-alias 'nrepl-connection-browser 'cider-connection-browser "0.10")
+
+(defun cider--connections-refresh ()
+  "Refresh the connections buffer, if the buffer exists.
+The connections buffer is determined by
+`cider--connection-browser-buffer-name'"
+  (let ((buffer (get-buffer cider--connection-browser-buffer-name)))
+    (when buffer
+      (cider--connections-refresh-buffer buffer))))
+
+(defun cider--connections-refresh-buffer (buffer)
+  "Refresh the connections BUFFER."
+  (cider--update-connections-display
+   (buffer-local-value 'cider--connection-ewoc buffer)
+   cider-connections))
+
+(defun cider--setup-connection-browser ()
+  "Create a browser buffer for nREPL connections."
+  (with-current-buffer (get-buffer-create cider--connection-browser-buffer-name)
+    (let ((ewoc (ewoc-create
+                 'cider--connection-pp
+                 "  Host              Port   Project\n")))
+      (setq-local cider--connection-ewoc ewoc)
+      (cider--update-connections-display ewoc cider-connections)
+      (setq buffer-read-only t)
+      (cider-connections-buffer-mode)
+      (display-buffer (current-buffer)))))
+
+(defun cider--connection-pp (connection)
+  "Print an nREPL CONNECTION to the current buffer."
+  (let* ((buffer-read-only nil)
+         (buffer (get-buffer connection))
+         (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
+    (insert
+     (format "%s %-16s %5s   %s%s"
+             (if (equal connection (car cider-connections)) "*" " ")
+             (car endpoint)
+             (prin1-to-string (cadr endpoint))
+             (or (cider--project-name
+                  (buffer-local-value 'nrepl-project-dir buffer))
+                 "")
+             (with-current-buffer buffer
+               (if nrepl-sibling-buffer-alist
+                   (concat " " nrepl-repl-type)
+                 ""))))))
+
+(defun cider--update-connections-display (ewoc connections)
+  "Update the connections EWOC to show CONNECTIONS."
+  (ewoc-filter ewoc (lambda (n) (member n connections)))
+  (let ((existing))
+    (ewoc-map (lambda (n) (setq existing (cons n existing))) ewoc)
+    (let ((added (-difference connections existing)))
+      (mapc (apply-partially 'ewoc-enter-last ewoc) added)
+      (save-excursion (ewoc-refresh ewoc)))))
+
+(defun cider--ewoc-apply-at-point (f)
+  "Apply function F to the ewoc node at point.
+F is a function of two arguments, the ewoc and the data at point."
+  (let* ((ewoc cider--connection-ewoc)
+         (node (and ewoc (ewoc-locate ewoc))))
+    (when node
+      (funcall f ewoc (ewoc-data node)))))
+
+(defun cider-connections-make-default ()
+  "Make default the connection at point in the connection browser."
+  (interactive)
+  (save-excursion
+    (cider--ewoc-apply-at-point #'cider--connections-make-default)))
+
+(defun cider--connections-make-default (ewoc data)
+  "Make the connection in EWOC specified by DATA default.
+Refreshes EWOC."
+  (interactive)
+  (cider-make-connection-default data)
+  (ewoc-refresh ewoc))
+
+(defun cider-connections-close-connection ()
+  "Close connection at point in the connection browser."
+  (interactive)
+  (cider--ewoc-apply-at-point #'cider--connections-close-connection))
+
+(defun cider--connections-close-connection (ewoc data)
+  "Close the connection in EWOC specified by DATA."
+  (nrepl-close (get-buffer data))
+  (cider--update-connections-display ewoc cider-connections))
+
+(defun cider-connections-goto-connection ()
+  "Goto connection at point in the connection browser."
+  (interactive)
+  (cider--ewoc-apply-at-point #'cider--connections-goto-connection))
+
+(defun cider--connections-goto-connection (_ewoc data)
+  "Goto the REPL for the connection in _EWOC specified by DATA."
+  (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
+    (when buffer
+      (select-window (display-buffer buffer)))))
+
+
 ;;; Words of inspiration
 (defun cider-user-first-name ()
   "Find the current user's first name."
@@ -104,13 +290,13 @@ NS specifies the namespace in which to evaluate the request."
 (defun cider-current-repl-buffer ()
   "The current REPL buffer.
 Return the REPL buffer given by using `cider-find-relevant-connection' and
-falling back to `nrepl-default-connection-buffer'.
+falling back to `cider-default-connection'.
 If current buffer is a file buffer, and if the REPL has siblings, instead
 return the sibling that corresponds to the current file extension.  This
 allows for evaluation to be properly directed to clj or cljs REPLs depending
 on where they come from."
   (-when-let (repl-buf (or (cider-find-relevant-connection)
-                           (nrepl-default-connection-buffer 'no-error)))
+                           (cider-default-connection 'no-error)))
     ;; Take the extension of current file, or nil if there is none.
     (let ((ext (file-name-extension (or (buffer-file-name) ""))))
       ;; Go to the "globally" active REPL buffer.

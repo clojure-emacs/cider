@@ -182,6 +182,12 @@ to."
              (browse-url (concat "https://github.com/clojure-emacs/cider#"
                                  section-id)))))
 
+(defun cider--project-name (dir)
+  "Extracts a project name from DIR, possibly nil.
+The project name is the final component of DIR if not nil."
+  (when dir
+    (file-name-nondirectory (directory-file-name dir))))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

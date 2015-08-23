@@ -304,7 +304,7 @@ Signal an error if it is not supported."
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."
-  (with-current-buffer (nrepl-default-connection-buffer)
+  (with-current-buffer (cider-default-connection)
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "java")
@@ -312,7 +312,7 @@ Signal an error if it is not supported."
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
-  (with-current-buffer (nrepl-default-connection-buffer)
+  (with-current-buffer (cider-default-connection)
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "clojure")
@@ -320,7 +320,7 @@ Signal an error if it is not supported."
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
-  (with-current-buffer (nrepl-default-connection-buffer)
+  (with-current-buffer (cider-default-connection)
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "nrepl")
@@ -373,7 +373,7 @@ endpoint and Clojure version."
             (if nrepl-sibling-buffer-alist
                 (upcase (concat cider-repl-type " "))
               "")
-            (or (nrepl--project-name nrepl-project-dir) "<no project>")
+            (or (cider--project-name nrepl-project-dir) "<no project>")
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
             (cider--java-version)
@@ -387,7 +387,7 @@ With a prefix argument SHOW-DEFAULT it will display info about the
 default connection."
   (interactive "P")
   (message (cider--connection-info (if show-default
-                                       (nrepl-default-connection-buffer)
+                                       (cider-default-connection)
                                      (cider-current-repl-buffer)))))
 
 (define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-connection-info "0.10")
@@ -396,10 +396,10 @@ default connection."
   "Rotate and display the default nREPL connection."
   (interactive)
   (cider-ensure-connected)
-  (setq nrepl-connection-list
-        (append (cdr nrepl-connection-list)
-                (list (car nrepl-connection-list))))
-  (message "Default nREPL connection:" (cider--connection-info (car nrepl-connection-list))))
+  (setq cider-connections
+        (append (cdr cider-connections)
+                (list (car cider-connections))))
+  (message "Default nREPL connection:" (cider--connection-info (car cider-connections))))
 
 (define-obsolete-function-alias 'cider-rotate-connection 'cider-rotate-default-connection "0.10")
 
@@ -426,8 +426,8 @@ Buffer names changed are cider-repl and nrepl-server."
       (rename-buffer new-repl-buffer-name)
       (setq-local nrepl-repl-buffer new-repl-buffer-name)
       (setq-local nrepl-connection-buffer new-repl-buffer-name)
-      (setq nrepl-connection-list
-            (cons new-repl-buffer-name (cdr nrepl-connection-list)))
+      (setq cider-connections
+            (cons new-repl-buffer-name (cdr cider-connections)))
       (when nrepl-server-buffer
         (let ((new-server-buffer-name (nrepl-format-buffer-name-template
                                        nrepl-server-buffer-name-template designation)))
@@ -495,7 +495,7 @@ the buffer should appear.
 With a prefix argument SET-NAMESPACE, sets the namespace in the REPL buffer to
 that of the namespace in the Clojure source buffer."
   (interactive "P")
-  (cider--switch-to-repl-buffer (nrepl-default-connection-buffer) set-namespace))
+  (cider--switch-to-repl-buffer (cider-default-connection) set-namespace))
 
 (define-obsolete-function-alias 'cider-switch-to-current-repl-buffer 'cider-switch-to-default-repl-buffer "0.10")
 
@@ -512,7 +512,7 @@ is ambiguity, therefore nil is returned."
              (not
               (with-current-buffer (get-buffer conn)
                 nrepl-project-dir)))
-           nrepl-connection-list)
+           cider-connections)
     (let ((matching-connections
            (-filter
             (lambda (conn)
@@ -521,7 +521,7 @@ is ambiguity, therefore nil is returned."
                 (when conn-proj-dir
                   (equal (file-truename project-directory)
                          (file-truename conn-proj-dir)))))
-            nrepl-connection-list)))
+            cider-connections)))
       (when (= 1 (length matching-connections))
         (car matching-connections)))))
 
@@ -532,7 +532,7 @@ Useful for connections created using `cider-connect', as for them
 such a link cannot be established automatically."
   (interactive)
   (cider-ensure-connected)
-  (let ((conn-buf (or connection (completing-read "Connection: " (nrepl-connection-buffers))))
+  (let ((conn-buf (or connection (completing-read "Connection: " (cider-connections))))
         (project-dir (or project (read-directory-name "Project: " nil (clojure-project-dir)))))
     (when conn-buf
       (with-current-buffer conn-buf
@@ -545,7 +545,7 @@ Useful for connections created using `cider-connect', as for them
 such a link cannot be established automatically."
   (interactive)
   (cider-ensure-connected)
-  (let ((conn (completing-read "Connection: " (nrepl-connection-buffers))))
+  (let ((conn (completing-read "Connection: " (cider-connections))))
     (when conn
       (setq-local cider-buffer-connection conn))))
 
@@ -565,7 +565,7 @@ If succesful, return the new connection buffer."
     (let* ((project-directory (clojure-project-dir (cider-current-dir)))
            (connection-buffer
             (or
-             (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
+             (and (= 1 (length cider-connections)) (car cider-connections))
              (and project-directory
                   (cider-find-connection-buffer-for-project-directory project-directory)))))
       connection-buffer)))
@@ -588,7 +588,7 @@ of the namespace in the Clojure source buffer."
   (let ((connection-buffer (cider-find-relevant-connection)))
     (if connection-buffer
         (cider--switch-to-repl-buffer connection-buffer set-namespace)
-      (cider--switch-to-repl-buffer (nrepl-default-connection-buffer) set-namespace)
+      (cider--switch-to-repl-buffer (cider-default-connection) set-namespace)
       (message "Could not determine relevant nREPL connection, using: %s"
                (cider--connection-info (cider-current-repl-buffer))))))
 
@@ -1972,7 +1972,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
-  (nrepl-default-connection-buffer 'no-error))
+  (cider-default-connection 'no-error))
 
 (defun cider-ensure-connected ()
   "Ensure there is a cider connection present, otherwise
@@ -2380,7 +2380,7 @@ and all ancillary CIDER buffers."
   (when (y-or-n-p "Are you sure you want to quit the current CIDER connection? ")
     (if quit-all
         (progn
-          (dolist (connection nrepl-connection-list)
+          (dolist (connection cider-connections)
             (cider--quit-connection connection))
           (message "All active nREPL connections were closed"))
       (cider--quit-connection (cider-current-repl-buffer)))
@@ -2406,7 +2406,7 @@ and all ancillary CIDER buffers."
 If RESTART-ALL is t, then restarts all connections."
   (interactive "P")
   (if restart-all
-      (dolist (conn nrepl-connection-list)
+      (dolist (conn cider-connections)
         (cider--restart-connection conn))
     (cider--restart-connection (cider-current-repl-buffer))))
 

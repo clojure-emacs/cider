@@ -10,12 +10,12 @@
   (with-temp-buffer
     (let ((b1 (current-buffer)))
       (setq-local cider-endpoint '("123.123.123.123" 4006))
-      (let ((nrepl-connection-list (list (buffer-name b1))))
-        (nrepl-connection-browser)
+      (let ((cider-connections (list (buffer-name b1))))
+        (cider-connection-browser)
         (with-temp-buffer ;; switch to another buffer
           (cider-invoke-selector-method-by-key ?n)
           (should (equal (current-buffer)
-                         (get-buffer nrepl--connection-browser-buffer-name))))))))
+                         (get-buffer cider--connection-browser-buffer-name))))))))
 
 (ert-deftest test-cider-selector-c ()
   (with-temp-buffer

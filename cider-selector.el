@@ -138,8 +138,8 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?n
   "Connections browser buffer."
-  (nrepl-connection-browser)
-  nrepl--connection-browser-buffer-name)
+  (cider-connection-browser)
+  cider--connection-browser-buffer-name)
 
 (def-cider-selector-method ?m
   "*nrepl-messages* buffer."
