@@ -507,28 +507,28 @@ that of the namespace in the Clojure source buffer."
 (defun cider-find-connection-buffer-for-project-directory (project-directory)
   "Find the relevant connection-buffer for the given PROJECT-DIRECTORY.
 
-A check is made to ensure that all connection buffers have a project-directory
-otherwise there is ambiguity as to which connection buffer should be selected.
+If there are multiple connection buffers matching PROJECT-DIRECTORY the
+most recent one is returned.
+If no buffers match PROJECT-DIRECTORY but there are buffers with no
+associated directory, the most recent one of those is returned.
 
-If there are multiple connection buffers matching PROJECT-DIRECTORY there
-is ambiguity, therefore nil is returned."
-  (unless (-filter
-           (lambda (conn)
-             (not
+Here, \"most recent\" stands for the connection closer to the start of
+`cider-connections'.
+This is usally the connection that was more recently prepended to this
+variable, but the order can be changed.  For instance, the function
+`cider-make-connection-default' can be used to move a connection to the
+head of the list, so that it will take precedence over other connections
+associated with the same project."
+(or (-first (lambda (conn)
+              (-when-let (conn-proj-dir (with-current-buffer (get-buffer conn)
+                                          nrepl-project-dir))
+                (equal (file-truename project-directory)
+                       (file-truename conn-proj-dir))))
+            cider-connections)
+    (-first (lambda (conn)
               (with-current-buffer (get-buffer conn)
-                nrepl-project-dir)))
-           cider-connections)
-    (let ((matching-connections
-           (-filter
-            (lambda (conn)
-              (let ((conn-proj-dir (with-current-buffer (get-buffer conn)
-                                     nrepl-project-dir)))
-                (when conn-proj-dir
-                  (equal (file-truename project-directory)
-                         (file-truename conn-proj-dir)))))
+                (not nrepl-project-dir)))
             cider-connections)))
-      (when (= 1 (length matching-connections))
-        (car matching-connections)))))
 
 (defun cider-assoc-project-with-connection (&optional project connection)
   "Associate a Clojure PROJECT with an nREPL CONNECTION.
@@ -563,17 +563,14 @@ such a link cannot be established automatically."
 (defun cider-find-relevant-connection ()
   "Try to find the matching REPL buffer for the current Clojure source buffer.
 If succesful, return the new connection buffer."
-  (interactive "P")
   (cider-ensure-connected)
   (if cider-buffer-connection
       cider-buffer-connection
-    (let* ((project-directory (clojure-project-dir (cider-current-dir)))
-           (connection-buffer
-            (or
-             (and (= 1 (length cider-connections)) (car cider-connections))
-             (and project-directory
-                  (cider-find-connection-buffer-for-project-directory project-directory)))))
-      connection-buffer)))
+    (let* ((project-directory (clojure-project-dir (cider-current-dir))))
+      (or (and (= 1 (length cider-connections))
+               (car cider-connections))
+          (and project-directory
+               (cider-find-connection-buffer-for-project-directory project-directory))))))
 
 (defun cider-switch-to-relevant-repl-buffer (&optional set-namespace)
   "Select the REPL buffer, when possible in an existing window.
@@ -590,12 +587,7 @@ the buffer should appear.
 With a prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "P")
-  (let ((connection-buffer (cider-find-relevant-connection)))
-    (if connection-buffer
-        (cider--switch-to-repl-buffer connection-buffer set-namespace)
-      (cider--switch-to-repl-buffer (cider-default-connection) set-namespace)
-      (message "Could not determine relevant nREPL connection, using: %s"
-               (cider--connection-info (cider-current-repl-buffer))))))
+  (cider--switch-to-repl-buffer (cider-current-repl-buffer) set-namespace))
 
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
