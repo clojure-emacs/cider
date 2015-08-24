@@ -421,7 +421,7 @@ then returned."
   stub)
 
 (put 'nrepl-response-queue 'function-documentation
-     "Create queue object used by nREPL to store decoded server requests.
+     "Create queue object used by nREPL to store decoded server responses.
 The STUB slot stores a stack of nested, incompletely parsed objects.")
 
 (defun nrepl--bdecode-list (&optional stack)
