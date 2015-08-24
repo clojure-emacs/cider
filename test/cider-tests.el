@@ -278,7 +278,7 @@
           (let ((cider-connections
                  (list (buffer-name b1) (buffer-name b2))))
             (cider-connection-browser)
-            (with-current-buffer "*cider connections*"
+            (with-current-buffer "*cider-connections*"
               (should (equal "  Host              Port   Project
 
 * localhost         4005   proj
@@ -303,10 +303,10 @@
                 (let ((b3 (current-buffer)))
                   (with-current-buffer b1
                     (setq-local nrepl-repl-buffer b3))
-                  (with-current-buffer "*cider connections*"
+                  (with-current-buffer "*cider-connections*"
                     (cider-connections-goto-connection)
                     (should (equal b3 (current-buffer))))))
-              (kill-buffer "*cider connections*"))))))))
+              (kill-buffer "*cider-connections*"))))))))
 
 (ert-deftest test-nrepl-format-buffer-name-template ()
   (should (equal "*template designation-foo*"

@@ -102,7 +102,7 @@ Also close associated REPL and server buffers."
   (setq-local truncate-lines t))
 
 (defvar cider--connection-ewoc)
-(defconst cider--connection-browser-buffer-name "*cider connections*")
+(defconst cider--connection-browser-buffer-name "*cider-connections*")
 
 (defun cider-connection-browser ()
   "Open a browser buffer for nREPL connections."
