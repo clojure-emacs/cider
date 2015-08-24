@@ -29,7 +29,7 @@ CASK_DIR=/opt/cask-$CASK_VERSION
 CASK_ARCHIVE=https://github.com/cask/cask/archive/v$CASK_VERSION.tar.gz
 if ! [ -d "$CASK_DIR" -a -x "/$CASK_DIR/bin/cask" ]; then
     sudo rm -rf "$CASK_DIR"
-    wget -O - $CASK_ARCHIVE | sudo tar xz -C /opt
+    wget -q -O - $CASK_ARCHIVE | sudo tar xz -C /opt
     # Bring Cask into $PATH
     sudo ln -fs "$CASK_DIR/bin/cask" /usr/local/bin
 fi
