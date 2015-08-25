@@ -252,9 +252,9 @@ Bind the value of the provided KEYS and execute BODY."
      ,@body))
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
 
-(defun nrepl-op-supported-p (op)
-  "Return t iff the given operation OP is supported by nREPL server."
-  (with-current-buffer (cider-default-connection)
+(defun nrepl-op-supported-p (op connection)
+  "Return t iff the given operation OP is supported by the nREPL CONNECTION."
+  (with-current-buffer connection
     (and nrepl-ops (nrepl-dict-get nrepl-ops op))))
 
 (defun nrepl-local-host-p (host)
@@ -837,7 +837,6 @@ values of *1, *2, etc."
 
 (defun nrepl-close (connection-buffer)
   "Close the nREPL connection for CONNECTION-BUFFER."
-  (interactive (list (cider-default-connection)))
   (cider--close-connection-buffer connection-buffer)
   (run-hooks 'nrepl-disconnected-hook)
   (cider--connections-refresh))
@@ -934,34 +933,36 @@ Handles only stdout and stderr responses."
 ;; https://github.com/clojure-emacs/cider-nrepl#supplied-nrepl-middleware for
 ;; the up-to-date list.
 
-(defun nrepl-next-request-id ()
-  "Return the next request id."
-  (with-current-buffer (cider-default-connection)
+(defun nrepl-next-request-id (connection)
+  "Return the next request id for CONNECTION."
+  (with-current-buffer connection
     (number-to-string (cl-incf nrepl-request-counter))))
 
-(defun nrepl-send-request (request callback)
-  "Send REQUEST and register response handler CALLBACK.
+(defun nrepl-send-request (request callback &optional connection)
+  "Send REQUEST and register response handler CALLBACK using CONNECTION.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
 `nrepl-request:stdin', etc."
-  (let* ((id (nrepl-next-request-id))
+  (let* ((connection (or connection (cider-current-repl)))
+         (id (nrepl-next-request-id connection))
          (request (cons 'dict (lax-plist-put request "id" id)))
          (message (nrepl-bencode request)))
     (nrepl-log-message (cons '---> (cdr request)))
-    (with-current-buffer (cider-default-connection)
+    (with-current-buffer connection
       (puthash id callback nrepl-pending-requests)
       (process-send-string nil message))))
 
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")
 
-(defun nrepl-send-sync-request (request &optional abort-on-input)
-  "Send REQUEST to the nREPL server synchronously.
+(defun nrepl-send-sync-request (request &optional connection abort-on-input)
+  "Send REQUEST to the nREPL server synchronously using CONNECTION.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along.
 If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface."
-  (let* ((time0 (current-time))
+  (let* ((connection (or connection (cider-current-repl)))
+         (time0 (current-time))
          (response (cons 'dict nil))
          (nrepl-ongoing-sync-request t)
          status)
@@ -994,7 +995,7 @@ sign of user input, so as not to hang the interface."
       (-when-let (id (nrepl-dict-get response "id"))
         ;; FIXME: This should go away eventually when we get rid of
         ;; pending-request hash table
-        (with-current-buffer (cider-default-connection)
+        (with-current-buffer connection
           (remhash id nrepl-pending-requests)))
       response)))
 
