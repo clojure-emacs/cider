@@ -466,7 +466,7 @@ to jump back to the last Clojure source buffer."
 
 (defun cider-switch-to-repl-buffer (&optional arg)
   "Invoke `cider-switch-to-repl-command'."
-  (interactive "p")
+  (interactive "P")
   (funcall cider-switch-to-repl-command arg))
 
 (defun cider--switch-to-repl-buffer (repl-buffer &optional set-namespace)
