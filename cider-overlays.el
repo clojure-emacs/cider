@@ -73,8 +73,8 @@ see `cider-debug-use-overlays'."
 
 (defcustom cider-eval-result-duration 'command
   "Duration, in seconds, of CIDER's eval-result overlays.
-If nil, overlays last indefinitely.  If command, they're erased after the
-next command.
+If nil, overlays last indefinitely.
+If the symbol `command', they're erased after the next command.
 Also see `cider-use-overlays'."
   :type '(choice (integer :tag "Duration in seconds")
                  (const :tag "Until next command" command)
@@ -101,6 +101,18 @@ PROPS is a plist of properties and values to add to the overlay."
     (push #'cider--delete-overlay (overlay-get o 'modification-hooks))
     o))
 
+(defun cider--remove-result-overlay ()
+  "Remove result overlay from current buffer.
+This function also removes itself from `post-command-hook'."
+  (remove-hook 'post-command-hook #'cider--remove-result-overlay 'local)
+  (remove-overlays nil nil 'cider-type 'result))
+
+(defun cider--remove-result-overlay-after-command ()
+  "Add `cider--remove-result-overlay' locally to `post-command-hook'.
+This function also removes itself from `post-command-hook'."
+  (remove-hook 'post-command-hook #'cider--remove-result-overlay-after-command 'local)
+  (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
+
 (defun cider--make-result-overlay (value &optional where duration &rest props)
   "Place an overlay displaying VALUE at the end of line.
 VALUE is used as the overlay's after-string property, meaning it is
@@ -113,11 +125,8 @@ Return the overlay if it was placed successfully, and nil if it failed.
 
 If WHERE is a number or a marker, it is the character position of the line
 to use, otherwise use `point'.
-If DURATION is non-nil it should be a number, and the overlay will be
-deleted after that many seconds.  It can also be the symbol command, so the
-overlay will be deleted after the next command (this mimics the behaviour
-of the echo area).
-
+DURATION takes the same possible values as the `cider-eval-result-duration'
+variable.
 PROPS are passed to `cider--make-overlay' with a type of result."
   ;; If the marker points to a dead buffer, don't do anything.
   (-if-let (buffer (if (markerp where) (marker-buffer where)
@@ -141,7 +150,14 @@ PROPS are passed to `cider--make-overlay' with a type of result."
                            props)))
             (pcase duration
               ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
-              (`command (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local)))
+              (`command
+               ;; If inside a command-loop, tell `cider--remove-result-overlay'
+               ;; to only remove after the *next* command.
+               (if this-command
+                   (add-hook 'post-command-hook
+                             #'cider--remove-result-overlay-after-command
+                             nil 'local)
+                 (cider--remove-result-overlay-after-command))))
             (-when-let (win (get-buffer-window buffer))
               ;; Left edge is visible.
               (when (and (pos-visible-in-window-p (point) win)
@@ -155,12 +171,6 @@ PROPS are passed to `cider--make-overlay' with a type of result."
 
 
 ;;; Displaying eval result
-(defun cider--remove-result-overlay ()
-  "Remove result overlay from current buffer.
-This function also removes itself from `post-command-hook'."
-  (remove-hook 'post-command-hook #'cider--remove-result-overlay 'local)
-  (remove-overlays nil nil 'cider-type 'result))
-
 (defun cider--display-interactive-eval-result (value &optional point)
   "Display the result VALUE of an interactive eval operation.
 VALUE is syntax-highlighted and displayed in the echo area.
