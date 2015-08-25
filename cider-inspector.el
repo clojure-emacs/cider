@@ -194,7 +194,7 @@ Current page will be reset to zero."
         ((and (consp el) (eq (car el) :newline))
          (newline))
         ((and (consp el) (eq (car el) :value))
-         (cider-irender-value (cadr el) (caddr el)))
+         (cider-irender-value (cadr el) (cl-caddr el)))
         (t (message "Unrecognized inspector object: %s" el))))
 
 (defun cider-irender-value (value idx)
@@ -216,7 +216,7 @@ LIMIT is the maximum or minimum position in the current buffer.
 Return a list of two values: If an object could be found, the
 starting position of the found object and T is returned;
 otherwise LIMIT and NIL is returned."
-  (let ((finder (ecase direction
+  (let ((finder (cl-ecase direction
                   (next 'next-single-property-change)
                   (prev 'previous-single-property-change))))
     (let ((prop nil) (curpos (point)))

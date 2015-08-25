@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
+(require 'cider-util)
 
 ;;; Connection Buffer Management
 
@@ -70,6 +71,7 @@ Moves CONNECTION-BUFFER to the front of `cider-connections'."
         (cider--connections-refresh))
     (user-error "Not in a REPL buffer")))
 
+(declare-function cider--close-buffer "cider-interaction")
 (defun cider--close-connection-buffer (conn-buffer)
   "Close CONN-BUFFER, removing it from `cider-connections'.
 Also close associated REPL and server buffers."
@@ -94,6 +96,7 @@ Also close associated REPL and server buffers."
     (define-key map (kbd "RET") #'cider-connections-goto-connection)
     map))
 
+(declare-function cider-popup-buffer-mode "cider-interaction")
 (define-derived-mode cider-connections-buffer-mode cider-popup-buffer-mode
   "CIDER Connections"
   "CIDER Connections Buffer Mode.
@@ -143,6 +146,9 @@ The connections buffer is determined by
       (cider-connections-buffer-mode)
       (display-buffer (current-buffer)))))
 
+(defvar-local cider-repl-type nil
+  "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
+
 (defun cider--connection-pp (connection)
   "Print an nREPL CONNECTION to the current buffer."
   (let* ((buffer-read-only nil)
@@ -158,7 +164,7 @@ The connections buffer is determined by
                  "")
              (with-current-buffer buffer
                (if nrepl-sibling-buffer-alist
-                   (concat " " nrepl-repl-type)
+                   (concat " " cider-repl-type)
                  ""))))))
 
 (defun cider--update-connections-display (ewoc connections)
@@ -287,6 +293,7 @@ NS specifies the namespace in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-request:eval input callback ns (cider-current-tooling-session)))
 
+(declare-function cider-find-relevant-connection "cider-interaction")
 (defun cider-current-repl-buffer ()
   "The current REPL buffer.
 Return the REPL buffer given by using `cider-find-relevant-connection' and
@@ -309,6 +316,7 @@ on where they come from."
             ;; REPL buffer (which is probably just `repl-buf').
             nrepl-repl-buffer)))))
 
+(declare-function cider-interrupt-handler "cider-interaction")
 (defun cider-interrupt ()
   "Interrupt any pending evaluations."
   (interactive)
@@ -360,6 +368,7 @@ unless ALL is truthy."
 
 ;;; Requests
 
+(declare-function cider-load-file-handler "cider-interaction")
 (defun cider-request:load-file (file-contents file-path file-name &optional callback)
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
@@ -374,6 +383,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 
 ;;; Sync Requests
+(declare-function cider-current-ns "cider-interaction")
 (defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
   "Send \"apropos\" op with args SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
   (-> `("op" "apropos"
@@ -386,6 +396,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
       (nrepl-send-sync-request)
       (nrepl-dict-get "apropos-matches")))
 
+(declare-function cider-ensure-op-supported "cider-interaction")
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
   (cider-ensure-op-supported "classpath")

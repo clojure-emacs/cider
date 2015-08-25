@@ -186,6 +186,8 @@
           "Can't find the source because it wasn't defined with `cider-eval-buffer'")))
     (error "No source location for %s" cider-docview-symbol)))
 
+(defvar cider-buffer-ns)
+
 (defun cider-docview-grimoire ()
   (interactive)
   (if cider-buffer-ns

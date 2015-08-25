@@ -143,7 +143,7 @@ If invoked with a PREFIX argument, use 'macroexpand' instead of
     (erase-buffer)
     (insert (format "%s" expansion))
     (goto-char (point-max))
-    (font-lock-fontify-buffer)))
+    (cider--font-lock-ensure)))
 
 (defun cider-redraw-macroexpansion-buffer (expansion buffer start end)
   "Redraw the macroexpansion with new EXPANSION.

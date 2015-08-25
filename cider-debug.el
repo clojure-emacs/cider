@@ -27,9 +27,12 @@
 
 (require 'nrepl-client)
 (require 'cider-interaction)
+(require 'cider-client)
 (require 'cider-inspector)
 (require 'cider-browse-ns)
+(require 'cider-util)
 (require 'dash)
+(require 'spinner)
 
 
 ;;; Customization
@@ -424,7 +427,7 @@ ID is the id of the message that instrumented CODE."
           (erase-buffer)
           (insert
            (format "%s" (cider--debug-trim-code code)))
-          (font-lock-fontify-buffer)
+          (cider--font-lock-ensure)
           (set-buffer-modified-p nil))))
     (switch-to-buffer buffer-name)
     (goto-char (point-min))))
@@ -445,7 +448,7 @@ sexp."
         (while coordinates
           (down-list)
           ;; Are we entering a syntax-quote?
-          (when (looking-back "`\\(#{\\|[{[(]\\)")
+          (when (looking-back "`\\(#{\\|[{[(]\\)" (line-beginning-position))
             ;; If we are, this affects all nested structures until the next `~',
             ;; so we set this variable for all following steps in the loop.
             (setq in-syntax-quote t))
@@ -458,7 +461,7 @@ sexp."
             (unless (eq ?\( (char-before))
               (pop coordinates)))
           ;; #(...) is read as (fn* ([] ...)), so we patch that here.
-          (when (looking-back "#(")
+          (when (looking-back "#(" (line-beginning-position))
             (pop coordinates))
           (if coordinates
               (let ((next (pop coordinates)))

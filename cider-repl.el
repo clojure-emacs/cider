@@ -38,6 +38,7 @@
 
 (require 'clojure-mode)
 (require 'easymenu)
+(require 'cl-lib)
 
 (eval-when-compile
   (defvar paredit-version)
@@ -638,7 +639,7 @@ are not balanced."
 If REPLACE is non-nil the current input is replaced with the old
 input; otherwise the new input is appended.  The old input has the
 text property `cider-old-input'."
-  (multiple-value-bind (beg end) (cider-property-bounds 'cider-old-input)
+  (cl-multiple-value-bind (beg end) (cider-property-bounds 'cider-old-input)
     (let ((old-input (buffer-substring beg end)) ;;preserve
           ;;properties, they will be removed later
           (offset (- (point) beg)))

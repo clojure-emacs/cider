@@ -851,6 +851,7 @@ values of *1, *2, etc."
                              (cider-default-err-handler session))
   "Evaluation error handler.")
 
+(defvar cider-buffer-ns)
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler)
