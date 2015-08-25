@@ -943,7 +943,7 @@ Handles only stdout and stderr responses."
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
 `nrepl-request:stdin', etc."
-  (let* ((connection (or connection (cider-current-repl)))
+  (let* ((connection (or connection (cider-current-repl-buffer)))
          (id (nrepl-next-request-id connection))
          (request (cons 'dict (lax-plist-put request "id" id)))
          (message (nrepl-bencode request)))
@@ -961,7 +961,7 @@ Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along.
 If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface."
-  (let* ((connection (or connection (cider-current-repl)))
+  (let* ((connection (or connection (cider-current-repl-buffer)))
          (time0 (current-time))
          (response (cons 'dict nil))
          (nrepl-ongoing-sync-request t)

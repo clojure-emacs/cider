@@ -412,7 +412,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
                              "ns" (cider-current-ns)
                              "symbol" str
                              "context" context)
-                       (nrepl-send-sync-request (cider-current-repl) 'abort-on-input)))
+                       (nrepl-send-sync-request (cider-current-repl-buffer) 'abort-on-input)))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:info (symbol &optional class member)
@@ -436,7 +436,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
                           ,@(when symbol (list "symbol" symbol))
                           ,@(when class (list "class" class))
                           ,@(when member (list "member" member)))
-                        (nrepl-send-sync-request (cider-current-repl) 'abort-on-input)))
+                        (nrepl-send-sync-request (cider-current-repl-buffer) 'abort-on-input)))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
