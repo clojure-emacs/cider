@@ -95,6 +95,13 @@ PROP is the name of a text property."
 
 ;;; Font lock
 
+(defun cider--font-lock-ensure ()
+  "Call `font-lock-ensure' or `font-lock-fontify-buffer', as appropriate."
+  (if (fboundp 'font-lock-ensure)
+      (font-lock-ensure)
+    (with-no-warnings
+      (font-lock-fontify-buffer))))
+
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
   (if (or (null cider-font-lock-max-length)
@@ -106,9 +113,7 @@ PROP is the name of a text property."
         (setq-local delay-mode-hooks t)
         (setq delayed-mode-hooks nil)
         (funcall mode)
-        (if (fboundp 'font-lock-ensure)
-            (font-lock-ensure)
-          (font-lock-fontify-buffer))
+        (cider--font-lock-ensure)
         (buffer-string))
     string))
 
@@ -143,6 +148,8 @@ Unless you specify a BUFFER it will default to the current one."
     (cider-scale-color color (if dark 0.05 -0.05))))
 
 (autoload 'pkg-info-version-info "pkg-info.el")
+
+(defvar cider-version)
 
 (defun cider--version ()
   "Retrieve CIDER's version."

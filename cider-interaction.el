@@ -46,8 +46,8 @@
 (require 'cl-lib)
 (require 'compile)
 (require 'tramp)
+(require 'spinner)
 
-(defconst cider-error-buffer "*cider-error*")
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-doc-buffer "*cider-doc*")
 (defconst cider-result-buffer "*cider-result*")
@@ -282,15 +282,13 @@ keep track of a namespace.
 This should never be set in Clojure buffers, as there the namespace
 should be extracted from the buffer's ns form.")
 
-(defvar-local cider-repl-type nil
-  "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
-
 (defvar-local cider-buffer-connection nil
   "A connection associated with a specific buffer.
 
 If this is set to a non-nil value it will take precedence over both
 the project associated with a connection and the default connection.")
 
+(defvar cider-version)
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
@@ -404,7 +402,8 @@ default connection."
   (setq cider-connections
         (append (cdr cider-connections)
                 (list (car cider-connections))))
-  (message "Default nREPL connection:" (cider--connection-info (car cider-connections))))
+  (message "Default nREPL connection: %s"
+           (cider--connection-info (car cider-connections))))
 
 (define-obsolete-function-alias 'cider-rotate-connection 'cider-rotate-default-connection "0.10")
 
@@ -882,7 +881,8 @@ If a cons, it specifies the position as (LINE . COLUMN). COLUMN can be nil.
 If a symbol, `cider-jump-to' searches for something that looks like the
 symbol's definition in the file.
 If OTHER-WINDOW is non-nil don't reuse current window."
-  (ring-insert find-tag-marker-ring (point-marker))
+  (with-no-warnings
+    (ring-insert find-tag-marker-ring (point-marker)))
   (if other-window
       (pop-to-buffer buffer)
     ;; like switch-to-buffer, but reuse existing window if BUFFER is visible
@@ -1108,7 +1108,7 @@ the results to be displayed in a different window."
 (defun cider-completion-symbol-start-pos ()
   "Find the starting position of the symbol at point, unless inside a string."
   (let ((sap (symbol-at-point)))
-    (when (and sap (not (in-string-p)))
+    (when (and sap (not (nth 3 (syntax-ppss))))
       (car (bounds-of-thing-at-point 'symbol)))))
 
 (defun cider-completion-get-context-at-point ()
@@ -1197,7 +1197,7 @@ The formatting is performed by `cider-annotate-completion-function'."
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
   (let ((sap (symbol-at-point)))
-    (when (and sap (not (in-string-p)) (cider-connected-p))
+    (when (and sap (not (nth 3 (syntax-ppss))) (cider-connected-p))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
               (completion-table-dynamic #'cider-complete)
@@ -1526,7 +1526,7 @@ See `compilation-error-regexp-alist' for help on their format.")
 
 We do so by starting and the current position and proceeding backwards
 until we find a delimiters that's not inside a string."
-  (if (and (looking-back "[])}]")
+  (if (and (looking-back "[])}]" (line-beginning-position))
            (null (nth 3 (syntax-ppss))))
       (backward-sexp)
     (while (or (not (looking-at-p "[({[]"))
@@ -2136,7 +2136,7 @@ opposite of what that option dictates."
                          (log message face)
                          (unless cider-refresh-show-log-buffer
                            (let ((message-truncate-lines t))
-                             (message "cider-refresh: %s" (s-trim message))))))
+                             (message "cider-refresh: %s" message)))))
       (cond (out
              (log out))
 

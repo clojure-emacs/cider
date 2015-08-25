@@ -87,6 +87,7 @@ cyclical data structures."
 (defvar-local cider-stacktrace-prior-filters nil)
 (defvar-local cider-stacktrace-cause-visibility nil)
 
+(defconst cider-error-buffer "*cider-error*")
 
 ;; Faces
 
