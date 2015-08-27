@@ -234,6 +234,10 @@ Refreshes EWOC."
 
 (define-obsolete-function-alias 'cider-eval 'nrepl-request:eval "0.9")
 
+(defun cider-nrepl-op-supported-p (op)
+  "Check whether the current connection supports the nREPL middleware OP."
+  (nrepl-op-supported-p op (cider-current-repl-buffer)))
+
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
 NS specifies the namespace in which to evaluate the request."

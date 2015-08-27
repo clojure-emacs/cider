@@ -292,7 +292,7 @@ the project associated with a connection and the default connection.")
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
-  (unless (nrepl-op-supported-p op (cider-current-repl-buffer))
+  (unless (cider-nrepl-op-supported-p op)
     (error "Can't find nREPL middleware providing op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" op (upcase cider-version))))
 
 (defun cider--check-required-nrepl-ops ()
@@ -1474,7 +1474,7 @@ into a new error buffer."
   "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
 This function determines how the error buffer is shown, and then delegates
 the actual error content to the eval or op handler."
-  (if (nrepl-op-supported-p "stacktrace" (cider-current-repl-buffer))
+  (if (cider-nrepl-op-supported-p "stacktrace")
       (cider-default-err-op-handler session)
     (cider-default-err-eval-handler session)))
 

@@ -123,7 +123,7 @@ Return the number of nested sexp the point was over or after. "
 
 (defun cider-eldoc-arglist (thing)
   "Return the arglist for THING."
-  (when (and (nrepl-op-supported-p "eldoc" (cider-current-repl-buffer))
+  (when (and (cider-nrepl-op-supported-p "eldoc")
              thing
              (not (string= thing ""))
              (not (string-prefix-p ":" thing)))
