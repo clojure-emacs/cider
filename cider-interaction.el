@@ -519,16 +519,16 @@ variable, but the order can be changed.  For instance, the function
 `cider-make-connection-default' can be used to move a connection to the
 head of the list, so that it will take precedence over other connections
 associated with the same project."
-(or (-first (lambda (conn)
-              (-when-let (conn-proj-dir (with-current-buffer (get-buffer conn)
-                                          nrepl-project-dir))
-                (equal (file-truename project-directory)
-                       (file-truename conn-proj-dir))))
-            cider-connections)
-    (-first (lambda (conn)
-              (with-current-buffer (get-buffer conn)
-                (not nrepl-project-dir)))
-            cider-connections)))
+  (or (-first (lambda (conn)
+                (-when-let (conn-proj-dir (with-current-buffer (get-buffer conn)
+                                            nrepl-project-dir))
+                  (equal (file-truename project-directory)
+                         (file-truename conn-proj-dir))))
+              cider-connections)
+      (-first (lambda (conn)
+                (with-current-buffer (get-buffer conn)
+                  (not nrepl-project-dir)))
+              cider-connections)))
 
 (defun cider-assoc-project-with-connection (&optional project connection)
   "Associate a Clojure PROJECT with an nREPL CONNECTION.
@@ -1071,7 +1071,7 @@ thing at point."
   "Get the path to the file containing NS."
   (-> (list "op" "ns-path"
             "ns" ns)
-      nrepl-send-sync-request
+      cider-nrepl-send-sync-request
       (nrepl-dict-get "path")))
 
 (defun cider--find-ns (ns &optional other-window)
@@ -1457,7 +1457,7 @@ into a new error buffer."
   "Display the last exception for SESSION, with middleware support."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes)
-    (nrepl-send-request
+    (cider-nrepl-send-request
      (append
       (list "op" "stacktrace" "session" session)
       (when cider-stacktrace-print-length
@@ -2041,7 +2041,7 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
   (-> (list "op" "toggle-trace-var"
             "ns" (cider-current-ns)
             "sym" symbol)
-      (nrepl-send-sync-request)))
+      (cider-nrepl-send-sync-request)))
 
 (defun cider--toggle-trace-var (sym)
   (let* ((trace-response (cider-sync-request:toggle-trace-var sym))
@@ -2069,7 +2069,7 @@ opposite of what that option dictates."
   (cider-ensure-op-supported "toggle-trace-ns")
   (-> (list "op" "toggle-trace-ns"
             "ns" ns)
-      (nrepl-send-sync-request)))
+      (cider-nrepl-send-sync-request)))
 
 (defun cider-toggle-trace-ns (query)
   "Toggle ns tracing.
@@ -2114,7 +2114,7 @@ opposite of what that option dictates."
   (cider-read-symbol-name
    "Undefine symbol: "
    (lambda (sym)
-     (nrepl-send-request
+     (cider-nrepl-send-request
       (list "op" "undef"
             "ns" (cider-current-ns)
             "symbol" sym)
@@ -2186,14 +2186,14 @@ stale code from any deleted files may not be completely unloaded."
         (clear? (>= arg 16))
         (refresh-all? (>= arg 4)))
     (when cider-refresh-show-log-buffer (cider-popup-buffer-display log-buffer))
-    (when clear? (nrepl-send-sync-request (list "op" "refresh-clear")))
-    (nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
-                                      "print-length" cider-stacktrace-print-length
-                                      "print-level" cider-stacktrace-print-level)
-                                (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
-                                (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
-                        (lambda (response)
-                          (cider-refresh--handle-response response log-buffer)))))
+    (when clear? (cider-nrepl-send-sync-request (list "op" "refresh-clear")))
+    (cider-nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
+                                            "print-length" cider-stacktrace-print-length
+                                            "print-level" cider-stacktrace-print-level)
+                                      (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
+                                      (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
+                              (lambda (response)
+                                (cider-refresh--handle-response response log-buffer)))))
 
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
@@ -2422,7 +2422,7 @@ VAR is a fully qualified Clojure variable name as a string."
 With a prefix argument, prompt for function to run instead of -main."
   (interactive (list (when current-prefix-arg (read-string "Function name: "))))
   (let ((name (or function "-main")))
-    (-when-let (response (nrepl-send-sync-request
+    (-when-let (response (cider-nrepl-send-sync-request
                           (list "op" "ns-list-vars-by-name" "name" name)))
       (-if-let (vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1)))
           (cider-interactive-eval

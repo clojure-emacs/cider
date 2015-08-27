@@ -120,7 +120,7 @@ This variable must be set before starting the repl connection."
 (defun cider--debug-handle-instrumented-defs (defs ns)
   "Update display of NS according to instrumented DEFS."
   (-when-let (buf (-first (lambda (b) (with-current-buffer b
-                                   (string= ns (cider-current-ns))))
+                                        (string= ns (cider-current-ns))))
                           (buffer-list)))
     (with-current-buffer buf
       (cider--update-instrumented-defs defs))))
@@ -128,7 +128,7 @@ This variable must be set before starting the repl connection."
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
-  (-if-let (all (-> (nrepl-send-sync-request (list "op" "debug-instrumented-defs"))
+  (-if-let (all (-> (cider-nrepl-send-sync-request (list "op" "debug-instrumented-defs"))
                     (nrepl-dict-get "list")))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))
@@ -159,7 +159,7 @@ This variable must be set before starting the repl connection."
 
 (defun cider--debug-init-connection ()
   "Initialize a connection with the cider.debug middleware."
-  (nrepl-send-request
+  (cider-nrepl-send-request
    (append '("op" "init-debugger")
            (when cider-debug-print-level
              (list "print-level" cider-debug-print-level))
@@ -214,8 +214,8 @@ Each element of LOCALS should be a list of at least two elements."
              (apply #'max (mapcar (lambda (l) (string-width (car l))) locals))))
         ;; A format string to build a format string. :-P
         (mapconcat (lambda (l) (format (format " %%%ds: %%s\n" left-col-width)
-                            (propertize (car l) 'face 'font-lock-variable-name-face)
-                            (cider-font-lock-as-clojure (cadr l))))
+                                       (propertize (car l) 'face 'font-lock-variable-name-face)
+                                       (cider-font-lock-as-clojure (cadr l))))
                    locals ""))
     ""))
 
@@ -393,7 +393,7 @@ specific message."
                     (symbol-name last-command-event)
                   (cdr (assq last-command-event cider--debug-mode-commands-alist)))
                 nil))
-  (nrepl-send-request
+  (cider-nrepl-send-request
    (list "op" "debug-input" "input" (or command ":quit")
          "key" (or key (nrepl-dict-get cider--debug-mode-response "key")))
    #'ignore)

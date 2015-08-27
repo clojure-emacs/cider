@@ -98,7 +98,7 @@ Also close associated REPL and server buffers."
 
 (declare-function cider-popup-buffer-mode "cider-interaction")
 (define-derived-mode cider-connections-buffer-mode cider-popup-buffer-mode
-  "CIDER Connections"
+                     "CIDER Connections"
   "CIDER Connections Buffer Mode.
 \\{cider-connections-buffer-mode-map}
 \\{cider-popup-buffer-mode-map}"
@@ -238,6 +238,20 @@ Refreshes EWOC."
   "Check whether the current connection supports the nREPL middleware OP."
   (nrepl-op-supported-p op (cider-current-repl-buffer)))
 
+(defun cider-nrepl-send-request (request callback)
+  "Send REQUEST and register response handler CALLBACK.
+REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
+\"par1\" ... )."
+  (nrepl-send-request request callback (cider-current-repl-buffer)))
+
+(defun cider-nrepl-send-sync-request (request &optional abort-on-input)
+  "Send REQUEST to the nREPL server synchronously.
+Hold till final \"done\" message has arrived and join all response messages
+of the same \"op\" that came along.
+If ABORT-ON-INPUT is non-nil, the function will return nil at the first
+sign of user input, so as not to hang the interface."
+  (nrepl-send-sync-request request (cider-current-repl-buffer) abort-on-input))
+
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
 NS specifies the namespace in which to evaluate the request."
@@ -324,13 +338,13 @@ unless ALL is truthy."
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
 loaded. If CALLBACK is nil, use `cider-load-file-handler'."
-  (nrepl-send-request (list "op" "load-file"
-                            "session" (cider-current-session)
-                            "file" file-contents
-                            "file-path" file-path
-                            "file-name" file-name)
-                      (or callback
-                          (cider-load-file-handler (current-buffer)))))
+  (cider-nrepl-send-request (list "op" "load-file"
+                                  "session" (cider-current-session)
+                                  "file" file-contents
+                                  "file-path" file-path
+                                  "file-name" file-name)
+                            (or callback
+                                (cider-load-file-handler (current-buffer)))))
 
 
 ;;; Sync Requests
@@ -344,7 +358,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
         ,@(when docs-p '("docs?" "t"))
         ,@(when privates-p '("privates?" "t"))
         ,@(when case-sensitive-p '("case-sensitive?" "t")))
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "apropos-matches")))
 
 (declare-function cider-ensure-op-supported "cider-interaction")
@@ -353,7 +367,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
   (cider-ensure-op-supported "classpath")
   (-> (list "op" "classpath"
             "session" (cider-current-session))
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "classpath")))
 
 (defun cider-sync-request:complete (str context)
@@ -363,7 +377,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
                              "ns" (cider-current-ns)
                              "symbol" str
                              "context" context)
-                       (nrepl-send-sync-request (cider-current-repl-buffer) 'abort-on-input)))
+                       (cider-nrepl-send-sync-request (cider-current-repl-buffer) 'abort-on-input)))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:info (symbol &optional class member)
@@ -374,7 +388,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
                         ,@(when symbol (list "symbol" symbol))
                         ,@(when class (list "class" class))
                         ,@(when member (list "member" member)))
-                      (nrepl-send-sync-request))))
+                      (cider-nrepl-send-sync-request))))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
       var-info)))
@@ -387,7 +401,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
                           ,@(when symbol (list "symbol" symbol))
                           ,@(when class (list "class" class))
                           ,@(when member (list "member" member)))
-                        (nrepl-send-sync-request (cider-current-repl-buffer) 'abort-on-input)))
+                        (cider-nrepl-send-sync-request (cider-current-repl-buffer) 'abort-on-input)))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
@@ -396,7 +410,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
   "Get a list of the available namespaces."
   (-> (list "op" "ns-list"
             "session" (cider-current-session))
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "ns-list")))
 
 (defun cider-sync-request:ns-vars (ns)
@@ -404,27 +418,27 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
   (-> (list "op" "ns-vars"
             "session" (cider-current-session)
             "ns" ns)
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "ns-vars")))
 
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
   (-> (list "op" "resource"
             "name" name)
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "resource-path")))
 
 (defun cider-sync-request:resources-list ()
   "Perform nREPL \"resource\" op with resource name NAME."
   (-> (list "op" "resources-list")
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "resources-list")))
 
 (defun cider-sync-request:format-code (code)
   "Perform nREPL \"format-code\" op with CODE."
   (-> (list "op" "format-code"
             "code" code)
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "formatted-code")))
 
 (defun cider-sync-request:format-edn (edn &optional right-margin)
@@ -432,7 +446,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
   (let* ((response (-> (list "op" "format-edn"
                              "edn" edn)
                        (append (and right-margin (list "right-margin" right-margin)))
-                       (nrepl-send-sync-request)))
+                       (cider-nrepl-send-sync-request)))
          (err (nrepl-dict-get response "err")))
     (when err
       ;; err will be a stacktrace with a first line that looks like:

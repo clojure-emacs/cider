@@ -45,7 +45,7 @@ leading line of all dashes and trailing nil (when no doc is present) are removed
 from the latter. Remaining content is compared for string equality."
   (let ((repl-doc (with-temp-buffer
                     (let ((form (format "(clojure.repl/doc %s)" sym)))
-                      (insert (nrepl-dict-get (nrepl-send-sync-request form)
+                      (insert (nrepl-dict-get (cider-nrepl-send-sync-request form)
                                               "out"))
                       (goto-char (point-min))
                       (while (re-search-forward "^  nil\n" nil t)

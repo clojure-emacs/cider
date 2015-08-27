@@ -177,7 +177,7 @@
 (defun cider-test-stacktrace-for (ns var index)
   "Display stacktrace for the erring NS VAR test with the assertion INDEX."
   (let (causes)
-    (nrepl-send-request
+    (cider-nrepl-send-request
      (append
       (list "op" "test-stacktrace" "session" (cider-current-session)
             "ns" ns "var" var "index" index)
@@ -351,19 +351,19 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
       ;; TODO: Figure out what to do when the metadata is missing
       (when (and file line (not (cider--tooling-file-p file)))
         (save-excursion
-         (goto-char (point-min))
-         (forward-line (1- line))
-         (forward-whitespace 1)
-         (forward-char)
-         (let ((beg (point)))
-           (forward-sexp)
-           (let ((overlay (make-overlay beg (point))))
-             (overlay-put overlay 'font-lock-face (cider-test-type-face type))
-             (overlay-put overlay 'type type)
-             (overlay-put overlay 'help-echo message)
-             (overlay-put overlay 'message message)
-             (overlay-put overlay 'expected expected)
-             (overlay-put overlay 'actual actual))))))))
+          (goto-char (point-min))
+          (forward-line (1- line))
+          (forward-whitespace 1)
+          (forward-char)
+          (let ((beg (point)))
+            (forward-sexp)
+            (let ((overlay (make-overlay beg (point))))
+              (overlay-put overlay 'font-lock-face (cider-test-type-face type))
+              (overlay-put overlay 'type type)
+              (overlay-put overlay 'help-echo message)
+              (overlay-put overlay 'message message)
+              (overlay-put overlay 'expected expected)
+              (overlay-put overlay 'actual actual))))))))
 
 (defun cider-test-highlight-problems (ns results)
   "Highlight all non-passing tests in the NS test RESULTS."
@@ -419,7 +419,7 @@ Upon test completion, results are echoed and a test report is optionally
 displayed. When test failures/errors occur, their sources are highlighted."
   (cider-test-clear-highlights)
   (message "Testing...")
-  (nrepl-send-request
+  (cider-nrepl-send-request
    (list "ns" ns "op" (if retest "retest" "test")
          "tests" tests "session" (cider-current-session))
    (lambda (response)

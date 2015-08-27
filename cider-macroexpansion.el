@@ -72,7 +72,7 @@ The default for DISPLAY-NAMESPACES is taken from
                 (symbol-name cider-macroexpansion-display-namespaces)))
       (append (when cider-macroexpansion-print-metadata
                 (list "print-meta" "true")))
-      (nrepl-send-sync-request)
+      (cider-nrepl-send-sync-request)
       (nrepl-dict-get "expansion")))
 
 (defun cider-macroexpand-undo (&optional arg)

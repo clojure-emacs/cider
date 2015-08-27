@@ -133,7 +133,7 @@
       (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-var-info ()
-  (noflet ((nrepl-send-sync-request (list)
+  (noflet ((cider-nrepl-send-sync-request (list)
                                     '(dict
                                       "arglists" "([] [x] [x & ys])"
                                       "ns" "clojure.core"

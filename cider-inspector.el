@@ -123,56 +123,56 @@ Used for all inspector nREPL ops."
 
 (defun cider-inspect-expr (expr ns)
   (cider--prep-interactive-eval expr)
-  (nrepl-send-request (append (nrepl--eval-request expr ns)
-                              (list "inspect" "true"
-                                    "page-size" (or cider-inspector-page-size 32)))
-                      (cider-inspector-response-handler (current-buffer))))
+  (cider-nrepl-send-request (append (nrepl--eval-request expr ns)
+                                    (list "inspect" "true"
+                                          "page-size" (or cider-inspector-page-size 32)))
+                            (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-pop ()
   (interactive)
-  (nrepl-send-request (list "op" "inspect-pop"
-                            "session" (cider-current-session))
-                      (cider-inspector-response-handler (current-buffer))))
+  (cider-nrepl-send-request (list "op" "inspect-pop"
+                                  "session" (cider-current-session))
+                            (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-push (idx)
-  (nrepl-send-request (list "op" "inspect-push"
-                            "idx" (number-to-string idx)
-                            "session" (cider-current-session))
-                      (cider-inspector-response-handler (current-buffer))))
+  (cider-nrepl-send-request (list "op" "inspect-push"
+                                  "idx" (number-to-string idx)
+                                  "session" (cider-current-session))
+                            (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-refresh ()
   (interactive)
-  (nrepl-send-request (list "op" "inspect-refresh"
-                            "session" (cider-current-session))
-                      (cider-inspector-response-handler (current-buffer))))
+  (cider-nrepl-send-request (list "op" "inspect-refresh"
+                                  "session" (cider-current-session))
+                            (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-next-page ()
   "Jump to the next page when inspecting a paginated sequence/map.
 
 Does nothing if already on the last page."
   (interactive)
-  (nrepl-send-request (list "op" "inspect-next-page"
-                            "session" (cider-current-session))
-                      (cider-inspector-response-handler (current-buffer))))
+  (cider-nrepl-send-request (list "op" "inspect-next-page"
+                                  "session" (cider-current-session))
+                            (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-prev-page ()
   "Jump to the previous page when expecting a paginated sequence/map.
 
 Does nothing if already on the first page."
   (interactive)
-  (nrepl-send-request (list "op" "inspect-prev-page"
-                            "session" (cider-current-session))
-                      (cider-inspector-response-handler (current-buffer))))
+  (cider-nrepl-send-request (list "op" "inspect-prev-page"
+                                  "session" (cider-current-session))
+                            (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-set-page-size (page-size)
   "Set the page size in pagination mode to the specified value.
 
 Current page will be reset to zero."
   (interactive "nPage size:")
-  (nrepl-send-request (list "op" "inspect-set-page-size"
-                            "session" (cider-current-session)
-                            "page-size" page-size)
-                      (cider-inspector-response-handler (current-buffer))))
+  (cider-nrepl-send-request (list "op" "inspect-set-page-size"
+                                  "session" (cider-current-session)
+                                  "page-size" page-size)
+                            (cider-inspector-response-handler (current-buffer))))
 
 ;; Render Inspector from Structured Values
 (defun cider-irender (buffer str)

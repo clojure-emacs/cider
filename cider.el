@@ -215,7 +215,7 @@ REPL started by the server process filter."
     (with-current-buffer cljs-buffer
       (setq cider-repl-type "cljs")
       (setq nrepl-sibling-buffer-alist alist)
-      (nrepl-send-request
+      (cider-nrepl-send-request
        (list "op" "eval"
              "ns" (cider-current-ns)
              "session" nrepl-session
