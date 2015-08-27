@@ -223,6 +223,8 @@ Refreshes EWOC."
   "Message displayed on successful connection."
   (message "Connected.  %s" (cider-random-words-of-inspiration)))
 
+;; TODO: Replace direct usage of such hooks with CIDER hooks,
+;; that are connection type independent
 (add-hook 'nrepl-connected-hook 'cider-display-connected-message)
 
 ;;; Evaluation helpers
