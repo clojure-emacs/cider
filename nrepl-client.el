@@ -55,7 +55,7 @@
 ;;       the response for the request has arrived.  Besides the above functions
 ;;       there are specialized request senders for each type of common
 ;;       operations.  Examples are `nrepl-request:eval', `nrepl-request:clone',
-;;       `nrepl-request:describe'.
+;;       `nrepl-sync-request:describe'.
 ;;
 ;;    4) Responses from the server are decoded in `nrepl-client-filter' and are
 ;;       physically represented by alists whose structure depends on the type of
