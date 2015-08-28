@@ -1059,9 +1059,10 @@ The request is dispatched via CONNECTION."
   (nrepl-send-sync-request '("op" "clone")
                            connection))
 
-(defun nrepl-sync-request:close (session)
-  "Sent a :close request to close SESSION."
-  (nrepl-send-sync-request (list "op" "close" "session" session)))
+(defun nrepl-sync-request:close (connection session)
+  "Sent a :close request to close CONNECTION's SESSION."
+  (nrepl-send-sync-request (list "op" "close" "session" session)
+                           connection))
 
 (defun nrepl-sync-request:describe (&optional session)
   "Perform :describe request."

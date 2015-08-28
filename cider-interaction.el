@@ -2339,7 +2339,7 @@ the string contents of the region into a formatted string."
   (interactive)
   (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions (cider-current-repl-buffer)))))
     (when selected-session
-      (nrepl-sync-request:close selected-session)
+      (nrepl-sync-request:close (cider-current-repl-buffer) selected-session)
       (message "Closed nREPL session %s" selected-session))))
 
 ;;; quiting
@@ -2349,9 +2349,9 @@ the string contents of the region into a formatted string."
     (with-current-buffer buffer
       (setq nrepl--closing-connection t)
       (when nrepl-session
-        (nrepl-sync-request:close nrepl-session))
+        (nrepl-sync-request:close (cider-current-repl-buffer) nrepl-session))
       (when nrepl-tooling-session
-        (nrepl-sync-request:close nrepl-tooling-session))
+        (nrepl-sync-request:close (cider-current-repl-buffer) nrepl-tooling-session))
       (when (get-buffer-process buffer)
         (delete-process (get-buffer-process buffer))))
     (kill-buffer buffer)))
