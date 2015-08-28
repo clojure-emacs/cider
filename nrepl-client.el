@@ -148,9 +148,6 @@ In case of a special value 'new, a new buffer is created.")
 (defvar-local nrepl-project-dir nil)
 (defvar-local nrepl-tunnel-buffer nil)
 
-(defvar-local nrepl-sibling-buffer-alist nil
-  "In client buffers, stores an alist of sibling buffers, if any.")
-
 (defvar-local nrepl-session nil
   "Current nREPL session id.")
 
@@ -618,14 +615,6 @@ process buffer and run the hook `nrepl-disconnected-hook'."
         (run-hooks 'nrepl-disconnected-hook)
         (nrepl--maybe-kill-server-and-sibling-buffers 'process-only)))))
 
-(defun nrepl--get-sibling-buffers (&optional buffer)
-  "Return a list of live siblings to BUFFER."
-  (let ((buffer (or buffer (current-buffer))))
-    (with-current-buffer buffer
-      (-when-let (sibs (->> (mapcar #'cdr nrepl-sibling-buffer-alist)
-                            (-filter #'buffer-live-p)))
-        (-uniq (cons buffer sibs))))))
-
 
 ;;; Network
 
@@ -721,38 +710,21 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 (defvar-local nrepl--closing-connection nil
   "Signals the current buffer is being closed.")
 
-(defun nrepl--maybe-kill-server-and-sibling-buffers (&optional process-only)
+(declare cider--all-connections-to-server "cider-client")
+(defun nrepl--maybe-kill-server-buffer ()
   "Kill the `nrepl-server-buffer' and its process, subject to user confirmation.
-If PROCESS-ONLY is non-nil, don't kill the buffer and don't ask for
-confirmation."
-  ;; If this is being called as the process filter and it has siblings, don't
-  ;; kill anything else automatically. If it has called because the user
-  ;; manually killed the buffer, then fine, offer to kill everything.
-  (unless (or nrepl--closing-connection
-              (and process-only nrepl-sibling-buffer-alist))
-    (let ((server-buffer nrepl-server-buffer)
-          (siblings (nrepl--get-sibling-buffers)))
-      (when (or process-only
-                (not siblings)
-                (y-or-n-p "Also kill sibling REPL buffers? "))
-        (dolist (buffer siblings)
-          (with-current-buffer buffer
-            (setq nrepl--closing-connection t)
-            (ignore-errors
-              (kill-process (get-buffer-process buffer))))
-          (unless process-only
-            (kill-buffer buffer)))
-        ;; This clause is inside the other, because we don't kill the server when
-        ;; siblings are left alive.
-        (when (and (buffer-live-p server-buffer)
-                   (or process-only
-                       (y-or-n-p "Also kill server process and buffer? ")))
-          (let ((proc (get-buffer-process server-buffer)))
-            (when (process-live-p proc)
-              (set-process-query-on-exit-flag proc nil)
-              (kill-process proc))
-            (unless process-only
-              (kill-buffer server-buffer))))))))
+Do nothing if there is more than one REPL connected to that server."
+  (let ((server-buffer nrepl-server-buffer))
+    (unless (or nrepl--closing-connection
+                ;; Don't kill the server if there are more REPLs connected to it.
+                (cdr (cider--all-connections-to-server server-buffer)))
+      (when (and (buffer-live-p server-buffer)
+                 (y-or-n-p "Also kill server process and buffer? "))
+        (let ((proc (get-buffer-process server-buffer)))
+          (when (process-live-p proc)
+            (set-process-query-on-exit-flag proc nil)
+            (kill-process proc))
+          (kill-buffer server-buffer))))))
 
 ;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
 ;; starts the client process described by `nrepl-client-filter' and
@@ -782,7 +754,7 @@ process."
     (with-current-buffer client-buf
       (-when-let (server-buf (and server-proc (process-buffer server-proc)))
         (add-hook 'kill-buffer-hook
-                  #'nrepl--maybe-kill-server-and-sibling-buffers
+                  #'nrepl--maybe-kill-server-buffer
                   'append 'local)
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))

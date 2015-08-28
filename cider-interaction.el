@@ -374,7 +374,7 @@ Info contains project name, current REPL namespace, host:port
 endpoint and Clojure version."
   (with-current-buffer (get-buffer connection-buffer)
     (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
-            (if nrepl-sibling-buffer-alist
+            (if cider-repl-type
                 (upcase (concat cider-repl-type " "))
               "")
             (or (cider--project-name nrepl-project-dir) "<no project>")
@@ -504,7 +504,7 @@ that of the namespace in the Clojure source buffer."
 
 (define-obsolete-function-alias 'cider-switch-to-current-repl-buffer 'cider-switch-to-default-repl-buffer "0.10")
 
-(defun cider-find-connection-buffer-for-project-directory (project-directory)
+(defun cider-find-connection-buffer-for-project-directory (project-directory &optional all-connections)
   "Find the relevant connection-buffer for the given PROJECT-DIRECTORY.
 
 If there are multiple connection buffers matching PROJECT-DIRECTORY the
@@ -518,17 +518,21 @@ This is usally the connection that was more recently prepended to this
 variable, but the order can be changed.  For instance, the function
 `cider-make-connection-default' can be used to move a connection to the
 head of the list, so that it will take precedence over other connections
-associated with the same project."
-  (or (-first (lambda (conn)
-                (-when-let (conn-proj-dir (with-current-buffer (get-buffer conn)
-                                            nrepl-project-dir))
-                  (equal (file-truename project-directory)
-                         (file-truename conn-proj-dir))))
-              cider-connections)
-      (-first (lambda (conn)
-                (with-current-buffer (get-buffer conn)
-                  (not nrepl-project-dir)))
-              cider-connections)))
+associated with the same project.
+
+If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
+connections are returned, instead of just the most recent."
+  (let ((fn (if all-connections #'-filter #'-first)))
+    (or (funcall fn (lambda (conn)
+                      (-when-let (conn-proj-dir (with-current-buffer (get-buffer conn)
+                                                  nrepl-project-dir))
+                        (equal (file-truename project-directory)
+                               (file-truename conn-proj-dir))))
+                 cider-connections)
+        (funcall fn (lambda (conn)
+                      (with-current-buffer (get-buffer conn)
+                        (not nrepl-project-dir)))
+                 cider-connections))))
 
 (defun cider-assoc-project-with-connection (&optional project connection)
   "Associate a Clojure PROJECT with an nREPL CONNECTION.
@@ -561,16 +565,28 @@ such a link cannot be established automatically."
   (setq-local cider-buffer-connection nil))
 
 (defun cider-find-relevant-connection ()
-  "Try to find the matching REPL buffer for the current Clojure source buffer.
-If succesful, return the new connection buffer."
+  "Return the REPL buffer relevant for the current Clojure source buffer.
+A REPL is relevant if its `nrepl-project-dir' is compatible with the
+current directory (see `cider-find-connection-buffer-for-project-directory').
+If there is ambiguity, it is resolved by matching the major-mode with the
+REPL type (Clojure or ClojureScript)."
   (cider-ensure-connected)
-  (if cider-buffer-connection
-      cider-buffer-connection
-    (let* ((project-directory (clojure-project-dir (cider-current-dir))))
-      (or (and (= 1 (length cider-connections))
-               (car cider-connections))
-          (and project-directory
-               (cider-find-connection-buffer-for-project-directory project-directory))))))
+  (cond
+   (cider-buffer-connection)
+   ((= 1 (length cider-connections)) (car cider-connections))
+   (t (let* ((project-directory (clojure-project-dir (cider-current-dir)))
+             (repls (cider-find-connection-buffer-for-project-directory project-directory 'all)))
+        (if (not (cdr repls))
+            ;; Only one match, just return it.
+            (car repls)
+          ;; OW, find one matching the extension of current file.
+          (let ((type (file-name-extension (or (buffer-file-name) ""))))
+            (or (-first (lambda (conn)
+                          (equal (with-current-buffer conn
+                                   (or cider-repl-type "clj"))
+                                 type))
+                        repls)
+                (car repls))))))))
 
 (defun cider-switch-to-relevant-repl-buffer (&optional set-namespace)
   "Select the REPL buffer, when possible in an existing window.

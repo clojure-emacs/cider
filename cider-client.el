@@ -79,10 +79,10 @@ Also close associated REPL and server buffers."
     (setq cider-connections
           (delq (buffer-name buffer) cider-connections))
     (when (buffer-live-p buffer)
-      (dolist (buf `(,@(or (nrepl--get-sibling-buffers buffer)
-                           (list buffer))
-                     ,(buffer-local-value 'nrepl-tunnel-buffer buffer)
-                     ,(buffer-local-value 'nrepl-server-buffer buffer)))
+      (dolist (buf (cons buffer
+                         (with-current-buffer buffer
+                           (list nrepl-tunnel-buffer
+                                 nrepl-server-buffer))))
         (when buf
           (cider--close-buffer buf))))))
 
@@ -163,7 +163,7 @@ The connections buffer is determined by
                   (buffer-local-value 'nrepl-project-dir buffer))
                  "")
              (with-current-buffer buffer
-               (if nrepl-sibling-buffer-alist
+               (if cider-repl-type
                    (concat " " cider-repl-type)
                  ""))))))
 
@@ -261,25 +261,11 @@ NS specifies the namespace in which to evaluate the request."
 (declare-function cider-find-relevant-connection "cider-interaction")
 (defun cider-current-repl-buffer ()
   "The current REPL buffer.
-Return the REPL buffer given by using `cider-find-relevant-connection' and
-falling back to `cider-default-connection'.
-If current buffer is a file buffer, and if the REPL has siblings, instead
-return the sibling that corresponds to the current file extension.  This
-allows for evaluation to be properly directed to clj or cljs REPLs depending
-on where they come from."
-  (-when-let (repl-buf (or (cider-find-relevant-connection)
-                           (cider-default-connection 'no-error)))
-    ;; Take the extension of current file, or nil if there is none.
-    (let ((ext (file-name-extension (or (buffer-file-name) ""))))
-      ;; Go to the "globally" active REPL buffer.
-      (with-current-buffer repl-buf
-        ;; If it has siblings, check which of them is associated with this file
-        ;; extension.
-        (or (cdr-safe (assoc ext nrepl-sibling-buffer-alist))
-            ;; If it has no siblings, or if this extension is not specified,
-            ;; fallback on the old behavior to just return the currently active
-            ;; REPL buffer (which is probably just `repl-buf').
-            nrepl-repl-buffer)))))
+Return the REPL buffer given by using `cider-find-relevant-connection'."
+  (-when-let (buf (cider-find-relevant-connection))
+    (with-current-buffer buf
+      ;; FIXME: Is the connection buffer ever different from the REPL buffer?
+      nrepl-repl-buffer)))
 
 (declare-function cider-interrupt-handler "cider-interaction")
 (defun cider-interrupt ()
@@ -333,6 +319,16 @@ unless ALL is truthy."
   "Return the CLASS MEMBER's info as an alist with list cdrs."
   (when (and class member)
     (cider-sync-request:info nil class member)))
+
+(defun cider--all-connections-to-server (server-buffer)
+  "Return a list of REPL buffers connected to SERVER-BUFFER."
+  (-filter
+   (lambda (conn)
+     (let ((server (with-current-buffer (get-buffer conn)
+                     nrepl-server-buffer)))
+       (when server
+         (equal server-buffer server))))
+   cider-connections))
 
 
 ;;; Requests

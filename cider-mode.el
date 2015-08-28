@@ -48,7 +48,7 @@ Info contains project name and host:port endpoint."
     (if current-connection
         (with-current-buffer current-connection
           (concat
-           (when nrepl-sibling-buffer-alist
+           (when cider-repl-type
              (concat cider-repl-type ":"))
            (when cider-mode-line-show-connection
              (format "%s@%s:%s"
