@@ -603,8 +603,8 @@ older requests with \"done\" status."
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
-Display MESSAGE and if the process is closed kill the
-process buffer and run the hook `nrepl-disconnected-hook'."
+Notify MESSAGE and if the process is closed run `nrepl-disconnected-hook'
+and kill the process buffer."
   (if (string-match "deleted\\b" message)
       (message "nREPL: Connection properly closed")
     (message "nREPL: Connection unexpectedly closed (%s)"
@@ -613,7 +613,7 @@ process buffer and run the hook `nrepl-disconnected-hook'."
     (when (buffer-live-p (process-buffer process))
       (with-current-buffer (process-buffer process)
         (run-hooks 'nrepl-disconnected-hook)
-        (nrepl--maybe-kill-server-and-sibling-buffers 'process-only)))))
+        (nrepl--maybe-kill-server-buffer)))))
 
 
 ;;; Network
@@ -707,24 +707,20 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 ;;; Client: Process Handling
 
-(defvar-local nrepl--closing-connection nil
-  "Signals the current buffer is being closed.")
-
 (declare cider--all-connections-to-server "cider-client")
 (defun nrepl--maybe-kill-server-buffer ()
   "Kill the `nrepl-server-buffer' and its process, subject to user confirmation.
 Do nothing if there is more than one REPL connected to that server."
   (let ((server-buffer nrepl-server-buffer))
-    (unless (or nrepl--closing-connection
-                ;; Don't kill the server if there are more REPLs connected to it.
-                (cdr (cider--all-connections-to-server server-buffer)))
-      (when (and (buffer-live-p server-buffer)
-                 (y-or-n-p "Also kill server process and buffer? "))
-        (let ((proc (get-buffer-process server-buffer)))
-          (when (process-live-p proc)
-            (set-process-query-on-exit-flag proc nil)
-            (kill-process proc))
-          (kill-buffer server-buffer))))))
+    ;; Don't kill the server if there are more REPLs connected to it.
+    (when (and (buffer-live-p server-buffer)
+               (not (cdr (cider--all-connections-to-server server-buffer)))
+               (y-or-n-p "Also kill server process and buffer? "))
+      (let ((proc (get-buffer-process server-buffer)))
+        (when (process-live-p proc)
+          (set-process-query-on-exit-flag proc nil)
+          (kill-process proc))
+        (kill-buffer server-buffer)))))
 
 ;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
 ;; starts the client process described by `nrepl-client-filter' and
@@ -759,7 +755,6 @@ process."
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
-            nrepl--closing-connection nil
             nrepl-connection-buffer client-buf
             nrepl-repl-buffer client-buf
             nrepl-tunnel-buffer (-when-let (tunnel (plist-get endpoint :tunnel))

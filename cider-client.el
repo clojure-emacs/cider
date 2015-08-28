@@ -79,12 +79,12 @@ Also close associated REPL and server buffers."
     (setq cider-connections
           (delq (buffer-name buffer) cider-connections))
     (when (buffer-live-p buffer)
-      (dolist (buf (cons buffer
-                         (with-current-buffer buffer
-                           (list nrepl-tunnel-buffer
-                                 nrepl-server-buffer))))
-        (when buf
-          (cider--close-buffer buf))))))
+      (with-current-buffer buffer
+        (when nrepl-tunnel-buffer
+          (cider--close-buffer nrepl-tunnel-buffer)))
+      ;; If this is the only (or last) REPL connected to its server, the
+      ;; kill-process hook will kill the server.
+      (cider--close-buffer buffer))))
 
 
 ;;; Connection Browser

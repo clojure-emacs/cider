@@ -2363,7 +2363,6 @@ the string contents of the region into a formatted string."
   "Close the BUFFER and kill its associated process (if any)."
   (when (buffer-live-p (get-buffer buffer))
     (with-current-buffer buffer
-      (setq nrepl--closing-connection t)
       (when nrepl-session
         (nrepl-sync-request:close (cider-current-repl-buffer) nrepl-session))
       (when nrepl-tooling-session
@@ -2376,7 +2375,7 @@ the string contents of the region into a formatted string."
   "Close buffers that are shared across connections."
   (interactive)
   (dolist (buf-name cider-ancillary-buffers)
-    (cider--close-buffer buf-name)))
+    (kill-buffer buf-name)))
 
 (defun cider--quit-connection (conn)
   "Quit the connection CONN."
