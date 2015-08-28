@@ -1008,13 +1008,15 @@ Register CALLBACK as the response handler."
                       callback
                       connection))
 
-(defun nrepl-request:interrupt (pending-request-id callback)
+(defun nrepl-request:interrupt (pending-request-id callback connection session)
   "Send an :interrupt request for PENDING-REQUEST-ID.
+The request is dispatched using CONNECTION and SESSION.
 Register CALLBACK as the response handler."
   (nrepl-send-request (list "op" "interrupt"
-                            "session" (cider-current-session)
+                            "session" session
                             "interrupt-id" pending-request-id)
-                      callback))
+                      callback
+                      connection))
 
 (defun nrepl--eval-request (input &optional ns session point)
   "Prepare :eval request message for INPUT in the context of NS and SESSION.

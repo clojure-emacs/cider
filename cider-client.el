@@ -288,7 +288,11 @@ on where they come from."
   (with-current-buffer (cider-current-repl-buffer)
     (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
       (dolist (request-id pending-request-ids)
-        (nrepl-request:interrupt request-id (cider-interrupt-handler (current-buffer)))))))
+        (nrepl-request:interrupt
+         request-id
+         (cider-interrupt-handler (current-buffer))
+         (cider-current-repl-buffer)
+         (cider-current-session))))))
 
 (defun cider-current-session ()
   "The REPL session to use for this buffer."
