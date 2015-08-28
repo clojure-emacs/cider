@@ -1,9 +1,13 @@
+sudo: true
 language: emacs-lisp
 env:
-  - EMACS=emacs24
-#  - EMACS=emacs-snapshot
+  - EMACS_BINARY=emacs-24.3-bin PATH=$HOME/.evm/bin:$PATH
+  - EMACS_BINARY=emacs-24.4-bin PATH=$HOME/.evm/bin:$PATH
+  - EMACS_BINARY=emacs-24.5-bin PATH=$HOME/.evm/bin:$PATH
+  - EMACS_BINARY=emacs-snapshot
+
 before_script:
   - sh vagrant/provision.sh
-  - make EMACS=${EMACS} elpa
+  - make elpa
 script:
-  - make EMACS=${EMACS} test
+  - make test

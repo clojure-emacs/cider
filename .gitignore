@@ -8,3 +8,4 @@ elpa
 TAGS
 .DS_STORE
 dist
+.vagrant/
