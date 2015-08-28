@@ -814,9 +814,9 @@ much every request that needs a session.  The tooling session is used only
 for functionality that's implemented in terms of the \"eval\" op, so that
 eval requests for functionality like pretty-printing won't clobber the
 values of *1, *2, etc."
-  (let ((client-conn (process-buffer client-conn))
-        (response-main (nrepl-sync-request:clone client-conn))
-        (response-tooling (nrepl-sync-request:clone client-conn)))
+  (let* ((client-conn (process-buffer client))
+         (response-main (nrepl-sync-request:clone client-conn))
+         (response-tooling (nrepl-sync-request:clone client-conn)))
     (nrepl-dbind-response response-main (new-session err)
       (if new-session
           (with-current-buffer client-conn
