@@ -2314,7 +2314,7 @@ the string contents of the region into a formatted string."
 (defun cider-describe-nrepl-session ()
   "Describe an nREPL session."
   (interactive)
-  (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions))))
+  (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-current-repl-buffer)))))
     (when (and selected-session (not (equal selected-session "")))
       (let* ((session-info (nrepl-sync-request:describe selected-session))
              (ops (nrepl-dict-keys (nrepl-dict-get session-info "ops")))
@@ -2337,7 +2337,7 @@ the string contents of the region into a formatted string."
 (defun cider-close-nrepl-session ()
   "Close an nREPL session for the current connection."
   (interactive)
-  (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions))))
+  (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions (cider-current-repl-buffer)))))
     (when selected-session
       (nrepl-sync-request:close selected-session)
       (message "Closed nREPL session %s" selected-session))))

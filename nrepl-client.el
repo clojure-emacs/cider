@@ -1066,9 +1066,9 @@ pretty-printed result, and is included in the request if non-nil."
       (nrepl-send-sync-request (list "session" session "op" "describe"))
     (nrepl-send-sync-request '("op" "describe"))))
 
-(defun nrepl-sync-request:ls-sessions ()
-  "Perform :ls-sessions request."
-  (nrepl-send-sync-request '("op" "ls-sessions")))
+(defun nrepl-sync-request:ls-sessions (connection)
+  "Perform :ls-sessions request for CONNECTION."
+  (nrepl-send-sync-request '("op" "ls-sessions") connection))
 
 (defun nrepl-sync-request:eval (input &optional ns session)
   "Send the INPUT to the nREPL server synchronously.
@@ -1083,9 +1083,9 @@ session. RIGHT-MARGIN specifies the maximum column width of the
 pretty-printed result, and is included in the request if non-nil."
   (nrepl-send-sync-request (nrepl--pprint-eval-request input ns session right-margin)))
 
-(defun nrepl-sessions ()
-  "Get a list of active sessions for the current nREPL connections."
-  (nrepl-dict-get (nrepl-sync-request:ls-sessions) "sessions"))
+(defun nrepl-sessions (connection)
+  "Get a list of active sessions on the nREPL server using CONNECTION."
+  (nrepl-dict-get (nrepl-sync-request:ls-sessions connection) "sessions"))
 
 
 ;;; Server
