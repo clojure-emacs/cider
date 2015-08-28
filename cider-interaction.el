@@ -1586,7 +1586,9 @@ evaluation command. Honor `cider-auto-jump-to-error'."
   "Handle an need-input request from BUFFER."
   (with-current-buffer buffer
     (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
-                         (cider-stdin-handler buffer))))
+                         (cider-stdin-handler buffer)
+                         (cider-current-repl-buffer)
+                         (cider-current-session))))
 
 
 ;;;; Popup buffers

@@ -999,13 +999,14 @@ sign of user input, so as not to hang the interface."
           (remhash id nrepl-pending-requests)))
       response)))
 
-(defun nrepl-request:stdin (input callback)
-  "Send a :stdin request with INPUT.
+(defun nrepl-request:stdin (input callback connection session)
+  "Send a :stdin request with INPUT using CONNECTION and SESSION.
 Register CALLBACK as the response handler."
   (nrepl-send-request (list "op" "stdin"
                             "stdin" input
-                            "session" (cider-current-session))
-                      callback))
+                            "session" session)
+                      callback
+                      connection))
 
 (defun nrepl-request:interrupt (pending-request-id callback)
   "Send an :interrupt request for PENDING-REQUEST-ID.
