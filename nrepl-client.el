@@ -806,7 +806,7 @@ process."
     client-proc))
 
 (defun nrepl--init-client-sessions (client)
-  "Initialize CLIENT nREPL sessions.
+  "Initialize CLIENT connection nREPL sessions.
 
 We create two client nREPL sessions per connection - a main session and a
 tooling session.  The main session is general purpose and is used for pretty
@@ -814,16 +814,17 @@ much every request that needs a session.  The tooling session is used only
 for functionality that's implemented in terms of the \"eval\" op, so that
 eval requests for functionality like pretty-printing won't clobber the
 values of *1, *2, etc."
-  (let ((response-main (nrepl-sync-request:clone))
-        (response-tooling (nrepl-sync-request:clone)))
+  (let ((client-conn (process-buffer client-conn))
+        (response-main (nrepl-sync-request:clone client-conn))
+        (response-tooling (nrepl-sync-request:clone client-conn)))
     (nrepl-dbind-response response-main (new-session err)
       (if new-session
-          (with-current-buffer (process-buffer client)
+          (with-current-buffer client-conn
             (setq nrepl-session new-session))
         (error "Could not create new session (%s)" err)))
     (nrepl-dbind-response response-tooling (new-session err)
       (if new-session
-          (with-current-buffer (process-buffer client)
+          (with-current-buffer client-conn
             (setq nrepl-tooling-session new-session))
         (error "Could not create new tooling session (%s)" err)))))
 
@@ -1052,9 +1053,11 @@ session. RIGHT-MARGIN specifies the maximum column width of the
 pretty-printed result, and is included in the request if non-nil."
   (nrepl-send-request (nrepl--pprint-eval-request input ns session right-margin) callback))
 
-(defun nrepl-sync-request:clone ()
-  "Sent a :clone request to create a new client session."
-  (nrepl-send-sync-request '("op" "clone")))
+(defun nrepl-sync-request:clone (connection)
+  "Sent a :clone request to create a new client session.
+The request is dispatched via CONNECTION."
+  (nrepl-send-sync-request '("op" "clone")
+                           connection))
 
 (defun nrepl-sync-request:close (session)
   "Sent a :close request to close SESSION."
