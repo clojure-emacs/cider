@@ -2316,7 +2316,7 @@ the string contents of the region into a formatted string."
   (interactive)
   (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-current-repl-buffer)))))
     (when (and selected-session (not (equal selected-session "")))
-      (let* ((session-info (nrepl-sync-request:describe selected-session))
+      (let* ((session-info (nrepl-sync-request:describe (cider-current-repl-buffer) selected-session))
              (ops (nrepl-dict-keys (nrepl-dict-get session-info "ops")))
              (session-id (nrepl-dict-get session-info "session"))
              (session-type (cond

@@ -830,7 +830,7 @@ values of *1, *2, etc."
 
 (defun nrepl--init-capabilities (conn-buffer)
   "Store locally in CONN-BUFFER the capabilities of nREPL server."
-  (let ((description (nrepl-sync-request:describe)))
+  (let ((description (nrepl-sync-request:describe conn-buffer)))
     (nrepl-dbind-response description (ops versions)
       (with-current-buffer conn-buffer
         (setq nrepl-ops ops)
@@ -1064,11 +1064,13 @@ The request is dispatched via CONNECTION."
   (nrepl-send-sync-request (list "op" "close" "session" session)
                            connection))
 
-(defun nrepl-sync-request:describe (&optional session)
-  "Perform :describe request."
+(defun nrepl-sync-request:describe (connection &optional session)
+  "Perform :describe request for CONNECTION and SESSION."
   (if session
-      (nrepl-send-sync-request (list "session" session "op" "describe"))
-    (nrepl-send-sync-request '("op" "describe"))))
+      (nrepl-send-sync-request (list "session" session "op" "describe")
+                               connection)
+    (nrepl-send-sync-request '("op" "describe")
+                             connection)))
 
 (defun nrepl-sync-request:ls-sessions (connection)
   "Perform :ls-sessions request for CONNECTION."
