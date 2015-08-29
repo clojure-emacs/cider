@@ -1485,8 +1485,7 @@ into a new error buffer."
        (setq causes (cider--handle-stacktrace-response response causes))))))
 
 (defun cider-default-err-handler ()
-  "Make an error handler for BUFFER, EX, ROOT-EX.
-This function determines how the error buffer is shown, and then delegates
+  "This function determines how the error buffer is shown, and then delegates
 the actual error content to the eval or op handler."
   (if (cider-nrepl-op-supported-p "stacktrace")
       (cider-default-err-op-handler)
