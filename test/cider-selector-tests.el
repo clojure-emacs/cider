@@ -10,7 +10,7 @@
   (with-temp-buffer
     (let ((b1 (current-buffer)))
       (setq-local cider-endpoint '("123.123.123.123" 4006))
-      (let ((cider-connections (list (buffer-name b1))))
+      (let ((cider-connections (list b1)))
         (cider-connection-browser)
         (with-temp-buffer ;; switch to another buffer
           (cider-invoke-selector-method-by-key ?n)

@@ -266,7 +266,7 @@ and has no process, return it.  If the process is alive, ask the user for
 confirmation and return 'new/nil for y/n answer respectively.  If other
 REPL buffers with dead process exist, ask the user if any of those should
 be reused."
-  (let* ((repl-buffs (-map #'buffer-name (cider-repl-buffers)))
+  (let* ((repl-buffs (cider-repl-buffers))
          (exact-buff (-first (lambda (buff)
                                (with-current-buffer buff
                                  (or (and endpoint (equal endpoint nrepl-endpoint))
@@ -274,8 +274,8 @@ be reused."
                              repl-buffs)))
     (cl-flet ((zombie-buffer-or-new
                () (let ((zombie-buffs (-remove (lambda (buff)
-                                                (process-live-p (get-buffer-process buff)))
-                                              repl-buffs)))
+                                                 (process-live-p (get-buffer-process buff)))
+                                               repl-buffs)))
                     (if zombie-buffs
                         (if (y-or-n-p (format "Zombie REPL buffers exist (%s).  Reuse? "
                                               (cider-string-join zombie-buffs ", ")))
@@ -500,7 +500,7 @@ object is a root list or dict."
     (message "Invalid bencode message detected. See %s buffer."
              nrepl-message-buffer-name)
     (nrepl-log-message
-     (format "Decoder error at position %d ('%s'):"
+     (format "Decoder error at position %d (`%s'):"
              (point) (buffer-substring (point) (min (+ (point) 10) (point-max)))))
     (nrepl-log-message (buffer-string))
     (ding)
@@ -738,7 +738,7 @@ process."
          (port (plist-get endpoint :port))
          (client-buf (funcall nrepl-create-client-buffer-function endpoint)))
 
-    (set-process-buffer client-proc (get-buffer client-buf))
+    (set-process-buffer client-proc client-buf)
 
     (set-process-filter client-proc 'nrepl-client-filter)
     (set-process-sentinel client-proc 'nrepl-client-sentinel)
@@ -765,9 +765,7 @@ process."
     (cider-make-connection-default client-buf)
     (with-current-buffer client-buf
       (nrepl--init-client-sessions client-proc)
-      (nrepl--init-capabilities client-buf))
-
-    (with-current-buffer client-buf
+      (nrepl--init-capabilities client-buf)
       (run-hooks 'nrepl-connected-hook))
 
     client-proc))
@@ -841,7 +839,7 @@ server responses."
   (lambda (response)
     (nrepl-dbind-response response (value ns out err status id
                                           session pprint-out)
-      (when (buffer-live-p (get-buffer buffer))
+      (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
             (setq cider-buffer-ns ns))))
@@ -1124,7 +1122,7 @@ the port, and the client buffer."
                (client-buffer (process-buffer client-proc)))
           ;; FIXME: Bad connection tracking system. There can be multiple client
           ;; connections per server
-          (setq nrepl-connection-buffer (buffer-name client-buffer))
+          (setq nrepl-connection-buffer client-buffer)
 
           (when (functionp nrepl-post-client-callback)
             (funcall nrepl-post-client-callback client-buffer)))))))

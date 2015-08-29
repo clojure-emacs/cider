@@ -172,14 +172,19 @@
      (should (get-buffer b))
      ;; Add one connection
      (cider-make-connection-default a)
-     (should (equal (append (list (buffer-name a)) connections)
+     (should (equal (cons a connections)
                     (cider-connections)))
-     (should (equal (buffer-name a) (cider-default-connection)))
+     (should (equal a (cider-default-connection)))
      ;; Add second connection
      (cider-make-connection-default b)
-     (should (equal (append (list (buffer-name b) (buffer-name a)) connections)
+     (should (equal (append (list b a) connections)
                     (cider-connections)))
-     (should (equal (buffer-name b) (cider-default-connection))))))
+     (should (equal b (cider-default-connection)))
+     ;; Re-add first connection
+     (cider-make-connection-default a)
+     (should (equal (append (list a b) connections)
+                    (cider-connections)))
+     (should (equal a (cider-default-connection))))))
 
 (ert-deftest test-cider-connections ()
   (let ((connections (cider-connections)))
@@ -189,27 +194,26 @@
      (cider-make-connection-default b)
      ;; killing a buffer should see it purged from the connection list
      (kill-buffer a)
-     (should (equal (append (list (buffer-name b)) connections)
+     (should (equal (cons b connections)
                     (cider-connections)))
-     (should (equal (buffer-name b) (cider-default-connection))))))
+     (should (equal b (cider-default-connection))))))
 
 (ert-deftest test-cider-rotate-connecton-buffer ()
   (noflet ((nrepl--connection-info (connection-buffer-name)))
     (cider-test-with-buffers
      (a b c)
-     (let ((cider-connections
-            (list (buffer-name a) (buffer-name b) (buffer-name c)))
+     (let ((cider-connections (list a b c))
            (nrepl-connection-buffer nil))
        (noflet ((cider--java-version () "")
                 (cider--clojure-version () "")
                 (cider--nrepl-version () ""))
-         (should (equal (buffer-name a) (cider-default-connection)))
+         (should (equal a (cider-default-connection)))
          (cider-rotate-default-connection)
-         (should (equal (buffer-name b) (cider-default-connection)))
+         (should (equal b (cider-default-connection)))
          (cider-rotate-default-connection)
-         (should (equal (buffer-name c) (cider-default-connection)))
+         (should (equal c (cider-default-connection)))
          (cider-rotate-default-connection)
-         (should (equal (buffer-name a) (cider-default-connection))))))))
+         (should (equal a (cider-default-connection))))))))
 
 (ert-deftest test-cider--connection-info ()
   (with-temp-buffer
@@ -218,7 +222,7 @@
              (cider--nrepl-version () "0.2.1"))
       (setq-local nrepl-endpoint '("localhost" 4005))
       (setq-local nrepl-project-dir "proj")
-      (should (string= (cider--connection-info (buffer-name (current-buffer)))
+      (should (string= (cider--connection-info (current-buffer))
                        "proj@localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-connection-info-no-project ()
@@ -227,7 +231,7 @@
              (cider--clojure-version () "1.5.1")
              (cider--nrepl-version () "0.2.1"))
       (setq-local nrepl-endpoint '("localhost" 4005))
-      (should (string= (cider--connection-info (buffer-name (current-buffer)))
+      (should (string= (cider--connection-info (current-buffer))
                        "<no project>@localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-close ()
@@ -239,9 +243,9 @@
      ;; closing a buffer should see it removed from the connection list
      (nrepl-close a)
      (should (not (buffer-live-p a)))
-     (should (equal (append (list (buffer-name b)) connections)
+     (should (equal (cons b connections)
                     (cider-connections)))
-     (should (equal (buffer-name b) (cider-default-connection))))))
+     (should (equal b (cider-default-connection))))))
 
 (ert-deftest test-cider--var-namespace ()
   (should (string= (cider--var-namespace "#'a/var-two") "a"))
@@ -275,8 +279,7 @@
       (with-temp-buffer
         (let ((b2 (current-buffer)))
           (setq-local nrepl-endpoint '("123.123.123.123" 4006))
-          (let ((cider-connections
-                 (list (buffer-name b1) (buffer-name b2))))
+          (let ((cider-connections (list b1 b2)))
             (cider-connection-browser)
             (with-current-buffer "*cider-connections*"
               (should (equal "  Host              Port   Project
@@ -286,7 +289,7 @@
                              (buffer-string)))
               (goto-char 80)         ; somewhere in the second connection listed
               (cider-connections-make-default)
-              (should (equal (buffer-name b2) (car cider-connections)))
+              (should (equal b2 (car cider-connections)))
               (should (equal "  Host              Port   Project
 
   localhost         4005   proj
@@ -294,7 +297,7 @@
                              (buffer-string)))
               (goto-char 80)         ; somewhere in the second connection listed
               (cider-connections-close-connection)
-              (should (equal (list (buffer-name b1)) cider-connections))
+              (should (equal (list b1) cider-connections))
               (should (equal "  Host              Port   Project
 
 * localhost         4005   proj\n\n"
@@ -403,14 +406,14 @@
   (with-temp-buffer
     (setq-local nrepl-endpoint '("localhost" 1))
     (let ((b1 (current-buffer)))
-      (let ((cider-connections (list (buffer-name b1))))
+      (let ((cider-connections (list b1)))
         (should
          (equal (cider-repl-buffer-name) "*cider-repl localhost*"))))))
 
 (ert-deftest test-cider-clojure-buffer-name-w/project ()
   (with-temp-buffer
     (let ((b1 (current-buffer)))
-      (let ((cider-connections (list (buffer-name b1)))
+      (let ((cider-connections (list b1))
             (nrepl-project-dir "/a/test/directory/project"))
         (should
          (equal (cider-repl-buffer-name) "*cider-repl project*"))))))
@@ -425,23 +428,24 @@
       (with-temp-buffer
         (let* ((connection-buffer (current-buffer))
                (repl-buffer connection-buffer)
-               (cider-connections (list (buffer-name connection-buffer))))
+               (cider-connections (list connection-buffer)))
           (with-current-buffer connection-buffer
-            (setq-local nrepl-repl-buffer (buffer-name repl-buffer))
-            (setq-local nrepl-server-buffer (buffer-name server-buffer)))
+            (setq-local nrepl-repl-buffer repl-buffer)
+            (setq-local nrepl-connection-buffer connection-buffer)
+            (setq-local nrepl-server-buffer server-buffer))
           (noflet ((read-string (dontcare) "bob"))
-                  (cider-change-buffers-designation)
-                  (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
-                  (should (equal "*nrepl-server bob*" (buffer-name server-buffer))))
+            (cider-change-buffers-designation)
+            (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
+            (should (equal "*nrepl-server bob*" (buffer-name server-buffer))))
           (with-current-buffer repl-buffer
-            (should (equal "*cider-repl bob*" nrepl-connection-buffer))))))))
+            (should (equal "*cider-repl bob*" (buffer-name nrepl-connection-buffer)))))))))
 
 (ert-deftest test-cider-change-buffers-designation-to-existing-designation-has-no-effect ()
   (with-temp-buffer
     (let ((server-buffer (current-buffer)))
       (with-temp-buffer
         (let* ((connection-buffer (current-buffer))
-               (cider-connections (list (buffer-name connection-buffer))))
+               (cider-connections (list connection-buffer)))
           (with-temp-buffer
             (rename-buffer "*cider-repl bob*") ;; Make a buffer that already has the designation
             (with-temp-buffer
@@ -451,8 +455,8 @@
                      (before-server-buffer-name (buffer-name server-buffer)))
 
                 (with-current-buffer connection-buffer
-                  (setq-local nrepl-repl-buffer (buffer-name repl-buffer))
-                  (setq-local nrepl-server-buffer (buffer-name server-buffer)))
+                  (setq-local nrepl-repl-buffer repl-buffer)
+                  (setq-local nrepl-server-buffer server-buffer))
 
                 (noflet ((read-string (dontcare) "bob"))
                   (should-error
@@ -464,25 +468,25 @@
 (ert-deftest cider-extract-designation-from-current-repl-buffer ()
   (with-temp-buffer
     (let* ((connection-buffer (current-buffer))
-           (cider-connections (list (buffer-name connection-buffer))))
+           (cider-connections (list connection-buffer)))
       (with-temp-buffer
         (let ((repl-buffer (current-buffer)))
           (rename-buffer "*cider-repl bob*")
           (with-temp-buffer
             (with-current-buffer connection-buffer
-              (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))
+              (setq-local nrepl-repl-buffer repl-buffer))
             (should (equal "bob" (cider-extract-designation-from-current-repl-buffer)))))))))
 
 (ert-deftest cider-extract-designation-from-current-repl-buffer-no-designation ()
   (with-temp-buffer
     (let* ((connection-buffer (current-buffer))
-           (cider-connections (list (buffer-name connection-buffer))))
+           (cider-connections (list connection-buffer)))
       (with-temp-buffer
         (let ((repl-buffer (current-buffer)))
           (rename-buffer "*cider-repl*")
           (with-temp-buffer
             (with-current-buffer connection-buffer
-              (setq-local nrepl-repl-buffer (buffer-name repl-buffer)))
+              (setq-local nrepl-repl-buffer repl-buffer))
             (should (equal "<no designation>" (cider-extract-designation-from-current-repl-buffer)))))))))
 
 

@@ -374,7 +374,7 @@ Signal an error if it is not supported."
 
 Info contains project name, current REPL namespace, host:port
 endpoint and Clojure version."
-  (with-current-buffer (get-buffer connection-buffer)
+  (with-current-buffer connection-buffer
     (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
             (if cider-repl-type
                 (upcase (concat cider-repl-type " "))
@@ -412,7 +412,7 @@ default connection."
 
 (defun cider-extract-designation-from-current-repl-buffer ()
   "Extract the designation from the cider repl buffer name."
-  (let ((repl-buffer-name (cider-current-repl-buffer))
+  (let ((repl-buffer-name (buffer-name (cider-current-repl-buffer)))
         (template (split-string nrepl-repl-buffer-name-template "%s")))
     (string-match (format "^%s\\(.*\\)%s"
                           (regexp-quote (concat (car template) nrepl-buffer-name-separator))
@@ -431,16 +431,11 @@ Buffer names changed are cider-repl and nrepl-server."
                                 nrepl-repl-buffer-name-template designation)))
     (with-current-buffer (cider-current-repl-buffer)
       (rename-buffer new-repl-buffer-name)
-      (setq-local nrepl-repl-buffer new-repl-buffer-name)
-      (setq-local nrepl-connection-buffer new-repl-buffer-name)
-      (setq cider-connections
-            (cons new-repl-buffer-name (cdr cider-connections)))
       (when nrepl-server-buffer
         (let ((new-server-buffer-name (nrepl-format-buffer-name-template
                                        nrepl-server-buffer-name-template designation)))
           (with-current-buffer nrepl-server-buffer
-            (rename-buffer new-server-buffer-name))
-          (setq-local nrepl-server-buffer new-server-buffer-name))))
+            (rename-buffer new-server-buffer-name)))))
     (message "CIDER buffer designation changed to: %s" designation)))
 
 ;;; Switching between REPL & source buffers
@@ -526,13 +521,13 @@ If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
 connections are returned, instead of just the most recent."
   (let ((fn (if all-connections #'-filter #'-first)))
     (or (funcall fn (lambda (conn)
-                      (-when-let (conn-proj-dir (with-current-buffer (get-buffer conn)
+                      (-when-let (conn-proj-dir (with-current-buffer conn
                                                   nrepl-project-dir))
                         (equal (file-truename project-directory)
                                (file-truename conn-proj-dir))))
                  cider-connections)
         (funcall fn (lambda (conn)
-                      (with-current-buffer (get-buffer conn)
+                      (with-current-buffer conn
                         (not nrepl-project-dir)))
                  cider-connections))))
 
@@ -1377,10 +1372,9 @@ This is used by pretty-printing commands and intentionally discards their result
 (defun cider-visit-error-buffer ()
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
   (interactive)
-  (let ((buffer (get-buffer cider-error-buffer)))
-    (if buffer
-        (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
-      (user-error "No %s buffer" cider-error-buffer))))
+  (-if-let ((buffer (get-buffer cider-error-buffer)))
+      (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
+    (user-error "No %s buffer" cider-error-buffer)))
 
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.
@@ -1722,7 +1716,7 @@ REPL's ns, otherwise fall back to \"user\"."
   (or cider-buffer-ns
       (clojure-find-ns)
       (-when-let (repl-buf (cider-current-repl-buffer))
-        (buffer-local-value 'cider-buffer-ns (get-buffer repl-buf)))
+        (buffer-local-value 'cider-buffer-ns repl-buf))
       "user"))
 
 
@@ -2243,7 +2237,7 @@ The heavy lifting is done by `cider-load-file'."
   (setq buffer (or buffer (current-buffer)))
   (with-current-buffer buffer
     (unless buffer-file-name
-      (user-error "Buffer %s is not associated with a file" (buffer-name)))
+      (user-error "Buffer `%s' is not associated with a file" (current-buffer)))
     (when (and cider-prompt-save-file-on-load
                (buffer-modified-p)
                (or (eq cider-prompt-save-file-on-load 'always-save)
@@ -2358,7 +2352,7 @@ the string contents of the region into a formatted string."
 ;;; quiting
 (defun cider--close-buffer (buffer)
   "Close the BUFFER and kill its associated process (if any)."
-  (when (buffer-live-p (get-buffer buffer))
+  (when (buffer-live-p buffer)
     (with-current-buffer buffer
       (when nrepl-session
         (nrepl-sync-request:close (cider-current-repl-buffer) nrepl-session))

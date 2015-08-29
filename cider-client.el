@@ -47,13 +47,10 @@ found."
 (defun cider-connections ()
   "Return the list of connection buffers."
   (setq cider-connections
-        (-remove (lambda (buffer)
-                   (not (buffer-live-p (get-buffer buffer))))
-                 cider-connections)))
+        (-filter #'buffer-live-p cider-connections)))
 
 (defun cider-repl-buffers ()
-  "Return the list of REPL buffers.
-Purge the dead buffers from the `cider-connections' beforehand."
+  "Return the list of REPL buffers."
   (-filter
    (lambda (buffer)
      (with-current-buffer buffer (derived-mode-p 'cider-repl-mode)))
@@ -62,14 +59,13 @@ Purge the dead buffers from the `cider-connections' beforehand."
 (defun cider-make-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
 Moves CONNECTION-BUFFER to the front of `cider-connections'."
-  (interactive (list nrepl-connection-buffer))
-  (if connection-buffer
-      ;; maintain the connection list in most recently used order
-      (let ((buf-name (buffer-name (get-buffer connection-buffer))))
-        (setq cider-connections
-              (cons buf-name (delq buf-name cider-connections)))
-        (cider--connections-refresh))
-    (user-error "Not in a REPL buffer")))
+  (interactive (list (or nrepl-connection-buffer
+                         (user-error "Not in a REPL buffer"))))
+  ;; maintain the connection list in most recently used order
+  (let ((buf (get-buffer connection-buffer)))
+    (setq cider-connections
+          (cons buf (delq buf cider-connections))))
+  (cider--connections-refresh))
 
 (declare-function cider--close-buffer "cider-interaction")
 (defun cider--close-connection-buffer (conn-buffer)
@@ -77,7 +73,7 @@ Moves CONNECTION-BUFFER to the front of `cider-connections'."
 Also close associated REPL and server buffers."
   (let ((buffer (get-buffer conn-buffer)))
     (setq cider-connections
-          (delq (buffer-name buffer) cider-connections))
+          (delq buffer cider-connections))
     (when (buffer-live-p buffer)
       (with-current-buffer buffer
         (when nrepl-tunnel-buffer
@@ -110,13 +106,12 @@ Also close associated REPL and server buffers."
 (defun cider-connection-browser ()
   "Open a browser buffer for nREPL connections."
   (interactive)
-  (let ((buffer (get-buffer cider--connection-browser-buffer-name)))
-    (if buffer
-        (progn
-          (cider--connections-refresh-buffer buffer)
-          (unless (get-buffer-window buffer)
-            (select-window (display-buffer buffer))))
-      (cider--setup-connection-browser))))
+  (-if-let (buffer (get-buffer cider--connection-browser-buffer-name))
+      (progn
+        (cider--connections-refresh-buffer buffer)
+        (unless (get-buffer-window buffer)
+          (select-window (display-buffer buffer))))
+    (cider--setup-connection-browser)))
 
 (define-obsolete-function-alias 'nrepl-connection-browser 'cider-connection-browser "0.10")
 
@@ -124,9 +119,8 @@ Also close associated REPL and server buffers."
   "Refresh the connections buffer, if the buffer exists.
 The connections buffer is determined by
 `cider--connection-browser-buffer-name'"
-  (let ((buffer (get-buffer cider--connection-browser-buffer-name)))
-    (when buffer
-      (cider--connections-refresh-buffer buffer))))
+  (-when-let (buffer (get-buffer cider--connection-browser-buffer-name))
+    (cider--connections-refresh-buffer buffer)))
 
 (defun cider--connections-refresh-buffer (buffer)
   "Refresh the connections BUFFER."
@@ -214,9 +208,8 @@ Refreshes EWOC."
 
 (defun cider--connections-goto-connection (_ewoc data)
   "Goto the REPL for the connection in _EWOC specified by DATA."
-  (let ((buffer (buffer-local-value 'nrepl-repl-buffer (get-buffer data))))
-    (when buffer
-      (select-window (display-buffer buffer)))))
+  (-when-let (buffer (with-current-buffer data nrepl-repl-buffer))
+    (select-window (display-buffer buffer))))
 
 
 (defun cider-display-connected-message ()
@@ -347,10 +340,8 @@ unless ALL is truthy."
   "Return a list of REPL buffers connected to SERVER-BUFFER."
   (-filter
    (lambda (conn)
-     (let ((server (with-current-buffer (get-buffer conn)
-                     nrepl-server-buffer)))
-       (when server
-         (equal server-buffer server))))
+     (-when-let (server (with-current-buffer conn nrepl-server-buffer))
+       (equal server-buffer server)))
    cider-connections))
 
 
