@@ -189,8 +189,8 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
         (cider-repl-mode))
       (cider-repl-reset-markers)
       (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
-      (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local))
-    buff-name))
+      (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local)
+      (current-buffer))))
 
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
@@ -222,7 +222,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
   (when cider-repl-display-in-current-window
-    (add-to-list 'same-window-buffer-names buffer))
+    (add-to-list 'same-window-buffer-names (buffer-name buffer)))
   (when cider-repl-pop-to-buffer-on-connect
     (pop-to-buffer buffer))
   (cider-remember-clojure-buffer cider-current-clojure-buffer)

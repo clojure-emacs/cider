@@ -412,7 +412,7 @@ default connection."
 
 (defun cider-extract-designation-from-current-repl-buffer ()
   "Extract the designation from the cider repl buffer name."
-  (let ((repl-buffer-name (cider-current-repl-buffer))
+  (let ((repl-buffer-name (buffer-name (cider-current-repl-buffer)))
         (template (split-string nrepl-repl-buffer-name-template "%s")))
     (string-match (format "^%s\\(.*\\)%s"
                           (regexp-quote (concat (car template) nrepl-buffer-name-separator))
@@ -431,16 +431,11 @@ Buffer names changed are cider-repl and nrepl-server."
                                 nrepl-repl-buffer-name-template designation)))
     (with-current-buffer (cider-current-repl-buffer)
       (rename-buffer new-repl-buffer-name)
-      (setq-local nrepl-repl-buffer new-repl-buffer-name)
-      (setq-local nrepl-connection-buffer new-repl-buffer-name)
-      (setq cider-connections
-            (cons new-repl-buffer-name (cdr cider-connections)))
       (when nrepl-server-buffer
         (let ((new-server-buffer-name (nrepl-format-buffer-name-template
                                        nrepl-server-buffer-name-template designation)))
           (with-current-buffer nrepl-server-buffer
-            (rename-buffer new-server-buffer-name))
-          (setq-local nrepl-server-buffer new-server-buffer-name))))
+            (rename-buffer new-server-buffer-name)))))
     (message "CIDER buffer designation changed to: %s" designation)))
 
 ;;; Switching between REPL & source buffers
@@ -1721,7 +1716,7 @@ REPL's ns, otherwise fall back to \"user\"."
   (or cider-buffer-ns
       (clojure-find-ns)
       (-when-let (repl-buf (cider-current-repl-buffer))
-        (buffer-local-value 'cider-buffer-ns (get-buffer repl-buf)))
+        (buffer-local-value 'cider-buffer-ns repl-buf))
       "user"))
 
 

@@ -266,7 +266,7 @@ and has no process, return it.  If the process is alive, ask the user for
 confirmation and return 'new/nil for y/n answer respectively.  If other
 REPL buffers with dead process exist, ask the user if any of those should
 be reused."
-  (let* ((repl-buffs (-map #'buffer-name (cider-repl-buffers)))
+  (let* ((repl-buffs (cider-repl-buffers))
          (exact-buff (-first (lambda (buff)
                                (with-current-buffer buff
                                  (or (and endpoint (equal endpoint nrepl-endpoint))
@@ -1122,7 +1122,7 @@ the port, and the client buffer."
                (client-buffer (process-buffer client-proc)))
           ;; FIXME: Bad connection tracking system. There can be multiple client
           ;; connections per server
-          (setq nrepl-connection-buffer (buffer-name client-buffer))
+          (setq nrepl-connection-buffer client-buffer)
 
           (when (functionp nrepl-post-client-callback)
             (funcall nrepl-post-client-callback client-buffer)))))))
