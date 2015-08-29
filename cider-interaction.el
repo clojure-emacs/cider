@@ -1342,9 +1342,8 @@ can be used to display the evaluation result."
                                    (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '()
-                                 (lambda (buffer ex root-ex session)
-                                   (funcall nrepl-err-handler
-                                            buffer ex root-ex session)))))
+                                 (lambda ()
+                                   (funcall nrepl-err-handler)))))
 
 (defun cider-eval-print-handler (&optional buffer)
   "Make a handler for evaluating and printing result in BUFFER."

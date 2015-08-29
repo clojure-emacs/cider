@@ -814,8 +814,7 @@ values of *1, *2, etc."
 ;; After being decoded, responses (aka, messages from the server) are dispatched
 ;; to handlers. Handlers are constructed with `nrepl-make-response-handler'.
 
-(defvar nrepl-err-handler '(lambda (_buffer _ex _root-ex)
-                             (cider-default-err-handler))
+(defvar nrepl-err-handler #'cider-default-err-handler
   "Evaluation error handler.")
 
 (defvar cider-buffer-ns)
@@ -840,7 +839,7 @@ nothing happens for the corresponding type of response.
 When `nrepl-log-messages' is non-nil, *nrepl-messages* buffer contains
 server responses."
   (lambda (response)
-    (nrepl-dbind-response response (value ns out err status id ex root-ex
+    (nrepl-dbind-response response (value ns out err status id
                                           session pprint-out)
       (when (buffer-live-p (get-buffer buffer))
         (with-current-buffer buffer
@@ -862,8 +861,7 @@ server responses."
              (when (member "interrupted" status)
                (message "Evaluation interrupted."))
              (when (member "eval-error" status)
-               (funcall (or eval-error-handler nrepl-err-handler)
-                        buffer ex root-ex))
+               (funcall (or eval-error-handler nrepl-err-handler)))
              (when (member "namespace-not-found" status)
                (message "Namespace not found."))
              (when (member "need-input" status)
