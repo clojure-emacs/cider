@@ -297,7 +297,7 @@ Signal an error if it is not supported."
 
 (defun cider--check-required-nrepl-ops ()
   "Check whether all required nREPL ops are present."
-  (let* ((current-connection (cider-current-repl-buffer))
+  (let* ((current-connection (cider-find-relevant-connection))
          (missing-ops (-remove (lambda (op) (nrepl-op-supported-p op current-connection)) cider-required-nrepl-ops)))
     (when missing-ops
       (cider-repl-emit-interactive-stderr
@@ -394,7 +394,7 @@ default connection."
   (interactive "P")
   (message (cider--connection-info (if show-default
                                        (cider-default-connection)
-                                     (cider-current-repl-buffer)))))
+                                     (cider-find-relevant-connection)))))
 
 (define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-connection-info "0.10")
 
@@ -1595,7 +1595,7 @@ evaluation command. Honor `cider-auto-jump-to-error'."
   (with-current-buffer buffer
     (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
                          (cider-stdin-handler buffer)
-                         (cider-current-repl-buffer)
+                         (cider-find-relevant-connection)
                          (cider-current-session))))
 
 
@@ -1715,7 +1715,7 @@ The ns is extracted from the ns form for Clojure buffers and from
 REPL's ns, otherwise fall back to \"user\"."
   (or cider-buffer-ns
       (clojure-find-ns)
-      (-when-let (repl-buf (cider-current-repl-buffer))
+      (-when-let (repl-buf (cider-find-relevant-connection))
         (buffer-local-value 'cider-buffer-ns repl-buf))
       "user"))
 
@@ -1742,13 +1742,13 @@ form independently.")
 
 (defun cider--cache-ns-form ()
   "Cache the form in the current buffer for the current connection."
-  (puthash (cider-current-repl-buffer)
+  (puthash (cider-find-relevant-connection)
            (cider-ns-form)
            cider--ns-form-cache))
 
 (defun cider--cached-ns-form ()
   "Retrieve the cached ns form for the current buffer & connection."
-  (gethash (cider-current-repl-buffer) cider--ns-form-cache))
+  (gethash (cider-find-relevant-connection) cider--ns-form-cache))
 
 (defun cider--prep-interactive-eval (form)
   "Prepares the environment for an interactive eval of FORM.
@@ -1859,7 +1859,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
   (cider-interactive-eval (cider-last-sexp)
-                          (cider-insert-eval-handler (cider-current-repl-buffer)))
+                          (cider-insert-eval-handler (cider-find-relevant-connection)))
   (when prefix
     (cider-switch-to-repl-buffer)))
 
@@ -1935,7 +1935,7 @@ otherwise it's evaluated interactively."
 If EVAL is non-nil the form will also be evaluated."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
-  (with-current-buffer (cider-current-repl-buffer)
+  (with-current-buffer (cider-find-relevant-connection)
     (goto-char (point-max))
     (let ((beg (point)))
       (insert form)
@@ -2321,9 +2321,9 @@ the string contents of the region into a formatted string."
 (defun cider-describe-nrepl-session ()
   "Describe an nREPL session."
   (interactive)
-  (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-current-repl-buffer)))))
+  (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-find-relevant-connection)))))
     (when (and selected-session (not (equal selected-session "")))
-      (let* ((session-info (nrepl-sync-request:describe (cider-current-repl-buffer) selected-session))
+      (let* ((session-info (nrepl-sync-request:describe (cider-find-relevant-connection) selected-session))
              (ops (nrepl-dict-keys (nrepl-dict-get session-info "ops")))
              (session-id (nrepl-dict-get session-info "session"))
              (session-type (cond
@@ -2344,9 +2344,9 @@ the string contents of the region into a formatted string."
 (defun cider-close-nrepl-session ()
   "Close an nREPL session for the current connection."
   (interactive)
-  (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions (cider-current-repl-buffer)))))
+  (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions (cider-find-relevant-connection)))))
     (when selected-session
-      (nrepl-sync-request:close (cider-current-repl-buffer) selected-session)
+      (nrepl-sync-request:close (cider-find-relevant-connection) selected-session)
       (message "Closed nREPL session %s" selected-session))))
 
 ;;; quiting
@@ -2355,9 +2355,9 @@ the string contents of the region into a formatted string."
   (when (buffer-live-p buffer)
     (with-current-buffer buffer
       (when nrepl-session
-        (nrepl-sync-request:close (cider-current-repl-buffer) nrepl-session))
+        (nrepl-sync-request:close (cider-find-relevant-connection) nrepl-session))
       (when nrepl-tooling-session
-        (nrepl-sync-request:close (cider-current-repl-buffer) nrepl-tooling-session))
+        (nrepl-sync-request:close (cider-find-relevant-connection) nrepl-tooling-session))
       (when (get-buffer-process buffer)
         (delete-process (get-buffer-process buffer))))
     (kill-buffer buffer)))
@@ -2391,7 +2391,7 @@ and all ancillary CIDER buffers."
           (dolist (connection cider-connections)
             (cider--quit-connection connection))
           (message "All active nREPL connections were closed"))
-      (cider--quit-connection (cider-current-repl-buffer)))
+      (cider--quit-connection (cider-find-relevant-connection)))
     ;; if there are no more connections we can kill all ancillary buffers
     (unless (cider-connected-p)
       (cider-close-ancillary-buffers))))
@@ -2416,7 +2416,7 @@ If RESTART-ALL is t, then restarts all connections."
   (if restart-all
       (dolist (conn cider-connections)
         (cider--restart-connection conn))
-    (cider--restart-connection (cider-current-repl-buffer))))
+    (cider--restart-connection (cider-find-relevant-connection))))
 
 (defvar cider--namespace-history nil
   "History of user input for namespace prompts.")

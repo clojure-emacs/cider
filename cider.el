@@ -194,9 +194,9 @@ REPL."
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
 The new buffer will correspond to the same project as CLIENT-BUFFER, which
 should be the regular Clojure REPL started by the server process filter."
-  (interactive (list (cider-current-repl-buffer)))
+  (interactive (list (cider-find-relevant-connection)))
   (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
-         (nrepl-create-client-buffer-function  #'cider-repl-create)
+         (nrepl-create-client-buffer-function #'cider-repl-create)
          (nrepl-use-this-as-repl-buffer 'new)
          (client-process-args (with-current-buffer client-buffer
                                 (unless (or nrepl-server-buffer nrepl-endpoint)
