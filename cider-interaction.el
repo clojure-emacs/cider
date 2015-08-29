@@ -308,7 +308,7 @@ Signal an error if it is not supported."
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."
-  (with-current-buffer (cider-default-connection)
+  (with-current-buffer (cider-find-relevant-connection "clj")
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "java")
@@ -316,7 +316,7 @@ Signal an error if it is not supported."
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
-  (with-current-buffer (cider-default-connection)
+  (with-current-buffer (cider-find-relevant-connection "clj")
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "clojure")
@@ -324,7 +324,7 @@ Signal an error if it is not supported."
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
-  (with-current-buffer (cider-default-connection)
+  (with-current-buffer (cider-find-relevant-connection "clj")
     (when nrepl-versions
       (-> nrepl-versions
           (nrepl-dict-get "nrepl")
@@ -561,15 +561,18 @@ such a link cannot be established automatically."
   (cider-ensure-connected)
   (setq-local cider-buffer-connection nil))
 
-(defun cider-find-relevant-connection ()
+(defun cider-find-relevant-connection (&optional type)
   "Return the REPL buffer relevant for the current Clojure source buffer.
 A REPL is relevant if its `nrepl-project-dir' is compatible with the
 current directory (see `cider-find-connection-buffer-for-project-directory').
-If there is ambiguity, it is resolved by matching the major-mode with the
-REPL type (Clojure or ClojureScript)."
+If there is ambiguity, it is resolved by matching TYPE with the REPL
+type (Clojure or ClojureScript). If TYPE is nil, it is derived from the
+file extension."
   (cider-ensure-connected)
   (cond
+   ;; FIXME: Aren't these two variables redundant?
    (cider-buffer-connection)
+   (nrepl-connection-buffer)
    ((= 1 (length cider-connections)) (car cider-connections))
    (t (let* ((project-directory (clojure-project-dir (cider-current-dir)))
              (repls (cider-find-connection-buffer-for-project-directory project-directory 'all)))
@@ -577,7 +580,7 @@ REPL type (Clojure or ClojureScript)."
             ;; Only one match, just return it.
             (car repls)
           ;; OW, find one matching the extension of current file.
-          (let ((type (file-name-extension (or (buffer-file-name) ""))))
+          (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
             (or (-first (lambda (conn)
                           (equal (with-current-buffer conn
                                    (or cider-repl-type "clj"))
