@@ -164,6 +164,9 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   (with-current-buffer (or (cider-default-connection 'no-error)
                            (current-buffer))
     (nrepl-make-buffer-name nrepl-repl-buffer-name-template project-dir host port)))
+(make-obsolete 'cider-repl-buffer-name
+               "use `nrepl-make-buffer-name' with `nrepl-repl-buffer-name-template' instead."
+               "0.10.0")
 
 (defun cider-repl-create (endpoint)
   "Create a REPL buffer and install `cider-repl-mode'.
