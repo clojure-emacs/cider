@@ -365,7 +365,9 @@ Signal an error if it is not supported."
       (require 'cider.nrepl.version)
       (:version-string @(resolve 'cider.nrepl.version/version))
     (catch Throwable _ \"not installed\"))"
-   (cider--check-middleware-compatibility-callback (current-buffer))))
+   (cider--check-middleware-compatibility-callback (current-buffer))
+   (cider-find-relevant-connection)
+   (cider-current-session)))
 
 (defun cider--connection-info (connection-buffer)
   "Return info about CONNECTION-BUFFER.
