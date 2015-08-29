@@ -1053,7 +1053,7 @@ The request is dispatched via CONNECTION."
 The request is dispatched via CONNECTION and SESSION.
 If NS is non-nil, include it in the request."
   (nrepl-send-sync-request
-   (nrepl--eval-request input ns session)
+   (nrepl--eval-request input session ns)
    connection))
 
 (defun nrepl-sync-request:pprint-eval (input connection session &optional ns right-margin)

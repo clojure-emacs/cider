@@ -123,7 +123,7 @@ Used for all inspector nREPL ops."
 
 (defun cider-inspect-expr (expr ns)
   (cider--prep-interactive-eval expr)
-  (cider-nrepl-send-request (append (nrepl--eval-request expr ns)
+  (cider-nrepl-send-request (append (nrepl--eval-request expr nil ns)
                                     (list "inspect" "true"
                                           "page-size" (or cider-inspector-page-size 32)))
                             (cider-inspector-response-handler (current-buffer))))
