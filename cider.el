@@ -192,8 +192,8 @@ REPL."
 
 (defun cider-create-sibling-cljs-repl (client-buffer)
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
-Link the new buffer with CLIENT-BUFFER, which should be the regular Clojure
-REPL started by the server process filter."
+The new buffer will correspond to the same project as CLIENT-BUFFER, which
+should be the regular Clojure REPL started by the server process filter."
   (interactive (list (cider-current-repl-buffer)))
   (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
          (nrepl-create-client-buffer-function  #'cider-repl-create)
@@ -210,11 +210,9 @@ REPL started by the server process filter."
          (alist `(("cljs" . ,cljs-buffer)
                   ("clj"  . ,client-buffer))))
     (with-current-buffer client-buffer
-      (setq cider-repl-type "clj")
-      (setq nrepl-sibling-buffer-alist alist))
+      (setq cider-repl-type "clj"))
     (with-current-buffer cljs-buffer
       (setq cider-repl-type "cljs")
-      (setq nrepl-sibling-buffer-alist alist)
       (cider-nrepl-send-request
        (list "op" "eval"
              "ns" (cider-current-ns)
