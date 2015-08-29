@@ -619,7 +619,7 @@ and kill the process buffer."
 ;;; Network
 
 (defun nrepl-connect (host port)
-  "Connect to machine identified by HOST and PORT.
+  "Connect to the nREPL server identified by HOST and PORT.
 For local hosts use a direct connection.  For remote hosts, if
 `nrepl-force-ssh-for-remote-hosts' is nil, attempt a direct connection
 first.  If `nrepl-force-ssh-for-remote-hosts' is non-nil or the direct
