@@ -192,7 +192,7 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
   (interactive)
-  (nrepl-request:eval
+  (cider-nrepl-request:eval
    "(when (clojure.core/resolve 'clojure.main/repl-requires)
       (clojure.core/map clojure.core/require clojure.main/repl-requires))"
    (lambda (_response) nil)))
@@ -205,7 +205,7 @@ This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
     (with-current-buffer buffer
       (let ((initial-ns (or (read
                              (nrepl-dict-get
-                              (nrepl-sync-request:eval "(str *ns*)")
+                              (cider-nrepl-sync-request:eval "(str *ns*)")
                               "value"))
                             "user")))
         (setq cider-buffer-ns initial-ns)))))
@@ -600,7 +600,7 @@ If NEWLINE is true then add a newline at the end of the input."
          (cider-current-ns)
          nil
          (1- (window-width)))
-      (nrepl-request:eval
+      (cider-nrepl-request:eval
        input
        (cider-eval-spinner-handler
         (current-buffer)
@@ -729,10 +729,9 @@ namespace to switch to."
                                           (cider-sync-request:ns-list))
                        (cider-current-ns))))
   (if (and ns (not (equal ns "")))
-      (nrepl-request:eval (format "(in-ns '%s)" ns)
-                          (cider-repl-switch-ns-handler (cider-current-repl-buffer))
-                          nil
-                          (cider-current-session))
+      (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
+                                (cider-repl-switch-ns-handler (cider-current-repl-buffer))
+                                nil)
     (error "No namespace selected")))
 
 

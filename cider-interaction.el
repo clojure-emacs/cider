@@ -1445,13 +1445,11 @@ Uses the value of the `out' slot in RESPONSE."
         (with-current-buffer error-buffer
           (compilation-minor-mode +1))))))
 
-(defun cider-default-err-eval-handler (session)
-  "Display the last exception for SESSION, without middleware support."
+(defun cider-default-err-eval-handler ()
+  "Display the last exception without middleware support."
   (cider--handle-err-eval-response
-   (nrepl-sync-request:eval
-    "(clojure.stacktrace/print-cause-trace *e)"
-    nil
-    session)))
+   (cider-nrepl-sync-request:eval
+    "(clojure.stacktrace/print-cause-trace *e)")))
 
 (defun cider--render-stacktrace-causes (causes)
   "If CAUSES is non-nil, render its contents into a new error buffer."
@@ -1469,13 +1467,13 @@ into a new error buffer."
     (cond (class (cons response causes))
           (status (cider--render-stacktrace-causes causes)))))
 
-(defun cider-default-err-op-handler (session)
-  "Display the last exception for SESSION, with middleware support."
+(defun cider-default-err-op-handler ()
+  "Display the last exception, with middleware support."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes)
     (cider-nrepl-send-request
      (append
-      (list "op" "stacktrace" "session" session)
+      (list "op" "stacktrace" "session" (cider-current-session))
       (when cider-stacktrace-print-length
         (list "print-length" cider-stacktrace-print-length))
       (when cider-stacktrace-print-level
@@ -1486,13 +1484,13 @@ into a new error buffer."
        ;; after it has been handled, so it's fine to set it unconditionally here
        (setq causes (cider--handle-stacktrace-response response causes))))))
 
-(defun cider-default-err-handler (session)
-  "Make an error handler for BUFFER, EX, ROOT-EX and SESSION.
+(defun cider-default-err-handler ()
+  "Make an error handler for BUFFER, EX, ROOT-EX.
 This function determines how the error buffer is shown, and then delegates
 the actual error content to the eval or op handler."
   (if (cider-nrepl-op-supported-p "stacktrace")
-      (cider-default-err-op-handler session)
-    (cider-default-err-eval-handler session)))
+      (cider-default-err-op-handler)
+    (cider-default-err-eval-handler)))
 
 (defvar cider-compilation-regexp
   '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
@@ -1812,7 +1810,7 @@ arguments and only proceed with evaluation if it returns nil."
       (when cider-show-eval-spinner
         (spinner-start cider-eval-spinner-type nil
                        cider-eval-spinner-delay))
-      (nrepl-request:eval
+      (cider-nrepl-request:eval
        form
        (if cider-show-eval-spinner
            (cider-eval-spinner-handler
@@ -1822,7 +1820,6 @@ arguments and only proceed with evaluation if it returns nil."
        ;; always eval ns forms in the user namespace
        ;; otherwise trying to eval ns form for the first time will produce an error
        (if (cider-ns-form-p form) "user" (cider-current-ns))
-       (cider-current-session)
        start))))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
@@ -1858,7 +1855,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive)
   (let ((last-sexp (cider-last-sexp)))
     ;; we have to be sure the evaluation won't result in an error
-    (nrepl-sync-request:eval last-sexp nil (cider-current-session))
+    (cider-nrepl-sync-request:eval last-sexp)
     ;; seems like the sexp is valid, so we can safely kill it
     (backward-kill-sexp)
     (cider-interactive-eval last-sexp (cider-eval-print-handler))))
@@ -1918,7 +1915,7 @@ otherwise it's evaluated interactively."
     (save-excursion
       (goto-char (match-beginning 0))
       (if sync
-          (nrepl-sync-request:eval (cider-defun-at-point))
+          (cider-nrepl-sync-request:eval (cider-defun-at-point))
         (cider-eval-defun-at-point)))))
 
 (defun cider-read-and-eval ()
@@ -1981,7 +1978,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (defun cider-ping ()
   "Check that communication with the nREPL server works."
   (interactive)
-  (-> (nrepl-sync-request:eval "\"PONG\"" nil (cider-current-session))
+  (-> (cider-nrepl-sync-request:eval "\"PONG\"")
       (nrepl-dict-get "value")
       (read)
       (message)))

@@ -814,8 +814,8 @@ values of *1, *2, etc."
 ;; After being decoded, responses (aka, messages from the server) are dispatched
 ;; to handlers. Handlers are constructed with `nrepl-make-response-handler'.
 
-(defvar nrepl-err-handler '(lambda (_buffer _ex _root-ex session)
-                             (cider-default-err-handler session))
+(defvar nrepl-err-handler '(lambda (_buffer _ex _root-ex)
+                             (cider-default-err-handler))
   "Evaluation error handler.")
 
 (defvar cider-buffer-ns)
@@ -863,7 +863,7 @@ server responses."
                (message "Evaluation interrupted."))
              (when (member "eval-error" status)
                (funcall (or eval-error-handler nrepl-err-handler)
-                        buffer ex root-ex session))
+                        buffer ex root-ex))
              (when (member "namespace-not-found" status)
                (message "Namespace not found."))
              (when (member "need-input" status)
@@ -906,13 +906,12 @@ Handles only stdout and stderr responses."
   (with-current-buffer connection
     (number-to-string (cl-incf nrepl-request-counter))))
 
-(defun nrepl-send-request (request callback &optional connection)
+(defun nrepl-send-request (request callback connection)
   "Send REQUEST and register response handler CALLBACK using CONNECTION.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
 `nrepl-request:stdin', etc."
-  (let* ((connection (or connection (cider-current-repl-buffer)))
-         (id (nrepl-next-request-id connection))
+  (let* ((id (nrepl-next-request-id connection))
          (request (cons 'dict (lax-plist-put request "id" id)))
          (message (nrepl-bencode request)))
     (nrepl-log-message (cons '---> (cdr request)))
@@ -923,18 +922,19 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")
 
-(defun nrepl-send-sync-request (request &optional connection abort-on-input)
+(defun nrepl-send-sync-request (request connection &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along.
 If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface."
-  (let* ((connection (or connection (cider-current-repl-buffer)))
-         (time0 (current-time))
+  (let* ((time0 (current-time))
          (response (cons 'dict nil))
          (nrepl-ongoing-sync-request t)
          status)
-    (nrepl-send-request request (lambda (resp) (nrepl--merge response resp)))
+    (nrepl-send-request request
+                        (lambda (resp) (nrepl--merge response resp))
+                        connection)
     (while (and (not (member "done" status))
                 (not (and abort-on-input
                           (input-pending-p))))
@@ -986,39 +986,46 @@ Register CALLBACK as the response handler."
                       callback
                       connection))
 
-(defun nrepl--eval-request (input &optional ns session point)
-  "Prepare :eval request message for INPUT in the context of NS and SESSION.
+(defun nrepl--eval-request (input session &optional ns point)
+  "Prepare :eval request message for INPUT.
+SESSION and NS provide context for the request.
 If POINT is non-nil and current buffer is a file buffer, \"point\" and
 \"file\" are added to the message."
   (append (and ns (list "ns" ns))
           (list "op" "eval"
-                "session" (or session (cider-current-session))
+                "session" session
                 "code" input)
           (when (and point (buffer-file-name))
             (list "file" (buffer-file-name)
                   "point" point))))
 
-(defun nrepl-request:eval (input callback &optional ns session point)
+(defun nrepl-request:eval (input callback connection session &optional ns point)
   "Send the request INPUT and register the CALLBACK as the response handler.
-If NS is non-nil, include it in the request. SESSION defaults to current
-session. POINT, if non-nil, is the position of INPUT in its buffer."
-  (nrepl-send-request (nrepl--eval-request input ns session point) callback))
+The request is dispatched via CONNECTION and SESSION.
+If NS is non-nil, include it in the request. POINT, if non-nil, is the
+position of INPUT in its buffer."
+  (nrepl-send-request (nrepl--eval-request input session ns point)
+                      callback
+                      connection))
 
-(defun nrepl--pprint-eval-request (input &optional ns session right-margin)
+(defun nrepl--pprint-eval-request (input connection session &optional ns right-margin)
   "Prepare :pprint-eval request message for INPUT.
-NS and SESSION are used for the context of the evaluation.  RIGHT-MARGIN
-specifies the maximum column-width of the pretty-printed result, and is
-included in the request if non-nil."
+CONNECTION, SESSION and NS are used for the context of the evaluation.
+RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
+result, and is included in the request if non-nil."
   (append (list "pprint" "true")
           (and right-margin (list "right-margin" right-margin))
-          (nrepl--eval-request input ns session)))
+          (nrepl--eval-request input session ns)))
 
-(defun nrepl-request:pprint-eval (input callback &optional ns session right-margin)
+(defun nrepl-request:pprint-eval (input callback connection session &optional ns right-margin)
   "Send the request INPUT and register the CALLBACK as the response handler.
-If NS is non-nil, include it in the request. SESSION defaults to current
-session. RIGHT-MARGIN specifies the maximum column width of the
+The request is dispatched via CONNECTION and SESSION.
+If NS is non-nil, include it in the request.
+RIGHT-MARGIN specifies the maximum column width of the
 pretty-printed result, and is included in the request if non-nil."
-  (nrepl-send-request (nrepl--pprint-eval-request input ns session right-margin) callback))
+  (nrepl-send-request (nrepl--pprint-eval-request input ns session right-margin)
+                      callback
+                      connection))
 
 (defun nrepl-sync-request:clone (connection)
   "Sent a :clone request to create a new client session.
@@ -1043,18 +1050,22 @@ The request is dispatched via CONNECTION."
   "Perform :ls-sessions request for CONNECTION."
   (nrepl-send-sync-request '("op" "ls-sessions") connection))
 
-(defun nrepl-sync-request:eval (input &optional ns session)
+(defun nrepl-sync-request:eval (input connection session &optional ns)
   "Send the INPUT to the nREPL server synchronously.
-If NS is non-nil, include it in the request. SESSION defaults to current
-session."
-  (nrepl-send-sync-request (nrepl--eval-request input ns session)))
+The request is dispatched via CONNECTION and SESSION.
+If NS is non-nil, include it in the request."
+  (nrepl-send-sync-request
+   (nrepl--eval-request input ns session)
+   connection))
 
-(defun nrepl-sync-request:pprint-eval (input &optional ns session right-margin)
+(defun nrepl-sync-request:pprint-eval (input connection session &optional ns right-margin)
   "Send the INPUT to the nREPL server synchronously.
 If NS is non-nil, include it in the request. SESSION defaults to current
 session. RIGHT-MARGIN specifies the maximum column width of the
 pretty-printed result, and is included in the request if non-nil."
-  (nrepl-send-sync-request (nrepl--pprint-eval-request input ns session right-margin)))
+  (nrepl-send-sync-request
+   (nrepl--pprint-eval-request input session ns right-margin)
+   connection))
 
 (defun nrepl-sessions (connection)
   "Get a list of active sessions on the nREPL server using CONNECTION."

@@ -71,7 +71,7 @@ from the latter. Remaining content is compared for string equality."
 (defun cider-test-all-docs ()
   "Verify docs for all special forms and every public var in `clojure/core'."
   (let ((syms (read
-               (nrepl-sync-request:eval
+               (cider-nrepl-sync-request:eval
                 "(->> (merge @#'clojure.repl/special-doc-map
                      (->> (ns-map 'clojure.core)
                           (filter (every-pred
@@ -79,7 +79,7 @@ from the latter. Remaining content is compared for string equality."
                                   (complement (comp :private meta val))))))
                      (keys)
                      (remove '#{.}))" ; emacs lisp chokes on the dot symbol
-                nil nil t))))
+                nil t))))
     (let (untested diffs)
       (dolist (sym syms)
         (let ((name (cond ((symbolp sym) (symbol-name sym))

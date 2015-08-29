@@ -252,11 +252,34 @@ If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface."
   (nrepl-send-sync-request request (cider-current-repl-buffer) abort-on-input))
 
+(defun cider-nrepl-request:eval (input callback &optional ns point)
+  "Send the request INPUT and register the CALLBACK as the response handler.
+If NS is non-nil, include it in the request. POINT, if non-nil, is the
+position of INPUT in its buffer."
+  (nrepl-request:eval input
+                      callback
+                      (cider-current-repl-buffer)
+                      (cider-current-session)
+                      ns
+                      point))
+
+(defun cider-nrepl-sync-request:eval (input &optional ns)
+  "Send the INPUT to the nREPL server synchronously.
+If NS is non-nil, include it in the request."
+  (nrepl-sync-request:eval
+   input
+   (cider-current-repl-buffer)
+   (cider-current-session)))
+
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
 NS specifies the namespace in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
-  (nrepl-request:eval input callback ns (cider-current-tooling-session)))
+  (nrepl-request:eval input
+                      callback
+                      (cider-current-repl-buffer)
+                      (cider-current-tooling-session)
+                      ns))
 
 (declare-function cider-find-relevant-connection "cider-interaction")
 (defun cider-current-repl-buffer ()
