@@ -733,7 +733,7 @@ namespace to switch to."
                        (cider-current-ns))))
   (if (and ns (not (equal ns "")))
       (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
-                                (cider-repl-switch-ns-handler (cider-find-relevant-connection))
+                                (cider-repl-switch-ns-handler (cider-current-connection))
                                 nil)
     (error "No namespace selected")))
 

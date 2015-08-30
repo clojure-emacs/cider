@@ -44,7 +44,7 @@
   "Return info for the `cider-mode' modeline.
 
 Info contains project name and host:port endpoint."
-  (-if-let (current-connection (ignore-errors (cider-find-relevant-connection)))
+  (-if-let (current-connection (ignore-errors (cider-current-connection)))
       (with-current-buffer current-connection
         (concat
          (when cider-repl-type

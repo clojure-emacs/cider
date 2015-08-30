@@ -873,7 +873,7 @@ server responses."
 (defun nrepl--make-fallback-handler ()
   "Fallback handler which is invoked when no handler is found.
 Handles only stdout and stderr responses."
-  (nrepl-make-response-handler (cider-find-relevant-connection)
+  (nrepl-make-response-handler (cider-current-connection)
                                ;; VALUE
                                '()
                                ;; STDOUT
