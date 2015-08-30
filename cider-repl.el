@@ -600,7 +600,7 @@ If NEWLINE is true then add a newline at the end of the input."
          (cider-eval-spinner-handler
           (current-buffer)
           (cider-repl-handler (current-buffer)))
-         (cider-current-repl-buffer)
+         (cider-current-connection)
          (cider-current-session)
          (cider-current-ns)
          (1- (window-width)))
