@@ -360,14 +360,12 @@ Signal an error if it is not supported."
 
 (defun cider--check-middleware-compatibility ()
   "Retrieve the underlying connection's CIDER nREPL version."
-  (nrepl-request:eval
+  (cider-nrepl-request:eval
    "(try
       (require 'cider.nrepl.version)
       (:version-string @(resolve 'cider.nrepl.version/version))
     (catch Throwable _ \"not installed\"))"
-   (cider--check-middleware-compatibility-callback (current-buffer))
-   (cider-current-connection)
-   (cider-current-session)))
+   (cider--check-middleware-compatibility-callback (current-buffer))))
 
 (defun cider--connection-info (connection-buffer)
   "Return info about CONNECTION-BUFFER.
