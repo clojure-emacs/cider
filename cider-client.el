@@ -208,7 +208,7 @@ Refreshes EWOC."
 
 (defun cider--connections-goto-connection (_ewoc data)
   "Goto the REPL for the connection in _EWOC specified by DATA."
-  (-when-let (buffer (with-current-buffer data nrepl-repl-buffer))
+  (-when-let (buffer (with-current-buffer data nrepl-connection-buffer))
     (select-window (display-buffer buffer))))
 
 
@@ -229,13 +229,13 @@ Refreshes EWOC."
 
 (defun cider-nrepl-op-supported-p (op)
   "Check whether the current connection supports the nREPL middleware OP."
-  (nrepl-op-supported-p op (cider-current-repl-buffer)))
+  (nrepl-op-supported-p op (cider-current-connection)))
 
 (defun cider-nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... )."
-  (nrepl-send-request request callback (cider-current-repl-buffer)))
+  (nrepl-send-request request callback (cider-current-connection)))
 
 (defun cider-nrepl-send-sync-request (request &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously.
@@ -243,7 +243,7 @@ Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along.
 If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface."
-  (nrepl-send-sync-request request (cider-current-repl-buffer) abort-on-input))
+  (nrepl-send-sync-request request (cider-current-connection) abort-on-input))
 
 (defun cider-nrepl-request:eval (input callback &optional ns point)
   "Send the request INPUT and register the CALLBACK as the response handler.
@@ -251,7 +251,7 @@ If NS is non-nil, include it in the request. POINT, if non-nil, is the
 position of INPUT in its buffer."
   (nrepl-request:eval input
                       callback
-                      (cider-current-repl-buffer)
+                      (cider-current-connection)
                       (cider-current-session)
                       ns
                       point))
@@ -261,7 +261,7 @@ position of INPUT in its buffer."
 If NS is non-nil, include it in the request."
   (nrepl-sync-request:eval
    input
-   (cider-current-repl-buffer)
+   (cider-current-connection)
    (cider-current-session)))
 
 (defun cider-tooling-eval (input callback &optional ns)
@@ -270,42 +270,38 @@ NS specifies the namespace in which to evaluate the request."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-request:eval input
                       callback
-                      (cider-current-repl-buffer)
+                      (cider-current-connection)
                       (cider-current-tooling-session)
                       ns))
 
-(declare-function cider-find-relevant-connection "cider-interaction")
-(defun cider-current-repl-buffer ()
+(declare-function cider-current-connection "cider-interaction")
+(defalias 'cider-current-repl-buffer #'cider-current-connection
   "The current REPL buffer.
-Return the REPL buffer given by using `cider-find-relevant-connection'."
-  (-when-let (buf (cider-find-relevant-connection))
-    (with-current-buffer buf
-      ;; FIXME: Is the connection buffer ever different from the REPL buffer?
-      nrepl-repl-buffer)))
+Return the REPL buffer given by `cider-current-connection'.")
 
 (declare-function cider-interrupt-handler "cider-interaction")
 (defun cider-interrupt ()
   "Interrupt any pending evaluations."
   (interactive)
-  (with-current-buffer (cider-current-repl-buffer)
+  (with-current-buffer (cider-current-connection)
     (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
       (dolist (request-id pending-request-ids)
         (nrepl-request:interrupt
          request-id
          (cider-interrupt-handler (current-buffer))
-         (cider-current-repl-buffer)
+         (cider-current-connection)
          (cider-current-session))))))
 
 (defun cider-current-session ()
   "The REPL session to use for this buffer."
-  (with-current-buffer (cider-current-repl-buffer)
+  (with-current-buffer (cider-current-connection)
     nrepl-session))
 
 (define-obsolete-function-alias 'nrepl-current-session 'cider-current-session "0.10")
 
 (defun cider-current-tooling-session ()
   "Return the current tooling session."
-  (with-current-buffer (cider-current-repl-buffer)
+  (with-current-buffer (cider-current-connection)
     nrepl-tooling-session))
 
 (define-obsolete-function-alias 'nrepl-current-tooling-session 'cider-current-tooling-session "0.10")

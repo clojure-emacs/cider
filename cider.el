@@ -194,9 +194,9 @@ REPL."
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
 The new buffer will correspond to the same project as CLIENT-BUFFER, which
 should be the regular Clojure REPL started by the server process filter."
-  (interactive (list (cider-current-repl-buffer)))
+  (interactive (list (cider-current-connection)))
   (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
-         (nrepl-create-client-buffer-function  #'cider-repl-create)
+         (nrepl-create-client-buffer-function #'cider-repl-create)
          (nrepl-use-this-as-repl-buffer 'new)
          (client-process-args (with-current-buffer client-buffer
                                 (unless (or nrepl-server-buffer nrepl-endpoint)
@@ -263,14 +263,12 @@ Create REPL buffer and start an nREPL client connection."
   (interactive (cider-select-endpoint))
   (setq cider-current-clojure-buffer (current-buffer))
   (-when-let (repl-buff (nrepl-find-reusable-repl-buffer `(,host ,port) nil))
-    (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
-          (nrepl-use-this-as-repl-buffer repl-buff))
-      (nrepl-start-client-process host port)
+    (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
+           (nrepl-use-this-as-repl-buffer repl-buff)
+           (conn (process-buffer (nrepl-start-client-process host port))))
       (when (and cider-prompt-for-project-on-connect
                  (y-or-n-p "Do you want to associate the new connection with a local project? "))
-        (cider-assoc-project-with-connection
-         nil
-         (cider-default-connection))))))
+        (cider-assoc-project-with-connection nil conn)))))
 
 (defun cider-current-host ()
   "Retrieve the current host."

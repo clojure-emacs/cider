@@ -142,8 +142,9 @@ In case of a special value 'new, a new buffer is created.")
 
 ;; These variables are used to track the state of nREPL connections
 (defvar-local nrepl-connection-buffer nil)
+(define-obsolete-variable-alias 'nrepl-repl-buffer
+  'nrepl-connection-buffer "0.10.0")
 (defvar-local nrepl-server-buffer nil)
-(defvar-local nrepl-repl-buffer nil)
 (defvar-local nrepl-endpoint nil)
 (defvar-local nrepl-project-dir nil)
 (defvar-local nrepl-tunnel-buffer nil)
@@ -756,7 +757,6 @@ process."
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
             nrepl-connection-buffer client-buf
-            nrepl-repl-buffer client-buf
             nrepl-tunnel-buffer (-when-let (tunnel (plist-get endpoint :tunnel))
                                   (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
@@ -873,7 +873,7 @@ server responses."
 (defun nrepl--make-fallback-handler ()
   "Fallback handler which is invoked when no handler is found.
 Handles only stdout and stderr responses."
-  (nrepl-make-response-handler (cider-current-repl-buffer)
+  (nrepl-make-response-handler (cider-current-connection)
                                ;; VALUE
                                '()
                                ;; STDOUT

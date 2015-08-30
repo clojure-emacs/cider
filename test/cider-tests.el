@@ -469,13 +469,12 @@
   (with-temp-buffer
     (let* ((connection-buffer (current-buffer))
            (cider-connections (list connection-buffer)))
+      (rename-buffer "*cider-repl bob*")
       (with-temp-buffer
-        (let ((repl-buffer (current-buffer)))
-          (rename-buffer "*cider-repl bob*")
-          (with-temp-buffer
-            (with-current-buffer connection-buffer
-              (setq-local nrepl-repl-buffer repl-buffer))
-            (should (equal "bob" (cider-extract-designation-from-current-repl-buffer)))))))))
+        (should (equal "bob" (cider-extract-designation-from-current-repl-buffer)))
+        (rename-buffer "*cider-repl apa*")
+        (setq cider-buffer-connection (current-buffer))
+        (should (equal "apa" (cider-extract-designation-from-current-repl-buffer)))))))
 
 (ert-deftest cider-extract-designation-from-current-repl-buffer-no-designation ()
   (with-temp-buffer
