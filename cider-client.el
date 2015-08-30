@@ -256,7 +256,7 @@ position of INPUT in its buffer."
                       ns
                       point))
 
-(defun cider-nrepl-sync-request:eval (input &optional ns)
+(defun cider-nrepl-sync-request:eval (input)
   "Send the INPUT to the nREPL server synchronously.
 If NS is non-nil, include it in the request."
   (nrepl-sync-request:eval

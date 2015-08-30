@@ -79,7 +79,7 @@ from the latter. Remaining content is compared for string equality."
                                   (complement (comp :private meta val))))))
                      (keys)
                      (remove '#{.}))" ; emacs lisp chokes on the dot symbol
-                nil t))))
+                ))))
     (let (untested diffs)
       (dolist (sym syms)
         (let ((name (cond ((symbolp sym) (symbol-name sym))
