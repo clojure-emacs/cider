@@ -1019,7 +1019,7 @@ The request is dispatched via CONNECTION and SESSION.
 If NS is non-nil, include it in the request.
 RIGHT-MARGIN specifies the maximum column width of the
 pretty-printed result, and is included in the request if non-nil."
-  (nrepl-send-request (nrepl--pprint-eval-request input ns session right-margin)
+  (nrepl-send-request (nrepl--pprint-eval-request input connection session ns right-margin)
                       callback
                       connection))
 
