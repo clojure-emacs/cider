@@ -207,10 +207,7 @@ should be the regular Clojure REPL started by the server process filter."
                                         (get-buffer-process nrepl-server-buffer)))))
          (cljs-proc (apply #'nrepl-start-client-process client-process-args))
          (cljs-buffer (process-buffer cljs-proc)))
-    (with-current-buffer client-buffer
-      (setq cider-repl-type "clj"))
     (with-current-buffer cljs-buffer
-      (setq cider-repl-type "cljs")
       (cider-nrepl-send-request
        (list "op" "eval"
              "ns" (cider-current-ns)

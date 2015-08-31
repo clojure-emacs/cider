@@ -569,6 +569,18 @@ specification.  Everything else is encoded as string."
 
 ;;; Client: Process Filter
 
+(defvar-local nrepl-base-response-handler #'nrepl--dispatch-response
+  "Function to call on every response received from the process.
+This should be a function with one argument, which will be called by
+`nrepl-client-filter' on every response received.
+The current buffer will be connection (REPL) buffer of the process.
+
+You can extend nrepl's response handling without overriding it by using
+`add-function' with :before or :after. For instance:
+
+    (add-function :after (local 'nrepl-base-response-handler)
+                  #'some-other-function)")
+
 (defun nrepl-client-filter (proc string)
   "Decode message(s) from PROC contained in STRING and dispatch them."
   ;; (nrepl-log-message string)
@@ -580,7 +592,7 @@ specification.  Everything else is encoded as string."
         (nrepl-bdecode string-q response-q)
         (while (queue-head response-q)
           (with-current-buffer (process-buffer proc)
-            (nrepl--dispatch-response (queue-dequeue response-q))))))))
+            (funcall nrepl-base-response-handler (queue-dequeue response-q))))))))
 
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
