@@ -168,6 +168,14 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
                "use `nrepl-make-buffer-name' with `nrepl-repl-buffer-name-template' instead."
                "0.10.0")
 
+(defun cider-repl--state-handler (response)
+  "Handle the server STATE.
+Currently, this is only used to keep `cider-repl-type' updated."
+  (ignore-errors
+    (-when-let (state (nrepl-dict-get response "state"))
+      (nrepl-dbind-response state (repl-type)
+        (setq cider-repl-type repl-type)))))
+
 (defun cider-repl-create (endpoint)
   "Create a REPL buffer and install `cider-repl-mode'.
 ENDPOINT is a plist as returned by `nrepl-connect'."
@@ -188,6 +196,8 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
       (cider-repl-reset-markers)
+      (add-function :before (local 'nrepl-base-response-handler)
+                    #'cider-repl--state-handler)
       (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
       (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local)
       (current-buffer))))
