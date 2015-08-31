@@ -1213,9 +1213,11 @@ operations.")
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
 
-(defvar nrepl--message-colors
+(defcustom nrepl-message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
-  "Colors used in `nrepl-messages-buffer'.")
+  "Colors used in `nrepl-messages-buffer'."
+  :type '(repeat color)
+  :group 'nrepl)
 
 (defun nrepl--pp (object)
   "Pretty print nREPL OBJECT."
@@ -1225,9 +1227,9 @@ operations.")
              (unless (listp object) (insert "\n")))
     (let* ((id (lax-plist-get (cdr object) "id"))
            (id (and id (mod (string-to-number id)
-                            (length nrepl--message-colors))))
+                            (length nrepl-message-colors))))
            (head (format "(%s" (car object)))
-           (foreground (and id (nth id nrepl--message-colors))))
+           (foreground (and id (nth id nrepl-message-colors))))
       (cl-flet ((color (str)
                        (propertize str 'face `(:weight ultra-bold :foreground ,foreground))))
         (insert (color head))
