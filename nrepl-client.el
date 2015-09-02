@@ -1015,25 +1015,6 @@ position of INPUT in its buffer."
                       callback
                       connection))
 
-(defun nrepl--pprint-eval-request (input connection session &optional ns right-margin)
-  "Prepare :pprint-eval request message for INPUT.
-CONNECTION, SESSION and NS are used for the context of the evaluation.
-RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
-result, and is included in the request if non-nil."
-  (append (list "pprint" "true")
-          (and right-margin (list "right-margin" right-margin))
-          (nrepl--eval-request input session ns)))
-
-(defun nrepl-request:pprint-eval (input callback connection session &optional ns right-margin)
-  "Send the request INPUT and register the CALLBACK as the response handler.
-The request is dispatched via CONNECTION and SESSION.
-If NS is non-nil, include it in the request.
-RIGHT-MARGIN specifies the maximum column width of the
-pretty-printed result, and is included in the request if non-nil."
-  (nrepl-send-request (nrepl--pprint-eval-request input connection session ns right-margin)
-                      callback
-                      connection))
-
 (defun nrepl-sync-request:clone (connection)
   "Sent a :clone request to create a new client session.
 The request is dispatched via CONNECTION."
@@ -1063,15 +1044,6 @@ The request is dispatched via CONNECTION and SESSION.
 If NS is non-nil, include it in the request."
   (nrepl-send-sync-request
    (nrepl--eval-request input session ns)
-   connection))
-
-(defun nrepl-sync-request:pprint-eval (input connection session &optional ns right-margin)
-  "Send the INPUT to the nREPL server synchronously.
-If NS is non-nil, include it in the request. SESSION defaults to current
-session. RIGHT-MARGIN specifies the maximum column width of the
-pretty-printed result, and is included in the request if non-nil."
-  (nrepl-send-sync-request
-   (nrepl--pprint-eval-request input session ns right-margin)
    connection))
 
 (defun nrepl-sessions (connection)

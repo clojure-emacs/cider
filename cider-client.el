@@ -267,6 +267,26 @@ If NS is non-nil, include it in the request."
    (cider-current-session)
    ns))
 
+(defun cider--nrepl-pprint-eval-request (input session &optional ns right-margin)
+  "Prepare :pprint-eval request message for INPUT.
+SESSION and NS are used for the context of the evaluation.
+RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
+result, and is included in the request if non-nil."
+  (append (list "pprint" "true")
+          (and right-margin (list "right-margin" right-margin))
+          (nrepl--eval-request input session ns)))
+
+(defun cider-nrepl-request:pprint-eval (input callback &optional ns right-margin)
+  "Send the request INPUT and register the CALLBACK as the response handler.
+The request is dispatched via CONNECTION and SESSION.
+If NS is non-nil, include it in the request.
+RIGHT-MARGIN specifies the maximum column width of the
+pretty-printed result, and is included in the request if non-nil."
+  (cider-nrepl-send-request
+   (cider--nrepl-pprint-eval-request input (cider-current-session) ns right-margin)
+   callback))
+
+
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
 NS specifies the namespace in which to evaluate the request."

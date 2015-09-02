@@ -605,13 +605,11 @@ If NEWLINE is true then add a newline at the end of the input."
                      cider-eval-spinner-delay))
     (if (and (not (string-match-p "\\`[ \t\r\n]*\\'" input))
              cider-repl-use-pretty-printing)
-        (nrepl-request:pprint-eval
+        (cider-nrepl-request:pprint-eval
          input
          (cider-eval-spinner-handler
           (current-buffer)
           (cider-repl-handler (current-buffer)))
-         (cider-current-connection)
-         (cider-current-session)
          (cider-current-ns)
          (1- (window-width)))
       (cider-nrepl-request:eval

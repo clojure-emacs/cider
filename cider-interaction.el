@@ -1825,13 +1825,11 @@ This function is the same as `cider-interactive-eval', except the result is
 pretty-printed to *out*. RIGHT-MARGIN specifies the maximum column width of
 the printed result, and defaults to `fill-column'."
   (cider--prep-interactive-eval form)
-  (nrepl-request:pprint-eval
+  (cider-nrepl-request:pprint-eval
    form
    (or callback (cider-interactive-eval-handler))
    ;; always eval ns forms in the user namespace
    ;; otherwise trying to eval ns form for the first time will produce an error
-   (cider-current-connection)
-   (cider-current-session)
    (if (cider-ns-form-p form) "user" (cider-current-ns))
    (or right-margin fill-column)))
 
