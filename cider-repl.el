@@ -168,12 +168,16 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
                "use `nrepl-make-buffer-name' with `nrepl-repl-buffer-name-template' instead."
                "0.10.0")
 
+(defvar-local cider-repl-ns-cache nil
+  "A dict holding information about all currently loaded namespaces.")
+
 (defun cider-repl--state-handler (response)
   "Handle the server STATE.
 Currently, this is only used to keep `cider-repl-type' updated."
   (-when-let (state (nrepl-dict-get response "state"))
-    (nrepl-dbind-response state (repl-type)
-      (setq cider-repl-type repl-type))))
+    (nrepl-dbind-response state (repl-type changed-namespaces)
+      (setq cider-repl-type repl-type)
+      (setq cider-repl-ns-cache (nrepl-dict-merge cider-repl-ns-cache changed-namespaces)))))
 
 (defun cider-repl-create (endpoint)
   "Create a REPL buffer and install `cider-repl-mode'.
