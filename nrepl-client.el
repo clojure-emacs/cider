@@ -348,6 +348,13 @@ any of the values is nil."
       (setq out (nrepl-dict-get out (pop keys))))
     out))
 
+(defun nrepl-dict-flat-map (function dict)
+  "Map FUNCTION over DICT and flatten the result.
+FUNCTION follows the same restrictions as in `nrepl-dict-map', and it must
+also alway return a sequence (since the result will be flattened)."
+  (when dict
+    (apply #'append (nrepl-dict-map function dict))))
+
 (defun nrepl--cons (car list-or-dict)
   "Generic cons of CAR to LIST-OR-DICT."
   (if (eq (car list-or-dict) 'dict)

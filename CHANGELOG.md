@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1301](https://github.com/clojure-emacs/cider/issues/1301): CIDER can do dynamic font-locking of defined variables, functions, and macros. This is controlled by the `cider-font-lock-dynamically` custom option.
 * [#1271](https://github.com/clojure-emacs/cider/issues/1271): New possible value (`always-save`) for `cider-prompt-save-file-on-load`.
 * [#1197](https://github.com/clojure-emacs/cider/issues/1197): Display some indication that we're waiting for a result for long-running evaluations.
 * [#1127](https://github.com/clojure-emacs/cider/issues/1127): Make it possible to associate a buffer with a connection (via `cider-assoc-buffer-with-connection`).
