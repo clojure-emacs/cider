@@ -122,6 +122,8 @@ The connections buffer is determined by
   (-when-let (buffer (get-buffer cider--connection-browser-buffer-name))
     (cider--connections-refresh-buffer buffer)))
 
+(add-hook 'nrepl-disconnected-hook #'cider--connections-refresh)
+
 (defun cider--connections-refresh-buffer (buffer)
   "Refresh the connections BUFFER."
   (cider--update-connections-display

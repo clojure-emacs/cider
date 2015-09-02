@@ -816,8 +816,7 @@ values of *1, *2, etc."
 (defun nrepl-close (connection-buffer)
   "Close the nREPL connection for CONNECTION-BUFFER."
   (cider--close-connection-buffer connection-buffer)
-  (run-hooks 'nrepl-disconnected-hook)
-  (cider--connections-refresh))
+  (run-hooks 'nrepl-disconnected-hook))
 
 
 ;;; Client: Response Handling
