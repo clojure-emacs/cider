@@ -1830,8 +1830,9 @@ the printed result, and defaults to `fill-column'."
    (or callback (cider-interactive-eval-handler))
    ;; always eval ns forms in the user namespace
    ;; otherwise trying to eval ns form for the first time will produce an error
+   (cider-current-connection)
+   (cider-current-session)
    (if (cider-ns-form-p form) "user" (cider-current-ns))
-   nil
    (or right-margin fill-column)))
 
 (defun cider-eval-region (start end)
