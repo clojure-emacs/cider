@@ -18,6 +18,8 @@ If you're interested in details about CIDER's history and architecture you can
 check out the Clojure/conj presentation
 [The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6).
 
+If you like the project, please consider [supporting its ongoing development](#Donations).
+
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
