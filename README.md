@@ -1338,7 +1338,7 @@ Consider improving and extending the [community wiki](https://github.com/clojure
 
 ### Donations
 
-You can support my work on CIDER, clojure-mode and via [gratipay](https://www.gratipay.com/cider) and PayPal.
+You can support my work on CIDER, clojure-mode and via [Gratipay](https://www.gratipay.com/cider) and PayPal.
 
 [![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.1.3/dist/gratipay.png)](https://gratipay.com/cider)
 
