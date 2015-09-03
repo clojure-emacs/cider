@@ -279,7 +279,7 @@ be reused."
                                                repl-buffs)))
                     (if zombie-buffs
                         (if (y-or-n-p (format "Zombie REPL buffers exist (%s).  Reuse? "
-                                              (cider-string-join zombie-buffs ", ")))
+                                              (mapconcat #'buffer-name zombie-buffs ", ")))
                             (if (= (length zombie-buffs) 1)
                                 (car zombie-buffs)
                               (completing-read "Choose REPL buffer: " zombie-buffs nil t))
