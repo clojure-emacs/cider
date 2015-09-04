@@ -138,7 +138,8 @@ PROPS are passed to `cider--make-overlay' with a type of result."
           ;; Make sure the overlay is actually at the end of the sexp.
           (skip-chars-backward "\r\n[:blank:]")
           (let* ((display-string (concat (propertize " " 'cursor 1000)
-                                         cider-eval-result-prefix
+                                         (propertize cider-eval-result-prefix
+                                                     'face 'cider-result-overlay-face)
                                          (format "%s" value)))
                  (o (apply #'cider--make-overlay
                            (line-beginning-position) (line-end-position)
