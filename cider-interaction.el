@@ -1375,7 +1375,7 @@ This is used by pretty-printing commands and intentionally discards their result
 (defun cider-visit-error-buffer ()
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
   (interactive)
-  (-if-let ((buffer (get-buffer cider-error-buffer)))
+  (-if-let (buffer (get-buffer cider-error-buffer))
       (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
     (user-error "No %s buffer" cider-error-buffer)))
 
