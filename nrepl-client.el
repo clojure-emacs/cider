@@ -767,7 +767,6 @@ process."
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)))
 
-    (cider-make-connection-default client-buf)
     (with-current-buffer client-buf
       (nrepl--init-client-sessions client-proc)
       (nrepl--init-capabilities client-buf)
