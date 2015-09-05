@@ -73,7 +73,6 @@
 (require 'ansi-color)
 (require 'ewoc)
 (require 'cl-lib)
-(require 'cider-util)
 (require 'queue)
 (require 'tramp)
 
@@ -203,7 +202,8 @@ it is not.  The name will also include the connection port if
 
 If optional DUP-OK is non-nil, the returned buffer is not \"uniquified\" by
 `generate-new-buffer-name'."
-  (let* ((project-name (cider--project-name (or project-dir nrepl-project-dir)))
+  (let* ((project-dir (or project-dir nrepl-project-dir))
+         (project-name (when project-dir (file-name-nondirectory (directory-file-name project-dir))))
          (nrepl-proj-port (or port (cadr nrepl-endpoint)))
          (name (nrepl-format-buffer-name-template
                 buffer-name-template
