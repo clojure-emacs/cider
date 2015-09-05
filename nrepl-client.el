@@ -612,8 +612,8 @@ older requests with \"done\" status."
 Notify MESSAGE and if the process is closed run `nrepl-disconnected-hook'
 and kill the process buffer."
   (if (string-match "deleted\\b" message)
-      (message "nREPL: Connection properly closed")
-    (message "nREPL: Connection unexpectedly closed (%s)"
+      (message "nREPL: Connection closed")
+    (message "nREPL: Connection closed unexpectedly (%s)"
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
     (when (buffer-live-p (process-buffer process))
