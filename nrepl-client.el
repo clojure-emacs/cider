@@ -534,17 +534,18 @@ specification.  Everything else is encoded as string."
 
 ;;; Client: Process Filter
 
-(defvar-local nrepl-base-response-handler #'nrepl--dispatch-response
-  "Function to call on every response received from the process.
-This should be a function with one argument, which will be called by
-`nrepl-client-filter' on every response received.
-The current buffer will be connection (REPL) buffer of the process.
+(defvar nrepl-response-handler-functions nil
+  "List of functions to call on each nREPL message.
+Each of these functions should be a function with one argument, which will
+be called by `nrepl-client-filter' on every response received. The current
+buffer will be connection (REPL) buffer of the process. These functions
+should take a single argument, a dict representing the message. See
+`nrepl--dispatch-response' for an example.
 
-You can extend nrepl's response handling without overriding it by using
-`add-function' with :before or :after. For instance:
-
-    (add-function :after (local 'nrepl-base-response-handler)
-                  #'some-other-function)")
+These functions are called before the message's own callbacks, so that they
+can affect the behaviour of the callbacks. Errors signaled by these
+functions are demoted to messages, so that they don't prevent the
+callbacks from running.")
 
 (defun nrepl-client-filter (proc string)
   "Decode message(s) from PROC contained in STRING and dispatch them."
@@ -557,7 +558,10 @@ You can extend nrepl's response handling without overriding it by using
         (nrepl-bdecode string-q response-q)
         (while (queue-head response-q)
           (with-current-buffer (process-buffer proc)
-            (funcall nrepl-base-response-handler (queue-dequeue response-q))))))))
+            (let ((response (queue-dequeue response-q)))
+              (with-demoted-errors "Error in one of the `nrepl-response-handler-functions': %s"
+                (run-hook-with-args 'nrepl-response-handler-functions response))
+              (nrepl--dispatch-response response))))))))
 
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
