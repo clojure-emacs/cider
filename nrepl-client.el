@@ -259,41 +259,6 @@ Bind the value of the provided KEYS and execute BODY."
   "Return t if HOST is local."
   (string-match-p tramp-local-host-regexp host))
 
-(defun nrepl-find-reusable-repl-buffer (endpoint project-directory)
-  "Check whether a reusable connection buffer already exists.
-Looks for buffers where `nrepl-endpoint' matches ENDPOINT, or
-`nrepl-project-dir' matches PROJECT-DIRECTORY.  If such a buffer was found,
-and has no process, return it.  If the process is alive, ask the user for
-confirmation and return 'new/nil for y/n answer respectively.  If other
-REPL buffers with dead process exist, ask the user if any of those should
-be reused."
-  (let* ((repl-buffs (cider-repl-buffers))
-         (exact-buff (-first (lambda (buff)
-                               (with-current-buffer buff
-                                 (or (and endpoint (equal endpoint nrepl-endpoint))
-                                     (and project-directory (equal project-directory nrepl-project-dir)))))
-                             repl-buffs)))
-    (cl-flet ((zombie-buffer-or-new
-               () (let ((zombie-buffs (-remove (lambda (buff)
-                                                 (process-live-p (get-buffer-process buff)))
-                                               repl-buffs)))
-                    (if zombie-buffs
-                        (if (y-or-n-p (format "Zombie REPL buffers exist (%s).  Reuse? "
-                                              (mapconcat #'buffer-name zombie-buffs ", ")))
-                            (if (= (length zombie-buffs) 1)
-                                (car zombie-buffs)
-                              (completing-read "Choose REPL buffer: " zombie-buffs nil t))
-                          'new)
-                      'new))))
-      (if exact-buff
-          (if (process-live-p (get-buffer-process exact-buff))
-              (when (y-or-n-p
-                     (format "REPL buffer already exists (%s).  Do you really want to create a new one? "
-                             exact-buff))
-                (zombie-buffer-or-new))
-            exact-buff)
-        (zombie-buffer-or-new)))))
-
 (defun nrepl-extract-port (dir)
   "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
   (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
