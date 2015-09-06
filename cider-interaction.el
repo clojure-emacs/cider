@@ -568,9 +568,6 @@ type (Clojure or ClojureScript). If TYPE is nil, it is derived from the
 file extension."
   (cider-ensure-connected)
   (cond
-   ;; FIXME: Aren't these two variables redundant?
-   (cider-buffer-connection)
-   (nrepl-connection-buffer)
    ((= 1 (length cider-connections)) (car cider-connections))
    (t (let* ((project-directory (clojure-project-dir (cider-current-dir)))
              (repls (and project-directory
