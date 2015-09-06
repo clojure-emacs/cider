@@ -276,10 +276,7 @@ own buffer."
                   (nrepl-use-this-as-repl-buffer repl-buff))
               (nrepl-start-server-process
                project-dir cmd
-               (lambda (conn)
-                 (cider-make-connection-default conn)
-                 (when cljs-too
-                   (cider-create-sibling-cljs-repl conn)))))))
+               (when cljs-too #'cider-create-sibling-cljs-repl)))))
       (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your `exec-path'"
                (cider-jack-in-command project-type)))))
 
@@ -301,7 +298,6 @@ Create REPL buffer and start an nREPL client connection."
     (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer repl-buff)
            (conn (process-buffer (nrepl-start-client-process host port))))
-      (cider-make-connection-default conn)
       (when (and cider-prompt-for-project-on-connect
                  (y-or-n-p "Do you want to associate the new connection with a local project? "))
         (cider-assoc-project-with-connection nil conn)))))
@@ -435,6 +431,7 @@ This function is appended to `nrepl-connected-hook' in the client process
 buffer."
   ;; `nrepl-connected-hook' is run in connection buffer
   (cider-repl-init (current-buffer))
+  (cider-make-connection-default (current-buffer))
   (cider--check-required-nrepl-version)
   (cider--check-required-nrepl-ops)
   (cider--check-middleware-compatibility)
