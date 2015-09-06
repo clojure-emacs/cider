@@ -430,8 +430,8 @@ In case `default-directory' is non-local we assume the command is available."
 This function is appended to `nrepl-connected-hook' in the client process
 buffer."
   ;; `nrepl-connected-hook' is run in connection buffer
-  (cider-repl-init (current-buffer))
   (cider-make-connection-default (current-buffer))
+  (cider-repl-init (current-buffer))
   (cider--check-required-nrepl-version)
   (cider--check-required-nrepl-ops)
   (cider--check-middleware-compatibility)
