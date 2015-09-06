@@ -282,12 +282,6 @@ keep track of a namespace.
 This should never be set in Clojure buffers, as there the namespace
 should be extracted from the buffer's ns form.")
 
-(defvar-local cider-buffer-connection nil
-  "A connection associated with a specific buffer.
-
-If this is set to a non-nil value it will take precedence over both
-the project associated with a connection and the default connection.")
-
 (defvar cider-version)
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
@@ -552,13 +546,13 @@ such a link cannot be established automatically."
   (cider-ensure-connected)
   (let ((conn (completing-read "Connection: " (cider-connections))))
     (when conn
-      (setq-local cider-buffer-connection conn))))
+      (setq-local cider-connections (list conn)))))
 
 (defun cider-clear-buffer-local-connection ()
   "Remove association between the current buffer and a connection."
   (interactive)
   (cider-ensure-connected)
-  (setq-local cider-buffer-connection nil))
+  (kill-local-variable 'cider-connections))
 
 (defun cider-current-connection (&optional type)
   "Return the REPL buffer relevant for the current Clojure source buffer.

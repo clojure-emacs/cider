@@ -467,13 +467,14 @@
 
 (ert-deftest cider-extract-designation-from-current-repl-buffer ()
   (with-temp-buffer
-    (let* ((connection-buffer (current-buffer))
-           (cider-connections (list connection-buffer)))
+    (let* ((cider-connections (list (current-buffer))))
       (rename-buffer "*cider-repl bob*")
       (with-temp-buffer
         (should (equal "bob" (cider-extract-designation-from-current-repl-buffer)))
         (rename-buffer "*cider-repl apa*")
-        (setq cider-buffer-connection (current-buffer))
+        (push (current-buffer) cider-connections)
+        (should (equal "apa" (cider-extract-designation-from-current-repl-buffer)))
+        (setq-local cider-connections (list (current-buffer)))
         (should (equal "apa" (cider-extract-designation-from-current-repl-buffer)))))))
 
 (ert-deftest cider-extract-designation-from-current-repl-buffer-no-designation ()

@@ -45,9 +45,13 @@ found."
 (define-obsolete-function-alias 'nrepl-current-connection-buffer 'cider-default-connection "0.10")
 
 (defun cider-connections ()
-  "Return the list of connection buffers."
-  (setq cider-connections
-        (-filter #'buffer-live-p cider-connections)))
+  "Return the list of connection buffers.
+If the list is empty and buffer-local, return the global value."
+  (or (setq cider-connections
+            (-filter #'buffer-live-p cider-connections))
+      (when (local-variable-p 'cider-connect)
+        (kill-local-variable 'cider-connections)
+        (-filter #'buffer-live-p cider-connections))))
 
 (defun cider-repl-buffers ()
   "Return the list of REPL buffers."
