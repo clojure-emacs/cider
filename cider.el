@@ -280,7 +280,7 @@ own buffer."
                  (cider-make-connection-default conn)
                  (when cljs-too
                    (cider-create-sibling-cljs-repl conn)))))))
-      (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your exec-path"
+      (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your `exec-path'"
                (cider-jack-in-command project-type)))))
 
 ;;;###autoload
