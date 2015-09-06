@@ -500,20 +500,18 @@ that of the namespace in the Clojure source buffer."
 (define-obsolete-function-alias 'cider-switch-to-current-repl-buffer 'cider-switch-to-default-repl-buffer "0.10")
 
 (defun cider-find-connection-buffer-for-project-directory (project-directory &optional all-connections)
-  "Find the relevant connection-buffer for the given PROJECT-DIRECTORY.
+  "Return the most appropriate connection-buffer for the given PROJECT-DIRECTORY.
+By order of preference, this is any connection whose directory matches
+PROJECT-DIRECTORY, followed by any connection whose directory is nil,
+followed by any connection at all.
+Only return nil if `cider-connections' is empty (there are no connections).
 
-If there are multiple connection buffers matching PROJECT-DIRECTORY the
-most recent one is returned.
-If no buffers match PROJECT-DIRECTORY but there are buffers with no
-associated directory, the most recent one of those is returned.
-
-Here, \"most recent\" stands for the connection closer to the start of
-`cider-connections'.
-This is usally the connection that was more recently prepended to this
-variable, but the order can be changed.  For instance, the function
-`cider-make-connection-default' can be used to move a connection to the
-head of the list, so that it will take precedence over other connections
-associated with the same project.
+If more than one connection satisfy a given level of preference, return the
+connection buffer closer to the start of `cider-connections'.  This is
+usally the connection that was more recently created, but the order can be
+changed.  For instance, the function `cider-make-connection-default' can be
+used to move a connection to the head of the list, so that it will take
+precedence over other connections associated with the same project.
 
 If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
 connections are returned, instead of just the most recent."
@@ -527,7 +525,10 @@ connections are returned, instead of just the most recent."
         (funcall fn (lambda (conn)
                       (with-current-buffer conn
                         (not nrepl-project-dir)))
-                 cider-connections))))
+                 cider-connections)
+        (if all-connections
+            cider-connections
+          (car cider-connections)))))
 
 (defun cider-assoc-project-with-connection (&optional project connection)
   "Associate a Clojure PROJECT with an nREPL CONNECTION.
