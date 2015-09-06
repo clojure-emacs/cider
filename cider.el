@@ -276,7 +276,10 @@ own buffer."
                   (nrepl-use-this-as-repl-buffer repl-buff))
               (nrepl-start-server-process
                project-dir cmd
-               (when cljs-too #'cider-create-sibling-cljs-repl)))))
+               (lambda (conn)
+                 (cider-make-connection-default conn)
+                 (when cljs-too
+                   (cider-create-sibling-cljs-repl conn)))))))
       (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your exec-path"
                (cider-jack-in-command project-type)))))
 
