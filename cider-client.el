@@ -33,12 +33,15 @@
 (defvar cider-connections nil
   "A list of connections.")
 
+(defsubst cider--in-connection-buffer-p ()
+  "Return non-nil if current buffer is connected to a server."
+  (get-buffer-process nrepl-server-buffer))
+
 (defun cider-default-connection (&optional no-error)
   "The default (fallback) connection to use for nREPL interaction.
 When NO-ERROR is non-nil, don't throw an error when no connection has been
 found."
-  (or nrepl-connection-buffer
-      (car (cider-connections))
+  (or (car (cider-connections))
       (unless no-error
         (error "No nREPL connection buffer"))))
 
@@ -63,8 +66,9 @@ If the list is empty and buffer-local, return the global value."
 (defun cider-make-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
 Moves CONNECTION-BUFFER to the front of `cider-connections'."
-  (interactive (list (or nrepl-connection-buffer
-                         (user-error "Not in a REPL buffer"))))
+  (interactive (list (if (cider--in-connection-buffer-p)
+                         (current-buffer)
+                       (user-error "Not in a REPL buffer"))))
   ;; maintain the connection list in most recently used order
   (let ((buf (get-buffer connection-buffer)))
     (setq cider-connections
@@ -214,8 +218,8 @@ Refreshes EWOC."
 
 (defun cider--connections-goto-connection (_ewoc data)
   "Goto the REPL for the connection in _EWOC specified by DATA."
-  (-when-let (buffer (with-current-buffer data nrepl-connection-buffer))
-    (select-window (display-buffer buffer))))
+  (when (buffer-live-p data)
+    (select-window (display-buffer data))))
 
 
 (defun cider-display-connected-message ()

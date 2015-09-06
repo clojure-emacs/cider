@@ -202,8 +202,7 @@
   (noflet ((nrepl--connection-info (connection-buffer-name)))
     (cider-test-with-buffers
      (a b c)
-     (let ((cider-connections (list a b c))
-           (nrepl-connection-buffer nil))
+     (let ((cider-connections (list a b c)))
        (noflet ((cider--java-version () "")
                 (cider--clojure-version () "")
                 (cider--nrepl-version () ""))
@@ -427,18 +426,14 @@
     (let ((server-buffer (current-buffer)))
       (with-temp-buffer
         (let* ((connection-buffer (current-buffer))
-               (repl-buffer connection-buffer)
                (cider-connections (list connection-buffer)))
-          (with-current-buffer connection-buffer
-            (setq-local nrepl-repl-buffer repl-buffer)
-            (setq-local nrepl-connection-buffer connection-buffer)
-            (setq-local nrepl-server-buffer server-buffer))
+          (setq-local nrepl-server-buffer server-buffer)
           (noflet ((read-string (dontcare) "bob"))
             (cider-change-buffers-designation)
-            (should (equal "*cider-repl bob*" (buffer-name repl-buffer)))
+            (should (equal "*cider-repl bob*" (buffer-name connection-buffer)))
             (should (equal "*nrepl-server bob*" (buffer-name server-buffer))))
-          (with-current-buffer repl-buffer
-            (should (equal "*cider-repl bob*" (buffer-name nrepl-connection-buffer)))))))))
+          (with-current-buffer connection-buffer
+            (should (equal "*cider-repl bob*" (buffer-name)))))))))
 
 (ert-deftest test-cider-change-buffers-designation-to-existing-designation-has-no-effect ()
   (with-temp-buffer
