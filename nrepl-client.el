@@ -140,6 +140,8 @@ In case of a special value 'new, a new buffer is created.")
 ;;; Buffer Local Declarations
 
 ;; These variables are used to track the state of nREPL connections
+(defvar-local nrepl-client-buffers nil
+  "List of buffers connected to this server.")
 (defvar-local nrepl-connection-buffer nil)
 (define-obsolete-variable-alias 'nrepl-repl-buffer
   'nrepl-connection-buffer "0.10.0")
@@ -682,14 +684,14 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 ;;; Client: Process Handling
 
-(declare cider--all-connections-to-server "cider-client")
 (defun nrepl--maybe-kill-server-buffer ()
   "Kill the `nrepl-server-buffer' and its process, subject to user confirmation.
 Do nothing if there is more than one REPL connected to that server."
   (let ((server-buffer nrepl-server-buffer))
     ;; Don't kill the server if there are more REPLs connected to it.
     (when (and (buffer-live-p server-buffer)
-               (not (cdr (cider--all-connections-to-server server-buffer)))
+               (not (cdr (with-current-buffer server-buffer
+                           nrepl-client-buffers)))
                (y-or-n-p "Also kill server process and buffer? "))
       (let ((proc (get-buffer-process server-buffer)))
         (when (process-live-p proc)
@@ -730,7 +732,6 @@ process."
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
-            nrepl-connection-buffer client-buf
             nrepl-tunnel-buffer (-when-let (tunnel (plist-get endpoint :tunnel))
                                   (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
@@ -1049,9 +1050,9 @@ the port, and the client buffer."
       (with-current-buffer (process-buffer process)
         (let* ((client-proc (nrepl-start-client-process nil port process))
                (client-buffer (process-buffer client-proc)))
-          ;; FIXME: Bad connection tracking system. There can be multiple client
-          ;; connections per server
-          (setq nrepl-connection-buffer client-buffer)
+          (setq nrepl-client-buffers
+                (cons client-buffer
+                      (delete client-buffer nrepl-client-buffers)))
 
           (when (functionp nrepl-post-client-callback)
             (funcall nrepl-post-client-callback client-buffer)))))))
@@ -1059,7 +1060,7 @@ the port, and the client buffer."
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
   (let* ((server-buffer (process-buffer process))
-         (connection-buffer (buffer-local-value 'nrepl-connection-buffer server-buffer))
+         (clients (buffer-local-value 'nrepl-client-buffers server-buffer))
          (problem (if (and server-buffer (buffer-live-p server-buffer))
                       (with-current-buffer server-buffer
                         (buffer-substring (point-min) (point-max)))
@@ -1070,8 +1071,7 @@ the port, and the client buffer."
      ((string-match-p "^killed" event)
       nil)
      ((string-match-p "^hangup" event)
-      (when connection-buffer
-        (nrepl-close connection-buffer)))
+      (mapc #'nrepl-close clients))
      ((string-match-p "Wrong number of arguments to repl task" problem)
       (error "Leiningen 2.x is required by CIDER"))
      (t (error "Could not start nREPL server: %s" problem)))))

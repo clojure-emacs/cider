@@ -363,14 +363,6 @@ unless ALL is truthy."
   (when (and class member)
     (cider-sync-request:info nil class member)))
 
-(defun cider--all-connections-to-server (server-buffer)
-  "Return a list of REPL buffers connected to SERVER-BUFFER."
-  (-filter
-   (lambda (conn)
-     (-when-let (server (with-current-buffer conn nrepl-server-buffer))
-       (equal server-buffer server)))
-   cider-connections))
-
 
 ;;; Requests
 
