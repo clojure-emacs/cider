@@ -35,11 +35,9 @@
 
 (defsubst cider--in-connection-buffer-p ()
   "Return non-nil if current buffer is connected to a server."
-  (and (buffer-live-p nrepl-server-buffer)
-       (member (current-buffer)
-               (with-current-buffer nrepl-server-buffer
-                 nrepl-client-buffers))
-       (get-buffer-process (current-buffer))))
+  (and (derived-mode-p 'cider-repl-mode)
+       (process-live-p
+        (get-buffer-process (current-buffer)))))
 
 (defun cider-default-connection (&optional no-error)
   "The default (fallback) connection to use for nREPL interaction.
