@@ -301,13 +301,8 @@
 
 * localhost         4005   proj\n\n"
                              (buffer-string)))
-              (with-temp-buffer
-                (let ((b3 (current-buffer)))
-                  (with-current-buffer b1
-                    (setq-local nrepl-repl-buffer b3))
-                  (with-current-buffer "*cider-connections*"
-                    (cider-connections-goto-connection)
-                    (should (equal b3 (current-buffer))))))
+              (cider-connections-goto-connection)
+              (should (equal b1 (current-buffer)))
               (kill-buffer "*cider-connections*"))))))))
 
 (ert-deftest test-nrepl-format-buffer-name-template ()
