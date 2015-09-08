@@ -1101,6 +1101,8 @@ operations.")
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "n") #'next-line)
     (define-key map (kbd "p") #'previous-line)
+    (define-key map (kbd "TAB") #'forward-button)
+    (define-key map (kbd "<backtab>") #'backward-button)
     map))
 
 (define-derived-mode nrepl-messages-mode special-mode "nREPL Messages"
@@ -1136,6 +1138,15 @@ operations.")
   :type '(repeat color)
   :group 'nrepl)
 
+(defcustom nrepl-dict-max-message-size 5
+  "Max number of lines a dict can have before being truncated.
+Set this to nil to prevent truncation."
+  :type 'integer)
+
+(defun nrepl--expand-button (button)
+  "Expand the text hidden under overlay BUTTON."
+  (delete-overlay button))
+
 (defun nrepl--pp (object)
   "Pretty print nREPL OBJECT."
   (if (not (and (listp object)
@@ -1150,15 +1161,29 @@ operations.")
       (cl-flet ((color (str)
                        (propertize str 'face `(:weight ultra-bold :foreground ,foreground))))
         (insert (color head))
-        (let ((indent (+ 2 (- (current-column) (length head)))))
+        (let ((indent (+ 2 (- (current-column) (length head))))
+              (l (point)))
           (if (null (cdr object))
               (insert ")\n")
-            (insert "\n")
+            (insert " \n")
             (cl-loop for l on (cdr object) by #'cddr
                      do (let ((str (format "%s%s  " (make-string indent ? ) (car l))))
                           (insert str)
                           (nrepl--pp (cadr l))))
-            (insert (color (format "%s)\n" (make-string (- indent 2) ? ))))))))))
+            (when (eq (car object) 'dict)
+              (delete-char -1)
+              (let ((truncate-lines t))
+                (when (and nrepl-dict-max-message-size
+                           (> (count-screen-lines l (point) t)
+                              nrepl-dict-max-message-size))
+                  (make-button (1+ l) (point)
+                               'display "..."
+                               'action #'nrepl--expand-button
+                               'face 'custom-button
+                               'help-echo "RET: Expand dict."
+                               'mouse-face 'custom-button-mouse
+                               'follow-link t))))
+            (insert (color ")\n"))))))))
 
 (defun nrepl-messages-buffer ()
   "Return or create the buffer given by `nrepl-message-buffer-name'.
