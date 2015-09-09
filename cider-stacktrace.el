@@ -55,7 +55,6 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
 
 (defcustom cider-stacktrace-print-length 50
   "Set the maximum length of sequences in displayed cause data.
-
 This sets the value of Clojure's `*print-length*` when pretty printing the
 `ex-data` map for exception causes in the stacktrace that are instances of
 `IExceptionInfo`.
@@ -502,6 +501,26 @@ This associates text properties to enable filtering and source navigation."
             (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)))
         (newline)))))
 
+(defun cider-stacktrace--create-go-to-err-button (beg message)
+  "Create a button that jumps to the relevant error.
+
+Buttons span over the region from BEG to current point.
+MESSAGE is parsed to find line, col and buffer name to jump to."
+  (when (string-match "\\([^:]+\\):\\([^:]+\\):\\([^:]+\\):\\([^:]+\\)\\'" message)
+    (let* ((line (string-to-number (match-string 3 message)))
+           (col (string-to-number (match-string 4 message)))
+           (buf-name (car (last (split-string (match-string 2 message) "\\/")))))
+      (when buf-name
+        (make-button (+ beg 3)
+                     (point)
+                     'action (lambda (button)
+                               (let ((the-buf-window (get-buffer-window buf-name)))
+                                 (if the-buf-window
+                                     (select-window the-buf-window)
+                                   (switch-to-buffer buf-name)))
+                               (goto-line line)
+                               (move-to-column col t)))))))
+
 (defun cider-stacktrace-render-cause (buffer cause num note)
   "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE."
   (with-current-buffer buffer
@@ -518,8 +537,10 @@ This associates text properties to enable filtering and source navigation."
             (newline))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
-            (cider-stacktrace-emit-indented
-             (propertize (or message "(No message)") 'font-lock-face message-face) indent t)
+            (let ((beg (point)))
+              (cider-stacktrace-emit-indented
+               (propertize (or message "(No message)") 'font-lock-face  message-face) indent t)
+              (cider-stacktrace--create-go-to-err-button beg message))
             (newline)
             (when data
               (cider-stacktrace-emit-indented
