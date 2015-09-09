@@ -2003,11 +2003,6 @@ See command `cider-mode'."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
-(defun cider-parent-ns (ns)
-  "Go up a level of NS.
-For example \"foo.bar.tar\" -> \"foo.bar\"."
-  (cider-string-join (butlast (split-string ns "\\.")) "."))
-
 
 ;;; Completion
 
