@@ -2374,17 +2374,17 @@ With a prefix argument QUIT-ALL the command will kill all connections
 and all ancillary CIDER buffers."
   (interactive "P")
   (cider-ensure-connected)
-  (let ((connection (cider-current-connection)))
-    (when (y-or-n-p (format "Are you sure you want to quit the current CIDER connection %s? " connection))
-     (if quit-all
-         (progn
-           (dolist (connection cider-connections)
-             (cider--quit-connection connection))
-           (message "All active nREPL connections were closed"))
-       (cider--quit-connection connection))
-     ;; if there are no more connections we can kill all ancillary buffers
-     (unless (cider-connected-p)
-       (cider-close-ancillary-buffers)))))
+  (if (and quit-all (y-or-n-p "Are you sure you want to quit all CIDER connections? "))
+      (progn
+        (dolist (connection cider-connections)
+          (cider--quit-connection connection))
+        (message "All active nREPL connections were closed"))
+    (let ((connection (cider-current-connection)))
+      (when (y-or-n-p (format "Are you sure you want to quit the current CIDER connection %s? " connection))
+        (cider--quit-connection connection))))
+  ;; if there are no more connections we can kill all ancillary buffers
+  (unless (cider-connected-p)
+    (cider-close-ancillary-buffers)))
 
 (defun cider--restart-connection (conn)
   "Restart the connection CONN."
