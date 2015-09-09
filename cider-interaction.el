@@ -1979,7 +1979,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
   "Ensure there is a cider connection present, otherwise
 an error is signaled."
   (unless (cider-connected-p)
-    (error "No active nREPL connection")))
+    (error "No active nREPL connections")))
 
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable CIDER's minor mode on existing Clojure buffers.
