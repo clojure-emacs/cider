@@ -303,7 +303,7 @@ In order to work properly, this mode must be activated by
           (nrepl-dbind-response cider--debug-mode-response (input-type)
             ;; A debug session is an ongoing eval, but it's annoying to have the
             ;; spinner spinning while you debug.
-            (spinner-stop)
+            (when spinner-current (spinner-stop))
             (setq-local tool-bar-map cider--debug-mode-tool-bar-map)
             (add-hook 'kill-buffer-hook #'cider--debug-quit nil 'local)
             (add-hook 'before-revert-hook #'cider--debug-quit nil 'local)
