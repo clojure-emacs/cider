@@ -2392,12 +2392,12 @@ and all ancillary CIDER buffers."
     (cider--quit-connection conn)
     ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
     ;; TODO: Find a better way to ensure `cider-quit' has finished
-    (message "Waiting for CIDER to quit...")
+    (message "Waiting for CIDER connection %s to quit..." conn)
     (sleep-for 2)
     (if project-dir
         (let ((default-directory project-dir))
           (cider-jack-in))
-      (error "Can't restart CIDER for unknown project"))))
+      (error "Can't restart CIDER connection for unknown project"))))
 
 (defun cider-restart (&optional restart-all)
   "Restart the currently active CIDER connection.
