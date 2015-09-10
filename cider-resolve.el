@@ -110,14 +110,14 @@ This will be clojure.core or cljs.core depending on `cider-repl-type'."
                   "clojure.core")))))
 
 (defun cider-resolve-ns-symbols (ns)
-  "Return a dict of all valid symbols in NS.
+  "Return a plist of all valid symbols in NS.
 Each entry's value is the metadata of the var that the symbol refers to.
 NS can be the namespace name, or a dict of the namespace itself."
   (-when-let (dict (if (stringp ns)
                        (cider-resolve--get-in ns)
                      ns))
     (nrepl-dbind-response dict (interns refers aliases)
-      (append interns
+      (append (cdr interns)
               (nrepl-dict-flat-map (lambda (sym var) (list sym (cider-resolve-var ns var)))
                                    refers)
               (nrepl-dict-flat-map (lambda (alias namespace)

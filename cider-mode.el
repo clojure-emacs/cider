@@ -206,37 +206,39 @@ The value can also be t, which means to font-lock as much as possible."
 
 (defvar cider-font-lock-keywords clojure-font-lock-keywords)
 
-(defun cider--compile-font-lock-keywords (symbols-dict core-dict)
-  "Return a list of font-lock rules for the symbols in SYMBOLS-DICT."
+(defun cider--compile-font-lock-keywords (symbols-plist core-plist)
+  "Return a list of font-lock rules for the symbols in SYMBOLS-PLIST."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
-                                     '(function var macro core)
-                                   cider-font-lock-dynamically))
+                                    '(function var macro core)
+                                  cider-font-lock-dynamically))
         macros functions vars instrumented)
     (when (memq 'core cider-font-lock-dynamically)
-      (nrepl-dict-map (lambda (sym meta)
-                        (when (nrepl-dict-get meta "cider-instrumented")
-                          (push sym instrumented))
-                        (cond
-                         ((nrepl-dict-get meta "macro")
-                          (push sym macros))
-                         ((nrepl-dict-get meta "arglists")
-                          (push sym functions))
-                         (t
-                          (push sym vars))))
-                      core-dict))
-    (nrepl-dict-map (lambda (sym meta)
-                      (when (nrepl-dict-get meta "cider-instrumented")
-                        (push sym instrumented))
-                      (cond
-                       ((and (memq 'macro cider-font-lock-dynamically)
-                             (nrepl-dict-get meta "macro"))
-                        (push sym macros))
-                       ((and (memq 'function cider-font-lock-dynamically)
-                             (nrepl-dict-get meta "arglists"))
-                        (push sym functions))
-                       ((memq 'var cider-font-lock-dynamically)
-                        (push sym vars))))
-                    symbols-dict)
+      (while core-plist
+        (let ((sym (pop core-plist))
+              (meta (pop core-plist)))
+          (when (nrepl-dict-get meta "cider-instrumented")
+            (push sym instrumented))
+          (cond
+           ((nrepl-dict-get meta "macro")
+            (push sym macros))
+           ((nrepl-dict-get meta "arglists")
+            (push sym functions))
+           (t
+            (push sym vars))))))
+    (while symbols-plist
+      (let ((sym (pop symbols-plist))
+            (meta (pop symbols-plist)))
+        (when (nrepl-dict-get meta "cider-instrumented")
+          (push sym instrumented))
+        (cond
+         ((and (memq 'macro cider-font-lock-dynamically)
+               (nrepl-dict-get meta "macro"))
+          (push sym macros))
+         ((and (memq 'function cider-font-lock-dynamically)
+               (nrepl-dict-get meta "arglists"))
+          (push sym functions))
+         ((memq 'var cider-font-lock-dynamically)
+          (push sym vars)))))
     `(;; Aliases
       ("\\_<\\(?1:\\(\\s_\\|\\sw\\)+\\)/" 1 font-lock-type-face)
 
