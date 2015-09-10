@@ -532,3 +532,12 @@
   (should (equal (cider--kw-to-symbol ":clj.core/str") "clj.core/str"))
   (should (equal (cider--kw-to-symbol "::keyword") "keyword"))
   (should (equal (cider--kw-to-symbol nil) nil)))
+
+(ert-deftest cider--deep-vector-to-list ()
+  (should (equal (cider--deep-vector-to-list '[1 2 3]) '(1 2 3)))
+  (should (equal (cider--deep-vector-to-list '(1 2 3)) '(1 2 3)))
+  (should (equal (cider--deep-vector-to-list '[[1] [2] [[3]]]) '((1) (2) ((3)))))
+  (should (equal (cider--deep-vector-to-list '(1 [2] [([3])])) '(1 (2) (((3))))))
+  (should (equal (cider--deep-vector-to-list 'bug) 'bug))
+  (should (equal (cider--deep-vector-to-list '[bug]) '(bug)))
+  (should (equal (cider--deep-vector-to-list '(bug)) '(bug))))

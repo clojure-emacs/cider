@@ -33,6 +33,7 @@
 (require 'cider-interaction)
 (require 'cider-eldoc)
 (require 'cider-repl)
+(require 'cider-util)
 (require 'cider-resolve)
 
 (defcustom cider-mode-line-show-connection t
@@ -180,6 +181,17 @@ entirely."
         ["Version info" cider-version]))
     map))
 
+;;; Dynamic indentation
+(defun cider--get-symbol-indent (symbol-name)
+  "Return the indent metadata for SYMBOL-NAME in the current namespace."
+  (-when-let (indent
+              (nrepl-dict-get (cider-resolve-var (cider-current-ns) symbol-name)
+                              "indent"))
+    (let ((format (format ":indent metadata on ‘%s’ is unreadable! \nERROR: %%s"
+                          symbol-name)))
+      (with-demoted-errors format
+        (cider--deep-vector-to-list (read indent))))))
+
 ;;; Dynamic font locking
 (defcustom cider-font-lock-dynamically '(macro core)
   "Specifies how much dynamic font-locking CIDER should use.
@@ -276,6 +288,10 @@ namespace itself."
       (with-no-warnings
         (font-lock-fontify-buffer)))))
 
+;; Once a new stable of `clojure-mode' is realeased, we can depend on it and
+;; ditch this `defvar'.
+(defvar clojure-get-indent-function)
+
 ;;;###autoload
 (define-minor-mode cider-mode
   "Minor mode for REPL interaction from a Clojure buffer.
@@ -290,6 +306,7 @@ namespace itself."
                #'cider-complete-at-point)
   (font-lock-add-keywords nil cider--static-font-lock-keywords)
   (cider-refresh-dynamic-font-lock)
+  (setq-local clojure-get-indent-function #'cider--get-symbol-indent)
   (setq next-error-function #'cider-jump-to-compilation-error))
 
 (provide 'cider-mode)

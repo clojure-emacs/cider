@@ -290,6 +290,16 @@ The project name is the final component of DIR if not nil."
   (when dir
     (file-name-nondirectory (directory-file-name dir))))
 
+;;; Vectors
+(defun cider--deep-vector-to-list (x)
+  "Convert vectors in X to lists.
+If X is a sequence, return a list of `cider--deep-vector-to-list' applied to
+each of its elements.
+Any other value is just returned."
+  (if (sequencep x)
+      (mapcar #'cider--deep-vector-to-list x)
+    x))
+
 ;;; Words of inspiration
 (defun cider-user-first-name ()
   "Find the current user's first name."
