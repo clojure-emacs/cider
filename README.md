@@ -466,6 +466,15 @@ font-locked as in `clojure-mode` use the following:
 (setq cider-repl-use-clojure-font-lock t)
 ```
 
+* CIDER can syntax highlight symbols that are known to be defined. By default,
+  this is done on symbols from the `clojure.core` namespace as well as macros
+  from any namespace. If you'd like CIDER to also colorize usages of functions
+  and variables from any namespace, do:
+
+```el
+(setq cider-font-lock-dynamically '(macro core function var))
+```
+
 * You can control the <kbd>C-c C-z</kbd> key behavior of switching to the REPL buffer
 with the `cider-switch-to-repl-command` variable.  While the default command
 `cider-switch-to-relevant-repl-buffer` should be an adequate choice for

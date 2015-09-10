@@ -33,6 +33,7 @@
 (require 'cider-interaction)
 (require 'cider-eldoc)
 (require 'cider-repl)
+(require 'cider-resolve)
 
 (defcustom cider-mode-line-show-connection t
   "If the mode-line lighter should detail the connection."
@@ -178,6 +179,97 @@ entirely."
         ["Version info" cider-version]))
     map))
 
+;;; Dynamic font locking
+(defcustom cider-font-lock-dynamically '(macro core)
+  "Specifies how much dynamic font-locking CIDER should use.
+Dynamic font-locking this refers to applying syntax highlighting to vars
+defined in the currently active nREPL connection. This is done in addition
+to `clojure-mode's usual (static) font-lock, so even if you set this
+variable to nil you'll still see basic syntax highlighting.
+
+The value is a list of symbols, each one indicates a different type of var
+that should be font-locked:
+   `macro' (default): Any defined macro gets the `font-lock-builtin-face'.
+   `function': Any defined function gets the `font-lock-function-face'.
+   `var': Any non-local var gets the `font-lock-variable-face'.
+   `core' (default): Any symbol from clojure.core (face depends on type).
+
+The value can also be t, which means to font-lock as much as possible."
+  :type '(choice (set :tag "Fine-tune font-locking"
+                      (const :tag "Any defined macro" macro)
+                      (const :tag "Any defined function" function)
+                      (const :tag "Any defined var" var)
+                      (const :tag "Any symbol from clojure.core" core))
+                 (const :tag "Font-lock as much as possible" t))
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defvar cider-font-lock-keywords clojure-font-lock-keywords)
+
+(defun cider--compile-font-lock-keywords (symbols-dict core-dict)
+  "Return a list of font-lock rules for the symbols in SYMBOLS-DICT."
+  (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
+                                     '(function var macro core)
+                                   cider-font-lock-dynamically))
+        macros functions vars instrumented)
+    (when (memq 'core cider-font-lock-dynamically)
+      (nrepl-dict-map (lambda (sym meta)
+                        (when (nrepl-dict-get meta "cider-instrumented")
+                          (push sym instrumented))
+                        (cond
+                         ((nrepl-dict-get meta "macro")
+                          (push sym macros))
+                         ((nrepl-dict-get meta "arglists")
+                          (push sym functions))
+                         (t
+                          (push sym vars))))
+                      core-dict))
+    (nrepl-dict-map (lambda (sym meta)
+                      (when (nrepl-dict-get meta "cider-instrumented")
+                        (push sym instrumented))
+                      (cond
+                       ((and (memq 'macro cider-font-lock-dynamically)
+                             (nrepl-dict-get meta "macro"))
+                        (push sym macros))
+                       ((and (memq 'function cider-font-lock-dynamically)
+                             (nrepl-dict-get meta "arglists"))
+                        (push sym functions))
+                       ((memq 'var cider-font-lock-dynamically)
+                        (push sym vars))))
+                    symbols-dict)
+    `(;; Aliases
+      ("\\_<\\(?1:\\(\\s_\\|\\sw\\)+\\)/" 1 font-lock-type-face)
+
+      ,@(when macros
+          `((,(concat (rx (or "(" "#'")) ; Can't take the value of macros.
+                      "\\(" (regexp-opt macros 'symbols) "\\)")
+             1 font-lock-keyword-face append)))
+      ,@(when functions
+          `((,(regexp-opt functions 'symbols) 0 font-lock-function-name-face append)))
+      ,@(when vars
+          `((,(regexp-opt vars 'symbols) 0 font-lock-variable-name-face append)))
+      ,@(when instrumented
+          `((,(regexp-opt instrumented 'symbols) 0 'cider-instrumented-face prepend))))))
+
+(defconst cider-static-font-lock-keywords
+  (eval-when-compile
+    `((,(regexp-opt '("#break" "#dbg") 'symbols) 0 font-lock-warning-face)))
+  "Default expressions to highlight in CIDER mode.")
+
+(defun cider-refresh-font-lock (&optional ns)
+  "Ensure that the current buffer has up-to-date font-lock rules.
+NS defaults to `cider-current-ns', and it can also be a dict describing the
+namespace itself."
+  (interactive)
+  (when cider-font-lock-dynamically
+    (-when-let (symbols (cider-resolve-ns-symbols (or ns (cider-current-ns))))
+      (setq-local cider-font-lock-keywords
+                  (append clojure-font-lock-keywords
+                          cider-static-font-lock-keywords
+                          (cider--compile-font-lock-keywords
+                           symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))))
+    (font-lock-refresh-defaults)))
+
 ;;;###autoload
 (define-minor-mode cider-mode
   "Minor mode for REPL interaction from a Clojure buffer.
@@ -190,6 +282,10 @@ entirely."
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                #'cider-complete-at-point)
+  (when (consp font-lock-defaults)
+    (setq-local font-lock-defaults
+                (cons 'cider-font-lock-keywords (cdr font-lock-defaults))))
+  (cider-refresh-font-lock)
   (setq next-error-function #'cider-jump-to-compilation-error))
 
 (provide 'cider-mode)
