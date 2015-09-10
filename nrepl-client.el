@@ -1152,7 +1152,8 @@ operations.")
         (re-search-forward "^(" nil t)
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
-      (nrepl--pp msg)
+      (nrepl--pp msg (-some-> (lax-plist-get (cdr msg) "id")
+                              (nrepl--message-color)))
       (-when-let (win (get-buffer-window))
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
@@ -1163,6 +1164,12 @@ operations.")
   :type '(repeat color)
   :group 'nrepl)
 
+(defun nrepl--message-color (id)
+  "Return the color to use when pretty-printing the nREPL message with ID."
+  (-> (string-to-number id)
+      (mod (length nrepl-message-colors))
+      (nth nrepl-message-colors)))
+
 (defcustom nrepl-dict-max-message-size 5
   "Max number of lines a dict can have before being truncated.
 Set this to nil to prevent truncation."
@@ -1172,19 +1179,16 @@ Set this to nil to prevent truncation."
   "Expand the text hidden under overlay BUTTON."
   (delete-overlay button))
 
-(defun nrepl--pp (object)
-  "Pretty print nREPL OBJECT."
+(defun nrepl--pp (object &optional foreground)
+  "Pretty print nREPL OBJECT, delimited using FOREGROUND."
   (if (not (and (listp object)
                 (memq (car object) '(<- ---> dict))))
       (progn (pp object (current-buffer))
              (unless (listp object) (insert "\n")))
-    (let* ((id (lax-plist-get (cdr object) "id"))
-           (id (and id (mod (string-to-number id)
-                            (length nrepl-message-colors))))
-           (head (format "(%s" (car object)))
-           (foreground (and id (nth id nrepl-message-colors))))
+    (let* ((head (format "(%s" (car object))))
       (cl-flet ((color (str)
-                       (propertize str 'face `(:weight ultra-bold :foreground ,foreground))))
+                       (propertize str 'face (append '(:weight ultra-bold)
+                                                     (when foreground `(:foreground ,foreground))))))
         (insert (color head))
         (let ((indent (+ 2 (- (current-column) (length head))))
               (l (point)))
