@@ -1204,9 +1204,8 @@ Set this to nil to prevent truncation."
                   (make-button (1+ l) (point)
                                'display "..."
                                'action #'nrepl--expand-button
-                               'face 'custom-button
+                               'face 'link
                                'help-echo "RET: Expand dict."
-                               'mouse-face 'custom-button-mouse
                                'follow-link t))))
             (insert (color ")\n"))))))))
 
