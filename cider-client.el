@@ -98,7 +98,7 @@ Also close associated REPL and server buffers."
   (let ((map (make-sparse-keymap)))
     (define-key map "d" #'cider-connections-make-default)
     (define-key map "g" #'cider-connection-browser)
-    (define-key map (kbd "C-k") #'cider-connections-close-connection)
+    (define-key map "k" #'cider-connections-close-connection)
     (define-key map (kbd "RET") #'cider-connections-goto-connection)
     map))
 
