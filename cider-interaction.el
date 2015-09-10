@@ -1974,7 +1974,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
-  (not (null cider-connections)))
+  (not (null (cider-connections))))
 
 (defun cider-ensure-connected ()
   "Ensure there is a cider connection present, otherwise
