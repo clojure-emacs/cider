@@ -475,7 +475,7 @@ is searched."
       (let ((ns  (clojure-find-ns))
             (def (clojure-find-def)))
         (if (and ns (member (car def) '("deftest" "defspec")))
-            (cider-test-execute ns nil (rest def))
+            (cider-test-execute ns nil (cdr def))
           (message "No test at point"))))))
 
 (provide 'cider-test)
