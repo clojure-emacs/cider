@@ -1270,6 +1270,13 @@ CIDER depends on `clojure-mode` and you should always update them together, as
 the latest CIDER version might depend on functionality present only in the latest
 `clojure-mode` version.
 
+### I upgraded CIDER using `package.el` and it broke
+
+The built-in package manager isn't perfect and sometimes it messes up.  If you
+just updated and encountered an error please go into the `.emacs.d/elpa`
+directory and delete any folders related to CIDER and then re-install before
+opening an issue.
+
 ## Documentation
 
 A single-page quick reference PDF for CIDER commands is available
