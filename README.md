@@ -1277,6 +1277,11 @@ just updated and encountered an error please go into the `.emacs.d/elpa`
 directory and delete any folders related to CIDER and then re-install before
 opening an issue.
 
+### I upgraded CIDER using `package.el` and nothing changed
+
+Emacs doesn't load the new files, it only installs them on disk.  To see the
+effect of changes you have to restart emacs.
+
 ## Documentation
 
 A single-page quick reference PDF for CIDER commands is available
