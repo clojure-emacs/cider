@@ -204,8 +204,6 @@ The value can also be t, which means to font-lock as much as possible."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defvar cider-font-lock-keywords clojure-font-lock-keywords)
-
 (defun cider--compile-font-lock-keywords (symbols-plist core-plist)
   "Return a list of font-lock rules for the symbols in SYMBOLS-PLIST."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
@@ -253,24 +251,29 @@ The value can also be t, which means to font-lock as much as possible."
       ,@(when instrumented
           `((,(regexp-opt instrumented 'symbols) 0 'cider-instrumented-face prepend))))))
 
-(defconst cider-static-font-lock-keywords
+(defconst cider--static-font-lock-keywords
   (eval-when-compile
     `((,(regexp-opt '("#break" "#dbg") 'symbols) 0 font-lock-warning-face)))
   "Default expressions to highlight in CIDER mode.")
 
-(defun cider-refresh-font-lock (&optional ns)
+(defvar-local cider--dynamic-font-lock-keywords nil)
+
+(defun cider-refresh-dynamic-font-lock (&optional ns)
   "Ensure that the current buffer has up-to-date font-lock rules.
 NS defaults to `cider-current-ns', and it can also be a dict describing the
 namespace itself."
   (interactive)
   (when cider-font-lock-dynamically
+    (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
     (-when-let (symbols (cider-resolve-ns-symbols (or ns (cider-current-ns))))
-      (setq-local cider-font-lock-keywords
-                  (append clojure-font-lock-keywords
-                          cider-static-font-lock-keywords
-                          (cider--compile-font-lock-keywords
-                           symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))))
-    (font-lock-refresh-defaults)))
+      (setq-local cider--dynamic-font-lock-keywords
+                  (cider--compile-font-lock-keywords
+                   symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
+      (font-lock-add-keywords nil cider--dynamic-font-lock-keywords))
+    (if (fboundp 'font-lock-flush)
+        (font-lock-flush)
+      (with-no-warnings
+        (font-lock-fontify-buffer)))))
 
 ;;;###autoload
 (define-minor-mode cider-mode
@@ -284,10 +287,8 @@ namespace itself."
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                #'cider-complete-at-point)
-  (when (consp font-lock-defaults)
-    (setq-local font-lock-defaults
-                (cons 'cider-font-lock-keywords (cdr font-lock-defaults))))
-  (cider-refresh-font-lock)
+  (font-lock-add-keywords nil cider--static-font-lock-keywords)
+  (cider-refresh-dynamic-font-lock)
   (setq next-error-function #'cider-jump-to-compilation-error))
 
 (provide 'cider-mode)

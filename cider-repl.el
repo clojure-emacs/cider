@@ -186,7 +186,7 @@ Currently, this is only used to keep `cider-repl-type' updated."
             (with-current-buffer b
               (when cider-mode
                 (-when-let (ns-dict (nrepl-dict-get changed-namespaces (cider-current-ns)))
-                  (cider-refresh-font-lock ns-dict))))))))))
+                  (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
 (defun cider-repl-create (endpoint)
   "Create a REPL buffer and install `cider-repl-mode'.
