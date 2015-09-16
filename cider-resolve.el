@@ -118,8 +118,6 @@ NS can be the namespace name, or a dict of the namespace itself."
                      ns))
     (nrepl-dbind-response dict (interns refers aliases)
       (append (cdr interns)
-              (nrepl-dict-flat-map (lambda (sym var) (list sym (cider-resolve-var ns var)))
-                                   refers)
               (nrepl-dict-flat-map (lambda (alias namespace)
                                      (nrepl-dict-flat-map (lambda (sym meta)
                                                             (list (concat alias "/" sym) meta))
