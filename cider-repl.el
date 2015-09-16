@@ -173,6 +173,9 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
 This cache is stored in the connection buffer.  Other buffer's access it
 via `cider-current-connection'.")
 
+(defvar cider-mode)
+(declare-function cider-refresh-dynamic-font-lock "cider-mode")
+
 (defun cider-repl--state-handler (response)
   "Handle the server STATE.
 Currently, this is only used to keep `cider-repl-type' updated."
