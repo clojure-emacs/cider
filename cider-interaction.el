@@ -561,7 +561,8 @@ current directory (see `cider-find-connection-buffer-for-project-directory').
 If there is ambiguity, it is resolved by matching TYPE with the REPL
 type (Clojure or ClojureScript). If TYPE is nil, it is derived from the
 file extension."
-  (cider-ensure-connected)
+  ;; Cleanup the connections list.
+  (cider-connections)
   (cond
    ((cider--in-connection-buffer-p) (current-buffer))
    ((= 1 (length cider-connections)) (car cider-connections))
