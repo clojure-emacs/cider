@@ -2345,12 +2345,16 @@ the string contents of the region into a formatted string."
   "Close the BUFFER and kill its associated process (if any)."
   (when (buffer-live-p buffer)
     (with-current-buffer buffer
-      (when nrepl-session
-        (nrepl-sync-request:close (cider-current-connection) nrepl-session))
-      (when nrepl-tooling-session
-        (nrepl-sync-request:close (cider-current-connection) nrepl-tooling-session))
-      (when (get-buffer-process buffer)
-        (delete-process (get-buffer-process buffer))))
+      (-when-let (proc (get-buffer-process buffer))
+        (when (process-live-p proc)
+          (when (or (not nrepl-server-buffer)
+                    ;; Sync request will hang if the server is dead.
+                    (process-live-p (get-buffer-process nrepl-server-buffer)))
+            (when nrepl-session
+              (nrepl-sync-request:close (cider-current-connection) nrepl-session))
+            (when nrepl-tooling-session
+              (nrepl-sync-request:close (cider-current-connection) nrepl-tooling-session)))
+          (when proc (delete-process proc)))))
     (kill-buffer buffer)))
 
 (defun cider-close-ancillary-buffers ()
