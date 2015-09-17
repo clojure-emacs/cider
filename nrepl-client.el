@@ -612,9 +612,12 @@ and kill the process buffer."
     (message "nREPL: Connection closed unexpectedly (%s)"
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
-    (when (buffer-live-p (process-buffer process))
-      (with-current-buffer (process-buffer process)
+    (-when-let (client-buffer (process-buffer process))
+      (with-current-buffer client-buffer
         (run-hooks 'nrepl-disconnected-hook)
+        (when (buffer-live-p nrepl-server-buffer)
+          (with-current-buffer nrepl-server-buffer
+            (setq nrepl-client-buffers (delete client-buffer nrepl-client-buffers))))
         (nrepl--maybe-kill-server-buffer)))))
 
 
