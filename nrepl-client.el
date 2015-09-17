@@ -813,6 +813,13 @@ values of *1, *2, etc."
 (defvar nrepl-err-handler #'cider-default-err-handler
   "Evaluation error handler.")
 
+(defun nrepl--mark-id-completed (id)
+  "Move ID from `nrepl-pending-requests' to `nrepl-completed-requests'."
+  ;; FIXME: This should go away eventually when we get rid of
+  ;; pending-request hash table
+  (puthash id (gethash id nrepl-pending-requests) nrepl-completed-requests)
+  (remhash id nrepl-pending-requests))
+
 (defvar cider-buffer-ns)
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
@@ -863,8 +870,7 @@ server responses."
              (when (member "need-input" status)
                (cider-need-input buffer))
              (when (member "done" status)
-               (puthash id (gethash id nrepl-pending-requests) nrepl-completed-requests)
-               (remhash id nrepl-pending-requests)
+               (nrepl--mark-id-completed id)
                (when done-handler
                  (funcall done-handler buffer))))))))
 
@@ -940,10 +946,8 @@ sign of user input, so as not to hang the interface."
         (cider-repl-emit-interactive-stderr err)
         (message err))
       (-when-let (id (nrepl-dict-get response "id"))
-        ;; FIXME: This should go away eventually when we get rid of
-        ;; pending-request hash table
         (with-current-buffer connection
-          (remhash id nrepl-pending-requests)))
+          (nrepl--mark-id-completed id)))
       response)))
 
 (defun nrepl-request:stdin (input callback connection session)
