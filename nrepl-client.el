@@ -751,9 +751,6 @@ process."
 
     (with-current-buffer client-buf
       (-when-let (server-buf (and server-proc (process-buffer server-proc)))
-        (add-hook 'kill-buffer-hook
-                  #'nrepl--maybe-kill-server-buffer
-                  'append 'local)
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
