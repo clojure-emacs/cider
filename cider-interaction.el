@@ -2363,7 +2363,7 @@ the string contents of the region into a formatted string."
 (defun cider--quit-connection (conn)
   "Quit the connection CONN."
   (when conn
-    (nrepl-close conn)
+    (cider--close-connection-buffer conn)
     ;; clean the cached ns forms for this connection in all Clojure buffers
     (dolist (clojure-buffer (cider-util--clojure-buffers))
       (with-current-buffer clojure-buffer

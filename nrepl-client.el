@@ -800,11 +800,7 @@ values of *1, *2, etc."
         (setq nrepl-ops ops)
         (setq nrepl-versions versions)))))
 
-(defun nrepl-close (connection-buffer)
-  "Close the nREPL connection for CONNECTION-BUFFER."
-  (cider--close-connection-buffer connection-buffer)
-  (run-hooks 'nrepl-disconnected-hook))
-
+(define-obsolete-function-alias 'nrepl-close 'cider--close-connection-buffer "0.10.0")
 
 ;;; Client: Response Handling
 ;; After being decoded, responses (aka, messages from the server) are dispatched
@@ -1100,7 +1096,7 @@ the port, and the client buffer."
      ((string-match-p "^killed" event)
       nil)
      ((string-match-p "^hangup" event)
-      (mapc #'nrepl-close clients))
+      (mapc #'cider--close-connection-buffer clients))
      ((string-match-p "Wrong number of arguments to repl task" problem)
       (error "Leiningen 2.x is required by CIDER"))
      (t (error "Could not start nREPL server: %s" problem)))))

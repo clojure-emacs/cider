@@ -210,7 +210,7 @@ Refreshes EWOC."
 
 (defun cider--connections-close-connection (ewoc data)
   "Close the connection in EWOC specified by DATA."
-  (nrepl-close (get-buffer data))
+  (cider--close-connection-buffer (get-buffer data))
   (cider--update-connections-display ewoc cider-connections))
 
 (defun cider-connections-goto-connection ()
