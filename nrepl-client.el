@@ -617,8 +617,8 @@ and kill the process buffer."
         (run-hooks 'nrepl-disconnected-hook)
         (when (buffer-live-p nrepl-server-buffer)
           (with-current-buffer nrepl-server-buffer
-            (setq nrepl-client-buffers (delete client-buffer nrepl-client-buffers))))
-        (nrepl--maybe-kill-server-buffer)))))
+            (setq nrepl-client-buffers (delete client-buffer nrepl-client-buffers)))
+          (nrepl--maybe-kill-server-buffer nrepl-server-buffer))))))
 
 
 ;;; Network
@@ -712,14 +712,12 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 ;;; Client: Process Handling
 
-(defun nrepl--maybe-kill-server-buffer ()
-  "Kill the `nrepl-server-buffer' and its process, subject to user confirmation.
-Do nothing if there is more than one REPL connected to that server."
-  (let ((server-buffer nrepl-server-buffer))
-    ;; Don't kill the server if there are more REPLs connected to it.
-    (when (and (buffer-live-p server-buffer)
-               (not (cdr (with-current-buffer server-buffer
-                           nrepl-client-buffers)))
+(defun nrepl--maybe-kill-server-buffer (server-buffer)
+  "Kill SERVER-BUFFER and its process, subject to user confirmation.
+Do nothing if there is a REPL connected to that server."
+  (with-current-buffer server-buffer
+    ;; Don't kill the server if there is a REPL connected to it.
+    (when (and (not nrepl-client-buffers)
                (y-or-n-p "Also kill server process and buffer? "))
       (let ((proc (get-buffer-process server-buffer)))
         (when (process-live-p proc)
