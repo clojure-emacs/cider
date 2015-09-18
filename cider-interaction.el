@@ -1201,7 +1201,7 @@ The formatting is performed by `cider-annotate-completion-function'."
   "Complete the symbol at point."
   (-when-let (sap (cider-symbol-at-point))
     (when (and (cider-connected-p)
-               (not (or (clojure-in-string-p) (clojure-in-comment-p))))
+               (not (or (cider-in-string-p) (cider-in-comment-p))))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
         (list (car bounds) (cdr bounds)
               (completion-table-dynamic #'cider-complete)
