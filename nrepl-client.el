@@ -1181,7 +1181,9 @@ Set this to nil to prevent truncation."
   "Pretty print nREPL OBJECT, delimited using FOREGROUND."
   (if (not (and (listp object)
                 (memq (car object) '(<- ---> dict))))
-      (progn (pp object (current-buffer))
+      (progn (when (stringp object)
+               (setq object (substring-no-properties object)))
+             (pp object (current-buffer))
              (unless (listp object) (insert "\n")))
     (let* ((head (format "(%s" (car object))))
       (cl-flet ((color (str)
