@@ -60,6 +60,14 @@ Setting this to nil removes the fontification restriction."
       (file-name-directory buffer-file-name)
     default-directory))
 
+(defun cider-in-string-p ()
+  "Return true if point is in a string."
+  (nth 3 (parse-partial-sexp (beginning-of-defun) (point))))
+
+(defun cider-in-comment-p ()
+  "Return true if point is in a comment."
+  (nth 4 (parse-partial-sexp (beginning-of-defun) (point))))
+
 ;;; Text properties
 
 (defun cider-maybe-intern (name)
