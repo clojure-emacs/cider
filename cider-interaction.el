@@ -1777,7 +1777,10 @@ EVAL-BUFFER is the buffer where the spinner was started."
     ;; we've got status "done" from nrepl
     ;; stop the spinner
     (when (and (buffer-live-p eval-buffer)
-               (member "done" (nrepl-dict-get response "status")))
+               (let ((status (nrepl-dict-get response "status")))
+                 (or (member "done" status)
+                     (member "eval-error" status)
+                     (member "error" status))))
       (with-current-buffer eval-buffer
         (spinner-stop)))
     (funcall original-callback response)))
