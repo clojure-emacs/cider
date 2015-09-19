@@ -21,11 +21,13 @@ elpa:
 	$(CASK) update
 	touch $@
 
-.PHONY: build
+.PHONY: build version
 build : elpa $(OBJECTS)
 
-.PHONY: test
-test : build
+version:
+	$(EMACS) --version
+
+test : version build
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
 		$(EMACSFLAGS) \
 		-l test/run-tests
