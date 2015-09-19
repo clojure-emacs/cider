@@ -257,7 +257,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (format "; CIDER %s (Java %s, Clojure %s, nREPL %s)"
           (cider--version)
           (cider--java-version)
-          (cider--clojure-version)
+          (cider-clojure-version)
           (cider--nrepl-version)))
 
 (defun cider-repl--insert-banner-and-prompt (buffer)

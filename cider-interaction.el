@@ -308,7 +308,7 @@ Signal an error if it is not supported."
           (nrepl-dict-get "java")
           (nrepl-dict-get "version-string")))))
 
-(defun cider--clojure-version ()
+(defun cider-clojure-version ()
   "Retrieve the underlying connection's Clojure version."
   (with-current-buffer (cider-current-connection "clj")
     (when nrepl-versions
@@ -375,7 +375,7 @@ endpoint and Clojure version."
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
             (cider--java-version)
-            (cider--clojure-version)
+            (cider-clojure-version)
             (cider--nrepl-version))))
 
 (defun cider-display-connection-info (&optional show-default)
