@@ -790,59 +790,6 @@ create a valid path."
         (match-string 1 filename)
       filename)))
 
-(defun cider-find-file (url)
-  "Return a buffer visiting the file URL if it exists, or nil otherwise.
-If URL has a scheme prefix, it must represent a fully-qualified file path
-or an entry within a zip/jar archive.  If URL doesn't contain a scheme
-prefix and is an absolute path, it is treated as such.  Finally, if URL is
-relative, it is expanded within each of the open Clojure buffers till an
-existing file ending with URL has been found."
-  (cond ((string-match "^file:\\(.+\\)" url)
-         (-when-let* ((file (cider--url-to-file (match-string 1 url)))
-                      (path (cider--file-path file)))
-           (find-file-noselect path)))
-        ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" url)
-         (-when-let* ((entry (match-string 3 url))
-                      (file  (cider--url-to-file (match-string 2 url)))
-                      (path  (cider--file-path file))
-                      (name  (format "%s:%s" path entry)))
-           (or (find-buffer-visiting name)
-               (if (tramp-tramp-file-p path)
-                   (progn
-                     ;; Use emacs built in archiving
-                     (find-file path)
-                     (goto-char (point-min))
-                     ;; Make sure the file path is followed by a newline to
-                     ;; prevent eg. clj matching cljs.
-                     (search-forward (concat entry "\n"))
-                     ;; moves up to matching line
-                     (forward-line -1)
-                     (archive-extract)
-                     (current-buffer))
-                 ;; Use external zip program to just extract the single file
-                 (with-current-buffer (generate-new-buffer
-                                       (file-name-nondirectory entry))
-                   (archive-zip-extract path entry)
-                   (set-visited-file-name name)
-                   (setq-local default-directory (file-name-directory path))
-                   (setq-local buffer-read-only t)
-                   (set-buffer-modified-p nil)
-                   (set-auto-mode)
-                   (current-buffer))))))
-        (t (-if-let (path (cider--file-path url))
-               (find-file-noselect path)
-             (unless (file-name-absolute-p url)
-               (let ((cider-buffers (cider-util--clojure-buffers))
-                     (url (file-name-nondirectory url)))
-                 (or (cl-loop for bf in cider-buffers
-                              for path = (with-current-buffer bf
-                                           (expand-file-name url))
-                              if (and path (file-exists-p path))
-                              return (find-file-noselect path))
-                     (cl-loop for bf in cider-buffers
-                              if (string= (buffer-name bf) url)
-                              return bf))))))))
-
 (defun cider-find-var-file (var)
   "Return the buffer visiting the file in which VAR is defined, or nil if
 not found."
@@ -1001,20 +948,6 @@ Tests againsts PREFIX and the value of `cider-prompt-for-symbol'.
 Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
   (if (cider--prefix-invert-prompt-p prefix)
       (not cider-prompt-for-symbol) cider-prompt-for-symbol))
-
-(defun cider--jump-to-loc-from-info (info &optional other-window)
-  "Jump to location give by INFO.
-INFO object is returned by `cider-var-info' or `cider-member-info'.
-OTHER-WINDOW is passed to `cider-jamp-to'."
-  (let* ((line (nrepl-dict-get info "line"))
-         (file (nrepl-dict-get info "file"))
-         (name (nrepl-dict-get info "name"))
-         (buffer (and file
-                      (not (cider--tooling-file-p file))
-                      (cider-find-file file))))
-    (if buffer
-        (cider-jump-to buffer (if line (cons line nil) name) other-window)
-      (error "No source location"))))
 
 (defun cider--find-var-other-window (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE.
