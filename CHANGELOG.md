@@ -3,7 +3,8 @@
 ## master (unreleased)
 
 ### New features
-* [#1232](https://github.com/clojure-emacs/cider/pull/1232): Add cider-load-buffer-and-switch-to-repl-buffer
+
+* [#1232](https://github.com/clojure-emacs/cider/pull/1232): Add `cider-load-buffer-and-switch-to-repl-buffer`.
 * [#1325](https://github.com/clojure-emacs/cider/issues/1325): Jump to error location when clicking on the error message in the stack-trace pop-up.
 * [#1301](https://github.com/clojure-emacs/cider/issues/1301): CIDER can do dynamic font-locking of defined variables, functions, and macros. This is controlled by the `cider-font-lock-dynamically` custom option.
 * [#1271](https://github.com/clojure-emacs/cider/issues/1271): New possible value (`always-save`) for `cider-prompt-save-file-on-load`.
@@ -42,6 +43,7 @@
 * Renamed `cider-repl-output-face` to `cider-repl-stdout-face` and `cider-repl-err-output-face` to `cider-repl-stderr-face`.
 
 ### Bugs fixed
+
 * [#1252](https://github.com/clojure-emacs/cider/issues/1252) `cider-repl-clear-buffer` stops working in certain circumstances.
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 * [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.
