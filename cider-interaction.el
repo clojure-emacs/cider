@@ -226,15 +226,6 @@ All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
 (defvar cider-required-nrepl-version "0.2.7"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
-(defvar-local cider-buffer-ns nil
-  "Current Clojure namespace of some buffer.
-
-Useful for special buffers (e.g. REPL, doc buffers) that have to
-keep track of a namespace.
-
-This should never be set in Clojure buffers, as there the namespace
-should be extracted from the buffer's ns form.")
-
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."
@@ -1035,17 +1026,6 @@ evaluation command. Honor `cider-auto-jump-to-error'."
       (insert (format "%s" value))
       (ansi-color-apply-on-region (point-min) (point-max)))
     (goto-char (point-min))))
-
-(defun cider-current-ns ()
-  "Return the current ns.
-The ns is extracted from the ns form for Clojure buffers and from
-`cider-buffer-ns' for all other buffers.  If it's missing, use the current
-REPL's ns, otherwise fall back to \"user\"."
-  (or cider-buffer-ns
-      (clojure-find-ns)
-      (-when-let (repl-buf (cider-current-connection))
-        (buffer-local-value 'cider-buffer-ns repl-buf))
-      "user"))
 
 
 ;;; Evaluation

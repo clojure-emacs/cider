@@ -339,6 +339,26 @@ Refreshes EWOC."
   "Check if FORM is an ns form."
   (string-match-p "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
 
+(defvar-local cider-buffer-ns nil
+  "Current Clojure namespace of some buffer.
+
+Useful for special buffers (e.g. REPL, doc buffers) that have to
+keep track of a namespace.
+
+This should never be set in Clojure buffers, as there the namespace
+should be extracted from the buffer's ns form.")
+
+(defun cider-current-ns ()
+  "Return the current ns.
+The ns is extracted from the ns form for Clojure buffers and from
+`cider-buffer-ns' for all other buffers.  If it's missing, use the current
+REPL's ns, otherwise fall back to \"user\"."
+  (or cider-buffer-ns
+      (clojure-find-ns)
+      (-when-let (repl-buf (cider-current-connection))
+        (buffer-local-value 'cider-buffer-ns repl-buf))
+      "user"))
+
 (define-obsolete-function-alias 'cider-eval 'nrepl-request:eval "0.9")
 
 (defun cider-nrepl-op-supported-p (op)
