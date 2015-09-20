@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'cider-util)
+(require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'button)
 (require 'dash)
@@ -61,6 +62,7 @@
 
 (defconst cider-test-report-buffer "*cider-test-report*"
   "Buffer name in which to display test reports.")
+(add-to-list 'cider-ancillary-buffers cider-test-report-buffer)
 
 
 ;;; Faces

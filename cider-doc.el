@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'cider-util)
+(require 'cider-popup)
 (require 'org-table)
 (require 'button)
 (require 'dash)
@@ -199,6 +200,9 @@
   (if cider-buffer-ns
       (cider-grimoire-web-lookup cider-docview-symbol)
     (error "%s cannot be looked up on Grimoire" cider-docview-symbol)))
+
+(defconst cider-doc-buffer "*cider-doc*")
+(add-to-list 'cider-ancillary-buffers cider-doc-buffer)
 
 
 ;;; Font Lock and Formatting
