@@ -804,7 +804,7 @@ values of *1, *2, etc."
 ;; After being decoded, responses (aka, messages from the server) are dispatched
 ;; to handlers. Handlers are constructed with `nrepl-make-response-handler'.
 
-(defvar nrepl-err-handler #'cider-default-err-handler
+(defvar nrepl-err-handler nil
   "Evaluation error handler.")
 
 (defun nrepl--mark-id-completed (id)
@@ -815,6 +815,8 @@ values of *1, *2, etc."
   (remhash id nrepl-pending-requests))
 
 (defvar cider-buffer-ns)
+(declare-function cider-need-input "cider-interaction")
+
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler)
@@ -899,6 +901,8 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")
+
+(declare-function cider-repl-emit-interactive-stderr "cider-repl")
 
 (defun nrepl-send-sync-request (request connection &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
@@ -1081,6 +1085,8 @@ the port, and the client buffer."
 
           (when (functionp nrepl-post-client-callback)
             (funcall nrepl-post-client-callback client-buffer)))))))
+
+(declare-function cider--close-connection-buffer "cider-client")
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."

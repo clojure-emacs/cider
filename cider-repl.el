@@ -191,6 +191,8 @@ Currently, this is only used to keep `cider-repl-type' updated."
                 (-when-let (ns-dict (nrepl-dict-get changed-namespaces (cider-current-ns)))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
+(declare-function cider-default-err-handler "cider-interaction")
+
 (defun cider-repl-create (endpoint)
   "Create a REPL buffer and install `cider-repl-mode'.
 ENDPOINT is a plist as returned by `nrepl-connect'."
@@ -210,6 +212,7 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
     (with-current-buffer (get-buffer-create buff-name)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
+      (setq nrepl-err-handler #'cider-default-err-handler)
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
       (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
