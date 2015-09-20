@@ -48,7 +48,6 @@
 (require 'cl-lib)
 (require 'compile)
 (require 'tramp)
-(require 'spinner)
 
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-result-buffer "*cider-result*")
@@ -200,27 +199,6 @@ namespace-qualified function of zero arity."
                  (const repl-buffer))
   :group 'cider
   :package-version '(cider . "0.7.0"))
-
-(defcustom cider-eval-spinner-type 'progress-bar
-  "Appearance of the evaluation spinner.
-
-Value is a symbol. The possible values are the symbols in the
-`spinner-types' variable."
-  :type 'symbol
-  :group 'cider
-  :package-version '(cider . "0.10.0"))
-
-(defcustom cider-show-eval-spinner t
-  "When true, show the evaluation spinner in the mode line."
-  :type 'boolean
-  :group 'cider
-  :package-version '(cider . "0.10.0"))
-
-(defcustom cider-eval-spinner-delay 1
-  "Amount of time, in seconds, after which the evaluation spinner will be shown."
-  :type 'integer
-  :group 'cider
-  :package-version '(cider . "0.10.0"))
 
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
@@ -1121,22 +1099,6 @@ Clears any compilation highlights and kills the error window."
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
 
-(defun cider-eval-spinner-handler (eval-buffer original-callback)
-  "Return a response handler that stops the spinner and calls ORIGINAL-CALLBACK.
-EVAL-BUFFER is the buffer where the spinner was started."
-  (lambda (response)
-    ;; buffer still exists and
-    ;; we've got status "done" from nrepl
-    ;; stop the spinner
-    (when (and (buffer-live-p eval-buffer)
-               (let ((status (nrepl-dict-get response "status")))
-                 (or (member "done" status)
-                     (member "eval-error" status)
-                     (member "error" status))))
-      (with-current-buffer eval-buffer
-        (spinner-stop)))
-    (funcall original-callback response)))
-
 (defun cider-interactive-eval (form &optional callback bounds)
   "Evaluate FORM and dispatch the response to CALLBACK.
 This function is the main entry point in CIDER's interactive evaluation
@@ -1154,9 +1116,7 @@ arguments and only proceed with evaluation if it returns nil."
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
       (cider--prep-interactive-eval form)
-      (when cider-show-eval-spinner
-        (spinner-start cider-eval-spinner-type nil
-                       cider-eval-spinner-delay))
+      (cider-spinner-start)
       (cider-nrepl-request:eval
        form
        (if cider-show-eval-spinner

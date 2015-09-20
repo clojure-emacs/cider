@@ -622,9 +622,7 @@ If NEWLINE is true then add a newline at the end of the input."
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
-    (when cider-show-eval-spinner
-      (spinner-start cider-eval-spinner-type nil
-                     cider-eval-spinner-delay))
+    (cider-spinner-start)
     (if (and (not (string-match-p "\\`[ \t\r\n]*\\'" input))
              cider-repl-use-pretty-printing)
         (cider-nrepl-request:pprint-eval
