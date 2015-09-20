@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-repl)
 (require 'cider-popup)
 (require 'cider-common)
 (require 'cider-stacktrace)

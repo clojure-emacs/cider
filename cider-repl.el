@@ -31,7 +31,6 @@
 ;;; Code:
 
 (require 'cider-client)
-(require 'cider-interaction)
 (require 'cider-doc)
 (require 'cider-eldoc) ; for cider-eldoc-setup
 (require 'cider-common)
