@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'cider-popup)
 (require 'button)
 (require 'dash)
 (require 'easymenu)
@@ -88,6 +89,7 @@ cyclical data structures."
 (defvar-local cider-stacktrace-cause-visibility nil)
 
 (defconst cider-error-buffer "*cider-error*")
+(add-to-list 'cider-ancillary-buffers cider-error-buffer)
 
 ;; Faces
 

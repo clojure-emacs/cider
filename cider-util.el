@@ -70,6 +70,34 @@ Setting this to nil removes the fontification restriction."
   (let ((beg (save-excursion (beginning-of-defun) (point))))
     (nth 4 (parse-partial-sexp beg (point)))))
 
+(defcustom cider-prompt-for-symbol t
+  "Controls when to prompt for symbol when a command requires one.
+
+When non-nil, always prompt, and use the symbol at point as the default
+value at the prompt.
+
+When nil, attempt to use the symbol at point for the command, and only
+prompt if that throws an error."
+  :type '(choice (const :tag "always" t)
+                 (const :tag "dwim" nil))
+  :group 'cider
+  :package-version '(cider . "0.9.0"))
+
+(defun cider--should-prompt-for-symbol (&optional invert)
+  (if invert (not cider-prompt-for-symbol) cider-prompt-for-symbol))
+
+(defun cider-prompt-for-symbol-function (&optional invert)
+  (if (cider--should-prompt-for-symbol invert)
+      #'cider-read-symbol-name
+    #'cider-try-symbol-at-point))
+
+(defun cider--tooling-file-p (file-name)
+  "Return t if FILE-NAME is not a 'real' source file.
+Currently, only check if the relative file name starts with 'form-init'
+which nREPL uses for temporary evaluation file names."
+  (let ((fname (file-name-nondirectory file-name)))
+    (string-match-p "^form-init" fname)))
+
 ;;; Text properties
 
 (defun cider-maybe-intern (name)
