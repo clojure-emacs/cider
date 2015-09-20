@@ -27,6 +27,8 @@
 
 (require 'cider-util)
 (require 'cider-popup)
+(require 'cider-client)
+(require 'nrepl-client)
 (require 'org-table)
 (require 'button)
 (require 'dash)
@@ -172,6 +174,30 @@
       (browse-url cider-docview-javadoc-url)
     (error "No Javadoc available for %s" cider-docview-symbol)))
 
+(defun cider-javadoc-handler (symbol-name)
+  "Invoke the nREPL \"info\" op on SYMBOL-NAME if available."
+  (when symbol-name
+    (cider-ensure-op-supported "info")
+    (let* ((info (cider-var-info symbol-name))
+           (url (nrepl-dict-get info "javadoc")))
+      (if url
+          (browse-url url)
+        (user-error "No Javadoc available for %s" symbol-name)))))
+
+(defun cider-javadoc (arg)
+  "Open Javadoc documentation in a popup buffer.
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
+  (funcall (cider-prompt-for-symbol-function arg)
+           "Javadoc for"
+           #'cider-javadoc-handler))
+
+(declare-function cider-find-file "cider-interaction")
+(declare-function cider-jump-to "cider-interaction")
+
 (defun cider-docview-source ()
   "Open the source for the current symbol, if available."
   (interactive)
@@ -189,11 +215,15 @@
 
 (defvar cider-buffer-ns)
 
+(declare-function cider-grimoire-lookup "cider-grimoire")
+
 (defun cider-docview-grimoire ()
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-lookup cider-docview-symbol)
     (error "%s cannot be looked up on Grimoire" cider-docview-symbol)))
+
+(declare-function cider-grimoire-web-lookup "cider-grimoire")
 
 (defun cider-docview-grimoire-web ()
   (interactive)
@@ -203,6 +233,28 @@
 
 (defconst cider-doc-buffer "*cider-doc*")
 (add-to-list 'cider-ancillary-buffers cider-doc-buffer)
+
+(defun cider-create-doc-buffer (symbol)
+  "Populates *cider-doc* with the documentation for SYMBOL."
+  (-when-let (info (cider-var-info symbol))
+    (cider-docview-render (cider-make-popup-buffer cider-doc-buffer) symbol info)))
+
+(defun cider-doc-lookup (symbol)
+  "Look up documentation for SYMBOL."
+  (-if-let (buffer (cider-create-doc-buffer symbol))
+      (cider-popup-buffer-display buffer t)
+    (user-error "Symbol %s not resolved" symbol)))
+
+(defun cider-doc (&optional arg)
+  "Open Clojure documentation in a popup buffer.
+
+Prompts for the symbol to use, or uses the symbol at point, depending on
+the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+opposite of what that option dictates."
+  (interactive "P")
+  (funcall (cider-prompt-for-symbol-function arg)
+           "Doc for"
+           #'cider-doc-lookup))
 
 
 ;;; Font Lock and Formatting
