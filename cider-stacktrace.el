@@ -521,7 +521,8 @@ MESSAGE is parsed to find line, col and buffer name to jump to."
                                  (if the-buf-window
                                      (select-window the-buf-window)
                                    (switch-to-buffer buf-name)))
-                               (goto-line line)
+                               (goto-char (point-min))
+                               (forward-line line)
                                (move-to-column col t)))))))
 
 (defun cider-stacktrace-render-cause (buffer cause num note)

@@ -712,18 +712,18 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 ;;; Client: Process Handling
 
-(defun nrepl--maybe-kill-server-buffer (server-buffer)
+(defun nrepl--maybe-kill-server-buffer (server-buf)
   "Kill SERVER-BUFFER and its process, subject to user confirmation.
 Do nothing if there is a REPL connected to that server."
-  (with-current-buffer server-buffer
+  (with-current-buffer server-buf
     ;; Don't kill the server if there is a REPL connected to it.
     (when (and (not nrepl-client-buffers)
                (y-or-n-p "Also kill server process and buffer? "))
-      (let ((proc (get-buffer-process server-buffer)))
+      (let ((proc (get-buffer-process server-buf)))
         (when (process-live-p proc)
           (set-process-query-on-exit-flag proc nil)
           (kill-process proc))
-        (kill-buffer server-buffer)))))
+        (kill-buffer server-buf)))))
 
 ;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
 ;; starts the client process described by `nrepl-client-filter' and
