@@ -108,19 +108,6 @@ If the symbol `always-save', save the file without confirmation."
   :group 'cider
   :package-version '(cider . "0.6.0"))
 
-(defcustom cider-prompt-for-symbol t
-  "Controls when to prompt for symbol when a command requires one.
-
-When non-nil, always prompt, and use the symbol at point as the default
-value at the prompt.
-
-When nil, attempt to use the symbol at point for the command, and only
-prompt if that throws an error."
-  :type '(choice (const :tag "always" t)
-                 (const :tag "dwim" nil))
-  :group 'cider
-  :package-version '(cider . "0.9.0"))
-
 (defcustom cider-completion-use-context t
   "When true, uses context at point to improve completion suggestions."
   :type 'boolean
@@ -1931,14 +1918,6 @@ Use CALLBACK as the completing read var callback."
 On failure, read a symbol name using PROMPT and call CALLBACK with that."
   (condition-case nil (funcall callback (cider--kw-to-symbol (cider-symbol-at-point)))
     ('error (funcall callback (cider-read-from-minibuffer prompt)))))
-
-(defun cider--should-prompt-for-symbol (&optional invert)
-  (if invert (not cider-prompt-for-symbol) cider-prompt-for-symbol))
-
-(defun cider-prompt-for-symbol-function (&optional invert)
-  (if (cider--should-prompt-for-symbol invert)
-      #'cider-read-symbol-name
-    #'cider-try-symbol-at-point))
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
