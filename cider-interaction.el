@@ -581,6 +581,12 @@ of the namespace in the Clojure source buffer."
   (interactive "P")
   (cider--switch-to-repl-buffer (cider-current-repl-buffer) set-namespace))
 
+(defun cider-load-buffer-and-switch-to-repl-buffer (&optional set-namespace)
+  "Load the current buffer into the relevant REPL buffer and switch to it."
+  (interactive "P")
+  (cider-load-buffer)
+  (cider-switch-to-relevant-repl-buffer set-namespace))
+
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
 The default keybinding for this command is

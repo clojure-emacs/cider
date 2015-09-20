@@ -105,6 +105,7 @@ entirely."
     (define-key map (kbd "C-c M-t v") #'cider-toggle-trace-var)
     (define-key map (kbd "C-c M-t n") #'cider-toggle-trace-ns)
     (define-key map (kbd "C-c C-z") #'cider-switch-to-repl-buffer)
+    (define-key map (kbd "C-c M-z") #'cider-load-buffer-and-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-o") #'cider-find-and-clear-repl-buffer)
     (define-key map (kbd "C-c C-k") #'cider-load-buffer)
     (define-key map (kbd "C-c C-l") #'cider-load-file)
