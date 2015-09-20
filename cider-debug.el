@@ -124,7 +124,7 @@ This variable must be set before starting the repl connection."
 
 (defun cider--debug-response-handler (response)
   "Handle responses from the cider.debug middleware."
-  (nrepl-dbind-response response (status id instrumented-defs ns causes)
+  (nrepl-dbind-response response (status id causes)
     (when (member "eval-error" status)
       (cider--render-stacktrace-causes causes))
     (when (member "need-debug-input" status)
