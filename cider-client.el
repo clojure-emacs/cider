@@ -26,7 +26,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
-(require 'cider-util)
+(require 'cider-common)
 
 ;;; Connection Buffer Management
 

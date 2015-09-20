@@ -25,7 +25,7 @@
 
 ;;; Code:
 
-(require 'cider-util)
+(require 'cider-common)
 
 
 ;;; Customization

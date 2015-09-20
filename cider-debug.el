@@ -30,7 +30,7 @@
 (require 'cider-client)
 (require 'cider-inspector)
 (require 'cider-browse-ns)
-(require 'cider-util)
+(require 'cider-common)
 (require 'dash)
 (require 'spinner)
 

@@ -72,7 +72,7 @@
 (require 'cider-eldoc)
 (require 'cider-repl)
 (require 'cider-mode)
-(require 'cider-util)
+(require 'cider-common)
 (require 'cider-debug)
 (require 'tramp-sh)
 

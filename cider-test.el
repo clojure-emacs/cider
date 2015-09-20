@@ -28,7 +28,7 @@
 
 ;;; Code:
 
-(require 'cider-util)
+(require 'cider-common)
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'button)

@@ -31,7 +31,7 @@
 ;;; Code:
 
 (require 'cider-client)
-(require 'cider-interaction) ; for cider-symbol-at-point
+(require 'cider-common) ; for cider-symbol-at-point
 
 (require 'eldoc)
 (require 'dash)

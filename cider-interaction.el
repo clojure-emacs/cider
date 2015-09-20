@@ -32,7 +32,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
-(require 'cider-util)
+(require 'cider-common)
 (require 'cider-stacktrace)
 (require 'cider-test)
 (require 'cider-doc)
@@ -53,11 +53,6 @@
 (defconst cider-result-buffer "*cider-result*")
 (defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
 (add-to-list 'cider-ancillary-buffers cider-nrepl-session-buffer)
-
-(defcustom cider-prefer-local-resources nil
-  "Prefer local resources to remote (tramp) ones when both are available."
-  :type 'boolean
-  :group 'cider)
 
 (defcustom cider-show-error-buffer t
   "Control the popup behavior of cider stacktraces.
@@ -658,199 +653,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   (-when-let (error-win (get-buffer-window cider-error-buffer))
     (quit-window nil error-win)))
 
-(defun cider-defun-at-point ()
-  "Return the text of the top-level sexp at point."
-  (apply #'buffer-substring-no-properties
-         (cider--region-for-defun-at-point)))
-
-(defun cider--region-for-defun-at-point ()
-  "Return the start and end position of defun at point."
-  (save-excursion
-    (save-match-data
-      (end-of-defun)
-      (let ((end (point)))
-        (beginning-of-defun)
-        (list (point) end)))))
-
-(defun cider-defun-at-point-start-pos ()
-  "Return the starting position of the current defun."
-  (car (cider--region-for-defun-at-point)))
-
-(defun cider-ns-form ()
-  "Retrieve the ns form."
-  (when (clojure-find-ns)
-    (save-excursion
-      (goto-char (match-beginning 0))
-      (cider-defun-at-point))))
-
-(defun cider-bounds-of-sexp-at-point ()
-  "Return the bounds sexp at point as a pair (or nil)."
-  (or (and (equal (char-after) ?\()
-           (member (char-before) '(?\' ?\, ?\@))
-           ;; hide stuff before ( to avoid quirks with '( etc.
-           (save-restriction
-             (narrow-to-region (point) (point-max))
-             (bounds-of-thing-at-point 'sexp)))
-      (bounds-of-thing-at-point 'sexp)))
-
-(defun cider-symbol-at-point ()
-  "Return the name of the symbol at point, otherwise nil."
-  (let ((str (or (thing-at-point 'symbol) "")))
-    (if (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
-        ""
-      str)))
-
-(defun cider-sexp-at-point ()
-  "Return the sexp at point as a string, otherwise nil."
-  (let ((bounds (cider-bounds-of-sexp-at-point)))
-    (if bounds
-        (buffer-substring-no-properties (car bounds)
-                                        (cdr bounds)))))
-
-(defun cider-sexp-at-point-with-bounds ()
-  "Return a list containing the sexp at point and its bounds."
-  (let ((bounds (cider-bounds-of-sexp-at-point)))
-    (if bounds
-        (let ((start (car bounds))
-              (end (cdr bounds)))
-          (list (buffer-substring-no-properties start end)
-                (cons (set-marker (make-marker) start)
-                      (set-marker (make-marker) end)))))))
-
-(defun cider-last-sexp (&optional bounds)
-  "Return the sexp preceding the point.
-If BOUNDS is non-nil, return a list of its starting and ending position
-instead."
-  (apply (if bounds #'list #'buffer-substring-no-properties)
-         (save-excursion
-           (clojure-backward-logical-sexp 1)
-           (list (point)
-                 (progn (clojure-forward-logical-sexp 1)
-                        (point))))))
-
 ;;;
-(defun cider-tramp-prefix (&optional buffer)
-  "Use the filename for BUFFER to determine a tramp prefix.
-Defaults to the current buffer.
-Return the tramp prefix, or nil if BUFFER is local."
-  (let* ((buffer (or buffer (current-buffer)))
-         (name (or (buffer-file-name buffer)
-                   (with-current-buffer buffer
-                     default-directory))))
-    (when (tramp-tramp-file-p name)
-      (let ((vec (tramp-dissect-file-name name)))
-        (tramp-make-tramp-file-name (tramp-file-name-method vec)
-                                    (tramp-file-name-user vec)
-                                    (tramp-file-name-host vec)
-                                    nil)))))
-
-(defun cider--client-tramp-filename (name &optional buffer)
-  "Return the tramp filename for path NAME relative to BUFFER.
-If BUFFER has a tramp prefix, it will be added as a prefix to NAME.
-If the resulting path is an existing tramp file, it returns the path,
-otherwise, nil."
-  (let* ((buffer (or buffer (current-buffer)))
-         (name (concat (cider-tramp-prefix buffer) name)))
-    (if (tramp-handle-file-exists-p name)
-        name)))
-
-(defun cider--server-filename (name)
-  "Return the nREPL server-relative filename for NAME."
-  (if (tramp-tramp-file-p name)
-      (with-parsed-tramp-file-name name nil
-        localname)
-    name))
-
-(defvar cider-from-nrepl-filename-function
-  (if (eq system-type 'cygwin)
-      (lambda (resource)
-        (let ((fixed-resource (replace-regexp-in-string "^/" "" resource)))
-          (replace-regexp-in-string
-           "\n"
-           ""
-           (shell-command-to-string (format "cygpath --unix '%s'" fixed-resource)))))
-    #'identity)
-  "Function to translate nREPL namestrings to Emacs filenames.")
-
-(defun cider--file-path (path)
-  "Return PATH's local or tramp path using `cider-prefer-local-resources'.
-If no local or remote file exists, return nil."
-  (let* ((local-path (funcall cider-from-nrepl-filename-function path))
-         (tramp-path (and local-path (cider--client-tramp-filename local-path))))
-    (cond ((equal local-path "") "")
-          ((and cider-prefer-local-resources (file-exists-p local-path))
-           local-path)
-          ((and tramp-path (file-exists-p tramp-path))
-           tramp-path)
-          ((and local-path (file-exists-p local-path))
-           local-path))))
-
-(declare-function url-filename "url-parse")
-
-(defun cider--url-to-file (url)
-  "Return the filename from the resource URL.
-Uses `url-generic-parse-url' to parse the url.  The filename is extracted and
-then url decoded.  If the decoded filename has a Windows device letter followed
-by a colon immediately after the leading '/' then the leading '/' is dropped to
-create a valid path."
-  (let ((filename (url-unhex-string (url-filename (url-generic-parse-url url)))))
-    (if (string-match "^/\\([a-zA-Z]:/.*\\)" filename)
-        (match-string 1 filename)
-      filename)))
-
-(defun cider-find-file (url)
-  "Return a buffer visiting the file URL if it exists, or nil otherwise.
-If URL has a scheme prefix, it must represent a fully-qualified file path
-or an entry within a zip/jar archive.  If URL doesn't contain a scheme
-prefix and is an absolute path, it is treated as such.  Finally, if URL is
-relative, it is expanded within each of the open Clojure buffers till an
-existing file ending with URL has been found."
-  (cond ((string-match "^file:\\(.+\\)" url)
-         (-when-let* ((file (cider--url-to-file (match-string 1 url)))
-                      (path (cider--file-path file)))
-           (find-file-noselect path)))
-        ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" url)
-         (-when-let* ((entry (match-string 3 url))
-                      (file  (cider--url-to-file (match-string 2 url)))
-                      (path  (cider--file-path file))
-                      (name  (format "%s:%s" path entry)))
-           (or (find-buffer-visiting name)
-               (if (tramp-tramp-file-p path)
-                   (progn
-                     ;; Use emacs built in archiving
-                     (find-file path)
-                     (goto-char (point-min))
-                     ;; Make sure the file path is followed by a newline to
-                     ;; prevent eg. clj matching cljs.
-                     (search-forward (concat entry "\n"))
-                     ;; moves up to matching line
-                     (forward-line -1)
-                     (archive-extract)
-                     (current-buffer))
-                 ;; Use external zip program to just extract the single file
-                 (with-current-buffer (generate-new-buffer
-                                       (file-name-nondirectory entry))
-                   (archive-zip-extract path entry)
-                   (set-visited-file-name name)
-                   (setq-local default-directory (file-name-directory path))
-                   (setq-local buffer-read-only t)
-                   (set-buffer-modified-p nil)
-                   (set-auto-mode)
-                   (current-buffer))))))
-        (t (-if-let (path (cider--file-path url))
-               (find-file-noselect path)
-             (unless (file-name-absolute-p url)
-               (let ((cider-buffers (cider-util--clojure-buffers))
-                     (url (file-name-nondirectory url)))
-                 (or (cl-loop for bf in cider-buffers
-                              for path = (with-current-buffer bf
-                                           (expand-file-name url))
-                              if (and path (file-exists-p path))
-                              return (find-file-noselect path))
-                     (cl-loop for bf in cider-buffers
-                              if (string= (buffer-name bf) url)
-                              return bf))))))))
-
 (defun cider-find-var-file (var)
   "Return the buffer visiting the file in which VAR is defined, or nil if
 not found."
@@ -975,14 +778,6 @@ value is thing at point."
       (let ((current-prefix-arg (cider--invert-prefix-arg current-prefix-arg)))
         (call-interactively `cider-find-resource)))))
 
-(defun cider--open-other-window-p (arg)
-  "Test prefix value ARG to see if it indicates displaying results in other window."
-  (let ((narg (prefix-numeric-value arg)))
-    (pcase narg
-      (-1 t) ; -
-      (16 t) ; empty empty
-      (_ nil))))
-
 (defun cider--invert-prefix-arg (arg)
   "Invert the effect of prefix value ARG on `cider-prompt-for-symbol'.
 
@@ -1009,20 +804,6 @@ Tests againsts PREFIX and the value of `cider-prompt-for-symbol'.
 Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
   (if (cider--prefix-invert-prompt-p prefix)
       (not cider-prompt-for-symbol) cider-prompt-for-symbol))
-
-(defun cider--jump-to-loc-from-info (info &optional other-window)
-  "Jump to location give by INFO.
-INFO object is returned by `cider-var-info' or `cider-member-info'.
-OTHER-WINDOW is passed to `cider-jamp-to'."
-  (let* ((line (nrepl-dict-get info "line"))
-         (file (nrepl-dict-get info "file"))
-         (name (nrepl-dict-get info "name"))
-         (buffer (and file
-                      (not (cider--tooling-file-p file))
-                      (cider-find-file file))))
-    (if buffer
-        (cider-jump-to buffer (if line (cons line nil) name) other-window)
-      (error "No source location"))))
 
 (defun cider--find-var-other-window (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE.
@@ -1087,7 +868,6 @@ the results to be displayed in a different window."
 
 (define-obsolete-function-alias 'cider-jump-to-resource 'cider-find-resource "0.9.0")
 (define-obsolete-function-alias 'cider-jump-to-var 'cider-find-var "0.9.0")
-(defalias 'cider-jump-back 'pop-tag-mark)
 
 (defvar cider-completion-last-context nil)
 
@@ -1873,25 +1653,6 @@ See command `cider-mode'."
 
 
 ;;; Completion
-
-(defun cider--kw-to-symbol (kw)
-  "Converts a keyword KW to a symbol."
-  (when kw
-    (replace-regexp-in-string "\\`:+" "" kw)))
-
-(defun cider-read-symbol-name (prompt callback)
-  "Read a symbol name using PROMPT with a default of the one at point.
-Use CALLBACK as the completing read var callback."
-  (funcall callback (cider-read-from-minibuffer
-                     prompt
-                     ;; if the thing at point is a keyword we treat it as symbol
-                     (cider--kw-to-symbol (cider-symbol-at-point)))))
-
-(defun cider-try-symbol-at-point (prompt callback)
-  "Call CALLBACK with symbol at point.
-On failure, read a symbol name using PROMPT and call CALLBACK with that."
-  (condition-case nil (funcall callback (cider--kw-to-symbol (cider-symbol-at-point)))
-    ('error (funcall callback (cider-read-from-minibuffer prompt)))))
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."

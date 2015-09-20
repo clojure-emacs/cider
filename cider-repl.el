@@ -34,7 +34,7 @@
 (require 'cider-interaction)
 (require 'cider-doc)
 (require 'cider-eldoc) ; for cider-eldoc-setup
-(require 'cider-util)
+(require 'cider-common)
 
 (require 'clojure-mode)
 (require 'easymenu)
@@ -1053,7 +1053,7 @@ constructs."
     (define-key map (kbd "C-c C-d") #'cider-doc-map)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
-    (define-key map (kbd "M-,") #'cider-jump-back)
+    (define-key map (kbd "M-,") #'cider-pop-back)
     (define-key map (kbd "C-c M-.") #'cider-find-resource)
     (define-key map (kbd "RET") #'cider-repl-return)
     (define-key map (kbd "TAB") #'cider-repl-tab)

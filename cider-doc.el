@@ -25,7 +25,7 @@
 
 ;;; Code:
 
-(require 'cider-util)
+(require 'cider-common)
 (require 'cider-popup)
 (require 'cider-client)
 (require 'nrepl-client)
