@@ -999,6 +999,8 @@ constructs."
   "Add a REPL shortcut command, defined by NAME and HANDLER."
   (puthash name handler cider-repl-shortcuts))
 
+(declare-function cider-restart "cider-interaction")
+(declare-function cider-quit "cider-interaction")
 (cider-repl-add-shortcut "hasta la vista" #'cider-quit)
 (cider-repl-add-shortcut "quit" #'cider-quit)
 (cider-repl-add-shortcut "restart" #'cider-restart)
@@ -1050,6 +1052,14 @@ constructs."
 (defvar cider-repl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
+(declare-function cider-eval-region "cider-interaction")
+(declare-function cider-eval-last-sexp "cider-interaction")
+(declare-function cider-refresh "cider-interaction")
+(declare-function cider-toggle-trace-ns "cider-interaction")
+(declare-function cider-toggle-trace-var "cider-interaction")
+(declare-function cider-find-resource "cider-interaction")
+(declare-function cider-restart "cider-interaction")
+(declare-function cider-find-ns "cider-interaction")
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
@@ -1130,6 +1140,8 @@ constructs."
         "--"
         ["Version info" cider-version]))
     map))
+
+(declare-function cider-complete-at-point "cider-interaction")
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
   "Major mode for Clojure REPL interactions.
