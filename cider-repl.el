@@ -240,6 +240,12 @@ This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
                             "user")))
         (setq cider-buffer-ns initial-ns)))))
 
+(defvar cider-current-clojure-buffer nil
+  "This variable holds current buffer temporarily when connecting to a REPL.
+It is set to current buffer when `cider' or `cider-jack-in' is called.
+After the REPL buffer is created, the value of this variable is used
+to call `cider-remember-clojure-buffer'.")
+
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
@@ -1155,6 +1161,122 @@ constructs."
     (add-hook 'kill-emacs-hook #'cider-repl-history-just-save))
   (add-hook 'paredit-mode-hook #'clojure-paredit-setup))
 
+
+;;; Switching between REPL & source buffers
+;; TODO: Some of these commands are just meant to be used in `cider-mode', so they
+;; probably shouldn't be here. In fact, it might be a better design if cider-repl.el
+;; required cider-mode.el, instead of the other way around.
+(defvar-local cider-last-clojure-buffer nil
+  "A buffer-local variable holding the last Clojure source buffer.
+`cider-switch-to-last-clojure-buffer' uses this variable to jump
+back to last Clojure source buffer.")
+
+(defcustom cider-switch-to-repl-command 'cider-switch-to-relevant-repl-buffer
+  "Select the command to be invoked when switching-to-repl.
+The default option is `cider-switch-to-relevant-repl-buffer'.  If
+you'd like to not use smart matching of repl buffer based on
+project directory, you can assign it to `cider-switch-to-current-repl-buffer'
+which will use the default REPL connection."
+  :type 'symbol
+  :group 'cider)
+
+(defun cider-remember-clojure-buffer (buffer)
+  "Try to remember the BUFFER from which the user jumps.
+The BUFFER needs to be a Clojure buffer and current major mode needs
+to be `cider-repl-mode'.  The user can use `cider-switch-to-last-clojure-buffer'
+to jump back to the last Clojure source buffer."
+  (when (and buffer
+             (with-current-buffer buffer
+               (derived-mode-p 'clojure-mode))
+             (derived-mode-p 'cider-repl-mode))
+    (setq cider-last-clojure-buffer buffer)))
+
+(defun cider-switch-to-repl-buffer (&optional arg)
+  "Invoke `cider-switch-to-repl-command'."
+  (interactive "P")
+  (funcall cider-switch-to-repl-command arg))
+
+(defun cider--switch-to-repl-buffer (repl-buffer &optional set-namespace)
+  "Select the REPL-BUFFER, when possible in an existing window.
+
+Hint: You can use `display-buffer-reuse-frames' and
+`special-display-buffer-names' to customize the frame in which
+the buffer should appear.
+
+When SET-NAMESPACE is t, sets the namespace in the REPL buffer to
+that of the namespace in the Clojure source buffer."
+  (cider-ensure-connected)
+  (let ((buffer (current-buffer)))
+    ;; first we switch to the REPL buffer
+    (if cider-repl-display-in-current-window
+        (pop-to-buffer-same-window repl-buffer)
+      (pop-to-buffer repl-buffer))
+    ;; then if necessary we update its namespace
+    (when set-namespace
+      (cider-repl-set-ns (with-current-buffer buffer (cider-current-ns))))
+    (cider-remember-clojure-buffer buffer)
+    (goto-char (point-max))))
+
+(defun cider-switch-to-default-repl-buffer (&optional set-namespace)
+  "Select the default REPL buffer, when possible in an existing window.
+
+Hint: You can use `display-buffer-reuse-frames' and
+`special-display-buffer-names' to customize the frame in which
+the buffer should appear.
+
+With a prefix argument SET-NAMESPACE, sets the namespace in the REPL buffer to
+that of the namespace in the Clojure source buffer."
+  (interactive "P")
+  (cider--switch-to-repl-buffer (cider-default-connection) set-namespace))
+
+(define-obsolete-function-alias 'cider-switch-to-current-repl-buffer
+  'cider-switch-to-default-repl-buffer "0.10")
+
+(defun cider-switch-to-relevant-repl-buffer (&optional set-namespace)
+  "Select the REPL buffer, when possible in an existing window.
+The buffer chosen is based on the file open in the current buffer.
+
+If the REPL buffer cannot be unambiguously determined, the REPL
+buffer is chosen based on the current connection buffer and a
+message raised informing the user.
+
+Hint: You can use `display-buffer-reuse-frames' and
+`special-display-buffer-names' to customize the frame in which
+the buffer should appear.
+
+With a prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that
+of the namespace in the Clojure source buffer."
+  (interactive "P")
+  (cider--switch-to-repl-buffer (cider-current-repl-buffer) set-namespace))
+
+(defun cider-load-buffer-and-switch-to-repl-buffer (&optional set-namespace)
+  "Load the current buffer into the relevant REPL buffer and switch to it."
+  (interactive "P")
+  (cider-load-buffer)
+  (cider-switch-to-relevant-repl-buffer set-namespace))
+
+(defun cider-switch-to-last-clojure-buffer ()
+  "Switch to the last Clojure buffer.
+The default keybinding for this command is
+the same as `cider-switch-to-repl-buffer',
+so that it is very convenient to jump between a
+Clojure buffer and the REPL buffer."
+  (interactive)
+  (if (and (derived-mode-p 'cider-repl-mode)
+           (buffer-live-p cider-last-clojure-buffer))
+      (if cider-repl-display-in-current-window
+          (pop-to-buffer-same-window cider-last-clojure-buffer)
+        (pop-to-buffer cider-last-clojure-buffer))
+    (message "Don't know the original Clojure buffer")))
+
+(defun cider-find-and-clear-repl-buffer ()
+  "Find the current REPL buffer and clear it.
+Returns to the buffer in which the command was invoked."
+  (interactive)
+  (let ((origin-buffer (current-buffer)))
+    (switch-to-buffer (cider-current-repl-buffer))
+    (cider-repl-clear-buffer)
+    (switch-to-buffer origin-buffer)))
 
 (provide 'cider-repl)
 
