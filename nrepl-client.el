@@ -836,8 +836,7 @@ nothing happens for the corresponding type of response.
 When `nrepl-log-messages' is non-nil, *nrepl-messages* buffer contains
 server responses."
   (lambda (response)
-    (nrepl-dbind-response response (value ns out err status id
-                                          session pprint-out)
+    (nrepl-dbind-response response (value ns out err status id pprint-out)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))

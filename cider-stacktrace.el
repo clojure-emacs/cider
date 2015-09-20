@@ -516,7 +516,7 @@ MESSAGE is parsed to find line, col and buffer name to jump to."
       (when buf-name
         (make-button (+ beg 3)
                      (point)
-                     'action (lambda (button)
+                     'action (lambda (_button)
                                (let ((the-buf-window (get-buffer-window buf-name)))
                                  (if the-buf-window
                                      (select-window the-buf-window)
