@@ -256,17 +256,6 @@ keep track of a namespace.
 This should never be set in Clojure buffers, as there the namespace
 should be extracted from the buffer's ns form.")
 
-(defvar cider-version)
-(defun cider--check-required-nrepl-ops ()
-  "Check whether all required nREPL ops are present."
-  (let* ((current-connection (cider-current-connection))
-         (missing-ops (-remove (lambda (op) (nrepl-op-supported-p op current-connection)) cider-required-nrepl-ops)))
-    (when missing-ops
-      (cider-repl-emit-interactive-stderr
-       (format "WARNING: The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
-               (cider-string-join missing-ops " ")
-               (upcase cider-version))))))
-
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."
@@ -291,43 +280,6 @@ should be extracted from the buffer's ns form.")
       (-> nrepl-versions
           (nrepl-dict-get "nrepl")
           (nrepl-dict-get "version-string")))))
-
-(defun cider--check-required-nrepl-version ()
-  "Check whether we're using a compatible nREPL version."
-  (let ((nrepl-version (cider--nrepl-version)))
-    (if nrepl-version
-        (when (version< nrepl-version cider-required-nrepl-version)
-          (cider-repl-emit-interactive-stderr
-           (cider--readme-button
-            (format "WARNING: CIDER requires nREPL %s (or newer) to work properly"
-                    cider-required-nrepl-version)
-            "warning-saying-you-have-to-use-nrepl-027")))
-      (cider-repl-emit-interactive-stderr
-       (format "WARNING: Can't determine nREPL's version. Please, update nREPL to %s."
-               cider-required-nrepl-version)))))
-
-(defun cider--check-middleware-compatibility-callback (buffer)
-  "A callback to check if the middleware used is compatible with CIDER."
-  (nrepl-make-response-handler
-   buffer
-   (lambda (_buffer result)
-     (let ((middleware-version (read result)))
-       (unless (and middleware-version (equal cider-version middleware-version))
-         (cider-repl-emit-interactive-stderr
-          (format "ERROR: CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
-                  cider-version middleware-version)))))
-   '()
-   '()
-   '()))
-
-(defun cider--check-middleware-compatibility ()
-  "Retrieve the underlying connection's CIDER nREPL version."
-  (cider-nrepl-request:eval
-   "(try
-      (require 'cider.nrepl.version)
-      (:version-string @(resolve 'cider.nrepl.version/version))
-    (catch Throwable _ \"not installed\"))"
-   (cider--check-middleware-compatibility-callback (current-buffer))))
 
 (defun cider--connection-info (connection-buffer)
   "Return info about CONNECTION-BUFFER.
