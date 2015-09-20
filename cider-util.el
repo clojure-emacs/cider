@@ -91,6 +91,13 @@ prompt if that throws an error."
       #'cider-read-symbol-name
     #'cider-try-symbol-at-point))
 
+(defun cider--tooling-file-p (file-name)
+  "Return t if FILE-NAME is not a 'real' source file.
+Currently, only check if the relative file name starts with 'form-init'
+which nREPL uses for temporary evaluation file names."
+  (let ((fname (file-name-nondirectory file-name)))
+    (string-match-p "^form-init" fname)))
+
 ;;; Text properties
 
 (defun cider-maybe-intern (name)

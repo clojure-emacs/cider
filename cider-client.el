@@ -243,6 +243,13 @@ Refreshes EWOC."
   "Check whether the current connection supports the nREPL middleware OP."
   (nrepl-op-supported-p op (cider-current-connection)))
 
+(defvar cider-version)
+(defun cider-ensure-op-supported (op)
+  "Check for support of middleware op OP.
+Signal an error if it is not supported."
+  (unless (cider-nrepl-op-supported-p op)
+    (error "Can't find nREPL middleware providing op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" op (upcase cider-version))))
+
 (defun cider-nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"

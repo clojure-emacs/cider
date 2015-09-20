@@ -271,12 +271,6 @@ This should never be set in Clojure buffers, as there the namespace
 should be extracted from the buffer's ns form.")
 
 (defvar cider-version)
-(defun cider-ensure-op-supported (op)
-  "Check for support of middleware op OP.
-Signal an error if it is not supported."
-  (unless (cider-nrepl-op-supported-p op)
-    (error "Can't find nREPL middleware providing op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" op (upcase cider-version))))
-
 (defun cider--check-required-nrepl-ops ()
   "Check whether all required nREPL ops are present."
   (let* ((current-connection (cider-current-connection))
@@ -795,13 +789,6 @@ create a valid path."
     (if (string-match "^/\\([a-zA-Z]:/.*\\)" filename)
         (match-string 1 filename)
       filename)))
-
-(defun cider--tooling-file-p (file-name)
-  "Return t if FILE-NAME is not a 'real' source file.
-Currently, only check if the relative file name starts with 'form-init'
-which nREPL uses for temporary evaluation file names."
-  (let ((fname (file-name-nondirectory file-name)))
-    (string-match-p "^form-init" fname)))
 
 (defun cider-find-file (url)
   "Return a buffer visiting the file URL if it exists, or nil otherwise.
