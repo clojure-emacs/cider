@@ -372,6 +372,24 @@ unless ALL is truthy."
   (when (and class member)
     (cider-sync-request:info nil class member)))
 
+(defun cider-find-var (&optional arg var line)
+  "Find definition for VAR at LINE.
+
+Prompt according to prefix ARG and `cider-prompt-for-symbol'.
+A single or double prefix argument inverts the meaning of
+`cider-prompt-for-symbol'. A prefix of `-` or a double prefix argument causes
+the results to be displayed in a different window.  The default value is
+thing at point."
+  (interactive "P")
+  (cider-ensure-op-supported "info")
+  (if var
+      (cider--find-var var line)
+    (funcall (cider-prompt-for-symbol-function arg)
+             "Symbol"
+             (if (cider--open-other-window-p arg)
+                 #'cider--find-var-other-window
+               #'cider--find-var))))
+
 
 ;;; Requests
 
