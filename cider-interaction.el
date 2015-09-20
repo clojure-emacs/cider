@@ -785,6 +785,8 @@ If no local or remote file exists, return nil."
           ((and local-path (file-exists-p local-path))
            local-path))))
 
+(declare-function url-filename "url-parse")
+
 (defun cider--url-to-file (url)
   "Return the filename from the resource URL.
 Uses `url-generic-parse-url' to parse the url.  The filename is extracted and
