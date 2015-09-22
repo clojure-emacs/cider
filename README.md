@@ -1283,9 +1283,9 @@ the latest CIDER version might depend on functionality present only in the lates
 ### I upgraded CIDER using `package.el` and it broke
 
 The built-in package manager isn't perfect and sometimes it messes up.  If you
-just updated and encountered an error please go into the `.emacs.d/elpa`
-directory and delete any folders related to CIDER and then re-install before
-opening an issue.
+just updated and encountered an error you should try the following before
+opening an issue: Go into the `.emacs.d/elpa` directory, delete any folders
+related to CIDER, re-install and restart emacs.
 
 ### I upgraded CIDER using `package.el` and nothing changed
 
