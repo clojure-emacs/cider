@@ -1094,7 +1094,7 @@ the port, and the client buffer."
     (when server-buffer
       (kill-buffer server-buffer))
     (cond
-     ((string-match-p "^killed\\|^interrupted" event)
+     ((string-match-p "^killed\\|^interrupt" event)
       nil)
      ((string-match-p "^hangup" event)
       (mapc #'cider--close-connection-buffer clients))
