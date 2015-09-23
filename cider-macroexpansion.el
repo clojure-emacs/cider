@@ -158,6 +158,8 @@ and point is placed after the expanded form."
       (indent-sexp)
       (forward-sexp))))
 
+(declare-function cider-mode "cider-mode")
+
 (defun cider-create-macroexpansion-buffer ()
   "Create a new macroexpansion buffer."
   (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer t)

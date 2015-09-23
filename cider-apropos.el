@@ -77,6 +77,8 @@
                    (fill-region beg (point)))))
         (newline)))))
 
+(declare-function cider-mode "cider-mode")
+
 (defun cider-show-apropos (summary results query docs-p)
   "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
   (with-current-buffer (cider-popup-buffer cider-apropos-buffer t)

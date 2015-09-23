@@ -82,7 +82,7 @@ entirely."
     (define-key map (kbd "C-c C-d") #'cider-doc-map)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
-    (define-key map (kbd "M-,") #'cider-jump-back)
+    (define-key map (kbd "M-,") #'cider-pop-back)
     (define-key map (kbd "C-c M-.") #'cider-find-resource)
     (define-key map (kbd "M-TAB") #'complete-symbol)
     (define-key map (kbd "C-M-x")   #'cider-eval-defun-at-point)
