@@ -27,6 +27,12 @@ build : elpa $(OBJECTS)
 version:
 	$(EMACS) --version
 
+test-bytecomp : version $(ELS:.el=.elc-test)
+
+%.elc-test : %.el elpa
+	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
+		-l test/cider-bytecomp-warnings.el $<
+
 test : version build
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
 		$(EMACSFLAGS) \
