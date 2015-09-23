@@ -712,18 +712,18 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 ;;; Client: Process Handling
 
-(defun nrepl--maybe-kill-server-buffer (server-buffer)
+(defun nrepl--maybe-kill-server-buffer (server-buf)
   "Kill SERVER-BUFFER and its process, subject to user confirmation.
 Do nothing if there is a REPL connected to that server."
-  (with-current-buffer server-buffer
+  (with-current-buffer server-buf
     ;; Don't kill the server if there is a REPL connected to it.
     (when (and (not nrepl-client-buffers)
                (y-or-n-p "Also kill server process and buffer? "))
-      (let ((proc (get-buffer-process server-buffer)))
+      (let ((proc (get-buffer-process server-buf)))
         (when (process-live-p proc)
           (set-process-query-on-exit-flag proc nil)
           (kill-process proc))
-        (kill-buffer server-buffer)))))
+        (kill-buffer server-buf)))))
 
 ;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
 ;; starts the client process described by `nrepl-client-filter' and
@@ -804,7 +804,7 @@ values of *1, *2, etc."
 ;; After being decoded, responses (aka, messages from the server) are dispatched
 ;; to handlers. Handlers are constructed with `nrepl-make-response-handler'.
 
-(defvar nrepl-err-handler #'cider-default-err-handler
+(defvar nrepl-err-handler nil
   "Evaluation error handler.")
 
 (defun nrepl--mark-id-completed (id)
@@ -815,6 +815,8 @@ values of *1, *2, etc."
   (remhash id nrepl-pending-requests))
 
 (defvar cider-buffer-ns)
+(declare-function cider-need-input "cider-interaction")
+
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler)
@@ -836,8 +838,7 @@ nothing happens for the corresponding type of response.
 When `nrepl-log-messages' is non-nil, *nrepl-messages* buffer contains
 server responses."
   (lambda (response)
-    (nrepl-dbind-response response (value ns out err status id
-                                          session pprint-out)
+    (nrepl-dbind-response response (value ns out err status id pprint-out)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
@@ -900,6 +901,8 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")
+
+(declare-function cider-repl-emit-interactive-stderr "cider-repl")
 
 (defun nrepl-send-sync-request (request connection &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
@@ -1082,6 +1085,8 @@ the port, and the client buffer."
 
           (when (functionp nrepl-post-client-callback)
             (funcall nrepl-post-client-callback client-buffer)))))))
+
+(declare-function cider--close-connection-buffer "cider-client")
 
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."

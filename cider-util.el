@@ -33,6 +33,10 @@
 (require 'dash)
 (require 'cl-lib)
 (require 'clojure-mode)
+(require 'nrepl-client)
+
+(defalias 'cider-pop-back 'pop-tag-mark)
+(define-obsolete-function-alias 'cider-jump-back 'cider-pop-back "0.10.0")
 
 (defcustom cider-font-lock-max-length 10000
   "The max length of strings to fontify in `cider-font-lock-as'.
@@ -70,33 +74,83 @@ Setting this to nil removes the fontification restriction."
   (let ((beg (save-excursion (beginning-of-defun) (point))))
     (nth 4 (parse-partial-sexp beg (point)))))
 
-(defcustom cider-prompt-for-symbol t
-  "Controls when to prompt for symbol when a command requires one.
-
-When non-nil, always prompt, and use the symbol at point as the default
-value at the prompt.
-
-When nil, attempt to use the symbol at point for the command, and only
-prompt if that throws an error."
-  :type '(choice (const :tag "always" t)
-                 (const :tag "dwim" nil))
-  :group 'cider
-  :package-version '(cider . "0.9.0"))
-
-(defun cider--should-prompt-for-symbol (&optional invert)
-  (if invert (not cider-prompt-for-symbol) cider-prompt-for-symbol))
-
-(defun cider-prompt-for-symbol-function (&optional invert)
-  (if (cider--should-prompt-for-symbol invert)
-      #'cider-read-symbol-name
-    #'cider-try-symbol-at-point))
-
 (defun cider--tooling-file-p (file-name)
   "Return t if FILE-NAME is not a 'real' source file.
 Currently, only check if the relative file name starts with 'form-init'
 which nREPL uses for temporary evaluation file names."
   (let ((fname (file-name-nondirectory file-name)))
     (string-match-p "^form-init" fname)))
+
+;;; Thing at point
+(defun cider-defun-at-point ()
+  "Return the text of the top-level sexp at point."
+  (apply #'buffer-substring-no-properties
+         (cider--region-for-defun-at-point)))
+
+(defun cider--region-for-defun-at-point ()
+  "Return the start and end position of defun at point."
+  (save-excursion
+    (save-match-data
+      (end-of-defun)
+      (let ((end (point)))
+        (beginning-of-defun)
+        (list (point) end)))))
+
+(defun cider-defun-at-point-start-pos ()
+  "Return the starting position of the current defun."
+  (car (cider--region-for-defun-at-point)))
+
+(defun cider-ns-form ()
+  "Retrieve the ns form."
+  (when (clojure-find-ns)
+    (save-excursion
+      (goto-char (match-beginning 0))
+      (cider-defun-at-point))))
+
+(defun cider-bounds-of-sexp-at-point ()
+  "Return the bounds sexp at point as a pair (or nil)."
+  (or (and (equal (char-after) ?\()
+           (member (char-before) '(?\' ?\, ?\@))
+           ;; hide stuff before ( to avoid quirks with '( etc.
+           (save-restriction
+             (narrow-to-region (point) (point-max))
+             (bounds-of-thing-at-point 'sexp)))
+      (bounds-of-thing-at-point 'sexp)))
+
+(defun cider-symbol-at-point ()
+  "Return the name of the symbol at point, otherwise nil."
+  (let ((str (or (thing-at-point 'symbol) "")))
+    (if (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
+        ""
+      str)))
+
+(defun cider-sexp-at-point ()
+  "Return the sexp at point as a string, otherwise nil."
+  (let ((bounds (cider-bounds-of-sexp-at-point)))
+    (if bounds
+        (buffer-substring-no-properties (car bounds)
+                                        (cdr bounds)))))
+
+(defun cider-sexp-at-point-with-bounds ()
+  "Return a list containing the sexp at point and its bounds."
+  (let ((bounds (cider-bounds-of-sexp-at-point)))
+    (if bounds
+        (let ((start (car bounds))
+              (end (cdr bounds)))
+          (list (buffer-substring-no-properties start end)
+                (cons (set-marker (make-marker) start)
+                      (set-marker (make-marker) end)))))))
+
+(defun cider-last-sexp (&optional bounds)
+  "Return the sexp preceding the point.
+If BOUNDS is non-nil, return a list of its starting and ending position
+instead."
+  (apply (if bounds #'list #'buffer-substring-no-properties)
+         (save-excursion
+           (clojure-backward-logical-sexp 1)
+           (list (point)
+                 (progn (clojure-forward-logical-sexp 1)
+                        (point))))))
 
 ;;; Text properties
 

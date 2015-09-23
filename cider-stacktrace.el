@@ -30,7 +30,7 @@
 (require 'button)
 (require 'dash)
 (require 'easymenu)
-(require 'cider-util)
+(require 'cider-common)
 (require 'cider-client)
 
 ;; Variables
@@ -516,12 +516,13 @@ MESSAGE is parsed to find line, col and buffer name to jump to."
       (when buf-name
         (make-button (+ beg 3)
                      (point)
-                     'action (lambda (button)
+                     'action (lambda (_button)
                                (let ((the-buf-window (get-buffer-window buf-name)))
                                  (if the-buf-window
                                      (select-window the-buf-window)
                                    (switch-to-buffer buf-name)))
-                               (goto-line line)
+                               (goto-char (point-min))
+                               (forward-line line)
                                (move-to-column col t)))))))
 
 (defun cider-stacktrace-render-cause (buffer cause num note)

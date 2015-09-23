@@ -25,13 +25,24 @@
 
 ;;; Code:
 
+(require 'spinner)
 (require 'nrepl-client)
-(require 'cider-util)
+(require 'cider-common)
 
 ;;; Connection Buffer Management
 
 (defvar cider-connections nil
   "A list of connections.")
+
+(defun cider-connected-p ()
+  "Return t if CIDER is currently connected, nil otherwise."
+  (not (null (cider-connections))))
+
+(defun cider-ensure-connected ()
+  "Ensure there is a cider connection present, otherwise
+an error is signaled."
+  (unless (cider-connected-p)
+    (error "No active nREPL connections")))
 
 (defsubst cider--in-connection-buffer-p ()
   "Return non-nil if current buffer is connected to a server."
@@ -93,6 +104,100 @@ Also close associated REPL and server buffers."
       (cider--close-buffer buffer))))
 
 
+;;; Current connection logic
+(defvar-local cider-repl-type nil
+  "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
+
+(defun cider-find-connection-buffer-for-project-directory (project-directory &optional all-connections)
+  "Return the most appropriate connection-buffer for the given PROJECT-DIRECTORY.
+By order of preference, this is any connection whose directory matches
+PROJECT-DIRECTORY, followed by any connection whose directory is nil,
+followed by any connection at all.
+Only return nil if `cider-connections' is empty (there are no connections).
+
+If more than one connection satisfy a given level of preference, return the
+connection buffer closer to the start of `cider-connections'.  This is
+usally the connection that was more recently created, but the order can be
+changed.  For instance, the function `cider-make-connection-default' can be
+used to move a connection to the head of the list, so that it will take
+precedence over other connections associated with the same project.
+
+If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
+connections are returned, instead of just the most recent."
+  (let ((fn (if all-connections #'-filter #'-first)))
+    (or (funcall fn (lambda (conn)
+                      (-when-let (conn-proj-dir (with-current-buffer conn
+                                                  nrepl-project-dir))
+                        (equal (file-truename project-directory)
+                               (file-truename conn-proj-dir))))
+                 cider-connections)
+        (funcall fn (lambda (conn)
+                      (with-current-buffer conn
+                        (not nrepl-project-dir)))
+                 cider-connections)
+        (if all-connections
+            cider-connections
+          (car cider-connections)))))
+
+(defun cider-assoc-project-with-connection (&optional project connection)
+  "Associate a Clojure PROJECT with an nREPL CONNECTION.
+
+Useful for connections created using `cider-connect', as for them
+such a link cannot be established automatically."
+  (interactive)
+  (cider-ensure-connected)
+  (let ((conn-buf (or connection (completing-read "Connection: " (cider-connections))))
+        (project-dir (or project (read-directory-name "Project directory: " nil (clojure-project-dir) nil (clojure-project-dir)))))
+    (when conn-buf
+      (with-current-buffer conn-buf
+        (setq nrepl-project-dir project-dir)))))
+
+(defun cider-assoc-buffer-with-connection ()
+  "Associate the current buffer with a connection.
+
+Useful for connections created using `cider-connect', as for them
+such a link cannot be established automatically."
+  (interactive)
+  (cider-ensure-connected)
+  (let ((conn (completing-read "Connection: " (cider-connections))))
+    (when conn
+      (setq-local cider-connections (list conn)))))
+
+(defun cider-clear-buffer-local-connection ()
+  "Remove association between the current buffer and a connection."
+  (interactive)
+  (cider-ensure-connected)
+  (kill-local-variable 'cider-connections))
+
+(defun cider-current-connection (&optional type)
+  "Return the REPL buffer relevant for the current Clojure source buffer.
+A REPL is relevant if its `nrepl-project-dir' is compatible with the
+current directory (see `cider-find-connection-buffer-for-project-directory').
+If there is ambiguity, it is resolved by matching TYPE with the REPL
+type (Clojure or ClojureScript). If TYPE is nil, it is derived from the
+file extension."
+  ;; Cleanup the connections list.
+  (cider-connections)
+  (cond
+   ((cider--in-connection-buffer-p) (current-buffer))
+   ((= 1 (length cider-connections)) (car cider-connections))
+   (t (let* ((project-directory (clojure-project-dir (cider-current-dir)))
+             (repls (and project-directory
+                         (cider-find-connection-buffer-for-project-directory project-directory 'all))))
+        (if (= 1 (length repls))
+            ;; Only one match, just return it.
+            (car repls)
+          ;; OW, find one matching the extension of current file.
+          (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
+            (or (-first (lambda (conn)
+                          (equal (with-current-buffer conn
+                                   (or cider-repl-type "clj"))
+                                 type))
+                        repls)
+                (car repls)
+                (car cider-connections))))))))
+
+
 ;;; Connection Browser
 (defvar cider-connections-buffer-mode-map
   (let ((map (make-sparse-keymap)))
@@ -151,9 +256,6 @@ The connections buffer is determined by
       (setq buffer-read-only t)
       (cider-connections-buffer-mode)
       (display-buffer (current-buffer)))))
-
-(defvar-local cider-repl-type nil
-  "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
 
 (defun cider--connection-pp (connection)
   "Print an nREPL CONNECTION to the current buffer."
@@ -236,6 +338,26 @@ Refreshes EWOC."
 (defun cider-ns-form-p (form)
   "Check if FORM is an ns form."
   (string-match-p "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
+
+(defvar-local cider-buffer-ns nil
+  "Current Clojure namespace of some buffer.
+
+Useful for special buffers (e.g. REPL, doc buffers) that have to
+keep track of a namespace.
+
+This should never be set in Clojure buffers, as there the namespace
+should be extracted from the buffer's ns form.")
+
+(defun cider-current-ns ()
+  "Return the current ns.
+The ns is extracted from the ns form for Clojure buffers and from
+`cider-buffer-ns' for all other buffers.  If it's missing, use the current
+REPL's ns, otherwise fall back to \"user\"."
+  (or cider-buffer-ns
+      (clojure-find-ns)
+      (-when-let (repl-buf (cider-current-connection))
+        (buffer-local-value 'cider-buffer-ns repl-buf))
+      "user"))
 
 (define-obsolete-function-alias 'cider-eval 'nrepl-request:eval "0.9")
 
@@ -372,6 +494,42 @@ unless ALL is truthy."
   (when (and class member)
     (cider-sync-request:info nil class member)))
 
+(defun cider--find-var-other-window (var &optional line)
+  "Find the definition of VAR, optionally at a specific LINE.
+
+Display the results in a different window."
+  (-if-let (info (cider-var-info var))
+      (progn
+        (if line (setq info (nrepl-dict-put info "line" line)))
+        (cider--jump-to-loc-from-info info t))
+    (user-error "Symbol %s not resolved" var)))
+
+(defun cider--find-var (var &optional line)
+  "Find the definition of VAR, optionally at a specific LINE."
+  (-if-let (info (cider-var-info var))
+      (progn
+        (if line (setq info (nrepl-dict-put info "line" line)))
+        (cider--jump-to-loc-from-info info))
+    (user-error "Symbol %s not resolved" var)))
+
+(defun cider-find-var (&optional arg var line)
+  "Find definition for VAR at LINE.
+
+Prompt according to prefix ARG and `cider-prompt-for-symbol'.
+A single or double prefix argument inverts the meaning of
+`cider-prompt-for-symbol'. A prefix of `-` or a double prefix argument causes
+the results to be displayed in a different window.  The default value is
+thing at point."
+  (interactive "P")
+  (cider-ensure-op-supported "info")
+  (if var
+      (cider--find-var var line)
+    (funcall (cider-prompt-for-symbol-function arg)
+             "Symbol"
+             (if (cider--open-other-window-p arg)
+                 #'cider--find-var-other-window
+               #'cider--find-var))))
+
 
 ;;; Requests
 
@@ -495,6 +653,146 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
       ;; "clojure.lang.ExceptionInfo: Unmatched delimiter ]"
       (error (car (split-string err "\n"))))
     (nrepl-dict-get response "formatted-edn")))
+
+
+;;; Eval spinner
+(defcustom cider-eval-spinner-type 'progress-bar
+  "Appearance of the evaluation spinner.
+
+Value is a symbol. The possible values are the symbols in the
+`spinner-types' variable."
+  :type 'symbol
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-show-eval-spinner t
+  "When true, show the evaluation spinner in the mode line."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-eval-spinner-delay 1
+  "Amount of time, in seconds, after which the evaluation spinner will be shown."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defun cider-spinner-start ()
+  "Start the evaluation spinner.
+Do nothing if `cider-show-eval-spinner' is nil."
+  (when cider-show-eval-spinner
+    (spinner-start cider-eval-spinner-type nil
+                   cider-eval-spinner-delay)))
+
+(defun cider-eval-spinner-handler (eval-buffer original-callback)
+  "Return a response handler that stops the spinner and calls ORIGINAL-CALLBACK.
+EVAL-BUFFER is the buffer where the spinner was started."
+  (lambda (response)
+    ;; buffer still exists and
+    ;; we've got status "done" from nrepl
+    ;; stop the spinner
+    (when (and (buffer-live-p eval-buffer)
+               (let ((status (nrepl-dict-get response "status")))
+                 (or (member "done" status)
+                     (member "eval-error" status)
+                     (member "error" status))))
+      (with-current-buffer eval-buffer
+        (spinner-stop)))
+    (funcall original-callback response)))
+
+
+;;; Connection info
+(defun cider--java-version ()
+  "Retrieve the underlying connection's Java version."
+  (with-current-buffer (cider-current-connection "clj")
+    (when nrepl-versions
+      (-> nrepl-versions
+          (nrepl-dict-get "java")
+          (nrepl-dict-get "version-string")))))
+
+(defun cider--clojure-version ()
+  "Retrieve the underlying connection's Clojure version."
+  (with-current-buffer (cider-current-connection "clj")
+    (when nrepl-versions
+      (-> nrepl-versions
+          (nrepl-dict-get "clojure")
+          (nrepl-dict-get "version-string")))))
+
+(defun cider--nrepl-version ()
+  "Retrieve the underlying connection's nREPL version."
+  (with-current-buffer (cider-current-connection "clj")
+    (when nrepl-versions
+      (-> nrepl-versions
+          (nrepl-dict-get "nrepl")
+          (nrepl-dict-get "version-string")))))
+
+(defun cider--connection-info (connection-buffer)
+  "Return info about CONNECTION-BUFFER.
+
+Info contains project name, current REPL namespace, host:port
+endpoint and Clojure version."
+  (with-current-buffer connection-buffer
+    (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
+            (if cider-repl-type
+                (upcase (concat cider-repl-type " "))
+              "")
+            (or (cider--project-name nrepl-project-dir) "<no project>")
+            (car nrepl-endpoint)
+            (cadr nrepl-endpoint)
+            (cider--java-version)
+            (cider--clojure-version)
+            (cider--nrepl-version))))
+
+(defun cider-display-connection-info (&optional show-default)
+  "Display information about the current connection.
+
+With a prefix argument SHOW-DEFAULT it will display info about the
+default connection."
+  (interactive "P")
+  (message (cider--connection-info (if show-default
+                                   (cider-default-connection)
+                                 (cider-current-connection)))))
+
+(define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-connection-info "0.10")
+
+(defun cider-rotate-default-connection ()
+  "Rotate and display the default nREPL connection."
+  (interactive)
+  (cider-ensure-connected)
+  (setq cider-connections
+        (append (cdr cider-connections)
+                (list (car cider-connections))))
+  (message "Default nREPL connection: %s"
+           (cider--connection-info (car cider-connections))))
+
+(define-obsolete-function-alias 'cider-rotate-connection 'cider-rotate-default-connection "0.10")
+(defun cider-extract-designation-from-current-repl-buffer ()
+  "Extract the designation from the cider repl buffer name."
+  (let ((repl-buffer-name (buffer-name (cider-current-repl-buffer)))
+        (template (split-string nrepl-repl-buffer-name-template "%s")))
+    (string-match (format "^%s\\(.*\\)%s"
+                          (regexp-quote (concat (car template) nrepl-buffer-name-separator))
+                          (regexp-quote (cadr template)))
+                  repl-buffer-name)
+    (or (match-string 1 repl-buffer-name) "<no designation>")))
+
+(defun cider-change-buffers-designation ()
+  "Change the designation in cider buffer names.
+Buffer names changed are cider-repl and nrepl-server."
+  (interactive)
+  (cider-ensure-connected)
+  (let* ((designation (read-string (format "Change CIDER buffer designation from '%s': "
+                                           (cider-extract-designation-from-current-repl-buffer))))
+         (new-repl-buffer-name (nrepl-format-buffer-name-template
+                                nrepl-repl-buffer-name-template designation)))
+    (with-current-buffer (cider-current-repl-buffer)
+      (rename-buffer new-repl-buffer-name)
+      (when nrepl-server-buffer
+        (let ((new-server-buffer-name (nrepl-format-buffer-name-template
+                                       nrepl-server-buffer-name-template designation)))
+          (with-current-buffer nrepl-server-buffer
+            (rename-buffer new-server-buffer-name)))))
+    (message "CIDER buffer designation changed to: %s" designation)))
 
 (provide 'cider-client)
 
