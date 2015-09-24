@@ -1160,8 +1160,7 @@ operations.")
         (re-search-forward "^(" nil t)
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
-      (nrepl--pp msg (-some-> (lax-plist-get (cdr msg) "id")
-                              (nrepl--message-color)))
+      (nrepl--pp msg (nrepl--message-color (lax-plist-get (cdr msg) "id")))
       (-when-let (win (get-buffer-window))
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
@@ -1173,10 +1172,12 @@ operations.")
   :group 'nrepl)
 
 (defun nrepl--message-color (id)
-  "Return the color to use when pretty-printing the nREPL message with ID."
-  (-> (string-to-number id)
-      (mod (length nrepl-message-colors))
-      (nth nrepl-message-colors)))
+  "Return the color to use when pretty-printing the nREPL message with ID.
+If ID is nil, return nil."
+  (when id
+    (-> (string-to-number id)
+        (mod (length nrepl-message-colors))
+        (nth nrepl-message-colors))))
 
 (defcustom nrepl-dict-max-message-size 5
   "Max number of lines a dict can have before being truncated.
