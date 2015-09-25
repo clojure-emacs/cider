@@ -639,6 +639,10 @@ If NEWLINE is true then add a newline at the end of the input."
         (cider-repl-handler (current-buffer)))
        (cider-current-ns)))))
 
+(defun cider-repl--ensure-valid-input (beg end)
+  "Ensure that the region between BEG and END is balanced."
+  (scan-sexps beg end))
+
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
 Send the current input ony if a whole expression has been entered,
@@ -646,6 +650,9 @@ i.e. the parenthesis are matched.
 When END-OF-INPUT is non-nil, send the input even if the parentheses
 are not balanced."
   (interactive "P")
+  (cider-repl--ensure-valid-input
+   (marker-position cider-repl-input-start-mark)
+   (point-max))
   (cond
    (end-of-input
     (cider-repl--send-input))
