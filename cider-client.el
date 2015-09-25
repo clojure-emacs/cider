@@ -207,7 +207,7 @@ file extension."
     (define-key map (kbd "RET") #'cider-connections-goto-connection)
     map))
 
-(declare-function cider-popup-buffer-mode "cider-interaction")
+(declare-function cider-popup-buffer-mode "cider-popup")
 (define-derived-mode cider-connections-buffer-mode cider-popup-buffer-mode
                      "CIDER Connections"
   "CIDER Connections Buffer Mode.
@@ -436,7 +436,6 @@ NS specifies the namespace in which to evaluate the request."
                       (cider-current-tooling-session)
                       ns))
 
-(declare-function cider-current-connection "cider-interaction")
 (defalias 'cider-current-repl-buffer #'cider-current-connection
   "The current REPL buffer.
 Return the REPL buffer given by `cider-current-connection'.")
@@ -548,7 +547,6 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 
 
 ;;; Sync Requests
-(declare-function cider-current-ns "cider-interaction")
 (defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
   "Send \"apropos\" op with args SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
   (-> `("op" "apropos"
@@ -561,7 +559,6 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
       (cider-nrepl-send-sync-request)
       (nrepl-dict-get "apropos-matches")))
 
-(declare-function cider-ensure-op-supported "cider-interaction")
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
   (cider-ensure-op-supported "classpath")
