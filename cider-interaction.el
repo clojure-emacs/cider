@@ -276,13 +276,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
     (quit-window nil error-win)))
 
 ;;;
-(defun cider-find-var-file (var)
-  "Return the buffer visiting the file in which VAR is defined, or nil if
-not found."
-  (cider-ensure-op-supported "info")
-  (-when-let* ((info (cider-var-info var))
-               (file (nrepl-dict-get info "file")))
-    (cider-find-file file)))
+(declare-function cider-mode "cider-mode")
 
 (defun cider-jump-to (buffer &optional pos other-window)
   "Push current point onto marker ring, and jump to BUFFER and POS.

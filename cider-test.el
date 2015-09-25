@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'cider-common)
+(require 'cider-client)
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'button)
@@ -175,6 +176,8 @@
       (cider-find-var arg))))
 
 ;;; Error stacktraces
+
+(defvar cider-auto-select-error-buffer)
 
 (defun cider-test-stacktrace-for (ns var index)
   "Display stacktrace for the erring NS VAR test with the assertion INDEX."
@@ -367,6 +370,14 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
               (overlay-put overlay 'expected expected)
               (overlay-put overlay 'actual actual))))))))
 
+(defun cider-find-var-file (var)
+  "Return the buffer visiting the file in which VAR is defined, or nil if
+not found."
+  (cider-ensure-op-supported "info")
+  (-when-let* ((info (cider-var-info var))
+               (file (nrepl-dict-get info "file")))
+    (cider-find-file file)))
+
 (defun cider-test-highlight-problems (ns results)
   "Highlight all non-passing tests in the NS test RESULTS."
   (nrepl-dict-map
@@ -414,6 +425,9 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 
 
 ;;; Test execution
+
+(declare-function cider-emit-interactive-eval-output "cider-interaction")
+(declare-function cider-emit-interactive-eval-err-output "cider-interaction")
 
 (defun cider-test-execute (ns &optional retest tests)
   "Run tests for NS; optionally RETEST failures or run only specified TESTS.
