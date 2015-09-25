@@ -27,6 +27,10 @@ build : elpa $(OBJECTS)
 version:
 	$(EMACS) --version
 
+test-checks : version
+	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
+		-l test/cider-checks.el ./
+
 test-bytecomp : version $(ELS:.el=.elc-test)
 
 %.elc-test : %.el elpa

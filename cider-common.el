@@ -81,7 +81,7 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
         (cider-jump-to buffer (if line (cons line nil) name) other-window)
       (error "No source location"))))
 
-(declare-function url-filename "url-parse")
+(declare-function url-filename "url-parse" (cl-x) t)
 
 (defun cider--url-to-file (url)
   "Return the filename from the resource URL.
