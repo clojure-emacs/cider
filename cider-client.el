@@ -746,9 +746,9 @@ endpoint and Clojure version."
 With a prefix argument SHOW-DEFAULT it will display info about the
 default connection."
   (interactive "P")
-  (message (cider--connection-info (if show-default
-                                   (cider-default-connection)
-                                 (cider-current-connection)))))
+  (message "%s" (cider--connection-info (if show-default
+                                            (cider-default-connection)
+                                          (cider-current-connection)))))
 
 (define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-connection-info "0.10")
 

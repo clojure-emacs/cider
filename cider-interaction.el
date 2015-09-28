@@ -718,7 +718,7 @@ They exist for compatibility with `next-error'."
                             (cider-find-property 'cider-note-p t))))
                  (when p
                    (goto-char p)
-                   (message (get-char-property p 'cider-note))))))
+                   (message "%s" (get-char-property p 'cider-note))))))
     ;; if we're already on a compilation error, first jump to the end of
     ;; it, so that we find the next error.
     (when (get-char-property (point) 'cider-note-p)

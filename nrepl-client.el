@@ -941,7 +941,7 @@ sign of user input, so as not to hang the interface."
       (-when-let* ((ex (nrepl-dict-get response "ex"))
                    (err (nrepl-dict-get response "err")))
         (cider-repl-emit-interactive-stderr err)
-        (message err))
+        (message "%s" err))
       (-when-let (id (nrepl-dict-get response "id"))
         (with-current-buffer connection
           (nrepl--mark-id-completed id)))
@@ -1075,7 +1075,7 @@ the port, and the client buffer."
       (insert output)))
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
-      (message (format "nREPL server started on %s" port))
+      (message "nREPL server started on %s" port)
       (with-current-buffer (process-buffer process)
         (let* ((client-proc (nrepl-start-client-process nil port process))
                (client-buffer (process-buffer client-proc)))
