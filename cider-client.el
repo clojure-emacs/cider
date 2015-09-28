@@ -193,7 +193,7 @@ file extension."
                           (equal (with-current-buffer conn
                                    (or cider-repl-type "clj"))
                                  type))
-                        repls)
+                        (append repls cider-connections))
                 (car repls)
                 (car cider-connections))))))))
 
