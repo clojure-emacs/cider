@@ -394,6 +394,7 @@ This will not work on non-current prompts."
 
 (defmacro cider-save-marker (marker &rest body)
   "Save MARKER and execute BODY."
+  (declare (debug t))
   (let ((pos (make-symbol "pos")))
     `(let ((,pos (marker-position ,marker)))
        (prog1 (progn . ,body)
