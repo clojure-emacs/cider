@@ -1149,6 +1149,16 @@ constructs."
         ["Version info" cider-version]))
     map))
 
+(defun cider-repl-wrap-fontify-function (func)
+  "Return a function that calls FUNC narrowed to input region."
+  (lambda (beg end &rest rest)
+    (when (and cider-repl-input-start-mark
+               (> end cider-repl-input-start-mark))
+      (save-restriction
+        (narrow-to-region cider-repl-input-start-mark (point-max))
+        (let ((font-lock-dont-widen t))
+          (apply func (max beg cider-repl-input-start-mark) end rest))))))
+
 (declare-function cider-complete-at-point "cider-interaction")
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
@@ -1158,6 +1168,10 @@ constructs."
   (clojure-mode-variables)
   (setq-local lisp-indent-function #'clojure-indent-function)
   (setq-local indent-line-function #'lisp-indent-line)
+  (setq-local font-lock-fontify-region-function
+              (cider-repl-wrap-fontify-function font-lock-fontify-region-function))
+  (setq-local font-lock-unfontify-region-function
+              (cider-repl-wrap-fontify-function font-lock-unfontify-region-function))
   (make-local-variable 'completion-at-point-functions)
   (add-to-list 'completion-at-point-functions
                #'cider-complete-at-point)
