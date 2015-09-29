@@ -30,10 +30,7 @@
 
 ;;; Code:
 
-(require 'cider-interaction)
 (require 'cider-eldoc)
-(require 'cider-repl)
-(require 'cider-util)
 (require 'cider-resolve)
 
 (defcustom cider-mode-line-show-connection t

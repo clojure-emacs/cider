@@ -34,6 +34,7 @@
 (require 'cider-doc)
 (require 'cider-eldoc) ; for cider-eldoc-setup
 (require 'cider-common)
+(require 'cider-mode)
 
 (require 'clojure-mode)
 (require 'easymenu)
@@ -94,13 +95,13 @@ change the setting's value."
   :type 'boolean
   :group 'cider-repl)
 
-(defcustom cider-repl-use-clojure-font-lock nil
+(defcustom cider-repl-use-clojure-font-lock t
   "Non-nil means to use Clojure mode font-locking for input and result.
 Nil means that `cider-repl-input-face' and `cider-repl-result-face'
 will be used."
   :type 'boolean
   :group 'cider-repl
-  :package-version '(cider . "0.5.0"))
+  :package-version '(cider . "0.10.0"))
 
 (defcustom cider-repl-result-prefix ""
   "The prefix displayed in the REPL before a result value."
@@ -607,13 +608,7 @@ If NEWLINE is true then add a newline at the end of the input."
                            (point)
                            `(cider-old-input
                              ,(cl-incf cider-repl-old-input-counter))))
-    (if cider-repl-use-clojure-font-lock
-        (let ((input-string (buffer-substring cider-repl-input-start-mark end)))
-          (save-excursion
-            ;; TODO: Think of a more efficient way to do that
-            (cider-repl-kill-input)
-            ;; replace the current input with a Clojure font-locked version of itself
-            (insert (cider-font-lock-as-clojure input-string) "\n")))
+    (unless cider-repl-use-clojure-font-lock
       (let ((overlay (make-overlay cider-repl-input-start-mark end)))
         ;; These properties are on an overlay so that they won't be taken
         ;; by kill/yank.
@@ -1168,6 +1163,8 @@ constructs."
   (clojure-mode-variables)
   (setq-local lisp-indent-function #'clojure-indent-function)
   (setq-local indent-line-function #'lisp-indent-line)
+  (clojure-font-lock-setup)
+  (font-lock-add-keywords nil cider--static-font-lock-keywords)
   (setq-local font-lock-fontify-region-function
               (cider-repl-wrap-fontify-function font-lock-fontify-region-function))
   (setq-local font-lock-unfontify-region-function
