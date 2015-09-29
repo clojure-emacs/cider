@@ -250,9 +250,7 @@ The value can also be t, which means to font-lock as much as possible."
           (push sym functions))
          ((memq 'var cider-font-lock-dynamically)
           (push sym vars)))))
-    `(;; Aliases
-      ("\\_<\\(?1:\\(\\s_\\|\\sw\\)+\\)/" 1 font-lock-type-face)
-
+    `(
       ,@(when macros
           `((,(concat (rx (or "(" "#'")) ; Can't take the value of macros.
                       "\\(" (regexp-opt macros 'symbols) "\\)")
@@ -262,7 +260,7 @@ The value can also be t, which means to font-lock as much as possible."
       ,@(when vars
           `((,(regexp-opt vars 'symbols) 0 font-lock-variable-name-face append)))
       ,@(when instrumented
-          `((,(regexp-opt instrumented 'symbols) 0 'cider-instrumented-face prepend))))))
+          `((,(regexp-opt instrumented 'symbols) 0 'cider-instrumented-face append))))))
 
 (defconst cider--static-font-lock-keywords
   (eval-when-compile
@@ -282,7 +280,7 @@ namespace itself."
       (setq-local cider--dynamic-font-lock-keywords
                   (cider--compile-font-lock-keywords
                    symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
-      (font-lock-add-keywords nil cider--dynamic-font-lock-keywords))
+      (font-lock-add-keywords nil cider--dynamic-font-lock-keywords 'end))
     (if (fboundp 'font-lock-flush)
         (font-lock-flush)
       (with-no-warnings
