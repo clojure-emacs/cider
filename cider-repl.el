@@ -34,7 +34,6 @@
 (require 'cider-doc)
 (require 'cider-eldoc) ; for cider-eldoc-setup
 (require 'cider-common)
-(require 'cider-mode)
 
 (require 'clojure-mode)
 (require 'easymenu)
@@ -245,6 +244,8 @@ This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
 It is set to current buffer when `cider' or `cider-jack-in' is called.
 After the REPL buffer is created, the value of this variable is used
 to call `cider-remember-clojure-buffer'.")
+
+(declare-function cider-remember-clojure-buffer "cider-mode")
 
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
@@ -1063,6 +1064,7 @@ constructs."
 (declare-function cider-find-resource "cider-interaction")
 (declare-function cider-restart "cider-interaction")
 (declare-function cider-find-ns "cider-interaction")
+(declare-function cider-switch-to-last-clojure-buffer "cider-mode")
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
@@ -1155,6 +1157,7 @@ constructs."
           (apply func (max beg cider-repl-input-start-mark) end rest))))))
 
 (declare-function cider-complete-at-point "cider-interaction")
+(defvar cider--static-font-lock-keywords)
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
   "Major mode for Clojure REPL interactions.

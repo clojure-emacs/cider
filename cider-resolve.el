@@ -64,8 +64,8 @@
 
 ;;; Code:
 
+(require 'cider-client)
 (require 'nrepl-client)
-(require 'cider-interaction)
 
 (defvar cider-repl-ns-cache)
 

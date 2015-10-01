@@ -68,7 +68,6 @@
   :package-version '(cider . "0.10.0"))
 
 (require 'cider-client)
-(require 'cider-interaction)
 (require 'cider-eldoc)
 (require 'cider-repl)
 (require 'cider-mode)

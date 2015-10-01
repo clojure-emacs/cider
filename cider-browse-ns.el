@@ -35,7 +35,6 @@
 
 (require 'cider-repl)
 (require 'cider-client)
-(require 'cider-interaction)
 
 (defconst cider-browse-ns-buffer "*Browse NS*")
 (defvar-local cider-browse-ns-current-ns nil)

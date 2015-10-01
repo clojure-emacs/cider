@@ -37,6 +37,7 @@
 (require 'cider-stacktrace)
 (require 'cider-test)
 (require 'cider-doc)
+(require 'cider-eldoc)
 (require 'cider-overlays)
 
 (require 'clojure-mode)

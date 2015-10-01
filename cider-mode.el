@@ -30,8 +30,11 @@
 
 ;;; Code:
 
+(require 'cider-interaction)
+(require 'cider-test)
 (require 'cider-eldoc)
 (require 'cider-resolve)
+(require 'cider-doc)
 
 (defcustom cider-mode-line-show-connection t
   "If the mode-line lighter should detail the connection."
