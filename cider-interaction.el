@@ -1044,6 +1044,8 @@ If invoked with a PREFIX argument, print the result in the current buffer."
     (backward-kill-sexp)
     (cider-interactive-eval last-sexp (cider-eval-print-handler))))
 
+(declare-function cider-switch-to-repl-buffer "cider-mode")
+
 (defun cider-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
