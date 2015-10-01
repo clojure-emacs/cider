@@ -25,7 +25,14 @@
 
 ;;; Code:
 
-(require 'cider-interaction)
+(require 'cider-doc)
+(require 'cider-util)
+(require 'cider-client)
+(require 'cider-popup)
+(require 'nrepl-client)
+
+(require 'clojure-mode)
+(require 'dash)
 (require 'apropos)
 (require 'button)
 

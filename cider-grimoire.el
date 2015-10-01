@@ -25,7 +25,12 @@
 
 ;;; Code:
 
-(require 'cider-interaction)
+(require 'cider-client)
+(require 'cider-common)
+(require 'cider-popup)
+(require 'nrepl-client)
+
+(require 'dash)
 (require 'url-vars)
 
 (defconst cider-grimoire-url "http://conj.io/")

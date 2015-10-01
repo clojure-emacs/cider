@@ -24,7 +24,7 @@
 ;;; Code:
 
 (require 'cider-client)
-(require 'cider-interaction)
+(require 'cider-popup)
 
 (defvar cider-classpath-buffer "*Classpath*")
 
