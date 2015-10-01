@@ -419,7 +419,7 @@ ID is the id of the message that instrumented CODE."
   "Place point on POS in FILE, then navigate into the next sexp.
 COORDINATES is a list of integers that specify how to navigate into the
 sexp."
-  (condition-case nil
+  (condition-case-unless-debug nil
       ;; Navigate through sexps inside the sexp.
       (let ((in-syntax-quote nil))
         (while coordinates
@@ -454,15 +454,17 @@ sexp."
                     (clojure-forward-logical-sexp 1)
                     (forward-sexp -1)
                     ;; Here a syntax-quote is ending.
-                    (when (looking-at "~@?")
-                      (setq in-syntax-quote nil))
-                    ;; A `~@' is read as the object itself, so we don't pop
-                    ;; anything.
-                    (unless (equal "~@" (match-string 0))
-                      ;; Anything else (including a `~') is read as a `list'
-                      ;; form inside the `concat', so we need to pop the list
-                      ;; from the coordinates.
-                      (pop coordinates)))))
+                    (let ((match (when (looking-at "~@?")
+                                   (match-string 0))))
+                      (when match
+                        (setq in-syntax-quote nil))
+                      ;; A `~@' is read as the object itself, so we don't pop
+                      ;; anything.
+                      (unless (equal "~@" match)
+                        ;; Anything else (including a `~') is read as a `list'
+                        ;; form inside the `concat', so we need to pop the list
+                        ;; from the coordinates.
+                        (pop coordinates))))))
             ;; If that extra pop was the last coordinate, this represents the
             ;; entire #(...), so we should move back out.
             (backward-up-list)))
