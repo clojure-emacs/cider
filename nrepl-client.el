@@ -808,11 +808,13 @@ values of *1, *2, etc."
   "Evaluation error handler.")
 
 (defun nrepl--mark-id-completed (id)
-  "Move ID from `nrepl-pending-requests' to `nrepl-completed-requests'."
+  "Move ID from `nrepl-pending-requests' to `nrepl-completed-requests'.
+It is safe to call this function multiple times on the same ID."
   ;; FIXME: This should go away eventually when we get rid of
   ;; pending-request hash table
-  (puthash id (gethash id nrepl-pending-requests) nrepl-completed-requests)
-  (remhash id nrepl-pending-requests))
+  (-when-let (handler (gethash id nrepl-pending-requests))
+    (puthash id handler nrepl-completed-requests)
+    (remhash id nrepl-pending-requests)))
 
 (defvar cider-buffer-ns)
 (declare-function cider-need-input "cider-interaction")

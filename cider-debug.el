@@ -130,9 +130,7 @@ This variable must be set before starting the repl connection."
     (when (member "need-debug-input" status)
       (cider--handle-debug response))
     (when (member "done" status)
-      (puthash id (gethash id nrepl-pending-requests)
-               nrepl-completed-requests)
-      (remhash id nrepl-pending-requests))))
+      (nrepl--mark-id-completed id))))
 
 (defun cider--debug-init-connection ()
   "Initialize a connection with the cider.debug middleware."
