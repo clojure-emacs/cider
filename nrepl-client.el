@@ -892,14 +892,16 @@ server responses."
   "Send REQUEST and register response handler CALLBACK using CONNECTION.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
-`nrepl-request:stdin', etc."
+`nrepl-request:stdin', etc.
+Return the ID of the sent message."
   (let* ((id (nrepl-next-request-id connection))
          (request (cons 'dict (lax-plist-put request "id" id)))
          (message (nrepl-bencode request)))
     (nrepl-log-message (cons '---> (cdr request)))
     (with-current-buffer connection
       (puthash id callback nrepl-pending-requests)
-      (process-send-string nil message))))
+      (process-send-string nil message))
+    id))
 
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")

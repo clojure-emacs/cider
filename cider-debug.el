@@ -367,10 +367,14 @@ specific message."
                     (symbol-name last-command-event)
                   (cdr (assq last-command-event cider--debug-mode-commands-alist)))
                 nil))
-  (cider-nrepl-send-request
-   (list "op" "debug-input" "input" (or command ":quit")
-         "key" (or key (nrepl-dict-get cider--debug-mode-response "key")))
-   #'ignore)
+  (let* ((conn (cider-current-connection))
+         (id (nrepl-send-request
+              (list "op" "debug-input" "input" (or command ":quit")
+                    "key" (or key (nrepl-dict-get cider--debug-mode-response "key")))
+              #'ignore
+              conn)))
+    (with-current-buffer conn
+      (nrepl--mark-id-completed id)))
   (ignore-errors (cider--debug-mode -1)))
 
 (defun cider--debug-quit ()
