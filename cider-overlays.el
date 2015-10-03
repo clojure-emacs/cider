@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'cider-common)
+(require 'cl-lib)
 
 
 ;;; Customization
@@ -113,21 +114,27 @@ This function also removes itself from `post-command-hook'."
   (remove-hook 'post-command-hook #'cider--remove-result-overlay-after-command 'local)
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
-(defun cider--make-result-overlay (value &optional where duration &rest props)
+(cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result) &allow-other-keys)
   "Place an overlay displaying VALUE at the end of line.
 VALUE is used as the overlay's after-string property, meaning it is
 displayed at the end of the overlay.  The overlay itself is placed from
 beginning to end of current line.
-Return nil if the overlay was not placed or is not visible, and return the
-overlay otherwise.
+Return nil if the overlay was not placed or if it might not be visible, and
+return the overlay otherwise.
 
 Return the overlay if it was placed successfully, and nil if it failed.
 
-If WHERE is a number or a marker, it is the character position of the line
-to use, otherwise use `point'.
-DURATION takes the same possible values as the `cider-eval-result-duration'
-variable.
-PROPS are passed to `cider--make-overlay' with a type of result."
+This function takes some optional keyword arguments:
+
+  If WHERE is a number or a marker, it is the character position of the
+  line to use, otherwise use `point'.
+  DURATION takes the same possible values as the
+  `cider-eval-result-duration' variable.
+  TYPE is passed to `cider--make-overlay' (defaults to `result').
+
+All arguments beyond these (PROPS) are properties to be used on the
+overlay."
+  (declare (indent 1))
   ;; If the marker points to a dead buffer, don't do anything.
   (-if-let (buffer (if (markerp where) (marker-buffer where)
                      (current-buffer)))
@@ -143,7 +150,7 @@ PROPS are passed to `cider--make-overlay' with a type of result."
                                          (format "%s" value)))
                  (o (apply #'cider--make-overlay
                            (line-beginning-position) (line-end-position)
-                           'result
+                           type
                            'after-string
                            (if cider-ovelays-use-font-lock
                                display-string
@@ -183,9 +190,10 @@ focused."
   (let* ((font-value (if cider-result-use-clojure-font-lock
                          (cider-font-lock-as-clojure value)
                        value))
-         (used-overlay
-          (when (and point cider-use-overlays)
-            (cider--make-result-overlay font-value point cider-eval-result-duration))))
+         (used-overlay (when (and point cider-use-overlays)
+                         (cider--make-result-overlay font-value
+                           :where point
+                           :duration cider-eval-result-duration))))
     (message
      "%s"
      (propertize (format "%s%s" cider-eval-result-prefix font-value)

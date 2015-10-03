@@ -156,8 +156,9 @@ This variable must be set before starting the repl connection."
     ;; This is cosmetic, let's ensure it doesn't break the session no matter what.
     (ignore-errors
       ;; Result
-      (cider--make-result-overlay (cider-font-lock-as-clojure value) (point) nil
-                                  'before-string cider--fringe-arrow-string)
+      (cider--make-result-overlay (cider-font-lock-as-clojure value)
+        :where (point-marker)
+        'before-string cider--fringe-arrow-string)
       ;; Code
       (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
                            (point) 'debug-code
