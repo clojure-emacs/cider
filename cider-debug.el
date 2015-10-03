@@ -158,6 +158,7 @@ This variable must be set before starting the repl connection."
       ;; Result
       (cider--make-result-overlay (cider-font-lock-as-clojure value)
         :where (point-marker)
+        :type 'debug-result
         'before-string cider--fringe-arrow-string)
       ;; Code
       (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
@@ -330,7 +331,7 @@ In order to work properly, this mode must be activated by
     (with-current-buffer (or buffer (current-buffer))
       (unless cider--debug-mode
         (kill-local-variable 'tool-bar-map)
-        (remove-overlays nil nil 'cider-type 'result)
+        (remove-overlays nil nil 'cider-type 'debug-result)
         (remove-overlays nil nil 'cider-type 'debug-code)
         (setq cider--debug-prompt-overlay nil)
         (remove-overlays nil nil 'cider-type 'debug-prompt)))))
