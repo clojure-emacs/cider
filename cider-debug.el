@@ -313,10 +313,7 @@ In order to work properly, this mode must be activated by
     ;; doesn't accidentally hit `n' between two messages (thus editing the code).
     (-when-let (proc (unless nrepl-ongoing-sync-request
                        (get-buffer-process (cider-current-connection))))
-      ;; This is for the `:done' sent in reply to the debug-input we provided.
-      (when (accept-process-output proc 0.2)
-        ;; This is for actually waiting for the next message.
-        (accept-process-output proc 0.5)))
+      (accept-process-output proc 0.5))
     (unless cider--debug-mode
       (setq buffer-read-only nil)
       (cider--debug-remove-overlays (current-buffer)))
