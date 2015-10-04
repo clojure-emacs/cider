@@ -386,6 +386,15 @@ If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface."
   (nrepl-send-sync-request request (cider-current-connection) abort-on-input))
 
+(defun cider-nrepl-send-unhandled-request (request)
+  "Send REQUEST to the nREPL server and ignore any responses.
+Immediately mark the REQUEST as done."
+  (let* ((conn (cider-current-connection))
+         (id (nrepl-send-request request #'ignore conn)))
+    (with-current-buffer conn
+      (nrepl--mark-id-completed id))
+    id))
+
 (defun cider-nrepl-request:eval (input callback &optional ns point)
   "Send the request INPUT and register the CALLBACK as the response handler.
 If NS is non-nil, include it in the request. POINT, if non-nil, is the

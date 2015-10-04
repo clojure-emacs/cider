@@ -267,6 +267,18 @@
                      (id session status)
                    (list id session status)))))
 
+(ert-deftest cider-nrepl-send-unhandled-request ()
+  (noflet ((process-send-string (process string) nil))
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (setq-local nrepl-completed-requests (make-hash-table :test 'equal))
+      (let* ((cider-connections (list (current-buffer)))
+             (id (cider-nrepl-send-unhandled-request '("op" "t" "extra" "me"))))
+        (should (not (gethash id nrepl-pending-requests)))
+        (should (gethash id nrepl-completed-requests))
+        (should (eq (gethash id nrepl-completed-requests)
+                    #'ignore))))))
+
 
 ;;; connection browser
 
