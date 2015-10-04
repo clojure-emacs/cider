@@ -375,20 +375,23 @@ Signal an error if it is not supported."
 (defun cider-nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
-\"par1\" ... )."
+\"par1\" ... ).
+Return the id of the sent message."
   (nrepl-send-request request callback (cider-current-connection)))
 
 (defun cider-nrepl-send-sync-request (request &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously.
 Hold till final \"done\" message has arrived and join all response messages
-of the same \"op\" that came along.
-If ABORT-ON-INPUT is non-nil, the function will return nil at the first
-sign of user input, so as not to hang the interface."
+of the same \"op\" that came along and return the accumulated response.
+If ABORT-ON-INPUT is non-nil, the function will return nil
+at the first sign of user input, so as not to hang the
+interface."
   (nrepl-send-sync-request request (cider-current-connection) abort-on-input))
 
 (defun cider-nrepl-send-unhandled-request (request)
   "Send REQUEST to the nREPL server and ignore any responses.
-Immediately mark the REQUEST as done."
+Immediately mark the REQUEST as done.
+Return the id of the sent message."
   (let* ((conn (cider-current-connection))
          (id (nrepl-send-request request #'ignore conn)))
     (with-current-buffer conn
