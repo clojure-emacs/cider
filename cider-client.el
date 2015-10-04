@@ -146,7 +146,7 @@ Useful for connections created using `cider-connect', as for them
 such a link cannot be established automatically."
   (interactive)
   (cider-ensure-connected)
-  (let ((conn-buf (or connection (completing-read "Connection: " (cider-connections))))
+  (let ((conn-buf (or connection (completing-read "Connection: " (mapcar #'buffer-name (cider-connections)))))
         (project-dir (or project (read-directory-name "Project directory: " nil (clojure-project-dir) nil (clojure-project-dir)))))
     (when conn-buf
       (with-current-buffer conn-buf
