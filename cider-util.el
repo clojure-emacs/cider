@@ -360,6 +360,7 @@ Any other value is just returned."
     "Your imagination is the only limit to what you can do with this REPL!"
     "This REPL is yours to command!"
     "Fame is but a hack away!"
+    "The REPL is not enough, but it is such a perfect place to start..."
     ,(format "%s, this could be the start of a beautiful program."
              (cider-user-first-name)))
   "Scientifically-proven optimal words of hackerish encouragement.")
