@@ -195,18 +195,32 @@ PROP is the name of a text property."
     (with-no-warnings
       (font-lock-fontify-buffer))))
 
+(defvar cider--mode-buffers nil
+  "A list of buffers for different major modes.")
+
+(defun cider--make-buffer-for-mode (mode)
+  "Return a temp buffer using major-mode MODE.
+This buffer is not designed to display anything to the user. For that, use
+`cider-make-popup-buffer' instead."
+  (or (cdr (assq mode cider--mode-buffers))
+      (let ((b (generate-new-buffer (format " *cider-temp %s*" mode))))
+        (push (cons mode b) cider--mode-buffers)
+        (with-current-buffer b
+          ;; suppress major mode hooks as we care only about their font-locking
+          ;; otherwise modes like whitespace-mode and paredit might interfere
+          (setq-local delay-mode-hooks t)
+          (setq delayed-mode-hooks nil)
+          (funcall mode))
+        b)))
+
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
   (if (or (null cider-font-lock-max-length)
           (< (length string) cider-font-lock-max-length))
-      (with-temp-buffer
+      (with-current-buffer (cider--make-buffer-for-mode mode)
+        (erase-buffer)
         (insert string)
-        ;; suppress major mode hooks as we care only about their font-locking
-        ;; otherwise modes like whitespace-mode and paredit might interfere
-        (setq-local delay-mode-hooks t)
-        (setq delayed-mode-hooks nil)
-        (funcall mode)
-        (cider--font-lock-ensure)
+        (font-lock-fontify-region (point-min) (point-max))
         (buffer-string))
     string))
 
