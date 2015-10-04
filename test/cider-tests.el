@@ -277,7 +277,9 @@
         (should (not (gethash id nrepl-pending-requests)))
         (should (gethash id nrepl-completed-requests))
         (should (eq (gethash id nrepl-completed-requests)
-                    #'ignore))))))
+                    #'ignore)))))
+  (ignore-errors
+    (kill-buffer "*nrepl-messages*")))
 
 
 ;;; connection browser
