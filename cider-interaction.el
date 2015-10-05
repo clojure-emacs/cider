@@ -1344,6 +1344,7 @@ stale code from any deleted files may not be completely unloaded."
                                 (when (buffer-file-name)
                                   (file-name-nondirectory
                                    (buffer-file-name))))))
+  (cider-ensure-connected)
   (-when-let (buf (find-buffer-visiting filename))
     (with-current-buffer buf
       (remove-overlays nil nil 'cider-type 'instrumented-defs)
