@@ -564,13 +564,13 @@ specification.  Everything else is encoded as string."
 (defvar nrepl-response-handler-functions nil
   "List of functions to call on each nREPL message.
 Each of these functions should be a function with one argument, which will
-be called by `nrepl-client-filter' on every response received. The current
-buffer will be connection (REPL) buffer of the process. These functions
-should take a single argument, a dict representing the message. See
+be called by `nrepl-client-filter' on every response received.  The current
+buffer will be connection (REPL) buffer of the process.  These functions
+should take a single argument, a dict representing the message.  See
 `nrepl--dispatch-response' for an example.
 
 These functions are called before the message's own callbacks, so that they
-can affect the behaviour of the callbacks. Errors signaled by these
+can affect the behaviour of the callbacks.  Errors signaled by these
 functions are demoted to messages, so that they don't prevent the
 callbacks from running.")
 
