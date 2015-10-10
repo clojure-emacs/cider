@@ -1065,9 +1065,9 @@ constructs."
 (declare-function cider-restart "cider-interaction")
 (declare-function cider-find-ns "cider-interaction")
 (declare-function cider-switch-to-last-clojure-buffer "cider-mode")
+
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "C-c C-d") #'cider-doc-map)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
