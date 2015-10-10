@@ -1084,6 +1084,7 @@ the port, and the client buffer."
         (goto-char (process-mark process))
         (-when-let (win (get-buffer-window))
           (set-window-point win (point))))))
+  ;; detect the port the server is listening on from its output
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
       (message "nREPL server started on %s" port)
