@@ -1074,9 +1074,16 @@ the port, and the client buffer."
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT."
   (with-current-buffer (process-buffer process)
-    (save-excursion
-      (goto-char (point-max))
-      (insert output)))
+    ;; auto-scroll on new output
+    (let ((moving (= (point) (process-mark process))))
+      (save-excursion
+        (goto-char (process-mark process))
+        (insert output)
+        (set-marker (process-mark process) (point)))
+      (when moving
+        (goto-char (process-mark process))
+        (-when-let (win (get-buffer-window))
+          (set-window-point win (point))))))
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
     (let ((port (string-to-number (match-string 1 output))))
       (message "nREPL server started on %s" port)
