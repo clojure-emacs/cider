@@ -1581,6 +1581,14 @@ With a prefix argument, prompt for function to run instead of -main."
                        name))))
         (user-error "No %s var defined in any namespace" name)))))
 
+(defconst cider-manual-url "https://github.com/clojure-emacs/cider/blob/master/README.md"
+  "The URL to CIDER's manual.")
+
+(defun cider-view-manual ()
+  "View the manual in your default browser."
+  (interactive)
+  (browse-url cider-manual-url))
+
 (provide 'cider-interaction)
 
 ;;; cider-interaction.el ends here
