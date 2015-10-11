@@ -26,7 +26,7 @@
 
 ;;; Commentary:
 
-;; Common utility functions that don't belong anywhere else
+;; Common utility functions that don't belong anywhere else.
 
 ;;; Code:
 
