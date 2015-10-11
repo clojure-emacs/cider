@@ -275,6 +275,7 @@ Returns to the buffer in which the command was invoked."
         ["Toggle var tracing" cider-toggle-trace-var]
         ["Toggle ns tracing" cider-toggle-trace-ns]
         ["Refresh loaded code" cider-refresh]
+        ["Select any CIDER buffer" cider-selector]
         "--"
         ["Debug top-level form" cider-debug-defun-at-point]
         ["List instrumented defs" cider-browse-instrumented-defs]
