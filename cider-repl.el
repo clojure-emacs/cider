@@ -1115,7 +1115,7 @@ constructs."
         ("Find"
          ["Find definition" cider-find-var]
          ["Find resource" cider-find-resource]
-         ["Jump back" cider-jump-back])
+         ["Go back" cider-pop-back])
         "--"
         ["Switch to Clojure buffer" cider-switch-to-last-clojure-buffer]
         "--"
