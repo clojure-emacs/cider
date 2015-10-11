@@ -9,3 +9,4 @@ TAGS
 .DS_STORE
 dist
 .vagrant/
+cider-autoloads.el
