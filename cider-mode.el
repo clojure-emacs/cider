@@ -298,6 +298,7 @@ Returns to the buffer in which the command was invoked."
         ["Restart" cider-restart]
         "--"
         ["View manual online" cider-open-manual]
+        ["Report a bug" cider-report-bug]
         ["Version info" cider-version]))
     map))
 

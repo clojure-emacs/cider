@@ -1589,6 +1589,14 @@ With a prefix argument, prompt for function to run instead of -main."
   (interactive)
   (browse-url cider-manual-url))
 
+(defconst cider-report-bug-url "https://github.com/clojure-emacs/cider/issues/new"
+  "The URL to report a CIDER issue.")
+
+(defun cider-report-bug ()
+  "Report a bug in your default browser."
+  (interactive)
+  (browse-url cider-report-bug-url))
+
 (provide 'cider-interaction)
 
 ;;; cider-interaction.el ends here
