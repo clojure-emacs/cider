@@ -50,7 +50,7 @@ prompt if that throws an error."
     #'cider-try-symbol-at-point))
 
 (defun cider--kw-to-symbol (kw)
-  "Converts a keyword KW to a symbol."
+  "Convert the keyword KW to a symbol."
   (when kw
     (replace-regexp-in-string "\\`:+" "" kw)))
 
