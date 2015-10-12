@@ -35,6 +35,7 @@
 
 (require 'cider-repl)
 (require 'cider-client)
+(require 'cider-compat)
 
 (defconst cider-browse-ns-buffer "*Browse NS*")
 (defvar-local cider-browse-ns-current-ns nil)
@@ -100,11 +101,11 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
     (let ((vars (cider-sync-request:ns-vars namespace)))
       (cider-browse-ns--list (current-buffer)
-                            namespace
-                            (mapcar (lambda (var)
-                                      (format "%s"
-                                              (cider-browse-ns--properties var)))
-                                    vars))
+                             namespace
+                             (mapcar (lambda (var)
+                                       (format "%s"
+                                               (cider-browse-ns--properties var)))
+                                     vars))
       (setq-local cider-browse-ns-current-ns namespace))))
 
 ;;;###autoload
@@ -131,12 +132,12 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
 (defun cider-browse-ns--doc-at-point ()
   "Expand browser according to thing at current point."
   (interactive)
-  (-when-let (var (cider-browse-ns--var-at-point))
+  (when-let (var (cider-browse-ns--var-at-point))
     (cider-doc-lookup var)))
 
 (defun cider-browse-ns--find-at-point ()
   (interactive)
-  (-when-let (var (cider-browse-ns--var-at-point))
+  (when-let (var (cider-browse-ns--var-at-point))
     (cider-find-var current-prefix-arg var)))
 
 (defun cider-browse-ns--handle-mouse (event)

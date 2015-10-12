@@ -32,9 +32,12 @@
 
 (require 'cider-client)
 (require 'cider-common) ; for cider-symbol-at-point
+(require 'cider-compat)
+(require 'cider-util)
+
+(require 'cl-lib)
 
 (require 'eldoc)
-(require 'dash)
 
 (defvar cider-extra-eldoc-commands '("yas-expand")
   "Extra commands to be added to eldoc's safe commands list.")
@@ -67,7 +70,7 @@ POS is the index of the currently highlighted argument."
 
 (defun cider--find-rest-args-position (arglist)
   "Find the position of & in the ARGLIST vector."
-  (-elem-index '& (append arglist ())))
+  (cl-position '& (append arglist ())))
 
 (defun cider-highlight-arglist (arglist pos)
   "Format the ARGLIST for eldoc.
@@ -130,7 +133,7 @@ Return the number of nested sexp the point was over or after. "
     ;; check if we can used the cached eldoc info
     (if (string= thing (car cider-eldoc-last-symbol))
         (cdr cider-eldoc-last-symbol)
-      (-when-let (eldoc-info (cider-sync-request:eldoc (substring-no-properties thing)))
+      (when-let (eldoc-info (cider-sync-request:eldoc (substring-no-properties thing)))
         (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
           (setq cider-eldoc-last-symbol (cons thing arglist))
           arglist)))))

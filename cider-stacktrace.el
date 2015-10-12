@@ -28,10 +28,13 @@
 (require 'cl-lib)
 (require 'cider-popup)
 (require 'button)
-(require 'dash)
 (require 'easymenu)
 (require 'cider-common)
+(require 'cider-compat)
 (require 'cider-client)
+(require 'cider-util)
+
+(require 'seq)
 
 ;; Variables
 
@@ -203,7 +206,7 @@ cyclical data structures."
   (setq-local cider-stacktrace-prior-filters nil)
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters)
-  (setq-local cider-stacktrace-cause-visibility (apply 'vector (-repeat 10 0))))
+  (setq-local cider-stacktrace-cause-visibility (apply 'vector (make-list 10 0))))
 
 
 ;; Stacktrace filtering
@@ -253,12 +256,13 @@ hidden count."
         (while (not (eobp))
           (unless (get-text-property (point) 'collapsed)
             (let* ((flags (get-text-property (point) 'flags))
-                   (hide (if (-intersection filters flags) t nil)))
+                   (hide (if (seq-intersection filters flags) t nil)))
               (when hide (setq hidden (+ 1 hidden)))
               (put-text-property (point) (line-beginning-position 2) 'invisible hide)))
           (forward-line 1))
         (setq cider-stacktrace-hidden-frame-count hidden)))
     (cider-stacktrace-indicate-filters filters)))
+
 
 (defun cider-stacktrace-apply-cause-visibility ()
   "Apply `cider-stacktrace-cause-visibility' to causes and reapply filters."
@@ -266,7 +270,7 @@ hidden count."
     (save-excursion
       (goto-char (point-min))
       (cl-flet ((next-detail (end)
-                             (-when-let (pos (next-single-property-change (point) 'detail))
+                             (when-let (pos (next-single-property-change (point) 'detail))
                                (when (< pos end)
                                  (goto-char pos)))))
         (let ((inhibit-read-only t))
@@ -293,14 +297,14 @@ hidden count."
   "Move point to the previous exception cause, if one exists."
   (interactive)
   (with-current-buffer cider-error-buffer
-    (-when-let (pos (previous-single-property-change (point) 'cause))
+    (when-let (pos (previous-single-property-change (point) 'cause))
       (goto-char pos))))
 
 (defun cider-stacktrace-next-cause ()
   "Move point to the next exception cause, if one exists."
   (interactive)
   (with-current-buffer cider-error-buffer
-    (-when-let (pos (next-single-property-change (point) 'cause))
+    (when-let (pos (next-single-property-change (point) 'cause))
       (goto-char pos))))
 
 (defun cider-stacktrace-cycle-cause (num &optional level)
@@ -325,14 +329,14 @@ it wraps to 0."
       (let* ((num (get-text-property (point) 'cause))
              (level (1+ (elt cider-stacktrace-cause-visibility num))))
         (setq-local cider-stacktrace-cause-visibility
-                    (apply 'vector (-repeat 10 (mod level 3))))
+                    (apply 'vector (make-list 10 (mod level 3))))
         (cider-stacktrace-apply-cause-visibility)))))
 
 (defun cider-stacktrace-cycle-current-cause ()
   "Cycle the visibility of current exception at point, if any."
   (interactive)
   (with-current-buffer cider-error-buffer
-    (-when-let (num (get-text-property (point) 'cause))
+    (when-let (num (get-text-property (point) 'cause))
       (cider-stacktrace-cycle-cause num))))
 
 (defun cider-stacktrace-cycle-cause-1 ()

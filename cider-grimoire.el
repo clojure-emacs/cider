@@ -27,21 +27,22 @@
 
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-compat)
 (require 'cider-popup)
+
 (require 'nrepl-client)
 
-(require 'dash)
 (require 'url-vars)
 
 (defconst cider-grimoire-url "http://conj.io/")
 
 (defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
-  (->> name
-       (replace-regexp-in-string "\\?" "_QMARK_")
-       (replace-regexp-in-string "\\." "_DOT_")
-       (replace-regexp-in-string "\\/" "_SLASH_")
-       (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
+  (thread-last name
+    (replace-regexp-in-string "\\?" "_QMARK_")
+    (replace-regexp-in-string "\\." "_DOT_")
+    (replace-regexp-in-string "\\/" "_SLASH_")
+    (replace-regexp-in-string "\\(\\`_\\)\\|\\(_\\'\\)" "")))
 
 (defun cider-grimoire-url (name ns)
   "Generate a grimoire search v0 url from NAME, NS."
@@ -51,7 +52,7 @@
 
 (defun cider-grimoire-web-lookup (symbol)
   "Look up the grimoire documentation for SYMBOL."
-  (-if-let (var-info (cider-var-info symbol))
+  (if-let (var-info (cider-var-info symbol))
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns")))
         (browse-url (cider-grimoire-url name ns)))
@@ -80,7 +81,7 @@ opposite of what that option dictates."
 
 (defun cider-grimoire-lookup (symbol)
   "Look up the grimoire documentation for SYMBOL."
-  (-if-let (var-info (cider-var-info symbol))
+  (if-let (var-info (cider-var-info symbol))
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns"))
             (url-request-method "GET")
