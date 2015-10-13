@@ -894,6 +894,16 @@ Using Weasel, you can also have a browser-connected REPL.
 
 4. Open a file in your project and issue `M-x cider-jack-in-clojurescript`.
 
+5. Your ClojureScript CIDER REPL will now say:
+
+```
+user> << started Weasel server on ws://127.0.0.1:9001 >>
+<< waiting for client to connect ...
+```
+
+Now you can open your web page that includes your ClojureScript, and your REPL
+will finish connecting.
+    
 Provided that a Piggieback-enabled ClojureScript environment is active in your
 REPL session, code loading and evaluation will work seamlessly regardless of the
 presence of the `cider-nrepl` middleware. If the middleware is present then most
