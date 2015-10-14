@@ -28,11 +28,11 @@
     (insert "garbage")
     (save-excursion (insert "\nmore trash"))
     (cider--make-result-overlay "ok")
-    (should (overlays-at (point-min) (point-max)))
+    (should (overlays-at (point-min)))
     ;; Then do some tests.
-    (mapc #'cider--delete-overlay (overlays-at (point-min) (point-max)))
+    (mapc #'cider--delete-overlay (overlays-at (point-min)))
     (let ((o1 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min) (point-max))))))
+                                  (overlays-at (point-min))))))
       (should-not o1))
 
     ;; Duration
@@ -40,24 +40,24 @@
     (run-hooks 'post-command-hook)
     (run-hooks 'post-command-hook)
     (let ((o2 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min) (point-max))))))
+                                  (overlays-at (point-min))))))
       (should-not o2))
 
     (let ((this-command nil))
       (cider--make-result-overlay "ok" :duration 'command))
     (run-hooks 'post-command-hook)
     (let ((o3 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min) (point-max))))))
+                                  (overlays-at (point-min))))))
       (should-not o3))
 
     (cider--make-result-overlay "ok" :duration 1.5)
     (sleep-for 1)
     (let ((o4 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min) (point-max))))))
+                                  (overlays-at (point-min))))))
       (should o4))
     (sleep-for 1)
     (let ((o5 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min) (point-max))))))
+                                  (overlays-at (point-min))))))
       (should-not o5))))
 
 
