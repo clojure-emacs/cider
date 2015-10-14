@@ -1305,23 +1305,24 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
     (when (member "error" status)
       (cider--render-stacktrace-causes error))))
 
-(defun cider-refresh (&optional arg)
+(defun cider-refresh (&optional mode)
   "Reload modified and unloaded namespaces on the classpath.
 
-With a single prefix argument ARG, reload all namespaces on the classpath
-unconditionally.
+With a single prefix argument, or if MODE is `refresh-all', reload all
+namespaces on the classpath unconditionally.
 
-With a double prefix argument ARG, clear the state of the namespace tracker
-before reloading.  This is useful for recovering from some classes of
-error (for example, those caused by circular dependencies) that a normal
-reload would not otherwise recover from.  The trade-off of clearing is that
-stale code from any deleted files may not be completely unloaded."
+With a double prefix argument, or if MODE is `clear', clear the state of
+the namespace tracker before reloading.  This is useful for recovering from
+some classes of error (for example, those caused by circular dependencies)
+that a normal reload would not otherwise recover from.  The trade-off of
+clearing is that stale code from any deleted files may not be completely
+unloaded."
   (interactive "p")
   (cider-ensure-op-supported "refresh")
   (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
                         (cider-make-popup-buffer cider-refresh-log-buffer)))
-        (clear? (>= arg 16))
-        (refresh-all? (>= arg 4)))
+        (clear? (member mode '(clear 16)))
+        (refresh-all? (member mode '(refresh-all 4))))
     (when cider-refresh-show-log-buffer (cider-popup-buffer-display log-buffer))
     (when clear? (cider-nrepl-send-sync-request (list "op" "refresh-clear")))
     (cider-nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
