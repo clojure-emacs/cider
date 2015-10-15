@@ -1382,7 +1382,7 @@ You can support my work on CIDER, clojure-mode and via
 
 ### Running the tests in batch mode
 
-Install [cask](https://github.com/rejeep/cask.el) if you haven't
+Install [cask](https://github.com/cask/cask) if you haven't
 already, then:
 
 ```
