@@ -1396,8 +1396,8 @@ Run all tests with:
 $ make test
 ```
 
-(Note: tests may not run correctly inside Emacs' shell-mode buffers. Running
-in a terminal is recommended.)
+(Note: tests may not run correctly inside Emacs' `shell-mode` buffers. Running
+them in a terminal is recommended.)
 
 ## License
 
