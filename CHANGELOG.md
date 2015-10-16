@@ -49,6 +49,7 @@
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 * [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.
 * [#1079](https://github.com/clojure-emacs/cider/issues/1079): Don't try to font-lock very long results. The maximum font-lockable result length is controlled by `cider-font-lock-max-length`.
+* [#1370](https://github.com/clojure-emacs/cider/issues/1370): Correctly jump to source files when connected to repl run by Boot.
 
 ## 0.9.1 / 2015-06-24
 
@@ -165,7 +166,6 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * `cider-find-resource` now correctly throws an error when no path is provided.
 * [#946](https://github.com/clojure-emacs/cider/issues/946): `cider-stacktrace-mode` is now enabled before the error buffer is displayed.
 * [#1077](https://github.com/clojure-emacs/cider/issues/1077): Respect `cider-repl-display-in-current-window` in `cider-switch-to-last-clojure-buffer`.
-* [#1370](https://github.com/clojure-emacs/cider/issues/1370): Correctly jump to source files when connected to repl run by Boot.
 
 ## 0.8.2 / 2014-12-21
 
