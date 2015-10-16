@@ -161,10 +161,12 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#1004](https://github.com/clojure-emacs/cider/issues/1004): `:repl-env` key is now filtered from exception causes, as it contains unprintably large strings of compiled javascript when using ClojureScript.
 * Tunneled ssh connection now deals correctly with the ssh password request.
 * [#1033](https://github.com/clojure-emacs/cider/issues/1033): Removed erroneous underlining from stacktrace frames and disabled frame filters in the error buffer.
+<<<<<<< HEAD
 * The error buffer no longer pops up when there is no error to display.
 * `cider-find-resource` now correctly throws an error when no path is provided.
 * [#946](https://github.com/clojure-emacs/cider/issues/946): `cider-stacktrace-mode` is now enabled before the error buffer is displayed.
 * [#1077](https://github.com/clojure-emacs/cider/issues/1077): Respect `cider-repl-display-in-current-window` in `cider-switch-to-last-clojure-buffer`.
+* [#1370](https://github.com/clojure-emacs/cider/issues/1370): Correctly jump to source files when connected to repl runned by Boot.
 
 ## 0.8.2 / 2014-12-21
 
