@@ -160,12 +160,13 @@ If no local or remote file exists, return nil."
 (declare-function archive-extract "arc-mode")
 (declare-function archive-zip-extract "arc-mode")
 
-(defun cider--find-file-if-not-tooling (file-name)
-  "Returns a buffer visiting the file URL if it exists and is a real source
-file, or nil otherwise."
-  (and file-name
-       (not (cider--tooling-file-p file-name))
-       (cider-find-file file-name)))
+(defun cider--find-file-if-not-tooling (url)
+  "Return a buffer visiting file URL if it is a real source file.
+If URL is nil, or corresponds to a tooling file, return nil.
+See `cider-find-file' for the possible URL formats."
+  (and url
+       (not (cider--tooling-file-p url))
+       (cider-find-file url)))
 
 (defun cider-find-file (url)
   "Return a buffer visiting the file URL if it exists, or nil otherwise.
