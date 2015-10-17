@@ -1399,6 +1399,12 @@ $ make test
 (Note: tests may not run correctly inside Emacs' `shell-mode` buffers. Running
 them in a terminal is recommended.)
 
+You can also check for the presence of byte-compilation warnings in batch mode:
+
+```
+$ make test-bytecomp
+```
+
 ## License
 
 Copyright © 2012-2015 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
