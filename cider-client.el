@@ -39,8 +39,8 @@
   (not (null (cider-connections))))
 
 (defun cider-ensure-connected ()
-  "Ensure there is a cider connection present, otherwise
-an error is signaled."
+  "Ensure there is a cider connection present.
+An error is signaled in the absence of a connection."
   (unless (cider-connected-p)
     (error "No active nREPL connections")))
 
