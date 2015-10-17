@@ -109,7 +109,10 @@ and automatically removed when killed."
         (save-excursion
           (goto-char cider-popup-output-marker)
           (let ((value-str (format "%s" value)))
-            (when face (add-face-text-property 0 (length value-str) face nil value-str))
+            (when face
+              (if (fboundp 'add-face-text-property)
+                  (add-face-text-property 0 (length value-str) face nil value-str)
+                (add-text-properties 0 (length value-str) (list 'face face) value-str)))
             (insert value-str))
           (indent-sexp)
           (set-marker cider-popup-output-marker (point)))
