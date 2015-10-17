@@ -178,7 +178,7 @@ such a link cannot be established automatically."
 A REPL is relevant if its `nrepl-project-dir' is compatible with the
 current directory (see `cider-find-connection-buffer-for-project-directory').
 If there is ambiguity, it is resolved by matching TYPE with the REPL
-type (Clojure or ClojureScript). If TYPE is nil, it is derived from the
+type (Clojure or ClojureScript).  If TYPE is nil, it is derived from the
 file extension."
   ;; Cleanup the connections list.
   (cider-connections)
