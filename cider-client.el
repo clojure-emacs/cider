@@ -209,6 +209,8 @@ file extension."
     (define-key map "g" #'cider-connection-browser)
     (define-key map "k" #'cider-connections-close-connection)
     (define-key map (kbd "RET") #'cider-connections-goto-connection)
+    (define-key map "?" #'describe-mode)
+    (define-key map "h" #'describe-mode)
     map))
 
 (declare-function cider-popup-buffer-mode "cider-popup")
