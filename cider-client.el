@@ -254,7 +254,7 @@ The connections buffer is determined by
   (with-current-buffer (get-buffer-create cider--connection-browser-buffer-name)
     (let ((ewoc (ewoc-create
                  'cider--connection-pp
-                 "  Host              Port   Project\n")))
+                 "  REPL                           Host             Port    Project\n")))
       (setq-local cider--connection-ewoc ewoc)
       (cider--update-connections-display ewoc cider-connections)
       (setq buffer-read-only t)
@@ -267,8 +267,9 @@ The connections buffer is determined by
          (buffer (get-buffer connection))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
-     (format "%s %-16s %5s   %s%s"
+     (format "%s %-30s %-16s %5s   %s%s"
              (if (equal connection (car cider-connections)) "*" " ")
+             (buffer-name connection)
              (car endpoint)
              (prin1-to-string (cadr endpoint))
              (or (cider--project-name
