@@ -286,34 +286,37 @@
 
 (ert-deftest test-cider-connections-buffer ()
   (with-temp-buffer
+    (rename-buffer "*cider-repl test1*")
     (let ((b1 (current-buffer)))
       (setq-local nrepl-endpoint '("localhost" 4005))
       (setq-local nrepl-project-dir "proj")
       (with-temp-buffer
+        (rename-buffer "*cider-repl test2*")
         (let ((b2 (current-buffer)))
           (setq-local nrepl-endpoint '("123.123.123.123" 4006))
           (let ((cider-connections (list b1 b2)))
             (cider-connection-browser)
             (with-current-buffer "*cider-connections*"
-              (should (equal "  Host              Port   Project
+              (should (equal "  REPL                           Host             Port    Project
 
-* localhost         4005   proj
-  123.123.123.123   4006   \n\n"
+* *cider-repl test1*             localhost         4005   proj
+  *cider-repl test2*             123.123.123.123   4006   \n\n"
                              (buffer-string)))
-              (goto-char 80)         ; somewhere in the second connection listed
+              (goto-line 4)         ; somewhere in the second connection listed
               (cider-connections-make-default)
               (should (equal b2 (car cider-connections)))
-              (should (equal "  Host              Port   Project
+              (message "%s" (cider-connections))
+              (should (equal "  REPL                           Host             Port    Project
 
-  localhost         4005   proj
-* 123.123.123.123   4006   \n\n"
+  *cider-repl test1*             localhost         4005   proj
+* *cider-repl test2*             123.123.123.123   4006   \n\n"
                              (buffer-string)))
-              (goto-char 80)         ; somewhere in the second connection listed
+              (goto-line 4)         ; somewhere in the second connection listed
               (cider-connections-close-connection)
               (should (equal (list b1) cider-connections))
-              (should (equal "  Host              Port   Project
+              (should (equal "  REPL                           Host             Port    Project
 
-* localhost         4005   proj\n\n"
+* *cider-repl test1*             localhost         4005   proj\n\n"
                              (buffer-string)))
               (cider-connections-goto-connection)
               (should (equal b1 (current-buffer)))
