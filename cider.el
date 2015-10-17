@@ -481,6 +481,11 @@ In case `default-directory' is non-local we assume the command is available."
     (catch Throwable _ \"not installed\"))"
    (cider--check-middleware-compatibility-callback (current-buffer))))
 
+(defun cider--subscribe-repl-to-server-out ()
+  "Subscribe to the server's *out*."
+  (cider-nrepl-send-request '("op" "out-subscribe")
+                            (cider-interactive-eval-handler (current-buffer))))
+
 (defun cider--connected-handler ()
   "Handle cider initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
@@ -492,6 +497,7 @@ buffer."
   (cider--check-required-nrepl-ops)
   (cider--check-middleware-compatibility)
   (cider--debug-init-connection)
+  (cider--subscribe-repl-to-server-out)
   (when cider-auto-mode
     (cider-enable-on-existing-clojure-buffers))
   (run-hooks 'cider-connected-hook))
