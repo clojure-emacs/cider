@@ -288,18 +288,23 @@ start the server."
   (cider-jack-in prompt-project 'cljs-too))
 
 ;;;###autoload
-(defun cider-connect (host port)
+(defun cider-connect (host port &optional project-dir)
   "Connect to an nREPL server identified by HOST and PORT.
-Create REPL buffer and start an nREPL client connection."
+Create REPL buffer and start an nREPL client connection.
+
+When the optional param PROJECT-DIR is present, the connection
+gets associated with it."
   (interactive (cider-select-endpoint))
   (setq cider-current-clojure-buffer (current-buffer))
   (-when-let (repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil))
     (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer repl-buff)
            (conn (process-buffer (nrepl-start-client-process host port))))
-      (when (and cider-prompt-for-project-on-connect
-                 (y-or-n-p "Do you want to associate the new connection with a local project? "))
-        (cider-assoc-project-with-connection nil conn)))))
+      (if project-dir
+          (cider-assoc-project-with-connection project-dir conn)
+        (when (and cider-prompt-for-project-on-connect
+                   (y-or-n-p "Do you want to associate the new connection with a local project? "))
+          (cider-assoc-project-with-connection nil conn))))))
 
 (defun cider-current-host ()
   "Retrieve the current host."
