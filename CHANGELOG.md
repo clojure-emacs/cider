@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1371](https://github.com/clojure-emacs/cider/issues/1371): Font-lock deprecated vars with a background color.
 * [#1232](https://github.com/clojure-emacs/cider/pull/1232): Add `cider-load-buffer-and-switch-to-repl-buffer`.
 * [#1325](https://github.com/clojure-emacs/cider/issues/1325): Jump to error location when clicking on the error message in the stack-trace pop-up.
 * [#1301](https://github.com/clojure-emacs/cider/issues/1301): CIDER can do dynamic font-locking of defined variables, functions, and macros. This is controlled by the `cider-font-lock-dynamically` custom option.

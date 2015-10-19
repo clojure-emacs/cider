@@ -314,7 +314,7 @@ Returns to the buffer in which the command was invoked."
         (cider--deep-vector-to-list (read indent))))))
 
 ;;; Dynamic font locking
-(defcustom cider-font-lock-dynamically '(macro core)
+(defcustom cider-font-lock-dynamically '(macro core deprecated)
   "Specifies how much dynamic font-locking CIDER should use.
 Dynamic font-locking this refers to applying syntax highlighting to vars
 defined in the currently active nREPL connection. This is done in addition
@@ -326,6 +326,7 @@ that should be font-locked:
    `macro' (default): Any defined macro gets the `font-lock-builtin-face'.
    `function': Any defined function gets the `font-lock-function-face'.
    `var': Any non-local var gets the `font-lock-variable-face'.
+   `deprecated' (default): Any deprecated var gets the `cider-deprecated' face.
    `core' (default): Any symbol from clojure.core (face depends on type).
 
 The value can also be t, which means to font-lock as much as possible."
@@ -333,16 +334,28 @@ The value can also be t, which means to font-lock as much as possible."
                       (const :tag "Any defined macro" macro)
                       (const :tag "Any defined function" function)
                       (const :tag "Any defined var" var)
+                      (const :tag "Any defined deprecated" deprecated)
                       (const :tag "Any symbol from clojure.core" core))
                  (const :tag "Font-lock as much as possible" t))
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defface cider-deprecated
+  '((((background light)) :background "light goldenrod")
+    (((background dark)) :background "#432"))
+  "Faced used on depreacted vars"
+  :group 'cider)
+
+(defconst cider-deprecated-properties
+  '(face cider-deprecated
+         help-echo "This var is deprecated. \\[cider-doc] for version information."))
+
 (defun cider--compile-font-lock-keywords (symbols-plist core-plist)
   "Return a list of font-lock rules for the symbols in SYMBOLS-PLIST."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
-                                    '(function var macro core)
+                                    '(function var macro core deprecated)
                                   cider-font-lock-dynamically))
+        deprecated
         macros functions vars instrumented)
     (when (memq 'core cider-font-lock-dynamically)
       (while core-plist
@@ -350,6 +363,8 @@ The value can also be t, which means to font-lock as much as possible."
               (meta (pop core-plist)))
           (when (nrepl-dict-get meta "cider-instrumented")
             (push sym instrumented))
+          (when (nrepl-dict-get meta "deprecated")
+            (push sym deprecated))
           (cond
            ((nrepl-dict-get meta "macro")
             (push sym macros))
@@ -362,6 +377,9 @@ The value can also be t, which means to font-lock as much as possible."
             (meta (pop symbols-plist)))
         (when (nrepl-dict-get meta "cider-instrumented")
           (push sym instrumented))
+        (when (and (nrepl-dict-get meta "deprecated")
+                   (memq 'deprecated cider-font-lock-dynamically))
+          (push sym deprecated))
         (cond
          ((and (memq 'macro cider-font-lock-dynamically)
                (nrepl-dict-get meta "macro"))
@@ -380,6 +398,8 @@ The value can also be t, which means to font-lock as much as possible."
           `((,(regexp-opt functions 'symbols) 0 font-lock-function-name-face append)))
       ,@(when vars
           `((,(regexp-opt vars 'symbols) 0 font-lock-variable-name-face append)))
+      ,@(when deprecated
+          `((,(regexp-opt deprecated 'symbols) 0 cider-deprecated-properties append)))
       ,@(when instrumented
           `((,(regexp-opt instrumented 'symbols) 0 'cider-instrumented-face append))))))
 
