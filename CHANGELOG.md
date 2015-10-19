@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1376](https://github.com/clojure-emacs/cider/pull/1376): Anything printed to `*out*` outside an eval scope is also forwarded to all nREPL sessions connected from CIDER. Normally it would only be sent to the server's `out`.
 * [#1371](https://github.com/clojure-emacs/cider/issues/1371): Font-lock deprecated vars with a background color.
 * [#1232](https://github.com/clojure-emacs/cider/pull/1232): Add `cider-load-buffer-and-switch-to-repl-buffer`.
 * [#1325](https://github.com/clojure-emacs/cider/issues/1325): Jump to error location when clicking on the error message in the stack-trace pop-up.
