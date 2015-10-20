@@ -1,4 +1,4 @@
-;;; cider-compat.el --- Contributed functions from other projects -*- lexical-binding: t -*-
+;;; cider-compat.el --- Functions from newer Emacs versions for compatibility -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2015 Tim King, Phil Hagelberg
 ;; Copyright © 2013-2015 Bozhidar Batsov, Hugo Duncan, Steve Purcell
@@ -19,9 +19,12 @@
 
 ;; This file is not part of GNU Emacs.
 
-;;; Code:
+;;; Commentary:
 
-;;; copied from subr-x, as a dash replacement
+;; Pretty much everything here's copied from subr-x for compatibility with
+;; Emacs 24.3 and 24.4.
+
+;;; Code:
 
 (eval-and-compile
 
@@ -158,3 +161,4 @@ to bind a single value, BINDINGS can just be a plain tuple."
   )
 
 (provide 'cider-compat)
+;;; cider-compat.el ends here
