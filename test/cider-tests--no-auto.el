@@ -32,7 +32,7 @@
 
 (require 'ert)
 (require 'cider)
-(require 'cider-contrib)
+(require 'cider-compat)
 (require 'cl-lib)
 
 ;;; Docs
