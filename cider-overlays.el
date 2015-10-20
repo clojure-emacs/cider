@@ -34,7 +34,7 @@
 (defface cider-result-overlay-face
   '((t :inherit font-lock-builtin-face))
   "Face used to display evaluation results at the end of line.
-Only used on the result string if `cider-ovelays-use-font-lock' is nil.
+Only used on the result string if `cider-overlays-use-font-lock' is nil.
 If it is non-nil, this face is only used on the prefix (usually a \"=>\")."
   :group 'cider
   :package-version "0.9.1")
@@ -45,7 +45,7 @@ If it is non-nil, this face is only used on the prefix (usually a \"=>\")."
   :type 'boolean
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-ovelays-use-font-lock nil
+(defcustom cider-overlays-use-font-lock nil
   "If non-nil, results overlays are font-locked as Clojure code.
 If nil, apply `cider-result-overlay-face' to the entire overlay instead of
 font-locking it."
@@ -153,7 +153,7 @@ overlay."
                            (line-beginning-position) (line-end-position)
                            type
                            'after-string
-                           (if cider-ovelays-use-font-lock
+                           (if cider-overlays-use-font-lock
                                display-string
                              (propertize display-string 'face 'cider-result-overlay-face))
                            props)))

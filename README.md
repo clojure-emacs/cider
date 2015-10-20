@@ -750,7 +750,7 @@ to be font-locked (syntax-highlighted) like Clojure code, set the following
 variable.
 
 ```el
-(setq cider-ovelays-use-font-lock t)
+(setq cider-overlays-use-font-lock t)
 ```
 
 You can disable overlays entirely (and display results in the echo-area at the

@@ -14,7 +14,7 @@
 * [#1127](https://github.com/clojure-emacs/cider/issues/1127): Make it possible to associate a buffer with a connection (via `cider-assoc-buffer-with-connection`).
 * [#1217](https://github.com/clojure-emacs/cider/issues/1217): Add new command `cider-assoc-project-with-connection` to associate a project directory with a connection.
 * [#1248](https://github.com/clojure-emacs/cider/pull/1248): Add <kbd>TAB</kbd> and <kbd>RET</kbd> keys to the test-report buffer.
-* [#1245](https://github.com/clojure-emacs/cider/pull/1245): New variable, `cider-ovelays-use-font-lock` controls whether results overlay should be font-locked or just use a single face.
+* [#1245](https://github.com/clojure-emacs/cider/pull/1245): New variable, `cider-overlays-use-font-lock` controls whether results overlay should be font-locked or just use a single face.
 * [#1235](https://github.com/clojure-emacs/cider/pull/1235): Add support for syntax-quoted forms to the debugger.
 * [#1212](https://github.com/clojure-emacs/cider/pull/1212): Add pagination of long collections to inspector.
 * [#1237](https://github.com/clojure-emacs/cider/pull/1237): Add two functions for use with `cider-repl-prompt-function`, `cider-repl-prompt-lastname` and `repl-prompt-abbreviated`.
