@@ -41,6 +41,7 @@
 
 ### Changes
 
+* [#1348](https://github.com/clojure-emacs/cider/issues/1348): Drop the dash dependency.
 * The usage of the default connection has been reduced significantly. Now evaluations & related commands will be routed via the connection matching the current project automatically unless there's some ambiguity when determining the connection (like multiple or no matching connections). Simply put you'll no longer have to mess around much with connecting-setting commands (e.g. `nrepl-connection-browser`, `cider-rotate-default-connection`).
 * [#732](https://github.com/clojure-emacs/cider/issues/732): `cider-quit` and `cider-restart` now operate on the current connection only. With a prefix argument they operate on all connections.
 * `nrepl-log-messages` is now set to `t` by default.

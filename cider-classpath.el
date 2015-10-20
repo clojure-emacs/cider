@@ -25,6 +25,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
+(require 'cider-compat)
 
 (defvar cider-classpath-buffer "*Classpath*")
 
@@ -98,7 +99,7 @@
 (defun cider-open-classpath-entry ()
   "Open a classpath entry."
   (interactive)
-  (-when-let (entry (completing-read "Classpath entries: " (cider-sync-request:classpath)))
+  (when-let (entry (completing-read "Classpath entries: " (cider-sync-request:classpath)))
     (find-file-other-window entry)))
 
 (provide 'cider-classpath)

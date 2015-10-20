@@ -26,12 +26,14 @@
 ;;; Code:
 
 (require 'cider-common)
+(require 'cider-compat)
+(require 'cider-util)
 (require 'cider-popup)
 (require 'cider-client)
+(require 'cider-grimoire)
 (require 'nrepl-client)
 (require 'org-table)
 (require 'button)
-(require 'dash)
 (require 'easymenu)
 
 
@@ -202,8 +204,8 @@ opposite of what that option dictates."
   "Open the source for the current symbol, if available."
   (interactive)
   (if cider-docview-file
-      (-if-let (buffer (and (not (cider--tooling-file-p cider-docview-file))
-                            (cider-find-file cider-docview-file)))
+      (if-let (buffer (and (not (cider--tooling-file-p cider-docview-file))
+                           (cider-find-file cider-docview-file)))
           (cider-jump-to buffer (if cider-docview-line
                                     (cons cider-docview-line nil)
                                   cider-docview-symbol)
@@ -236,12 +238,12 @@ opposite of what that option dictates."
 
 (defun cider-create-doc-buffer (symbol)
   "Populates *cider-doc* with the documentation for SYMBOL."
-  (-when-let (info (cider-var-info symbol))
+  (when-let (info (cider-var-info symbol))
     (cider-docview-render (cider-make-popup-buffer cider-doc-buffer) symbol info)))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
-  (-if-let (buffer (cider-create-doc-buffer symbol))
+  (if-let (buffer (cider-create-doc-buffer symbol))
       (cider-popup-buffer-display buffer t)
     (user-error "Symbol %s not resolved" symbol)))
 

@@ -24,9 +24,9 @@
 
 ;;; Code:
 
-(require 'dash)
-(require 'cider-util)
+(require 'cider-compat)
 (require 'nrepl-client)
+(require 'cider-util)
 
 (defcustom cider-prompt-for-symbol t
   "Controls when to prompt for symbol when a command requires one.
@@ -168,14 +168,14 @@ relative, it is expanded within each of the open Clojure buffers till an
 existing file ending with URL has been found."
   (require 'arc-mode)
   (cond ((string-match "^file:\\(.+\\)" url)
-         (-when-let* ((file (cider--url-to-file (match-string 1 url)))
-                      (path (cider--file-path file)))
+         (when-let ((file (cider--url-to-file (match-string 1 url)))
+                    (path (cider--file-path file)))
            (find-file-noselect path)))
         ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" url)
-         (-when-let* ((entry (match-string 3 url))
-                      (file  (cider--url-to-file (match-string 2 url)))
-                      (path  (cider--file-path file))
-                      (name  (format "%s:%s" path entry)))
+         (when-let ((entry (match-string 3 url))
+                    (file  (cider--url-to-file (match-string 2 url)))
+                    (path  (cider--file-path file))
+                    (name  (format "%s:%s" path entry)))
            (or (find-buffer-visiting name)
                (if (tramp-tramp-file-p path)
                    (progn
@@ -199,7 +199,7 @@ existing file ending with URL has been found."
                    (set-buffer-modified-p nil)
                    (set-auto-mode)
                    (current-buffer))))))
-        (t (-if-let (path (cider--file-path url))
+        (t (if-let (path (cider--file-path url))
                (find-file-noselect path)
              (unless (file-name-absolute-p url)
                (let ((cider-buffers (cider-util--clojure-buffers))

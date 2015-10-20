@@ -30,10 +30,9 @@
 
 ;;; Code:
 
-(require 'dash)
+(require 'seq)
 (require 'cl-lib)
 (require 'clojure-mode)
-(require 'nrepl-client)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 (define-obsolete-function-alias 'cider-jump-back 'cider-pop-back "0.10.0")
@@ -54,7 +53,7 @@ Setting this to nil removes the fontification restriction."
 
 (defun cider-util--clojure-buffers ()
   "Return a list of all existing `clojure-mode' buffers."
-  (-filter
+  (seq-filter
    (lambda (buffer) (with-current-buffer buffer (derived-mode-p 'clojure-mode)))
    (buffer-list)))
 
@@ -117,6 +116,14 @@ which nREPL uses for temporary evaluation file names."
              (bounds-of-thing-at-point 'sexp)))
       (bounds-of-thing-at-point 'sexp)))
 
+(defun cider-map-indexed (f list)
+  "Return a list of (F index item) for each item in LIST."
+  (let ((i 0)
+        (out))
+    (dolist (it list (nreverse out))
+      (push (funcall f i it) out)
+      (setq i (1+ i)))))
+
 (defun cider-symbol-at-point ()
   "Return the name of the symbol at point, otherwise nil."
   (let ((str (or (thing-at-point 'symbol) "")))
@@ -152,6 +159,7 @@ instead."
                  (progn (clojure-forward-logical-sexp 1)
                         (point))))))
 
+
 ;;; Text properties
 
 (defun cider-maybe-intern (name)
@@ -160,7 +168,7 @@ instead."
 
 (defun cider-intern-keys (props)
   "Copy plist-style PROPS with any non-symbol keys replaced with symbols."
-  (-map-indexed (lambda (i x) (if (cl-oddp i) x (cider-maybe-intern x))) props))
+  (cider-map-indexed (lambda (i x) (if (cl-oddp i) x (cider-maybe-intern x))) props))
 
 (defmacro cider-propertize-region (props &rest body)
   "Execute BODY and add PROPS to all the text it inserts.

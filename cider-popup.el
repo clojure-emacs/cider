@@ -20,7 +20,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
-(require 'dash)
+(require 'cider-compat)
 
 (define-minor-mode cider-popup-buffer-mode
   "Mode for CIDER popup buffers"
@@ -43,8 +43,8 @@ If SELECT is non-nil, select the newly created window.
 If major MODE is non-nil, enable it for the popup buffer.
 If ANCILLARY is non-nil, the buffer is added to `cider-ancillary-buffers'
 and automatically removed when killed."
-  (-> (cider-make-popup-buffer name mode ancillary)
-      (cider-popup-buffer-display select)))
+  (thread-first (cider-make-popup-buffer name mode ancillary)
+    (cider-popup-buffer-display select)))
 
 (defun cider-popup-buffer-display (buffer &optional select)
   "Display BUFFER.

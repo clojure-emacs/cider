@@ -28,10 +28,12 @@
 (require 'nrepl-client)
 (require 'cider-interaction)
 (require 'cider-client)
+(require 'cider-util)
 (require 'cider-inspector)
 (require 'cider-browse-ns)
 (require 'cider-common)
-(require 'dash)
+(require 'cider-compat)
+(require 'seq)
 (require 'spinner)
 
 
@@ -107,8 +109,8 @@ This variable must be set before starting the repl connection."
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
-  (-if-let (all (-> (cider-nrepl-send-sync-request (list "op" "debug-instrumented-defs"))
-                    (nrepl-dict-get "list")))
+  (if-let (all (thread-first (cider-nrepl-send-sync-request (list "op" "debug-instrumented-defs"))
+                 (nrepl-dict-get "list")))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))
           (erase-buffer)
@@ -203,7 +205,7 @@ Each element of LOCALS should be a list of at least two elements."
               ;; `eval' is now integrated with things like `C-x C-e' and `C-c M-:'
               ;; so we don't advertise this key to reduce clutter.
               ;; `inspect' would conflict with `inject'.
-              (-difference command-list '("eval" "inspect")) " ")
+              (seq-difference command-list '("eval" "inspect")) " ")
    "\n"))
 
 (defvar-local cider--debug-prompt-overlay nil)
@@ -291,7 +293,7 @@ In order to work properly, this mode must be activated by
                                    (nrepl-dict-get cider--debug-mode-response "key")))
             ;; Set the keymap.
             (let ((alist (mapcar (lambda (k) (cons (string-to-char k) (concat ":" k)))
-                                 (-difference input-type '("inspect")))))
+                                 (seq-difference input-type '("inspect")))))
               (setq cider--debug-mode-commands-alist alist)
               (dolist (it alist)
                 (define-key cider--debug-mode-map (vector (car it)) #'cider-debug-mode-send-reply)))
@@ -311,8 +313,8 @@ In order to work properly, this mode must be activated by
     ;; We wait a moment before clearing overlays and the read-onlyness, so that
     ;; cider-nrepl has a chance to send the next message, and so that the user
     ;; doesn't accidentally hit `n' between two messages (thus editing the code).
-    (-when-let (proc (unless nrepl-ongoing-sync-request
-                       (get-buffer-process (cider-current-connection))))
+    (when-let (proc (unless nrepl-ongoing-sync-request
+                      (get-buffer-process (cider-current-connection))))
       (accept-process-output proc 0.5))
     (unless cider--debug-mode
       (setq buffer-read-only nil)
@@ -389,7 +391,7 @@ specific message."
   "Create a new debugging buffer with CODE and namespace NS.
 ID is the id of the message that instrumented CODE."
   (let ((buffer-name (format cider--debug-buffer-format id)))
-    (-if-let (buffer (get-buffer buffer-name))
+    (if-let (buffer (get-buffer buffer-name))
         (cider-popup-buffer-display buffer 'select)
       (with-current-buffer (cider-popup-buffer buffer-name 'select
                                                #'clojure-mode 'ancillary)
@@ -407,7 +409,7 @@ ID is the id of the message that instrumented CODE."
 
 (defun cider--debug-goto-keyval (key)
   "Find KEY in current sexp or return nil."
-  (-when-let (limit (ignore-errors (save-excursion (up-list) (point))))
+  (when-let (limit (ignore-errors (save-excursion (up-list) (point))))
     (search-forward-regexp (concat "\\_<" (regexp-quote key) "\\_>")
                            limit 'noerror)))
 
@@ -486,8 +488,8 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
              (when (or code (and file point))
                ;; We prefer in-source debugging.
                (when (and file point)
-                 (-if-let (buf (find-buffer-visiting file))
-                     (-if-let (win (get-buffer-window buf))
+                 (if-let (buf (find-buffer-visiting file))
+                     (if-let (win (get-buffer-window buf))
                          (select-window win)
                        (pop-to-buffer buf))
                    (find-file file))

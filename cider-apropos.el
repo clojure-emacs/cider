@@ -27,12 +27,13 @@
 
 (require 'cider-doc)
 (require 'cider-util)
+(require 'cider-compat)
+
 (require 'cider-client)
 (require 'cider-popup)
 (require 'nrepl-client)
 
 (require 'clojure-mode)
-(require 'dash)
 (require 'apropos)
 (require 'button)
 
@@ -115,9 +116,9 @@ strings, include private vars, and be case sensitive."
              (y-or-n-p "Case-sensitive? "))
      (list (read-string "Clojure Apropos: "))))
   (cider-ensure-op-supported "apropos")
-  (-if-let* ((summary (cider-apropos-summary
-                       query ns docs-p privates-p case-sensitive-p))
-             (results (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p)))
+  (if-let ((summary (cider-apropos-summary
+                     query ns docs-p privates-p case-sensitive-p))
+           (results (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p)))
       (cider-show-apropos summary results query docs-p)
     (message "No apropos matches for %S" query)))
 

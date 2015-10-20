@@ -11,7 +11,7 @@
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
 ;; Version: 0.10.0-cvs
-;; Package-Requires: ((clojure-mode "4.2.0") (dash "2.11.0") (pkg-info "0.4") (emacs "24.3") (queue "0.1.1") (spinner "1.4"))
+;; Package-Requires: ((clojure-mode "4.2.0") (pkg-info "0.4") (emacs "24.3") (queue "0.1.1") (spinner "1.4") (seq "1.9"))
 ;; Keywords: languages, clojure, cider
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -72,8 +72,11 @@
 (require 'cider-repl)
 (require 'cider-mode)
 (require 'cider-common)
+(require 'cider-compat)
 (require 'cider-debug)
 (require 'tramp-sh)
+
+(require 'seq)
 
 (defconst cider-version "0.10.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
@@ -223,15 +226,15 @@ confirmation and return 'new/nil for y/n answer respectively.  If other
 REPL buffers with dead process exist, ask the user if any of those should
 be reused."
   (let* ((repl-buffs (cider-repl-buffers))
-         (exact-buff (-first (lambda (buff)
-                               (with-current-buffer buff
-                                 (or (and endpoint (equal endpoint nrepl-endpoint))
-                                     (and project-directory (equal project-directory nrepl-project-dir)))))
-                             repl-buffs)))
+         (exact-buff (seq-find (lambda (buff)
+                                 (with-current-buffer buff
+                                   (or (and endpoint (equal endpoint nrepl-endpoint))
+                                       (and project-directory (equal project-directory nrepl-project-dir)))))
+                               repl-buffs)))
     (cl-flet ((zombie-buffer-or-new
-               () (let ((zombie-buffs (-remove (lambda (buff)
-                                                 (process-live-p (get-buffer-process buff)))
-                                               repl-buffs)))
+               () (let ((zombie-buffs (seq-remove (lambda (buff)
+                                                    (process-live-p (get-buffer-process buff)))
+                                                  repl-buffs)))
                     (if zombie-buffs
                         (if (y-or-n-p (format "Zombie REPL buffers exist (%s).  Reuse? "
                                               (mapconcat #'buffer-name zombie-buffs ", ")))
@@ -270,7 +273,7 @@ own buffer."
                                         (cider-jack-in-params project-type))
                          (cider-jack-in-params project-type)))
                (cmd (format "%s %s" (cider-jack-in-command project-type) params)))
-          (-when-let (repl-buff (cider-find-reusable-repl-buffer nil project-dir))
+          (when-let (repl-buff (cider-find-reusable-repl-buffer nil project-dir))
             (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
                   (nrepl-use-this-as-repl-buffer repl-buff))
               (nrepl-start-server-process
@@ -296,7 +299,7 @@ When the optional param PROJECT-DIR is present, the connection
 gets associated with it."
   (interactive (cider-select-endpoint))
   (setq cider-current-clojure-buffer (current-buffer))
-  (-when-let (repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil))
+  (when-let (repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil))
     (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer repl-buff)
            (conn (process-buffer (nrepl-start-client-process host port))))
@@ -316,15 +319,15 @@ gets associated with it."
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
   (let* ((ssh-hosts (cider--ssh-hosts))
-         (hosts (-distinct (append (when cider-host-history
-                                     ;; history elements are strings of the form "host:port"
-                                     (list (split-string (car cider-host-history) ":")))
-                                   (list (list (cider-current-host)))
-                                   cider-known-endpoints
-                                   ssh-hosts
-                                   (when (file-remote-p default-directory)
-                                     ;; add localhost even in remote buffers
-                                     '(("localhost"))))))
+         (hosts (seq-uniq (append (when cider-host-history
+                                    ;; history elements are strings of the form "host:port"
+                                    (list (split-string (car cider-host-history) ":")))
+                                  (list (list (cider-current-host)))
+                                  cider-known-endpoints
+                                  ssh-hosts
+                                  (when (file-remote-p default-directory)
+                                    ;; add localhost even in remote buffers
+                                    '(("localhost"))))))
          (sel-host (cider--completing-read-host hosts))
          (host (car sel-host))
          (port (or (cadr sel-host)
@@ -333,9 +336,9 @@ gets associated with it."
 
 (defun cider--ssh-hosts ()
   "Retrieve all ssh host from local configuration files."
-  (-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
-        (let ((tramp-completion-mode t))
-          (tramp-completion-handle-file-name-all-completions "" "/ssh:"))))
+  (seq-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
+           (let ((tramp-completion-mode t))
+             (tramp-completion-handle-file-name-all-completions "" "/ssh:"))))
 
 (defun cider--completing-read-host (hosts)
   "Interactively select host from HOSTS.
@@ -383,10 +386,10 @@ When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
   (let* ((paths (cider--running-nrepl-paths))
          (proj-ports (mapcar (lambda (d)
-                               (-when-let (port (and d (nrepl-extract-port (cider--file-path d))))
+                               (when-let (port (and d (nrepl-extract-port (cider--file-path d))))
                                  (list (file-name-nondirectory (directory-file-name d)) port)))
                              (cons (clojure-project-dir dir) paths))))
-    (-distinct (delq nil proj-ports))))
+    (seq-uniq (delq nil proj-ports))))
 
 (defun cider--running-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
@@ -398,7 +401,7 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
         (goto-char 1)
         (while (re-search-forward regexp nil t)
           (setq paths (cons (match-string 1) paths)))))
-    (-distinct paths)))
+    (seq-uniq paths)))
 
 (defun cider-project-type ()
   "Determine the type, either leiningen or boot, of the current project.
@@ -436,8 +439,8 @@ In case `default-directory' is non-local we assume the command is available."
 (defun cider--check-required-nrepl-ops ()
   "Check whether all required nREPL ops are present."
   (let* ((current-connection (cider-current-connection))
-         (missing-ops (-remove (lambda (op) (nrepl-op-supported-p op current-connection))
-                               cider-required-nrepl-ops)))
+         (missing-ops (seq-remove (lambda (op) (nrepl-op-supported-p op current-connection))
+                                  cider-required-nrepl-ops)))
     (when missing-ops
       (cider-repl-emit-interactive-stderr
        (format "WARNING: The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
