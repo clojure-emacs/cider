@@ -177,9 +177,9 @@ displayed in the echo area."
 (defcustom cider-refresh-before-fn nil
   "Clojure function for `cider-refresh' to call before reloading.
 
-If nil, nothing will be invoked before reloading. Must be a
-namespace-qualified function of zero arity. Any thrown exception will
-prevent reloading from occuring."
+If nil, nothing will be invoked before reloading.  Must be a
+namespace-qualified function of zero arity.  Any thrown exception will
+prevent reloading from occurring."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.10.0"))
@@ -187,7 +187,7 @@ prevent reloading from occuring."
 (defcustom cider-refresh-after-fn nil
   "Clojure function for `cider-refresh' to call after reloading.
 
-If nil, nothing will be invoked after reloading. Must be a
+If nil, nothing will be invoked after reloading.  Must be a
 namespace-qualified function of zero arity."
   :type 'string
   :group 'cider
@@ -284,7 +284,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   "Push current point onto marker ring, and jump to BUFFER and POS.
 POS can be either a number, a cons, or a symbol.
 If a number, it is the character position (the point).
-If a cons, it specifies the position as (LINE . COLUMN). COLUMN can be nil.
+If a cons, it specifies the position as (LINE . COLUMN).  COLUMN can be nil.
 If a symbol, `cider-jump-to' searches for something that looks like the
 symbol's definition in the file.
 If OTHER-WINDOW is non-nil don't reuse current window."
@@ -530,7 +530,7 @@ form, with symbol at point replaced by __prefix__."
 
 If SYMBOL has a text property `type` whose value is recognised, its
 abbreviation according to `cider-completion-annotations-alist' will be
-used. If `type` is present but not recognised, its value will be used
+used.  If `type` is present but not recognised, its value will be used
 unaltered.
 
 If SYMBOL has a text property `ns`, then its value will be used according
@@ -618,22 +618,24 @@ This is controlled via `cider-interactive-eval-output-destination'."
               cider-interactive-eval-output-destination))))
 
 (defun cider-emit-interactive-eval-output (output)
-  "Emit output resulting from interactive code evaluation.
+  "Emit OUTPUT resulting from interactive code evaluation.
 
-The output can be send to either a dedicated output buffer or the current REPL buffer.
-This is controlled via `cider-interactive-eval-output-destination'."
+The output can be send to either a dedicated output buffer or the current
+REPL buffer.  This is controlled via
+`cider-interactive-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stdout))
 
 (defun cider-emit-interactive-eval-err-output (output)
-  "Emit err output resulting from interactive code evaluation.
+  "Emit err OUTPUT resulting from interactive code evaluation.
 
-The output can be send to either a dedicated output buffer or the current REPL buffer.
-This is controlled via `cider-interactive-eval-output-destination'."
+The output can be send to either a dedicated output buffer or the current
+REPL buffer.  This is controlled via
+`cider-interactive-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stderr))
 
 (defun cider-interactive-eval-handler (&optional buffer point)
   "Make an interactive eval handler for BUFFER.
-If POINT is non-nil, it is the position where the evaluated sexp ends. It
+If POINT is non-nil, it is the position where the evaluated sexp ends.  It
 can be used to display the evaluation result."
   (let ((eval-buffer (current-buffer))
         (point (if point (copy-marker point) (point-marker))))
@@ -1011,7 +1013,7 @@ arguments and only proceed with evaluation if it returns nil."
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
   "Evaluate FORM and dispatch the response to CALLBACK.
 This function is the same as `cider-interactive-eval', except the result is
-pretty-printed to *out*. RIGHT-MARGIN specifies the maximum column width of
+pretty-printed to *out*.  RIGHT-MARGIN specifies the maximum column width of
 the printed result, and defaults to `fill-column'."
   (cider--prep-interactive-eval form)
   (cider-nrepl-request:pprint-eval
@@ -1216,7 +1218,7 @@ See command `cider-mode'."
   "Toggle var tracing.
 
 Prompts for the symbol to use, or uses the symbol at point, depending on
-the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
   (cider-ensure-op-supported "toggle-trace-var")
