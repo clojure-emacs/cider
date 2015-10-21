@@ -556,8 +556,8 @@ Integers, lists and nrepl-dicts are treated according to bencode
 specification.  Everything else is encoded as string."
   (cond
    ((integerp object) (format "i%de" object))
-   ((nrepl-dict-p object) (format "d%se" (apply #'concat (seq-map #'nrepl-bencode (cdr object)))))
-   ((listp object) (format "l%se" (apply #'concat (seq-map #'nrepl-bencode object))))
+   ((nrepl-dict-p object) (format "d%se" (mapconcat #'nrepl-bencode (cdr object) "")))
+   ((listp object) (format "l%se" (mapconcat #'nrepl-bencode object "")))
    (t (format "%s:%s" (string-bytes object) object))))
 
 

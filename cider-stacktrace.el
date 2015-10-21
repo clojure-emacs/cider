@@ -329,7 +329,7 @@ it wraps to 0."
       (let* ((num (get-text-property (point) 'cause))
              (level (1+ (elt cider-stacktrace-cause-visibility num))))
         (setq-local cider-stacktrace-cause-visibility
-                    (apply 'vector (make-list 10 (mod level 3))))
+                    (make-vector 10 (mod level 3)))
         (cider-stacktrace-apply-cause-visibility)))))
 
 (defun cider-stacktrace-cycle-current-cause ()
