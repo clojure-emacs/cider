@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1373](https://github.com/clojure-emacs/cider/issues/1373): Add gradle support for `cider-jack-in`.
 * [Abbreviated printing](https://github.com/clojure-emacs/cider-nrepl/pull/268) for functions multimethods. Instead of seeing `#object[clojure.core$_PLUS_ 0x4e648e99 "clojure.core$_PLUS_@4e648e99"]` you'll see `#function[clojure.core/+]`.
 * [#1376](https://github.com/clojure-emacs/cider/pull/1376): Anything printed to `*out*` outside an eval scope is also forwarded to all nREPL sessions connected from CIDER. Normally it would only be sent to the server's `out`.
 * [#1371](https://github.com/clojure-emacs/cider/issues/1371): Font-lock deprecated vars with a background color.

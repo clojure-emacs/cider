@@ -109,6 +109,20 @@ version from the CIDER package or library.")
   :group 'cider
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-gradle-command
+  "gradle"
+  "The command used to execute Gradle."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-gradle-parameters
+  "--no-daemon clojureRepl"
+  "Params passed to gradle to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
 (defcustom cider-default-repl-command
   "lein"
   "The default command and parameters to use when connecting to nREPL.
@@ -165,19 +179,22 @@ Sub-match 1 must be the project path.")
   "Check if the command matching PROJECT-TYPE is present."
   (pcase project-type
     ("lein" 'cider--lein-present-p)
-    ("boot" 'cider--boot-present-p)))
+    ("boot" 'cider--boot-present-p)
+    ("gradle" 'cider--gradle-present-p)))
 
 (defun cider-jack-in-command (project-type)
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-lein-command)
-    ("boot" cider-boot-command)))
+    ("boot" cider-boot-command)
+    ("gradle" cider-gradle-command)))
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-lein-parameters)
-    ("boot" cider-boot-parameters)))
+    ("boot" cider-boot-parameters)
+    ("gradle" cider-gradle-parameters)))
 
 (defcustom cider-cljs-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
@@ -404,16 +421,20 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
     (seq-uniq paths)))
 
 (defun cider-project-type ()
-  "Determine the type, either leiningen or boot, of the current project.
-If both project file types are present, prompt the user to choose."
+  "Determine the type, either leiningen, boot or gradle, of the current project.
+If more than one project file types are present, prompt the user to choose."
   (let* ((default-directory (clojure-project-dir (cider-current-dir)))
-         (lein-project-exists (file-exists-p "project.clj"))
-         (boot-project-exists (file-exists-p "build.boot")))
-    (cond ((and lein-project-exists boot-project-exists)
-           (completing-read "Which command should be used? "
-                            '("lein" "boot") nil t "lein"))
-          (lein-project-exists "lein")
-          (boot-project-exists "boot"))))
+         (choices (delq nil
+                        (mapcar (lambda (candidate)
+                                  (when (file-exists-p (cdr candidate))
+                                    (car candidate)))
+                                '(("lein" . "project.clj")
+                                  ("boot" . "build.boot")
+                                  ("gradle" . "build.gradle"))))))
+    (if (> (length choices) 1)
+        (completing-read "Which command shoud be used? " choices
+                         nil t (car choices))
+      (car choices))))
 
 ;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-present-p ()
@@ -431,6 +452,14 @@ In case `default-directory' is non-local we assume the command is available."
   (or (file-remote-p default-directory)
       (executable-find cider-boot-command)
       (executable-find (concat cider-boot-command ".exe"))))
+
+(defun cider--gradle-present-p ()
+  "Check if `cider-gradle-command' is on the `exec-path'.
+
+In case `default-directory' is non-local we assume the command is available."
+  (or (file-remote-p default-directory)
+      (executable-find cider-gradle-command)
+      (executable-find (concat cider-gradle-command ".exe"))))
 
 
 ;;; Check that the connection is working well
