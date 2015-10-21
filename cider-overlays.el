@@ -137,8 +137,8 @@ All arguments beyond these (PROPS) are properties to be used on the
 overlay."
   (declare (indent 1))
   ;; If the marker points to a dead buffer, don't do anything.
-  (if-let (buffer (if (markerp where) (marker-buffer where)
-                    (current-buffer)))
+  (if-let ((buffer (if (markerp where) (marker-buffer where)
+                     (current-buffer))))
       (with-current-buffer buffer
         (remove-overlays nil nil 'cider-type 'result)
         (save-excursion
@@ -167,7 +167,7 @@ overlay."
                              #'cider--remove-result-overlay-after-command
                              nil 'local)
                  (cider--remove-result-overlay-after-command))))
-            (when-let (win (get-buffer-window buffer))
+            (when-let ((win (get-buffer-window buffer)))
               ;; Left edge is visible.
               (when (and (<= (window-start win) (point))
                          ;; In 24.3 `<=' is still a binary perdicate.

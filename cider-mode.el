@@ -47,7 +47,7 @@
   "Return info for the `cider-mode' modeline.
 
 Info contains project name and host:port endpoint."
-  (if-let (current-connection (ignore-errors (cider-current-connection)))
+  (if-let ((current-connection (ignore-errors (cider-current-connection))))
       (with-current-buffer current-connection
         (concat
          (when cider-repl-type
@@ -306,13 +306,13 @@ Returns to the buffer in which the command was invoked."
 ;;; Dynamic indentation
 (defun cider--get-symbol-indent (symbol-name)
   "Return the indent metadata for SYMBOL-NAME in the current namespace."
-  (when-let (indent
-             (nrepl-dict-get (cider-resolve-var (cider-current-ns) symbol-name)
-                             "indent"))
-            (let ((format (format ":indent metadata on ‘%s’ is unreadable! \nERROR: %%s"
-                                  symbol-name)))
-              (with-demoted-errors format
-                (cider--deep-vector-to-list (read indent))))))
+  (when-let ((indent
+              (nrepl-dict-get (cider-resolve-var (cider-current-ns) symbol-name)
+                              "indent")))
+    (let ((format (format ":indent metadata on ‘%s’ is unreadable! \nERROR: %%s"
+                          symbol-name)))
+      (with-demoted-errors format
+        (cider--deep-vector-to-list (read indent))))))
 
 ;;; Dynamic font locking
 (defcustom cider-font-lock-dynamically '(macro core deprecated)
@@ -418,11 +418,11 @@ namespace itself."
   (interactive)
   (when cider-font-lock-dynamically
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
-    (when-let (symbols (cider-resolve-ns-symbols (or ns (cider-current-ns))))
-              (setq-local cider--dynamic-font-lock-keywords
-                          (cider--compile-font-lock-keywords
-                           symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
-              (font-lock-add-keywords nil cider--dynamic-font-lock-keywords 'end))
+    (when-let ((symbols (cider-resolve-ns-symbols (or ns (cider-current-ns)))))
+      (setq-local cider--dynamic-font-lock-keywords
+                  (cider--compile-font-lock-keywords
+                   symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
+      (font-lock-add-keywords nil cider--dynamic-font-lock-keywords 'end))
     (if (fboundp 'font-lock-flush)
         (font-lock-flush)
       (with-no-warnings

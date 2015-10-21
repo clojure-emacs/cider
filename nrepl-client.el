@@ -614,7 +614,7 @@ and kill the process buffer."
     (message "nREPL: Connection closed unexpectedly (%s)"
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
-    (when-let (client-buffer (process-buffer process))
+    (when-let ((client-buffer (process-buffer process)))
       (with-current-buffer client-buffer
         (run-hooks 'nrepl-disconnected-hook)
         (when (buffer-live-p nrepl-server-buffer)
@@ -753,11 +753,11 @@ process."
     (process-put client-proc :response-q (nrepl-response-queue))
 
     (with-current-buffer client-buf
-      (when-let (server-buf (and server-proc (process-buffer server-proc)))
+      (when-let ((server-buf (and server-proc (process-buffer server-proc))))
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
-            nrepl-tunnel-buffer (when-let (tunnel (plist-get endpoint :tunnel))
+            nrepl-tunnel-buffer (when-let ((tunnel (plist-get endpoint :tunnel)))
                                   (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)))
@@ -814,7 +814,7 @@ values of *1, *2, etc."
 It is safe to call this function multiple times on the same ID."
   ;; FIXME: This should go away eventually when we get rid of
   ;; pending-request hash table
-  (when-let (handler (gethash id nrepl-pending-requests))
+  (when-let ((handler (gethash id nrepl-pending-requests)))
     (puthash id handler nrepl-completed-requests)
     (remhash id nrepl-pending-requests)))
 
@@ -948,7 +948,7 @@ sign of user input, so as not to hang the interface."
                  (err (nrepl-dict-get response "err")))
         (cider-repl-emit-interactive-stderr err)
         (message "%s" err))
-      (when-let (id (nrepl-dict-get response "id"))
+      (when-let ((id (nrepl-dict-get response "id")))
         (with-current-buffer connection
           (nrepl--mark-id-completed id)))
       response)))
@@ -1084,7 +1084,7 @@ the port, and the client buffer."
         (set-marker (process-mark process) (point)))
       (when moving
         (goto-char (process-mark process))
-        (when-let (win (get-buffer-window))
+        (when-let ((win (get-buffer-window)))
           (set-window-point win (point))))))
   ;; detect the port the server is listening on from its output
   (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
@@ -1175,7 +1175,7 @@ operations.")
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
       (nrepl--pp msg (nrepl--message-color (lax-plist-get (cdr msg) "id")))
-      (when-let (win (get-buffer-window))
+      (when-let ((win (get-buffer-window)))
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
 

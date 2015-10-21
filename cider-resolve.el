@@ -95,7 +95,7 @@ Return nil only if VAR cannot be resolved."
      (cider-resolve--get-in (or var-ns ns) "interns" name)
      (unless var-ns
        ;; If the var had no prefix, it might be referred.
-       (if-let (referal (cider-resolve--get-in ns "refers" name))
+       (if-let ((referal (cider-resolve--get-in ns "refers" name)))
            (cider-resolve-var ns referal)
          ;; Or it might be from core.
          (unless (equal ns "clojure.core")
@@ -114,9 +114,9 @@ This will be clojure.core or cljs.core depending on `cider-repl-type'."
   "Return a plist of all valid symbols in NS.
 Each entry's value is the metadata of the var that the symbol refers to.
 NS can be the namespace name, or a dict of the namespace itself."
-  (when-let (dict (if (stringp ns)
-                      (cider-resolve--get-in ns)
-                    ns))
+  (when-let ((dict (if (stringp ns)
+                       (cider-resolve--get-in ns)
+                     ns)))
     (nrepl-dbind-response dict (interns refers aliases)
       (append (cdr interns)
               (nrepl-dict-flat-map (lambda (alias namespace)

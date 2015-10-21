@@ -148,7 +148,7 @@
 (defun cider-test-show-report ()
   "Show the test report buffer, if one exists."
   (interactive)
-  (if-let (report-buffer (get-buffer cider-test-report-buffer))
+  (if-let ((report-buffer (get-buffer cider-test-report-buffer)))
       (switch-to-buffer report-buffer)
     (message "No test report buffer")))
 
@@ -156,14 +156,14 @@
   "Move point to the previous test result, if one exists."
   (interactive)
   (with-current-buffer (get-buffer cider-test-report-buffer)
-    (when-let (pos (previous-single-property-change (point) 'type))
+    (when-let ((pos (previous-single-property-change (point) 'type)))
       (goto-char pos))))
 
 (defun cider-test-next-result ()
   "Move point to the next test result, if one exists."
   (interactive)
   (with-current-buffer (get-buffer cider-test-report-buffer)
-    (when-let (pos (next-single-property-change (point) 'type))
+    (when-let ((pos (next-single-property-change (point) 'type)))
       (goto-char pos))))
 
 (defun cider-test-jump (&optional arg)
@@ -382,7 +382,7 @@ not found."
   "Highlight all non-passing tests in the NS test RESULTS."
   (nrepl-dict-map
    (lambda (var tests)
-     (when-let (buffer (cider-find-var-file (concat ns "/" var)))
+     (when-let ((buffer (cider-find-var-file (concat ns "/" var))))
        (dolist (test tests)
          (nrepl-dbind-response test (type)
            (unless (equal "pass" type)
@@ -392,9 +392,9 @@ not found."
 (defun cider-test-clear-highlights ()
   "Clear highlighting of non-passing tests from the last test run."
   (interactive)
-  (when-let (ns cider-test-last-test-ns)
+  (when-let ((ns cider-test-last-test-ns))
     (dolist (var (nrepl-dict-keys cider-test-last-results))
-      (when-let (buffer (cider-find-var-file (concat ns "/" var)))
+      (when-let ((buffer (cider-find-var-file (concat ns "/" var))))
         (with-current-buffer buffer
           (remove-overlays))))))
 
@@ -460,7 +460,7 @@ displayed. When test failures/errors occur, their sources are highlighted."
 (defun cider-test-rerun-tests ()
   "Rerun failed and erring tests from the last tested namespace."
   (interactive)
-  (if-let (ns cider-test-last-test-ns)
+  (if-let ((ns cider-test-last-test-ns))
       (cider-test-execute ns t)
     (message "No namespace to retest")))
 
@@ -470,11 +470,11 @@ displayed. When test failures/errors occur, their sources are highlighted."
 With a prefix arg SUPPRESS-INFERENCE it will try to run the tests in the
 current ns."
   (interactive "P")
-  (if-let (ns (if suppress-inference
-                  (clojure-find-ns)
-                (or (funcall cider-test-infer-test-ns (clojure-find-ns))
-                    (when (eq major-mode 'cider-test-report-mode)
-                      cider-test-last-test-ns))))
+  (if-let ((ns (if suppress-inference
+                   (clojure-find-ns)
+                 (or (funcall cider-test-infer-test-ns (clojure-find-ns))
+                     (when (eq major-mode 'cider-test-report-mode)
+                       cider-test-last-test-ns)))))
       (cider-test-execute ns nil)
     (message "No namespace to test in current context")))
 

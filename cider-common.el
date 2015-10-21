@@ -199,7 +199,7 @@ existing file ending with URL has been found."
                    (set-buffer-modified-p nil)
                    (set-auto-mode)
                    (current-buffer))))))
-        (t (if-let (path (cider--file-path url))
+        (t (if-let ((path (cider--file-path url)))
                (find-file-noselect path)
              (unless (file-name-absolute-p url)
                (let ((cider-buffers (cider-util--clojure-buffers))

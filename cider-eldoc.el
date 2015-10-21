@@ -133,7 +133,7 @@ Return the number of nested sexp the point was over or after. "
     ;; check if we can used the cached eldoc info
     (if (string= thing (car cider-eldoc-last-symbol))
         (cdr cider-eldoc-last-symbol)
-      (when-let (eldoc-info (cider-sync-request:eldoc (substring-no-properties thing)))
+      (when-let ((eldoc-info (cider-sync-request:eldoc (substring-no-properties thing))))
         (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
           (setq cider-eldoc-last-symbol (cons thing arglist))
           arglist)))))

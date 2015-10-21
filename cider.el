@@ -273,7 +273,7 @@ own buffer."
                                         (cider-jack-in-params project-type))
                          (cider-jack-in-params project-type)))
                (cmd (format "%s %s" (cider-jack-in-command project-type) params)))
-          (when-let (repl-buff (cider-find-reusable-repl-buffer nil project-dir))
+          (when-let ((repl-buff (cider-find-reusable-repl-buffer nil project-dir)))
             (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
                   (nrepl-use-this-as-repl-buffer repl-buff))
               (nrepl-start-server-process
@@ -299,7 +299,7 @@ When the optional param PROJECT-DIR is present, the connection
 gets associated with it."
   (interactive (cider-select-endpoint))
   (setq cider-current-clojure-buffer (current-buffer))
-  (when-let (repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil))
+  (when-let ((repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil)))
     (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer repl-buff)
            (conn (process-buffer (nrepl-start-client-process host port))))
@@ -386,7 +386,7 @@ When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
   (let* ((paths (cider--running-nrepl-paths))
          (proj-ports (mapcar (lambda (d)
-                               (when-let (port (and d (nrepl-extract-port (cider--file-path d))))
+                               (when-let ((port (and d (nrepl-extract-port (cider--file-path d)))))
                                  (list (file-name-nondirectory (directory-file-name d)) port)))
                              (cons (clojure-project-dir dir) paths))))
     (seq-uniq (delq nil proj-ports))))

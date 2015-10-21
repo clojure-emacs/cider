@@ -132,12 +132,12 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
 (defun cider-browse-ns--doc-at-point ()
   "Expand browser according to thing at current point."
   (interactive)
-  (when-let (var (cider-browse-ns--var-at-point))
+  (when-let ((var (cider-browse-ns--var-at-point)))
     (cider-doc-lookup var)))
 
 (defun cider-browse-ns--find-at-point ()
   (interactive)
-  (when-let (var (cider-browse-ns--var-at-point))
+  (when-let ((var (cider-browse-ns--var-at-point)))
     (cider-find-var current-prefix-arg var)))
 
 (defun cider-browse-ns--handle-mouse (event)

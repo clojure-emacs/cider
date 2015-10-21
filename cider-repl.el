@@ -188,7 +188,7 @@ Currently, this is only used to keep `cider-repl-type' updated."
           (dolist (b (buffer-list))
             (with-current-buffer b
               (when cider-mode
-                (when-let (ns-dict (nrepl-dict-get changed-namespaces (cider-current-ns)))
+                (when-let ((ns-dict (nrepl-dict-get changed-namespaces (cider-current-ns))))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
 (declare-function cider-default-err-handler "cider-interaction")

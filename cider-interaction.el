@@ -274,7 +274,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 (defun cider--quit-error-window ()
   "Buries the `cider-error-buffer' and quits its containing window."
-  (when-let (error-win (get-buffer-window cider-error-buffer))
+  (when-let ((error-win (get-buffer-window cider-error-buffer)))
     (quit-window nil error-win)))
 
 ;;;
@@ -350,7 +350,7 @@ A default value of thing at point is given when prompted."
 
 CALLBACK upon failure to invoke prompt if not prompted previously.
 Show results in a different window if OTHER-WINDOW is true."
-  (if-let (info (cider-var-info symbol-file))
+  (if-let ((info (cider-var-info symbol-file)))
       (cider--jump-to-loc-from-info info other-window)
     (progn
       (cider-ensure-op-supported "resource")
@@ -431,7 +431,7 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
     (nrepl-dict-get "path")))
 
 (defun cider--find-ns (ns &optional other-window)
-  (if-let (path (cider-sync-request:ns-path ns))
+  (if-let ((path (cider-sync-request:ns-path ns)))
       (cider-jump-to (cider-find-file path) nil other-window)
     (user-error "Can't find %s" ns)))
 
@@ -544,7 +544,7 @@ The formatting is performed by `cider-annotate-completion-function'."
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
-  (when-let (sap (cider-symbol-at-point))
+  (when-let ((sap (cider-symbol-at-point)))
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
       (let ((bounds (bounds-of-thing-at-point 'symbol)))
@@ -696,7 +696,7 @@ This is used by pretty-printing commands and intentionally discards their result
 (defun cider-visit-error-buffer ()
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
   (interactive)
-  (if-let (buffer (get-buffer cider-error-buffer))
+  (if-let ((buffer (get-buffer cider-error-buffer)))
       (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
     (user-error "No %s buffer" cider-error-buffer)))
 
@@ -869,7 +869,7 @@ If location could not be found, return nil."
               (col (nth 2 info)))
           (unless (or (not (stringp file))
                       (cider--tooling-file-p file))
-            (when-let (buffer (cider-find-file file))
+            (when-let ((buffer (cider-find-file file)))
               (with-current-buffer buffer
                 (save-excursion
                   (save-restriction
@@ -910,7 +910,7 @@ evaluation command. Honor `cider-auto-jump-to-error'."
           ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
           ;; that case we don't jump at all in order to avoid covering *cider-error*
           ;; buffer.
-          (when-let (win (get-buffer-window eval-buffer))
+          (when-let ((win (get-buffer-window eval-buffer)))
             (with-selected-window win
               (cider-jump-to (nth 2 loc) (car loc)))))))))
 
@@ -1349,7 +1349,7 @@ unloaded."
                                   (file-name-nondirectory
                                    (buffer-file-name))))))
   (cider-ensure-connected)
-  (when-let (buf (find-buffer-visiting filename))
+  (when-let ((buf (find-buffer-visiting filename)))
     (with-current-buffer buf
       (remove-overlays nil nil 'cider-type 'instrumented-defs)
       (cider--clear-compilation-highlights)))
@@ -1484,7 +1484,7 @@ the string contents of the region into a formatted string."
   "Close the BUFFER and kill its associated process (if any)."
   (when (buffer-live-p buffer)
     (with-current-buffer buffer
-      (when-let (proc (get-buffer-process buffer))
+      (when-let ((proc (get-buffer-process buffer)))
         (when (process-live-p proc)
           (when (or (not nrepl-server-buffer)
                     ;; Sync request will hang if the server is dead.
@@ -1566,9 +1566,9 @@ VAR is a fully qualified Clojure variable name as a string."
 With a prefix argument, prompt for function to run instead of -main."
   (interactive (list (when current-prefix-arg (read-string "Function name: "))))
   (let ((name (or function "-main")))
-    (when-let (response (cider-nrepl-send-sync-request
-                         (list "op" "ns-list-vars-by-name" "name" name)))
-      (if-let (vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1)))
+    (when-let ((response (cider-nrepl-send-sync-request
+                          (list "op" "ns-list-vars-by-name" "name" name))))
+      (if-let ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
           (cider-interactive-eval
            (if (= (length vars) 1)
                (concat "(" (car vars) ")")
