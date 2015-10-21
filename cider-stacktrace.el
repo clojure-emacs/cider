@@ -206,7 +206,7 @@ cyclical data structures."
   (setq-local cider-stacktrace-prior-filters nil)
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters)
-  (setq-local cider-stacktrace-cause-visibility (apply 'vector (make-list 10 0))))
+  (setq-local cider-stacktrace-cause-visibility (make-vector 10 0)))
 
 
 ;; Stacktrace filtering
