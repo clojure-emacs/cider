@@ -127,9 +127,7 @@ threading."
 (eval-and-compile
 
   (unless (fboundp 'if-let)
-
     (defmacro if-let (bindings then &rest else)
-
       "Process BINDINGS and if all values are non-nil eval THEN, else ELSE.
 Argument BINDINGS is a list of tuples whose car is a symbol to be
 bound and (optionally) used in THEN, and its cadr is a sexp to be
@@ -146,7 +144,6 @@ to bind a single value, BINDINGS can just be a plain tuple."
              ,then
            ,@else)))
 
-
     (defmacro when-let (bindings &rest body)
       "Process BINDINGS and if all values are non-nil eval BODY.
 Argument BINDINGS is a list of tuples whose car is a symbol to be
@@ -154,11 +151,7 @@ bound and (optionally) used in BODY, and its cadr is a sexp to be
 evalled to set symbol's value.  In the special case you only want
 to bind a single value, BINDINGS can just be a plain tuple."
       (declare (indent 1) (debug if-let))
-      (list 'if-let bindings (macroexp-progn body))))
-
-
-
-  )
+      (list 'if-let bindings (macroexp-progn body)))))
 
 (provide 'cider-compat)
 ;;; cider-compat.el ends here
