@@ -480,8 +480,7 @@ it wraps to 0."
       (insert " "))
     (let ((hidden "(0 frames hidden)"))
       (put-text-property 0 (length hidden) 'hidden-count t hidden)
-      (insert " " hidden))
-    (newline)))
+      (insert " " hidden "\n"))))
 
 (defun cider-stacktrace-render-frame (buffer frame)
   "Emit into BUFFER function call site info for the stack FRAME.
@@ -506,7 +505,7 @@ This associates text properties to enable filtering and source navigation."
                 (p3 (search-forward-regexp "[^/$]+")))
             (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
             (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)))
-        (newline)))))
+        (insert "\n")))))
 
 (defun cider-stacktrace--create-go-to-err-button (beg message)
   "Create a button that jumps to the relevant error.
@@ -542,21 +541,21 @@ MESSAGE is parsed to find line, col and buffer name to jump to."
           (cider-propertize-region '(detail 0)
             (insert (format "%d. " num)
                     (propertize note 'font-lock-face 'font-lock-comment-face) " "
-                    (propertize class 'font-lock-face class-face))
-            (newline))
+                    (propertize class 'font-lock-face class-face)
+                    "\n"))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
             (let ((beg (point)))
               (cider-stacktrace-emit-indented
                (propertize (or message "(No message)") 'font-lock-face  message-face) indent t)
               (cider-stacktrace--create-go-to-err-button beg message))
-            (newline)
+            (insert "\n")
             (when data
               (cider-stacktrace-emit-indented
                (cider-font-lock-as-clojure data) indent nil)))
           ;; Detail level 2: stacktrace
           (cider-propertize-region '(detail 2)
-            (newline)
+            (insert "\n")
             (let ((beg (point))
                   (bg `(:background ,cider-stacktrace-frames-background-color)))
               (dolist (frame stacktrace)
@@ -564,7 +563,7 @@ MESSAGE is parsed to find line, col and buffer name to jump to."
               (overlay-put (make-overlay beg (point)) 'font-lock-face bg)))
           ;; Add line break between causes, even when collapsed.
           (cider-propertize-region '(detail 0)
-            (newline)))))))
+            (insert "\n")))))))
 
 (defun cider-stacktrace-initialize (causes)
   "Set and apply CAUSES initial visibility, filters, and cursor position."
@@ -590,13 +589,13 @@ MESSAGE is parsed to find line, col and buffer name to jump to."
   (with-current-buffer buffer
     (let ((inhibit-read-only t))
       (erase-buffer)
-      (newline)
+      (insert "\n")
       ;; Stacktrace filters
       (cider-stacktrace-render-filters
        buffer
        `(("Clojure" clj) ("Java" java) ("REPL" repl)
          ("Tooling" tooling) ("Duplicates" dup) ("All" ,nil)))
-      (newline)
+      (insert "\n")
       ;; Stacktrace exceptions & frames
       (let ((num (length causes)))
         (dolist (cause causes)

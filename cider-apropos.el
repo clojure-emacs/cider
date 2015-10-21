@@ -79,11 +79,10 @@
         (insert ": ")
         (let ((beg (point)))
           (if docs-p
-              (progn (insert (cider-apropos-highlight doc query))
-                     (newline))
-            (progn (insert doc)
-                   (fill-region beg (point)))))
-        (newline)))))
+              (insert (cider-apropos-highlight doc query) "\n")
+            (insert doc)
+            (fill-region beg (point))))
+        (insert "\n")))))
 
 (declare-function cider-mode "cider-mode")
 

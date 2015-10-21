@@ -376,8 +376,8 @@ Tables are marked to be ignored by line wrap."
       (cl-flet ((emit (text &optional face)
                       (insert (if face
                                   (propertize text 'font-lock-face face)
-                                text))
-                      (newline)))
+                                text)
+                              "\n")))
         (emit (if class java-name clj-name) 'font-lock-function-name-face)
         (when super
           (emit (concat "   Extends: " (cider-font-lock-as 'java-mode super))))
@@ -386,7 +386,7 @@ Tables are marked to be ignored by line wrap."
           (dolist (iface (cdr ifaces))
             (emit (concat "            "(cider-font-lock-as 'java-mode iface)))))
         (when (or super ifaces)
-          (newline))
+          (insert "\n"))
         (when (or forms args)
           (emit (cider-font-lock-as-clojure (or forms args))))
         (when (or special macro)
@@ -399,26 +399,22 @@ Tables are marked to be ignored by line wrap."
             (cider-docview-render-java-doc (current-buffer) doc)
           (emit (concat "  " doc)))
         (when url
-          (newline)
-          (insert "  Please see ")
+          (insert "\n  Please see ")
           (insert-text-button url
                               'url url
                               'follow-link t
                               'action (lambda (x)
                                         (browse-url (button-get x 'url))))
-          (newline))
+          (insert "\n"))
         (when javadoc
-          (newline)
-          (newline)
-          (insert "For additional documentation, see the ")
+          (insert "\n\nFor additional documentation, see the ")
           (insert-text-button "Javadoc"
                               'url javadoc
                               'follow-link t
                               'action (lambda (x)
                                         (browse-url (button-get x 'url))))
-          (insert ".")
-          (newline))
-        (newline)
+          (insert ".\n"))
+        (insert "\n")
         (insert-text-button "[source]"
                             'follow-link t
                             'action (lambda (_x)

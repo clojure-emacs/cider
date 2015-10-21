@@ -277,8 +277,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (cider-insert (format "%d errors" error) 'cider-test-error-face t))
       (when (zerop (+ fail error))
         (cider-insert (format "%d passed" pass) 'cider-test-success-face t))
-      (newline)
-      (newline))))
+      (insert "\n\n"))))
 
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
@@ -298,9 +297,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                           'follow-link t
                           'action '(lambda (_button) (cider-test-stacktrace))
                           'help-echo "View causes and stacktrace")
-                         (newline))
+                         (insert "\n"))
                 (insert (cider-font-lock-as-clojure actual)))))
-      (newline))))
+      (insert "\n"))))
 
 (defun cider-test-render-report (buffer ns summary results)
   "Emit into BUFFER the report for the NS, SUMMARY, and test RESULTS."

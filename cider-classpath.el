@@ -57,8 +57,7 @@
     (let ((inhibit-read-only t))
       (erase-buffer)
       (dolist (item items)
-        (insert item)
-        (newline))
+        (insert item "\n"))
       (goto-char (point-min)))))
 
 (defun cider-classpath-properties (text)

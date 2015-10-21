@@ -181,7 +181,7 @@ Current page will be reset to zero."
     (let ((inhibit-read-only t))
       (condition-case nil
           (cider-irender* (car (read-from-string str)))
-        (error (newline) (insert "Inspector error for: " str))))
+        (error (insert "\nInspector error for: " str))))
     (goto-char (point-min))))
 
 (defun cider-irender* (elements)
@@ -192,7 +192,7 @@ Current page will be reset to zero."
   (cond ((symbolp el) (insert (symbol-name el)))
         ((stringp el) (insert (propertize el 'font-lock-face 'font-lock-keyword-face)))
         ((and (consp el) (eq (car el) :newline))
-         (newline))
+         (insert "\n"))
         ((and (consp el) (eq (car el) :value))
          (cider-irender-value (cadr el) (cl-caddr el)))
         (t (message "Unrecognized inspector object: %s" el))))
