@@ -38,6 +38,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Value inspector
 * Function tracing
 * Interactive macroexpansion
+* Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
 * `clojure.test` integration
 * Classpath browser
