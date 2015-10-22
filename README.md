@@ -1332,13 +1332,15 @@ release starts immediately after the previous one has been
 shipped. Bugfix/point releases (if any) address only serious bugs and
 never contain new features.
 
-The versions of CIDER and `cider-nrepl` are always kept in sync. If you're tracking the
-`master` branch of CIDER, you should also be tracking the `master` branch of `cider-nrepl`.
+The versions of CIDER and `cider-nrepl` are always kept in sync. If you're
+tracking the `master` branch of CIDER, you should also be tracking the `master`
+branch of `cider-nrepl`.
 
 ## Logo
 
-CIDER's logo was created by [@ndr-qef](https://github.com/ndr-qef). You can find the logo in various
-formats [here](https://github.com/clojure-emacs/cider/tree/master/logo).
+CIDER's logo was created by [@ndr-qef](https://github.com/ndr-qef). You can find
+the logo in various formats
+[here](https://github.com/clojure-emacs/cider/tree/master/logo).
 
 The logo is licensed under a
 [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_GB).
@@ -1347,9 +1349,12 @@ The logo is licensed under a
 
 ### Discussion
 
-For questions, suggestions and support refer to our [official mailing list](https://groups.google.com/forum/#!forum/cider-emacs)
-, the Freenode channel `#clojure-emacs`, `#cider` on [slack](https://clojurians.slack.com/) or our [gitter channel](https://gitter.im/clojure-emacs/cider).
-Please, don't report issues there, as this makes them harder to track.
+For questions, suggestions and support refer to our
+[official mailing list](https://groups.google.com/forum/#!forum/cider-emacs) ,
+the Freenode channel `#clojure-emacs`, `#cider` on
+[slack](https://clojurians.slack.com/) or our
+[gitter channel](https://gitter.im/clojure-emacs/cider).  Please, don't report
+issues there, as this makes them harder to track.
 
 ### Issues
 
@@ -1358,8 +1363,11 @@ Report issues and suggest features and improvements on the
 questions on the issue tracker - the mailing list and the IRC channel are the
 places for questions.
 
-If you want to file a bug, please clone this repo and provide sufficient details to reproduce the issue. Start by running `make run-cider`.
-This will bring up Emacs with only the latest version of CIDER loaded. By starting fresh, with the latest code, we can ensure that the problem at hand isn't already fixed or caused by interactions with other packages.
+If you want to file a bug, please clone this repo and provide sufficient details
+to reproduce the issue. Start by running `make run-cider`.  This will bring up
+Emacs with only the latest version of CIDER loaded. By starting fresh, with the
+latest code, we can ensure that the problem at hand isn't already fixed or
+caused by interactions with other packages.
 
 ### Patches
 
