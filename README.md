@@ -16,7 +16,8 @@ server. CIDER is a great alternative to the now deprecated combination of SLIME 
 
 If you're interested in details about CIDER's history and architecture you can
 check out the Clojure/conj presentation
-[The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6).
+[The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6)
+and the [Cognicast's episode on CIDER](http://blog.cognitect.com/cognicast/080).
 
 If you like the project, please consider [supporting its ongoing development](#donations).
 
