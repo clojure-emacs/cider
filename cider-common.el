@@ -77,11 +77,12 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
 INFO object is returned by `cider-var-info' or `cider-member-info'.
 OTHER-WINDOW is passed to `cider-jamp-to'."
   (let* ((line (nrepl-dict-get info "line"))
-         (file (nrepl-dict-get info "file"))
+         (absolute-file-name (nrepl-dict-get info "file"))
+         (relative-file-name (nrepl-dict-get info "resource"))
          (name (nrepl-dict-get info "name"))
-         (buffer (and file
-                      (not (cider--tooling-file-p file))
-                      (cider-find-file file))))
+         (buffer (or
+                  (cider--find-file-if-not-tooling relative-file-name)
+                  (cider--find-file-if-not-tooling absolute-file-name))))
     (if buffer
         (cider-jump-to buffer (if line (cons line nil) name) other-window)
       (error "No source location"))))
@@ -158,6 +159,14 @@ If no local or remote file exists, return nil."
 
 (declare-function archive-extract "arc-mode")
 (declare-function archive-zip-extract "arc-mode")
+
+(defun cider--find-file-if-not-tooling (url)
+  "Return a buffer visiting file URL if it is a real source file.
+If URL is nil, or corresponds to a tooling file, return nil.
+See `cider-find-file' for the possible URL formats."
+  (and url
+       (not (cider--tooling-file-p url))
+       (cider-find-file url)))
 
 (defun cider-find-file (url)
   "Return a buffer visiting the file URL if it exists, or nil otherwise.

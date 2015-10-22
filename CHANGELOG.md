@@ -53,6 +53,7 @@
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 * [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.
 * [#1079](https://github.com/clojure-emacs/cider/issues/1079): Don't try to font-lock very long results. The maximum font-lockable result length is controlled by `cider-font-lock-max-length`.
+* [#1370](https://github.com/clojure-emacs/cider/issues/1370): Correctly jump to source files when connected to repl run by Boot.
 
 ## 0.9.1 / 2015-06-24
 
