@@ -47,6 +47,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Scratchpad
 * Minibuffer code evaluation
 * Integration with [company-mode](http://company-mode.github.io/) and [auto-complete-mode](https://github.com/clojure-emacs/ac-cider)
+* Support for working with multiple simultaneous nREPL connections
 
 ![CIDER Screenshot](screenshots/cider-overview.png)
 
