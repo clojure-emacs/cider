@@ -38,6 +38,7 @@
 * [#1239](https://github.com/clojure-emacs/cider/issues/1239): New defcustom `cider-refresh-show-log-buffer`, controls the behaviour of the `*cider-refresh-log*` buffer when calling `cider-refresh`. When set to nil (the default), the log buffer will still be written to, but not displayed automatically. Instead, the most relevant information will be displayed in the echo area. When set to non-nil, the log buffer will be displayed every time `cider-refresh` is called.
 * [#1328](https://github.com/clojure-emacs/cider/issues/1328): Auto-scroll the `*nrepl-server*` buffer on new output.
 * [#1300](https://github.com/clojure-emacs/cider/issues/1300): Add the ability to replicate an existing connection with `cider-replicate-connection`.
+* [#1330](https://github.com/clojure-emacs/cider/issues/1330): Leverage nREPL 0.2.11's source-tracking feature.
 
 ### Changes
 

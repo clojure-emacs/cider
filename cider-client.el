@@ -408,16 +408,17 @@ Return the id of the sent message."
       (nrepl--mark-id-completed id))
     id))
 
-(defun cider-nrepl-request:eval (input callback &optional ns point)
+(defun cider-nrepl-request:eval (input callback &optional ns line column)
   "Send the request INPUT and register the CALLBACK as the response handler.
-If NS is non-nil, include it in the request. POINT, if non-nil, is the
-position of INPUT in its buffer."
+If NS is non-nil, include it in the request. LINE and COLUMN, if non-nil, define
+the position of INPUT in its buffer."
   (nrepl-request:eval input
                       callback
                       (cider-current-connection)
                       (cider-current-session)
                       ns
-                      point))
+                      line
+                      column))
 
 (defun cider-nrepl-sync-request:eval (input &optional ns)
   "Send the INPUT to the nREPL server synchronously.

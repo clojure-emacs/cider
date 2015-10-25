@@ -225,7 +225,7 @@ namespace-qualified function of zero arity."
 
 All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
 
-(defvar cider-required-nrepl-version "0.2.7"
+(defvar cider-required-nrepl-version "0.2.11"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
 ;;; Minibuffer
@@ -1008,7 +1008,8 @@ arguments and only proceed with evaluation if it returns nil."
        ;; always eval ns forms in the user namespace
        ;; otherwise trying to eval ns form for the first time will produce an error
        (if (cider-ns-form-p form) "user" (cider-current-ns))
-       start))))
+       (line-number-at-pos start)
+       (cider-column-number-at-pos start)))))
 
 (defun cider-interactive-pprint-eval (form &optional callback right-margin)
   "Evaluate FORM and dispatch the response to CALLBACK.

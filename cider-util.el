@@ -378,6 +378,10 @@ Any other value is just returned."
   (eval (nth (random (length cider-words-of-inspiration))
              cider-words-of-inspiration)))
 
+(defun cider-column-number-at-pos (pos)
+  "Analog to `line-number-at-pos'."
+  (save-excursion (goto-char pos) (current-column)))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

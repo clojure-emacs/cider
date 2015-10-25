@@ -972,25 +972,26 @@ Register CALLBACK as the response handler."
                       callback
                       connection))
 
-(defun nrepl--eval-request (input session &optional ns point)
+(defun nrepl--eval-request (input session &optional ns line column)
   "Prepare :eval request message for INPUT.
 SESSION and NS provide context for the request.
-If POINT is non-nil and current buffer is a file buffer, \"point\" and
-\"file\" are added to the message."
+If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
+\"column\" and \"file\" are added to the message."
   (append (and ns (list "ns" ns))
           (list "op" "eval"
                 "session" session
                 "code" input)
-          (when (and point (buffer-file-name))
+          (when (and line column (buffer-file-name))
             (list "file" (buffer-file-name)
-                  "point" point))))
+                  "line" line
+                  "column" column))))
 
-(defun nrepl-request:eval (input callback connection session &optional ns point)
+(defun nrepl-request:eval (input callback connection session &optional ns line column)
   "Send the request INPUT and register the CALLBACK as the response handler.
-The request is dispatched via CONNECTION and SESSION.
-If NS is non-nil, include it in the request. POINT, if non-nil, is the
-position of INPUT in its buffer."
-  (nrepl-send-request (nrepl--eval-request input session ns point)
+The request is dispatched via CONNECTION and SESSION.  If NS is non-nil,
+include it in the request. LINE and COLUMN, if non-nil, define the position
+of INPUT in its buffer."
+  (nrepl-send-request (nrepl--eval-request input session ns line column)
                       callback
                       connection))
 

@@ -1253,15 +1253,15 @@ try to debug an expression (e.g., with `C-u
 C-M-x`). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new)
 and copy this information.
 
-### Warning saying you have to use nREPL 0.2.7+
+### Warning saying you have to use nREPL 0.2.11+
 
-CIDER currently requires at least nREPL 0.2.7 to work properly (there were some
-nasty bugs in 0.2.6). Unfortunately `leiningen` 2.5.1 (and older) pulls in exactly
-0.2.6, so you if you're a lein user you'll have to upgrade to 2.5.2+. Alternatively,
-you can add this to your `profiles.clj`:
+CIDER currently requires at least nREPL 0.2.11 to work properly (there were some
+nasty bugs in older version and no support tracking where some var was defined
+in the source code). Leiningen users can add this to their `profiles.clj` to
+force the proper dependency:
 
 ```clojure
-{:user {:dependencies [[org.clojure/tools.nrepl "0.2.10"]]}}
+{:user {:dependencies [[org.clojure/tools.nrepl "0.2.11"]]}}
 ```
 
 Make sure you add the newer nREPL dependency to the `:dependencies` key instead
