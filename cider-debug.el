@@ -375,7 +375,7 @@ specific message."
   (ignore-errors (cider--debug-mode -1)))
 
 (defun cider--debug-quit ()
-  "Send a :quit reply to the debugger. Used in hooks."
+  "Send a :quit reply to the debugger.  Used in hooks."
   (when cider--debug-mode
     (cider-debug-mode-send-reply ":quit")
     (message "Quitting debug session")))
@@ -474,7 +474,7 @@ sexp."
 (defun cider--handle-debug (response)
   "Handle debugging notification.
 RESPONSE is a message received from the nrepl describing the input
-needed. It is expected to contain at least \"key\", \"input-type\", and
+needed.  It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
   (nrepl-dbind-response response (debug-value key coor code file line column ns original-id
                                               input-type prompt inspect)
@@ -521,7 +521,7 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
 ;;; User commands
 ;;;###autoload
 (defun cider-debug-defun-at-point ()
-  "Instrument the top-level expression at point.
+  "Instrument the \"top-level\" expression at point.
 If it is a defn, dispatch the instrumented definition.  Otherwise,
 immediately evaluate the instrumented expression.
 
