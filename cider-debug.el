@@ -476,7 +476,7 @@ sexp."
 RESPONSE is a message received from the nrepl describing the input
 needed. It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
-  (nrepl-dbind-response response (debug-value key coor code file point ns original-id
+  (nrepl-dbind-response response (debug-value key coor code file line column ns original-id
                                               input-type prompt inspect)
     (condition-case-unless-debug e
         (progn
@@ -485,15 +485,17 @@ needed. It is expected to contain at least \"key\", \"input-type\", and
                                                         (or prompt "Expression: "))
                                                        key))
             ((pred sequencep)
-             (when (or code (and file point))
+             (when (or code (and file line column))
                ;; We prefer in-source debugging.
-               (when (and file point)
+               (when (and file line column)
                  (if-let ((buf (find-buffer-visiting file)))
                      (if-let ((win (get-buffer-window buf)))
                          (select-window win)
                        (pop-to-buffer buf))
                    (find-file file))
-                 (goto-char point))
+                 ;; Get to the proper line & column in the file
+                 (forwar-line (- line (line-number-at-pos)))
+                 (move-to-column column))
                ;; But we can create a temp buffer if that fails.
                (unless (or (looking-at-p (regexp-quote code))
                            (looking-at-p (regexp-quote (cider--debug-trim-code code))))
