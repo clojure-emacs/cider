@@ -494,7 +494,7 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
                        (pop-to-buffer buf))
                    (find-file file))
                  ;; Get to the proper line & column in the file
-                 (forwar-line (- line (line-number-at-pos)))
+                 (forward-line (- line (line-number-at-pos)))
                  (move-to-column column))
                ;; But we can create a temp buffer if that fails.
                (unless (or (looking-at-p (regexp-quote code))
