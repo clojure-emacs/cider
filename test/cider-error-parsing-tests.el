@@ -8,6 +8,14 @@
       (should (equal (nth 2 info) nil))
       (should (equal (nth 3 info) 'cider-error-highlight-face)))))
 
+(ert-deftest test-cider-extract-error-info-14-windows ()
+  (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(c:\\some\\test\\file\\core.clj:31)"))
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
+      (should (string= (nth 0 info) "c:\\some\\test\\file\\core.clj"))
+      (should (= (nth 1 info) 31))
+      (should (equal (nth 2 info) nil))
+      (should (equal (nth 3 info) 'cider-error-highlight-face)))))
+
 (ert-deftest test-cider-extract-error-info-14-no-file ()
   (let ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(NO_SOURCE_PATH:31)"))
     (let ((info (cider-extract-error-info cider-compilation-regexp message)))
