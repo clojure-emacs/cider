@@ -249,8 +249,8 @@ be reused."
                           'new)
                       'new))))
       (if exact-buff
-          (if (and (get-buffer-process exact-buff)
-                   (process-live-p (get-buffer-process exact-buff)))
+          (if-let ((process (get-buffer-process exact-buff))
+                   (_ (process-live-p process)))
               (when (y-or-n-p
                      (format "REPL buffer already exists (%s).  \
 Do you really want to create a new one? "
