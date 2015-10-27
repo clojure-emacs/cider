@@ -524,6 +524,7 @@ process buffer."
 (eval-after-load 'clojure-mode
   '(progn
      (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in)
+     (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-clojurescript)
      (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect)))
 
 (provide 'cider)
