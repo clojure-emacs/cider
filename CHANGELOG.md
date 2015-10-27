@@ -50,6 +50,7 @@
 
 ### Bugs fixed
 
+* [#1384](https://github.com/clojure-emacs/cider/pull/1384): Match windows file names in `cider-compilation-regexp`.
 * [#1252](https://github.com/clojure-emacs/cider/issues/1252) `cider-repl-clear-buffer` stops working in certain circumstances.
 * [#1164](https://github.com/clojure-emacs/cider/pull/1164): Fix an error in `cider-browse-ns--doc-at-point`.
 * [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.

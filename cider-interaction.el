@@ -811,7 +811,7 @@ It delegates the actual error content to the eval or op handler."
     (cider-default-err-eval-handler)))
 
 (defvar cider-compilation-regexp
-  '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\([^:]*\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
+  '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\(.*?\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
   "Specifications for matching errors and warnings in Clojure stacktraces.
 See `compilation-error-regexp-alist' for help on their format.")
 
