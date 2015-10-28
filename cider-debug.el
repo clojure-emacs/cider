@@ -416,7 +416,22 @@ ID is the id of the message that instrumented CODE."
 (defun cider--debug-move-point (coordinates)
   "Place point on POS in FILE, then navigate into the next sexp.
 COORDINATES is a list of integers that specify how to navigate into the
-sexp."
+sexp.
+
+As an example, a COORDINATES list of '(1 0 2) means:
+  - enter this sexp and move forward once,
+  - enter this sexp,
+  - enter this sexp and move forward twice.
+
+In the following snippet, this takes us to the (* x 2) sexp (point is left
+at the end of the given sexp).
+
+    (letfn [(twice [x]
+              (* x 2))]
+      (twice 15))
+
+In addition to numbers, a coordinate can be a string. This string names the
+key of a map, and it means \"go to the value associated with this key\". "
   (condition-case-unless-debug nil
       ;; Navigate through sexps inside the sexp.
       (let ((in-syntax-quote nil))
