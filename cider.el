@@ -413,19 +413,20 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
     (-distinct paths)))
 
 (defun cider-project-type ()
-  "Determine the type, either leiningen or boot, of the current project.
-If both project file types are present, prompt the user to choose."
+  "Determine the type, either leiningen, boot or gradle, of the current project.
+If more than one project file types are present, prompt the user to choose."
   (let* ((default-directory (clojure-project-dir (cider-current-dir)))
-         (lein-project-exists (file-exists-p "project.clj"))
-         (boot-project-exists (file-exists-p "build.boot"))
-         (gradle-project-exists (file-exists-p "build.gradle")))
-    ;; FIXME: multiple-choice
-    (cond ((and lein-project-exists boot-project-exists)
-           (completing-read "Which command should be used? "
-                            '("lein" "boot") nil t "lein"))
-          (lein-project-exists "lein")
-          (boot-project-exists "boot")
-          (gradle-project-exists "gradle"))))
+         (choices (delq nil
+                        (mapcar (lambda (candidate)
+                                  (when (file-exists-p (cdr candidate))
+                                    (car candidate)))
+                                '(("lein" . "project.clj")
+                                  ("boot" . "build.boot")
+                                  ("gradle" . "build.gradle"))))))
+    (if (< 1 (length choices))
+        (completing-read "Which command shoud be used? " choices
+                         nil t (car choices))
+      (car choices))))
 
 ;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-present-p ()
