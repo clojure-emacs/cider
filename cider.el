@@ -217,6 +217,16 @@ should be the regular Clojure REPL started by the server process filter."
              "code" cider-cljs-repl)
        (cider-repl-handler (current-buffer))))))
 
+(defun cider--select-zombie-buffer (repl-buffers)
+  "Return a zombie buffer from REPL-BUFFERS, or nil if none exists."
+  (when-let ((zombie-buffs (seq-remove #'get-buffer-process repl-buffers)))
+    (when (y-or-n-p
+           (format "Zombie REPL buffers exist (%s).  Reuse? "
+                   (mapconcat #'buffer-name zombie-buffs ", ")))
+      (if (= (length zombie-buffs) 1)
+          (car zombie-buffs)
+        (completing-read "Choose REPL buffer: " zombie-buffs nil t)))))
+
 (defun cider-find-reusable-repl-buffer (endpoint project-directory)
   "Check whether a reusable connection buffer already exists.
 Looks for buffers where `nrepl-endpoint' matches ENDPOINT, or
@@ -225,39 +235,22 @@ and has no process, return it.  If the process is alive, ask the user for
 confirmation and return 'new/nil for y/n answer respectively.  If other
 REPL buffers with dead process exist, ask the user if any of those should
 be reused."
-  (let* ((repl-buffs (cider-repl-buffers))
-         (exact-buff (seq-find
-                      (lambda (buff)
-                        (with-current-buffer buff
-                          (or (and endpoint
-                                   (equal endpoint nrepl-endpoint))
-                              (and project-directory
-                                   (equal project-directory nrepl-project-dir)))))
-                      repl-buffs)))
-    (cl-flet ((zombie-buffer-or-new
-               () (let ((zombie-buffs (seq-remove
-                                       (lambda (buff)
-                                         (process-live-p (get-buffer-process buff)))
-                                       repl-buffs)))
-                    (if zombie-buffs
-                        (if (y-or-n-p
-                             (format "Zombie REPL buffers exist (%s).  Reuse? "
-                                     (mapconcat #'buffer-name zombie-buffs ", ")))
-                            (if (= (length zombie-buffs) 1)
-                                (car zombie-buffs)
-                              (completing-read "Choose REPL buffer: " zombie-buffs nil t))
-                          'new)
-                      'new))))
-      (if exact-buff
-          (if-let ((process (get-buffer-process exact-buff))
-                   (_ (process-live-p process)))
-              (when (y-or-n-p
-                     (format "REPL buffer already exists (%s).  \
+  (if-let ((repl-buffers (cider-repl-buffers))
+           (exact-buff (seq-find
+                        (lambda (buff)
+                          (with-current-buffer buff
+                            (or (and endpoint
+                                     (equal endpoint nrepl-endpoint))
+                                (and project-directory
+                                     (equal project-directory nrepl-project-dir)))))
+                        repl-buffers)))
+      (if (and (get-buffer-process exact-buff)
+               (y-or-n-p (format "REPL buffer already exists (%s).  \
 Do you really want to create a new one? "
-                             exact-buff))
-                (zombie-buffer-or-new))
-            exact-buff)
-        (zombie-buffer-or-new)))))
+                                 exact-buff)))
+          (or (cider--select-zombie-buffer repl-buffers) 'new)
+        exact-buff)
+    (or (cider--select-zombie-buffer repl-buffers) 'new)))
 
 ;;;###autoload
 (defun cider-jack-in (&optional prompt-project cljs-too)
