@@ -111,14 +111,14 @@ version from the CIDER package or library.")
   "The command used to execute Gradle."
   :type 'string
   :group 'cider
-  :package-version '(cider . "0.9.0"))
+  :package-version '(cider . "0.10.0"))
 
 (defcustom cider-gradle-parameters
   "clojureRepl"
   "Params passed to gradle to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
-  :package-version '(cider . "0.9.0"))
+  :package-version '(cider . "0.10.0"))
 
 (defcustom cider-default-repl-command
   "lein"
