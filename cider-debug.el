@@ -387,9 +387,10 @@ specific message."
 (defun cider--debug-trim-code (code)
   (replace-regexp-in-string "\\`#\\(dbg\\|break\\) ?" "" code))
 
-(defun cider--initialize-debug-buffer (code ns id)
+(defun cider--initialize-debug-buffer (code ns id &optional reason)
   "Create a new debugging buffer with CODE and namespace NS.
-ID is the id of the message that instrumented CODE."
+ID is the id of the message that instrumented CODE.
+REASON is a keyword describing why this buffer was necessary."
   (let ((buffer-name (format cider--debug-buffer-format id)))
     (if-let ((buffer (get-buffer buffer-name)))
         (cider-popup-buffer-display buffer 'select)
@@ -400,8 +401,12 @@ ID is the id of the message that instrumented CODE."
         (let ((inhibit-read-only t)
               (buffer-undo-list t))
           (erase-buffer)
-          (insert
-           (format "%s" (cider--debug-trim-code code)))
+          (insert (format "%s" (cider--debug-trim-code code)))
+          (when code
+            (insert "\n\n\n;; We had to create this temporary buffer because we couldn't find the original definition. That probably happened because "
+                    reason
+                    ".")
+            (fill-paragraph))
           (cider--font-lock-ensure)
           (set-buffer-modified-p nil))))
     (switch-to-buffer buffer-name)
@@ -514,7 +519,11 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
                ;; But we can create a temp buffer if that fails.
                (unless (or (looking-at-p (regexp-quote code))
                            (looking-at-p (regexp-quote (cider--debug-trim-code code))))
-                 (cider--initialize-debug-buffer code ns original-id))
+                 (cider--initialize-debug-buffer
+                  code ns original-id
+                  (if (and line column)
+                      "you edited the code"
+                    "your tools.nrepl version is older than 0.2.11")))
                (cider--debug-move-point coor))
              ;; The overlay code relies on window boundaries, but point could have been
              ;; moved outside the window by some other code. Redisplay here to ensure the
