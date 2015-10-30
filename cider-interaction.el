@@ -225,7 +225,7 @@ namespace-qualified function of zero arity."
 
 All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
 
-(defvar cider-required-nrepl-version "0.2.11"
+(defvar cider-required-nrepl-version "0.2.12"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
 ;;; Minibuffer
