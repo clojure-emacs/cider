@@ -1,110 +1,133 @@
 \documentclass[a4paper,10pt]{article}
-
-\usepackage{textcomp}
-\usepackage{fullpage}
-\usepackage{boxedminipage}
-\usepackage{multicol}
+\usepackage[margin=1cm]{geometry}
 \pagestyle{empty}
 
-\newcommand{\docheading}{\Huge\centering{CIDER Quick Reference Card}\normalsize\bigskip}
-\newcommand{\helpgroup}[1]{\par\noindent\centering{\textbf{\large#1}\medskip}}
-\newcommand{\helpkey}[2]{\par~~\noindent\textbf{#1}\hfill{#2}~~}
-\newcommand{\group}[1]{\bigskip\par\noindent\textbf{\large#1}\medskip}
-\newcommand{\subgroup}[1]{\medskip\par\noindent\textbf{#1}\medskip}
-\newcommand{\key}[2]{\par\noindent\textbf{#1}\hfill{#2}}
-\newcommand{\meta}[1]{\textlangle{#1}\textrangle}
+\usepackage{textcomp}
+\usepackage{multicol}
+\usepackage{menukeys}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{xpatch}
+\usepackage{xparse}
+\usepackage{calc}
+\usepackage{tcolorbox}
+
+\colorlet{faded}{lightgray}
+\colorlet{namespace}{black}
+\def\alternateitem\item[#1]{\item[#1]\color{faded}}
+\NewDocumentCommand\ns{g}{\IfValueTF{#1}{\gdef\currentnamespace{#1}\currentnamespace}{\textcolor{namespace}{\currentnamespace}}}
+\renewcommand\section[1]{\bigskip\par\textbf{\large#1}\medskip}
+\renewcommand\subsection[1]{\medskip\par\textbf{#1}\medskip}
+\newcommand\meta[1]{\textlangle\textit{#1}\textrangle}
+\newcommand\keyify[1]{\keys{\ttfamily#1}}
+\newlist{keylist}{description}{1}
+\setlist[keylist]{
+  labelindent = 2ex,
+  itemsep     = -1ex,
+  font        = \keyify,
+  before      = \let\&\alternateitem
+                \xpretocmd{\item}{\color{black}}{}{}
+                \ttfamily
+}
+
+\setlength\parindent{0em}
+\setlength\parsep{0ex}
+\renewcommand\baselinestretch{1.2}
 
 \begin{document}
+\begin{center}
+  \Huge
+  CIDER Quick-Reference Card
+  \par\bigskip
+\end{center}
 
-\renewcommand{\baselinestretch}{1.2}
-
-\docheading
-
-\begin{boxedminipage}[t]{11cm}
-
-\medskip
-
-\helpgroup{Getting help in Emacs}
-
-\helpkey{C-h k \meta{key}}{describe function bound to \meta{key}}
-\helpkey{C-h b}{list the current key-bindings for the focus buffer}
-\helpkey{C-h m}{describe mode}
-\helpkey{C-h l}{show the keys you have pressed}
-\helpkey{\meta{prefix} C-h}{show all key-bindings beginning with \meta{prefix}}
-
-\medskip
-
-\end{boxedminipage}
-
+\begin{center}
+  \begin{tcolorbox}[title=Getting Help in Emacs, center title, fonttitle=\Large\bfseries]
+      \begin{keylist}[labelindent=4ex,before=,labelwidth=\widthof{\keyify{\meta{prefix}
+            C-h}}]
+      \item[C-h k \meta{key}] describe function bound to \meta{key}
+      \item[C-h b] list the current key-bindings for the focus buffer
+      \item[C-h m] describe mode
+      \item[C-h l] show the keys you have pressed
+      \item[\meta{prefix} C-h] show all key-bindings beginning with
+        \meta{prefix}
+      \end{keylist}
+  \end{tcolorbox}
+\end{center}
 \bigskip
 
 \setlength{\columnsep}{1cm}
 
 \begin{multicols}{2}
 
-\group{Programming}
+\section{Programming}
+\subsection{Completion}
 
-\subgroup{Completion}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-c}}]
+  \item[M-TAB] complete-symbol
+\end{keylist}
 
-\key{M-TAB, C-M-i}{complete-symbol}
+\subsection{Navigation}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c M-.}}]
+  \item[M-,] cider-pop-back
+  \item[M-.] cider-find-var
+  \item[C-c M-.] cider-find-resource
+  \item[C-c M-s] cider-selector
+\end{keylist}
 
-\subgroup{Navigation}
-
-\key{M-,}{cider-jump-back}
-\key{M-.}{cider-find-var}
-\key{C-c M-.}{cider-find-resource}
-
-\subgroup{Evaluation}
-
-\key{C-c C-k}{cider-load-buffer}
-\key{C-c C-l}{cider-load-file}
-\key{C-x C-e}{cider-eval-last-sexp}
-\key{C-c C-p}{cider-pprint-eval-last-sexp}
-\key{C-M-x, C-c C-c}{cider-eval-defun-at-point}
-\key{C-c C-f}{cider-pprint-eval-defun-at-point}
-\key{C-c C-n}{cider-eval-ns-form}
-\key{C-c C-r}{cider-eval-region}
-\key{C-c M-:}{cider-read-and-eval}
-\key{C-c C-w}{cider-eval-last-sexp-and-replace}
-\key{C-c M-e}{cider-eval-last-sexp-to-repl}
-\key{C-c M-i}{cider-inspect}
-\key{C-c RET}{cider-macroexpand-1}
-\key{C-c M-m}{cider-macroexpand-all}
-
-\group{Testing}
-
-\key{C-c M-,}{cider-test-run-test}
-\key{C-c ,}{cider-test-run-tests}
-\key{C-c C-,}{cider-test-rerun-tests}
-\key{C-c C-t}{cider-test-show-report}
+\subsection{Evaluation}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c RET}}]
+  \item[C-c C-k] cider-load-buffer
+  \item[C-c C-l] cider-load-file
+  \item[C-c C-r] cider-eval-region
+  \item[C-c C-n] cider-eval-ns-form
+  \item[C-x C-e] \ns{cider-eval-last-sexp}
+  \item[C-c C-w] \ns                     -and-replace
+  \item[C-c M-e] \ns                     -to-repl
+  \item[C-M-x]   cider-eval-defun-at-point
+\&\item[C-c C-c] cider-eval-defun-at-point
+  \item[C-c C-p] \ns{cider-pprint-eval}-last-sexp
+  \item[C-c C-f] \ns                   -at-point
+  \item[C-c M-:] cider-read-and-eval
+  \item[C-c M-i] cider-inspect
+  \item[C-c RET] \ns{cider-macroexpand}-1
+  \item[C-c M-m] \ns                   -all
+\end{keylist}
 
 \columnbreak
 
-\group{Documentation}
+\section{Debugging \& Testing}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-d C-a}}]
+\item[C-u C-M-x] cider-eval-defun-at-point
+\item[C-c M-t v] \ns{cider-toggle-trace}-var
+\item[C-c M-t n] \ns                    -ns
+\item[C-c M-,] \ns{cider-test}-run-test
+\item[C-c ,]   \ns            -run-tests
+\item[C-c C-,] \ns            -rerun-tests
+\item[C-c C-t] \ns            -show-report
+\end{keylist}
 
-\key{C-c C-d}{cider-doc-map}
-\key{C-c C-d d, C-c C-d C-d}{cider-doc}
-\key{C-c C-d j, C-c C-d C-j}{cider-javadoc}
-\key{C-c C-d a, C-c C-d C-a}{cider-apropos}
-\key{C-c C-d A}{cider-apropos-documentation}
-\key{C-c C-d r, C-c C-d C-r}{cider-grimoire}
-\key{C-c C-d h}{cider-grimoire-web}
+\section{Documentation}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-d C-a}}]
+  \item[C-c C-d d] cider-doc
+  \item[C-c C-d j] cider-javadoc
+  \item[C-c C-d a] \ns{cider-apropos}
+  \item[C-c C-d A] \ns               -documentation
+  \item[C-c C-d r] \ns{cider-grimoire}
+  \item[C-c C-d h] \ns                -web
+\end{keylist}
 
-\group{CIDER control}
-
-\key{C-c M-p}{cider-insert-last-sexp-in-repl}
-\key{C-c C-z}{cider-switch-to-repl-buffer}
-\key{C-c M-o}{cider-find-and-clear-repl-buffer}
-\key{C-c M-s}{cider-selector}
-\key{C-c M-d}{cider-display-connection-info}
-\key{C-c M-r}{cider-rotate-default-connection}
-\key{C-c M-n}{cider-repl-set-ns}
-\key{C-c M-t v}{cider-toggle-trace-var}
-\key{C-c M-t n}{cider-toggle-trace-ns}
-\key{C-c C-b}{cider-interrupt}
-\key{C-c C-x}{cider-refresh}
-\key{C-c C-q}{cider-quit}
-
+\section{REPL control}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c M-c}}]
+  \item[C-c M-p] cider-insert-last-sexp-in-repl
+  \item[C-c C-z] cider-switch-to-repl-buffer
+  \item[C-c M-o] cider-find-and-clear-repl-buffer
+  \item[C-c M-d] cider-display-connection-info
+  \item[C-c M-r] cider-rotate-default-connection
+  \item[C-c M-n] cider-repl-set-ns
+  \item[C-c C-b] cider-interrupt
+  \item[C-c C-x] cider-refresh
+  \item[C-c C-q] cider-quit
+\end{keylist}
 \end{multicols}
-
 \end{document}
