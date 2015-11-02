@@ -1143,18 +1143,22 @@ In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
 <kbd>C-c M-:</kbd>) will use the current lexical context (local variables) while
 the debugger is active.
 
-### Managing multiple sessions
+### Managing multiple connections
 
-You can connect to multiple nREPL servers using <kbd>M-x
-cider-jack-in</kbd> multiple times.  To close the current nREPL
-connection, use <kbd>M-x cider-quit</kbd>.
+You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> (or
+`cider-connect`) multiple times.  To close the current nREPL connection, use
+<kbd>M-x cider-quit</kbd>.
 
 CIDER maintains a list of nREPL connections and a single 'default'
-connection. When you execute CIDER commands in a Clojure editing
-buffer such as to compile a namespace, these commands are executed
-against the default connection.
+connection. When you execute CIDER commands in a Clojure editing buffer such as
+to compile a namespace, these commands are executed against a specific
+connection. This is controlled by the variable `cider-request-dispatch` - when
+it's set to `'dynamic` (the default), CIDER will try to infer which connection
+to use from the current project and currently visited file; when `'static`
+dispatch is used all requests will always be routed to the default connection
+(this was the default behavior in CIDER before 0.10).
 
-You can display the default nREPL connection using <kbd>C-c M-d</kbd>
+You can display the current nREPL connection using <kbd>C-c M-d</kbd>
 and rotate the default connection using <kbd>C-c M-r</kbd>. Another
 option for setting the default connection is to execute the command
 <kbd>M-x cider-make-connection-default</kbd> in the appropriate
@@ -1168,12 +1172,6 @@ came from.
 The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the
 relevant REPL buffer and set the namespace in that buffer based on
 namespace in the current Clojure buffer.
-
-To explicitly choose the REPL buffer that <kbd>C-c C-z</kbd> uses
-based on project directory, use a double prefix <kbd>C-u C-u C-c
-C-z</kbd>. This assumes you have `cider-switch-to-relevant-repl`
-mapped to the var `cider-switch-to-repl-command` which is the default
-configuration.
 
 To change the designation used for CIDER buffers use <kbd>M-x
 cider-change-buffers-designation</kbd>. This changes the CIDER REPL

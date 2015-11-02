@@ -34,6 +34,19 @@
 
 ;;; Connection Buffer Management
 
+(defcustom cider-request-dispatch 'dynamic
+  "Controls the request dispatch mechanism when several connections are present.
+Dynamic dispatch tries to infer the connection based on the current project
+& currently visited file, while static dispatch simply uses the default
+connection.
+
+Project metadata is attached to connections when they are created with commands
+like `cider-jack-in' and `cider-connect'."
+  :type '(choice (const :tag "dynamic" dynamic)
+                 (const :tag "static" static))
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
 (defvar cider-connections nil
   "A list of connections.")
 
@@ -185,24 +198,26 @@ type (Clojure or ClojureScript).  If TYPE is nil, it is derived from the
 file extension."
   ;; Cleanup the connections list.
   (cider-connections)
-  (cond
-   ((cider--in-connection-buffer-p) (current-buffer))
-   ((= 1 (length cider-connections)) (car cider-connections))
-   (t (let* ((project-directory (clojure-project-dir (cider-current-dir)))
-             (repls (and project-directory
-                         (cider-find-connection-buffer-for-project-directory project-directory 'all))))
-        (if (= 1 (length repls))
-            ;; Only one match, just return it.
-            (car repls)
-          ;; OW, find one matching the extension of current file.
-          (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
-            (or (seq-find (lambda (conn)
-                            (equal (with-current-buffer conn
-                                     (or cider-repl-type "clj"))
-                                   type))
-                          (append repls cider-connections))
+  (if (eq cider-request-dispatch 'dynamic)
+      (cond
+       ((cider--in-connection-buffer-p) (current-buffer))
+       ((= 1 (length cider-connections)) (car cider-connections))
+       (t (let* ((project-directory (clojure-project-dir (cider-current-dir)))
+                 (repls (and project-directory
+                             (cider-find-connection-buffer-for-project-directory project-directory 'all))))
+            (if (= 1 (length repls))
+                ;; Only one match, just return it.
                 (car repls)
-                (car cider-connections))))))))
+              ;; OW, find one matching the extension of current file.
+              (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
+                (or (seq-find (lambda (conn)
+                                (equal (with-current-buffer conn
+                                         (or cider-repl-type "clj"))
+                                       type))
+                              (append repls cider-connections))
+                    (car repls)
+                    (car cider-connections)))))))
+    (car cider-connections)))
 
 
 ;;; Connection Browser
