@@ -217,6 +217,7 @@ file extension."
                               (append repls cider-connections))
                     (car repls)
                     (car cider-connections)))))))
+    ;; TODO: Add logic to dispatch to a matching Clojure/ClojureScript REPL based on file type
     (car cider-connections)))
 
 
