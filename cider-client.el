@@ -679,7 +679,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 (defcustom cider-eval-spinner-type 'progress-bar
   "Appearance of the evaluation spinner.
 
-Value is a symbol. The possible values are the symbols in the
+Value is a symbol.  The possible values are the symbols in the
 `spinner-types' variable."
   :type 'symbol
   :group 'cider
