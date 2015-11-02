@@ -154,7 +154,7 @@ such a link cannot be established automatically."
   (interactive)
   (cider-ensure-connected)
   (let ((conn-buf (or connection (cider-read-connection "Connection: ")))
-        (project-dir (or project (read-directory-name "Project directory: " nil (clojure-project-dir) nil (clojure-project-dir)))))
+        (project-dir (or project (read-directory-name "Project directory: " (clojure-project-dir)))))
     (when conn-buf
       (with-current-buffer conn-buf
         (setq nrepl-project-dir project-dir)))))
