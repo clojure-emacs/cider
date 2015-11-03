@@ -616,7 +616,7 @@ If NEWLINE is true then add a newline at the end of the input."
         ;; by kill/yank.
         (overlay-put overlay 'read-only t)
         (overlay-put overlay 'font-lock-face 'cider-repl-input-face))))
-  (let* ((input (cider-repl--current-input)))
+  (let ((input (cider-repl--current-input)))
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
