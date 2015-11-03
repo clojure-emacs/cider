@@ -314,6 +314,7 @@ Returns to the buffer in which the command was invoked."
       (with-demoted-errors format
         (cider--deep-vector-to-list (read indent))))))
 
+
 ;;; Dynamic font locking
 (defcustom cider-font-lock-dynamically '(macro core deprecated)
   "Specifies how much dynamic font-locking CIDER should use.
@@ -350,6 +351,13 @@ The value can also be t, which means to font-lock as much as possible."
 (defconst cider-deprecated-properties
   '(face cider-deprecated
          help-echo "This var is deprecated. \\[cider-doc] for version information."))
+
+(defun cider--unless-local-match (value)
+  "Return VALUE, unless `match-string' is a local var."
+  (unless (or (get-text-property (point) 'cider-block-dynamic-font-lock)
+              (member (match-string 0)
+                      (get-text-property (point) 'cider-locals)))
+    value))
 
 (defun cider--compile-font-lock-keywords (symbols-plist core-plist)
   "Return a list of font-lock rules for the symbols in SYMBOLS-PLIST."
@@ -394,15 +402,19 @@ The value can also be t, which means to font-lock as much as possible."
       ,@(when macros
           `((,(concat (rx (or "(" "#'")) ; Can't take the value of macros.
                       "\\(" (regexp-opt macros 'symbols) "\\)")
-             1 font-lock-keyword-face append)))
+             1 (cider--unless-local-match font-lock-keyword-face) append)))
       ,@(when functions
-          `((,(regexp-opt functions 'symbols) 0 font-lock-function-name-face append)))
+          `((,(regexp-opt functions 'symbols) 0
+             (cider--unless-local-match font-lock-function-name-face) append)))
       ,@(when vars
-          `((,(regexp-opt vars 'symbols) 0 font-lock-variable-name-face append)))
+          `((,(regexp-opt vars 'symbols) 0
+             (cider--unless-local-match font-lock-variable-name-face) append)))
       ,@(when deprecated
-          `((,(regexp-opt deprecated 'symbols) 0 cider-deprecated-properties append)))
+          `((,(regexp-opt deprecated 'symbols) 0
+             (cider--unless-local-match cider-deprecated-properties) append)))
       ,@(when instrumented
-          `((,(regexp-opt instrumented 'symbols) 0 'cider-instrumented-face append))))))
+          `((,(regexp-opt instrumented 'symbols) 0
+             (cider--unless-local-match 'cider-instrumented-face) append))))))
 
 (defconst cider--static-font-lock-keywords
   (eval-when-compile

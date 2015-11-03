@@ -93,5 +93,17 @@
       ("a" "b" "the-ns")
     (cider--read-locals-from-arglist)))
 
+(ert-deftest cider--test-unless-local ()
+  (with-temp-buffer
+    (clojure-mode)
+    (insert (propertize "the-ns inc lalala" 'cider-locals '("inc" "x")))
+    (goto-char (point-min))
+    (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
+    (should (cider--unless-local-match t))
+    (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
+    (should-not (cider--unless-local-match t))
+    (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
+    (should (cider--unless-local-match t))))
+
 (provide 'cider-locals-tests)
 ;;; cider-locals-tests.el ends here
