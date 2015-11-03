@@ -159,6 +159,17 @@ instead."
                  (progn (clojure-forward-logical-sexp 1)
                         (point))))))
 
+(defun cider-start-of-next-sexp (&optional skip)
+  "Move to the start of the next sexp.
+Skip any non-logical sexps like ^metadata or #reader macros.
+If SKIP is an integer, also skip that many logical sexps first.
+Can only error if SKIP is non-nil."
+  (while (clojure--looking-at-non-logical-sexp)
+    (forward-sexp 1))
+  (when (and skip (> skip 0))
+    (dotimes (_ skip)
+      (forward-sexp 1)
+      (cider-start-of-next-sexp))))
 
 ;;; Text properties
 

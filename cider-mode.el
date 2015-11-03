@@ -428,6 +428,117 @@ namespace itself."
       (with-no-warnings
         (font-lock-fontify-buffer)))))
 
+
+;;; Detecting local variables
+(defun cider--read-locals-from-next-sexp ()
+  "Return a list of all locals inside the next logical sexp."
+  (save-excursion
+    (ignore-errors
+      (clojure-forward-logical-sexp 1)
+      (let ((out nil)
+            (end (point)))
+        (forward-sexp -1)
+        ;; FIXME: This returns locals found inside the :or clause of a
+        ;; destructuring map.
+        (while (search-forward-regexp "\\_<[^:&]\\(\\sw\\|\\s_\\)*\\_>" end 'noerror)
+          (push (match-string-no-properties 0) out))
+        out))))
+
+(defun cider--read-locals-from-bindings-vector ()
+  "Return a list of all locals inside the next bindings vector."
+  (save-excursion
+    (ignore-errors
+      (cider-start-of-next-sexp)
+      (when (eq (char-after) ?\[)
+        (forward-char 1)
+        (let ((out nil))
+          (setq out (append (cider--read-locals-from-next-sexp) out))
+          (while (ignore-errors (clojure-forward-logical-sexp 3)
+                                (unless (eobp)
+                                  (forward-sexp -1)
+                                  t))
+            (setq out (append (cider--read-locals-from-next-sexp) out)))
+          out)))))
+
+(defun cider--read-locals-from-arglist ()
+  "Return a list of all locals in current form's arglist(s)."
+  (let ((out nil))
+    (save-excursion
+      (ignore-errors
+        (cider-start-of-next-sexp)
+        ;; Named fn
+        (when (looking-at-p "\\s_\\|\\sw")
+          (cider-start-of-next-sexp 1))
+        ;; Docstring
+        (when (eq (char-after) ?\")
+          (cider-start-of-next-sexp 1))
+        ;; Attribute map
+        (when (eq (char-after) ?{)
+          (cider-start-of-next-sexp 1))
+        ;; The arglist
+        (pcase (char-after)
+          (?\[ (setq out (cider--read-locals-from-next-sexp)))
+          ;; FIXME: This returns false positives. It takes all arglists of a
+          ;; function and returns all args it finds. The logic should be changed
+          ;; so that each arglist applies to its own scope.
+          (?\( (ignore-errors
+                 (while (eq (char-after) ?\()
+                   (save-excursion
+                     (forward-char 1)
+                     (setq out (append (cider--read-locals-from-next-sexp) out)))
+                   (cider-start-of-next-sexp 1)))))))
+    out))
+
+(defun cider--parse-and-apply-locals (end &optional outer-locals)
+  "Figure out local variables between point and END.
+A list of these variables is set as the `cider-locals' text property over
+the code where they are in scope.
+Optional argument OUTER-LOCALS is used to specify local variables defined
+before point."
+  (while (search-forward-regexp "(\\(ns\\_>\\|def\\|fn\\|for\\b\\|loop\\b\\|with-\\|do[a-z]+\\|\\([a-z]+-\\)?let\\b\\)"
+                                end 'noerror)
+    (goto-char (match-beginning 0))
+    (let ((sym (match-string 1))
+          (sexp-end (save-excursion
+                      (or (ignore-errors (forward-sexp 1)
+                                         (point))
+                          end))))
+      ;; #1324: Don't do dynamic font-lock in `ns' forms, they are special
+      ;; macros where nothing is evaluated, so we'd get a lot of false
+      ;; positives.
+      (if (equal sym "ns")
+          (add-text-properties (point) sexp-end '(cider-block-dynamic-font-lock t))
+        (forward-char 1)
+        (forward-sexp 1)
+        (let ((locals (pcase sym
+                        ((or "fn" "def" "") (cider--read-locals-from-arglist))
+                        (_ (cider--read-locals-from-bindings-vector)))))
+          (add-text-properties (point) sexp-end (list 'cider-locals (append locals outer-locals)))
+          (clojure-forward-logical-sexp 1)
+          (cider--parse-and-apply-locals sexp-end locals)))
+      (goto-char sexp-end))))
+
+(defun cider--wrap-fontify-locals (func)
+  "Return a function that calls FUNC after parsing local variables.
+The local variables are stored in a list under the `cider-locals' text
+property."
+  (lambda (beg end &rest rest)
+    (remove-text-properties beg end '(cider-locals nil cider-block-dynamic-font-lock nil))
+    (when cider-font-lock-dynamically
+      (save-excursion
+        (goto-char beg)
+        ;; If the inside of a `ns' form changed, reparse it from the start.
+        (when (and (not (bobp))
+                   (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
+          (ignore-errors (beginning-of-defun)))
+        (ignore-errors
+          (cider--parse-and-apply-locals
+           end (unless (bobp)
+                 (get-text-property (1- (point)) 'cider-locals))))))
+    (apply func beg end rest)))
+
+
+;;; Mode definition
 ;; Once a new stable of `clojure-mode' is realeased, we can depend on it and
 ;; ditch this `defvar'.
 (defvar clojure-get-indent-function)
@@ -446,6 +557,8 @@ namespace itself."
                #'cider-complete-at-point)
   (font-lock-add-keywords nil cider--static-font-lock-keywords)
   (cider-refresh-dynamic-font-lock)
+  (setq-local font-lock-fontify-region-function
+              (cider--wrap-fontify-locals font-lock-fontify-region-function))
   (setq-local clojure-get-indent-function #'cider--get-symbol-indent)
   (setq next-error-function #'cider-jump-to-compilation-error))
 
