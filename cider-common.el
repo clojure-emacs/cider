@@ -79,9 +79,12 @@ OTHER-WINDOW is passed to `cider-jamp-to'."
   (let* ((line (nrepl-dict-get info "line"))
          (file (nrepl-dict-get info "file"))
          (name (nrepl-dict-get info "name"))
-         (buffer (and file
-                      (not (cider--tooling-file-p file))
-                      (cider-find-file file))))
+         ;; the filename might actually be a REPL buffer name
+         (buffer (if (string-prefix-p "*" file)
+                     file
+                   (and file
+                        (not (cider--tooling-file-p file))
+                        (cider-find-file file)))))
     (if buffer
         (cider-jump-to buffer (if line (cons line nil) name) other-window)
       (error "No source location"))))

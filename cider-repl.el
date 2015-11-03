@@ -616,7 +616,8 @@ If NEWLINE is true then add a newline at the end of the input."
         ;; by kill/yank.
         (overlay-put overlay 'read-only t)
         (overlay-put overlay 'font-lock-face 'cider-repl-input-face))))
-  (let ((input (cider-repl--current-input)))
+  (let ((input (cider-repl--current-input))
+        (input-start (save-excursion (cider-repl-beginning-of-defun) (point))))
     (goto-char (point-max))
     (cider-repl--mark-input-start)
     (cider-repl--mark-output-start)
@@ -635,7 +636,9 @@ If NEWLINE is true then add a newline at the end of the input."
        (cider-eval-spinner-handler
         (current-buffer)
         (cider-repl-handler (current-buffer)))
-       (cider-current-ns)))))
+       (cider-current-ns)
+       (line-number-at-pos input-start)
+       (cider-column-number-at-pos input-start)))))
 
 (defun cider-repl--ensure-valid-input (beg end)
   "Ensure that the region between BEG and END is balanced."

@@ -42,6 +42,7 @@
 * [#1328](https://github.com/clojure-emacs/cider/issues/1328): Auto-scroll the `*nrepl-server*` buffer on new output.
 * [#1300](https://github.com/clojure-emacs/cider/issues/1300): Add the ability to replicate an existing connection with `cider-replicate-connection`.
 * [#1330](https://github.com/clojure-emacs/cider/issues/1330): Leverage nREPL 0.2.11's source-tracking feature.
+* [#1392](https://github.com/clojure-emacs/cider/issues/1392): Track definitions made in the REPL.
 
 ### Changes
 
