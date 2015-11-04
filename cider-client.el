@@ -202,17 +202,15 @@ such a link cannot be established automatically."
 A REPL is relevant if its `nrepl-project-dir' is compatible with the
 current directory (see `cider-find-connection-buffer-for-project-directory').
 If there is ambiguity, it is resolved by matching TYPE with the REPL
-type (Clojure or ClojureScript).  If TYPE is nil, it is derived from the
-file extension."
-  ;; Cleanup the connections list.
-  (cider-connections)
+type (Clojure or ClojureScript).  TYPE is a string, which when nil is derived
+from the file extension."
+  (cider-connections) ; Cleanup the connections list.
   (if (eq cider-request-dispatch 'dynamic)
       (cond
        ((cider--in-connection-buffer-p) (current-buffer))
        ((= 1 (length cider-connections)) (car cider-connections))
-       (t (let* ((project-directory (clojure-project-dir (cider-current-dir)))
-                 (repls (and project-directory
-                             (cider-find-connection-buffer-for-project-directory project-directory 'all))))
+       (t (let ((repls (cider-find-connection-buffer-for-project-directory
+                        nil :all-connections)))
             (if (= 1 (length repls))
                 ;; Only one match, just return it.
                 (car repls)
@@ -227,6 +225,16 @@ file extension."
                     (car cider-connections)))))))
     ;; TODO: Add logic to dispatch to a matching Clojure/ClojureScript REPL based on file type
     (car cider-connections)))
+
+(defun cider-other-connection (connection)
+  "Return the first connection of another type than CONNECTION, \
+in the same project, or nil."
+  (let* ((connection-type (cider--connection-type connection))
+         (other (if (equal connection-type "clj")
+                    (cider-current-connection "cljs")
+                  (cider-current-connection "clj"))))
+    (unless (equal connection-type (cider--connection-type other))
+      other)))
 
 
 ;;; Connection Browser
@@ -791,9 +799,16 @@ endpoint and Clojure version."
   "Extract the essential properties of CONN-BUFFER."
   (with-current-buffer conn-buffer
     (list
+     :type cider-repl-type
      :host (car nrepl-endpoint)
      :port (cadr nrepl-endpoint)
      :project-dir nrepl-project-dir)))
+
+(defun cider--connection-type (conn-buffer)
+  "Get CONN-BUFFER's type.
+
+Return value matches `cider-repl-type'."
+  (plist-get (cider--connection-properties conn-buffer) :type))
 
 (defun cider--connection-host (conn-buffer)
   "Get CONN-BUFFER's host."
