@@ -35,6 +35,7 @@
 (require 'cider-eldoc) ; for cider-eldoc-setup
 (require 'cider-common)
 (require 'cider-compat)
+(require 'cider-util)
 
 (require 'clojure-mode)
 (require 'easymenu)
@@ -761,18 +762,26 @@ text property `cider-old-input'."
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
 
-If invoked in a REPL buffer the command will prompt you for the name of the
+If called from a cljc or cljx buffer act on both the Clojure and
+ClojureScript REPL if there are more than one REPL present.
+
+If invoked in a REPL buffer the command will prompt for the name of the
 namespace to switch to."
   (interactive (list (if (or (derived-mode-p 'cider-repl-mode)
                              (null (cider-ns-form)))
                          (completing-read "Switch to namespace: "
                                           (cider-sync-request:ns-list))
                        (cider-current-ns))))
-  (if (and ns (not (equal ns "")))
+  (when (or (not ns) (equal ns ""))
+    (user-error "No namespace selected"))
+  (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
+                            (cider-repl-switch-ns-handler
+                             (cider-current-connection)))
+  (when (cider--cljc-or-cljx-buffer-p)
+    (when-let ((other-connection (cider-other-connection
+                                  (cider-current-connection))))
       (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
-                                (cider-repl-switch-ns-handler (cider-current-connection))
-                                nil)
-    (error "No namespace selected")))
+                                (cider-repl-switch-ns-handler other-connection)))))
 
 
 ;;;;; History
