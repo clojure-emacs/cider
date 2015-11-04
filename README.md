@@ -90,7 +90,7 @@ specific CIDER release.**
   - [cider-inspector-mode](#cider-inspector-mode)
   - [cider-test-report-mode](#cider-test-report-mode)
   - [cider-stacktrace-mode](#cider-stacktrace-mode)
-  - [Managing multiple sessions](#managing-multiple-sessions)
+  - [Managing multiple connections](#managing-multiple-connections)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
   - [Var Metadata](#var-metadata)
