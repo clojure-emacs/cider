@@ -28,6 +28,8 @@
 (require 'spinner)
 (require 'nrepl-client)
 (require 'cider-common)
+(require 'cider-util)
+(require 'clojure-mode)
 
 (require 'cider-compat)
 (require 'seq)
@@ -124,11 +126,15 @@ Also close associated REPL and server buffers."
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
 
-(defun cider-find-connection-buffer-for-project-directory (project-directory &optional all-connections)
-  "Return the most appropriate connection-buffer for the given PROJECT-DIRECTORY.
+(defun cider-find-connection-buffer-for-project-directory (&optional project-directory all-connections)
+  "Return the most appropriate connection-buffer for the current project.
+
 By order of preference, this is any connection whose directory matches
-PROJECT-DIRECTORY, followed by any connection whose directory is nil,
+`clojure-project-dir', followed by any connection whose directory is nil,
 followed by any connection at all.
+
+If PROJECT-DIRECTORY is provided act on that project instead.
+
 Only return nil if `cider-connections' is empty (there are no connections).
 
 If more than one connection satisfy a given level of preference, return the
@@ -140,7 +146,9 @@ precedence over other connections associated with the same project.
 
 If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
 connections are returned, instead of just the most recent."
-  (let ((fn (if all-connections #'seq-filter #'seq-find)))
+  (let ((project-directory (or project-directory
+                               (clojure-project-dir (cider-current-dir))))
+        (fn (if all-connections #'seq-filter #'seq-find)))
     (or (funcall fn (lambda (conn)
                       (when-let ((conn-proj-dir (with-current-buffer conn
                                                   nrepl-project-dir)))
