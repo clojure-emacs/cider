@@ -9,14 +9,7 @@
   (emacs-lisp-docstring-fill-column . 75)
   (checkdoc-arguments-in-order-flag))
  (emacs-lisp-mode
-  (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")
-  (nameless-affect-indentation-and-filling)
-  (nameless-current-name . "cider")))
-
-
-;; The `nameless-*' variables normalize all files to have the same prefix with
-;; the `nameless' package, and instruct the package to not mess with
-;; indentation.
+  (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")))
 
 ;; To use the bug-reference stuff, do:
 ;;     (add-hook 'text-mode-hook #'bug-reference-mode)
