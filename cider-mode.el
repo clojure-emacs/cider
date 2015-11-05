@@ -186,13 +186,16 @@ Clojure buffer and the REPL buffer."
         (pop-to-buffer cider-last-clojure-buffer))
     (message "Don't know the original Clojure buffer")))
 
-(defun cider-find-and-clear-repl-buffer ()
+(defun cider-find-and-clear-repl-output (&optional clear-repl)
   "Find the current REPL buffer and clear it.
+With a prefix argument CLEAR-REPL the command clears the entire REPL buffer.
 Returns to the buffer in which the command was invoked."
-  (interactive)
+  (interactive "P")
   (let ((origin-buffer (current-buffer)))
     (switch-to-buffer (cider-current-repl-buffer))
-    (cider-repl-clear-buffer)
+    (if clear-repl
+        (cider-repl-clear-buffer)
+      (cider-repl-clear-output))
     (switch-to-buffer origin-buffer)))
 
 
@@ -226,7 +229,7 @@ Returns to the buffer in which the command was invoked."
     (define-key map (kbd "C-c M-t n") #'cider-toggle-trace-ns)
     (define-key map (kbd "C-c C-z") #'cider-switch-to-repl-buffer)
     (define-key map (kbd "C-c M-z") #'cider-load-buffer-and-switch-to-repl-buffer)
-    (define-key map (kbd "C-c M-o") #'cider-find-and-clear-repl-buffer)
+    (define-key map (kbd "C-c C-o") #'cider-find-and-clear-repl-output)
     (define-key map (kbd "C-c C-k") #'cider-load-buffer)
     (define-key map (kbd "C-c C-l") #'cider-load-file)
     (define-key map (kbd "C-c C-b") #'cider-interrupt)
@@ -285,7 +288,7 @@ Returns to the buffer in which the command was invoked."
         ["Switch to REPL" cider-switch-to-repl-buffer]
         ["Switch to Relevant REPL" cider-switch-to-relevant-repl-buffer]
         ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
-        ["Clear REPL" cider-find-and-clear-repl-buffer]
+        ["Clear REPL output" cider-find-and-clear-repl-output]
         "--"
         ("nREPL"
          ["Describe session" cider-describe-nrepl-session]
