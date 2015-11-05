@@ -1000,6 +1000,7 @@ Keyboard shortcut                    | Description
 <kbd>C-RET</kbd>      | Close any unmatched parenthesis and then evaluate the current input in Clojure.
 <kbd>C-j</kbd>        | Open a new line and indent.
 <kbd>C-c C-o</kbd>    | Remove the output of the previous evaluation from the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt.
+<kbd>C-c M-o</kbd>    | Switch between the Clojure and ClojureScript REPLs for the current project.
 <kbd>C-c C-u</kbd>    | Kill all text from the prompt to the current point.
 <kbd>C-c C-b</kbd> <kbd>C-c C-c</kbd>| Interrupt any pending evaluations.
 <kbd>C-up</kbd> <kbd>C-down</kbd> | Goto to previous/next input in history.

@@ -713,6 +713,13 @@ text property `cider-old-input'."
   (message "Pretty printing in REPL %s."
            (if cider-repl-use-pretty-printing "enabled" "disabled")))
 
+(defun cider-repl-switch-to-other ()
+  "Switch between the Clojure and ClojureScript REPLs for the current project."
+  (interactive)
+  (if-let (other-connection (cider-other-connection (cider-current-connection)))
+      (switch-to-buffer other-connection)
+    (message "There's no other REPL for the current project")))
+
 (defvar cider-repl-clear-buffer-hook)
 
 (defun cider-repl-clear-buffer ()
@@ -1111,6 +1118,7 @@ constructs."
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)
     (define-key map (kbd "C-c M-m") #'cider-macroexpand-all)
     (define-key map (kbd "C-c C-z") #'cider-switch-to-last-clojure-buffer)
+    (define-key map (kbd "C-c M-o") #'cider-repl-switch-to-other)
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
@@ -1133,6 +1141,7 @@ constructs."
          ["Go back" cider-pop-back])
         "--"
         ["Switch to Clojure buffer" cider-switch-to-last-clojure-buffer]
+        ["Switch to other REPL" cider-repl-switch-to-other]
         "--"
         ("Macroexpand"
          ["Macroexpand-1" cider-macroexpand-1]

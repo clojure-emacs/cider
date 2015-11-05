@@ -43,6 +43,7 @@
 * [#1300](https://github.com/clojure-emacs/cider/issues/1300): Add the ability to replicate an existing connection with `cider-replicate-connection`.
 * [#1330](https://github.com/clojure-emacs/cider/issues/1330): Leverage nREPL 0.2.11's source-tracking feature.
 * [#1392](https://github.com/clojure-emacs/cider/issues/1392): Track definitions made in the REPL.
+* [#1337](https://github.com/clojure-emacs/cider/issues/1337): Added a command to switch between the Clojure and ClojureScript REPLs in the same project (bound to <kbd>C-c M-o</kbd> in `cider-repl-mode`).
 
 ### Changes
 
