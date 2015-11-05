@@ -52,6 +52,7 @@
 * [#732](https://github.com/clojure-emacs/cider/issues/732): `cider-quit` and `cider-restart` now operate on the current connection only. With a prefix argument they operate on all connections.
 * `nrepl-log-messages` is now set to `t` by default.
 * Renamed `cider-repl-output-face` to `cider-repl-stdout-face` and `cider-repl-err-output-face` to `cider-repl-stderr-face`.
+* Clearing the REPL buffer is now bound to `C-u C-C C-o` when you're in the REPL.
 
 ### Bugs fixed
 

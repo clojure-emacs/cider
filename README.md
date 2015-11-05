@@ -999,8 +999,7 @@ Keyboard shortcut                    | Description
 <kbd>RET</kbd>        | Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
 <kbd>C-RET</kbd>      | Close any unmatched parenthesis and then evaluate the current input in Clojure.
 <kbd>C-j</kbd>        | Open a new line and indent.
-<kbd>C-c M-o</kbd>    | Clear the entire REPL buffer, leaving only a prompt.
-<kbd>C-c C-o</kbd>    | Remove the output of the previous evaluation from the REPL buffer.
+<kbd>C-c C-o</kbd>    | Remove the output of the previous evaluation from the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt.
 <kbd>C-c C-u</kbd>    | Kill all text from the prompt to the current point.
 <kbd>C-c C-b</kbd> <kbd>C-c C-c</kbd>| Interrupt any pending evaluations.
 <kbd>C-up</kbd> <kbd>C-down</kbd> | Goto to previous/next input in history.

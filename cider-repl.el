@@ -731,22 +731,25 @@ text property `cider-old-input'."
   (1- (previous-single-property-change cider-repl-input-start-mark 'field nil
                                        (1+ (point-min)))))
 
-(defun cider-repl-clear-output ()
-  "Delete the output inserted since the last input."
-  (interactive)
-  (let ((start (save-excursion
-                 (cider-repl-previous-prompt)
-                 (ignore-errors (forward-sexp))
-                 (forward-line)
-                 (point)))
-        (end (cider-repl--end-of-line-before-input-start)))
-    (when (< start end)
-      (let ((inhibit-read-only t))
-        (delete-region start end)
-        (save-excursion
-          (goto-char start)
-          (insert
-           (propertize ";;; output cleared" 'font-lock-face 'font-lock-comment-face)))))))
+(defun cider-repl-clear-output (&optional clear-repl)
+  "Delete the output inserted since the last input.
+With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
+  (interactive "P")
+  (if clear-repl
+      (cider-repl-clear-buffer)
+    (let ((start (save-excursion
+                   (cider-repl-previous-prompt)
+                   (ignore-errors (forward-sexp))
+                   (forward-line)
+                   (point)))
+          (end (cider-repl--end-of-line-before-input-start)))
+      (when (< start end)
+        (let ((inhibit-read-only t))
+          (delete-region start end)
+          (save-excursion
+            (goto-char start)
+            (insert
+             (propertize ";;; output cleared" 'font-lock-face 'font-lock-comment-face))))))))
 
 (defun cider-repl-switch-ns-handler (buffer)
   "Make a nREPL evaluation handler for the REPL BUFFER's ns switching."
@@ -1091,7 +1094,6 @@ constructs."
     (define-key map (kbd "C-<return>") #'cider-repl-closing-return)
     (define-key map (kbd "C-j") #'cider-repl-newline-and-indent)
     (define-key map (kbd "C-c C-o") #'cider-repl-clear-output)
-    (define-key map (kbd "C-c M-o") #'cider-repl-clear-buffer)
     (define-key map (kbd "C-c M-n") #'cider-repl-set-ns)
     (define-key map (kbd "C-c C-u") #'cider-repl-kill-input)
     (define-key map (kbd "C-S-a") #'cider-repl-bol-mark)
