@@ -222,7 +222,7 @@
       (setq-local nrepl-endpoint '("localhost" 4005))
       (setq-local nrepl-project-dir "proj")
       (should (string= (cider--connection-info (current-buffer))
-                       "proj@localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+                       "CLJ proj@localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-cider-connection-info-no-project ()
   (with-temp-buffer
@@ -231,7 +231,7 @@
              (cider--nrepl-version () "0.2.1"))
       (setq-local nrepl-endpoint '("localhost" 4005))
       (should (string= (cider--connection-info (current-buffer))
-                       "<no project>@localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+                       "CLJ <no project>@localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
 (ert-deftest test-nrepl-close ()
   (let ((connections (cider-connections)))
