@@ -123,7 +123,7 @@ Also close associated REPL and server buffers."
 
 
 ;;; Current connection logic
-(defvar-local cider-repl-type nil
+(defvar-local cider-repl-type "clj"
   "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
 
 (defun cider-find-connection-buffer-for-project-directory (&optional project-directory all-connections)
@@ -218,7 +218,7 @@ from the file extension."
               (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
                 (or (seq-find (lambda (conn)
                                 (equal (with-current-buffer conn
-                                         (or cider-repl-type "clj"))
+                                         cider-repl-type)
                                        type))
                               (append repls cider-connections))
                     (car repls)
@@ -316,9 +316,7 @@ The connections buffer is determined by
                   (buffer-local-value 'nrepl-project-dir buffer))
                  "")
              (with-current-buffer buffer
-               (if cider-repl-type
-                   (concat " " cider-repl-type)
-                 ""))))))
+               (concat " " cider-repl-type))))))
 
 (defun cider--update-connections-display (ewoc connections)
   "Update the connections EWOC to show CONNECTIONS."
@@ -788,9 +786,7 @@ Info contains project name, current REPL namespace, host:port
 endpoint and Clojure version."
   (with-current-buffer connection-buffer
     (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
-            (if cider-repl-type
-                (upcase (concat cider-repl-type " "))
-              "")
+            (upcase (concat cider-repl-type " "))
             (or (cider--project-name nrepl-project-dir) "<no project>")
             (car nrepl-endpoint)
             (cadr nrepl-endpoint)
