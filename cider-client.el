@@ -307,16 +307,15 @@ The connections buffer is determined by
          (buffer (get-buffer connection))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
-     (format "%s %-30s %-16s %5s   %s%s"
+     (format "%s %-30s %-16s %5s   %s"
              (if (equal connection (car cider-connections)) "*" " ")
              (buffer-name connection)
              (car endpoint)
              (prin1-to-string (cadr endpoint))
-             (or (cider--project-name
-                  (buffer-local-value 'nrepl-project-dir buffer))
-                 "")
              (with-current-buffer buffer
-               (concat " " cider-repl-type))))))
+               (if-let ((name (cider--project-name nrepl-project-dir)))
+                   (concat name " " cider-repl-type)
+                 cider-repl-type))))))
 
 (defun cider--update-connections-display (ewoc connections)
   "Update the connections EWOC to show CONNECTIONS."
