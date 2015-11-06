@@ -226,10 +226,13 @@ from the file extension."
     ;; TODO: Add logic to dispatch to a matching Clojure/ClojureScript REPL based on file type
     (car cider-connections)))
 
-(defun cider-other-connection (connection)
-  "Return the first connection of another type than CONNECTION, \
-in the same project, or nil."
-  (let* ((connection-type (cider--connection-type connection))
+(defun cider-other-connection (&optional connection)
+  "Return the first connection of another type than `cider-current-connection', \
+in the same project, or nil.
+
+If CONNECTION is provided act on that connection instead."
+  (let* ((connection (or connection (cider-current-connection)))
+         (connection-type (cider--connection-type connection))
          (other (if (equal connection-type "clj")
                     (cider-current-connection "cljs")
                   (cider-current-connection "clj"))))

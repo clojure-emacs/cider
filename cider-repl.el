@@ -716,7 +716,7 @@ text property `cider-old-input'."
 (defun cider-repl-switch-to-other ()
   "Switch between the Clojure and ClojureScript REPLs for the current project."
   (interactive)
-  (if-let (other-connection (cider-other-connection (cider-current-connection)))
+  (if-let (other-connection (cider-other-connection))
       (switch-to-buffer other-connection)
     (message "There's no other REPL for the current project")))
 
@@ -788,8 +788,7 @@ namespace to switch to."
                             (cider-repl-switch-ns-handler
                              (cider-current-connection)))
   (when (cider--cljc-or-cljx-buffer-p)
-    (when-let ((other-connection (cider-other-connection
-                                  (cider-current-connection))))
+    (when-let ((other-connection (cider-other-connection)))
       (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
                                 (cider-repl-switch-ns-handler other-connection)))))
 
