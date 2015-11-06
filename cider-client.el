@@ -146,9 +146,9 @@ precedence over other connections associated with the same project.
 
 If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
 connections are returned, instead of just the most recent."
-  (let ((project-directory (or project-directory
-                               (clojure-project-dir (cider-current-dir))))
-        (fn (if all-connections #'seq-filter #'seq-find)))
+  (when-let ((project-directory (or project-directory
+                                    (clojure-project-dir (cider-current-dir))))
+             (fn (if all-connections #'seq-filter #'seq-find)))
     (or (funcall fn (lambda (conn)
                       (when-let ((conn-proj-dir (with-current-buffer conn
                                                   nrepl-project-dir)))
