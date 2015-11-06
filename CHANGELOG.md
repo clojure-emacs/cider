@@ -49,6 +49,7 @@
 
 ### Changes
 
+* [#1299]https://github.com/clojure-emacs/cider/issues/1299 <kbd>C-c C-k</kbd> and <kbd> C-c C-l</kbd> now dispatch to both the Clojure and ClojureScript REPL (in the same project) when called from a `.cljc` or `.cljx` file.
 * [#1397](https://github.com/clojure-emacs/cider/issues/1297) <kbd>C-c M-n</kbd> now changes the ns of both the Clojure and ClojureScript REPL (in the same project) when called from a cljc or cljx file.
 * [#1348](https://github.com/clojure-emacs/cider/issues/1348): Drop the dash dependency.
 * The usage of the default connection has been reduced significantly. Now evaluations & related commands will be routed via the connection matching the current project automatically unless there's some ambiguity when determining the connection (like multiple or no matching connections). Simply put you'll no longer have to mess around much with connecting-setting commands (e.g. `nrepl-connection-browser`, `cider-rotate-default-connection`).

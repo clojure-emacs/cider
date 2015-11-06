@@ -218,9 +218,7 @@ from the file extension."
               ;; OW, find one matching the extension of current file.
               (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
                 (or (seq-find (lambda (conn)
-                                (equal (with-current-buffer conn
-                                         cider-repl-type)
-                                       type))
+                                (equal (cider--connection-type conn) type))
                               project-connections)
                     (car project-connections)
                     (car cider-connections)))))))
@@ -431,21 +429,27 @@ If the nREPL request lacks a session `cider-current-session' is added."
       request
     (append request (list "session" (cider-current-session)))))
 
-(defun cider-nrepl-send-request (request callback)
+(defun cider-nrepl-send-request (request callback &optional connection)
   "Send REQUEST and register response handler CALLBACK.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ).
-Return the id of the sent message."
-  (nrepl-send-request (cider--ensure-session request) callback (cider-current-connection)))
+If CONNECTION is provided dispatch to that connection instead of
+the current connection.
 
-(defun cider-nrepl-send-sync-request (request &optional abort-on-input)
+Return the id of the sent message."
+  (nrepl-send-request (cider--ensure-session request) callback
+                      (or connection (cider-current-connection))))
+
+(defun cider-nrepl-send-sync-request (request &optional abort-on-input connection)
   "Send REQUEST to the nREPL server synchronously.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along and return the accumulated response.
 If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface."
-  (nrepl-send-sync-request (cider--ensure-session request) (cider-current-connection) abort-on-input))
+  (nrepl-send-sync-request (cider--ensure-session request)
+                           (or connection (cider-current-connection))
+                           abort-on-input))
 
 (defun cider-nrepl-send-unhandled-request (request)
   "Send REQUEST to the nREPL server and ignore any responses.
@@ -613,17 +617,21 @@ thing at point."
 ;;; Requests
 
 (declare-function cider-load-file-handler "cider-interaction")
-(defun cider-request:load-file (file-contents file-path file-name &optional callback)
+(defun cider-request:load-file (file-contents file-path file-name &optional connection callback)
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
-loaded. If CALLBACK is nil, use `cider-load-file-handler'."
+loaded.
+
+If CONNECTION is nil, use `cider-current-connection'.
+If CALLBACK is nil, use `cider-load-file-handler'."
   (cider-nrepl-send-request (list "op" "load-file"
                                   "session" (cider-current-session)
                                   "file" file-contents
                                   "file-path" file-path
                                   "file-name" file-name)
                             (or callback
-                                (cider-load-file-handler (current-buffer)))))
+                                (cider-load-file-handler (current-buffer)))
+                            connection))
 
 
 ;;; Sync Requests

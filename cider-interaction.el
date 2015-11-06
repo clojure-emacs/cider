@@ -1350,32 +1350,15 @@ unloaded."
   (with-current-buffer (find-file-noselect file)
     (substring-no-properties (buffer-string))))
 
-(defun cider-load-file (filename)
-  "Load (eval) the Clojure file FILENAME in nREPL."
-  (interactive (list
-                (read-file-name "Load file: " nil nil nil
-                                (when (buffer-file-name)
-                                  (file-name-nondirectory
-                                   (buffer-file-name))))))
-  (cider-ensure-connected)
-  (when-let ((buf (find-buffer-visiting filename)))
-    (with-current-buffer buf
-      (remove-overlays nil nil 'cider-type 'instrumented-defs)
-      (cider--clear-compilation-highlights)))
-  (cider--quit-error-window)
-  (cider--cache-ns-form)
-  (cider-request:load-file
-   (cider-file-string filename)
-   (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
-   (file-name-nondirectory filename))
-  (message "Loading %s..." filename))
-
 (defun cider-load-buffer (&optional buffer)
   "Load (eval) BUFFER's file in nREPL.
 If no buffer is provided the command acts on the current buffer.
-The heavy lifting is done by `cider-load-file'."
+
+If the buffer is for a cljc or cljx file, and both a Clojure and
+ClojureScript REPL exists for the project, it is evaluated in both REPLs."
   (interactive)
   (check-parens)
+  (cider-ensure-connected)
   (setq buffer (or buffer (current-buffer)))
   (with-current-buffer buffer
     (unless buffer-file-name
@@ -1385,7 +1368,33 @@ The heavy lifting is done by `cider-load-file'."
                (or (eq cider-prompt-save-file-on-load 'always-save)
                    (y-or-n-p (format "Save file %s? " buffer-file-name))))
       (save-buffer))
-    (cider-load-file buffer-file-name)))
+    (remove-overlays nil nil 'cider-type 'instrumented-defs)
+    (cider--clear-compilation-highlights)
+    (cider--quit-error-window)
+    (cider--cache-ns-form)
+    (let ((filename (buffer-file-name)))
+      (cider-do-connections connection
+        (cider-request:load-file
+         (cider-file-string filename)
+         (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
+         (file-name-nondirectory filename)
+         connection))
+      (message "Loading %s..." filename))))
+
+(defun cider-load-file (filename)
+  "Load (eval) the Clojure file FILENAME in nREPL.
+
+If the file is a cljc or cljx file, and both a Clojure and ClojureScript
+REPL exists for the project, it is evaluated in both REPLs.
+
+The heavy lifting is done by `cider-load-buffer'."
+  (interactive (list
+                (read-file-name "Load file: " nil nil nil
+                                (when (buffer-file-name)
+                                  (file-name-nondirectory
+                                   (buffer-file-name))))))
+  (when-let ((buffer (find-buffer-visiting filename)))
+    (cider-load-buffer buffer)))
 
 (defalias 'cider-eval-file 'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
