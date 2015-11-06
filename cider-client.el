@@ -301,6 +301,14 @@ The connections buffer is determined by
       (cider-connections-buffer-mode)
       (display-buffer (current-buffer)))))
 
+(defun cider-client-name-repl-type (type)
+  "Return a human-readable name for a connection TYPE.
+TYPE can be any of the possible values of `cider-repl-type'."
+  (pcase type
+    ("clj" "Clojure")
+    ("cljs" "ClojureScript")
+    (_ "Unknown")))
+
 (defun cider--connection-pp (connection)
   "Print an nREPL CONNECTION to the current buffer."
   (let* ((buffer-read-only nil)
@@ -314,8 +322,8 @@ The connections buffer is determined by
              (prin1-to-string (cadr endpoint))
              (with-current-buffer buffer
                (if-let ((name (cider--project-name nrepl-project-dir)))
-                   (concat name " " cider-repl-type)
-                 cider-repl-type))))))
+                   (concat name " " (cider-client-name-repl-type cider-repl-type))
+                 (cider-client-name-repl-type cider-repl-type)))))))
 
 (defun cider--update-connections-display (ewoc connections)
   "Update the connections EWOC to show CONNECTIONS."

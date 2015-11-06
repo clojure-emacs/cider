@@ -299,8 +299,8 @@
             (with-current-buffer "*cider-connections*"
               (should (equal "  REPL                           Host             Port    Project
 
-* *cider-repl test1*             localhost         4005   proj clj
-  *cider-repl test2*             123.123.123.123   4006   clj\n\n"
+* *cider-repl test1*             localhost         4005   proj Clojure
+  *cider-repl test2*             123.123.123.123   4006   Clojure\n\n"
                              (buffer-string)))
               (goto-line 4)         ; somewhere in the second connection listed
               (cider-connections-make-default)
@@ -308,15 +308,15 @@
               (message "%s" (cider-connections))
               (should (equal "  REPL                           Host             Port    Project
 
-  *cider-repl test1*             localhost         4005   proj clj
-* *cider-repl test2*             123.123.123.123   4006   clj\n\n"
+  *cider-repl test1*             localhost         4005   proj Clojure
+* *cider-repl test2*             123.123.123.123   4006   Clojure\n\n"
                              (buffer-string)))
               (goto-line 4)         ; somewhere in the second connection listed
               (cider-connections-close-connection)
               (should (equal (list b1) cider-connections))
               (should (equal "  REPL                           Host             Port    Project
 
-* *cider-repl test1*             localhost         4005   proj clj\n\n"
+* *cider-repl test1*             localhost         4005   proj Clojure\n\n"
                              (buffer-string)))
               (cider-connections-goto-connection)
               (should (equal b1 (current-buffer)))
