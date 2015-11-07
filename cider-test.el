@@ -450,12 +450,16 @@ displayed. When test failures/errors occur, their sources are highlighted."
                 (setq cider-test-last-results results)
                 (cider-test-highlight-problems ns results)
                 (cider-test-echo-summary summary)
-                (when (or (not (zerop (+ error fail)))
-                          cider-test-show-report-on-success)
-                  (cider-test-render-report
-                   (cider-popup-buffer cider-test-report-buffer
-                                       cider-auto-select-test-report-buffer)
-                   ns summary results)))))))))
+                (if (or (not (zerop (+ error fail)))
+                        cider-test-show-report-on-success)
+                    (cider-test-render-report
+                     (cider-popup-buffer cider-test-report-buffer
+                                         cider-auto-select-test-report-buffer)
+                     ns summary results)
+                  (when (get-buffer cider-test-report-buffer)
+                    (cider-test-render-report
+                     (cider-popup-buffer cider-test-report-buffer)
+                     ns summary results))))))))))
 
 (defun cider-test-rerun-tests ()
   "Rerun failed and erring tests from the last tested namespace."
