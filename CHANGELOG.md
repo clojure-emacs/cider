@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1402](https://github.com/clojure-emacs/cider/pull/1402): When tests pass after previously failing, update the test-report buffer to show success.
 * [#1373](https://github.com/clojure-emacs/cider/issues/1373): Add gradle support for `cider-jack-in`.
 * Indentation of macros (and functions) [can be specified](https://github.com/clojure-emacs/cider#specifying-indentation) in the var's metadata, via [indent specs](Indent-Spec.md).
 * [Abbreviated printing](https://github.com/clojure-emacs/cider-nrepl/pull/268) for functions multimethods. Instead of seeing `#object[clojure.core$_PLUS_ 0x4e648e99 "clojure.core$_PLUS_@4e648e99"]` you'll see `#function[clojure.core/+]`.
