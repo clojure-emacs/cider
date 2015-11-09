@@ -471,24 +471,21 @@ In case `default-directory' is non-local we assume the command is available."
          (missing-ops (seq-remove (lambda (op) (nrepl-op-supported-p op current-connection))
                                   cider-required-nrepl-ops)))
     (when missing-ops
-      (cider-repl-emit-interactive-stderr
-       (format "WARNING: The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
-               (cider-string-join missing-ops " ")
-               (upcase cider-version))))))
+      (cider-repl-readme-warning "cider-nrepl-middleware"
+                                 "The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
+                                 (cider-string-join missing-ops " ")
+                                 (upcase cider-version)))))
 
 (defun cider--check-required-nrepl-version ()
   "Check whether we're using a compatible nREPL version."
-  (let ((nrepl-version (cider--nrepl-version)))
-    (if nrepl-version
-        (when (version< nrepl-version cider-required-nrepl-version)
-          (cider-repl-emit-interactive-stderr
-           (cider--readme-button
-            (format "WARNING: CIDER requires nREPL %s (or newer) to work properly"
-                    cider-required-nrepl-version)
-            "warning-saying-you-have-to-use-nrepl-027")))
-      (cider-repl-emit-interactive-stderr
-       (format "WARNING: Can't determine nREPL's version. Please, update nREPL to %s."
-               cider-required-nrepl-version)))))
+  (if-let ((nrepl-version (cider--nrepl-version)))
+      (when (version< nrepl-version cider-required-nrepl-version)
+        (cider-repl-readme-warning "warning-saying-you-have-to-use-nrepl-0212"
+                                   "CIDER requires nREPL %s (or newer) to work properly"
+                                   cider-required-nrepl-version))
+    (cider-repl-readme-warning "warning-saying-you-have-to-use-nrepl-0212"
+                               "Can't determine nREPL's version.\nPlease, update nREPL to %s."
+                               cider-required-nrepl-version)))
 
 (defun cider--check-middleware-compatibility-callback (buffer)
   "A callback to check if the middleware used is compatible with CIDER."
@@ -497,9 +494,10 @@ In case `default-directory' is non-local we assume the command is available."
    (lambda (_buffer result)
      (let ((middleware-version (read result)))
        (unless (and middleware-version (equal cider-version middleware-version))
-         (cider-repl-emit-interactive-stderr
-          (format "ERROR: CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
-                  cider-version middleware-version)))))
+         ;; FIXME: Add a proper readme section about this.
+         (cider-repl-readme-warning "cider-nrepl-middleware"
+                                    "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
+                                    cider-version middleware-version))))
    '()
    '()
    '()))
