@@ -38,7 +38,6 @@ reliably would also make a huge difference.
 * Update the [changelog][6].
 * Use the same coding conventions as the rest of the project.
 * Verify your Emacs Lisp code with `checkdoc` (<kbd>C-c ? d</kbd>).
-* Update the [changelog](CHANGELOG.md) accordingly.
 * [Squash related commits together][5].
 * Open a [pull request][4] that relates to *only* one subject with a clear title
   and description in grammatically correct, complete sentences.
