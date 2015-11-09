@@ -33,11 +33,12 @@ reliably would also make a huge difference.
 
 * Read [how to properly contribute to open source projects on Github][2].
 * Use a topic branch to easily amend a pull request later, if necessary.
-* Write [good commit messages][3].
-* Mention related tickets in the commit messages (e.g. `[Fix #N] Add command ...`)
-* Update the [changelog][6].
 * Use the same coding conventions as the rest of the project.
 * Verify your Emacs Lisp code with `checkdoc` (<kbd>C-c ? d</kbd>).
+* Make sure that the unit tests are passing (`make test`).
+* Write [good commit messages][3].
+* Mention related tickets in the commit messages (e.g. `[Fix #N] Add command ...`).
+* Update the [changelog][6].
 * [Squash related commits together][5].
 * Open a [pull request][4] that relates to *only* one subject with a clear title
   and description in grammatically correct, complete sentences.
