@@ -10,3 +10,4 @@ TAGS
 dist
 .vagrant/
 cider-autoloads.el
+.dir-locals?.el
