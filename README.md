@@ -991,6 +991,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
 <kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
 <kbd>C-c C-d A</kbd>                 | Apropos search for documentation.
+<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 ### cider-repl-mode
 
@@ -1021,8 +1022,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-.</kbd> | Jump to some namespace on the classpath.
 <kbd>C-c M-t v</kbd> | Toggle var tracing.
 <kbd>C-c M-t n</kbd> | Toggle namespace tracing.
-
-
+<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 In the REPL you can also use "shortcut commands" by pressing `,` at the
 beginning of a REPL line. You'll be presented with a list of commands you can
