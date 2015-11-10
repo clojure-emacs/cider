@@ -457,8 +457,11 @@ displayed. When test failures/errors occur, their sources are highlighted."
                                          cider-auto-select-test-report-buffer)
                      ns summary results)
                   (when (get-buffer cider-test-report-buffer)
+                    (with-current-buffer cider-test-report-buffer
+                      (let ((inhibit-read-only t))
+                        (erase-buffer)))
                     (cider-test-render-report
-                     (cider-popup-buffer cider-test-report-buffer)
+                     cider-test-report-buffer
                      ns summary results))))))))))
 
 (defun cider-test-rerun-tests ()
