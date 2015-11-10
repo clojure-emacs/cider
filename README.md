@@ -993,6 +993,11 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d A</kbd>                 | Apropos search for documentation.
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
+There's no need to memorize this list. In any Clojure buffer with `cider-mode`
+active you'll have a `CIDER` menu available, which lists all the most important
+commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
+get a list of the keybindings for `cider-mode`.
+
 ### cider-repl-mode
 
 Keyboard shortcut                    | Description
@@ -1023,6 +1028,11 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-t v</kbd> | Toggle var tracing.
 <kbd>C-c M-t n</kbd> | Toggle namespace tracing.
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
+
+There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
+menu available, which lists all the most important commands and their
+keybindings. You can also invoke `C-h f RET cider-repl-mode` to get a list of the
+keybindings for `cider-repl-mode`.
 
 In the REPL you can also use "shortcut commands" by pressing `,` at the
 beginning of a REPL line. You'll be presented with a list of commands you can
