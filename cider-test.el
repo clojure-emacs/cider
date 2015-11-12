@@ -325,12 +325,12 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 
 ;;; Summary echo
 
-(defun cider-test-echo-summary (summary)
-  "Echo SUMMARY statistics for a test run."
+(defun cider-test-echo-summary (summary ns)
+  "Echo SUMMARY statistics for a test run of tests in NS."
   (nrepl-dbind-response summary (test fail error)
     (message
      (propertize
-      (format "Ran %s tests. %s failures, %s errors." test fail error)
+      (format "Ran %d tests in %s. %d failures, %d errors." test ns fail error)
       'face (cond ((not (zerop error)) 'cider-test-error-face)
                   ((not (zerop fail))  'cider-test-failure-face)
                   (t                   'cider-test-success-face))))))
@@ -434,7 +434,7 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 Upon test completion, results are echoed and a test report is optionally
 displayed. When test failures/errors occur, their sources are highlighted."
   (cider-test-clear-highlights)
-  (message "Testing...")
+  (message "Running tests in %s..." ns)
   (cider-nrepl-send-request
    (list "ns" ns "op" (if retest "retest" "test")
          "tests" tests "session" (cider-current-session))
@@ -449,7 +449,7 @@ displayed. When test failures/errors occur, their sources are highlighted."
                 (setq cider-test-last-test-ns ns)
                 (setq cider-test-last-results results)
                 (cider-test-highlight-problems ns results)
-                (cider-test-echo-summary summary)
+                (cider-test-echo-summary summary ns)
                 (if (or (not (zerop (+ error fail)))
                         cider-test-show-report-on-success)
                     (cider-test-render-report
