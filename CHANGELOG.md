@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#1406](https://github.com/clojure-emacs/cider/issues/1406): When running tests, report test ns in minibuffer messages.
 * [#1402](https://github.com/clojure-emacs/cider/pull/1402): When tests pass after previously failing, update the test-report buffer to show success.
 * [#1373](https://github.com/clojure-emacs/cider/issues/1373): Add gradle support for `cider-jack-in`.
 * Indentation of macros (and functions) [can be specified](https://github.com/clojure-emacs/cider#specifying-indentation) in the var's metadata, via [indent specs](Indent-Spec.md).
