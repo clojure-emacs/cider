@@ -328,13 +328,13 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test-echo-summary (summary ns)
   "Echo SUMMARY statistics for a test run of tests in NS."
   (nrepl-dbind-response summary (test fail error)
-    (message
-     (propertize
-      (format "%s: Ran %d tests. %d failures, %d errors." (propertize ns 'face 'font-lock-type-face) test fail error)
-      'face (cond ((not (zerop error)) 'cider-test-error-face)
-                  ((not (zerop fail))  'cider-test-failure-face)
-                  (t                   'cider-test-success-face))))))
-
+    (message (propertize
+              "%sRan %d tests. %d failures, %d errors."
+              'face (cond ((not (zerop error)) 'cider-test-error-face)
+                          ((not (zerop fail))  'cider-test-failure-face)
+                          (t                   'cider-test-success-face)))
+             (concat (propertize ns 'face 'font-lock-type-face) ": ")
+             test fail error)))
 
 ;;; Test definition highlighting
 ;; On receipt of test results, failing/erring test definitions are highlighted.
