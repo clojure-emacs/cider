@@ -307,7 +307,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     (let ((inhibit-read-only t))
       (cider-test-report-mode)
       (cider-insert "Test Summary" 'bold t)
-      (cider-insert ns 'font-lock-function-name-face t "\n")
+      (cider-insert ns 'font-lock-type-face t "\n")
       (cider-test-render-summary buffer summary)
       (nrepl-dbind-response summary (fail error)
         (unless (zerop (+ fail error))
