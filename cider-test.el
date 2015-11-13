@@ -330,7 +330,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (nrepl-dbind-response summary (test fail error)
     (message
      (propertize
-      (format "Ran %d tests in %s. %d failures, %d errors." test (propertize ns 'face 'font-lock-type-face) fail error)
+      (format "%s: Ran %d tests. %d failures, %d errors." (propertize ns 'face 'font-lock-type-face) test fail error)
       'face (cond ((not (zerop error)) 'cider-test-error-face)
                   ((not (zerop fail))  'cider-test-failure-face)
                   (t                   'cider-test-success-face))))))
