@@ -330,7 +330,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (nrepl-dbind-response summary (test fail error)
     (message
      (propertize
-      (format "Ran %d tests in %s. %d failures, %d errors." test ns fail error)
+      (format "Ran %d tests in %s. %d failures, %d errors." test (propertize ns 'face 'font-lock-type-face) fail error)
       'face (cond ((not (zerop error)) 'cider-test-error-face)
                   ((not (zerop fail))  'cider-test-failure-face)
                   (t                   'cider-test-success-face))))))
@@ -434,14 +434,14 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 Upon test completion, results are echoed and a test report is optionally
 displayed. When test failures/errors occur, their sources are highlighted."
   (cider-test-clear-highlights)
-  (message "Running tests in %s..." ns)
+  (message "Running tests in %s..." (propertize ns 'face 'font-lock-type-face))
   (cider-nrepl-send-request
    (list "ns" ns "op" (if retest "retest" "test")
          "tests" tests "session" (cider-current-session))
    (lambda (response)
      (nrepl-dbind-response response (summary results status out err)
        (cond ((member "namespace-not-found" status)
-              (message "No tests namespace: %s" ns))
+              (message "No tests namespace: %s" (propertize ns 'face 'font-lock-type-face)))
              (out (cider-emit-interactive-eval-output out))
              (err (cider-emit-interactive-eval-err-output err))
              (results
