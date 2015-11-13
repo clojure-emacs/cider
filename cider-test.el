@@ -68,7 +68,6 @@
 
 
 ;;; Faces
-;; These are as defined in clojure-test-mode.
 
 (defface cider-test-failure-face
   '((((class color) (background light))
