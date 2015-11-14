@@ -149,10 +149,10 @@ with CIDER's REPL initialization.
 
 `package.el` is the built-in package manager in Emacs.
 
-`CIDER` is available on all major `package.el` community
+`CIDER` is available on the two major `package.el` community
 maintained repos -
-[MELPA Stable](http://stable.melpa.org),
-[MELPA](http://melpa.org) and [Marmalade](https://marmalade-repo.org/).
+[MELPA Stable](http://stable.melpa.org)
+and [MELPA](http://melpa.org).
 
 You can install `CIDER` with the following command:
 
@@ -177,13 +177,13 @@ obtaining CIDER, as the `master` branch is normally quite stable and
 "stable" (tagged) builds are released somewhat infrequently.
 
 With the most recent builds of Emacs, you can pin CIDER to always use MELPA
-Stable (or Marmalade) by adding this to your Emacs initialization:
+Stable by adding this to your Emacs initialization:
 
 ```el
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 ```
 
-**CIDER has deps (e.g. `queue`) that are only available in the
+**CIDER has deps (e.g. `queue` & `seq`) that are only available in the
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only repository enabled
   by default and you should not disable it!**
 
