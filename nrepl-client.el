@@ -947,7 +947,10 @@ sign of user input, so as not to hang the interface."
       (when-let ((ex (nrepl-dict-get response "ex"))
                  (err (nrepl-dict-get response "err")))
         ;; dump the stacktrace in the REPL
-        (cider-repl-emit-interactive-stderr err))
+        ;; TODO: This has to be replaced with rendering of the
+        ;; standard stacktrace buffer
+        (cider-repl-emit-interactive-stderr err)
+        (switch-to-buffer-other-window connection))
       (when-let ((id (nrepl-dict-get response "id")))
         (with-current-buffer connection
           (nrepl--mark-id-completed id)))
