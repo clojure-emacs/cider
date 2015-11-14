@@ -184,8 +184,8 @@ Stable by adding this to your Emacs initialization:
 ```
 
 **CIDER has deps (e.g. `queue` & `seq`) that are only available in the
-  [GNU ELPA repository](https://elpa.gnu.org/). It's the only repository enabled
-  by default and you should not disable it!**
+  [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
+  enabled by default in Emacs and you should not disable it!**
 
 ## CIDER nREPL middleware
 
