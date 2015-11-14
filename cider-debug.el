@@ -387,6 +387,7 @@ specific message."
 (defun cider--debug-trim-code (code)
   (replace-regexp-in-string "\\`#\\(dbg\\|break\\) ?" "" code))
 
+(declare-function cider-set-buffer-ns "cider-mode")
 (defun cider--initialize-debug-buffer (code ns id &optional reason)
   "Create a new debugging buffer with CODE and namespace NS.
 ID is the id of the message that instrumented CODE.
@@ -396,7 +397,7 @@ REASON is a keyword describing why this buffer was necessary."
         (cider-popup-buffer-display buffer 'select)
       (with-current-buffer (cider-popup-buffer buffer-name 'select
                                                #'clojure-mode 'ancillary)
-        (setq cider-buffer-ns ns)
+        (cider-set-buffer-ns ns)
         (setq buffer-undo-list nil)
         (let ((inhibit-read-only t)
               (buffer-undo-list t))

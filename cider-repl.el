@@ -189,7 +189,7 @@ Currently, this is only used to keep `cider-repl-type' updated."
           (setq cider-repl-ns-cache (nrepl-dict-merge cider-repl-ns-cache changed-namespaces))
           (dolist (b (buffer-list))
             (with-current-buffer b
-              (when cider-mode
+              (when (or cider-mode (derived-mode-p 'cider-repl-mode))
                 (when-let ((ns-dict (nrepl-dict-get changed-namespaces (cider-current-ns))))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
@@ -229,6 +229,7 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
       (clojure.core/map clojure.core/require clojure.main/repl-requires))"
    (lambda (_response) nil)))
 
+(declare-function cider-set-buffer-ns "cider-mode")
 (defun cider-repl-set-initial-ns (buffer)
   "Set the REPL BUFFER's initial namespace (by altering `cider-buffer-ns').
 This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
@@ -240,7 +241,7 @@ This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
                               (cider-nrepl-sync-request:eval "(str *ns*)")
                               "value"))
                             "user")))
-        (setq cider-buffer-ns initial-ns)))))
+        (cider-set-buffer-ns initial-ns)))))
 
 (defvar cider-current-clojure-buffer nil
   "This variable holds current buffer temporarily when connecting to a REPL.

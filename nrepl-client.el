@@ -820,6 +820,7 @@ It is safe to call this function multiple times on the same ID."
 
 (defvar cider-buffer-ns)
 (declare-function cider-need-input "cider-interaction")
+(declare-function cider-set-buffer-ns "cider-mode")
 
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
@@ -846,7 +847,7 @@ server responses."
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
-            (setq cider-buffer-ns ns))))
+            (cider-set-buffer-ns ns))))
       (cond (value
              (when value-handler
                (funcall value-handler buffer value)))

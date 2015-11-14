@@ -426,6 +426,7 @@ Tables are marked to be ignored by line wrap."
                           info)))
       (current-buffer))))
 
+(declare-function cider-set-buffer-ns "cider-mode")
 (defun cider-docview-render (buffer symbol info)
   "Emit into BUFFER formatted documentation for SYMBOL's INFO."
   (with-current-buffer buffer
@@ -436,7 +437,7 @@ Tables are marked to be ignored by line wrap."
           (inhibit-read-only t))
       (cider-docview-mode)
 
-      (setq-local cider-buffer-ns ns)
+      (cider-set-buffer-ns ns)
       (setq-local cider-docview-symbol symbol)
       (setq-local cider-docview-javadoc-url javadoc)
       (setq-local cider-docview-file file)

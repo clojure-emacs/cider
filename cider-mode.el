@@ -582,6 +582,12 @@ property."
   (setq-local clojure-get-indent-function #'cider--get-symbol-indent)
   (setq next-error-function #'cider-jump-to-compilation-error))
 
+(defun cider-set-buffer-ns (ns)
+  "Set this buffer's namespace to NS and refresh font-locking."
+  (setq-local cider-buffer-ns ns)
+  (when (or cider-mode (derived-mode-p 'cider-repl-mode))
+    (cider-refresh-dynamic-font-lock ns)))
+
 (provide 'cider-mode)
 
 ;;; cider-mode.el ends here
