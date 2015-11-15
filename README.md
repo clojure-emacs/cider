@@ -66,15 +66,6 @@ specific CIDER release.**
     - [Using Leiningen](#using-leiningen)
     - [Using Boot](#using-boot)
     - [Using embedded nREPL server](#using-embedded-nrepl-server)
-- [Configuration](#configuration)
-  - [Basic configuration](#basic-configuration)
-  - [Specifying indentation](#specifying-indentation)
-  - [Running tests](#running-tests)
-  - [Code reloading](#code-reloading)
-  - [REPL history](#repl-history)
-  - [Minibuffer completion](#minibuffer-completion)
-  - [Auto-completion](#auto-completion)
-  - [Integration with other modes](#integration-with-other-modes)
 - [Basic Usage](#basic-usage)
   - [Setting up a Leiningen or Boot project (optional)](#setting-up-a-leiningen-or-boot-project-optional)
   - [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
@@ -91,6 +82,15 @@ specific CIDER release.**
   - [cider-test-report-mode](#cider-test-report-mode)
   - [cider-stacktrace-mode](#cider-stacktrace-mode)
   - [Managing multiple connections](#managing-multiple-connections)
+- [Configuration](#configuration)
+  - [Basic configuration](#basic-configuration)
+  - [Specifying indentation](#specifying-indentation)
+  - [Running tests](#running-tests)
+  - [Code reloading](#code-reloading)
+  - [REPL history](#repl-history)
+  - [Minibuffer completion](#minibuffer-completion)
+  - [Auto-completion](#auto-completion)
+  - [Integration with other modes](#integration-with-other-modes)
 - [Requirements](#requirements)
 - [Caveats](#caveats)
   - [Var Metadata](#var-metadata)
@@ -249,6 +249,399 @@ For snapshot releases of CIDER you should use the snapshot of the plugin as well
 
 **Note that you need to use at least CIDER 0.7 for the nREPL middleware to work
 properly.  Don't use cider-nrepl with CIDER 0.6.**
+
+## Basic Usage
+
+The only requirement to use CIDER is to have a nREPL server to
+which it may connect. Many Clojurians favour the use of the Leiningen or Boot tools
+to start an nREPL server, but the use of Leiningen or Boot is not a prerequisite to use
+CIDER (but it *is* required if you want to use the `cider-jack-in` command).
+
+### Setting up a Leiningen or Boot project (optional)
+
+[Leiningen](http://leiningen.org/) is the de facto standard build/project
+management tool for Clojure. [Boot](http://boot-clj.com/) is a newer build tool
+offering abstractions and libraries to construct more complex build
+scenarios. Both have a similar scope to the Maven build tool favoured by Java
+developers (and they actually reuse many things from the Maven ecosystem).
+
+CIDER features a command called `cider-jack-in` that will start an nREPL server
+for a particular Leiningen or Boot project and connect to it automatically.
+This functionality depends on Leiningen 2.x (preferably 2.5+) or Boot
+2.0.0+. Older versions are not supported. For Leiningen, follow the installation
+instructions on its web site to get it up and running and afterwards create a
+project like this:
+
+```
+$ lein new demo
+```
+
+The two main ways to obtain an nREPL connection are discussed in the following sections of the manual.
+
+### Launch a nREPL server and client from Emacs
+
+Simply open in Emacs a file belonging to your `lein` or `boot` project (like
+`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL with
+all the deps loaded in, plus a `CIDER` client connected to it.
+
+Alternative you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
+a `lein` or `boot` project, without having to visit any file in it.
+
+### Connect to a running nREPL server
+
+You can go to your project's dir in a terminal and type there
+(assuming you're using Leiningen that is):
+
+```
+$ lein repl
+```
+
+Or with Boot:
+
+```
+$ boot repl wait
+```
+
+Alternatively you can start nREPL either manually or by the facilities provided by your
+project build tool (Maven, etc).
+
+After you get your nREPL server running go back to Emacs.
+Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the running nREPL server.
+
+### Using the cider minor mode
+
+`CIDER` comes with a handy minor mode called `cider-mode` (complementing
+`clojure-mode`) that allows you to evaluate code in your Clojure source
+files and load it directly in the REPL.  A list of all
+available commands is available in the `CIDER` menu and in the following
+section of this manual.
+
+### Pretty printing in the REPL
+
+Make the REPL always pretty-print the results of your commands. Note
+that this will not work correctly with forms such as `(def a 1) (def b2)`
+and it expects `clojure.pprint` to have been required already
+(the default in more recent versions of Clojure):
+
+<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
+
+### Limiting printed output in the REPL
+
+Accidentally printing large objects can be detrimental to your
+productivity. Clojure provides the `*print-length*` var which, if set,
+controls how many items of each collection the printer will print. You
+can supply a default value for REPL sessions via the `global-vars`
+section of your Leiningen project's configuration.
+
+```clojure
+:global-vars {*print-length* 100}
+```
+
+### ClojureScript usage
+
+ClojureScript support relies on the
+[piggieback](https://github.com/cemerick/piggieback) nREPL middleware being
+present in your REPL session.
+
+1. Add the following dependencies to your `project.clj`
+
+   ```clojure
+   [com.cemerick/piggieback "0.2.1"]
+   [org.clojure/clojure "1.7.0"]
+   ```
+
+   as well as the following option:
+
+   ```clojure
+   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+   ```
+
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl` if
+   you'd like to change the REPL used (the default is `rhino`).
+
+3. Open a file in your project and issue <kbd>M-x</kbd>
+   `cider-jack-in-clojurescript`. This will start up the nREPL server, and then create
+   two REPL buffers for you, one in Clojure and one in ClojureScript. All usual
+   CIDER commands will be automatically directed to the appropriate REPL,
+   depending on whether you're visiting a `clj` or a `cljs` file.
+
+#### Browser-connected ClojureScript REPL
+
+Using Weasel, you can also have a browser-connected REPL.
+
+1. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
+
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl`
+   and choose the `Weasel` option.
+
+3. Add this to your ClojureScript code:
+
+   ```clojure
+   (ns my.cljs.core
+     (:require [weasel.repl :as repl]))
+   (repl/connect "ws://localhost:9001")
+   ```
+
+4. Open a file in your project and issue `M-x cider-jack-in-clojurescript`.
+
+Provided that a Piggieback-enabled ClojureScript environment is active in your
+REPL session, code loading and evaluation will work seamlessly regardless of the
+presence of the `cider-nrepl` middleware. If the middleware is present then most
+other features of CIDER will also be enabled (including code completion,
+documentation lookup, the namespace browser, and macroexpansion).
+
+## Keyboard shortcuts
+
+* <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a REPL client.
+    Prompts for a project root if given a prefix argument.
+* <kbd>M-x cider</kbd>: Connect to an already-running nREPL server.
+
+While you're in `clojure-mode`, `cider-jack-in` is bound for
+convenience to <kbd>C-c M-j</kbd> and `cider-connect` is bound to <kbd>C-c
+M-c</kbd>.
+
+### cider-mode
+
+Keyboard shortcut                    | Description
+-------------------------------------|-------------------------------
+<kbd>C-x C-e</kbd> <kbd>C-c C-e</kbd>| Evaluate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
+<kbd>C-c C-w</kbd>                   | Evaluate the form preceding point and replace it with its result.
+<kbd>C-c M-e</kbd>                   | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
+<kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
+<kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer.
+<kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer.
+<kbd>C-M-x</kbd> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
+<kbd>C-u C-M-x</kbd> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
+<kbd>C-c C-r</kbd>                   | Evaluate the region and display the result in the echo area.
+<kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
+<kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
+<kbd>C-c M-m</kbd>                   | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
+<kbd>C-c C-n</kbd>                   | Eval the ns form.
+<kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
+<kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
+<kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
+<kbd>C-c M-z</kbd>                   | Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
+<kbd>C-c M-d</kbd>                   | Display default REPL connection details, including project directory name, buffer namespace, host and port.
+<kbd>C-c M-r</kbd>                   | Rotate and display the default nREPL connection.
+<kbd>C-c C-o</kbd>                   | Clear the last output in the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
+<kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
+<kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
+<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
+<kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
+<kbd>C-c M-t v</kbd>                 | Toggle var tracing.
+<kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
+<kbd>C-c C-u</kbd>                   | Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c ,</kbd>                     | Run tests for namespace.
+<kbd>C-c C-,</kbd>                   | Re-run test failures/errors for namespace.
+<kbd>C-c M-,</kbd>                   | Run test at point.
+<kbd>C-c C-t</kbd>                   | Show the test report buffer.
+<kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
+<kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
+<kbd>M-,</kbd>                       | Return to your pre-jump location.
+<kbd>M-TAB</kbd>                     | Complete the symbol at point.
+<kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
+<kbd>C-c C-d A</kbd>                 | Apropos search for documentation.
+<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
+
+There's no need to memorize this list. In any Clojure buffer with `cider-mode`
+active you'll have a `CIDER` menu available, which lists all the most important
+commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
+get a list of the keybindings for `cider-mode`.
+
+### cider-repl-mode
+
+Keyboard shortcut                    | Description
+-------------------------------------|------------------------------
+<kbd>RET</kbd>        | Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
+<kbd>C-RET</kbd>      | Close any unmatched parenthesis and then evaluate the current input in Clojure.
+<kbd>C-j</kbd>        | Open a new line and indent.
+<kbd>C-c C-o</kbd>    | Remove the output of the previous evaluation from the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt.
+<kbd>C-c M-o</kbd>    | Switch between the Clojure and ClojureScript REPLs for the current project.
+<kbd>C-c C-u</kbd>    | Kill all text from the prompt to the current point.
+<kbd>C-c C-b</kbd> <kbd>C-c C-c</kbd>| Interrupt any pending evaluations.
+<kbd>C-up</kbd> <kbd>C-down</kbd> | Goto to previous/next input in history.
+<kbd>M-p</kbd> <kbd>M-n</kbd> | Search the previous/next item in history using the current input as search pattern. If <kbd>M-p/M-n</kbd> is typed two times in a row, the second invocation uses the same search pattern (even if the current input has changed).
+<kbd>M-s</kbd> <kbd>M-r</kbd> | Search forward/reverse through command history with regex.
+<kbd>C-c C-n</kbd> <kbd>C-c C-p</kbd> | Move between the current and previous prompts in the REPL buffer. Pressing <kbd>RET</kbd> on a line with old input copies that line to the newest prompt.
+<kbd>C-c C-x</kbd>     | Reload all modified files on the classpath.
+<kbd>C-u C-c C-x</kbd> | Reload all files on the classpath.
+<kbd>TAB</kbd> | Complete symbol at point.
+<kbd>C-c C-d d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+<kbd>C-c C-d j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d r</kbd> | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd> | Apropos search for functions/vars.
+<kbd>C-c C-d A</kbd> | Apropos search for documentation.
+<kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
+<kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
+<kbd>C-c M-n</kbd> | Select a namespace and switch to it.
+<kbd>C-c C-.</kbd> | Jump to some namespace on the classpath.
+<kbd>C-c M-t v</kbd> | Toggle var tracing.
+<kbd>C-c M-t n</kbd> | Toggle namespace tracing.
+<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
+
+There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
+menu available, which lists all the most important commands and their
+keybindings. You can also invoke `C-h f RET cider-repl-mode` to get a list of the
+keybindings for `cider-repl-mode`.
+
+In the REPL you can also use "shortcut commands" by pressing `,` at the
+beginning of a REPL line. You'll be presented with a list of commands you can
+quickly run (like quitting, displaying some info, clearing the REPL, etc). The
+character used to trigger the shortcuts is configurable via
+`cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
+
+```el
+(setq cider-repl-shortcut-dispatch-char ?\:)
+```
+
+### cider-macroexpansion-mode
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>C-c C-m</kbd>              | Invoke `macroexpand-1` on the form at point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
+<kbd>C-c M-m</kbd>              | Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
+<kbd>g</kbd>                    | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
+<kbd>C-/</kbd> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
+
+### cider-inspector-mode
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>Tab</kbd> and <kbd>Shift-Tab</kbd> | navigate inspectable sub-objects
+<kbd>Return</kbd> | inspect sub-objects
+<kbd>l</kbd> | pop to the parent object
+<kbd>g</kbd> | refresh the inspector (e.g. if viewing an atom/ref/agent)
+<kbd>SPC</kbd> | jump to next page in paginated view
+<kbd>M-SPC</kbd> | jump to previous page in paginated view
+<kbd>s</kbd> | set a new page size in paginated view
+
+### cider-test-report-mode
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>C-c ,</kbd>                | Run tests for namespace.
+<kbd>C-c C-,</kbd>              | Re-run test failures/errors for namespace.
+<kbd>C-c M-,</kbd>              | Run test at point.
+<kbd>M-p</kbd>                  | Move point to previous test.
+<kbd>M-n</kbd>                  | Move point to next test.
+<kbd>t</kbd> and <kbd>M-.</kbd> | Jump to test definition.
+<kbd>d</kbd>                    | Display diff of actual vs expected.
+<kbd>e</kbd>                    | Display test error cause and stacktrace info.
+
+### cider-stacktrace-mode
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>M-p</kbd> | move point to previous cause
+<kbd>M-n</kbd> | move point to next cause
+<kbd>M-.</kbd> and <kbd>Return</kbd> | navigate to the source location (if available) for the stacktrace frame
+<kbd>Tab</kbd> | Cycle current cause detail
+<kbd>0</kbd> and <kbd>S-Tab</kbd> | Cycle all cause detail
+<kbd>1</kbd> | Cycle cause #1 detail
+<kbd>2</kbd> | Cycle cause #2 detail
+<kbd>3</kbd> | Cycle cause #3 detail
+<kbd>4</kbd> | Cycle cause #4 detail
+<kbd>5</kbd> | Cycle cause #5 detail
+<kbd>j</kbd> | toggle display of java frames
+<kbd>c</kbd> | toggle display of clj frames
+<kbd>r</kbd> | toggle display of repl frames
+<kbd>t</kbd> | toggle display of tooling frames (e.g. compiler, nREPL middleware)
+<kbd>d</kbd> | toggle display of duplicate frames
+<kbd>a</kbd> | toggle display of all frames
+
+### cider-debug
+
+The debugger can be invoked in several ways, the simplest one is to type
+<kbd>C-u C-M-x</kbd>. This will take the current top-level form, place as many
+breakpoints inside it as possible (instrument it), and then evaluate it a
+normal. Whenever a breakpoint is reached, you'll be shown the value and asked
+for input (see below). Note that if the current form is a `defn`, it will stay
+instrumented, so the debugger will be triggered every time the function is
+called. To uninstrument `defn` (or similar forms), you just have to evaluate it
+again as you'd normally do (e.g. with <kbd>C-M-x</kbd>).
+
+Another way to trigger the debugger is by placing breakpoints yourself. Just
+write `#break` before a form, and the debugger will popup every time that form is
+evaluated. For instance, if you hit <kbd>C-M-x</kbd> on the following, a
+breakpoint is triggered every time `(inspector msg)` is evaluated.
+
+```clojure
+(defn eval-msg [{:keys [inspect] :as msg}]
+  (if inspect
+    #break (inspector msg)
+    msg))
+```
+
+Instead of `#break` you can also write `#dbg` before a form, this will not only
+breakpoint the form but also everything inside it. In the example above, this
+places a breakpoint around `(inspector msg)` and another around `msg`. If you've
+been paying attention, you may have noticed that the first option (<kbd>C-u
+C-M-x</kbd>) is a quick way of evaluating the current top-level form with `#dbg`
+in front.
+
+At any point, you can bring up a list of all currently instrumented `def`s with
+the command `cider-browse-instrumented-defs`. Protocols and types can be
+instrumented as well, but they will not be listed by this command.
+
+#### Keys
+
+`cider-debug` tries to be consistent with
+[Edebug](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html). So
+it makes available the following bindings while stepping through code.
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>n</kbd> | Next step
+<kbd>c</kbd> | Continue without stopping
+<kbd>o</kbd> | Move out of the current sexp (like `up-list`)
+<kbd>i</kbd> | Inject a value into running code
+<kbd>e</kbd> | Eval code in current context
+<kbd>l</kbd> | Inspect local variables
+<kbd>q</kbd> | Quit execution
+
+In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
+<kbd>C-c M-:</kbd>) will use the current lexical context (local variables) while
+the debugger is active.
+
+### Managing multiple connections
+
+You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> (or
+`cider-connect`) multiple times.  To close the current nREPL connection, use
+<kbd>M-x cider-quit</kbd>.
+
+CIDER maintains a list of nREPL connections and a single 'default'
+connection. When you execute CIDER commands in a Clojure editing buffer such as
+to compile a namespace, these commands are executed against a specific
+connection. This is controlled by the variable `cider-request-dispatch` - when
+it's set to `'dynamic` (the default), CIDER will try to infer which connection
+to use from the current project and currently visited file; when `'static`
+dispatch is used all requests will always be routed to the default connection
+(this was the default behavior in CIDER before 0.10).
+
+You can display the current nREPL connection using <kbd>C-c M-d</kbd>
+and rotate the default connection using <kbd>C-c M-r</kbd>. Another
+option for setting the default connection is to execute the command
+<kbd>M-x cider-make-connection-default</kbd> in the appropriate
+REPL buffer.
+
+To switch to the relevant REPL buffer based on the Clojure namespace
+in the current Clojure buffer, use: <kbd>C-c C-z</kbd>. You can then
+use the same key combination to switch back to the Clojure buffer you
+came from.
+
+The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the
+relevant REPL buffer and set the namespace in that buffer based on
+namespace in the current Clojure buffer.
+
+To change the designation used for CIDER buffers use <kbd>M-x
+cider-change-buffers-designation</kbd>. This changes the CIDER REPL
+buffer, nREPL connection buffer and nREPL server buffer. For example
+using `cider-change-buffers-designation` with the string "foo" would
+change `*cider-repl localhost*` to `*cider-repl foo*`.
 
 ## Configuration
 
@@ -795,399 +1188,6 @@ bottom) with the `cider-use-overlays` variable.
 ```el
 (setq cider-use-overlays nil)
 ```
-
-## Basic Usage
-
-The only requirement to use CIDER is to have a nREPL server to
-which it may connect. Many Clojurians favour the use of the Leiningen or Boot tools
-to start an nREPL server, but the use of Leiningen or Boot is not a prerequisite to use
-CIDER (but it *is* required if you want to use the `cider-jack-in` command).
-
-### Setting up a Leiningen or Boot project (optional)
-
-[Leiningen](http://leiningen.org/) is the de facto standard build/project
-management tool for Clojure. [Boot](http://boot-clj.com/) is a newer build tool
-offering abstractions and libraries to construct more complex build
-scenarios. Both have a similar scope to the Maven build tool favoured by Java
-developers (and they actually reuse many things from the Maven ecosystem).
-
-CIDER features a command called `cider-jack-in` that will start an nREPL server
-for a particular Leiningen or Boot project and connect to it automatically.
-This functionality depends on Leiningen 2.x (preferably 2.5+) or Boot
-2.0.0+. Older versions are not supported. For Leiningen, follow the installation
-instructions on its web site to get it up and running and afterwards create a
-project like this:
-
-```
-$ lein new demo
-```
-
-The two main ways to obtain an nREPL connection are discussed in the following sections of the manual.
-
-### Launch a nREPL server and client from Emacs
-
-Simply open in Emacs a file belonging to your `lein` or `boot` project (like
-`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL with
-all the deps loaded in, plus a `CIDER` client connected to it.
-
-Alternative you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
-a `lein` or `boot` project, without having to visit any file in it.
-
-### Connect to a running nREPL server
-
-You can go to your project's dir in a terminal and type there
-(assuming you're using Leiningen that is):
-
-```
-$ lein repl
-```
-
-Or with Boot:
-
-```
-$ boot repl wait
-```
-
-Alternatively you can start nREPL either manually or by the facilities provided by your
-project build tool (Maven, etc).
-
-After you get your nREPL server running go back to Emacs.
-Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the running nREPL server.
-
-### Using the cider minor mode
-
-`CIDER` comes with a handy minor mode called `cider-mode` (complementing
-`clojure-mode`) that allows you to evaluate code in your Clojure source
-files and load it directly in the REPL.  A list of all
-available commands is available in the `CIDER` menu and in the following
-section of this manual.
-
-### Pretty printing in the REPL
-
-Make the REPL always pretty-print the results of your commands. Note
-that this will not work correctly with forms such as `(def a 1) (def b2)`
-and it expects `clojure.pprint` to have been required already
-(the default in more recent versions of Clojure):
-
-<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
-
-### Limiting printed output in the REPL
-
-Accidentally printing large objects can be detrimental to your
-productivity. Clojure provides the `*print-length*` var which, if set,
-controls how many items of each collection the printer will print. You
-can supply a default value for REPL sessions via the `global-vars`
-section of your Leiningen project's configuration.
-
-```clojure
-:global-vars {*print-length* 100}
-```
-
-### ClojureScript usage
-
-ClojureScript support relies on the
-[piggieback](https://github.com/cemerick/piggieback) nREPL middleware being
-present in your REPL session.
-
-1. Add the following dependencies to your `project.clj`
-
-   ```clojure
-   [com.cemerick/piggieback "0.2.1"]
-   [org.clojure/clojure "1.7.0"]
-   ```
-
-   as well as the following option:
-
-   ```clojure
-   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
-   ```
-
-2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl` if
-   you'd like to change the REPL used (the default is `rhino`).
-
-3. Open a file in your project and issue <kbd>M-x</kbd>
-   `cider-jack-in-clojurescript`. This will start up the nREPL server, and then create
-   two REPL buffers for you, one in Clojure and one in ClojureScript. All usual
-   CIDER commands will be automatically directed to the appropriate REPL,
-   depending on whether you're visiting a `clj` or a `cljs` file.
-
-#### Browser-connected ClojureScript REPL
-
-Using Weasel, you can also have a browser-connected REPL.
-
-1. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
-
-2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl`
-   and choose the `Weasel` option.
-
-3. Add this to your ClojureScript code:
-
-   ```clojure
-   (ns my.cljs.core
-     (:require [weasel.repl :as repl]))
-   (repl/connect "ws://localhost:9001")
-   ```
-
-4. Open a file in your project and issue `M-x cider-jack-in-clojurescript`.
-
-Provided that a Piggieback-enabled ClojureScript environment is active in your
-REPL session, code loading and evaluation will work seamlessly regardless of the
-presence of the `cider-nrepl` middleware. If the middleware is present then most
-other features of CIDER will also be enabled (including code completion,
-documentation lookup, the namespace browser, and macroexpansion).
-
-## Keyboard shortcuts
-
-* <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a REPL client.
-    Prompts for a project root if given a prefix argument.
-* <kbd>M-x cider</kbd>: Connect to an already-running nREPL server.
-
-While you're in `clojure-mode`, `cider-jack-in` is bound for
-convenience to <kbd>C-c M-j</kbd> and `cider-connect` is bound to <kbd>C-c
-M-c</kbd>.
-
-### cider-mode
-
-Keyboard shortcut                    | Description
--------------------------------------|-------------------------------
-<kbd>C-x C-e</kbd> <kbd>C-c C-e</kbd>| Evaluate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
-<kbd>C-c C-w</kbd>                   | Evaluate the form preceding point and replace it with its result.
-<kbd>C-c M-e</kbd>                   | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
-<kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
-<kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer.
-<kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer.
-<kbd>C-M-x</kbd> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
-<kbd>C-u C-M-x</kbd> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
-<kbd>C-c C-r</kbd>                   | Evaluate the region and display the result in the echo area.
-<kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
-<kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
-<kbd>C-c M-m</kbd>                   | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
-<kbd>C-c C-n</kbd>                   | Eval the ns form.
-<kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
-<kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
-<kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
-<kbd>C-c M-z</kbd>                   | Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
-<kbd>C-c M-d</kbd>                   | Display default REPL connection details, including project directory name, buffer namespace, host and port.
-<kbd>C-c M-r</kbd>                   | Rotate and display the default nREPL connection.
-<kbd>C-c C-o</kbd>                   | Clear the last output in the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
-<kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
-<kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
-<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
-<kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
-<kbd>C-c M-t v</kbd>                 | Toggle var tracing.
-<kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
-<kbd>C-c C-u</kbd>                   | Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c ,</kbd>                     | Run tests for namespace.
-<kbd>C-c C-,</kbd>                   | Re-run test failures/errors for namespace.
-<kbd>C-c M-,</kbd>                   | Run test at point.
-<kbd>C-c C-t</kbd>                   | Show the test report buffer.
-<kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
-<kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
-<kbd>M-,</kbd>                       | Return to your pre-jump location.
-<kbd>M-TAB</kbd>                     | Complete the symbol at point.
-<kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
-<kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
-<kbd>C-c C-d A</kbd>                 | Apropos search for documentation.
-<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
-
-There's no need to memorize this list. In any Clojure buffer with `cider-mode`
-active you'll have a `CIDER` menu available, which lists all the most important
-commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
-get a list of the keybindings for `cider-mode`.
-
-### cider-repl-mode
-
-Keyboard shortcut                    | Description
--------------------------------------|------------------------------
-<kbd>RET</kbd>        | Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
-<kbd>C-RET</kbd>      | Close any unmatched parenthesis and then evaluate the current input in Clojure.
-<kbd>C-j</kbd>        | Open a new line and indent.
-<kbd>C-c C-o</kbd>    | Remove the output of the previous evaluation from the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt.
-<kbd>C-c M-o</kbd>    | Switch between the Clojure and ClojureScript REPLs for the current project.
-<kbd>C-c C-u</kbd>    | Kill all text from the prompt to the current point.
-<kbd>C-c C-b</kbd> <kbd>C-c C-c</kbd>| Interrupt any pending evaluations.
-<kbd>C-up</kbd> <kbd>C-down</kbd> | Goto to previous/next input in history.
-<kbd>M-p</kbd> <kbd>M-n</kbd> | Search the previous/next item in history using the current input as search pattern. If <kbd>M-p/M-n</kbd> is typed two times in a row, the second invocation uses the same search pattern (even if the current input has changed).
-<kbd>M-s</kbd> <kbd>M-r</kbd> | Search forward/reverse through command history with regex.
-<kbd>C-c C-n</kbd> <kbd>C-c C-p</kbd> | Move between the current and previous prompts in the REPL buffer. Pressing <kbd>RET</kbd> on a line with old input copies that line to the newest prompt.
-<kbd>C-c C-x</kbd>     | Reload all modified files on the classpath.
-<kbd>C-u C-c C-x</kbd> | Reload all files on the classpath.
-<kbd>TAB</kbd> | Complete symbol at point.
-<kbd>C-c C-d d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
-<kbd>C-c C-d j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-d r</kbd> | Lookup symbol in Grimoire.
-<kbd>C-c C-d a</kbd> | Apropos search for functions/vars.
-<kbd>C-c C-d A</kbd> | Apropos search for documentation.
-<kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
-<kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
-<kbd>C-c M-n</kbd> | Select a namespace and switch to it.
-<kbd>C-c C-.</kbd> | Jump to some namespace on the classpath.
-<kbd>C-c M-t v</kbd> | Toggle var tracing.
-<kbd>C-c M-t n</kbd> | Toggle namespace tracing.
-<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
-
-There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
-menu available, which lists all the most important commands and their
-keybindings. You can also invoke `C-h f RET cider-repl-mode` to get a list of the
-keybindings for `cider-repl-mode`.
-
-In the REPL you can also use "shortcut commands" by pressing `,` at the
-beginning of a REPL line. You'll be presented with a list of commands you can
-quickly run (like quitting, displaying some info, clearing the REPL, etc). The
-character used to trigger the shortcuts is configurable via
-`cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
-
-```el
-(setq cider-repl-shortcut-dispatch-char ?\:)
-```
-
-### cider-macroexpansion-mode
-
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>C-c C-m</kbd>              | Invoke `macroexpand-1` on the form at point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
-<kbd>C-c M-m</kbd>              | Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
-<kbd>g</kbd>                    | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
-<kbd>C-/</kbd> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
-
-### cider-inspector-mode
-
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>Tab</kbd> and <kbd>Shift-Tab</kbd> | navigate inspectable sub-objects
-<kbd>Return</kbd> | inspect sub-objects
-<kbd>l</kbd> | pop to the parent object
-<kbd>g</kbd> | refresh the inspector (e.g. if viewing an atom/ref/agent)
-<kbd>SPC</kbd> | jump to next page in paginated view
-<kbd>M-SPC</kbd> | jump to previous page in paginated view
-<kbd>s</kbd> | set a new page size in paginated view
-
-### cider-test-report-mode
-
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>C-c ,</kbd>                | Run tests for namespace.
-<kbd>C-c C-,</kbd>              | Re-run test failures/errors for namespace.
-<kbd>C-c M-,</kbd>              | Run test at point.
-<kbd>M-p</kbd>                  | Move point to previous test.
-<kbd>M-n</kbd>                  | Move point to next test.
-<kbd>t</kbd> and <kbd>M-.</kbd> | Jump to test definition.
-<kbd>d</kbd>                    | Display diff of actual vs expected.
-<kbd>e</kbd>                    | Display test error cause and stacktrace info.
-
-### cider-stacktrace-mode
-
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>M-p</kbd> | move point to previous cause
-<kbd>M-n</kbd> | move point to next cause
-<kbd>M-.</kbd> and <kbd>Return</kbd> | navigate to the source location (if available) for the stacktrace frame
-<kbd>Tab</kbd> | Cycle current cause detail
-<kbd>0</kbd> and <kbd>S-Tab</kbd> | Cycle all cause detail
-<kbd>1</kbd> | Cycle cause #1 detail
-<kbd>2</kbd> | Cycle cause #2 detail
-<kbd>3</kbd> | Cycle cause #3 detail
-<kbd>4</kbd> | Cycle cause #4 detail
-<kbd>5</kbd> | Cycle cause #5 detail
-<kbd>j</kbd> | toggle display of java frames
-<kbd>c</kbd> | toggle display of clj frames
-<kbd>r</kbd> | toggle display of repl frames
-<kbd>t</kbd> | toggle display of tooling frames (e.g. compiler, nREPL middleware)
-<kbd>d</kbd> | toggle display of duplicate frames
-<kbd>a</kbd> | toggle display of all frames
-
-### cider-debug
-
-The debugger can be invoked in several ways, the simplest one is to type
-<kbd>C-u C-M-x</kbd>. This will take the current top-level form, place as many
-breakpoints inside it as possible (instrument it), and then evaluate it a
-normal. Whenever a breakpoint is reached, you'll be shown the value and asked
-for input (see below). Note that if the current form is a `defn`, it will stay
-instrumented, so the debugger will be triggered every time the function is
-called. To uninstrument `defn` (or similar forms), you just have to evaluate it
-again as you'd normally do (e.g. with <kbd>C-M-x</kbd>).
-
-Another way to trigger the debugger is by placing breakpoints yourself. Just
-write `#break` before a form, and the debugger will popup every time that form is
-evaluated. For instance, if you hit <kbd>C-M-x</kbd> on the following, a
-breakpoint is triggered every time `(inspector msg)` is evaluated.
-
-```clojure
-(defn eval-msg [{:keys [inspect] :as msg}]
-  (if inspect
-    #break (inspector msg)
-    msg))
-```
-
-Instead of `#break` you can also write `#dbg` before a form, this will not only
-breakpoint the form but also everything inside it. In the example above, this
-places a breakpoint around `(inspector msg)` and another around `msg`. If you've
-been paying attention, you may have noticed that the first option (<kbd>C-u
-C-M-x</kbd>) is a quick way of evaluating the current top-level form with `#dbg`
-in front.
-
-At any point, you can bring up a list of all currently instrumented `def`s with
-the command `cider-browse-instrumented-defs`. Protocols and types can be
-instrumented as well, but they will not be listed by this command.
-
-#### Keys
-
-`cider-debug` tries to be consistent with
-[Edebug](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html). So
-it makes available the following bindings while stepping through code.
-
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>n</kbd> | Next step
-<kbd>c</kbd> | Continue without stopping
-<kbd>o</kbd> | Move out of the current sexp (like `up-list`)
-<kbd>i</kbd> | Inject a value into running code
-<kbd>e</kbd> | Eval code in current context
-<kbd>l</kbd> | Inspect local variables
-<kbd>q</kbd> | Quit execution
-
-In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
-<kbd>C-c M-:</kbd>) will use the current lexical context (local variables) while
-the debugger is active.
-
-### Managing multiple connections
-
-You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> (or
-`cider-connect`) multiple times.  To close the current nREPL connection, use
-<kbd>M-x cider-quit</kbd>.
-
-CIDER maintains a list of nREPL connections and a single 'default'
-connection. When you execute CIDER commands in a Clojure editing buffer such as
-to compile a namespace, these commands are executed against a specific
-connection. This is controlled by the variable `cider-request-dispatch` - when
-it's set to `'dynamic` (the default), CIDER will try to infer which connection
-to use from the current project and currently visited file; when `'static`
-dispatch is used all requests will always be routed to the default connection
-(this was the default behavior in CIDER before 0.10).
-
-You can display the current nREPL connection using <kbd>C-c M-d</kbd>
-and rotate the default connection using <kbd>C-c M-r</kbd>. Another
-option for setting the default connection is to execute the command
-<kbd>M-x cider-make-connection-default</kbd> in the appropriate
-REPL buffer.
-
-To switch to the relevant REPL buffer based on the Clojure namespace
-in the current Clojure buffer, use: <kbd>C-c C-z</kbd>. You can then
-use the same key combination to switch back to the Clojure buffer you
-came from.
-
-The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the
-relevant REPL buffer and set the namespace in that buffer based on
-namespace in the current Clojure buffer.
-
-To change the designation used for CIDER buffers use <kbd>M-x
-cider-change-buffers-designation</kbd>. This changes the CIDER REPL
-buffer, nREPL connection buffer and nREPL server buffer. For example
-using `cider-change-buffers-designation` with the string "foo" would
-change `*cider-repl localhost*` to `*cider-repl foo*`.
 
 ## Requirements
 
