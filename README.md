@@ -91,7 +91,6 @@ specific CIDER release.**
   - [Minibuffer completion](#minibuffer-completion)
   - [Auto-completion](#auto-completion)
   - [Integration with other modes](#integration-with-other-modes)
-- [Requirements](#requirements)
 - [Caveats](#caveats)
   - [Var Metadata](#var-metadata)
   - [ClojureScript limitations](#clojurescript-limitations)
@@ -123,6 +122,12 @@ You'll need to have Emacs installed (preferably the latest stable
 release). If you're new to Emacs you might want to read
 [this tutorial](http://clojure-doc.org/articles/tutorials/emacs.html),
 dedicated to setting up Emacs for Clojure development, first.
+
+CIDER officially support Emacs 24.3+ and Clojure 1.5+.
+
+You'll also need a recent version of your favorite build tool (Leiningen, Boot
+or Gradle) to be able to start CIDER via `cider-jack-in`. Generally it's a good
+idea to use their latest stable versions.
 
 #### Upgrading from nrepl.el
 
@@ -1188,12 +1193,6 @@ bottom) with the `cider-use-overlays` variable.
 ```el
 (setq cider-use-overlays nil)
 ```
-
-## Requirements
-
-* [Leiningen](http://leiningen.org) 2.x (only for `cider-jack-in`)
-* [GNU Emacs](http://www.gnu.org/software/emacs/emacs.html) 24.3+.
-* [Clojure](http://clojure.org) 1.5.0+
 
 ## Caveats
 
