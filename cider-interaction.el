@@ -1084,7 +1084,7 @@ Print its value into the current buffer."
 With DEBUG-IT prefix argument, also debug the entire form as with the
 command `cider-debug-defun-at-point'."
   (interactive "P")
-  (when (derived-mode-p 'clojurescript-mode)
+  (when (and debug-it (derived-mode-p 'clojurescript-mode))
     (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
                             "  \nWould you like to read the Feature Request?"))
       (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
