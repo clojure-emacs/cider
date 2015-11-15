@@ -14,11 +14,6 @@
 server. CIDER is a great alternative to the now deprecated combination of SLIME +
 [swank-clojure](https://github.com/technomancy/swank-clojure).
 
-If you're interested in details about CIDER's history and architecture you can
-check out the Clojure/conj presentation
-[The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6)
-and the [Cognicast's episode on CIDER](http://blog.cognitect.com/cognicast/080).
-
 If you like the project, please consider [supporting its ongoing development](#donations).
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -59,6 +54,7 @@ specific CIDER release.**
 
 ***
 
+- [Overview](#overview)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Installation via package.el](#installation-via-packageel)
@@ -110,6 +106,42 @@ specific CIDER release.**
   - [Donations](#donations)
   - [Running the tests in batch mode](#running-the-tests-in-batch-mode)
 - [License](#license)
+
+## Overview
+
+CIDER aims to provide an interactive development experience similar to the one
+you'd get when programming in Emacs Lisp, Common Lisp (with SLIME or Sly),
+Scheme (with Geiser) and Smalltalk.
+
+Programmers are expected to program in a very dynamic and incremental manner,
+constantly re-evaluating existing Clojure definitions and adding new ones to
+their running applications. You never stop/start a Clojure application while
+using CIDER - you're constantly interacting with it and changing it.
+
+You can find more details about the typical CIDER workflow in the `Basic Usage`
+section. While we're a bit short on video tutorials, you can check out this
+[tutorial about SLIME](https://www.youtube.com/watch?v=_B_4vhsmRRI) to get a
+feel about what do we mean by an "Interactive Development Environment".
+There are plenty of differences between CIDER and SLIME, but the core ideas are
+pretty much the same (and SLIME served as the principle inspiration for CIDER).
+
+CIDER's basic architecture looks something like this:
+
+<p align="center">
+  <img src="doc/images/cider_architecture.png" width="600" />
+</p>
+
+Clojure code gets executed by an nREPL server. CIDER sends requests to the
+server and processes its responses. The server's functionality is augmented by
+additional nREPL middleware, designed specifically to address the needs of an
+interactive development environment like CIDER. Much of the middleware we
+developed for CIDER is editor agnostic and is being used by other Clojure dev
+environments as well (e.g. `vim-fireplace` & `CCW`).
+
+If you're interested in more details about CIDER's history and architecture you can
+check out the Clojure/conj presentation
+[The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6)
+and the [Cognicast's episode on CIDER](http://blog.cognitect.com/cognicast/080).
 
 ## Installation
 
