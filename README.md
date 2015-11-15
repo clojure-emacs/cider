@@ -62,10 +62,10 @@ specific CIDER release.**
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Installation via package.el](#installation-via-packageel)
-- [CIDER nREPL middleware](#cider-nrepl-middleware)
-  - [Using Leiningen](#using-leiningen)
-  - [Using Boot](#using-boot)
-  - [Using embedded nREPL server](#using-embedded-nrepl-server)
+  - [Setting up CIDER's nREPL middleware](#setting-up-ciders-nrepl-middleware)
+    - [Using Leiningen](#using-leiningen)
+    - [Using Boot](#using-boot)
+    - [Using embedded nREPL server](#using-embedded-nrepl-server)
 - [Configuration](#configuration)
   - [Basic configuration](#basic-configuration)
   - [Specifying indentation](#specifying-indentation)
@@ -187,12 +187,12 @@ Stable by adding this to your Emacs initialization:
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
   enabled by default in Emacs and you should not disable it!**
 
-## CIDER nREPL middleware
-
-### Using Leiningen
+### Setting up CIDER's nREPL middleware
 
 Much of CIDER's functionality depends on the presence of CIDER's own
 [nREPL middleware](https://github.com/clojure-emacs/cider-nrepl).
+
+#### Using Leiningen
 
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the :user profile in `~/.lein/profiles.clj`.
@@ -207,7 +207,7 @@ A minimal `profiles.clj` for CIDER would be:
 {:user {:plugins [[cider/cider-nrepl "0.9.1"]]}}
 ```
 
-### Using Boot
+#### Using Boot
 
 Boot users can configure the tool to include the middleware automatically in
 all of their projects using a `~/.boot/profile.boot` file like so:
@@ -224,7 +224,7 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 
 For more information visit [boot-clj wiki](https://github.com/boot-clj/boot/wiki/Cider-REPL).
 
-### Using embedded nREPL server
+#### Using embedded nREPL server
 
 If you're embedding nREPL in your application you'll have to start the
 server with CIDER's own nREPL handler.
