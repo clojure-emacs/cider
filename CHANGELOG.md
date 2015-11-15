@@ -56,6 +56,7 @@
 * `nrepl-log-messages` is now set to `t` by default.
 * Renamed `cider-repl-output-face` to `cider-repl-stdout-face` and `cider-repl-err-output-face` to `cider-repl-stderr-face`.
 * Clearing the REPL buffer is now bound to `C-u C-C C-o`.
+* [#1422](https://github.com/clojure-emacs/cider/issues/1422): Don't display mismatching parens error on incomplete expressions in REPL buffers.
 
 ### Bugs fixed
 
