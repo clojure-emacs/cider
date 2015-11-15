@@ -332,7 +332,8 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
               'face (cond ((not (zerop error)) 'cider-test-error-face)
                           ((not (zerop fail))  'cider-test-failure-face)
                           (t                   'cider-test-success-face)))
-             (concat (propertize ns 'face 'font-lock-type-face) ": ")
+             (concat (propertize ns 'face 'font-lock-type-face)
+                     (propertize ": " 'face 'default))
              test fail error)))
 
 ;;; Test definition highlighting
