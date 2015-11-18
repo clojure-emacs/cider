@@ -232,7 +232,7 @@ Much of CIDER's functionality depends on the presence of CIDER's own
 #### Using Leiningen
 
 Use the convenient plugin for defaults, either in your project's
-`project.clj` file or in the :user profile in `~/.lein/profiles.clj`.
+`project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
 
 ```clojure
 :plugins [[cider/cider-nrepl "x.y.z"]]
@@ -241,7 +241,7 @@ Use the convenient plugin for defaults, either in your project's
 A minimal `profiles.clj` for CIDER would be:
 
 ```clojure
-{:user {:plugins [[cider/cider-nrepl "0.9.1"]]}}
+{:repl {:plugins [[cider/cider-nrepl "0.9.1"]]}}
 ```
 
 #### Using Boot
@@ -1333,7 +1333,7 @@ in the source code). Leiningen users can add this to their `profiles.clj` to
 force the proper dependency:
 
 ```clojure
-{:user {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}}
+{:repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}}
 ```
 
 Make sure you add the newer nREPL dependency to the `:dependencies` key instead
