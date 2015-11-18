@@ -308,9 +308,10 @@ Returns to the buffer in which the command was invoked."
 ;;; Dynamic indentation
 (defun cider--get-symbol-indent (symbol-name)
   "Return the indent metadata for SYMBOL-NAME in the current namespace."
-  (let ((ns (cider-current-ns)))
-    (if-let ((indent (nrepl-dict-get (cider-resolve-var ns symbol-name)
-                                     "indent")))
+  (let* ((ns (cider-current-ns))
+         (meta (cider-resolve-var ns symbol-name)))
+    (if-let ((indent (or (nrepl-dict-get meta "style/indent")
+                         (nrepl-dict-get meta "indent"))))
         (let ((format (format ":indent metadata on ‘%s’ is unreadable! \nERROR: %%s"
                               symbol-name)))
           (with-demoted-errors format
