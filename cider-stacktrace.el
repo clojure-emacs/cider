@@ -513,7 +513,7 @@ This associates text properties to enable filtering and source navigation."
 Buttons span over the region from BEG to current point.
 MESSAGE is parsed to find line, col and buffer name to jump to."
   (when (and message
-             (string-match "\\([^:]+\\):\\([^:]+\\):\\([^:]+\\):\\([^:]+\\)\\'" message))
+             (string-match "\\([^:]+\\):.*?\\([^: ]+\\):\\([^: ]+\\):\\([^: ]+\\)" message))
     (let* ((line (string-to-number (match-string 3 message)))
            (col (string-to-number (match-string 4 message)))
            (buf-name (car (last (split-string (match-string 2 message) "\\/")))))
