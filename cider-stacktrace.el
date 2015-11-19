@@ -507,27 +507,26 @@ This associates text properties to enable filtering and source navigation."
             (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)))
         (insert "\n")))))
 
-(defun cider-stacktrace--create-go-to-err-button (beg message)
+(defun cider-stacktrace--create-go-to-err-button (beg)
   "Create a button that jumps to the relevant error.
-
-Buttons span over the region from BEG to current point.
-MESSAGE is parsed to find line, col and buffer name to jump to."
-  (when (and message
-             (string-match "\\([^:]+\\):.*?\\([^: ]+\\):\\([^: ]+\\):\\([^: ]+\\)" message))
-    (let* ((line (string-to-number (match-string 3 message)))
-           (col (string-to-number (match-string 4 message)))
-           (buf-name (car (last (split-string (match-string 2 message) "\\/")))))
-      (when buf-name
-        (make-button (+ beg 3)
-                     (point)
-                     'action (lambda (_button)
-                               (let ((the-buf-window (get-buffer-window buf-name)))
-                                 (if the-buf-window
-                                     (select-window the-buf-window)
-                                   (switch-to-buffer buf-name)))
-                               (goto-char (point-min))
-                               (forward-line line)
-                               (move-to-column col t)))))))
+Button is created by finding an error message between BEG and point.
+This message is parsed to find line, col and buffer name to jump to."
+  (save-excursion
+    (when (search-backward-regexp "\\([^:]+\\):[ \n\r]*?\\([^: ]+\\):\\([^: ]+\\):\\([^: \n\r]+\\)" beg 'noerror)
+      (let* ((line (string-to-number (match-string 3)))
+             (col (string-to-number (match-string 4)))
+             (buf-name (save-match-data
+                         (car (last (split-string (match-string 2) "\\/"))))))
+        (when buf-name
+          (make-button (match-beginning 2) (match-end 4)
+                       'action (lambda (_button)
+                                 (let ((the-buf-window (get-buffer-window buf-name)))
+                                   (if the-buf-window
+                                       (select-window the-buf-window)
+                                     (switch-to-buffer buf-name)))
+                                 (goto-char (point-min))
+                                 (forward-line line)
+                                 (move-to-column col t))))))))
 
 (defun cider-stacktrace-render-cause (buffer cause num note)
   "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE."
@@ -548,7 +547,8 @@ MESSAGE is parsed to find line, col and buffer name to jump to."
             (let ((beg (point)))
               (cider-stacktrace-emit-indented
                (propertize (or message "(No message)") 'font-lock-face  message-face) indent t)
-              (cider-stacktrace--create-go-to-err-button beg message))
+              (when message
+                (cider-stacktrace--create-go-to-err-button beg)))
             (insert "\n")
             (when data
               (cider-stacktrace-emit-indented
