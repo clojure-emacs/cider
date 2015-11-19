@@ -244,6 +244,10 @@ A minimal `profiles.clj` for CIDER would be:
 {:repl {:plugins [[cider/cider-nrepl "0.9.1"]]}}
 ```
 
+**Be careful not to place this in the `:user` profile, as this way CIDER's
+middleware will always get loaded, causing `lein` to start slower.  You really
+need it just for `lein repl` and this is what the `:repl` profile is for.**
+
 #### Using Boot
 
 Boot users can configure the tool to include the middleware automatically in
