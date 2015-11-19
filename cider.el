@@ -252,22 +252,22 @@ and has no process, return it.  If the process is alive, ask the user for
 confirmation and return 'new/nil for y/n answer respectively.  If other
 REPL buffers with dead process exist, ask the user if any of those should
 be reused."
-  (if-let ((repl-buffers (cider-repl-buffers))
-           (exact-buff (seq-find
-                        (lambda (buff)
-                          (with-current-buffer buff
-                            (or (and endpoint
-                                     (equal endpoint nrepl-endpoint))
-                                (and project-directory
-                                     (equal project-directory nrepl-project-dir)))))
-                        repl-buffers)))
-      (if (get-buffer-process exact-buff)
-          (when (y-or-n-p (format "REPL buffer already exists (%s).  \
+  (let ((repl-buffers (cider-repl-buffers)))
+    (if-let ((exact-buff (seq-find
+                          (lambda (buff)
+                            (with-current-buffer buff
+                              (or (and endpoint
+                                       (equal endpoint nrepl-endpoint))
+                                  (and project-directory
+                                       (equal project-directory nrepl-project-dir)))))
+                          repl-buffers)))
+        (if (get-buffer-process exact-buff)
+            (when (y-or-n-p (format "REPL buffer already exists (%s).  \
 Do you really want to create a new one? "
-                                  exact-buff))
-            'new)
-        exact-buff)
-    (or (cider--select-zombie-buffer repl-buffers) 'new)))
+                                    exact-buff))
+              'new)
+          exact-buff)
+      (or (cider--select-zombie-buffer repl-buffers) 'new))))
 
 ;;;###autoload
 (defun cider-jack-in (&optional prompt-project cljs-too)
