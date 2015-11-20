@@ -371,11 +371,11 @@ and it expects `clojure.pprint` to have been required already
 Accidentally printing large objects can be detrimental to your
 productivity. Clojure provides the `*print-length*` var which, if set,
 controls how many items of each collection the printer will print. You
-can supply a default value for REPL sessions via the `global-vars`
+can supply a default value for REPL sessions via the `repl-options`
 section of your Leiningen project's configuration.
 
 ```clojure
-:global-vars {*print-length* 100}
+:repl-options {:init (set! *print-length* 50)}
 ```
 
 ### ClojureScript usage
