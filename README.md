@@ -10,9 +10,9 @@
 
 `CIDER` (formerly `nrepl.el`) is the **C**lojure **I**nteractive **D**evelopment
 **E**nvironment that **R**ocks for Emacs! It's built on top of
-[nREPL](https://github.com/clojure/tools.nrepl), the Clojure networked REPL
+[nREPL][], the Clojure networked REPL
 server. CIDER is a great alternative to the now deprecated combination of SLIME +
-[swank-clojure](https://github.com/technomancy/swank-clojure).
+[swank-clojure][].
 
 If you like the project, please consider [supporting its ongoing development](#donations).
 
@@ -41,7 +41,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * nREPL session management
 * Scratchpad
 * Minibuffer code evaluation
-* Integration with [company-mode](http://company-mode.github.io/) and [auto-complete-mode](https://github.com/clojure-emacs/ac-cider)
+* Integration with [company-mode][] and [auto-complete-mode][]
 * Support for working with multiple simultaneous nREPL connections
 
 ![CIDER Screenshot](screenshots/cider-overview.png)
@@ -300,8 +300,8 @@ CIDER (but it *is* required if you want to use the `cider-jack-in` command).
 
 ### Setting up a Leiningen or Boot project (optional)
 
-[Leiningen](http://leiningen.org/) is the de facto standard build/project
-management tool for Clojure. [Boot](http://boot-clj.com/) is a newer build tool
+[Leiningen][] is the de facto standard build/project
+management tool for Clojure. [Boot][] is a newer build tool
 offering abstractions and libraries to construct more complex build
 scenarios. Both have a similar scope to the Maven build tool favoured by Java
 developers (and they actually reuse many things from the Maven ecosystem).
@@ -381,7 +381,7 @@ section of your Leiningen project's configuration.
 ### ClojureScript usage
 
 ClojureScript support relies on the
-[piggieback](https://github.com/cemerick/piggieback) nREPL middleware being
+[piggieback][] nREPL middleware being
 present in your REPL session.
 
 1. Add the following dependencies to your `project.clj`
@@ -1501,3 +1501,10 @@ Duncan, Steve Purcell and
 Distributed under the GNU General Public License, version 3
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
+[nREPL]: https://github.com/clojure/tools.nrepl
+[swank-clojure]: https://github.com/technomancy/swank-clojure
+[company-mode]: http://company-mode.github.io/
+[auto-complete-mode]: https://github.com/clojure-emacs/ac-cider
+[leiningen]: http://leiningen.org/
+[boot]: http://boot-clj.com/
+[piggieback]: https://github.com/cemerick/piggieback
