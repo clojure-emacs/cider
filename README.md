@@ -357,27 +357,6 @@ files and load it directly in the REPL.  A list of all
 available commands is available in the `CIDER` menu and in the following
 section of this manual.
 
-### Pretty printing in the REPL
-
-Make the REPL always pretty-print the results of your commands. Note
-that this will not work correctly with forms such as `(def a 1) (def b2)`
-and it expects `clojure.pprint` to have been required already
-(the default in more recent versions of Clojure):
-
-<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
-
-### Limiting printed output in the REPL
-
-Accidentally printing large objects can be detrimental to your
-productivity. Clojure provides the `*print-length*` var which, if set,
-controls how many items of each collection the printer will print. You
-can supply a default value for REPL sessions via the `repl-options`
-section of your Leiningen project's configuration.
-
-```clojure
-:repl-options {:init (set! *print-length* 50)}
-```
-
 ### ClojureScript usage
 
 ClojureScript support relies on the
@@ -1156,6 +1135,27 @@ Completion annotations can be disabled by setting
 <p align="center">
   <img src="screenshots/completion-annotations.png" width="400" />
 </p>
+
+### Pretty printing in the REPL
+
+Make the REPL always pretty-print the results of your commands. Note
+that this will not work correctly with forms such as `(def a 1) (def b2)`
+and it expects `clojure.pprint` to have been required already
+(the default in more recent versions of Clojure):
+
+<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
+
+### Limiting printed output in the REPL
+
+Accidentally printing large objects can be detrimental to your
+productivity. Clojure provides the `*print-length*` var which, if set,
+controls how many items of each collection the printer will print. You
+can supply a default value for REPL sessions via the `repl-options`
+section of your Leiningen project's configuration.
+
+```clojure
+:repl-options {:init (set! *print-length* 50)}
+```
 
 ### Integration with other modes
 
