@@ -9,42 +9,20 @@
 </p>
 
 `CIDER` (formerly `nrepl.el`) is the **C**lojure **I**nteractive **D**evelopment
-**E**nvironment that **R**ocks for Emacs! It's built on top of
-[nREPL][], the Clojure networked REPL
-server. CIDER is the successor to the now deprecated combination of [SLIME][] +
-[swank-clojure][].
+**E**nvironment that **R**ocks!
+
+`CIDER` extends Emacs with support for interactive programming in Clojure. The
+features are centered around `cider-mode`, an Emacs minor-mode that complements
+`clojure-mode`. While `clojure-mode` supports editing Clojure source files,
+`cider-mode` adds support for interacting with a running Clojure process for
+compilation, debugging, documentation lookup, and so on.
+
+CIDER is the successor to the now deprecated combination of using [SLIME][] +
+[swank-clojure][] for Clojure development.
 
 If you like the project, please consider [supporting its ongoing development](#donations).
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-CIDER packs plenty of features. Here are some of them (in no particular order):
-
-* Powerful REPL
-* Interactive code evaluation
-* Compilation notes (error and warning highlighting)
-* Human-friendly stacktraces
-* Smart code completion
-* Definition lookup
-* Documentation lookup
-* Resource lookup
-* Apropos
-* Debugger
-* Value inspector
-* Function tracing
-* Interactive macroexpansion
-* Enhanced Clojure font-locking and indentation
-* [Grimoire](http://conj.io/) integration
-* `clojure.test` integration
-* Classpath browser
-* Namespace browser
-* nREPL session management
-* Scratchpad
-* Minibuffer code evaluation
-* Integration with [company-mode][] and [auto-complete-mode][]
-* Support for working with multiple simultaneous nREPL connections
-
-![CIDER Screenshot](screenshots/cider-overview.png)
 
 **This documentation tracks the `master` branch of CIDER. Some of
 the features and settings discussed here might not be available in
@@ -125,6 +103,8 @@ feel about what do we mean by an "Interactive Development Environment".
 There are plenty of differences between CIDER and SLIME, but the core ideas are
 pretty much the same (and SLIME served as the principle inspiration for CIDER).
 
+CIDER's built on top of [nREPL][], the Clojure networked REPL server.
+
 CIDER's basic architecture looks something like this:
 
 <p align="center">
@@ -142,6 +122,34 @@ If you're interested in more details about CIDER's history and architecture you 
 check out the Clojure/conj presentation
 [The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6)
 and the [Cognicast's episode on CIDER](http://blog.cognitect.com/cognicast/080).
+
+CIDER packs plenty of features. Here are some of them (in no particular order):
+
+* Powerful REPL
+* Interactive code evaluation
+* Compilation notes (error and warning highlighting)
+* Human-friendly stacktraces
+* Smart code completion
+* Definition lookup
+* Documentation lookup
+* Resource lookup
+* Apropos
+* Debugger
+* Value inspector
+* Function tracing
+* Interactive macroexpansion
+* Enhanced Clojure font-locking and indentation
+* [Grimoire](http://conj.io/) integration
+* `clojure.test` integration
+* Classpath browser
+* Namespace browser
+* nREPL session management
+* Scratchpad
+* Minibuffer code evaluation
+* Integration with [company-mode][] and [auto-complete-mode][]
+* Support for working with multiple simultaneous nREPL connections
+
+![CIDER Screenshot](screenshots/cider-overview.png)
 
 ## Installation
 
