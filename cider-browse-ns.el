@@ -47,9 +47,9 @@
 (defvar cider-browse-ns-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map "d" #'cider-browse-ns--doc-at-point)
-    (define-key map "s" #'cider-browse-ns--find-at-point)
-    (define-key map [return] #'cider-browse-ns--doc-at-point)
+    (define-key map "d" #'cider-browse-ns-doc-at-point)
+    (define-key map "s" #'cider-browse-ns-find-at-point)
+    (define-key map [return] #'cider-browse-ns-doc-at-point)
     (define-key map "^" #'cider-browse-ns-all)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
@@ -57,7 +57,7 @@
 
 (defvar cider-browse-ns-mouse-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] #'cider-browse-ns--handle-mouse)
+    (define-key map [mouse-1] #'cider-browse-ns-handle-mouse)
     map))
 
 (define-derived-mode cider-browse-ns-mode special-mode "browse-ns"
@@ -125,6 +125,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
       (setq-local cider-browse-ns-current-ns nil))))
 
 (defun cider-browse-ns--var-at-point ()
+  "Get the var at point."
   (let ((line (thing-at-point 'line)))
     (when (string-match " +\\(.+\\)\n?" line)
       (format "%s/%s"
@@ -132,21 +133,22 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
                   cider-browse-ns-current-ns)
               (match-string 1 line)))))
 
-(defun cider-browse-ns--doc-at-point ()
+(defun cider-browse-ns-doc-at-point ()
   "Expand browser according to thing at current point."
   (interactive)
   (when-let ((var (cider-browse-ns--var-at-point)))
     (cider-doc-lookup var)))
 
-(defun cider-browse-ns--find-at-point ()
+(defun cider-browse-ns-find-at-point ()
+  "Find the definition of the var at point."
   (interactive)
   (when-let ((var (cider-browse-ns--var-at-point)))
     (cider-find-var current-prefix-arg var)))
 
-(defun cider-browse-ns--handle-mouse (event)
+(defun cider-browse-ns-handle-mouse (event)
   "Handle mouse click EVENT."
   (interactive "e")
-  (cider-browse-ns--doc-at-point))
+  (cider-browse-ns-doc-at-point))
 
 (provide 'cider-browse-ns)
 
