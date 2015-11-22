@@ -11,7 +11,7 @@
 `CIDER` (formerly `nrepl.el`) is the **C**lojure **I**nteractive **D**evelopment
 **E**nvironment that **R**ocks for Emacs! It's built on top of
 [nREPL][], the Clojure networked REPL
-server. CIDER is a great alternative to the now deprecated combination of SLIME +
+server. CIDER is a great alternative to the now deprecated combination of [SLIME][] +
 [swank-clojure][].
 
 If you like the project, please consider [supporting its ongoing development](#donations).
@@ -1502,6 +1502,7 @@ Distributed under the GNU General Public License, version 3
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
 [nREPL]: https://github.com/clojure/tools.nrepl
+[SLIME]: https://github.com/slime/slime
 [swank-clojure]: https://github.com/technomancy/swank-clojure
 [company-mode]: http://company-mode.github.io/
 [auto-complete-mode]: https://github.com/clojure-emacs/ac-cider
