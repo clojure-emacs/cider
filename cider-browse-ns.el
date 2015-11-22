@@ -78,9 +78,10 @@
               'keymap cider-browse-ns-mouse-map))
 
 (defun cider-browse-ns--list (buffer title items &optional ns noerase)
-  "Reset contents of BUFFER.  Then display TITLE at the top and ITEMS are indented underneath.
+  "Reset contents of BUFFER.
+Display TITLE at the top and ITEMS are indented underneath.
 If NS is non-nil, it is added to each item as the
-`cider-browse-ns-current-ns' text property. If NOERASE is non-nil, the
+`cider-browse-ns-current-ns' text property.  If NOERASE is non-nil, the
 contents of the buffer are not reset before inserting TITLE and ITEMS."
   (with-current-buffer buffer
     (cider-browse-ns-mode)
