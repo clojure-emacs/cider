@@ -1314,7 +1314,7 @@ Emacs features a super powerful built-in
 [Emacs Lisp debugger](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html)
 and using it is the best way to diagnose problems of any kind. To debug CIDER's
 REPL initialization it's a good idea to hook into one of its entry points. Add a
-breakpoint to `cider-make-repl` (`C-u C-M-x`, while its body). Next time you
+breakpoint to `cider-make-repl` (`C-u C-M-x`, while in its body). Next time you
 start CIDER you'll be dropped in the debugger and you can step forward until you
 find the problem.
 
