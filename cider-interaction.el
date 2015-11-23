@@ -1250,8 +1250,8 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
     (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
            (ns-status (nrepl-dict-get trace-response "ns-status")))
       (pcase ns-status
-        ("not-found" (error "ns %s not found" ns))
-        (_ (message "ns %s %s" ns ns-status))))))
+        ("not-found" (error "Namespace %s not found" (cider-propertize-ns ns)))
+        (_ (message "Namespace %s %s" (cider-propertize-ns ns) ns-status))))))
 
 (defun cider-undef ()
   "Undefine the SYMBOL."

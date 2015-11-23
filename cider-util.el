@@ -408,6 +408,10 @@ Any other value is just returned."
   "Analog to `line-number-at-pos'."
   (save-excursion (goto-char pos) (current-column)))
 
+(defun cider-propertize-ns (ns)
+  "Propertize NS."
+  (propertize ns 'font-lock-face 'font-lock-type-face))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
