@@ -1262,6 +1262,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
    (lambda (sym)
      (cider-nrepl-send-request
       (list "op" "undef"
+            "session" (cider-current-session)
             "ns" (cider-current-ns)
             "symbol" sym)
       (cider-interactive-eval-handler (current-buffer))))))
