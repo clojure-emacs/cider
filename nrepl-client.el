@@ -578,7 +578,6 @@ callbacks from running.")
 
 (defun nrepl-client-filter (proc string)
   "Decode message(s) from PROC contained in STRING and dispatch them."
-  ;; (nrepl-log-message string)
   (let ((string-q (process-get proc :string-q)))
     (queue-enqueue string-q string)
     ;; Start decoding only if the last letter is 'e'
