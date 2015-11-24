@@ -165,7 +165,7 @@ Does nothing if already on the first page."
                             (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-set-page-size (page-size)
-  "Set the page size in pagination mode to the specified value.
+  "Set the page size in pagination mode to the specified PAGE-SIZE.
 
 Current page will be reset to zero."
   (interactive "nPage size:")
