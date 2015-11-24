@@ -1535,7 +1535,7 @@ and all ancillary CIDER buffers."
         (message "All active nREPL connections were closed"))
     (let ((connection (cider-current-connection)))
       (when (y-or-n-p (format "Are you sure you want to quit the current CIDER connection %s? "
-                              (cider-propertize-bold connection)))
+                              (cider-propertize-bold (buffer-name connection))))
         (cider--quit-connection connection))))
   ;; if there are no more connections we can kill all ancillary buffers
   (unless (cider-connected-p)
@@ -1547,7 +1547,8 @@ and all ancillary CIDER buffers."
     (cider--quit-connection conn)
     ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
     ;; TODO: Find a better way to ensure `cider-quit' has finished
-    (message "Waiting for CIDER connection %s to quit..." (cider-propertize-bold conn))
+    (message "Waiting for CIDER connection %s to quit..."
+             (cider-propertize-bold (buffer-name conn)))
     (sleep-for 2)
     (if project-dir
         (let ((default-directory project-dir))
