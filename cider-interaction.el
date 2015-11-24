@@ -1254,7 +1254,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
         (_ (message "Namespace %s %s" (cider-propertize-ns ns) ns-status))))))
 
 (defun cider-undef ()
-  "Undefine the SYMBOL."
+  "Undefine a symbol from the current ns."
   (interactive)
   (cider-ensure-op-supported "undef")
   (cider-read-symbol-name
