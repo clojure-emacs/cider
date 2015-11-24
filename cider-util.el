@@ -412,6 +412,10 @@ Any other value is just returned."
   "Propertize NS."
   (propertize ns 'font-lock-face 'font-lock-type-face))
 
+(defun cider-propertize-var (var)
+  "Propertize VAR."
+  (propertize var 'font-lock-face 'font-lock-function-name-face))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

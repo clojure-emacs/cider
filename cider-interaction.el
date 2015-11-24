@@ -1217,9 +1217,9 @@ See command `cider-mode'."
          (var-name (nrepl-dict-get trace-response "var-name"))
          (var-status (nrepl-dict-get trace-response "var-status")))
     (pcase var-status
-      ("not-found" (error "Var %s not found" sym))
-      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" var-name))
-      (_ (message "Var %s %s" var-name var-status)))))
+      ("not-found" (error "Var %s not found" (cider-propertize-var sym)))
+      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize-var var-name)))
+      (_ (message "Var %s %s" (cider-propertize-var var-name) var-status)))))
 
 (defun cider-toggle-trace-var (arg)
   "Toggle var tracing.
