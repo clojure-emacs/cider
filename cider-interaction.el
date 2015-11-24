@@ -1277,35 +1277,36 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
                          (unless cider-refresh-show-log-buffer
                            (let ((message-truncate-lines t))
                              (message "cider-refresh: %s" message)))))
-      (cond (out
-             (log out))
+      (cond
+       (out
+        (log out))
 
-            (err
-             (log err 'font-lock-warning-face))
+       (err
+        (log err 'font-lock-warning-face))
 
-            ((member "invoking-before" status)
-             (log-echo (format "Calling %s\n" before) 'font-lock-string-face))
+       ((member "invoking-before" status)
+        (log-echo (format "Calling %s\n" before) 'font-lock-string-face))
 
-            ((member "invoked-before" status)
-             (log-echo (format "Successfully called %s\n" before) 'font-lock-string-face))
+       ((member "invoked-before" status)
+        (log-echo (format "Successfully called %s\n" before) 'font-lock-string-face))
 
-            (reloading
-             (log-echo (format "Reloading %s\n" reloading) 'font-lock-string-face))
+       (reloading
+        (log-echo (format "Reloading %s\n" reloading) 'font-lock-string-face))
 
-            ((member "reloading" (nrepl-dict-keys response))
-             (log-echo "Nothing to reload\n" 'font-lock-string-face))
+       ((member "reloading" (nrepl-dict-keys response))
+        (log-echo "Nothing to reload\n" 'font-lock-string-face))
 
-            ((member "ok" status)
-             (log-echo "Reloading successful\n" 'font-lock-string-face))
+       ((member "ok" status)
+        (log-echo "Reloading successful\n" 'font-lock-string-face))
 
-            (error-ns
-             (log-echo (format "Error reloading %s\n" error-ns) 'font-lock-warning-face))
+       (error-ns
+        (log-echo (format "Error reloading %s\n" error-ns) 'font-lock-warning-face))
 
-            ((member "invoking-after" status)
-             (log-echo (format "Calling %s\n" after) 'font-lock-string-face))
+       ((member "invoking-after" status)
+        (log-echo (format "Calling %s\n" after) 'font-lock-string-face))
 
-            ((member "invoked-after" status)
-             (log-echo (format "Successfully called %s\n" after) 'font-lock-string-face))))
+       ((member "invoked-after" status)
+        (log-echo (format "Successfully called %s\n" after) 'font-lock-string-face))))
 
     (with-selected-window (or (get-buffer-window cider-refresh-log-buffer)
                               (selected-window))
