@@ -1591,7 +1591,7 @@ With a prefix argument, prompt for function to run instead of -main."
                                         completions nil t nil
                                         'cider--namespace-history def)
                        name))))
-        (user-error "No %s var defined in any namespace" name)))))
+        (user-error "No %s var defined in any namespace" (cider-propertize-var name))))))
 
 (defconst cider-manual-url "https://github.com/clojure-emacs/cider/blob/master/README.md"
   "The URL to CIDER's manual.")
