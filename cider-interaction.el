@@ -1205,7 +1205,6 @@ See command `cider-mode'."
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
-  (cider-ensure-op-supported "toggle-trace-var")
   (thread-first (list "op" "toggle-trace-var"
                       "ns" (cider-current-ns)
                       "sym" symbol)
@@ -1235,7 +1234,6 @@ opposite of what that option dictates."
 
 (defun cider-sync-request:toggle-trace-ns (ns)
   "Toggle namespace tracing for NS."
-  (cider-ensure-op-supported "toggle-trace-ns")
   (thread-first (list "op" "toggle-trace-ns"
                       "ns" ns)
     (cider-nrepl-send-sync-request)))
