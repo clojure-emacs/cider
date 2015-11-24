@@ -1576,7 +1576,9 @@ With a prefix argument, prompt for function to run instead of -main."
   (interactive (list (when current-prefix-arg (read-string "Function name: "))))
   (let ((name (or function "-main")))
     (when-let ((response (cider-nrepl-send-sync-request
-                          (list "op" "ns-list-vars-by-name" "name" name))))
+                          (list "op" "ns-list-vars-by-name"
+                                "session" (cider-current-session)
+                                "name" name))))
       (if-let ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
           (cider-interactive-eval
            (if (= (length vars) 1)
