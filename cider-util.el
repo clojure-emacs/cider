@@ -416,6 +416,14 @@ Any other value is just returned."
   "Propertize VAR."
   (propertize var 'font-lock-face 'font-lock-function-name-face))
 
+(defun cider-propertize-emph (text)
+  "Propertize TEXT."
+  (propertize text 'font-lock-face 'font-lock-keyword-face))
+
+(defun cider-propertize-bold (text)
+  "Propertize TEXT."
+  (propertize text 'font-lock-face '(:weight bold)))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
