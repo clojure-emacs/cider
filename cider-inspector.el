@@ -110,7 +110,7 @@ The page size can be also changed interactively within the inspector."
   "Create an inspector response handler for BUFFER.
 
 The \"value\" slot of each successive response (if it exists) will be
-rendered into `cider-inspector-buffer'. Once a response is received with a
+rendered into `cider-inspector-buffer'.  Once a response is received with a
 \"status\" slot containing \"done\", `cider-inspector-buffer' will be
 displayed.
 
