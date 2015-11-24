@@ -1212,6 +1212,7 @@ See command `cider-mode'."
     (cider-nrepl-send-sync-request)))
 
 (defun cider--toggle-trace-var (sym)
+  "Toggle var tracing for SYM."
   (let* ((trace-response (cider-sync-request:toggle-trace-var sym))
          (var-name (nrepl-dict-get trace-response "var-name"))
          (var-status (nrepl-dict-get trace-response "var-status")))
