@@ -1177,8 +1177,8 @@ operations.")
 (defun nrepl-decorate-msg (msg type)
   "Decorate nREPL MSG according to its TYPE."
   (pcase type
-    ('request (cons '---> (cdr msg)))
-    ('response (cons '<- (cdr msg)))))
+    (`request (cons '---> (cdr msg)))
+    (`response (cons '<- (cdr msg)))))
 
 (defun nrepl-log-message (msg type)
   "Log the given MSG to the buffer given by `nrepl-message-buffer-name'.
