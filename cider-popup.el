@@ -74,7 +74,7 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
 
 (defvar-local cider-popup-output-marker nil)
 
-(defvar cider-ancillary-buffers (list nrepl-message-buffer-name))
+(defvar cider-ancillary-buffers nil)
 
 (defun cider-make-popup-buffer (name &optional mode ancillary)
   "Create a temporary buffer called NAME using major MODE (if specified).

@@ -529,6 +529,10 @@ Return the REPL buffer given by `cider-current-connection'.")
   (with-current-buffer (cider-current-connection)
     nrepl-session))
 
+(defun cider-current-messages-buffer ()
+  "The nREPL messages buffer, matching the current connection."
+  (format nrepl-message-buffer-name-template (cider-current-session)))
+
 (define-obsolete-function-alias 'nrepl-current-session 'cider-current-session "0.10")
 
 (defun cider-current-tooling-session ()

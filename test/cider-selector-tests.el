@@ -1,10 +1,11 @@
+(require 'noflet)
 (require 'cider)
 (require 'cider-selector)
 
 ;; selector
 (defun cider-invoke-selector-method-by-key (ch)
   (let ((method (find ch cider-selector-methods :key #'car)))
-        (funcall (third method))))
+    (funcall (third method))))
 
 (ert-deftest test-cider-selector-n ()
   (with-temp-buffer
@@ -48,10 +49,11 @@
           (should (equal (current-buffer) b1)))))))
 
 (ert-deftest test-cider-selector-m ()
-  (with-temp-buffer
-    (rename-buffer "*nrepl-messages*")
-    (let ((b1 (current-buffer)))
-      (with-temp-buffer
-        (should (not (equal (current-buffer) b1)))
-        (cider-invoke-selector-method-by-key ?m)
-        (should (equal (current-buffer) b1))))))
+  (noflet ((cider-current-messages-buffer () "*nrepl-messages session-id*"))
+    (with-temp-buffer
+      (rename-buffer "*nrepl-messages session-id*")
+      (let ((b1 (current-buffer)))
+        (with-temp-buffer
+          (should (not (equal (current-buffer) b1)))
+          (cider-invoke-selector-method-by-key ?m)
+          (should (equal (current-buffer) b1)))))))
