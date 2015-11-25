@@ -422,12 +422,20 @@ Signal an error if it is not supported."
   (unless (cider-nrepl-op-supported-p op)
     (error "Can't find nREPL middleware providing op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" op (upcase cider-version))))
 
+(defun cider--ensure-session (request)
+  "Make sure REQUEST has session.
+
+If the nREPL request lacks a session `cider-current-session' is added."
+  (if (seq-contains request "session")
+      request
+    (append request (list "session" (cider-current-session)))))
+
 (defun cider-nrepl-send-request (request callback)
   "Send REQUEST and register response handler CALLBACK.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ).
 Return the id of the sent message."
-  (nrepl-send-request request callback (cider-current-connection)))
+  (nrepl-send-request (cider--ensure-session request) callback (cider-current-connection)))
 
 (defun cider-nrepl-send-sync-request (request &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously.
@@ -436,7 +444,7 @@ of the same \"op\" that came along and return the accumulated response.
 If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface."
-  (nrepl-send-sync-request request (cider-current-connection) abort-on-input))
+  (nrepl-send-sync-request (cider--ensure-session request) (cider-current-connection) abort-on-input))
 
 (defun cider-nrepl-send-unhandled-request (request)
   "Send REQUEST to the nREPL server and ignore any responses.
