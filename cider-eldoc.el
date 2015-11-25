@@ -89,7 +89,7 @@ POS is the index of current argument."
 (defun cider-eldoc-beginning-of-sexp ()
   "Move to the beginning of current sexp.
 
-Return the number of nested sexp the point was over or after. "
+Return the number of nested sexp the point was over or after."
   (let ((parse-sexp-ignore-comments t)
         (num-skipped-sexps 0))
     (condition-case _
