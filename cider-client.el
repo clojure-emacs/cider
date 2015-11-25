@@ -613,6 +613,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 (defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
   "Send \"apropos\" op with args SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
   (thread-first `("op" "apropos"
+                  "session" ,(cider-current-session)
                   "ns" ,(cider-current-ns)
                   "query" ,query
                   ,@(when search-ns `("search-ns" ,search-ns))
@@ -684,19 +685,22 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
   (thread-first (list "op" "resource"
+                      "session" (cider-current-session)
                       "name" name)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "resource-path")))
 
 (defun cider-sync-request:resources-list ()
   "Perform nREPL \"resource\" op with resource name NAME."
-  (thread-first (list "op" "resources-list")
+  (thread-first (list "op" "resources-list"
+                      "session" (cider-current-session))
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "resources-list")))
 
 (defun cider-sync-request:format-code (code)
   "Perform nREPL \"format-code\" op with CODE."
   (thread-first (list "op" "format-code"
+                      "session" (cider-current-session)
                       "code" code)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "formatted-code")))
@@ -704,6 +708,7 @@ loaded. If CALLBACK is nil, use `cider-load-file-handler'."
 (defun cider-sync-request:format-edn (edn &optional right-margin)
   "Perform \"format-edn\" op with EDN and RIGHT-MARGIN."
   (let* ((response (thread-first (list "op" "format-edn"
+                                       "session" (cider-current-session)
                                        "edn" edn)
                      (append (and right-margin (list "right-margin" right-margin)))
                      (cider-nrepl-send-sync-request)))
