@@ -410,19 +410,19 @@ Any other value is just returned."
 
 (defun cider-propertize-ns (ns)
   "Propertize NS."
-  (propertize ns 'font-lock-face 'font-lock-type-face))
+  (propertize ns 'face 'font-lock-type-face))
 
 (defun cider-propertize-var (var)
   "Propertize VAR."
-  (propertize var 'font-lock-face 'font-lock-function-name-face))
+  (propertize var 'face 'font-lock-function-name-face))
 
 (defun cider-propertize-emph (text)
   "Propertize TEXT."
-  (propertize text 'font-lock-face 'font-lock-keyword-face))
+  (propertize text 'face 'font-lock-keyword-face))
 
 (defun cider-propertize-bold (text)
   "Propertize TEXT."
-  (propertize text 'font-lock-face '(:weight bold)))
+  (propertize text 'face 'bold))
 
 (provide 'cider-util)
 
