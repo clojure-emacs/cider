@@ -542,6 +542,14 @@ The formatting is performed by `cider-annotate-completion-function'."
            (ns (cider-completion--get-candidate-ns symbol)))
       (funcall cider-annotate-completion-function type ns))))
 
+(defun cider-fn-insert-arglist (&rest ignore)
+  "Ignore IGNORE."
+  (when-let ((args (first (cider-eldoc-arglist (cider-symbol-at-point)))))
+    (save-excursion
+      (dolist (arg args)
+        (insert " " arg)))
+    (forward-char)))
+
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
   (when-let ((sap (cider-symbol-at-point)))
@@ -553,7 +561,8 @@ The formatting is performed by `cider-annotate-completion-function'."
               :annotation-function #'cider-annotate-symbol
               :company-doc-buffer #'cider-create-doc-buffer
               :company-location #'cider-company-location
-              :company-docsig #'cider-company-docsig)))))
+              :company-docsig #'cider-company-docsig
+              :exit-function #'cider-fn-insert-arglist)))))
 
 (defun cider-company-location (var)
   "Open VAR's definition in a buffer.
