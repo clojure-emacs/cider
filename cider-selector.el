@@ -145,6 +145,10 @@ is chosen.  The returned buffer is selected with
   "*nrepl-messages* buffer."
   (cider-current-messages-buffer))
 
+(def-cider-selector-method ?M
+  "Tooling *nrepl-messages* buffer."
+  (cider-current-tooling-messages-buffer))
+
 (def-cider-selector-method ?x
   "*cider-error* buffer."
   cider-error-buffer)
