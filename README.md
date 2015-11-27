@@ -359,6 +359,8 @@ project's build tool (Maven, etc).
 After you get your nREPL server running go back to Emacs.
 Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the running nREPL server.
 
+In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
+
 ### Using the cider minor mode
 
 `CIDER` comes with a handy minor mode called `cider-mode` (complementing
