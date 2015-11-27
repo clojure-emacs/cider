@@ -354,7 +354,7 @@ $ boot repl wait
 ```
 
 Alternatively you can start nREPL either manually or by the facilities provided by your
-project build tool (Maven, etc).
+project's build tool (Maven, etc).
 
 After you get your nREPL server running go back to Emacs.
 Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the running nREPL server.
