@@ -336,6 +336,8 @@ all the deps loaded in, plus a `CIDER` client connected to it.
 Alternatively you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
 a `lein` or `boot` project, without having to visit any file in it.
 
+In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
+
 ### Connect to a running nREPL server
 
 You can go to your project's dir in a terminal and type there
