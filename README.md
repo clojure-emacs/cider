@@ -904,17 +904,6 @@ font-locked as in `clojure-mode` use the following:
 (setq cider-font-lock-dynamically '(macro core function var))
 ```
 
-* You can control the <kbd>C-c C-z</kbd> key behavior of switching to the REPL buffer
-with the `cider-switch-to-repl-command` variable.  While the default command
-`cider-switch-to-relevant-repl-buffer` should be an adequate choice for
-most users, `cider-switch-to-current-repl-buffer` offers a simpler alternative
-where CIDER will not attempt to match the correct REPL buffer based on
-underlying project directories:
-
-```el
-(setq cider-switch-to-repl-command #'cider-switch-to-current-repl-buffer)
-```
-
 * You can configure known endpoints used by the cider command offered via a
 completing read. This is useful if you have a list of common host/ports you
 want to establish remote nREPL connections to. Using an optional label is

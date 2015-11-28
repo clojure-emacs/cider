@@ -58,6 +58,7 @@
 * Clearing the REPL buffer is now bound to `C-u C-C C-o`.
 * [#1422](https://github.com/clojure-emacs/cider/issues/1422): Don't display mismatching parens error on incomplete expressions in REPL buffers.
 * [#1412](https://github.com/clojure-emacs/cider/issues/1412): nREPL messages for separate sessions are tracked in separate buffers.
+* Removed `cider-switch-to-repl-command`.
 
 ### Bugs fixed
 
