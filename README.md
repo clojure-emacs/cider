@@ -116,7 +116,7 @@ server and processes its responses. The server's functionality is augmented by
 additional nREPL middleware, designed specifically to address the needs of an
 interactive development environment like CIDER. Much of the middleware we
 developed for CIDER is editor agnostic and is being used by other Clojure dev
-environments as well (e.g. `vim-fireplace` & `CCW`).
+environments as well (e.g. [vim-fireplace][] & [CCW][]).
 
 If you're interested in more details about CIDER's history and architecture you can
 check out the Clojure/conj presentation
@@ -1512,3 +1512,5 @@ Distributed under the GNU General Public License, version 3
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/cemerick/piggieback
+[vim-fireplace]: https://github.com/tpope/vim-fireplace
+[CCW]: https://github.com/laurentpetit/ccw
