@@ -331,8 +331,8 @@ The two main ways to obtain an nREPL connection are discussed in the following s
 ### Launch a nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` or `boot` project (like
-`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL with
-all the deps loaded in, plus a CIDER client connected to it.
+`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL server with
+all the project deps loaded in and CIDER with automatically connect to it.
 
 Alternatively you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
 a `lein` or `boot` project, without having to visit any file in it.
