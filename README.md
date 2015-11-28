@@ -45,7 +45,7 @@ specific CIDER release.**
   - [Setting up a Leiningen or Boot project (optional)](#setting-up-a-leiningen-or-boot-project-optional)
   - [Launch a nREPL server and client from Emacs](#launch-a-nrepl-server-and-client-from-emacs)
   - [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
-  - [Using the cider minor mode](#using-the-cider-minor-mode)
+  - [Using cider-mode](#using-cider-mode)
   - [ClojureScript usage](#clojurescript-usage)
 - [Keyboard shortcuts](#keyboard-shortcuts)
   - [cider-mode](#cider-mode)
@@ -362,7 +362,7 @@ Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the runni
 
 In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
 
-### Using the cider minor mode
+### Using cider-mode
 
 CIDER comes with a handy minor mode called `cider-mode` (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure source
