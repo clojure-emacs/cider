@@ -8,10 +8,10 @@
   <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
 </p>
 
-`CIDER` (formerly `nrepl.el`) is the **C**lojure **I**nteractive **D**evelopment
+CIDER (formerly `nrepl.el`) is the **C**lojure **I**nteractive **D**evelopment
 **E**nvironment that **R**ocks!
 
-`CIDER` extends Emacs with support for interactive programming in Clojure. The
+CIDER extends Emacs with support for interactive programming in Clojure. The
 features are centered around `cider-mode`, an Emacs minor-mode that complements
 `clojure-mode`. While `clojure-mode` supports editing Clojure source files,
 `cider-mode` adds support for interacting with a running Clojure process for
@@ -194,12 +194,12 @@ with CIDER's REPL initialization.
 
 `package.el` is the built-in package manager in Emacs.
 
-`CIDER` is available on the two major `package.el` community
+CIDER is available on the two major `package.el` community
 maintained repos -
 [MELPA Stable](http://stable.melpa.org)
 and [MELPA](http://melpa.org).
 
-You can install `CIDER` with the following command:
+You can install CIDER with the following command:
 
 <kbd>M-x package-install [RET] cider [RET]</kbd>
 
@@ -331,7 +331,7 @@ The two main ways to obtain an nREPL connection are discussed in the following s
 
 Simply open in Emacs a file belonging to your `lein` or `boot` project (like
 `foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL with
-all the deps loaded in, plus a `CIDER` client connected to it.
+all the deps loaded in, plus a CIDER client connected to it.
 
 Alternatively you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
 a `lein` or `boot` project, without having to visit any file in it.
@@ -363,10 +363,10 @@ In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c<
 
 ### Using the cider minor mode
 
-`CIDER` comes with a handy minor mode called `cider-mode` (complementing
+CIDER comes with a handy minor mode called `cider-mode` (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure source
 files and load it directly in the REPL.  A list of all
-available commands is available in the `CIDER` menu and in the following
+available commands is available in the CIDER menu and in the following
 section of this manual.
 
 ### ClojureScript usage
@@ -480,7 +480,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 There's no need to memorize this list. In any Clojure buffer with `cider-mode`
-active you'll have a `CIDER` menu available, which lists all the most important
+active you'll have a CIDER menu available, which lists all the most important
 commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
 get a list of the keybindings for `cider-mode`.
 
@@ -677,8 +677,8 @@ change `*cider-repl localhost*` to `*cider-repl foo*`.
 
 ## Configuration
 
-You can certainly use `CIDER` without configuring it any further,
-but here are some ways other folks are adjusting their `CIDER`
+You can certainly use CIDER without configuring it any further,
+but here are some ways other folks are adjusting their CIDER
 experience.
 
 ### Basic configuration
@@ -1057,7 +1057,7 @@ buffer (which includes invoking `cider-quit`) or you quitting Emacs.
 
 ### Minibuffer completion
 
-Out-of-the box `CIDER` uses the standard `completing-read` Emacs mechanism. While it's not
+Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While it's not
 fancy it certainly gets the job done (just press `TAB`). There are, however, ways to improve
 upon the standard completion if you wish to.
 
@@ -1078,7 +1078,7 @@ You might also want to install [`ido-flex`](https://github.com/lewang/flx).
 
 ### Auto-completion
 
-`CIDER` users are advised to use [`company-mode`](http://company-mode.github.io/) to enable auto-completion
+CIDER users are advised to use [`company-mode`](http://company-mode.github.io/) to enable auto-completion
 inside of source code and REPL buffers.  To install `company-mode` do:
 
 `M-x package-install <RET> company <RET>`
@@ -1117,7 +1117,7 @@ the time of this writing it's still in development).
 
 #### Migrating from `auto-complete-mode`
 
-* Disable `ac-cider-setup` or `ac-nrepl-setup` from running on `CIDER` hooks
+* Disable `ac-cider-setup` or `ac-nrepl-setup` from running on CIDER hooks
 
 * Remove `cider-mode` and `cider-repl-mode` from the `ac-modes` list
 
@@ -1295,8 +1295,8 @@ this behavior by using `M-x toggle-debug-on-error`.
 
 ### REPL not starting
 
-Make sure that your `CIDER` version matches your `cider-nrepl` version. Check
-the contents of the `*Messages*` buffer for `CIDER`-related errors. You should
+Make sure that your CIDER version matches your `cider-nrepl` version. Check
+the contents of the `*Messages*` buffer for CIDER-related errors. You should
 also check the nREPL messages passed between CIDER and nREPL in
 `*nrepl-messages*`. If you don't see anything useful there it's time to bring
 out the big guns.
