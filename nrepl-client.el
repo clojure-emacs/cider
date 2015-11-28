@@ -493,7 +493,7 @@ object is a root list or dict."
    ;; else, throw a quiet error
    (t
     (message "Invalid bencode message detected. See %s buffer."
-             nrepl-message-buffer-name)
+             nrepl-message-buffer-name-template)
     (nrepl-log-message
      (format "Decoder error at position %d (`%s'):"
              (point) (buffer-substring (point) (min (+ (point) 10) (point-max)))))
@@ -1140,7 +1140,7 @@ the port, and the client buffer."
 ;;; Messages
 
 (defcustom nrepl-log-messages t
-  "If non-nil, log protocol messages to the `nrepl-message-buffer-name' buffer."
+  "If non-nil, log protocol messages to the `nrepl-message-buffer-name-template' buffer."
   :type 'boolean
   :group 'nrepl)
 
@@ -1184,7 +1184,7 @@ operations.")
     (`response (cons '<- (cdr msg)))))
 
 (defun nrepl-log-message (msg type)
-  "Log the given MSG to the buffer given by `nrepl-message-buffer-name'.
+  "Log the given MSG to the buffer given by `nrepl-message-buffer-name-template'.
 
 TYPE is either request or response."
   (when nrepl-log-messages
