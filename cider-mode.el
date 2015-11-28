@@ -553,10 +553,24 @@ property."
           (when (and (not (bobp))
                      (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
             (ignore-errors (beginning-of-defun)))
-          (ignore-errors
-            (cider--parse-and-apply-locals
-             end (unless (bobp)
-                   (get-text-property (1- (point)) 'cider-locals)))))))
+          (let ((locals-above (unless (bobp)
+                                (get-text-property (1- (point)) 'cider-locals))))
+            (save-excursion
+              ;; If there are locals above the current sexp, reapply them to the
+              ;; current sexp.
+              (when (and locals-above
+                         (condition-case nil
+                             (progn (up-list) t)
+                           (scan-error nil)))
+                (add-text-properties beg (point) `(cider-locals ,locals-above)))
+              ;; Extend the region being font-locked to include whole sexps.
+              (goto-char end)
+              (when (condition-case nil
+                        (progn (up-list) t)
+                      (scan-error nil))
+                (setq end (max end (point)))))
+            (ignore-errors
+              (cider--parse-and-apply-locals end locals-above))))))
     (apply func beg end rest)))
 
 
