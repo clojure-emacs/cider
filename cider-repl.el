@@ -790,10 +790,10 @@ namespace to switch to."
                        (cider-current-ns))))
   (when (or (not ns) (equal ns ""))
     (user-error "No namespace selected"))
-  (cider-do-connections connection
-    (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
-                              (cider-repl-switch-ns-handler
-                               connection))))
+  (cider-map-connections
+   (lambda (connection)
+     (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
+                               (cider-repl-switch-ns-handler connection)))))
 
 
 ;;;;; History

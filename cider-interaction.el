@@ -1373,12 +1373,13 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
     (cider--quit-error-window)
     (cider--cache-ns-form)
     (let ((filename (buffer-file-name)))
-      (cider-do-connections connection
-        (cider-request:load-file
-         (cider-file-string filename)
-         (funcall cider-to-nrepl-filename-function (cider--server-filename filename))
-         (file-name-nondirectory filename)
-         connection))
+      (cider-map-connections
+       (lambda (connection)
+         (cider-request:load-file (cider-file-string filename)
+                                  (funcall cider-to-nrepl-filename-function
+                                           (cider--server-filename filename))
+                                  (file-name-nondirectory filename)
+                                  connection)))
       (message "Loading %s..." filename))))
 
 (defun cider-load-file (filename)

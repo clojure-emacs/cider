@@ -224,21 +224,5 @@ existing file ending with URL has been found."
       (16 t) ; empty empty
       (_ nil))))
 
-(defmacro cider-do-connections (var &rest body)
-  "For each appropriate connection, bind it to VAR, and execute BODY.
-
-The appropriate connections are found by inspecting the current buffer.  If
-the buffer is associated with a .cljc or .cljx file, BODY will be executed
-multiple times."
-  (declare (indent 1)
-           (debug (form body)))
-  (let ((other-connection 'oh-my-god-the-linter-wont-let-me-use-gensym))
-    `(if-let ((_ (cider--cljc-or-cljx-buffer-p))
-              (,other-connection (cider-other-connection)))
-         (dolist (,var (list (cider-current-connection) ,other-connection))
-           ,@body)
-       (let ((,var (cider-current-connection)))
-         ,@body))))
-
 (provide 'cider-common)
 ;;; cider-common.el ends here

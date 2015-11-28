@@ -226,10 +226,9 @@ from the file extension."
     (car cider-connections)))
 
 (defun cider-other-connection (&optional connection)
-  "Return the first connection of another type than `cider-current-connection', \
-in the same project, or nil.
-
-If CONNECTION is provided act on that connection instead."
+  "Return the first connection of another type than CONNECTION
+Only return connections in the same project or nil.
+CONNECTION defaults to `cider-current-connection'."
   (let* ((connection (or connection (cider-current-connection)))
          (connection-type (cider--connection-type connection))
          (other (if (equal connection-type "clj")
@@ -237,6 +236,17 @@ If CONNECTION is provided act on that connection instead."
                   (cider-current-connection "clj"))))
     (unless (equal connection-type (cider--connection-type other))
       other)))
+
+(defun cider-map-connections (function)
+  "Call FUNCTION once for each appropriate connection.
+The function is called with one argument, the connection buffer.
+The appropriate connections are found by inspecting the current buffer.  If
+the buffer is associated with a .cljc or .cljx file, BODY will be executed
+multiple times."
+  (if-let ((is-cljc (cider--cljc-or-cljx-buffer-p))
+           (other-connection (cider-other-connection)))
+      (mapc function (list (cider-current-connection) other-connection))
+    (funcall function (cider-current-connection))))
 
 
 ;;; Connection Browser
