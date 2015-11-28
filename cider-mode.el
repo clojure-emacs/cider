@@ -544,18 +544,19 @@ before point."
 The local variables are stored in a list under the `cider-locals' text
 property."
   (lambda (beg end &rest rest)
-    (remove-text-properties beg end '(cider-locals nil cider-block-dynamic-font-lock nil))
-    (when cider-font-lock-dynamically
-      (save-excursion
-        (goto-char beg)
-        ;; If the inside of a `ns' form changed, reparse it from the start.
-        (when (and (not (bobp))
-                   (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
-          (ignore-errors (beginning-of-defun)))
-        (ignore-errors
-          (cider--parse-and-apply-locals
-           end (unless (bobp)
-                 (get-text-property (1- (point)) 'cider-locals))))))
+    (with-silent-modifications
+      (remove-text-properties beg end '(cider-locals nil cider-block-dynamic-font-lock nil))
+      (when cider-font-lock-dynamically
+        (save-excursion
+          (goto-char beg)
+          ;; If the inside of a `ns' form changed, reparse it from the start.
+          (when (and (not (bobp))
+                     (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
+            (ignore-errors (beginning-of-defun)))
+          (ignore-errors
+            (cider--parse-and-apply-locals
+             end (unless (bobp)
+                   (get-text-property (1- (point)) 'cider-locals)))))))
     (apply func beg end rest)))
 
 
