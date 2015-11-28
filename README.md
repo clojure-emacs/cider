@@ -163,7 +163,7 @@ release). If you're new to Emacs you might want to read
 [this tutorial](http://clojure-doc.org/articles/tutorials/emacs.html),
 dedicated to setting up Emacs for Clojure development, first.
 
-CIDER officially support Emacs 24.3+ and Clojure 1.5+.
+CIDER officially supports Emacs 24.3+ and Clojure 1.5+.
 
 You'll also need a recent version of your favorite build tool (Leiningen, Boot
 or Gradle) to be able to start CIDER via `cider-jack-in`. Generally it's a good
