@@ -1266,8 +1266,12 @@ Set this to nil to prevent truncation."
 (defun nrepl-messages-buffer (msg)
   "Return or create the buffer for MSG.
 The default buffer name is *nrepl-messages session*."
-  (let* ((msg-session (nrepl-dict-get msg "session"))
-         (msg-buffer-name (format nrepl-message-buffer-name-template  msg-session)))
+  ;; Log `new-session' replies to the "orphan" buffer, because that's probably
+  ;; where we logged the request it's replying to.
+  (let* ((msg-session (or (unless (nrepl-dict-get msg "new-session")
+                            (nrepl-dict-get msg "session"))
+                          "00000000-0000-0000-0000-000000000000"))
+         (msg-buffer-name (format nrepl-message-buffer-name-template msg-session)))
     (or (get-buffer msg-buffer-name)
         (let ((buffer (get-buffer-create msg-buffer-name)))
           (with-current-buffer buffer
