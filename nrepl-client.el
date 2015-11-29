@@ -897,7 +897,8 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
 `nrepl-request:stdin', etc.
 Return the ID of the sent message."
-  (with-current-buffer connection
+  (with-current-buffer (if (bufferp connection) connection
+                         (current-buffer))
     (unless (or (plist-get request "session")
                 (not nrepl-session))
       (setq request (append request (list "session" nrepl-session))))
