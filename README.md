@@ -1240,17 +1240,6 @@ bottom) with the `cider-use-overlays` variable.
 
 ## Caveats
 
-### Var Metadata
-
-Currently var metadata about the location of the var's definition within the
-source code (file, line & column) is set only when evaluating the entire source
-buffer (<kbd>C-c C-k</kbd>). All other interactive code evaluation commands
-(e.g. <kbd>C-c C-e</kbd>) don't set this metadata and you won't be able to use
-commands like `find-var` on such vars.  That's a
-[limitation of nREPL](http://dev.clojure.org/jira/browse/NREPL-59), that's
-beyond CIDER. If you want to see interactive evaluation working properly in
-CIDER you'll have to push for the aforementioned nREPL issue to be resolved.
-
 ### ClojureScript limitations
 
 Currently, the following features are not supported for ClojureScript
@@ -1265,6 +1254,17 @@ development:
 There is currently no support for both Clojure and ClojureScript evaluation in
 the same nREPL session. If Piggieback is active, code evaluation and all
 features will assume ClojureScript.
+
+#### Var Metadata
+
+Currently var metadata about the location of the var's definition within the
+ClojureScript source code (file, line & column) is set only when evaluating the
+entire source buffer (<kbd>C-c C-k</kbd>). All other interactive code evaluation
+commands (e.g. <kbd>C-c C-e</kbd>) don't set this metadata and you won't be able
+to use commands like `find-var` on such vars.  This is a limitation of nREPL and
+piggieback, that's beyond CIDER. You can find some discussions on the subject
+[here](http://dev.clojure.org/jira/browse/NREPL-59) and
+[here](https://github.com/clojure-emacs/cider/issues/830).
 
 ### Microsoft Windows
 
