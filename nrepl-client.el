@@ -493,7 +493,7 @@ object is a root list or dict."
     (cons :stub stack))
    ;; else, throw a quiet error
    (t
-    (message "Invalid bencode message detected. See %s buffer."
+    (message "Invalid bencode message detected. See the %s buffer for details."
              nrepl-error-buffer-name)
     (nrepl-log-error
      (format "Decoder error at position %d (`%s'):"
