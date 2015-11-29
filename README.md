@@ -154,7 +154,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 ## Installation
 
 The canonical way to install CIDER is via `package.el`, but plenty of other
-options exist. (see [wiki](https://github.com/clojure-emacs/cider/wiki/Installation)).
+options exist. (see the [wiki](https://github.com/clojure-emacs/cider/wiki/Installation)).
 
 ### Prerequisites
 
