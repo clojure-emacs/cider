@@ -182,6 +182,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 ;;; nREPL Buffer Names
 
 (defconst nrepl-message-buffer-name-template "*nrepl-messages %s*")
+(defconst nrepl-error-buffer-name "*nrepl-error*")
 (defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
 (defconst nrepl-connection-buffer-name-template "*nrepl-connection%s*")
 (defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
@@ -493,11 +494,11 @@ object is a root list or dict."
    ;; else, throw a quiet error
    (t
     (message "Invalid bencode message detected. See %s buffer."
-             nrepl-message-buffer-name-template)
-    (nrepl-log-message
+             nrepl-error-buffer-name)
+    (nrepl-log-error
      (format "Decoder error at position %d (`%s'):"
              (point) (buffer-substring (point) (min (+ (point) 10) (point-max)))))
-    (nrepl-log-message (buffer-string))
+    (nrepl-log-error (buffer-string))
     (ding)
     ;; Ensure loop break and clean queues' states in nrepl-bdecode:
     (goto-char (point-max))
@@ -1271,6 +1272,26 @@ The default buffer name is *nrepl-messages session*."
             (buffer-disable-undo)
             (nrepl-messages-mode)
             buffer)))))
+
+(defun nrepl-error-buffer ()
+  "Return or create the buffer.
+The default buffer name is *nrepl-error*."
+  (or (get-buffer nrepl-error-buffer-name)
+      (let ((buffer (get-buffer-create nrepl-error-buffer-name)))
+        (with-current-buffer buffer
+          (buffer-disable-undo)
+          (fundamental-mode)
+          buffer))))
+
+(defun nrepl-log-error (msg)
+  "Log the given MSG to the buffer given by `nrepl-error-buffer'."
+  (with-current-buffer (nrepl-error-buffer)
+    (setq buffer-read-only nil)
+    (goto-char (point-max))
+    (insert msg)
+    (when-let ((win (get-buffer-window)))
+      (set-window-point win (point-max)))
+    (setq buffer-read-only t)))
 
 (defun nrepl-create-client-buffer-default (endpoint)
   "Create an nREPL client process buffer.
