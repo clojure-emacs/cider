@@ -305,7 +305,7 @@ properly.  Don't use cider-nrepl with CIDER 0.6.**
 The only requirement to use CIDER is to have a nREPL server to
 which it may connect. Many Clojurians favour the use of the Leiningen or Boot tools
 to start an nREPL server, but the use of Leiningen or Boot is not a prerequisite to use
-CIDER (but it *is* required if you want to use the `cider-jack-in` command).
+CIDER (however, it *is* required if you want to use the `cider-jack-in` command).
 
 ### Setting up a Leiningen or Boot project (optional)
 
