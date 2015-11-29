@@ -1249,7 +1249,7 @@ development:
 * Reloading
 * Running tests
 * Tracing
-* Debugging
+* Debugging (check out [this ticket](https://github.com/clojure-emacs/cider/issues/1416) dedicated to porting the debugger to ClojureScript)
 
 There is currently no support for both Clojure and ClojureScript evaluation in
 the same nREPL session. If Piggieback is active, code evaluation and all
