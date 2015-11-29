@@ -409,7 +409,8 @@ namespace itself."
   (interactive)
   (when cider-font-lock-dynamically
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
-    (when-let ((symbols (cider-resolve-ns-symbols (or ns (cider-current-ns)))))
+    (when-let ((ns (or ns (cider-current-ns)))
+               (symbols (cider-resolve-ns-symbols ns)))
       (setq-local cider--dynamic-font-lock-keywords
                   (cider--compile-font-lock-keywords
                    symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))

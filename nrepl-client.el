@@ -493,7 +493,7 @@ object is a root list or dict."
    ;; else, throw a quiet error
    (t
     (message "Invalid bencode message detected. See %s buffer."
-             nrepl-message-buffer-name)
+             nrepl-message-buffer-name-template)
     (nrepl-log-message
      (format "Decoder error at position %d (`%s'):"
              (point) (buffer-substring (point) (min (+ (point) 10) (point-max)))))
@@ -896,14 +896,17 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
 `nrepl-request:stdin', etc.
 Return the ID of the sent message."
-  (let* ((id (nrepl-next-request-id connection))
-         (request (cons 'dict (lax-plist-put request "id" id)))
-         (message (nrepl-bencode request)))
-    (nrepl-log-message request 'request)
-    (with-current-buffer connection
+  (with-current-buffer connection
+    (unless (or (plist-get request "session")
+                (not nrepl-session))
+      (setq request (append request (list "session" nrepl-session))))
+    (let* ((id (nrepl-next-request-id connection))
+           (request (cons 'dict (lax-plist-put request "id" id)))
+           (message (nrepl-bencode request)))
+      (nrepl-log-message request 'request)
       (puthash id callback nrepl-pending-requests)
-      (process-send-string nil message))
-    id))
+      (process-send-string nil message)
+      id)))
 
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")
@@ -995,7 +998,7 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
                     "line" line
                     "column" column)))))
 
-(defun nrepl-request:eval (input callback connection session &optional ns line column)
+(defun nrepl-request:eval (input callback connection &optional session ns line column)
   "Send the request INPUT and register the CALLBACK as the response handler.
 The request is dispatched via CONNECTION and SESSION.  If NS is non-nil,
 include it in the request. LINE and COLUMN, if non-nil, define the position
@@ -1137,7 +1140,7 @@ the port, and the client buffer."
 ;;; Messages
 
 (defcustom nrepl-log-messages t
-  "If non-nil, log protocol messages to the `nrepl-message-buffer-name' buffer."
+  "If non-nil, log protocol messages to the `nrepl-message-buffer-name-template' buffer."
   :type 'boolean
   :group 'nrepl)
 
@@ -1181,7 +1184,7 @@ operations.")
     (`response (cons '<- (cdr msg)))))
 
 (defun nrepl-log-message (msg type)
-  "Log the given MSG to the buffer given by `nrepl-message-buffer-name'.
+  "Log the given MSG to the buffer given by `nrepl-message-buffer-name-template'.
 
 TYPE is either request or response."
   (when nrepl-log-messages

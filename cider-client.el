@@ -207,30 +207,28 @@ from the file extension."
   (cider-connections) ; Cleanup the connections list.
   (if (eq cider-request-dispatch 'dynamic)
       (cond
-       ((cider--in-connection-buffer-p) (current-buffer))
+       ((and (not type) (cider--in-connection-buffer-p)) (current-buffer))
        ((= 1 (length cider-connections)) (car cider-connections))
-       (t (let ((repls (cider-find-connection-buffer-for-project-directory
-                        nil :all-connections)))
-            (if (= 1 (length repls))
+       (t (let ((project-connections
+                 (cider-find-connection-buffer-for-project-directory
+                  nil :all-connections)))
+            (if (= 1 (length project-connections))
                 ;; Only one match, just return it.
-                (car repls)
+                (car project-connections)
               ;; OW, find one matching the extension of current file.
               (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
                 (or (seq-find (lambda (conn)
-                                (equal (with-current-buffer conn
-                                         cider-repl-type)
-                                       type))
-                              (append repls cider-connections))
-                    (car repls)
+                                (equal (cider--connection-type conn) type))
+                              project-connections)
+                    (car project-connections)
                     (car cider-connections)))))))
     ;; TODO: Add logic to dispatch to a matching Clojure/ClojureScript REPL based on file type
     (car cider-connections)))
 
 (defun cider-other-connection (&optional connection)
-  "Return the first connection of another type than `cider-current-connection', \
-in the same project, or nil.
-
-If CONNECTION is provided act on that connection instead."
+  "Return the first connection of another type than CONNECTION
+Only return connections in the same project or nil.
+CONNECTION defaults to `cider-current-connection'."
   (let* ((connection (or connection (cider-current-connection)))
          (connection-type (cider--connection-type connection))
          (other (if (equal connection-type "clj")
@@ -238,6 +236,17 @@ If CONNECTION is provided act on that connection instead."
                   (cider-current-connection "clj"))))
     (unless (equal connection-type (cider--connection-type other))
       other)))
+
+(defun cider-map-connections (function)
+  "Call FUNCTION once for each appropriate connection.
+The function is called with one argument, the connection buffer.
+The appropriate connections are found by inspecting the current buffer.  If
+the buffer is associated with a .cljc or .cljx file, BODY will be executed
+multiple times."
+  (if-let ((is-cljc (cider--cljc-or-cljx-buffer-p))
+           (other-connection (cider-other-connection)))
+      (mapc function (list (cider-current-connection) other-connection))
+    (funcall function (cider-current-connection))))
 
 
 ;;; Connection Browser
@@ -422,29 +431,26 @@ Signal an error if it is not supported."
   (unless (cider-nrepl-op-supported-p op)
     (error "Can't find nREPL middleware providing op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" op (upcase cider-version))))
 
-(defun cider--ensure-session (request)
-  "Make sure REQUEST has session.
-
-If the nREPL request lacks a session `cider-current-session' is added."
-  (if (seq-contains request "session")
-      request
-    (append request (list "session" (cider-current-session)))))
-
-(defun cider-nrepl-send-request (request callback)
+(defun cider-nrepl-send-request (request callback &optional connection)
   "Send REQUEST and register response handler CALLBACK.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ).
-Return the id of the sent message."
-  (nrepl-send-request (cider--ensure-session request) callback (cider-current-connection)))
+If CONNECTION is provided dispatch to that connection instead of
+the current connection.
 
-(defun cider-nrepl-send-sync-request (request &optional abort-on-input)
+Return the id of the sent message."
+  (nrepl-send-request request callback (or connection (cider-current-connection))))
+
+(defun cider-nrepl-send-sync-request (request &optional connection abort-on-input)
   "Send REQUEST to the nREPL server synchronously.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along and return the accumulated response.
 If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface."
-  (nrepl-send-sync-request (cider--ensure-session request) (cider-current-connection) abort-on-input))
+  (nrepl-send-sync-request request
+                           (or connection (cider-current-connection))
+                           abort-on-input))
 
 (defun cider-nrepl-send-unhandled-request (request)
   "Send REQUEST to the nREPL server and ignore any responses.
@@ -612,17 +618,21 @@ thing at point."
 ;;; Requests
 
 (declare-function cider-load-file-handler "cider-interaction")
-(defun cider-request:load-file (file-contents file-path file-name &optional callback)
+(defun cider-request:load-file (file-contents file-path file-name &optional connection callback)
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
-loaded. If CALLBACK is nil, use `cider-load-file-handler'."
+loaded.
+
+If CONNECTION is nil, use `cider-current-connection'.
+If CALLBACK is nil, use `cider-load-file-handler'."
   (cider-nrepl-send-request (list "op" "load-file"
                                   "session" (cider-current-session)
                                   "file" file-contents
                                   "file-path" file-path
                                   "file-name" file-name)
                             (or callback
-                                (cider-load-file-handler (current-buffer)))))
+                                (cider-load-file-handler (current-buffer)))
+                            connection))
 
 
 ;;; Sync Requests
