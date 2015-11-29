@@ -236,7 +236,7 @@ Stable by adding this to your Emacs initialization:
 ### Setting up CIDER's nREPL middleware
 
 Much of CIDER's functionality depends on the presence of CIDER's own
-[nREPL middleware](https://github.com/clojure-emacs/cider-nrepl).
+[nREPL middleware][cider-nrepl].
 
 #### Using Leiningen
 
@@ -1521,3 +1521,4 @@ Distributed under the GNU General Public License, version 3
 [piggieback]: https://github.com/cemerick/piggieback
 [vim-fireplace]: https://github.com/tpope/vim-fireplace
 [CCW]: https://github.com/laurentpetit/ccw
+[cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
