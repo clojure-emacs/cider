@@ -60,7 +60,6 @@ specific CIDER release.**
 - [Configuration](#configuration)
   - [Basic configuration](#basic-configuration)
   - [Specifying indentation](#specifying-indentation)
-  - [Running tests](#running-tests)
   - [Code reloading](#code-reloading)
   - [Minibuffer completion](#minibuffer-completion)
   - [Auto-completion](#auto-completion)
@@ -701,6 +700,20 @@ Keyboard shortcut               | Description
 <kbd>d</kbd>                    | Display diff of actual vs expected.
 <kbd>e</kbd>                    | Display test error cause and stacktrace info.
 
+Certain aspects of the test execution behavior are configurable:
+
+* If your tests are not following the `some.ns-test` naming convention you can
+customize the variable `cider-test-infer-test-ns`. It should be bound to a
+function that takes the current ns and returns the matching test ns (which may
+be the same as the current ns).
+
+* If you want to view the test report regardless of whether the tests have
+passed or failed:
+
+```el
+(setq cider-test-show-report-on-success t)
+```
+
 ### Navigating stacktraces
 
 CIDER comes with a powerful solution to the problem of verbose Clojure
@@ -1041,20 +1054,6 @@ And here's a more complex one:
 Don't worry if this looks intimidating. For most macros the indent spec should
 be either just a number, or one of the keywords `:defn` or `:form`. A full
 description of the spec is provided in [Indent-Spec.md](Indent-Spec.md).
-
-### Running tests
-
-* If your tests are not following the `some.ns-test` naming convention you can
-customize the variable `cider-test-infer-test-ns`. It should be bound to a
-function that takes the current ns and returns the matching test ns (which may
-be the same as the current ns).
-
-* If you want to view the test report regardless of whether the tests have
-passed or failed:
-
-```el
-(setq cider-test-show-report-on-success t)
-```
 
 ### Code reloading
 
