@@ -529,14 +529,6 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 ## Keyboard shortcuts
 
-* <kbd>M-x cider-jack-in</kbd>: Launch an nREPL server and a REPL client.
-    Prompts for a project root if given a prefix argument.
-* <kbd>M-x cider-connect</kbd>: Connect to an already-running nREPL server.
-
-While you're in `clojure-mode`, `cider-jack-in` is bound for
-convenience to <kbd>C-c M-j</kbd> and `cider-connect` is bound to <kbd>C-c
-M-c</kbd>.
-
 ### cider-macroexpansion-mode
 
 Keyboard shortcut               | Description
