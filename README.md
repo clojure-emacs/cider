@@ -60,6 +60,7 @@ specific CIDER release.**
   - [Managing multiple connections](#managing-multiple-connections)
 - [Configuration](#configuration)
   - [Basic configuration](#basic-configuration)
+  - [Overlays](#overlays)
   - [Specifying indentation](#specifying-indentation)
   - [Minibuffer completion](#minibuffer-completion)
   - [Auto-completion](#auto-completion)
@@ -1072,6 +1073,24 @@ helpful for identifying each host.
 
 More detail can be found [here](https://github.com/clojure-emacs/cider/issues/930).
 
+### Overlays
+
+When you evaluate code in Clojure files, the result is displayed in the buffer
+itself, in an overlay right after the evaluated code.  If you want this overlay
+to be font-locked (syntax-highlighted) like Clojure code, set the following
+variable.
+
+```el
+(setq cider-overlays-use-font-lock t)
+```
+
+You can disable overlays entirely (and display results in the echo-area at the
+bottom) with the `cider-use-overlays` variable.
+
+```el
+(setq cider-use-overlays nil)
+```
+
 ### Specifying indentation
 
 It is common for macros to require special indentation mechanisms. This is most
@@ -1239,24 +1258,6 @@ CIDER integration for `eval-sexp-fu`.
 
 ```el
 (require 'cider-eval-sexp-fu)
-```
-
-### Overlays
-
-When you evaluate code in Clojure files, the result is displayed in the buffer
-itself, in an overlay right after the evaluated code.  If you want this overlay
-to be font-locked (syntax-highlighted) like Clojure code, set the following
-variable.
-
-```el
-(setq cider-overlays-use-font-lock t)
-```
-
-You can disable overlays entirely (and display results in the echo-area at the
-bottom) with the `cider-use-overlays` variable.
-
-```el
-(setq cider-use-overlays nil)
 ```
 
 ## Caveats
