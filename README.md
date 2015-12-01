@@ -764,6 +764,22 @@ Keyboard shortcut               | Description
 <kbd>d</kbd> | toggle display of duplicate frames
 <kbd>a</kbd> | toggle display of all frames
 
+* Error buffer stacktraces may be filtered by default. Valid filter types
+include `java`, `clj`, `repl`, `tooling`, and `dup`. Setting this to `nil` will
+show all stacktrace frames.
+
+```el
+(setq cider-stacktrace-default-filters '(tooling dup))
+```
+
+* Error messages may be wrapped for readability. If this value is nil, messages
+will not be wrapped; if it is truthy but non-numeric, the default `fill-column`
+will be used.
+
+```el
+(setq cider-stacktrace-fill-column 80)
+```
+
 ### Debugging
 
 The debugger can be invoked in several ways, the simplest one is to type
@@ -939,23 +955,6 @@ make the hidden buffers visible. They'll always be visible in
 
 ```el
 (setq cider-auto-select-error-buffer nil)
-```
-
-* If using the `wrap-stacktrace` middleware from `cider-nrepl`, error buffer
-stacktraces may be filtered by default. Valid filter types include `java`,
-`clj`, `repl`, `tooling`, and `dup`. Setting this to `nil` will show all
-stacktrace frames.
-
-```el
-(setq cider-stacktrace-default-filters '(tooling dup))
-```
-
-* Error messages may be wrapped for readability. If this value is nil, messages
-will not be wrapped; if it is truthy but non-numeric, the default `fill-column`
-will be used.
-
-```el
-(setq cider-stacktrace-fill-column 80)
 ```
 
 * Make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current window:
