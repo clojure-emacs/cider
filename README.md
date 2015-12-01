@@ -48,11 +48,12 @@ specific CIDER release.**
   - [Using cider-mode](#using-cider-mode)
   - [Using the REPL](#using-the-repl)
   - [ClojureScript usage](#clojurescript-usage)
-- [Keyboard shortcuts](#keyboard-shortcuts)
-  - [cider-macroexpansion-mode](#cider-macroexpansion-mode)
-  - [cider-inspector-mode](#cider-inspector-mode)
-  - [cider-test-report-mode](#cider-test-report-mode)
-  - [cider-stacktrace-mode](#cider-stacktrace-mode)
+- [Extended Workflow](#extended-workflow)
+  - [Macroexpansion](#macroexpansion)
+  - [Value Inspection](#value-inspection)
+  - [Running Tests](#running-tests)
+  - [Navigating Stacktraces](#navigating-stacktraces)
+  - [Debugging](#debugging)
   - [Managing multiple connections](#managing-multiple-connections)
 - [Configuration](#configuration)
   - [Basic configuration](#basic-configuration)
@@ -527,9 +528,19 @@ presence of the `cider-nrepl` middleware. If the middleware is present then most
 other features of CIDER will also be enabled (including code completion,
 documentation lookup, the namespace browser, and macroexpansion).
 
-## Keyboard shortcuts
+## Extended workflow
 
-### cider-macroexpansion-mode
+CIDER packs a ton of extra functionality, besides basic Clojure code
+evaluation. Much of the functionality is centered around additional major modes,
+which provide you with convenient ways to get something done or inspect
+something.
+
+### Macroexpansion
+
+Pressing <kbd>C-c C-m</kbd> after some form in a source buffer or the REPL will
+result in a new buffer, showing the macroexpansion of form in question. You'll
+have access to additional keybindings in the macroexpansion buffer (which is
+internally using `cider-macroexpansion-mode`):
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
@@ -538,19 +549,31 @@ Keyboard shortcut               | Description
 <kbd>g</kbd>                    | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
 <kbd>C-/</kbd> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
 
-### cider-inspector-mode
+### Value inspection
 
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
+Pressing <kbd>C-c C-i</kbd> after some form in a source buffer or the REPL will
+result in a new buffer, showing the structure of the result of the form in question. You'll
+have access to additional keybindings in the inspector buffer (which is
+internally using `cider-inspector-mode`):
+
+Keyboard shortcut                       | Description
+----------------------------------------|-------------------------------
 <kbd>Tab</kbd> and <kbd>Shift-Tab</kbd> | navigate inspectable sub-objects
-<kbd>Return</kbd> | inspect sub-objects
-<kbd>l</kbd> | pop to the parent object
-<kbd>g</kbd> | refresh the inspector (e.g. if viewing an atom/ref/agent)
-<kbd>SPC</kbd> | jump to next page in paginated view
-<kbd>M-SPC</kbd> | jump to previous page in paginated view
-<kbd>s</kbd> | set a new page size in paginated view
+<kbd>Return</kbd>                       | inspect sub-objects
+<kbd>l</kbd>                            | pop to the parent object
+<kbd>g</kbd>                            | refresh the inspector (e.g. if viewing an atom/ref/agent)
+<kbd>SPC</kbd>                          | jump to next page in paginated view
+<kbd>M-SPC</kbd>                        | jump to previous page in paginated view
+<kbd>s</kbd>                            | set a new page size in paginated view
 
-### cider-test-report-mode
+### Running tests
+
+You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c
+,</kbd> in a source buffer will run the tests for the namespace you're currently
+in. CIDER is smart enough to figure out the namespace containing the tests.
+
+In the buffer displaying the test execution results you'll have a bit of
+additional functionality at your disposal.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
@@ -563,7 +586,13 @@ Keyboard shortcut               | Description
 <kbd>d</kbd>                    | Display diff of actual vs expected.
 <kbd>e</kbd>                    | Display test error cause and stacktrace info.
 
-### cider-stacktrace-mode
+### Navigating stacktraces
+
+CIDER comes with a powerful solution to the problem of verbose Clojure
+stacktraces.  Stacktraces are presented in a special major mode
+(`cider-stacktrace-mode`), which gives you the possibility to filter out certain
+stack frames and some handy ways to navigate causes.  You'll also be able to go
+to the code in question with a single keystroke.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
@@ -584,7 +613,7 @@ Keyboard shortcut               | Description
 <kbd>d</kbd> | toggle display of duplicate frames
 <kbd>a</kbd> | toggle display of all frames
 
-### cider-debug
+### Debugging
 
 The debugger can be invoked in several ways, the simplest one is to type
 <kbd>C-u C-M-x</kbd>. This will take the current top-level form, place as many
