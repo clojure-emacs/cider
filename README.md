@@ -558,13 +558,13 @@ Buffer name will look like *cider-repl project-name:port*.
 (setq nrepl-buffer-name-show-port t)
 ```
 
-* Normally code you input in the REPL is font-locked with
-`cider-repl-input-face` (after you press `RET`) and results are
-font-locked with `cider-repl-result-face`. If you want them to be
-font-locked as in `clojure-mode` use the following:
+* Normally code in the REPL is font-locked the same way as in
+`clojure-mode`. Before CIDER 0.10 by default REPL input was font-locked with
+`cider-repl-input-face` (after you press `RET`) and results were font-locked with
+`cider-repl-result-face`. If you want to restore the old behaviour use:
 
 ```el
-(setq cider-repl-use-clojure-font-lock t)
+(setq cider-repl-use-clojure-font-lock nil)
 ```
 
 ##### Pretty printing in the REPL
