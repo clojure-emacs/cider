@@ -544,6 +544,29 @@ user> (+ 1 2)
 ;; => 3
 ```
 
+* The REPL buffer name has the format `*cider-repl project-name*`.
+Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
+
+```el
+(setq nrepl-buffer-name-separator "-")
+```
+
+* The REPL buffer name can also display the port on which the nREPL server is running.
+Buffer name will look like *cider-repl project-name:port*.
+
+```el
+(setq nrepl-buffer-name-show-port t)
+```
+
+* Normally code you input in the REPL is font-locked with
+`cider-repl-input-face` (after you press `RET`) and results are
+font-locked with `cider-repl-result-face`. If you want them to be
+font-locked as in `clojure-mode` use the following:
+
+```el
+(setq cider-repl-use-clojure-font-lock t)
+```
+
 ##### Pretty printing in the REPL
 
 Make the REPL always pretty-print the results of your commands. Note
@@ -935,20 +958,6 @@ will be used.
 (setq cider-stacktrace-fill-column 80)
 ```
 
-* The REPL buffer name has the format `*cider-repl project-name*`.
-Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
-
-```el
-(setq nrepl-buffer-name-separator "-")
-```
-
-* The REPL buffer name can also display the port on which the nREPL server is running.
-Buffer name will look like *cider-repl project-name:port*.
-
-```el
-(setq nrepl-buffer-name-show-port t)
-```
-
 * Make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current window:
 
 ```el
@@ -972,15 +981,6 @@ Buffer name will look like *cider-repl project-name:port*.
 ```
 
 To remove the prefix altogether just set it to an empty string(`""`).
-
-* Normally code you input in the REPL is font-locked with
-`cider-repl-input-face` (after you press `RET`) and results are
-font-locked with `cider-repl-result-face`. If you want them to be
-font-locked as in `clojure-mode` use the following:
-
-```el
-(setq cider-repl-use-clojure-font-lock t)
-```
 
 * CIDER can syntax highlight symbols that are known to be defined. By default,
   this is done on symbols from the `clojure.core` namespace as well as macros
