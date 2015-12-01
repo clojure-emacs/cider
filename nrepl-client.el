@@ -898,8 +898,8 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 `nrepl-request:stdin', etc.
 Return the ID of the sent message."
   (with-current-buffer connection
-    (unless (or (plist-get request "session")
-                (not nrepl-session))
+    (when (and (not (lax-plist-get request "session"))
+               nrepl-session)
       (setq request (append request (list "session" nrepl-session))))
     (let* ((id (nrepl-next-request-id connection))
            (request (cons 'dict (lax-plist-put request "id" id)))
