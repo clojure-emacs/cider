@@ -56,11 +56,11 @@ specific CIDER release.**
   - [Running Tests](#running-tests)
   - [Navigating Stacktraces](#navigating-stacktraces)
   - [Debugging](#debugging)
+  - [Code reloading](#code-reloading)
   - [Managing multiple connections](#managing-multiple-connections)
 - [Configuration](#configuration)
   - [Basic configuration](#basic-configuration)
   - [Specifying indentation](#specifying-indentation)
-  - [Code reloading](#code-reloading)
   - [Minibuffer completion](#minibuffer-completion)
   - [Auto-completion](#auto-completion)
   - [Integration with other modes](#integration-with-other-modes)
@@ -834,6 +834,56 @@ In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
 <kbd>C-c M-:</kbd>) will use the current lexical context (local variables) while
 the debugger is active.
 
+### Code reloading
+
+`cider-refresh` wraps
+[clojure.tools.namespace](https://github.com/clojure/tools.namespace), and as
+such the same
+[benefits](https://github.com/clojure/tools.namespace#reloading-code-motivation)
+and
+[caveats](https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application)
+regarding writing reloadable code also apply.
+
+Calling `cider-refresh` will cause all modified Clojure files on the classpath
+to be reloaded. You can also provide a single prefix argument to reload all
+Clojure files on the classpath unconditionally, or a double prefix argument to
+first clear the state of the namespace tracker before reloading.
+
+The above three operations are analogous to
+[`clojure.tools.namespace.repl/refresh`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh),
+[`clojure.tools.namespace.repl/refresh-all`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh-all)
+and
+[`clojure.tools.namespace.repl/clear`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear)
+(followed by a normal refresh), respectively.
+
+* You can define Clojure functions to be called before reloading, and after a
+  successful reload, when using `cider-refresh`:
+
+```el
+(setq cider-refresh-before-fn "user/stop-system!"
+      cider-refresh-after-fn "user/start-system!")
+```
+
+* These must be set to the namespace-qualified names of vars bound to functions
+  of no arguments. The functions must be synchronous (blocking), and are
+  expected to be side-effecting - they will always be executed serially, without
+  retries.
+
+* By default, messages regarding the status of the in-progress reload will be
+  displayed in the echo area after you call `cider-refresh`. The same
+  information will also be recorded in the `*cider-refresh-log*` buffer, along
+  with anything printed to `*out*` or `*err*` by `cider-refresh-before-fn` and
+  `cider-refresh-start-fn`.
+
+* You can make the `*cider-refresh-log*` buffer display automatically after you
+  call `cider-refresh` by setting the `cider-refresh-show-log-buffer` variable
+  to a non-nil value (this will also prevent any related messages from also
+  being displayed in the echo area):
+
+```el
+(setq cider-refresh-show-log-buffer t)
+```
+
 ### Managing multiple connections
 
 You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> (or
@@ -1053,56 +1103,6 @@ And here's a more complex one:
 Don't worry if this looks intimidating. For most macros the indent spec should
 be either just a number, or one of the keywords `:defn` or `:form`. A full
 description of the spec is provided in [Indent-Spec.md](Indent-Spec.md).
-
-### Code reloading
-
-* `cider-refresh` wraps
-  [clojure.tools.namespace](https://github.com/clojure/tools.namespace), and as
-  such the same
-  [benefits](https://github.com/clojure/tools.namespace#reloading-code-motivation)
-  and
-  [caveats](https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application)
-  regarding writing reloadable code also apply.
-
-* Calling `cider-refresh` will cause all modified Clojure files on the classpath
-  to be reloaded. You can also provide a single prefix argument to reload all
-  Clojure files on the classpath unconditionally, or a double prefix argument to
-  first clear the state of the namespace tracker before reloading.
-
-* The above three operations are analogous to
-  [`clojure.tools.namespace.repl/refresh`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh),
-  [`clojure.tools.namespace.repl/refresh-all`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh-all)
-  and
-  [`clojure.tools.namespace.repl/clear`](http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear)
-  (followed by a normal refresh), respectively.
-
-* You can define Clojure functions to be called before reloading, and after a
-  successful reload, when using `cider-refresh`:
-
-```el
-(setq cider-refresh-before-fn "user/stop-system!"
-      cider-refresh-after-fn "user/start-system!")
-```
-
-* These must be set to the namespace-qualified names of vars bound to functions
-  of no arguments. The functions must be synchronous (blocking), and are
-  expected to be side-effecting - they will always be executed serially, without
-  retries.
-
-* By default, messages regarding the status of the in-progress reload will be
-  displayed in the echo area after you call `cider-refresh`. The same
-  information will also be recorded in the `*cider-refresh-log*` buffer, along
-  with anything printed to `*out*` or `*err*` by `cider-refresh-before-fn` and
-  `cider-refresh-start-fn`.
-
-* You can make the `*cider-refresh-log*` buffer display automatically after you
-  call `cider-refresh` by setting the `cider-refresh-show-log-buffer` variable
-  to a non-nil value (this will also prevent any related messages from also
-  being displayed in the echo area):
-
-```el
-(setq cider-refresh-show-log-buffer t)
-```
 
 ### Minibuffer completion
 
