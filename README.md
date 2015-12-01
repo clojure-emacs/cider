@@ -47,6 +47,8 @@ specific CIDER release.**
   - [Connect to a running nREPL server](#connect-to-a-running-nrepl-server)
   - [Using cider-mode](#using-cider-mode)
   - [Using the REPL](#using-the-repl)
+    - [REPL Configuration](#repl-configuration)
+      - [REPL history](#repl-history)
   - [ClojureScript usage](#clojurescript-usage)
 - [Extended Workflow](#extended-workflow)
   - [Macroexpansion](#macroexpansion)
@@ -60,11 +62,8 @@ specific CIDER release.**
   - [Specifying indentation](#specifying-indentation)
   - [Running tests](#running-tests)
   - [Code reloading](#code-reloading)
-  - [REPL history](#repl-history)
   - [Minibuffer completion](#minibuffer-completion)
   - [Auto-completion](#auto-completion)
-  - [Pretty printing in the REPL](#pretty-printing-in-the-repl)
-  - [Limiting printed output in the REPL](#limiting-printed-output-in-the-repl)
   - [Integration with other modes](#integration-with-other-modes)
 - [Caveats](#caveats)
   - [Var Metadata](#var-metadata)
@@ -475,6 +474,122 @@ character used to trigger the shortcuts is configurable via
 (setq cider-repl-shortcut-dispatch-char ?\:)
 ```
 
+#### REPL Configuration
+
+* You can customize the prompt in REPL buffer. To do that you can customize
+  `cider-repl-prompt-function` and set it to a function that takes one argument,
+  a namespace name. For convenience, three functions are already provided:
+  `cider-repl-prompt-lastname`, `cider-repl-prompt-abbreviated`,
+  `cider-repl-prompt-default` and by default the last one is being used.
+  Prompt for each of them for namespace `leiningen.core.ssl`:
+
+  * `cider-repl-prompt-lastname`:
+
+  ```
+  ssl>
+  ```
+
+  * `cider-repl-prompt-abbreviated`:
+
+  ```
+  l.c.ssl>
+  ```
+
+  * `cider-repl-prompt-default`:
+
+  ```
+  leiningen.core.ssl>
+  ```
+
+  You may, of course, write your own function. For example, in `leiningen` there
+  are two namespaces with similar names - `leiningen.classpath` and
+  `leiningen.core.classpath`. To make them easily recognizable you can either
+  use the default value or you can opt to show only two segments of the
+  namespace and still be able to know which is the REPL's current
+  namespace. Here is an example function that will do exactly that:
+
+  ```el
+  (defun cider-repl-prompt-show-two (namespace)
+    "Return a prompt string with the last name in NAMESPACE."
+    (let* ((names (reverse (-take 2 (reverse (split-string namespace "\\."))))))
+      (concat (car names) "." (cadr names) "> ")))
+  ```
+
+* By default, interactive commands that require a symbol will prompt for the
+  symbol, with the prompt defaulting to the symbol at point. You can set
+  `cider-prompt-for-symbol` to nil to instead try the command with the symbol at
+  point first, and only prompt if that fails.
+
+* You can control the <kbd>TAB</kbd> key behavior in the REPL via the
+`cider-repl-tab-command` variable.  While the default command
+`cider-repl-indent-and-complete-symbol` should be an adequate choice for
+most users, it's very easy to switch to another command if you wish
+to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
+because you're used to completing with <kbd>M-TAB</kbd>) use the
+following snippet:
+
+```el
+(setq cider-repl-tab-command #'indent-for-tab-command)
+```
+
+* Change the result prefix for REPL evaluation (by default there's no prefix):
+
+```el
+(setq cider-repl-result-prefix ";; => ")
+```
+
+And here's the result of that change:
+
+```
+user> (+ 1 2)
+;; => 3
+```
+
+##### Pretty printing in the REPL
+
+Make the REPL always pretty-print the results of your commands. Note
+that this will not work correctly with forms such as `(def a 1) (def b2)`
+and it expects `clojure.pprint` to have been required already
+(the default in more recent versions of Clojure):
+
+<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
+
+##### Limiting printed output in the REPL
+
+Accidentally printing large objects can be detrimental to your
+productivity. Clojure provides the `*print-length*` var which, if set,
+controls how many items of each collection the printer will print. You
+can supply a default value for REPL sessions via the `repl-options`
+section of your Leiningen project's configuration.
+
+```clojure
+:repl-options {:init (set! *print-length* 50)}
+```
+
+##### REPL history
+
+* To make the REPL history wrap around when its end is reached:
+
+```el
+(setq cider-repl-wrap-history t)
+```
+
+* To adjust the maximum number of items kept in the REPL history:
+
+```el
+(setq cider-repl-history-size 1000) ; the default is 500
+```
+
+* To store the REPL history in a file:
+
+```el
+(setq cider-repl-history-file "path/to/file")
+```
+
+Note that the history is written to the file when you kill the REPL
+buffer (which includes invoking `cider-quit`) or you quitting Emacs.
+
+
 ### ClojureScript usage
 
 ClojureScript support relies on the
@@ -751,62 +866,6 @@ When using `switch-to-buffer`, pressing <kbd>SPC</kbd> after the command will
 make the hidden buffers visible. They'll always be visible in
 `list-buffers` (<kbd>C-x C-b</kbd>).
 
-* You can customize the prompt in REPL buffer. To do that you can customize
-  `cider-repl-prompt-function` and set it to a function that takes one argument,
-  a namespace name. For convenience, three functions are already provided:
-  `cider-repl-prompt-lastname`, `cider-repl-prompt-abbreviated`,
-  `cider-repl-prompt-default` and by default the last one is being used.
-  Prompt for each of them for namespace `leiningen.core.ssl`:
-
-  * `cider-repl-prompt-lastname`:
-
-  ```
-  ssl>
-  ```
-
-  * `cider-repl-prompt-abbreviated`:
-
-  ```
-  l.c.ssl>
-  ```
-
-  * `cider-repl-prompt-default`:
-
-  ```
-  leiningen.core.ssl>
-  ```
-
-  You may, of course, write your own function. For example, in `leiningen` there
-  are two namespaces with similar names - `leiningen.classpath` and
-  `leiningen.core.classpath`. To make them easily recognizable you can either
-  use the default value or you can opt to show only two segments of the
-  namespace and still be able to know which is the REPL's current
-  namespace. Here is an example function that will do exactly that:
-
-  ```el
-  (defun cider-repl-prompt-show-two (namespace)
-    "Return a prompt string with the last name in NAMESPACE."
-    (let* ((names (reverse (-take 2 (reverse (split-string namespace "\\."))))))
-      (concat (car names) "." (cadr names) "> ")))
-  ```
-
-* By default, interactive commands that require a symbol will prompt for the
-  symbol, with the prompt defaulting to the symbol at point. You can set
-  `cider-prompt-for-symbol` to nil to instead try the command with the symbol at
-  point first, and only prompt if that fails.
-
-* You can control the <kbd>TAB</kbd> key behavior in the REPL via the
-`cider-repl-tab-command` variable.  While the default command
-`cider-repl-indent-and-complete-symbol` should be an adequate choice for
-most users, it's very easy to switch to another command if you wish
-to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
-because you're used to completing with <kbd>M-TAB</kbd>) use the
-following snippet:
-
-```el
-(setq cider-repl-tab-command #'indent-for-tab-command)
-```
-
 * To prefer local resources to remote (tramp) ones when both are available:
 
 ```el
@@ -891,19 +950,6 @@ Buffer name will look like *cider-repl project-name:port*.
 (setq cider-prompt-save-file-on-load nil)
 ;; Just save without prompting
 (setq cider-prompt-save-file-on-load 'always-save)
-```
-
-* Change the result prefix for REPL evaluation (by default there's no prefix):
-
-```el
-(setq cider-repl-result-prefix ";; => ")
-```
-
-And here's the result of that change:
-
-```
-user> (+ 1 2)
-;; => 3
 ```
 
 * Change the result prefix for interactive evaluation (by default it's `=> `):
@@ -1060,29 +1106,6 @@ passed or failed:
 (setq cider-refresh-show-log-buffer t)
 ```
 
-### REPL history
-
-* To make the REPL history wrap around when its end is reached:
-
-```el
-(setq cider-repl-wrap-history t)
-```
-
-* To adjust the maximum number of items kept in the REPL history:
-
-```el
-(setq cider-repl-history-size 1000) ; the default is 500
-```
-
-* To store the REPL history in a file:
-
-```el
-(setq cider-repl-history-file "path/to/file")
-```
-
-Note that the history is written to the file when you kill the REPL
-buffer (which includes invoking `cider-quit`) or you quitting Emacs.
-
 ### Minibuffer completion
 
 Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While it's not
@@ -1164,27 +1187,6 @@ Completion annotations can be disabled by setting
 <p align="center">
   <img src="screenshots/completion-annotations.png" width="400" />
 </p>
-
-### Pretty printing in the REPL
-
-Make the REPL always pretty-print the results of your commands. Note
-that this will not work correctly with forms such as `(def a 1) (def b2)`
-and it expects `clojure.pprint` to have been required already
-(the default in more recent versions of Clojure):
-
-<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
-
-### Limiting printed output in the REPL
-
-Accidentally printing large objects can be detrimental to your
-productivity. Clojure provides the `*print-length*` var which, if set,
-controls how many items of each collection the printer will print. You
-can supply a default value for REPL sessions via the `repl-options`
-section of your Leiningen project's configuration.
-
-```clojure
-:repl-options {:init (set! *print-length* 50)}
-```
 
 ### Integration with other modes
 
