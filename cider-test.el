@@ -186,6 +186,8 @@
      (append
       (list "op" "test-stacktrace" "session" (cider-current-session)
             "ns" ns "var" var "index" index)
+      (when (cider--pprint-fn)
+        (list "pprint-fn" (cider--pprint-fn)))
       (when cider-stacktrace-print-length
         (list "print-length" cider-stacktrace-print-length))
       (when cider-stacktrace-print-level

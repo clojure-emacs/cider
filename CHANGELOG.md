@@ -5,6 +5,7 @@
 ### New features
 
 * Font-lock traced vars.
+* New defcustom, `cider-pprint-fn`, allows you to set the function to use when pretty-printing evaluation results.
 
 ### Changes
 

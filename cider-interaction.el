@@ -793,6 +793,8 @@ into a new error buffer."
     (cider-nrepl-send-request
      (append
       (list "op" "stacktrace" "session" (cider-current-session))
+      (when (cider--pprint-fn)
+        (list "pprint-fn" (cider--pprint-fn)))
       (when cider-stacktrace-print-length
         (list "print-length" cider-stacktrace-print-length))
       (when cider-stacktrace-print-level
@@ -1023,7 +1025,8 @@ the printed result, and defaults to `fill-column'."
    ;; always eval ns forms in the user namespace
    ;; otherwise trying to eval ns form for the first time will produce an error
    (if (cider-ns-form-p form) "user" (cider-current-ns))
-   (or right-margin fill-column)))
+   (or right-margin fill-column)
+   (cider--pprint-fn)))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
@@ -1346,6 +1349,7 @@ unloaded."
     (cider-nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
                                             "print-length" cider-stacktrace-print-length
                                             "print-level" cider-stacktrace-print-level)
+                                      (when (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn)))
                                       (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
                                       (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
                               (lambda (response)
