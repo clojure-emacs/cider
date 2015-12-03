@@ -528,6 +528,10 @@ buffer."
   (cider--check-middleware-compatibility)
   (cider--debug-init-connection)
   (cider--subscribe-repl-to-server-out)
+  (cider-nrepl-request:eval
+   "(try (require 'cider.nrepl.print-method)
+         (catch Throwable _ nil))"
+   #'ignore)
   (when cider-auto-mode
     (cider-enable-on-existing-clojure-buffers))
   (run-hooks 'cider-connected-hook))
