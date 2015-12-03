@@ -488,7 +488,7 @@ SESSION and NS are used for the context of the evaluation.
 RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
 result, and is included in the request if non-nil."
   (append (list "pprint" "true")
-          (and right-margin (list "right-margin" right-margin))
+          (and right-margin (list "print-right-margin" right-margin))
           (nrepl--eval-request input session ns)))
 
 (defun cider-nrepl-request:pprint-eval (input callback &optional ns right-margin)
@@ -735,7 +735,7 @@ If CALLBACK is nil, use `cider-load-file-handler'."
   (let* ((response (thread-first (list "op" "format-edn"
                                        "session" (cider-current-session)
                                        "edn" edn)
-                     (append (and right-margin (list "right-margin" right-margin)))
+                     (append (and right-margin (list "print-right-margin" right-margin)))
                      (cider-nrepl-send-sync-request)))
          (err (nrepl-dict-get response "err")))
     (when err
