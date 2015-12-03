@@ -370,7 +370,7 @@ files and load it directly in the REPL.  Here's a list of its keybindings:
 
 Keyboard shortcut                    | Description
 -------------------------------------|-------------------------------
-<kbd>C-x C-e</kbd> <kbd>C-c C-e</kbd>| Evaluate the form preceding point and display the result in the echo area.  If invoked with a prefix argument, insert the result into the current buffer.
+<kbd>C-x C-e</kbd> <kbd>C-c C-e</kbd>| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
 <kbd>C-c C-w</kbd>                   | Evaluate the form preceding point and replace it with its result.
 <kbd>C-c M-e</kbd>                   | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 <kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
