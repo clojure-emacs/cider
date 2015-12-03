@@ -28,7 +28,7 @@ If you like the project, please consider [supporting its ongoing development](#d
 **This documentation tracks the `master` branch of CIDER. Some of
 the features and settings discussed here might not be available in
 older releases (including the current stable release). Please, consult
-the relevant git tag (e.g. v0.9.1) if you need documentation for a
+the relevant git tag (e.g. v0.10.0) if you need documentation for a
 specific CIDER release.**
 
 ***
@@ -250,7 +250,7 @@ Use the convenient plugin for defaults, either in your project's
 A minimal `profiles.clj` for CIDER would be:
 
 ```clojure
-{:repl {:plugins [[cider/cider-nrepl "0.9.1"]]}}
+{:repl {:plugins [[cider/cider-nrepl "0.10.0"]]}}
 ```
 
 **Be careful not to place this in the `:user` profile, as this way CIDER's
@@ -266,7 +266,7 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 (require 'boot.repl)
 
 (swap! boot.repl/*default-dependencies*
-       concat '[[cider/cider-nrepl "0.9.1"]])
+       concat '[[cider/cider-nrepl "0.10.0"]])
 
 (swap! boot.repl/*default-middleware*
        conj 'cider.nrepl/cider-middleware)

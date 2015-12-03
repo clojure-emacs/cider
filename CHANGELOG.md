@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.10.0 / 2015-12-03
+
 ### New features
 
 * [#1406](https://github.com/clojure-emacs/cider/issues/1406): When running tests, report test ns in minibuffer messages.
