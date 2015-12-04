@@ -118,10 +118,13 @@ interactive development environment like CIDER. Much of the middleware we
 developed for CIDER is editor agnostic and is being used by other Clojure dev
 environments as well (e.g. [vim-fireplace][] & [CCW][]).
 
-If you're interested in more details about CIDER's history and architecture you can
-check out the Clojure/conj presentation
+If you're interested in more details about CIDER's history and architecture you
+can check out the Clojure/conj presentation
 [The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6)
 and the [Cognicast's episode on CIDER](http://blog.cognitect.com/cognicast/080).
+There's also a
+[ClojureX 2015 presentation](https://skillsmatter.com/skillscasts/7225-cider-the-journey-so-far-and-the-road-ahead)
+dedicated to CIDER 0.9 and 0.10 and the future of the project.
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
 
