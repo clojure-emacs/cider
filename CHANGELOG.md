@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+* [#1450](https://github.com/clojure-emacs/cider/pull/1450): Fix an error in `cider-restart` caused by a reference to a killed buffer.
+
 ## 0.10.0 / 2015-12-03
 
 ### New features
