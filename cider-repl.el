@@ -484,7 +484,19 @@ If BOL is non-nil insert at the beginning of line."
     (let ((pos (cider-repl--end-of-line-before-input-start))
           (string (replace-regexp-in-string "\n\\'" "" string)))
       (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
-      (ansi-color-apply-on-region pos (point-max)))))
+      (ansi-color-apply-on-region pos (point-max))
+
+      ;; If the output has a trailing overlay created by ansi-color, it would be
+      ;; extended by the following outputs. To avoid this, ansi-color adds
+      ;; `ansi-color-freeze-overlay' to the `modification-hooks', but it never
+      ;; seems to be called. By using `insert-behind-hooks' instead, we can make
+      ;; it work. For more details, please see
+      ;; https://github.com/clojure-emacs/cider/issues/1452
+      (dolist (ov (overlays-at (1- (cider-repl--end-of-line-before-input-start))))
+        ;; Ensure ov is created by ansi-color
+        (when (and (member #'ansi-color-freeze-overlay (overlay-get ov 'modification-hooks))
+                   (not (member #'ansi-color-freeze-overlay (overlay-get ov 'insert-behind-hooks))))
+          (push #'ansi-color-freeze-overlay (overlay-get ov 'insert-behind-hooks)))))))
 
 (defun cider-repl-emit-interactive-stdout (string)
   "Emit STRING as interactive output."
