@@ -669,6 +669,27 @@ presence of the `cider-nrepl` middleware. If the middleware is present then most
 other features of CIDER will also be enabled (including code completion,
 documentation lookup, the namespace browser, and macroexpansion).
 
+#### Browser-connected ClojureScript REPL in Boot project
+
+1. Add this to your dependencies in `build.boot`:
+
+  ```clojure
+  [adzerk/boot-cljs-repl   "0.3.0"]
+  [com.cemerick/piggieback "0.2.1"  :scope "test"]
+  [weasel                  "0.7.0"  :scope "test"]
+  [org.clojure/tools.nrepl "0.2.12" :scope "test"]
+  ```
+
+2. Start `boot dev` in a terminal.
+
+3. `M-x cider-connect` to localhost and select the repl process.
+
+4. Execute `(start-repl)` at the prompt: `boot.user> (start-repl)`.
+
+5. Connect to the running server with your browser.
+
+For more information visit [boot-cljs-repl](https://github.com/adzerk-oss/boot-cljs-repl).
+
 ## Extended workflow
 
 CIDER packs a ton of extra functionality, besides basic Clojure code
