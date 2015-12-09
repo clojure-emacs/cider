@@ -198,8 +198,8 @@ Sub-match 1 must be the project path.")
 
 (defcustom cider-cljs-lein-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
-This is evaluated in a Clojure REPL and it should start a ClojureScript
-REPL."
+This is only used in lein projects.  It is evaluated in a Clojure REPL and
+it should start a ClojureScript REPL."
   :type '(choice (const :tag "Rhino"
                         "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))")
                  (const :tag "Node (requires NodeJS to be installed)"
