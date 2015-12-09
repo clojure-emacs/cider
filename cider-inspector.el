@@ -84,12 +84,30 @@ The page size can be also changed interactively within the inspector."
   (setq-local truncate-lines t))
 
 ;;;###autoload
-(defun cider-inspect (expression)
-  "Eval the string EXPRESSION and inspect the result."
-  (interactive
-   (list (cider-read-from-minibuffer "Inspect value: "
-                                     (cider-sexp-at-point))))
-  (cider-inspect-expr expression (cider-current-ns)))
+(defun cider-inspect-last-sexp ()
+  "Inspect the result of the the expression preceding point."
+  (interactive)
+  (cider-inspect-expr (cider-last-sexp) (cider-current-ns)))
+
+;;;###autoload
+(defun cider-inspect-defun-at-point ()
+  "Inspect the result of the \"top-level\" expression at point."
+  (interactive)
+  (cider-inspect-expr (cider-defun-at-point) (cider-current-ns)))
+
+;;;###autoload
+(defun cider-inspect (&optional arg)
+  "Inspect the result of the preceding sexp.
+
+With a prefix argument ARG it inspects the result of the \"top-level\" form.
+With a second prefix argument it prompts for an expression to eval and inspect."
+  (interactive "p")
+  (pcase arg
+    (1 (cider-inspect-last-sexp))
+    (4 (cider-inspect-defun-at-point))
+    (16 (when-let ((expression (cider-read-from-minibuffer "Inspect expression: "
+                                                        (cider-sexp-at-point))))
+          (cider-inspect-expr expression (cider-current-ns))))))
 
 ;; Operations
 (defun cider-inspector--value-handler (_buffer value)
@@ -123,6 +141,7 @@ Used for all inspector nREPL ops."
                                #'cider-inspector--done-handler))
 
 (defun cider-inspect-expr (expr ns)
+  "Evaluate EXPR in NS and inspect its value."
   (cider--prep-interactive-eval expr)
   (cider-nrepl-send-request (append (nrepl--eval-request expr (cider-current-session) ns)
                                     (list "inspect" "true"

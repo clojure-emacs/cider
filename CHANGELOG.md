@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* `cider-inspect` now operates by default on the last sexp. Its behavior can be altered via prefix arguments.
+
 ### Bugs fixed
 
 * [#1450](https://github.com/clojure-emacs/cider/pull/1450): Fix an error in `cider-restart` caused by a reference to a killed buffer.
