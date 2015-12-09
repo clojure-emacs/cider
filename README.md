@@ -635,7 +635,7 @@ present in your REPL session.
    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
    ```
 
-2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl` if
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-lein-repl` if
    you'd like to change the REPL used (the default is `rhino`).
 
 3. Open a file in your project and issue <kbd>M-x</kbd>
@@ -650,7 +650,7 @@ Using Weasel, you can also have a browser-connected REPL.
 
 1. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
 
-2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-repl`
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-lein-repl`
    and choose the `Weasel` option.
 
 3. Add this to your ClojureScript code:

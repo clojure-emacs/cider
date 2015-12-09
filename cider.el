@@ -196,7 +196,7 @@ Sub-match 1 must be the project path.")
     ("boot" cider-boot-parameters)
     ("gradle" cider-gradle-parameters)))
 
-(defcustom cider-cljs-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
+(defcustom cider-cljs-lein-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
 This is evaluated in a Clojure REPL and it should start a ClojureScript
 REPL."
@@ -208,6 +208,7 @@ REPL."
                         "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))")
                  (string :tag "Custom"))
   :group 'cider)
+(define-obsolete-variable-alias 'cider-cljs-repl 'cider-cljs-lein-repl "0.11.0")
 
 (defun cider-create-sibling-cljs-repl (client-buffer)
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
@@ -231,7 +232,7 @@ should be the regular Clojure REPL started by the server process filter."
        (list "op" "eval"
              "ns" (cider-current-ns)
              "session" nrepl-session
-             "code" cider-cljs-repl)
+             "code" cider-cljs-lein-repl)
        (cider-repl-handler (current-buffer))))))
 
 (defun cider--select-zombie-buffer (repl-buffers)
@@ -278,7 +279,7 @@ If CLJS-TOO is non-nil, also start a ClojureScript REPL session with its
 own buffer."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
-  (let ((project-type (or (cider-project-type) cider-default-repl-command)))
+  (let ((project-type (cider-project-type)))
     (if (funcall (cider-command-present-p project-type))
         (let* ((project (when prompt-project
                           (read-directory-name "Project: ")))
@@ -431,10 +432,11 @@ If more than one project file types are present, prompt the user to choose."
                                 '(("lein" . "project.clj")
                                   ("boot" . "build.boot")
                                   ("gradle" . "build.gradle"))))))
-    (if (> (length choices) 1)
-        (completing-read "Which command shoud be used? " choices
-                         nil t (car choices))
-      (car choices))))
+    (or (if (> (length choices) 1)
+            (completing-read "Which command shoud be used? " choices
+                             nil t (car choices))
+          (car choices))
+        cider-default-repl-command)))
 
 ;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-present-p ()
