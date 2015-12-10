@@ -1203,6 +1203,12 @@ See command `cider-mode'."
 
 ;;; Completion
 
+(defface cider-traced-face
+  '((t :box (:color "cyan" :line-width -1)))
+  "Face used to mark code being traced."
+  :group 'cider
+  :package-version '(cider . "0.11.0"))
+
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
   (thread-first (list "op" "toggle-trace-var"

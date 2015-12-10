@@ -344,13 +344,15 @@ The value can also be t, which means to font-lock as much as possible."
                                          '(function var macro core deprecated)
                                        cider-font-lock-dynamically))
         deprecated
-        macros functions vars instrumented)
+        macros functions vars instrumented traced)
     (when (memq 'core cider-font-lock-dynamically)
       (while core-plist
         (let ((sym (pop core-plist))
               (meta (pop core-plist)))
           (when (nrepl-dict-get meta "cider-instrumented")
             (push sym instrumented))
+          (when (nrepl-dict-get meta ":clojure.tools.trace/traced")
+            (push sym traced))
           (when (nrepl-dict-get meta "deprecated")
             (push sym deprecated))
           (cond
@@ -365,6 +367,8 @@ The value can also be t, which means to font-lock as much as possible."
             (meta (pop symbols-plist)))
         (when (nrepl-dict-get meta "cider-instrumented")
           (push sym instrumented))
+        (when (nrepl-dict-get meta ":clojure.tools.trace/traced")
+          (push sym traced))
         (when (and (nrepl-dict-get meta "deprecated")
                    (memq 'deprecated cider-font-lock-dynamically))
           (push sym deprecated))
@@ -393,7 +397,10 @@ The value can also be t, which means to font-lock as much as possible."
              (cider--unless-local-match cider-deprecated-properties) append)))
       ,@(when instrumented
           `((,(regexp-opt instrumented 'symbols) 0
-             (cider--unless-local-match 'cider-instrumented-face) append))))))
+             (cider--unless-local-match 'cider-instrumented-face) append)))
+      ,@(when traced
+          `((,(regexp-opt traced 'symbols) 0
+             (cider--unless-local-match 'cider-traced-face) append))))))
 
 (defconst cider--static-font-lock-keywords
   (eval-when-compile
