@@ -13,6 +13,7 @@
 ### Bugs fixed
 
 * [#1450](https://github.com/clojure-emacs/cider/pull/1450): Fix an error in `cider-restart` caused by a reference to a killed buffer.
+* [#1459](https://github.com/clojure-emacs/cider/issues/1459): Add support for dynamic dispatch in scratch buffers.
 
 ## 0.10.0 / 2015-12-03
 
