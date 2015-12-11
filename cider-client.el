@@ -204,26 +204,23 @@ current directory (see `cider-find-connection-buffer-for-project-directory').
 If there is ambiguity, it is resolved by matching TYPE with the REPL
 type (Clojure or ClojureScript).  TYPE is a string, which when nil is derived
 from the file extension."
-  (cider-connections) ; Cleanup the connections list.
-  (if (eq cider-request-dispatch 'dynamic)
-      (cond
-       ((and (not type) (cider--in-connection-buffer-p)) (current-buffer))
-       ((= 1 (length cider-connections)) (car cider-connections))
-       (t (let ((project-connections
-                 (cider-find-connection-buffer-for-project-directory
-                  nil :all-connections)))
-            (if (= 1 (length project-connections))
-                ;; Only one match, just return it.
-                (car project-connections)
-              ;; OW, find one matching the extension of current file.
-              (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
-                (or (seq-find (lambda (conn)
-                                (equal (cider--connection-type conn) type))
-                              project-connections)
-                    (car project-connections)
-                    (car cider-connections)))))))
-    ;; TODO: Add logic to dispatch to a matching Clojure/ClojureScript REPL based on file type
-    (car cider-connections)))
+  (let ((connections (cider-connections)))
+    (cond
+     ((eq cider-request-dispatch 'static) (car connections))
+     ((= 1 (length connections)) (car connections))
+     (t (let ((project-connections
+               (cider-find-connection-buffer-for-project-directory
+                nil :all-connections)))
+          (if (= 1 (length project-connections))
+              ;; Only one match, just return it.
+              (car project-connections)
+            ;; OW, find one matching the extension of current file.
+            (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
+              (or (seq-find (lambda (conn)
+                              (equal (cider--connection-type conn) type))
+                            project-connections)
+                  (car project-connections)
+                  (car connections)))))))))
 
 (defun cider-other-connection (&optional connection)
   "Return the first connection of another type than CONNECTION
