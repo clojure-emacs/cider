@@ -214,8 +214,10 @@ from the file extension."
           (if (= 1 (length project-connections))
               ;; Only one match, just return it.
               (car project-connections)
-            ;; OW, find one matching the extension of current file.
-            (let ((type (or type (file-name-extension (or (buffer-file-name) "")))))
+            ;; OW, find one matching the language of the current buffer.
+            (let ((type (or type cider-repl-type
+                            (if (derived-mode-p 'clojurescript-mode)
+                                "cljs" "clj"))))
               (or (seq-find (lambda (conn)
                               (equal (cider--connection-type conn) type))
                             project-connections)
