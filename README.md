@@ -574,10 +574,7 @@ Buffer name will look like *cider-repl project-name:port*.
 
 ##### Pretty printing in the REPL
 
-Make the REPL always pretty-print the results of your commands. Note
-that this will not work correctly with forms such as `(def a 1) (def b2)`
-and it expects `clojure.pprint` to have been required already
-(the default in more recent versions of Clojure):
+Make the REPL always pretty-print the results of your commands.
 
 <kbd>M-x cider-repl-toggle-pretty-printing</kbd>
 
