@@ -606,7 +606,10 @@ the symbol."
                                (lambda (buffer err)
                                  (cider-repl-emit-stderr buffer err))
                                (lambda (buffer)
-                                 (cider-repl-emit-prompt buffer))))
+                                 (cider-repl-emit-prompt buffer))
+                               nrepl-err-handler
+                               (lambda (buffer pprint-out)
+                                 (cider-repl-emit-result buffer pprint-out nil))))
 
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
