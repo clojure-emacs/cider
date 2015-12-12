@@ -6,6 +6,7 @@
 
 ### Bugs fixed
 
+* [#1466](https://github.com/clojure-emacs/cider/issues/1466): Correctly font-lock pretty-printed results in the REPL.
 * [#1475](https://github.com/clojure-emacs/cider/pull/1475): Fix `args-out-of-range` error in `cider--get-symbol-indent`.
 
 ## 0.10.0 / 2015-12-03
