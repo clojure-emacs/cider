@@ -64,6 +64,7 @@ specific CIDER release.**
   - [Specifying indentation](#specifying-indentation)
   - [Minibuffer completion](#minibuffer-completion)
   - [Auto-completion](#auto-completion)
+  - [Pretty-printing](#pretty-printing)
   - [Integration with other modes](#integration-with-other-modes)
 - [Caveats](#caveats)
   - [Var Metadata](#var-metadata)
@@ -573,10 +574,7 @@ Buffer name will look like *cider-repl project-name:port*.
 
 ##### Pretty printing in the REPL
 
-Make the REPL always pretty-print the results of your commands. Note
-that this will not work correctly with forms such as `(def a 1) (def b2)`
-and it expects `clojure.pprint` to have been required already
-(the default in more recent versions of Clojure):
+Make the REPL always pretty-print the results of your commands.
 
 <kbd>M-x cider-repl-toggle-pretty-printing</kbd>
 
@@ -1209,6 +1207,39 @@ Completion annotations can be disabled by setting
 <p align="center">
   <img src="screenshots/completion-annotations.png" width="400" />
 </p>
+
+### Pretty-printing
+
+You can configure the function used by CIDER for pretty-printing evaluation
+results and other data using the `cider-pprint-fn` option.
+
+This can be one of three values (defaults to `fipp`):
+
+- `fipp` to use the
+  [Fast Idiomatic Pretty-Printer](https://github.com/brandonbloom/fipp). This is
+  approximately 5-10x faster than `clojure.core/pprint`.
+
+- `puget` to use [Puget](https://github.com/greglook/puget), which builds on
+  Fipp to provide a
+  [canonical serialization](https://github.com/greglook/puget#canonical-representation)
+  of data, at a slight performance cost.
+
+- `pprint` to use the built-in `clojure.pprint/pprint`.
+
+Alternatively, `cider-pprint-fn` can be set to the namespace-qualified name of a
+Clojure function that takes a single argument and will pretty-print the value of
+said argument to `*out*`.
+
+``` el
+(setq cider-pprint-fn "user/my-pprint")
+```
+
+This function must be resolvable by CIDER at the time it is called (i.e. its
+containing namespace must have already been required).
+
+CIDER will bind `*print-length*`, `*print-level*`, `*print-meta*`, and
+`clojure.pprint/*print-right-margin*` when calling the pretty-printing
+function - the function you provide is expected to respect these options.
 
 ### Integration with other modes
 

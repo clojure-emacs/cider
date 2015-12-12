@@ -644,7 +644,8 @@ If NEWLINE is true then add a newline at the end of the input."
           (current-buffer)
           (cider-repl-handler (current-buffer)))
          (cider-current-ns)
-         (1- (window-width)))
+         (1- (window-width))
+         (cider--pprint-fn))
       (cider-nrepl-request:eval
        input
        (cider-eval-spinner-handler
