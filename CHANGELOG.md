@@ -9,6 +9,8 @@
 ### Changes
 
 * `cider-inspect` now operates by default on the last sexp. Its behavior can be altered via prefix arguments.
+* Requires Clojure(Script) 1.7 or newer.
+* Requires Java 7 or newer.
 
 ### Bugs fixed
 
