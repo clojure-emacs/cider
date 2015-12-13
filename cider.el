@@ -473,7 +473,7 @@ In case `default-directory' is non-local we assume the command is available."
          (missing-ops (seq-remove (lambda (op) (nrepl-op-supported-p op current-connection))
                                   cider-required-nrepl-ops)))
     (when missing-ops
-      (cider-repl-readme-warning "cider-nrepl-middleware"
+      (cider-repl-readme-warning "setting-up-ciders-nrepl-middleware"
                                  "The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
                                  (cider-string-join missing-ops " ")
                                  (upcase cider-version)))))
@@ -497,7 +497,7 @@ In case `default-directory' is non-local we assume the command is available."
      (let ((middleware-version (read result)))
        (unless (and middleware-version (equal cider-version middleware-version))
          ;; FIXME: Add a proper readme section about this.
-         (cider-repl-readme-warning "cider-nrepl-middleware"
+         (cider-repl-readme-warning "setting-up-ciders-nrepl-middleware"
                                     "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
                                     cider-version middleware-version))))
    '()
