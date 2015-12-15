@@ -1143,7 +1143,7 @@ And here's a more complex one:
 
 Don't worry if this looks intimidating. For most macros the indent spec should
 be either just a number, or one of the keywords `:defn` or `:form`. A full
-description of the spec is provided in [Indent-Spec.md](Indent-Spec.md).
+description of the spec is provided in [Indent-Spec.md](doc/Indent-Spec.md).
 
 ### Minibuffer completion
 
