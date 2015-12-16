@@ -852,6 +852,7 @@ Keyboard shortcut               | Description
 <kbd>i</kbd> | Inject a value into running code
 <kbd>e</kbd> | Eval code in current context
 <kbd>l</kbd> | Inspect local variables
+<kbd>s</kbd> | Show the current stack
 <kbd>q</kbd> | Quit execution
 
 In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
