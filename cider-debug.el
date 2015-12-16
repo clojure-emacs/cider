@@ -423,14 +423,14 @@ REASON is a keyword describing why this buffer was necessary."
                            limit 'noerror)))
 
 (defun cider--debug-move-point (coordinates)
-  "Place point on POS in FILE, then navigate into the next sexp.
+  "Place point on after the sexp specified by COORDINATES.
 COORDINATES is a list of integers that specify how to navigate into the
-sexp.
+sexp that is after point when this function is called.
 
 As an example, a COORDINATES list of '(1 0 2) means:
-  - enter this sexp and move forward once,
-  - enter this sexp,
-  - enter this sexp and move forward twice.
+  - enter next sexp then `forward-sexp' once,
+  - enter next sexp,
+  - enter next sexp then `forward-sexp' twice.
 
 In the following snippet, this takes us to the (* x 2) sexp (point is left
 at the end of the given sexp).
