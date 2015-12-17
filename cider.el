@@ -61,9 +61,17 @@
   :link '(url-link :tag "Github" "https://github.com/clojure-emacs/cider")
   :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
-(defcustom cider-prompt-for-project-on-connect t
-  "Controls whether to prompt for associated project on `cider-connect'."
-  :type 'boolean
+(defcustom cider-prompt-for-project-on-connect 'when-needed
+  "Controls whether to prompt for associated project on `cider-connect'.
+
+When set to when-needed, the project will be derived from the buffer you're
+visiting, when invoking `cider-connect'.
+When set to t, you'll always to prompted to select the matching project.
+When set to nil, you'll never be prompted to select a project and no
+project inference will take place."
+  :type '(choice (const :tag "always" t)
+                 (const when-needed)
+                 (const :tag "never" nil))
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
@@ -323,9 +331,14 @@ gets associated with it."
            (conn (process-buffer (nrepl-start-client-process host port))))
       (if project-dir
           (cider-assoc-project-with-connection project-dir conn)
-        (when (and cider-prompt-for-project-on-connect
-                   (y-or-n-p "Do you want to associate the new connection with a local project? "))
-          (cider-assoc-project-with-connection nil conn))))))
+        (let ((project-dir (clojure-project-dir)))
+          (cond
+           ;; associate only if we're in a project
+           ((and project-dir (null cider-prompt-for-project-on-connect)) (cider-assoc-project-with-connection project-dir conn))
+           ;; associate if we're in a project, prompt otherwise
+           ((eq cider-prompt-for-project-on-connect 'when-needed) (cider-assoc-project-with-connection project-dir conn))
+           ;; always prompt
+           (t (cider-assoc-project-with-connection nil conn))))))))
 
 (defun cider-current-host ()
   "Retrieve the current host."
