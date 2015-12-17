@@ -305,7 +305,7 @@ The connections buffer is determined by
   (with-current-buffer (get-buffer-create cider--connection-browser-buffer-name)
     (let ((ewoc (ewoc-create
                  'cider--connection-pp
-                 "  REPL                           Host             Port    Project\n")))
+                 "  REPL                           Host             Port    Project          Type\n")))
       (setq-local cider--connection-ewoc ewoc)
       (cider--update-connections-display ewoc cider-connections)
       (setq buffer-read-only t)
@@ -326,15 +326,15 @@ TYPE can be any of the possible values of `cider-repl-type'."
          (buffer (get-buffer connection))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
-     (format "%s %-30s %-16s %5s   %s"
+     (format "%s %-30s %-16s %5s   %-16s %-10s"
              (if (equal connection (car cider-connections)) "*" " ")
              (buffer-name connection)
              (car endpoint)
              (prin1-to-string (cadr endpoint))
              (with-current-buffer buffer
-               (if-let ((name (cider--project-name nrepl-project-dir)))
-                   (concat name " " (cider-client-name-repl-type cider-repl-type))
-                 (cider-client-name-repl-type cider-repl-type)))))))
+               (or (cider--project-name nrepl-project-dir) "-"))
+             (with-current-buffer buffer
+               (cider-client-name-repl-type cider-repl-type))))))
 
 (defun cider--update-connections-display (ewoc connections)
   "Update the connections EWOC to show CONNECTIONS."
