@@ -204,25 +204,28 @@ current directory (see `cider-find-connection-buffer-for-project-directory').
 If there is ambiguity, it is resolved by matching TYPE with the REPL
 type (Clojure or ClojureScript).  TYPE is a string, which when nil is derived
 from the file extension."
-  (let ((connections (cider-connections)))
-    (cond
-     ((eq cider-request-dispatch 'static) (car connections))
-     ((= 1 (length connections)) (car connections))
-     (t (let ((project-connections
-               (cider-find-connection-buffer-for-project-directory
-                nil :all-connections)))
-          (if (= 1 (length project-connections))
-              ;; Only one match, just return it.
-              (car project-connections)
-            ;; OW, find one matching the language of the current buffer.
-            (let ((type (or type cider-repl-type
-                            (if (derived-mode-p 'clojurescript-mode)
-                                "cljs" "clj"))))
-              (or (seq-find (lambda (conn)
-                              (equal (cider--connection-type conn) type))
-                            project-connections)
-                  (car project-connections)
-                  (car connections)))))))))
+  ;; if you're in a REPL buffer, it's the connection buffer
+  (if (derived-mode-p 'cider-repl-mode)
+      (current-buffer)
+    (let ((connections (cider-connections)))
+      (cond
+       ((eq cider-request-dispatch 'static) (car connections))
+       ((= 1 (length connections)) (car connections))
+       (t (let ((project-connections
+                 (cider-find-connection-buffer-for-project-directory
+                  nil :all-connections)))
+            (if (= 1 (length project-connections))
+                ;; Only one match, just return it.
+                (car project-connections)
+              ;; OW, find one matching the language of the current buffer.
+              (let ((type (or type cider-repl-type
+                              (if (derived-mode-p 'clojurescript-mode)
+                                  "cljs" "clj"))))
+                (or (seq-find (lambda (conn)
+                                (equal (cider--connection-type conn) type))
+                              project-connections)
+                    (car project-connections)
+                    (car connections))))))))))
 
 (defun cider-other-connection (&optional connection)
   "Return the first connection of another type than CONNECTION
