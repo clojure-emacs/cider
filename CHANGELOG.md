@@ -9,6 +9,7 @@
 * [#1463](https://github.com/clojure-emacs/cider/issues/1463): Assume that `cider-connect` is invoked from within a project,
 and try to associate the created connection with this project automatically.
 * Typing `s` in a debug session shows the current stack.
+* Typing `h` (as in *h*ere) skips all sexps until the current point position.
 
 ### Changes
 

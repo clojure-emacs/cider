@@ -853,6 +853,7 @@ Keyboard shortcut               | Description
 <kbd>e</kbd> | Eval code in current context
 <kbd>l</kbd> | Inspect local variables
 <kbd>s</kbd> | Show the current stack
+<kbd>h</kbd> | Skip all sexps up to “here” (current position). Move the cursor before doing this.
 <kbd>q</kbd> | Quit execution
 
 In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
