@@ -228,7 +228,7 @@ from the file extension."
                     (car connections))))))))))
 
 (defun cider-other-connection (&optional connection)
-  "Return the first connection of another type than CONNECTION
+  "Return the first connection of another type than CONNECTION.
 Only return connections in the same project or nil.
 CONNECTION defaults to `cider-current-connection'."
   (let* ((connection (or connection (cider-current-connection)))
