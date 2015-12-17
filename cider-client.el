@@ -771,7 +771,8 @@ If CALLBACK is nil, use `cider-load-file-handler'."
   (let* ((response (thread-first (list "op" "format-edn"
                                        "session" (cider-current-session)
                                        "edn" edn)
-                     (append (and right-margin (list "print-right-margin" right-margin)))
+                     (append (and right-margin (list "print-right-margin" right-margin))
+                             (and (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn))))
                      (cider-nrepl-send-sync-request)))
          (err (nrepl-dict-get response "err")))
     (when err
