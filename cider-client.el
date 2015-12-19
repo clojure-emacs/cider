@@ -325,7 +325,7 @@ TYPE can be any of the possible values of `cider-repl-type'."
   (let* ((buffer-read-only nil)
          (buffer (get-buffer connection))
          (project-name (or (buffer-local-value 'nrepl-project-dir buffer) "-"))
-         (repl-type (buffer-local-value 'cider-repl-type buffer))
+         (repl-type (cider-client-name-repl-type (buffer-local-value 'cider-repl-type buffer)))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
      (format "%s %-30s %-16s %5s   %-16s %-10s"
