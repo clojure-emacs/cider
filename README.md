@@ -322,7 +322,7 @@ developers (and they actually reuse many things from the Maven ecosystem).
 
 CIDER features a command called `cider-jack-in` that will start an nREPL server
 for a particular Leiningen or Boot project and connect to it automatically.
-This functionality depends on Leiningen 2.x (preferably 2.5+) or Boot
+This functionality depends on Leiningen 2.5.2+ or Boot
 2.0.0+. Older versions are not supported. For Leiningen, follow the installation
 instructions on its web site to get it up and running and afterwards create a
 project like this:
