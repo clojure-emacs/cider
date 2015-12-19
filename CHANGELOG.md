@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+## 0.10.1 / (unreleased)
+
+### Bugs fixed
+
+* [#1475](https://github.com/clojure-emacs/cider/pull/1475): Fix `args-out-of-range` error in `cider--get-symbol-indent`.
+
 ## 0.10.0 / 2015-12-03
 
 ### New features

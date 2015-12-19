@@ -289,7 +289,8 @@ Returns to the buffer in which the command was invoked."
       ;; There's no indent metadata, but there might be a clojure-mode
       ;; indent-spec with fully-qualified namespace.
       (when (string-match cider-resolve--prefix-regexp symbol-name)
-        (when-let ((sym (intern-soft (replace-match (cider-resolve-alias ns (match-string 1 symbol-name))
+        (when-let ((sym (intern-soft (replace-match (save-match-data
+                                                      (cider-resolve-alias ns (match-string 1 symbol-name)))
                                                     t t symbol-name 1))))
           (get sym 'clojure-indent-function))))))
 
