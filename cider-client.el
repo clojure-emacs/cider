@@ -320,11 +320,17 @@ TYPE can be any of the possible values of `cider-repl-type'."
     ("cljs" "ClojureScript")
     (_ "Unknown")))
 
+(defun cider-project-name (project-dir)
+  "Extract the project name from PROJECT-DIR."
+  (if (and project-dir (not (equal project-dir "")))
+      (file-name-nondirectory (string-remove-suffix "/" project-dir))
+    "-"))
+
 (defun cider--connection-pp (connection)
   "Print an nREPL CONNECTION to the current buffer."
   (let* ((buffer-read-only nil)
          (buffer (get-buffer connection))
-         (project-name (or (buffer-local-value 'nrepl-project-dir buffer) "-"))
+         (project-name (cider-project-name (buffer-local-value 'nrepl-project-dir buffer)))
          (repl-type (cider-client-name-repl-type (buffer-local-value 'cider-repl-type buffer)))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert

@@ -558,3 +558,9 @@
   (should (equal (cider--deep-vector-to-list 'bug) 'bug))
   (should (equal (cider--deep-vector-to-list '[bug]) '(bug)))
   (should (equal (cider--deep-vector-to-list '(bug)) '(bug))))
+
+(ert-deftest cider-project-name ()
+  (should (equal (cider-project-name nil) "-"))
+  (should (equal (cider-project-name "") "-"))
+  (should (equal (cider-project-name "path/to/project") "project"))
+  (should (equal (cider-project-name "path/to/project/") "project")))
