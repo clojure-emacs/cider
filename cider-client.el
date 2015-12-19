@@ -324,6 +324,8 @@ TYPE can be any of the possible values of `cider-repl-type'."
   "Print an nREPL CONNECTION to the current buffer."
   (let* ((buffer-read-only nil)
          (buffer (get-buffer connection))
+         (project-name (or (buffer-local-value 'nrepl-project-dir buffer) "-"))
+         (repl-type (buffer-local-value 'cider-repl-type buffer))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
      (format "%s %-30s %-16s %5s   %-16s %-10s"
@@ -331,10 +333,8 @@ TYPE can be any of the possible values of `cider-repl-type'."
              (buffer-name connection)
              (car endpoint)
              (prin1-to-string (cadr endpoint))
-             (with-current-buffer buffer
-               (or (cider--project-name nrepl-project-dir) "-"))
-             (with-current-buffer buffer
-               (cider-client-name-repl-type cider-repl-type))))))
+             project-name
+             repl-type))))
 
 (defun cider--update-connections-display (ewoc connections)
   "Update the connections EWOC to show CONNECTIONS."
