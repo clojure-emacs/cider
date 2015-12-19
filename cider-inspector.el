@@ -74,7 +74,7 @@ The page size can be also changed interactively within the inspector."
     (define-key map [backtab] #'cider-inspector-previous-inspectable-object) ; to BACKTAB on X.
     map))
 
-(define-derived-mode cider-inspector-mode fundamental-mode "Inspector"
+(define-derived-mode cider-inspector-mode special-mode "Inspector"
   "Major mode for inspecting Clojure data structures.
 
 \\{cider-inspector-mode-map}"
