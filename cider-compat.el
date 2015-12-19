@@ -103,7 +103,7 @@ threading."
       "Build the conditional value form for BINDING using PREV-VAR."
       `(,(car binding) (and ,prev-var ,(cadr binding)))))
 
-  (unless (fboundp ' internal--build-binding)
+  (unless (fboundp 'internal--build-binding)
 
     (defun internal--build-binding (binding prev-var)
       "Check and build a single BINDING with PREV-VAR."
@@ -113,7 +113,7 @@ threading."
         internal--check-binding
         (internal--build-binding-value-form prev-var))))
 
-  (unless (fboundp ' internal--build-bindings)
+  (unless (fboundp 'internal--build-bindings)
 
     (defun internal--build-bindings (bindings)
       "Check and build conditional value forms for BINDINGS."
