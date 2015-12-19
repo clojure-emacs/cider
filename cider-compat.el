@@ -151,7 +151,14 @@ bound and (optionally) used in BODY, and its cadr is a sexp to be
 evalled to set symbol's value.  In the special case you only want
 to bind a single value, BINDINGS can just be a plain tuple."
       (declare (indent 1) (debug if-let))
-      (list 'if-let bindings (macroexp-progn body)))))
+      (list 'if-let bindings (macroexp-progn body))))
+
+  (unless (fboundp 'string-remove-suffix)
+    (defsubst string-remove-suffix (suffix string)
+      "Remove SUFFIX from STRING if present."
+      (if (string-suffix-p suffix string)
+          (substring string 0 (- (length string) (length suffix)))
+        string))))
 
 (provide 'cider-compat)
 ;;; cider-compat.el ends here
