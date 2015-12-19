@@ -1,11 +1,18 @@
 # Changelog
 
-## 0.10.1 / (unreleased)
+## 0.10.2 / (unreleased)
+
+### Changes
+
+* `cider-current-connection` actually, really considers major mode before `cider-repl-type`.
+
+## 0.10.1 / 2015-01-05
 
 ### Changes
 
 * Suppress eldoc when the current sexp seems to be too large.
 * [#1500](https://github.com/clojure-emacs/cider/pull/1500): Improve the performance of REPL buffers by using text properties instead of overlays for ANSI coloring.
+* `cider-current-connection` considers major mode before `cider-repl-type`.
 
 ### Bugs fixed
 
