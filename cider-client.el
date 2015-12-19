@@ -328,7 +328,7 @@ TYPE can be any of the possible values of `cider-repl-type'."
          (repl-type (cider-client-name-repl-type (buffer-local-value 'cider-repl-type buffer)))
          (endpoint (buffer-local-value 'nrepl-endpoint buffer)))
     (insert
-     (format "%s %-30s %-16s %5s   %-16s %-10s"
+     (format "%s %-30s %-16s %5s   %-16s %s"
              (if (equal connection (car cider-connections)) "*" " ")
              (buffer-name connection)
              (car endpoint)
