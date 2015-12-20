@@ -323,7 +323,7 @@ TYPE can be any of the possible values of `cider-repl-type'."
 (defun cider-project-name (project-dir)
   "Extract the project name from PROJECT-DIR."
   (if (and project-dir (not (equal project-dir "")))
-      (file-name-nondirectory (string-remove-suffix "/" project-dir))
+      (file-name-nondirectory (directory-file-name project-dir))
     "-"))
 
 (defun cider--connection-pp (connection)
