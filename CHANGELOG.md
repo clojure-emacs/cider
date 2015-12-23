@@ -6,6 +6,7 @@
 
 ### Bugs fixed
 
+* [#1480](https://github.com/clojure-emacs/cider/issues/1480): Fix an error in `cider-restart` caused by not using the REPL's buffer as the current connection when calling `cider-current-connection` from REPL buffer.
 * [#1450](https://github.com/clojure-emacs/cider/pull/1450): Fix an error in `cider-restart` caused by a reference to a killed buffer.
 * [#1459](https://github.com/clojure-emacs/cider/issues/1459): Add support for dynamic dispatch in scratch buffers.
 * [#1466](https://github.com/clojure-emacs/cider/issues/1466): Correctly font-lock pretty-printed results in the REPL.
