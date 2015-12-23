@@ -11,6 +11,7 @@ and try to associate the created connection with this project automatically.
 
 ### Changes
 
+* `cider-current-connection` considers major mode before `cider-repl-type`.
 * `cider-inspect` now operates by default on the last sexp. Its behavior can be altered via prefix arguments.
 * Requires Clojure(Script) 1.7 or newer.
 * Requires Java 7 or newer.
