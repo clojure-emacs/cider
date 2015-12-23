@@ -426,8 +426,6 @@ REPL's ns, otherwise fall back to \"user\"."
         (buffer-local-value 'cider-buffer-ns repl-buf))
       "user"))
 
-(define-obsolete-function-alias 'cider-eval 'nrepl-request:eval "0.9")
-
 (defun cider-nrepl-op-supported-p (op)
   "Check whether the current connection supports the nREPL middleware OP."
   (nrepl-op-supported-p op (cider-current-connection)))

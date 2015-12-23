@@ -448,9 +448,6 @@ the results to be displayed in a different window."
            (ns (completing-read "Find namespace: " namespaces)))
       (cider--find-ns ns (cider--open-other-window-p arg)))))
 
-(define-obsolete-function-alias 'cider-jump-to-resource 'cider-find-resource "0.9.0")
-(define-obsolete-function-alias 'cider-jump-to-var 'cider-find-var "0.9.0")
-
 (defvar cider-completion-last-context nil)
 
 (defun cider-completion-symbol-start-pos ()
