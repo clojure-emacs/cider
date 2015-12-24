@@ -1231,7 +1231,7 @@ constructs."
     (cider-repl-history-load cider-repl-history-file)
     (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
     (add-hook 'kill-emacs-hook #'cider-repl-history-just-save))
-  (add-hook 'paredit-mode-hook #'clojure-paredit-setup))
+  (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map))))
 
 (provide 'cider-repl)
 
