@@ -1553,12 +1553,13 @@ and all ancillary CIDER buffers."
 
 (defun cider--restart-connection (conn)
   "Restart the connection CONN."
-  (let ((project-dir (with-current-buffer conn nrepl-project-dir)))
+  (let ((project-dir (with-current-buffer conn nrepl-project-dir))
+        (buf-name (buffer-name conn)))
     (cider--quit-connection conn)
     ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
     ;; TODO: Find a better way to ensure `cider-quit' has finished
     (message "Waiting for CIDER connection %s to quit..."
-             (cider-propertize-bold (buffer-name conn)))
+             (cider-propertize-bold buf-name))
     (sleep-for 2)
     (if project-dir
         (let ((default-directory project-dir))

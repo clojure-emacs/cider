@@ -2,6 +2,16 @@
 
 ## master (unreleased)
 
+## 0.10.1 / (unreleased)
+
+### Bugs fixed
+
+* [#1480](https://github.com/clojure-emacs/cider/issues/1480): Fix an error in `cider-restart` caused by not using the REPL's buffer as the current connection when calling `cider-current-connection` from REPL buffer.
+* [#1450](https://github.com/clojure-emacs/cider/pull/1450): Fix an error in `cider-restart` caused by a reference to a killed buffer.
+* [#1459](https://github.com/clojure-emacs/cider/issues/1459): Add support for dynamic dispatch in scratch buffers.
+* [#1466](https://github.com/clojure-emacs/cider/issues/1466): Correctly font-lock pretty-printed results in the REPL.
+* [#1475](https://github.com/clojure-emacs/cider/pull/1475): Fix `args-out-of-range` error in `cider--get-symbol-indent`.
+
 ## 0.10.0 / 2015-12-03
 
 ### New features
@@ -51,7 +61,7 @@
 
 ### Changes
 
-* [#1299]https://github.com/clojure-emacs/cider/issues/1299 <kbd>C-c C-k</kbd> and <kbd> C-c C-l</kbd> now dispatch to both the Clojure and ClojureScript REPL (in the same project) when called from a `.cljc` or `.cljx` file.
+* [#1299](https://github.com/clojure-emacs/cider/issues/1299) <kbd>C-c C-k</kbd> and <kbd> C-c C-l</kbd> now dispatch to both the Clojure and ClojureScript REPL (in the same project) when called from a `.cljc` or `.cljx` file.
 * [#1397](https://github.com/clojure-emacs/cider/issues/1297) <kbd>C-c M-n</kbd> now changes the ns of both the Clojure and ClojureScript REPL (in the same project) when called from a cljc or cljx file.
 * [#1348](https://github.com/clojure-emacs/cider/issues/1348): Drop the dash dependency.
 * The usage of the default connection has been reduced significantly. Now evaluations & related commands will be routed via the connection matching the current project automatically unless there's some ambiguity when determining the connection (like multiple or no matching connections). Simply put you'll no longer have to mess around much with connecting-setting commands (e.g. `nrepl-connection-browser`, `cider-rotate-default-connection`).
