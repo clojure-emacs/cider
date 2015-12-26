@@ -1132,8 +1132,6 @@ the port, and the client buffer."
       nil)
      ((string-match-p "^hangup" event)
       (mapc #'cider--close-connection-buffer clients))
-     ((string-match-p "Wrong number of arguments to repl task" problem)
-      (error "Leiningen 2.x is required by CIDER"))
      ;; On Windows, a failed start sends the "finished" event. On Linux it sends
      ;; "exited abnormally with code 1".
      (t (error "Could not start nREPL server: %s" problem)))))
