@@ -745,7 +745,7 @@ text property `cider-old-input'."
 
 (defun cider-repl--clear-region (start end)
   "Delete the output and its overlays between START and END."
-  (mapc 'delete-overlay (overlays-in start end))
+  (mapc #'delete-overlay (overlays-in start end))
   (delete-region start end))
 
 (defun cider-repl-clear-buffer ()
