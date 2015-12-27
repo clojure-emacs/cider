@@ -497,7 +497,8 @@ This associates text properties to enable filtering and source navigation."
                             'flags flags 'follow-link t
                             'action 'cider-stacktrace-navigate
                             'help-echo "View source at this location"
-                            'face 'cider-stacktrace-face)
+                            'font-lock-face 'cider-stacktrace-face
+                            'type 'cider-plain-button)
         (save-excursion
           (let ((p4 (point))
                 (p1 (search-backward " "))

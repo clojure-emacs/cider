@@ -269,6 +269,10 @@ Unless you specify a BUFFER it will default to the current one."
   "Font-lock STRING as Clojure code."
   (cider-font-lock-as 'clojure-mode string))
 
+;; Button allowing use of `font-lock-face', ignoring any inherited `face'
+(define-button-type 'cider-plain-button
+  'face nil)
+
 ;;; Colors
 
 (defun cider-scale-color (color scale)
