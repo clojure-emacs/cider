@@ -508,10 +508,12 @@ This associates text properties to enable filtering and source navigation."
             (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)))
         (insert "\n")))))
 
+(declare-function cider-jump-to "cider-interaction")
+
 (defun cider-stacktrace-render-compile-error (buffer cause)
   "Emit into BUFFER the compile error CAUSE, and enable jumping to it."
   (with-current-buffer buffer
-    (nrepl-dbind-response cause (message file path line column)
+    (nrepl-dbind-response cause (file path line column)
       (let ((indent "   ")
             (message-face 'cider-stacktrace-error-message-face))
         (insert indent)
