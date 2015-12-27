@@ -14,6 +14,7 @@
 * [#1479](https://github.com/clojure-emacs/cider/pull/1479): Make paredit and `cider-repl-mode` play nice.
 * [#1452](https://github.com/clojure-emacs/cider/issues/1452): Prevent ANSI color overlays in the REPL buffer from being extended.
 * [#1486](https://github.com/clojure-emacs/cider/issues/1486): Complete a partial fix in stacktrace font-locking.
+* [#1488](https://github.com/clojure-emacs/cider/pull/1488): Delete zombie overlays in the REPL buffer.
 
 ## 0.10.0 / 2015-12-03
 
