@@ -521,7 +521,7 @@ This associates text properties to enable filtering and source navigation."
                             'action (lambda (_button)
                                       (cider-jump-to (cider-find-file file)
                                                      (cons line column))))
-        (insert (propertize (format " at (%d,%d)" line column) 'font-lock-face  message-face))))))
+        (insert (propertize (format " at (%d:%d)" line column) 'font-lock-face  message-face))))))
 
 (defun cider-stacktrace-render-cause (buffer cause num note)
   "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE."
