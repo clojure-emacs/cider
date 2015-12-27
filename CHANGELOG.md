@@ -15,6 +15,7 @@ and try to associate the created connection with this project automatically.
 * `cider-inspect` now operates by default on the last sexp. Its behavior can be altered via prefix arguments.
 * Requires Clojure(Script) 1.7 or newer.
 * Requires Java 7 or newer.
+* Improve stacktrace presentation of compiler errors (readability, DWIM point positioning).
 
 ### Bugs fixed
 

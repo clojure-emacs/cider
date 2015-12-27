@@ -508,26 +508,20 @@ This associates text properties to enable filtering and source navigation."
             (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)))
         (insert "\n")))))
 
-(defun cider-stacktrace--create-go-to-err-button (beg)
-  "Create a button that jumps to the relevant error.
-Button is created by finding an error message between BEG and point.
-This message is parsed to find line, col and buffer name to jump to."
-  (save-excursion
-    (when (search-backward-regexp "\\([^:]+\\):[ \n\r]*?\\([^: ]+\\):\\([^: ]+\\):\\([^: \n\r]+\\)" beg 'noerror)
-      (let* ((line (string-to-number (match-string 3)))
-             (col (string-to-number (match-string 4)))
-             (buf-name (save-match-data
-                         (car (last (split-string (match-string 2) "\\/"))))))
-        (when buf-name
-          (make-button (match-beginning 2) (match-end 4)
-                       'action (lambda (_button)
-                                 (let ((the-buf-window (get-buffer-window buf-name)))
-                                   (if the-buf-window
-                                       (select-window the-buf-window)
-                                     (switch-to-buffer buf-name)))
-                                 (goto-char (point-min))
-                                 (forward-line line)
-                                 (move-to-column col t))))))))
+(defun cider-stacktrace-render-compile-error (buffer cause)
+  "Emit into BUFFER the compile error CAUSE, and enable jumping to it."
+  (with-current-buffer buffer
+    (nrepl-dbind-response cause (message file path line column)
+      (let ((indent "   ")
+            (message-face 'cider-stacktrace-error-message-face))
+        (insert indent)
+        (insert (propertize "Error compiling " 'font-lock-face  message-face))
+        (insert-text-button path 'compile-error t
+                            'file file 'line line 'column column 'follow-link t
+                            'action (lambda (_button)
+                                      (cider-jump-to (cider-find-file file)
+                                                     (cons line column))))
+        (insert (propertize (format " at (%d,%d)" line column) 'font-lock-face  message-face))))))
 
 (defun cider-stacktrace-render-cause (buffer cause num note)
   "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE."
@@ -545,11 +539,10 @@ This message is parsed to find line, col and buffer name to jump to."
                     "\n"))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
-            (let ((beg (point)))
+            (if (equal class "clojure.lang.Compiler$CompilerException")
+                (cider-stacktrace-render-compile-error buffer cause)
               (cider-stacktrace-emit-indented
-               (propertize (or message "(No message)") 'font-lock-face  message-face) indent t)
-              (when message
-                (cider-stacktrace--create-go-to-err-button beg)))
+               (propertize (or message "(No message)") 'font-lock-face  message-face) indent t))
             (insert "\n")
             (when data
               (cider-stacktrace-emit-indented
@@ -568,22 +561,27 @@ This message is parsed to find line, col and buffer name to jump to."
 
 (defun cider-stacktrace-initialize (causes)
   "Set and apply CAUSES initial visibility, filters, and cursor position."
-  ;; Partially display outermost cause if it's a compiler exception (the
-  ;; description reports reader location of the error).
   (nrepl-dbind-response (car causes) (class)
-    (when (equal class "clojure.lang.Compiler$CompilerException")
-      (cider-stacktrace-cycle-cause (length causes) 1)))
-  ;; Fully display innermost cause. This also applies visibility/filters.
-  (cider-stacktrace-cycle-cause 1 cider-stacktrace-detail-max)
-  ;; Move point to first stacktrace frame in displayed cause.  If the error
-  ;; buffer is visible in a window, ensure that window is selected while moving
-  ;; point, so as to move both the buffer's and the window's point.
-  (with-selected-window (or (get-buffer-window cider-error-buffer)
-                            (selected-window))
-    (with-current-buffer cider-error-buffer
-      (goto-char (point-min))
-      (while (cider-stacktrace-next-cause))
-      (goto-char (next-single-property-change (point) 'flags)))))
+    (let ((compile-error-p (equal class "clojure.lang.Compiler$CompilerException")))
+      ;; Partially display outermost cause if it's a compiler exception (the
+      ;; description reports reader location of the error).
+      (when compile-error-p
+        (cider-stacktrace-cycle-cause (length causes) 1))
+      ;; Fully display innermost cause. This also applies visibility/filters.
+      (cider-stacktrace-cycle-cause 1 cider-stacktrace-detail-max)
+      ;; Move point (DWIM) to the compile error location if present, or to the
+      ;; first stacktrace frame in displayed cause otherwise. If the error
+      ;; buffer is visible in a window, ensure that window is selected while moving
+      ;; point, so as to move both the buffer's and the window's point.
+      (with-selected-window (or (get-buffer-window cider-error-buffer)
+                                (selected-window))
+        (with-current-buffer cider-error-buffer
+          (goto-char (point-min))
+          (if compile-error-p
+              (goto-char (next-single-property-change (point) 'compile-error))
+            (progn
+              (while (cider-stacktrace-next-cause))
+              (goto-char (next-single-property-change (point) 'flags)))))))))
 
 (defun cider-stacktrace-render (buffer causes)
   "Emit into BUFFER useful stacktrace information for the CAUSES."
