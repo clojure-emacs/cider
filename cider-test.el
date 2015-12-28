@@ -196,7 +196,8 @@
                (status (when causes
                          (cider-stacktrace-render
                           (cider-popup-buffer cider-error-buffer
-                                              cider-auto-select-error-buffer)
+                                              cider-auto-select-error-buffer
+                                              #'cider-stacktrace-mode)
                           (reverse causes))))))))))
 
 (defun cider-test-stacktrace ()
