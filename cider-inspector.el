@@ -113,7 +113,7 @@ With a second prefix argument it prompts for an expression to eval and inspect."
 ;; Operations
 (defun cider-inspector--value-handler (_buffer value)
   (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode)
-  (cider-irender cider-inspector-buffer value))
+  (cider-inspector-render cider-inspector-buffer value))
 
 (defun cider-inspector--out-handler (_buffer value)
   (cider-emit-interactive-eval-output value))
@@ -203,33 +203,33 @@ Current page will be reset to zero."
    (cider-inspector-response-handler (current-buffer))))
 
 ;; Render Inspector from Structured Values
-(defun cider-irender (buffer str)
+(defun cider-inspector-render (buffer str)
   (with-current-buffer buffer
     (cider-inspector-mode)
     (let ((inhibit-read-only t))
       (condition-case nil
-          (cider-irender* (car (read-from-string str)))
+          (cider-inspector-render* (car (read-from-string str)))
         (error (insert "\nInspector error for: " str))))
     (goto-char (point-min))))
 
-(defun cider-irender* (elements)
+(defun cider-inspector-render* (elements)
   (dolist (el elements)
-    (cider-irender-el* el)))
+    (cider-inspector-render-el* el)))
 
-(defun cider-irender-el* (el)
+(defun cider-inspector-render-el* (el)
   (cond ((symbolp el) (insert (symbol-name el)))
         ((stringp el) (insert (propertize el 'font-lock-face 'font-lock-keyword-face)))
         ((and (consp el) (eq (car el) :newline))
          (insert "\n"))
         ((and (consp el) (eq (car el) :value))
-         (cider-irender-value (cadr el) (cl-caddr el)))
+         (cider-inspector-render-value (cadr el) (cl-caddr el)))
         (t (message "Unrecognized inspector object: %s" el))))
 
-(defun cider-irender-value (value idx)
+(defun cider-inspector-render-value (value idx)
   (cider-propertize-region
       (list 'cider-value-idx idx
             'mouse-face 'highlight)
-    (cider-irender-el* (cider-font-lock-as-clojure value))))
+    (cider-inspector-render-el* (cider-font-lock-as-clojure value))))
 
 
 ;; ===================================================
