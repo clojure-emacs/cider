@@ -28,7 +28,7 @@ and try to associate the created connection with this project automatically.
 * [#1486](https://github.com/clojure-emacs/cider/issues/1486): Complete a partial fix in stacktrace font-locking.
 * [#1488](https://github.com/clojure-emacs/cider/pull/1488): Delete zombie overlays in the REPL buffer.
 * [#1482](https://github.com/clojure-emacs/cider/issues/1482): Clear nREPL sessions when a connection is closed.
-* [#1435](https://github.com/clojure-emacs/cider/issues/1435): Improve error display is cider-test.
+* [#1435](https://github.com/clojure-emacs/cider/issues/1435): Improve error display in cider-test.
 * [#1379](https://github.com/clojure-emacs/cider/issues/1379): Fix test highlighting at start of line.
 
 ## 0.10.0 / 2015-12-03
