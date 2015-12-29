@@ -30,6 +30,7 @@ and try to associate the created connection with this project automatically.
 * [#1482](https://github.com/clojure-emacs/cider/issues/1482): Clear nREPL sessions when a connection is closed.
 * [#1435](https://github.com/clojure-emacs/cider/issues/1435): Improve error display in cider-test.
 * [#1379](https://github.com/clojure-emacs/cider/issues/1379): Fix test highlighting at start of line.
+* [#1490](https://github.com/clojure-emacs/cider/issues/1490): Don't display the inspector buffer when evaluation fails.
 
 ## 0.10.0 / 2015-12-03
 
