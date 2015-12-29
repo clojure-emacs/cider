@@ -113,18 +113,14 @@ With a second prefix argument it prompts for an expression to eval and inspect."
 ;; Operations
 (defun cider-inspector--value-handler (_buffer value)
   (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode)
-  (cider-inspector-render cider-inspector-buffer value))
+  (cider-inspector-render cider-inspector-buffer value)
+  (cider-popup-buffer-display cider-inspector-buffer t))
 
 (defun cider-inspector--out-handler (_buffer value)
   (cider-emit-interactive-eval-output value))
 
 (defun cider-inspector--err-handler (_buffer err)
   (cider-emit-interactive-eval-err-output err))
-
-(defun cider-inspector--done-handler (buffer)
-  (when (get-buffer cider-inspector-buffer)
-    (with-current-buffer buffer
-      (cider-popup-buffer-display cider-inspector-buffer t))))
 
 (defun cider-inspector-response-handler (buffer)
   "Create an inspector response handler for BUFFER.
@@ -139,7 +135,7 @@ Used for all inspector nREPL ops."
                                #'cider-inspector--value-handler
                                #'cider-inspector--out-handler
                                #'cider-inspector--err-handler
-                               #'cider-inspector--done-handler))
+                               #'identity))
 
 (defun cider-inspect-expr (expr ns)
   "Evaluate EXPR in NS and inspect its value."
