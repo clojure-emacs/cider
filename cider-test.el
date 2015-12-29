@@ -360,8 +360,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (save-excursion
           (goto-char (point-min))
           (forward-line (1- line))
-          (forward-whitespace 1)
-          (forward-char)
+          (search-forward "(" nil t)
           (let ((beg (point)))
             (forward-sexp)
             (let ((overlay (make-overlay beg (point))))
