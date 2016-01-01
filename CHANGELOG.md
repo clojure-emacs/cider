@@ -1,8 +1,10 @@
 # Changelog
 
-## master (unreleased)
-
 ## 0.10.1 / (unreleased)
+
+### Changes
+
+* [#1500](https://github.com/clojure-emacs/cider/pull/1500): Improve the performance of REPL buffers by using text properties instead of overlays for ANSI coloring.
 
 ### Bugs fixed
 
@@ -12,9 +14,8 @@
 * [#1466](https://github.com/clojure-emacs/cider/issues/1466): Correctly font-lock pretty-printed results in the REPL.
 * [#1475](https://github.com/clojure-emacs/cider/pull/1475): Fix `args-out-of-range` error in `cider--get-symbol-indent`.
 * [#1479](https://github.com/clojure-emacs/cider/pull/1479): Make paredit and `cider-repl-mode` play nice.
-* [#1452](https://github.com/clojure-emacs/cider/issues/1452): Prevent ANSI color overlays in the REPL buffer from being extended.
+* [#1452](https://github.com/clojure-emacs/cider/issues/1452): Fix wrong ANSI coloring in the REPL buffer.
 * [#1486](https://github.com/clojure-emacs/cider/issues/1486): Complete a partial fix in stacktrace font-locking.
-* [#1488](https://github.com/clojure-emacs/cider/pull/1488): Delete zombie overlays in the REPL buffer.
 * [#1482](https://github.com/clojure-emacs/cider/issues/1482): Clear nREPL sessions when a connection is closed.
 * [#1435](https://github.com/clojure-emacs/cider/issues/1435): Improve error display in cider-test.
 * [#1379](https://github.com/clojure-emacs/cider/issues/1379): Fix test highlighting at start of line.
