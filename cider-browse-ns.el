@@ -1,6 +1,6 @@
 ;;; cider-browse-ns.el --- CIDER namespace browser
 
-;; Copyright © 2014-2015 John Andrews, Bozhidar Batsov
+;; Copyright © 2014-2016 John Andrews, Bozhidar Batsov
 
 ;; Author: John Andrews <john.m.andrews@gmail.com>
 

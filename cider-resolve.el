@@ -1,6 +1,6 @@
 ;;; cider-resolve.el --- Resolve clojure symbols according to current nREPL connection
 
-;; Copyright © 2015 Artur Malabarba
+;; Copyright © 2015-2016 Artur Malabarba
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 

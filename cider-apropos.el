@@ -1,6 +1,6 @@
 ;;; cider-apropos.el --- Apropos functionality for Clojure -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2015 Jeff Valk, Bozhidar Batsov
+;; Copyright © 2014-2016 Jeff Valk, Bozhidar Batsov
 ;;
 ;; Author: Jeff Valk <jv@jeffvalk.com>
 

@@ -1,6 +1,6 @@
 ;;; cider-overlay-tests.el                       -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015  Artur Malabarba
+;; Copyright (C) 2015-2016  Artur Malabarba
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 

@@ -1,6 +1,6 @@
 ;;; cider-debug.el --- CIDER interaction with the cider.debug nREPL middleware  -*- lexical-binding: t; -*-
 
-;; Copyright © 2015 Artur Malabarba
+;; Copyright © 2015-2016 Artur Malabarba
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 

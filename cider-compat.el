@@ -1,7 +1,7 @@
 ;;; cider-compat.el --- Functions from newer Emacs versions for compatibility -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2015 Tim King, Phil Hagelberg
-;; Copyright © 2013-2015 Bozhidar Batsov, Hugo Duncan, Steve Purcell
+;; Copyright © 2012-2016 Tim King, Phil Hagelberg
+;; Copyright © 2013-2016 Bozhidar Batsov, Hugo Duncan, Steve Purcell
 ;;
 
 ;; This program is free software: you can redistribute it and/or modify

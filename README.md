@@ -1582,7 +1582,7 @@ $ make test-bytecomp
 
 ## License
 
-Copyright © 2012-2015 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
+Copyright © 2012-2016 Tim King, Phil Hagelberg, Bozhidar Batsov, Hugo
 Duncan, Steve Purcell and
 [contributors](https://github.com/clojure-emacs/cider/contributors).
 
