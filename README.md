@@ -719,13 +719,13 @@ internally using `cider-inspector-mode`):
 
 Keyboard shortcut                       | Description
 ----------------------------------------|-------------------------------
-<kbd>Tab</kbd> and <kbd>Shift-Tab</kbd> | navigate inspectable sub-objects
-<kbd>Return</kbd>                       | inspect sub-objects
-<kbd>l</kbd>                            | pop to the parent object
-<kbd>g</kbd>                            | refresh the inspector (e.g. if viewing an atom/ref/agent)
-<kbd>SPC</kbd>                          | jump to next page in paginated view
-<kbd>M-SPC</kbd>                        | jump to previous page in paginated view
-<kbd>s</kbd>                            | set a new page size in paginated view
+<kbd>Tab</kbd> and <kbd>Shift-Tab</kbd> | Navigate inspectable sub-objects
+<kbd>Return</kbd>                       | Inspect sub-objects
+<kbd>l</kbd>                            | Pop to the parent object
+<kbd>g</kbd>                            | Refresh the inspector (e.g. if viewing an atom/ref/agent)
+<kbd>SPC</kbd>                          | Jump to next page in paginated view
+<kbd>M-SPC</kbd>                        | Jump to previous page in paginated view
+<kbd>s</kbd>                            | Set a new page size in paginated view
 
 ### Running tests
 
@@ -771,9 +771,9 @@ to the code in question with a single keystroke.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
-<kbd>M-p</kbd> | move point to previous cause
-<kbd>M-n</kbd> | move point to next cause
-<kbd>M-.</kbd> and <kbd>Return</kbd> | navigate to the source location (if available) for the stacktrace frame
+<kbd>M-p</kbd> | Move point to previous cause
+<kbd>M-n</kbd> | Move point to next cause
+<kbd>M-.</kbd> and <kbd>Return</kbd> | Navigate to the source location (if available) for the stacktrace frame
 <kbd>Tab</kbd> | Cycle current cause detail
 <kbd>0</kbd> and <kbd>S-Tab</kbd> | Cycle all cause detail
 <kbd>1</kbd> | Cycle cause #1 detail
@@ -781,12 +781,12 @@ Keyboard shortcut               | Description
 <kbd>3</kbd> | Cycle cause #3 detail
 <kbd>4</kbd> | Cycle cause #4 detail
 <kbd>5</kbd> | Cycle cause #5 detail
-<kbd>j</kbd> | toggle display of java frames
-<kbd>c</kbd> | toggle display of clj frames
-<kbd>r</kbd> | toggle display of repl frames
-<kbd>t</kbd> | toggle display of tooling frames (e.g. compiler, nREPL middleware)
-<kbd>d</kbd> | toggle display of duplicate frames
-<kbd>a</kbd> | toggle display of all frames
+<kbd>j</kbd> | Toggle display of java frames
+<kbd>c</kbd> | Toggle display of clj frames
+<kbd>r</kbd> | Toggle display of repl frames
+<kbd>t</kbd> | Toggle display of tooling frames (e.g. compiler, nREPL middleware)
+<kbd>d</kbd> | Toggle display of duplicate frames
+<kbd>a</kbd> | Toggle display of all frames
 
 * Error buffer stacktraces may be filtered by default. Valid filter types
 include `java`, `clj`, `repl`, `tooling`, and `dup`. Setting this to `nil` will
