@@ -558,7 +558,7 @@ Change the separator from space to something else by overriding `nrepl-buffer-na
 ```
 
 * The REPL buffer name can also display the port on which the nREPL server is running.
-Buffer name will look like *cider-repl project-name:port*.
+Buffer name will look like `*cider-repl project-name:port*`.
 
 ```el
 (setq nrepl-buffer-name-show-port t)
