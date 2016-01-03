@@ -469,13 +469,13 @@ If BOL is non-nil insert at the beginning of line."
           (goto-char position)
           ;; TODO: Review the need for bol
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (cider-propertize-region `(font-lock-face ,output-face
-                                                    rear-nonsticky (font-lock-face))
-            (insert-before-markers string)
-            (when (and (= (point) cider-repl-prompt-start-mark)
-                       (not (bolp)))
-              (insert-before-markers "\n")
-              (set-marker cider-repl-output-end (1- (point))))))))
+          (insert-before-markers (ansi-color-apply (propertize string
+                                                               'font-lock-face output-face
+                                                               'rear-nonsticky '(font-lock-face))))
+          (when (and (= (point) cider-repl-prompt-start-mark)
+                     (not (bolp)))
+            (insert-before-markers "\n")
+            (set-marker cider-repl-output-end (1- (point)))))))
     (cider-repl--show-maximum-output)))
 
 (defun cider-repl--emit-interactive-output (string face)
@@ -483,20 +483,7 @@ If BOL is non-nil insert at the beginning of line."
   (with-current-buffer (cider-current-repl-buffer)
     (let ((pos (cider-repl--end-of-line-before-input-start))
           (string (replace-regexp-in-string "\n\\'" "" string)))
-      (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
-      (ansi-color-apply-on-region pos (point-max))
-
-      ;; If the output has a trailing overlay created by ansi-color, it would be
-      ;; extended by the following outputs. To avoid this, ansi-color adds
-      ;; `ansi-color-freeze-overlay' to the `modification-hooks', but it never
-      ;; seems to be called. By using `insert-behind-hooks' instead, we can make
-      ;; it work. For more details, please see
-      ;; https://github.com/clojure-emacs/cider/issues/1452
-      (dolist (ov (overlays-at (1- (cider-repl--end-of-line-before-input-start))))
-        ;; Ensure ov is created by ansi-color
-        (when (and (member #'ansi-color-freeze-overlay (overlay-get ov 'modification-hooks))
-                   (not (member #'ansi-color-freeze-overlay (overlay-get ov 'insert-behind-hooks))))
-          (push #'ansi-color-freeze-overlay (overlay-get ov 'insert-behind-hooks)))))))
+      (cider-repl--emit-output-at-pos (current-buffer) string face pos t))))
 
 (defun cider-repl-emit-interactive-stdout (string)
   "Emit STRING as interactive output."
@@ -521,9 +508,7 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
   "Using BUFFER, emit STRING font-locked with FACE.
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
-    (let ((pos (cider-repl--end-of-line-before-input-start)))
-      (cider-repl--emit-output-at-pos buffer string face cider-repl-input-start-mark bol)
-      (ansi-color-apply-on-region pos (point-max)))))
+    (cider-repl--emit-output-at-pos buffer string face cider-repl-input-start-mark bol)))
 
 (defun cider-repl-emit-stdout (buffer string)
   "Using BUFFER, emit STRING as standard output."

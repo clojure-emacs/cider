@@ -532,6 +532,23 @@
   (should (equal (cider-repl-prompt-abbreviated "some.pretty.long.namespace.name")
                  "s.p.l.n.name> ")))
 
+(ert-deftest test-cider-repl--emit-output-at-pos-with-ansi-code ()
+  (with-temp-buffer
+    (let* ((ansi-color-names-vector ["black" "red3" "green3" "yellow3" "blue2" "magenta3" "cyan3" "gray90"])
+           (ansi-color-map (ansi-color-make-color-map)))
+      (cider-repl-reset-markers)
+
+      (cider-repl--emit-output-at-pos (current-buffer) "[30ma[0m" 'cider-repl-stdout-face (point))
+      (cider-repl--emit-output-at-pos (current-buffer) "b" 'cider-repl-stdout-face (point))
+      (cider-repl--emit-output-at-pos (current-buffer) "[31mc" 'cider-repl-stdout-face (point))
+      (cider-repl--emit-output-at-pos (current-buffer) "d[0m" 'cider-repl-stdout-face (point))
+
+      (should (string= (buffer-string) "a\nb\nc\nd\n"))
+      (should (equal (get-text-property 1 'font-lock-face) '(foreground-color . "black")))
+      (should (equal (get-text-property 3 'font-lock-face) 'cider-repl-stdout-face))
+      (should (equal (get-text-property 5 'font-lock-face) '(foreground-color . "red3")))
+      (should (equal (get-text-property 7 'font-lock-face) '(foreground-color . "red3"))))))
+
 (ert-deftest test-cider--url-to-file ()
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
   (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))
