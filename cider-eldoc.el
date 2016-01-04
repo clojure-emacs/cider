@@ -42,6 +42,9 @@
 (defvar cider-extra-eldoc-commands '("yas-expand")
   "Extra commands to be added to eldoc's safe commands list.")
 
+(defvar cider-eldoc-max-num-sexps-to-skip 30
+  "The maximum number of sexps to skip while searching the beginning of current sexp.")
+
 (defvar-local cider-eldoc-last-symbol nil
   "The eldoc information for the last symbol we checked.")
 
@@ -89,7 +92,8 @@ POS is the index of current argument."
 (defun cider-eldoc-beginning-of-sexp ()
   "Move to the beginning of current sexp.
 
-Return the number of nested sexp the point was over or after."
+Return the number of nested sexp the point was over or after.  Return nil
+if the maximum number of sexps to skip is exceeded."
   (let ((parse-sexp-ignore-comments t)
         (num-skipped-sexps 0))
     (condition-case _
@@ -107,14 +111,25 @@ Return the number of nested sexp the point was over or after."
               (let ((p (point)))
                 (forward-sexp -1)
                 (when (< (point) p)
-                  (setq num-skipped-sexps (1+ num-skipped-sexps))))))
+                  (setq num-skipped-sexps
+                        (unless (and cider-eldoc-max-num-sexps-to-skip
+                                     (>= num-skipped-sexps
+                                         cider-eldoc-max-num-sexps-to-skip))
+                          ;; Without the above guard,
+                          ;; `cider-eldoc-beginning-of-sexp' could traverse the
+                          ;; whole buffer when the point is not within a
+                          ;; list. This behavior is problematic especially with
+                          ;; a buffer containing a large number of
+                          ;; non-expressions like a REPL buffer.
+                          (1+ num-skipped-sexps)))))))
       (error))
     num-skipped-sexps))
 
 (defun cider-eldoc-info-in-current-sexp ()
   "Return a list of the current sexp and the current argument index."
   (save-excursion
-    (let ((argument-index (1- (cider-eldoc-beginning-of-sexp))))
+    (when-let ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
+               (argument-index (1- beginning-of-sexp)))
       ;; If we are at the beginning of function name, this will be -1.
       (when (< argument-index 0)
         (setq argument-index 0))
