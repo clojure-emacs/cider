@@ -11,6 +11,7 @@ and try to associate the created connection with this project automatically.
 
 ### Changes
 
+* Suppress eldoc when the current sexp seems to be too large.
 * [#1500](https://github.com/clojure-emacs/cider/pull/1500): Improve the performance of REPL buffers by using text properties instead of overlays for ANSI coloring.
 * `cider-current-connection` considers major mode before `cider-repl-type`.
 * `cider-inspect` now operates by default on the last sexp. Its behavior can be altered via prefix arguments.
