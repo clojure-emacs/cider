@@ -538,6 +538,33 @@
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
   (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))
 
+(ert-deftest test-cider-eldoc-beginning-of-sexp ()
+  (with-temp-buffer
+    (save-excursion
+      (insert "(a (b b) (c c) d)"))
+    (search-forward "d")
+
+    (let ((cider-eldoc-max-num-sexps-to-skip nil))
+      (save-excursion
+        (should (eq (cider-eldoc-beginning-of-sexp) 4))
+        (should (eq (point) 2))))
+
+    (let ((cider-eldoc-max-num-sexps-to-skip 4))
+      (save-excursion
+        (should (eq (cider-eldoc-beginning-of-sexp) 4))
+        (should (eq (point) 2))))
+
+    (let ((cider-eldoc-max-num-sexps-to-skip 3))
+      (save-excursion
+        (should (eq (cider-eldoc-beginning-of-sexp) nil))
+        (should (eq (point) 2))))
+
+    (let ((cider-eldoc-max-num-sexps-to-skip 2))
+      (save-excursion
+        (should (eq (cider-eldoc-beginning-of-sexp) nil))
+        (should (eq (point) 4))))))
+
+
 
 ;;; Cygwin tests
 

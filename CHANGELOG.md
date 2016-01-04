@@ -4,6 +4,7 @@
 
 ### Changes
 
+* Suppress eldoc when the current sexp seems to be too large.
 * [#1500](https://github.com/clojure-emacs/cider/pull/1500): Improve the performance of REPL buffers by using text properties instead of overlays for ANSI coloring.
 
 ### Bugs fixed
