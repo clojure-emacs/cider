@@ -615,6 +615,7 @@ and kill the process buffer."
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
     (when-let ((client-buffer (process-buffer process)))
+      (nrepl--clear-client-sessions client-buffer)
       (with-current-buffer client-buffer
         (run-hooks 'nrepl-disconnected-hook)
         (when (buffer-live-p nrepl-server-buffer)
@@ -799,6 +800,12 @@ values of *1, *2, etc."
       (with-current-buffer conn-buffer
         (setq nrepl-ops ops)
         (setq nrepl-versions versions)))))
+
+(defun nrepl--clear-client-sessions (conn-buffer)
+  "Clear client nREPL sessions in CONN-BUFFER."
+  (with-current-buffer conn-buffer
+    (setq nrepl-session nil)
+    (setq nrepl-tooling-session nil)))
 
 (define-obsolete-function-alias 'nrepl-close 'cider--close-connection-buffer "0.10.0")
 

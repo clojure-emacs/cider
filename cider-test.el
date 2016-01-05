@@ -196,7 +196,8 @@
                (status (when causes
                          (cider-stacktrace-render
                           (cider-popup-buffer cider-error-buffer
-                                              cider-auto-select-error-buffer)
+                                              cider-auto-select-error-buffer
+                                              #'cider-stacktrace-mode)
                           (reverse causes))))))))))
 
 (defun cider-test-stacktrace ()
@@ -287,18 +288,20 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (cider-insert var 'font-lock-function-name-face t)
         (when context  (cider-insert context 'font-lock-doc-face t))
         (when message  (cider-insert message 'font-lock-doc-string-face t))
-        (when expected (cider-insert "expected: " 'font-lock-comment-face nil
-                                     (cider-font-lock-as-clojure expected)))
-        (when actual   (cider-insert "  actual: " 'font-lock-comment-face)
-              (if error
-                  (progn (insert-text-button
-                          error
-                          'follow-link t
-                          'action '(lambda (_button) (cider-test-stacktrace))
-                          'help-echo "View causes and stacktrace")
-                         (insert "\n"))
-                (insert (cider-font-lock-as-clojure actual)))))
-      (insert "\n"))))
+        (when expected
+          (cider-insert "expected: " 'font-lock-comment-face nil
+                        (cider-font-lock-as-clojure expected)))
+        (when actual
+          (cider-insert "  actual: " 'font-lock-comment-face nil
+                        (cider-font-lock-as-clojure actual)))
+        (when error
+          (cider-insert "   error: " 'font-lock-comment-face nil)
+          (insert-text-button error
+                              'follow-link t
+                              'action '(lambda (_button) (cider-test-stacktrace))
+                              'help-echo "View causes and stacktrace")
+          (insert "\n"))
+        (insert "\n")))))
 
 (defun cider-test-render-report (buffer ns summary results)
   "Emit into BUFFER the report for the NS, SUMMARY, and test RESULTS."
@@ -358,8 +361,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (save-excursion
           (goto-char (point-min))
           (forward-line (1- line))
-          (forward-whitespace 1)
-          (forward-char)
+          (search-forward "(" nil t)
           (let ((beg (point)))
             (forward-sexp)
             (let ((overlay (make-overlay beg (point))))
