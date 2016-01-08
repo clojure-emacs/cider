@@ -28,6 +28,7 @@ and try to associate the created connection with this project automatically.
 ### Bugs fixed
 
 * [#1450](https://github.com/clojure-emacs/cider/pull/1450): Fix an error in `cider-restart` caused by a reference to a killed buffer.
+* [#1456](https://github.com/clojure-emacs/cider/issues/1456): Don't font-lock buffer if font-lock-mode is OFF.
 * [#1459](https://github.com/clojure-emacs/cider/issues/1459): Add support for dynamic dispatch in scratch buffers.
 * [#1466](https://github.com/clojure-emacs/cider/issues/1466): Correctly font-lock pretty-printed results in the REPL.
 * [#1475](https://github.com/clojure-emacs/cider/pull/1475): Fix `args-out-of-range` error in `cider--get-symbol-indent`.

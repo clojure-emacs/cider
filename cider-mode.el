@@ -419,7 +419,8 @@ The value can also be t, which means to font-lock as much as possible."
 NS defaults to `cider-current-ns', and it can also be a dict describing the
 namespace itself."
   (interactive)
-  (when cider-font-lock-dynamically
+  (when (and cider-font-lock-dynamically
+             font-lock-mode)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
     (when-let ((ns (or ns (cider-current-ns)))
                (symbols (cider-resolve-ns-symbols ns)))
