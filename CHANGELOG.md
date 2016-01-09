@@ -15,6 +15,7 @@
 and try to associate the created connection with this project automatically.
 * Typing `s` in a debug session shows the current stack.
 * Typing `h` (as in *h*ere) skips all sexps until the current point position.
+* [#1507](https://github.com/clojure-emacs/cider/issues/1507): Add the ability to control the REPL's scroll on output functionality via `cider-repl-scroll-on-output`.
 
 ### Changes
 
