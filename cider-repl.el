@@ -89,6 +89,19 @@ When set to nil the buffer will only be created."
   :type 'boolean
   :group 'cider-repl)
 
+(defcustom cider-repl-always-show-max-output-in-buffer t
+  "Controls whether the REPL buffer displays the maximum output.
+
+When set to t (the default), if the REPL buffer contains more lines than the
+size of the window, the buffer is automatically re-centered upon completion
+of evaluating an expression, so that the bottom line of output is on the
+bottom line of the window.
+
+If this is set to nil, no re-centering takes place."
+  :type 'boolean
+  :group 'cider-repl
+  :package-version '(cider . "0.11.0"))
+
 (defcustom cider-repl-use-pretty-printing nil
   "Control whether the results in REPL are pretty-printed or not.
 The `cider-toggle-pretty-printing' command can be used to interactively
@@ -391,7 +404,7 @@ This will not work on non-current prompts."
 
 (defun cider-repl--show-maximum-output ()
   "Put the end of the buffer at the bottom of the window."
-  (when (eobp)
+  (when (and cider-repl-always-show-max-output-in-buffer (eobp))
     (let ((win (get-buffer-window (current-buffer))))
       (when win
         (with-selected-window win
