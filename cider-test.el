@@ -438,35 +438,39 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 Upon test completion, results are echoed and a test report is optionally
 displayed. When test failures/errors occur, their sources are highlighted."
   (cider-test-clear-highlights)
-  (message "Running tests in %s..." (cider-propertize-ns ns))
-  (cider-nrepl-send-request
-   (list "ns" ns "op" (if retest "retest" "test")
-         "tests" tests "session" (cider-current-session))
-   (lambda (response)
-     (nrepl-dbind-response response (summary results status out err)
-       (cond ((member "namespace-not-found" status)
-              (message "No tests namespace: %s" (cider-propertize-ns ns)))
-             (out (cider-emit-interactive-eval-output out))
-             (err (cider-emit-interactive-eval-err-output err))
-             (results
-              (nrepl-dbind-response summary (error fail)
-                (setq cider-test-last-test-ns ns)
-                (setq cider-test-last-results results)
-                (cider-test-highlight-problems ns results)
-                (cider-test-echo-summary summary ns)
-                (if (or (not (zerop (+ error fail)))
-                        cider-test-show-report-on-success)
-                    (cider-test-render-report
-                     (cider-popup-buffer cider-test-report-buffer
-                                         cider-auto-select-test-report-buffer)
-                     ns summary results)
-                  (when (get-buffer cider-test-report-buffer)
-                    (with-current-buffer cider-test-report-buffer
-                      (let ((inhibit-read-only t))
-                        (erase-buffer)))
-                    (cider-test-render-report
-                     cider-test-report-buffer
-                     ns summary results))))))))))
+  (cider-map-connections
+   (lambda (conn)
+     (message "Running tests in %s..." (cider-propertize-ns ns))
+     (cider-nrepl-send-request
+      (list "ns" ns "op" (if retest "retest" "test")
+            "tests" tests "session" (cider-current-session))
+      (lambda (response)
+        (nrepl-dbind-response response (summary results status out err)
+          (cond ((member "namespace-not-found" status)
+                 (message "No tests namespace: %s" (cider-propertize-ns ns)))
+                (out (cider-emit-interactive-eval-output out))
+                (err (cider-emit-interactive-eval-err-output err))
+                (results
+                 (nrepl-dbind-response summary (error fail)
+                   (setq cider-test-last-test-ns ns)
+                   (setq cider-test-last-results results)
+                   (cider-test-highlight-problems ns results)
+                   (cider-test-echo-summary summary ns)
+                   (if (or (not (zerop (+ error fail)))
+                           cider-test-show-report-on-success)
+                       (cider-test-render-report
+                        (cider-popup-buffer cider-test-report-buffer
+                                            cider-auto-select-test-report-buffer)
+                        ns summary results)
+                     (when (get-buffer cider-test-report-buffer)
+                       (with-current-buffer cider-test-report-buffer
+                         (let ((inhibit-read-only t))
+                           (erase-buffer)))
+                       (cider-test-render-report
+                        cider-test-report-buffer
+                        ns summary results))))))))
+      conn))
+   :clj))
 
 (defun cider-test-rerun-tests ()
   "Rerun failed and erring tests from the last tested namespace."
