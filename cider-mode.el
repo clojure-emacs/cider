@@ -50,7 +50,7 @@ Info contains project name and host:port endpoint."
   (if-let ((current-connection (ignore-errors (cider-current-connection))))
       (with-current-buffer current-connection
         (concat
-         (concat cider-repl-type ":")
+         cider-repl-type ":"
          (when cider-mode-line-show-connection
            (format "%s@%s:%s"
                    (or (cider--project-name nrepl-project-dir) "<no project>")
