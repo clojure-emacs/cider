@@ -798,7 +798,8 @@ namespace to switch to."
   (cider-map-connections
    (lambda (connection)
      (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
-                               (cider-repl-switch-ns-handler connection)))))
+                               (cider-repl-switch-ns-handler connection)))
+   :both))
 
 
 ;;;;; History

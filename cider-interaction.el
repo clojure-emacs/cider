@@ -1386,7 +1386,8 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
                                   (funcall cider-to-nrepl-filename-function
                                            (cider--server-filename filename))
                                   (file-name-nondirectory filename)
-                                  connection)))
+                                  connection))
+       :both)
       (message "Loading %s..." filename))))
 
 (defun cider-load-file (filename)
