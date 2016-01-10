@@ -1250,15 +1250,20 @@ opposite of what that option dictates."
   "Toggle ns tracing.
 Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   (interactive "P")
-  (cider-ensure-op-supported "toggle-trace-ns")
-  (let ((ns (if query
-                (completing-read "Toggle trace for ns: " (cider-sync-request:ns-list))
-              (cider-current-ns))))
-    (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
-           (ns-status (nrepl-dict-get trace-response "ns-status")))
-      (pcase ns-status
-        ("not-found" (error "Namespace %s not found" (cider-propertize-ns ns)))
-        (_ (message "Namespace %s %s" (cider-propertize-ns ns) ns-status))))))
+  (cider-map-connections
+   (lambda (conn)
+     (with-current-buffer conn
+       (cider-ensure-op-supported "toggle-trace-ns")
+       (let ((ns (if query
+                     (completing-read "Toggle trace for ns: "
+                                      (cider-sync-request:ns-list))
+                   (cider-current-ns))))
+         (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
+                (ns-status (nrepl-dict-get trace-response "ns-status")))
+           (pcase ns-status
+             ("not-found" (error "Namespace %s not found" (cider-propertize-ns ns)))
+             (_ (message "Namespace %s %s" (cider-propertize-ns ns) ns-status)))))))
+   :clj))
 
 (defun cider-undef ()
   "Undefine a symbol from the current ns."
@@ -1337,20 +1342,27 @@ clearing is that stale code from any deleted files may not be completely
 unloaded."
   (interactive "p")
   (cider-ensure-op-supported "refresh")
-  (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
-                        (cider-make-popup-buffer cider-refresh-log-buffer)))
-        (clear? (member mode '(clear 16)))
+  (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4))))
-    (when cider-refresh-show-log-buffer (cider-popup-buffer-display log-buffer))
-    (when clear? (cider-nrepl-send-sync-request (list "op" "refresh-clear")))
-    (cider-nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
-                                            "print-length" cider-stacktrace-print-length
-                                            "print-level" cider-stacktrace-print-level)
-                                      (when (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn)))
-                                      (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
-                                      (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
-                              (lambda (response)
-                                (cider-refresh--handle-response response log-buffer)))))
+    (cider-map-connections
+     (lambda (conn)
+       ;; Inside the lambda, so the buffer is not created if we error out.
+       (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
+                             (cider-make-popup-buffer cider-refresh-log-buffer))))
+         (when cider-refresh-show-log-buffer
+           (cider-popup-buffer-display log-buffer))
+         (when clear?
+           (cider-nrepl-send-sync-request (list "op" "refresh-clear") conn))
+         (cider-nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
+                                                 "print-length" cider-stacktrace-print-length
+                                                 "print-level" cider-stacktrace-print-level)
+                                           (when (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn)))
+                                           (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
+                                           (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
+                                   (lambda (response)
+                                     (cider-refresh--handle-response response log-buffer))
+                                   conn)))
+     :clj 'any-mode)))
 
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
