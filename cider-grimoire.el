@@ -105,6 +105,8 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
+  (when (derived-mode-p 'clojurescript-mode)
+    (user-error "`cider-grimoire' doesn't support ClojureScript"))
   (funcall (cider-prompt-for-symbol-function arg)
            "Grimoire doc for"
            #'cider-grimoire-lookup))
