@@ -137,7 +137,9 @@ of the namespace in the Clojure source buffer."
 (declare-function cider-load-buffer "cider-interaction")
 
 (defun cider-load-buffer-and-switch-to-repl-buffer (&optional set-namespace)
-  "Load the current buffer into the relevant REPL buffer and switch to it."
+  "Load the current buffer into the matching REPL buffer and switch to it.
+When SET-NAMESPACE is true, we'll also set the REPL's ns to match that of the
+Clojure buffer."
   (interactive "P")
   (cider-load-buffer)
   (cider-switch-to-repl-buffer set-namespace))
