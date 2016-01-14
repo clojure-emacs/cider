@@ -299,7 +299,7 @@ Returns to the buffer in which the command was invoked."
 (defcustom cider-font-lock-dynamically '(macro core deprecated)
   "Specifies how much dynamic font-locking CIDER should use.
 Dynamic font-locking this refers to applying syntax highlighting to vars
-defined in the currently active nREPL connection. This is done in addition
+defined in the currently active nREPL connection.  This is done in addition
 to `clojure-mode's usual (static) font-lock, so even if you set this
 variable to nil you'll still see basic syntax highlighting.
 
