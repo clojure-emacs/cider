@@ -390,13 +390,13 @@ The value can also be t, which means to font-lock as much as possible."
       ,@(when macros
           `((,(concat (rx (or "(" "#'")) ; Can't take the value of macros.
                       "\\(" (regexp-opt macros 'symbols) "\\)")
-             1 (cider--unless-local-match font-lock-keyword-face) append)))
+             1 (cider--unless-local-match font-lock-keyword-face))))
       ,@(when functions
           `((,(regexp-opt functions 'symbols) 0
-             (cider--unless-local-match font-lock-function-name-face) append)))
+             (cider--unless-local-match font-lock-function-name-face))))
       ,@(when vars
           `((,(regexp-opt vars 'symbols) 0
-             (cider--unless-local-match font-lock-variable-name-face) append)))
+             (cider--unless-local-match font-lock-variable-name-face))))
       ,@(when deprecated
           `((,(regexp-opt deprecated 'symbols) 0
              (cider--unless-local-match cider-deprecated-properties) append)))
