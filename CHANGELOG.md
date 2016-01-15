@@ -7,6 +7,7 @@
 * [#1518](https://github.com/clojure-emacs/cider/pull/1518): Add `cider-dynamic-indentation` defcustom, to disable dynamic indent functionality.
 * Font-lock traced vars.
 * New defcustom, `cider-pprint-fn`, allows you to set the function to use when pretty-printing evaluation results.
+* [#1432](https://github.com/clojure-emacs/cider/issues/1432): Show explicit error messages when invoking commands with no ClojureScript support.
 * [#1463](https://github.com/clojure-emacs/cider/issues/1463): Assume that `cider-connect` is invoked from within a project,
 and try to associate the created connection with this project automatically.
 * Typing `s` in a debug session shows the current stack.
