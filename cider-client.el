@@ -498,23 +498,23 @@ If NS is non-nil, include it in the request."
 (defcustom cider-pprint-fn 'fipp
   "Sets the function to use when pretty-printing evaluation results.
 
-Possible values are:
+The value must be one of the following symbols:
 
-  'fipp - to use the Fast Idiomatic Pretty Printer, approximately 5-10x
-          faster than `clojure.core/pprint` (this is the default)
+  `fipp' - to use the Fast Idiomatic Pretty Printer, approximately 5-10x
+          faster than \\=`clojure.core/pprint\\=` (this is the default)
 
-  'puget - to use Puget, which provides canonical serialization of data on
+  `puget' - to use Puget, which provides canonical serialization of data on
            top of fipp, but at a slight performance cost
 
-  'pprint - to use `clojure.pprint/pprint`
+  `pprint' - to use \\=`clojure.pprint/pprint\\=`
 
 Alternatively, can be the namespace-qualified name of a Clojure function of
 one argument.  If the function cannot be resolved, an exception will be
 thrown.
 
-The function is assumed to respect the contract of `clojure.pprint/pprint`
-with respect to the bound values of `*print-length*`, `*print-level*`,
-`*print-meta*`, and `clojure.pprint/*print-right-margin*`."
+The function is assumed to respect the contract of \\=`clojure.pprint/pprint\\=`
+with respect to the bound values of \\=`*print-length*\\=`, \\=`*print-level*\\=`,
+\\=`*print-meta*\\=`, and \\=`clojure.pprint/*print-right-margin*\\=`."
   :type '(choice (const pprint)
                  (const fipp)
                  (const puget)
