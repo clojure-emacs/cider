@@ -1147,6 +1147,13 @@ Don't worry if this looks intimidating. For most macros the indent spec should
 be either just a number, or one of the keywords `:defn` or `:form`. A full
 description of the spec is provided in [Indent-Spec.md](doc/Indent-Spec.md).
 
+If you *don't* want to use this feature, you can disable it by setting
+`cider-dynamic-indentation` to `nil` in your Emacs init file.
+
+```el
+(setq cider-dynamic-indentation nil)
+```
+
 ### Minibuffer completion
 
 Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While

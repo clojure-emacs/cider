@@ -278,6 +278,18 @@ Returns to the buffer in which the command was invoked."
     map))
 
 ;;; Dynamic indentation
+(defcustom cider-dynamic-indentation t
+  "Whether CIDER should aid Clojure(Script) indentation.
+If non-nil, CIDER uses runtime information (such as the \":style/indent\"
+metadata) to improve standard `clojure-mode' indentation.
+If nil, CIDER won't interfere with `clojure-mode's indentation.
+
+Toggling this variable only takes effect after a file is closed and
+re-visited."
+  :type 'boolean
+  :package-version '(cider . "0.11.0")
+  :group 'cider)
+
 (defun cider--get-symbol-indent (symbol-name)
   "Return the indent metadata for SYMBOL-NAME in the current namespace."
   (let* ((ns (cider-current-ns)))
@@ -579,7 +591,8 @@ property."
   (cider-refresh-dynamic-font-lock)
   (setq-local font-lock-fontify-region-function
               (cider--wrap-fontify-locals font-lock-fontify-region-function))
-  (setq-local clojure-get-indent-function #'cider--get-symbol-indent)
+  (when cider-dynamic-indentation
+    (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
   (setq next-error-function #'cider-jump-to-compilation-error))
 
 (defun cider-set-buffer-ns (ns)
