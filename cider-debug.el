@@ -296,7 +296,7 @@ In order to work properly, this mode must be activated by
                                    (nrepl-dict-get cider--debug-mode-response "key")))
             ;; Set the keymap.
             (let ((alist (mapcar (lambda (k) (cons (string-to-char k) (concat ":" k)))
-                                 (seq-difference input-type '("inspect")))))
+                                 (seq-difference input-type '("here" "inspect")))))
               (setq cider--debug-mode-commands-alist alist)
               (dolist (it alist)
                 (define-key cider--debug-mode-map (vector (car it)) #'cider-debug-mode-send-reply)))
@@ -324,6 +324,8 @@ In order to work properly, this mode must be activated by
       (cider--debug-remove-overlays (current-buffer)))
     (when nrepl-ongoing-sync-request
       (ignore-errors (exit-recursive-edit)))))
+
+(define-key cider--debug-mode-map "h" #'cider-debug-move-here)
 
 (defun cider--debug-remove-overlays (&optional buffer)
   "Remove CIDER debug overlays from BUFFER if `cider--debug-mode' is nil."
@@ -423,14 +425,14 @@ REASON is a keyword describing why this buffer was necessary."
                            limit 'noerror)))
 
 (defun cider--debug-move-point (coordinates)
-  "Place point on POS in FILE, then navigate into the next sexp.
+  "Place point on after the sexp specified by COORDINATES.
 COORDINATES is a list of integers that specify how to navigate into the
-sexp.
+sexp that is after point when this function is called.
 
 As an example, a COORDINATES list of '(1 0 2) means:
-  - enter this sexp and move forward once,
-  - enter this sexp,
-  - enter this sexp and move forward twice.
+  - enter next sexp then `forward-sexp' once,
+  - enter next sexp,
+  - enter next sexp then `forward-sexp' twice.
 
 In the following snippet, this takes us to the (* x 2) sexp (point is left
 at the end of the given sexp).
@@ -543,6 +545,68 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
       ;; If something goes wrong, we send a "quit" or the session hangs.
       (error (cider-debug-mode-send-reply ":quit" key)
              (message "Error encountered while handling the debug message: %S" e)))))
+
+
+;;; Move here command
+;; This is the inverse of `cider--debug-move-point'.  However, that algorithm is
+;; complicated, and trying to code its inverse would probably be insane.
+;; Instead, we find the coordinate by trial and error.
+(defun cider--debug-find-coordinates-for-point (target &optional list-so-far)
+  "Return the coordinates list for reaching TARGET.
+Assumes that the next thing after point is a logical Clojure sexp and that
+TARGET is inside it.  The returned list is suitable for use in
+`cider--debug-move-point'.  LIST-SO-FAR is for internal use."
+  (when (looking-at (rx (or "(" "[" "#{" "{")))
+    (let ((starting-point (point)))
+      (unwind-protect
+          (let ((x 0))
+            ;; Keep incrementing the last coordinate until we've moved
+            ;; past TARGET.
+            (while (condition-case nil
+                       (progn (goto-char starting-point)
+                              (cider--debug-move-point (append list-so-far (list x)))
+                              (< (point) target))
+                     ;; Not a valid coordinate. Move back a step and stop here.
+                     (scan-error (setq x (1- x))
+                                 nil))
+              (setq x (1+ x)))
+            (setq list-so-far (append list-so-far (list x)))
+            ;; We have moved past TARGET, now determine whether we should
+            ;; stop, or if target is deeper inside the previous sexp.
+            (if (or (= target (point))
+                    (progn (forward-sexp -1)
+                           (<= target (point))))
+                list-so-far
+              (goto-char starting-point)
+              (cider--debug-find-coordinates-for-point target list-so-far)))
+        ;; `unwind-protect' clause.
+        (goto-char starting-point)))))
+
+(defun cider-debug-move-here ()
+  "Skip any breakpoints up to point."
+  (interactive)
+  (unless cider--debug-mode
+    (user-error "`cider-debug-move-here' only makes sense during a debug session"))
+  (let ((here (point)))
+    (nrepl-dbind-response cider--debug-mode-response (line column)
+      (if (and line column)
+          (progn ;; Get to the proper line & column in the file
+            (forward-line (- line (line-number-at-pos)))
+            (move-to-column column))
+        (beginning-of-defun))
+      ;; Is HERE inside the sexp being debugged?
+      (when (or (< here (point))
+                (save-excursion
+                  (forward-sexp 1)
+                  (> here (point))))
+        (user-error "Point is outside the sexp being debugged"))
+      ;; Move forward untill start of sexp.
+      (comment-normalize-vars)
+      (comment-forward (point-max))
+      ;; Find the coordinate and send it.
+      (cider-debug-mode-send-reply
+       (format "{:response :here, :coord %s}"
+               (cider--debug-find-coordinates-for-point here))))))
 
 
 ;;; User commands
