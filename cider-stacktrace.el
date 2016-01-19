@@ -488,7 +488,7 @@ This associates text properties to enable filtering and source navigation."
   (with-current-buffer buffer
     (nrepl-dbind-response frame (file line flags class method name var ns fn)
       (let ((flags (mapcar 'intern flags))) ; strings -> symbols
-        (insert-text-button (format "%30s:%5d  %s/%s"
+        (insert-text-button (format "%26s:%5d  %s/%s"
                                     (if (member 'repl flags) "REPL" file) line
                                     (if (member 'clj flags) ns class)
                                     (if (member 'clj flags) fn method))
