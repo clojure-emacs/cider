@@ -409,6 +409,9 @@ Any other value is just returned."
     "Keep on codin' in the free world!"
     "What we do in the REPL echoes in eternity!"
     "Evaluating is believing."
+    "To infinity... and beyond."
+    ,(format "%s, I've a feeling we're not in Kansas anymore."
+             (cider-user-first-name))
     ,(format "%s, this could be the start of a beautiful program."
              (cider-user-first-name)))
   "Scientifically-proven optimal words of hackerish encouragement.")
