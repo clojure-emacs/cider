@@ -71,7 +71,8 @@ If SELECT is non-nil, select the BUFFER."
   buffer)
 
 (defun cider-popup-buffer-quit (&optional kill)
-  "Quit the current (temp) window and bury its buffer using `quit-restore-window'.
+  "Quit the current (temp) window.
+Bury its buffer using `quit-restore-window'.
 If prefix argument KILL is non-nil, kill the buffer instead of burying it."
   (interactive)
   (quit-restore-window (selected-window) (if kill 'kill 'append)))
@@ -101,7 +102,7 @@ and automatically removed when killed."
     (current-buffer)))
 
 (defun cider-emit-into-popup-buffer (buffer value &optional face)
-  "Emit into BUFFER the provided VALUE."
+  "Emit into BUFFER the provided VALUE optionally using FACE."
   ;; Long string output renders emacs unresponsive and users might intentionally
   ;; kill the frozen popup buffer. Therefore, we don't re-create the buffer and
   ;; silently ignore the output.
@@ -123,4 +124,5 @@ and automatically removed when killed."
         (when moving (goto-char cider-popup-output-marker))))))
 
 (provide 'cider-popup)
+
 ;;; cider-popup.el ends here
