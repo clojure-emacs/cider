@@ -6,6 +6,10 @@
 
 * `cider-current-connection` actually, really considers major mode before `cider-repl-type`.
 
+### Bugs fixed
+
+* [#1521](https://github.com/clojure-emacs/cider/pull/1521): Don't assume the repl buffer is in the current frame in `cider-repl--show-maximum-output`.
+
 ## 0.10.1 / 2015-01-05
 
 ### Changes

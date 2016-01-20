@@ -392,7 +392,7 @@ This will not work on non-current prompts."
 (defun cider-repl--show-maximum-output ()
   "Put the end of the buffer at the bottom of the window."
   (when (eobp)
-    (let ((win (get-buffer-window (current-buffer))))
+    (let ((win (get-buffer-window (current-buffer) t)))
       (when win
         (with-selected-window win
           (set-window-point win (point-max))
