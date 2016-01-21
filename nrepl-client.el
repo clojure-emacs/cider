@@ -1148,7 +1148,10 @@ the port, and the client buffer."
 ;;; Messages
 
 (defcustom nrepl-log-messages t
-  "If non-nil, log protocol messages to the `nrepl-message-buffer-name-template' buffer."
+  "If non-nil, log protocol messages to a nREPL messages buffer.
+
+This is extremely useful for debug purposes, as it allows you to
+inspect the communication between Emacs and an nREPL server."
   :type 'boolean
   :group 'nrepl)
 
