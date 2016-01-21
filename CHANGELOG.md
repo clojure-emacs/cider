@@ -20,6 +20,10 @@ and try to associate the created connection with this project automatically.
 * Requires Java 7 or newer.
 * Improve stacktrace presentation of compiler errors (readability, DWIM point positioning).
 
+### Bugs fixed
+
+* [#1521](https://github.com/clojure-emacs/cider/pull/1521): Don't assume the repl buffer is in the current frame in `cider-repl--show-maximum-output`.
+
 ## 0.10.1 / 2015-01-05
 
 ### Changes
