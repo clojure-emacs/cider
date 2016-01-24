@@ -86,6 +86,11 @@
   :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
 
+(defcustom cider-docview-javadoc-path ()
+  "List of directories where CIDER looks for Javadoc HTML files."
+  :type '(repeat string)
+  :group 'cider-docview-mode
+  :package-version '(cider . "0.7.0"))
 
 
 ;; Faces
@@ -181,9 +186,13 @@
   (when symbol-name
     (cider-ensure-op-supported "info")
     (let* ((info (cider-var-info symbol-name))
-           (url (nrepl-dict-get info "javadoc")))
-      (if url
-          (browse-url url)
+           (url (nrepl-dict-get info "javadoc"))
+           (f-expand (lambda (dir) (concat (file-name-as-directory dir) url)))
+           (candidates (mapcar f-expand cider-docview-javadoc-path))
+           (files (remove-if-not 'file-exists-p candidates))
+           (target (car `(,@files ,url))))
+      (if target
+          (browse-url target)
         (user-error "No Javadoc available for %s" symbol-name)))))
 
 (defun cider-javadoc (arg)
