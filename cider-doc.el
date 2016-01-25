@@ -394,7 +394,7 @@ Tables are marked to be ignored by line wrap."
         (when added
           (emit (concat "Added in " added) 'font-lock-comment-face))
         (when depr
-          (emit (concat "Deprecated in " depr) 'font-lock-comment-face))
+          (emit (concat "Deprecated in " depr) 'font-lock-keyword-face))
         (if class
             (cider-docview-render-java-doc (current-buffer) doc)
           (emit (concat "  " doc)))
