@@ -410,6 +410,8 @@ Any other value is just returned."
     "What we do in the REPL echoes in eternity!"
     "Evaluating is believing."
     "To infinity... and beyond."
+    "Showtime!"
+    "Unfortunately, no one can be told what CIDER is. You have to figure this out yourself."
     ,(format "%s, I've a feeling we're not in Kansas anymore."
              (cider-user-first-name))
     ,(format "%s, this could be the start of a beautiful program."
