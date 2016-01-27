@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.2 / (unreleased)
+## 0.10.2 / 2015-01-27
 
 ### Changes
 
