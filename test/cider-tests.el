@@ -254,6 +254,21 @@
   (should (string= (cider--var-namespace "a-two/var") "a-two"))
   (should (string= (cider--var-namespace "a.two-three.b/var-c") "a.two-three.b")))
 
+(ert-deftest test-cider-connection-type-for-buffer ()
+  (with-temp-buffer
+    (clojurescript-mode)
+    (should (string= (cider-connection-type-for-buffer) "cljs")))
+  (with-temp-buffer
+    (clojure-mode)
+    (should (string= (cider-connection-type-for-buffer) "clj")))
+  (with-temp-buffer
+    (let ((cider-repl-type nil))
+      (should (string= (cider-connection-type-for-buffer) "clj")))
+    (let ((cider-repl-type "clj"))
+      (should (string= (cider-connection-type-for-buffer) "clj")))
+    (let ((cider-repl-type "cljs"))
+      (should (string= (cider-connection-type-for-buffer) "cljs")))))
+
 
 ;;; response handling
 (ert-deftest test-cider-dbind-response ()

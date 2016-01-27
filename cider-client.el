@@ -197,6 +197,14 @@ such a link cannot be established automatically."
   (cider-ensure-connected)
   (kill-local-variable 'cider-connections))
 
+(defun cider-connection-type-for-buffer ()
+  "Return the matching connection type (clj or cljs) for the current buffer."
+  (cond
+   ((derived-mode-p 'clojurescript-mode) "cljs")
+   ((derived-mode-p 'clojure-mode) "clj")
+   (cider-repl-type)
+   (t "clj")))
+
 (defun cider-current-connection (&optional type)
   "Return the REPL buffer relevant for the current Clojure source buffer.
 A REPL is relevant if its `nrepl-project-dir' is compatible with the
@@ -218,9 +226,7 @@ from the file extension."
                 ;; Only one match, just return it.
                 (car project-connections)
               ;; OW, find one matching the language of the current buffer.
-              (let ((type (or type cider-repl-type
-                              (if (derived-mode-p 'clojurescript-mode)
-                                  "cljs" "clj"))))
+              (let ((type (or type (cider-connection-type-for-buffer))))
                 (or (seq-find (lambda (conn)
                                 (equal (cider--connection-type conn) type))
                               project-connections)
