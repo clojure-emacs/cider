@@ -497,13 +497,50 @@ key of a map, and it means \"go to the value associated with this key\". "
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
     (error (message "Can't find instrumented sexp, did you edit the source?"))))
 
+(defun cider--debug-goto-source-or-create-source-buffer (response)
+  "Position point after the sexp specified in RESPONSE.
+Follow the \"line\" and \"column\" entries in RESPONSE, and check whether
+the code at point matches the \"code\" entry in RESPONSE.  If it doesn't,
+assume that the code in this file has been edited, and create a temp buffer
+holding the original code.
+Either way, navigate inside the code by following the \"coor\" entry which
+is a coordinate measure in sexps.
+
+Return the original point position on the buffer that is current at the end
+of execution.  Use this instead of `save-excursion' to restore the point
+position, because this function might change the current buffer."
+  (nrepl-dbind-response response (code file line column ns original-id coor)
+    (when (or code (and file line column))
+      (let ((old-point))
+        ;; We prefer in-source debugging.
+        (when (and file line column)
+          (if-let ((buf (find-buffer-visiting file)))
+              (if-let ((win (get-buffer-window buf)))
+                  (select-window win)
+                (pop-to-buffer buf))
+            (find-file file))
+          (setq old-point (point))
+          ;; Get to the proper line & column in the file
+          (forward-line (- line (line-number-at-pos)))
+          (move-to-column column))
+        ;; But we can create a temp buffer if that fails.
+        (unless (or (looking-at-p (regexp-quote code))
+                    (looking-at-p (regexp-quote (cider--debug-trim-code code))))
+          (cider--initialize-debug-buffer
+           code ns original-id
+           (if (and line column)
+               "you edited the code"
+             "your tools.nrepl version is older than 0.2.11"))
+          (setq old-point (point-min)))
+        (cider--debug-move-point coor)
+        old-point))))
+
 (defun cider--handle-debug (response)
   "Handle debugging notification.
 RESPONSE is a message received from the nrepl describing the input
 needed.  It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
-  (nrepl-dbind-response response (debug-value key coor code file line column ns original-id
-                                              input-type prompt inspect)
+  (nrepl-dbind-response response (debug-value key input-type prompt inspect)
     (condition-case-unless-debug e
         (progn
           (pcase input-type
@@ -511,26 +548,7 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
                                                         (or prompt "Expression: "))
                                                        key))
             ((pred sequencep)
-             (when (or code (and file line column))
-               ;; We prefer in-source debugging.
-               (when (and file line column)
-                 (if-let ((buf (find-buffer-visiting file)))
-                     (if-let ((win (get-buffer-window buf)))
-                         (select-window win)
-                       (pop-to-buffer buf))
-                   (find-file file))
-                 ;; Get to the proper line & column in the file
-                 (forward-line (- line (line-number-at-pos)))
-                 (move-to-column column))
-               ;; But we can create a temp buffer if that fails.
-               (unless (or (looking-at-p (regexp-quote code))
-                           (looking-at-p (regexp-quote (cider--debug-trim-code code))))
-                 (cider--initialize-debug-buffer
-                  code ns original-id
-                  (if (and line column)
-                      "you edited the code"
-                    "your tools.nrepl version is older than 0.2.11")))
-               (cider--debug-move-point coor))
+             (cider--debug-goto-source-or-create-source-buffer response)
              ;; The overlay code relies on window boundaries, but point could have been
              ;; moved outside the window by some other code. Redisplay here to ensure the
              ;; visible window includes point.
