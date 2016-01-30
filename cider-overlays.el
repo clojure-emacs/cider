@@ -118,7 +118,7 @@ This function also removes itself from `post-command-hook'."
   (remove-hook 'post-command-hook #'cider--remove-result-overlay-after-command 'local)
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
-(cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result) &allow-other-keys)
+(cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result) (format (concat " " cider-eval-result-prefix "%s ")) &allow-other-keys)
   "Place an overlay displaying VALUE at the end of line.
 VALUE is used as the overlay's after-string property, meaning it is
 displayed at the end of the overlay.  The overlay itself is placed from
@@ -137,6 +137,8 @@ This function takes some optional keyword arguments:
   DURATION takes the same possible values as the
   `cider-eval-result-duration' variable.
   TYPE is passed to `cider--make-overlay' (defaults to `result').
+  FORMAT is a string passed to `format'.  It should have
+  exactly one %s construct (for VALUE).
 
 All arguments beyond these (PROPS) are properties to be used on the
 overlay."
@@ -158,11 +160,10 @@ overlay."
                  (end (if (consp where)
                           (cdr where)
                         (line-end-position)))
-                 (display-string (concat (propertize " " 'cursor 1000)
-                                         cider-eval-result-prefix
-                                         (format "%s " value)))
+                 (display-string (format format value))
                  (o nil))
             (remove-overlays beg end 'cider-type type)
+            (put-text-property 0 1 'cursor 1000 display-string)
             (funcall (if cider-overlays-use-font-lock
                          #'font-lock-prepend-text-property
                        #'put-text-property)
