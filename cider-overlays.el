@@ -144,58 +144,57 @@ All arguments beyond these (PROPS) are properties to be used on the
 overlay."
   (declare (indent 1))
   ;; If the marker points to a dead buffer, don't do anything.
-  (if-let ((buffer (cond
-                    ((markerp where) (marker-buffer where))
-                    ((markerp (car-safe where)) (marker-buffer (car where)))
-                    (t (current-buffer)))))
-      (with-current-buffer buffer
-        (save-excursion
-          (when (number-or-marker-p where)
-            (goto-char where))
-          ;; Make sure the overlay is actually at the end of the sexp.
-          (skip-chars-backward "\r\n[:blank:]")
-          (let* ((beg (if (consp where)
-                          (car where)
-                        (line-beginning-position)))
-                 (end (if (consp where)
-                          (cdr where)
-                        (line-end-position)))
-                 (display-string (format format value))
-                 (o nil))
-            (remove-overlays beg end 'cider-type type)
-            (put-text-property 0 1 'cursor 1000 display-string)
-            (funcall (if cider-overlays-use-font-lock
-                         #'font-lock-prepend-text-property
-                       #'put-text-property)
-                     0 (length display-string)
-                     'face 'cider-result-overlay-face
-                     display-string)
-            (setq o (apply #'cider--make-overlay
-                           beg end type
-                           'after-string display-string
-                           props))
-            (pcase duration
-              ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
-              (`command
-               ;; If inside a command-loop, tell `cider--remove-result-overlay'
-               ;; to only remove after the *next* command.
-               (if this-command
-                   (add-hook 'post-command-hook
-                             #'cider--remove-result-overlay-after-command
-                             nil 'local)
-                 (cider--remove-result-overlay-after-command))))
-            (when-let ((win (get-buffer-window buffer)))
-              ;; Left edge is visible.
-              (when (and (<= (window-start win) (point))
-                         ;; In 24.3 `<=' is still a binary perdicate.
-                         (<= (point) (window-end win))
-                         ;; Right edge is visible. This is a little conservative
-                         ;; if the overlay contains line breaks.
-                         (or (< (+ (current-column) (string-width value))
-                                (window-width win))
-                             (not truncate-lines)))
-                o)))))
-    nil))
+  (let ((buffer (cond
+                 ((markerp where) (marker-buffer where))
+                 ((markerp (car-safe where)) (marker-buffer (car where)))
+                 (t (current-buffer)))))
+    (with-current-buffer buffer
+      (save-excursion
+        (when (number-or-marker-p where)
+          (goto-char where))
+        ;; Make sure the overlay is actually at the end of the sexp.
+        (skip-chars-backward "\r\n[:blank:]")
+        (let* ((beg (if (consp where)
+                        (car where)
+                      (line-beginning-position)))
+               (end (if (consp where)
+                        (cdr where)
+                      (line-end-position)))
+               (display-string (format format value))
+               (o nil))
+          (remove-overlays beg end 'cider-type type)
+          (put-text-property 0 1 'cursor 0 display-string)
+          (funcall (if cider-overlays-use-font-lock
+                       #'font-lock-prepend-text-property
+                     #'put-text-property)
+                   0 (length display-string)
+                   'face 'cider-result-overlay-face
+                   display-string)
+          (setq o (apply #'cider--make-overlay
+                         beg end type
+                         'after-string display-string
+                         props))
+          (pcase duration
+            ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
+            (`command
+             ;; If inside a command-loop, tell `cider--remove-result-overlay'
+             ;; to only remove after the *next* command.
+             (if this-command
+                 (add-hook 'post-command-hook
+                           #'cider--remove-result-overlay-after-command
+                           nil 'local)
+               (cider--remove-result-overlay-after-command))))
+          (when-let ((win (get-buffer-window buffer)))
+            ;; Left edge is visible.
+            (when (and (<= (window-start win) (point))
+                       ;; In 24.3 `<=' is still a binary perdicate.
+                       (<= (point) (window-end win))
+                       ;; Right edge is visible. This is a little conservative
+                       ;; if the overlay contains line breaks.
+                       (or (< (+ (current-column) (string-width value))
+                              (window-width win))
+                           (not truncate-lines)))
+              o)))))))
 
 
 ;;; Displaying eval result
