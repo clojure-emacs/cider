@@ -48,7 +48,7 @@ applied with lower priority than the syntax highlighting."
   :type 'boolean
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-overlays-use-font-lock nil
+(defcustom cider-overlays-use-font-lock t
   "If non-nil, results overlays are font-locked as Clojure code.
 If nil, apply `cider-result-overlay-face' to the entire overlay instead of
 font-locking it."
