@@ -32,12 +32,15 @@
 
 ;;; Customization
 (defface cider-result-overlay-face
-  '((t :inherit font-lock-builtin-face))
+  '((((class color) (background light))
+     :background "grey90" :box (:line-width -1 :color "yellow"))
+    (((class color) (background dark))
+     :background "grey10" :box (:line-width -1 :color "black")))
   "Face used to display evaluation results at the end of line.
-Only used on the result string if `cider-overlays-use-font-lock' is nil.
-If it is non-nil, this face is only used on the prefix (usually a \"=>\")."
+If `cider-overlays-use-font-lock' is non-nil, this face is
+applied with lower priority than the syntax highlighting."
   :group 'cider
-  :package-version "0.9.1")
+  :package-version '(cider "0.9.1"))
 
 (defcustom cider-result-use-clojure-font-lock t
   "If non-nil, interactive eval results are font-locked as Clojure code."
@@ -156,18 +159,19 @@ overlay."
                           (cdr where)
                         (line-end-position)))
                  (display-string (concat (propertize " " 'cursor 1000)
-                                         (propertize cider-eval-result-prefix
-                                                     'face 'cider-result-overlay-face)
-                                         (format "%s" value)))
+                                         cider-eval-result-prefix
+                                         (format "%s " value)))
                  (o nil))
             (remove-overlays beg end 'cider-type type)
+            (funcall (if cider-overlays-use-font-lock
+                         #'font-lock-prepend-text-property
+                       #'put-text-property)
+                     0 (length display-string)
+                     'face 'cider-result-overlay-face
+                     display-string)
             (setq o (apply #'cider--make-overlay
-                           beg end
-                           type
-                           'after-string
-                           (if cider-overlays-use-font-lock
-                               display-string
-                             (propertize display-string 'face 'cider-result-overlay-face))
+                           beg end type
+                           'after-string display-string
                            props))
             (pcase duration
               ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
