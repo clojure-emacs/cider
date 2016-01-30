@@ -992,6 +992,8 @@ arguments and only proceed with evaluation if it returns nil."
   (let ((form  (or form (apply #'buffer-substring bounds)))
         (start (car-safe bounds))
         (end   (car-safe (cdr-safe bounds))))
+    (when (and start end)
+      (remove-overlays start end))
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
