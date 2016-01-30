@@ -127,8 +127,10 @@ Return the overlay if it was placed successfully, and nil if it failed.
 
 This function takes some optional keyword arguments:
 
-  If WHERE is a number or a marker, it is the character position of the
-  line to use, otherwise use `point'.
+  If WHERE is a number or a marker, apply the overlay over
+  the entire line at that place (defaulting to `point').  If
+  it is a cons cell, the car and cdr determine the start and
+  end of the overlay.
   DURATION takes the same possible values as the
   `cider-eval-result-duration' variable.
   TYPE is passed to `cider--make-overlay' (defaults to `result').
@@ -137,26 +139,36 @@ All arguments beyond these (PROPS) are properties to be used on the
 overlay."
   (declare (indent 1))
   ;; If the marker points to a dead buffer, don't do anything.
-  (if-let ((buffer (if (markerp where) (marker-buffer where)
-                     (current-buffer))))
+  (if-let ((buffer (cond
+                    ((markerp where) (marker-buffer where))
+                    ((markerp (car-safe where)) (marker-buffer (car where)))
+                    (t (current-buffer)))))
       (with-current-buffer buffer
-        (remove-overlays nil nil 'cider-type 'result)
         (save-excursion
-          (when where (goto-char where))
+          (when (number-or-marker-p where)
+            (goto-char where))
           ;; Make sure the overlay is actually at the end of the sexp.
           (skip-chars-backward "\r\n[:blank:]")
-          (let* ((display-string (concat (propertize " " 'cursor 1000)
+          (let* ((beg (if (consp where)
+                          (car where)
+                        (line-beginning-position)))
+                 (end (if (consp where)
+                          (cdr where)
+                        (line-end-position)))
+                 (display-string (concat (propertize " " 'cursor 1000)
                                          (propertize cider-eval-result-prefix
                                                      'face 'cider-result-overlay-face)
                                          (format "%s" value)))
-                 (o (apply #'cider--make-overlay
-                           (line-beginning-position) (line-end-position)
+                 (o nil))
+            (remove-overlays beg end 'cider-type type)
+            (setq o (apply #'cider--make-overlay
+                           beg end
                            type
                            'after-string
                            (if cider-overlays-use-font-lock
                                display-string
                              (propertize display-string 'face 'cider-result-overlay-face))
-                           props)))
+                           props))
             (pcase duration
               ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
               (`command
