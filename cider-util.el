@@ -100,7 +100,7 @@ If BUFFER is provided act on that buffer instead."
     (save-match-data
       (end-of-defun)
       (let ((end (point)))
-        (beginning-of-defun)
+        (clojure-backward-logical-sexp 1)
         (list (point) end)))))
 
 (defun cider-defun-at-point-start-pos ()
