@@ -245,8 +245,28 @@ Much of CIDER's functionality depends on the presence of CIDER's own
 
 #### Using Leiningen
 
-Use the convenient plugin for defaults, either in your project's
-`project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
+To install CIDER globally in Leiningen, you should add the cider-nrepl plugin
+into your `:repl` profile. If you have not set up the `:repl` profile before,
+you can download
+[repl.clj](https://raw.githubusercontent.com/clojure-emacs/cider/master/repl.clj)
+and move it so that is located at `~/.lein/profiles.d/repl.clj`. The directory
+`~/.lein/profiles.d/` is not usually created, so you may have to create it
+yourself.
+
+These terminal commands will do that for you:
+
+```shell
+mkdir -p ~/.lein/profiles.d
+if [ -f ~/.lein/profiles.d/repl.clj ]; then
+    echo 'repl.clj already exists!'
+else
+    curl https://raw.githubusercontent.com/clojure-emacs/cider/master/repl.clj \
+      > ~/.lein/profiles.d/repl.clj
+fi
+```
+
+You can also put the plugin in your project's `project.clj` file or in the :repl
+profile in `~/.lein/profiles.clj`.
 
 ```clojure
 :plugins [[cider/cider-nrepl "x.y.z"]]
