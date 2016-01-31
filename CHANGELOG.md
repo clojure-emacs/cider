@@ -22,6 +22,10 @@ and try to associate the created connection with this project automatically.
 * Requires Java 7 or newer.
 * Improve stacktrace presentation of compiler errors (readability, DWIM point positioning).
 
+### Bugs fixed
+
+* [#1493](https://github.com/clojure-emacs/cider/issues/1493): Support special forms in eldoc.
+
 ## 0.10.2 / 2016-01-27
 
 ### Changes
