@@ -119,7 +119,10 @@ Also close associated REPL and server buffers."
           (cider--close-buffer nrepl-tunnel-buffer)))
       ;; If this is the only (or last) REPL connected to its server, the
       ;; kill-process hook will kill the server.
-      (cider--close-buffer buffer))))
+      (cider--close-buffer buffer))
+    ;; close the matching nREPL messages buffer
+    (when nrepl-log-messages
+      (kill-buffer (format nrepl-message-buffer-name-template conn-buffer)))))
 
 
 ;;; Current connection logic

@@ -26,6 +26,7 @@ and try to associate the created connection with this project automatically.
 ### Bugs fixed
 
 * [#1493](https://github.com/clojure-emacs/cider/issues/1493): Support special forms in eldoc.
+* [#1529](https://github.com/clojure-emacs/cider/issues/1529): Close nREPL message buffer when you quit its matching connection.
 
 ## 0.10.2 / 2016-01-27
 
