@@ -4,7 +4,7 @@
 
 ### New features
 
-* Change default value of `cider-overlays-use-font-lock` to `t`. Unlike before, a value of `t`, causes `cider-result-overlay-face` is to be prepended to the font-lock faces (instead of just not being used). 
+* Change default value of `cider-overlays-use-font-lock` to `t`. Unlike before, a value of `t`, causes `cider-result-overlay-face` is to be prepended to the font-lock faces (instead of just not being used).
 * `cider-result-overlay-face` default value changed to a background and a box, so it can be prepended to other faces without overriding the foreground.
 * [#1518](https://github.com/clojure-emacs/cider/pull/1518): Add `cider-dynamic-indentation` defcustom, to disable dynamic indent functionality.
 * Font-lock traced vars.
@@ -21,6 +21,7 @@ and try to associate the created connection with this project automatically.
 * Requires Clojure(Script) 1.7 or newer.
 * Requires Java 7 or newer.
 * Improve stacktrace presentation of compiler errors (readability, DWIM point positioning).
+* [#1458](https://github.com/clojure-emacs/cider/issues/1458): Separate nREPL messages by connections instead of by sessions.
 
 ### Bugs fixed
 

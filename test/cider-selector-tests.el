@@ -49,9 +49,9 @@
           (should (equal (current-buffer) b1)))))))
 
 (ert-deftest test-cider-selector-m ()
-  (noflet ((cider-current-messages-buffer () "*nrepl-messages session-id*"))
+  (noflet ((cider-current-messages-buffer () "*nrepl-messages conn-id*"))
     (with-temp-buffer
-      (rename-buffer "*nrepl-messages session-id*")
+      (rename-buffer "*nrepl-messages conn-id*")
       (let ((b1 (current-buffer)))
         (with-temp-buffer
           (should (not (equal (current-buffer) b1)))

@@ -1202,7 +1202,7 @@ TYPE is either request or response.
 The message is logged to a buffer described by
 `nrepl-message-buffer-name-template'."
   (when nrepl-log-messages
-    (with-current-buffer (nrepl-messages-buffer msg)
+    (with-current-buffer (nrepl-messages-buffer (current-buffer) msg)
       (setq buffer-read-only nil)
       (when (> (buffer-size) nrepl-message-buffer-max-size)
         (goto-char (/ (buffer-size) nrepl-message-buffer-reduce-denominator))
@@ -1275,15 +1275,10 @@ Set this to nil to prevent truncation."
                                'follow-link t))))
             (insert (color ")\n"))))))))
 
-(defun nrepl-messages-buffer (msg)
-  "Return or create the buffer for MSG.
-The default buffer name is *nrepl-messages session*."
-  ;; Log `new-session' replies to the "orphan" buffer, because that's probably
-  ;; where we logged the request it's replying to.
-  (let* ((msg-session (or (unless (nrepl-dict-get msg "new-session")
-                            (nrepl-dict-get msg "session"))
-                          "00000000-0000-0000-0000-000000000000"))
-         (msg-buffer-name (format nrepl-message-buffer-name-template msg-session)))
+(defun nrepl-messages-buffer (conn msg)
+  "Return or create the buffer for CONN and MSG.
+The default buffer name is *nrepl-messages connection*."
+  (let ((msg-buffer-name (format nrepl-message-buffer-name-template conn)))
     (or (get-buffer msg-buffer-name)
         (let ((buffer (get-buffer-create msg-buffer-name)))
           (with-current-buffer buffer
