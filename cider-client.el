@@ -122,9 +122,8 @@ Also close associated REPL and server buffers."
       (cider--close-buffer buffer))
     ;; close the matching nREPL messages buffer
     (when nrepl-log-messages
-      (let ((nrepl-messages-buffer (format nrepl-message-buffer-name-template conn-buffer)))
-        (when (get-buffer nrepl-messages-buffer)
-          (kill-buffer nrepl-messages-buffer))))))
+      (when-let ((nrepl-messages-buffer (nrepl-message-buffer conn-buffer)))
+        (kill-buffer nrepl-messages-buffer)))))
 
 
 ;;; Current connection logic
@@ -624,7 +623,7 @@ Return the REPL buffer given by `cider-current-connection'.")
 
 (defun cider-current-messages-buffer ()
   "The nREPL messages buffer, matching the current connection."
-  (format nrepl-message-buffer-name-template (cider-current-connection)))
+  (nrepl-messages-buffer (cider-current-connection)))
 
 (defun cider-current-tooling-session ()
   "Return the current tooling session."
