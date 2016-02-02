@@ -4,7 +4,8 @@
 
 ### New features
 
-* Change default value of `cider-overlays-use-font-lock` to `t`. Unlike before, a value of `t`, causes `cider-result-overlay-face` is to be prepended to the font-lock faces (instead of just not being used).
+* [#1169](https://github.com/clojure-emacs/cider/pull/1169): New command `cider-eval-defun-to-comment`.
+* Change default value of `cider-overlays-use-font-lock` to `t`. Unlike before, a value of `t`, causes `cider-result-overlay-face` is to be prepended to the font-lock faces (instead of just not being used). 
 * `cider-result-overlay-face` default value changed to a background and a box, so it can be prepended to other faces without overriding the foreground.
 * [#1518](https://github.com/clojure-emacs/cider/pull/1518): Add `cider-dynamic-indentation` defcustom, to disable dynamic indent functionality.
 * Font-lock traced vars.

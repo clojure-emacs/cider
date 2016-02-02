@@ -185,6 +185,7 @@ Returns to the buffer in which the command was invoked."
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-w") #'cider-eval-last-sexp-and-replace)
+    (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
     (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
@@ -227,6 +228,7 @@ Returns to the buffer in which the command was invoked."
          ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
          ["Eval last sexp to REPL buffer" cider-eval-last-sexp-to-repl]
          ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
+         ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
          ["Eval region" cider-eval-region]
          ["Eval ns form" cider-eval-ns-form]
          ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
