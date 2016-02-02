@@ -37,9 +37,8 @@ specific CIDER release.**
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Installation via package.el](#installation-via-packageel)
-  - [Setting up CIDER's nREPL middleware](#setting-up-ciders-nrepl-middleware)
-    - [Using Leiningen](#using-leiningen)
-    - [Using Boot](#using-boot)
+  - [CIDER's nREPL middleware](#ciders-nrepl-middleware)
+    - [Setting up a standalone REPL](#setting-up-a-standalone-repl)
     - [Using embedded nREPL server](#using-embedded-nrepl-server)
 - [Basic Usage](#basic-usage)
   - [Setting up a Leiningen or Boot project (optional)](#setting-up-a-leiningen-or-boot-project-optional)
@@ -221,12 +220,20 @@ Stable by adding this to your Emacs initialization:
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
   enabled by default in Emacs and you should not disable it!**
 
-### Setting up CIDER's nREPL middleware
+### CIDER's nREPL middleware
 
 Much of CIDER's functionality depends on the presence of CIDER's own
-[nREPL middleware][cider-nrepl].
+[nREPL middleware][cider-nrepl]. When `cider-jack-in` (<kbd>C-c M-j</kbd>) is used CIDER takes care of injecting it and its other dependencies.
 
-#### Using Leiningen
+**`profiles.clj` or `profile.boot` don't need to be modified anymore for the above usecase!**
+
+If you don't want `cider-jack-in` to inject dependencies automatically, set `cider-inject-dependencies-at-jack-in` to nil. Note that you'll have to setup the dependencies yourself (see the section below).
+
+If a standalone REPL is preferred, you need to invoke `cider-connect` (instead of `cider-jack-in`) and you'll need to manually add the dependencies to your Clojure project (explained in the following section).
+
+#### Setting up a standalone REPL
+
+##### Using Leiningen #####
 
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
@@ -245,7 +252,7 @@ A minimal `profiles.clj` for CIDER would be:
 middleware will always get loaded, causing `lein` to start slower.  You really
 need it just for `lein repl` and this is what the `:repl` profile is for.**
 
-#### Using Boot
+##### Using Boot #####
 
 Boot users can configure the tool to include the middleware automatically in
 all of their projects using a `~/.boot/profile.boot` file like so:

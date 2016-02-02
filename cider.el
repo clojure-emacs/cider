@@ -165,6 +165,11 @@ This variable is used by `cider-connect'."
   :type 'boolean
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-inject-dependencies-at-jack-in t
+  "When nil, do not inject repl dependencies (most likely nREPL middlewares) at `cider-jack-in' time."
+  :type 'boolean
+  :version '(cider . "0.11.0"))
+
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
@@ -176,6 +181,18 @@ Sub-match 1 must be the project path.")
 
 (defvar cider-host-history nil
   "Completion history for connection hosts.")
+
+(defvar cider-jack-in-dependencies
+  '(("org.clojure/tools.nrepl" "0.2.12"))
+  "List of dependencies where elements are lists of artifact name and version.")
+
+(defvar cider-jack-in-lein-plugins
+  `(("cider/cider-nrepl" ,(upcase cider-version)))
+  "List of Leiningen plugins where elements are lists of artifact name and version.")
+
+(defvar cider-jack-in-nrepl-middlewares
+  '("cider.nrepl/cider-middleware")
+  "List of Clojure variable names. Each of these Clojure variables should hold a vector of nREPL middlewares.")
 
 ;;;###autoload
 (defun cider-version ()
@@ -203,6 +220,58 @@ Sub-match 1 must be the project path.")
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
     ("gradle" cider-gradle-parameters)))
+
+(defun boot-command-prefix (dependencies)
+  (concat
+   (mapconcat
+    (lambda (dep) (format "-d %s:%s" (car dep) (cadr dep)))
+    dependencies
+    " ")
+   " "))
+
+(defun boot-repl-task-params (params middlewares)
+  (replace-regexp-in-string
+   "repl"
+   (concat
+    "repl "
+    (mapconcat
+     (lambda (middleware) (format "-m %s" middleware))
+     middlewares
+     " "))
+   params))
+
+(defun cider-boot-jack-in-dependencies (params dependencies plugins middlewares)
+  (concat
+   (boot-command-prefix
+    (seq-concatenate 'list dependencies plugins))
+   (boot-repl-task-params params middlewares)))
+
+(defun cider-lein-jack-in-dependencies (params dependencies lein-plugins)
+  (concat
+   (mapconcat
+    'identity
+    (seq-concatenate
+     'list
+     (seq-map (lambda (dependency) (format "update-in :dependencies conj \"[%s \\\"%s\\\"]\"" (car dependency) (cadr dependency))) dependencies)
+     (seq-map (lambda (plugin) (format "update-in :plugins conj \"[%s \\\"%s\\\"]\"" (car plugin) (cadr plugin))) lein-plugins))
+    " -- ")
+   " -- "
+   params))
+
+(defun cider-inject-jack-in-dependencies (params project-type)
+  "Modify the PARAMS so that REPL dependencies as set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins' and `cider-jack-in-nrepl-middlewares' are injected from the CLI according to the used PROJECT-TYPE.
+Eliminates the need for hacking profiles.clj or the boot script for supporting cider with its nREPL middleware and dependencies."
+  (pcase project-type
+    ("lein" (cider-lein-jack-in-dependencies
+             params
+             cider-jack-in-dependencies
+             cider-jack-in-lein-plugins))
+    ("boot" (cider-boot-jack-in-dependencies
+             params
+             cider-jack-in-dependencies
+             cider-jack-in-lein-plugins
+             cider-jack-in-nrepl-middlewares))
+    ("gradle" "")))
 
 (defcustom cider-cljs-lein-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
@@ -298,6 +367,10 @@ own buffer."
                                                 (cider-jack-in-params project-type))
                                         (cider-jack-in-params project-type))
                          (cider-jack-in-params project-type)))
+               (params (if cider-inject-dependencies-at-jack-in
+                           (cider-inject-jack-in-dependencies params project-type)
+                         params))
+
                (cmd (format "%s %s" (cider-jack-in-command project-type) params)))
           (when-let ((repl-buff (cider-find-reusable-repl-buffer nil project-dir)))
             (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
