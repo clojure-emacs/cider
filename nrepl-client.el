@@ -232,7 +232,9 @@ PROJECT-DIR, HOST and PORT are as in `/nrepl-make-buffer-name'."
 
 (defun nrepl-connection-identifier (conn)
   "Return the string which identifies a connection CONN."
-  (string-remove-prefix "*cider-repl " (string-remove-suffix "*" (buffer-name conn))))
+  (thread-last (buffer-name conn)
+    (replace-regexp-in-string "\\`*cider-repl " "")
+    (replace-regexp-in-string "*\\'" "" )))
 
 (defun nrepl-server-buffer-name (&optional project-dir host port)
   "Return the name of the server buffer.
