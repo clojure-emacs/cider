@@ -63,6 +63,23 @@
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
+(defface cider-enlightened
+  '((((class color) (background light)) :inherit cider-result-overlay-face
+     :box (:color "darkorange" :line-width -1))
+    (((class color) (background dark))  :inherit cider-result-overlay-face
+     ;; "#dd0" is a dimmer yellow.
+     :box (:color "#dd0" :line-width -1)))
+  "Face used to mark enlightened sexps and their return values."
+  :group 'cider-debug
+  :package-version '(cider . "0.11.0"))
+
+(defface cider-enlightened-local
+  '((((class color) (background light)) :weight bold :foreground "darkorange")
+    (((class color) (background dark))  :weight bold :foreground "yellow"))
+  "Face used to mark enlightened locals (not their values)."
+  :group 'cider-debug
+  :package-version '(cider . "0.11.0"))
+
 (defcustom cider-debug-prompt 'overlay
   "If and where to show the keys while debugging.
 If `minibuffer', show it in the minibuffer along with the return value.
@@ -127,6 +144,8 @@ This variable must be set before starting the repl connection."
 (defun cider--debug-response-handler (response)
   "Handle responses from the cider.debug middleware."
   (nrepl-dbind-response response (status id causes)
+    (when (member "enlighten" status)
+      (cider--handle-enlighten response))
     (when (or (member "eval-error" status)
               (member "stack" status))
       ;; TODO: Make the error buffer a bit friendlier when we're just printing
@@ -584,6 +603,36 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
       ;; If something goes wrong, we send a "quit" or the session hangs.
       (error (cider-debug-mode-send-reply ":quit" key)
              (message "Error encountered while handling the debug message: %S" e)))))
+
+(defun cider--handle-enlighten (response)
+  "Handle an enlighten notification.
+RESPONSE is a message received from the nrepl describing the value and
+coordinates of a sexp.  Create an overlay after the specified sexp
+displaying its value."
+  (when-let ((marker (cider--debug-find-source-position response)))
+    (with-current-buffer (marker-buffer marker)
+      (save-excursion
+        (goto-char marker)
+        (clojure-backward-logical-sexp 1)
+        (nrepl-dbind-response response (debug-value erase-previous)
+          (when erase-previous
+            (remove-overlays (point) marker 'cider-type 'enlighten))
+          (when debug-value
+            (if (memq (char-before marker) '(?\) ?\] ?}))
+                ;; Enlightening a sexp looks like a regular return value, except
+                ;; for a different border.
+                (cider--make-result-overlay (cider-font-lock-as-clojure debug-value)
+                  :where (cons marker marker)
+                  :type 'enlighten
+                  :prepend-face 'cider-enlightened)
+              ;; Enlightening a symbol uses a more abbreviated format. The
+              ;; result face is the same as a regular result, but we also color
+              ;; the symbol with `cider-enlightened-local'.
+              (cider--make-result-overlay (cider-font-lock-as-clojure debug-value)
+                :format "%s"
+                :where (cons (point) marker)
+                :type 'enlighten
+                'face 'cider-enlightened-local))))))))
 
 
 ;;; Move here command

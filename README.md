@@ -55,6 +55,7 @@ specific CIDER release.**
   - [Value Inspection](#value-inspection)
   - [Running Tests](#running-tests)
   - [Navigating Stacktraces](#navigating-stacktraces)
+  - [Enlighten (display local values)](#enlighten-display-local-values)
   - [Debugging](#debugging)
   - [Code reloading](#code-reloading)
   - [Managing multiple connections](#managing-multiple-connections)
@@ -807,6 +808,26 @@ will be used.
 ```el
 (setq cider-stacktrace-fill-column 80)
 ```
+
+### Enlighten (display local values)
+
+This feature displays the value of locals in realtime, as your code is being
+executed. This is somewhat akin to one of the features of the Light Table
+editor.
+
+- To turn it on, issue `M-x cider-enlighten-mode`.
+- To use it, evaluate your functions one at a time (e.g., use `C-M-x` or `C-x C-e`, because `C-c C-k` won't work).
+
+That's it! Once your code executes, the regular old buffer on the left will turn
+into the brilliant show of lights on the right.
+
+<p align="center">
+  <img src="doc/images/enlighten-off.png" />
+  <img src="doc/images/enlighten-on.png" />
+</p>
+
+You can also trigger this on specific functions (without having to turn on the
+minor mode) by writing `#light` before the `(def` and reevaluating it.
 
 ### Debugging
 
