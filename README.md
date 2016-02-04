@@ -405,7 +405,9 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
 <kbd>C-c C-u</kbd>                   | Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c ,</kbd>                     | Run tests for namespace.
-<kbd>C-c C-,</kbd>                   | Re-run test failures/errors for namespace.
+<kbd>C-c M-<</kbd>                   | Run tests for all loaded namespaces.
+<kbd>C-c C-<</kbd>                   | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-,</kbd>                   | Re-run test failures/errors.
 <kbd>C-c M-,</kbd>                   | Run test at point.
 <kbd>C-c C-t</kbd>                   | Show the test report buffer.
 <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
@@ -739,7 +741,9 @@ additional functionality at your disposal.
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
 <kbd>C-c ,</kbd>                | Run tests for namespace.
-<kbd>C-c C-,</kbd>              | Re-run test failures/errors for namespace.
+<kbd>C-c M-<</kbd>              | Run tests for all loaded namespaces.
+<kbd>C-c C-<</kbd>              | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-,</kbd>              | Re-run test failures/errors.
 <kbd>C-c M-,</kbd>              | Run test at point.
 <kbd>M-p</kbd>                  | Move point to previous test.
 <kbd>M-n</kbd>                  | Move point to next test.
