@@ -1125,7 +1125,7 @@ command `cider-debug-defun-at-point'."
       (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
     (user-error "The debugger does not support ClojureScript"))
   (cider-interactive-eval
-   (concat (if debug-it "#dbg ")
+   (concat (if debug-it "#dbg\n")
            (cider-defun-at-point))
    nil
    (cider--region-for-defun-at-point)))

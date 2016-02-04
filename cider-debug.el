@@ -390,7 +390,7 @@ specific message."
 (defconst cider--debug-buffer-format "*cider-debug %s*")
 
 (defun cider--debug-trim-code (code)
-  (replace-regexp-in-string "\\`#\\(dbg\\|break\\) ?" "" code))
+  (replace-regexp-in-string "\\`#[a-z]+[\n\r[:blank:]]*" "" code))
 
 (declare-function cider-set-buffer-ns "cider-mode")
 (defun cider--initialize-debug-buffer (code ns id &optional reason)
@@ -497,6 +497,18 @@ key of a map, and it means \"go to the value associated with this key\". "
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
     (error (message "Can't find instrumented sexp, did you edit the source?"))))
 
+(defun cider--debug-position-for-code (code)
+  "Return non-nil if point is roughly before CODE.
+This might move point one line above."
+  (or (looking-at-p (regexp-quote code))
+      (let ((trimmed (regexp-quote (cider--debug-trim-code code))))
+        (or (looking-at-p trimmed)
+            ;; If this is a fake #dbg injected by `C-u
+            ;; C-M-x', then the sexp we want is actually on
+            ;; the line above.
+            (progn (forward-line -1)
+                   (looking-at-p trimmed))))))
+
 (defun cider--debug-find-source-position (response &optional create-if-needed)
   "Return a marker of the position after the sexp specified in RESPONSE.
 This marker might be in a different buffer!  If the sexp can't be
@@ -526,8 +538,7 @@ is a coordinate measure in sexps."
                 (forward-line (- line (line-number-at-pos)))
                 (move-to-column column)
                 ;; Check if it worked
-                (when (or (looking-at-p (regexp-quote code))
-                          (looking-at-p (regexp-quote (cider--debug-trim-code code))))
+                (when (cider--debug-position-for-code code)
                   ;; Find the desired sexp.
                   (cider--debug-move-point coor)
                   (setq out (point-marker))))))
