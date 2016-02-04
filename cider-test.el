@@ -36,6 +36,7 @@
 
 (require 'button)
 (require 'easymenu)
+(require 'seq)
 
 ;;; Variables
 
@@ -170,20 +171,20 @@
   (interactive)
   (with-current-buffer (get-buffer cider-test-report-buffer)
     (when-let ((pos (previous-single-property-change (point) 'type)))
-      (if (not (get-text-property pos 'type))
-          (when-let ((pos (previous-single-property-change pos 'type)))
-            (goto-char pos))
-        (goto-char pos)))))
+      (if (get-text-property pos 'type)
+          (goto-char pos)
+        (when-let ((pos (previous-single-property-change pos 'type)))
+          (goto-char pos))))))
 
 (defun cider-test-next-result ()
   "Move point to the next test result, if one exists."
   (interactive)
   (with-current-buffer (get-buffer cider-test-report-buffer)
     (when-let ((pos (next-single-property-change (point) 'type)))
-      (if (not (get-text-property pos 'type))
-          (when-let ((pos (next-single-property-change pos 'type)))
-            (goto-char pos))
-        (goto-char pos)))))
+      (if (get-text-property pos 'type)
+          (goto-char pos)
+        (when-let ((pos (next-single-property-change pos 'type)))
+          (goto-char pos))))))
 
 (defun cider-test-jump (&optional arg)
   "Like `cider-find-var', but uses the test at point's definition, if available."
@@ -331,10 +332,10 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 
 (defun cider-test-non-passing (tests)
   "For a list of TESTS, each an nrepl-dict, return only those that did not pass."
-  (delq nil (mapcar (lambda (test)
-                      (unless (equal (nrepl-dict-get test "type") "pass")
-                        test))
-                    tests)))
+  (seq-filter (lambda (test)
+                (unless (equal (nrepl-dict-get test "type") "pass")
+                  test))
+              tests))
 
 (defun cider-test-render-report (buffer summary results)
   "Emit into BUFFER the report for the SUMMARY, and test RESULTS."
@@ -375,7 +376,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (message "Running tests in %s..."
            (concat (cider-propertize-ns
                     (cond ((stringp ns) ns)
-                          ((eq :non-passing ns) "non-passing")
+                          ((eq :non-passing ns) "failing")
                           ((eq :loaded ns)  "all loaded")
                           ((eq :project ns) "all")))
                    (unless (stringp ns) " namespaces"))))
@@ -427,11 +428,11 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
               (overlay-put overlay 'expected expected)
               (overlay-put overlay 'actual actual))))))))
 
-(defun cider-find-var-file (var)
-  "Return the buffer visiting the file in which VAR is defined, or nil if
+(defun cider-find-var-file (ns var)
+  "Return the buffer visiting the file in which the NS VAR is defined, or nil if
 not found."
   (cider-ensure-op-supported "info")
-  (when-let ((info (cider-var-info var))
+  (when-let ((info (cider-var-info (concat ns "/" var)))
              (file (nrepl-dict-get info "file")))
     (cider-find-file file)))
 
@@ -441,7 +442,7 @@ not found."
    (lambda (ns vars)
      (nrepl-dict-map
       (lambda (var tests)
-        (when-let ((buffer (cider-find-var-file (concat ns "/" var))))
+        (when-let ((buffer (cider-find-var-file ns var)))
           (dolist (test tests)
             (nrepl-dbind-response test (type)
               (unless (equal "pass" type)
@@ -456,7 +457,7 @@ not found."
     (nrepl-dict-map
      (lambda (ns vars)
        (dolist (var (nrepl-dict-keys vars))
-         (when-let ((buffer (cider-find-var-file (concat ns "/" var))))
+         (when-let ((buffer (cider-find-var-file ns var)))
            (with-current-buffer buffer
              (remove-overlays)))))
      cider-test-last-results)))
