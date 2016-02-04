@@ -574,7 +574,9 @@ current ns."
                  (funcall cider-test-infer-test-ns (clojure-find-ns)))))
       (cider-test-execute ns)
     (if (eq major-mode 'cider-test-report-mode)
-        (message "Test report does not define a namespace. Did you mean retest?")
+        (when (y-or-n-p (concat "Test report does not define a namespace. "
+                                "Rerun failed/erring tests?"))
+          (cider-test-rerun-tests))
       (message "No namespace to test in current context"))))
 
 (defun cider-test-run-test ()
