@@ -497,43 +497,51 @@ key of a map, and it means \"go to the value associated with this key\". "
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
     (error (message "Can't find instrumented sexp, did you edit the source?"))))
 
-(defun cider--debug-goto-source-or-create-source-buffer (response)
-  "Position point after the sexp specified in RESPONSE.
+(defun cider--debug-find-source-position (response &optional create-if-needed)
+  "Return a marker of the position after the sexp specified in RESPONSE.
+This marker might be in a different buffer!  If the sexp can't be
+found (file that contains the code is no longer visited or has been
+edited), return nil.  However, if CREATE-IF-NEEDED is non-nil, a new buffer
+is created in this situation and the return value is never nil.
+
 Follow the \"line\" and \"column\" entries in RESPONSE, and check whether
 the code at point matches the \"code\" entry in RESPONSE.  If it doesn't,
 assume that the code in this file has been edited, and create a temp buffer
 holding the original code.
 Either way, navigate inside the code by following the \"coor\" entry which
-is a coordinate measure in sexps.
-
-Return the original point position on the buffer that is current at the end
-of execution.  Use this instead of `save-excursion' to restore the point
-position, because this function might change the current buffer."
+is a coordinate measure in sexps."
   (nrepl-dbind-response response (code file line column ns original-id coor)
     (when (or code (and file line column))
-      (let ((old-point))
-        ;; We prefer in-source debugging.
-        (when (and file line column)
-          (if-let ((buf (find-buffer-visiting file)))
-              (if-let ((win (get-buffer-window buf)))
-                  (select-window win)
-                (pop-to-buffer buf))
-            (find-file file))
-          (setq old-point (point))
-          ;; Get to the proper line & column in the file
-          (forward-line (- line (line-number-at-pos)))
-          (move-to-column column))
-        ;; But we can create a temp buffer if that fails.
-        (unless (or (looking-at-p (regexp-quote code))
-                    (looking-at-p (regexp-quote (cider--debug-trim-code code))))
-          (cider--initialize-debug-buffer
-           code ns original-id
-           (if (and line column)
-               "you edited the code"
-             "your tools.nrepl version is older than 0.2.11"))
-          (setq old-point (point-min)))
-        (cider--debug-move-point coor)
-        old-point))))
+      ;; This is for restoring current-buffer.
+      (save-excursion
+        (let ((out))
+          ;; We prefer in-source debugging.
+          (when-let ((buf (and file line column
+                               (find-buffer-visiting file))))
+            ;; The logic here makes it hard to use `with-current-buffer'.
+            (with-current-buffer buf
+              ;; This is for retoring point inside buf.
+              (save-excursion
+                ;; Get to the proper line & column in the file
+                (forward-line (- line (line-number-at-pos)))
+                (move-to-column column)
+                ;; Check if it worked
+                (when (or (looking-at-p (regexp-quote code))
+                          (looking-at-p (regexp-quote (cider--debug-trim-code code))))
+                  ;; Find the desired sexp.
+                  (cider--debug-move-point coor)
+                  (setq out (point-marker))))))
+          ;; But we can create a temp buffer if that fails.
+          (or out
+              (when create-if-needed
+                (cider--initialize-debug-buffer
+                 code ns original-id
+                 (if (and line column)
+                     "you edited the code"
+                   "your tools.nrepl version is older than 0.2.11"))
+                (save-excursion
+                  (cider--debug-move-point coor)
+                  (point-marker)))))))))
 
 (defun cider--handle-debug (response)
   "Handle debugging notification.
@@ -548,12 +556,14 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
                                                         (or prompt "Expression: "))
                                                        key))
             ((pred sequencep)
-             (cider--debug-goto-source-or-create-source-buffer response)
+             (let* ((marker (cider--debug-find-source-position response 'create-if-needed)))
+               (pop-to-buffer (marker-buffer marker))
+               (goto-char marker))
+             (cider--debug-remove-overlays)
              ;; The overlay code relies on window boundaries, but point could have been
              ;; moved outside the window by some other code. Redisplay here to ensure the
              ;; visible window includes point.
              (redisplay)
-             (cider--debug-remove-overlays)
              (when cider-debug-use-overlays
                (cider--debug-display-result-overlay debug-value))
              (setq cider--debug-mode-response response)
