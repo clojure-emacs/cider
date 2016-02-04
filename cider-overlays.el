@@ -118,7 +118,10 @@ This function also removes itself from `post-command-hook'."
   (remove-hook 'post-command-hook #'cider--remove-result-overlay-after-command 'local)
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
-(cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result) (format (concat " " cider-eval-result-prefix "%s ")) &allow-other-keys)
+(cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result)
+                                            (format (concat " " cider-eval-result-prefix "%s "))
+                                            (prepend-face 'cider-result-overlay-face)
+                                            &allow-other-keys)
   "Place an overlay displaying VALUE at the end of line.
 VALUE is used as the overlay's after-string property, meaning it is
 displayed at the end of the overlay.  The overlay itself is placed from
@@ -143,6 +146,8 @@ This function takes some optional keyword arguments:
 All arguments beyond these (PROPS) are properties to be used on the
 overlay."
   (declare (indent 1))
+  (while (keywordp (car props))
+    (setq props (cdr (cdr props))))
   ;; If the marker points to a dead buffer, don't do anything.
   (let ((buffer (cond
                  ((markerp where) (marker-buffer where))
@@ -168,7 +173,7 @@ overlay."
                        #'font-lock-prepend-text-property
                      #'put-text-property)
                    0 (length display-string)
-                   'face 'cider-result-overlay-face
+                   'face prepend-face
                    display-string)
           (setq o (apply #'cider--make-overlay
                          beg end type
