@@ -23,12 +23,14 @@ and try to associate the created connection with this project automatically.
 * Requires Java 7 or newer.
 * Improve stacktrace presentation of compiler errors (readability, DWIM point positioning).
 * [#1458](https://github.com/clojure-emacs/cider/issues/1458): Separate nREPL messages by connections instead of by sessions.
+* [#1226](https://github.com/clojure-emacs/cider/issues/1226): Enable running of all loaded and all project tests.
 
 ### Bugs fixed
 
 * [cider-nrepl#294](https://github.com/clojure-emacs/cider-nrepl/issues/294): Handle errors in the `complete-doc` nREPL op.
 * [#1493](https://github.com/clojure-emacs/cider/issues/1493): Support special forms in eldoc.
 * [#1529](https://github.com/clojure-emacs/cider/issues/1529): Close nREPL message buffer when you quit its matching connection.
+* [#707](https://github.com/clojure-emacs/cider/issues/707): Better support clojure.test/with-test.
 
 ## 0.10.2 / 2016-01-27
 
