@@ -116,13 +116,18 @@
 ;; allows navigation among tests, jumping to test definitions, expected/actual
 ;; diff-ing, and cause/stacktrace inspection for test errors.
 
+(defvar cider-test-commands-map
+  (let ((map (define-prefix-command 'cider-test-commands-map)))
+    (define-key map (kbd ",") #'cider-test-run-tests)
+    (define-key map (kbd "M-,") #'cider-test-run-test)
+    (define-key map (kbd "C-,") #'cider-test-rerun-tests)
+    (define-key map (kbd "<") #'cider-test-run-loaded-tests)
+    (define-key map (kbd "M-<") #'cider-test-run-project-tests)
+    map))
+
 (defvar cider-test-report-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c ,") #'cider-test-run-tests)
-    (define-key map (kbd "C-c M-,") #'cider-test-run-test)
-    (define-key map (kbd "C-c C-,") #'cider-test-rerun-tests)
-    (define-key map (kbd "C-c M-<") #'cider-test-run-loaded-tests)
-    (define-key map (kbd "C-c C-<") #'cider-test-run-project-tests)
+    (define-key map (kbd "C-c ,") #'cider-test-commands-map)
     (define-key map (kbd "M-p") #'cider-test-previous-result)
     (define-key map (kbd "M-n") #'cider-test-next-result)
     (define-key map (kbd "M-.") #'cider-test-jump)
