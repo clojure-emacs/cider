@@ -370,7 +370,7 @@ The value can also be t, which means to font-lock as much as possible."
       (while core-plist
         (let ((sym (pop core-plist))
               (meta (pop core-plist)))
-          (when (nrepl-dict-get meta "cider-instrumented")
+          (when (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
             (push sym instrumented))
           (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
                     (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
@@ -387,7 +387,7 @@ The value can also be t, which means to font-lock as much as possible."
     (while symbols-plist
       (let ((sym (pop symbols-plist))
             (meta (pop symbols-plist)))
-        (when (nrepl-dict-get meta "cider-instrumented")
+        (when (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
           (push sym instrumented))
         (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
                   (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
