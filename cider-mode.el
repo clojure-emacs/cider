@@ -206,7 +206,7 @@ Returns to the buffer in which the command was invoked."
     (define-key map (kbd "C-c C-k") #'cider-load-buffer)
     (define-key map (kbd "C-c C-l") #'cider-load-file)
     (define-key map (kbd "C-c C-b") #'cider-interrupt)
-    (define-key map (kbd "C-c ,")   #'cider-test-commands-map)
+    (define-key map (kbd "C-c t")   #'cider-test-commands-map)
     (define-key map (kbd "C-c C-t") #'cider-test-show-report)
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-r") #'cider-rotate-default-connection)
@@ -242,7 +242,7 @@ Returns to the buffer in which the command was invoked."
          ["Go back" cider-pop-back])
         ("Test"
          ["Run test" cider-test-run-test]
-         ["Run namespace tests" cider-test-run-tests]
+         ["Run namespace tests" cider-test-run-ns-tests]
          ["Run all loaded tests" cider-test-run-loaded-tests]
          ["Run all project tests" cider-test-run-project-tests]
          ["Rerun failed/erring tests" cider-test-rerun-tests]

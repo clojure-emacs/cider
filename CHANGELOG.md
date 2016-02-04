@@ -24,6 +24,7 @@ and try to associate the created connection with this project automatically.
 * Improve stacktrace presentation of compiler errors (readability, DWIM point positioning).
 * [#1458](https://github.com/clojure-emacs/cider/issues/1458): Separate nREPL messages by connections instead of by sessions.
 * [#1226](https://github.com/clojure-emacs/cider/issues/1226): Enable running of all loaded and all project tests.
+* Give test commands their own keybinding prefix. Use single-key mnemonics for these commands.
 
 ### Bugs fixed
 

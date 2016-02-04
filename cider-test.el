@@ -118,16 +118,16 @@
 
 (defvar cider-test-commands-map
   (let ((map (define-prefix-command 'cider-test-commands-map)))
-    (define-key map (kbd ",") #'cider-test-run-tests)
-    (define-key map (kbd "M-,") #'cider-test-run-test)
-    (define-key map (kbd "C-,") #'cider-test-rerun-tests)
-    (define-key map (kbd "<") #'cider-test-run-loaded-tests)
-    (define-key map (kbd "M-<") #'cider-test-run-project-tests)
+    (define-key map (kbd "r") #'cider-test-rerun-tests)
+    (define-key map (kbd "t") #'cider-test-run-test)
+    (define-key map (kbd "n") #'cider-test-run-ns-tests)
+    (define-key map (kbd "l") #'cider-test-run-loaded-tests)
+    (define-key map (kbd "p") #'cider-test-run-project-tests)
     map))
 
 (defvar cider-test-report-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c ,") #'cider-test-commands-map)
+    (define-key map (kbd "C-c t") #'cider-test-commands-map)
     (define-key map (kbd "M-p") #'cider-test-previous-result)
     (define-key map (kbd "M-n") #'cider-test-next-result)
     (define-key map (kbd "M-.") #'cider-test-jump)
@@ -383,7 +383,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                     (cond ((stringp ns) ns)
                           ((eq :non-passing ns) "failing")
                           ((eq :loaded ns)  "all loaded")
-                          ((eq :project ns) "all")))
+                          ((eq :project ns) "all project")))
                    (unless (stringp ns) " namespaces"))))
 
 (defun cider-test-echo-summary (summary results)
@@ -569,8 +569,8 @@ are highlighted."
   (interactive)
   (cider-test-execute :project))
 
-(defun cider-test-run-tests (suppress-inference)
-  "Run all tests for the current Clojure source or test report context.
+(defun cider-test-run-ns-tests (suppress-inference)
+  "Run all tests for the current Clojure namespace context.
 
 With a prefix arg SUPPRESS-INFERENCE it will try to run the tests in the
 current ns."
