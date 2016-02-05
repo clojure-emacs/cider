@@ -127,7 +127,7 @@
 
 (defvar cider-test-report-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c t") #'cider-test-commands-map)
+    (define-key map (kbd "C-c t") 'cider-test-commands-map)
     (define-key map (kbd "M-p") #'cider-test-previous-result)
     (define-key map (kbd "M-n") #'cider-test-next-result)
     (define-key map (kbd "M-.") #'cider-test-jump)

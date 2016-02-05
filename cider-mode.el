@@ -174,7 +174,7 @@ Returns to the buffer in which the command was invoked."
 ;;; The minor mode
 (defvar cider-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-d") #'cider-doc-map)
+    (define-key map (kbd "C-c C-d") 'cider-doc-map)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
     (define-key map (kbd "M-,") #'cider-pop-back)
@@ -206,7 +206,7 @@ Returns to the buffer in which the command was invoked."
     (define-key map (kbd "C-c C-k") #'cider-load-buffer)
     (define-key map (kbd "C-c C-l") #'cider-load-file)
     (define-key map (kbd "C-c C-b") #'cider-interrupt)
-    (define-key map (kbd "C-c t")   #'cider-test-commands-map)
+    (define-key map (kbd "C-c t")   'cider-test-commands-map)
     (define-key map (kbd "C-c C-t") #'cider-test-show-report)
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-r") #'cider-rotate-default-connection)
