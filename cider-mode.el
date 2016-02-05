@@ -360,14 +360,18 @@ The value can also be t, which means to font-lock as much as possible."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
                                          '(function var macro core deprecated)
                                        cider-font-lock-dynamically))
-        deprecated
+        deprecated enlightened
         macros functions vars instrumented traced)
     (when (memq 'core cider-font-lock-dynamically)
       (while core-plist
         (let ((sym (pop core-plist))
               (meta (pop core-plist)))
-          (when (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
-            (push sym instrumented))
+          (pcase (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
+            (`nil nil)
+            (`"#'cider.nrepl.middleware.debug/breakpoint-if-interesting"
+             (push sym instrumented))
+            (`"#'cider.nrepl.middleware.enlighten/light-form"
+             (push sym enlightened)))
           (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
                     (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
             (push sym traced))
@@ -383,8 +387,12 @@ The value can also be t, which means to font-lock as much as possible."
     (while symbols-plist
       (let ((sym (pop symbols-plist))
             (meta (pop symbols-plist)))
-        (when (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
-          (push sym instrumented))
+        (pcase (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
+          (`nil nil)
+          (`"#'cider.nrepl.middleware.debug/breakpoint-if-interesting"
+           (push sym instrumented))
+          (`"#'cider.nrepl.middleware.enlighten/light-form"
+           (push sym enlightened)))
         (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
                   (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
           (push sym traced))
@@ -414,6 +422,9 @@ The value can also be t, which means to font-lock as much as possible."
       ,@(when deprecated
           `((,(regexp-opt deprecated 'symbols) 0
              (cider--unless-local-match cider-deprecated-properties) append)))
+      ,@(when enlightened
+          `((,(regexp-opt enlightened 'symbols) 0
+             (cider--unless-local-match 'cider-enlightened) append)))
       ,@(when instrumented
           `((,(regexp-opt instrumented 'symbols) 0
              (cider--unless-local-match 'cider-instrumented-face) append)))
@@ -423,7 +434,7 @@ The value can also be t, which means to font-lock as much as possible."
 
 (defconst cider--static-font-lock-keywords
   (eval-when-compile
-    `((,(regexp-opt '("#break" "#dbg") 'symbols) 0 font-lock-warning-face)))
+    `((,(regexp-opt '("#break" "#dbg" "#light") 'symbols) 0 font-lock-warning-face)))
   "Default expressions to highlight in CIDER mode.")
 
 (defvar-local cider--dynamic-font-lock-keywords nil)

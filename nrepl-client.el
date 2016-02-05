@@ -999,6 +999,9 @@ Register CALLBACK as the response handler."
                       callback
                       connection))
 
+(define-minor-mode cider-enlighten-mode nil nil (cider-mode " light")
+  :global t)
+
 (defun nrepl--eval-request (input session &optional ns line column)
   "Prepare :eval request message for INPUT.
 SESSION and NS provide context for the request.
@@ -1008,6 +1011,8 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
           (list "op" "eval"
                 "session" session
                 "code" input)
+          (when cider-enlighten-mode
+            (list "enlighten" "true"))
           (let ((file (or (buffer-file-name) (buffer-name))))
             (when (and line column file)
               (list "file" file
