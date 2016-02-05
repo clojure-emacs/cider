@@ -122,7 +122,7 @@ Also close associated REPL and server buffers."
       (cider--close-buffer buffer))
     ;; close the matching nREPL messages buffer
     (when nrepl-log-messages
-      (when-let ((nrepl-messages-buffer (nrepl-message-buffer conn-buffer)))
+      (when-let ((nrepl-messages-buffer (nrepl-messages-buffer conn-buffer)))
         (kill-buffer nrepl-messages-buffer)))))
 
 
