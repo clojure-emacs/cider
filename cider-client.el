@@ -443,6 +443,53 @@ Refreshes EWOC."
 ;; that are connection type independent
 (add-hook 'nrepl-connected-hook 'cider-display-connected-message)
 
+
+;;; Eval spinner
+(defcustom cider-eval-spinner-type 'progress-bar
+  "Appearance of the evaluation spinner.
+
+Value is a symbol.  The possible values are the symbols in the
+`spinner-types' variable."
+  :type 'symbol
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-show-eval-spinner t
+  "When true, show the evaluation spinner in the mode line."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-eval-spinner-delay 1
+  "Amount of time, in seconds, after which the evaluation spinner will be shown."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defun cider-spinner-start ()
+  "Start the evaluation spinner.
+Do nothing if `cider-show-eval-spinner' is nil."
+  (when cider-show-eval-spinner
+    (spinner-start cider-eval-spinner-type nil
+                   cider-eval-spinner-delay)))
+
+(defun cider-eval-spinner-handler (eval-buffer original-callback)
+  "Return a response handler that stops the spinner and calls ORIGINAL-CALLBACK.
+EVAL-BUFFER is the buffer where the spinner was started."
+  (lambda (response)
+    ;; buffer still exists and
+    ;; we've got status "done" from nrepl
+    ;; stop the spinner
+    (when (and (buffer-live-p eval-buffer)
+               (let ((status (nrepl-dict-get response "status")))
+                 (or (member "done" status)
+                     (member "eval-error" status)
+                     (member "error" status))))
+      (with-current-buffer eval-buffer
+        (spinner-stop)))
+    (funcall original-callback response)))
+
+
 ;;; Evaluation helpers
 (defun cider-ns-form-p (form)
   "Check if FORM is an ns form."
@@ -826,52 +873,6 @@ CONTEXT represents a completion context for compliment."
       ;; "clojure.lang.ExceptionInfo: Unmatched delimiter ]"
       (error (car (split-string err "\n"))))
     (nrepl-dict-get response "formatted-edn")))
-
-
-;;; Eval spinner
-(defcustom cider-eval-spinner-type 'progress-bar
-  "Appearance of the evaluation spinner.
-
-Value is a symbol.  The possible values are the symbols in the
-`spinner-types' variable."
-  :type 'symbol
-  :group 'cider
-  :package-version '(cider . "0.10.0"))
-
-(defcustom cider-show-eval-spinner t
-  "When true, show the evaluation spinner in the mode line."
-  :type 'boolean
-  :group 'cider
-  :package-version '(cider . "0.10.0"))
-
-(defcustom cider-eval-spinner-delay 1
-  "Amount of time, in seconds, after which the evaluation spinner will be shown."
-  :type 'integer
-  :group 'cider
-  :package-version '(cider . "0.10.0"))
-
-(defun cider-spinner-start ()
-  "Start the evaluation spinner.
-Do nothing if `cider-show-eval-spinner' is nil."
-  (when cider-show-eval-spinner
-    (spinner-start cider-eval-spinner-type nil
-                   cider-eval-spinner-delay)))
-
-(defun cider-eval-spinner-handler (eval-buffer original-callback)
-  "Return a response handler that stops the spinner and calls ORIGINAL-CALLBACK.
-EVAL-BUFFER is the buffer where the spinner was started."
-  (lambda (response)
-    ;; buffer still exists and
-    ;; we've got status "done" from nrepl
-    ;; stop the spinner
-    (when (and (buffer-live-p eval-buffer)
-               (let ((status (nrepl-dict-get response "status")))
-                 (or (member "done" status)
-                     (member "eval-error" status)
-                     (member "error" status))))
-      (with-current-buffer eval-buffer
-        (spinner-stop)))
-    (funcall original-callback response)))
 
 
 ;;; Connection info
