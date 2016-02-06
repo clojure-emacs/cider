@@ -118,16 +118,26 @@
 
 (defvar cider-test-commands-map
   (let ((map (define-prefix-command 'cider-test-commands-map)))
-    (define-key map (kbd "r") #'cider-test-rerun-tests)
-    (define-key map (kbd "t") #'cider-test-run-test)
-    (define-key map (kbd "n") #'cider-test-run-ns-tests)
-    (define-key map (kbd "l") #'cider-test-run-loaded-tests)
-    (define-key map (kbd "p") #'cider-test-run-project-tests)
+    ;; Duplicates of keys below with C- for convenience
+    (define-key map (kbd "C-r") #'cider-test-rerun-tests)
+    (define-key map (kbd "C-t") #'cider-test-run-test)
+    (define-key map (kbd "C-n") #'cider-test-run-ns-tests)
+    (define-key map (kbd "C-l") #'cider-test-run-loaded-tests)
+    (define-key map (kbd "C-p") #'cider-test-run-project-tests)
+    (define-key map (kbd "C-b") #'cider-test-show-report)
+    ;; Single-key bindings defined last for display in menu
+    (define-key map (kbd "r")   #'cider-test-rerun-tests)
+    (define-key map (kbd "t")   #'cider-test-run-test)
+    (define-key map (kbd "n")   #'cider-test-run-ns-tests)
+    (define-key map (kbd "l")   #'cider-test-run-loaded-tests)
+    (define-key map (kbd "p")   #'cider-test-run-project-tests)
+    (define-key map (kbd "b")   #'cider-test-show-report)
     map))
 
 (defvar cider-test-report-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c t") 'cider-test-commands-map)
+    (define-key map (kbd "C-c ,")   'cider-test-commands-map)
+    (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
     (define-key map (kbd "M-p") #'cider-test-previous-result)
     (define-key map (kbd "M-n") #'cider-test-next-result)
     (define-key map (kbd "M-.") #'cider-test-jump)
