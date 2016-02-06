@@ -304,6 +304,11 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     ("error" 'cider-test-error-face)
     (_       'default)))
 
+(defun cider-test-type-simple-face (type)
+  "Return a face for the test result TYPE using the highlight color as foreground."
+  (let ((face (cider-test-type-face type)))
+    `(:foreground ,(face-attribute face :background))))
+
 (defun cider-test-render-summary (buffer summary)
   "Emit into BUFFER the report SUMMARY statistics."
   (with-current-buffer buffer
@@ -324,8 +329,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     (nrepl-dbind-response test (var context type message expected actual error)
       (cider-propertize-region (cider-intern-keys (cdr test))
         (let ((beg (point))
-              (bg `(:background ,cider-stacktrace-frames-background-color)))
-          (cider-insert (capitalize type) (cider-test-type-face type) nil " in ")
+              (type-face (cider-test-type-simple-face type))
+              (bg `(:background ,cider-test-items-background-color)))
+          (cider-insert (capitalize type) type-face nil " in ")
           (cider-insert var 'font-lock-function-name-face t)
           (when context  (cider-insert context 'font-lock-doc-face t))
           (when message  (cider-insert message 'font-lock-doc-string-face t))
