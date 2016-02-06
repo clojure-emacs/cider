@@ -738,7 +738,8 @@ If CALLBACK is nil, use `cider-load-file-handler'."
     (nrepl-dict-get "classpath")))
 
 (defun cider-sync-request:complete (str context)
-  "Return a list of completions for STR using nREPL's \"complete\" op."
+  "Return a list of completions for STR using nREPL's \"complete\" op.
+CONTEXT represents a completion context for compliment."
   (when-let ((dict (thread-first (list "op" "complete"
                                        "session" (cider-current-session)
                                        "ns" (cider-current-ns)
