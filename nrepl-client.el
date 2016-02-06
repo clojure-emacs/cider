@@ -722,7 +722,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 ;;; Client: Process Handling
 
 (defun nrepl--maybe-kill-server-buffer (server-buf)
-  "Kill SERVER-BUFFER and its process, subject to user confirmation.
+  "Kill SERVER-BUF and its process, subject to user confirmation.
 Do nothing if there is a REPL connected to that server."
   (with-current-buffer server-buf
     ;; Don't kill the server if there is a REPL connected to it.
