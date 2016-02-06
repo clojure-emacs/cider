@@ -108,29 +108,29 @@ This variable specifies both what was expanded and the expander.")
 
 ;;;###autoload
 (defun cider-macroexpand-1 (&optional prefix)
-  "Invoke 'macroexpand-1' on the expression preceding point.
-If invoked with a PREFIX argument, use 'macroexpand' instead of
-'macroexpand-1'."
+  "Invoke \\='macroexpand-1\\=' on the expression preceding point.
+If invoked with a PREFIX argument, use \\='macroexpand\\=' instead of
+\\='macroexpand-1\\='."
   (interactive "P")
   (let ((expander (if prefix "macroexpand" "macroexpand-1")))
     (cider-macroexpand-expr expander (cider-last-sexp))))
 
 (defun cider-macroexpand-1-inplace (&optional prefix)
-  "Perform inplace 'macroexpand-1' on the expression preceding point.
-If invoked with a PREFIX argument, use 'macroexpand' instead of
-'macroexpand-1'."
+  "Perform inplace \\='macroexpand-1\\=' on the expression preceding point.
+If invoked with a PREFIX argument, use \\='macroexpand\\=' instead of
+\\='macroexpand-1\\='."
   (interactive "P")
   (let ((expander (if prefix "macroexpand" "macroexpand-1")))
     (cider-macroexpand-expr-inplace expander)))
 
 ;;;###autoload
 (defun cider-macroexpand-all ()
-  "Invoke 'clojure.walk/macroexpand-all' on the expression preceding point."
+  "Invoke \\='clojure.walk/macroexpand-all\\=' on the expression preceding point."
   (interactive)
   (cider-macroexpand-expr "macroexpand-all" (cider-last-sexp)))
 
 (defun cider-macroexpand-all-inplace ()
-  "Perform inplace 'clojure.walk/macroexpand-all' on the expression preceding point."
+  "Perform inplace \\='clojure.walk/macroexpand-all\\=' on the expression preceding point."
   (interactive)
   (cider-macroexpand-expr-inplace "macroexpand-all"))
 
