@@ -850,10 +850,11 @@ The presence of a particular key determines the type of the response.  For
 example, if 'value' key is present, the response is of type 'value', if
 'out' key is present the response is 'stdout' etc.  Depending on the type,
 the handler dispatches the appropriate value to one of the supplied
-handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER, DONE-HANDLER, and
-EVAL-ERROR-HANDLER.  If the optional EVAL-ERROR-HANDLER is nil, the default
-`nrepl-err-handler' is used.  If any of the other supplied handlers are nil
-nothing happens for the corresponding type of response.
+handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER, DONE-HANDLER,
+EVAL-ERROR-HANDLER, and PPRINT-OUT-HANDLER.  If the optional
+EVAL-ERROR-HANDLER is nil, the default `nrepl-err-handler' is used.  If any
+of the other supplied handlers are nil nothing happens for the
+corresponding type of response.
 
 When `nrepl-log-messages' is non-nil, *nrepl-messages* buffer contains
 server responses."
