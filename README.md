@@ -465,6 +465,12 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-.</kbd> | Jump to some namespace on the classpath.
 <kbd>C-c M-t v</kbd> | Toggle var tracing.
 <kbd>C-c M-t n</kbd> | Toggle namespace tracing.
+<kbd>C-c C-t t</kbd>                 | Run test at point.
+<kbd>C-c C-t n</kbd>                 | Run tests for current namespace.
+<kbd>C-c C-t l</kbd>                 | Run tests for all loaded namespaces.
+<kbd>C-c C-t p</kbd>                 | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-t r</kbd>                 | Re-run test failures/errors.
+<kbd>C-c C-t b</kbd>                 | Show the test report buffer.
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
@@ -733,8 +739,9 @@ Keyboard shortcut                       | Description
 ### Running tests
 
 You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c
-,</kbd> in a source buffer will run the tests for the namespace you're currently
-in. CIDER is smart enough to figure out the namespace containing the tests.
+,</kbd> in a source buffer or a REPL buffer will run the tests for the namespace
+you're currently in. CIDER is smart enough to figure out the namespace
+containing the tests.
 
 In the buffer displaying the test execution results you'll have a bit of
 additional functionality at your disposal.
