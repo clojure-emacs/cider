@@ -90,27 +90,17 @@ If BUFFER is provided act on that buffer instead."
 
 
 ;;; Thing at point
-(defun cider-defun-at-point ()
-  "Return the text of the top-level sexp at point."
-  (apply #'buffer-substring-no-properties
-         (cider--region-for-defun-at-point)))
-
-(defun cider--region-for-defun-at-point ()
-  "Return the start and end position of defun at point."
+(defun cider-defun-at-point (&optional bounds)
+  "Return the text of the top-level sexp at point.
+If BOUNDS is non-nil, return a list of its starting and ending position
+instead."
   (save-excursion
     (save-match-data
       (end-of-defun)
       (let ((end (point)))
         (clojure-backward-logical-sexp 1)
-        (list (point) end)))))
-
-(defun cider-defun-at-point-start-pos ()
-  "Return the starting position of the current defun."
-  (car (cider--region-for-defun-at-point)))
-
-(defun cider-defun-at-point-end-pos ()
-  "Return the end position of the current defun."
-  (cadr (cider--region-for-defun-at-point)))
+        (funcall (if bounds #'list #'buffer-substring-no-properties)
+                 (point) end)))))
 
 (defun cider-ns-form ()
   "Retrieve the ns form."
@@ -118,24 +108,6 @@ If BUFFER is provided act on that buffer instead."
     (save-excursion
       (goto-char (match-beginning 0))
       (cider-defun-at-point))))
-
-(defun cider-bounds-of-sexp-at-point ()
-  "Return the bounds sexp at point as a pair (or nil)."
-  (or (and (equal (char-after) ?\()
-           (member (char-before) '(?\' ?\, ?\@))
-           ;; hide stuff before ( to avoid quirks with '( etc.
-           (save-restriction
-             (narrow-to-region (point) (point-max))
-             (bounds-of-thing-at-point 'sexp)))
-      (bounds-of-thing-at-point 'sexp)))
-
-(defun cider-map-indexed (f list)
-  "Return a list of (F index item) for each item in LIST."
-  (let ((i 0)
-        (out))
-    (dolist (it list (nreverse out))
-      (push (funcall f i it) out)
-      (setq i (1+ i)))))
 
 (defun cider-symbol-at-point (&optional look-back)
   "Return the name of the symbol at point, otherwise nil.
@@ -151,22 +123,19 @@ find a symbol if there isn't one at point."
 
 
 ;;; sexp navigation
-(defun cider-sexp-at-point ()
-  "Return the sexp at point as a string, otherwise nil."
-  (let ((bounds (cider-bounds-of-sexp-at-point)))
-    (if bounds
-        (buffer-substring-no-properties (car bounds)
-                                        (cdr bounds)))))
-
-(defun cider-sexp-at-point-with-bounds ()
-  "Return a list containing the sexp at point and its bounds."
-  (let ((bounds (cider-bounds-of-sexp-at-point)))
-    (if bounds
-        (let ((start (car bounds))
-              (end (cdr bounds)))
-          (list (buffer-substring-no-properties start end)
-                (cons (set-marker (make-marker) start)
-                      (set-marker (make-marker) end)))))))
+(defun cider-sexp-at-point (&optional bounds)
+  "Return the sexp at point as a string, otherwise nil.
+If BOUNDS is non-nil, return a list of its starting and ending position
+instead."
+  (when-let ((b (or (and (equal (char-after) ?\()
+                         (member (char-before) '(?\' ?\, ?\@))
+                         ;; hide stuff before ( to avoid quirks with '( etc.
+                         (save-restriction
+                           (narrow-to-region (point) (point-max))
+                           (bounds-of-thing-at-point 'sexp)))
+                    (bounds-of-thing-at-point 'sexp))))
+    (funcall (if bounds #'list #'buffer-substring-no-properties)
+             (car b) (cdr b))))
 
 (defun cider-last-sexp (&optional bounds)
   "Return the sexp preceding the point.
@@ -200,9 +169,11 @@ Can only error if SKIP is non-nil."
   "If NAME is a symbol, return it; otherwise, intern it."
   (if (symbolp name) name (intern name)))
 
-(defun cider-intern-keys (props)
-  "Copy plist-style PROPS with any non-symbol keys replaced with symbols."
-  (cider-map-indexed (lambda (i x) (if (cl-oddp i) x (cider-maybe-intern x))) props))
+(defun cider-intern-keys (plist)
+  "Copy PLIST, with any non-symbol keys replaced with symbols."
+  (when plist
+    (cons (cider-maybe-intern (pop plist))
+          (cons (pop plist) (cider-intern-keys plist)))))
 
 (defmacro cider-propertize-region (props &rest body)
   "Execute BODY and add PROPS to all the text it inserts.
@@ -440,21 +411,75 @@ Any other value is just returned."
   "Analog to `line-number-at-pos'."
   (save-excursion (goto-char pos) (current-column)))
 
+(defun cider-propertize (text kind)
+  "Propertize TEXT as KIND.
+KIND can be the symbols `ns', `var', `emph', or a face name."
+  (propertize text 'face (pcase kind
+                           (`var 'font-lock-function-name-face)
+                           (`ns 'font-lock-type-face)
+                           (`emph 'font-lock-keyword-face)
+                           (face face))))
+
+;;; Obsolete
 (defun cider-propertize-ns (ns)
   "Propertize NS."
-  (propertize ns 'face 'font-lock-type-face))
+  (cider-propertize ns 'ns))
+(make-obsolete 'cider-propertize-ns 'cider-propertize "0.11.0")
 
 (defun cider-propertize-var (var)
   "Propertize VAR."
-  (propertize var 'face 'font-lock-function-name-face))
+  (cider-propertize var 'var))
+(make-obsolete 'cider-propertize-var 'cider-propertize "0.11.0")
 
 (defun cider-propertize-emph (text)
   "Propertize TEXT."
-  (propertize text 'face 'font-lock-keyword-face))
+  (cider-propertize text 'emph))
+(make-obsolete 'cider-propertize-emph 'cider-propertize "0.11.0")
 
 (defun cider-propertize-bold (text)
   "Propertize TEXT."
-  (propertize text 'face 'bold))
+  (cider-propertize text 'bold))
+(make-obsolete 'cider-propertize-bold 'cider-propertize "0.11.0")
+
+(defun cider--region-for-defun-at-point ()
+  "Return the start and end position of defun at point."
+  (cider-defun-at-point 'bounds))
+(make-obsolete 'cider--region-for-defun-at-point 'cider-defun-at-point "0.11.0")
+
+(defun cider-defun-at-point-start-pos ()
+  "Return the starting position of the current defun."
+  (car (cider-defun-at-point 'bounds)))
+(make-obsolete 'cider-defun-at-point-start-pos 'cider-defun-at-point "0.11.0")
+
+(defun cider-defun-at-point-end-pos ()
+  "Return the end position of the current defun."
+  (cadr (cider-defun-at-point 'bounds)))
+(make-obsolete 'cider-defun-at-point-end-pos 'cider-defun-at-point "0.11.0")
+
+(defun cider-bounds-of-sexp-at-point ()
+  "Return the bounds sexp at point as a pair (or nil)."
+  (cider-sexp-at-point 'bounds))
+(make-obsolete 'cider-bounds-of-sexp-at-point 'cider-sexp-at-point "0.11.0")
+
+(defun cider-sexp-at-point-with-bounds ()
+  "Return a list containing the sexp at point and its bounds."
+  (let ((bounds (cider-sexp-at-point 'bounds)))
+    (if bounds
+        (let ((start (car bounds))
+              (end (cdr bounds)))
+          (list (buffer-substring-no-properties start end)
+                (cons (set-marker (make-marker) start)
+                      (set-marker (make-marker) end)))))))
+(make-obsolete 'cider-sexp-at-point-with-bounds 'cider-sexp-at-point "0.11.0")
+
+(defun cider-map-indexed (f list)
+  "Return a list of (F index item) for each item in LIST."
+  (let ((i 0)
+        (out))
+    (dolist (it list (nreverse out))
+      (push (funcall f i it) out)
+      (setq i (1+ i)))))
+(make-obsolete 'cider-map-indexed nil "0.11.0")
 
 (provide 'cider-util)
 

@@ -375,7 +375,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
       (cider-test-report-mode)
       (cider-insert "Test Summary" 'bold t)
       (dolist (ns (nrepl-dict-keys results))
-        (insert (cider-propertize-ns ns) "\n"))
+        (insert (cider-propertize ns 'ns) "\n"))
       (cider-insert "\n")
       (cider-test-render-summary buffer summary)
       (nrepl-dbind-response summary (fail error)
@@ -391,7 +391,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                        (count (length problems)))
                   (when (< 0 count)
                     (insert (format "%s\n%d non-passing tests:\n\n"
-                                    (cider-propertize-ns ns) count))
+                                    (cider-propertize ns 'ns) count))
                     (dolist (test problems)
                       (cider-test-render-assertion buffer test)))))
               vars))
@@ -405,11 +405,12 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test-echo-running (ns)
   "Echo a running message for the test NS, which may be a keyword."
   (message "Running tests in %s..."
-           (concat (cider-propertize-ns
+           (concat (cider-propertize
                     (cond ((stringp ns) ns)
                           ((eq :non-passing ns) "failing")
                           ((eq :loaded ns)  "all loaded")
-                          ((eq :project ns) "all project")))
+                          ((eq :project ns) "all project"))
+                    'ns)
                    (unless (stringp ns) " namespaces"))))
 
 (defun cider-test-echo-summary (summary results)
@@ -421,7 +422,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                           ((not (zerop fail))  'cider-test-failure-face)
                           (t                   'cider-test-success-face)))
              (concat (if (= 1 ns) ; ns count from summary
-                         (cider-propertize-ns (car (nrepl-dict-keys results)))
+                         (cider-propertize (car (nrepl-dict-keys results)) 'ns)
                        (propertize (format "%d namespaces" ns) 'face 'default))
                      (propertize ": " 'face 'default))
              test fail error)))
@@ -550,7 +551,7 @@ are highlighted."
       (lambda (response)
         (nrepl-dbind-response response (summary results status out err)
           (cond ((member "namespace-not-found" status)
-                 (message "No test namespace: %s" (cider-propertize-ns ns)))
+                 (message "No test namespace: %s" (cider-propertize ns 'ns)))
                 (out (cider-emit-interactive-eval-output out))
                 (err (cider-emit-interactive-eval-err-output err))
                 (results

@@ -1005,13 +1005,14 @@ Clears any compilation highlights and kills the error window."
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
 
-(defun cider-interactive-eval (form &optional callback bounds)
+(defun cider-interactive-eval (form &optional callback bounds additional-params)
   "Evaluate FORM and dispatch the response to CALLBACK.
 This function is the main entry point in CIDER's interactive evaluation
 API.  Most other interactive eval functions should rely on this function.
 If CALLBACK is nil use `cider-interactive-eval-handler'.
 BOUNDS, if non-nil, is a list of two numbers marking the start and end
 positions of FORM in its buffer.
+ADDITIONAL-PARAMS is a plist to be appended to the request message.
 
 If `cider-interactive-eval-override' is a function, call it with the same
 arguments and only proceed with evaluation if it returns nil."
@@ -1031,22 +1032,8 @@ arguments and only proceed with evaluation if it returns nil."
        ;; otherwise trying to eval ns form for the first time will produce an error
        (if (cider-ns-form-p form) "user" (cider-current-ns))
        (when start (line-number-at-pos start))
-       (when start (cider-column-number-at-pos start))))))
-
-(defun cider-interactive-pprint-eval (form &optional callback right-margin)
-  "Evaluate FORM and dispatch the response to CALLBACK.
-This function is the same as `cider-interactive-eval', except the result is
-pretty-printed to *out*.  RIGHT-MARGIN specifies the maximum column width of
-the printed result, and defaults to `fill-column'."
-  (cider--prep-interactive-eval form)
-  (cider-nrepl-request:pprint-eval
-   form
-   (or callback (cider-interactive-eval-handler))
-   ;; always eval ns forms in the user namespace
-   ;; otherwise trying to eval ns form for the first time will produce an error
-   (if (cider-ns-form-p form) "user" (cider-current-ns))
-   (or right-margin fill-column)
-   (cider--pprint-fn)))
+       (when start (cider-column-number-at-pos start))
+       additional-params))))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
@@ -1077,10 +1064,8 @@ If invoked with a PREFIX argument, print the result in the current buffer."
 With a prefix arg, LOC, insert before the form, otherwise afterwards."
   (interactive "P")
   (let ((defun-at-point (cider-defun-at-point))
-        (insertion-point
-         (if loc
-             (cider-defun-at-point-start-pos)
-           (cider-defun-at-point-end-pos))))
+        (insertion-point (nth (if loc 0 1)
+                              (cider-defun-at-point 'bounds))))
     (cider-interactive-eval defun-at-point
                             (cider-eval-print-with-comment-handler
                              (current-buffer) insertion-point
@@ -1110,7 +1095,8 @@ Print its value into the current buffer."
          (handler (cider-popup-eval-out-handler result-buffer))
          (right-margin (max fill-column
                             (1- (window-width (get-buffer-window result-buffer))))))
-    (cider-interactive-pprint-eval form handler right-margin)))
+    (cider-interactive-eval form handler nil
+                            (cider--nrepl-pprint-request-plist (or right-margin fill-column)))))
 
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
@@ -1131,7 +1117,7 @@ command `cider-debug-defun-at-point'."
    (concat (if debug-it "#dbg\n")
            (cider-defun-at-point))
    nil
-   (cider--region-for-defun-at-point)))
+   (cider-defun-at-point 'bounds)))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the \"top-level\" form at point and pprint its value in a popup buffer."
@@ -1261,9 +1247,9 @@ See command `cider-mode'."
          (var-name (nrepl-dict-get trace-response "var-name"))
          (var-status (nrepl-dict-get trace-response "var-status")))
     (pcase var-status
-      ("not-found" (error "Var %s not found" (cider-propertize-var sym)))
-      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize-var var-name)))
-      (_ (message "Var %s %s" (cider-propertize-var var-name) var-status)))))
+      ("not-found" (error "Var %s not found" (cider-propertize sym 'var)))
+      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize var-name 'var)))
+      (_ (message "Var %s %s" (cider-propertize var-name 'var) var-status)))))
 
 (defun cider-toggle-trace-var (arg)
   "Toggle var tracing.
@@ -1299,8 +1285,8 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
          (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
                 (ns-status (nrepl-dict-get trace-response "ns-status")))
            (pcase ns-status
-             ("not-found" (error "Namespace %s not found" (cider-propertize-ns ns)))
-             (_ (message "Namespace %s %s" (cider-propertize-ns ns) ns-status)))))))
+             ("not-found" (error "Namespace %s not found" (cider-propertize ns 'ns)))
+             (_ (message "Namespace %s %s" (cider-propertize ns 'ns) ns-status)))))))
    :clj))
 
 (defun cider-undef ()
@@ -1603,7 +1589,7 @@ and all ancillary CIDER buffers."
         (message "All active nREPL connections were closed"))
     (let ((connection (cider-current-connection)))
       (when (y-or-n-p (format "Are you sure you want to quit the current CIDER connection %s? "
-                              (cider-propertize-bold (buffer-name connection))))
+                              (cider-propertize (buffer-name connection) 'bold)))
         (cider--quit-connection connection))))
   ;; if there are no more connections we can kill all ancillary buffers
   (unless (cider-connected-p)
@@ -1617,7 +1603,7 @@ and all ancillary CIDER buffers."
     ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
     ;; TODO: Find a better way to ensure `cider-quit' has finished
     (message "Waiting for CIDER connection %s to quit..."
-             (cider-propertize-bold buf-name))
+             (cider-propertize buf-name 'bold))
     (sleep-for 2)
     (if project-dir
         (let ((default-directory project-dir))
@@ -1662,7 +1648,7 @@ With a prefix argument, prompt for function to run instead of -main."
                                         completions nil t nil
                                         'cider--namespace-history def)
                        name))))
-        (user-error "No %s var defined in any namespace" (cider-propertize-var name))))))
+        (user-error "No %s var defined in any namespace" (cider-propertize name 'var))))))
 
 (defconst cider-manual-url "https://github.com/clojure-emacs/cider/blob/master/README.md"
   "The URL to CIDER's manual.")
@@ -1681,5 +1667,20 @@ With a prefix argument, prompt for function to run instead of -main."
   (browse-url cider-report-bug-url))
 
 (provide 'cider-interaction)
+
+;;; Obsolete
+(defun cider-interactive-pprint-eval (form &optional callback right-margin)
+  "Evaluate FORM and dispatch the response to CALLBACK.
+This function is the same as `cider-interactive-eval', except the result is
+pretty-printed to *out*.  RIGHT-MARGIN specifies the maximum column width of
+the printed result, and defaults to `fill-column'."
+  (cider-interactive-eval
+   form
+   (or callback (cider-interactive-eval-handler))
+   nil
+   (cider--nrepl-pprint-request-plist (or right-margin fill-column))))
+(make-obsolete 'cider-interactive-pprint-eval
+               "`cider-interactive-eval' with `cider--nrepl-pprint-request-plist'"
+               "0.11.0")
 
 ;;; cider-interaction.el ends here

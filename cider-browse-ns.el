@@ -88,7 +88,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
     (let ((inhibit-read-only t))
       (unless noerase (erase-buffer))
       (goto-char (point-max))
-      (insert (cider-propertize-ns title) "\n")
+      (insert (cider-propertize title 'ns) "\n")
       (dolist (item items)
         (insert (propertize (concat "  " item "\n")
                             'cider-browse-ns-current-ns ns)))

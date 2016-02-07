@@ -558,10 +558,11 @@ Return the id of the sent message."
       (nrepl--mark-id-completed id))
     id))
 
-(defun cider-nrepl-request:eval (input callback &optional ns line column)
+(defun cider-nrepl-request:eval (input callback &optional ns line column additional-params)
   "Send the request INPUT and register the CALLBACK as the response handler.
 If NS is non-nil, include it in the request. LINE and COLUMN, if non-nil, define
-the position of INPUT in its buffer."
+the position of INPUT in its buffer.
+ADDITIONAL-PARAMS is a plist to be appended to the request message."
   (let ((connection (cider-current-connection)))
     (nrepl-request:eval input
                         (if cider-show-eval-spinner
@@ -569,7 +570,7 @@ the position of INPUT in its buffer."
                           callback)
                         connection
                         (cider-current-session)
-                        ns line column)
+                        ns line column additional-params)
     (cider-spinner-start connection)))
 
 (defun cider-nrepl-sync-request:eval (input &optional ns)
@@ -616,26 +617,14 @@ with respect to the bound values of \\=`*print-length*\\=`, \\=`*print-level*\\=
     (`puget "cider.nrepl.middleware.pprint/puget-pprint")
     (_ cider-pprint-fn)))
 
-(defun cider--nrepl-pprint-eval-request (input session &optional ns right-margin pprint-fn)
-  "Prepare :pprint-eval request message for INPUT.
-SESSION and NS are used for the context of the evaluation.
+(defun cider--nrepl-pprint-request-plist (right-margin &optional pprint-fn)
+  "Plist to be appended to an eval request to make it use pprint.
+PPRINT-FN is the name of the Clojure function to use.
 RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
 result, and is included in the request if non-nil."
-  (append (list "pprint" "true")
-          (and pprint-fn (list "pprint-fn" pprint-fn))
-          (and right-margin (list "print-right-margin" right-margin))
-          (nrepl--eval-request input session ns)))
-
-(defun cider-nrepl-request:pprint-eval (input callback &optional ns right-margin pprint-fn)
-  "Send the request INPUT and register the CALLBACK as the response handler.
-The request is dispatched via CONNECTION and SESSION.
-If NS is non-nil, include it in the request.
-RIGHT-MARGIN specifies the maximum column width of the
-pretty-printed result, and is included in the request if non-nil."
-  (cider-nrepl-send-request
-   (cider--nrepl-pprint-eval-request input (cider-current-session) ns right-margin pprint-fn)
-   callback))
-
+  (append (list "pprint" "true"
+                "pprint-fn" (or pprint-fn (cider--pprint-fn)))
+          (and right-margin (list "print-right-margin" right-margin))))
 
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
@@ -867,8 +856,7 @@ CONTEXT represents a completion context for compliment."
   (let* ((response (thread-first (list "op" "format-edn"
                                        "session" (cider-current-session)
                                        "edn" edn)
-                     (append (and right-margin (list "print-right-margin" right-margin))
-                             (and (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn))))
+                     (append (cider--nrepl-pprint-request-plist right-margin))
                      (cider-nrepl-send-sync-request)))
          (err (nrepl-dict-get response "err")))
     (when err
@@ -1006,6 +994,28 @@ Buffer names changed are cider-repl and nrepl-server."
           (with-current-buffer nrepl-server-buffer
             (rename-buffer new-server-buffer-name)))))
     (message "CIDER buffer designation changed to: %s" designation)))
+
+;;; Obsolete
+(defun cider--nrepl-pprint-eval-request (input session &optional ns right-margin pprint-fn)
+  "Prepare :pprint-eval request message for INPUT.
+PPRINT-FN and RIGHT-MARGIN are pased to `cider--nrepl-pprint-request-plist'.
+INPUT, SESSION, and NS are passed to `nrepl--eval-request'."
+  (append (cider--nrepl-pprint-request-plist right-margin pprint-fn)
+          (nrepl--eval-request input session ns)))
+(make-obsolete 'cider--nrepl-pprint-eval-request 'cider--nrepl-pprint-request-plist "0.11.0")
+
+(defun cider-nrepl-request:pprint-eval (input callback &optional ns right-margin pprint-fn)
+  "Send the request INPUT and register the CALLBACK as the response handler.
+The request is dispatched via CONNECTION and SESSION.
+If NS is non-nil, include it in the request.
+RIGHT-MARGIN specifies the maximum column width of the
+pretty-printed result, and is included in the request if non-nil."
+  (cider-nrepl-send-request
+   (cider--nrepl-pprint-eval-request input (cider-current-session) ns right-margin pprint-fn)
+   callback))
+(make-obsolete 'cider-nrepl-request:pprint-eval
+               "`cider-nrepl-request:eval' with `cider--nrepl-pprint-request-plist'"
+               "0.11.0")
 
 (provide 'cider-client)
 

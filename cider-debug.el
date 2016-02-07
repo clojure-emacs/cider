@@ -242,7 +242,7 @@ Each element of LOCALS should be a list of at least two elements."
                        'before-string (cider--debug-prompt input-type))
         (setq cider--debug-prompt-overlay
               (cider--make-overlay
-               (max (cider-defun-at-point-start-pos)
+               (max (car (cider-defun-at-point 'bounds))
                     (window-start))
                nil 'debug-prompt
                'before-string (cider--debug-prompt input-type)))))
