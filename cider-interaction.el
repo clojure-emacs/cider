@@ -1005,13 +1005,14 @@ Clears any compilation highlights and kills the error window."
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
 
-(defun cider-interactive-eval (form &optional callback bounds)
+(defun cider-interactive-eval (form &optional callback bounds additional-params)
   "Evaluate FORM and dispatch the response to CALLBACK.
 This function is the main entry point in CIDER's interactive evaluation
 API.  Most other interactive eval functions should rely on this function.
 If CALLBACK is nil use `cider-interactive-eval-handler'.
 BOUNDS, if non-nil, is a list of two numbers marking the start and end
 positions of FORM in its buffer.
+ADDITIONAL-PARAMS is a plist to be appended to the request message.
 
 If `cider-interactive-eval-override' is a function, call it with the same
 arguments and only proceed with evaluation if it returns nil."
@@ -1031,22 +1032,8 @@ arguments and only proceed with evaluation if it returns nil."
        ;; otherwise trying to eval ns form for the first time will produce an error
        (if (cider-ns-form-p form) "user" (cider-current-ns))
        (when start (line-number-at-pos start))
-       (when start (cider-column-number-at-pos start))))))
-
-(defun cider-interactive-pprint-eval (form &optional callback right-margin)
-  "Evaluate FORM and dispatch the response to CALLBACK.
-This function is the same as `cider-interactive-eval', except the result is
-pretty-printed to *out*.  RIGHT-MARGIN specifies the maximum column width of
-the printed result, and defaults to `fill-column'."
-  (cider--prep-interactive-eval form)
-  (cider-nrepl-request:pprint-eval
-   form
-   (or callback (cider-interactive-eval-handler))
-   ;; always eval ns forms in the user namespace
-   ;; otherwise trying to eval ns form for the first time will produce an error
-   (if (cider-ns-form-p form) "user" (cider-current-ns))
-   (or right-margin fill-column)
-   (cider--pprint-fn)))
+       (when start (cider-column-number-at-pos start))
+       additional-params))))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
@@ -1110,7 +1097,8 @@ Print its value into the current buffer."
          (handler (cider-popup-eval-out-handler result-buffer))
          (right-margin (max fill-column
                             (1- (window-width (get-buffer-window result-buffer))))))
-    (cider-interactive-pprint-eval form handler right-margin)))
+    (cider-interactive-eval form handler nil
+                            (cider--nrepl-pprint-request-plist (or right-margin fill-column)))))
 
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
@@ -1681,5 +1669,20 @@ With a prefix argument, prompt for function to run instead of -main."
   (browse-url cider-report-bug-url))
 
 (provide 'cider-interaction)
+
+;;; Obsolete
+(defun cider-interactive-pprint-eval (form &optional callback right-margin)
+  "Evaluate FORM and dispatch the response to CALLBACK.
+This function is the same as `cider-interactive-eval', except the result is
+pretty-printed to *out*.  RIGHT-MARGIN specifies the maximum column width of
+the printed result, and defaults to `fill-column'."
+  (cider-interactive-eval
+   form
+   (or callback (cider-interactive-eval-handler))
+   nil
+   (cider--nrepl-pprint-request-plist (or right-margin fill-column))))
+(make-obsolete 'cider-interactive-pprint-eval
+               "`cider-interactive-eval' with `cider--nrepl-pprint-request-plist'"
+               "0.11.0")
 
 ;;; cider-interaction.el ends here
