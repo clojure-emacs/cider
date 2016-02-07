@@ -109,14 +109,6 @@ instead."
       (goto-char (match-beginning 0))
       (cider-defun-at-point))))
 
-(defun cider-map-indexed (f list)
-  "Return a list of (F index item) for each item in LIST."
-  (let ((i 0)
-        (out))
-    (dolist (it list (nreverse out))
-      (push (funcall f i it) out)
-      (setq i (1+ i)))))
-
 (defun cider-symbol-at-point (&optional look-back)
   "Return the name of the symbol at point, otherwise nil.
 Ignores the REPL prompt.  If LOOK-BACK is non-nil, move backwards trying to
@@ -177,9 +169,11 @@ Can only error if SKIP is non-nil."
   "If NAME is a symbol, return it; otherwise, intern it."
   (if (symbolp name) name (intern name)))
 
-(defun cider-intern-keys (props)
-  "Copy plist-style PROPS with any non-symbol keys replaced with symbols."
-  (cider-map-indexed (lambda (i x) (if (cl-oddp i) x (cider-maybe-intern x))) props))
+(defun cider-intern-keys (plist)
+  "Copy PLIST, with any non-symbol keys replaced with symbols."
+  (when plist
+    (cons (cider-maybe-intern (pop plist))
+          (cons (pop plist) (cider-intern-keys plist)))))
 
 (defmacro cider-propertize-region (props &rest body)
   "Execute BODY and add PROPS to all the text it inserts.
@@ -477,6 +471,15 @@ KIND can be the symbols `ns', `var', `emph', or a face name."
                 (cons (set-marker (make-marker) start)
                       (set-marker (make-marker) end)))))))
 (make-obsolete 'cider-sexp-at-point-with-bounds 'cider-sexp-at-point "0.11.0")
+
+(defun cider-map-indexed (f list)
+  "Return a list of (F index item) for each item in LIST."
+  (let ((i 0)
+        (out))
+    (dolist (it list (nreverse out))
+      (push (funcall f i it) out)
+      (setq i (1+ i)))))
+(make-obsolete 'cider-map-indexed nil "0.11.0")
 
 (provide 'cider-util)
 
