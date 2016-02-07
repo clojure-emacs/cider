@@ -1156,6 +1156,8 @@ constructs."
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
+    (define-key map (kbd "C-c ,")   'cider-test-commands-map)
+    (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
     (define-key map (kbd "M-,") #'cider-pop-back)
