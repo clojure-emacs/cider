@@ -1063,13 +1063,12 @@ If invoked with a PREFIX argument, print the result in the current buffer."
 
 With a prefix arg, LOC, insert before the form, otherwise afterwards."
   (interactive "P")
-  (let ((defun-at-point (cider-defun-at-point))
-        (insertion-point (nth (if loc 0 1)
-                              (cider-defun-at-point 'bounds))))
-    (cider-interactive-eval defun-at-point
+  (let* ((bounds (cider-defun-at-point 'bounds))
+         (insertion-point (nth (if loc 0 1) bounds)))
+    (cider-interactive-eval nil
                             (cider-eval-print-with-comment-handler
-                             (current-buffer) insertion-point
-                             ";; => "))))
+                             (current-buffer) insertion-point ";; => ")
+                            bounds)))
 
 (declare-function cider-switch-to-repl-buffer "cider-mode")
 
@@ -1077,8 +1076,9 @@ With a prefix arg, LOC, insert before the form, otherwise afterwards."
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider-interactive-eval (cider-last-sexp)
-                          (cider-insert-eval-handler (cider-current-connection)))
+  (cider-interactive-eval nil
+                          (cider-insert-eval-handler (cider-current-connection))
+                          (cider-last-sexp 'bounds))
   (when prefix
     (cider-switch-to-repl-buffer)))
 
@@ -1086,8 +1086,9 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
   "Evaluate the expression preceding point.
 Print its value into the current buffer."
   (interactive)
-  (cider-interactive-eval (cider-last-sexp)
-                          (cider-eval-print-handler)))
+  (cider-interactive-eval nil
+                          (cider-eval-print-handler)
+                          (cider-last-sexp 'bounds)))
 
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
@@ -1095,13 +1096,15 @@ Print its value into the current buffer."
          (handler (cider-popup-eval-out-handler result-buffer))
          (right-margin (max fill-column
                             (1- (window-width (get-buffer-window result-buffer))))))
-    (cider-interactive-eval form handler nil
+    (cider-interactive-eval (when (stringp form) form)
+                            handler
+                            (when (consp form) form)
                             (cider--nrepl-pprint-request-plist (or right-margin fill-column)))))
 
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
   (interactive)
-  (cider--pprint-eval-form (cider-last-sexp)))
+  (cider--pprint-eval-form (cider-last-sexp 'bounds)))
 
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
@@ -1122,7 +1125,7 @@ command `cider-debug-defun-at-point'."
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the \"top-level\" form at point and pprint its value in a popup buffer."
   (interactive)
-  (cider--pprint-eval-form (cider-defun-at-point)))
+  (cider--pprint-eval-form (cider-defun-at-point 'bounds)))
 
 (defun cider-eval-ns-form (&optional sync)
   "Evaluate the current buffer's namespace form.
