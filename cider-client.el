@@ -466,12 +466,13 @@ Value is a symbol.  The possible values are the symbols in the
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defun cider-spinner-start ()
-  "Start the evaluation spinner.
+(defun cider-spinner-start (buffer)
+  "Start the evaluation spinner in BUFFER.
 Do nothing if `cider-show-eval-spinner' is nil."
   (when cider-show-eval-spinner
-    (spinner-start cider-eval-spinner-type nil
-                   cider-eval-spinner-delay)))
+    (with-current-buffer buffer
+      (spinner-start cider-eval-spinner-type nil
+                     cider-eval-spinner-delay))))
 
 (defun cider-eval-spinner-handler (eval-buffer original-callback)
   "Return a response handler that stops the spinner and calls ORIGINAL-CALLBACK.
@@ -561,13 +562,15 @@ Return the id of the sent message."
   "Send the request INPUT and register the CALLBACK as the response handler.
 If NS is non-nil, include it in the request. LINE and COLUMN, if non-nil, define
 the position of INPUT in its buffer."
-  (nrepl-request:eval input
-                      callback
-                      (cider-current-connection)
-                      (cider-current-session)
-                      ns
-                      line
-                      column))
+  (let ((connection (cider-current-connection)))
+    (nrepl-request:eval input
+                        (if cider-show-eval-spinner
+                            (cider-eval-spinner-handler connection callback)
+                          callback)
+                        connection
+                        (cider-current-session)
+                        ns line column)
+    (cider-spinner-start connection)))
 
 (defun cider-nrepl-sync-request:eval (input &optional ns)
   "Send the INPUT to the nREPL server synchronously.

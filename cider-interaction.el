@@ -1016,14 +1016,9 @@ arguments and only proceed with evaluation if it returns nil."
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
       (cider--prep-interactive-eval form)
-      (cider-spinner-start)
       (cider-nrepl-request:eval
        form
-       (if cider-show-eval-spinner
-           (cider-eval-spinner-handler
-            (current-buffer)
-            (or callback (cider-interactive-eval-handler nil end)))
-         (or callback (cider-interactive-eval-handler nil end)))
+       (or callback (cider-interactive-eval-handler nil end))
        ;; always eval ns forms in the user namespace
        ;; otherwise trying to eval ns form for the first time will produce an error
        (if (cider-ns-form-p form) "user" (cider-current-ns))
