@@ -203,7 +203,7 @@ Can only error if SKIP is non-nil."
 More precisely, PROPS are added to the region between the point's
 positions before and after executing BODY."
   (declare (indent 1))
-  (let ((start (cl-gensym)))
+  (let ((start (make-symbol "start")))
     `(let ((,start (point)))
        (prog1 (progn ,@body)
          (add-text-properties ,start (point) ,props)))))
