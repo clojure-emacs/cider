@@ -90,27 +90,15 @@ If BUFFER is provided act on that buffer instead."
 
 
 ;;; Thing at point
-(defun cider-defun-at-point ()
+(defun cider-defun-at-point (&optional bounds)
   "Return the text of the top-level sexp at point."
-  (apply #'buffer-substring-no-properties
-         (cider--region-for-defun-at-point)))
-
-(defun cider--region-for-defun-at-point ()
-  "Return the start and end position of defun at point."
   (save-excursion
     (save-match-data
       (end-of-defun)
       (let ((end (point)))
         (clojure-backward-logical-sexp 1)
-        (list (point) end)))))
-
-(defun cider-defun-at-point-start-pos ()
-  "Return the starting position of the current defun."
-  (car (cider--region-for-defun-at-point)))
-
-(defun cider-defun-at-point-end-pos ()
-  "Return the end position of the current defun."
-  (cadr (cider--region-for-defun-at-point)))
+        (funcall (if bounds #'list #'buffer-substring-no-properties)
+                 (point) end)))))
 
 (defun cider-ns-form ()
   "Retrieve the ns form."
@@ -455,6 +443,22 @@ Any other value is just returned."
 (defun cider-propertize-bold (text)
   "Propertize TEXT."
   (propertize text 'face 'bold))
+
+;;; Obsolete
+(defun cider--region-for-defun-at-point ()
+  "Return the start and end position of defun at point."
+  (cider-defun-at-point 'bounds))
+(make-obsolete 'cider--region-for-defun-at-point 'cider-defun-at-point "0.11.0")
+
+(defun cider-defun-at-point-start-pos ()
+  "Return the starting position of the current defun."
+  (car (cider-defun-at-point 'bounds)))
+(make-obsolete 'cider-defun-at-point-start-pos 'cider-defun-at-point "0.11.0")
+
+(defun cider-defun-at-point-end-pos ()
+  "Return the end position of the current defun."
+  (cadr (cider-defun-at-point 'bounds)))
+(make-obsolete 'cider-defun-at-point-end-pos 'cider-defun-at-point "0.11.0")
 
 (provide 'cider-util)
 

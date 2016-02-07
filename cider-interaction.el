@@ -1064,10 +1064,8 @@ If invoked with a PREFIX argument, print the result in the current buffer."
 With a prefix arg, LOC, insert before the form, otherwise afterwards."
   (interactive "P")
   (let ((defun-at-point (cider-defun-at-point))
-        (insertion-point
-         (if loc
-             (cider-defun-at-point-start-pos)
-           (cider-defun-at-point-end-pos))))
+        (insertion-point (nth (if loc 0 1)
+                              (cider-defun-at-point 'bounds))))
     (cider-interactive-eval defun-at-point
                             (cider-eval-print-with-comment-handler
                              (current-buffer) insertion-point
@@ -1119,7 +1117,7 @@ command `cider-debug-defun-at-point'."
    (concat (if debug-it "#dbg\n")
            (cider-defun-at-point))
    nil
-   (cider--region-for-defun-at-point)))
+   (cider-defun-at-point 'bounds)))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the \"top-level\" form at point and pprint its value in a popup buffer."

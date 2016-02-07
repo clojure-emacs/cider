@@ -530,6 +530,18 @@
   (noflet ((thing-at-point (thing) "boogie>"))
     (should (string= (cider-symbol-at-point) "boogie>"))))
 
+(ert-deftest cider-defun-at-point ()
+  (with-temp-buffer
+    (clojure-mode)
+    (insert "a\n\n(defn ...)")
+    (save-excursion (insert "\n\nb"))
+    (should (string= (cider-defun-at-point) "(defn ...)\n"))
+    (forward-sexp -1)
+    (should (string= (cider-defun-at-point) "(defn ...)\n"))
+    (should (equal (cider-defun-at-point 'bounds) '(4 15)))
+    (forward-sexp 1)
+    (should (equal (cider-defun-at-point 'bounds) '(4 15)))))
+
 (ert-deftest cider-repl-prompt-function ()
   (should (equal (cider-repl-prompt-default "some.pretty.long.namespace.name")
                  "some.pretty.long.namespace.name> "))
