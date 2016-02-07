@@ -417,23 +417,36 @@ Any other value is just returned."
   "Analog to `line-number-at-pos'."
   (save-excursion (goto-char pos) (current-column)))
 
+(defun cider-propertize (text kind)
+  "Propertize TEXT as KIND.
+KIND can be the symbols `ns', `var', `emph', or a face name."
+  (propertize text 'face (pcase kind
+                           (`var 'font-lock-function-name-face)
+                           (`ns 'font-lock-type-face)
+                           (`emph 'font-lock-keyword-face)
+                           (face face))))
+
+;;; Obsolete
 (defun cider-propertize-ns (ns)
   "Propertize NS."
-  (propertize ns 'face 'font-lock-type-face))
+  (cider-propertize ns 'ns))
+(make-obsolete 'cider-propertize-ns 'cider-propertize "0.11.0")
 
 (defun cider-propertize-var (var)
   "Propertize VAR."
-  (propertize var 'face 'font-lock-function-name-face))
+  (cider-propertize var 'var))
+(make-obsolete 'cider-propertize-var 'cider-propertize "0.11.0")
 
 (defun cider-propertize-emph (text)
   "Propertize TEXT."
-  (propertize text 'face 'font-lock-keyword-face))
+  (cider-propertize text 'emph))
+(make-obsolete 'cider-propertize-emph 'cider-propertize "0.11.0")
 
 (defun cider-propertize-bold (text)
   "Propertize TEXT."
-  (propertize text 'face 'bold))
+  (cider-propertize text 'bold))
+(make-obsolete 'cider-propertize-bold 'cider-propertize "0.11.0")
 
-;;; Obsolete
 (defun cider--region-for-defun-at-point ()
   "Return the start and end position of defun at point."
   (cider-defun-at-point 'bounds))

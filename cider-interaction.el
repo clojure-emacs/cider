@@ -1247,9 +1247,9 @@ See command `cider-mode'."
          (var-name (nrepl-dict-get trace-response "var-name"))
          (var-status (nrepl-dict-get trace-response "var-status")))
     (pcase var-status
-      ("not-found" (error "Var %s not found" (cider-propertize-var sym)))
-      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize-var var-name)))
-      (_ (message "Var %s %s" (cider-propertize-var var-name) var-status)))))
+      ("not-found" (error "Var %s not found" (cider-propertize sym 'var)))
+      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize var-name 'var)))
+      (_ (message "Var %s %s" (cider-propertize var-name 'var) var-status)))))
 
 (defun cider-toggle-trace-var (arg)
   "Toggle var tracing.
@@ -1285,8 +1285,8 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
          (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
                 (ns-status (nrepl-dict-get trace-response "ns-status")))
            (pcase ns-status
-             ("not-found" (error "Namespace %s not found" (cider-propertize-ns ns)))
-             (_ (message "Namespace %s %s" (cider-propertize-ns ns) ns-status)))))))
+             ("not-found" (error "Namespace %s not found" (cider-propertize ns 'ns)))
+             (_ (message "Namespace %s %s" (cider-propertize ns 'ns) ns-status)))))))
    :clj))
 
 (defun cider-undef ()
@@ -1589,7 +1589,7 @@ and all ancillary CIDER buffers."
         (message "All active nREPL connections were closed"))
     (let ((connection (cider-current-connection)))
       (when (y-or-n-p (format "Are you sure you want to quit the current CIDER connection %s? "
-                              (cider-propertize-bold (buffer-name connection))))
+                              (cider-propertize (buffer-name connection) 'bold)))
         (cider--quit-connection connection))))
   ;; if there are no more connections we can kill all ancillary buffers
   (unless (cider-connected-p)
@@ -1603,7 +1603,7 @@ and all ancillary CIDER buffers."
     ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
     ;; TODO: Find a better way to ensure `cider-quit' has finished
     (message "Waiting for CIDER connection %s to quit..."
-             (cider-propertize-bold buf-name))
+             (cider-propertize buf-name 'bold))
     (sleep-for 2)
     (if project-dir
         (let ((default-directory project-dir))
@@ -1648,7 +1648,7 @@ With a prefix argument, prompt for function to run instead of -main."
                                         completions nil t nil
                                         'cider--namespace-history def)
                        name))))
-        (user-error "No %s var defined in any namespace" (cider-propertize-var name))))))
+        (user-error "No %s var defined in any namespace" (cider-propertize name 'var))))))
 
 (defconst cider-manual-url "https://github.com/clojure-emacs/cider/blob/master/README.md"
   "The URL to CIDER's manual.")
