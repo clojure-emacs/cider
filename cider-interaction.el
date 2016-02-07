@@ -240,11 +240,13 @@ All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
     map)
   "Minibuffer keymap used for reading Clojure expressions.")
 
-(defun cider-read-from-minibuffer (prompt &optional initial-value)
+(defun cider-read-from-minibuffer (prompt &optional value)
   "Read a string from the minibuffer, prompting with PROMPT.
-If INITIAL-VALUE is non-nil, it is inserted into the minibuffer before
-reading input.
-PROMPT need not end with \": \"."
+If VALUE is non-nil, it is inserted into the minibuffer as initial-input.
+
+PROMPT need not end with \": \". If it doesn't, VALUE is displayed on the
+prompt as a default value (used if the user doesn't type anything) and is
+not used as initial input (input is left empty)."
   (minibuffer-with-setup-hook
       (lambda ()
         (set-syntax-table clojure-mode-syntax-table)
@@ -252,10 +254,17 @@ PROMPT need not end with \": \"."
                   #'cider-complete-at-point nil t)
         (setq-local eldoc-documentation-function #'cider-eldoc)
         (run-hooks 'eval-expression-minibuffer-setup-hook))
-    (read-from-minibuffer (if (string-match ": \\'" prompt) prompt (concat prompt ": "))
-                          initial-value
-                          cider-minibuffer-map nil
-                          'cider-minibuffer-history)))
+    (let* ((use-default (and value (not (string-match ": \\'" prompt))))
+           (input (read-from-minibuffer (if use-default
+                                            (format "%s (default %s): " prompt value)
+                                          prompt)
+                                        (unless use-default value)
+                                        cider-minibuffer-map nil
+                                        'cider-minibuffer-history
+                                        (when use-default value))))
+      (if (and (equal input "") use-default)
+          value
+        input))))
 
 
 ;;; Utilities
