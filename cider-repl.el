@@ -36,6 +36,7 @@
 (require 'cider-common)
 (require 'cider-compat)
 (require 'cider-util)
+(require 'cider-test)
 
 (require 'clojure-mode)
 (require 'easymenu)
