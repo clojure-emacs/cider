@@ -22,7 +22,7 @@
 ;;; Commentary:
 
 ;; This provides execution, reporting, and navigation support for Clojure tests,
-;; specifically using the `clojure.test' machinery. This functionality replaces
+;; specifically using the `clojure.test' machinery.  This functionality replaces
 ;; the venerable `clojure-test-mode' (deprecated in June 2014), and relies on
 ;; nREPL middleware for report running and session support.
 
