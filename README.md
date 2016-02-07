@@ -176,27 +176,6 @@ You'll also need a recent version of your favorite build tool (Leiningen, Boot
 or Gradle) to be able to start CIDER via `cider-jack-in`. Generally it's a good
 idea to use their latest stable versions.
 
-#### Upgrading from nrepl.el
-
-Before installing CIDER make sure you've removed the old `nrepl.el`
-package and all packages that depend on it. Use only packages updated to work with CIDER!
-
-You'll also need to adjust your config accordingly, as most settings
-were renamed in CIDER. Consult the [Configuration](#configuration) section of the
-README for more details.
-
-If you were using
-[nrepl-ritz](https://github.com/pallet/ritz/tree/develop/nrepl), you'll also
-have to remove its plugin and middleware from your `profiles.clj` (or
-`project.clj`).
-
-#### Upgrading from clojure-test-mode
-
-CIDER 0.7 introduced a replacement for the deprecated `clojure-test-mode` called
-`cider-test`.  Please, make sure you've uninstalled `clojure-test-mode` if
-you're using CIDER 0.7 or newer, as `clojure-test-mode` sometimes interferes
-with CIDER's REPL initialization.
-
 ### Installation via package.el
 
 `package.el` is the built-in package manager in Emacs.
