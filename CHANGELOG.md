@@ -30,6 +30,7 @@ and try to associate the created connection with this project automatically.
 * Give test commands their own keybinding prefix (`C-c C-t`). Use both single-key and
   `Control` + letter mnemonics for these commands (as for the documentation
   commands).
+* `cider-test` commands now have keybindings in `cider-repl-mode`. The keybindings are exactly the same as those in `cider-mode`.
 
 ### Bugs fixed
 
