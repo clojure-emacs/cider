@@ -33,6 +33,7 @@
 (require 'seq)
 (require 'cl-lib)
 (require 'clojure-mode)
+(require 'cider-compat)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 (define-obsolete-function-alias 'cider-jump-back 'cider-pop-back "0.10.0")
@@ -136,12 +137,17 @@ If BUFFER is provided act on that buffer instead."
       (push (funcall f i it) out)
       (setq i (1+ i)))))
 
-(defun cider-symbol-at-point ()
-  "Return the name of the symbol at point, otherwise nil."
-  (let ((str (or (thing-at-point 'symbol) "")))
-    (if (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
-        ""
-      str)))
+(defun cider-symbol-at-point (&optional look-back)
+  "Return the name of the symbol at point, otherwise nil.
+Ignores the REPL prompt.  If LOOK-BACK is non-nil, move backwards trying to
+find a symbol if there isn't one at point."
+  (or (when-let ((str (thing-at-point 'symbol)))
+        (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
+          str))
+      (when look-back
+        (ignore-errors (backward-up-list)
+                       (skip-chars-backward "{\\[(#")
+                       (cider-symbol-at-point)))))
 
 
 ;;; sexp navigation
