@@ -614,7 +614,7 @@ current ns."
 (defun cider-test-run-test ()
   "Run the test at point.
 The test ns/var exist as text properties on report items and on highlighted
-failed/erred test definitions. When not found, a test definition at point
+failed/erred test definitions.  When not found, a test definition at point
 is searched."
   (interactive)
   (let ((ns  (get-text-property (point) 'ns))
