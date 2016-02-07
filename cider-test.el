@@ -134,6 +134,16 @@
     (define-key map (kbd "b")   #'cider-test-show-report)
     map))
 
+(defvar cider-test-menu
+  '("Test"
+    ["Run test" cider-test-run-test]
+    ["Run namespace tests" cider-test-run-ns-tests]
+    ["Run all loaded tests" cider-test-run-loaded-tests]
+    ["Run all project tests" cider-test-run-project-tests]
+    ["Rerun failed/erring tests" cider-test-rerun-tests]
+    ["Show test report" cider-test-show-report])
+  "CIDER test submenu.")
+
 (defvar cider-test-report-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c ,")   'cider-test-commands-map)

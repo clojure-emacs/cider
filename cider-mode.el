@@ -240,13 +240,7 @@ Returns to the buffer in which the command was invoked."
          ["Find definition" cider-find-var]
          ["Find resource" cider-find-resource]
          ["Go back" cider-pop-back])
-        ("Test"
-         ["Run test" cider-test-run-test]
-         ["Run namespace tests" cider-test-run-ns-tests]
-         ["Run all loaded tests" cider-test-run-loaded-tests]
-         ["Run all project tests" cider-test-run-project-tests]
-         ["Rerun failed/erring tests" cider-test-rerun-tests]
-         ["Show test report" cider-test-show-report])
+        ,cider-test-menu
         "--"
         ["Run project (-main function)" cider-run]
         ["Inspect" cider-inspect]

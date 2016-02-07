@@ -1213,6 +1213,8 @@ constructs."
          ["Macroexpand-1" cider-macroexpand-1]
          ["Macroexpand-all" cider-macroexpand-all])
         "--"
+        ,cider-test-menu
+        "--"
         ["Run project (-main function)" cider-run]
         ["Inspect" cider-inspect]
         ["Toggle var tracing" cider-toggle-trace-var]
