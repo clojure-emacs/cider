@@ -512,15 +512,21 @@
             (should (equal "<no designation>" (cider-extract-designation-from-current-repl-buffer)))))))))
 
 
+(ert-deftest cider-symbol-at-point-look-back ()
+  (with-temp-buffer
+    (insert "some-symbol    ")
+    (should (not (cider-symbol-at-point)))
+    (should (string= (cider-symbol-at-point 'look-back) "some-symbol"))))
+
 (ert-deftest cider-symbol-at-point-no-symbol ()
   (noflet ((thing-at-point (thing) nil))
-    (should (string= (cider-symbol-at-point) ""))))
+    (should (not (cider-symbol-at-point)))))
 
 (ert-deftest cider-symbol-at-point-at-repl-prompt ()
   (noflet ((thing-at-point (thing) (propertize "user>" 'field 'cider-repl-prompt)))
-    (should (string= (cider-symbol-at-point) "")))
+    (should (not (cider-symbol-at-point))))
   (noflet ((thing-at-point (thing) (propertize "boogie>" 'field 'cider-repl-prompt)))
-    (should (string= (cider-symbol-at-point) "")))
+    (should (not (cider-symbol-at-point))))
   (noflet ((thing-at-point (thing) "boogie>"))
     (should (string= (cider-symbol-at-point) "boogie>"))))
 
