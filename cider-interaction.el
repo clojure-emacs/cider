@@ -541,16 +541,15 @@ The formatting is performed by `cider-annotate-completion-function'."
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
-  (when-let ((sap (cider-symbol-at-point)))
+  (when-let ((bounds (bounds-of-thing-at-point 'symbol)))
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
-      (let ((bounds (bounds-of-thing-at-point 'symbol)))
-        (list (car bounds) (cdr bounds)
-              (completion-table-dynamic #'cider-complete)
-              :annotation-function #'cider-annotate-symbol
-              :company-doc-buffer #'cider-create-doc-buffer
-              :company-location #'cider-company-location
-              :company-docsig #'cider-company-docsig)))))
+      (list (car bounds) (cdr bounds)
+            (completion-table-dynamic #'cider-complete)
+            :annotation-function #'cider-annotate-symbol
+            :company-doc-buffer #'cider-create-doc-buffer
+            :company-location #'cider-company-location
+            :company-docsig #'cider-company-docsig))))
 
 (defun cider-company-location (var)
   "Open VAR's definition in a buffer.
