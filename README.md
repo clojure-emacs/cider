@@ -67,13 +67,13 @@ specific CIDER release.**
   - [Auto-completion](#auto-completion)
   - [Pretty-printing](#pretty-printing)
   - [Integration with other modes](#integration-with-other-modes)
+- [Quick reference](#quick-reference)
 - [Caveats](#caveats)
   - [Var Metadata](#var-metadata)
   - [ClojureScript limitations](#clojurescript-limitations)
   - [Microsoft Windows](#microsoft-windows)
   - [powershell.el](#powershell-el)
 - [Troubleshooting](#troubleshooting)
-- [Documentation](#documentation)
 - [Changelog](#changelog)
 - [Team](#team)
 - [Release policy](#release-policy)
@@ -1352,6 +1352,12 @@ CIDER integration for `eval-sexp-fu`.
 (require 'cider-eval-sexp-fu)
 ```
 
+## Quick reference
+
+A single-page quick reference PDF for CIDER commands is available
+[here](doc/cider-refcard.pdf). This PDF can be created manually by running
+`pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
+
 ## Caveats
 
 ### ClojureScript limitations
@@ -1493,12 +1499,6 @@ that the order here matters.
 
 Emacs doesn't load the new files, it only installs them on disk.  To see the
 effect of changes you have to restart emacs.
-
-## Documentation
-
-A single-page quick reference PDF for CIDER commands is available
-[here](doc/cider-refcard.pdf). This PDF can be created manually by running
-`pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
 
 ## Changelog
 
