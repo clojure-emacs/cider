@@ -91,7 +91,9 @@ If BUFFER is provided act on that buffer instead."
 
 ;;; Thing at point
 (defun cider-defun-at-point (&optional bounds)
-  "Return the text of the top-level sexp at point."
+  "Return the text of the top-level sexp at point.
+If BOUNDS is non-nil, return a list of its starting and ending position
+instead."
   (save-excursion
     (save-match-data
       (end-of-defun)
@@ -106,16 +108,6 @@ If BUFFER is provided act on that buffer instead."
     (save-excursion
       (goto-char (match-beginning 0))
       (cider-defun-at-point))))
-
-(defun cider-bounds-of-sexp-at-point ()
-  "Return the bounds sexp at point as a pair (or nil)."
-  (or (and (equal (char-after) ?\()
-           (member (char-before) '(?\' ?\, ?\@))
-           ;; hide stuff before ( to avoid quirks with '( etc.
-           (save-restriction
-             (narrow-to-region (point) (point-max))
-             (bounds-of-thing-at-point 'sexp)))
-      (bounds-of-thing-at-point 'sexp)))
 
 (defun cider-map-indexed (f list)
   "Return a list of (F index item) for each item in LIST."
@@ -139,22 +131,19 @@ find a symbol if there isn't one at point."
 
 
 ;;; sexp navigation
-(defun cider-sexp-at-point ()
-  "Return the sexp at point as a string, otherwise nil."
-  (let ((bounds (cider-bounds-of-sexp-at-point)))
-    (if bounds
-        (buffer-substring-no-properties (car bounds)
-                                        (cdr bounds)))))
-
-(defun cider-sexp-at-point-with-bounds ()
-  "Return a list containing the sexp at point and its bounds."
-  (let ((bounds (cider-bounds-of-sexp-at-point)))
-    (if bounds
-        (let ((start (car bounds))
-              (end (cdr bounds)))
-          (list (buffer-substring-no-properties start end)
-                (cons (set-marker (make-marker) start)
-                      (set-marker (make-marker) end)))))))
+(defun cider-sexp-at-point (&optional bounds)
+  "Return the sexp at point as a string, otherwise nil.
+If BOUNDS is non-nil, return a list of its starting and ending position
+instead."
+  (when-let ((b (or (and (equal (char-after) ?\()
+                         (member (char-before) '(?\' ?\, ?\@))
+                         ;; hide stuff before ( to avoid quirks with '( etc.
+                         (save-restriction
+                           (narrow-to-region (point) (point-max))
+                           (bounds-of-thing-at-point 'sexp)))
+                    (bounds-of-thing-at-point 'sexp))))
+    (funcall (if bounds #'list #'buffer-substring-no-properties)
+             (car b) (cdr b))))
 
 (defun cider-last-sexp (&optional bounds)
   "Return the sexp preceding the point.
@@ -459,6 +448,22 @@ Any other value is just returned."
   "Return the end position of the current defun."
   (cadr (cider-defun-at-point 'bounds)))
 (make-obsolete 'cider-defun-at-point-end-pos 'cider-defun-at-point "0.11.0")
+
+(defun cider-bounds-of-sexp-at-point ()
+  "Return the bounds sexp at point as a pair (or nil)."
+  (cider-sexp-at-point 'bounds))
+(make-obsolete 'cider-bounds-of-sexp-at-point 'cider-sexp-at-point "0.11.0")
+
+(defun cider-sexp-at-point-with-bounds ()
+  "Return a list containing the sexp at point and its bounds."
+  (let ((bounds (cider-sexp-at-point 'bounds)))
+    (if bounds
+        (let ((start (car bounds))
+              (end (cdr bounds)))
+          (list (buffer-substring-no-properties start end)
+                (cons (set-marker (make-marker) start)
+                      (set-marker (make-marker) end)))))))
+(make-obsolete 'cider-sexp-at-point-with-bounds 'cider-sexp-at-point "0.11.0")
 
 (provide 'cider-util)
 
