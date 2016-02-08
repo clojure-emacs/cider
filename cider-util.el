@@ -408,6 +408,31 @@ Any other value is just returned."
   (eval (nth (random (length cider-words-of-inspiration))
              cider-words-of-inspiration)))
 
+(defvar cider-tips
+  '("Press <\\[cider-view-manual]> to view CIDER's manual."
+    "Press <\\[describe-mode]> to see a list of the keybindings available (this will work in every Emacs buffer)"
+    "Press <\\[cider-repl-handle-shortcut]> to quickly invoke some REPL command"
+    "Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure source buffer"
+    "Press <\\[cider-find-var]> to jump to the source of something (e.g. a var, a Java method)"
+    "Press <\\[cider-doc]> to view the documentation for something (e.g. a var, a Java method)"
+    "Press <\\[cider-selector]> to quickly select a CIDER buffer or command."
+    "Press <\\[cider-test-run-ns-tests]> to run the tests for the current namespace."
+    "Press <\\[cider-test-run-loaded-tests]> to run all loaded tests."
+    "Press <\\[cider-test-run-project-tests]> to run all tests for the current project."
+    "Press <\\[cider-apropos]> to look for a symbol by some search string."
+    "Press <\\[cider-apropos-documentation]> to look for a symbol that has some string in its docstring.")
+  "Some handy CIDER tips."
+  )
+
+(defun cider-random-tip ()
+  "Select a random tip from `cider-tips'."
+  (substitute-command-keys (nth (random (length cider-tips)) cider-tips)))
+
+(defun cider-drink-a-sip ()
+  "Show a random tip."
+  (interactive)
+  (message (cider-random-tip)))
+
 (defun cider-column-number-at-pos (pos)
   "Analog to `line-number-at-pos'."
   (save-excursion (goto-char pos) (current-column)))

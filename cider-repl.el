@@ -313,7 +313,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ; * Press <\\[cider-doc]> to view the documentation for something (e.g. a var, a Java method)
 ;
 ; CIDER is super customizable - try <M-x customize-group cider> to get
-; a feel for this.
+; a feel for this. If you're thirsty for knowledge you should try <\\[cider-drink-a-sip]>.
 ;
 ; If you think you've encountered a bug (or have some suggestions for improvements) press <\\[cider-report-bug]>.
 ;
