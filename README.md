@@ -1107,7 +1107,7 @@ helpful for identifying each host.
 :user {:resource-paths ["/usr/share/doc/java/api/"]}
 ```
 
-More detail can be found [here](https://github.com/clojure-emacs/cider/issues/930).
+More details can be found [here](https://github.com/clojure-emacs/cider/issues/930).
 
 ### Overlays
 
