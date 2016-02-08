@@ -128,6 +128,7 @@ Also close associated REPL and server buffers."
         (when-let ((nrepl-messages-buffer (nrepl-messages-buffer conn-buffer)))
           (kill-buffer nrepl-messages-buffer)))
       (with-current-buffer buffer
+        (when spinner-current (spinner-stop))
         (when nrepl-tunnel-buffer
           (cider--close-buffer nrepl-tunnel-buffer)))
       ;; If this is the only (or last) REPL connected to its server, the
@@ -500,7 +501,7 @@ EVAL-BUFFER is the buffer where the spinner was started."
                      (member "eval-error" status)
                      (member "error" status))))
       (with-current-buffer eval-buffer
-        (spinner-stop)))
+        (when spinner-current (spinner-stop))))
     (funcall original-callback response)))
 
 
