@@ -396,6 +396,7 @@ Any other value is just returned."
     "Showtime!"
     "Unfortunately, no one can be told what CIDER is. You have to figure this out yourself."
     "Procure a bottle of cider to achieve optimum programming results."
+    "In paretheses we trust!"
     ,(format "%s, I've a feeling we're not in Kansas anymore."
              (cider-user-first-name))
     ,(format "%s, this could be the start of a beautiful program."
