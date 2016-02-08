@@ -989,9 +989,9 @@ above allows you to override this (somewhat non-standard) behavior.
 (setq nrepl-log-messages nil)
 ```
 
-Basically, this will dispose of the buffer `*nrepl-messages*`. The communication
-log is invaluable for debugging CIDER issues, so you're generally advised to keep
-it around.
+Basically, this will dispose of buffers like `*nrepl-messages
+connection-name*`. The communication log is invaluable for debugging CIDER
+issues, so you're generally advised to keep it around.
 
 * You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
 from appearing in some buffer switching commands like
