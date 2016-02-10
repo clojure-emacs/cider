@@ -152,18 +152,18 @@ This variable is used by `cider-connect'."
   "List of functions to call when connected to Clojure nREPL server."
   :type 'hook
   :group 'cider
-  :version "0.9.0")
+  :package-version '(cider . "0.9.0"))
 
 (defcustom cider-disconnected-hook nil
   "List of functions to call when disconnected from the Clojure nREPL server."
   :type 'hook
   :group 'cider
-  :version "0.9.0")
+  :package-version '(cider . "0.9.0"))
 
 (defcustom cider-auto-mode t
   "When non-nil, automatically enable `cider-mode' for all Clojure buffers."
   :type 'boolean
-  :version "0.9.0")
+  :package-version '(cider . "0.9.0"))
 
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
