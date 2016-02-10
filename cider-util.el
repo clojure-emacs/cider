@@ -420,7 +420,14 @@ Any other value is just returned."
     "Press <\\[cider-test-run-loaded-tests]> to run all loaded tests."
     "Press <\\[cider-test-run-project-tests]> to run all tests for the current project."
     "Press <\\[cider-apropos]> to look for a symbol by some search string."
-    "Press <\\[cider-apropos-documentation]> to look for a symbol that has some string in its docstring.")
+    "Press <\\[cider-apropos-documentation]> to look for a symbol that has some string in its docstring."
+    "Press <\\[cider-eval-defun-at-point]> to eval the top-level form at point."
+    "Press <\\[cider-eval-buffer]> to eval the entire source buffer."
+    "Press <\\[cider-scratch]> to create a Clojure scratchpad. Pretty handy for prototyping."
+    "Press <\\[cider-read-and-eval]> to evaluate some Clojure expression directly in the minibuffer."
+    "Press <\\[cider-drink-a-sip]> to get more CIDER tips."
+    "Press <\\[cider-browse-ns-all]> to start CIDER's namespace browser."
+    "Press <\\[cider-classpath]> to start CIDER's classpath browser.")
   "Some handy CIDER tips."
   )
 
