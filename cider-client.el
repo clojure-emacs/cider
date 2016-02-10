@@ -49,6 +49,15 @@ like `cider-jack-in' and `cider-connect'."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-connection-message-fn #'cider-random-words-of-inspiration
+  "The function to use to generate the message displayed on connect.
+When set to nil no additional message will be displayed.
+
+A good alternative to the default is `cider-random-tip'."
+  :type 'function
+  :group 'cider
+  :package-version '(cider . "0.11.0"))
+
 (defvar cider-connections nil
   "A list of connections.")
 
@@ -437,7 +446,11 @@ Refreshes EWOC."
 
 (defun cider-display-connected-message ()
   "Message displayed on successful connection."
-  (message "Connected.  %s" (cider-random-words-of-inspiration)))
+  (message
+   (concat "Connected."
+           (if cider-connection-message-fn
+               (format "  %s" (funcall cider-connection-message-fn))
+             ""))))
 
 ;; TODO: Replace direct usage of such hooks with CIDER hooks,
 ;; that are connection type independent

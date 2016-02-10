@@ -19,6 +19,7 @@ and try to associate the created connection with this project automatically.
 * [#1507](https://github.com/clojure-emacs/cider/issues/1507): Add the ability to control the REPL's scroll on output functionality via `cider-repl-scroll-on-output`.
 * [#1543](https://github.com/clojure-emacs/cider/issues/1543): Add some getting started instructions to the welcome banner.
 * New command `cider-drink-a-sip`. Use in case you're thirsty for knowledge.
+* Make the connection message configurable via `cider-connection-message-fn`. This means now you can have any function (e.g. `cider-random-tip`) provide the second part of the message.
 
 ### Changes
 
