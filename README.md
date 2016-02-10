@@ -176,6 +176,8 @@ You'll also need a recent version of your favorite build tool (Leiningen, Boot
 or Gradle) to be able to start CIDER via `cider-jack-in`. Generally it's a good
 idea to use their latest stable versions.
 
+**CIDER does not support ClojureCLR.**
+
 ### Installation via package.el
 
 `package.el` is the built-in package manager in Emacs.
@@ -1397,6 +1399,19 @@ loaded. As a workaround remove
 ```
 
 from your Emacs config.
+
+### ClojureCLR Support
+
+CIDER currently doesn't support ClojureCLR. The reasons for this are the following:
+
+* nREPL itself runs only on the JVM (because it leverages Java APIs
+internally). There's an
+[nREPL port for ClojureCLR](https://github.com/clojure/clr.tools.nrepl), but
+it's not actively maintained and it doesn't behave like the Clojure nREPL.
+* `cider-nrepl` uses a lot of Java code internally itself.
+
+Those issues are not insurmountable, but are beyond the scope of our current roadmap.
+If someone would like to tackle them, we'd be happy to provide assitance.
 
 ## Troubleshooting
 
