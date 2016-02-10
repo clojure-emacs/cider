@@ -88,6 +88,7 @@
 (defun cider-classpath ()
   "List all classpath entries."
   (interactive)
+  (cider-ensure-connected)
   (with-current-buffer (cider-popup-buffer cider-classpath-buffer t)
     (cider-classpath-list (current-buffer)
                           (mapcar (lambda (name)
