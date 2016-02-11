@@ -1440,7 +1440,7 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
   (cider--cache-ns-form)
   (remove-overlays nil nil 'cider-type 'instrumented-defs)
   (cider-nrepl-request:eval
-   "(do (require 'clojure.tools.namespace) (clojure.tools.namespace/refresh))"
+   "(do (require 'clojure.tools.namespace.repl) (clojure.tools.namespace.repl/refresh))"
    (lambda (_response) nil))
   (message "Refreshing all namespaces..."))
 
