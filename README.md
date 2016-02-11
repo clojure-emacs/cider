@@ -130,19 +130,19 @@ dedicated to CIDER 0.9 and 0.10 and the future of the project.
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
 
-* Powerful REPL
-* Interactive code evaluation
+* [Powerful REPL](#using-the-repl)
+* [Interactive code evaluation](#using-cider-mode)
 * Compilation notes (error and warning highlighting)
-* Human-friendly stacktraces
+* [Human-friendly stacktraces](#navigating-stacktraces)
 * Smart code completion
 * Definition lookup
 * Documentation lookup
 * Resource lookup
 * Apropos
-* Debugger
-* Value inspector
+* [Debugger](#debugging)
+* [Value inspector](#value-inspection)
 * Function tracing
-* Interactive macroexpansion
+* [Interactive macroexpansion](#macroexpansion)
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
 * `clojure.test` integration
@@ -152,7 +152,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Scratchpad
 * Minibuffer code evaluation
 * Integration with [company-mode][] and [auto-complete-mode][]
-* Support for working with multiple simultaneous nREPL connections
+* [Support for working with multiple simultaneous nREPL connections](#managing-multiple-connections)
 
 ![CIDER Screenshot](screenshots/cider-overview.png)
 
