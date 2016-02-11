@@ -204,6 +204,7 @@ Returns to the buffer in which the command was invoked."
     (define-key map (kbd "C-c M-z") #'cider-load-buffer-and-switch-to-repl-buffer)
     (define-key map (kbd "C-c C-o") #'cider-find-and-clear-repl-output)
     (define-key map (kbd "C-c C-k") #'cider-load-buffer)
+    (define-key map (kbd "C-c M-k") #'cider-refresh-project)
     (define-key map (kbd "C-c C-l") #'cider-load-file)
     (define-key map (kbd "C-c C-b") #'cider-interrupt)
     (define-key map (kbd "C-c ,")   'cider-test-commands-map)
