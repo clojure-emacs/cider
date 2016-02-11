@@ -193,6 +193,7 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
+  (cider-ensure-connected)
   (funcall (cider-prompt-for-symbol-function arg)
            "Javadoc for"
            #'cider-javadoc-handler))
@@ -254,6 +255,7 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
+  (cider-ensure-connected)
   (funcall (cider-prompt-for-symbol-function arg)
            "Doc for"
            #'cider-doc-lookup))
