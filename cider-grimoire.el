@@ -36,6 +36,8 @@
 
 (defconst cider-grimoire-url "http://conj.io/")
 
+(defconst cider-grimoire-buffer "*cider-grimoire*")
+
 (defun cider-grimoire-replace-special (name)
   "Convert the dashes in NAME to a grimoire friendly format."
   (thread-last name
@@ -72,7 +74,7 @@ opposite of what that option dictates."
 
 (defun cider-create-grimoire-buffer (content)
   "Create a new grimoire buffer with CONTENT."
-  (with-current-buffer (cider-popup-buffer "*cider grimoire*" t)
+  (with-current-buffer (cider-popup-buffer cider-grimoire-buffer t)
     (read-only-mode -1)
     (insert content)
     (read-only-mode +1)
