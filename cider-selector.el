@@ -150,6 +150,10 @@ is chosen.  The returned buffer is selected with
   "*cider-error* buffer."
   cider-error-buffer)
 
+(def-cider-selector-method ?d
+  "*cider-doc* buffer."
+  cider-doc-buffer)
+
 (provide 'cider-selector)
 
 ;;; cider-selector.el ends here
