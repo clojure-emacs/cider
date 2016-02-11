@@ -603,8 +603,8 @@ With a prefix arg SUPPRESS-INFERENCE it will try to run the tests in the
 current ns."
   (interactive "P")
   (if-let ((ns (if suppress-inference
-                   (clojure-find-ns)
-                 (funcall cider-test-infer-test-ns (clojure-find-ns)))))
+                   (cider-current-ns t)
+                 (funcall cider-test-infer-test-ns (cider-current-ns t)))))
       (cider-test-execute ns)
     (if (eq major-mode 'cider-test-report-mode)
         (when (y-or-n-p (concat "Test report does not define a namespace. "

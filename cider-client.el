@@ -519,16 +519,18 @@ keep track of a namespace.
 This should never be set in Clojure buffers, as there the namespace
 should be extracted from the buffer's ns form.")
 
-(defun cider-current-ns ()
+(defun cider-current-ns (&optional no-default)
   "Return the current ns.
 The ns is extracted from the ns form for Clojure buffers and from
 `cider-buffer-ns' for all other buffers.  If it's missing, use the current
-REPL's ns, otherwise fall back to \"user\"."
+REPL's ns, otherwise fall back to \"user\".
+
+When NO-DEFAULT is non-nil, it will return nil instead of \"user\"."
   (or cider-buffer-ns
       (clojure-find-ns)
       (when-let ((repl-buf (cider-current-connection)))
         (buffer-local-value 'cider-buffer-ns repl-buf))
-      "user"))
+      (if no-default nil "user")))
 
 (defun cider-nrepl-op-supported-p (op)
   "Check whether the current connection supports the nREPL middleware OP."
