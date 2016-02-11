@@ -190,7 +190,7 @@
   "Open Javadoc documentation in a popup buffer.
 
 Prompts for the symbol to use, or uses the symbol at point, depending on
-the value of `cider-prompt-for-symbol'. With prefix arg ARG, does the
+the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
   (funcall (cider-prompt-for-symbol-function arg)
