@@ -297,7 +297,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 (defun cider-repl--help-banner ()
   "Generate the help banner."
   (substitute-command-keys
-   "\n; ================================================================================
+   "\n; ==================================================================================================================
 ; Welcome to CIDER!
 ;
 ; If you're new to CIDER it is highly recommended to go through its manual first.
@@ -320,7 +320,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ; Above all else - don't panic! In case of an emergency - procure some (hard) cider and enjoy it responsibly!
 ;
 ; You can disable this message from appearing on start by setting `cider-repl-display-help-banner' to nil.
-; ================================================================================"))
+; =================================================================================================================="))
 
 (defun cider-repl--insert-banner-and-prompt (buffer)
   "Insert REPL banner and REPL prompt in BUFFER."
