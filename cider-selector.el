@@ -45,10 +45,11 @@ DESCRIPTION is a one-line description of what the key selects.")
   "If non-nil use `switch-to-buffer-other-window'.")
 
 (defun cider--recently-visited-buffer (mode)
-  "Return the most recently visited buffer whose `major-mode' is MODE.
+  "Return the most recently visited buffer whose `major-mode' is derived from MODE.
 Only considers buffers that are not already visible."
   (cl-loop for buffer in (buffer-list)
-           when (and (with-current-buffer buffer (eq major-mode mode))
+           when (and (with-current-buffer buffer
+                       (derived-mode-p mode))
                      (not (string-match-p "^ " (buffer-name buffer)))
                      (null (get-buffer-window buffer 'visible)))
            return buffer
