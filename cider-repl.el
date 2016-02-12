@@ -1111,11 +1111,13 @@ constructs."
 (cider-repl-add-shortcut "test-project" #'cider-test-run-project-tests)
 (cider-repl-add-shortcut "test-report" #'cider-test-show-report)
 
+(defconst cider-repl-shortcuts-help-buffer "*CIDER REPL Shortcuts Help*")
+
 (defun cider-repl-shortcuts-help ()
   "Display a help buffer."
   (interactive)
-  (ignore-errors (kill-buffer "*CIDER REPL Shortcuts Help*"))
-  (with-current-buffer (get-buffer-create "*CIDER REPL Shortcuts Help*")
+  (ignore-errors (kill-buffer cider-repl-shortcuts-help-buffer))
+  (with-current-buffer (get-buffer-create cider-repl-shortcuts-help-buffer)
     (insert "CIDER REPL shortcuts:\n\n")
     (maphash (lambda (k v) (insert (format "%s:\n\t%s\n" k v))) cider-repl-shortcuts)
     (goto-char (point-min))
