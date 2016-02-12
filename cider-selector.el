@@ -50,6 +50,7 @@ Only considers buffers that are not already visible."
   (cl-loop for buffer in (buffer-list)
            when (and (with-current-buffer buffer
                        (derived-mode-p mode))
+                     ;; names starting with space are considered hidden by Emacs
                      (not (string-match-p "^ " (buffer-name buffer)))
                      (null (get-buffer-window buffer 'visible)))
            return buffer
