@@ -53,7 +53,7 @@
 
 (define-derived-mode cider-clojure-interaction-mode clojure-mode "Clojure Interaction"
   "Major mode for typing and evaluating Clojure forms.
-Like Lisp mode except that \\[cider-eval-print-last-sexp] evals the Lisp expression
+Like clojure-mode except that \\[cider-eval-print-last-sexp] evals the Lisp expression
 before point, and prints its value into the buffer, advancing point.
 
 \\{cider-clojure-interaction-mode-map}")
