@@ -56,6 +56,7 @@
     (define-key cider-doc-map (kbd "r") #'cider-grimoire)
     (define-key cider-doc-map (kbd "C-r") #'cider-grimoire)
     (define-key cider-doc-map (kbd "h") #'cider-grimoire-web)
+    (define-key cider-doc-map (kbd "C-h") #'cider-grimoire-web)
     (define-key cider-doc-map (kbd "j") #'cider-javadoc)
     (define-key cider-doc-map (kbd "C-j") #'cider-javadoc)
     cider-doc-map)
