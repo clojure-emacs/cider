@@ -328,7 +328,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;
 ; You can disable this message from appearing on start by setting
 ; `cider-repl-display-help-banner' to nil.
-; ==================================================================================================================
+; ======================================================================
 "))
 
 (defun cider-repl--insert-banner-and-prompt (buffer)
