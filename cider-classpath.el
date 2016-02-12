@@ -27,7 +27,7 @@
 (require 'cider-popup)
 (require 'cider-compat)
 
-(defvar cider-classpath-buffer "*Classpath*")
+(defvar cider-classpath-buffer "*cider-classpath*")
 
 (defvar cider-classpath-mode-map
   (let ((map (make-sparse-keymap)))
