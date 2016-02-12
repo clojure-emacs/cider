@@ -155,6 +155,10 @@ is chosen.  The returned buffer is selected with
   "*cider-doc* buffer."
   cider-doc-buffer)
 
+(def-cider-selector-method ?s
+  "*cider-scratch* buffer."
+  (cider-find-or-create-scratch-buffer))
+
 (provide 'cider-selector)
 
 ;;; cider-selector.el ends here
