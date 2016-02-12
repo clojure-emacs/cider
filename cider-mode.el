@@ -30,6 +30,7 @@
 
 ;;; Code:
 
+(require 'clojure-mode)
 (require 'cider-interaction)
 (require 'cider-test)
 (require 'cider-eldoc)
@@ -583,9 +584,6 @@ property."
 
 
 ;;; Mode definition
-;; Once a new stable of `clojure-mode' is realeased, we can depend on it and
-;; ditch this `defvar'.
-(defvar clojure-get-indent-function)
 
 ;;;###autoload
 (define-minor-mode cider-mode
