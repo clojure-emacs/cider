@@ -73,6 +73,7 @@ specific CIDER release.**
   - [ClojureScript limitations](#clojurescript-limitations)
   - [Microsoft Windows](#microsoft-windows)
   - [powershell.el](#powershell-el)
+  - [ClojureCLR support](#clojureclr-support)
 - [Troubleshooting](#troubleshooting)
 - [Changelog](#changelog)
 - [Team](#team)
