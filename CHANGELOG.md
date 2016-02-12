@@ -33,6 +33,7 @@ and try to associate the created connection with this project automatically.
   `Control` + letter mnemonics for these commands (as for the documentation
   commands).
 * `cider-test` commands now have keybindings in `cider-repl-mode`. The keybindings are exactly the same as those in `cider-mode`.
+* Changed the binding of `cider-apropos-documentation` to `C-c C-d f` and `C-c C-d C-f` (it was `C-c C-d A`).
 
 ### Bugs fixed
 
