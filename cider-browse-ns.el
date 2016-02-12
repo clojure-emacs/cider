@@ -39,7 +39,7 @@
 (require 'cider-client)
 (require 'cider-compat)
 
-(defconst cider-browse-ns-buffer "*Browse NS*")
+(defconst cider-browse-ns-buffer "*cider-ns-browser*")
 (defvar-local cider-browse-ns-current-ns nil)
 
 ;; Mode Definition
