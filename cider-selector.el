@@ -33,7 +33,7 @@
 (require 'cider-client)
 (require 'cider-interaction)
 
-(defconst cider-selector-help-buffer "*Selector Help*"
+(defconst cider-selector-help-buffer "*CIDER Selector Help*"
   "The name of the selector's help buffer.")
 
 (defvar cider-selector-methods nil
