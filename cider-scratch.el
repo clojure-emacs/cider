@@ -42,7 +42,7 @@
 
 ;;;###autoload
 (defun cider-scratch ()
-  "Create a scratch buffer."
+  "Go to the scratch buffer named `cider-scratch-buffer-name'."
   (interactive)
   (pop-to-buffer (cider-find-or-create-scratch-buffer)))
 
