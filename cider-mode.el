@@ -257,6 +257,10 @@ Returns to the buffer in which the command was invoked."
         ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
         ["Clear REPL output" cider-find-and-clear-repl-output]
         "--"
+        ["Browse classpath" cider-classpath]
+        ["Browse namespace" cider-browse-ns]
+        ["Browse all namespaces" cider-browse-ns-all]
+        "--"
         ("nREPL"
          ["Describe session" cider-describe-nrepl-session]
          ["Close session" cider-close-nrepl-session]
