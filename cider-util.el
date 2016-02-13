@@ -299,7 +299,7 @@ Unless you specify a BUFFER it will default to the current one."
 
 (defun cider-string-trim (string)
   "Remove leading and trailing whitespace from STRING."
-  (string-trim-left (string-trim-right string)))
+  (cider-string-trim-left (cider-string-trim-right string)))
 
 (defun cider-string-join (strings &optional separator)
   "Join all STRINGS using SEPARATOR."
