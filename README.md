@@ -769,24 +769,24 @@ stacktraces.  Stacktraces are presented in a special major mode
 stack frames and some handy ways to navigate causes.  You'll also be able to go
 to the code in question with a single keystroke.
 
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>M-p</kbd> | Move point to previous cause
-<kbd>M-n</kbd> | Move point to next cause
+Keyboard shortcut                    | Description
+-------------------------------------|-------------------------------
+<kbd>M-p</kbd>                       | Move point to previous cause
+<kbd>M-n</kbd>                       | Move point to next cause
 <kbd>M-.</kbd> and <kbd>Return</kbd> | Navigate to the source location (if available) for the stacktrace frame
-<kbd>Tab</kbd> | Cycle current cause detail
-<kbd>0</kbd> and <kbd>S-Tab</kbd> | Cycle all cause detail
-<kbd>1</kbd> | Cycle cause #1 detail
-<kbd>2</kbd> | Cycle cause #2 detail
-<kbd>3</kbd> | Cycle cause #3 detail
-<kbd>4</kbd> | Cycle cause #4 detail
-<kbd>5</kbd> | Cycle cause #5 detail
-<kbd>j</kbd> | Toggle display of java frames
-<kbd>c</kbd> | Toggle display of clj frames
-<kbd>r</kbd> | Toggle display of repl frames
-<kbd>t</kbd> | Toggle display of tooling frames (e.g. compiler, nREPL middleware)
-<kbd>d</kbd> | Toggle display of duplicate frames
-<kbd>a</kbd> | Toggle display of all frames
+<kbd>Tab</kbd>                       | Cycle current cause detail
+<kbd>0</kbd> and <kbd>S-Tab</kbd>    | Cycle all cause detail
+<kbd>1</kbd>                         | Cycle cause #1 detail
+<kbd>2</kbd>                         | Cycle cause #2 detail
+<kbd>3</kbd>                         | Cycle cause #3 detail
+<kbd>4</kbd>                         | Cycle cause #4 detail
+<kbd>5</kbd>                         | Cycle cause #5 detail
+<kbd>j</kbd>                         | Toggle display of java frames
+<kbd>c</kbd>                         | Toggle display of clj frames
+<kbd>r</kbd>                         | Toggle display of repl frames
+<kbd>t</kbd>                         | Toggle display of tooling frames (e.g. compiler, nREPL middleware)
+<kbd>d</kbd>                         | Toggle display of duplicate frames
+<kbd>a</kbd>                         | Toggle display of all frames
 
 * Error buffer stacktraces may be filtered by default. Valid filter types
 include `java`, `clj`, `repl`, `tooling`, and `dup`. Setting this to `nil` will
