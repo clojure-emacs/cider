@@ -57,12 +57,6 @@
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
-(defface cider-instrumented-face
-  '((t :box (:color "#c00" :line-width -1)))
-  "Face used to mark code being debugged."
-  :group 'cider-debug
-  :package-version '(cider . "0.10.0"))
-
 (defface cider-enlightened
   '((((class color) (background light)) :inherit cider-result-overlay-face
      :box (:color "darkorange" :line-width -1))

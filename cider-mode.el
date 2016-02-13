@@ -344,6 +344,19 @@ The value can also be t, which means to font-lock as much as possible."
   "Faced used on depreacted vars"
   :group 'cider)
 
+(defface cider-instrumented-face
+  '((t :box (:color "#c00" :line-width -1)))
+  "Face used to mark code being debugged."
+  :group 'cider-debug
+  :group 'cider
+  :package-version '(cider . "0.10.0"))
+
+(defface cider-traced-face
+  '((t :box (:color "cyan" :line-width -1)))
+  "Face used to mark code being traced."
+  :group 'cider
+  :package-version '(cider . "0.11.0"))
+
 (defconst cider-deprecated-properties
   '(face cider-deprecated
          help-echo "This var is deprecated. \\[cider-doc] for version information."))
