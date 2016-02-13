@@ -1594,7 +1594,7 @@ Consider improving and extending the [community wiki](https://github.com/clojure
 
 ### Donations
 
-You can support my work on CIDER, clojure-mode and inf-clojure via
+You can support the development of CIDER, clojure-mode and inf-clojure via
 [Salt](https://salt.bountysource.com/teams/cider),
 [Gratipay](https://www.gratipay.com/cider) and PayPal.
 
