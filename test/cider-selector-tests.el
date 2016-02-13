@@ -4,8 +4,8 @@
 
 ;; selector
 (defun cider-invoke-selector-method-by-key (ch)
-  (let ((method (find ch cider-selector-methods :key #'car)))
-    (funcall (third method))))
+  (let ((method (cl-find ch cider-selector-methods :key #'car)))
+    (funcall (cl-third method))))
 
 (ert-deftest test-cider-selector-n ()
   (with-temp-buffer
