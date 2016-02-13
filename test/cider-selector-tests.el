@@ -47,7 +47,6 @@
     (rename-buffer "*testfile*.el")
     ;; Select the buffer so it's bumped to the top of the buffer list.
     (switch-to-buffer (current-buffer))
-    (switch-to-buffer (current-buffer))
     (let ((b1 (current-buffer)))
       (setq major-mode 'emacs-lisp-mode)
       (with-temp-buffer
