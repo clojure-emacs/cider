@@ -20,13 +20,21 @@
 
 (ert-deftest test-cider-selector-c ()
   (with-temp-buffer
+    ;; The selector cares about names.
     (rename-buffer "*testfile*.clj")
+    ;; Select the buffer so it's bumped to the top of the buffer list.
+    (switch-to-buffer (current-buffer))
     (let ((b1 (current-buffer)))
       (setq major-mode 'clojure-mode)
       (with-temp-buffer
+        ;; The selector cares about names.
         (rename-buffer "*testfile*.el")
+        ;; Select the buffer so it's bumped to the top of the buffer list.
+        (switch-to-buffer (current-buffer))
         (setq major-mode 'emacs-lisp-mode)
         (with-temp-buffer
+          ;; Select the buffer so it's bumped to the top of the buffer list.
+          (switch-to-buffer (current-buffer))
           (should (not (equal (current-buffer) b1)))
           (cider-invoke-selector-method-by-key ?e)
           (should (not (equal (current-buffer) b1)))
@@ -35,13 +43,22 @@
 
 (ert-deftest test-cider-selector-e ()
   (with-temp-buffer
+    ;; The selector cares about names.
     (rename-buffer "*testfile*.el")
+    ;; Select the buffer so it's bumped to the top of the buffer list.
+    (switch-to-buffer (current-buffer))
+    (switch-to-buffer (current-buffer))
     (let ((b1 (current-buffer)))
       (setq major-mode 'emacs-lisp-mode)
       (with-temp-buffer
+        ;; The selector cares about names.
         (rename-buffer "*testfile*.clj")
+        ;; Select the buffer so it's bumped to the top of the buffer list.
+        (switch-to-buffer (current-buffer))
         (setq major-mode 'clojure-mode)
         (with-temp-buffer
+          ;; Select the buffer so it's bumped to the top of the buffer list.
+          (switch-to-buffer (current-buffer))
           (should (not (equal (current-buffer) b1)))
           (cider-invoke-selector-method-by-key ?c)
           (should (not (equal (current-buffer) b1)))
