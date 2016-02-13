@@ -511,11 +511,6 @@ character used to trigger the shortcuts is configurable via
       (concat (car names) "." (cadr names) "> ")))
   ```
 
-* By default, interactive commands that require a symbol will prompt for the
-  symbol, with the prompt defaulting to the symbol at point. You can set
-  `cider-prompt-for-symbol` to nil to instead try the command with the symbol at
-  point first, and only prompt if that fails.
-
 * You can control the <kbd>TAB</kbd> key behavior in the REPL via the
 `cider-repl-tab-command` variable.  While the default command
 `cider-repl-indent-and-complete-symbol` should be an adequate choice for
@@ -991,6 +986,16 @@ By default CIDER will enable `cider-mode` in all `clojure-mode` buffers when the
 first CIDER connection is established. It will also add a `clojure-mode` hook to
 enable it on newly created `clojure-mode` buffers. The configuration snippet
 above allows you to override this (somewhat non-standard) behavior.
+
+* By default, interactive commands that require a symbol (e.g. `cider-doc`) will
+  prompt for the symbol, with the prompt defaulting to the symbol at point. You
+  can set `cider-prompt-for-symbol` to nil to instead try the command with the
+  symbol at point first, and only prompt if that fails (this used to be the
+  default behavior in older CIDER releases).
+
+```el
+(setq cider-prompt-for-symbol nil)
+```
 
 * Don't log communication with the nREPL server:
 
