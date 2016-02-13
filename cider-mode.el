@@ -362,52 +362,35 @@ The value can also be t, which means to font-lock as much as possible."
                                        cider-font-lock-dynamically))
         deprecated enlightened
         macros functions vars instrumented traced)
-    (when (memq 'core cider-font-lock-dynamically)
-      (while core-plist
-        (let ((sym (pop core-plist))
-              (meta (pop core-plist)))
-          (pcase (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
-            (`nil nil)
-            (`"#'cider.nrepl.middleware.debug/breakpoint-if-interesting"
-             (push sym instrumented))
-            (`"#'cider.nrepl.middleware.enlighten/light-form"
-             (push sym enlightened)))
-          (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
-                    (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
-            (push sym traced))
-          (when (nrepl-dict-get meta "deprecated")
-            (push sym deprecated))
-          (cond
-           ((nrepl-dict-get meta "macro")
-            (push sym macros))
-           ((nrepl-dict-get meta "arglists")
-            (push sym functions))
-           (t
-            (push sym vars))))))
-    (while symbols-plist
-      (let ((sym (pop symbols-plist))
-            (meta (pop symbols-plist)))
-        (pcase (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
-          (`nil nil)
-          (`"#'cider.nrepl.middleware.debug/breakpoint-if-interesting"
-           (push sym instrumented))
-          (`"#'cider.nrepl.middleware.enlighten/light-form"
-           (push sym enlightened)))
-        (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
-                  (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
-          (push sym traced))
-        (when (and (nrepl-dict-get meta "deprecated")
-                   (memq 'deprecated cider-font-lock-dynamically))
-          (push sym deprecated))
-        (cond
-         ((and (memq 'macro cider-font-lock-dynamically)
-               (nrepl-dict-get meta "macro"))
-          (push sym macros))
-         ((and (memq 'function cider-font-lock-dynamically)
-               (nrepl-dict-get meta "arglists"))
-          (push sym functions))
-         ((memq 'var cider-font-lock-dynamically)
-          (push sym vars)))))
+    (cl-labels ((handle-plist
+                 (plist)
+                 (let ((do-function (memq 'function cider-font-lock-dynamically))
+                       (do-var (memq 'var cider-font-lock-dynamically))
+                       (do-macro (memq 'macro cider-font-lock-dynamically))
+                       (do-deprecated (memq 'deprecated cider-font-lock-dynamically)))
+                   (while plist
+                     (let ((sym (pop plist))
+                           (meta (pop plist)))
+                       (pcase (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
+                         (`nil nil)
+                         (`"#'cider.nrepl.middleware.debug/breakpoint-if-interesting"
+                          (push sym instrumented))
+                         (`"#'cider.nrepl.middleware.enlighten/light-form"
+                          (push sym enlightened)))
+                       (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
+                                 (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
+                         (push sym traced))
+                       (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
+                         (push sym deprecated))
+                       (cond ((and do-macro (nrepl-dict-get meta "macro"))
+                              (push sym macros))
+                             ((and do-function (nrepl-dict-get meta "arglists"))
+                              (push sym functions))
+                             (do-var (push sym vars))))))))
+      (when (memq 'core cider-font-lock-dynamically)
+        (let ((cider-font-lock-dynamically '(function var macro core deprecated)))
+          (handle-plist core-plist)))
+      (handle-plist symbols-plist))
     `(
       ,@(when macros
           `((,(concat (rx (or "(" "#'")) ; Can't take the value of macros.
