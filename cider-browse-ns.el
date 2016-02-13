@@ -69,12 +69,20 @@
   (setq-local truncate-lines t)
   (setq-local cider-browse-ns-current-ns nil))
 
+(defun cider-browse-ns--text-face (text)
+  "Match TEXT with a face."
+  (cond
+   ((string-match-p "\\." text) 'font-lock-type-face)
+   ((string-match-p "\\`*" text) 'font-lock-variable-name-face)
+   (t 'font-lock-function-name-face)))
+
 (defun cider-browse-ns--properties (text)
-  "Decorate TEXT with a clickable keymap and function face."
-  (propertize text
-              'font-lock-face 'font-lock-function-name-face
-              'mouse-face 'highlight
-              'keymap cider-browse-ns-mouse-map))
+  "Decorate TEXT with a clickable keymap and a face."
+  (let ((face (cider-browse-ns--text-face text)))
+    (propertize text
+                'font-lock-face face
+                'mouse-face 'highlight
+                'keymap cider-browse-ns-mouse-map)))
 
 (defun cider-browse-ns--list (buffer title items &optional ns noerase)
   "Reset contents of BUFFER.
