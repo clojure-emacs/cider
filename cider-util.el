@@ -285,6 +285,22 @@ Unless you specify a BUFFER it will default to the current one."
 
 ;;; Strings
 
+(defun cider-string-trim-left (string)
+  "Remove leading whitespace from STRING."
+  (if (string-match "\\`[ \t\n\r]+" string)
+      (replace-match "" t t string)
+    string))
+
+(defun cider-string-trim-right (string)
+  "Remove trailing whitespace from STRING."
+  (if (string-match "[ \t\n\r]+\\'" string)
+      (replace-match "" t t string)
+    string))
+
+(defun cider-string-trim (string)
+  "Remove leading and trailing whitespace from STRING."
+  (string-trim-left (string-trim-right string)))
+
 (defun cider-string-join (strings &optional separator)
   "Join all STRINGS using SEPARATOR."
   (mapconcat #'identity strings separator))

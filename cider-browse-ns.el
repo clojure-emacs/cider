@@ -38,6 +38,7 @@
 (require 'cider-interaction)
 (require 'cider-client)
 (require 'cider-compat)
+(require 'cider-util)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
 (defvar-local cider-browse-ns-current-ns nil)
@@ -133,7 +134,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
 (defun cider-browse-ns--thing-at-point ()
   "Get the thing at point.
 Return a list of the type ('ns or 'var) and the value."
-  (let ((line (string-trim (thing-at-point 'line))))
+  (let ((line (cider-string-trim (thing-at-point 'line))))
     (if (string-match "\\." line)
         (list 'ns line)
       (list 'var (format "%s/%s"
