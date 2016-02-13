@@ -35,8 +35,8 @@
 (defvar cider-clojure-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
-    ;; FIXME: paredit will clobber this keybinding if active
     (define-key map (kbd "C-j") #'cider-eval-print-last-sexp)
+    (define-key map [remap paredit-newline] #'cider-eval-print-last-sexp)
     map))
 
 (defconst cider-scratch-buffer-name "*cider-scratch*")
