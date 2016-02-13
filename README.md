@@ -720,8 +720,8 @@ Keyboard shortcut                       | Description
 
 ### Running tests
 
-You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c
-,</kbd> in a source buffer or a REPL buffer will run the tests for the namespace
+You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c C-t n</kbd>
+in a source buffer or a REPL buffer will run the tests for the namespace
 you're currently in. CIDER is smart enough to figure out the namespace
 containing the tests.
 
