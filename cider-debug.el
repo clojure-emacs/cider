@@ -589,11 +589,13 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
              (let* ((marker (cider--debug-find-source-position response 'create-if-needed)))
                (pop-to-buffer (marker-buffer marker))
                (goto-char marker))
-             (cider--debug-remove-overlays)
              ;; The overlay code relies on window boundaries, but point could have been
              ;; moved outside the window by some other code. Redisplay here to ensure the
              ;; visible window includes point.
              (redisplay)
+             ;; Remove overlays AFTER redisplaying! Otherwise there's a visible
+             ;; flicker even if we immediately recreate the overlays.
+             (cider--debug-remove-overlays)
              (when cider-debug-use-overlays
                (cider--debug-display-result-overlay debug-value))
              (setq cider--debug-mode-response response)
