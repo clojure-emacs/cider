@@ -377,8 +377,12 @@ The value can also be t, which means to font-lock as much as possible."
                           (push sym instrumented))
                          (`"#'cider.nrepl.middleware.enlighten/light-form"
                           (push sym enlightened)))
-                       (when (or (nrepl-dict-get meta "clojure.tools.trace/traced")
-                                 (nrepl-dict-get meta "cider.inlined-deps.clojure.tools.trace/traced"))
+                       ;; The ::traced keywords can be inlined by MrAnderson, so
+                       ;; we catch that case too.
+                       ;; FIXME: This matches values too, not just keys.
+                       (when (seq-find (lambda (k) (and (stringp k)
+                                                   (string-match (rx "clojure.tools.trace/traced" eos) k)))
+                                       meta)
                          (push sym traced))
                        (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
                          (push sym deprecated))
