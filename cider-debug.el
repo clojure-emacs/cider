@@ -58,7 +58,7 @@
   :package-version '(cider . "0.10.0"))
 
 (defface cider-instrumented-face
-  '((t :box (:color "red" :line-width -1)))
+  '((t :box (:color "#c00" :line-width -1)))
   "Face used to mark code being debugged."
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
@@ -68,7 +68,7 @@
      :box (:color "darkorange" :line-width -1))
     (((class color) (background dark))  :inherit cider-result-overlay-face
      ;; "#dd0" is a dimmer yellow.
-     :box (:color "#dd0" :line-width -1)))
+     :box (:color "#990" :line-width -1)))
   "Face used to mark enlightened sexps and their return values."
   :group 'cider-debug
   :package-version '(cider . "0.11.0"))
