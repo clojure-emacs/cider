@@ -28,7 +28,7 @@
 
 (eval-and-compile
 
-  (unless (fboundp 'thread-first )
+  (unless (fboundp 'thread-first)
 
     (defmacro internal--thread-argument (first? &rest forms)
       "Internal implementation for `thread-first' and `thread-last'.
@@ -58,7 +58,7 @@ threading."
                (debug (form &rest [&or symbolp (sexp &rest form)])))
       `(internal--thread-argument t ,@forms)))
 
-  (unless (fboundp 'thread-last )
+  (unless (fboundp 'thread-last)
 
     (defmacro thread-last (&rest forms)
       "Thread FORMS elements as the last argument of their successor.
