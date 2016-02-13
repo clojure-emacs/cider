@@ -35,7 +35,7 @@
 
 ;;; Code:
 
-(require 'cider-repl)
+(require 'cider-interaction)
 (require 'cider-client)
 (require 'cider-compat)
 
