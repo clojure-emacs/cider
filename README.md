@@ -217,7 +217,7 @@ Stable by adding this to your Emacs initialization:
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 ```
 
-**CIDER has deps (e.g. `queue` & `seq`) that are only available in the
+**CIDER has dependencies (e.g. `queue` & `seq`) that are only available in the
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
   enabled by default in Emacs and you should not disable it!**
 
@@ -320,7 +320,7 @@ The two main ways to obtain an nREPL connection are discussed in the following s
 
 Simply open in Emacs a file belonging to your `lein` or `boot` project (like
 `foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL server with
-all the project deps loaded in and CIDER with automatically connect to it.
+all the project dependencies loaded in and CIDER with automatically connect to it.
 
 Alternatively you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
 a `lein` or `boot` project, without having to visit any file in it.
