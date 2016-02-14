@@ -453,10 +453,7 @@ namespace itself."
                   (cider--compile-font-lock-keywords
                    symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
       (font-lock-add-keywords nil cider--dynamic-font-lock-keywords 'end))
-    (if (fboundp 'font-lock-flush)
-        (font-lock-flush)
-      (with-no-warnings
-        (font-lock-fontify-buffer)))))
+    (cider--font-lock-flush)))
 
 
 ;;; Detecting local variables
@@ -593,17 +590,29 @@ property."
   nil
   cider-mode-line
   cider-mode-map
-  (cider-eldoc-setup)
-  (make-local-variable 'completion-at-point-functions)
-  (add-to-list 'completion-at-point-functions
-               #'cider-complete-at-point)
-  (font-lock-add-keywords nil cider--static-font-lock-keywords)
-  (cider-refresh-dynamic-font-lock)
-  (setq-local font-lock-fontify-region-function
-              (cider--wrap-fontify-locals font-lock-fontify-region-function))
-  (when cider-dynamic-indentation
-    (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
-  (setq next-error-function #'cider-jump-to-compilation-error))
+  (if cider-mode
+      (progn
+        (cider-eldoc-setup)
+        (make-local-variable 'completion-at-point-functions)
+        (add-to-list 'completion-at-point-functions
+                     #'cider-complete-at-point)
+        (font-lock-add-keywords nil cider--static-font-lock-keywords)
+        (cider-refresh-dynamic-font-lock)
+        ;; `font-lock-mode' might get enabled after `cider-mode'.
+        (add-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock nil 'local)
+        (setq-local font-lock-fontify-region-function
+                    (cider--wrap-fontify-locals font-lock-fontify-region-function))
+        (when cider-dynamic-indentation
+          (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
+        (setq next-error-function #'cider-jump-to-compilation-error))
+    (mapc #'kill-local-variable '(completion-at-point-functions
+                                  next-error-function
+                                  font-lock-fontify-region-function
+                                  clojure-get-indent-function))
+    (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
+    (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
+    (font-lock-remove-keywords nil cider--static-font-lock-keywords)
+    (cider--font-lock-flush)))
 
 (defun cider-set-buffer-ns (ns)
   "Set this buffer's namespace to NS and refresh font-locking."
