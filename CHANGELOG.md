@@ -23,6 +23,7 @@ and try to associate the created connection with this project automatically.
 
 ### Changes
 
+* [#1531](https://github.com/clojure-emacs/cider/issues/1531) `cider-jack-in` now injects its own dependencies using CLI. Both leiningen and boot are supported. Set `cider-inject-dependencies-at-jack-in` to nil to opt out. Extension point for other tools to inject their own dependencies is `cider-add-repl-dependencies`.
 * `cider-inspect` now operates by default on the last sexp. Its behavior can be altered via prefix arguments.
 * Requires Clojure(Script) 1.7 or newer.
 * Requires Java 7 or newer.
