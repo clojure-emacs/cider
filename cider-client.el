@@ -278,7 +278,7 @@ multiple times.
 
 WHICH is one of the following keywords identifying which connections to map
 over.
- :any - Act on the connection returned by `cider-current-connection'.
+ :any - Act the connection whose type matches the current-buffer.
  :clj - Like :any, but signal a `user-error' in `clojurescript-mode' or if
         there is no Clojure connection (use this for commands only
         supported in Clojure).
@@ -301,8 +301,10 @@ connection but can be invoked from any buffer (like `cider-refresh')."
             (pcase which
               (`:any (let ((type (cider-connection-type-for-buffer)))
                        (or (cider-current-connection type)
-                           (err (format "in a %s file needs a Clojure%s REPL"
-                                        type (if (equal type "cljs") "Script" ""))))))
+                           (err (substitute-command-keys
+                                 (format "needs a Clojure%s REPL.\nIf you don't know what that means, you probably need to jack-in (%s)."
+                                         (if (equal type "cljs") "Script" "")
+                                         (if (equal type "cljs") "`\\[cider-jack-in-clojurescript]'" "`\\[cider-jack-in]'")))))))
               (`:both (or (cider-current-connection)
                           (err "needs an active REPL connection")))
               (`:clj (cond ((and (not any-mode)

@@ -1028,6 +1028,7 @@ arguments and only proceed with evaluation if it returns nil."
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
+      (cider-map-connections #'ignore :any)
       (cider--prep-interactive-eval form)
       (cider-nrepl-request:eval
        form
