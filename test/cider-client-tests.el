@@ -2,7 +2,7 @@
 (require 'cider-client)
 (require 'ert)
 
-;;; grimoire tests
+;;; cider-client tests
 
 (defmacro with-connection-buffer (type symbol &rest body)
   "Run BODY in a temp buffer, with the given repl TYPE.
