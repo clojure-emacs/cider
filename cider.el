@@ -182,21 +182,6 @@ Sub-match 1 must be the project path.")
 (defvar cider-host-history nil
   "Completion history for connection hosts.")
 
-(defvar cider-jack-in-dependencies
-  '(("org.clojure/tools.nrepl" "0.2.12"))
-  "List of dependencies where elements are lists of artifact name and version.")
-(put 'cider-jack-in-dependencies 'risky-local-variable t)
-
-(defvar cider-jack-in-lein-plugins
-  `(("cider/cider-nrepl" ,(upcase cider-version)))
-  "List of Leiningen plugins where elements are lists of artifact name and version.")
-(put 'cider-jack-in-lein-plugins 'risky-local-variable t)
-
-(defvar cider-jack-in-nrepl-middlewares
-  '("cider.nrepl/cider-middleware")
-  "List of Clojure variable names. Each of these Clojure variables should hold a vector of nREPL middlewares.")
-(put 'cider-jack-in-nrepl-middlewares 'risky-local-variable t)
-
 ;;;###autoload
 (defun cider-version ()
   "Display CIDER's version."
@@ -224,46 +209,76 @@ Sub-match 1 must be the project path.")
     ("boot" cider-boot-parameters)
     ("gradle" cider-gradle-parameters)))
 
+
+;;; Jack-in dependencies injection
+(defvar cider-jack-in-dependencies
+  '(("org.clojure/tools.nrepl" "0.2.12"))
+  "List of dependencies where elements are lists of artifact name and version.")
+(put 'cider-jack-in-dependencies 'risky-local-variable t)
+
+(defvar cider-jack-in-lein-plugins
+  `(("cider/cider-nrepl" ,(upcase cider-version)))
+  "List of Leiningen plugins where elements are lists of artifact name and version.")
+(put 'cider-jack-in-lein-plugins 'risky-local-variable t)
+
+(defvar cider-jack-in-nrepl-middlewares
+  '("cider.nrepl/cider-middleware")
+  "List of Clojure variable names. Each of these Clojure variables should hold a vector of nREPL middlewares.")
+(put 'cider-jack-in-nrepl-middlewares 'risky-local-variable t)
+
+(defun cider--list-as-boot-artifact (list)
+  "Return a boot artifact string described by the elements of LIST.
+LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
+string is quoted for passing as argument to an inferior shell."
+  (concat "-d " (shell-quote-argument (format "%s:%s" (car list) (cadr list)))))
+
 (defun boot-command-prefix (dependencies)
-  (concat
-   (mapconcat
-    (lambda (dep) (format "-d %s:%s" (car dep) (cadr dep)))
-    dependencies
-    " ")
-   " "))
+  (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
+          " "))
 
 (defun boot-repl-task-params (params middlewares)
-  (replace-regexp-in-string
-   "repl"
-   (concat
-    "repl "
-    (mapconcat
-     (lambda (middleware) (format "-m %s" middleware))
-     middlewares
-     " "))
-   params))
+  (if (string-match "\\_<repl\\_>" params)
+      (replace-match (concat "repl "
+                             (mapconcat (lambda (middleware)
+                                          (format "-m %s" (shell-quote-argument middleware)))
+                                        middlewares
+                                        " "))
+                     'fixed 'literal params)
+    (message "Warning: `cider-boot-parameters' doesn't call the \"repl\" task, jacking-in might not work")
+    params))
 
 (defun cider-boot-jack-in-dependencies (params dependencies plugins middlewares)
-  (concat
-   (boot-command-prefix
-    (seq-concatenate 'list dependencies plugins))
-   (boot-repl-task-params params middlewares)))
+  (concat (boot-command-prefix (append dependencies plugins))
+          (boot-repl-task-params params middlewares)))
+
+(defun cider--list-as-lein-artifact (list)
+  "Return an artifact string described by the elements of LIST.
+LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
+string is quoted for passing as argument to an inferior shell."
+  (shell-quote-argument (format "[%s %S]" (car list) (cadr list))))
 
 (defun cider-lein-jack-in-dependencies (params dependencies lein-plugins)
   (concat
-   (mapconcat
-    'identity
-    (seq-concatenate
-     'list
-     (seq-map (lambda (dependency) (format "update-in :dependencies conj \"[%s \\\"%s\\\"]\"" (car dependency) (cadr dependency))) dependencies)
-     (seq-map (lambda (plugin) (format "update-in :plugins conj \"[%s \\\"%s\\\"]\"" (car plugin) (cadr plugin))) lein-plugins))
-    " -- ")
+   (mapconcat #'identity
+              (append (seq-map (lambda (dep)
+                                 (concat "update-in :dependencies conj "
+                                         (cider--list-as-lein-artifact dep)))
+                               dependencies)
+                      (seq-map (lambda (plugin)
+                                 (concat "update-in :plugins conj "
+                                         (cider--list-as-lein-artifact plugin)))
+                               lein-plugins))
+              " -- ")
    " -- "
    params))
 
 (defun cider-inject-jack-in-dependencies (params project-type)
-  "Modify the PARAMS so that REPL dependencies as set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins' and `cider-jack-in-nrepl-middlewares' are injected from the CLI according to the used PROJECT-TYPE.
-Eliminates the need for hacking profiles.clj or the boot script for supporting cider with its nREPL middleware and dependencies."
+  "Return PARAMS with injected REPL dependencies.
+These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins' and
+`cider-jack-in-nrepl-middlewares' are injected from the CLI according to
+the used PROJECT-TYPE.  Eliminates the need for hacking profiles.clj or the
+boot script for supporting cider with its nREPL middleware and
+dependencies."
   (pcase project-type
     ("lein" (cider-lein-jack-in-dependencies
              params
@@ -276,6 +291,8 @@ Eliminates the need for hacking profiles.clj or the boot script for supporting c
              cider-jack-in-nrepl-middlewares))
     ("gradle" "")))
 
+
+;;; ClojureScript REPL creation
 (defcustom cider-cljs-lein-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
 This is only used in lein projects.  It is evaluated in a Clojure REPL and
