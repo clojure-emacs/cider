@@ -1555,9 +1555,9 @@ the string contents of the region into a formatted string."
                     ;; Sync request will hang if the server is dead.
                     (process-live-p (get-buffer-process nrepl-server-buffer)))
             (when nrepl-session
-              (nrepl-sync-request:close (cider-current-connection) nrepl-session))
+              (nrepl-sync-request:close buffer nrepl-session))
             (when nrepl-tooling-session
-              (nrepl-sync-request:close (cider-current-connection) nrepl-tooling-session)))
+              (nrepl-sync-request:close buffer nrepl-tooling-session)))
           (when proc (delete-process proc)))))
     (kill-buffer buffer)))
 
