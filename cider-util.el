@@ -117,8 +117,9 @@ find a symbol if there isn't one at point."
         (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
           str))
       (when look-back
-        (while (not (looking-at "\\sw\\|\\s_"))
-          (forward-sexp -1))
+        (ignore-errors
+          (while (not (looking-at "\\sw\\|\\s_\\|\\`"))
+            (forward-sexp -1)))
         (cider-symbol-at-point))))
 
 
