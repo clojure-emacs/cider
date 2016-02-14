@@ -106,14 +106,13 @@
 The search may be limited to the namespace NS, and may optionally search doc
 strings, include private vars, and be case sensitive."
   (interactive
-   (if current-prefix-arg
-       (list (read-string "Clojure Apropos (a regular expression): ")
-             (let ((ns (read-string "Namespace: ")))
-               (if (string= ns "") nil ns))
-             (y-or-n-p "Search doc strings? ")
-             (y-or-n-p "Include private symbols? ")
-             (y-or-n-p "Case-sensitive? "))
-     (list (read-string "Clojure Apropos: "))))
+   (cons (read-string "Clojure Apropos (a regular expression): ")
+         (when current-prefix-arg
+           (list (let ((ns (read-string "Namespace: ")))
+                   (if (string= ns "") nil ns))
+                 (y-or-n-p "Search doc strings? ")
+                 (y-or-n-p "Include private symbols? ")
+                 (y-or-n-p "Case-sensitive? ")))))
   (cider-ensure-op-supported "apropos")
   (if-let ((summary (cider-apropos-summary
                      query ns docs-p privates-p case-sensitive-p))
@@ -125,6 +124,6 @@ strings, include private vars, and be case sensitive."
 (defun cider-apropos-documentation ()
   "Shortcut for (cider-apropos <query> nil t)."
   (interactive)
-  (cider-apropos (read-string "Clojure documentation Apropos: ") nil t))
+  (cider-apropos (read-string "Clojure documentation Apropos (a regular expression): ") nil t))
 
 (provide 'cider-apropos)
