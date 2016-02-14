@@ -292,10 +292,19 @@ the wrong major-mode (they still signal if the desired connection type
 doesn't exist). Use this for commands that only apply to a specific
 connection but can be invoked from any buffer (like `cider-refresh')."
   (cl-labels ((err (msg) (user-error (concat "`%s' " msg) this-command)))
-    (let* ((curr
+    ;; :both in a clj or cljs buffer just means :any.
+    (let* ((which (if (and (eq which :both)
+                           (not (cider--cljc-or-cljx-buffer-p)))
+                      :any
+                    which))
+           (curr
             (pcase which
-              ((or `:any `:both) (or (cider-current-connection)
-                                     (err "needs an active REPL connection")))
+              (`:any (let ((type (cider-connection-type-for-buffer)))
+                       (or (cider-current-connection type)
+                           (err (format "in a %s file needs a Clojure%s REPL"
+                                        type (if (equal type "cljs") "Script" ""))))))
+              (`:both (or (cider-current-connection)
+                          (err "needs an active REPL connection")))
               (`:clj (cond ((and (not any-mode)
                                  (derived-mode-p 'clojurescript-mode))
                             (err "doesn't support ClojureScript"))
@@ -307,8 +316,7 @@ connection but can be invoked from any buffer (like `cider-refresh')."
                             ((cider-current-connection "cljs"))
                             ((err "needs a ClojureScript REPL")))))))
       (funcall function curr)
-      (when (and (eq which :both)
-                 (cider--cljc-or-cljx-buffer-p))
+      (when (eq which :both)
         (when-let ((other-connection (cider-other-connection curr)))
           (funcall function other-connection))))))
 
