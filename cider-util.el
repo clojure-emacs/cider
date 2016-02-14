@@ -202,12 +202,15 @@ PROP is the name of a text property."
 
 ;;; Font lock
 
-(defun cider--font-lock-ensure ()
-  "Call `font-lock-ensure' or `font-lock-fontify-buffer', as appropriate."
+(defalias 'cider--font-lock-ensure
   (if (fboundp 'font-lock-ensure)
-      (font-lock-ensure)
-    (with-no-warnings
-      (font-lock-fontify-buffer))))
+      #'font-lock-ensure
+    #'font-lock-fontify-buffer))
+
+(defalias 'cider--font-lock-flush
+  (if (fboundp 'font-lock-flush)
+      #'font-lock-flush
+    #'font-lock-fontify-buffer))
 
 (defvar cider--mode-buffers nil
   "A list of buffers for different major modes.")
