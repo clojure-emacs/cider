@@ -1143,7 +1143,7 @@ otherwise it's evaluated interactively."
 (defun cider-read-and-eval ()
   "Read a sexp from the minibuffer and output its result to the echo area."
   (interactive)
-  (let* ((form (cider-read-from-minibuffer "CIDER Eval: "))
+  (let* ((form (cider-read-from-minibuffer "Clojure Eval: "))
          (override cider-interactive-eval-override)
          (ns-form (if (cider-ns-form-p form) "" (format "(ns %s)" (cider-current-ns)))))
     (with-current-buffer (get-buffer-create cider-read-eval-buffer)
