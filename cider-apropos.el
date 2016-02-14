@@ -107,7 +107,7 @@ The search may be limited to the namespace NS, and may optionally search doc
 strings, include private vars, and be case sensitive."
   (interactive
    (if current-prefix-arg
-       (list (read-string "Clojure Apropos: ")
+       (list (read-string "Clojure Apropos (a regular expression): ")
              (let ((ns (read-string "Namespace: ")))
                (if (string= ns "") nil ns))
              (y-or-n-p "Search doc strings? ")
