@@ -305,6 +305,13 @@ should be the regular Clojure REPL started by the server process filter."
          (cljs-proc (apply #'nrepl-start-client-process client-process-args))
          (cljs-buffer (process-buffer cljs-proc)))
     (with-current-buffer cljs-buffer
+      ;; The new connection has now been bumped to the top, but it's still a clj
+      ;; REPL!  Additionally, some cljs REPLs can actually take a while to start
+      ;; (some even depend on the user opening a browser).  Meanwhile, this REPL
+      ;; will gladly receive requests in place of the original clj REPL.  Our
+      ;; solution is to bump the original REPL back up the list, so it takes
+      ;; priority on clj requests.
+      (cider-make-connection-default client-buffer)
       (cider-nrepl-send-request
        (list "op" "eval"
              "ns" (cider-current-ns)
