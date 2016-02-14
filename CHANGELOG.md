@@ -38,6 +38,7 @@ and try to associate the created connection with this project automatically.
 
 ### Bugs fixed
 
+* [#1441](https://github.com/clojure-emacs/cider/issues/1441): Don't popup a buffer that's already displayed.
 * [#1557](https://github.com/clojure-emacs/cider/issues/1557): When a sibling REPL is started by hasn't yet turned into a cljs REPL, it won't hijack clj requests.
 * [#1562](https://github.com/clojure-emacs/cider/issues/1562): Actually disable cider-mode when it gets disabled.
 * [#1540](https://github.com/clojure-emacs/cider/issues/1540): Fix cider-complete-at-point.

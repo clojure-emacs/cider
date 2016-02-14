@@ -53,7 +53,7 @@ and automatically removed when killed."
 (defun cider-popup-buffer-display (buffer &optional select)
   "Display BUFFER.
 If SELECT is non-nil, select the BUFFER."
-  (let ((window (get-buffer-window buffer)))
+  (let ((window (get-buffer-window buffer 'visible)))
     (when window
       (with-current-buffer buffer
         (set-window-point window (point))))
@@ -65,9 +65,9 @@ If SELECT is non-nil, select the BUFFER."
     ;; bound to that).
     (unless (eq window (selected-window))
       ;; Non nil `inhibit-same-window' ensures that current window is not covered
-      (if select
-          (pop-to-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows))))
-        (display-buffer buffer `(nil . ((inhibit-same-window . ,pop-up-windows)))))))
+      (funcall (if select #'pop-to-buffer #'display-buffer)
+               buffer `(nil . ((inhibit-same-window . ,pop-up-windows)
+                               (reusable-frames . visible))))))
   buffer)
 
 (defun cider-popup-buffer-quit (&optional kill)
