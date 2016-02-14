@@ -643,7 +643,7 @@ REPL buffer.  This is controlled via
 If POINT is non-nil, it is the position where the evaluated sexp ends.  It
 can be used to display the evaluation result."
   (let ((eval-buffer (current-buffer))
-        (point (if point (copy-marker point) (point-marker))))
+        (point (when point (copy-marker point))))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (_buffer value)
                                    (cider--display-interactive-eval-result value point))
@@ -1007,6 +1007,9 @@ Clears any compilation highlights and kills the error window."
 
 (defun cider-interactive-eval (form &optional callback bounds additional-params)
   "Evaluate FORM and dispatch the response to CALLBACK.
+If the code to be evaluated comes from a buffer, it is preferred to use a
+nil FORM, and specify the code via the BOUNDS argument instead.
+
 This function is the main entry point in CIDER's interactive evaluation
 API.  Most other interactive eval functions should rely on this function.
 If CALLBACK is nil use `cider-interactive-eval-handler'.
