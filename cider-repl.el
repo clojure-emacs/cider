@@ -298,8 +298,6 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   "Generate the help banner."
   (substitute-command-keys
    "\n; ======================================================================
-; Welcome to CIDER!
-;
 ; If you’re new to CIDER it is highly recommended to go through its
 ; manual first. Press <M-x cider-view-manual> to view it.
 ; In case you’re seeing any warnings you should consult the manual’s
