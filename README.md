@@ -223,13 +223,18 @@ Stable by adding this to your Emacs initialization:
 ### CIDER's nREPL middleware
 
 Much of CIDER's functionality depends on the presence of CIDER's own
-[nREPL middleware][cider-nrepl]. When `cider-jack-in` (<kbd>C-c M-j</kbd>) is used CIDER takes care of injecting it and its other dependencies.
+[nREPL middleware][cider-nrepl]. Starting with version 0.11, When `cider-jack-in` (<kbd>C-c M-j</kbd>) is
+used, CIDER takes care of injecting it and its other dependencies.
 
 **`profiles.clj` or `profile.boot` don't need to be modified anymore for the above usecase!**
 
-If you don't want `cider-jack-in` to inject dependencies automatically, set `cider-inject-dependencies-at-jack-in` to nil. Note that you'll have to setup the dependencies yourself (see the section below).
+If you don't want `cider-jack-in` to inject dependencies automatically, set
+`cider-inject-dependencies-at-jack-in` to nil. Note that you'll have to setup
+the dependencies yourself (see the section below), just as in CIDER 0.10 and older.
 
-If a standalone REPL is preferred, you need to invoke `cider-connect` (instead of `cider-jack-in`) and you'll need to manually add the dependencies to your Clojure project (explained in the following section).
+If a standalone REPL is preferred, you need to invoke `cider-connect` (instead
+of `cider-jack-in`) and you'll need to manually add the dependencies to your
+Clojure project (explained in the following section).
 
 #### Setting up a standalone REPL
 
