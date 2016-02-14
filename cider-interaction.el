@@ -254,15 +254,16 @@ not used as initial input (input is left empty)."
                   #'cider-complete-at-point nil t)
         (setq-local eldoc-documentation-function #'cider-eldoc)
         (run-hooks 'eval-expression-minibuffer-setup-hook))
-    (let* ((use-default (and value (not (string-match ": \\'" prompt))))
-           (input (read-from-minibuffer (if use-default
-                                            (format "%s (default %s): " prompt value)
-                                          prompt)
-                                        (unless use-default value)
+    (let* ((has-colon (string-match ": \\'" prompt))
+           (input (read-from-minibuffer (cond
+                                         (has-colon prompt)
+                                         (value (format "%s (default %s): " prompt value))
+                                         (t (format "%s: " prompt)))
+                                        (when has-colon value) ; initial-input
                                         cider-minibuffer-map nil
                                         'cider-minibuffer-history
-                                        (when use-default value))))
-      (if (and (equal input "") use-default)
+                                        (unless has-colon value)))) ; default-value
+      (if (and (equal input "") value (not has-colon))
           value
         input))))
 
