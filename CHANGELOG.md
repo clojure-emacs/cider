@@ -47,6 +47,7 @@ and try to associate the created connection with this project automatically.
 * [#1529](https://github.com/clojure-emacs/cider/issues/1529): Close nREPL message buffer when you quit its matching connection.
 * [#707](https://github.com/clojure-emacs/cider/issues/707): Better support clojure.test/with-test.
 * Fix namespace navigation in the namespace browser.
+* [#1565](https://github.com/clojure-emacs/cider/issues/1565): Fix font-locking in apropos buffers.
 
 ## 0.10.2 / 2016-01-27
 

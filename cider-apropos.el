@@ -90,9 +90,7 @@
   "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
   (with-current-buffer (cider-popup-buffer cider-apropos-buffer t)
     (let ((inhibit-read-only t))
-      (set-syntax-table clojure-mode-syntax-table)
       (apropos-mode)
-      (cider-mode)
       (if (boundp 'header-line-format)
           (setq-local header-line-format summary)
         (insert summary "\n\n"))
