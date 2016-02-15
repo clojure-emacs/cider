@@ -106,7 +106,7 @@
 The search may be limited to the namespace NS, and may optionally search doc
 strings, include private vars, and be case sensitive."
   (interactive
-   (cons (read-string "Clojure Apropos (a regular expression): ")
+   (cons (read-string "Search for Clojure symbol (a regular expression): ")
          (when current-prefix-arg
            (list (let ((ns (read-string "Namespace: ")))
                    (if (string= ns "") nil ns))
@@ -124,6 +124,6 @@ strings, include private vars, and be case sensitive."
 (defun cider-apropos-documentation ()
   "Shortcut for (cider-apropos <query> nil t)."
   (interactive)
-  (cider-apropos (read-string "Clojure documentation Apropos (a regular expression): ") nil t))
+  (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (provide 'cider-apropos)
