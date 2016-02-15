@@ -435,6 +435,7 @@ Any other value is just returned."
     "Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure source buffer."
     "Press <\\[cider-find-var]> to jump to the source of something (e.g. a var, a Java method)."
     "Press <\\[cider-doc]> to view the documentation for something (e.g. a var, a Java method)."
+    "Press <\\[cider-find-resource]> to find a resource on the classpath."
     "Press <\\[cider-selector]> to quickly select a CIDER buffer or command."
     "Press <\\[cider-test-run-ns-tests]> to run the tests for the current namespace."
     "Press <\\[cider-test-run-loaded-tests]> to run all loaded tests."
@@ -447,7 +448,12 @@ Any other value is just returned."
     "Press <\\[cider-read-and-eval]> to evaluate some Clojure expression directly in the minibuffer."
     "Press <\\[cider-drink-a-sip]> to get more CIDER tips."
     "Press <\\[cider-browse-ns-all]> to start CIDER's namespace browser."
-    "Press <\\[cider-classpath]> to start CIDER's classpath browser.")
+    "Press <\\[cider-classpath]> to start CIDER's classpath browser."
+    "Press <\\[cider-macroexpand-1]> to expand the preceding macro."
+    "Press <\\[cider-refresh]> to reload modified and unloaded namespaces."
+    "Press <\\[cider-display-connection-info]> to view information about the connection."
+    "Press <\\[cider-undef]> to undefine a symbol in the current namespace."
+    "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation.")
   "Some handy CIDER tips."
   )
 
