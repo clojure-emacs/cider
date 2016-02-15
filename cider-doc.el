@@ -69,7 +69,7 @@
     ["JavaDoc in browser" cider-javadoc]
     ["Grimoire" cider-grimoire]
     ["Grimoire in browser" cider-grimoire-web]
-    ["Search functions/vars" cider-apropos]
+    ["Search symbols" cider-apropos]
     ["Search documentation" cider-apropos-documentation])
   "CIDER documentation submenu.")
 
