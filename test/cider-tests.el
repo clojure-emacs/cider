@@ -102,6 +102,27 @@
     (cider--debug-move-point '(2 1 1 1))
     (should (string= (buffer-substring (point-min) (point)) "`[(~d)"))))
 
+(ert-deftest test-debug-move-point-metadata ()
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(defn a [] (let [x 1] ^{:y z} (inc x))"))
+    (cider--debug-move-point '(3 2 1))
+    (should (string= (thing-at-point 'symbol) "x"))))
+
+(ert-deftest test-debug-move-point-data-reader ()
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(defn a [] (let [x 1] #bar (inc #foo x))"))
+    (cider--debug-move-point '(3 2 1))
+    (should (string= (thing-at-point 'symbol) "x"))))
+
+(ert-deftest test-debug-move-point-data-reader-and-metadata ()
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(defn a [] (let [x 1] #break ^{foo (foo x)} (inc x))"))
+    (cider--debug-move-point '(3 2 1))
+    (should (string= (thing-at-point 'symbol) "x"))))
+
 (ert-deftest test-cider-connection-buffer-name ()
   (setq-local nrepl-endpoint '("localhost" 1))
   (let ((nrepl-hide-special-buffers nil))

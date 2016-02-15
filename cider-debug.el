@@ -460,6 +460,8 @@ key of a map, and it means \"go to the value associated with this key\". "
       ;; Navigate through sexps inside the sexp.
       (let ((in-syntax-quote nil))
         (while coordinates
+          (while (clojure--looking-at-non-logical-sexp)
+            (forward-sexp))
           (down-list)
           ;; Are we entering a syntax-quote?
           (when (looking-back "`\\(#{\\|[{[(]\\)" (line-beginning-position))
