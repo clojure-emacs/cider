@@ -168,7 +168,8 @@ if the maximum number of sexps to skip is exceeded."
                 (cider-eldoc-format-arglist value pos))))))
 
 (defun cider-eldoc-setup ()
-  "Turn on eldoc mode in the current buffer."
+  "Setup eldoc in the current buffer.
+eldoc mode has to be enabled for this to have any effect."
   (setq-local eldoc-documentation-function #'cider-eldoc)
   (apply #'eldoc-add-command cider-extra-eldoc-commands))
 
