@@ -1195,6 +1195,7 @@ constructs."
     (define-key map (kbd "C-c C-z") #'cider-switch-to-last-clojure-buffer)
     (define-key map (kbd "C-c M-o") #'cider-repl-switch-to-other)
     (define-key map (kbd "C-c M-s") #'cider-selector)
+    (define-key map (kbd "C-c M-d") #'cider-display-connection-info)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
     (define-key map (kbd "C-c M-t v") #'cider-toggle-trace-var)
@@ -1240,6 +1241,8 @@ constructs."
         ["Kill input" cider-repl-kill-input]
         "--"
         ["Interrupt evaluation" cider-interrupt]
+        "--"
+        ["Connection info" cider-display-connection-info]
         "--"
         ["Quit" cider-quit]
         ["Restart" cider-restart]
