@@ -289,7 +289,7 @@ dependencies."
              cider-jack-in-dependencies
              cider-jack-in-lein-plugins
              cider-jack-in-nrepl-middlewares))
-    ("gradle" "")))
+    ("gradle" params)))
 
 
 ;;; ClojureScript REPL creation
