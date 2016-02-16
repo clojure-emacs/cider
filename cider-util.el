@@ -451,6 +451,7 @@ Any other value is just returned."
     "Press <\\[cider-classpath]> to start CIDER's classpath browser."
     "Press <\\[cider-macroexpand-1]> to expand the preceding macro."
     "Press <\\[cider-refresh]> to reload modified and unloaded namespaces."
+    "You can define Clojure functions to be called before and after `cider-refresh' (see `cider-refresh-before-fn' and `cider-refresh-after-fn'."
     "Press <\\[cider-display-connection-info]> to view information about the connection."
     "Press <\\[cider-undef]> to undefine a symbol in the current namespace."
     "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation.")
