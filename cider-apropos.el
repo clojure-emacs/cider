@@ -125,3 +125,5 @@ strings, include private vars, and be case sensitive."
   (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (provide 'cider-apropos)
+
+;;; cider-apropos.el ends here
