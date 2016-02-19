@@ -13,7 +13,7 @@ CIDER (formerly *nrepl.el*) is the **C**lojure(Script) **I**nteractive
 
 CIDER extends Emacs with support for interactive programming in Clojure. The
 features are centered around `cider-mode`, an Emacs minor-mode that complements
-`clojure-mode`. While `clojure-mode` supports editing Clojure source files,
+[clojure-mode][]. While `clojure-mode` supports editing Clojure source files,
 `cider-mode` adds support for interacting with a running Clojure process for
 compilation, debugging, definition and documentation lookup, running tests and
 so on.
@@ -1666,3 +1666,4 @@ Distributed under the GNU General Public License, version 3
 [vim-fireplace]: https://github.com/tpope/vim-fireplace
 [CCW]: https://github.com/laurentpetit/ccw
 [cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
+[clojure-mode]: https://github.com/clojure-emacs/clojure-mode
