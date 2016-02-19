@@ -617,8 +617,7 @@ section of your Leiningen project's configuration.
 ```
 
 Note that the history is written to the file when you kill the REPL
-buffer (which includes invoking `cider-quit`) or you quitting Emacs.
-
+buffer (which includes invoking `cider-quit`) or you quit Emacs.
 
 ### ClojureScript usage
 
