@@ -343,7 +343,7 @@ In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j<
 
 ### Connect to a running nREPL server
 
-You can go to your project's dir in a terminal and type there
+You can go to your project's directory in a terminal and type there
 (assuming you're using Leiningen that is):
 
 ```
@@ -368,7 +368,12 @@ In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c<
 
 CIDER comes with a handy minor mode called `cider-mode` (complementing
 `clojure-mode`) that allows you to evaluate code in your Clojure source
-files and load it directly in the REPL.  Here's a list of its keybindings:
+files and load it directly in the REPL. `cider-mode` is the primary
+way you're supposed to be interacting with your REPL process. If you
+want to get productive with CIDER, you'll have to get intimately familiar
+with it.
+
+Here's a list of `cider-mode`'s keybindings:
 
 Keyboard shortcut                    | Description
 -------------------------------------|-------------------------------
