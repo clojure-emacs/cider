@@ -205,11 +205,13 @@ If the installation doesn't work try refreshing the package list:
 
 Keep in mind that MELPA packages are built automatically from
 the `master` branch, meaning bugs might creep in there from time to
-time. Never-the-less, installing from MELPA is the recommended way of
-obtaining CIDER, as the `master` branch is normally quite stable and
-"stable" (tagged) builds are released somewhat infrequently.
+time. Never-the-less, installing from MELPA is a reasonable way of
+obtaining CIDER, as the `master` branch is normally quite stable
+and serious regressions there are usually fixed pretty quickly.
 
-With the most recent builds of Emacs, you can pin CIDER to always use MELPA
+Generally, users of the non-adventurous kind are advised to stick
+with the stable releases, available from MELPA Stable.
+In Emacs 24.4+, you can pin CIDER to always use MELPA
 Stable by adding this to your Emacs initialization:
 
 ```el
