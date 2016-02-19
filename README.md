@@ -1530,7 +1530,7 @@ that the order here matters.
 ### I upgraded CIDER using `package.el` and nothing changed
 
 Emacs doesn't load the new files, it only installs them on disk.  To see the
-effect of changes you have to restart emacs.
+effect of changes you have to restart Emacs.
 
 ## Changelog
 
