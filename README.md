@@ -117,8 +117,8 @@ Clojure code gets executed by an nREPL server. CIDER sends requests to the
 server and processes its responses. The server's functionality is augmented by
 additional nREPL middleware, designed specifically to address the needs of an
 interactive development environment like CIDER. Much of the middleware we
-developed for CIDER is editor agnostic and is being used by other Clojure dev
-environments as well (e.g. [vim-fireplace][] & [CCW][]).
+developed for CIDER is editor-agnostic and is being used by other Clojure
+development environments as well (e.g. [vim-fireplace][] & [CCW][]).
 
 If you're interested in more details about CIDER's history and architecture you
 can check out the Clojure/conj presentation
@@ -167,7 +167,7 @@ manager), but plenty of other options exist. (see the
 You'll need to have Emacs installed (preferably the latest stable
 release). If you're new to Emacs you might want to read
 [this tutorial](http://clojure-doc.org/articles/tutorials/emacs.html),
-dedicated to setting up Emacs for Clojure development, first.
+dedicated to setting up Emacs for Clojure development first.
 
 CIDER officially supports Emacs 24.3+, Java 7+ and Clojure(Script) 1.7+.
 CIDER 0.10 was the final release which supported Java 6 and Clojure 1.5 and 1.6.
