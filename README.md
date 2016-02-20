@@ -73,7 +73,7 @@ specific CIDER release.**
   - [Microsoft Windows](#microsoft-windows)
   - [powershell.el](#powershell-el)
   - [ClojureCLR support](#clojureclr-support)
-  - [Injecting dependencies and Leiningen pedantic: abort mode](#injecting-dependencies-and-leingingen-pedantic-abort-mode)
+  - [Injecting dependencies and Leiningen pedantic: abort mode](#injecting-dependencies-and-leiningen-pedantic-abort-mode)
 - [Troubleshooting](#troubleshooting)
 - [Changelog](#changelog)
 - [Team](#team)
