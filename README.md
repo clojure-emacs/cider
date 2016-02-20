@@ -73,6 +73,7 @@ specific CIDER release.**
   - [Microsoft Windows](#microsoft-windows)
   - [powershell.el](#powershell-el)
   - [ClojureCLR support](#clojureclr-support)
+  - [Injecting dependencies and Leiningen pedantic: abort mode](#injecting-dependencies-and-leingingen-pedantic-abort-mode)
 - [Troubleshooting](#troubleshooting)
 - [Changelog](#changelog)
 - [Team](#team)
@@ -1443,6 +1444,10 @@ it's not actively maintained and it doesn't behave like the Clojure nREPL.
 Those issues are not insurmountable, but are beyond the scope of our current roadmap.
 If someone would like to tackle them, we'd be happy to provide assitance.
 
+### Injecting dependencies and Leiningen pedantic: abort mode
+
+Because injection currently creates an override of `tools.nrepl` dependency that Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort` is set. Either remove the `:pedantic? :abort` setting or switch off injecting the dependencies with setting `cider-inject-dependencies-at-jack-in` to nil and provide the dependencies by editing your `~/.lein/profiles.clj` as described in the [standalone REPL](#setting-up-a-standalone-repl) section.
+
 ## Troubleshooting
 
 In case you run into issues here are a few tips that can help you diagnose the
@@ -1531,6 +1536,10 @@ that the order here matters.
 
 Emacs doesn't load the new files, it only installs them on disk.  To see the
 effect of changes you have to restart Emacs.
+
+### CIDER should inject its dependencies but I still get warnings when I use `cider-jack-in`
+
+Injecting the depencies should override the old settings in the `~/lein/profiles.clj` file however only if those settings were done in the `:repl` profile. If the `:user` profile is used overriding does not happen. To fix this issue stop your REPL, remove CIDER and `tools.nrepl` dependencies from your `~/.lein/profiles.clj` and start the REPL again.
 
 ## Changelog
 
