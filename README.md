@@ -646,7 +646,7 @@ present in your REPL session.
    `cider-jack-in-clojurescript`. This will start up the nREPL server, and then create
    two REPL buffers for you, one in Clojure and one in ClojureScript. All usual
    CIDER commands will be automatically directed to the appropriate REPL,
-   depending on whether you're visiting a `clj` or a `cljs` file.
+   depending on whether you're visiting a `.clj` or a `.cljs` file.
 
 #### Browser-connected ClojureScript REPL
 
@@ -694,7 +694,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 For more information visit [boot-cljs-repl](https://github.com/adzerk-oss/boot-cljs-repl).
 
-#### Using the Figwheel REPL with CIDER
+#### Using the Figwheel REPL in Leiningen project
 
 You can also use [https://github.com/bhauman/lein-figwheel](Figwheel) with CIDER.
 
@@ -716,11 +716,11 @@ You can also use [https://github.com/bhauman/lein-figwheel](Figwheel) with CIDER
 
 4. Instruct CIDER to use Figwheel in your Emacs config:
 
-  ```cl
+  ```el
   (setq cider-cljs-lein-repl "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))")
   ```
 
-5. Start the REPL with `cider-jack-in-clojurescript` (`C-c M-J`)
+5. Start the REPL with `cider-jack-in-clojurescript` (<kbd>C-c M-J</kbd>)
 
 6. Open a browser to the Figwheel URL so that it can connect to your application.
 
