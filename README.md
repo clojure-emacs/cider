@@ -1441,6 +1441,8 @@ piggieback, that's beyond CIDER. You can find some discussions on the subject
 
 ### Microsoft Windows
 
+#### Line separators
+
 On Microsoft Windows the JVM default line separator string is `\r\n`
 which can appear in Emacs as `^M` characters at the end of lines
 printed out by the JVM. One option is to set the
@@ -1452,6 +1454,16 @@ printed out by the JVM. One option is to set the
 from being printed and will fix output in all cider buffers. To do so
 add `"-Dline.separator=\"\n\""` to `:jvm-opts` in
 `~/.lein/profiles.clj`.
+
+#### Definition lookup in jar files
+
+In order for source lookup commands to work with `.jar` files you'll need to
+install either [7zip](http://www.7-zip.org/) or `pkunzip` and add its
+installation folder to Emacs's `exec-path`. Here's an example:
+
+```el
+(add-to-list 'exec-path "C:/Program Files/7-Zip")
+```
 
 ### powershell.el
 
