@@ -220,7 +220,11 @@ PROP is the name of a text property."
   "Return a temp buffer using major-mode MODE.
 This buffer is not designed to display anything to the user. For that, use
 `cider-make-popup-buffer' instead."
-  (or (cdr (assq mode cider--mode-buffers))
+  (or (let ((b (cdr (assq mode cider--mode-buffers))))
+        (if (buffer-live-p b)
+            b
+          (setq cider--mode-buffers (seq-remove (lambda (x) (eq (car x) mode))
+                                                cider--mode-buffers))))
       (let ((b (generate-new-buffer (format " *cider-temp %s*" mode))))
         (push (cons mode b) cider--mode-buffers)
         (with-current-buffer b
