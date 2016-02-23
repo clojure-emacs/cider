@@ -135,7 +135,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * [Interactive code evaluation](#using-cider-mode)
 * Compilation notes (error and warning highlighting)
 * [Human-friendly stacktraces](#navigating-stacktraces)
-* Smart code completion
+* [Smart code completion](#auto-completion)
 * Definition lookup
 * Documentation lookup
 * Resource lookup
@@ -146,7 +146,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * [Interactive macroexpansion](#macroexpansion)
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
-* `clojure.test` integration
+* [`clojure.test` integration](#running-tests)
 * Classpath browser
 * Namespace browser
 * nREPL session management
