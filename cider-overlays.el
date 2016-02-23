@@ -19,7 +19,7 @@
 
 ;;; Commentary:
 
-;; Use `cider--make-overlay' to place a generic overlay at point. Or use
+;; Use `cider--make-overlay' to place a generic overlay at point.  Or use
 ;; `cider--make-result-overlay' to place an interactive eval result overlay at
 ;; the end of a specified line.
 
