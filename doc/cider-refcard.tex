@@ -101,10 +101,12 @@
 \item[C-u C-M-x] cider-eval-defun-at-point
 \item[C-c M-t v] \ns{cider-toggle-trace}-var
 \item[C-c M-t n] \ns                    -ns
-\item[C-c M-,] \ns{cider-test}-run-test
-\item[C-c ,]   \ns            -run-tests
-\item[C-c C-,] \ns            -rerun-tests
-\item[C-c C-t] \ns            -show-report
+\item[C-c C-t t] \ns{cider-test}-run-test
+\item[C-c C-t n] \ns            -run-ns-tests
+\item[C-c C-t l] \ns            -run-loaded-tests
+\item[C-c C-t p] \ns            -run-project-tests
+\item[C-c C-t r] \ns            -rerun-tests
+\item[C-c C-t b] \ns            -show-report
 \end{keylist}
 
 \section{Documentation}
@@ -112,7 +114,7 @@
   \item[C-c C-d d] cider-doc
   \item[C-c C-d j] cider-javadoc
   \item[C-c C-d a] \ns{cider-apropos}
-  \item[C-c C-d A] \ns               -documentation
+  \item[C-c C-d f] \ns               -documentation
   \item[C-c C-d r] \ns{cider-grimoire}
   \item[C-c C-d h] \ns                -web
 \end{keylist}
