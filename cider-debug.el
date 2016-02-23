@@ -454,8 +454,8 @@ at the end of the given sexp).
               (* x 2))]
       (twice 15))
 
-In addition to numbers, a coordinate can be a string. This string names the
-key of a map, and it means \"go to the value associated with this key\". "
+In addition to numbers, a coordinate can be a string.  This string names the
+key of a map, and it means \"go to the value associated with this key\"."
   (condition-case-unless-debug nil
       ;; Navigate through sexps inside the sexp.
       (let ((in-syntax-quote nil))
