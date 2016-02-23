@@ -455,7 +455,10 @@ Any other value is just returned."
     "Press <\\[cider-display-connection-info]> to view information about the connection."
     "Press <\\[cider-undef]> to undefine a symbol in the current namespace."
     "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation."
-    "Enable `eldoc-mode' to display function & method signatures in the minibuffer.")
+    "Use <M-x customize-group RET cider RET> to see every possible setting you can customize."
+    "Use <M-x customize-group RET cider-repl RET> to see every possible REPL setting you can customize."
+    "Enable `eldoc-mode' to display function & method signatures in the minibuffer."
+    "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!")
   "Some handy CIDER tips."
   )
 
