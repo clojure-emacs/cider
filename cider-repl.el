@@ -313,6 +313,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;   Java method)
 ; * Press <\\[cider-doc]> to view the documentation for something (e.g.
 ;   a var, a Java method)
+; * Enable `eldoc-mode' to display function & method signatures in the minibuffer.
 ;
 ; CIDER is super customizable - try <M-x customize-group cider> to
 ; get a feel for this. If you’re thirsty for knowledge you should try
