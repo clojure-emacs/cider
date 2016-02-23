@@ -35,6 +35,7 @@ and try to associate the created connection with this project automatically.
   commands).
 * `cider-test` commands now have keybindings in `cider-repl-mode`. The keybindings are exactly the same as those in `cider-mode`.
 * Changed the binding of `cider-apropos-documentation` to `C-c C-d f` and `C-c C-d C-f` (it was `C-c C-d A`).
+* [#1584](https://github.com/clojure-emacs/cider/issues/1584): Don't enable `eldoc-mode` automatically in `cider-repl-mode`.
 
 ### Bugs fixed
 

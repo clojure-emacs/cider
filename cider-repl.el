@@ -1284,7 +1284,6 @@ constructs."
                #'cider-complete-at-point)
   (set-syntax-table cider-repl-mode-syntax-table)
   (cider-eldoc-setup)
-  (eldoc-mode +1)
   ;; At the REPL, we define beginning-of-defun and end-of-defun to be
   ;; the start of the previous prompt or next prompt respectively.
   ;; Notice the interplay with `cider-repl-beginning-of-defun'.

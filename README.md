@@ -492,6 +492,12 @@ character used to trigger the shortcuts is configurable via
 
 #### REPL Configuration
 
+* Enable `eldoc` in REPL buffers:
+
+```el
+(add-hook 'cider-repl-mode-hook #'eldoc-mode)
+```
+
 * You can customize the prompt in REPL buffer. To do that you can customize
   `cider-repl-prompt-function` and set it to a function that takes one argument,
   a namespace name. For convenience, three functions are already provided:
