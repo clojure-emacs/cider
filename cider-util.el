@@ -454,7 +454,8 @@ Any other value is just returned."
     "You can define Clojure functions to be called before and after `cider-refresh' (see `cider-refresh-before-fn' and `cider-refresh-after-fn'."
     "Press <\\[cider-display-connection-info]> to view information about the connection."
     "Press <\\[cider-undef]> to undefine a symbol in the current namespace."
-    "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation.")
+    "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation."
+    "Enable `eldoc-mode' to display function & method signatures in the minibuffer.")
   "Some handy CIDER tips."
   )
 
