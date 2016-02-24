@@ -698,3 +698,9 @@
                      "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (should (string= (cider-inject-jack-in-dependencies "repl -s wait" "boot")
                      "-d org.clojure/tools.nrepl\\:0.2.12 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 repl -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware -s wait"))))
+
+(ert-deftest cider-manual-url ()
+  (let ((cider-version "0.11.0"))
+    (should (string= (cider-manual-url) "https://github.com/clojure-emacs/cider/blob/v0.11.0/README.md")))
+  (let ((cider-version "0.11.0-snapshot"))
+    (should (string= (cider-manual-url) "https://github.com/clojure-emacs/cider/blob/master/README.md"))))
