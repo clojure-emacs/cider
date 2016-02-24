@@ -434,6 +434,7 @@ Any other value is just returned."
 
 (defvar cider-tips
   '("Press <\\[cider-view-manual]> to view CIDER's manual."
+    "Press <\\[cider-view-refcard]> to view CIDER's refcard."
     "Press <\\[describe-mode]> to see a list of the keybindings available (this will work in every Emacs buffer)."
     "Press <\\[cider-repl-handle-shortcut]> to quickly invoke some REPL command."
     "Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure source buffer."

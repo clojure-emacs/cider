@@ -1655,17 +1655,32 @@ With a prefix argument, prompt for function to run instead of -main."
 (defconst cider-manual-url "https://github.com/clojure-emacs/cider/blob/%s/README.md"
   "The URL to CIDER's manual.")
 
+(defun cider--github-version ()
+  "Convert the version to a GitHub-friendly version."
+  (if (string-match-p "-snapshot" cider-version)
+      "master"
+    (concat "v" cider-version)))
+
 (defun cider-manual-url ()
   "The CIDER manual's url."
-  (let ((version (if (string-match-p "-snapshot" cider-version)
-                     "master"
-                   (concat "v" cider-version))))
-    (format cider-manual-url version)))
+  (format cider-manual-url (cider--github-version)))
 
 (defun cider-view-manual ()
   "View the manual in your default browser."
   (interactive)
   (browse-url (cider-manual-url)))
+
+(defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/doc/cider-refcard.pdf"
+  "The URL to CIDER's refcard.")
+
+(defun cider-refcard-url ()
+  "The CIDER manual's url."
+  (format cider-refcard-url (cider--github-version)))
+
+(defun cider-view-refcard ()
+  "View the refcard in your default browser."
+  (interactive)
+  (browse-url (cider-refcard-url)))
 
 (defconst cider-report-bug-url "https://github.com/clojure-emacs/cider/issues/new"
   "The URL to report a CIDER issue.")

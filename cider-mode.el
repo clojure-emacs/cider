@@ -275,6 +275,7 @@ Returns to the buffer in which the command was invoked."
         "--"
         ["A sip of CIDER" cider-drink-a-sip]
         ["View manual online" cider-open-manual]
+        ["View refcard online" cider-view-refcard]
         ["Report a bug" cider-report-bug]
         ["Version info" cider-version]))
     map))
