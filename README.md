@@ -140,6 +140,8 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
 * [`clojure.test` integration](#running-tests)
+* [Smart code reloading](#code-reloading)
+* [Pretty-printing of results](#pretty-printing)
 * Classpath browser
 * Namespace browser
 * nREPL session management
