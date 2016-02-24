@@ -1251,6 +1251,7 @@ constructs."
         "--"
         ["A sip of CIDER" cider-drink-a-sip]
         ["View manual online" cider-view-manual]
+        ["View refcard online" cider-view-refcard]
         ["Report a bug" cider-report-bug]
         ["Version info" cider-version]))
     map))
