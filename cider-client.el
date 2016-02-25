@@ -618,18 +618,18 @@ If NS is non-nil, include it in the request."
    (cider-current-session)
    ns))
 
-(defcustom cider-pprint-fn 'fipp
+(defcustom cider-pprint-fn 'pprint
   "Sets the function to use when pretty-printing evaluation results.
 
 The value must be one of the following symbols:
+
+  `pprint' - to use \\=`clojure.pprint/pprint\\=`
 
   `fipp' - to use the Fast Idiomatic Pretty Printer, approximately 5-10x
           faster than \\=`clojure.core/pprint\\=` (this is the default)
 
   `puget' - to use Puget, which provides canonical serialization of data on
            top of fipp, but at a slight performance cost
-
-  `pprint' - to use \\=`clojure.pprint/pprint\\=`
 
 Alternatively, can be the namespace-qualified name of a Clojure function of
 one argument.  If the function cannot be resolved, an exception will be

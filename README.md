@@ -1322,7 +1322,9 @@ Completion annotations can be disabled by setting
 You can configure the function used by CIDER for pretty-printing evaluation
 results and other data using the `cider-pprint-fn` option.
 
-This can be one of three values (defaults to `fipp`):
+This can be one of three values (defaults to `pprint`):
+
+- `pprint` to use the built-in `clojure.pprint/pprint`.
 
 - `fipp` to use the
   [Fast Idiomatic Pretty-Printer](https://github.com/brandonbloom/fipp). This is
@@ -1332,8 +1334,6 @@ This can be one of three values (defaults to `fipp`):
   Fipp to provide a
   [canonical serialization](https://github.com/greglook/puget#canonical-representation)
   of data, at a slight performance cost.
-
-- `pprint` to use the built-in `clojure.pprint/pprint`.
 
 Alternatively, `cider-pprint-fn` can be set to the namespace-qualified name of a
 Clojure function that takes a single argument and will pretty-print the value of
