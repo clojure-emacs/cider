@@ -1105,6 +1105,7 @@ constructs."
 (cider-repl-add-shortcut "classpath" #'cider-classpath)
 (cider-repl-add-shortcut "trace-ns" #'cider-toggle-trace-ns)
 (cider-repl-add-shortcut "undef" #'cider-undef)
+(cider-repl-add-shortcut "refresh" #'cider-refresh)
 (cider-repl-add-shortcut "help" #'cider-repl-shortcuts-help)
 (cider-repl-add-shortcut "test-ns" #'cider-test-run-ns-tests)
 (cider-repl-add-shortcut "test-all" #'cider-test-run-loaded-tests)
