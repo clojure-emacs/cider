@@ -574,7 +574,7 @@ Return the id of the sent message."
   (nrepl-send-request request callback (or connection (cider-current-connection))))
 
 (defun cider-nrepl-send-sync-request (request &optional connection abort-on-input)
-  "Send REQUEST to the nREPL server synchronously.
+  "Send REQUEST to the nREPL server synchronously using CONNECTION.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along and return the accumulated response.
 If ABORT-ON-INPUT is non-nil, the function will return nil
