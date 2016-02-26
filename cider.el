@@ -224,7 +224,8 @@ Sub-match 1 must be the project path.")
 
 (defvar cider-jack-in-nrepl-middlewares
   '("cider.nrepl/cider-middleware")
-  "List of Clojure variable names. Each of these Clojure variables should hold a vector of nREPL middlewares.")
+  "List of Clojure variable names.
+Each of these Clojure variables should hold a vector of nREPL middlewares.")
 (put 'cider-jack-in-nrepl-middlewares 'risky-local-variable t)
 
 (defun cider--list-as-boot-artifact (list)
