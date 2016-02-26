@@ -1294,8 +1294,8 @@ constructs."
   (setq-local beginning-of-defun-function #'cider-repl-mode-beginning-of-defun)
   (setq-local end-of-defun-function #'cider-repl-mode-end-of-defun)
   (setq-local prettify-symbols-alist clojure--prettify-symbols-alist)
-  (if (fboundp 'hack-dir-local-variables-non-file-buffer)
-      (hack-dir-local-variables-non-file-buffer))
+  ;; apply dir-local variables to REPL buffers
+  (hack-dir-local-variables-non-file-buffer)
   (when cider-repl-history-file
     (cider-repl-history-load cider-repl-history-file)
     (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
