@@ -1652,6 +1652,8 @@ With a prefix argument, prompt for function to run instead of -main."
                        name))))
         (user-error "No %s var defined in any namespace" (cider-propertize name 'var))))))
 
+(defvar cider-version)
+
 (defconst cider-manual-url "https://github.com/clojure-emacs/cider/blob/%s/README.md"
   "The URL to CIDER's manual.")
 
