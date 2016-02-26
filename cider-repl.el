@@ -299,7 +299,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (substitute-command-keys
    "\n; ======================================================================
 ; If you’re new to CIDER it is highly recommended to go through its
-; manual first. Press <M-x cider-view-manual> to view it.
+; manual first. Type <M-x cider-view-manual> to view it.
 ; In case you’re seeing any warnings you should consult the manual’s
 ; \"Troubleshooting\" section.
 ;
@@ -321,7 +321,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ; <M-x cider-drink-a-sip>.
 ;
 ; If you think you’ve encountered a bug (or have some suggestions for
-; improvements) press <M-x cider-report-bug>.
+; improvements) use <M-x cider-report-bug> to report it.
 ;
 ; Above all else - don’t panic! In case of an emergency - procure
 ; some (hard) cider and enjoy it responsibly!
