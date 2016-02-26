@@ -93,13 +93,13 @@ version from the CIDER package or library.")
 
 (defcustom cider-lein-command
   "lein"
-  "The command used to execute Leiningen 2.x."
+  "The command used to execute Leiningen."
   :type 'string
   :group 'cider)
 
 (defcustom cider-lein-parameters
   "repl :headless"
-  "Params passed to lein to start an nREPL server via `cider-jack-in'."
+  "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider)
 
