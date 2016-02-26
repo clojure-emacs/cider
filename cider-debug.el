@@ -358,7 +358,7 @@ In order to work properly, this mode must be activated by
 
 (easy-menu-define cider-debug-mode-menu cider--debug-mode-map
   "Menu for CIDER debug mode"
-  `("CIDER DEBUGGER"
+  `("CIDER Debugger"
     ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
     ["Continue non-stop" (cider-debug-mode-send-reply ":continue") :keys "c"]
     ["Move out of sexp" (cider-debug-mode-send-reply ":out") :keys "o"]
