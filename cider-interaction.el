@@ -1367,6 +1367,7 @@ that a normal reload would not otherwise recover from.  The trade-off of
 clearing is that stale code from any deleted files may not be completely
 unloaded."
   (interactive "p")
+  (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4))))
@@ -1501,6 +1502,7 @@ the string contents of the region into a formatted string."
 (defun cider-format-edn-region (start end)
   "Format the EDN data in the current region."
   (interactive "r")
+  (cider-ensure-connected)
   (let* ((start-column (save-excursion (goto-char start) (current-column)))
          (right-margin (- fill-column start-column)))
     (cider--format-region start end
