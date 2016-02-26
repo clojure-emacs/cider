@@ -69,7 +69,7 @@ A good alternative to the default is `cider-random-tip'."
   "Ensure there is a cider connection present.
 An error is signaled in the absence of a connection."
   (unless (cider-connected-p)
-    (error "No active nREPL connections")))
+    (user-error "`%s' needs an active nREPL connection" this-command)))
 
 (defsubst cider--in-connection-buffer-p ()
   "Return non-nil if current buffer is connected to a server."
