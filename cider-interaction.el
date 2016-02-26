@@ -1463,11 +1463,13 @@ of the buffer into a formatted string."
 (defun cider-format-buffer ()
   "Format the Clojure code in the current buffer."
   (interactive)
+  (cider-ensure-connected)
   (cider--format-buffer #'cider-sync-request:format-code))
 
 (defun cider-format-edn-buffer ()
   "Format the EDN data in the current buffer."
   (interactive)
+  (cider-ensure-connected)
   (cider--format-buffer (lambda (edn)
                           (cider-sync-request:format-edn edn fill-column))))
 
@@ -1493,6 +1495,7 @@ the string contents of the region into a formatted string."
 (defun cider-format-region (start end)
   "Format the Clojure code in the current region."
   (interactive "r")
+  (cider-ensure-connected)
   (cider--format-region start end #'cider-sync-request:format-code))
 
 (defun cider-format-edn-region (start end)
@@ -1507,6 +1510,7 @@ the string contents of the region into a formatted string."
 (defun cider-format-defun ()
   "Format the code in the current defun."
   (interactive)
+  (cider-ensure-connected)
   (save-excursion
     (mark-defun)
     (cider-format-region (region-beginning) (region-end))))
@@ -1519,6 +1523,7 @@ the string contents of the region into a formatted string."
 (defun cider-describe-nrepl-session ()
   "Describe an nREPL session."
   (interactive)
+  (cider-ensure-connected)
   (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-current-connection)))))
     (when (and selected-session (not (equal selected-session "")))
       (let* ((session-info (nrepl-sync-request:describe (cider-current-connection) selected-session))
@@ -1539,6 +1544,7 @@ the string contents of the region into a formatted string."
 (defun cider-close-nrepl-session ()
   "Close an nREPL session for the current connection."
   (interactive)
+  (cider-ensure-connected)
   (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions (cider-current-connection)))))
     (when selected-session
       (nrepl-sync-request:close (cider-current-connection) selected-session)
@@ -1616,6 +1622,7 @@ and all ancillary CIDER buffers."
   "Restart the currently active CIDER connection.
 If RESTART-ALL is t, then restarts all connections."
   (interactive "P")
+  (cider-ensure-connected)
   (if restart-all
       (dolist (conn cider-connections)
         (cider--restart-connection conn))
@@ -1633,6 +1640,7 @@ VAR is a fully qualified Clojure variable name as a string."
   "Run -main or FUNCTION, prompting for its namespace if necessary.
 With a prefix argument, prompt for function to run instead of -main."
   (interactive (list (when current-prefix-arg (read-string "Function name: "))))
+  (cider-ensure-connected)
   (let ((name (or function "-main")))
     (when-let ((response (cider-nrepl-send-sync-request
                           (list "op" "ns-list-vars-by-name"
