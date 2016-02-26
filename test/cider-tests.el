@@ -707,6 +707,6 @@
 
 (ert-deftest cider-refcard-url ()
   (let ((cider-version "0.11.0"))
-    (should (string= (cider-manual-url) "https://github.com/clojure-emacs/cider/raw/v0.11.0/doc/cider-refcard.pdf")))
+    (should (string= (cider-refcard-url) "https://github.com/clojure-emacs/cider/raw/v0.11.0/doc/cider-refcard.pdf")))
   (let ((cider-version "0.11.0-snapshot"))
-    (should (string= (cider-manual-url) "https://github.com/clojure-emacs/cider/raw/master/doc/cider-refcard.pdf"))))
+    (should (string= (cider-refcard-url) "https://github.com/clojure-emacs/cider/raw/master/doc/cider-refcard.pdf"))))
