@@ -1495,7 +1495,12 @@ If someone would like to tackle them, we'd be happy to provide assitance.
 
 ### Injecting dependencies and Leiningen pedantic: abort mode
 
-Because injection currently creates an override of `tools.nrepl` dependency that Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort` is set. Either remove the `:pedantic? :abort` setting or switch off injecting the dependencies with setting `cider-inject-dependencies-at-jack-in` to nil and provide the dependencies by editing your `~/.lein/profiles.clj` as described in the [standalone REPL](#setting-up-a-standalone-repl) section.
+Because injection currently creates an override of `tools.nrepl` dependency that
+Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort`
+is set. Either remove the `:pedantic? :abort` setting or switch off injecting
+the dependencies with setting `cider-inject-dependencies-at-jack-in` to nil and
+provide the dependencies by editing your `~/.lein/profiles.clj` as described in
+the [standalone REPL](#setting-up-a-standalone-repl) section.
 
 ## Troubleshooting
 
