@@ -1297,6 +1297,8 @@ constructs."
         ["Previous prompt" cider-repl-previous-prompt]
         ["Clear output" cider-repl-clear-output]
         ["Clear buffer" cider-repl-clear-buffer]
+        ["Clear banners" cider-repl-clear-banners]
+        ["Clear help banner" cider-repl-clear-help-banner]
         ["Kill input" cider-repl-kill-input]
         "--"
         ["Interrupt evaluation" cider-interrupt]
