@@ -278,18 +278,18 @@ multiple times.
 
 WHICH is one of the following keywords identifying which connections to map
 over.
- :any - Act the connection whose type matches the current-buffer.
+ :any - Act the connection whose type matches the current buffer.
  :clj - Like :any, but signal a `user-error' in `clojurescript-mode' or if
         there is no Clojure connection (use this for commands only
         supported in Clojure).
  :cljs - Like :clj, but demands a ClojureScript connection instead.
  :both - In `clojurec-mode' or `clojurex-mode' act on both connections,
-         otherwise function like :any. Obviously, this option might run
+         otherwise function like :any.  Obviously, this option might run
          FUNCTION twice.
 
 If ANY-MODE is non-nil, :clj and :cljs don't signal errors due to being in
-the wrong major-mode (they still signal if the desired connection type
-doesn't exist). Use this for commands that only apply to a specific
+the wrong major mode (they still signal if the desired connection type
+doesn't exist).  Use this for commands that only apply to a specific
 connection but can be invoked from any buffer (like `cider-refresh')."
   (cl-labels ((err (msg) (user-error (concat "`%s' " msg) this-command)))
     ;; :both in a clj or cljs buffer just means :any.
