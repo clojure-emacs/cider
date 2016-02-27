@@ -710,3 +710,39 @@
     (should (string= (cider-refcard-url) "https://github.com/clojure-emacs/cider/raw/v0.11.0/doc/cider-refcard.pdf")))
   (let ((cider-version "0.11.0-snapshot"))
     (should (string= (cider-refcard-url) "https://github.com/clojure-emacs/cider/raw/master/doc/cider-refcard.pdf"))))
+
+(ert-deftest cider-ensure-connected ()
+  (noflet ((cider-connected-p () t))
+    (should-not (cider-ensure-connected)))
+  (noflet ((cider-connected-p () nil))
+    (should-error (cider-ensure-connected) :type 'user-error)))
+
+(ert-deftest cider-ensure-op-supported ()
+  (noflet ((cider-nrepl-op-supported-p (op) t))
+    (should-not (cider-ensure-op-supported "foo")))
+  (noflet ((cider-nrepl-op-supported-p (op) nil))
+    (should-error (cider-ensure-op-supported "foo") :type 'user-error)))
+
+(ert-deftest cider-refresh-not-connected ()
+  (noflet ((cider-connected-p () nil))
+    (should-error (cider-refresh) :type 'user-error)))
+
+(ert-deftest cider-classpath-not-connected ()
+  (noflet ((cider-connected-p () nil))
+    (should-error (cider-classpath) :type 'user-error)))
+
+(ert-deftest cider-quit-not-connected ()
+  (noflet ((cider-connected-p () nil))
+    (should-error (cider-quit) :type 'user-error)))
+
+(ert-deftest cider-restart-not-connected ()
+  (noflet ((cider-connected-p () nil))
+    (should-error (cider-restart) :type 'user-error)))
+
+(ert-deftest cider-find-ns-not-connected ()
+  (noflet ((cider-connected-p () nil))
+    (should-error (cider-find-ns) :type 'user-error)))
+
+(ert-deftest cider-find-ns-unsupported-op ()
+  (noflet ((cider-ensure-op-supported (op) nil))
+    (should-error (cider-find-ns) :type 'user-error)))

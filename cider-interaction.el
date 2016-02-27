@@ -451,6 +451,7 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
 A prefix ARG of `-` or a double prefix argument causes
 the results to be displayed in a different window."
   (interactive "P")
+  (cider-ensure-connected)
   (cider-ensure-op-supported "ns-path")
   (if ns
       (cider--find-ns ns)
