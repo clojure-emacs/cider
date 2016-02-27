@@ -311,38 +311,38 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 (defun cider-repl--help-banner ()
   "Generate the help banner."
   (substitute-command-keys
-   "\n; ======================================================================
-; If you’re new to CIDER it is highly recommended to go through its
-; manual first. Type <M-x cider-view-manual> to view it.
-; In case you’re seeing any warnings you should consult the manual’s
-; \"Troubleshooting\" section.
-;
-; Here are few tips to get you started:
-;
-; * Press <\\[describe-mode]> to see a list of the keybindings available (this
-;   will work in every Emacs buffer)
-; * Press <\\[cider-repl-handle-shortcut]> to quickly invoke some REPL command
-; * Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure file
-; * Press <\\[cider-find-var] to jump to the source of something (e.g. a var, a
-;   Java method)
-; * Press <\\[cider-doc]> to view the documentation for something (e.g.
-;   a var, a Java method)
-; * Enable `eldoc-mode' to display function & method signatures in the minibuffer.
-; * Print CIDER's refcard and keep it close to your keyboard.
-;
-; CIDER is super customizable - try <M-x customize-group cider> to
-; get a feel for this. If you’re thirsty for knowledge you should try
-; <M-x cider-drink-a-sip>.
-;
-; If you think you’ve encountered a bug (or have some suggestions for
-; improvements) use <M-x cider-report-bug> to report it.
-;
-; Above all else - don’t panic! In case of an emergency - procure
-; some (hard) cider and enjoy it responsibly!
-;
-; You can disable this message from appearing on start by setting
-; `cider-repl-display-help-banner' to nil.
-; ======================================================================
+   "\n;; ======================================================================
+;; If you’re new to CIDER it is highly recommended to go through its
+;; manual first. Type <M-x cider-view-manual> to view it.
+;; In case you’re seeing any warnings you should consult the manual’s
+;; \"Troubleshooting\" section.
+;;
+;; Here are few tips to get you started:
+;;
+;; * Press <\\[describe-mode]> to see a list of the keybindings available (this
+;;   will work in every Emacs buffer)
+;; * Press <\\[cider-repl-handle-shortcut]> to quickly invoke some REPL command
+;; * Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure file
+;; * Press <\\[cider-find-var] to jump to the source of something (e.g. a var, a
+;;   Java method)
+;; * Press <\\[cider-doc]> to view the documentation for something (e.g.
+;;   a var, a Java method)
+;; * Enable `eldoc-mode' to display function & method signatures in the minibuffer.
+;; * Print CIDER's refcard and keep it close to your keyboard.
+;;
+;; CIDER is super customizable - try <M-x customize-group cider> to
+;; get a feel for this. If you’re thirsty for knowledge you should try
+;; <M-x cider-drink-a-sip>.
+;;
+;; If you think you’ve encountered a bug (or have some suggestions for
+;; improvements) use <M-x cider-report-bug> to report it.
+;;
+;; Above all else - don’t panic! In case of an emergency - procure
+;; some (hard) cider and enjoy it responsibly!
+;;
+;; You can disable this message from appearing on start by setting
+;; `cider-repl-display-help-banner' to nil.
+;; ======================================================================
 "))
 
 (defun cider-repl--insert-banner-and-prompt (buffer)
