@@ -85,8 +85,6 @@ found."
       (unless no-error
         (error "No nREPL connection buffer"))))
 
-(define-obsolete-function-alias 'nrepl-current-connection-buffer 'cider-default-connection "0.10")
-
 (defun cider-connections ()
   "Return the list of connection buffers.
 If the list is empty and buffer-local, return the global value."
@@ -354,8 +352,6 @@ connection but can be invoked from any buffer (like `cider-refresh')."
         (unless (get-buffer-window buffer)
           (select-window (display-buffer buffer))))
     (cider--setup-connection-browser)))
-
-(define-obsolete-function-alias 'nrepl-connection-browser 'cider-connection-browser "0.10")
 
 (defun cider--connections-refresh ()
   "Refresh the connections buffer, if the buffer exists.
@@ -694,8 +690,6 @@ Return the REPL buffer given by `cider-current-connection'.")
   (with-current-buffer (cider-current-connection)
     nrepl-session))
 
-(define-obsolete-function-alias 'nrepl-current-session 'cider-current-session "0.10")
-
 (defun cider-current-messages-buffer ()
   "The nREPL messages buffer, matching the current connection."
   (nrepl-messages-buffer (cider-current-connection)))
@@ -704,8 +698,6 @@ Return the REPL buffer given by `cider-current-connection'.")
   "Return the current tooling session."
   (with-current-buffer (cider-current-connection)
     nrepl-tooling-session))
-
-(define-obsolete-function-alias 'nrepl-current-tooling-session 'cider-current-tooling-session "0.10")
 
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
@@ -979,8 +971,6 @@ default connection."
                                             (cider-default-connection)
                                           (cider-current-connection)))))
 
-(define-obsolete-function-alias 'cider-display-current-connection-info 'cider-display-connection-info "0.10")
-
 (defun cider-rotate-default-connection ()
   "Rotate and display the default nREPL connection."
   (interactive)
@@ -1002,7 +992,6 @@ If CONN is not provided the user will be prompted to select a connection."
          (project-dir (cider--connection-project-dir conn)))
     (cider-connect host port project-dir)))
 
-(define-obsolete-function-alias 'cider-rotate-connection 'cider-rotate-default-connection "0.10")
 (defun cider-extract-designation-from-current-repl-buffer ()
   "Extract the designation from the cider repl buffer name."
   (let ((repl-buffer-name (buffer-name (cider-current-repl-buffer)))

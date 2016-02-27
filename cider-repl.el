@@ -485,7 +485,6 @@ This will not work on non-current prompts."
 (defun cider-repl-prompt-default (namespace)
   "Return a prompt string that mentions NAMESPACE."
   (format "%s> " namespace))
-(define-obsolete-function-alias 'cider-repl-default-prompt 'cider-repl-prompt-default "0.10.0")
 
 (defun cider-repl-prompt-abbreviated (namespace)
   "Return a prompt string that abbreviates NAMESPACE."

@@ -814,7 +814,6 @@ CONN-BUFFER refers to a (presumably) dead connection, which we can eventually re
     (setq nrepl-session nil)
     (setq nrepl-tooling-session nil)))
 
-(define-obsolete-function-alias 'nrepl-close 'cider--close-connection-buffer "0.10.0")
 
 ;;; Client: Response Handling
 ;; After being decoded, responses (aka, messages from the server) are dispatched

@@ -36,7 +36,6 @@
 (require 'cider-compat)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
-(define-obsolete-function-alias 'cider-jump-back 'cider-pop-back "0.10.0")
 
 (defcustom cider-font-lock-max-length 10000
   "The max length of strings to fontify in `cider-font-lock-as'.

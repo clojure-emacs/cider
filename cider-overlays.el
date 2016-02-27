@@ -74,7 +74,6 @@ see `cider-debug-use-overlays'."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.5.0"))
-(define-obsolete-variable-alias 'cider-interactive-eval-result-prefix 'cider-eval-result-prefix "0.10.0")
 
 (defcustom cider-eval-result-duration 'command
   "Duration, in seconds, of CIDER's eval-result overlays.
