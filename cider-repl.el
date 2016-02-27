@@ -288,11 +288,25 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
-  (format "; CIDER %s (Java %s, Clojure %s, nREPL %s)"
-          (cider--version)
-          (cider--java-version)
-          (cider--clojure-version)
-          (cider--nrepl-version)))
+  (let ((host (cider--connection-host (current-buffer)))
+        (port (cider--connection-port (current-buffer))))
+    (format ";; Connected to nREPL server running on port %s on host %s - nrepl://%s:%s
+;; CIDER %s, nREPL %s
+;; Clojure %s, Java %s
+;;     Docs: (doc function-name)
+;;           (find-doc part-of-name)
+;;   Source: (source function-name)
+;;  Javadoc: (javadoc java-object-or-class)
+;;     Exit: C-c C-q
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;"
+    port
+    host
+    host
+    port
+    (cider--version)
+    (cider--nrepl-version)
+    (cider--clojure-version)
+    (cider--java-version))))
 
 (defun cider-repl--help-banner ()
   "Generate the help banner."

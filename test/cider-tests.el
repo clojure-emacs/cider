@@ -138,35 +138,56 @@
     (should (equal (nrepl-server-buffer-name) " *nrepl-server localhost*"))))
 
 (ert-deftest test-cider-repl--banner ()
-  (noflet ((pkg-info-version-info (library) "0.2.0")
-           (cider--java-version () "1.7")
-           (cider--clojure-version () "1.5.1")
-           (cider--nrepl-version () "0.2.1"))
-    (should (equal (cider-repl--banner) "; CIDER 0.2.0 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)"))))
+  (noflet ((pkg-info-version-info (library) "0.11.0")
+           (cider--java-version () "1.8.0_31")
+           (cider--clojure-version () "1.8.0")
+           (cider--nrepl-version () "0.2.12")
+           (cider--connection-host (conn) "localhost")
+           (cider--connection-port (conn) "54018"))
+    (should (equal (cider-repl--banner)
+                   ";; Connected to nREPL server running on port 54018 on host localhost - nrepl://localhost:54018
+;; CIDER 0.11.0, nREPL 0.2.12
+;; Clojure 1.8.0, Java 1.8.0_31
+;;     Docs: (doc function-name)
+;;           (find-doc part-of-name)
+;;   Source: (source function-name)
+;;  Javadoc: (javadoc java-object-or-class)
+;;     Exit: C-c C-q
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;"))))
 
 (ert-deftest test-cider-repl--banner-version-fallback ()
-  (require 'pkg-info)
   (noflet ((pkg-info-version-info (library) (error "No package version"))
-           (cider--java-version () "1.7")
-           (cider--clojure-version () "1.5.1")
-           (cider--nrepl-version () "0.2.1"))
-    (let ((cider-version "0.5.1"))
-      (should (equal (cider-repl--banner) "; CIDER 0.5.1 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
+           (cider--java-version () "1.8.0_31")
+           (cider--clojure-version () "1.8.0")
+           (cider--nrepl-version () "0.2.12")
+           (cider--connection-host (conn) "localhost")
+           (cider--connection-port (conn) "54018"))
+    (let ((cider-version "0.11.0"))
+      (should (equal (cider-repl--banner)
+                     ";; Connected to nREPL server running on port 54018 on host localhost - nrepl://localhost:54018
+;; CIDER 0.11.0, nREPL 0.2.12
+;; Clojure 1.8.0, Java 1.8.0_31
+;;     Docs: (doc function-name)
+;;           (find-doc part-of-name)
+;;   Source: (source function-name)
+;;  Javadoc: (javadoc java-object-or-class)
+;;     Exit: C-c C-q
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;")))))
 
 (ert-deftest test-cider-var-info ()
   (noflet ((cider-nrepl-send-sync-request (list)
-                                    '(dict
-                                      "arglists" "([] [x] [x & ys])"
-                                      "ns" "clojure.core"
-                                      "name" "str"
-                                      "column" 1
-                                      "added" "1.0"
-                                      "static" "true"
-                                      "doc" "stub"
-                                      "line" 504
-                                      "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
-                                      "tag" "class java.lang.String"
-                                      "status" ("done")))
+                                          '(dict
+                                            "arglists" "([] [x] [x & ys])"
+                                            "ns" "clojure.core"
+                                            "name" "str"
+                                            "column" 1
+                                            "added" "1.0"
+                                            "static" "true"
+                                            "doc" "stub"
+                                            "line" 504
+                                            "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
+                                            "tag" "class java.lang.String"
+                                            "status" ("done")))
            (cider-ensure-op-supported (op) t)
            (cider-current-session () nil)
            (cider-current-ns () "user"))
