@@ -448,7 +448,7 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
 (defun cider-find-ns (&optional arg ns)
   "Find the file containing NS.
 
-A prefix of `-` or a double prefix argument causes
+A prefix ARG of `-` or a double prefix argument causes
 the results to be displayed in a different window."
   (interactive "P")
   (cider-ensure-op-supported "ns-path")
