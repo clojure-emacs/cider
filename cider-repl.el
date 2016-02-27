@@ -340,7 +340,8 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;; Above all else - don’t panic! In case of an emergency - procure
 ;; some (hard) cider and enjoy it responsibly!
 ;;
-;; You can disable this message from appearing on start by setting
+;; You can remove this message with the `cider-repl-clear-help-banner' command.
+;; You can disable it from appearing on start by setting
 ;; `cider-repl-display-help-banner' to nil.
 ;; ======================================================================
 "))
@@ -832,6 +833,43 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
             (insert
              (propertize ";;; output cleared" 'font-lock-face 'font-lock-comment-face))))))))
 
+(defun cider-repl-clear-banners ()
+  "Delete the REPL banners."
+  (interactive)
+  ;; TODO: Improve the boundaries detecting logic
+  ;; probably it should be based on text properties
+  ;; the current implemetation will clear warnings as well
+  (let ((start (point-min))
+        (end (save-excursion
+               (goto-char (point-min))
+               (cider-repl-next-prompt)
+               (forward-line -1)
+               (end-of-line)
+               (point))))
+    (when (< start end)
+      (let ((inhibit-read-only t))
+        (cider-repl--clear-region start (1+ end))))))
+
+(defun cider-repl-clear-help-banner ()
+  "Delete the help REPL banner."
+  (interactive)
+  ;; TODO: Improve the boundaries detecting logic
+  ;; probably it should be based on text properties
+  (let ((start (save-excursion
+                 (goto-char (point-min))
+                 (search-forward ";; =")
+                 (beginning-of-line)
+                 (point)))
+        (end (save-excursion
+               (goto-char (point-min))
+               (cider-repl-next-prompt)
+               (search-backward ";; =")
+               (end-of-line)
+               (point))))
+    (when (< start end)
+      (let ((inhibit-read-only t))
+        (cider-repl--clear-region start (1+ end))))))
+
 (defun cider-repl-switch-ns-handler (buffer)
   "Make a nREPL evaluation handler for the REPL BUFFER's ns switching."
   (nrepl-make-response-handler buffer
@@ -1107,6 +1145,8 @@ constructs."
 (declare-function cider-refresh "cider-interaction")
 (cider-repl-add-shortcut "clear-output" #'cider-repl-clear-output)
 (cider-repl-add-shortcut "clear" #'cider-repl-clear-buffer)
+(cider-repl-add-shortcut "clear-banners" #'cider-repl-clear-banners)
+(cider-repl-add-shortcut "clear-help-banner" #'cider-repl-clear-help-banner)
 (cider-repl-add-shortcut "ns" #'cider-repl-set-ns)
 (cider-repl-add-shortcut "toggle-pretty" #'cider-repl-toggle-pretty-printing)
 (cider-repl-add-shortcut "browse-ns" (lambda () (cider-browse-ns (cider-current-ns))))
