@@ -299,14 +299,14 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;;  Javadoc: (javadoc java-object-or-class)
 ;;     Exit: C-c C-q
 ;;  Results: Stored in vars *1, *2, *3, an exception in *e;"
-    port
-    host
-    host
-    port
-    (cider--version)
-    (cider--nrepl-version)
-    (cider--clojure-version)
-    (cider--java-version))))
+            port
+            host
+            host
+            port
+            (cider--version)
+            (cider--nrepl-version)
+            (cider--clojure-version)
+            (cider--java-version))))
 
 (defun cider-repl--help-banner ()
   "Generate the help banner."
