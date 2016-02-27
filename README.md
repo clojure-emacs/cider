@@ -869,6 +869,9 @@ into the brilliant show of lights on the right.
   <img src="doc/images/enlighten-on.png" />
 </p>
 
+To stop displaying the locals you'll have to disable `cider-enlighten-mode`
+and reevaluate the definitions you had instrumented previously.
+
 You can also trigger this on specific functions (without having to turn on the
 minor mode) by writing `#light` before the `(def` and reevaluating it.
 
