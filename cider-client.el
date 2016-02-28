@@ -557,7 +557,7 @@ When NO-DEFAULT is non-nil, it will return nil instead of \"user\"."
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
   (unless (cider-nrepl-op-supported-p op)
-    (user-error "Can't find nREPL middleware providing op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" op (upcase cider-version))))
+    (user-error "`%s' requires the nREPL op \"%s\".  Please, install (or update) cider-nrepl %s and restart CIDER" this-command op (upcase cider-version))))
 
 (defun cider-nrepl-send-request (request callback &optional connection)
   "Send REQUEST and register response handler CALLBACK.
