@@ -784,7 +784,9 @@ If CALLBACK is nil, use `cider-load-file-handler'."
 
 ;;; Sync Requests
 (defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
-  "Send \"apropos\" op with args SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
+  "Send \"apropos\" request for regexp QUERY.
+
+Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
   (thread-first `("op" "apropos"
                   "session" ,(cider-current-session)
                   "ns" ,(cider-current-ns)
