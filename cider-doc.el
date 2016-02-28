@@ -181,7 +181,6 @@
 (defun cider-javadoc-handler (symbol-name)
   "Invoke the nREPL \"info\" op on SYMBOL-NAME if available."
   (when symbol-name
-    (cider-ensure-op-supported "info")
     (let* ((info (cider-var-info symbol-name))
            (url (nrepl-dict-get info "javadoc")))
       (if url
@@ -196,6 +195,7 @@ the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
   (cider-ensure-connected)
+  (cider-ensure-op-supported "info")
   (funcall (cider-prompt-for-symbol-function arg)
            "Javadoc for"
            #'cider-javadoc-handler))
