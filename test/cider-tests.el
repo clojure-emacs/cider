@@ -275,14 +275,14 @@
       (should (string= (cider--connection-info (current-buffer))
                        "CLJ <no project>@localhost:4005 (Java 1.7, Clojure 1.5.1, nREPL 0.2.1)")))))
 
-(ert-deftest test-nrepl-close ()
+(ert-deftest test-cider--close-connection-buffer ()
   (let ((connections (cider-connections)))
     (cider-test-with-buffers
      (a b)
      (cider-make-connection-default a)
      (cider-make-connection-default b)
      ;; closing a buffer should see it removed from the connection list
-     (nrepl-close a)
+     (cider--close-connection-buffer a)
      (should (not (buffer-live-p a)))
      (should (equal (cons b connections)
                     (cider-connections)))
