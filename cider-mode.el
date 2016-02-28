@@ -259,6 +259,7 @@ Returns to the buffer in which the command was invoked."
         ["Clear REPL output" cider-find-and-clear-repl-output]
         "--"
         ["Browse classpath" cider-classpath]
+        ["Browse classpath entry" cider-open-classpath-entry]
         ["Browse namespace" cider-browse-ns]
         ["Browse all namespaces" cider-browse-ns-all]
         "--"
