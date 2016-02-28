@@ -1110,30 +1110,33 @@ the port, and the client buffer."
 
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT."
-  (with-current-buffer (process-buffer process)
-    ;; auto-scroll on new output
-    (let ((moving (= (point) (process-mark process))))
-      (save-excursion
-        (goto-char (process-mark process))
-        (insert output)
-        (set-marker (process-mark process) (point)))
-      (when moving
-        (goto-char (process-mark process))
-        (when-let ((win (get-buffer-window)))
-          (set-window-point win (point))))))
-  ;; detect the port the server is listening on from its output
-  (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
-    (let ((port (string-to-number (match-string 1 output))))
-      (message "nREPL server started on %s" port)
-      (with-current-buffer (process-buffer process)
-        (let* ((client-proc (nrepl-start-client-process nil port process))
-               (client-buffer (process-buffer client-proc)))
-          (setq nrepl-client-buffers
-                (cons client-buffer
-                      (delete client-buffer nrepl-client-buffers)))
+  ;; In Windows this can be false:
+  (let ((server-buffer (process-buffer process)))
+    (when (buffer-live-p server-buffer)
+      (with-current-buffer server-buffer
+        ;; auto-scroll on new output
+        (let ((moving (= (point) (process-mark process))))
+          (save-excursion
+            (goto-char (process-mark process))
+            (insert output)
+            (set-marker (process-mark process) (point)))
+          (when moving
+            (goto-char (process-mark process))
+            (when-let ((win (get-buffer-window)))
+              (set-window-point win (point))))))
+      ;; detect the port the server is listening on from its output
+      (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
+        (let ((port (string-to-number (match-string 1 output))))
+          (message "nREPL server started on %s" port)
+          (with-current-buffer server-buffer
+            (let* ((client-proc (nrepl-start-client-process nil port process))
+                   (client-buffer (process-buffer client-proc)))
+              (setq nrepl-client-buffers
+                    (cons client-buffer
+                          (delete client-buffer nrepl-client-buffers)))
 
-          (when (functionp nrepl-post-client-callback)
-            (funcall nrepl-post-client-callback client-buffer)))))))
+              (when (functionp nrepl-post-client-callback)
+                (funcall nrepl-post-client-callback client-buffer)))))))))
 
 (declare-function cider--close-connection-buffer "cider-client")
 
