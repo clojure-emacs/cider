@@ -89,6 +89,7 @@
   "List all classpath entries."
   (interactive)
   (cider-ensure-connected)
+  (cider-ensure-op-supported "classpath")
   (with-current-buffer (cider-popup-buffer cider-classpath-buffer t)
     (cider-classpath-list (current-buffer)
                           (mapcar (lambda (name)

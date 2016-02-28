@@ -748,10 +748,6 @@
   (noflet ((cider-connected-p () nil))
     (should-error (cider-refresh) :type 'user-error)))
 
-(ert-deftest cider-classpath-not-connected ()
-  (noflet ((cider-connected-p () nil))
-    (should-error (cider-classpath) :type 'user-error)))
-
 (ert-deftest cider-quit-not-connected ()
   (noflet ((cider-connected-p () nil))
     (should-error (cider-quit) :type 'user-error)))
