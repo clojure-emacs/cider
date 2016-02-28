@@ -830,7 +830,7 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
           (save-excursion
             (goto-char start)
             (insert
-             (propertize ";;; output cleared" 'font-lock-face 'font-lock-comment-face))))))))
+             (propertize ";; output cleared" 'font-lock-face 'font-lock-comment-face))))))))
 
 (defun cider-repl-clear-banners ()
   "Delete the REPL banners."
