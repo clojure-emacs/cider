@@ -329,7 +329,7 @@ In order to work properly, this mode must be activated by
     ;; doesn't accidentally hit `n' between two messages (thus editing the code).
     (when-let ((proc (unless nrepl-ongoing-sync-request
                        (get-buffer-process (cider-current-connection)))))
-      (accept-process-output proc 0.5))
+      (accept-process-output proc 1))
     (unless cider--debug-mode
       (setq buffer-read-only nil)
       (cider--debug-remove-overlays (current-buffer)))
