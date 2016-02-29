@@ -1022,7 +1022,7 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
 (defun nrepl-request:eval (input callback connection &optional session ns line column additional-params)
   "Send the request INPUT and register the CALLBACK as the response handler.
 The request is dispatched via CONNECTION and SESSION.  If NS is non-nil,
-include it in the request. LINE and COLUMN, if non-nil, define the position
+include it in the request.  LINE and COLUMN, if non-nil, define the position
 of INPUT in its buffer.
 ADDITIONAL-PARAMS is a plist to be appended to the request message."
   (nrepl-send-request (append (nrepl--eval-request input session ns line column) additional-params)
