@@ -1200,14 +1200,14 @@ operations.")
   (setq-local electric-indent-chars nil)
   (setq-local comment-start ";")
   (setq-local comment-end "")
-  (setq-local paragraph-start "(--->\\|(<-")
-  (setq-local paragraph-separate "(<-"))
+  (setq-local paragraph-start "(-->\\|(<--")
+  (setq-local paragraph-separate "(<--"))
 
 (defun nrepl-decorate-msg (msg type)
   "Decorate nREPL MSG according to its TYPE."
   (pcase type
-    (`request (cons '---> (cdr msg)))
-    (`response (cons '<- (cdr msg)))))
+    (`request (cons '--> (cdr msg)))
+    (`response (cons '<-- (cdr msg)))))
 
 (defun nrepl-log-message (msg type)
   "Log the nREPL MSG.
@@ -1256,7 +1256,7 @@ Set this to nil to prevent truncation."
 (defun nrepl--pp (object &optional foreground)
   "Pretty print nREPL OBJECT, delimited using FOREGROUND."
   (if (not (and (listp object)
-                (memq (car object) '(<- ---> dict))))
+                (memq (car object) '(<-- --> dict))))
       (progn (when (stringp object)
                (setq object (substring-no-properties object)))
              (pp object (current-buffer))
