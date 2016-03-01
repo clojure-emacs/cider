@@ -695,7 +695,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 For more information visit [boot-cljs-repl](https://github.com/adzerk-oss/boot-cljs-repl).
 
-#### Using the Figwheel REPL in Leiningen project
+#### Using the Figwheel REPL (Leiningen-only)
 
 You can also use [https://github.com/bhauman/lein-figwheel](Figwheel) with CIDER.
 
