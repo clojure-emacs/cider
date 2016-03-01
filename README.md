@@ -728,6 +728,10 @@ You can also use [https://github.com/bhauman/lein-figwheel](Figwheel) with CIDER
 You now have two nREPL connections, one for Clojure and one for ClojureScript.
 CIDER will determine which to use based on the type of file you're editing.
 
+You should also check out
+[Figwheel](https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl)'s
+wiki.
+
 ## Extended workflow
 
 CIDER packs a ton of extra functionality, besides basic Clojure code
