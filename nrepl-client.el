@@ -1253,6 +1253,20 @@ Set this to nil to prevent truncation."
   "Expand the text hidden under overlay BUTTON."
   (delete-overlay button))
 
+(defun nrepl--expand-button-mouse (event)
+  "Expand the text hidden under overlay BUTTON."
+  (interactive "e")
+  (pcase (elt event 1)
+    (`(,window ,_ ,_ ,_ ,_ ,point . ,_)
+     (with-selected-window window
+       (nrepl--expand-button (button-at point))))))
+
+(define-button-type 'nrepl--collapsed-dict
+  'display "..."
+  'action #'nrepl--expand-button
+  'face 'link
+  'help-echo "RET: Expand dict.")
+
 (defun nrepl--pp (object &optional foreground)
   "Pretty print nREPL OBJECT, delimited using FOREGROUND."
   (if (not (and (listp object)
@@ -1282,12 +1296,9 @@ Set this to nil to prevent truncation."
                            (> (count-screen-lines l (point) t)
                               nrepl-dict-max-message-size))
                   (make-button (1+ l) (point)
-                               'display "..."
-                               'action #'nrepl--expand-button
-                               'mouse-action #'nrepl--expand-button
-                               'face 'link
-                               'help-echo "RET: Expand dict."
-                               'follow-link t))))
+                               :type 'nrepl--collapsed-dict
+                               ;; Workaround for bug#1568.
+                               'local-map '(keymap (mouse-1 . nrepl--expand-button-mouse))))))
             (insert (color ")\n"))))))))
 
 (defun nrepl-messages-buffer-name (conn)
