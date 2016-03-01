@@ -97,6 +97,14 @@ The page size can be also changed interactively within the inspector."
   (cider-inspect-expr (cider-defun-at-point) (cider-current-ns)))
 
 ;;;###autoload
+(defun cider-inspect-read-and-inspect ()
+  "Read an expression from the minibuffer and inspect its result."
+  (interactive)
+  (when-let ((expression (cider-read-from-minibuffer "Inspect expression: "
+                                                     (cider-sexp-at-point))))
+    (cider-inspect-expr expression (cider-current-ns))))
+
+;;;###autoload
 (defun cider-inspect (&optional arg)
   "Inspect the result of the preceding sexp.
 
@@ -106,9 +114,7 @@ With a second prefix argument it prompts for an expression to eval and inspect."
   (pcase arg
     (1 (cider-inspect-last-sexp))
     (4 (cider-inspect-defun-at-point))
-    (16 (when-let ((expression (cider-read-from-minibuffer "Inspect expression: "
-                                                        (cider-sexp-at-point))))
-          (cider-inspect-expr expression (cider-current-ns))))))
+    (16 (cider-inspect-read-and-inspect))))
 
 ;; Operations
 (defun cider-inspector--value-handler (_buffer value)
