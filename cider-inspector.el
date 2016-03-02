@@ -324,8 +324,6 @@ that value.
   (let ((point (posn-point (event-end event))))
     (cond ((and point
                 (or (get-text-property point 'cider-value-idx)))
-           ;;                    (get-text-property point 'cider-range-button)
-           ;;                    (get-text-property point 'cider-action-number)))
            (goto-char point)
            (cider-inspector-operate-on-point))
           (t
