@@ -739,6 +739,25 @@ evaluation. Much of the functionality is centered around additional major modes,
 which provide you with convenient ways to get something done or inspect
 something.
 
+### Evaluating Clojure code in the minibuffer
+
+You can evaluate Clojure code in the minibuffer from pretty much everywhere
+by using `M-x cider-read-and-eval` (bound in `cider-mode` buffers to `C-c C-:`).
+`TAB` completion will work in the minibuffer, just as in a REPL/source buffer.
+
+You can also enable `eldoc-mode` in the minibuffer by adding the following to your
+config:
+
+```el
+(add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
+```
+
+You can also enable `paredit` or `smartparens` for minibuffer evaluations:
+
+```el
+(add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
+```
+
 ### Macroexpansion
 
 Pressing <kbd>C-c C-m</kbd> after some form in a source buffer or the REPL will
