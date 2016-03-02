@@ -144,16 +144,18 @@
            (cider--nrepl-version () "0.2.12")
            (cider--connection-host (conn) "localhost")
            (cider--connection-port (conn) "54018"))
-    (should (equal (cider-repl--banner)
-                   ";; Connected to nREPL server running on port 54018 on host localhost - nrepl://localhost:54018
-;; CIDER 0.11.0, nREPL 0.2.12
+    (let ((cider-version "0.11.0")
+          (cider-codename "Victory"))
+      (should (equal (cider-repl--banner)
+                     ";; Connected to nREPL server running on port 54018 on host localhost - nrepl://localhost:54018
+;; CIDER 0.11.0 (Victory), nREPL 0.2.12
 ;; Clojure 1.8.0, Java 1.8.0_31
 ;;     Docs: (doc function-name)
 ;;           (find-doc part-of-name)
 ;;   Source: (source function-name)
 ;;  Javadoc: (javadoc java-object-or-class)
 ;;     Exit: C-c C-q
-;;  Results: Stored in vars *1, *2, *3, an exception in *e;"))))
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;")))))
 
 (ert-deftest test-cider-repl--banner-version-fallback ()
   (noflet ((pkg-info-version-info (library) (error "No package version"))
@@ -162,10 +164,11 @@
            (cider--nrepl-version () "0.2.12")
            (cider--connection-host (conn) "localhost")
            (cider--connection-port (conn) "54018"))
-    (let ((cider-version "0.11.0"))
+    (let ((cider-version "0.11.0")
+          (cider-codename "Victory"))
       (should (equal (cider-repl--banner)
                      ";; Connected to nREPL server running on port 54018 on host localhost - nrepl://localhost:54018
-;; CIDER 0.11.0, nREPL 0.2.12
+;; CIDER 0.11.0 (Victory), nREPL 0.2.12
 ;; Clojure 1.8.0, Java 1.8.0_31
 ;;     Docs: (doc function-name)
 ;;           (find-doc part-of-name)

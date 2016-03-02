@@ -285,10 +285,14 @@ Unless you specify a BUFFER it will default to the current one."
 (defvar cider-version)
 
 (defun cider--version ()
-  "Retrieve CIDER's version."
-  (condition-case nil
-      (pkg-info-version-info 'cider)
-    (error cider-version)))
+  "Retrieve CIDER's version.
+A codename is added to stable versions."
+  (let ((version (condition-case nil
+                     (pkg-info-version-info 'cider)
+                   (error cider-version))))
+    (if (string-match-p "-snapshot" cider-version)
+        version
+      (format "%s (%s)" version cider-codename))))
 
 
 ;;; Strings
