@@ -35,7 +35,7 @@
 (require 'cider-compat)
 (require 'cider-util)
 
-(require 'cl-lib)
+(require 'seq)
 
 (require 'eldoc)
 
@@ -60,11 +60,12 @@ POS is the index of the currently highlighted argument."
     (mapconcat
      (lambda (arg)
        (let ((argstr (format "%s" arg)))
-         (if (eq arg '&)
+         (if (string= arg "&")
              argstr
            (prog1
                (if (or (= (1+ i) pos)
-                       (and rest-pos (> (+ 1 i) rest-pos)
+                       (and rest-pos
+                            (> (+ 1 i) rest-pos)
                             (> pos rest-pos)))
                    (propertize argstr 'face
                                'eldoc-highlight-function-argument)
@@ -73,7 +74,7 @@ POS is the index of the currently highlighted argument."
 
 (defun cider--find-rest-args-position (arglist)
   "Find the position of & in the ARGLIST vector."
-  (cl-position '& (append arglist ())))
+  (seq-position arglist "&"))
 
 (defun cider-highlight-arglist (arglist pos)
   "Format the ARGLIST for eldoc.
