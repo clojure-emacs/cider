@@ -283,6 +283,7 @@ Unless you specify a BUFFER it will default to the current one."
 (autoload 'pkg-info-version-info "pkg-info.el")
 
 (defvar cider-version)
+(defvar cider-codename)
 
 (defun cider--version ()
   "Retrieve CIDER's version.

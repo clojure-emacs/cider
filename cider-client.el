@@ -1039,9 +1039,8 @@ The request is dispatched via CONNECTION and SESSION.
 If NS is non-nil, include it in the request.
 RIGHT-MARGIN specifies the maximum column width of the
 pretty-printed result, and is included in the request if non-nil."
-  (cider-nrepl-send-request
-   (cider--nrepl-pprint-eval-request input (cider-current-session) ns right-margin pprint-fn)
-   callback))
+  (cider-nrepl-request:eval input callback ns nil nil
+                            (cider--nrepl-pprint-request-plist right-margin pprint-fn)))
 (make-obsolete 'cider-nrepl-request:pprint-eval
                "`cider-nrepl-request:eval' with `cider--nrepl-pprint-request-plist'"
                "0.11.0")
