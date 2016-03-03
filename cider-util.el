@@ -329,6 +329,20 @@ objects."
               (cons el el)))
           candidates))
 
+(defun cider-add-to-alist (symbol car cadr)
+  "Add '(CAR CADR) to the alist stored in SYMBOL.
+If CAR already corresponds to an entry in the alist, destructively replace
+the entry's second element with CADR.
+
+This can be used, for instance, to update the version of an injected
+plugin or dependency with:
+  (cider-add-to-alist 'cider-jack-in-lein-plugins
+                  \"plugin/artifact-name\" \"THE-NEW-VERSION\")"
+  (let ((alist (symbol-value symbol)))
+    (if-let ((cons (assoc car alist)))
+        (setcdr cons (list cadr))
+      (set symbol (cons (list car cadr) alist)))))
+
 (defun cider-namespace-qualified-p (sym)
   "Return t if SYM is namespace-qualified."
   (string-match-p "[^/]+/" sym))
