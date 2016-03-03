@@ -323,7 +323,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;;   will work in every Emacs buffer)
 ;; * Press <\\[cider-repl-handle-shortcut]> to quickly invoke some REPL command
 ;; * Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure file
-;; * Press <\\[cider-find-var] to jump to the source of something (e.g. a var, a
+;; * Press <\\[cider-find-var]> to jump to the source of something (e.g. a var, a
 ;;   Java method)
 ;; * Press <\\[cider-doc]> to view the documentation for something (e.g.
 ;;   a var, a Java method)
