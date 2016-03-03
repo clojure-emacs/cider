@@ -6,6 +6,11 @@
 
 * [#1599](https://github.com/clojure-emacs/cider/pull/1599): Don't error when test makes 0 assertions.
 
+### New Features
+
+* Javadoc commands take into account the variable `clojure.java.javadoc/*remote-javadocs*`.
+* Javadoc also works on classes of the AmazonAWS Java SDK.
+
 ## 0.11.0 / 2016-03-03
 
 ### New features
