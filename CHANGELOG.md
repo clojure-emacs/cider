@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+* [#1599](https://github.com/clojure-emacs/cider/pull/1599): Don't error when test makes 0 assertions.
+
 ## 0.11.0 / 2016-03-03
 
 ### New features
