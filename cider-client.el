@@ -230,10 +230,13 @@ If TYPE is nil, then connections whose type matches the current file
 extension are given preference, but if none exist, any connection is
 returned.  In this case, only return nil if there are no active connections
 at all."
+  ;; If TYPE was specified, we only return that type (or nil).  OW, we prefer
+  ;; that TYPE, but ultimately allow any type.
   (cl-labels ((right-type-p
                (c)
                (when (or (not type)
-                         (with-current-buffer c (equal cider-repl-type type)))
+                         (and (buffer-live-p c)
+                              (with-current-buffer c (equal cider-repl-type type))))
                  c)))
     (let ((connections (cider-connections)))
       (cond
@@ -242,20 +245,19 @@ at all."
        ((and (derived-mode-p 'cider-repl-mode) (right-type-p (current-buffer))))
        ((eq cider-request-dispatch 'static) (car connections))
        ((= 1 (length connections)) (right-type-p (car connections)))
-       (t (let ((project-connections
-                 (cider-find-connection-buffer-for-project-directory
-                  nil :all-connections)))
-            (right-type-p
-             (if (= 1 (length project-connections))
-                 ;; Only one match, just return it.
-                 (car project-connections)
-               (let ((guessed-type (or type (cider-connection-type-for-buffer))))
-                 ;; OW, find one matching the language of the current buffer.
-                 (or (seq-find (lambda (conn)
-                                 (equal (cider--connection-type conn) guessed-type))
-                               project-connections)
-                     (car project-connections)
-                     (car connections)))))))))))
+       (t (let ((project-connections (cider-find-connection-buffer-for-project-directory
+                                      nil :all-connections))
+                (guessed-type (or type (cider-connection-type-for-buffer))))
+            ;; So we have multiple connections. Look for the connection type we
+            ;; want, prioritizing the current project.
+            (or (seq-find (lambda (conn)
+                            (equal (cider--connection-type conn) guessed-type))
+                          project-connections)
+                (seq-find (lambda (conn)
+                            (equal (cider--connection-type conn) guessed-type))
+                          connections)
+                (right-type-p (car project-connections))
+                (right-type-p (car connections)))))))))
 
 (defun cider-other-connection (&optional connection)
   "Return the first connection of another type than CONNECTION.
