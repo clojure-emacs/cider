@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.11.0 / 2016-03-03
+
 ### New features
 
 * [#1545](https://github.com/clojure-emacs/cider/pull/1545): New feature: Enlighten. See the new Readme section for more information.
