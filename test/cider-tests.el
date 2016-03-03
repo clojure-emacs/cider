@@ -490,8 +490,8 @@
          (equal (cider-repl-buffer-name) "*cider-repl project*"))))))
 
 (ert-deftest test-cider--find-rest-args-position ()
-  (should (= (cider--find-rest-args-position [fmt & arg]) 1))
-  (should (equal (cider--find-rest-args-position [fmt arg]) nil)))
+  (should (= (cider--find-rest-args-position ["fmt" "&" "arg"]) 1))
+  (should (equal (cider--find-rest-args-position ["fmt" "arg"]) nil)))
 
 (ert-deftest test-cider-change-buffers-designation ()
   (with-temp-buffer
@@ -702,13 +702,17 @@
   (should (equal (cider-project-name "path/to/project/") "project")))
 
 (ert-deftest cider-inject-jack-in-dependencies ()
-  (let ((cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.10.0-SNAPSHOT"))))
+  (let ((cider-jack-in-dependencies '(("org.clojure/tools.nrepl" "0.2.12")))
+        (cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
+        (cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.10.0-SNAPSHOT"))))
     (should (string= (cider-inject-jack-in-dependencies "repl :headless" "lein")
                      "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
     (should (string= (cider-inject-jack-in-dependencies "repl -s wait" "boot")
                      "-d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.10.0-SNAPSHOT repl -m cider.nrepl/cider-middleware -s wait"))
     (should (string= (cider-inject-jack-in-dependencies "--no-daemon clojureRepl" "gradle") "--no-daemon clojureRepl")))
-  (let ((cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.10.2"))))
+  (let ((cider-jack-in-dependencies '(("org.clojure/tools.nrepl" "0.2.12")))
+        (cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
+        (cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.10.2"))))
     (should (string= (cider-inject-jack-in-dependencies "repl :headless" "lein")
                      "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.2\\\"\\] -- repl :headless"))
     (should (string= (cider-inject-jack-in-dependencies "repl -s wait" "boot")
