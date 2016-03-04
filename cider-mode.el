@@ -561,24 +561,26 @@ property."
           (when (and (not (bobp))
                      (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
             (ignore-errors (beginning-of-defun)))
-          (let ((locals-above (unless (bobp)
-                                (get-text-property (1- (point)) 'cider-locals))))
-            (save-excursion
-              ;; If there are locals above the current sexp, reapply them to the
-              ;; current sexp.
-              (when (and locals-above
-                         (condition-case nil
-                             (progn (up-list) t)
-                           (scan-error nil)))
-                (add-text-properties beg (point) `(cider-locals ,locals-above)))
+          (save-excursion
+            ;; Move up until we reach a sexp that encloses the entire region (or
+            ;; a top-level sexp), and set that as the new BEG.
+            (goto-char end)
+            (while (and (> (point) beg)
+                        (condition-case nil
+                            (progn (backward-up-list) t)
+                          (scan-error nil))))
+            (setq beg (min beg (point)))
+            ;; If there are locals above the current sexp, reapply them to the
+            ;; current sexp.
+            (let ((locals-above (when (> beg (point-min))
+                                  (get-text-property (1- beg) 'cider-locals))))
+              (clojure-forward-logical-sexp 1)
+              (add-text-properties beg (point) `(cider-locals ,locals-above))
               ;; Extend the region being font-locked to include whole sexps.
-              (goto-char end)
-              (when (condition-case nil
-                        (progn (up-list) t)
-                      (scan-error nil))
-                (setq end (max end (point)))))
-            (ignore-errors
-              (cider--parse-and-apply-locals end locals-above))))))
+              (setq end (max end (point)))
+              (goto-char beg)
+              (ignore-errors
+                (cider--parse-and-apply-locals end locals-above)))))))
     (apply func beg end rest)))
 
 
