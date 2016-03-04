@@ -213,8 +213,9 @@ PROP is the name of a text property."
       #'font-lock-flush
     (with-no-warnings
       (lambda (&optional beg end)
-        (font-lock-fontify-region (or beg (point-min))
-                                  (or end (point-max)))))))
+        (save-excursion
+          (font-lock-fontify-region (or beg (point-min))
+                                    (or end (point-max))))))))
 
 (defvar cider--mode-buffers nil
   "A list of buffers for different major modes.")
