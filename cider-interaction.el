@@ -1025,7 +1025,6 @@ arguments and only proceed with evaluation if it returns nil."
         (start (car-safe bounds))
         (end   (car-safe (cdr-safe bounds))))
     (when (and start end)
-      (cider--font-lock-flush start end)
       (remove-overlays start end))
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
@@ -1417,7 +1416,6 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
                    (y-or-n-p (format "Save file %s? " buffer-file-name))))
       (save-buffer))
     (remove-overlays nil nil 'cider-type 'instrumented-defs)
-    (cider--font-lock-flush)
     (cider--clear-compilation-highlights)
     (cider--quit-error-window)
     (cider--cache-ns-form)
