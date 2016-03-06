@@ -539,10 +539,11 @@ before point."
           (add-text-properties (point) sexp-end '(cider-block-dynamic-font-lock t))
         (forward-char 1)
         (forward-sexp 1)
-        (let ((locals (pcase sym
-                        ((or "fn" "def" "") (cider--read-locals-from-arglist))
-                        (_ (cider--read-locals-from-bindings-vector)))))
-          (add-text-properties (point) sexp-end (list 'cider-locals (append locals outer-locals)))
+        (let ((locals (append outer-locals
+                              (pcase sym
+                                ((or "fn" "def" "") (cider--read-locals-from-arglist))
+                                (_ (cider--read-locals-from-bindings-vector))))))
+          (add-text-properties (point) sexp-end (list 'cider-locals locals))
           (clojure-forward-logical-sexp 1)
           (cider--parse-and-apply-locals sexp-end locals)))
       (goto-char sexp-end))))
