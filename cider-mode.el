@@ -548,6 +548,35 @@ before point."
           (cider--parse-and-apply-locals sexp-end locals)))
       (goto-char sexp-end))))
 
+(defun cider--update-locals-for-region (beg end)
+  "Update the `cider-locals' text property for region from BEG to END."
+  (save-excursion
+    (goto-char beg)
+    ;; If the inside of a `ns' form changed, reparse it from the start.
+    (when (and (not (bobp))
+               (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
+      (ignore-errors (beginning-of-defun)))
+    (save-excursion
+      ;; Move up until we reach a sexp that encloses the entire region (or
+      ;; a top-level sexp), and set that as the new BEG.
+      (goto-char end)
+      (while (and (> (point) beg)
+                  (condition-case nil
+                      (progn (backward-up-list) t)
+                    (scan-error nil))))
+      (setq beg (min beg (point)))
+      ;; If there are locals above the current sexp, reapply them to the
+      ;; current sexp.
+      (let ((locals-above (when (> beg (point-min))
+                            (get-text-property (1- beg) 'cider-locals))))
+        (clojure-forward-logical-sexp 1)
+        (add-text-properties beg (point) `(cider-locals ,locals-above))
+        ;; Extend the region being font-locked to include whole sexps.
+        (setq end (max end (point)))
+        (goto-char beg)
+        (ignore-errors
+          (cider--parse-and-apply-locals end locals-above))))))
+
 (defun cider--wrap-fontify-locals (func)
   "Return a function that calls FUNC after parsing local variables.
 The local variables are stored in a list under the `cider-locals' text
@@ -556,32 +585,7 @@ property."
     (with-silent-modifications
       (remove-text-properties beg end '(cider-locals nil cider-block-dynamic-font-lock nil))
       (when cider-font-lock-dynamically
-        (save-excursion
-          (goto-char beg)
-          ;; If the inside of a `ns' form changed, reparse it from the start.
-          (when (and (not (bobp))
-                     (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
-            (ignore-errors (beginning-of-defun)))
-          (save-excursion
-            ;; Move up until we reach a sexp that encloses the entire region (or
-            ;; a top-level sexp), and set that as the new BEG.
-            (goto-char end)
-            (while (and (> (point) beg)
-                        (condition-case nil
-                            (progn (backward-up-list) t)
-                          (scan-error nil))))
-            (setq beg (min beg (point)))
-            ;; If there are locals above the current sexp, reapply them to the
-            ;; current sexp.
-            (let ((locals-above (when (> beg (point-min))
-                                  (get-text-property (1- beg) 'cider-locals))))
-              (clojure-forward-logical-sexp 1)
-              (add-text-properties beg (point) `(cider-locals ,locals-above))
-              ;; Extend the region being font-locked to include whole sexps.
-              (setq end (max end (point)))
-              (goto-char beg)
-              (ignore-errors
-                (cider--parse-and-apply-locals end locals-above)))))))
+        (cider--update-locals-for-region beg end)))
     (apply func beg end rest)))
 
 
