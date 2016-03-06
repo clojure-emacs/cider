@@ -227,5 +227,37 @@ focused."
                  'invisible (and used-overlay
                                  (not (eq cider-use-overlays 'both)))))))
 
+
+;;; Fragile buttons
+(defface cider-fragile-button-face
+  '((((type graphic))
+     :box (:line-width 2 :style released-button)
+     :inherit cider-result-overlay-face)
+    (t :inverse-video t))
+  "Face for buttons that vanish when clicked."
+  :package-version '(cider . "0.12.0")
+  :group 'cider)
+
+(define-button-type 'cider-fragile
+  'action 'cider--overlay-destroy
+  'follow-link t
+  'face 'cider-fragile-button-face
+  'modification-hooks '(cider--overlay-destroy)
+  'help-echo "RET: delete this.")
+
+(defun cider--overlay-destroy (x &rest r)
+  "Delete overlay X and its underlying text.
+If any other arguments are given, only actually do anything if the first
+one is non-nil.  This is so it works in `modification-hooks'."
+  (unless (and r (not (car r)))
+    (let ((inhibit-modification-hooks t)
+          (beg (copy-marker (overlay-start x)))
+          (end (copy-marker (overlay-end x))))
+      (delete-overlay x)
+      (delete-region beg end)
+      (goto-char beg)
+      (when (= (char-after) (char-before) ?\n)
+        (delete-char 1)))))
+
 (provide 'cider-overlays)
 ;;; cider-overlays.el ends here

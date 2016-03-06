@@ -1117,16 +1117,17 @@ Print its value into the current buffer."
 With DEBUG-IT prefix argument, also debug the entire form as with the
 command `cider-debug-defun-at-point'."
   (interactive "P")
-  (when (and debug-it (derived-mode-p 'clojurescript-mode))
-    (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
-                            "  \nWould you like to read the Feature Request?"))
-      (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
-    (user-error "The debugger does not support ClojureScript"))
-  (cider-interactive-eval
-   (concat (if debug-it "#dbg\n")
-           (cider-defun-at-point))
-   nil
-   (cider-defun-at-point 'bounds)))
+  (when debug-it
+    (when (derived-mode-p 'clojurescript-mode)
+      (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
+                              "  \nWould you like to read the Feature Request?"))
+        (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
+      (user-error "The debugger does not support ClojureScript"))
+    (save-excursion
+      (goto-char (car (cider-defun-at-point 'bounds)))
+      (insert-button "#dbg" :type 'cider-fragile)
+      (insert "\n")))
+  (cider-interactive-eval nil nil (cider-defun-at-point 'bounds)))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the \"top-level\" form at point and pprint its value in a popup buffer."
