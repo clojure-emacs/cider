@@ -39,14 +39,23 @@
 (ert-deftest test-debug-prompt ()
   (should (equal-including-properties
            (cider--debug-prompt '("a" "b" "c"))
-           #("a b c\n" 0 1 (face cider-debug-prompt-face) 2 3
-             (face cider-debug-prompt-face) 4 5 (face cider-debug-prompt-face))))
+           #("a b c\n"
+             0 1 (face cider-debug-prompt-face)
+             1 2 (face default)
+             2 3 (face cider-debug-prompt-face)
+             3 4 (face default)
+             4 5 (face cider-debug-prompt-face)
+             5 6 (face default))))
   (should (equal-including-properties
            (cider--debug-prompt '("a" "bc"))
-           #("a bc\n" 0 1 (face cider-debug-prompt-face) 2 3 (face cider-debug-prompt-face))))
+           #("a bc\n"
+             0 1 (face cider-debug-prompt-face)
+             1 2 (face default)
+             2 3 (face cider-debug-prompt-face)
+             3 5 (face default))))
   (should (equal-including-properties
            (cider--debug-prompt '("abc"))
-           #("abc\n" 0 1 (face cider-debug-prompt-face)))))
+           #("abc\n" 0 1 (face cider-debug-prompt-face) 1 4 (face default)))))
 
 (ert-deftest test-debug-move-point ()
   (with-temp-buffer
