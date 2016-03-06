@@ -101,6 +101,7 @@ easily remove all overlays from a region with:
 PROPS is a plist of properties and values to add to the overlay."
   (let ((o (make-overlay l (or r l) (current-buffer))))
     (overlay-put o 'cider-type type)
+    (overlay-put o 'cider-temporary t)
     (while props (overlay-put o (pop props) (pop props)))
     (push #'cider--delete-overlay (overlay-get o 'modification-hooks))
     o))
