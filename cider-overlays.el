@@ -245,15 +245,15 @@ focused."
   'modification-hooks '(cider--overlay-destroy)
   'help-echo "RET: delete this.")
 
-(defun cider--overlay-destroy (x &rest r)
-  "Delete overlay X and its underlying text.
+(defun cider--overlay-destroy (ov &rest r)
+  "Delete overlay OV and its underlying text.
 If any other arguments are given, only actually do anything if the first
 one is non-nil.  This is so it works in `modification-hooks'."
   (unless (and r (not (car r)))
     (let ((inhibit-modification-hooks t)
-          (beg (copy-marker (overlay-start x)))
-          (end (copy-marker (overlay-end x))))
-      (delete-overlay x)
+          (beg (copy-marker (overlay-start ov)))
+          (end (copy-marker (overlay-end ov))))
+      (delete-overlay ov)
       (delete-region beg end)
       (goto-char beg)
       (when (= (char-after) (char-before) ?\n)
