@@ -560,7 +560,8 @@ before point."
       ;; Move up until we reach a sexp that encloses the entire region (or
       ;; a top-level sexp), and set that as the new BEG.
       (goto-char end)
-      (while (and (> (point) beg)
+      (while (and (or (> (point) beg)
+                      (not (eq (char-after) ?\()))
                   (condition-case nil
                       (progn (backward-up-list) t)
                     (scan-error nil))))
