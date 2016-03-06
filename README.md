@@ -49,6 +49,7 @@ specific CIDER release.**
     - [REPL Configuration](#repl-configuration)
       - [REPL history](#repl-history)
   - [ClojureScript usage](#clojurescript-usage)
+  - [Using CIDER with Clojure forks](#fork-usage)
 - [Extended Workflow](#extended-workflow)
   - [Macroexpansion](#macroexpansion)
   - [Value Inspection](#value-inspection)
@@ -731,6 +732,18 @@ CIDER will determine which to use based on the type of file you're editing.
 You should also check out
 [Figwheel](https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl)'s
 wiki.
+
+### Clojure fork usage (Leiningen-only)
+
+Ordinarily CIDER relies on having a recent build of Clojure around.  However, if
+for some reason you want to use your own build of Clojure this can be achieved
+by customizing the var `cider-jack-in-exclusions`. When CIDER starts a REPL, it
+will automatically inject appropriate dependencies. This var lets you exclude
+transitive dependencies such as Clojure so that you can provide your own.
+
+**Warning**: By doing this you circumvent CIDER's ability to provide an
+appropriate version of Clojure or other libraries for itself, and you could very
+easily break something. Proceed with caution.
 
 ## Extended workflow
 
