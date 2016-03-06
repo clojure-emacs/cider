@@ -347,14 +347,16 @@ The value can also be t, which means to font-lock as much as possible."
   :group 'cider)
 
 (defface cider-instrumented-face
-  '((t :box (:color "#c00" :line-width -1)))
+  '((((type graphic)) :box (:color "#c00" :line-width -1))
+    (t :underline t :background "#800"))
   "Face used to mark code being debugged."
   :group 'cider-debug
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
 (defface cider-traced-face
-  '((t :box (:color "cyan" :line-width -1)))
+  '((((type graphic)) :box (:color "cyan" :line-width -1))
+    (t :underline t :background "#066"))
   "Face used to mark code being traced."
   :group 'cider
   :package-version '(cider . "0.11.0"))
