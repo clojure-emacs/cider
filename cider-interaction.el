@@ -1122,11 +1122,18 @@ command `cider-debug-defun-at-point'."
                             "  \nWould you like to read the Feature Request?"))
       (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
     (user-error "The debugger does not support ClojureScript"))
-  (cider-interactive-eval
-   (concat (if debug-it "#dbg\n")
-           (cider-defun-at-point))
-   nil
-   (cider-defun-at-point 'bounds)))
+  (let* ((conditional? (equal debug-it '(16)))
+         (condition    (if conditional?
+                           (read-string "Break condition: ")
+                         "")))
+    (cider-interactive-eval
+     (concat (if debug-it "#dbg")
+             (if conditional?
+                 (concat " ^{:break/when " condition "}\n")
+               "\n")
+             (cider-defun-at-point))
+     nil
+     (cider-defun-at-point 'bounds))))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the \"top-level\" form at point and pprint its value in a popup buffer."
