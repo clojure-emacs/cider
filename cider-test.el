@@ -417,9 +417,8 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   "Echo SUMMARY statistics for a test run returning RESULTS."
   (nrepl-dbind-response summary (ns test fail error)
     (if (nrepl-dict-empty-p results)
-        (message (propertize "Ran %s tests, but found no assertions.\bDid you forget to use `is'?"
-                             'face 'cider-test-failure-face)
-                 test)
+        (message (concat (propertize "No assertions (or no tests) were run." 'face 'cider-test-error-face)
+                         "\nDid you forget to use `is' in your tests?"))
       (message (propertize
                 "%sRan %d tests. %d failures, %d errors."
                 'face (cond ((not (zerop error)) 'cider-test-error-face)
