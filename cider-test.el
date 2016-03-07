@@ -418,7 +418,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (nrepl-dbind-response summary (ns test fail error)
     (if (nrepl-dict-empty-p results)
         (message (propertize "Ran %s tests, but found no assertions.\bDid you forget to use `is'?"
-                             'cider-test-failure-face)
+                             'face 'cider-test-failure-face)
                  test)
       (message (propertize
                 "%sRan %d tests. %d failures, %d errors."
