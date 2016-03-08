@@ -775,8 +775,12 @@ Keyboard shortcut               | Description
 ### Value inspection
 
 Pressing <kbd>C-c M-i</kbd> after some form in a source buffer or the REPL will
-result in a new buffer, showing the structure of the result of the form in question. You'll
-have access to additional keybindings in the inspector buffer (which is
+result in a new buffer, showing the structure of the result of the form in question.
+You can also use <kbd>C-u C-c M-i</kbd> to inspect the result of the current top-level
+form and <kbd>C-u C-u C-c M-i</kbd> to read an expression from the minibuffer and
+inspect its result.
+
+You'll have access to additional keybindings in the inspector buffer (which is
 internally using `cider-inspector-mode`):
 
 Keyboard shortcut                       | Description
