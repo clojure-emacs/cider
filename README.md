@@ -774,7 +774,7 @@ Keyboard shortcut               | Description
 
 ### Value inspection
 
-Pressing <kbd>C-c C-i</kbd> after some form in a source buffer or the REPL will
+Pressing <kbd>C-c M-i</kbd> after some form in a source buffer or the REPL will
 result in a new buffer, showing the structure of the result of the form in question. You'll
 have access to additional keybindings in the inspector buffer (which is
 internally using `cider-inspector-mode`):
