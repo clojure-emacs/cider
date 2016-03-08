@@ -220,7 +220,7 @@ PROP is the name of a text property."
 
 (defun cider--make-buffer-for-mode (mode)
   "Return a temp buffer using major-mode MODE.
-This buffer is not designed to display anything to the user. For that, use
+This buffer is not designed to display anything to the user.  For that, use
 `cider-make-popup-buffer' instead."
   (setq cider--mode-buffers (seq-filter (lambda (x) (buffer-live-p (cdr x)))
                                         cider--mode-buffers))
