@@ -156,7 +156,7 @@
     (let ((cider-version "0.11.0")
           (cider-codename "Victory"))
       (should (equal (cider-repl--banner)
-                     ";; Connected to nREPL server running on port 54018 on host localhost - nrepl://localhost:54018
+                     ";; Connected to nREPL server - nrepl://localhost:54018
 ;; CIDER 0.11.0 (Victory), nREPL 0.2.12
 ;; Clojure 1.8.0, Java 1.8.0_31
 ;;     Docs: (doc function-name)
@@ -176,7 +176,7 @@
     (let ((cider-version "0.11.0")
           (cider-codename "Victory"))
       (should (equal (cider-repl--banner)
-                     ";; Connected to nREPL server running on port 54018 on host localhost - nrepl://localhost:54018
+                     ";; Connected to nREPL server - nrepl://localhost:54018
 ;; CIDER 0.11.0 (Victory), nREPL 0.2.12
 ;; Clojure 1.8.0, Java 1.8.0_31
 ;;     Docs: (doc function-name)

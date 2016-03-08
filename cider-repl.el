@@ -290,7 +290,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   "Generate the welcome REPL buffer banner."
   (let ((host (cider--connection-host (current-buffer)))
         (port (cider--connection-port (current-buffer))))
-    (format ";; Connected to nREPL server running on port %s on host %s - nrepl://%s:%s
+    (format ";; Connected to nREPL server - nrepl://%s:%s
 ;; CIDER %s, nREPL %s
 ;; Clojure %s, Java %s
 ;;     Docs: (doc function-name)
@@ -299,8 +299,6 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;;  Javadoc: (javadoc java-object-or-class)
 ;;     Exit: C-c C-q
 ;;  Results: Stored in vars *1, *2, *3, an exception in *e;"
-            port
-            host
             host
             port
             (cider--version)
