@@ -405,12 +405,12 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-t v</kbd>                 | Toggle var tracing.
 <kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
 <kbd>C-c C-u</kbd>                   | Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-t t</kbd>                 | Run test at point.
-<kbd>C-c C-t n</kbd>                 | Run tests for current namespace.
-<kbd>C-c C-t l</kbd>                 | Run tests for all loaded namespaces.
-<kbd>C-c C-t p</kbd>                 | Run tests for all project namespaces. This loads the additional namespaces.
-<kbd>C-c C-t r</kbd>                 | Re-run test failures/errors.
-<kbd>C-c C-t b</kbd>                 | Show the test report buffer.
+<kbd>C-c C-t t</kbd> <kbd>C-c C-t C-t</kbd> | Run test at point.
+<kbd>C-c C-t n</kbd> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
+<kbd>C-c C-t l</kbd> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
+<kbd>C-c C-t p</kbd> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-t r</kbd> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
+<kbd>C-c C-t b</kbd> <kbd>C-c C-t C-b</kbd> | Show the test report buffer.
 <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
 <kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
@@ -462,12 +462,12 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-.</kbd> | Jump to some namespace on the classpath.
 <kbd>C-c M-t v</kbd> | Toggle var tracing.
 <kbd>C-c M-t n</kbd> | Toggle namespace tracing.
-<kbd>C-c C-t t</kbd>                 | Run test at point.
-<kbd>C-c C-t n</kbd>                 | Run tests for current namespace.
-<kbd>C-c C-t l</kbd>                 | Run tests for all loaded namespaces.
-<kbd>C-c C-t p</kbd>                 | Run tests for all project namespaces. This loads the additional namespaces.
-<kbd>C-c C-t r</kbd>                 | Re-run test failures/errors.
-<kbd>C-c C-t b</kbd>                 | Show the test report buffer.
+<kbd>C-c C-t t</kbd> <kbd>C-c C-t C-t</kbd> | Run test at point.
+<kbd>C-c C-t n</kbd> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
+<kbd>C-c C-t l</kbd> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
+<kbd>C-c C-t p</kbd> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-t r</kbd> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
+<kbd>C-c C-t b</kbd> <kbd>C-c C-t C-b</kbd> | Show the test report buffer.
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
@@ -796,12 +796,13 @@ Keyboard shortcut                       | Description
 ### Running tests
 
 You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c C-t
-n</kbd> in a source buffer or a REPL buffer will run the tests for the namespace
-you're currently in. CIDER is smart enough to figure out the namespace
-containing the tests. You can also run all loaded tests with <kbd>C-c C-t
-l</kbd> and all tests within a project with <kbd>C-c C-t p</kbd> (note that this
-will loaded **all** namespaces in your project). Using <kbd>C-c C-t t</kbd>, you
-can execute only the test a point.
+n</kbd> or <kbd>C-c C-t C-n</kbd> in a source buffer or a REPL buffer will run
+the tests for the namespace you're currently in. CIDER is smart enough to figure
+out the namespace containing the tests. You can also run all loaded tests with
+<kbd>C-c C-t l</kbd> or <kbd>C-c C-t C-l</kbd> and all tests within a project
+with <kbd>C-c C-t p</kbd> or <kbd>C-c C-t C-p</kbd> (note that this will loaded
+**all** namespaces in your project). Using <kbd>C-c C-t t</kbd> or <kbd>C-c C-t
+C-t</kbd>, you can execute only the test a point.
 
 All test commands are available in REPL buffers as well. There you can also use
 <kbd>,</kbd> there to invoke some of the testing commands.
@@ -811,11 +812,11 @@ you'll have a bit of additional functionality at your disposal.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
-<kbd>C-c C-t t</kbd>            | Run test at point.
-<kbd>C-c C-t n</kbd>            | Run tests for current namespace.
-<kbd>C-c C-t l</kbd>            | Run tests for all loaded namespaces.
-<kbd>C-c C-t p</kbd>            | Run tests for all project namespaces. This loads the additional namespaces.
-<kbd>C-c C-t r</kbd>            | Re-run test failures/errors.
+<kbd>C-c C-t t</kbd> <kbd>C-c C-t C-t</kbd> | Run test at point.
+<kbd>C-c C-t n</kbd> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
+<kbd>C-c C-t l</kbd> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
+<kbd>C-c C-t p</kbd> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-t r</kbd> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
 <kbd>M-p</kbd>                  | Move point to previous test.
 <kbd>M-n</kbd>                  | Move point to next test.
 <kbd>t</kbd> and <kbd>M-.</kbd> | Jump to test definition.
