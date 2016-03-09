@@ -35,7 +35,7 @@
 ;; Inspector Key Map and Derived Mode
 ;; ===================================
 
-(defconst cider-inspector-buffer "*cider inspect*")
+(defconst cider-inspector-buffer "*cider-inspect*")
 
 ;;; Customization
 (defgroup cider-inspector nil
