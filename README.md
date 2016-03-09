@@ -396,11 +396,11 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 <kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
 <kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
-<kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
-<kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
-<kbd>C-c C-d f</kbd>                 | Apropos search for documentation.
+<kbd>C-c C-d d</kbd> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d j</kbd> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d r</kbd> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd> <kbd>C-c C-d C-a</kbd> | Apropos search for functions/vars.
+<kbd>C-c C-d f</kbd> <kbd>C-c C-d C-f</kbd> | Apropos search for documentation.
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-t v</kbd>                 | Toggle var tracing.
 <kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
@@ -451,11 +451,11 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-x</kbd>     | Reload all modified files on the classpath.
 <kbd>C-u C-c C-x</kbd> | Reload all files on the classpath.
 <kbd>TAB</kbd> | Complete symbol at point.
-<kbd>C-c C-d d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
-<kbd>C-c C-d j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-d r</kbd> | Lookup symbol in Grimoire.
-<kbd>C-c C-d a</kbd> | Apropos search for functions/vars.
-<kbd>C-c C-d f</kbd> | Apropos search for documentation.
+<kbd>C-c C-d d</kbd> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+<kbd>C-c C-d j</kbd> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d r</kbd> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd> <kbd>C-c C-d C-a</kbd> | Apropos search for functions/vars.
+<kbd>C-c C-d f</kbd> <kbd>C-c C-d C-f</kbd> | Apropos search for documentation.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-n</kbd> | Select a namespace and switch to it.
