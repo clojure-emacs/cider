@@ -572,7 +572,9 @@ before point."
       ;; current sexp.
       (let ((locals-above (when (> beg (point-min))
                             (get-text-property (1- beg) 'cider-locals))))
-        (clojure-forward-logical-sexp 1)
+        (condition-case nil
+            (clojure-forward-logical-sexp 1)
+          (error (goto-char end)))
         (add-text-properties beg (point) `(cider-locals ,locals-above))
         ;; Extend the region being font-locked to include whole sexps.
         (setq end (max end (point)))
