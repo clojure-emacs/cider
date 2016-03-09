@@ -827,8 +827,8 @@ Certain aspects of the test execution behavior are configurable:
 
 * If your tests are not following the `some.ns-test` naming convention you can
 customize the variable `cider-test-infer-test-ns`. It should be bound to a
-function that takes the current ns and returns the matching test ns (which may
-be the same as the current ns).
+function that takes the current namespace and returns the matching test
+namespace (which may be the same as the current namespace).
 
 * If you want to view the test report regardless of whether the tests have
 passed or failed:
