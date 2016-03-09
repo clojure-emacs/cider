@@ -492,6 +492,7 @@ Any other value is just returned."
     "Use <M-x customize-group RET cider-repl RET> to see every possible REPL setting you can customize."
     "Enable `eldoc-mode' to display function & method signatures in the minibuffer."
     "Enable `cider-enlighten-mode' to display the locals of a function when it's executed."
+    "Use <\\[cider-close-ancillary-buffers]> to close all ancillary buffers created by CIDER (e.g. *cider-doc*)."
     "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!")
   "Some handy CIDER tips."
   )
