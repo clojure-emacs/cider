@@ -271,6 +271,7 @@ Returns to the buffer in which the command was invoked."
         "--"
         ["Interrupt evaluation" cider-interrupt]
         "--"
+        ["Close ancillary buffers" cider-close-ancillary-buffers]
         ["Quit" cider-quit]
         ["Restart" cider-restart]
         "--"

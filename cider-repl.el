@@ -1308,6 +1308,7 @@ constructs."
         "--"
         ["Connection info" cider-display-connection-info]
         "--"
+        ["Close ancillary buffers" cider-close-ancillary-buffers]
         ["Quit" cider-quit]
         ["Restart" cider-restart]
         "--"
