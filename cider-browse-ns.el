@@ -41,6 +41,9 @@
 (require 'cider-util)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
+
+(push cider-browse-ns-buffer cider-ancillary-buffers)
+
 (defvar-local cider-browse-ns-current-ns nil)
 
 ;; Mode Definition

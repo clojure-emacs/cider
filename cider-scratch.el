@@ -41,6 +41,8 @@
 
 (defconst cider-scratch-buffer-name "*cider-scratch*")
 
+(push cider-scratch-buffer-name cider-ancillary-buffers)
+
 ;;;###autoload
 (defun cider-scratch ()
   "Go to the scratch buffer named `cider-scratch-buffer-name'."

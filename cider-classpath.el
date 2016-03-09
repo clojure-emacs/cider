@@ -29,6 +29,8 @@
 
 (defvar cider-classpath-buffer "*cider-classpath*")
 
+(push cider-classpath-buffer cider-ancillary-buffers)
+
 (defvar cider-classpath-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)

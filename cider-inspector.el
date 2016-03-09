@@ -37,6 +37,8 @@
 
 (defconst cider-inspector-buffer "*cider-inspect*")
 
+(push cider-inspector-buffer cider-ancillary-buffers)
+
 ;;; Customization
 (defgroup cider-inspector nil
   "Presentation and behaviour of the cider value inspector."
@@ -50,8 +52,6 @@ The page size can be also changed interactively within the inspector."
   :type '(integer :tag "Page size" 32)
   :group 'cider-inspector
   :package-version '(cider . "0.10.0"))
-
-(push cider-inspector-buffer cider-ancillary-buffers)
 
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
