@@ -398,6 +398,9 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
 <kbd>C-c C-d d</kbd>                   | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-d j</kbd>                   | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
+<kbd>C-c C-d f</kbd>                 | Apropos search for documentation.
 <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-t v</kbd>                 | Toggle var tracing.
 <kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
@@ -413,9 +416,6 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
 <kbd>M-,</kbd>                       | Return to your pre-jump location.
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
-<kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
-<kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
-<kbd>C-c C-d f</kbd>                 | Apropos search for documentation.
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 There's no need to memorize this list. In any Clojure buffer with `cider-mode`
