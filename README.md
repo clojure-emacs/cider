@@ -415,7 +415,7 @@ Keyboard shortcut                    | Description
 <kbd>M-TAB</kbd>                     | Complete the symbol at point.
 <kbd>C-c C-d r</kbd>                 | Lookup symbol in Grimoire.
 <kbd>C-c C-d a</kbd>                 | Apropos search for functions/vars.
-<kbd>C-c C-d A</kbd>                 | Apropos search for documentation.
+<kbd>C-c C-d f</kbd>                 | Apropos search for documentation.
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 There's no need to memorize this list. In any Clojure buffer with `cider-mode`
@@ -455,7 +455,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-d j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 <kbd>C-c C-d r</kbd> | Lookup symbol in Grimoire.
 <kbd>C-c C-d a</kbd> | Apropos search for functions/vars.
-<kbd>C-c C-d A</kbd> | Apropos search for documentation.
+<kbd>C-c C-d f</kbd> | Apropos search for documentation.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-n</kbd> | Select a namespace and switch to it.
