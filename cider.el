@@ -183,6 +183,12 @@ This variable is used by `cider-connect'."
   "Regexp list to extract project paths from output of `cider-ps-running-nrepls-command'.
 Sub-match 1 must be the project path.")
 
+(defcustom cider-jack-in-exclusions nil
+  "List of artifact names which will be excluded when injecting dependencies."
+  :type '(repeat string)
+  :group 'cider
+  :package-version '(cider . "0.12.0"))
+
 (defvar cider-host-history nil
   "Completion history for connection hosts.")
 
@@ -258,11 +264,20 @@ string is quoted for passing as argument to an inferior shell."
   (concat (boot-command-prefix (append dependencies plugins))
           (boot-repl-task-params params middlewares)))
 
+(defun cider--list-as-lein-exclusions (list)
+  (if list
+      (concat " :exclusions [" (mapconcat 'identity list " ") "]")
+    ""))
+
 (defun cider--list-as-lein-artifact (list)
   "Return an artifact string described by the elements of LIST.
 LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
 string is quoted for passing as argument to an inferior shell."
-  (shell-quote-argument (format "[%s %S]" (car list) (cadr list))))
+  (shell-quote-argument
+   (format "[%s %S%s]"
+           (car list)
+           (cadr list)
+           (cider--list-as-lein-exclusions cider-jack-in-exclusions))))
 
 (defun cider-lein-jack-in-dependencies (params dependencies lein-plugins)
   (concat
