@@ -162,7 +162,7 @@ Used for all inspector nREPL ops."
 (defun cider-inspector-push (idx)
   (cider-nrepl-send-request
    (list "op" "inspect-push"
-         "idx" (number-to-string idx)
+         "idx" idx
          "session" (cider-current-session))
    (cider-inspector-response-handler (current-buffer))))
 
