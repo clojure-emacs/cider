@@ -811,13 +811,20 @@ into a new error buffer."
     (cond (class (cons response causes))
           (status (cider--render-stacktrace-causes causes)))))
 
-(defun cider-default-err-op-handler ()
-  "Display the last exception, with middleware support."
+(defun cider-default-err-op-handler (&optional storage-key)
+  "Display an exception, with middleware support.
+If optional argument STORAGE-KEY is not given, will return the most recent
+exception bound to *e; this binding typically happens during a non-sync
+`eval` op.  Optional argument STORAGE-KEY will look up a stored exception
+instead of trying to use the *e bound exception; this is useful when the
+error occurred due to a sync request op which typically do not bind *e."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes)
     (cider-nrepl-send-request
      (append
       (list "op" "stacktrace" "session" (cider-current-session))
+      (when storage-key
+        (list "storage-key" storage-key))
       (when (cider--pprint-fn)
         (list "pprint-fn" (cider--pprint-fn)))
       (when cider-stacktrace-print-length
@@ -830,11 +837,15 @@ into a new error buffer."
        ;; after it has been handled, so it's fine to set it unconditionally here
        (setq causes (cider--handle-stacktrace-response response causes))))))
 
-(defun cider-default-err-handler ()
+(defun cider-default-err-handler (&optional storage-key)
   "This function determines how the error buffer is shown.
-It delegates the actual error content to the eval or op handler."
+It delegates the actual error content to the eval or op handler.
+Optional argument STORAGE-KEY will be passed to the op handler to help
+retrieve a stored exception instead of trying to use the *e bound
+exception; this is useful when the error occurred due to a sync request op
+which typically do not bind *e."
   (if (cider-nrepl-op-supported-p "stacktrace")
-      (cider-default-err-op-handler)
+      (cider-default-err-op-handler storage-key)
     (cider-default-err-eval-handler)))
 
 (defvar cider-compilation-regexp
