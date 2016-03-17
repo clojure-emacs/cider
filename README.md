@@ -1718,7 +1718,7 @@ Consider improving and extending the [community wiki](https://github.com/clojure
 
 ### Donations
 
-You can support the development of CIDER, clojure-mode and inf-clojure via
+You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
 [Salt](https://salt.bountysource.com/teams/cider),
 [Gratipay](https://www.gratipay.com/cider) and PayPal.
 
@@ -1774,3 +1774,4 @@ Distributed under the GNU General Public License, version 3
 [CCW]: https://github.com/laurentpetit/ccw
 [cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
+[inf-clojure]: https://github.com/clojure-emacs/inf-clojure
