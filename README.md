@@ -80,8 +80,8 @@ specific CIDER release.**
 - [Team](#team)
 - [Release policy](#release-policy)
 - [Logo](#logo)
+- [Discussion](#discussion)
 - [Contributing](#contributing)
-  - [Discussion](#discussion)
   - [Issues](#issues)
   - [Patches](#patches)
   - [Documentation](#documentation)
@@ -1676,9 +1676,7 @@ the logo in various formats
 The logo is licensed under a
 [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_GB).
 
-## Contributing
-
-### Discussion
+## Discussion
 
 For questions, suggestions and support refer to our
 [official mailing list](https://groups.google.com/forum/#!forum/cider-emacs) ,
@@ -1690,6 +1688,8 @@ should use the [cider](http://stackoverflow.com/questions/tagged/cider) tag
 
 Please, don't report
 issues there, as this makes them harder to track.
+
+## Contributing
 
 ### Issues
 
