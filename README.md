@@ -423,6 +423,14 @@ active you'll have a CIDER menu available, which lists all the most important
 commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
 get a list of the keybindings for `cider-mode`.
 
+An even better solution would be to install [which-key][], which will
+automatically show you a list of available keybindings as you start typing some
+keys. This will simplify your interactions with CIDER quite a lot
+(especially in the beginning). Here's what you'd see if you typed `C-c C-d` in a
+Clojure buffer:
+
+![CIDER which-key](screenshots/cider-which-key.png)
+
 ### Using the REPL
 
 CIDER comes with a powerful REPL, which is quite handy when you want to
@@ -1775,3 +1783,4 @@ Distributed under the GNU General Public License, version 3
 [cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure
+[which-key]: https://github.com/justbur/emacs-which-key
