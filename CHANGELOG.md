@@ -11,6 +11,7 @@
 
 * Javadoc commands take into account the variable `clojure.java.javadoc/*remote-javadocs*`.
 * Javadoc also works on classes of the AmazonAWS Java SDK.
+* Apropos commands now accept lists of space-separated words as arguments, in addition to regular expressions (similar to Emacs's own apropos commands).
 
 ## 0.11.0 / 2016-03-03
 

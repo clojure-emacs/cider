@@ -101,8 +101,11 @@
 ;;;###autoload
 (defun cider-apropos (query &optional ns docs-p privates-p case-sensitive-p)
   "Show all symbols whose names match QUERY, a regular expression.
-The search may be limited to the namespace NS, and may optionally search doc
-strings, include private vars, and be case sensitive."
+QUERY can also be a list of space-separated words (e.g. take while) which
+will be converted to a regular expression (like take.+while) automatically
+behind the scenes.  The search may be limited to the namespace NS, and may
+optionally search doc strings, include private vars, and be case
+sensitive."
   (interactive
    (cons (read-string "Search for Clojure symbol (a regular expression): ")
          (when current-prefix-arg
