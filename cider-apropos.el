@@ -106,7 +106,7 @@ strings, include private vars, and be case sensitive."
   (interactive
    (cons (read-string "Search for Clojure symbol (a regular expression): ")
          (when current-prefix-arg
-           (list (let ((ns (read-string "Namespace: ")))
+           (list (let ((ns (completing-read "Namespace (default is all): " (cider-sync-request:ns-list))))
                    (if (string= ns "") nil ns))
                  (y-or-n-p "Search doc strings? ")
                  (y-or-n-p "Include private symbols? ")
