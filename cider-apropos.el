@@ -111,6 +111,7 @@ strings, include private vars, and be case sensitive."
                  (y-or-n-p "Search doc strings? ")
                  (y-or-n-p "Include private symbols? ")
                  (y-or-n-p "Case-sensitive? ")))))
+  (cider-ensure-connected)
   (cider-ensure-op-supported "apropos")
   (if-let ((summary (cider-apropos-summary
                      query ns docs-p privates-p case-sensitive-p))
@@ -122,6 +123,8 @@ strings, include private vars, and be case sensitive."
 (defun cider-apropos-documentation ()
   "Shortcut for (cider-apropos <query> nil t)."
   (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "apropos")
   (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (provide 'cider-apropos)
