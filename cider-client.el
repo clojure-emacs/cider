@@ -789,16 +789,18 @@ If CALLBACK is nil, use `cider-load-file-handler'."
   "Send \"apropos\" request for regexp QUERY.
 
 Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
-  (thread-first `("op" "apropos"
-                  "session" ,(cider-current-session)
-                  "ns" ,(cider-current-ns)
-                  "query" ,query
-                  ,@(when search-ns `("search-ns" ,search-ns))
-                  ,@(when docs-p '("docs?" "t"))
-                  ,@(when privates-p '("privates?" "t"))
-                  ,@(when case-sensitive-p '("case-sensitive?" "t")))
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "apropos-matches")))
+  (let ((response (cider-nrepl-send-sync-request
+                   `("op" "apropos"
+                     "session" ,(cider-current-session)
+                     "ns" ,(cider-current-ns)
+                     "query" ,query
+                     ,@(when search-ns `("search-ns" ,search-ns))
+                     ,@(when docs-p '("docs?" "t"))
+                     ,@(when privates-p '("privates?" "t"))
+                     ,@(when case-sensitive-p '("case-sensitive?" "t"))))))
+    (if (member "apropos-regexp-error" (nrepl-dict-get response "status"))
+        (user-error "Invalid regexp: %s" (nrepl-dict-get response "error-msg"))
+      (nrepl-dict-get response "apropos-matches"))))
 
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
