@@ -847,16 +847,13 @@ passed or failed:
 
 #### Using cider-test with alternative test libraries
 
-The `clojure.test` test protocol isn't perfect, but it is open. Any test library
-could implement it if so desired. For instance
-[test.check](https://github.com/clojure/test.check/) does, and `cider-test`
-handles `defspec` just like `deftest`.
+The `clojure.test` machinery is designed to be pluggable. Any test library
+can implement it if so desired, and therefore leverage `cider-test`. For
+instance, [test.check](https://github.com/clojure/test.check/) does this, and
+`cider-test` handles `defspec` just like `deftest`.
 
-The `clojure.test` machinery is designed to be pluggable. There's nothing
-special about `deftest`. (All it does is add metadata to a var.)
-
-Any test library can be adapted to support the built-in `clojure.test` machinery
-(and `cider-test` respectively). It's pretty straightforward:
+As a test framework author, supporting the built-in `clojure.test` machinery
+(and hence `cider-test`) is pretty straightforward:
 
 1. Assoc each test fn as `:test` metadata on some var. These are what get run.
 2. Implement the `clojure.test/report` multimethod to capture the test results.
