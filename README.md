@@ -845,6 +845,26 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ```
 
+#### Using cider-test with alternative test libraries
+
+The `clojure.test` test protocol isn't perfect, but it is open. Any test library
+could implement it if so desired. For instance
+[test.check](https://github.com/clojure/test.check/) does, and `cider-test`
+handles `defspec` just like `deftest`.
+
+The `clojure.test` machinery is designed to be pluggable. There's nothing
+special about `deftest`. (All it does is add metadata to a var.)
+
+Any test library can be adapted to support the built-in `clojure.test` machinery
+(and `cider-test` respectively). It's pretty straightforward:
+
+1. Assoc each test fn as `:test` metadata on some var. These are what get run.
+2. Implement the `clojure.test/report` multimethod to capture the test results.
+
+The `test.check` library is a good example here. It was also designed completely
+independently of `clojure.test`. It just adds compatibility in this
+[namespace](https://github.com/clojure/test.check/blob/24f74b83f1c7a032f98efdcc1db9d74b3a6a794d/src/main/clojure/clojure/test/check/clojure_test.cljc).
+
 ### Navigating stacktraces
 
 CIDER comes with a powerful solution to the problem of verbose Clojure
