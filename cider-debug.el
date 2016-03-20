@@ -318,6 +318,7 @@ In order to work properly, this mode must be activated by
                                  (seq-difference input-type '("here")))))
               (setq cider--debug-mode-commands-alist alist)
               (dolist (it alist)
+                (define-key cider--debug-mode-map (vector (upcase (car it))) #'cider-debug-mode-send-reply)
                 (define-key cider--debug-mode-map (vector (car it)) #'cider-debug-mode-send-reply)))
             ;; Show the prompt.
             (cider--debug-mode-redisplay)
@@ -384,18 +385,26 @@ In order to work properly, this mode must be activated by
      ["List locals" cider-debug-toggle-locals :style toggle :selected cider-debug-display-locals])
     ["Customize" (customize-group 'cider-debug)]))
 
-(defun cider-debug-mode-send-reply (command &optional key)
+(defun cider-debug-mode-send-reply (command &optional key force)
   "Reply to the message that started current bufer's debugging session.
 COMMAND is sent as the input option.  KEY can be provided to reply to a
-specific message."
+specific message.  If FORCE is non-nil, send a \"force?\" argument in the
+message."
   (interactive (list
                 (if (symbolp last-command-event)
                     (symbol-name last-command-event)
-                  (cdr (assq last-command-event cider--debug-mode-commands-alist)))
-                nil))
+                  (ignore-errors
+                    (cdr (assq (downcase last-command-event)
+                               cider--debug-mode-commands-alist))))
+                nil
+                (ignore-errors
+                  (let ((case-fold-search nil))
+                    (string-match "[[:upper:]]" (string last-command-event))))))
   (cider-nrepl-send-unhandled-request
-   (list "op" "debug-input" "input" (or command ":quit")
-         "key" (or key (nrepl-dict-get cider--debug-mode-response "key"))))
+   (append (list "op" "debug-input" "input" (or command ":quit")
+                 "key" (or key (nrepl-dict-get cider--debug-mode-response "key")))
+           (when force
+             '("force?" "true"))))
   (ignore-errors (cider--debug-mode -1)))
 
 (defun cider--debug-quit ()
