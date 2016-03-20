@@ -1112,22 +1112,47 @@ Print its value into the current buffer."
   (interactive)
   (cider--pprint-eval-form (cider-last-sexp 'bounds)))
 
+(defun cider--prompt-and-insert-inline-dbg ()
+  "Insert a #dbg button at the current sexp."
+  (save-excursion
+    (let ((beg))
+      (skip-chars-forward "\r\n[:blank:]")
+      (unless (looking-at-p "(")
+        (ignore-errors (backward-up-list)))
+      (setq beg (point))
+      (let* ((cond (cider-read-from-minibuffer "Condition for debugging (leave empty for \"always\"): "))
+             (button (propertize (concat "#dbg"
+                                         (unless (equal cond "")
+                                           (format " ^{:break/when %s}" cond)))
+                                 'font-lock-face 'cider-fragile-button-face)))
+        (when (> (current-column) 30)
+          (insert "\n")
+          (indent-according-to-mode))
+        (insert button)
+        (when (> (current-column) 40)
+          (insert "\n")
+          (indent-according-to-mode)))
+      (make-button beg (point)
+                   'help-echo "Breakpoint. Reevaluate this form to remove it."
+                   :type 'cider-fragile))))
+
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
 With DEBUG-IT prefix argument, also debug the entire form as with the
 command `cider-debug-defun-at-point'."
   (interactive "P")
-  (when debug-it
-    (when (derived-mode-p 'clojurescript-mode)
-      (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
-                              "  \nWould you like to read the Feature Request?"))
-        (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
-      (user-error "The debugger does not support ClojureScript"))
-    (save-excursion
-      (goto-char (car (cider-defun-at-point 'bounds)))
-      (insert-button "#dbg" :type 'cider-fragile)
-      (insert "\n")))
-  (cider-interactive-eval nil nil (cider-defun-at-point 'bounds)))
+  (let ((inline-debug (eq 16 (car-safe debug-it))))
+    (when debug-it
+      (when (derived-mode-p 'clojurescript-mode)
+        (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
+                                "  \nWould you like to read the Feature Request?"))
+          (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
+        (user-error "The debugger does not support ClojureScript"))
+      (when inline-debug
+        (cider--prompt-and-insert-inline-dbg)))
+    (cider-interactive-eval (when (and debug-it (not inline-debug))
+                              (concat "#dbg\n" (cider-defun-at-point)))
+                            nil (cider-defun-at-point 'bounds))))
 
 (defun cider-pprint-eval-defun-at-point ()
   "Evaluate the \"top-level\" form at point and pprint its value in a popup buffer."

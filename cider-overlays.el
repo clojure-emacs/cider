@@ -231,8 +231,8 @@ focused."
 ;;; Fragile buttons
 (defface cider-fragile-button-face
   '((((type graphic))
-     :box (:line-width 2 :style released-button)
-     :inherit cider-result-overlay-face)
+     :box (:line-width 3 :style released-button)
+     :inherit font-lock-warning-face)
     (t :inverse-video t))
   "Face for buttons that vanish when clicked."
   :package-version '(cider . "0.12.0")
@@ -241,7 +241,7 @@ focused."
 (define-button-type 'cider-fragile
   'action 'cider--overlay-destroy
   'follow-link t
-  'face 'cider-fragile-button-face
+  'face nil
   'modification-hooks '(cider--overlay-destroy)
   'help-echo "RET: delete this.")
 

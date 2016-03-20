@@ -14,6 +14,7 @@
 * Apropos commands now accept lists of space-separated words as arguments, in addition to regular expressions (similar to Emacs's own apropos commands).
 * [#1541](https://github.com/clojure-emacs/cider/issues/1541): New commands `cider-apropos-select` and `cider-apropos-documentation-select`.
 * New function `cider-expected-ns` is like `clojure-expected-ns`, but uses classpath for better results.  See [clojure-mode#372](https://github.com/clojure-emacs/clojure-mode/issues/372).
+* A double prefix argument (`C-u C-u`) for `cider-eval-defun-at-point` debugs the sexp at point instead of the entire defun, and offers to create a conditional breakpoint.
 
 ## 0.11.0 / 2016-03-03
 
