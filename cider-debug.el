@@ -221,8 +221,8 @@ Each element of LOCALS should be a list of at least two elements."
   (format (propertize "%s" 'face 'default)
           (concat
            (mapconcat (lambda (x) (put-text-property 0 1 'face 'cider-debug-prompt-face x) x)
-                      ;; `inspect' would conflict with `inject'.
-                      (seq-difference command-list '("inspect")) " ")
+                      command-list
+                      " ")
            "\n")))
 
 (defvar-local cider--debug-prompt-overlay nil)
@@ -299,6 +299,10 @@ In order to work properly, this mode must be activated by
             ;; A debug session is an ongoing eval, but it's annoying to have the
             ;; spinner spinning while you debug.
             (when spinner-current (spinner-stop))
+            ;; `inspect' would conflict with `inject', so there's no key for it.
+            (setq input-type (seq-difference input-type '("inspect")))
+            (nrepl-dict-put cider--debug-mode-response "input-type" input-type)
+
             (setq-local tool-bar-map cider--debug-mode-tool-bar-map)
             (add-hook 'kill-buffer-hook #'cider--debug-quit nil 'local)
             (add-hook 'before-revert-hook #'cider--debug-quit nil 'local)
@@ -310,7 +314,8 @@ In order to work properly, this mode must be activated by
                                    (nrepl-dict-get cider--debug-mode-response "key")))
             ;; Set the keymap.
             (let ((alist (mapcar (lambda (k) (cons (string-to-char k) (concat ":" k)))
-                                 (seq-difference input-type '("here" "inspect")))))
+                                 ;; `here' needs a special command.
+                                 (seq-difference input-type '("here")))))
               (setq cider--debug-mode-commands-alist alist)
               (dolist (it alist)
                 (define-key cider--debug-mode-map (vector (car it)) #'cider-debug-mode-send-reply)))
