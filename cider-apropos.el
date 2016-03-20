@@ -130,6 +130,34 @@ sensitive."
   (cider-ensure-op-supported "apropos")
   (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
+;;;###autoload
+(defun cider-apropos-select (query &optional ns docs-p privates-p case-sensitive-p)
+  "Similar to `cider-apropos', but presents the results in a completing read."
+  (interactive
+   (cons (read-string "Search for Clojure symbol (a regular expression): ")
+         (when current-prefix-arg
+           (list (let ((ns (completing-read "Namespace (default is all): " (cider-sync-request:ns-list))))
+                   (if (string= ns "") nil ns))
+                 (y-or-n-p "Search doc strings? ")
+                 (y-or-n-p "Include private symbols? ")
+                 (y-or-n-p "Case-sensitive? ")))))
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "apropos")
+  (if-let ((summary (cider-apropos-summary
+                     query ns docs-p privates-p case-sensitive-p))
+           (results (mapcar (lambda (r) (nrepl-dict-get r "name"))
+                            (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p))))
+      (cider-doc-lookup (completing-read (concat summary ": ") results))
+    (message "No apropos matches for %S" query)))
+
+;;;###autoload
+(defun cider-apropos-documentation-select ()
+  "Shortcut for (cider-apropos-select <query> nil t)."
+  (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "apropos")
+  (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
+
 (provide 'cider-apropos)
 
 ;;; cider-apropos.el ends here
