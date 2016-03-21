@@ -537,9 +537,9 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
   "Run tests for NS, which may be a keyword, optionally specifying TESTS.
 
 This tests a single NS, or multiple namespaces when using keywords `:project',
-`:loaded' or `:non-passing'. Optional TESTS are only honored when a single
-namespace is specified. Upon test completion, results are echoed and a test
-report is optionally displayed. When test failures/errors occur, their sources
+`:loaded' or `:non-passing'.  Optional TESTS are only honored when a single
+namespace is specified.  Upon test completion, results are echoed and a test
+report is optionally displayed.  When test failures/errors occur, their sources
 are highlighted."
   (cider-test-clear-highlights)
   (cider-map-connections
