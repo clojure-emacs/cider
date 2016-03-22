@@ -1,6 +1,8 @@
-Use the template below when reporting bugs. Please, make sure that
+*Use the template below when reporting bugs. Please, make sure that
 you're running the latest stable CIDER and that the problem you're reporting
-hasn't been reported (and potentially fixed) already.
+hasn't been reported (and potentially fixed) already.*
+
+**Remove all of the placeholder text in your final report!**
 
 ## Expected behavior
 
@@ -8,15 +10,15 @@ hasn't been reported (and potentially fixed) already.
 
 ## Steps to reproduce the problem
 
-This is extremely important! Providing us with a reliable way to reproduce
-a problem will expedite its solution.
+*This is extremely important! Providing us with a reliable way to reproduce
+a problem will expedite its solution.*
 
 ## Environment & Version information
 
 ### CIDER version information
 
-Include here the version string displayed when
-CIDER's REPL is launched. Here's an example:
+*Include here the version string displayed when
+CIDER's REPL is launched. Here's an example:*
 
 ```
 ; CIDER 0.11.0snapshot (package: 20151112.1551) (Clojure 1.7.0, nREPL 0.2.12)
@@ -24,8 +26,8 @@ CIDER's REPL is launched. Here's an example:
 
 ### Emacs version
 
-E.g. 24.5
+*E.g. 24.5*
 
 ### Operating system
 
-E.g. Windows 10
+*E.g. Windows 10*
