@@ -1644,13 +1644,13 @@ that the order here matters.
 Emacs doesn't load the new files, it only installs them on disk.  To see the
 effect of changes you have to restart Emacs.
 
-### CIDER should inject its dependencies but I still get warnings when I use `cider-jack-in`
+### CIDER injects its dependencies but I still get warnings when I use `cider-jack-in`
 
 Injecting the depencies should override the old settings in the
-`~/lein/profiles.clj` file however only if those settings were done in the
-`:repl` profile. If the `:user` profile is used overriding does not happen. To
-fix this issue stop your REPL, remove CIDER and `tools.nrepl` dependencies from
-your `~/.lein/profiles.clj` and start the REPL again.
+`~/lein/profiles.clj` file. However, this works only if those settings were placed
+in the `:repl` profile. Configuration placed in the `:user` profile will not be
+overridden. To fix this issue stop nREPL (and CIDER), remove the `cider-nrepl` and `tools.nrepl`
+dependencies from your `~/.lein/profiles.clj` and start nREPL again.
 
 ## Presentations
 
