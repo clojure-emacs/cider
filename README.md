@@ -1646,7 +1646,11 @@ effect of changes you have to restart Emacs.
 
 ### CIDER should inject its dependencies but I still get warnings when I use `cider-jack-in`
 
-Injecting the depencies should override the old settings in the `~/lein/profiles.clj` file however only if those settings were done in the `:repl` profile. If the `:user` profile is used overriding does not happen. To fix this issue stop your REPL, remove CIDER and `tools.nrepl` dependencies from your `~/.lein/profiles.clj` and start the REPL again.
+Injecting the depencies should override the old settings in the
+`~/lein/profiles.clj` file however only if those settings were done in the
+`:repl` profile. If the `:user` profile is used overriding does not happen. To
+fix this issue stop your REPL, remove CIDER and `tools.nrepl` dependencies from
+your `~/.lein/profiles.clj` and start the REPL again.
 
 ## Presentations
 
