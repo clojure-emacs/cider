@@ -1,11 +1,12 @@
 ;;; cider-util.el --- Common utility functions that don't belong anywhere else -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2016 Tim King, Phil Hagelberg
-;; Copyright © 2013-2016 Bozhidar Batsov, Hugo Duncan, Steve Purcell
+;; Copyright © 2013-2016 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
+;;         Artur Malabarba <bruce.connor.am@gmail.com>
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
 

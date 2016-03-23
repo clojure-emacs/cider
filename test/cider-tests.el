@@ -4,6 +4,7 @@
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
+;;         Artur Malabarba <bruce.connor.am@gmail.com>
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -783,14 +784,14 @@
 (ert-deftest cider-expected-ns ()
   (noflet ((cider-ensure-connected () t)
            (cider-sync-request:classpath () '("/a" "/b" "/c" "/c/inner")))
-     (should (string= (cider-expected-ns "/a/foo/bar/baz_utils.clj")
-                      "foo.bar.baz-utils"))
-     (should (string= (cider-expected-ns "/b/foo.clj")
-                      "foo"))
-     (should (string= (cider-expected-ns "/not/in/classpath.clj")
-                      nil))
-     (should (string= (cider-expected-ns "/c/inner/foo/bar.clj")
-                      ;; NOT inner.foo.bar
-                      "foo.bar"))
-     (should (string= (cider-expected-ns "/c/foo/bar/baz")
-                      "foo.bar.baz"))))
+    (should (string= (cider-expected-ns "/a/foo/bar/baz_utils.clj")
+                     "foo.bar.baz-utils"))
+    (should (string= (cider-expected-ns "/b/foo.clj")
+                     "foo"))
+    (should (string= (cider-expected-ns "/not/in/classpath.clj")
+                     nil))
+    (should (string= (cider-expected-ns "/c/inner/foo/bar.clj")
+                     ;; NOT inner.foo.bar
+                     "foo.bar"))
+    (should (string= (cider-expected-ns "/c/foo/bar/baz")
+                     "foo.bar.baz"))))
