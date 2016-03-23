@@ -1,6 +1,6 @@
 ;;; cider-overlays.el --- Managing CIDER overlays  -*- lexical-binding: t; -*-
 
-;; Copyright © 2015-2016 Artur Malabarba
+;; Copyright © 2015-2016 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 
