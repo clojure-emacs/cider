@@ -423,7 +423,7 @@ The optional arg TEST denotes an individual test name."
   (nrepl-dbind-response summary (ns test fail error)
     (if (nrepl-dict-empty-p results)
         (message (concat (propertize "No assertions (or no tests) were run." 'face 'cider-test-error-face)
-                         "\nDid you forget to use `is' in your tests?"))
+                         "Did you forget to use `is' in your tests?"))
       (message (propertize
                 "%sRan %d tests. %d failures, %d errors."
                 'face (cond ((not (zerop error)) 'cider-test-error-face)
