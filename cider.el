@@ -556,10 +556,12 @@ If more than one project file types are present, prompt the user to choose."
                                     (car candidate)))
                                 '(("lein" . "project.clj")
                                   ("boot" . "build.boot")
-                                  ("gradle" . "build.gradle"))))))
+                                  ("gradle" . "build.gradle")))))
+         (default (car choices)))
     (or (if (> (length choices) 1)
-            (completing-read "Which command shoud be used? " choices
-                             nil t (car choices))
+            (completing-read (format "Which command shoud be used (default %s)? "
+                                     default)
+                             choices nil t nil nil default)
           (car choices))
         cider-default-repl-command)))
 
