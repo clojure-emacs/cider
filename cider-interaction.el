@@ -383,9 +383,9 @@ Show results in a different window if OTHER-WINDOW is true."
 (defun cider-find-resource (path)
   "Find the resource at PATH.
 
-Prompt for input as indicated by the variable `cider-prompt-for-symbol`.
+Prompt for input as indicated by the variable `cider-prompt-for-symbol'.
 A single or double prefix argument inverts the meaning of
-`cider-prompt-for-symbol`.  A prefix argument of `-` or a double prefix
+`cider-prompt-for-symbol'.  A prefix argument of `-` or a double prefix
 argument causes the results to be displayed in other window.  The default
 value is thing at point."
   (interactive
