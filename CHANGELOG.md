@@ -19,6 +19,10 @@ an individual test using `C-c C-t t`.
 * New function `cider-expected-ns` is like `clojure-expected-ns`, but uses classpath for better results.  See [clojure-mode#372](https://github.com/clojure-emacs/clojure-mode/issues/372).
 * A double prefix argument (`C-u C-u`) for `cider-eval-defun-at-point` debugs the sexp at point instead of the entire defun, and offers to create a conditional breakpoint.
 
+### Changes
+
+* [#1627](https://github.com/clojure-emacs/cider/issues/1627): Align the terminology used by `cider-test` with the one used by lein and boot (use the terms `assertion` and `test`).
+
 ## 0.11.0 / 2016-03-03
 
 ### New features

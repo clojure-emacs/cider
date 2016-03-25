@@ -324,7 +324,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
   (with-current-buffer buffer
     (nrepl-dbind-response summary (ns var test pass fail error)
       (insert (format "Tested %d namespaces\n" ns))
-      (insert (format "Ran %d tests, in %d test functions\n" test var))
+      (insert (format "Ran %d assertions, in %d test functions\n" test var))
       (unless (zerop fail)
         (cider-insert (format "%d failures" fail) 'cider-test-failure-face t))
       (unless (zerop error)
@@ -420,12 +420,12 @@ The optional arg TEST denotes an individual test name."
 
 (defun cider-test-echo-summary (summary results)
   "Echo SUMMARY statistics for a test run returning RESULTS."
-  (nrepl-dbind-response summary (ns test fail error)
+  (nrepl-dbind-response summary (ns test var fail error)
     (if (nrepl-dict-empty-p results)
         (message (concat (propertize "No assertions (or no tests) were run." 'face 'cider-test-error-face)
                          "Did you forget to use `is' in your tests?"))
       (message (propertize
-                "%sRan %d tests. %d failures, %d errors."
+                "%sRan %d assertions, in %d test functions. %d failures, %d errors."
                 'face (cond ((not (zerop error)) 'cider-test-error-face)
                             ((not (zerop fail))  'cider-test-failure-face)
                             (t                   'cider-test-success-face)))
@@ -433,7 +433,7 @@ The optional arg TEST denotes an individual test name."
                            (cider-propertize (car (nrepl-dict-keys results)) 'ns)
                          (propertize (format "%d namespaces" ns) 'face 'default))
                        (propertize ": " 'face 'default))
-               test fail error))))
+               test var fail error))))
 
 ;;; Test definition highlighting
 ;; On receipt of test results, failing/erring test definitions are highlighted.
