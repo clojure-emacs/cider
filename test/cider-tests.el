@@ -782,8 +782,9 @@
     (should-error (cider-find-ns) :type 'user-error)))
 
 (ert-deftest cider-expected-ns ()
-  (noflet ((cider-ensure-connected () t)
-           (cider-sync-request:classpath () '("/a" "/b" "/c" "/c/inner")))
+  (noflet ((cider-connected-p () t)
+           (cider-sync-request:classpath () '("/a" "/b" "/c" "/c/inner"
+                                              "/base/clj" "/base/clj-dev")))
     (should (string= (cider-expected-ns "/a/foo/bar/baz_utils.clj")
                      "foo.bar.baz-utils"))
     (should (string= (cider-expected-ns "/b/foo.clj")
@@ -794,4 +795,6 @@
                      ;; NOT inner.foo.bar
                      "foo.bar"))
     (should (string= (cider-expected-ns "/c/foo/bar/baz")
-                     "foo.bar.baz"))))
+                     "foo.bar.baz"))
+    (should (string= (cider-expected-ns "/base/clj-dev/foo/bar.clj")
+                     "foo.bar"))))

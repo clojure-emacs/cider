@@ -675,12 +675,12 @@ active nREPL connection."
       (let* ((path (or path (file-truename (buffer-file-name))))
              (relpath (thread-last (cider-sync-request:classpath)
                         (seq-map
-                         (lambda (p)
-                           ;; when path starts with p
-                           (when (string-match (rx-to-string `(: bos ,p)) path)
-                             (substring path (length p)))))
+                         (lambda (cp)
+                           (when (string-prefix-p cp path)
+                             (substring path (length cp)))))
                         (seq-filter #'identity)
-                        (seq-sort #'string<)
+                        (seq-sort (lambda (a b)
+                                    (< (length a) (length b))))
                         (car))))
         (when relpath
           (thread-last (substring relpath 1) ; remove leading /
