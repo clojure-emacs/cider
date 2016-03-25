@@ -687,7 +687,7 @@ active nREPL connection."
             (file-name-sans-extension)
             (replace-regexp-in-string "/" ".")
             (replace-regexp-in-string "_" "-"))))
-    (clojure-expected-ns)))
+    (clojure-expected-ns path)))
 
 ;;;###autoload
 (eval-after-load 'clojure-mode

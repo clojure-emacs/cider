@@ -781,7 +781,7 @@
   (noflet ((cider-ensure-op-supported (op) nil))
     (should-error (cider-find-ns) :type 'user-error)))
 
-(ert-deftest cider-expected-ns ()
+(ert-deftest cider-expected-ns-connected ()
   (noflet ((cider-connected-p () t)
            (cider-sync-request:classpath () '("/a" "/b" "/c" "/c/inner"
                                               "/base/clj" "/base/clj-dev")))
@@ -798,3 +798,9 @@
                      "foo.bar.baz"))
     (should (string= (cider-expected-ns "/base/clj-dev/foo/bar.clj")
                      "foo.bar"))))
+
+(ert-deftest cider-expected-ns-not-connected ()
+  (noflet ((cider-connected-p () nil)
+           (clojure-expected-ns (path) "clojure-expected-ns"))
+    (should (string= (cider-expected-ns "foo")
+                     "clojure-expected-ns"))))
