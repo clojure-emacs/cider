@@ -50,8 +50,12 @@
     (define-prefix-command 'cider-doc-map)
     (define-key cider-doc-map (kbd "a") #'cider-apropos)
     (define-key cider-doc-map (kbd "C-a") #'cider-apropos)
+    (define-key cider-doc-map (kbd "s") #'cider-apropos-select)
+    (define-key cider-doc-map (kbd "C-s") #'cider-apropos-select)
     (define-key cider-doc-map (kbd "f") #'cider-apropos-documentation)
     (define-key cider-doc-map (kbd "C-f") #'cider-apropos-documentation)
+    (define-key cider-doc-map (kbd "e") #'cider-apropos-documentation-select)
+    (define-key cider-doc-map (kbd "C-e") #'cider-apropos-documentation-select)
     (define-key cider-doc-map (kbd "d") #'cider-doc)
     (define-key cider-doc-map (kbd "C-d") #'cider-doc)
     (define-key cider-doc-map (kbd "r") #'cider-grimoire)
@@ -70,7 +74,9 @@
     ["Grimoire" cider-grimoire]
     ["Grimoire in browser" cider-grimoire-web]
     ["Search symbols" cider-apropos]
-    ["Search documentation" cider-apropos-documentation])
+    ["Search symbols & select" cider-apropos-select]
+    ["Search documentation" cider-apropos-documentation]
+    ["Search documentation & select" cider-apropos-documentation-select])
   "CIDER documentation submenu.")
 
 

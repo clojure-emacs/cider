@@ -15,7 +15,7 @@ an individual test using `C-c C-t t`.
 * Javadoc commands take into account the variable `clojure.java.javadoc/*remote-javadocs*`.
 * Javadoc also works on classes of the AmazonAWS Java SDK.
 * Apropos commands now accept lists of space-separated words as arguments, in addition to regular expressions (similar to Emacs's own apropos commands).
-* [#1541](https://github.com/clojure-emacs/cider/issues/1541): New commands `cider-apropos-select` and `cider-apropos-documentation-select`.
+* [#1541](https://github.com/clojure-emacs/cider/issues/1541): New commands `cider-apropos-select` (bound to `C-c C-d C-s`) and `cider-apropos-documentation-select` (bound to `C-c C-d c-e`).
 * New function `cider-expected-ns` is like `clojure-expected-ns`, but uses classpath for better results.  See [clojure-mode#372](https://github.com/clojure-emacs/clojure-mode/issues/372).
 * A double prefix argument (`C-u C-u`) for `cider-eval-defun-at-point` debugs the sexp at point instead of the entire defun, and offers to create a conditional breakpoint.
 
