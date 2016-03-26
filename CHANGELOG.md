@@ -9,6 +9,7 @@
 * [#1563](https://github.com/clojure-emacs/cider/issues/1563): Handle invalid regular expressions in apropos.
 * [#1625](https://github.com/clojure-emacs/cider/issues/1625): Display a more meaningful message when running
 an individual test using `C-c C-t t`.
+* Fix buffer closing in `cider-close-ancillary-buffers`.
 
 ### New Features
 

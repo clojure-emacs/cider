@@ -1594,7 +1594,7 @@ the string contents of the region into a formatted string."
   "Close buffers that are shared across connections."
   (interactive)
   (dolist (buf-name cider-ancillary-buffers)
-    (when (buffer-live-p buf-name)
+    (when (get-buffer buf-name)
       (kill-buffer buf-name))))
 
 (defun cider--quit-connection (conn)
