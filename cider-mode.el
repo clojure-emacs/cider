@@ -620,6 +620,7 @@ property."
                     (cider--wrap-fontify-locals font-lock-fontify-region-function))
         (when cider-dynamic-indentation
           (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
+        (setq-local clojure-expected-ns-function #'cider-expected-ns)
         (setq next-error-function #'cider-jump-to-compilation-error))
     (mapc #'kill-local-variable '(completion-at-point-functions
                                   next-error-function
