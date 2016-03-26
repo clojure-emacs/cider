@@ -217,15 +217,6 @@ namespace-qualified function of zero arity."
   "Face used to highlight compilation warnings in Clojure buffers."
   :group 'cider)
 
-(defvar cider-required-nrepl-ops
-  '("apropos" "classpath" "complete" "eldoc" "format-code" "format-edn" "info"
-    "inspect-pop" "inspect-push" "inspect-refresh"
-    "macroexpand" "ns-list" "ns-vars" "ns-path" "refresh"
-    "resource" "stacktrace" "toggle-trace-var" "toggle-trace-ns" "undef")
-  "A list of nREPL ops required by CIDER to function properly.
-
-All of them are provided by CIDER's nREPL middleware (cider-nrepl).")
-
 (defvar cider-required-nrepl-version "0.2.12"
   "The minimum nREPL version that's known to work properly with CIDER.")
 

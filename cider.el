@@ -588,17 +588,6 @@ In case `default-directory' is non-local we assume the command is available."
 ;;; Check that the connection is working well
 ;; TODO: This is nrepl specific. It should eventually go into some cider-nrepl-client
 ;; file.
-(defun cider--check-required-nrepl-ops ()
-  "Check whether all required nREPL ops are present."
-  (let* ((current-connection (cider-current-connection))
-         (missing-ops (seq-remove (lambda (op) (nrepl-op-supported-p op current-connection))
-                                  cider-required-nrepl-ops)))
-    (when missing-ops
-      (cider-repl-readme-warning "setting-up-ciders-nrepl-middleware"
-                                 "The following required nREPL ops are not supported: \n%s\nPlease, install (or update) cider-nrepl %s and restart CIDER"
-                                 (cider-string-join missing-ops " ")
-                                 (upcase cider-version)))))
-
 (defun cider--check-required-nrepl-version ()
   "Check whether we're using a compatible nREPL version."
   (if-let ((nrepl-version (cider--nrepl-version)))
@@ -647,7 +636,6 @@ buffer."
   (cider-make-connection-default (current-buffer))
   (cider-repl-init (current-buffer))
   (cider--check-required-nrepl-version)
-  (cider--check-required-nrepl-ops)
   (cider--check-middleware-compatibility)
   (cider--debug-init-connection)
   (cider--subscribe-repl-to-server-out)

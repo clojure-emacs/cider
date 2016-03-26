@@ -22,6 +22,7 @@ an individual test using `C-c C-t t`.
 ### Changes
 
 * [#1627](https://github.com/clojure-emacs/cider/issues/1627): Align the terminology used by `cider-test` with the one used by lein and boot (use the terms `assertion` and `test`).
+* Remove the warning about missing nREPl ops.
 
 ## 0.11.0 / 2016-03-03
 
