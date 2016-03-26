@@ -130,6 +130,20 @@ sensitive."
   (cider-ensure-op-supported "apropos")
   (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
+(defun cider-apropos-act-on-symbol (symbol)
+  "Apply selected action on SYMBOL."
+  (let ((action (completing-read (format "Choose action to apply to `%s`: " symbol)
+                                 '("display-doc"
+                                   "find-def"
+                                   "lookup-on-grimoire"
+                                   "quit"))))
+    (pcase action
+      ("display-doc" (cider-doc-lookup symbol))
+      ("find-def" (cider--find-var symbol))
+      ("lookup-on-grimoire" (cider-grimoire-lookup symbol))
+      ("quit" nil)
+      (_ (user-error "Unknown action `%s`" action)))))
+
 ;;;###autoload
 (defun cider-apropos-select (query &optional ns docs-p privates-p case-sensitive-p)
   "Similar to `cider-apropos', but presents the results in a completing read."
@@ -147,7 +161,7 @@ sensitive."
                      query ns docs-p privates-p case-sensitive-p))
            (results (mapcar (lambda (r) (nrepl-dict-get r "name"))
                             (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p))))
-      (cider-doc-lookup (completing-read (concat summary ": ") results))
+      (cider-apropos-act-on-symbol (completing-read (concat summary ": ") results))
     (message "No apropos matches for %S" query)))
 
 ;;;###autoload
