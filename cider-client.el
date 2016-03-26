@@ -863,6 +863,13 @@ CONTEXT represents a completion context for compliment."
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-vars")))
 
+(defun cider-sync-request:ns-load-all ()
+  "Load all project namespaces."
+  (thread-first (list "op" "ns-load-all"
+                      "session" (cider-current-session))
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "loaded-ns")))
+
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
   (thread-first (list "op" "resource"

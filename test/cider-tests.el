@@ -781,6 +781,14 @@
   (noflet ((cider-ensure-op-supported (op) nil))
     (should-error (cider-find-ns) :type 'user-error)))
 
+(ert-deftest cider-load-all-project-ns-not-connected ()
+  (noflet ((cider-connected-p () nil))
+    (should-error (cider-load-all-project-ns) :type 'user-error)))
+
+(ert-deftest cider-load-all-project-ns-unsupported-op ()
+  (noflet ((cider-nrepl-op-supported-p (op) nil))
+    (should-error (cider-load-all-project-ns) :type 'user-error)))
+
 (ert-deftest cider-expected-ns-connected ()
   (noflet ((cider-connected-p () t)
            (cider-sync-request:classpath () '("/a" "/b" "/c" "/c/inner"

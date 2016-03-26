@@ -1659,6 +1659,16 @@ If RESTART-ALL is t, then restarts all connections."
 VAR is a fully qualified Clojure variable name as a string."
   (replace-regexp-in-string "\\(?:#'\\)?\\(.*\\)/.*" "\\1" var))
 
+(defun cider-load-all-project-ns ()
+  "Load all namespaces in the current project."
+  (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "ns-load-all")
+  (when (y-or-n-p "Are you sure you want to load all namespaces in the project? ")
+    (message "Loading all project namespaces...")
+    (let ((loaded-ns-count (length (cider-sync-request:ns-load-all))))
+      (message "Loaded %d namespaces" loaded-ns-count))))
+
 (defun cider-run (&optional function)
   "Run -main or FUNCTION, prompting for its namespace if necessary.
 With a prefix argument, prompt for function to run instead of -main."

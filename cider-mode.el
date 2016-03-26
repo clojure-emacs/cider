@@ -234,7 +234,8 @@ Returns to the buffer in which the command was invoked."
          ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
          "--"
          ["Load (eval) buffer" cider-load-buffer]
-         ["Load (eval) file" cider-load-file])
+         ["Load (eval) file" cider-load-file]
+         ["Load all project namespaces" cider-load-all-project-ns])
         ("Macroexpand"
          ["Macroexpand-1" cider-macroexpand-1]
          ["Macroexpand-all" cider-macroexpand-all])
