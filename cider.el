@@ -651,32 +651,6 @@ process buffer."
   (cider-possibly-disable-on-existing-clojure-buffers)
   (run-hooks 'cider-disconnected-hook))
 
-(defun cider-expected-ns (&optional path)
-  "Return the namespace string matching PATH, or nil if not found.
-
-PATH is expected to be an absolute file path.
-If PATH is nil, use the path to the file backing the current buffer.
-
-The command falls back to `clojure-expected-ns' in the absence of an
-active nREPL connection."
-  (if (cider-connected-p)
-      (let* ((path (or path (file-truename (buffer-file-name))))
-             (relpath (thread-last (cider-sync-request:classpath)
-                        (seq-map
-                         (lambda (cp)
-                           (when (string-prefix-p cp path)
-                             (substring path (length cp)))))
-                        (seq-filter #'identity)
-                        (seq-sort (lambda (a b)
-                                    (< (length a) (length b))))
-                        (car))))
-        (when relpath
-          (thread-last (substring relpath 1) ; remove leading /
-            (file-name-sans-extension)
-            (replace-regexp-in-string "/" ".")
-            (replace-regexp-in-string "_" "-"))))
-    (clojure-expected-ns path)))
-
 ;;;###autoload
 (eval-after-load 'clojure-mode
   '(progn
