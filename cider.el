@@ -198,21 +198,24 @@ Sub-match 1 must be the project path.")
   (pcase project-type
     ("lein" 'cider--lein-present-p)
     ("boot" 'cider--boot-present-p)
-    ("gradle" 'cider--gradle-present-p)))
+    ("gradle" 'cider--gradle-present-p)
+    (_ (error "Unsupported project type `%s'" project-type))))
 
 (defun cider-jack-in-command (project-type)
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-lein-command)
     ("boot" cider-boot-command)
-    ("gradle" cider-gradle-command)))
+    ("gradle" cider-gradle-command)
+    (_ (error "Unsupported project type `%s'" project-type))))
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
-    ("gradle" cider-gradle-parameters)))
+    ("gradle" cider-gradle-parameters)
+    (_ (error "Unsupported project type `%s'" project-type))))
 
 
 ;;; Jack-in dependencies injection
@@ -297,7 +300,8 @@ dependencies."
              cider-jack-in-dependencies
              cider-jack-in-lein-plugins
              cider-jack-in-nrepl-middlewares))
-    ("gradle" params)))
+    ("gradle" params)
+    (_ (error "Unsupported project type `%s'" project-type))))
 
 
 ;;; ClojureScript REPL creation
