@@ -550,6 +550,32 @@ When NO-DEFAULT is non-nil, it will return nil instead of \"user\"."
         (buffer-local-value 'cider-buffer-ns repl-buf))
       (if no-default nil "user")))
 
+(defun cider-expected-ns (&optional path)
+  "Return the namespace string matching PATH, or nil if not found.
+
+PATH is expected to be an absolute file path.
+If PATH is nil, use the path to the file backing the current buffer.
+
+The command falls back to `clojure-expected-ns' in the absence of an
+active nREPL connection."
+  (if (cider-connected-p)
+      (let* ((path (or path (file-truename (buffer-file-name))))
+             (relpath (thread-last (cider-sync-request:classpath)
+                        (seq-map
+                         (lambda (cp)
+                           (when (string-prefix-p cp path)
+                             (substring path (length cp)))))
+                        (seq-filter #'identity)
+                        (seq-sort (lambda (a b)
+                                    (< (length a) (length b))))
+                        (car))))
+        (when relpath
+          (thread-last (substring relpath 1) ; remove leading /
+            (file-name-sans-extension)
+            (replace-regexp-in-string "/" ".")
+            (replace-regexp-in-string "_" "-"))))
+    (clojure-expected-ns path)))
+
 (defun cider-nrepl-op-supported-p (op)
   "Check whether the current connection supports the nREPL middleware OP."
   (nrepl-op-supported-p op (cider-current-connection)))
