@@ -2,4 +2,11 @@ site_name: "CIDER: The Clojure Interactive Programming Environment that Rocks"
 docs_dir: doc
 pages:
 - Home: index.md
+- Installation: installation.md
+- Basic Usage: basic-usage.md
+- Extended Workflow: extended-workflow.md
+- Configuration: configuration.md
 - Indentation: Indent-Spec.md
+- Caveats: caveats.md
+- Troubleshooting: troubleshooting.md
+- Contributing: contributing.md
