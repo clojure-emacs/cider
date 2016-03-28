@@ -112,6 +112,23 @@
     (cider--debug-move-point '(2 1 1 1))
     (should (string= (buffer-substring (point-min) (point)) "`[(~d)"))))
 
+(ert-deftest test-debug-move-point-@ ()
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(let [x (atom 1)] @x)"))
+    (cider--debug-move-point '(2 1))
+    (should (looking-back "@x")))
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(do @(do (atom {})))"))
+    (cider--debug-move-point '(1 1 1))
+    (should (looking-back "(atom {})")))
+  (with-temp-buffer
+    (clojure-mode)
+    (save-excursion (insert "(do @@(do (atom {})))"))
+    (cider--debug-move-point '(1 1 1 1))
+    (should (looking-back "(atom {})"))))
+
 (ert-deftest test-debug-move-point-metadata ()
   (with-temp-buffer
     (clojure-mode)

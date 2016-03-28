@@ -5,6 +5,7 @@
 ### Bugs fixed
 
 * [#1632](https://github.com/clojure-emacs/cider/pull/1632): Redefining a function correctly updates eldoc.
+* [#1630](https://github.com/clojure-emacs/cider/pull/1630): The debugger no longer gets confused inside `@` redefs.
 * [#1599](https://github.com/clojure-emacs/cider/pull/1599): Don't error when test makes 0 assertions.
 * [#1563](https://github.com/clojure-emacs/cider/issues/1563): Handle invalid regular expressions in apropos.
 * [#1625](https://github.com/clojure-emacs/cider/issues/1625): Display a more meaningful message when running
