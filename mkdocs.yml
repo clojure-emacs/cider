@@ -3,10 +3,10 @@ docs_dir: doc
 pages:
 - Home: index.md
 - Installation: installation.md
-- Basic Usage: basic-usage.md
-- Extended Workflow: extended-workflow.md
+- Basic Usage: basic_usage.md
+- Extended Workflow: extended_workflow.md
 - Configuration: configuration.md
-- Indentation: Indent-Spec.md
+- Indentation: indent_spec.md
 - Caveats: caveats.md
 - Troubleshooting: troubleshooting.md
 - Additional Resources: additional_resources.md

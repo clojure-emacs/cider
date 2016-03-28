@@ -58,23 +58,23 @@ development environments as well (e.g. [vim-fireplace][] & [CCW][]).
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
 
-* [Powerful REPL](basic-usage.md#using-the-repl)
-* [Interactive code evaluation](basic-usage.md#using-cider-mode)
+* [Powerful REPL](basic_usage.md#using-the-repl)
+* [Interactive code evaluation](basic_usage.md#using-cider-mode)
 * Compilation notes (error and warning highlighting)
-* [Human-friendly stacktraces](extended-workflow.md#navigating-stacktraces)
+* [Human-friendly stacktraces](extended_workflow.md#navigating-stacktraces)
 * [Smart code completion](configuration.md#auto-completion)
 * Definition lookup
 * Documentation lookup
 * Resource lookup
 * Apropos
-* [Debugger](extended-workflow.md#debugging)
-* [Value inspector](extended-workflow.md#value-inspection)
+* [Debugger](extended_workflow.md#debugging)
+* [Value inspector](extended_workflow.md#value-inspection)
 * Function tracing
-* [Interactive macroexpansion](extended-workflow.md#macroexpansion)
+* [Interactive macroexpansion](extended_workflow.md#macroexpansion)
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
-* [`clojure.test` integration](extended-workflow.md#running-tests)
-* [Smart code reloading](extended-workflow.md#code-reloading)
+* [`clojure.test` integration](extended_workflow.md#running-tests)
+* [Smart code reloading](extended_workflow.md#code-reloading)
 * [Pretty-printing of results](configuration.md#pretty-printing)
 * Classpath browser
 * Namespace browser
@@ -82,7 +82,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Scratchpad
 * Minibuffer code evaluation
 * Integration with [company-mode][] and [auto-complete-mode][]
-* [Support for working with multiple simultaneous nREPL connections](extended-workflow.md#managing-multiple-connections)
+* [Support for working with multiple simultaneous nREPL connections](extended_workflow.md#managing-multiple-connections)
 
 ![CIDER Screenshot](screenshots/cider-overview.png)
 
