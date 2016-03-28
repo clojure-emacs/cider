@@ -59,3 +59,6 @@ You can also check for the presence of byte-compilation warnings in batch mode:
 ```
 $ make test-bytecomp
 ```
+
+[clojure-mode]: https://github.com/clojure-emacs/clojure-mode
+[inf-clojure]: https://github.com/clojure-emacs/inf-clojure
