@@ -38,6 +38,7 @@
 (require 'cider-common)
 (require 'cider-compat)
 (require 'cider-util)
+(require 'cider-resolve)
 
 (require 'clojure-mode)
 (require 'easymenu)
