@@ -58,31 +58,31 @@ development environments as well (e.g. [vim-fireplace][] & [CCW][]).
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
 
-* [Powerful REPL](#using-the-repl)
-* [Interactive code evaluation](#using-cider-mode)
+* [Powerful REPL](basic-usage.md#using-the-repl)
+* [Interactive code evaluation](basic-usage.md#using-cider-mode)
 * Compilation notes (error and warning highlighting)
-* [Human-friendly stacktraces](#navigating-stacktraces)
-* [Smart code completion](#auto-completion)
+* [Human-friendly stacktraces](extended-workflow.md#navigating-stacktraces)
+* [Smart code completion](configuration.md#auto-completion)
 * Definition lookup
 * Documentation lookup
 * Resource lookup
 * Apropos
-* [Debugger](#debugging)
-* [Value inspector](#value-inspection)
+* [Debugger](extended-workflow.md#debugging)
+* [Value inspector](extended-workflow.md#value-inspection)
 * Function tracing
-* [Interactive macroexpansion](#macroexpansion)
+* [Interactive macroexpansion](extended-workflow.md#macroexpansion)
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
-* [`clojure.test` integration](#running-tests)
-* [Smart code reloading](#code-reloading)
-* [Pretty-printing of results](#pretty-printing)
+* [`clojure.test` integration](extended-workflow.md#running-tests)
+* [Smart code reloading](extended-workflow.md#code-reloading)
+* [Pretty-printing of results](configuration.md#pretty-printing)
 * Classpath browser
 * Namespace browser
 * nREPL session management
 * Scratchpad
 * Minibuffer code evaluation
 * Integration with [company-mode][] and [auto-complete-mode][]
-* [Support for working with multiple simultaneous nREPL connections](#managing-multiple-connections)
+* [Support for working with multiple simultaneous nREPL connections](extended-workflow.md#managing-multiple-connections)
 
 ![CIDER Screenshot](screenshots/cider-overview.png)
 
