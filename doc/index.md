@@ -17,8 +17,6 @@ CIDER is the successor to the now deprecated combination of using [SLIME][] +
 
 If you like the project, please consider [supporting its ongoing development](contributing.md#donations).
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 **This documentation tracks the `master` branch of CIDER. Some of
 the features and settings discussed here might not be available in
 older releases (including the current stable release). Please, consult
