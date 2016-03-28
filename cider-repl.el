@@ -213,7 +213,11 @@ Currently, this is only used to keep `cider-repl-type' updated."
               ;; Metadata changed, so signatures may have changed too.
               (setq cider-eldoc-last-symbol nil)
               (when (or cider-mode (derived-mode-p 'cider-repl-mode))
-                (when-let ((ns-dict (nrepl-dict-get changed-namespaces (cider-current-ns))))
+                (when-let ((ns-dict (or (nrepl-dict-get changed-namespaces (cider-current-ns))
+                                        (let ((ns-dict (cider-resolve--get-in (cider-current-ns))))
+                                          (when (seq-find (lambda (ns) (nrepl-dict-get changed-namespaces ns))
+                                                        (nrepl-dict-get ns-dict "aliases"))
+                                            ns-dict)))))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
 (declare-function cider-default-err-handler "cider-interaction")
