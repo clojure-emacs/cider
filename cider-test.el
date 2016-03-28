@@ -533,21 +533,23 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 (declare-function cider-emit-interactive-eval-output "cider-interaction")
 (declare-function cider-emit-interactive-eval-err-output "cider-interaction")
 
-(defun cider-test-execute (ns &optional tests)
+(defun cider-test-execute (ns &optional tests silent)
   "Run tests for NS, which may be a keyword, optionally specifying TESTS.
 
 This tests a single NS, or multiple namespaces when using keywords `:project',
 `:loaded' or `:non-passing'.  Optional TESTS are only honored when a single
 namespace is specified.  Upon test completion, results are echoed and a test
 report is optionally displayed.  When test failures/errors occur, their sources
-are highlighted."
+are highlighted.
+If SILENT is non-nil, suppress all messages other then test results."
   (cider-test-clear-highlights)
   (cider-map-connections
    (lambda (conn)
-     (if (and tests (= (length tests) 1))
-         ;; we generate a different message when running individual tests
-         (cider-test-echo-running ns (car tests))
-       (cider-test-echo-running ns))
+     (unless silent
+       (if (and tests (= (length tests) 1))
+           ;; we generate a different message when running individual tests
+           (cider-test-echo-running ns (car tests))
+         (cider-test-echo-running ns)))
      (cider-nrepl-send-request
       (list "op"     (cond ((stringp ns)         "test")
                            ((eq :project ns)     "test-all")
@@ -562,7 +564,8 @@ are highlighted."
       (lambda (response)
         (nrepl-dbind-response response (summary results status out err)
           (cond ((member "namespace-not-found" status)
-                 (message "No test namespace: %s" (cider-propertize ns 'ns)))
+                 (unless silent
+                   (message "No test namespace: %s" (cider-propertize ns 'ns))))
                 (out (cider-emit-interactive-eval-output out))
                 (err (cider-emit-interactive-eval-err-output err))
                 (results
@@ -607,21 +610,23 @@ are highlighted."
   (interactive)
   (cider-test-execute :project))
 
-(defun cider-test-run-ns-tests (suppress-inference)
+(defun cider-test-run-ns-tests (suppress-inference &optional silent)
   "Run all tests for the current Clojure namespace context.
 
+If SILENT is non-nil, suppress all messages other then test results.
 With a prefix arg SUPPRESS-INFERENCE it will try to run the tests in the
 current ns."
   (interactive "P")
   (if-let ((ns (if suppress-inference
                    (cider-current-ns t)
                  (funcall cider-test-infer-test-ns (cider-current-ns t)))))
-      (cider-test-execute ns)
+      (cider-test-execute ns nil silent)
     (if (eq major-mode 'cider-test-report-mode)
         (when (y-or-n-p (concat "Test report does not define a namespace. "
                                 "Rerun failed/erring tests?"))
           (cider-test-rerun-tests))
-      (message "No namespace to test in current context"))))
+      (unless silent
+        (message "No namespace to test in current context")))))
 (define-obsolete-function-alias 'cider-test-run-tests
   'cider-test-run-ns-tests "0.11.0")
 
