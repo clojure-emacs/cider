@@ -646,6 +646,29 @@ is searched."
             (cider-test-execute ns (cdr def))
           (message "No test at point"))))))
 
+;;; Auto-test mode
+(defun cider--test-silently ()
+  "Like `cider-test-run-tests', but with less feedback.
+Only notify the user if there actually were any tests to run and only after
+the results are received."
+  (when (cider-connected-p)
+    (let ((cider-auto-select-test-report-buffer nil)
+          (cider-test-show-report-on-success nil))
+      (cider-test-run-ns-tests nil 'soft))))
+
+;;;###autoload
+(define-minor-mode cider-auto-test-mode
+  "Toggle automatic testing of Clojure files.
+
+When enabled this reruns tests every time a Clojure file is loaded.
+Only runs tests corresponding to the loaded file's namespace and does
+nothing if no tests are defined or if the file failed to load."
+  nil (cider-mode " Test") nil
+  :global t
+  (if cider-auto-test-mode
+      (add-hook 'cider-file-loaded-hook #'cider--test-silently)
+    (remove-hook 'cider-file-loaded-hook #'cider--test-silently)))
+
 (provide 'cider-test)
 
 ;;; cider-test.el ends here

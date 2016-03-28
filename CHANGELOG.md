@@ -15,6 +15,7 @@ an individual test using `C-c C-t t`.
 
 ### New Features
 
+* [#1636](https://github.com/clojure-emacs/cider/pull/1636): New minor-mode `cider-auto-test-mode` for test-driven-development. When activated, tests are rerun after every load-file.
 * Javadoc commands take into account the variable `clojure.java.javadoc/*remote-javadocs*`.
 * Javadoc also works on classes of the AmazonAWS Java SDK.
 * Apropos commands now accept lists of space-separated words as arguments, in addition to regular expressions (similar to Emacs's own apropos commands).
