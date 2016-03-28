@@ -33,7 +33,10 @@ specific CIDER release.**
 
 ## Quickstart
 
-See the [official manual](http://cider.readthedocs.org/en/latest/) for more details.
+The instructions that follow are meant to get you from zero to a running CIDER
+REPL in under 5 minutes.  See the
+[official manual](http://cider.readthedocs.org/en/latest/) for (way) more
+details.
 
 ### Installation
 
