@@ -1,0 +1,5 @@
+site_name: "CIDER: The Clojure Interactive Programming Environment that Rocks"
+docs_dir: doc
+pages:
+- Home: index.md
+- Indentation: indent-spec.md
