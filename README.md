@@ -85,6 +85,13 @@ Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the runni
 
 In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
 
+## Diving Deeper
+
+CIDER packs a ton of functionality and you really want to be familiar with it,
+so you can fully empower your workflow. The best way to get acquainted with all
+available features is to go over the entire
+[CIDER manual](http://cider.readthedocs.org/).
+
 ## Changelog
 
 An extensive changelog is available [here](CHANGELOG.md).
@@ -178,7 +185,11 @@ guidelines](.github/CONTRIBUTING.md).
 
 ### Documentation
 
-Consider improving and extending the [community wiki](https://github.com/clojure-emacs/cider/wiki).
+Good documentation is just as important as good code.
+
+Consider improving and extending the
+[official manual](http://cider.readthedocs.org) and the
+[community wiki](https://github.com/clojure-emacs/cider/wiki).
 
 ### Donations
 
