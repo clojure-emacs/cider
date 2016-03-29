@@ -405,7 +405,7 @@ For more information visit [boot-cljs-repl](https://github.com/adzerk-oss/boot-c
 
 #### Using the Figwheel REPL (Leiningen-only)
 
-You can also use [https://github.com/bhauman/lein-figwheel](Figwheel) with CIDER.
+You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER.
 
 1. Set up Figwheel as normal, but make sure `:cljsbuild` and `:figwheel` settings are
    in the root of your Leiningen project definition.
