@@ -69,32 +69,6 @@ make the hidden buffers visible. They'll always be visible in
 (setq cider-repl-pop-to-buffer-on-connect nil)
 ```
 
-* Configure whether the error buffer with stacktraces should be automatically
-  shown on error:
-
-  - Don't show on error:
-
-    ```el
-    (setq cider-show-error-buffer nil)
-    ```
-
-   Independently of the value of `cider-show-error-buffer`, the error buffer is
-   always generated in the background. Use `cider-visit-error-buffer` to visit
-   this buffer.
-
-  - Selective strategies:
-
-    ```el
-    (setq cider-show-error-buffer 'except-in-repl) ; or
-    (setq cider-show-error-buffer 'only-in-repl)
-    ```
-
-* To disable auto-selection of the error buffer when it's displayed:
-
-```el
-(setq cider-auto-select-error-buffer nil)
-```
-
 * Make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current window:
 
 ```el

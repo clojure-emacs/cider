@@ -147,6 +147,30 @@ Keyboard shortcut                    | Description
 <kbd>d</kbd>                         | Toggle display of duplicate frames
 <kbd>a</kbd>                         | Toggle display of all frames
 
+You can configure whether the error buffer with stacktraces should be automatically
+shown on error. By default it will be displayed, but you can change this:
+
+```el
+(setq cider-show-error-buffer nil)
+```
+
+Independently of the value of `cider-show-error-buffer`, the error buffer is
+always generated in the background. Use `cider-visit-error-buffer` to visit
+this buffer.
+
+There are two more selective strategies for the error buffer:
+
+```el
+(setq cider-show-error-buffer 'except-in-repl) ; or
+(setq cider-show-error-buffer 'only-in-repl)
+```
+
+* To disable auto-selection of the error buffer when it's displayed:
+
+```el
+(setq cider-auto-select-error-buffer nil)
+```
+
 * Error buffer stacktraces may be filtered by default. Valid filter types
 include `java`, `clj`, `repl`, `tooling`, and `dup`. Setting this to `nil` will
 show all stacktrace frames.
