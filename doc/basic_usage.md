@@ -439,3 +439,8 @@ CIDER will determine which to use based on the type of file you're editing.
 You should also check out
 [Figwheel](https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl)'s
 wiki.
+
+[leiningen]: http://leiningen.org/
+[boot]: http://boot-clj.com/
+[piggieback]: https://github.com/cemerick/piggieback
+[which-key]: https://github.com/justbur/emacs-which-key

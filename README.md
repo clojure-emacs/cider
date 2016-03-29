@@ -232,10 +232,8 @@ Distributed under the GNU General Public License, version 3
 [auto-complete-mode]: https://github.com/clojure-emacs/ac-cider
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
-[piggieback]: https://github.com/cemerick/piggieback
 [vim-fireplace]: https://github.com/tpope/vim-fireplace
 [CCW]: https://github.com/laurentpetit/ccw
 [cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure
-[which-key]: https://github.com/justbur/emacs-which-key
