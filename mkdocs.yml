@@ -12,3 +12,4 @@ pages:
 - Additional Resources: additional_resources.md
 - Team: team.md
 - Contributing: contributing.md
+theme: mkdocs
