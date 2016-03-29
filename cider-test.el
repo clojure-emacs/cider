@@ -212,7 +212,9 @@
           (goto-char pos))))))
 
 (defun cider-test-jump (&optional arg)
-  "Like `cider-find-var', but uses the test at point's definition, if available."
+  "Find definition for test at point, if available.
+The prefix ARG and `cider-prompt-for-symbol' decide whether to
+prompt and whether to use a new window.  Similar to `cider-find-var'."
   (interactive "P")
   (let ((ns   (get-text-property (point) 'ns))
         (var  (get-text-property (point) 'var))
@@ -469,8 +471,8 @@ The optional arg TEST denotes an individual test name."
               (overlay-put overlay 'actual actual))))))))
 
 (defun cider-find-var-file (ns var)
-  "Return the buffer visiting the file in which the NS VAR is defined, or nil if
-not found."
+  "Return the buffer visiting the file in which the NS VAR is defined.
+Or nil if not found."
   (cider-ensure-op-supported "info")
   (when-let ((info (cider-var-info (concat ns "/" var)))
              (file (nrepl-dict-get info "file")))

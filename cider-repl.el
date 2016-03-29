@@ -420,12 +420,16 @@ If BACKWARD is non-nil search backward."
   (set-marker cider-repl-output-end (point)))
 
 (defun cider-repl-mode-beginning-of-defun (&optional arg)
+  "Move to the beginning of defun.
+If given a negative value of ARG, move to the end of defun."
   (if (and arg (< arg 0))
       (cider-repl-mode-end-of-defun (- arg))
     (dotimes (_ (or arg 1))
       (cider-repl-previous-prompt))))
 
 (defun cider-repl-mode-end-of-defun (&optional arg)
+  "Move to the end of defun.
+If given a negative value of ARG, move to the beginning of defun."
   (if (and arg (< arg 0))
       (cider-repl-mode-beginning-of-defun (- arg))
     (dotimes (_ (or arg 1))
@@ -1199,7 +1203,7 @@ constructs."
           (let ((command-func (gethash command cider-repl-shortcuts)))
             (if command-func
                 (call-interactively (gethash command cider-repl-shortcuts))
-              (error "Unknown command %S. Available commands: %s"
+              (error "Unknown command %S.  Available commands: %s"
                      command-func
                      (mapconcat 'identity (cider-repl--available-shortcuts) ", "))))
         (error "No command selected")))))
@@ -1323,7 +1327,7 @@ constructs."
     map))
 
 (defun cider-repl-wrap-fontify-function (func)
-  "Return a function that calls FUNC narrowed to input region."
+  "Return a function that will call FUNC narrowed to input region."
   (lambda (beg end &rest rest)
     (when (and cider-repl-input-start-mark
                (> end cider-repl-input-start-mark))

@@ -309,7 +309,7 @@ hidden count."
 
 (defun cider-stacktrace-cycle-cause (num &optional level)
   "Update element NUM of `cider-stacktrace-cause-visibility', optionally to LEVEL.
-If LEVEL is not specified, its current value is incremented. When it reaches 3,
+If LEVEL is not specified, its current value is incremented.  When it reaches 3,
 it wraps to 0."
   (let ((level (or level (1+ (elt cider-stacktrace-cause-visibility num)))))
     (aset cider-stacktrace-cause-visibility num (mod level 3))
@@ -442,7 +442,9 @@ it wraps to 0."
     (back-to-indentation)))
 
 (defun cider-stacktrace-jump (&optional arg)
-  "Like `cider-find-var', but uses the stack frame source at point, if available."
+  "Find definition for stack frame at point, if available.
+The prefix ARG and `cider-prompt-for-symbol' decide whether to
+prompt and whether to use a new window.  Similar to `cider-find-var'."
   (interactive "P")
   (let ((button (button-at (point))))
     (if (and button (button-get button 'line))
