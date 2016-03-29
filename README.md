@@ -228,12 +228,5 @@ Distributed under the GNU General Public License, version 3
 [swank-clojure]: https://github.com/technomancy/swank-clojure
 [Sly]: https://github.com/capitaomorte/sly
 [Geiser]: https://github.com/jaor/geiser
-[company-mode]: http://company-mode.github.io/
-[auto-complete-mode]: https://github.com/clojure-emacs/ac-cider
-[leiningen]: http://leiningen.org/
-[boot]: http://boot-clj.com/
-[vim-fireplace]: https://github.com/tpope/vim-fireplace
-[CCW]: https://github.com/laurentpetit/ccw
-[cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure
