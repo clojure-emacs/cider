@@ -101,6 +101,20 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ```
 
+#### Running tests automatically (test-driven development)
+
+CIDER provides a minor-mode that automatically runs all tests for a namespace
+whenever you load a file (with <kbd>C-c C-k</kbd>). You can toggle it
+manually with <kbd>M-x</kbd> `cider-auto-test-mode`, or you can use:
+
+```el
+(cider-auto-test-mode 1)
+```
+
+This is completely equivalent to manually typing <kbd>C-c C-t C-n</kbd> every
+time you load a Clojure buffer. Also, as described above before, CIDER is smart
+enough to figure out the namespace containing the tests.
+
 #### Using cider-test with alternative test libraries
 
 The `clojure.test` machinery is designed to be pluggable. Any test library
