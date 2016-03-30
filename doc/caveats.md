@@ -1,5 +1,3 @@
-## Caveats
-
 ### ClojureScript limitations
 
 Currently, the following features are not supported for ClojureScript

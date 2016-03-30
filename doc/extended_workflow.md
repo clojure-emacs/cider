@@ -1,5 +1,3 @@
-## Extended workflow
-
 CIDER packs a ton of extra functionality, besides basic Clojure code
 evaluation. Much of the functionality is centered around additional major modes,
 which provide you with convenient ways to get something done or inspect

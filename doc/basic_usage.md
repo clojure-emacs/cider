@@ -1,5 +1,3 @@
-## Basic Usage
-
 The only requirement to use CIDER is to have a nREPL server to
 which it may connect. Many Clojurians favour the use of the Leiningen or Boot tools
 to start an nREPL server, but the use of Leiningen or Boot is not a prerequisite to use

@@ -1,5 +1,3 @@
-## Team
-
 ### The Core Team
 
 The direction of the project is being stewarded by the CIDER core team. This

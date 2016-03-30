@@ -1,5 +1,3 @@
-## Configuration
-
 You can certainly use CIDER without configuring it any further,
 but here are some ways other folks are adjusting their CIDER
 experience.

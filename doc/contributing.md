@@ -1,5 +1,3 @@
-## Contributing
-
 ### Issues
 
 Report issues and suggest features and improvements on the

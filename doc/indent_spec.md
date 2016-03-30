@@ -1,4 +1,4 @@
-# Indent Specification
+## Overview
 
 An indent spec can be used to specify intricate indentation rules for the more
 complex macros (or functions). It is provided as a value in the var metadata,
@@ -111,7 +111,7 @@ For instance, `defrecord` has two special arguments, and here's how it might be 
 ```
 
 Here's another way one could do it:
- 
+
 ```clj
 (defrecord TheNameOfTheRecord
            [a pretty long argument list]
