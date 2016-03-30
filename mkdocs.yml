@@ -7,6 +7,7 @@ pages:
 - Extended Workflow: extended_workflow.md
 - Configuration: configuration.md
 - Indentation: indent_spec.md
+- Additional Packages: additional_packages.md
 - Caveats: caveats.md
 - Troubleshooting: troubleshooting.md
 - Additional Resources: additional_resources.md
