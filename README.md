@@ -24,12 +24,6 @@ CIDER is the successor to the now deprecated combination of using [SLIME][] +
 
 If you like the project, please consider [supporting its ongoing development](#donations).
 
-**This documentation tracks the `master` branch of CIDER. Some of
-the features and settings discussed here might not be available in
-older releases (including the current stable release). Please, consult
-the relevant git tag (e.g. v0.11.0) if you need documentation for a
-specific CIDER release.**
-
 ## Quickstart
 
 The instructions that follow are meant to get you from zero to a running CIDER
