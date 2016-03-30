@@ -756,9 +756,9 @@
 
 (ert-deftest cider-manual-url ()
   (let ((cider-version "0.11.0"))
-    (should (string= (cider-manual-url) "https://github.com/clojure-emacs/cider/blob/v0.11.0/README.md")))
+    (should (string= (cider-manual-url) "http://cider.readthedocs.org/en/stable/")))
   (let ((cider-version "0.11.0-snapshot"))
-    (should (string= (cider-manual-url) "https://github.com/clojure-emacs/cider/blob/master/README.md"))))
+    (should (string= (cider-manual-url) "http://cider.readthedocs.org/en/latest/"))))
 
 (ert-deftest cider-refcard-url ()
   (let ((cider-version "0.11.0"))
