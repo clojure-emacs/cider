@@ -44,10 +44,10 @@ You can install CIDER with the following command:
 
 <kbd>M-x package-install [RET] cider [RET]</kbd>
 
-### Launch a nREPL server and client from Emacs
+### Launch an nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` or `boot` project (like
-`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL server with
+`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start an nREPL server with
 all the project dependencies loaded in and CIDER will automatically connect to it.
 
 Alternatively you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of

@@ -1,4 +1,4 @@
-The only requirement to use CIDER is to have a nREPL server to
+The only requirement to use CIDER is to have an nREPL server to
 which it may connect. Many Clojurians favour the use of the Leiningen or Boot tools
 to start an nREPL server, but the use of Leiningen or Boot is not a prerequisite to use
 CIDER (however, it *is* required if you want to use the `cider-jack-in` command).
@@ -24,10 +24,10 @@ $ lein new demo
 
 The two main ways to obtain an nREPL connection are discussed in the following sections of the manual.
 
-### Launch a nREPL server and client from Emacs
+### Launch an nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` or `boot` project (like
-`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start a nREPL server with
+`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start an nREPL server with
 all the project dependencies loaded in and CIDER will automatically connect to it.
 
 Alternatively you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of

@@ -292,7 +292,7 @@ Bind the value of the provided KEYS and execute BODY."
   (cons 'dict key-vals))
 
 (defun nrepl-dict-p (object)
-  "Return t if OBJECT is a nREPL dict."
+  "Return t if OBJECT is an nREPL dict."
   (and (listp object)
        (eq (car object) 'dict)))
 
@@ -306,7 +306,7 @@ If dict is nil, return nil."
   (when dict
     (if (nrepl-dict-p dict)
         (lax-plist-get (cdr dict) key)
-      (error "Not a nREPL dict object: %s" dict))))
+      (error "Not an nREPL dict object: %s" dict))))
 
 (defun nrepl-dict-put (dict key value)
   "Associate in DICT, KEY to VALUE.
@@ -314,7 +314,7 @@ Return new dict.  Dict is modified by side effects."
   (if (null dict)
       (list 'dict key value)
     (if (not (nrepl-dict-p dict))
-        (error "Not a nREPL dict object: %s" dict)
+        (error "Not an nREPL dict object: %s" dict)
       (setcdr dict (lax-plist-put (cdr dict) key value))
       dict)))
 
@@ -323,14 +323,14 @@ Return new dict.  Dict is modified by side effects."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (car l))
-    (error "Not a nREPL dict")))
+    (error "Not an nREPL dict")))
 
 (defun nrepl-dict-vals (dict)
   "Return all the values in the nREPL DICT."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (cadr l))
-    (error "Not a nREPL dict")))
+    (error "Not an nREPL dict")))
 
 (defun nrepl-dict-map (fn dict)
   "Map FN on nREPL DICT.
@@ -338,7 +338,7 @@ FN must accept two arguments key and value."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (funcall fn (car l) (cadr l)))
-    (error "Not a nREPL dict")))
+    (error "Not an nREPL dict")))
 
 (defun nrepl-dict-merge (dict1 dict2)
   "Destructively merge DICT2 into DICT1.
@@ -1161,7 +1161,7 @@ the port, and the client buffer."
 ;;; Messages
 
 (defcustom nrepl-log-messages t
-  "If non-nil, log protocol messages to a nREPL messages buffer.
+  "If non-nil, log protocol messages to an nREPL messages buffer.
 
 This is extremely useful for debug purposes, as it allows you to
 inspect the communication between Emacs and an nREPL server."

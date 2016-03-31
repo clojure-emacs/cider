@@ -589,7 +589,7 @@ in the buffer."
                                nil))
 
 (defun cider-insert-eval-handler (&optional buffer)
-  "Make a nREPL evaluation handler for the BUFFER.
+  "Make an nREPL evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
   (let ((eval-buffer (current-buffer)))
     (nrepl-make-response-handler (or buffer eval-buffer)

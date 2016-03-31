@@ -672,7 +672,7 @@ the symbol."
           (t t))))
 
 (defun cider-repl-handler (buffer)
-  "Make a nREPL evaluation handler for the REPL BUFFER."
+  "Make an nREPL evaluation handler for the REPL BUFFER."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
                                  (cider-repl-emit-result buffer value t))
@@ -876,7 +876,7 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
         (cider-repl--clear-region start (1+ end))))))
 
 (defun cider-repl-switch-ns-handler (buffer)
-  "Make a nREPL evaluation handler for the REPL BUFFER's ns switching."
+  "Make an nREPL evaluation handler for the REPL BUFFER's ns switching."
   (nrepl-make-response-handler buffer
                                (lambda (_buffer _value))
                                (lambda (buffer out)

@@ -388,7 +388,7 @@ Do you really want to create a new one? "
 
 ;;;###autoload
 (defun cider-jack-in (&optional prompt-project cljs-too)
-  "Start a nREPL server for the current project and connect to it.
+  "Start an nREPL server for the current project and connect to it.
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server.
 If CLJS-TOO is non-nil, also start a ClojureScript REPL session with its
@@ -422,7 +422,7 @@ own buffer."
 
 ;;;###autoload
 (defun cider-jack-in-clojurescript (&optional prompt-project)
-  "Start a nREPL server and connect to it both Clojure and ClojureScript REPLs.
+  "Start an nREPL server and connect to it both Clojure and ClojureScript REPLs.
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
