@@ -1,8 +1,8 @@
 ## Quick reference
 
 A single-page quick reference PDF for CIDER commands is available
-[here](doc/cider-refcard.pdf). This PDF can be created manually by running
-`pdflatex` on [the CIDER refcard LaTeX file](doc/cider-refcard.tex).
+[here](cider-refcard.pdf). This PDF can be created manually by running
+`pdflatex` on [the CIDER refcard LaTeX file](cider-refcard.tex).
 
 ## Presentations
 
