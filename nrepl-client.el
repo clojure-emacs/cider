@@ -963,16 +963,11 @@ sign of user input, so as not to hang the interface."
     (when (member "done" status)
       (when-let ((ex (nrepl-dict-get response "ex"))
                  (err (nrepl-dict-get response "err")))
-        ;; non-eval requests currently don't set the *e var
-        ;; which is required by the stacktrace middleware
-        ;; so we have to handle them differently until this is resolved
-        (if (member "eval-error" status)
-            (funcall nrepl-err-handler)
-          ;; dump the stacktrace in the REPL
-          ;; TODO: This has to be replaced with rendering of the
-          ;; standard stacktrace buffer
-          (cider-repl-emit-interactive-stderr err)
-          (switch-to-buffer-other-window connection)))
+        ;; Non-eval requests currently don't set the *e var
+        ;; but instead get stored in util/storage, the storage-key
+        ;; lets us retrieve these errors. If there's no storage-key,
+        ;; then this will end up returning *e.
+        (funcall nrepl-err-handler (nrepl-dict-get response "storage-key")))
       (when-let ((id (nrepl-dict-get response "id")))
         (with-current-buffer connection
           (nrepl--mark-id-completed id)))
