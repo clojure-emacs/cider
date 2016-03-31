@@ -21,7 +21,8 @@ a problem will expedite its solution.*
 CIDER's REPL is launched. Here's an example:*
 
 ```
-; CIDER 0.11.0snapshot (package: 20151112.1551) (Clojure 1.7.0, nREPL 0.2.12)
+;; CIDER 0.12.0snapshot (package: 20160331.421), nREPL 0.2.12
+;; Clojure 1.8.0, Java 1.8.0_31
 ```
 
 ### Emacs version

@@ -17,7 +17,8 @@ do so.
 * Mention the CIDER version info. You can use the REPL version info, which looks like that:
 
 ```el
-; CIDER 0.4.0snapshot (package: 20131112.1551) (Clojure 1.5.1, nREPL 0.2.1)
+;; CIDER 0.12.0snapshot (package: 20160331.421), nREPL 0.2.12
+;; Clojure 1.8.0, Java 1.8.0_31
 ```
 
 * Include any relevant code to the issue summary.
