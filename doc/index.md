@@ -88,7 +88,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 
 ## Changelog
 
-An extensive changelog is available [here](CHANGELOG.md).
+An extensive changelog is available [here](https://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md).
 
 ## Release policy
 
