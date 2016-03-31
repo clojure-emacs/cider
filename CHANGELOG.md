@@ -4,6 +4,8 @@
 
 ### Bugs fixed
 
+
+* [#1420](https://github.com/clojure-emacs/cider/issues/1420): Show stacktrace buffers for sync requests errors.
 * [cider-nrepl#329](https://github.com/clojure-emacs/cider-nrepl/pull/329): Fix error instrumenting functions that call clojure.tools.logging.
 * [#1632](https://github.com/clojure-emacs/cider/pull/1632): Redefining a function correctly updates eldoc.
 * [#1630](https://github.com/clojure-emacs/cider/pull/1630): The debugger no longer gets confused inside `@` redefs.
