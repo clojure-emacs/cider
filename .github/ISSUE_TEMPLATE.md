@@ -2,6 +2,10 @@
 you're running the latest stable CIDER and that the problem you're reporting
 hasn't been reported (and potentially fixed) already.*
 
+*When requesting new features or improvements to existing features you can
+discard the template completely. Just make sure to make a good case for your
+request.*
+
 **Remove all of the placeholder text in your final report!**
 
 ## Expected behavior
@@ -27,8 +31,8 @@ CIDER's REPL is launched. Here's an example:*
 
 ### Emacs version
 
-*E.g. 24.5*
+*E.g. 24.5* (use <kbd>M-x emacs-version</kbd> to check it if unsure)
 
 ### Operating system
 
-*E.g. Windows 10*
+*E.g. Fedora 23, OS X 10.11 "El Capitan", Windows 10, etc*
