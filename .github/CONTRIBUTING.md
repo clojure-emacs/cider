@@ -24,8 +24,8 @@ do so.
 
 ### Reporting bugs
 
-When reporting bugs it's a good idea to go through the `Troubleshooting` section
-of the README.  Adding information like the backtrace and the nREPL messages to
+When reporting bugs it's a good idea to go through the [Troubleshooting section
+of the manual][7].  Adding information like the backtrace and the nREPL messages to
 the bug report makes it easier to track down bugs. Some steps to reproduce a bug
 reliably would also make a huge difference.
 
@@ -49,3 +49,4 @@ reliably would also make a huge difference.
 [4]: https://help.github.com/articles/using-pull-requests
 [5]: http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html
 [6]: https://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md
+[7]: http://cider.readthedocs.org/en/latest/troubleshooting/
