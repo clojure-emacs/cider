@@ -127,7 +127,7 @@ keys. This will simplify your interactions with CIDER quite a lot
 (especially in the beginning). Here's what you'd see if you typed `C-c C-d` in a
 Clojure buffer:
 
-![CIDER which-key](screenshots/cider-which-key.png)
+![CIDER which-key](images/cider-which-key.png)
 
 ### Using the REPL
 

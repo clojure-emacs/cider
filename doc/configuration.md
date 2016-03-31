@@ -271,7 +271,7 @@ Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to nil.
 
 <p align="center">
-  <img src="screenshots/completion-annotations.png" width="400" />
+  <img src="images/completion-annotations.png" width="400" />
 </p>
 
 ### Pretty-printing

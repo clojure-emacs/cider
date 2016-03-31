@@ -84,7 +84,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Integration with [company-mode][] and [auto-complete-mode][]
 * [Support for working with multiple simultaneous nREPL connections](extended_workflow.md#managing-multiple-connections)
 
-![CIDER Screenshot](screenshots/cider-overview.png)
+![CIDER Screenshot](images/cider-overview.png)
 
 ## Changelog
 
