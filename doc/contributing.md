@@ -24,7 +24,34 @@ guidelines](https://github.com/clojure-emacs/cider/blob/master/.github/CONTRIBUT
 
 ### Documentation
 
-Consider improving and extending the [community wiki](https://github.com/clojure-emacs/cider/wiki).
+Good documentation is just as important as good code.
+
+Consider improving and extending the
+this manual and the
+[community wiki](https://github.com/clojure-emacs/cider/wiki).
+
+#### Working on the Manual
+
+The manual is generated from the markdown files in the
+[doc](https://github.com/clojure-emacs/cider/tree/master/doc) folder of CIDER's
+GitHub repo and is published to [Read the Docs](readthedocs.org). The
+[MkDocs](http://www.mkdocs.org/) tool is used to convert the markdown sources to
+HTML.
+
+To make changes to the manual you simply have to change the files under
+`doc`. The manual will be regenerated automatically when changes to those files
+are merged in `master` (or the latest stable branch).
+
+You can install `MkDocs` locally and use the command `mkdocs serve` to see the
+result of changes you make to the manual locally:
+
+```
+cd path/to/cider/repo
+mkdocs serve
+```
+
+If you want to make changes to the manual's page structure you'll have to edit
+[mkdocs.yml](https://github.com/clojure-emacs/cider/blob/master/mkdocs.yml).
 
 ### Donations
 
