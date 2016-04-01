@@ -30,7 +30,7 @@ an individual test using `C-c C-t t`.
 * [#1627](https://github.com/clojure-emacs/cider/issues/1627): Align the terminology used by `cider-test` with the one used by lein and boot (use the terms `assertion` and `test`).
 * Remove the warning about missing nREPl ops.
 
-## 0.11.0 / 2016-03-03
+## 0.11.0 (2016-03-03)
 
 ### New features
 
@@ -85,7 +85,7 @@ and try to associate the created connection with this project automatically.
 * [#1565](https://github.com/clojure-emacs/cider/issues/1565): Fix font-locking in apropos buffers.
 * [#1570](https://github.com/clojure-emacs/cider/issues/1570): Handle properly rest params in eldoc.
 
-## 0.10.2 / 2016-01-27
+## 0.10.2 (2016-01-27)
 
 ### Changes
 
@@ -95,7 +95,7 @@ and try to associate the created connection with this project automatically.
 
 * [#1521](https://github.com/clojure-emacs/cider/pull/1521): Don't assume the repl buffer is in the current frame in `cider-repl--show-maximum-output`.
 
-## 0.10.1 / 2016-01-05
+## 0.10.1 (2016-01-05)
 
 ### Changes
 
@@ -118,7 +118,7 @@ and try to associate the created connection with this project automatically.
 * [#1379](https://github.com/clojure-emacs/cider/issues/1379): Fix test highlighting at start of line.
 * [#1490](https://github.com/clojure-emacs/cider/issues/1490): Don't display the inspector buffer when evaluation fails.
 
-## 0.10.0 / 2015-12-03
+## 0.10.0 (2015-12-03)
 
 ### New features
 
@@ -187,7 +187,7 @@ and try to associate the created connection with this project automatically.
 * [#1189](https://github.com/clojure-emacs/cider/issues/1189): Don't show result from automatic ns form evaluation.
 * [#1079](https://github.com/clojure-emacs/cider/issues/1079): Don't try to font-lock very long results. The maximum font-lockable result length is controlled by `cider-font-lock-max-length`.
 
-## 0.9.1 / 2015-06-24
+## 0.9.1 (2015-06-24)
 
 ### New features
 
@@ -204,7 +204,7 @@ and try to associate the created connection with this project automatically.
 * [#1122](https://github.com/clojure-emacs/cider/issues/1122): Run client initialization in new client buffer.
 * [#1143](https://github.com/clojure-emacs/cider/issues/1143): Handle tests without location metadata.
 
-## 0.9.0 / 2015-06-16
+## 0.9.0 (2015-06-16)
 
 ### New features
 
@@ -303,7 +303,7 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * [#946](https://github.com/clojure-emacs/cider/issues/946): `cider-stacktrace-mode` is now enabled before the error buffer is displayed.
 * [#1077](https://github.com/clojure-emacs/cider/issues/1077): Respect `cider-repl-display-in-current-window` in `cider-switch-to-last-clojure-buffer`.
 
-## 0.8.2 / 2014-12-21
+## 0.8.2 (2014-12-21)
 
 ### Bugs fixed
 
@@ -318,13 +318,13 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * Report Clojure's version including its qualifier (e.g. `alpha4`) if present.
 * Use the `field` text property to make move-beginning-of-line respect the repl prompt instead of writing our own beginning-of-line commands.
 
-## 0.8.1 / 2014-11-20
+## 0.8.1 (2014-11-20)
 
 ### Bugs fixed
 
 * Fixed version mismatch warning on CIDER startup (the actual bug was in `cider-nrepl`).
 
-## 0.8.0 / 2014-11-20
+## 0.8.0 (2014-11-20)
 
 ### New features
 
@@ -409,7 +409,7 @@ doing interactive evaluation.
 * nREPL sessions are now closed on `cider-quit`.
 * Fix minibuffer history for `cider-read-and-eval`.
 
-## 0.7.0 / 2014-08-05
+## 0.7.0 (2014-08-05)
 
 ### New features
 
@@ -470,7 +470,7 @@ of negative integers.
   `*print-length*` in `cider-pprint-eval-defun-at-point` and
   `cider-pprint-eval-last-sexp`.
 
-## 0.6.0 / 2014-04-24
+## 0.6.0 (2014-04-24)
 
 ### New features
 
@@ -521,7 +521,7 @@ race condition bug in `cider-restart`.
 * [#441](https://github.com/clojure-emacs/cider/issues/441): Fix timing bug in `cider-jack-in`.
 * [#482](https://github.com/clojure-emacs/cider/issues/482): Fix jump-to-def for cljx dependency jars.
 
-## 0.5.0 / 2014-01-24
+## 0.5.0 (2014-01-24)
 
 ### New features
 
@@ -546,7 +546,7 @@ the option `cider-repl-use-clojure-font-lock`.
 * [#436](https://github.com/clojure-emacs/cider/issues/436): Fix an infinite loop when evaluating ns forms.
 * [#435](https://github.com/clojure-emacs/cider/issues/435): Fix trampling of `cider-switch-to-repl-buffer` by `cider-switch-to-relevant-repl-buffer`.
 
-## 0.4.0 / 2013-12-03
+## 0.4.0 (2013-12-03)
 
 ### New features
 
@@ -572,11 +572,11 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 * [#237](https://github.com/clojure-emacs/cider/issues/237): Don't swallow output from futures.
 * Create non-existing namespaces, when evaluating code in Clojure buffers.
 
-## 0.3.1 / 2013-10-29
+## 0.3.1 (2013-10-29)
 
 * Fix REPL init
 
-## 0.3.0 / 2013-10-28
+## 0.3.0 (2013-10-28)
 
 ### New features
 
@@ -596,7 +596,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 
 * [#393](https://github.com/clojure-emacs/cider/issues/393) - Error when evaluating strings with a namespace declaration in them.
 
-## 0.2.0 / 2013-10-10
+## 0.2.0 (2013-10-10)
 
 ### New features
 
@@ -622,7 +622,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 * Fix indentation in REPL buffers.
 * Fix `nrepl-doc` on Clojure 1.5
 
-## 0.1.8 / 2013-08-08
+## 0.1.8 (2013-08-08)
 
 ### New features
 
@@ -638,7 +638,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 
 * <kbd>M-.</kbd> (`nrepl-jump`) on remote nrepl connection (across OS hosts) has been fixed.
 
-## 0.1.7 / 2013-03-13
+## 0.1.7 (2013-03-13)
 
 ### New features
 
@@ -675,7 +675,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * More accurate matching of filenames in stacktraces.
 * Fix #290 - Macroexpand buffer truncates long expansions
 
-## 0.1.6 / 2013-01-29
+## 0.1.6 (2013-01-29)
 
 ### New features
 
@@ -705,7 +705,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Fix issue #146.  Include "@" in nrepl-input-complete-p.
 * Handle stdout messages that arrive after status "done"
 
-## 0.1.5 / 2012-10-22
+## 0.1.5 (2012-10-22)
 
 ### New features
 
@@ -724,7 +724,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 
 * Ensure nrepl-eval-sync waits for :done when response is chunked
 
-## 0.1.4 / 2012-09-18
+## 0.1.4 (2012-09-18)
 
 ### New features
 
@@ -744,7 +744,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Fix path quoting in load file for Windows (Philipp Meier)
 * Fix nREPL / Emacs error "Unable to resolve symbol: if-let"
 
-## 0.1.3 / 2012-08-19
+## 0.1.3 (2012-08-19)
 
 ### New features
 
@@ -756,7 +756,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * stdin support (which also provides support for debug-repl
   [https://github.com/GeorgeJahad/debug-repl] and limit-break [https://github.com/technomancy/limit-break])
 
-## 0.1.2 / 2012-07-24
+## 0.1.2 (2012-07-24)
 
 ### New features
 
@@ -778,6 +778,6 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Add M-n and M-p to nrepl-mode-map.
 * Implement M-.: nrepl-jump-to-def.
 
-## 0.1.1 / 2012-07-11
+## 0.1.1 (2012-07-11)
 
 * Initial version
