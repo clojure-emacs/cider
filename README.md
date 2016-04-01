@@ -140,51 +140,7 @@ the logo in various formats
 The logo is licensed under a
 [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_GB).
 
-## Discussion
-
-For questions, suggestions and support refer to our
-[official mailing list](https://groups.google.com/forum/#!forum/cider-emacs) ,
-the Freenode channel `#clojure-emacs`, `#cider` on
-[slack](https://clojurians.slack.com/) or our
-[gitter channel](https://gitter.im/clojure-emacs/cider). StackOverflow users
-should use the [cider](http://stackoverflow.com/questions/tagged/cider) tag
-(ideally combined with the tags `emacs` and `clojure`).
-
-Please, don't report
-issues there, as this makes them harder to track.
-
-## Contributing
-
-### Issues
-
-Report issues and suggest features and improvements on the
-[GitHub issue tracker](https://github.com/clojure-emacs/cider/issues). Don't ask
-questions on the issue tracker - the mailing list and the IRC channel are the
-places for questions.
-
-If you want to file a bug, please clone this repo and provide sufficient details
-to reproduce the issue. Start by running `make run-cider`.  This will bring up
-Emacs with only the latest version of CIDER loaded. By starting fresh, with the
-latest code, we can ensure that the problem at hand isn't already fixed or
-caused by interactions with other packages.
-
-### Patches
-
-Patches in any form are always welcome! GitHub pull requests are even better! :-)
-
-Before submitting a patch or a pull request make sure all tests are
-passing and that your patch is in line with the [contribution
-guidelines](.github/CONTRIBUTING.md).
-
-### Documentation
-
-Good documentation is just as important as good code.
-
-Consider improving and extending the
-[official manual](http://cider.readthedocs.org) and the
-[community wiki](https://github.com/clojure-emacs/cider/wiki).
-
-### Donations
+## Donations
 
 You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
 [Salt](https://salt.bountysource.com/teams/cider),
@@ -193,31 +149,6 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 [![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.1.3/dist/gratipay.png)](https://gratipay.com/cider)
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
-
-### Running the tests in batch mode
-
-Install [cask](https://github.com/cask/cask) if you haven't
-already, then:
-
-```
-$ cd /path/to/cider
-$ cask
-```
-
-Run all tests with:
-
-```
-$ make test
-```
-
-(Note: tests may not run correctly inside Emacs' `shell-mode` buffers. Running
-them in a terminal is recommended.)
-
-You can also check for the presence of byte-compilation warnings in batch mode:
-
-```
-$ make test-bytecomp
-```
 
 ## License
 
