@@ -926,6 +926,7 @@ Return the ID of the sent message."
   "Dynamically bound to t while a sync request is ongoing.")
 
 (declare-function cider-repl-emit-interactive-stderr "cider-repl")
+(declare-function cider--render-stacktrace-causes "cider-interaction")
 
 (defun nrepl-send-sync-request (request connection &optional abort-on-input)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
