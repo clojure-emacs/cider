@@ -166,8 +166,24 @@ shown on error. By default it will be displayed, but you can change this:
 (setq cider-show-error-buffer nil)
 ```
 
-Independently of the value of `cider-show-error-buffer`, the error buffer is
-always generated in the background. Use `cider-visit-error-buffer` to visit
+At times, the error being displayed will originate from a bug in the
+CIDER code itself. These internal errors might frequently occur and
+interrupt your workflow, but you might not want to suppress **all**
+stacktrace buffers via the `cider-show-error-buffer` variable as
+above; instead, you might only want to suppress *this specific type*
+of internal error. The stacktrace buffers provide such an option when
+displaying an internal error. A toggle button will be displayed with
+the error type's name, and you can toggle whether this particular type
+of error will cause the stacktrace buffer to automatically show
+itself.  The toggle button controls this behavior only during the
+current Emacs session, but if you would like to make the suppression
+more permanent, you can do so by customizing the
+`cider-stacktrace-suppressed-errors` variable.  The buffer will also
+provide a direct link to the bug reporting page to help facilitate its
+diagnosis and repair.
+
+Independently of the value of `cider-show-error-buffer` or `cider-stacktrace-suppressed-errors`,
+the error buffer is always generated in the background. Use `cider-visit-error-buffer` to visit
 this buffer.
 
 There are two more selective strategies for the error buffer:
