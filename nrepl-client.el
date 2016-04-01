@@ -968,11 +968,7 @@ sign of user input, so as not to hang the interface."
         ;; so we have to handle them differently until this is resolved
         (if (member "eval-error" status)
             (funcall nrepl-err-handler)
-          ;; dump the stacktrace in the REPL
-          ;; TODO: This has to be replaced with rendering of the
-          ;; standard stacktrace buffer
-          (cider-repl-emit-interactive-stderr err)
-          (switch-to-buffer-other-window connection)))
+          (cider--render-stacktrace-causes (nrepl-dict-get response "pp-stacktrace"))))
       (when-let ((id (nrepl-dict-get response "id")))
         (with-current-buffer connection
           (nrepl--mark-id-completed id)))
