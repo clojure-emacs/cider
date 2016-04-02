@@ -1,4 +1,4 @@
-Copyright © 2012-2016 Tim King, Phil Hagelberg, Bozhidar Batsov, Artur Malabarba and
+Copyright (C) 2012-2016 Tim King, Phil Hagelberg, Bozhidar Batsov, Artur Malabarba and
 [contributors](https://github.com/clojure-emacs/cider/contributors).
 
 CIDER is distributed under the GNU General Public License, version 3, the same as Emacs.
