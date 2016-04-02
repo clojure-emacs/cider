@@ -9,8 +9,8 @@
   <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
 </p>
 
-CIDER (formerly *nrepl.el*) is the **C**lojure(Script) **I**nteractive
-**D**evelopment **E**nvironment that **R**ocks!
+CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
+that **R**ocks!
 
 CIDER extends Emacs with support for interactive programming in Clojure. The
 features are centered around `cider-mode`, an Emacs minor-mode that complements
