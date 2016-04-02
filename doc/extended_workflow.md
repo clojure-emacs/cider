@@ -34,7 +34,7 @@ Keyboard shortcut               | Description
 <kbd>C-c C-m</kbd>              | Invoke `macroexpand-1` on the form at point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 <kbd>C-c M-m</kbd>              | Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
 <kbd>g</kbd>                    | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
-<kbd>C-/</kbd> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
+<kbd>C-/</kbd> <br/> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
 
 ### Value inspection
 
@@ -49,7 +49,7 @@ internally using `cider-inspector-mode`):
 
 Keyboard shortcut                       | Description
 ----------------------------------------|-------------------------------
-<kbd>Tab</kbd> and <kbd>Shift-Tab</kbd> | Navigate inspectable sub-objects
+<kbd>Tab</kbd> or <kbd>Shift-Tab</kbd>  | Navigate inspectable sub-objects
 <kbd>Return</kbd>                       | Inspect sub-objects
 <kbd>l</kbd>                            | Pop to the parent object
 <kbd>g</kbd>                            | Refresh the inspector (e.g. if viewing an atom/ref/agent)
@@ -76,14 +76,14 @@ you'll have a bit of additional functionality at your disposal.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
-<kbd>C-c C-t t</kbd> <kbd>C-c C-t C-t</kbd> | Run test at point.
-<kbd>C-c C-t n</kbd> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
-<kbd>C-c C-t l</kbd> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
-<kbd>C-c C-t p</kbd> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
-<kbd>C-c C-t r</kbd> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
+<kbd>C-c C-t t</kbd> <br/> <kbd>C-c C-t C-t</kbd> | Run test at point.
+<kbd>C-c C-t n</kbd> <br/> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
+<kbd>C-c C-t l</kbd> <br/> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
+<kbd>C-c C-t p</kbd> <br/> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-t r</kbd> <br/> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
 <kbd>M-p</kbd>                  | Move point to previous test.
 <kbd>M-n</kbd>                  | Move point to next test.
-<kbd>t</kbd> and <kbd>M-.</kbd> | Jump to test definition.
+<kbd>t</kbd> or <kbd>M-.</kbd>  | Jump to test definition.
 <kbd>d</kbd>                    | Display diff of actual vs expected.
 <kbd>e</kbd>                    | Display test error cause and stacktrace info.
 
@@ -144,9 +144,9 @@ Keyboard shortcut                    | Description
 -------------------------------------|-------------------------------
 <kbd>M-p</kbd>                       | Move point to previous cause
 <kbd>M-n</kbd>                       | Move point to next cause
-<kbd>M-.</kbd> and <kbd>Return</kbd> | Navigate to the source location (if available) for the stacktrace frame
+<kbd>M-.</kbd> or <kbd>Return</kbd>  | Navigate to the source location (if available) for the stacktrace frame
 <kbd>Tab</kbd>                       | Cycle current cause detail
-<kbd>0</kbd> and <kbd>S-Tab</kbd>    | Cycle all cause detail
+<kbd>0</kbd> or <kbd>S-Tab</kbd>     | Cycle all cause detail
 <kbd>1</kbd>                         | Cycle cause #1 detail
 <kbd>2</kbd>                         | Cycle cause #2 detail
 <kbd>3</kbd>                         | Cycle cause #3 detail

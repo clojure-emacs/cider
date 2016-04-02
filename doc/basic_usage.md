@@ -71,14 +71,14 @@ Here's a list of `cider-mode`'s keybindings:
 
 Function Name                        | Keyboard shortcut                    | Description
 -------------------------------------|--------------------------------------|-------------------------------
-`cider-eval-last-sexp`               |  <kbd>C-x C-e</kbd> <kbd>C-c C-e</kbd>| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
+`cider-eval-last-sexp`               |  <kbd>C-x C-e</kbd> <br/> <kbd>C-c C-e</kbd>| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
 `cider-eval-last-sexp-and-replace`   |  <kbd>C-c C-w</kbd>                   | Evaluate the form preceding point and replace it with its result.
 `cider-eval-last-sexp-to-repl`       |  <kbd>C-c M-e</kbd>                   | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 `cider-insert-last-sexp-in-repl`     |  <kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
 `cider-pprint-eval-last-sexp`        |  <kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer.
 `cider-pprint-eval-defun-at-point`   |  <kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer.
-`cider-eval-defun-at-point`          |  <kbd>C-M-x</kbd> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
-`cider-eval-defun-at-point`          |  <kbd>C-u C-M-x</kbd> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
+`cider-eval-defun-at-point`          |  <kbd>C-M-x</kbd> <br/> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
+`cider-eval-defun-at-point`          |  <kbd>C-u C-M-x</kbd> <br/> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
 `cider-eval-region`                  |  <kbd>C-c C-r</kbd>                   | Evaluate the region and display the result in the echo area.
 `cider-interrupt`                    |  <kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
 `cider-macroexpand-1`                |  <kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
@@ -94,21 +94,21 @@ Function Name                        | Keyboard shortcut                    | De
 `cider-load-buffer`                  |  <kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 `cider-load-file`                    |  <kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
 `cider-refresh`                      |  <kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
-`cider-doc`                          |  <kbd>C-c C-d d</kbd> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-`cider-javadoc`                      |  <kbd>C-c C-d j</kbd> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-`cider-grimoire`                     |  <kbd>C-c C-d r</kbd> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.
-`cider-apropos`                      |  <kbd>C-c C-d a</kbd> <kbd>C-c C-d C-a</kbd> | Apropos search for functions/vars.
-`cider-apropos-documentation`        |  <kbd>C-c C-d f</kbd> <kbd>C-c C-d C-f</kbd> | Apropos search for documentation.
+`cider-doc`                          |  <kbd>C-c C-d d</kbd> <br/> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+`cider-javadoc`                      |  <kbd>C-c C-d j</kbd> <br/> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+`cider-grimoire`                     |  <kbd>C-c C-d r</kbd> <br/> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.
+`cider-apropos`                      |  <kbd>C-c C-d a</kbd> <br/> <kbd>C-c C-d C-a</kbd> | Apropos search for functions/vars.
+`cider-apropos-documentation`        |  <kbd>C-c C-d f</kbd> <br/> <kbd>C-c C-d C-f</kbd> | Apropos search for documentation.
 `cider-inspect`                      |  <kbd>C-c M-i</kbd>                   | Inspect expression. Will act on expression at point if present.
 `cider-toggle-trace-var`             |  <kbd>C-c M-t v</kbd>                 | Toggle var tracing.
 `cider-toggle-trace-ns`              |  <kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
 `cider-undef`                        |  <kbd>C-c C-u</kbd>                   | Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-`cider-test-run-test`                |  <kbd>C-c C-t t</kbd> <kbd>C-c C-t C-t</kbd> | Run test at point.
-`cider-test-run-ns-tests`            |  <kbd>C-c C-t n</kbd> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
-`cider-test-run-loaded-tests`        |  <kbd>C-c C-t l</kbd> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
-`cider-test-run-project-tests`       |  <kbd>C-c C-t p</kbd> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
-`cider-test-rerun-tests`             |  <kbd>C-c C-t r</kbd> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
-`cider-test-show-report`             |  <kbd>C-c C-t b</kbd> <kbd>C-c C-t C-b</kbd> | Show the test report buffer.
+`cider-test-run-test`                |  <kbd>C-c C-t t</kbd> <br/> <kbd>C-c C-t C-t</kbd> | Run test at point.
+`cider-test-run-ns-tests`            |  <kbd>C-c C-t n</kbd> <br/> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
+`cider-test-run-loaded-tests`        |  <kbd>C-c C-t l</kbd> <br/> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
+`cider-test-run-project-tests`       |  <kbd>C-c C-t p</kbd> <br/> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
+`cider-test-rerun-tests`             |  <kbd>C-c C-t r</kbd> <br/> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
+`cider-test-show-report`             |  <kbd>C-c C-t b</kbd> <br/> <kbd>C-c C-t C-b</kbd> | Show the test report buffer.
 `cider-find-var`                     |  <kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 `cider-find-resource`                |  <kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
 `cider-find-ns`                      |  <kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
@@ -149,31 +149,31 @@ Keyboard shortcut                    | Description
 <kbd>C-c C-o</kbd>    | Remove the output of the previous evaluation from the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt.
 <kbd>C-c M-o</kbd>    | Switch between the Clojure and ClojureScript REPLs for the current project.
 <kbd>C-c C-u</kbd>    | Kill all text from the prompt to the current point.
-<kbd>C-c C-b</kbd> <kbd>C-c C-c</kbd>| Interrupt any pending evaluations.
-<kbd>C-up</kbd> <kbd>C-down</kbd> | Goto to previous/next input in history.
-<kbd>M-p</kbd> <kbd>M-n</kbd> | Search the previous/next item in history using the current input as search pattern. If <kbd>M-p/M-n</kbd> is typed two times in a row, the second invocation uses the same search pattern (even if the current input has changed).
-<kbd>M-s</kbd> <kbd>M-r</kbd> | Search forward/reverse through command history with regex.
-<kbd>C-c C-n</kbd> <kbd>C-c C-p</kbd> | Move between the current and previous prompts in the REPL buffer. Pressing <kbd>RET</kbd> on a line with old input copies that line to the newest prompt.
+<kbd>C-c C-b</kbd> <br/> <kbd>C-c C-c</kbd>| Interrupt any pending evaluations.
+<kbd>C-up</kbd> <br/> <kbd>C-down</kbd> | Goto to previous/next input in history.
+<kbd>M-p</kbd> <br/> <kbd>M-n</kbd> | Search the previous/next item in history using the current input as search pattern. If <kbd>M-p/M-n</kbd> is typed two times in a row, the second invocation uses the same search pattern (even if the current input has changed).
+<kbd>M-s</kbd> <br/> <kbd>M-r</kbd> | Search forward/reverse through command history with regex.
+<kbd>C-c C-n</kbd> <br/> <kbd>C-c C-p</kbd> | Move between the current and previous prompts in the REPL buffer. Pressing <kbd>RET</kbd> on a line with old input copies that line to the newest prompt.
 <kbd>C-c C-x</kbd>     | Reload all modified files on the classpath.
 <kbd>C-u C-c C-x</kbd> | Reload all files on the classpath.
 <kbd>TAB</kbd> | Complete symbol at point.
-<kbd>C-c C-d d</kbd> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
-<kbd>C-c C-d j</kbd> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
-<kbd>C-c C-d r</kbd> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.
-<kbd>C-c C-d a</kbd> <kbd>C-c C-d C-a</kbd> | Apropos search for functions/vars.
-<kbd>C-c C-d f</kbd> <kbd>C-c C-d C-f</kbd> | Apropos search for documentation.
+<kbd>C-c C-d d</kbd> <br/> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol
+<kbd>C-c C-d j</kbd> <br/> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+<kbd>C-c C-d r</kbd> <br/> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.
+<kbd>C-c C-d a</kbd> <br/> <kbd>C-c C-d C-a</kbd> | Apropos search for functions/vars.
+<kbd>C-c C-d f</kbd> <br/> <kbd>C-c C-d C-f</kbd> | Apropos search for documentation.
 <kbd>C-c C-z</kbd> | Switch to the previous Clojure buffer. This complements <kbd>C-c C-z</kbd> used in cider-mode.
 <kbd>C-c M-i</kbd> | Inspect expression. Will act on expression at point if present.
 <kbd>C-c M-n</kbd> | Select a namespace and switch to it.
 <kbd>C-c C-.</kbd> | Jump to some namespace on the classpath.
 <kbd>C-c M-t v</kbd> | Toggle var tracing.
 <kbd>C-c M-t n</kbd> | Toggle namespace tracing.
-<kbd>C-c C-t t</kbd> <kbd>C-c C-t C-t</kbd> | Run test at point.
-<kbd>C-c C-t n</kbd> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
-<kbd>C-c C-t l</kbd> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
-<kbd>C-c C-t p</kbd> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
-<kbd>C-c C-t r</kbd> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
-<kbd>C-c C-t b</kbd> <kbd>C-c C-t C-b</kbd> | Show the test report buffer.
+<kbd>C-c C-t t</kbd> <br/> <kbd>C-c C-t C-t</kbd> | Run test at point.
+<kbd>C-c C-t n</kbd> <br/> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
+<kbd>C-c C-t l</kbd> <br/> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
+<kbd>C-c C-t p</kbd> <br/> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>C-c C-t r</kbd> <br/> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
+<kbd>C-c C-t b</kbd> <br/> <kbd>C-c C-t C-b</kbd> | Show the test report buffer.
 <kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 
 There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
