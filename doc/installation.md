@@ -80,7 +80,7 @@ Clojure project (explained in the following section).
 
 #### Setting up a standalone REPL
 
-##### Using Leiningen #####
+##### Using Leiningen
 
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
@@ -99,7 +99,7 @@ A minimal `profiles.clj` for CIDER would be:
 middleware will always get loaded, causing `lein` to start slower.  You really
 need it just for `lein repl` and this is what the `:repl` profile is for.**
 
-##### Using Boot #####
+##### Using Boot
 
 Boot users can configure the tool to include the middleware automatically in
 all of their projects using a `~/.boot/profile.boot` file like so:
