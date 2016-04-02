@@ -84,40 +84,6 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 
 An extensive changelog is available [here](https://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md).
 
-## Release policy
-
-We’re following [SemVer](http://semver.org/) (as much as one can be
-following it when the major version is 0). At this point bumps of the
-minor (second) version number are considered major releases and always
-include new features or significant changes to existing features. API
-compatibility between major releases is not a (big) concern (although we try
-to break the API rarely and only for a good reason).
-
-The development cycle for the next major
-release starts immediately after the previous one has been
-shipped. Bugfix/point releases (if any) address only serious bugs and
-never contain new features.
-
-The versions of CIDER and `cider-nrepl` are always kept in sync. If you're
-tracking the `master` branch of CIDER, you should also be tracking the `master`
-branch of `cider-nrepl`.
-
-## Logo
-
-CIDER's logo was created by [@ndr-qef](https://github.com/ndr-qef). You can find
-the logo in various formats
-[here](https://github.com/clojure-emacs/cider/tree/master/logo).
-
-The logo is licensed under a
-[Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_GB).
-
-## License
-
-Copyright © 2012-2016 Tim King, Phil Hagelberg, Bozhidar Batsov, Artur Malabarba and
-[contributors](https://github.com/clojure-emacs/cider/contributors).
-
-Distributed under the GNU General Public License, version 3
-
 [nREPL]: https://github.com/clojure/tools.nrepl
 [SLIME]: https://github.com/slime/slime
 [swank-clojure]: https://github.com/technomancy/swank-clojure
