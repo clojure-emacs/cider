@@ -1,7 +1,8 @@
-The only requirement to use CIDER is to have an nREPL server to
-which it may connect. Many Clojurians favour the use of the Leiningen or Boot tools
-to start an nREPL server, but the use of Leiningen or Boot is not a prerequisite to use
-CIDER (however, it *is* required if you want to use the `cider-jack-in` command).
+The only requirement to use CIDER is to have an nREPL server to which it may
+connect. Many Clojurians favour the use of tools like Leiningen, Boot or Gradle
+to start an nREPL server, but the use of one of them is not a prerequisite to
+use CIDER (however, it *is* required if you want to use the `cider-jack-in`
+command).
 
 ### Setting up a Leiningen or Boot project (optional)
 
