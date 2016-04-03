@@ -571,11 +571,14 @@ in the buffer."
 
 (defun cider-company-docsig (thing)
   "Return signature for THING."
-  (let ((arglist (cider-eldoc-arglist thing)))
-    (when arglist
+  (let* ((eldoc-info (cider-eldoc-info thing))
+         (ns (nth 0 eldoc-info))
+         (symbol (nth 1 eldoc-info))
+         (arglists (nth 2 eldoc-info)))
+    (when eldoc-info
       (format "%s: %s"
-              (cider-eldoc-format-thing thing)
-              (cider-eldoc-format-arglist arglist 0)))))
+              (cider-eldoc-format-thing ns symbol thing)
+              (cider-eldoc-format-arglist arglists 0)))))
 
 (defun cider-stdin-handler (&optional buffer)
   "Make a stdin response handler for BUFFER."

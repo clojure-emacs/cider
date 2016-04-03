@@ -49,9 +49,15 @@
 (defvar-local cider-eldoc-last-symbol nil
   "The eldoc information for the last symbol we checked.")
 
-(defun cider-eldoc-format-thing (thing)
-  "Format the eldoc THING."
-  (propertize thing 'face 'font-lock-function-name-face))
+(defun cider-eldoc-format-thing (ns symbol thing)
+  "Format the eldoc subject defined by NS, SYMBOL and THING.
+Normally NS and SYMBOL are used, but when empty we fallback
+to THING (e.g. for Java methods)."
+  (if (and ns (not (string= ns "")))
+      (format "%s/%s"
+              (cider-propertize ns 'ns)
+              (cider-propertize symbol 'var))
+    (cider-propertize thing 'var)))
 
 (defun cider-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.
@@ -141,8 +147,9 @@ if the maximum number of sexps to skip is exceeded."
           nil
         (list (cider-symbol-at-point) argument-index)))))
 
-(defun cider-eldoc-arglist (thing)
-  "Return the arglist for THING."
+(defun cider-eldoc-info (thing)
+  "Return the info for THING.
+This includes the arglist and ns and symbol name (if available)."
   (when (and (cider-nrepl-op-supported-p "eldoc")
              thing
              ;; ignore empty strings
@@ -165,26 +172,31 @@ if the maximum number of sexps to skip is exceeded."
      (t (if (equal thing (car cider-eldoc-last-symbol))
             (cdr cider-eldoc-last-symbol)
           (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
-            (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
+            (let ((arglist (nrepl-dict-get eldoc-info "eldoc"))
+                  (ns (nrepl-dict-get eldoc-info "ns"))
+                  (symbol (nrepl-dict-get eldoc-info "name")))
               ;; middleware eldoc lookups are expensive, so we
               ;; cache the last lookup.  This eliminates the need
               ;; for extra middleware requests within the same sexp.
-              (setq cider-eldoc-last-symbol (cons thing arglist))
-              arglist)))))))
+              (setq cider-eldoc-last-symbol (list thing ns symbol arglist))
+              (list ns symbol arglist))))))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
   (when (and (cider-connected-p)
              ;; don't clobber an error message in the minibuffer
              (not (member last-command '(next-error previous-error))))
-    (let* ((info (cider-eldoc-info-in-current-sexp))
-           (thing (car info))
-           (pos (cadr info))
-           (value (cider-eldoc-arglist thing)))
-      (when value
+    (let* ((sexp-info (cider-eldoc-info-in-current-sexp))
+           (thing (car sexp-info))
+           (pos (cadr sexp-info))
+           (eldoc-info (cider-eldoc-info thing))
+           (ns (nth 0 eldoc-info))
+           (symbol (nth 1 eldoc-info))
+           (arglists (nth 2 eldoc-info)))
+      (when eldoc-info
         (format "%s: %s"
-                (cider-eldoc-format-thing thing)
-                (cider-eldoc-format-arglist value pos))))))
+                (cider-eldoc-format-thing ns symbol thing)
+                (cider-eldoc-format-arglist arglists pos))))))
 
 (defun cider-eldoc-setup ()
   "Setup eldoc in the current buffer.

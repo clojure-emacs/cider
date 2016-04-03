@@ -516,10 +516,6 @@
         (should
          (equal (cider-repl-buffer-name) "*cider-repl project*"))))))
 
-(ert-deftest test-cider--find-rest-args-position ()
-  (should (= (cider--find-rest-args-position ["fmt" "&" "arg"]) 1))
-  (should (equal (cider--find-rest-args-position ["fmt" "arg"]) nil)))
-
 (ert-deftest test-cider-change-buffers-designation ()
   (with-temp-buffer
     (let ((server-buffer (current-buffer)))
@@ -656,6 +652,15 @@
 (ert-deftest test-cider--url-to-file ()
   (should (equal "/space test" (cider--url-to-file "file:/space%20test")))
   (should (equal "C:/space test" (cider--url-to-file "file:/C:/space%20test"))))
+
+;;; eldoc
+(ert-deftest test-cider--find-rest-args-position ()
+  (should (= (cider--find-rest-args-position ["fmt" "&" "arg"]) 1))
+  (should (equal (cider--find-rest-args-position ["fmt" "arg"]) nil)))
+
+(ert-deftest test-cider-eldoc-format-thing ()
+  (should (string= (cider-eldoc-format-thing "clojure.core" "map" "map") "clojure.core/map"))
+  (should (string= (cider-eldoc-format-thing "" "" ".toString") ".toString")))
 
 (ert-deftest test-cider-eldoc-beginning-of-sexp ()
   (with-temp-buffer

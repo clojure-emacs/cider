@@ -26,6 +26,7 @@ an individual test using `C-c C-t t`.
 * New command `cider-load-all-project-ns` allows you to load all project namespaces.
 * Display eldoc for keywords used to get map keys.
 * Display eldoc for `Classname.`.
+* Display namespace in eldoc.
 
 ### Changes
 
