@@ -820,7 +820,7 @@
     (should (string= (cider-expected-ns "/b/foo.clj")
                      "foo"))
     (should (string= (cider-expected-ns "/not/in/classpath.clj")
-                     nil))
+                     (clojure-expected-ns "/not/in/classpath.clj")))
     (should (string= (cider-expected-ns "/c/inner/foo/bar.clj")
                      ;; NOT inner.foo.bar
                      "foo.bar"))
