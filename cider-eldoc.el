@@ -150,7 +150,7 @@ if the maximum number of sexps to skip is exceeded."
     ;; check if we can used the cached eldoc info
     (if (equal thing (car cider-eldoc-last-symbol))
         (cdr cider-eldoc-last-symbol)
-      (when-let ((eldoc-info (cider-sync-request:eldoc (substring-no-properties thing))))
+      (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
         (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
           (setq cider-eldoc-last-symbol (cons thing arglist))
           arglist)))))
