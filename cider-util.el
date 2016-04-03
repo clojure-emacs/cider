@@ -115,7 +115,7 @@ Ignores the REPL prompt.  If LOOK-BACK is non-nil, move backwards trying to
 find a symbol if there isn't one at point."
   (or (when-let ((str (thing-at-point 'symbol)))
         (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
-          str))
+          (substring-no-properties str)))
       (when look-back
         (save-excursion
           (ignore-errors
