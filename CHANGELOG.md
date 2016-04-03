@@ -24,6 +24,7 @@ an individual test using `C-c C-t t`.
 * New function `cider-expected-ns` is like `clojure-expected-ns`, but uses classpath for better results.  See [clojure-mode#372](https://github.com/clojure-emacs/clojure-mode/issues/372).
 * A double prefix argument (`C-u C-u`) for `cider-eval-defun-at-point` debugs the sexp at point instead of the entire defun, and offers to create a conditional breakpoint.
 * New command `cider-load-all-project-ns` allows you to load all project namespaces.
+* Display eldoc for keywords used to get map keys.
 
 ### Changes
 

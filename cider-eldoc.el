@@ -147,8 +147,6 @@ if the maximum number of sexps to skip is exceeded."
              thing
              ;; ignore empty strings
              (not (string= thing ""))
-             ;; ignore keywords
-             (not (string-prefix-p ":" thing))
              ;; ignore strings
              (not (string-prefix-p "\"" thing))
              ;; ignore regular expressions
@@ -158,12 +156,15 @@ if the maximum number of sexps to skip is exceeded."
              ;; ignore numbers
              (not (string-match-p "^[0-9]" thing)))
     ;; check if we can used the cached eldoc info
-    (if (equal thing (car cider-eldoc-last-symbol))
-        (cdr cider-eldoc-last-symbol)
-      (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
-        (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
-          (setq cider-eldoc-last-symbol (cons thing arglist))
-          arglist)))))
+    (cond
+     ;; handle keywords for map access
+     ((string-prefix-p ":" thing) '(("map") ("map" "not-found")))
+     (t (if (equal thing (car cider-eldoc-last-symbol))
+            (cdr cider-eldoc-last-symbol)
+          (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
+            (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
+              (setq cider-eldoc-last-symbol (cons thing arglist))
+              arglist)))))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
