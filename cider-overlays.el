@@ -168,13 +168,21 @@ overlay."
                (display-string (format format value))
                (o nil))
           (remove-overlays beg end 'cider-type type)
-          (put-text-property 0 1 'cursor 0 display-string)
           (funcall (if cider-overlays-use-font-lock
                        #'font-lock-prepend-text-property
                      #'put-text-property)
                    0 (length display-string)
                    'face prepend-face
                    display-string)
+          ;; If the display spans multiple lines or is very long, display it at
+          ;; the beginning of the next line.
+          (when (or (string-match "\n." display-string)
+                    (> (string-width display-string)
+                       (- (window-width) (current-column))))
+            (setq display-string (concat " \n" display-string)))
+          ;; Put the cursor property only once we're done manipulating the
+          ;; string, since we want it to be at the first char.
+          (put-text-property 0 1 'cursor 0 display-string)
           (setq o (apply #'cider--make-overlay
                          beg end type
                          'after-string display-string
