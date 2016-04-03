@@ -569,11 +569,12 @@ active nREPL connection."
                         (seq-sort (lambda (a b)
                                     (< (length a) (length b))))
                         (car))))
-        (when relpath
-          (thread-last (substring relpath 1) ; remove leading /
-            (file-name-sans-extension)
-            (replace-regexp-in-string "/" ".")
-            (replace-regexp-in-string "_" "-"))))
+        (if relpath
+            (thread-last (substring relpath 1) ; remove leading /
+              (file-name-sans-extension)
+              (replace-regexp-in-string "/" ".")
+              (replace-regexp-in-string "_" "-"))
+          (clojure-expected-ns path)))
     (clojure-expected-ns path)))
 
 (defun cider-nrepl-op-supported-p (op)
