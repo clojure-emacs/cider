@@ -159,6 +159,9 @@ if the maximum number of sexps to skip is exceeded."
     (cond
      ;; handle keywords for map access
      ((string-prefix-p ":" thing) '(("map") ("map" "not-found")))
+     ;; handle Classname. by displaying the eldoc for new
+     ((string-match-p "^[A-Z].+\\.$" thing) '(("args*")))
+     ;; generic case
      (t (if (equal thing (car cider-eldoc-last-symbol))
             (cdr cider-eldoc-last-symbol)
           (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
