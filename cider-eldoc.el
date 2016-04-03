@@ -166,6 +166,9 @@ if the maximum number of sexps to skip is exceeded."
             (cdr cider-eldoc-last-symbol)
           (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
             (let ((arglist (nrepl-dict-get eldoc-info "eldoc")))
+              ;; middleware eldoc lookups are expensive, so we
+              ;; cache the last lookup.  This eliminates the need
+              ;; for extra middleware requests within the same sexp.
               (setq cider-eldoc-last-symbol (cons thing arglist))
               arglist)))))))
 
