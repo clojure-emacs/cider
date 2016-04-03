@@ -145,8 +145,18 @@ if the maximum number of sexps to skip is exceeded."
   "Return the arglist for THING."
   (when (and (cider-nrepl-op-supported-p "eldoc")
              thing
+             ;; ignore empty strings
              (not (string= thing ""))
-             (not (string-prefix-p ":" thing)))
+             ;; ignore keywords
+             (not (string-prefix-p ":" thing))
+             ;; ignore strings
+             (not (string-prefix-p "\"" thing))
+             ;; ignore regular expressions
+             (not (string-prefix-p "#" thing))
+             ;; ignore chars
+             (not (string-prefix-p "\\" thing))
+             ;; ignore numbers
+             (not (string-match-p "^[0-9]" thing)))
     ;; check if we can used the cached eldoc info
     (if (equal thing (car cider-eldoc-last-symbol))
         (cdr cider-eldoc-last-symbol)
