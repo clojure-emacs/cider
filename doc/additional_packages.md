@@ -1,6 +1,50 @@
 There are many additional Emacs packages that can enhance your Clojure programming
-experience. The majority of the modes listed here should be enabled for both
+experience. The majority of the minor modes listed here should be enabled for both
 `cider-repl-mode` and `clojure-mode` for optimal effects.
+
+## clj-refactor
+
+[clr-refactor](https://github.com/clojure-emacs/clj-refactor.el) builts on top
+of clojure-mode and CIDER and adds a ton of extra functionality (e.g. the
+ability to thread/untread expression, find and replace usages, introduce let
+bindings, extract function and so on).
+
+A full list of features is available
+[here](https://github.com/clojure-emacs/clj-refactor.el/wiki).
+
+We hope to incorporate some of its features into clojure-mode and CIDER themselves
+down the road.
+
+**Make sure that the version of `clj-refactor` you've installed is compatible with
+your CIDER version.**
+
+## clojure-cheatsheet
+
+[clojure-cheatsheet](https://github.com/clojure-emacs/clojure-cheatsheet) in an
+Emacs rendition of the web-based
+[official Clojure Cheatsheet](http://clojure.org/api/cheatsheet), that's easily
+searchable via Helm.
+
+## squiggly-clojure
+
+[squiggly-clojure](https://github.com/clojure-emacs/squiggly-clojure) is a
+Flycheck checker for Clojure, using tools like
+[eastwood](https://github.com/jonase/eastwood),
+[core.typed](http://typedclojure.org/) and
+[kibit](https://github.com/jonase/kibit).
+
+## inf-clojure
+
+This package provides basic interaction with a Clojure subprocess (REPL). It's
+based on ideas from the popular inferior-lisp package.
+
+[inf-clojure](https://github.com/clojure-emacs/inf-clojure) has two components -
+a nice Clojure REPL with auto-completion and a minor mode
+(`inf-clojure-minor-mode`), which extends clojure-mode with commands to evaluate
+forms directly in the REPL.
+
+It's basically a simple alternative of CIDER, which provides a subset of CIDER's
+functionality.
 
 ## subword-mode
 
