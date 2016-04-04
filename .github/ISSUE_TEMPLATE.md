@@ -29,6 +29,11 @@ CIDER's REPL is launched. Here's an example:*
 ;; Clojure 1.8.0, Java 1.8.0_31
 ```
 
+### Lein/Boot version
+
+*E.g. Lein 2.6.1* (skip this when you didn't start the nREPL server
+using Lein or Boot)
+
 ### Emacs version
 
 *E.g. 24.5* (use <kbd>M-x emacs-version</kbd> to check it if unsure)
