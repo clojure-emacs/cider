@@ -572,8 +572,8 @@ If BOL is non-nil insert at the beginning of line."
   "Emit STRING as interactive err output."
   (cider-repl--emit-interactive-output string 'cider-repl-stderr-face))
 
-(defun cider-repl-readme-warning (section-id format &rest args)
-  "Emit a warning to the REPL and link to the online readme.
+(defun cider-repl-manual-warning (section-id format &rest args)
+  "Emit a warning to the REPL and link to the online manual.
 SECTION-ID is the section to link to.  The link is added on the last line.
 FORMAT is a format string to compile with ARGS and display on the REPL."
   (let ((message (split-string (apply #'format format args) "\n")))
@@ -581,7 +581,7 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
      (concat "WARNING: "
              (mapconcat #'identity (butlast message) "\n  ")
              (when (cdr message) "\n  ")
-             (cider--readme-button (car (last message)) section-id)))))
+             (cider--manual-button (car (last message)) section-id)))))
 
 (defun cider-repl--emit-output (buffer string face &optional bol)
   "Using BUFFER, emit STRING font-locked with FACE.

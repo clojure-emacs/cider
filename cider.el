@@ -598,10 +598,10 @@ In case `default-directory' is non-local we assume the command is available."
   "Check whether we're using a compatible nREPL version."
   (if-let ((nrepl-version (cider--nrepl-version)))
       (when (version< nrepl-version cider-required-nrepl-version)
-        (cider-repl-readme-warning "warning-saying-you-have-to-use-nrepl-0212"
+        (cider-repl-manual-warning "troubleshooting/#warning-saying-you-have-to-use-nrepl-0212"
                                    "CIDER requires nREPL %s (or newer) to work properly"
                                    cider-required-nrepl-version))
-    (cider-repl-readme-warning "warning-saying-you-have-to-use-nrepl-0212"
+    (cider-repl-manual-warning "troubleshooting/#warning-saying-you-have-to-use-nrepl-0212"
                                "Can't determine nREPL's version.\nPlease, update nREPL to %s."
                                cider-required-nrepl-version)))
 
@@ -613,7 +613,7 @@ In case `default-directory' is non-local we assume the command is available."
      (let ((middleware-version (read result)))
        (unless (and middleware-version (equal cider-version middleware-version))
          ;; FIXME: Add a proper readme section about this.
-         (cider-repl-readme-warning "setting-up-ciders-nrepl-middleware"
+         (cider-repl-manual-warning "troubleshooting/#setting-up-ciders-nrepl-middleware"
                                     "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
                                     cider-version middleware-version))))
    '()

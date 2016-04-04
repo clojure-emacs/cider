@@ -1701,52 +1701,6 @@ With a prefix argument, prompt for function to run instead of -main."
                        name))))
         (user-error "No %s var defined in any namespace" (cider-propertize name 'var))))))
 
-(defvar cider-version)
-
-(defconst cider-manual-url "http://cider.readthedocs.org/en/%s/"
-  "The URL to CIDER's manual.")
-
-(defun cider--manual-version ()
-  "Convert the version to a ReadTheDocs-friendly version."
-  (if (string-match-p "-snapshot" cider-version)
-      "latest"
-    "stable"))
-
-(defun cider-manual-url ()
-  "The CIDER manual's url."
-  (format cider-manual-url (cider--manual-version)))
-
-(defun cider-view-manual ()
-  "View the manual in your default browser."
-  (interactive)
-  (browse-url (cider-manual-url)))
-
-(defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/doc/cider-refcard.pdf"
-  "The URL to CIDER's refcard.")
-
-(defun cider--github-version ()
-  "Convert the version to a GitHub-friendly version."
-  (if (string-match-p "-snapshot" cider-version)
-      "master"
-    (concat "v" cider-version)))
-
-(defun cider-refcard-url ()
-  "The CIDER manual's url."
-  (format cider-refcard-url (cider--github-version)))
-
-(defun cider-view-refcard ()
-  "View the refcard in your default browser."
-  (interactive)
-  (browse-url (cider-refcard-url)))
-
-(defconst cider-report-bug-url "https://github.com/clojure-emacs/cider/issues/new"
-  "The URL to report a CIDER issue.")
-
-(defun cider-report-bug ()
-  "Report a bug in your default browser."
-  (interactive)
-  (browse-url cider-report-bug-url))
-
 (provide 'cider-interaction)
 
 ;;; Obsolete

@@ -348,8 +348,28 @@ plugin or dependency with:
   "Return t if SYM is namespace-qualified."
   (string-match-p "[^/]+/" sym))
 
-(defun cider--readme-button (label section-id)
-  "Return a button string that links to the online readme.
+(defvar cider-version)
+
+(defconst cider-manual-url "http://cider.readthedocs.org/en/%s/"
+  "The URL to CIDER's manual.")
+
+(defun cider--manual-version ()
+  "Convert the version to a ReadTheDocs-friendly version."
+  (if (string-match-p "-snapshot" cider-version)
+      "latest"
+    "stable"))
+
+(defun cider-manual-url ()
+  "The CIDER manual's url."
+  (format cider-manual-url (cider--manual-version)))
+
+(defun cider-view-manual ()
+  "View the manual in your default browser."
+  (interactive)
+  (browse-url (cider-manual-url)))
+
+(defun cider--manual-button (label section-id)
+  "Return a button string that links to the online manual.
 LABEL is the displayed string, and SECTION-ID is where it points
 to."
   (with-temp-buffer
@@ -357,9 +377,35 @@ to."
      label
      'follow-link t
      'action (lambda (&rest _) (interactive)
-               (browse-url (concat "https://github.com/clojure-emacs/cider#"
+               (browse-url (concat (cider-manual-url)
                                    section-id))))
     (buffer-string)))
+
+(defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/doc/cider-refcard.pdf"
+  "The URL to CIDER's refcard.")
+
+(defun cider--github-version ()
+  "Convert the version to a GitHub-friendly version."
+  (if (string-match-p "-snapshot" cider-version)
+      "master"
+    (concat "v" cider-version)))
+
+(defun cider-refcard-url ()
+  "The CIDER manual's url."
+  (format cider-refcard-url (cider--github-version)))
+
+(defun cider-view-refcard ()
+  "View the refcard in your default browser."
+  (interactive)
+  (browse-url (cider-refcard-url)))
+
+(defconst cider-report-bug-url "https://github.com/clojure-emacs/cider/issues/new"
+  "The URL to report a CIDER issue.")
+
+(defun cider-report-bug ()
+  "Report a bug in your default browser."
+  (interactive)
+  (browse-url cider-report-bug-url))
 
 (defun cider--project-name (dir)
   "Extracts a project name from DIR, possibly nil.
