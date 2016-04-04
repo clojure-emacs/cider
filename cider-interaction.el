@@ -761,15 +761,18 @@ currently selected buffer."
               '(t always only-in-repl)
             '(t always except-in-repl)))))
 
-(defun cider-new-error-buffer (&optional mode)
+(defun cider-new-error-buffer (&optional mode error-types)
   "Return an empty error buffer using MODE.
 
-When deciding whether to display the buffer, takes into account both the
-value of `cider-show-error-buffer' and the currently selected buffer.
+When deciding whether to display the buffer, takes into account not only
+the value of `cider-show-error-buffer' and the currently selected buffer
+but also the ERROR-TYPES of the error, which is checked against the
+`cider-stacktrace-suppressed-errors' set.
 
 When deciding whether to select the buffer, takes into account the value of
 `cider-auto-select-error-buffer'."
-  (if (cider--show-error-buffer-p)
+  (if (and (cider--show-error-buffer-p)
+           (not (cider-stacktrace-some-suppressed-errors-p error-types)))
       (cider-popup-buffer cider-error-buffer cider-auto-select-error-buffer mode)
     (cider-make-popup-buffer cider-error-buffer mode)))
 
@@ -790,11 +793,13 @@ Uses the value of the `out' slot in RESPONSE."
    (cider-nrepl-sync-request:eval
     "(clojure.stacktrace/print-cause-trace *e)")))
 
-(defun cider--render-stacktrace-causes (causes)
-  "If CAUSES is non-nil, render its contents into a new error buffer."
+(defun cider--render-stacktrace-causes (causes &optional error-types)
+  "If CAUSES is non-nil, render its contents into a new error buffer.
+Optional argument ERROR-TYPES contains a list which should determine the
+op/situation that originated this error."
   (when causes
-    (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode)))
-      (cider-stacktrace-render error-buffer (reverse causes)))))
+    (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode error-types)))
+      (cider-stacktrace-render error-buffer (reverse causes) error-types))))
 
 (defun cider--handle-stacktrace-response (response causes)
   "Handle stacktrace op RESPONSE, aggregating the result into CAUSES.

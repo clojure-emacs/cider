@@ -27,6 +27,7 @@ an individual test using `C-c C-t t`.
 * Display eldoc for keywords used to get map keys.
 * Display eldoc for `Classname.`.
 * Display namespace in eldoc.
+* [cider-nrepl#313](https://github.com/clojure-emacs/cider-nrepl/issues/313): Selectively suppress user-specified categories of middleware errors from foregrounding stacktrace buffers via the `cider-stacktrace-suppressed-errors` variable.
 
 ### Changes
 

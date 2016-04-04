@@ -962,18 +962,15 @@ sign of user input, so as not to hang the interface."
       (accept-process-output nil 0.01))
     ;; If we couldn't finish, return nil.
     (when (member "done" status)
-      (when-let ((ex (nrepl-dict-get response "ex"))
-                 (err (nrepl-dict-get response "err")))
-        ;; non-eval requests currently don't set the *e var
-        ;; which is required by the stacktrace middleware
-        ;; so we have to handle them differently until this is resolved
-        (if (member "eval-error" status)
-            (funcall nrepl-err-handler)
-          (cider--render-stacktrace-causes (nrepl-dict-get response "pp-stacktrace"))))
-      (when-let ((id (nrepl-dict-get response "id")))
-        (with-current-buffer connection
-          (nrepl--mark-id-completed id)))
-      response)))
+      (nrepl-dbind-response response (ex err eval-error pp-stacktrace id)
+        (when (and ex err)
+          (cond (eval-error (funcall nrepl-err-handler))
+                (pp-stacktrace (cider--render-stacktrace-causes
+                                pp-stacktrace (remove "done" status))))) ;; send the error type
+        (when id
+          (with-current-buffer connection
+            (nrepl--mark-id-completed id)))
+        response))))
 
 (defun nrepl-request:stdin (input callback connection session)
   "Send a :stdin request with INPUT using CONNECTION and SESSION.
