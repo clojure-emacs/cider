@@ -194,18 +194,23 @@ character used to trigger the shortcuts is configurable via
 
 #### REPL Configuration
 
-* Enable `eldoc` in REPL buffers:
+##### Eldoc
+
+Eldoc displays function signatures in the minibuffer as you're typing.
+It's extremely useful! Enable `eldoc` in REPL buffers like this:
 
 ```el
 (add-hook 'cider-repl-mode-hook #'eldoc-mode)
 ```
 
-* You can customize the prompt in REPL buffer. To do that you can customize
-  `cider-repl-prompt-function` and set it to a function that takes one argument,
-  a namespace name. For convenience, three functions are already provided:
-  `cider-repl-prompt-lastname`, `cider-repl-prompt-abbreviated`,
-  `cider-repl-prompt-default` and by default the last one is being used.
-  Prompt for each of them for namespace `leiningen.core.ssl`:
+##### Customizing the REPL prompt
+
+You can customize the prompt in REPL buffer. To do that you can customize
+`cider-repl-prompt-function` and set it to a function that takes one argument,
+a namespace name. For convenience, three functions are already provided:
+`cider-repl-prompt-lastname`, `cider-repl-prompt-abbreviated`,
+`cider-repl-prompt-default` and by default the last one is being used.
+Prompt for each of them for namespace `leiningen.core.ssl`:
 
   * `cider-repl-prompt-lastname`:
 
@@ -225,21 +230,23 @@ character used to trigger the shortcuts is configurable via
   leiningen.core.ssl>
   ```
 
-  You may, of course, write your own function. For example, in `leiningen` there
-  are two namespaces with similar names - `leiningen.classpath` and
-  `leiningen.core.classpath`. To make them easily recognizable you can either
-  use the default value or you can opt to show only two segments of the
-  namespace and still be able to know which is the REPL's current
-  namespace. Here is an example function that will do exactly that:
+You may, of course, write your own function. For example, in `leiningen` there
+are two namespaces with similar names - `leiningen.classpath` and
+`leiningen.core.classpath`. To make them easily recognizable you can either
+use the default value or you can opt to show only two segments of the
+namespace and still be able to know which is the REPL's current
+namespace. Here is an example function that will do exactly that:
 
-  ```el
-  (defun cider-repl-prompt-show-two (namespace)
-    "Return a prompt string with the last 2 segments of NAMESPACE."
-    (let ((names (reverse (subseq (reverse (split-string namespace "\\.")) 0 2))))
-      (concat (car names) "." (cadr names) "> ")))
-  ```
+```el
+(defun cider-repl-prompt-show-two (namespace)
+  "Return a prompt string with the last 2 segments of NAMESPACE."
+  (let ((names (reverse (subseq (reverse (split-string namespace "\\.")) 0 2))))
+    (concat (car names) "." (cadr names) "> ")))
+```
 
-* You can control the <kbd>TAB</kbd> key behavior in the REPL via the
+##### TAB Completion
+
+You can control the <kbd>TAB</kbd> key behavior in the REPL via the
 `cider-repl-tab-command` variable.  While the default command
 `cider-repl-indent-and-complete-symbol` should be an adequate choice for
 most users, it's very easy to switch to another command if you wish
@@ -251,7 +258,9 @@ following snippet:
 (setq cider-repl-tab-command #'indent-for-tab-command)
 ```
 
-* Change the result prefix for REPL evaluation (by default there's no prefix):
+##### Result Prefix
+
+Change the result prefix for REPL evaluation (by default there's no prefix):
 
 ```el
 (setq cider-repl-result-prefix ";; => ")
@@ -264,21 +273,25 @@ user> (+ 1 2)
 ;; => 3
 ```
 
-* The REPL buffer name has the format `*cider-repl project-name*`.
-Change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
+##### Customize the REPL Buffer's Name
+
+The REPL buffer name has the format `*cider-repl project-name*`.
+You can change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
 
 ```el
 (setq nrepl-buffer-name-separator "-")
 ```
 
-* The REPL buffer name can also display the port on which the nREPL server is running.
+The REPL buffer name can also display the port on which the nREPL server is running.
 Buffer name will look like `*cider-repl project-name:port*`.
 
 ```el
 (setq nrepl-buffer-name-show-port t)
 ```
 
-* Normally code in the REPL is font-locked the same way as in
+##### Font-locking
+
+Normally code in the REPL is font-locked the same way as in
 `clojure-mode`. Before CIDER 0.10 by default REPL input was font-locked with
 `cider-repl-input-face` (after you press `RET`) and results were font-locked with
 `cider-repl-result-face`. If you want to restore the old behaviour use:
