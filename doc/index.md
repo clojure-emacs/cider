@@ -28,12 +28,13 @@ constantly re-evaluating existing Clojure definitions and adding new ones to
 their running applications. You never stop/start a Clojure application while
 using CIDER - you're constantly interacting with it and changing it.
 
-You can find more details about the typical CIDER workflow in the `Basic Usage`
-section. While we're a bit short on video tutorials, you can check out this
+You can find more details about the typical CIDER workflow in the
+[Basic Usage](basic_usage.md) section. While we're a bit short on video
+tutorials, you can check out this
 [tutorial about SLIME](https://www.youtube.com/watch?v=_B_4vhsmRRI) to get a
-feel about what do we mean by an "Interactive Development Environment".
-There are plenty of differences between CIDER and SLIME, but the core ideas are
-pretty much the same (and SLIME served as the principle inspiration for CIDER).
+feel about what do we mean by an "Interactive Development Environment".  There
+are plenty of differences between CIDER and SLIME, but the core ideas are pretty
+much the same (and SLIME served as the principle inspiration for CIDER).
 
 CIDER's built on top of [nREPL][], the Clojure networked REPL server.
 
