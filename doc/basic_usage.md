@@ -234,8 +234,8 @@ character used to trigger the shortcuts is configurable via
 
   ```el
   (defun cider-repl-prompt-show-two (namespace)
-    "Return a prompt string with the last name in NAMESPACE."
-    (let* ((names (reverse (-take 2 (reverse (split-string namespace "\\."))))))
+    "Return a prompt string with the last 2 segments of NAMESPACE."
+    (let ((names (reverse (subseq (reverse (split-string namespace "\\.")) 0 2))))
       (concat (car names) "." (cadr names) "> ")))
   ```
 
