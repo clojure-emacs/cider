@@ -186,10 +186,10 @@ In the REPL you can also use "shortcut commands" by pressing `,` at the
 beginning of a REPL line. You'll be presented with a list of commands you can
 quickly run (like quitting, displaying some info, clearing the REPL, etc). The
 character used to trigger the shortcuts is configurable via
-`cider-repl-shortcut-dispatch-char`. Here's how you can change it to `:`:
+`cider-repl-shortcut-dispatch-char`. Here's how you can change it to `;`:
 
 ```el
-(setq cider-repl-shortcut-dispatch-char ?\:)
+(setq cider-repl-shortcut-dispatch-char ?\;)
 ```
 
 #### REPL Configuration
