@@ -36,10 +36,6 @@
 
 (require 'seq)
 
-;;; Declarations:
-
-(declare-function cider-report-bug "cider-interaction")
-
 ;; Variables
 
 (defgroup cider-stacktrace nil
