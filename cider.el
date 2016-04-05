@@ -612,8 +612,7 @@ In case `default-directory' is non-local we assume the command is available."
    (lambda (_buffer result)
      (let ((middleware-version (read result)))
        (unless (and middleware-version (equal cider-version middleware-version))
-         ;; FIXME: Add a proper readme section about this.
-         (cider-repl-manual-warning "troubleshooting/#setting-up-ciders-nrepl-middleware"
+         (cider-repl-manual-warning "installation/#ciders-nrepl-middleware"
                                     "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
                                     cider-version middleware-version))))
    '()
