@@ -496,6 +496,8 @@ Any other value is just returned."
     "Procure a bottle of cider to achieve optimum programming results."
     "In parentheses we trust!"
     "Write you some Clojure for Great Good!"
+    "Oh, what a day... what a lovely day!"
+    "What a day! What cannot be accomplished on such a splendid day!"
     ,(format "%s, I've a feeling we're not in Kansas anymore."
              (cider-user-first-name))
     ,(format "%s, this could be the start of a beautiful program."
