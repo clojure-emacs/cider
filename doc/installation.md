@@ -138,6 +138,3 @@ It goes without saying that your project should depend on `cider-nrepl`.
 `x.y.z` should match the version of CIDER you're currently using (say `0.7.1`).
 For snapshot releases of CIDER you should use the snapshot of the plugin as well
 (say `0.7.1-SNAPSHOT`).
-
-**Note that you need to use at least CIDER 0.7 for the nREPL middleware to work
-properly.  Don't use cider-nrepl with CIDER 0.6.**
