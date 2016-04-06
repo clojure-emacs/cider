@@ -124,8 +124,8 @@ get a list of the keybindings for `cider-mode`.
 
 An even better solution would be to install [which-key][], which will
 automatically show you a list of available keybindings as you start typing some
-keys. This will simplify your interactions with CIDER quite a lot
-(especially in the beginning). Here's what you'd see if you typed `C-c C-d` in a
+keys. This will simplify your interactions with CIDER quite a lot (especially in
+the beginning). Here's what you'd see if you typed <kbd>C-c C-d</kbd> in a
 Clojure buffer:
 
 ![CIDER which-key](images/cider-which-key.png)

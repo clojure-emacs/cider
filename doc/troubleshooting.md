@@ -16,7 +16,7 @@ using the debugger.
 
 To debug some command you need to do the following:
 
-* Figure out the name of the command you want to debug (e.g. by using `C-h k`
+* Figure out the name of the command you want to debug (e.g. by using <kbd>C-h k</kbd>
 to see which command is associated with some keybinding)
 * Find the source of the command (e.g. by using `M-x find-function RET function-name`)
 * Press <kbd>C-u C-M-x</kbd> while in the body of the function
@@ -35,11 +35,10 @@ out the big guns.
 
 #### Debugging the REPL init
 
-To debug CIDER's
-REPL initialization it's a good idea to hook into one of its entry points. Add a
-breakpoint to `cider-make-repl` (`C-u C-M-x`, while in its body). Next time you
-start CIDER you'll be dropped in the debugger and you can step forward until you
-find the problem.
+To debug CIDER's REPL initialization it's a good idea to hook into one of its
+entry points. Add a breakpoint to `cider-make-repl` (<kbd>C-u C-M-x</kbd>, while
+in its body). Next time you start CIDER you'll be dropped in the debugger and
+you can step forward until you find the problem.
 
 ### Missing `*nrepl-messages*` buffer
 
