@@ -42,6 +42,20 @@ try to debug an expression (e.g., with `C-u
 C-M-x`). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new)
 and copy this information.
 
+### Debugging freezes & lock ups
+
+Sometimes a CIDER command might hang for a while (e.g. due to a bug or a
+configuration issue). Such problems are super annoying, but are relatively easy
+to debug. Here are a few steps you can take in such situations:
+
+* Do `M-x toggle-debug-on-quit`
+* Reproduce the problem
+* Hit `C-g` around 10 seconds into the hang
+
+This will bring up a backtrace with the entire function stack, including
+function arguments. So you should be able to figure out what's going on (or at
+least what's being required).
+
 ### Warning saying you have to use nREPL 0.2.12+
 
 CIDER currently requires at least nREPL 0.2.12 to work properly (there were some
