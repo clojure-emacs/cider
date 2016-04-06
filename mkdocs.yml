@@ -4,6 +4,7 @@ pages:
 - Home: index.md
 - Installation: installation.md
 - Basic Usage: basic_usage.md
+- Using the REPL: using_the_repl.md
 - Extended Workflow: extended_workflow.md
 - Configuration: configuration.md
 - Indentation Specification: indent_spec.md
