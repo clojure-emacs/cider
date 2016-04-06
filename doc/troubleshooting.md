@@ -5,6 +5,26 @@ Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
 (instead of just logging the error in the `*Messages*` buffer. You can toggle
 this behavior by using `M-x toggle-debug-on-error`.
 
+### Debugging CIDER commands
+
+Emacs features a super powerful built-in
+[Emacs Lisp debugger](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html)
+and using it is the best way to diagnose problems of any kind.
+
+Here's a [great crash course](https://www.youtube.com/watch?v=odkYXXYOxpo) on
+using the debugger.
+
+To debug some command you need to do the following:
+
+* Figure out the name of the command you want to debug (e.g. by using `C-h k`
+to see which command is associated with some keybinding)
+* Find the source of the command (e.g. by using `M-x find-function RET function-name`)
+* Press <kbd>C-u C-M-x</kbd> while in the body of the function
+* Run the command again
+
+At this point you'll be dropped in the debugger and you can step forward until
+you find the problem.
+
 ### REPL not starting
 
 Make sure that your CIDER version matches your `cider-nrepl` version. Check
@@ -15,16 +35,11 @@ out the big guns.
 
 #### Debugging the REPL init
 
-Emacs features a super powerful built-in
-[Emacs Lisp debugger](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html)
-and using it is the best way to diagnose problems of any kind. To debug CIDER's
+To debug CIDER's
 REPL initialization it's a good idea to hook into one of its entry points. Add a
 breakpoint to `cider-make-repl` (`C-u C-M-x`, while in its body). Next time you
 start CIDER you'll be dropped in the debugger and you can step forward until you
 find the problem.
-
-Here's a [great crash course](https://www.youtube.com/watch?v=odkYXXYOxpo) on
-using the debugger.
 
 ### Missing `*nrepl-messages*` buffer
 
