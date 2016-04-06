@@ -103,7 +103,7 @@ If the list is empty and buffer-local, return the global value."
 
 (defun cider-make-connection-default (connection-buffer)
   "Make the nREPL CONNECTION-BUFFER the default connection.
-Moves CONNECTION-BUFFER to the front of `cider-connections'."
+Moves CONNECTION-BUFFER to the front of variable `cider-connections'."
   (interactive (list (if (cider--in-connection-buffer-p)
                          (current-buffer)
                        (user-error "Not in a REPL buffer"))))
@@ -115,7 +115,7 @@ Moves CONNECTION-BUFFER to the front of `cider-connections'."
 
 (declare-function cider--close-buffer "cider-interaction")
 (defun cider--close-connection-buffer (conn-buffer)
-  "Close CONN-BUFFER, removing it from `cider-connections'.
+  "Close CONN-BUFFER, removing it from variable `cider-connections'.
 Also close associated REPL and server buffers."
   (let ((buffer (get-buffer conn-buffer)))
     (setq cider-connections
@@ -147,10 +147,11 @@ followed by any connection at all.
 
 If PROJECT-DIRECTORY is provided act on that project instead.
 
-Only return nil if `cider-connections' is empty (there are no connections).
+Only return nil if variable `cider-connections' is empty,
+i.e there are no connections.
 
 If more than one connection satisfy a given level of preference, return the
-connection buffer closer to the start of `cider-connections'.  This is
+connection buffer closer to the start of variable `cider-connections'.  This is
 usally the connection that was more recently created, but the order can be
 changed.  For instance, the function `cider-make-connection-default' can be
 used to move a connection to the head of the list, so that it will take
@@ -507,7 +508,7 @@ Do nothing if `cider-show-eval-spinner' is nil."
                      cider-eval-spinner-delay))))
 
 (defun cider-eval-spinner-handler (eval-buffer original-callback)
-  "Return a response handler that stops the spinner and calls ORIGINAL-CALLBACK.
+  "Return a response handler to stop the spinner and call ORIGINAL-CALLBACK.
 EVAL-BUFFER is the buffer where the spinner was started."
   (lambda (response)
     ;; buffer still exists and
@@ -1075,7 +1076,8 @@ INPUT, SESSION, and NS are passed to `nrepl--eval-request'."
 The request is dispatched via CONNECTION and SESSION.
 If NS is non-nil, include it in the request.
 RIGHT-MARGIN specifies the maximum column width of the
-pretty-printed result, and is included in the request if non-nil."
+pretty-printed result, and is included in the request if non-nil.
+PPRINT-FN generates the pretty-printed result."
   (cider-nrepl-request:eval input callback ns nil nil
                             (cider--nrepl-pprint-request-plist right-margin pprint-fn)))
 (make-obsolete 'cider-nrepl-request:pprint-eval

@@ -229,6 +229,7 @@ opposite of what that option dictates."
 (declare-function cider-grimoire-lookup "cider-grimoire")
 
 (defun cider-docview-grimoire ()
+  "Return the grimoire documentation for `cider-docview-symbol'."
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-lookup cider-docview-symbol)
@@ -237,6 +238,7 @@ opposite of what that option dictates."
 (declare-function cider-grimoire-web-lookup "cider-grimoire")
 
 (defun cider-docview-grimoire-web ()
+  "Open the grimoire documentation for `cider-docview-symbol' in a web browser."
   (interactive)
   (if cider-buffer-ns
       (cider-grimoire-web-lookup cider-docview-symbol)

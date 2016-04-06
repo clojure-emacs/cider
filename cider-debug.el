@@ -100,7 +100,7 @@ configure `cider-debug-prompt' instead."
   :package-version '(cider . "0.9.1"))
 
 (defcustom cider-debug-print-level 10
-  "print-level for values displayed by the debugger.
+  "The print-level for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Max depth" 10))
@@ -108,7 +108,7 @@ This variable must be set before starting the repl connection."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-debug-print-length 10
-  "print-length for values displayed by the debugger.
+  "The print-length for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Max depth" 10))
@@ -136,7 +136,7 @@ This variable must be set before starting the repl connection."
     (message "No currently instrumented definitions")))
 
 (defun cider--debug-response-handler (response)
-  "Handle responses from the cider.debug middleware."
+  "Handles RESPONSE from the cider.debug middleware."
   (nrepl-dbind-response response (status id causes)
     (when (member "enlighten" status)
       (cider--handle-enlighten response))
@@ -307,7 +307,7 @@ In order to work properly, this mode must be activated by
             (add-hook 'kill-buffer-hook #'cider--debug-quit nil 'local)
             (add-hook 'before-revert-hook #'cider--debug-quit nil 'local)
             (unless (consp input-type)
-              (error "debug-mode activated on a message not asking for commands: %s" cider--debug-mode-response))
+              (error "Activated debug-mode on a message not asking for commands: %s" cider--debug-mode-response))
             ;; Integrate with eval commands.
             (setq cider-interactive-eval-override
                   (apply-partially #'cider--debug-lexical-eval
@@ -348,7 +348,7 @@ In order to work properly, this mode must be activated by
 (define-key cider--debug-mode-map "h" #'cider-debug-move-here)
 
 (defun cider--debug-remove-overlays (&optional buffer)
-  "Remove CIDER debug overlays from BUFFER if `cider--debug-mode' is nil."
+  "Remove CIDER debug overlays from BUFFER if variable `cider--debug-mode' is nil."
   (when (or (not buffer) (buffer-live-p buffer))
     (with-current-buffer (or buffer (current-buffer))
       (unless cider--debug-mode
@@ -418,6 +418,8 @@ message."
 (defconst cider--debug-buffer-format "*cider-debug %s*")
 
 (defun cider--debug-trim-code (code)
+  "Remove whitespace and reader macros from the start of the CODE.
+Return trimmed CODE."
   (replace-regexp-in-string "\\`#[a-z]+[\n\r[:blank:]]*" "" code))
 
 (declare-function cider-set-buffer-ns "cider-mode")

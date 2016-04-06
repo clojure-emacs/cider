@@ -376,7 +376,7 @@ The value can also be t, which means to font-lock as much as possible."
     value))
 
 (defun cider--compile-font-lock-keywords (symbols-plist core-plist)
-  "Return a list of font-lock rules for the symbols in SYMBOLS-PLIST."
+  "Return a list of font-lock rules for the symbols in SYMBOLS-PLIST and CORE-PLIST."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
                                          '(function var macro core deprecated)
                                        cider-font-lock-dynamically))
@@ -401,7 +401,7 @@ The value can also be t, which means to font-lock as much as possible."
                        ;; we catch that case too.
                        ;; FIXME: This matches values too, not just keys.
                        (when (seq-find (lambda (k) (and (stringp k)
-                                                   (string-match (rx "clojure.tools.trace/traced" eos) k)))
+                                                        (string-match (rx "clojure.tools.trace/traced" eos) k)))
                                        meta)
                          (push sym traced))
                        (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
@@ -586,7 +586,7 @@ before point."
           (cider--parse-and-apply-locals end locals-above))))))
 
 (defun cider--wrap-fontify-locals (func)
-  "Return a function that calls FUNC after parsing local variables.
+  "Return a function that will call FUNC after parsing local variables.
 The local variables are stored in a list under the `cider-locals' text
 property."
   (lambda (beg end &rest rest)

@@ -393,7 +393,8 @@ also alway return a sequence (since the result will be flattened)."
 String values for non \"id\" and \"session\" keys are concatenated. Lists
 are appended. nREPL dicts merged recursively. All other objects are
 accumulated into a list. DICT1 is modified destructively and
-then returned."
+then returned.
+If NO-JOIN is given, return the first non nil dict."
   (if no-join
       (or dict1 dict2)
     (cond ((null dict1) dict2)
@@ -610,15 +611,15 @@ older requests with \"done\" status."
                         (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
-        (error "nREPL: No response handler with id %s found" id)))))
+        (error "[nREPL] No response handler with id %s found" id)))))
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
 Notify MESSAGE and if the process is closed run `nrepl-disconnected-hook'
 and kill the process buffer."
   (if (string-match "deleted\\b" message)
-      (message "nREPL: Connection closed")
-    (message "nREPL: Connection closed unexpectedly (%s)"
+      (message "[nREPL] Connection closed")
+    (message "[nREPL] Connection closed unexpectedly (%s)"
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
     (when-let ((client-buffer (process-buffer process)))
@@ -656,21 +657,21 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
   (if (not (and host port))
       (unless no-error
         (error "Host (%s) and port (%s) must be provided" host port))
-    (message "nREPL: Establishing direct connection to %s:%s ..." host port)
+    (message "[nREPL] Establishing direct connection to %s:%s ..." host port)
     (condition-case nil
         (prog1 (list :proc (open-network-stream "nrepl-connection" nil host port)
                      :host host :port port)
-          (message "nREPL: Direct connection established"))
-      (error (let ((mes "nREPL: Direct connection failed"))
+          (message "[nREPL] Direct connection established"))
+      (error (let ((mes "[nREPL] Direct connection failed"))
                (if no-error (message mes) (error mes))
                nil)))))
 
 (defun nrepl--ssh-tunnel-connect (host port)
   "Connect to a remote machine identified by HOST and PORT through SSH tunnel."
-  (message "nREPL: Establishing SSH tunneled connection ...")
+  (message "[nREPL] Establishing SSH tunneled connection ...")
   (let* ((remote-dir (if host (format "/ssh:%s:" host) default-directory))
          (ssh (or (executable-find "ssh")
-                  (error "nREPL: Cannot locate 'ssh' executable")))
+                  (error "[nREPL] Cannot locate 'ssh' executable")))
          (cmd (nrepl--ssh-tunnel-command ssh remote-dir port))
          (tunnel-buf (nrepl-tunnel-buffer-name))
          (tunnel (start-process-shell-command "nrepl-tunnel" tunnel-buf cmd)))
@@ -680,8 +681,8 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
                 (process-get tunnel :waiting-for-port))
       (accept-process-output nil 0.005))
     (if (not (process-live-p tunnel))
-        (error "nREPL: SSH port forwarding failed.  Check the '%s' buffer" tunnel-buf)
-      (message "nREPL: SSH port forwarding established to localhost:%s" port)
+        (error "[nREPL] SSH port forwarding failed.  Check the '%s' buffer" tunnel-buf)
+      (message "[nREPL] SSH port forwarding established to localhost:%s" port)
       (let ((endpoint (nrepl--direct-connect "localhost" port)))
         (thread-first endpoint
           (plist-put :tunnel tunnel)
@@ -1246,7 +1247,8 @@ Set this to nil to prevent truncation."
   (delete-overlay button))
 
 (defun nrepl--expand-button-mouse (event)
-  "Expand the text hidden under overlay BUTTON."
+  "Expand the text hidden under overlay button.
+EVENT gives the button position on window."
   (interactive "e")
   (pcase (elt event 1)
     (`(,window ,_ ,_ ,_ ,_ ,point . ,_)

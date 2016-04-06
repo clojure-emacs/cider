@@ -178,7 +178,7 @@ Can only error if SKIP is non-nil."
           (cons (pop plist) (cider-intern-keys plist)))))
 
 (defmacro cider-propertize-region (props &rest body)
-  "Execute BODY and add PROPS to all the text it inserts.
+  "Execute BODY and add PROPS to all the inserted text.
 More precisely, PROPS are added to the region between the point's
 positions before and after executing BODY."
   (declare (indent 1))
@@ -561,7 +561,8 @@ Any other value is just returned."
   (message (cider-random-tip)))
 
 (defun cider-column-number-at-pos (pos)
-  "Analog to `line-number-at-pos'."
+  "Analog to `line-number-at-pos'.
+Return buffer column number at position POS."
   (save-excursion (goto-char pos) (current-column)))
 
 (defun cider-propertize (text kind)

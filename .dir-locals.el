@@ -7,6 +7,8 @@
   (fill-column . 80)
   (sentence-end-double-space . t)
   (emacs-lisp-docstring-fill-column . 75)
+  (checkdoc-symbol-words . ("top-level" "major-mode" "macroexpand-all" "print-level" "print-length"))
+  (checkdoc-package-keywords-flag)
   (checkdoc-arguments-in-order-flag))
  (emacs-lisp-mode
   (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")))

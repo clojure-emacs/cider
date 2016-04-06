@@ -73,8 +73,11 @@ navigate to this buffer."
   :group 'cider)
 
 (defcustom cider-auto-jump-to-error t
-  "When non-nil automatically jump to error location during interactive compilation.
-When set to 'errors-only, don't jump to warnings."
+  "Control the cursor jump behaviour in compilation error buffer.
+
+When non-nil automatically jump to error location during interactive
+compilation.  When set to 'errors-only, don't jump to warnings.
+When set to nil, don't jump at all."
   :type '(choice (const :tag "always" t)
                  (const errors-only)
                  (const :tag "never" nil))
@@ -433,6 +436,8 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
     (nrepl-dict-get "path")))
 
 (defun cider--find-ns (ns &optional other-window)
+  "Find the file containing NS's definition.
+Optionally open it in a different window if OTHER-WINDOW is truthy."
   (if-let ((path (cider-sync-request:ns-path ns)))
       (cider-jump-to (cider-find-file path) nil other-window)
     (user-error "Can't find %s" ns)))
@@ -608,8 +613,9 @@ The handler simply inserts the result value in BUFFER."
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
 
-The output can be send to either a dedicated output buffer or the current REPL buffer.
-This is controlled via `cider-interactive-eval-output-destination'."
+The OUTPUT can be sent to either a dedicated output buffer or the current
+REPL buffer.  This is controlled by `cider-interactive-eval-output-destination'.
+REPL-EMIT-FUNCTION emits the OUTPUT."
   (pcase cider-interactive-eval-output-destination
     (`output-buffer (let ((output-buffer (or (get-buffer cider-output-buffer)
                                              (cider-popup-buffer cider-output-buffer t))))
@@ -732,7 +738,6 @@ Returns the position at which PROPERTY was found, or nil if not found."
 
 (defun cider-jump-to-compilation-error (&optional _arg _reset)
   "Jump to the line causing the current compilation error.
-
 _ARG and _RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
@@ -1218,6 +1223,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 (defun cider-insert-region-in-repl (start end &optional arg)
   "Insert the curent region in the REPL buffer.
+START and END represent the region's boundaries.
 If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "rP")
   (cider-insert-in-repl
@@ -1239,7 +1245,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable CIDER's minor mode on existing Clojure buffers.
-See command `cider-mode'."
+See `cider-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook #'cider-mode)
   (dolist (buffer (cider-util--clojure-buffers))
@@ -1248,7 +1254,7 @@ See command `cider-mode'."
 
 (defun cider-disable-on-existing-clojure-buffers ()
   "Disable `cider-mode' on existing Clojure buffers.
-See command `cider-mode'."
+See `cider-mode'."
   (interactive)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
@@ -1512,8 +1518,8 @@ of the buffer into a formatted string."
 (defun cider--format-region (start end formatter)
   "Format the contents of the given region.
 
-START and END are the character positions of the start and end of the
-region.  FORMATTER is a function of one argument which is used to convert
+START and END represent the region's boundaries.
+FORMATTER is a function of one argument which is used to convert
 the string contents of the region into a formatted string."
   (let* ((original (buffer-substring-no-properties start end))
          (formatted (funcall formatter original))
@@ -1523,13 +1529,15 @@ the string contents of the region into a formatted string."
       (insert indented))))
 
 (defun cider-format-region (start end)
-  "Format the Clojure code in the current region."
+  "Format the Clojure code in the current region.
+START and END represent the region's boundaries."
   (interactive "r")
   (cider-ensure-connected)
   (cider--format-region start end #'cider-sync-request:format-code))
 
 (defun cider-format-edn-region (start end)
-  "Format the EDN data in the current region."
+  "Format the EDN data in the current region.
+START and END represent the region's boundaries."
   (interactive "r")
   (cider-ensure-connected)
   (let* ((start-column (save-excursion (goto-char start) (current-column)))

@@ -255,8 +255,8 @@ focused."
 
 (defun cider--overlay-destroy (ov &rest r)
   "Delete overlay OV and its underlying text.
-If any other arguments are given, only actually do anything if the first
-one is non-nil.  This is so it works in `modification-hooks'."
+If any other arguments are given (collected in R), only actually do anything
+if the first one is non-nil.  This is so it works in `modification-hooks'."
   (unless (and r (not (car r)))
     (let ((inhibit-modification-hooks t)
           (beg (copy-marker (overlay-start ov)))

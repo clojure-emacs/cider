@@ -181,7 +181,8 @@ This variable is used by `cider-connect'."
 (defvar cider-ps-running-nrepl-path-regexp-list
   '("\\(?:leiningen.original.pwd=\\)\\(.+?\\) -D"
     "\\(?:-classpath +:?\\(.+?\\)/self-installs\\)")
-  "Regexp list to extract project paths from output of `cider-ps-running-nrepls-command'.
+  "Regexp list to get project paths.
+Extract project paths from output of `cider-ps-running-nrepls-command'.
 Sub-match 1 must be the project path.")
 
 (defvar cider-host-history nil
@@ -244,6 +245,7 @@ string is quoted for passing as argument to an inferior shell."
   (concat "-d " (shell-quote-argument (format "%s:%s" (car list) (cadr list)))))
 
 (defun boot-command-prefix (dependencies)
+  "Return a list of boot artifact strings created from DEPENDENCIES."
   (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
           " "))
 
@@ -606,7 +608,8 @@ In case `default-directory' is non-local we assume the command is available."
                                cider-required-nrepl-version)))
 
 (defun cider--check-middleware-compatibility-callback (buffer)
-  "A callback to check if the middleware used is compatible with CIDER."
+  "A callback to check if the middleware used is compatible with CIDER.
+BUFFER specifies the connection buffer to be used."
   (nrepl-make-response-handler
    buffer
    (lambda (_buffer result)

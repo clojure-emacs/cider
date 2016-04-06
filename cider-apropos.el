@@ -46,7 +46,14 @@
   (cider-doc-lookup (button-get button 'apropos-symbol)))
 
 (defun cider-apropos-summary (query ns docs-p include-private-p case-sensitive-p)
-  "Return a short description for the performed apropos search."
+  "Return a short description for the performed apropos search.
+
+QUERY can be a regular expression list of space-separated words
+\(e.g take while) which will be converted to a regular expression
+\(like take.+while) automatically behind the scenes.  The search may be
+limited to the namespace NS, and may optionally search doc strings
+\(based on DOCS-P), include private vars (based on INCLUDE-PRIVATE-P),
+and be case-sensitive (based on CASE-SENSITIVE-P)."
   (concat (if case-sensitive-p "Case-sensitive " "")
           (if docs-p "Documentation " "")
           (format "Apropos for %S" query)
@@ -104,8 +111,8 @@
 QUERY can also be a list of space-separated words (e.g. take while) which
 will be converted to a regular expression (like take.+while) automatically
 behind the scenes.  The search may be limited to the namespace NS, and may
-optionally search doc strings, include private vars, and be case
-sensitive."
+optionally search doc strings (based on DOCS-P), include private vars
+\(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
   (interactive
    (cons (read-string "Search for Clojure symbol (a regular expression): ")
          (when current-prefix-arg
@@ -146,7 +153,14 @@ sensitive."
 
 ;;;###autoload
 (defun cider-apropos-select (query &optional ns docs-p privates-p case-sensitive-p)
-  "Similar to `cider-apropos', but presents the results in a completing read."
+  "Similar to `cider-apropos', but presents the results in a completing read.
+
+Show all symbols whose names match QUERY, a regular expression.
+QUERY can also be a list of space-separated words (e.g. take while) which
+will be converted to a regular expression (like take.+while) automatically
+behind the scenes.  The search may be limited to the namespace NS, and may
+optionally search doc strings (based on DOCS-P), include private vars
+\(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
   (interactive
    (cons (read-string "Search for Clojure symbol (a regular expression): ")
          (when current-prefix-arg

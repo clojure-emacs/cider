@@ -42,9 +42,16 @@ prompt if that throws an error."
   :package-version '(cider . "0.9.0"))
 
 (defun cider--should-prompt-for-symbol (&optional invert)
+  "Return the value of the variable `cider-prompt-for-symbol'.
+Optionally invert the value, if INVERT is truthy."
   (if invert (not cider-prompt-for-symbol) cider-prompt-for-symbol))
 
 (defun cider-prompt-for-symbol-function (&optional invert)
+  "Prompt for symbol if funcall `cider--should-prompt-for-symbol' is truthy.
+Otherwise attempt to use the symbol at point for the command, and only
+prompt if that throws an error.
+
+INVERT is used to invert the semantics of the function `cider--should-prompt-for-symbol'."
   (if (cider--should-prompt-for-symbol invert)
       #'cider-read-symbol-name
     #'cider-try-symbol-at-point))

@@ -53,7 +53,7 @@
       (concat base-url  "search/v0/" ns "/" (cider-grimoire-replace-special name) "/"))))
 
 (defun cider-grimoire-web-lookup (symbol)
-  "Look up the grimoire documentation for SYMBOL."
+  "Open the grimoire documentation for SYMBOL in a web browser."
   (if-let ((var-info (cider-var-info symbol)))
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns")))
