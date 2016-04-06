@@ -29,8 +29,8 @@ their running applications. You never stop/start a Clojure application while
 using CIDER - you're constantly interacting with it and changing it.
 
 You can find more details about the typical CIDER workflow in the
-[Basic Usage](basic_usage.md) section. While we're a bit short on video
-tutorials, you can check out this
+[Interactive Programming](interactive_programming.md) section. While we're a bit
+short on video tutorials, you can check out this
 [tutorial about SLIME](https://www.youtube.com/watch?v=_B_4vhsmRRI) to get a
 feel about what do we mean by an "Interactive Development Environment".  There
 are plenty of differences between CIDER and SLIME, but the core ideas are pretty
@@ -53,8 +53,8 @@ development environments as well (e.g. [vim-fireplace][] & [CCW][]).
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
 
-* [Powerful REPL](basic_usage.md#using-the-repl)
-* [Interactive code evaluation](basic_usage.md#using-cider-mode)
+* [Powerful REPL](using_the_repl.md)
+* [Interactive code evaluation](interactive_programming.md)
 * Compilation notes (error and warning highlighting)
 * [Human-friendly stacktraces](extended_workflow.md#navigating-stacktraces)
 * [Smart code completion](configuration.md#auto-completion)
