@@ -147,16 +147,19 @@ if the maximum number of sexps to skip is exceeded."
           nil
         (list (cider-symbol-at-point) argument-index)))))
 
+(defun cider-eldoc--convert-ns-keywords (thing)
+  "Convert THING values that match ns macro keywords to function names."
+  (pcase thing
+    (":import" "clojure.core/import")
+    (":refer-clojure" "clojure.core/refer-clojure")
+    (":use" "clojure.core/use")
+    (":refer" "clojure.core/refer")
+    (_ thing)))
+
 (defun cider-eldoc-info (thing)
   "Return the info for THING.
 This includes the arglist and ns and symbol name (if available)."
-  ;; a dirty hack to handle the keywords used by the ns macro
-  (let ((thing (pcase thing
-                 (":import" "clojure.core/import")
-                 (":refer-clojure" "clojure.core/refer-clojure")
-                 (":use" "clojure.core/use")
-                 (":refer" "clojure.core/refer")
-                 (_ thing))))
+  (let ((thing (cider-eldoc--convert-ns-keywords thing)))
     (when (and (cider-nrepl-op-supported-p "eldoc")
                thing
                ;; ignore empty strings
