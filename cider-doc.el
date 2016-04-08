@@ -400,9 +400,19 @@ Tables are marked to be ignored by line wrap."
         (when (or super ifaces)
           (insert "\n"))
         (when (or forms args)
-          (emit (cider-font-lock-as-clojure (or forms args))))
+          (insert " ")
+          (save-excursion
+            (emit (cider-font-lock-as-clojure (substring (or forms args) 1 -1))))
+          ;; It normally doesn't happen, but it's technically conceivable for
+          ;; the args string to contain unbalanced sexps, so `ignore-errors'.
+          (ignore-errors
+            (forward-sexp 1)
+            (while (not (looking-at "$"))
+              (insert "\n")
+              (forward-sexp 1)))
+          (forward-line 1))
         (when (or special macro)
-          (emit (if special "Special Form" "Macro") 'font-lock-comment-face))
+          (emit (if special "Special Form" "Macro") 'font-lock-variable-name-face))
         (when added
           (emit (concat "Added in " added) 'font-lock-comment-face))
         (when depr
