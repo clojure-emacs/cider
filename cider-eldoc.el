@@ -150,36 +150,42 @@ if the maximum number of sexps to skip is exceeded."
 (defun cider-eldoc-info (thing)
   "Return the info for THING.
 This includes the arglist and ns and symbol name (if available)."
-  (when (and (cider-nrepl-op-supported-p "eldoc")
-             thing
-             ;; ignore empty strings
-             (not (string= thing ""))
-             ;; ignore strings
-             (not (string-prefix-p "\"" thing))
-             ;; ignore regular expressions
-             (not (string-prefix-p "#" thing))
-             ;; ignore chars
-             (not (string-prefix-p "\\" thing))
-             ;; ignore numbers
-             (not (string-match-p "^[0-9]" thing)))
-    ;; check if we can used the cached eldoc info
-    (cond
-     ;; handle keywords for map access
-     ((string-prefix-p ":" thing) (list nil thing '(("map") ("map" "not-found"))))
-     ;; handle Classname. by displaying the eldoc for new
-     ((string-match-p "^[A-Z].+\\.$" thing) (list nil thing '(("args*"))))
-     ;; generic case
-     (t (if (equal thing (car cider-eldoc-last-symbol))
-            (cdr cider-eldoc-last-symbol)
-          (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
-            (let ((arglist (nrepl-dict-get eldoc-info "eldoc"))
-                  (ns (nrepl-dict-get eldoc-info "ns"))
-                  (symbol (nrepl-dict-get eldoc-info "name")))
-              ;; middleware eldoc lookups are expensive, so we
-              ;; cache the last lookup.  This eliminates the need
-              ;; for extra middleware requests within the same sexp.
-              (setq cider-eldoc-last-symbol (list thing ns symbol arglist))
-              (list ns symbol arglist))))))))
+  (let ((thing (pcase thing
+                 (":import" "clojure.core/import")
+                 (":refer-clojure" "clojure.core/refer-clojure")
+                 (":use" "clojure.core/use")
+                 (":refer" "clojure.core/refer")
+                 (_ thing))))
+    (when (and (cider-nrepl-op-supported-p "eldoc")
+               thing
+               ;; ignore empty strings
+               (not (string= thing ""))
+               ;; ignore strings
+               (not (string-prefix-p "\"" thing))
+               ;; ignore regular expressions
+               (not (string-prefix-p "#" thing))
+               ;; ignore chars
+               (not (string-prefix-p "\\" thing))
+               ;; ignore numbers
+               (not (string-match-p "^[0-9]" thing)))
+      ;; check if we can used the cached eldoc info
+      (cond
+       ;; handle keywords for map access
+       ((string-prefix-p ":" thing) (list nil thing '(("map") ("map" "not-found"))))
+       ;; handle Classname. by displaying the eldoc for new
+       ((string-match-p "^[A-Z].+\\.$" thing) (list nil thing '(("args*"))))
+       ;; generic case
+       (t (if (equal thing (car cider-eldoc-last-symbol))
+              (cdr cider-eldoc-last-symbol)
+            (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
+              (let ((arglist (nrepl-dict-get eldoc-info "eldoc"))
+                    (ns (nrepl-dict-get eldoc-info "ns"))
+                    (symbol (nrepl-dict-get eldoc-info "name")))
+                ;; middleware eldoc lookups are expensive, so we
+                ;; cache the last lookup.  This eliminates the need
+                ;; for extra middleware requests within the same sexp.
+                (setq cider-eldoc-last-symbol (list thing ns symbol arglist))
+                (list ns symbol arglist)))))))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
