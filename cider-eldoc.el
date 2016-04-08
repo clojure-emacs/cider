@@ -150,6 +150,7 @@ if the maximum number of sexps to skip is exceeded."
 (defun cider-eldoc-info (thing)
   "Return the info for THING.
 This includes the arglist and ns and symbol name (if available)."
+  ;; a dirty hack to handle the keywords used by the ns macro
   (let ((thing (pcase thing
                  (":import" "clojure.core/import")
                  (":refer-clojure" "clojure.core/refer-clojure")
