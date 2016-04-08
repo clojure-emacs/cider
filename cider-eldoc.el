@@ -165,9 +165,9 @@ This includes the arglist and ns and symbol name (if available)."
     ;; check if we can used the cached eldoc info
     (cond
      ;; handle keywords for map access
-     ((string-prefix-p ":" thing) '(("map") ("map" "not-found")))
+     ((string-prefix-p ":" thing) (list nil thing '(("map") ("map" "not-found"))))
      ;; handle Classname. by displaying the eldoc for new
-     ((string-match-p "^[A-Z].+\\.$" thing) '(("args*")))
+     ((string-match-p "^[A-Z].+\\.$" thing) (list nil thing '(("args*"))))
      ;; generic case
      (t (if (equal thing (car cider-eldoc-last-symbol))
             (cdr cider-eldoc-last-symbol)
