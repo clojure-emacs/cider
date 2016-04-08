@@ -402,7 +402,7 @@ Tables are marked to be ignored by line wrap."
         (when (or forms args)
           (emit (cider-font-lock-as-clojure (or forms args))))
         (when (or special macro)
-          (emit (if special "Special Form" "Macro") 'font-lock-comment-face))
+          (emit (if special "Special Form" "Macro") 'font-lock-variable-name-face))
         (when added
           (emit (concat "Added in " added) 'font-lock-comment-face))
         (when depr
