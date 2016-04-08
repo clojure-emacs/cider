@@ -31,6 +31,7 @@ an individual test using `C-c C-t t`.
 
 ### Changes
 
+* Doc buffer splits arglists into several lines.
 * Changed the face of the words “Macro” and “Special form” in the doc buffer to be easier to see.
 * Display multi-line eval overlays at the start of the following line. It looked weird that these overlays started on the middle of a line, but then folded onto the start of following lines.
 * [#1627](https://github.com/clojure-emacs/cider/issues/1627): Align the terminology used by `cider-test` with the one used by lein and boot (use the terms `assertion` and `test`).
