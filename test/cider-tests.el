@@ -39,7 +39,7 @@
 
 (ert-deftest test-debug-prompt ()
   (should (equal-including-properties
-           (cider--debug-prompt '("a" "b" "c"))
+           (cider--debug-prompt (nrepl-dict "a" "a" "b" "b" "c" "c"))
            #("a b c\n"
              0 1 (face cider-debug-prompt-face)
              1 2 (face default)
@@ -48,14 +48,14 @@
              4 5 (face cider-debug-prompt-face)
              5 6 (face default))))
   (should (equal-including-properties
-           (cider--debug-prompt '("a" "bc"))
-           #("a bc\n"
+           (cider--debug-prompt (nrepl-dict "a" "abc" "b" "cba"))
+           #("abc cba\n"
              0 1 (face cider-debug-prompt-face)
-             1 2 (face default)
-             2 3 (face cider-debug-prompt-face)
-             3 5 (face default))))
+             1 5 (face default)
+             5 6 (face cider-debug-prompt-face)
+             6 8 (face default))))
   (should (equal-including-properties
-           (cider--debug-prompt '("abc"))
+           (cider--debug-prompt (nrepl-dict "a" "abc"))
            #("abc\n" 0 1 (face cider-debug-prompt-face) 1 4 (face default)))))
 
 (ert-deftest test-debug-move-point ()

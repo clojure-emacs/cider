@@ -4,6 +4,7 @@
 
 ### New Features
 
+* Debugger now supports step-in.
 * Improve CIDER's menu-bar menu:
   - Thoroughly reorganize it and split it into 3 separate menus;
   - Add custom-written `:help` strings to some items, and automatically add help strings to the rest;
