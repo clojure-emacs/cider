@@ -364,10 +364,6 @@ The value can also be t, which means to font-lock as much as possible."
   :group 'cider
   :package-version '(cider . "0.11.0"))
 
-(defconst cider-deprecated-properties
-  '(face cider-deprecated
-         help-echo "This var is deprecated. \\[cider-doc] for version information."))
-
 (defun cider--unless-local-match (value)
   "Return VALUE, unless `match-string' is a local var."
   (unless (or (get-text-property (point) 'cider-block-dynamic-font-lock)
@@ -428,7 +424,7 @@ The value can also be t, which means to font-lock as much as possible."
              (cider--unless-local-match font-lock-variable-name-face))))
       ,@(when deprecated
           `((,(regexp-opt deprecated 'symbols) 0
-             (cider--unless-local-match cider-deprecated-properties) append)))
+             (cider--unless-local-match 'cider-deprecated) append)))
       ,@(when enlightened
           `((,(regexp-opt enlightened 'symbols) 0
              (cider--unless-local-match 'cider-enlightened) append)))
@@ -585,6 +581,23 @@ before point."
         (ignore-errors
           (cider--parse-and-apply-locals end locals-above))))))
 
+(defun cider--help-echo (_ obj pos)
+  "Return the help-echo string for OBJ at POS.
+See \(info \"(elisp) Special Properties\")"
+  (when (and (bufferp obj) (cider-connected-p))
+    (with-current-buffer obj
+      (save-excursion
+        (goto-char pos)
+        (let* ((sym (cider-symbol-at-point))
+               (info (cider-var-info sym)))
+          (with-temp-buffer
+            (cider-docview-render (current-buffer) sym info)
+            (goto-char (point-max))
+            (forward-line -1)
+            (replace-regexp-in-string
+             "[`']" "\\\\=\\&"
+             (buffer-substring-no-properties (point-min) (1- (point))))))))))
+
 (defun cider--wrap-fontify-locals (func)
   "Return a function that will call FUNC after parsing local variables.
 The local variables are stored in a list under the `cider-locals' text
@@ -592,6 +605,7 @@ property."
   (lambda (beg end &rest rest)
     (with-silent-modifications
       (remove-text-properties beg end '(cider-locals nil cider-block-dynamic-font-lock nil))
+      (add-text-properties beg end '(help-echo cider--help-echo))
       (when cider-font-lock-dynamically
         (cider--update-locals-for-region beg end)))
     (apply func beg end rest)))
@@ -619,12 +633,17 @@ property."
         (add-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock nil 'local)
         (setq-local font-lock-fontify-region-function
                     (cider--wrap-fontify-locals font-lock-fontify-region-function))
+        ;; GTK tooltips look bad, and we have no control over the face.
+        (setq-local x-gtk-use-system-tooltips nil)
+        ;; `tooltip' has variable-width by default, which looks terrible.
+        (set-face-attribute 'tooltip nil :inherit 'default)
         (when cider-dynamic-indentation
           (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
         (setq next-error-function #'cider-jump-to-compilation-error))
     (mapc #'kill-local-variable '(completion-at-point-functions
                                   next-error-function
+                                  x-gtk-use-system-tooltips
                                   font-lock-fontify-region-function
                                   clojure-get-indent-function))
     (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
