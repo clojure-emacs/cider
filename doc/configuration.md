@@ -181,7 +181,7 @@ And here's a more complex one:
 Don't worry if this looks intimidating. For most macros the indent spec should
 be either just a number, or one of the keywords `:defn` or `:form`. A full
 description of the spec is provided in the
-[indent spec section of the manual](doc/indent_spec.md).
+[indent spec section of the manual](indent_spec.md).
 
 If you *don't* want to use this feature, you can disable it by setting
 `cider-dynamic-indentation` to `nil` in your Emacs init file.
