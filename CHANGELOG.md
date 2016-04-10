@@ -2,19 +2,6 @@
 
 ## master (unreleased)
 
-### Bugs fixed
-
-* [cider-nrepl#329](https://github.com/clojure-emacs/cider-nrepl/pull/329): Fix error instrumenting functions that call clojure.tools.logging.
-* [#1632](https://github.com/clojure-emacs/cider/pull/1632): Redefining a function correctly updates eldoc.
-* [#1630](https://github.com/clojure-emacs/cider/pull/1630): The debugger no longer gets confused inside `@` redefs.
-* [#1599](https://github.com/clojure-emacs/cider/pull/1599): Don't error when test makes 0 assertions.
-* [#1563](https://github.com/clojure-emacs/cider/issues/1563): Handle invalid regular expressions in apropos.
-* [#1625](https://github.com/clojure-emacs/cider/issues/1625): Display a more meaningful message when running
-an individual test using `C-c C-t t`.
-* Fix buffer closing in `cider-close-ancillary-buffers`.
-* Dynamic font-locking is also refreshed when a file's namespace depends on a namespace that was changed, so the traced-face should be immediately updated even on functions from another namespace.
-* [#1656](https://github.com/clojure-emacs/cider/issues/1656): Apply ansi colors to output when doing eval and print.
-
 ### New Features
 
 * Var docstrings are automatically displayed in mouse-over tooltips.
@@ -39,6 +26,19 @@ an individual test using `C-c C-t t`.
 * [#1627](https://github.com/clojure-emacs/cider/issues/1627): Align the terminology used by `cider-test` with the one used by lein and boot (use the terms `assertion` and `test`).
 * Remove the warning about missing nREPl ops.
 * [#1420](https://github.com/clojure-emacs/cider/issues/1420): Show stacktrace buffers for sync requests errors.
+
+### Bugs fixed
+
+* [cider-nrepl#329](https://github.com/clojure-emacs/cider-nrepl/pull/329): Fix error instrumenting functions that call clojure.tools.logging.
+* [#1632](https://github.com/clojure-emacs/cider/pull/1632): Redefining a function correctly updates eldoc.
+* [#1630](https://github.com/clojure-emacs/cider/pull/1630): The debugger no longer gets confused inside `@` redefs.
+* [#1599](https://github.com/clojure-emacs/cider/pull/1599): Don't error when test makes 0 assertions.
+* [#1563](https://github.com/clojure-emacs/cider/issues/1563): Handle invalid regular expressions in apropos.
+* [#1625](https://github.com/clojure-emacs/cider/issues/1625): Display a more meaningful message when running
+an individual test using `C-c C-t t`.
+* Fix buffer closing in `cider-close-ancillary-buffers`.
+* Dynamic font-locking is also refreshed when a file's namespace depends on a namespace that was changed, so the traced-face should be immediately updated even on functions from another namespace.
+* [#1656](https://github.com/clojure-emacs/cider/issues/1656): Apply ansi colors to output when doing eval and print.
 
 ## 0.11.0 (2016-03-03)
 
