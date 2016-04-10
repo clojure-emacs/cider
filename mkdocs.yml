@@ -19,3 +19,5 @@ pages:
 - Logo: logo.md
 - Contributing: contributing.md
 - License: license.md
+extra_css:
+  - css/extra.css
