@@ -254,6 +254,9 @@ the time of this writing it's still in development).
 
 #### Migrating from `auto-complete-mode`
 
+In case you have some `auto-complete-mode` configuration lying around and you
+want to switch to `company-mode` there are a few steps you have to take:
+
 * Disable `ac-cider-setup` or `ac-nrepl-setup` from running on CIDER hooks
 
 * Remove `cider-mode` and `cider-repl-mode` from the `ac-modes` list
@@ -261,14 +264,14 @@ the time of this writing it's still in development).
 #### Completion annotations
 
 Completion candidates will be annotated by default with an abbreviation
-corresponding to their type, and (contextually) their ns. The function used to
-format the annotation can be configured by `cider-annotate-completion-function.`
-The abbreviations used are configured by `cider-completion-annotations-alist`
-and the context in which their namespace is included is configured by
-`cider-completion-annotations-include-ns.`
+corresponding to their type, and (contextually) their namespace. The function
+used to format the annotation can be configured by
+`cider-annotate-completion-function.` The abbreviations used are configured by
+`cider-completion-annotations-alist` and the context in which their namespace is
+included is configured by `cider-completion-annotations-include-ns.`
 
 Completion annotations can be disabled by setting
-`cider-annotate-completion-candidates` to nil.
+`cider-annotate-completion-candidates` to `nil`.
 
 ![Completion Annotations](images/completion-annotations.png)
 
