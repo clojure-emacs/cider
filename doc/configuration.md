@@ -60,19 +60,6 @@ make the hidden buffers visible. They'll always be visible in
 (setq cider-prefer-local-resources t)
 ```
 
-* Prevent the auto-display of the REPL buffer in a separate window
-  after connection is established:
-
-```el
-(setq cider-repl-pop-to-buffer-on-connect nil)
-```
-
-* Make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current window:
-
-```el
-(setq cider-repl-display-in-current-window t)
-```
-
 * Prevent <kbd>C-c C-k</kbd> from prompting to save the file corresponding to
   the buffer being loaded, if it's modified:
 
@@ -98,15 +85,6 @@ To remove the prefix altogether just set it to an empty string(`""`).
 
 ```el
 (setq cider-font-lock-dynamically '(macro core function var))
-```
-
-* You can configure known endpoints used by the cider command offered via a
-completing read. This is useful if you have a list of common host/ports you
-want to establish remote nREPL connections to. Using an optional label is
-helpful for identifying each host.
-
-```el
-(setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
 ```
 
 * If you are targeting the JVM and prefer a local copy of the JDK API

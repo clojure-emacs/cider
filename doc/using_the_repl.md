@@ -60,6 +60,25 @@ character used to trigger the shortcuts is configurable via
 
 #### REPL Configuration
 
+##### Behavior on connect
+
+Normally, the REPL buffer is auto-displayed in a separate window after
+  a connection is established. You can suppress this behaviour like this:
+
+```el
+(setq cider-repl-pop-to-buffer-on-connect nil)
+```
+
+##### Behavior on switch
+
+By default <kbd>C-c C-z</kbd> will display the REPL buffer in a different window.
+You can make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current
+window:
+
+```el
+(setq cider-repl-display-in-current-window t)
+```
+
 ##### Eldoc
 
 Eldoc displays function signatures in the minibuffer as you're typing.
