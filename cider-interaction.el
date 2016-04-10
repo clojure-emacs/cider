@@ -45,7 +45,6 @@
 
 (require 'clojure-mode)
 (require 'thingatpt)
-(require 'etags)
 (require 'arc-mode)
 (require 'ansi-color)
 (require 'cl-lib)

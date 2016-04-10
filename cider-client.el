@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'spinner)
+(require 'ewoc)
 (require 'nrepl-client)
 (require 'cider-common)
 (require 'cider-util)

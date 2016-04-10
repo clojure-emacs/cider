@@ -70,11 +70,6 @@
 ;;; Code:
 (require 'seq)
 (require 'cider-compat)
-
-(require 'thingatpt)
-(require 'etags)
-(require 'ansi-color)
-(require 'ewoc)
 (require 'cl-lib)
 (require 'queue)
 (require 'tramp)
