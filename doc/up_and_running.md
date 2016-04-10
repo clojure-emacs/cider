@@ -67,16 +67,16 @@ present in your REPL session.
 
 1. Add the following dependencies to your `project.clj`
 
-   ```clojure
-   [com.cemerick/piggieback "0.2.1"]
-   [org.clojure/clojure "1.7.0"]
-   ```
+```clojure
+[com.cemerick/piggieback "0.2.1"]
+[org.clojure/clojure "1.7.0"]
+```
 
    as well as the following option:
 
-   ```clojure
-   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
-   ```
+```clojure
+:repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+```
 
 2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-lein-repl` if
    you'd like to change the REPL used (the default is `rhino`).
@@ -98,11 +98,11 @@ Using Weasel, you can also have a browser-connected REPL.
 
 3. Add this to your ClojureScript code:
 
-   ```clojure
-   (ns my.cljs.core
-     (:require [weasel.repl :as repl]))
-   (repl/connect "ws://localhost:9001")
-   ```
+```clojure
+(ns my.cljs.core
+  (:require [weasel.repl :as repl]))
+(repl/connect "ws://localhost:9001")
+```
 
 4. Open a file in your project and issue `M-x cider-jack-in-clojurescript`.
 
@@ -116,12 +116,12 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 1. Add this to your dependencies in `build.boot`:
 
-  ```clojure
-  [adzerk/boot-cljs-repl   "0.3.0"]
-  [com.cemerick/piggieback "0.2.1"  :scope "test"]
-  [weasel                  "0.7.0"  :scope "test"]
-  [org.clojure/tools.nrepl "0.2.12" :scope "test"]
-  ```
+```clojure
+[adzerk/boot-cljs-repl   "0.3.0"]
+[com.cemerick/piggieback "0.2.1"  :scope "test"]
+[weasel                  "0.7.0"  :scope "test"]
+[org.clojure/tools.nrepl "0.2.12" :scope "test"]
+```
 
 2. Start `boot dev` in a terminal.
 
@@ -142,22 +142,22 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 
 2. Add these to your dev `:dependencies`:
 
-   ```clojure
-  [com.cemerick/piggieback "0.2.1"]
-  [figwheel-sidecar "0.5.0-2"]
-   ```
+```clojure
+[com.cemerick/piggieback "0.2.1"]
+[figwheel-sidecar "0.5.0-2"]
+```
 
 3. Add this to your dev `:repl-options`:
 
-  ```clojure
-  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
-  ```
+```clojure
+:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+```
 
 4. Instruct CIDER to use Figwheel in your Emacs config:
 
-  ```el
-  (setq cider-cljs-lein-repl "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))")
-  ```
+```el
+(setq cider-cljs-lein-repl "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))")
+```
 
 5. Start the REPL with `cider-jack-in-clojurescript` (<kbd>C-c M-J</kbd>)
 
