@@ -270,9 +270,7 @@ and the context in which their namespace is included is configured by
 Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to nil.
 
-<p align="center">
-  <img src="images/completion-annotations.png" width="400" />
-</p>
+![Completion Annotations](images/completion-annotations.png)
 
 ### Pretty-printing
 
