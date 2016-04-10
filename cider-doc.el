@@ -67,8 +67,8 @@
     cider-doc-map)
   "CIDER documentation keymap.")
 
-(defvar cider-doc-menu
-  '("Documentation ..."
+(defconst cider-doc-menu
+  '("Documentation"
     ["CiderDoc" cider-doc]
     ["JavaDoc in browser" cider-javadoc]
     ["Grimoire" cider-grimoire]
@@ -76,9 +76,10 @@
     ["Search symbols" cider-apropos]
     ["Search symbols & select" cider-apropos-select]
     ["Search documentation" cider-apropos-documentation]
-    ["Search documentation & select" cider-apropos-documentation-select])
+    ["Search documentation & select" cider-apropos-documentation-select]
+    "--"
+    ["Configure Doc buffer" (customize-group 'cider-docview-mode)])
   "CIDER documentation submenu.")
-
 
 
 ;;; cider-docview-mode

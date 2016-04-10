@@ -4,6 +4,11 @@
 
 ### New Features
 
+* Improve CIDER's menu-bar menu:
+  - Thoroughly reorganize it and split it into 3 separate menus;
+  - Add custom-written `:help` strings to some items, and automatically add help strings to the rest;
+  - Add a few commands;
+  - Grey-out commands that rely on connections while there is no connection.
 * Var docstrings are automatically displayed in mouse-over tooltips.
 * [#1636](https://github.com/clojure-emacs/cider/pull/1636): New minor-mode `cider-auto-test-mode` for test-driven-development. When activated, tests are rerun after every load-file.
 * Javadoc commands take into account the variable `clojure.java.javadoc/*remote-javadocs*`.

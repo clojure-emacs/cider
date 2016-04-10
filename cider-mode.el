@@ -173,8 +173,108 @@ Returns to the buffer in which the command was invoked."
     (switch-to-buffer origin-buffer)))
 
 
-;;; The minor mode
-(defvar cider-mode-map
+;;; The menu-bar
+(defconst cider-mode-menu
+  `("CIDER"
+    ["Start a REPL" cider-jack-in
+     :help "Starts an nREPL server (with lein, boot, or maven) and connects a REPL to it."]
+    ["Connect to a REPL" cider-connect
+     :help "Connects to a REPL that's already running."]
+    ["Quit" cider-quit :active cider-connections]
+    ["Restart" cider-restart :active cider-connections]
+    ("Clojurescript"
+     ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
+      :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
+Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
+     ["Create a ClojureScript REPL from a Clojure REPL" cider-create-sibling-cljs-repl]
+     ["Configure the ClojureScript REPL to use" (customize-variable 'cider-cljs-lein-repl)])
+    "--"
+    ["Connection info" cider-display-connection-info
+     :active cider-connections]
+    ["Rotate default connection" cider-rotate-default-connection
+     :active (cdr cider-connections)]
+    ["Select any CIDER buffer" cider-selector]
+    "--"
+    ["Configure CIDER" (customize-group 'cider)]
+    "--"
+    ["A sip of CIDER" cider-drink-a-sip]
+    ["View manual online" cider-view-manual]
+    ["View refcard online" cider-view-refcard]
+    ["Report a bug" cider-report-bug]
+    ["Version info" cider-version]
+    "--"
+    ["Close ancillary buffers" cider-close-ancillary-buffers
+     :active (seq-remove #'null cider-ancillary-buffers)]
+    ("nREPL" :active cider-connections
+     ["Describe session" cider-describe-nrepl-session]
+     ["Close session" cider-close-nrepl-session]))
+  "Menu for CIDER mode")
+
+(defconst cider-mode-eval-menu
+  '("CIDER Eval" :visible cider-connections
+    ["Eval top-level sexp" cider-eval-defun-at-point]
+    ["Eval last sexp" cider-eval-last-sexp]
+    ["Eval selected region" cider-eval-region]
+    ["Eval ns form" cider-eval-ns-form]
+    "--"
+    ["Interrupt evaluation" cider-interrupt]
+    "--"
+    ["Eval last sexp and insert" cider-eval-print-last-sexp
+     :keys "\\[universal-argument] \\[cider-eval-last-sexp]"]
+    ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
+    ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
+    ["Eval last sexp to REPL" cider-eval-last-sexp-to-repl]
+    ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
+    ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
+    "--"
+    ["Load this buffer" cider-load-buffer]
+    ["Load another file" cider-load-file]
+    ["Load all project files" cider-load-all-project-ns]
+    ["Refresh loaded code" cider-refresh]
+    ["Run project (-main function)" cider-run])
+  "Menu for CIDER mode eval commands")
+
+(defconst cider-mode-interactions-menu
+  `("CIDER Interactions" :visible cider-connections
+    ["Complete symbol" complete-symbol]
+    "--"
+    ("REPL"
+     ["Set REPL to this ns" cider-repl-set-ns]
+     ["Switch to REPL" cider-switch-to-repl-buffer]
+     ["REPL Pretty Print" cider-repl-toggle-pretty-printing
+      :style toggle :selected cider-repl-use-pretty-printing]
+     ["Clear latest output" cider-find-and-clear-repl-output]
+     ["Clear all output" (cider-find-and-clear-repl-output t)
+      :keys "\\[universal-argument] \\[cider-find-and-clear-repl-output]"]
+     "--"
+     ["Configure the REPL" (customize-group 'cider-repl)])
+    ,cider-doc-menu
+    ("Find (jump to)"
+     ["Find definition" cider-find-var]
+     ["Find resource" cider-find-resource]
+     ["Go back" cider-pop-back])
+    ("Macroexpand"
+     ["Macroexpand-1" cider-macroexpand-1]
+     ["Macroexpand-all" cider-macroexpand-all])
+    ,cider-test-menu
+    ("Debug"
+     ["Inspect" cider-inspect]
+     ["Toggle var tracing" cider-toggle-trace-var]
+     ["Toggle ns tracing" cider-toggle-trace-ns]
+     "--"
+     ["Debug top-level form" cider-debug-defun-at-point
+      :keys "\\[universal-argument] \\[cider-eval-defun-at-point]"]
+     ["List instrumented defs" cider-browse-instrumented-defs]
+     "--"
+     ["Configure the Debugger" (customize-group 'cider-debug)])
+    ("Browse"
+     ["Browse namespace" cider-browse-ns]
+     ["Browse all namespaces" cider-browse-ns-all]
+     ["Browse classpath" cider-classpath]
+     ["Browse classpath entry" cider-open-classpath-entry]))
+  "Menu for CIDER interactions")
+
+(defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
     (define-key map (kbd "M-.") #'cider-find-var)
@@ -215,74 +315,33 @@ Returns to the buffer in which the command was invoked."
     (define-key map (kbd "C-c M-d") #'cider-display-connection-info)
     (define-key map (kbd "C-c C-x") #'cider-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
-    (easy-menu-define cider-mode-menu map
-      "Menu for CIDER mode"
-      `("CIDER"
-        ["Complete symbol" complete-symbol]
-        "--"
-        ,cider-doc-menu
-        "--"
-        ("Eval"
-         ["Eval top-level sexp at point" cider-eval-defun-at-point]
-         ["Eval last sexp" cider-eval-last-sexp]
-         ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
-         ["Eval last sexp to REPL buffer" cider-eval-last-sexp-to-repl]
-         ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
-         ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
-         ["Eval region" cider-eval-region]
-         ["Eval ns form" cider-eval-ns-form]
-         ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
-         "--"
-         ["Load (eval) buffer" cider-load-buffer]
-         ["Load (eval) file" cider-load-file]
-         ["Load all project namespaces" cider-load-all-project-ns])
-        ("Macroexpand"
-         ["Macroexpand-1" cider-macroexpand-1]
-         ["Macroexpand-all" cider-macroexpand-all])
-        ("Find"
-         ["Find definition" cider-find-var]
-         ["Find resource" cider-find-resource]
-         ["Go back" cider-pop-back])
-        ,cider-test-menu
-        "--"
-        ["Run project (-main function)" cider-run]
-        ["Inspect" cider-inspect]
-        ["Toggle var tracing" cider-toggle-trace-var]
-        ["Toggle ns tracing" cider-toggle-trace-ns]
-        ["Refresh loaded code" cider-refresh]
-        ["Select any CIDER buffer" cider-selector]
-        "--"
-        ["Debug top-level form" cider-debug-defun-at-point]
-        ["List instrumented defs" cider-browse-instrumented-defs]
-        "--"
-        ["Set ns" cider-repl-set-ns]
-        ["Switch to REPL" cider-switch-to-repl-buffer]
-        ["Toggle REPL Pretty Print" cider-repl-toggle-pretty-printing]
-        ["Clear REPL output" cider-find-and-clear-repl-output]
-        "--"
-        ["Browse classpath" cider-classpath]
-        ["Browse classpath entry" cider-open-classpath-entry]
-        ["Browse namespace" cider-browse-ns]
-        ["Browse all namespaces" cider-browse-ns-all]
-        "--"
-        ("nREPL"
-         ["Describe session" cider-describe-nrepl-session]
-         ["Close session" cider-close-nrepl-session]
-         ["Connection info" cider-display-connection-info]
-         ["Rotate default connection" cider-rotate-default-connection])
-        "--"
-        ["Interrupt evaluation" cider-interrupt]
-        "--"
-        ["Close ancillary buffers" cider-close-ancillary-buffers]
-        ["Quit" cider-quit]
-        ["Restart" cider-restart]
-        "--"
-        ["A sip of CIDER" cider-drink-a-sip]
-        ["View manual online" cider-view-manual]
-        ["View refcard online" cider-view-refcard]
-        ["Report a bug" cider-report-bug]
-        ["Version info" cider-version]))
+    (dolist (variable '(cider-mode-interactions-menu
+                        cider-mode-eval-menu
+                        cider-mode-menu))
+      (easy-menu-do-define (intern (format "%s-open" variable))
+                           map
+                           (get variable 'variable-documentation)
+                           (cider--menu-add-help-strings (symbol-value variable))))
     map))
+
+;; This menu works as an easy entry-point into CIDER.  Even if cider.el isn't
+;; loaded yet, this will be shown in Clojure buffers next to the "Clojure"
+;; menu.
+;;;###autoload
+(eval-after-load 'clojure-mode
+  '(easy-menu-define cider-clojure-mode-menu-open clojure-mode-map
+     "Menu for Clojure mode.
+  This is displayed in `clojure-mode' buffers, if `cider-mode' is not active."
+     `("CIDER" :visible (not cider-mode)
+       ["Start a REPL" cider-jack-in
+        :help "Starts an nREPL server (with lein, boot, or maven) and connects a REPL to it."]
+       ["Connect to a REPL" cider-connect
+        :help "Connects to a REPL that's already running."]
+       ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
+        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
+  Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
+       "--"
+       ["View manual online" cider-view-manual])))
 
 ;;; Dynamic indentation
 (defcustom cider-dynamic-indentation t
@@ -611,7 +670,7 @@ property."
     (apply func beg end rest)))
 
 
-;;; Mode definition
+;;; Minor-mode definition
 (defvar x-gtk-use-system-tooltips)
 
 ;;;###autoload

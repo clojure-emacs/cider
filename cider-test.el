@@ -134,14 +134,20 @@
     (define-key map (kbd "b")   #'cider-test-show-report)
     map))
 
-(defvar cider-test-menu
+(defconst cider-test-menu
   '("Test"
     ["Run test" cider-test-run-test]
     ["Run namespace tests" cider-test-run-ns-tests]
     ["Run all loaded tests" cider-test-run-loaded-tests]
     ["Run all project tests" cider-test-run-project-tests]
+    ["Run tests after load-file" cider-auto-test-mode
+     :style toggle :selected cider-auto-test-mode]
+    "--"
+    ["Interrupt running tests" cider-interrupt]
     ["Rerun failed/erring tests" cider-test-rerun-tests]
-    ["Show test report" cider-test-show-report])
+    ["Show test report" cider-test-show-report]
+    "--"
+    ["Configure testing" (customize-group 'cider-test)])
   "CIDER test submenu.")
 
 (defvar cider-test-report-mode-map
