@@ -552,9 +552,10 @@ If BOL is non-nil insert at the beginning of line."
           (goto-char position)
           ;; TODO: Review the need for bol
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (insert-before-markers (ansi-color-apply (propertize string
-                                                               'font-lock-face output-face
-                                                               'rear-nonsticky '(font-lock-face))))
+          (insert-before-markers
+           (ansi-color-apply (propertize string
+                                         'font-lock-face output-face
+                                         'rear-nonsticky '(font-lock-face))))
           (when (and (= (point) cider-repl-prompt-start-mark)
                      (not (bolp)))
             (insert-before-markers "\n")
