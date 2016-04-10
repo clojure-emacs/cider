@@ -75,3 +75,5 @@ the beginning). Here's what you'd see if you typed <kbd>C-c C-d</kbd> in a
 Clojure buffer:
 
 ![CIDER which-key](images/cider-which-key.png)
+
+[which-key]: https://github.com/justbur/emacs-which-key

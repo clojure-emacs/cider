@@ -172,4 +172,3 @@ You should also check out
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/cemerick/piggieback
-[which-key]: https://github.com/justbur/emacs-which-key
