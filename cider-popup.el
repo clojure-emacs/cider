@@ -103,7 +103,7 @@ and automatically removed when killed."
 
 (defun cider-emit-into-popup-buffer (buffer value &optional face)
   "Emit into BUFFER the provided VALUE optionally using FACE."
-  ;; Long string output renders emacs unresponsive and users might intentionally
+  ;; Long string output renders Emacs unresponsive and users might intentionally
   ;; kill the frozen popup buffer. Therefore, we don't re-create the buffer and
   ;; silently ignore the output.
   (when (buffer-live-p buffer)
