@@ -13,6 +13,7 @@
 an individual test using `C-c C-t t`.
 * Fix buffer closing in `cider-close-ancillary-buffers`.
 * Dynamic font-locking is also refreshed when a file's namespace depends on a namespace that was changed, so the traced-face should be immediately updated even on functions from another namespace.
+* [#1656](https://github.com/clojure-emacs/cider/issues/1656): Apply ansi colors to output when doing eval and print.
 
 ### New Features
 

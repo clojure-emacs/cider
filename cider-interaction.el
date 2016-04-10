@@ -712,10 +712,12 @@ COMMENT-PREFIX is the comment prefix to use."
 This is used by pretty-printing commands and intentionally discards their results."
   (nrepl-make-response-handler (or buffer (current-buffer))
                                '()
+                               ;; stdout handler
                                (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer buffer str))
+                                 (cider-emit-into-popup-buffer buffer (ansi-color-apply str)))
+                               ;; stderr handler
                                (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer buffer str))
+                                 (cider-emit-into-popup-buffer buffer (ansi-color-apply str)))
                                '()))
 
 (defun cider-visit-error-buffer ()
