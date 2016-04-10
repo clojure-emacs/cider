@@ -193,8 +193,8 @@ If you *don't* want to use this feature, you can disable it by setting
 ### Minibuffer completion
 
 Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While
-it's not fancy it certainly gets the job done (just press `TAB`). There are,
-however, ways to improve upon the standard completion if you wish to.
+it's not fancy it certainly gets the job done (just press <kbd>TAB</kbd>). There
+are, however, ways to improve upon the standard completion if you wish to.
 
 #### icomplete
 
@@ -242,8 +242,8 @@ If you'd prefer to trigger completions manually you can add this to you config:
 (global-set-key (kbd "M-TAB") #'company-complete) ; use M-TAB, a.k.a. C-M-i, as manual trigger
 ```
 
-To make `TAB` complete, without losing the ability to manually indent, you can
-add this to your config:
+To make <kbd>TAB</kbd> complete, without losing the ability to manually indent,
+you can add this to your config:
 
 ```el
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
