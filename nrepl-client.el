@@ -141,8 +141,6 @@ In case of a special value 'new, a new buffer is created.")
 (defvar-local nrepl-client-buffers nil
   "List of buffers connected to this server.")
 (defvar-local nrepl-connection-buffer nil)
-(define-obsolete-variable-alias 'nrepl-repl-buffer
-  'nrepl-connection-buffer "0.10.0")
 (defvar-local nrepl-server-buffer nil)
 (defvar-local nrepl-endpoint nil)
 (defvar-local nrepl-project-dir nil)

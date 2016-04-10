@@ -629,8 +629,6 @@ current ns."
           (cider-test-rerun-tests))
       (unless silent
         (message "No namespace to test in current context")))))
-(define-obsolete-function-alias 'cider-test-run-tests
-  'cider-test-run-ns-tests "0.11.0")
 
 (defun cider-test-run-test ()
   "Run the test at point.

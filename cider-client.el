@@ -1063,28 +1063,6 @@ Buffer names changed are cider-repl and nrepl-server."
             (rename-buffer new-server-buffer-name)))))
     (message "CIDER buffer designation changed to: %s" designation)))
 
-;;; Obsolete
-(defun cider--nrepl-pprint-eval-request (input session &optional ns right-margin pprint-fn)
-  "Prepare :pprint-eval request message for INPUT.
-PPRINT-FN and RIGHT-MARGIN are pased to `cider--nrepl-pprint-request-plist'.
-INPUT, SESSION, and NS are passed to `nrepl--eval-request'."
-  (append (cider--nrepl-pprint-request-plist right-margin pprint-fn)
-          (nrepl--eval-request input session ns)))
-(make-obsolete 'cider--nrepl-pprint-eval-request 'cider--nrepl-pprint-request-plist "0.11.0")
-
-(defun cider-nrepl-request:pprint-eval (input callback &optional ns right-margin pprint-fn)
-  "Send the request INPUT and register the CALLBACK as the response handler.
-The request is dispatched via CONNECTION and SESSION.
-If NS is non-nil, include it in the request.
-RIGHT-MARGIN specifies the maximum column width of the
-pretty-printed result, and is included in the request if non-nil.
-PPRINT-FN generates the pretty-printed result."
-  (cider-nrepl-request:eval input callback ns nil nil
-                            (cider--nrepl-pprint-request-plist right-margin pprint-fn)))
-(make-obsolete 'cider-nrepl-request:pprint-eval
-               "`cider-nrepl-request:eval' with `cider--nrepl-pprint-request-plist'"
-               "0.11.0")
-
 (provide 'cider-client)
 
 ;;; cider-client.el ends here

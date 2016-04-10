@@ -574,67 +574,6 @@ KIND can be the symbols `ns', `var', `emph', or a face name."
                            (`emph 'font-lock-keyword-face)
                            (face face))))
 
-;;; Obsolete
-(defun cider-propertize-ns (ns)
-  "Propertize NS."
-  (cider-propertize ns 'ns))
-(make-obsolete 'cider-propertize-ns 'cider-propertize "0.11.0")
-
-(defun cider-propertize-var (var)
-  "Propertize VAR."
-  (cider-propertize var 'var))
-(make-obsolete 'cider-propertize-var 'cider-propertize "0.11.0")
-
-(defun cider-propertize-emph (text)
-  "Propertize TEXT."
-  (cider-propertize text 'emph))
-(make-obsolete 'cider-propertize-emph 'cider-propertize "0.11.0")
-
-(defun cider-propertize-bold (text)
-  "Propertize TEXT."
-  (cider-propertize text 'bold))
-(make-obsolete 'cider-propertize-bold 'cider-propertize "0.11.0")
-
-(defun cider--region-for-defun-at-point ()
-  "Return the start and end position of defun at point."
-  (cider-defun-at-point 'bounds))
-(make-obsolete 'cider--region-for-defun-at-point 'cider-defun-at-point "0.11.0")
-
-(defun cider-defun-at-point-start-pos ()
-  "Return the starting position of the current defun."
-  (car (cider-defun-at-point 'bounds)))
-(make-obsolete 'cider-defun-at-point-start-pos 'cider-defun-at-point "0.11.0")
-
-(defun cider-defun-at-point-end-pos ()
-  "Return the end position of the current defun."
-  (cadr (cider-defun-at-point 'bounds)))
-(make-obsolete 'cider-defun-at-point-end-pos 'cider-defun-at-point "0.11.0")
-
-(defun cider-bounds-of-sexp-at-point ()
-  "Return the bounds sexp at point as a pair (or nil)."
-  (cider-sexp-at-point 'bounds))
-(make-obsolete 'cider-bounds-of-sexp-at-point 'cider-sexp-at-point "0.11.0")
-
-(defun cider-sexp-at-point-with-bounds ()
-  "Return a list containing the sexp at point and its bounds."
-  (let ((bounds (cider-sexp-at-point 'bounds)))
-    (if bounds
-        (let ((start (car bounds))
-              (end (cdr bounds)))
-          (list (buffer-substring-no-properties start end)
-                (cons (set-marker (make-marker) start)
-                      (set-marker (make-marker) end)))))))
-(make-obsolete 'cider-sexp-at-point-with-bounds 'cider-sexp-at-point "0.11.0")
-
-(defun cider-map-indexed (f list)
-  "Return a list of (F index item) for each item in LIST."
-  (let ((i 0)
-        (out))
-    (dolist (it list (nreverse out))
-      (push (funcall f i it) out)
-      (setq i (1+ i)))))
-(make-obsolete 'cider-map-indexed nil "0.11.0")
-
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

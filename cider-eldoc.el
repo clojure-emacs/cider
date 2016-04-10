@@ -214,8 +214,6 @@ eldoc mode has to be enabled for this to have any effect."
   (setq-local eldoc-documentation-function #'cider-eldoc)
   (apply #'eldoc-add-command cider-extra-eldoc-commands))
 
-(define-obsolete-function-alias 'cider-turn-on-eldoc-mode 'eldoc-mode)
-
 (provide 'cider-eldoc)
 
 ;;; cider-eldoc.el ends here

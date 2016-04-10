@@ -181,15 +181,6 @@ Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 
 
 ;;; REPL init
-(defun cider-repl-buffer-name (&optional project-dir host port)
-  "Generate a REPL buffer name based on current connection buffer.
-PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
-  (with-current-buffer (or (cider-default-connection 'no-error)
-                           (current-buffer))
-    (nrepl-make-buffer-name nrepl-repl-buffer-name-template project-dir host port)))
-(make-obsolete 'cider-repl-buffer-name
-               "use `nrepl-make-buffer-name' with `nrepl-repl-buffer-name-template' instead."
-               "0.10.0")
 
 (defvar-local cider-repl-ns-cache nil
   "A dict holding information about all currently loaded namespaces.

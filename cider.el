@@ -319,7 +319,6 @@ it should start a ClojureScript REPL."
                         "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))")
                  (string :tag "Custom"))
   :group 'cider)
-(define-obsolete-variable-alias 'cider-cljs-repl 'cider-cljs-lein-repl "0.11.0")
 
 (defun cider-create-sibling-cljs-repl (client-buffer)
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.

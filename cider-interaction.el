@@ -1710,19 +1710,4 @@ With a prefix argument, prompt for function to run instead of -main."
 
 (provide 'cider-interaction)
 
-;;; Obsolete
-(defun cider-interactive-pprint-eval (form &optional callback right-margin)
-  "Evaluate FORM and dispatch the response to CALLBACK.
-This function is the same as `cider-interactive-eval', except the result is
-pretty-printed to *out*.  RIGHT-MARGIN specifies the maximum column width of
-the printed result, and defaults to `fill-column'."
-  (cider-interactive-eval
-   form
-   (or callback (cider-interactive-eval-handler))
-   nil
-   (cider--nrepl-pprint-request-plist (or right-margin fill-column))))
-(make-obsolete 'cider-interactive-pprint-eval
-               "`cider-interactive-eval' with `cider--nrepl-pprint-request-plist'"
-               "0.11.0")
-
 ;;; cider-interaction.el ends here
