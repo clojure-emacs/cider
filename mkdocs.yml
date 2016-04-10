@@ -1,4 +1,6 @@
 site_name: "CIDER: The Clojure Interactive Programming Environment that Rocks"
+repo_url: https://github.com/clojure-emacs/cider
+site_favicon: favicon.ico
 docs_dir: doc
 pages:
 - Home: index.md
