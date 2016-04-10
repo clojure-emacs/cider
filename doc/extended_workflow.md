@@ -5,9 +5,10 @@ something.
 
 ### Evaluating Clojure code in the minibuffer
 
-You can evaluate Clojure code in the minibuffer from pretty much everywhere
-by using `M-x cider-read-and-eval` (bound in `cider-mode` buffers to <kbd>C-c C-:</kbd>).
-`TAB` completion will work in the minibuffer, just as in a REPL/source buffer.
+You can evaluate Clojure code in the minibuffer from pretty much everywhere by
+using <kbd>M-x</kbd> `cider-read-and-eval` (bound in `cider-mode` buffers to
+<kbd>C-c C-:</kbd>).  <kbd>TAB</kbd> completion will work in the minibuffer,
+just as in a REPL/source buffer.
 
 You can also enable `eldoc-mode` in the minibuffer by adding the following to your
 config:
@@ -221,7 +222,7 @@ This feature displays the value of locals in realtime, as your code is being
 executed. This is somewhat akin to one of the features of the Light Table
 editor.
 
-- To turn it on, issue `M-x cider-enlighten-mode`.
+- To turn it on, issue <kbd>M-x</kbd> `cider-enlighten-mode`.
 - To use it, evaluate your functions one at a time (e.g., use <kbd>C-M-x</kbd> or
 <kbd>C-x  C-e</kbd>, because <kbd>C-c C-k</kbd> won't work).
 

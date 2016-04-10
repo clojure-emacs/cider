@@ -104,7 +104,7 @@ Using Weasel, you can also have a browser-connected REPL.
 (repl/connect "ws://localhost:9001")
 ```
 
-4. Open a file in your project and issue `M-x cider-jack-in-clojurescript`.
+4. Open a file in your project and issue <kbd>M-x</kbd> `cider-jack-in-clojurescript`.
 
 Provided that a Piggieback-enabled ClojureScript environment is active in your
 REPL session, code loading and evaluation will work seamlessly regardless of the
@@ -125,7 +125,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 2. Start `boot dev` in a terminal.
 
-3. `M-x cider-connect` to localhost and select the repl process.
+3. <kbd>M-x</kbd> `cider-connect` to localhost and select the repl process.
 
 4. Execute `(start-repl)` at the prompt: `boot.user> (start-repl)`.
 

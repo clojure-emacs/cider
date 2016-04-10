@@ -217,7 +217,7 @@ CIDER users are advised to use [`company-mode`](http://company-mode.github.io/)
 to enable auto-completion inside of source code and REPL buffers.  To install
 `company-mode` do:
 
-`M-x package-install <RET> company <RET>`
+<kbd>M-x</kbd> `package-install` <kbd>RET</kbd> `company` <kbd>RET</kbd>
 
 After installation, company can be turned on  globally, like so --
 

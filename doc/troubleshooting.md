@@ -3,7 +3,7 @@ problem.
 
 Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
 (instead of just logging the error in the `*Messages*` buffer. You can toggle
-this behavior by using `M-x toggle-debug-on-error`.
+this behavior by using <kbd>M-x</kbd> `toggle-debug-on-error`.
 
 ### Debugging CIDER commands
 
@@ -18,7 +18,8 @@ To debug some command you need to do the following:
 
 * Figure out the name of the command you want to debug (e.g. by using <kbd>C-h k</kbd>
 to see which command is associated with some keybinding)
-* Find the source of the command (e.g. by using `M-x find-function RET function-name`)
+* Find the source of the command (e.g. by using <kbd>M-x</kbd> `find-function`
+  <kbd>RET</kbd> `function-name`)
 * Press <kbd>C-u C-M-x</kbd> while in the body of the function
 * Run the command again
 
@@ -52,8 +53,8 @@ In the REPL buffer, issue the following.
     cider.nrepl.middleware.util.instrument> (def verbose-debug true)
 
 This will cause cider to print extensive information on the REPL buffer when you
-try to debug an expression (e.g., with `C-u
-C-M-x`). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new)
+try to debug an expression (e.g., with <kbd>C-u
+C-M-x</kbd>). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new)
 and copy this information.
 
 ### Debugging freezes & lock ups
@@ -62,9 +63,9 @@ Sometimes a CIDER command might hang for a while (e.g. due to a bug or a
 configuration issue). Such problems are super annoying, but are relatively easy
 to debug. Here are a few steps you can take in such situations:
 
-* Do `M-x toggle-debug-on-quit`
+* Do <kbd>M-x</kbd> `toggle-debug-on-quit`
 * Reproduce the problem
-* Hit `C-g` around 10 seconds into the hang
+* Hit <kbd>C-g</kbd> around 10 seconds into the hang
 
 This will bring up a backtrace with the entire function stack, including
 function arguments. So you should be able to figure out what's going on (or at
