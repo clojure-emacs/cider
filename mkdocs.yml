@@ -8,6 +8,7 @@ pages:
 - Up and Running: up_and_running.md
 - Interactive Programming: interactive_programming.md
 - Using the REPL: using_the_repl.md
+- Code Completion: code_completion.md
 - Extended Workflow: extended_workflow.md
 - Configuration: configuration.md
 - Indentation Specification: indent_spec.md
