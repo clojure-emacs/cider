@@ -9,6 +9,7 @@ pages:
 - Interactive Programming: interactive_programming.md
 - Using the REPL: using_the_repl.md
 - Code Completion: code_completion.md
+- Navigating Stacktraces: navigating_stacktraces.md
 - Running Tests: running_tests.md
 - Debugging: debugging.md
 - Extended Workflow: extended_workflow.md
