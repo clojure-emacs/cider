@@ -363,6 +363,7 @@ plugin or dependency with:
   "The CIDER manual's url."
   (format cider-manual-url (cider--manual-version)))
 
+;;;###autoload
 (defun cider-view-manual ()
   "View the manual in your default browser."
   (interactive)
@@ -547,6 +548,7 @@ Any other value is just returned."
     "Enable `eldoc-mode' to display function & method signatures in the minibuffer."
     "Enable `cider-enlighten-mode' to display the locals of a function when it's executed."
     "Use <\\[cider-close-ancillary-buffers]> to close all ancillary buffers created by CIDER (e.g. *cider-doc*)."
+    "Exploring CIDER's menu-bar entries is a great way to discover features."
     "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!")
   "Some handy CIDER tips."
   )
@@ -573,6 +575,18 @@ KIND can be the symbols `ns', `var', `emph', or a face name."
                            (`ns 'font-lock-type-face)
                            (`emph 'font-lock-keyword-face)
                            (face face))))
+
+(defun cider--menu-add-help-strings (menu-list)
+  "Add a :help entries to items in MENU-LIST."
+  (mapcar (lambda (x)
+            (cond
+             ((listp x) (cider--menu-add-help-strings x))
+             ((and (vectorp x)
+                   (not (plist-get (append x nil) :help))
+                   (functionp (elt x 1)))
+              (vconcat x `[:help ,(documentation (elt x 1))]))
+             (t x)))
+          menu-list))
 
 (provide 'cider-util)
 
