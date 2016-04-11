@@ -301,12 +301,22 @@ Bind the value of the provided KEYS and execute BODY."
   "Return t if nREPL dict DICT is empty."
   (null (cdr dict)))
 
-(defun nrepl-dict-get (dict key)
-  "Get from DICT value associated with KEY.
-If dict is nil, return nil."
+(defun nrepl-dict-contains (dict key)
+  "Return nil if nREPL dict DICT doesn't contain KEY.
+If DICT does contain KEY, then a non-nil value is returned.  Due to the
+current implementation, this return value is the tail of DICT's key-list
+whose car is KEY.  Comparison is done with `equal'."
+  (member key (nrepl-dict-keys dict)))
+
+(defun nrepl-dict-get (dict key &optional default)
+  "Get from DICT value associated with KEY, optional DEFAULT if KEY not in DICT.
+If dict is nil, return nil.  If DEFAULT not provided, and KEY not in DICT,
+return nil.  If DICT is not an nREPL dict object, an error is thrown."
   (when dict
     (if (nrepl-dict-p dict)
-        (lax-plist-get (cdr dict) key)
+        (if (nrepl-dict-contains dict key)
+            (lax-plist-get (cdr dict) key)
+          default)
       (error "Not an nREPL dict object: %s" dict))))
 
 (defun nrepl-dict-put (dict key value)
