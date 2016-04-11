@@ -612,6 +612,7 @@ property."
 
 
 ;;; Mode definition
+(defvar x-gtk-use-system-tooltips)
 
 ;;;###autoload
 (define-minor-mode cider-mode
