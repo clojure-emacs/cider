@@ -232,7 +232,7 @@ Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
     ["Load all project files" cider-load-all-project-ns]
     ["Refresh loaded code" cider-refresh]
     ["Run project (-main function)" cider-run])
-  "Menu for CIDER mode eval commands")
+  "Menu for CIDER mode eval commands.")
 
 (defconst cider-mode-interactions-menu
   `("CIDER Interactions" :visible cider-connections
@@ -272,7 +272,7 @@ Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
      ["Browse all namespaces" cider-browse-ns-all]
      ["Browse classpath" cider-classpath]
      ["Browse classpath entry" cider-open-classpath-entry]))
-  "Menu for CIDER interactions")
+  "Menu for CIDER interactions.")
 
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
