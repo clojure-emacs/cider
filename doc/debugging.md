@@ -71,12 +71,13 @@ The CIDER debugger works in several steps:
    that identify their position (coordinate) in the code.
 2. Then it macroexpands everything to get rid of macros.
 3. Then it walks through the code again, instrumenting it. That involves a few things.
-   - It understands all existing special forms, and takes care not to instrument
-     where it's not supposed to. For instance, the arglist of a `fn*` or the
-     left-side of a `let`-binding.
-   - Wherever it finds the previously-injected metadata (if that place is valid
-     for instrumentation) it wraps the form/symbol in a macro called
-     `breakpoint-if-interesting`.
+    - It understands all existing special forms, and takes care not to instrument
+      where it's not supposed to. For instance, the arglist of a `fn*` or the
+      left-side of a `let`-binding.
+    - Wherever it finds the previously-injected metadata (if that place is valid
+      for instrumentation) it wraps the form/symbol in a macro called
+      `breakpoint-if-interesting`.
+
 4. When the resulting code actually gets evaluated by the Clojure compiler, the
    `breakpoint-if-interesting` macro will be expanded.  This macro decides
    whether the return value of the form/symbol in question is actually something
@@ -89,7 +90,9 @@ The CIDER debugger works in several steps:
    action.
 
 
-A few example of forms that don't have interesting return values (and so are not wrapped in a `breakpoint`):
+A few example of forms that don't have interesting return values (and so are not
+wrapped in a `breakpoint`):
+
 - In `(fn [x] (inc x))` the return value is a function object and carries no
   information. Note that this is not the same as the return value when you
   **call** this function (which **is** interesting). Also, even those this form
