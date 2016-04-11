@@ -68,7 +68,7 @@ active you'll have a CIDER menu available, which lists all the most important
 commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
 get a list of the keybindings for `cider-mode`.
 
-![CIDER interactions menu](images/menu-example.png)
+![CIDER interactions menu](images/menu_example.png)
 
 An even better solution would be to install [which-key][], which will
 automatically show you a list of available keybindings as you start typing some
