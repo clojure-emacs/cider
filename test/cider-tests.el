@@ -506,7 +506,7 @@
     (let ((b1 (current-buffer)))
       (let ((cider-connections (list b1)))
         (should
-         (equal (cider-repl-buffer-name) "*cider-repl localhost*"))))))
+         (equal (nrepl-make-buffer-name nrepl-repl-buffer-name-template) "*cider-repl localhost*"))))))
 
 (ert-deftest test-cider-clojure-buffer-name-w/project ()
   (with-temp-buffer
@@ -514,7 +514,7 @@
       (let ((cider-connections (list b1))
             (nrepl-project-dir "/a/test/directory/project"))
         (should
-         (equal (cider-repl-buffer-name) "*cider-repl project*"))))))
+         (equal (nrepl-make-buffer-name nrepl-repl-buffer-name-template) "*cider-repl project*"))))))
 
 (ert-deftest test-cider-change-buffers-designation ()
   (with-temp-buffer
