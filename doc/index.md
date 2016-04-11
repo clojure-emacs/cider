@@ -63,13 +63,13 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Resource lookup
 * Apropos
 * [Debugger](debugging.md)
-* [Value inspector](extended_workflow.md#value-inspection)
+* [Value inspector](miscellaneous_features.md#value-inspection)
 * Function tracing
-* [Interactive macroexpansion](extended_workflow.md#macroexpansion)
+* [Interactive macroexpansion](miscellaneous_features.md#macroexpansion)
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
 * [`clojure.test` integration](running_tests.md)
-* [Smart code reloading](extended_workflow.md#code-reloading)
+* [Smart code reloading](miscellaneous_features.md#code-reloading)
 * [Pretty-printing of results](configuration.md#pretty-printing)
 * Classpath browser
 * Namespace browser
@@ -77,7 +77,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Scratchpad
 * Minibuffer code evaluation
 * Integration with [company-mode][] and [auto-complete-mode][]
-* [Support for working with multiple simultaneous nREPL connections](extended_workflow.md#managing-multiple-connections)
+* [Support for working with multiple simultaneous nREPL connections](miscellaneous_features.md#managing-multiple-connections)
 
 ![CIDER Screenshot](images/cider-overview.png)
 

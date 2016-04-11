@@ -12,7 +12,7 @@ pages:
 - Navigating Stacktraces: navigating_stacktraces.md
 - Running Tests: running_tests.md
 - Debugging: debugging.md
-- Extended Workflow: extended_workflow.md
+- Miscellaneous Features: miscellaneous_features.md
 - Configuration: configuration.md
 - Indentation Specification: indent_spec.md
 - Additional Packages: additional_packages.md
