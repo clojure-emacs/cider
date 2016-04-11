@@ -1,3 +1,8 @@
+CIDER ships with a powerful interactive Clojure debugger inspired by Emacs's own
+[Edebug][]. You're going to love it!
+
+![CIDER Debugger](images/cider_debugger.gif)
+
 ### Debugging
 
 The debugger can be invoked in several ways, the simplest one is to type
@@ -35,7 +40,7 @@ instrumented as well, but they will not be listed by this command.
 #### Keys
 
 `cider-debug` tries to be consistent with
-[Edebug](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html). So
+[Edebug][]. So
 it makes available the following bindings while stepping through code.
 
 Keyboard shortcut               | Description
@@ -93,3 +98,5 @@ A few example of forms that don't have interesting return values (and so are not
 - Similarly, in a form like `(map inc (range 10))`, the symbol `inc` points to a
   function in `clojure.core`. That's also irrelevant (unless it's being shadowed
   by a local, but the debugger can identify that).
+
+[Edebug]: http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html
