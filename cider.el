@@ -307,16 +307,20 @@ dependencies."
 
 
 ;;; ClojureScript REPL creation
+(defconst cider--cljs-repl-types
+  '(("(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
+     "Rhino" "")
+    ("(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
+     "Node" " (requires NodeJS to be installed)")
+    ("(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
+     "Weasel" " (see Readme for additional configuration)")))
+
 (defcustom cider-cljs-lein-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
 This is only used in lein projects.  It is evaluated in a Clojure REPL and
 it should start a ClojureScript REPL."
-  :type '(choice (const :tag "Rhino"
-                        "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))")
-                 (const :tag "Node (requires NodeJS to be installed)"
-                        "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))")
-                 (const :tag "Weasel (see Readme for additional configuration)"
-                        "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))")
+  :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
+                          cider--cljs-repl-types)
                  (string :tag "Custom"))
   :group 'cider)
 
@@ -345,6 +349,10 @@ should be the regular Clojure REPL started by the server process filter."
       ;; solution is to bump the original REPL back up the list, so it takes
       ;; priority on clj requests.
       (cider-make-connection-default client-buffer)
+      (pcase (assoc cider-cljs-lein-repl cider--cljs-repl-types)
+        (`(,_ ,name ,info)
+         (message "Starting a %s REPLm%s" name (or info "")))
+        (_ (message "Starting a custom ClojureScript REPL")))
       (cider-nrepl-send-request
        (list "op" "eval"
              "ns" (cider-current-ns)
