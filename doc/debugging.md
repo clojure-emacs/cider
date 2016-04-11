@@ -37,7 +37,7 @@ At any point, you can bring up a list of all currently instrumented `def`s with
 the command `cider-browse-instrumented-defs`. Protocols and types can be
 instrumented as well, but they will not be listed by this command.
 
-#### Keys
+### Keys
 
 `cider-debug` tries to be consistent with
 [Edebug][]. So
@@ -59,7 +59,7 @@ In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
 <kbd>C-c M-:</kbd>) will use the current lexical context (local variables) while
 the debugger is active.
 
-#### Internal Details
+### Internal Details
 
 *This section explains a bit of the inner workings of the debugger. It is mostly
 to help those who are interested in contributing, and doesn't teach anything
