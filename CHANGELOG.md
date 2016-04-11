@@ -35,6 +35,7 @@
 ### Bugs fixed
 
 * [cider-nrepl#329](https://github.com/clojure-emacs/cider-nrepl/pull/329): Fix error instrumenting functions that call clojure.tools.logging.
+* [#1643](https://github.cim/clojure-emacs/cider/issues/1643): Running tests no longer deletes unrelated overlays.
 * [#1632](https://github.com/clojure-emacs/cider/pull/1632): Redefining a function correctly updates eldoc.
 * [#1630](https://github.com/clojure-emacs/cider/pull/1630): The debugger no longer gets confused inside `@` redefs.
 * [#1599](https://github.com/clojure-emacs/cider/pull/1599): Don't error when test makes 0 assertions.
