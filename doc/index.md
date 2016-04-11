@@ -56,19 +56,19 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * [Powerful REPL](using_the_repl.md)
 * [Interactive code evaluation](interactive_programming.md)
 * Compilation notes (error and warning highlighting)
-* [Human-friendly stacktraces](extended_workflow.md#navigating-stacktraces)
-* [Smart code completion](configuration.md#auto-completion)
+* [Human-friendly stacktraces](navigating_stacktraces.md)
+* [Smart code completion](code_completion.md)
 * Definition lookup
 * Documentation lookup
 * Resource lookup
 * Apropos
-* [Debugger](extended_workflow.md#debugging)
+* [Debugger](debugging.md)
 * [Value inspector](extended_workflow.md#value-inspection)
 * Function tracing
 * [Interactive macroexpansion](extended_workflow.md#macroexpansion)
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
-* [`clojure.test` integration](extended_workflow.md#running-tests)
+* [`clojure.test` integration](running-tests.md)
 * [Smart code reloading](extended_workflow.md#code-reloading)
 * [Pretty-printing of results](configuration.md#pretty-printing)
 * Classpath browser
