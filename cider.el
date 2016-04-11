@@ -614,29 +614,18 @@ In case `default-directory' is non-local we assume the command is available."
                                "Can't determine nREPL's version.\nPlease, update nREPL to %s."
                                cider-required-nrepl-version)))
 
-(defun cider--check-middleware-compatibility-callback (buffer)
-  "A callback to check if the middleware used is compatible with CIDER.
-BUFFER specifies the connection buffer to be used."
-  (nrepl-make-response-handler
-   buffer
-   (lambda (_buffer result)
-     (let ((middleware-version (read result)))
-       (unless (and middleware-version (equal cider-version middleware-version))
-         (cider-repl-manual-warning "installation/#ciders-nrepl-middleware"
-                                    "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
-                                    cider-version middleware-version))))
-   '()
-   '()
-   '()))
-
 (defun cider--check-middleware-compatibility ()
-  "Retrieve the underlying connection's CIDER nREPL version."
-  (cider-nrepl-request:eval
-   "(try
-      (require 'cider.nrepl.version)
-      (:version-string @(resolve 'cider.nrepl.version/version))
-    (catch Throwable _ \"not installed\"))"
-   (cider--check-middleware-compatibility-callback (current-buffer))))
+  "CIDER frontend/backend compatibility check.
+Retrieve the underlying connection's CIDER-nREPL version and checks if the
+middleware used is compatible with CIDER.  If not, will display a warning
+message in the REPL area."
+  (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-connection)))
+         (middleware-version  (or (nrepl-dict-get version-dict "version-string")
+                                  "not installed")))
+    (unless (equal cider-version middleware-version)
+      (cider-repl-manual-warning "installation/#ciders-nrepl-middleware"
+                                 "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
+                                 cider-version middleware-version))))
 
 (defun cider--subscribe-repl-to-server-out ()
   "Subscribe to the server's *out*."

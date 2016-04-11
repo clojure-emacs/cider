@@ -172,6 +172,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar-local nrepl-versions nil
   "Version information received from the describe op.")
 
+(defvar-local nrepl-aux nil
+  "Auxillary information received from the describe op.")
+
 
 ;;; nREPL Buffer Names
 
@@ -259,6 +262,11 @@ Bind the value of the provided KEYS and execute BODY."
   "Return t iff the given operation OP is supported by the nREPL CONNECTION."
   (with-current-buffer connection
     (and nrepl-ops (nrepl-dict-get nrepl-ops op))))
+
+(defun nrepl-aux-info (key connection)
+  "Return KEY's aux info, as returned via the :describe op for CONNECTION."
+  (with-current-buffer connection
+    (and nrepl-aux (nrepl-dict-get nrepl-aux key))))
 
 (defun nrepl-local-host-p (host)
   "Return t if HOST is local."
@@ -797,10 +805,11 @@ values of *1, *2, etc."
 (defun nrepl--init-capabilities (conn-buffer)
   "Store locally in CONN-BUFFER the capabilities of nREPL server."
   (let ((description (nrepl-sync-request:describe conn-buffer)))
-    (nrepl-dbind-response description (ops versions)
+    (nrepl-dbind-response description (ops versions aux)
       (with-current-buffer conn-buffer
         (setq nrepl-ops ops)
-        (setq nrepl-versions versions)))))
+        (setq nrepl-versions versions)
+        (setq nrepl-aux aux)))))
 
 (defun nrepl--clear-client-sessions (conn-buffer)
   "Clear information about nREPL sessions in CONN-BUFFER.
