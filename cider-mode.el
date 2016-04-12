@@ -640,6 +640,16 @@ before point."
         (ignore-errors
           (cider--parse-and-apply-locals end locals-above))))))
 
+(defun cider--docview-as-string (sym info)
+  "Return a string of what would be displayed by `cider-docview-render'."
+  (with-temp-buffer
+    (cider-docview-render (current-buffer) sym info)
+    (goto-char (point-max))
+    (forward-line -1)
+    (replace-regexp-in-string
+     "[`']" "\\\\=\\&"
+     (buffer-substring-no-properties (point-min) (1- (point))))))
+
 (defun cider--help-echo (_ obj pos)
   "Return the help-echo string for OBJ at POS.
 See \(info \"(elisp) Special Properties\")"
@@ -649,14 +659,14 @@ See \(info \"(elisp) Special Properties\")"
         (save-excursion
           (goto-char pos)
           (let* ((sym (cider-symbol-at-point))
-                 (info (cider-sync-request:info sym)))
-            (with-temp-buffer
-              (cider-docview-render (current-buffer) sym info)
-              (goto-char (point-max))
-              (forward-line -1)
-              (replace-regexp-in-string
-               "[`']" "\\\\=\\&"
-               (buffer-substring-no-properties (point-min) (1- (point)))))))))))
+                 (info (cider-sync-request:info sym))
+                 (candidates (nrepl-dict-get info "candidates")))
+            (if candidates
+                (concat "There were ambuiguities resolving this var:\n\n"
+                        (mapconcat (lambda (x) (cider--docview-as-string sym x))
+                                   candidates
+                                   (concat "\n\n" (make-string 60 ?-) "\n\n")))
+              (cider--docview-as-string sym info))))))))
 
 (defun cider--wrap-fontify-locals (func)
   "Return a function that will call FUNC after parsing local variables.
