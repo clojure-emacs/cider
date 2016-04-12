@@ -33,6 +33,7 @@
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'cider-compat)
+(require 'cider-overlays)
 
 (require 'button)
 (require 'easymenu)
@@ -468,13 +469,13 @@ The optional arg TEST denotes an individual test name."
           (search-forward "(" nil t)
           (let ((beg (point)))
             (forward-sexp)
-            (let ((overlay (make-overlay beg (point))))
-              (overlay-put overlay 'font-lock-face (cider-test-type-face type))
-              (overlay-put overlay 'type type)
-              (overlay-put overlay 'help-echo message)
-              (overlay-put overlay 'message message)
-              (overlay-put overlay 'expected expected)
-              (overlay-put overlay 'actual actual))))))))
+            (cider--make-overlay beg (point) 'cider-test
+                                 'font-lock-face (cider-test-type-face type)
+                                 'type type
+                                 'help-echo message
+                                 'message message
+                                 'expected expected
+                                 'actual actual)))))))
 
 (defun cider-find-var-file (ns var)
   "Return the buffer visiting the file in which the NS VAR is defined.
@@ -507,7 +508,8 @@ Or nil if not found."
        (dolist (var (nrepl-dict-keys vars))
          (when-let ((buffer (cider-find-var-file ns var)))
            (with-current-buffer buffer
-             (remove-overlays)))))
+             (remove-overlays (point-min) (point-max)
+                              'cider-type 'cider-test)))))
      cider-test-last-results)))
 
 
