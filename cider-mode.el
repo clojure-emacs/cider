@@ -660,14 +660,16 @@ See \(info \"(elisp) Special Properties\")"
           (save-excursion
             (goto-char pos)
             (when-let ((sym (cider-symbol-at-point)))
-              (let* ((info (cider-sync-request:info sym))
-                     (candidates (nrepl-dict-get info "candidates")))
-                (if candidates
-                    (concat "There were ambiguities resolving this symbol:\n\n"
-                            (mapconcat (lambda (x) (cider--docview-as-string sym x))
-                                       candidates
-                                       (concat "\n\n" (make-string 60 ?-) "\n\n")))
-                  (cider--docview-as-string sym info))))))))))
+              (if (member sym (get-text-property (point) 'cider-locals))
+                  (format "`%s' is a local" sym)
+                (let* ((info (cider-sync-request:info sym))
+                       (candidates (nrepl-dict-get info "candidates")))
+                  (if candidates
+                      (concat "There were ambiguities resolving this symbol:\n\n"
+                              (mapconcat (lambda (x) (cider--docview-as-string sym x))
+                                         candidates
+                                         (concat "\n\n" (make-string 60 ?-) "\n\n")))
+                    (cider--docview-as-string sym info)))))))))))
 
 (defun cider--wrap-fontify-locals (func)
   "Return a function that will call FUNC after parsing local variables.
