@@ -707,7 +707,7 @@ property."
         ;; GTK tooltips look bad, and we have no control over the face.
         (setq-local x-gtk-use-system-tooltips nil)
         ;; `tooltip' has variable-width by default, which looks terrible.
-        (set-face-attribute 'tooltip nil :inherit 'default)
+        (set-face-attribute 'tooltip nil :inherit 'unspecified)
         (when cider-dynamic-indentation
           (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
