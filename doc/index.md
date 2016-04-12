@@ -75,7 +75,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Namespace browser
 * nREPL session management
 * [Scratchpad](miscellaneous_features.md#using-a-scratchpad)
-* Minibuffer code evaluation
+* [Minibuffer code evaluation](miscellaneous_features.md#evaluating-clojure-code-in-the-minibuffer)
 * Integration with [company-mode][] and [auto-complete-mode][]
 * [Support for working with multiple simultaneous nREPL connections](miscellaneous_features.md#managing-multiple-connections)
 
