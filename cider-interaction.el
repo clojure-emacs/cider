@@ -49,6 +49,7 @@
 (require 'ansi-color)
 (require 'cl-lib)
 (require 'compile)
+(require 'etags) ; for find-tags-marker-ring
 (require 'tramp)
 
 (defconst cider-read-eval-buffer "*cider-read-eval*")
