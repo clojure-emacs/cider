@@ -23,6 +23,15 @@ You can also enable `paredit` or `smartparens` for minibuffer evaluations:
 (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
 ```
 
+### Using a scratchpad
+
+CIDER provides a simple way to create a Clojure scratchpad via the
+<kbd>M-x</kbd> `cider-scratch` command. It provides a great way to
+play around with some code, without having to create source files
+or pollute the REPL buffer.
+
+In many ways the CIDER scratchpad is similar to Emacs's own `*scratch*` buffer.
+
 ### Macroexpansion
 
 Pressing <kbd>C-c C-m</kbd> after some form in a source buffer or the REPL will

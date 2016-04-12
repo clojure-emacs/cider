@@ -74,7 +74,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Classpath browser
 * Namespace browser
 * nREPL session management
-* Scratchpad
+* [Scratchpad](miscellaneous_features.md#using-a-scratchpad)
 * Minibuffer code evaluation
 * Integration with [company-mode][] and [auto-complete-mode][]
 * [Support for working with multiple simultaneous nREPL connections](miscellaneous_features.md#managing-multiple-connections)
