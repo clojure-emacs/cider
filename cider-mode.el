@@ -645,17 +645,18 @@ before point."
 See \(info \"(elisp) Special Properties\")"
   (when (and (bufferp obj) (cider-connected-p))
     (with-current-buffer obj
-      (save-excursion
-        (goto-char pos)
-        (let* ((sym (cider-symbol-at-point))
-               (info (cider-var-info sym)))
-          (with-temp-buffer
-            (cider-docview-render (current-buffer) sym info)
-            (goto-char (point-max))
-            (forward-line -1)
-            (replace-regexp-in-string
-             "[`']" "\\\\=\\&"
-             (buffer-substring-no-properties (point-min) (1- (point))))))))))
+      (ignore-errors
+        (save-excursion
+          (goto-char pos)
+          (let* ((sym (cider-symbol-at-point))
+                 (info (cider-sync-request:info sym)))
+            (with-temp-buffer
+              (cider-docview-render (current-buffer) sym info)
+              (goto-char (point-max))
+              (forward-line -1)
+              (replace-regexp-in-string
+               "[`']" "\\\\=\\&"
+               (buffer-substring-no-properties (point-min) (1- (point)))))))))))
 
 (defun cider--wrap-fontify-locals (func)
   "Return a function that will call FUNC after parsing local variables.
