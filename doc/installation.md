@@ -71,7 +71,7 @@ used, CIDER takes care of injecting it and its other dependencies.
 **`profiles.clj` or `profile.boot` don't need to be modified anymore for the above usecase!**
 
 If you don't want `cider-jack-in` to inject dependencies automatically, set
-`cider-inject-dependencies-at-jack-in` to nil. Note that you'll have to setup
+`cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
 the dependencies yourself (see the section below), just as in CIDER 0.10 and older.
 
 If a standalone REPL is preferred, you need to invoke `cider-connect` (instead

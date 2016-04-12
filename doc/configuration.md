@@ -26,7 +26,7 @@ above allows you to override this (somewhat non-standard) behavior.
 
 * By default, interactive commands that require a symbol (e.g. `cider-doc`) will
   prompt for the symbol, with the prompt defaulting to the symbol at point. You
-  can set `cider-prompt-for-symbol` to nil to instead try the command with the
+  can set `cider-prompt-for-symbol` to `nil` to instead try the command with the
   symbol at point first, and only prompt if that fails (this used to be the
   default behavior in older CIDER releases).
 
