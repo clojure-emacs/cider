@@ -353,10 +353,10 @@ In order to work properly, this mode must be activated by
     (with-current-buffer (or buffer (current-buffer))
       (unless cider--debug-mode
         (kill-local-variable 'tool-bar-map)
-        (remove-overlays nil nil 'cider-type 'debug-result)
-        (remove-overlays nil nil 'cider-type 'debug-code)
+        (remove-overlays nil nil 'category 'debug-result)
+        (remove-overlays nil nil 'category 'debug-code)
         (setq cider--debug-prompt-overlay nil)
-        (remove-overlays nil nil 'cider-type 'debug-prompt)))))
+        (remove-overlays nil nil 'category 'debug-prompt)))))
 
 (defun cider--debug-set-prompt (value)
   "Set `cider-debug-prompt' to VALUE, then redisplay."
@@ -636,7 +636,7 @@ displaying its value."
         (clojure-backward-logical-sexp 1)
         (nrepl-dbind-response response (debug-value erase-previous)
           (when erase-previous
-            (remove-overlays (point) marker 'cider-type 'enlighten))
+            (remove-overlays (point) marker 'category 'enlighten))
           (when debug-value
             (if (memq (char-before marker) '(?\) ?\] ?}))
                 ;; Enlightening a sexp looks like a regular return value, except

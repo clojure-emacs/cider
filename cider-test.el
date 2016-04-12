@@ -508,8 +508,7 @@ Or nil if not found."
        (dolist (var (nrepl-dict-keys vars))
          (when-let ((buffer (cider-find-var-file ns var)))
            (with-current-buffer buffer
-             (remove-overlays (point-min) (point-max)
-                              'cider-type 'cider-test)))))
+             (remove-overlays nil nil 'category 'cider-test)))))
      cider-test-last-results)))
 
 

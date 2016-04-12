@@ -95,12 +95,12 @@ Never throws errors, and can be used in an overlay's modification-hooks."
 
 (defun cider--make-overlay (l r type &rest props)
   "Place an overlay between L and R and return it.
-TYPE is a symbol put on the overlay's cider-type property.  It is used to
+TYPE is a symbol put on the overlay's category property.  It is used to
 easily remove all overlays from a region with:
-    (remove-overlays start end 'cider-type TYPE)
+    (remove-overlays start end 'category TYPE)
 PROPS is a plist of properties and values to add to the overlay."
   (let ((o (make-overlay l (or r l) (current-buffer))))
-    (overlay-put o 'cider-type type)
+    (overlay-put o 'category type)
     (overlay-put o 'cider-temporary t)
     (while props (overlay-put o (pop props) (pop props)))
     (push #'cider--delete-overlay (overlay-get o 'modification-hooks))
@@ -110,7 +110,7 @@ PROPS is a plist of properties and values to add to the overlay."
   "Remove result overlay from current buffer.
 This function also removes itself from `post-command-hook'."
   (remove-hook 'post-command-hook #'cider--remove-result-overlay 'local)
-  (remove-overlays nil nil 'cider-type 'result))
+  (remove-overlays nil nil 'category 'result))
 
 (defun cider--remove-result-overlay-after-command ()
   "Add `cider--remove-result-overlay' locally to `post-command-hook'.
@@ -167,7 +167,7 @@ overlay."
                       (line-end-position)))
                (display-string (format format value))
                (o nil))
-          (remove-overlays beg end 'cider-type type)
+          (remove-overlays beg end 'category type)
           (funcall (if cider-overlays-use-font-lock
                        #'font-lock-prepend-text-property
                      #'put-text-property)
