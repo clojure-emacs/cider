@@ -1,7 +1,7 @@
 site_name: "CIDER: The Clojure Interactive Programming Environment that Rocks"
 repo_url: https://github.com/clojure-emacs/cider
 site_favicon: favicon.ico
-copyright: Copyright © 2016 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+copyright: "Copyright (C) 2016 Bozhidar Batsov, Artur Malabarba and CIDER contributors"
 docs_dir: doc
 pages:
 - Home: index.md
@@ -20,13 +20,14 @@ pages:
 - Additional Packages: additional_packages.md
 - Caveats: caveats.md
 - Troubleshooting: troubleshooting.md
-- Support: support.md
 - Additional Resources: additional_resources.md
-- Team: team.md
-- Release Policy: release_policy.md
-- Logo: logo.md
 - Contributing: contributing.md
-- License: license.md
+- About:
+    - Team: about/team.md
+    - Support: about/support.md
+    - Release Policy: about/release_policy.md
+    - Logo: about/logo.md
+    - License: about/license.md
 extra_css:
   - css/extra.css
 theme: readthedocs
