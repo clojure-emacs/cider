@@ -82,7 +82,7 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
 (defun cider--jump-to-loc-from-info (info &optional other-window)
   "Jump to location give by INFO.
 INFO object is returned by `cider-var-info' or `cider-member-info'.
-OTHER-WINDOW is passed to `cider-jamp-to'."
+OTHER-WINDOW is passed to `cider-jump-to'."
   (let* ((line (nrepl-dict-get info "line"))
          (file (nrepl-dict-get info "file"))
          (name (nrepl-dict-get info "name"))
