@@ -64,15 +64,15 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Apropos
 * [Debugger](debugging.md)
 * [Value inspector](miscellaneous_features.md#value-inspection)
-* Function tracing
+* [Function tracing](miscellaneous_features.md#tracing-function-execution)
 * [Interactive macroexpansion](miscellaneous_features.md#macroexpansion)
 * Enhanced Clojure font-locking and indentation
 * [Grimoire](http://conj.io/) integration
 * [`clojure.test` integration](running_tests.md)
 * [Smart code reloading](miscellaneous_features.md#code-reloading)
 * [Pretty-printing of results](configuration.md#pretty-printing)
-* Classpath browser
-* Namespace browser
+* [Classpath browser](miscellaneous_features.md#classpath-browser)
+* [Namespace browser](miscellaneous_features.md#namespace-browser)
 * nREPL session management
 * [Scratchpad](miscellaneous_features.md#using-a-scratchpad)
 * [Minibuffer code evaluation](miscellaneous_features.md#evaluating-clojure-code-in-the-minibuffer)

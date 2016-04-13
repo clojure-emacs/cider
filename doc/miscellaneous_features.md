@@ -141,6 +141,48 @@ and
 (setq cider-refresh-show-log-buffer t)
 ```
 
+### Tracing function execution
+
+You can trace the results produced by functions using <kbd>C-c M-t v</kbd>.  The
+command will prompt you for the name of the function you want to trace.
+Evaluating the command again for the same function will result in the function
+being untraced.
+
+![Tracing](images/tracing.png)
+
+You can also use <kbd>C-c M-t n</kbd> to toggle tracing on and off for an entire
+namespace.
+
+### Classpath browser
+
+You can easily browse the items on your classpath with the command `cider-classpath`.
+
+Here you can see it in action:
+
+![Classpath Browser](images/classpath_browser.png)
+
+Press <kbd>RET</kbd> on a classpath entry to navigate into it.
+
+### Namespace browser
+
+You can browse the contents of any loaded namespace with the command `cider-browse-ns`.
+The command will prompt you for the namespace to browse.
+
+![Namespace Browser](images/ns_browser.png)
+
+You can also browse all available namespaces with `cider-browse-ns-all`.
+
+There are a bunch of useful keybindings that are defined in browser buffers.
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>d</kbd>                    | Display documentation for item at point.
+<kbd>RET</kbd>                  | Browse ns or display documentation for item at point.
+<kbd>s</kbd>                    | Go to definition for item at point.
+<kbd>^</kbd>                    | Browse all namespaces.
+<kbd>n</kbd>                    | Go to next line.
+<kbd>p</kbd>                    | Go to previos line.
+
 ### Managing multiple connections
 
 You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> (or
