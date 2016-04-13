@@ -20,8 +20,6 @@ idea to use their latest stable versions.
 
 ### Installation via package.el
 
-`package.el` is the built-in package manager in Emacs.
-
 CIDER is available on the two major `package.el` community
 maintained repos -
 [MELPA Stable](http://stable.melpa.org)
