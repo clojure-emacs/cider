@@ -155,7 +155,8 @@ namespace.
 
 ### Classpath browser
 
-You can easily browse the items on your classpath with the command `cider-classpath`.
+You can easily browse the items on your classpath with the command
+<kbd>M-x</kbd> `cider-classpath`.
 
 Here you can see it in action:
 
@@ -165,12 +166,14 @@ Press <kbd>RET</kbd> on a classpath entry to navigate into it.
 
 ### Namespace browser
 
-You can browse the contents of any loaded namespace with the command `cider-browse-ns`.
-The command will prompt you for the namespace to browse.
+You can browse the contents of any loaded namespace with the command
+<kbd>M-x</kbd> `cider-browse-ns`.  The command will prompt you for the namespace
+to browse.
 
 ![Namespace Browser](images/ns_browser.png)
 
-You can also browse all available namespaces with `cider-browse-ns-all`.
+You can also browse all available namespaces with <kbd>M-x</kbd>
+`cider-browse-ns-all`.
 
 There are a bunch of useful keybindings that are defined in browser buffers.
 
@@ -185,9 +188,9 @@ Keyboard shortcut               | Description
 
 ### Managing multiple connections
 
-You can connect to multiple nREPL servers using <kbd>M-x cider-jack-in</kbd> (or
-`cider-connect`) multiple times.  To close the current nREPL connection, use
-<kbd>M-x cider-quit</kbd>.
+You can connect to multiple nREPL servers using <kbd>M-x</kbd> `cider-jack-in`
+(or `cider-connect`) multiple times.  To close the current nREPL connection, use
+<kbd>M-x</kbd> `cider-quit`.
 
 CIDER maintains a list of nREPL connections and a single 'default'
 connection. When you execute CIDER commands in a Clojure editing buffer such as
@@ -201,7 +204,7 @@ dispatch is used all requests will always be routed to the default connection
 You can display the current nREPL connection using <kbd>C-c M-d</kbd>
 and rotate the default connection using <kbd>C-c M-r</kbd>. Another
 option for setting the default connection is to execute the command
-<kbd>M-x cider-make-connection-default</kbd> in the appropriate
+<kbd>M-x</kbd> `cider-make-connection-default` in the appropriate
 REPL buffer.
 
 To switch to the relevant REPL buffer based on the Clojure namespace
@@ -213,8 +216,8 @@ The single prefix <kbd>C-u C-c C-z</kbd>, will switch you to the
 relevant REPL buffer and set the namespace in that buffer based on
 namespace in the current Clojure buffer.
 
-To change the designation used for CIDER buffers use <kbd>M-x
-cider-change-buffers-designation</kbd>. This changes the CIDER REPL
+To change the designation used for CIDER buffers use <kbd>M-x</kbd>
+`cider-change-buffers-designation`. This changes the CIDER REPL
 buffer, nREPL connection buffer and nREPL server buffer. For example
 using `cider-change-buffers-designation` with the string "foo" would
 change `*cider-repl localhost*` to `*cider-repl foo*`.
