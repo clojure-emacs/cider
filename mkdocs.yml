@@ -21,10 +21,10 @@ pages:
 - Caveats: caveats.md
 - Troubleshooting: troubleshooting.md
 - Additional Resources: additional_resources.md
-- Contributing: contributing.md
 - About:
     - Team: about/team.md
     - Support: about/support.md
+    - Contributing: about/contributing.md
     - Release Policy: about/release_policy.md
     - Logo: about/logo.md
     - License: about/license.md
