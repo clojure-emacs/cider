@@ -1,80 +1,83 @@
+(require 'buttercup)
 (require 'nrepl-client)
 
-(ert-deftest dict-merge ()
-  (let ((input '(dict 2 4 1 2 "10" "90" "a" "b")))
-    (should (equal (nrepl-dict-merge input '(dict 1 3 "10" me))
-                   '(dict 2 4 1 3 "10" me "a" "b")))
-    (should (equal input '(dict 2 4 1 3 "10" me "a" "b"))))
-  (should (equal (nrepl-dict-merge nil '(dict 1 3 "10" me))
-                 '(dict 1 3 "10" me)))
-  (should (equal (nrepl-dict-merge '(dict 1 3 "10" me) nil)
-                 '(dict 1 3 "10" me))))
+(describe "nrepl-dict-merge"
+  :var (input)
+  (before-each
+    (setq input '(dict 2 4 1 2 "10" "90" "a" "b")))
 
-(ert-deftest nrepl-dict-contains-successful ()
-  "Tests `nrepl-dict-contains' on inputs where this predicate function
-should return non-nil. Of note, the `nil' value itself is allowed to be a
-key in the nREPL dict."
-  (let ((input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes nil nil-val)))
-    (should (nrepl-dict-contains input 1))
-    (should (nrepl-dict-contains input 2))
-    (should (nrepl-dict-contains input "3"))
-    (should (nrepl-dict-contains input 4))
-    (should (nrepl-dict-contains input 'sym))
-    (should (nrepl-dict-contains input nil))))
+  (it "merges dictionaries"
+    (expect (nrepl-dict-merge input '(dict 1 3 "10" me)) :to-equal '(dict 2 4 1 3 "10" me "a" "b"))
+    (expect input :to-equal '(dict 2 4 1 3 "10" me "a" "b")))
 
-(ert-deftest nrepl-dict-contains-failure ()
-  "Tests `nrepl-dict-contains' on inputs where this predicate function
-should return nil."
-  (let ((input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes)))
-    (should (equal (nrepl-dict-contains input 11) nil))
-    (should (equal (nrepl-dict-contains input 12) nil))
-    (should (equal (nrepl-dict-contains input "13") nil))
-    (should (equal (nrepl-dict-contains input 14) nil))
-    (should (equal (nrepl-dict-contains input 'missing) nil))
-    (should (equal (nrepl-dict-contains input nil) nil))))
+  (it "handles nil values"
+    (expect (nrepl-dict-merge nil '(dict 1 3 "10" me)) :to-equal '(dict 1 3 "10" me))
+    (expect (nrepl-dict-merge '(dict 1 3 "10" me) nil) :to-equal '(dict 1 3 "10" me))))
 
-(ert-deftest nrepl-dict-get-found ()
-  "Tests `nrepl-dict-get' on inputs where the keys exist in the nREPL
-dict. The `nil' value itself can be used as either a value or a key in the
-nrepl-dict."
-  (let ((input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes nil nil-val)))
-    (should (equal (nrepl-dict-get input 1) "a"))
-    (should (equal (nrepl-dict-get input 2) "B"))
-    (should (equal (nrepl-dict-get input "3") "d"))
-    (should (equal (nrepl-dict-get input 4) nil))
-    (should (equal (nrepl-dict-get input 'sym) 'yes))
-    (should (equal (nrepl-dict-get input nil) 'nil-val))))
+(describe "nrepl-dict-contains"
+  :var (input)
 
-(ert-deftest nrepl-dict-get-missing ()
-  "Tests `nrepl-dict-get' on inputs where the keys do not exist in the
-nREPL dict."
-  (let ((input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes)))
-    (should (equal (nrepl-dict-get input 11) nil))
-    (should (equal (nrepl-dict-get input "13") nil))
-    (should (equal (nrepl-dict-get input 14) nil))
-    (should (equal (nrepl-dict-get input 'missing) nil))
-    (should (equal (nrepl-dict-get input nil) nil))))
+  (it "returns non-nil if dict contains the element"
+    (setq input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes nil nil-val))
 
-(ert-deftest nrepl-dict-get-found-with-default ()
-  "Tests `nrepl-dict-get' on inputs where the keys exist in the nREPL dict,
-while also passing in a default value. The `nil' value itself can be used
-as either a key or a value in the nrepl-dict, but in these cases
-`nrepl-dict-get' should NOT return the `default' value."
-  (let ((input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes nil nil-val)))
-    (should (equal (nrepl-dict-get input 1 "default") "a"))
-    (should (equal (nrepl-dict-get input 2 "default") "B"))
-    (should (equal (nrepl-dict-get input "3" "default") "d"))
-    (should (equal (nrepl-dict-get input 4 "default") nil))
-    (should (equal (nrepl-dict-get input 'sym "default") 'yes))
-    (should (equal (nrepl-dict-get input nil "default") 'nil-val))))
+    (expect (nrepl-dict-contains input 1) :to-be-truthy)
+    (expect (nrepl-dict-contains input 2) :to-be-truthy)
+    (expect (nrepl-dict-contains input "3") :to-be-truthy)
+    (expect (nrepl-dict-contains input 4) :to-be-truthy)
+    (expect (nrepl-dict-contains input 'sym) :to-be-truthy))
 
-(ert-deftest nrepl-dict-get-missing-with-default ()
-  "Tests `nrepl-dict-get' on inputs where the keys do not exist in the
-nREPL dict, while also passing in a default value."
-  (let ((input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes)))
-    (should (equal (nrepl-dict-get input 11 "default") "default"))
-    (should (equal (nrepl-dict-get input 21 "default") "default"))
-    (should (equal (nrepl-dict-get input "31" "default") "default"))
-    (should (equal (nrepl-dict-get input 41 "default") "default"))
-    (should (equal (nrepl-dict-get input 'missing "default") "default"))
-    (should (equal (nrepl-dict-get input nil "default") "default"))))
+  (it "allows `nil' to be a key in the nREPL dict"
+    (setq input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes nil nil-val))
+    (expect (nrepl-dict-contains input nil) :to-be-truthy))
+
+  (it "returns `nil' if dict doesnt contain the element"
+    (setq input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes))
+
+    (expect (nrepl-dict-contains input 11) :to-equal nil)
+    (expect (nrepl-dict-contains input 12) :to-equal nil)
+    (expect (nrepl-dict-contains input "13") :to-equal nil)
+    (expect (nrepl-dict-contains input 14) :to-equal nil)
+    (expect (nrepl-dict-contains input 'missing) :to-equal nil)
+    (expect (nrepl-dict-contains input nil) :to-equal nil)))
+
+(describe "nrepl-dict-get"
+  :var (input)
+
+  (describe "when key is present in the dict"
+    (before-all
+      (setq input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes nil nil-val)))
+
+    (it "returns the corresponding value"
+      (expect (nrepl-dict-get input 1) :to-equal "a")
+      (expect (nrepl-dict-get input 2) :to-equal "B")
+      (expect (nrepl-dict-get input "3") :to-equal "d")
+      (expect (nrepl-dict-get input 4) :to-equal nil)
+      (expect (nrepl-dict-get input 'sym) :to-equal'yes)
+      (expect (nrepl-dict-get input nil) :to-equal 'nil-val))
+
+    (it "ignores the default value, if given"
+      (expect (nrepl-dict-get input 1 "default") :to-equal "a")
+      (expect (nrepl-dict-get input 2 "default") :to-equal "B")
+      (expect (nrepl-dict-get input "3" "default") :to-equal "d")
+      (expect (nrepl-dict-get input 4 "default") :to-equal nil)
+      (expect (nrepl-dict-get input 'sym "default") :to-equal'yes)
+      (expect (nrepl-dict-get input nil "default") :to-equal 'nil-val)))
+
+  (describe "when key is not present in the dict"
+    (before-all
+      (setq input '(dict 1 "a" 2 "B" "3" "d" 4 nil sym yes)))
+
+    (it "returns nil, when default value is not given"
+      (expect (nrepl-dict-get input 11) :to-equal nil)
+      (expect (nrepl-dict-get input "13") :to-equal nil)
+      (expect (nrepl-dict-get input 14) :to-equal nil)
+      (expect (nrepl-dict-get input 'missing) :to-equal nil)
+      (expect (nrepl-dict-get input nil) :to-equal nil))
+
+    (it "returns the default value, if given"
+      (expect (nrepl-dict-get input 11 "default") :to-equal "default")
+      (expect (nrepl-dict-get input 21 "default") :to-equal "default")
+      (expect (nrepl-dict-get input "31" "default") :to-equal "default")
+      (expect (nrepl-dict-get input 41 "default") :to-equal "default")
+      (expect (nrepl-dict-get input 'missing "default") :to-equal "default")
+      (expect (nrepl-dict-get input nil "default") :to-equal "default"))))

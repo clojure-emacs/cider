@@ -1,20 +1,21 @@
-(require 'ert)
-(require 'noflet)
+(require 'buttercup)
 (require 'cider)
 (require 'cider-apropos)
 
-(ert-deftest cider-apropos-not-connected ()
-  (noflet ((cider-connected-p () nil))
-    (should-error (cider-apropos "test") :type 'user-error)))
+(describe "cider-apropos"
+  (it "raises user-error when cider is not connected."
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (expect (lambda () (cider-apropos "test")) :to-throw 'user-error))
 
-(ert-deftest cider-apropos-unsupported-op ()
-  (noflet ((cider-ensure-op-supported (op) nil))
-    (should-error (cider-apropos "test") :type 'user-error)))
+  (it "raises user-error when the `apropos' op is not supported."
+    (spy-on 'cider-ensure-op-supported :and-return-value nil)
+    (expect (lambda () (cider-apropos "test")) :to-throw 'user-error)))
 
-(ert-deftest cider-apropos-documentation-not-connected ()
-  (noflet ((cider-connected-p () nil))
-    (should-error (cider-apropos-documentation) :type 'user-error)))
+(describe "cider-apropos-documentation"
+  (it "raises user-error when cider is not connected."
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (expect (lambda () (cider-apropos-documentation)) :to-throw 'user-error))
 
-(ert-deftest cider-apropos-documentation-unsupported-op ()
-  (noflet ((cider-ensure-op-supported (op) nil))
-    (should-error (cider-apropos-documentation) :type 'user-error)))
+  (it "raises user-error when the `apropos' op is not supported."
+    (spy-on 'cider-ensure-op-supported :and-return-value nil)
+    (expect (lambda () (cider-apropos-documentation)) :to-throw 'user-error)))

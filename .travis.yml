@@ -12,7 +12,7 @@ before_script:
   - sh vagrant/provision.sh
   - make elpa
 script:
-  - make $MAKE_TEST
+  - make $MAKE_TEST && cask exec buttercup -L .
 
 notifications:
   webhooks:
