@@ -28,3 +28,4 @@ pages:
 - License: license.md
 extra_css:
   - css/extra.css
+theme: readthedocs
