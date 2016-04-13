@@ -1,4 +1,4 @@
-### Issues
+## Issues
 
 Report issues and suggest features and improvements on the
 [GitHub issue tracker](https://github.com/clojure-emacs/cider/issues). Don't ask
@@ -14,7 +14,7 @@ it.  This will bring up Emacs with only the latest version of CIDER loaded. By
 starting fresh, with the latest code, we can ensure that the problem at hand
 isn't already fixed or caused by interactions with other packages.
 
-### Patches
+## Patches
 
 Patches in any form are always welcome! GitHub pull requests are even better! :-)
 
@@ -22,7 +22,7 @@ Before submitting a patch or a pull request make sure all tests are
 passing and that your patch is in line with the [contribution
 guidelines](https://github.com/clojure-emacs/cider/blob/master/.github/CONTRIBUTING.md).
 
-### Documentation
+## Documentation
 
 Good documentation is just as important as good code.
 
@@ -30,7 +30,7 @@ Consider improving and extending the
 this manual and the
 [community wiki](https://github.com/clojure-emacs/cider/wiki).
 
-#### Working on the Manual
+### Working on the Manual
 
 The manual is generated from the markdown files in the
 [doc](https://github.com/clojure-emacs/cider/tree/master/doc) folder of CIDER's
@@ -53,7 +53,7 @@ $ mkdocs serve
 If you want to make changes to the manual's page structure you'll have to edit
 [mkdocs.yml](https://github.com/clojure-emacs/cider/blob/master/mkdocs.yml).
 
-### Donations
+## Donations
 
 You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
 [Salt](https://salt.bountysource.com/teams/cider),
@@ -63,7 +63,7 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
-### Running the tests in batch mode
+## Running the tests in batch mode
 
 Install [cask](https://github.com/cask/cask) if you haven't
 already, then:

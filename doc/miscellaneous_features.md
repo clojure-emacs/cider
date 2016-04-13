@@ -3,7 +3,7 @@ evaluation. Much of the functionality is centered around additional major modes,
 which provide you with convenient ways to get something done or inspect
 something.
 
-### Evaluating Clojure code in the minibuffer
+## Evaluating Clojure code in the minibuffer
 
 You can evaluate Clojure code in the minibuffer from pretty much everywhere by
 using <kbd>M-x</kbd> `cider-read-and-eval` (bound in `cider-mode` buffers to
@@ -23,7 +23,7 @@ You can also enable `paredit` or `smartparens` for minibuffer evaluations:
 (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
 ```
 
-### Using a scratchpad
+## Using a scratchpad
 
 CIDER provides a simple way to create a Clojure scratchpad via the
 <kbd>M-x</kbd> `cider-scratch` command. It provides a great way to
@@ -32,7 +32,7 @@ or pollute the REPL buffer.
 
 In many ways the CIDER scratchpad is similar to Emacs's own `*scratch*` buffer.
 
-### Macroexpansion
+## Macroexpansion
 
 Pressing <kbd>C-c C-m</kbd> after some form in a source buffer or the REPL will
 result in a new buffer, showing the macroexpansion of form in question. You'll
@@ -46,7 +46,7 @@ Keyboard shortcut               | Description
 <kbd>g</kbd>                    | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
 <kbd>C-/</kbd> <br/> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
 
-### Value inspection
+## Value inspection
 
 Pressing <kbd>C-c M-i</kbd> after some form in a source buffer or the REPL will
 result in a new buffer, showing the structure of the result of the form in question.
@@ -67,7 +67,7 @@ Keyboard shortcut                       | Description
 <kbd>M-SPC</kbd>                        | Jump to previous page in paginated view
 <kbd>s</kbd>                            | Set a new page size in paginated view
 
-### Enlighten (display local values)
+## Enlighten (display local values)
 
 This feature displays the value of locals in realtime, as your code is being
 executed. This is somewhat akin to one of the features of the Light Table
@@ -91,7 +91,7 @@ and reevaluate the definitions you had instrumented previously.
 You can also trigger this on specific functions (without having to turn on the
 minor mode) by writing `#light` before the `(def` and reevaluating it.
 
-### Code reloading
+## Code reloading
 
 `cider-refresh` wraps
 [clojure.tools.namespace](https://github.com/clojure/tools.namespace), and as
@@ -141,7 +141,7 @@ and
 (setq cider-refresh-show-log-buffer t)
 ```
 
-### Tracing function execution
+## Tracing function execution
 
 You can trace the results produced by functions using <kbd>C-c M-t v</kbd>.  The
 command will prompt you for the name of the function you want to trace.
@@ -153,7 +153,7 @@ being untraced.
 You can also use <kbd>C-c M-t n</kbd> to toggle tracing on and off for an entire
 namespace.
 
-### Classpath browser
+## Classpath browser
 
 You can easily browse the items on your classpath with the command
 <kbd>M-x</kbd> `cider-classpath`.
@@ -164,7 +164,7 @@ Here you can see it in action:
 
 Press <kbd>RET</kbd> on a classpath entry to navigate into it.
 
-### Namespace browser
+## Namespace browser
 
 You can browse the contents of any loaded namespace with the command
 <kbd>M-x</kbd> `cider-browse-ns`.  The command will prompt you for the namespace

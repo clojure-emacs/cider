@@ -2,7 +2,7 @@ You can certainly use CIDER without configuring it any further,
 but here are some ways other folks are adjusting their CIDER
 experience.
 
-### Basic configuration
+## Basic configuration
 
 * Enable `eldoc` in Clojure buffers:
 
@@ -112,7 +112,7 @@ To remove the prefix altogether just set it to an empty string(`""`).
 
 More details can be found [here](https://github.com/clojure-emacs/cider/issues/930).
 
-### Overlays
+## Overlays
 
 When you evaluate code in Clojure files, the result is displayed in the buffer
 itself, in an overlay right after the evaluated code.  If you want this overlay
@@ -130,7 +130,7 @@ bottom) with the `cider-use-overlays` variable.
 (setq cider-use-overlays nil)
 ```
 
-### Specifying indentation
+## Specifying indentation
 
 It is common for macros to require special indentation mechanisms. This is most
 common in macros that start with `do`, `def`, or `with-`.  CIDER has some
@@ -170,13 +170,13 @@ If you *don't* want to use this feature, you can disable it by setting
 (setq cider-dynamic-indentation nil)
 ```
 
-### Minibuffer completion
+## Minibuffer completion
 
 Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While
 it's not fancy it certainly gets the job done (just press <kbd>TAB</kbd>). There
 are, however, ways to improve upon the standard completion if you wish to.
 
-#### icomplete
+### icomplete
 
 `icomplete` is bundled with Emacs and enhances the default minibuffer completion:
 
@@ -184,14 +184,14 @@ are, however, ways to improve upon the standard completion if you wish to.
 (require 'icomplete)
 ```
 
-#### ido
+### ido
 
 `ido` is also bundled with Emacs and offers more features than `icomplete`.
 If you are using `ido`, be sure to use both `ido-everywhere`
 and [`ido-ubiquitous`](https://github.com/DarwinAwardWinner/ido-ubiquitous).
 You might also want to install [`ido-flex`](https://github.com/lewang/flx).
 
-### Pretty-printing
+## Pretty-printing
 
 You can configure the function used by CIDER for pretty-printing evaluation
 results and other data using the `cider-pprint-fn` option.

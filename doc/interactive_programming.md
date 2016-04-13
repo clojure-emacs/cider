@@ -12,7 +12,7 @@ way you're supposed to be interacting with your REPL process. If you
 want to get productive with CIDER, you'll have to get intimately familiar
 with it.
 
-### Using cider-mode
+## Using cider-mode
 
 Here's a list of `cider-mode`'s keybindings:
 

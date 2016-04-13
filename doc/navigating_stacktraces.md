@@ -1,4 +1,4 @@
-### Navigating stacktraces
+## Navigating stacktraces
 
 CIDER comes with a powerful solution to the problem of verbose Clojure
 stacktraces.  Stacktraces are presented in a special major mode

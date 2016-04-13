@@ -1,4 +1,4 @@
-### ClojureScript limitations
+## ClojureScript limitations
 
 Currently, the following features are not supported for ClojureScript
 development:
@@ -14,7 +14,7 @@ There is currently no support for both Clojure and ClojureScript evaluation in
 the same nREPL session. If Piggieback is active, code evaluation and all
 features will assume ClojureScript.
 
-#### Var Metadata
+### Var Metadata
 
 Currently var metadata about the location of the var's definition within the
 ClojureScript source code (file, line & column) is set only when evaluating the
@@ -25,9 +25,9 @@ piggieback, that's beyond CIDER. You can find some discussions on the subject
 [here](http://dev.clojure.org/jira/browse/NREPL-59) and
 [here](https://github.com/clojure-emacs/cider/issues/830).
 
-### Microsoft Windows
+## Microsoft Windows
 
-#### Line separators
+### Line separators
 
 On Microsoft Windows the JVM default line separator string is `\r\n`
 which can appear in Emacs as `^M` characters at the end of lines
@@ -41,7 +41,7 @@ from being printed and will fix output in all cider buffers. To do so
 add `"-Dline.separator=\"\n\""` to `:jvm-opts` in
 `~/.lein/profiles.clj`.
 
-#### Definition lookup in jar files
+### Definition lookup in jar files
 
 In order for source lookup commands to work with `.jar` files you'll need to
 install either [7zip](http://www.7-zip.org/) or `pkunzip` and add its
@@ -51,7 +51,7 @@ installation folder to Emacs's `exec-path`. Here's an example:
 (add-to-list 'exec-path "C:/Program Files/7-Zip")
 ```
 
-### powershell.el
+## powershell.el
 
 The powershell inferior shell mode truncates CIDER's REPL output when
 loaded. As a workaround remove
@@ -62,7 +62,7 @@ loaded. As a workaround remove
 
 from your Emacs config.
 
-### ClojureCLR Support
+## ClojureCLR Support
 
 CIDER currently doesn't support ClojureCLR. The reasons for this are the following:
 
@@ -75,7 +75,7 @@ it's not actively maintained and it doesn't behave like the Clojure nREPL.
 Those issues are not insurmountable, but are beyond the scope of our current roadmap.
 If someone would like to tackle them, we'd be happy to provide assitance.
 
-### Injecting dependencies and Leiningen pedantic: abort mode
+## Injecting dependencies and Leiningen pedantic: abort mode
 
 Because injection currently creates an override of `tools.nrepl` dependency that
 Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort`

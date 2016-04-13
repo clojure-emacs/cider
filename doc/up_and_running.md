@@ -4,7 +4,7 @@ to start an nREPL server, but the use of one of them is not a prerequisite to
 use CIDER (however, it *is* required if you want to use the `cider-jack-in`
 command).
 
-### Setting up a Leiningen or Boot project (optional)
+## Setting up a Leiningen or Boot project (optional)
 
 [Leiningen][] is the de facto standard build/project
 management tool for Clojure. [Boot][] is a newer build tool
@@ -25,7 +25,7 @@ $ lein new demo
 
 The two main ways to obtain an nREPL connection are discussed in the following sections of the manual.
 
-### Launch an nREPL server and client from Emacs
+## Launch an nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` or `boot` project (like
 `foo.clj`) and type <kbd>M-x</kbd> `cider-jack-in` <kbd>RET</kbd>. This will
@@ -38,7 +38,7 @@ in it.
 
 In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
 
-### Connect to a running nREPL server
+## Connect to a running nREPL server
 
 You can go to your project's directory in a terminal and type there
 (assuming you're using Leiningen that is):
@@ -71,7 +71,7 @@ helpful for identifying each host.
 (setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
 ```
 
-### ClojureScript usage
+## ClojureScript usage
 
 ClojureScript support relies on the
 [piggieback][] nREPL middleware being
@@ -100,7 +100,7 @@ present in your REPL session.
    appropriate REPL, depending on whether you're visiting a `.clj` or a `.cljs`
    file.
 
-#### Browser-connected ClojureScript REPL
+### Browser-connected ClojureScript REPL
 
 Using Weasel, you can also have a browser-connected REPL.
 
@@ -125,7 +125,7 @@ presence of the `cider-nrepl` middleware. If the middleware is present then most
 other features of CIDER will also be enabled (including code completion,
 documentation lookup, the namespace browser, and macroexpansion).
 
-#### Browser-connected ClojureScript REPL in Boot project
+### Browser-connected ClojureScript REPL in Boot project
 
 1. Add this to your dependencies in `build.boot`:
 
@@ -146,7 +146,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 For more information visit [boot-cljs-repl](https://github.com/adzerk-oss/boot-cljs-repl).
 
-#### Using the Figwheel REPL (Leiningen-only)
+### Using the Figwheel REPL (Leiningen-only)
 
 You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER.
 

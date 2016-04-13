@@ -2,7 +2,7 @@ The canonical way to install CIDER is via `package.el` (Emacs's built-in package
 manager), but plenty of other options exist (see the
 [wiki](https://github.com/clojure-emacs/cider/wiki/Installation)).
 
-### Prerequisites
+## Prerequisites
 
 You'll need to have Emacs installed (preferably the latest stable
 release). If you're new to Emacs you might want to go through
@@ -18,7 +18,7 @@ idea to use their latest stable versions.
 
 **CIDER does not support ClojureCLR.**
 
-### Installation via package.el
+## Installation via package.el
 
 CIDER is available on the two major `package.el` community
 maintained repos -
@@ -60,7 +60,7 @@ Stable by adding this to your Emacs initialization:
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
   enabled by default in Emacs and you should not disable it!**
 
-### CIDER's nREPL middleware
+## CIDER's nREPL middleware
 
 Much of CIDER's functionality depends on the presence of CIDER's own
 [nREPL middleware][cider-nrepl]. Starting with version 0.11, When `cider-jack-in` (<kbd>C-c M-j</kbd>) is
@@ -76,9 +76,9 @@ If a standalone REPL is preferred, you need to invoke `cider-connect` (instead
 of `cider-jack-in`) and you'll need to manually add the dependencies to your
 Clojure project (explained in the following section).
 
-#### Setting up a standalone REPL
+### Setting up a standalone REPL
 
-##### Using Leiningen
+#### Using Leiningen
 
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
@@ -97,7 +97,7 @@ A minimal `profiles.clj` for CIDER would be:
 middleware will always get loaded, causing `lein` to start slower.  You really
 need it just for `lein repl` and this is what the `:repl` profile is for.**
 
-##### Using Boot
+#### Using Boot
 
 Boot users can configure the tool to include the middleware automatically in
 all of their projects using a `~/.boot/profile.boot` file like so:
@@ -114,7 +114,7 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 
 For more information visit [boot-clj wiki](https://github.com/boot-clj/boot/wiki/Cider-REPL).
 
-#### Using embedded nREPL server
+### Using embedded nREPL server
 
 If you're embedding nREPL in your application you'll have to start the
 server with CIDER's own nREPL handler.

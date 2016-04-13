@@ -58,9 +58,9 @@ character used to trigger the shortcuts is configurable via
 (setq cider-repl-shortcut-dispatch-char ?\;)
 ```
 
-#### REPL Configuration
+### REPL Configuration
 
-##### Behavior on connect
+#### Behavior on connect
 
 Normally, the REPL buffer is auto-displayed in a separate window after
   a connection is established. You can suppress this behaviour like this:
@@ -69,7 +69,7 @@ Normally, the REPL buffer is auto-displayed in a separate window after
 (setq cider-repl-pop-to-buffer-on-connect nil)
 ```
 
-##### Behavior on switch
+#### Behavior on switch
 
 By default <kbd>C-c C-z</kbd> will display the REPL buffer in a different window.
 You can make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current
@@ -79,7 +79,7 @@ window:
 (setq cider-repl-display-in-current-window t)
 ```
 
-##### Eldoc
+#### Eldoc
 
 Eldoc displays function signatures in the minibuffer as you're typing.
 It's extremely useful! Enable `eldoc` in REPL buffers like this:
@@ -88,7 +88,7 @@ It's extremely useful! Enable `eldoc` in REPL buffers like this:
 (add-hook 'cider-repl-mode-hook #'eldoc-mode)
 ```
 
-##### Customizing the REPL prompt
+#### Customizing the REPL prompt
 
 You can customize the prompt in REPL buffer. To do that you can customize
 `cider-repl-prompt-function` and set it to a function that takes one argument,
@@ -129,7 +129,7 @@ namespace. Here is an example function that will do exactly that:
     (concat (car names) "." (cadr names) "> ")))
 ```
 
-##### TAB Completion
+#### TAB Completion
 
 You can control the <kbd>TAB</kbd> key behavior in the REPL via the
 `cider-repl-tab-command` variable.  While the default command
@@ -143,7 +143,7 @@ following snippet:
 (setq cider-repl-tab-command #'indent-for-tab-command)
 ```
 
-##### Result Prefix
+#### Result Prefix
 
 Change the result prefix for REPL evaluation (by default there's no prefix):
 
@@ -158,7 +158,7 @@ user> (+ 1 2)
 ;; => 3
 ```
 
-##### Customize the REPL Buffer's Name
+#### Customize the REPL Buffer's Name
 
 The REPL buffer name has the format `*cider-repl project-name*`.
 You can change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
@@ -174,7 +174,7 @@ Buffer name will look like `*cider-repl project-name:port*`.
 (setq nrepl-buffer-name-show-port t)
 ```
 
-##### Font-locking
+#### Font-locking
 
 Normally code in the REPL is font-locked the same way as in
 `clojure-mode`. Before CIDER 0.10 by default REPL input was font-locked with
@@ -185,13 +185,13 @@ Normally code in the REPL is font-locked the same way as in
 (setq cider-repl-use-clojure-font-lock nil)
 ```
 
-##### Pretty printing in the REPL
+#### Pretty printing in the REPL
 
 Make the REPL always pretty-print the results of your commands.
 
 <kbd>M-x cider-repl-toggle-pretty-printing</kbd>
 
-##### Limiting printed output in the REPL
+#### Limiting printed output in the REPL
 
 Accidentally printing large objects can be detrimental to your
 productivity. Clojure provides the `*print-length*` var which, if set,
@@ -203,7 +203,7 @@ section of your Leiningen project's configuration.
 :repl-options {:init (set! *print-length* 50)}
 ```
 
-##### REPL history
+#### REPL history
 
 * To make the REPL history wrap around when its end is reached:
 

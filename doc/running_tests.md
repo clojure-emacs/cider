@@ -1,4 +1,4 @@
-### Running tests
+## Running tests
 
 You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c C-t
 n</kbd> or <kbd>C-c C-t C-n</kbd> in a source buffer or a REPL buffer will run
@@ -42,7 +42,7 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ```
 
-#### Running tests automatically (test-driven development)
+### Running tests automatically (test-driven development)
 
 CIDER provides a minor-mode that automatically runs all tests for a namespace
 whenever you load a file (with <kbd>C-c C-k</kbd>). You can toggle it
@@ -56,7 +56,7 @@ This is completely equivalent to manually typing <kbd>C-c C-t C-n</kbd> every
 time you load a Clojure buffer. Also, as described above before, CIDER is smart
 enough to figure out the namespace containing the tests.
 
-#### Using cider-test with alternative test libraries
+### Using cider-test with alternative test libraries
 
 The `clojure.test` machinery is designed to be pluggable. Any test library
 can implement it if so desired, and therefore leverage `cider-test`. For
