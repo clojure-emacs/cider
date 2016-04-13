@@ -81,10 +81,6 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 
 ![CIDER Screenshot](images/cider-overview.png)
 
-## Changelog
-
-An extensive changelog is available [here](https://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md).
-
 [nREPL]: https://github.com/clojure/tools.nrepl
 [SLIME]: https://github.com/slime/slime
 [swank-clojure]: https://github.com/technomancy/swank-clojure

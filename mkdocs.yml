@@ -26,6 +26,7 @@ pages:
     - Support: about/support.md
     - Contributing: about/contributing.md
     - Release Policy: about/release_policy.md
+    - Changelog: about/changelog.md
     - Logo: about/logo.md
     - License: about/license.md
 extra_css:
