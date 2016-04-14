@@ -702,7 +702,7 @@ TARGET is inside it.  The returned list is suitable for use in
     (nrepl-dbind-response cider--debug-mode-response (line column)
       (if (and line column)
           (progn ;; Get to the proper line & column in the file
-            (forward-line (- line (line-number-at-pos)))
+            (forward-line (- line 1 (line-number-at-pos)))
             (move-to-column column))
         (beginning-of-defun))
       ;; Is HERE inside the sexp being debugged?
