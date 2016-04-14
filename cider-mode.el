@@ -405,7 +405,7 @@ The value can also be t, which means to font-lock as much as possible."
 (defface cider-deprecated
   '((((background light)) :background "light goldenrod")
     (((background dark)) :background "#432"))
-  "Faced used on deprecated vars."
+  "Face used on deprecated vars."
   :group 'cider)
 
 (defface cider-instrumented-face
