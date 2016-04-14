@@ -57,7 +57,7 @@
   :group 'cider-debug
   :package-version '(cider . "0.10.0"))
 
-(defface cider-enlightened
+(defface cider-enlightened-face
   '((((class color) (background light)) :inherit cider-result-overlay-face
      :box (:color "darkorange" :line-width -1))
     (((class color) (background dark))  :inherit cider-result-overlay-face
@@ -67,7 +67,7 @@
   :group 'cider-debug
   :package-version '(cider . "0.11.0"))
 
-(defface cider-enlightened-local
+(defface cider-enlightened-local-face
   '((((class color) (background light)) :weight bold :foreground "darkorange")
     (((class color) (background dark))  :weight bold :foreground "yellow"))
   "Face used to mark enlightened locals (not their values)."
@@ -647,15 +647,15 @@ displaying its value."
                 (cider--make-result-overlay (cider-font-lock-as-clojure debug-value)
                   :where (cons marker marker)
                   :type 'enlighten
-                  :prepend-face 'cider-enlightened)
+                  :prepend-face 'cider-enlightened-face)
               ;; Enlightening a symbol uses a more abbreviated format. The
               ;; result face is the same as a regular result, but we also color
-              ;; the symbol with `cider-enlightened-local'.
+              ;; the symbol with `cider-enlightened-local-face'.
               (cider--make-result-overlay (cider-font-lock-as-clojure debug-value)
                 :format "%s"
                 :where (cons (point) marker)
                 :type 'enlighten
-                'face 'cider-enlightened-local))))))))
+                'face 'cider-enlightened-local-face))))))))
 
 
 ;;; Move here command

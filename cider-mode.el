@@ -388,7 +388,8 @@ that should be font-locked:
    `macro' (default): Any defined macro gets the `font-lock-builtin-face'.
    `function': Any defined function gets the `font-lock-function-face'.
    `var': Any non-local var gets the `font-lock-variable-face'.
-   `deprecated' (default): Any deprecated var gets the `cider-deprecated' face.
+   `deprecated' (default): Any deprecated var gets the `cider-deprecated-face'
+   face.
    `core' (default): Any symbol from clojure.core (face depends on type).
 
 The value can also be t, which means to font-lock as much as possible."
@@ -402,7 +403,7 @@ The value can also be t, which means to font-lock as much as possible."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defface cider-deprecated
+(defface cider-deprecated-face
   '((((background light)) :background "light goldenrod")
     (((background dark)) :background "#432"))
   "Face used on deprecated vars."
@@ -483,10 +484,10 @@ The value can also be t, which means to font-lock as much as possible."
              (cider--unless-local-match font-lock-variable-name-face))))
       ,@(when deprecated
           `((,(regexp-opt deprecated 'symbols) 0
-             (cider--unless-local-match 'cider-deprecated) append)))
+             (cider--unless-local-match 'cider-deprecated-face) append)))
       ,@(when enlightened
           `((,(regexp-opt enlightened 'symbols) 0
-             (cider--unless-local-match 'cider-enlightened) append)))
+             (cider--unless-local-match 'cider-enlightened-face) append)))
       ,@(when instrumented
           `((,(regexp-opt instrumented 'symbols) 0
              (cider--unless-local-match 'cider-instrumented-face) append)))
