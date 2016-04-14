@@ -281,7 +281,7 @@ hidden count."
           (unless (get-text-property (point) 'collapsed)
             (let* ((flags (get-text-property (point) 'flags))
                    (hide (if (seq-intersection filters flags) t nil)))
-              (when hide (setq hidden (+ 1 hidden)))
+              (when hide (cl-incf hidden))
               (put-text-property (point) (line-beginning-position 2) 'invisible hide)))
           (forward-line 1))
         (setq cider-stacktrace-hidden-frame-count hidden)))

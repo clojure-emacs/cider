@@ -72,7 +72,7 @@ POS is the index of the currently highlighted argument."
            (prog1
                (if (or (= (1+ i) pos)
                        (and rest-pos
-                            (> (+ 1 i) rest-pos)
+                            (> (1+ i) rest-pos)
                             (> pos rest-pos)))
                    (propertize argstr 'face
                                'eldoc-highlight-function-argument)
