@@ -42,18 +42,20 @@ and [MELPA](http://melpa.org).
 
 You can install CIDER with the following command:
 
-<kbd>M-x package-install [RET] cider [RET]</kbd>
+<kbd>M-x</kbd> `package-install` <kbd>[RET]</kbd> `cider` <kbd>[RET]</kbd>
 
 ### Launch an nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` or `boot` project (like
-`foo.clj`) and type <kbd>M-x cider-jack-in</kbd>. This will start an nREPL server with
-all the project dependencies loaded in and CIDER will automatically connect to it.
+`foo.clj`) and type <kbd>M-x</kbd> `cider-jack-in`. This will start an nREPL
+server with all the project dependencies loaded in and CIDER will automatically
+connect to it.
 
-Alternatively you can use <kbd>C-u M-x cider-jack-in</kbd> to specify the name of
-a `lein` or `boot` project, without having to visit any file in it.
+Alternatively you can use <kbd>C-u M-x</kbd> `cider-jack-in` to specify the name
+of a `lein` or `boot` project, without having to visit any file in it.
 
-In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
+In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c
+M-j</kbd>.
 
 ### Connect to a running nREPL server
 
@@ -70,11 +72,11 @@ Or with Boot:
 $ boot repl wait
 ```
 
-Alternatively you can start nREPL either manually or by the facilities provided by your
-project's build tool (Maven, etc).
+Alternatively you can start nREPL either manually or by the facilities provided
+by your project's build tool (Gradle, Maven, etc).
 
-After you get your nREPL server running go back to Emacs.
-Typing there <kbd>M-x cider-connect</kbd> will allow you to connect to the running nREPL server.
+After you get your nREPL server running go back to Emacs.  Typing there <kbd>M-x</kbd>
+`cider-connect` will allow you to connect to the running nREPL server.
 
 In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
 
