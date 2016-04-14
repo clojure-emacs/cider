@@ -700,9 +700,9 @@ TARGET is inside it.  The returned list is suitable for use in
     (user-error "`cider-debug-move-here' only makes sense during a debug session"))
   (let ((here (point)))
     (nrepl-dbind-response cider--debug-mode-response (line column)
-      (if (and line column)
+      (if (and line column (buffer-file-name))
           (progn ;; Get to the proper line & column in the file
-            (forward-line (- line 1 (line-number-at-pos)))
+            (forward-line (1- (- line (line-number-at-pos))))
             (move-to-column column))
         (beginning-of-defun))
       ;; Is HERE inside the sexp being debugged?
