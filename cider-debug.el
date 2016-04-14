@@ -343,7 +343,10 @@ In order to work properly, this mode must be activated by
     (when nrepl-ongoing-sync-request
       (ignore-errors (exit-recursive-edit)))))
 
+;;; Bind the `:here` command to both h and H, because it behaves differently if
+;;; invoked with an uppercase letter.
 (define-key cider--debug-mode-map "h" #'cider-debug-move-here)
+(define-key cider--debug-mode-map "H" #'cider-debug-move-here)
 
 (defun cider--debug-remove-overlays (&optional buffer)
   "Remove CIDER debug overlays from BUFFER if variable `cider--debug-mode' is nil."
@@ -383,6 +386,12 @@ In order to work properly, this mode must be activated by
      ["List locals" cider-debug-toggle-locals :style toggle :selected cider-debug-display-locals])
     ["Customize" (customize-group 'cider-debug)]))
 
+(defun cider--uppercase-command-p ()
+  "Return true if the last command was uppercase letter."
+  (ignore-errors
+    (let ((case-fold-search nil))
+      (string-match "[[:upper:]]" (string last-command-event)))))
+
 (defun cider-debug-mode-send-reply (command &optional key force)
   "Reply to the message that started current bufer's debugging session.
 COMMAND is sent as the input option.  KEY can be provided to reply to a
@@ -395,17 +404,15 @@ message."
                     (nrepl-dict-get cider--debug-mode-commands-dict
                                     (downcase (string last-command-event)))))
                 nil
-                (ignore-errors
-                  (let ((case-fold-search nil))
-                    (string-match "[[:upper:]]" (string last-command-event))))))
+                (cider--uppercase-command-p)))
   (unless (or (string-prefix-p ":" command)
               (string-prefix-p "{" command))
     (setq command (concat ":" command)))
+  (when (and (string-prefix-p ":" command) force)
+    (setq command (format "{:response %s :force? true}" command)))
   (cider-nrepl-send-unhandled-request
-   (append (list "op" "debug-input" "input" (or command ":quit")
-                 "key" (or key (nrepl-dict-get cider--debug-mode-response "key")))
-           (when force
-             '("force?" "true"))))
+   (list "op" "debug-input" "input" (or command ":quit")
+         "key" (or key (nrepl-dict-get cider--debug-mode-response "key"))))
   (ignore-errors (cider--debug-mode -1)))
 
 (defun cider--debug-quit ()
@@ -693,9 +700,9 @@ TARGET is inside it.  The returned list is suitable for use in
         ;; `unwind-protect' clause.
         (goto-char starting-point)))))
 
-(defun cider-debug-move-here ()
+(defun cider-debug-move-here (&optional force)
   "Skip any breakpoints up to point."
-  (interactive)
+  (interactive (list (cider--uppercase-command-p)))
   (unless cider--debug-mode
     (user-error "`cider-debug-move-here' only makes sense during a debug session"))
   (let ((here (point)))
@@ -716,8 +723,9 @@ TARGET is inside it.  The returned list is suitable for use in
       (comment-forward (point-max))
       ;; Find the coordinate and send it.
       (cider-debug-mode-send-reply
-       (format "{:response :here, :coord %s}"
-               (cider--debug-find-coordinates-for-point here))))))
+       (format "{:response :here, :coord %s :force? %s}"
+               (cider--debug-find-coordinates-for-point here)
+               (if force "true" "false"))))))
 
 
 ;;; User commands
