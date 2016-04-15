@@ -4,6 +4,8 @@
 
 ### New Features
 
+* `f` key reruns failed tests on the test-report buffer.
+* `g` key reruns test at point on the test-report buffer.
 * Debugger now supports step-in.
 * Improve CIDER's menu-bar menu:
   - Thoroughly reorganize it and split it into 3 separate menus;

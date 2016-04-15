@@ -164,6 +164,12 @@
     (define-key map (kbd "t") #'cider-test-jump)
     (define-key map (kbd "d") #'cider-test-ediff)
     (define-key map (kbd "e") #'cider-test-stacktrace)
+    ;; `f' for "run failed".
+    (define-key map "f" #'cider-test-rerun-tests)
+    ;; `g' generally reloads the buffer.  The closest thing we have to that is
+    ;; "run the test at point".  But it's not as nice as rerunning all tests in
+    ;; this buffer.
+    (define-key map "g" #'cider-test-run-test)
     (define-key map "q" #'cider-popup-buffer-quit-function)
     (easy-menu-define cider-test-report-mode-menu map
       "Menu for CIDER's test result mode"
