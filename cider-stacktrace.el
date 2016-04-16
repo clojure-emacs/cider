@@ -557,10 +557,11 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
                           'action (lambda (_button) (cider-report-bug))
                           'help-echo "Report bug to the CIDER team.")
       (insert "`.\n\n")
-      (insert " If these stacktraces are occuring frequently, consider
-  using the button(s) below to suppress these types of errors for the
-  duration of your current CIDER session. The stacktrace buffer will still
-  be generated, but it will \"pop under\" your current buffer instead of
+      (insert "\
+  If these stacktraces are occuring frequently, consider using the
+  button(s) below to suppress these types of errors for the duration of
+  your current CIDER session. The stacktrace buffer will still be
+  generated, but it will \"pop under\" your current buffer instead of
   \"popping over\". The button toggles this behavior.\n\n ")
       (dolist (error-type error-types)
         (let ((suppressed (cider-stacktrace-suppressed-error-p error-type)))
