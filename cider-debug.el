@@ -401,13 +401,10 @@ message."
                 (if (symbolp last-command-event)
                     (symbol-name last-command-event)
                   (ignore-errors
-                    (nrepl-dict-get cider--debug-mode-commands-dict
-                                    (downcase (string last-command-event)))))
+                    (concat ":" (nrepl-dict-get cider--debug-mode-commands-dict
+                                                (downcase (string last-command-event))))))
                 nil
                 (cider--uppercase-command-p)))
-  (unless (or (string-prefix-p ":" command)
-              (string-prefix-p "{" command))
-    (setq command (concat ":" command)))
   (when (and (string-prefix-p ":" command) force)
     (setq command (format "{:response %s :force? true}" command)))
   (cider-nrepl-send-unhandled-request
