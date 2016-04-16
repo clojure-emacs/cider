@@ -572,8 +572,7 @@ is a coordinate measure in sexps."
           ;; We prefer in-source debugging.
           (when-let ((buf (and file line column
                                (ignore-errors
-                                 (cider--jump-to-loc-from-info response)
-                                 (current-buffer)))))
+                                 (cider--find-buffer-for-file file)))))
             ;; The logic here makes it hard to use `with-current-buffer'.
             (with-current-buffer buf
               ;; This is for restoring point inside buf.
