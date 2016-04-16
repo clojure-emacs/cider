@@ -16,9 +16,9 @@ Keyboard shortcut                    | Description
 <kbd>3</kbd>                         | Cycle cause #3 detail
 <kbd>4</kbd>                         | Cycle cause #4 detail
 <kbd>5</kbd>                         | Cycle cause #5 detail
-<kbd>j</kbd>                         | Toggle display of java frames
-<kbd>c</kbd>                         | Toggle display of clj frames
-<kbd>r</kbd>                         | Toggle display of repl frames
+<kbd>j</kbd>                         | Toggle display of Java frames
+<kbd>c</kbd>                         | Toggle display of Clojure frames
+<kbd>r</kbd>                         | Toggle display of REPL frames
 <kbd>t</kbd>                         | Toggle display of tooling frames (e.g. compiler, nREPL middleware)
 <kbd>d</kbd>                         | Toggle display of duplicate frames
 <kbd>a</kbd>                         | Toggle display of all frames
