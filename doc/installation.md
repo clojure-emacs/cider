@@ -90,7 +90,7 @@ Use the convenient plugin for defaults, either in your project's
 A minimal `profiles.clj` for CIDER would be:
 
 ```clojure
-{:repl {:plugins [[cider/cider-nrepl "0.11.0"]]}}
+{:repl {:plugins [[cider/cider-nrepl "0.12.0"]]}}
 ```
 
 **Be careful not to place this in the `:user` profile, as this way CIDER's
@@ -106,7 +106,7 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 (require 'boot.repl)
 
 (swap! boot.repl/*default-dependencies*
-       concat '[[cider/cider-nrepl "0.11.0"]])
+       concat '[[cider/cider-nrepl "0.12.0"]])
 
 (swap! boot.repl/*default-middleware*
        conj 'cider.nrepl/cider-middleware)
@@ -133,6 +133,6 @@ It goes without saying that your project should depend on `cider-nrepl`.
 
 ***
 
-`x.y.z` should match the version of CIDER you're currently using (say `0.11.0`).
+`x.y.z` should match the version of CIDER you're currently using (say `0.12.0`).
 For snapshot releases of CIDER you should use the snapshot of the plugin as well
-(say `0.11.0-SNAPSHOT`).
+(say `0.12.0-SNAPSHOT`).

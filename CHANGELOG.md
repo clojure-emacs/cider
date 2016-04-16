@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.12.0 (2016-04-16)
+
 ### New Features
 
 * Option `cider-use-tooltips` controls the display of mouse-over tooltips.
