@@ -554,7 +554,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
       (insert "  This is an unexpected CIDER middleware error.\n  Please submit a bug report via `")
       (insert-text-button "M-x cider-report-bug"
                           'follow-link t
-                          'action #'(lambda (button) (cider-report-bug))
+                          'action (lambda (_button) (cider-report-bug))
                           'help-echo "Report bug to the CIDER team.")
       (insert "`.\n\n")
       (insert " If these stacktraces are occuring frequently, consider
