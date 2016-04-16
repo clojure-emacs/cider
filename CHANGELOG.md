@@ -4,6 +4,7 @@
 
 ### New Features
 
+* Option `cider-use-tooltips` controls the display of mouse-over tooltips.
 * `f` key reruns failed tests on the test-report buffer.
 * `g` key reruns test at point on the test-report buffer.
 * Debugger now supports step-in.

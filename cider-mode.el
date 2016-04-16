@@ -651,11 +651,18 @@ before point."
      "[`']" "\\\\=\\&"
      (buffer-substring-no-properties (point-min) (1- (point))))))
 
+(defcustom cider-use-tooltips t
+  "If non-nil, CIDER displays mouse-over tooltips."
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider "0.12.0"))
+
 (defun cider--help-echo (_ obj pos)
   "Return the help-echo string for OBJ at POS.
 See \(info \"(elisp) Special Properties\")"
   (while-no-input
-    (when (and (bufferp obj) (cider-connected-p))
+    (when (and (bufferp obj) (cider-connected-p)
+               cider-use-tooltips)
       (with-current-buffer obj
         (ignore-errors
           (save-excursion
