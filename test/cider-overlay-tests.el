@@ -19,47 +19,59 @@
 
 ;;; Code:
 
-(require 'ert)
+(require 'buttercup)
 (require 'cider-overlays)
 
-(ert-deftest cider--make-result-overlay ()
-  ;; First, just don't error.
-  (with-temp-buffer
-    (insert "garbage")
-    (save-excursion (insert "\nmore trash"))
-    (cider--make-result-overlay "ok")
-    (should (overlays-at (point-min)))
-    ;; Then do some tests.
-    (mapc #'cider--delete-overlay (overlays-at (point-min)))
-    (let ((o1 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min))))))
-      (should-not o1))
+(defmacro cider--with-overlay (overlay-args &rest body)
+  "Run BODY in a temp buffer, with overlays created."
+  (declare (indent 1)
+           (debug (sexp sexp &rest form)))
+  `(with-temp-buffer
+     (insert "garbage")
+     (save-excursion (insert "\nmore trash"))
+     (cider--make-result-overlay ,@overlay-args)
+     ,@body))
 
-    ;; Duration
-    (cider--make-result-overlay "ok" :duration 'command)
-    (run-hooks 'post-command-hook)
-    (run-hooks 'post-command-hook)
-    (let ((o2 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min))))))
-      (should-not o2))
 
-    (let ((this-command nil))
-      (cider--make-result-overlay "ok" :duration 'command))
-    (run-hooks 'post-command-hook)
-    (let ((o3 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min))))))
-      (should-not o3))
+(describe "cider--make-result-overlay"
+  :var (overlay-position this-command)
 
-    (cider--make-result-overlay "ok" :duration 1.5)
-    (sleep-for 1)
-    (let ((o4 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min))))))
-      (should o4))
-    (sleep-for 1)
-    (let ((o5 (remove nil (mapcar #'overlay-start
-                                  (overlays-at (point-min))))))
-      (should-not o5))))
+  (before-all
+    (fset 'overlay-position (lambda ()
+                              (mapcar #'overlay-start
+                                      (overlays-at (point-min))))))
 
+  (it "can create overlays"
+    (cider--with-overlay ("ok")
+      (expect (overlays-at (point-min)) :to-be-truthy)))
+
+  (describe "when overlay duration is `command`"
+    (it "erases overlays after the next command is executed"
+      (cider--with-overlay ("ok" :duration 'command)
+        (run-hooks 'post-command-hook)
+        (run-hooks 'post-command-hook)
+        (expect (overlay-position) :to-equal nil))
+
+      (cider--with-overlay ("ok" :duration 'command)
+        (setq this-command nil)
+        (run-hooks 'post-command-hook)
+        (expect (overlay-position) :to-equal nil))))
+
+  (describe "when overlay duration is given in secs"
+    (it "erases overlays after that duration"
+      (cider--with-overlay ("ok" :duration 1.5)
+        (sleep-for 1)
+        (expect (overlay-position) :not :to-equal nil)
+        (sleep-for 1)
+        (expect (overlay-position) :to-equal nil)))))
+
+(describe "cider--delete-overlay"
+  :var (overlay-position)
+  (it "deletes overlays"
+    (cider--with-overlay ("ok")
+      (mapc #'cider--delete-overlay (overlays-at (point-min)))
+      (setq overlay-position (mapcar #'overlay-start (overlays-at (point-min))))
+      (expect overlay-position :to-equal nil))))
 
 (provide 'cider-overlay-tests)
 ;;; cider-overlay-tests.el ends here

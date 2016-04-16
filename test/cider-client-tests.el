@@ -1,6 +1,6 @@
+(require 'buttercup)
 (require 'cider)
 (require 'cider-client)
-(require 'ert)
 
 ;;; cider-client tests
 
@@ -19,97 +19,146 @@ SYMBOL is locally let-bound to the current buffer."
            (,symbol (current-buffer)))
        ,@body)))
 
-(ert-deftest cider-current-connection-nil-case ()
-  (let ((cider-connections nil))
-    (should-not (cider-current-connection))
-    (should-not (cider-current-connection "clj"))
-    (should-not (cider-current-connection "cljs"))))
 
-(ert-deftest cider-current-connection-follow-type-argument ()
-  (with-connection-buffer "clj" b1
-    (should (equal (cider-current-connection) b1))
-    (should (equal (cider-current-connection "clj") b1))
-    (should-not (cider-current-connection "cljs"))
-    (with-connection-buffer "cljs" b2
-      (should (equal (cider-current-connection) b2))
-      (should (equal (cider-current-connection "cljs") b2))
-      (should (equal (cider-current-connection "clj") b1))
-      (with-connection-buffer "cljs" b3
-        (should (equal (cider-current-connection) b3))
-        (should (equal (cider-current-connection "cljs") b3))
-        (should (equal (cider-current-connection "clj") b1)))
-      (with-connection-buffer "clj" b4
-        (should (equal (cider-current-connection) b4))
-        (should (equal (cider-current-connection "cljs") b2))
-        (should (equal (cider-current-connection "clj") b4))))))
+(describe "cider-current-connection"
 
-(ert-deftest cider-current-connection-follow-file-extension ()
-  ;; A single connection buffer.
-  (with-connection-buffer "clj" b1
-    (with-temp-buffer
-      (setq major-mode 'clojure-mode)
-      (should (equal (cider-current-connection) b1))
-      (should (equal (cider-current-connection "clj") b1))
-      (should-not (cider-current-connection "cljs")))
-    (with-temp-buffer
-      ;; No cljs repl exists, but the TYPE argument is nil, so the
-      ;; next-best-thing is returned.
-      (setq major-mode 'clojurescript-mode)
-      (should (equal (cider-current-connection) b1))
-      (should (equal (cider-current-connection "clj") b1))
-      (should-not (cider-current-connection "cljs"))))
-  (with-connection-buffer "cljs" b1
-    (with-temp-buffer
-      (setq major-mode 'clojure-mode)
-      ;; No clj repl exists, but the TYPE argument is nil, so the
-      ;; next-best-thing is returned.
-      (should (equal (cider-current-connection) b1))
-      (should (equal (cider-current-connection "cljs") b1))
-      (should-not (cider-current-connection "clj")))
-    (with-temp-buffer
-      (setq major-mode 'clojurescript-mode)
-      (should (equal (cider-current-connection) b1))
-      (should (equal (cider-current-connection "cljs") b1))
-      (should-not (cider-current-connection "clj"))))
-  ;; Multiple connection buffers.
-  (with-connection-buffer "clj" bb1
-    (with-connection-buffer "cljs" bb2
-      ;; The two buffers above are not used. We just want to ensure we are
-      ;; returning the most recent connection in case of ambiguity.
+  (describe "when there are no active connections"
+    :var (cider-connections)
+    (it "returns nil"
+      (setq cider-connections nil)
+      (expect (cider-current-connection) :not :to-be-truthy)
+      (expect (cider-current-connection "clj") :not :to-be-truthy)
+      (expect (cider-current-connection "cljs") :not :to-be-truthy)))
+
+
+  (describe "when active connections are available"
+
+    (it "always returns the latest connection"
+      (with-connection-buffer "clj" bb1
+        (with-connection-buffer "cljs" bb2
+          (with-connection-buffer "clj" b1
+            (with-connection-buffer "cljs" b2
+              (expect (cider-current-connection) :to-equal b2)
+
+              ;; follows type arguments
+              (expect (cider-current-connection "clj") :to-equal b1)
+              (expect (cider-current-connection "cljs") :to-equal b2)
+
+              ;; follows file type
+              (with-temp-buffer
+                (setq major-mode 'clojure-mode)
+                (expect (cider-current-connection) :to-equal b1))
+
+              (with-temp-buffer
+                (setq major-mode 'clojurescript-mode)
+                (expect (cider-current-connection) :to-equal b2)))))))
+
+    (describe "when type argument is given"
+      (describe "when connection of that type exists"
+        (it "returns that connection buffer"
+          ;; for clj
+          (with-connection-buffer "clj" b1
+            (with-connection-buffer "cljs" b2
+              (expect (cider-current-connection "clj") :to-equal b1)))
+          ;; for cljs
+          (with-connection-buffer "cljs" b1
+            (with-connection-buffer "clj" b2
+              (expect (cider-current-connection "cljs") :to-equal b1)))))
+
+      (describe "when connection of that type doesn't exists"
+        (it "returns nil"
+          ;; for clj
+          (with-connection-buffer "cljs" b1
+            (expect (cider-current-connection "clj") :to-equal nil))
+
+          ;; for cljs
+          (with-connection-buffer "clj" b2
+            (expect (cider-current-connection "cljs") :to-equal nil)))))
+
+    (describe "when type argument is not given"
+      (describe "when a connection matching current file extension exists"
+        (it "returns that connection buffer"
+          ;; for clj
+          (with-connection-buffer "clj" b1
+            (with-connection-buffer "cljs" b2
+              (with-temp-buffer
+                (setq major-mode 'clojure-mode)
+                (expect (cider-current-connection) :to-equal b1))))
+
+          ;; for cljs
+          (with-connection-buffer "cljs" b1
+            (with-connection-buffer "clj" b2
+              (with-temp-buffer
+                (setq major-mode 'clojurescript-mode)
+                (expect (cider-current-connection) :to-equal b1))))))
+
+      (describe "when a connection matching current file extension doesn't exist"
+        (it "returns the latest connection buffer"
+          ;; for clj
+          (with-connection-buffer "clj" b1
+            (with-temp-buffer
+              (setq major-mode 'clojurescript-mode)
+              (expect (cider-current-connection) :to-equal b1)))
+
+          ;; for cljs
+          (with-connection-buffer "cljs" b2
+            (with-temp-buffer
+              (setq major-mode 'clojure-mode)
+              (expect (cider-current-connection) :to-equal b2))))))))
+
+
+(describe "cider-other-connection"
+  (describe "when there are no active connections"
+    :var (cider-connections)
+    (it "returns nil"
+      (setq cider-connections nil)
+      (expect (cider-other-connection) :to-equal nil)))
+
+  (describe "when there is only 1 active connection"
+    (it "returns nil"
+      ;; for clj
       (with-connection-buffer "clj" b1
-        (with-connection-buffer "cljs" b2
-          (with-temp-buffer
-            (setq major-mode 'clojure-mode)
-            ;; TYPE argument is nil, a clj connection exists and we're in
-            ;; clojure-mode, so we return the clj connection even though the top
-            ;; connection is cljs.
-            (should (equal (cider-current-connection) b1))
-            (should (equal (cider-current-connection "clj") b1))
-            (should (equal (cider-current-connection "cljs") b2)))
-          (with-temp-buffer
-            (setq major-mode 'clojurescript-mode)
-            ;; A cljs repl exists, and the TYPE argument is nil.
-            (should (equal (cider-current-connection) b2))
-            (should (equal (cider-current-connection "clj") b1))
-            (should (equal (cider-current-connection "cljs") b2))))))))
+        (expect (cider-other-connection) :to-equal nil)
+        (expect (cider-other-connection b1) :to-equal nil))
+      ;; for cljs
+      (with-connection-buffer "cljs" b1
+        (expect (cider-other-connection) :to-equal nil)
+        (expect (cider-other-connection b1) :to-equal nil))))
 
-(ert-deftest cider-other-connection ()
-  (let ((cider-connections nil))
-    (should-not (cider-other-connection))
-    (with-connection-buffer "clj" b1
-      (should-not (cider-other-connection))
-      (should-not (cider-other-connection b1))
-      (with-connection-buffer "cljs" b2
-        (should (equal (cider-other-connection) b1))
-        (should (equal (cider-other-connection b1) b2))
-        (should (equal (cider-other-connection b2) b1))
-        (with-connection-buffer "cljs" b3
-          (should (equal (cider-other-connection) b1))
-          (should (equal (cider-other-connection b1) b3))
-          (should (equal (cider-other-connection b3) b1))
-          (should (equal (cider-other-connection b2) b1)))
-        (with-connection-buffer "clj" b4
-          (should (equal (cider-other-connection) b2))
-          (should (equal (cider-other-connection b4) b2))
-          (should (equal (cider-other-connection b2) b4))
-          (should (equal (cider-other-connection b1) b2)))))))
+  (describe "when active connections are available"
+    (describe "when a connection of other type doesn't exist"
+      (it "returns nil"
+        ;; for clj
+        (with-connection-buffer "clj" b1
+          (with-connection-buffer "clj" b2
+            (expect (cider-other-connection) :to-equal nil)
+            (expect (cider-other-connection b1) :to-equal nil)
+            (expect (cider-other-connection b2) :to-equal nil)))
+        ;; for cljs
+        (with-connection-buffer "cljs" b1
+          (with-connection-buffer "cljs" b2
+            (expect (cider-other-connection) :to-equal nil)
+            (expect (cider-other-connection b1) :to-equal nil)
+            (expect (cider-other-connection b2) :to-equal nil)))))
+
+    (describe "when a connection of other type exists"
+      (it "returns that connection"
+        (with-connection-buffer "clj" b1
+          (with-connection-buffer "cljs" b2
+            (expect (cider-other-connection) :to-equal b1)
+            (expect (cider-other-connection b1) :to-equal b2)
+            (expect (cider-other-connection b2) :to-equal b1)))))
+
+    (describe "when there are multiple active connections"
+      (it "always returns the latest connection"
+
+        (with-connection-buffer "clj" bb1
+          (with-connection-buffer "cljs" bb2
+            (with-connection-buffer "clj" b1
+              (with-connection-buffer "cljs" b2
+                (expect (cider-other-connection) :to-equal b1)
+                (expect (cider-other-connection b1) :to-equal b2)
+                (expect (cider-other-connection b2) :to-equal b1)
+                ;; older connections still work
+                (expect (cider-other-connection bb1) :to-equal b2)
+                (expect (cider-other-connection bb2) :to-equal b1)))))))))
