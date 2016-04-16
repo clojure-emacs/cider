@@ -35,9 +35,9 @@ In many ways the CIDER scratchpad is similar to Emacs's own `*scratch*` buffer.
 ## Macroexpansion
 
 Pressing <kbd>C-c C-m</kbd> after some form in a source buffer or the REPL will
-result in a new buffer, showing the macroexpansion of form in question. You'll
-have access to additional keybindings in the macroexpansion buffer (which is
-internally using `cider-macroexpansion-mode`):
+result in a new buffer, showing the macroexpansion of the form in
+question. You'll have access to additional keybindings in the macroexpansion
+buffer (which is internally using `cider-macroexpansion-mode`):
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
