@@ -607,9 +607,12 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
     (condition-case-unless-debug e
         (progn
           (pcase input-type
-            ("expression" (cider-debug-mode-send-reply (cider-read-from-minibuffer
-                                                        (or prompt "Expression: "))
-                                                       key))
+            ("expression" (cider-debug-mode-send-reply
+                           (condition-case nil
+                               (cider-read-from-minibuffer
+                                (or prompt "Expression: "))
+                             (quit "nil"))
+                           key))
             ((pred sequencep)
              (let* ((marker (cider--debug-find-source-position response 'create-if-needed)))
                (pop-to-buffer (marker-buffer marker))
