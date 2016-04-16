@@ -34,8 +34,8 @@ C-M-x</kbd>) is a quick way of evaluating the current top-level form with `#dbg`
 in front.
 
 At any point, you can bring up a list of all currently instrumented `def`s with
-the command `cider-browse-instrumented-defs`. Protocols and types can be
-instrumented as well, but they will not be listed by this command.
+the command <kbd>M-x</kbd> `cider-browse-instrumented-defs`. Protocols and types
+can be instrumented as well, but they will not be listed by this command.
 
 ## Keys
 
@@ -140,9 +140,9 @@ C-M-x` or `C-u C-u C-c C-c`.
 
 ## Internal Details
 
-*This section explains a bit of the inner workings of the debugger. It is mostly
-to help those who are interested in contributing, and doesn't teach anything
-about usage.*
+*This section explains a bit of the inner workings of the debugger. It is
+intended mostly to help those who are interested in contributing, and doesn't
+teach anything about the debugger's usage.*
 
 The CIDER debugger works in several steps:
 
