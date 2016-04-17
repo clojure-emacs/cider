@@ -148,10 +148,12 @@ project.clj for leiningen or build.boot for boot, could be found."
 
 (defcustom cider-known-endpoints nil
   "A list of connection endpoints where each endpoint is a list.
-For example: '((\"label\" \"host\" \"port\")).
-The label is optional so that '(\"host\" \"port\") will suffice.
+For example: \\='((\"label\" \"host\" \"port\")).
+The label is optional so that \\='(\"host\" \"port\") will suffice.
 This variable is used by `cider-connect'."
-  :type 'list
+  :type '(repeat (list (string :tag "label")
+                       (string :tag "host")
+                       (string :tag "port")))
   :group 'cider)
 
 (defcustom cider-connected-hook nil
@@ -471,6 +473,10 @@ gets associated with it."
 
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
+  (dolist (ep cider-known-endpoints)
+    (unless (stringp (elt ep 2))
+      (user-error "The port for %s in `cider-known-endpoints' should be a string"
+                  (elt ep 0))))
   (let* ((ssh-hosts (cider--ssh-hosts))
          (hosts (seq-uniq (append (when cider-host-history
                                     ;; history elements are strings of the form "host:port"
