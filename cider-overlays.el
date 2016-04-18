@@ -161,7 +161,9 @@ overlay."
         (skip-chars-backward "\r\n[:blank:]")
         (let* ((beg (if (consp where)
                         (car where)
-                      (line-beginning-position)))
+                      (save-excursion
+                        (clojure-backward-logical-sexp 1)
+                        (point))))
                (end (if (consp where)
                         (cdr where)
                       (line-end-position)))
