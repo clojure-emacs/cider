@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New Features
+
+* Fringe indicators highlight which sexps have been loaded. Disable it with `cider-use-fringe-indicators`.
+
 ### Changes
 
 * Signal an error sooner if the user misconfigured `cider-known-endpoints`.
