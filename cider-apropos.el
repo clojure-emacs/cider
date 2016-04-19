@@ -184,7 +184,7 @@ optionally search doc strings (based on DOCS-P), include private vars
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "apropos")
-  (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
+  (cider-apropos-select (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (provide 'cider-apropos)
 

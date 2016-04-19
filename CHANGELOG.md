@@ -6,6 +6,10 @@
 
 * Signal an error sooner if the user misconfigured `cider-known-endpoints`.
 
+### Bugs fixed
+
+* Use `cider-apropos-select` instead of `cider-apropos` in `cider-apropos-documentation-select`.
+
 ## 0.12.0 (2016-04-16)
 
 ### New Features
