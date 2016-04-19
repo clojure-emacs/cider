@@ -474,9 +474,9 @@ gets associated with it."
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
   (dolist (ep cider-known-endpoints)
-    (unless (stringp (elt ep 2))
+    (unless (stringp (nth ep 2))
       (user-error "The port for %s in `cider-known-endpoints' should be a string"
-                  (elt ep 0))))
+                  (nth ep 0))))
   (let* ((ssh-hosts (cider--ssh-hosts))
          (hosts (seq-uniq (append (when cider-host-history
                                     ;; history elements are strings of the form "host:port"

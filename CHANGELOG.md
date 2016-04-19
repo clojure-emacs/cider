@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* Signal an error sooner if the user misconfigured `cider-known-endpoints`.
+
 ## 0.12.0 (2016-04-16)
 
 ### New Features
