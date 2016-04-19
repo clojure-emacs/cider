@@ -8,6 +8,9 @@
 * Fringe indicators highlight which sexps have been loaded. Disable it with `cider-use-fringe-indicators`.
 * New command: `cider-inspect-last-result`.
 * `cider-cljs-lein-repl` now also supports figwheel.
+* Option `cider-jack-in-auto-inject-clojure` enables the user to specify a
+  version of Clojure for CIDER. This allows the user to override the version
+  used in a project, particular if it is lower than minimum required for CIDER.
 
 ### Changes
 
