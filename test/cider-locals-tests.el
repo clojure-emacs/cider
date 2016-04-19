@@ -17,9 +17,9 @@
 
 ;;; Code:
 
+(require 'buttercup)
 (require 'cider-mode)
 (require 'cider)
-(require 'ert)
 
 (defmacro cider--test-with-content (content expected &rest body)
   (declare (indent 2)
@@ -42,68 +42,104 @@
                       `(should (equal result ',expected)))))))
        out)))
 
-(ert-deftest cider--test-read-locals-from-next-sexp ()
-  (cider--test-with-content ("|[a b c]"
-                             "^:type-hint #macro |[a b c]")
-      ("a" "b" "c")
-    (cider--read-locals-from-next-sexp))
-  (cider--test-with-content ("|[a {:keys [my nombre] :as me} c]"
-                             "^:type-hint #macro |[a {:keys [my nombre] :as me} c]")
-      ("a" "c" "me" "my" "nombre")
-    (cider--read-locals-from-next-sexp))
-  (cider--test-with-content ("[a |{:keys [my nombre]} c]"
-                             "[a |^:type-hint #macro {:keys [my nombre]} c]")
-      ("my" "nombre")
-    (cider--read-locals-from-next-sexp))
-  (cider--test-with-content ("[a {:keys [my nombre]} |c]"
-                             " [a {:keys [my nombre]} ^:type-hint #macro |c]")
-      ("c")
-    (cider--read-locals-from-next-sexp)))
+(describe "cider--test-unless-local"
+  (it "returns the given argument if text at point is not a clojure local"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert (propertize "the-ns inc lalala" 'cider-locals '("inc" "x")))
+      (goto-char (point-min))
+      (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
+      (expect (cider--unless-local-match t) :to-be-truthy)
+      (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
+      (expect (cider--unless-local-match t) :not :to-be-truthy)
+      (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
+      (expect (cider--unless-local-match t) :to-be-truthy))))
 
-(ert-deftest cider--test-read-locals-from-bindings-vector ()
-  (cider--test-with-content ("[the-name (name the-ns) ns 1 [x y & z] 10 {:keys [my nombre]} some-map]"
-                             "^:type-hint #macro [the-name (name the-ns) ns 1 [x y & z] 10 {:keys [my nombre]} some-map]"
-                             "[the-name (name the-ns)\nns 1\n[x y & z] 10\n{:keys [my nombre]} some-map]"
-                             "^:type-hint #macro [the-name (name the-ns)\nns 1\n[x y & z] 10\n{:keys [my nombre]} some-map]")
-      ("my" "nombre" "ns" "the-name" "x" "y" "z")
-    (cider--read-locals-from-bindings-vector)))
-(ert-deftest cider--test-read-locals-from-bindings-vector-unfinished-sexp ()
-  (cider--test-with-content ("[the-name (name the-ns) ns 1 [x y & z] 10 {:keys [my nombre]} some-map"
-                             "^:type-hint #macro [the-name (name the-ns) ns 1 [x y & z] 10 {:keys [my nombre]} some-map"
-                             "[the-name (name the-ns)\nns 1\n[x y & z] 10\n{:keys [my nombre]} some-map"
-                             "^:type-hint #macro [the-name (name the-ns)\nns 1\n[x y & z] 10\n{:keys [my nombre]} some-map")
-      ("my" "nombre" "ns" "the-name" "x" "y" "z")
-    (cider--read-locals-from-bindings-vector)))
 
-(ert-deftest cider--test-read-locals-from-arglist ()
-  (cider--test-with-content ("(defn| requires-ns-by-name ([ a b] (+ a b)) ([the-ns] nil))"
-                             "(defn| requires-ns-by-name \"DOC\" {:data map} (^Value [a b] (+ a b)) ([the-ns] nil))"
-                             "(fn| requires-ns-by-name (^Value [a b] (+ a b)) ([the-ns] nil))"
-                             "(defn| requires-ns-by-name [[a b] the-ns] (+ a b))"
-                             "(defn| requires-ns-by-name \"DOC\" {:data map} ^Value [[a b] the-ns] (+ a b))"
-                             "(fn| requires-ns-by-name ^Value [[a b] the-ns] (+ a b))")
-      ("a" "b" "the-ns")
-    (cider--read-locals-from-arglist))
-  (cider--test-with-content ("(defn| requires-ns-by-name ([ a b] (+ a b)) ([the-ns] nil"
-                             "(defn| requires-ns-by-name \"DOC\" {:data map} (^Value [a b] (+ a b)) ([the-ns] nil"
-                             "(fn| requires-ns-by-name (^Value [a b] (+ a b)) ([the-ns] nil"
-                             "(defn| requires-ns-by-name [[a b] the-ns] (+ a b"
-                             "(defn| requires-ns-by-name \"DOC\" {:data map} ^Value [[a b] the-ns] (+ a b"
-                             "(fn| requires-ns-by-name ^Value [[a b] the-ns] (+ a b")
-      ("a" "b" "the-ns")
-    (cider--read-locals-from-arglist)))
+(describe "cider--read-locals-from-next-sexp"
+  (it "respects cursor position"
+    (cider--test-with-content ("[a {:keys [my nombre]} |c]"
+                               "[a {:keys [my nombre]} ^:type-hint #macro |c]")
+        ("c")
+      (cider--read-locals-from-next-sexp)))
 
-(ert-deftest cider--test-unless-local ()
-  (with-temp-buffer
-    (clojure-mode)
-    (insert (propertize "the-ns inc lalala" 'cider-locals '("inc" "x")))
-    (goto-char (point-min))
-    (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
-    (should (cider--unless-local-match t))
-    (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
-    (should-not (cider--unless-local-match t))
-    (search-forward-regexp "\\(\\sw\\|\\s_\\)+" nil 'noerror)
-    (should (cider--unless-local-match t))))
+  (it "understands clojure destructuring"
+    (cider--test-with-content ("[a {:keys [my nombre] :as me} [[x y]] c]"
+                               "[a {:keys [my nombre] :as me} c {:keys [x y]}]")
+        ("a" "c" "me" "my" "nombre" "x" "y")
+      (cider--read-locals-from-next-sexp)))
+
+  (it "handles clojure type-hints"
+    (cider--test-with-content ("[a |^ints {:keys [my nombre]} c]"
+                               "[a |^:type-hint #macro {:keys [my nombre]} c]")
+        ("my" "nombre")
+      (cider--read-locals-from-next-sexp))))
+
+
+(describe "cider--read-locals-from-bindings-vector"
+  (it "understands clojure destructuring"
+    (cider--test-with-content ("[x 1 y 1 z 1 {:keys [my nombre]} some-map]"
+                               "[[x y & z] 10 [[my nombre]] some-map]"
+                               ;; incomplete sexp
+                               "[x 1 y 1 z 1 {:keys [my nombre]} some-map"
+                               "[[x y & z] 10 [[my nombre]] some-map")
+        ("my" "nombre" "x" "y" "z")
+      (cider--read-locals-from-bindings-vector)))
+
+  (it "handles clojure type-hints"
+    (cider--test-with-content ("^:type-hint #macro [^String the-name (name the-ns) ^Integer ns 1 ^ints [x y & z] 10 {:keys [my nombre]} some-map]"
+                               ;; incomplete sexp
+                               "^:type-hint #macro [^String the-name (name the-ns) ^Integer ns 1 ^ints [x y & z] 10 {:keys [my nombre]} some-map")
+        ("my" "nombre" "ns" "the-name" "x" "y" "z")
+      (cider--read-locals-from-bindings-vector)))
+
+  (it "handles newlines"
+    (cider--test-with-content ("[the-name (name the-ns)\nns 1\n[x y & z] 10\n{:keys [my nombre]} some-map]"
+                               ;; incomplete sexp
+                               "[the-name (name the-ns)\nns 1\n[x y & z] 10\n{:keys [my nombre]} some-map")
+        ("my" "nombre" "ns" "the-name" "x" "y" "z")
+      (cider--read-locals-from-bindings-vector))))
+
+
+(describe "cider--read-locals-from-arglist"
+  (it "handles whitespace"
+    (cider--test-with-content ("(defn| requires-ns-by-name ([ a b] (+ a b)) ([the-ns] nil))"
+                               ;; incomplete sexp
+                               "(defn| requires-ns-by-name ([ a b] (+ a b)) ([the-ns] nil")
+        ("a" "b" "the-ns")
+      (cider--read-locals-from-arglist)))
+
+  (it "handles clojure docstrings, meta-data, type-hints"
+    (cider--test-with-content ("(defn| requires-ns-by-name \"DOC\" {:data map} (^Value [a b the-ns] (+ a b))"
+                               ;; incomplete sexp
+                               "(defn| requires-ns-by-name \"DOC\" {:data map} (^Value [a b the-ns] (+ a b")
+        ("a" "b" "the-ns")
+      (cider--read-locals-from-arglist)))
+
+  (it "understands clojure destructuring"
+    (cider--test-with-content ("(defn| requires-ns-by-name [[a & b] the-ns] (+ a b))"
+                               ;; incomplete sexp
+                               "(defn| requires-ns-by-name [[a & b] the-ns] (+ a b"
+
+                               "(defn| requires-ns-by-name [{:keys [a b]} the-ns] (+ a b))"
+                               ;; incomplete sexp
+                               "(defn| requires-ns-by-name [{:keys [a b]} the-ns] (+ a b")
+        ("a" "b" "the-ns")
+      (cider--read-locals-from-arglist)))
+
+  (it "understands clojure multi-arity functons"
+    (cider--test-with-content ("(defn| requires-ns-by-name (^Value [a & b] (+ a b)) ([the-ns] nil))"
+                               ;; incomplete sexp
+                               "(defn| requires-ns-by-name (^Value [a & b] (+ a b)) ([the-ns] nil")
+        ("a" "b" "the-ns")
+      (cider--read-locals-from-arglist)))
+
+  (it "understands lambda functions"
+    (cider--test-with-content ("(fn| requires-ns-by-name (^Value [a b] (+ a b)) ([the-ns] nil))"
+                               ;; incomplete sexp
+                               "(fn| requires-ns-by-name (^Value [a b] (+ a b)) ([the-ns] nil")
+        ("a" "b" "the-ns")
+      (cider--read-locals-from-arglist))))
 
 (provide 'cider-locals-tests)
 ;;; cider-locals-tests.el ends here
