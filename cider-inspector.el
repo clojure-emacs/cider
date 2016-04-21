@@ -97,6 +97,12 @@ The page size can be also changed interactively within the inspector."
   (cider-inspect-expr (cider-defun-at-point) (cider-current-ns)))
 
 ;;;###autoload
+(defun cider-inspect-last-result ()
+  "Inspect the most recent eval result."
+  (interactive)
+  (cider-inspect-expr "*1" (cider-current-ns)))
+
+;;;###autoload
 (defun cider-inspect (&optional arg)
   "Inspect the result of the preceding sexp.
 

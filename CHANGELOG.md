@@ -5,6 +5,7 @@
 ### New Features
 
 * Fringe indicators highlight which sexps have been loaded. Disable it with `cider-use-fringe-indicators`.
+* New command: `cider-inspect-last-result`.
 
 ### Changes
 
