@@ -9,6 +9,7 @@
 ### Changes
 
 * Signal an error sooner if the user misconfigured `cider-known-endpoints`.
+* `cider-inspect-read-and-inspect` is obsolete. Use `cider-inspect-expression` instead.
 
 ### Bugs fixed
 
