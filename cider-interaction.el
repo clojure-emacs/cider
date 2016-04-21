@@ -220,6 +220,9 @@ namespace-qualified function of zero arity."
   "Face used to highlight compilation warnings in Clojure buffers."
   :group 'cider)
 
+(defvar cider-minimum-clojure-version "1.7.0"
+  "Minimum supported version of Clojure.")
+
 (defvar cider-required-nrepl-version "0.2.12"
   "The minimum nREPL version that's known to work properly with CIDER.")
 

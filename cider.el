@@ -621,6 +621,17 @@ In case `default-directory' is non-local we assume the command is available."
                                "Can't determine nREPL's version.\nPlease, update nREPL to %s."
                                cider-required-nrepl-version)))
 
+(defun cider--check-clojure-version-supported ()
+  "Ensure that we are meeting the minimum supported version of Clojure."
+  (if-let ((clojure-version (cider--clojure-version)))
+      (when (version< clojure-version cider-minimum-clojure-version)
+        (cider-repl-manual-warning "installation/#prerequisites"
+                                   "Clojure version (%s) is not supported (minimum %s). CIDER will not work."
+                                   clojure-version cider-minimum-clojure-version))
+    (cider-repl-manual-warning "installation/#prerequisites"
+                               "Clojure version information could not be determined. Requires a minimum version %s."
+                               cider-minimum-clojure-version)))
+
 (defun cider--check-middleware-compatibility ()
   "CIDER frontend/backend compatibility check.
 Retrieve the underlying connection's CIDER-nREPL version and checks if the
@@ -646,6 +657,7 @@ buffer."
   (cider-make-connection-default (current-buffer))
   (cider-repl-init (current-buffer))
   (cider--check-required-nrepl-version)
+  (cider--check-clojure-version-supported)
   (cider--check-middleware-compatibility)
   (cider--debug-init-connection)
   (cider--subscribe-repl-to-server-out)
