@@ -118,10 +118,42 @@ This function also removes itself from `post-command-hook'."
   (remove-hook 'post-command-hook #'cider--remove-result-overlay-after-command 'local)
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
+(defface cider-fringe-good-face
+  '((((class color) (background light)) :foreground "lightgreen")
+    (((class color) (background dark)) :foreground "darkgreen"))
+  "Face used on the fringe indicator for successful evaluation."
+  :group 'cider)
+
+(defconst cider--fringe-overlay-good
+  (propertize " " 'display '(left-fringe empty-line cider-fringe-good-face))
+  "The before-string property that adds a green indicator on the fringe.")
+
+(defcustom cider-use-fringe-indicators t
+  "Whether to display evaluation indicators on the left fringe."
+  :safe #'boolean
+  :group 'cider
+  :type 'boolean)
+
+(defun cider--make-fringe-overlay (&optional end)
+  "Place an eval indicator at the fringe before a sexp.
+END is the position where the sexp ends, and defaults to point."
+  (when cider-use-fringe-indicators
+    (with-current-buffer (if (markerp end)
+                             (marker-buffer end)
+                           (current-buffer))
+      (save-excursion 
+        (if end
+            (goto-char end)
+          (setq end (point)))
+        (clojure-forward-logical-sexp -1)
+        ;; Create the green-circle overlay.
+        (cider--make-overlay (point) end 'cider-fringe-indicator
+                         'before-string cider--fringe-overlay-good)))))
+
 (cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result)
-                                            (format (concat " " cider-eval-result-prefix "%s "))
-                                            (prepend-face 'cider-result-overlay-face)
-                                            &allow-other-keys)
+                                        (format (concat " " cider-eval-result-prefix "%s "))
+                                        (prepend-face 'cider-result-overlay-face)
+                                        &allow-other-keys)
   "Place an overlay displaying VALUE at the end of line.
 VALUE is used as the overlay's after-string property, meaning it is
 displayed at the end of the overlay.  The overlay itself is placed from
@@ -185,6 +217,7 @@ overlay."
           ;; Put the cursor property only once we're done manipulating the
           ;; string, since we want it to be at the first char.
           (put-text-property 0 1 'cursor 0 display-string)
+          ;; Create the result overlay.
           (setq o (apply #'cider--make-overlay
                          beg end type
                          'after-string display-string
