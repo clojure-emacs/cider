@@ -130,7 +130,7 @@ This function also removes itself from `post-command-hook'."
 
 (defcustom cider-use-fringe-indicators t
   "Whether to display evaluation indicators on the left fringe."
-  :safe #'boolean
+  :safe #'booleanp
   :group 'cider
   :type 'boolean)
 

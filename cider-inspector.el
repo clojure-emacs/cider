@@ -112,7 +112,7 @@ With a second prefix argument it prompts for an expression to eval and inspect."
   (pcase arg
     (1 (cider-inspect-last-sexp))
     (4 (cider-inspect-defun-at-point))
-    (16 (cider-inspect-read-and-inspect))))
+    (16 (call-interactively #'cider-inspect-expr))))
 
 ;; Operations
 (defun cider-inspector--value-handler (_buffer value)
