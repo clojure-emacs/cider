@@ -39,12 +39,12 @@ result in a new buffer, showing the macroexpansion of the form in
 question. You'll have access to additional keybindings in the macroexpansion
 buffer (which is internally using `cider-macroexpansion-mode`):
 
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>C-c C-m</kbd>              | Invoke `macroexpand-1` on the form at point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
-<kbd>C-c M-m</kbd>              | Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
-<kbd>g</kbd>                    | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
-<kbd>C-/</kbd> <br/> <kbd>C-x u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
+Keyboard shortcut                 | Description
+----------------------------------|-------------------------------
+<kbd>m</kbd>                      | Invoke `macroexpand-1` on the form at point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
+<kbd>a</kbd>                      | Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
+<kbd>g</kbd>                      | The prior macroexpansion is performed again and the current contents of the macroexpansion buffer are replaced with the new expansion.
+<kbd>C-/</kbd> <br/> <kbd>u</kbd> | Undo the last inplace expansion performed in the macroexpansion buffer.
 
 ## Value inspection
 
