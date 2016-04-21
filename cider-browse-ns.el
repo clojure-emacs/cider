@@ -39,6 +39,7 @@
 (require 'cider-client)
 (require 'cider-compat)
 (require 'cider-util)
+(require 'nrepl-client)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
 
@@ -73,17 +74,25 @@
   (setq-local truncate-lines t)
   (setq-local cider-browse-ns-current-ns nil))
 
-(defun cider-browse-ns--text-face (text)
-  "Match TEXT with a face."
-  (cond
-   ((string-match-p "\\." text) 'font-lock-type-face)
-   ((string-match-p "\\`*" text) 'font-lock-variable-name-face)
-   (t 'font-lock-function-name-face)))
+(defun cider-browse-ns--text-face (namespace text)
+  "Return font-lock-face for TEXT.
+The var info is fetched from the running repl and a font-lock face is decided.
+Presence of \"arglists-str\" and \"macro\" indicates a macro form.
+Only \"arglists-str\" indicates a function. Otherwise, its a variable.
+If the NAMESPACE is not loaded in the REPL, assume TEXT is a fn."
+  (let ((var-info (cider-resolve-var namespace text)))
+    (cond
+     ((not var-info) 'font-lock-function-name-face)
+     ((and (nrepl-dict-contains var-info "arglists")
+           (string= (nrepl-dict-get var-info "macro") "true"))
+      'font-lock-keyword-face)
+     ((nrepl-dict-contains var-info "arglists") 'font-lock-function-name-face)
+     (t 'font-lock-variable-name-face))))
 
-(defun cider-browse-ns--properties (text)
+(defun cider-browse-ns--properties (namespace text)
   "Decorate TEXT with a clickable keymap and a face."
-  (let ((face (cider-browse-ns--text-face text)))
-    (propertize text
+  (let ((face (cider-browse-ns--text-face namespace text)))
+    (propertize (or text namespace)
                 'font-lock-face face
                 'mouse-face 'highlight
                 'keymap cider-browse-ns-mouse-map)))
@@ -117,7 +126,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
                              namespace
                              (mapcar (lambda (var)
                                        (format "%s"
-                                               (cider-browse-ns--properties var)))
+                                               (cider-browse-ns--properties namespace var)))
                                      vars))
       (setq-local cider-browse-ns-current-ns namespace))))
 
@@ -130,7 +139,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
       (cider-browse-ns--list (current-buffer)
                              "All loaded namespaces"
                              (mapcar (lambda (name)
-                                       (cider-browse-ns--properties name))
+                                       (cider-browse-ns--properties name nil))
                                      names))
       (setq-local cider-browse-ns-current-ns nil))))
 

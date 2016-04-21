@@ -908,7 +908,7 @@ CONTEXT represents a completion context for compliment."
     (nrepl-dict-get "resource-path")))
 
 (defun cider-sync-request:resources-list ()
-  "Perform nREPL \"resource\" op with resource name NAME."
+  "Return a list of all resources on the classpath."
   (thread-first (list "op" "resources-list"
                       "session" (cider-current-session))
     (cider-nrepl-send-sync-request)

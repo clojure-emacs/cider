@@ -128,7 +128,8 @@ This variable must be set before starting the repl connection."
           (dolist (list all)
             (let ((ns (car list)))
               (cider-browse-ns--list (current-buffer) ns
-                                     (mapcar #'cider-browse-ns--properties (cdr list))
+                                     (mapcar (apply-partially #'cider-browse-ns--properties ns)
+                                             (cdr list))
                                      ns 'noerase)
               (goto-char (point-max))
               (insert "\n"))))
