@@ -81,3 +81,54 @@
       (expect (nrepl-dict-get input 41 "default") :to-equal "default")
       (expect (nrepl-dict-get input 'missing "default") :to-equal "default")
       (expect (nrepl-dict-get input nil "default") :to-equal "default"))))
+
+(describe "nrepl--cons"
+  (it "cons's the obj onto the list or dict"
+    (expect (nrepl--cons '(23 . 44) '(dict (2 . 3) (3 . 4) (4 . 5)))
+            :to-equal '(dict (23 . 44) (2 . 3) (3 . 4) (4 . 5)))))
+
+(describe "nrepl--push"
+  (it "cons's the obj to the top element of the stack"
+    (expect (nrepl--push 34 '(())) :to-equal '((34)))
+    (expect (nrepl--push '(34) '(() (1 2 3))) :to-equal '(((34)) (1 2 3)))
+    (expect (nrepl--push 34 '((1))) :to-equal '((34 1)))
+    (expect (nrepl--push 34 '((1) (2))) :to-equal '((34 1) (2)))
+    (expect (nrepl--push '(34) '((1) (2))) :to-equal '(((34) 1) (2)))
+    (expect (nrepl--push 34 '((dict a b) (2))) :to-equal '((dict 34 a b) (2)))))
+
+(describe "nrepl--keys"
+  (it "returns all keys in the nREPL dict"
+    (expect (nrepl-dict-keys '(dict (2 . 3) (3 . 4) (4 . 5)))
+            :to-equal '((2 . 3) (4 . 5)))))
+
+(describe "nrepl--vals"
+  (it "returns all values in the nREPL dict"
+    (expect (nrepl-dict-vals '(dict (2 . 3) (3 . 4) (4 . 5)))
+            :to-equal '((3 . 4) nil))))
+
+(describe "nrepl--map"
+  (it "maps a fn over all key-value pairs of a dict"
+    (expect (nrepl-dict-map (lambda (k v) (+ k v))
+                            '(dict 0 1 2 3 4 5))
+            :to-equal '(1 5 9))))
+
+(describe "nrepl--merge"
+  :var (dict1 dict2)
+  (it "preserves id and session keys of dict1"
+    (setq dict1 '(dict "id" 1 "session" 1 "blah" (1 2))
+          dict2 '(dict "id" 2 "session" 2))
+    (expect (nrepl--merge dict1 dict2)
+            :to-equal '(dict "id" 1 "session" 1 "blah" (1 2))))
+
+  (it "appends all other keys"
+    (setq dict1 '(dict "id" 1 "session" 1 "blah" (1 2) "x" "aaa" "y" (dict "z" "A"))
+          dict2 '(dict "id" 2 "session" 2 "blah" (3 4) "x" "AAA" "y" (dict "z" "B")))
+    (expect (nrepl--merge dict1 dict2)
+            :to-equal '(dict "id" 1 "session" 1 "blah" (1 2 3 4) "x" "aaaAAA" "y" (dict "z" "AB"))))
+
+  (it "dict1 is updated destructively"
+    (setq dict1 '(dict "id" 1 "session" 1 "blah" (1 2))
+          dict2 '(dict "id" 2 "session" 2 "blah" (3 4))
+          dict3 '(dict "id" 1 "session" 1 "blah" (1 2)))
+    (nrepl--merge dict1 dict2)
+    (expect dict1 :not :to-equal dict3)))

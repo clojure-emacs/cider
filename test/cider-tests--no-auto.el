@@ -30,7 +30,7 @@
 ;;
 ;;; Code:
 
-(require 'ert)
+(require 'buttercup)
 (require 'cider)
 (require 'cider-compat)
 (require 'cl-lib)
@@ -94,6 +94,6 @@ from the latter. Remaining content is compared for string equality."
         (message "Mismatched: %s" diffs))
       (concatenate 'list untested diffs))))
 
-(ert-deftest test-cider-cider-docs ()
-  "Test all clojure doc output."
-  (should (equal nil (cider-test-all-docs))))
+(describe "cider-test-all-docs"
+  (it "returns nil if `cider-doc' output matches with the `clojure.repl/doc'"
+    (expect (cider-test-all-docs) :to-equal nil)))
