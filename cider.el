@@ -327,6 +327,7 @@ it should start a ClojureScript REPL."
   :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
                           cider--cljs-repl-types)
                  (string :tag "Custom"))
+  :safe (lambda (x) (assoc x cider--cljs-repl-types))
   :group 'cider)
 
 (defun cider-create-sibling-cljs-repl (client-buffer)
