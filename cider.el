@@ -313,6 +313,8 @@ dependencies."
 (defconst cider--cljs-repl-types
   '(("(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
      "Rhino" "")
+    ("(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
+     "Figwheel-sidecar" " (add figwheel-sidecar to your plugins)")
     ("(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
      "Node" " (requires NodeJS to be installed)")
     ("(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"

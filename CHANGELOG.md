@@ -7,6 +7,7 @@
 * Ensure Clojure version meets minimum supported by CIDER (1.7.0).
 * Fringe indicators highlight which sexps have been loaded. Disable it with `cider-use-fringe-indicators`.
 * New command: `cider-inspect-last-result`.
+* `cider-cljs-lein-repl` now also supports figwheel.
 
 ### Changes
 
