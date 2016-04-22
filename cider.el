@@ -11,7 +11,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 0.12.0
+;; Version: 0.13.0-cvs
 ;; Package-Requires: ((emacs "24.3") (clojure-mode "5.3.0") (pkg-info "0.4") (queue "0.1.1") (spinner "1.7") (seq "2.14"))
 ;; Keywords: languages, clojure, cider
 
@@ -88,7 +88,7 @@ project inference will take place."
 
 (require 'seq)
 
-(defconst cider-version "0.12.0"
+(defconst cider-version "0.13.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
@@ -325,7 +325,7 @@ dependencies."
 This is only used in lein projects.  It is evaluated in a Clojure REPL and
 it should start a ClojureScript REPL."
   :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
-                          cider--cljs-repl-types)
+                            cider--cljs-repl-types)
                  (string :tag "Custom"))
   :safe (lambda (x) (assoc x cider--cljs-repl-types))
   :group 'cider)
