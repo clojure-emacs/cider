@@ -63,15 +63,6 @@ This is powered internally by [flx](https://github.com/lewang/flx).
 Basically with `company-flx` enabled typing something like `mp` will show you
 `map-indexed` as one of the possible completion candidates.
 
-### Migrating from `auto-complete-mode`
-
-In case you have some `auto-complete-mode` configuration lying around and you
-want to switch to `company-mode` there are a few steps you have to take:
-
-* Disable `ac-cider-setup` or `ac-nrepl-setup` from running on CIDER hooks
-
-* Remove `cider-mode` and `cider-repl-mode` from the `ac-modes` list
-
 ### Completion annotations
 
 Completion candidates will be annotated by default with an abbreviation
@@ -85,3 +76,12 @@ Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to `nil`.
 
 ![Completion Annotations](images/completion-annotations.png)
+
+### Migrating from `auto-complete-mode`
+
+In case you have some `auto-complete-mode` configuration lying around and you
+want to switch to `company-mode` there are a few steps you have to take:
+
+* Disable `ac-cider-setup` or `ac-nrepl-setup` from running on CIDER hooks
+
+* Remove `cider-mode` and `cider-repl-mode` from the `ac-modes` list
