@@ -4,7 +4,7 @@
 
 ### New Features
 
-* Allow setting a preffered-build-tool when multiple are found in `cider-preferred-build-tool`.
+* [#1672](https://github.com/clojure-emacs/cider/issues/1672): Allow setting a preferred build tool when multiple are found via `cider-preferred-build-tool`.
 * Ensure Clojure version meets minimum supported by CIDER (1.7.0).
 * Fringe indicators highlight which sexps have been loaded. Disable it with `cider-use-fringe-indicators`.
 * New command: `cider-inspect-last-result`.
@@ -19,10 +19,8 @@
 ### Bugs fixed
 
 * Use `cider-apropos-select` instead of `cider-apropos` in `cider-apropos-documentation-select`.
-
-* [#1561] Use an appropriate font-lock-face for variables, macros and functions in
+* [#1561](https://github.com/clojure-emacs/cider/issues/1561): Use an appropriate font-lock-face for variables, macros and functions in
 the ns-browser.
-
 
 ## 0.12.0 (2016-04-16)
 
