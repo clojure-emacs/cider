@@ -65,6 +65,8 @@ If SELECT is non-nil, select the BUFFER."
     ;; bound to that).
     (unless (eq window (selected-window))
       ;; Non nil `inhibit-same-window' ensures that current window is not covered
+      ;; Non nil `inhibit-switch-frame' ensures that the other frame is not selected
+      ;; if that's where the buffer is being shown.
       (funcall (if select #'pop-to-buffer #'display-buffer)
                buffer `(nil . ((inhibit-same-window . ,pop-up-windows)
                                (reusable-frames . visible))))))
