@@ -667,3 +667,29 @@
            (clojure-expected-ns (path) "clojure-expected-ns"))
     (should (string= (cider-expected-ns "foo")
                      "clojure-expected-ns"))))
+
+(ert-deftest cider-project-type-single-project ()
+  (noflet ((cider--identify-buildtools-present () '("lein")))
+    (should (string= (cider-project-type) "lein"))))
+
+(ert-deftest cider-project-type-multiple-projects ()
+  (noflet ((cider--identify-buildtools-present () '("build1" "build2"))
+           (completing-read (r a n d o m s) "build2")) ; user choice build2
+    (should (string= (cider-project-type) "build2"))
+
+    (let ((cider-preferred-build-tool "build1"))
+      (should (string= (cider-project-type) "build1")))
+
+    (let ((cider-preferred-build-tool "invalid choice"))
+      (should (string= (cider-project-type) "build2")))
+
+    (let ((cider-preferred-build-tool "build3"))
+      (should (string= (cider-project-type) "build2")))))
+
+(ert-deftest cider-project-type-no-choices ()
+  (noflet ((cider--identify-buildtools-present () '()))
+    (should (string= (cider-project-type) cider-default-repl-command))))
+
+(provide 'cider-tests)
+
+;;; cider-tests.el ends here

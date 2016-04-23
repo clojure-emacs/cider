@@ -146,6 +146,19 @@ project.clj for leiningen or build.boot for boot, could be found."
   :group 'cider
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-preferred-build-tool
+  nil
+  "Allow choosing a build system when there are many.
+When there are artifacts from multiple build systems (\"lein\", \"boot\",
+\"gradle\") the user is prompted to select one of them.  When non-nil, this
+variable will suppress this behavior and will select whatever build system
+is indicated by the variable if present.  Note, this is only when CIDER
+cannot decide which of many build systems to use and will never override a
+command when there is no ambiguity."
+  :type '(choice "lein" "boot" "gradle")
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
+
 (defcustom cider-known-endpoints nil
   "A list of connection endpoints where each endpoint is a list.
 For example: \\='((\"label\" \"host\" \"port\")).
@@ -565,24 +578,35 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
           (setq paths (cons (match-string 1) paths)))))
     (seq-uniq paths)))
 
+(defun cider--identify-buildtools-present ()
+  "Identify build systems present by their build files."
+  (let* ((default-directory (clojure-project-dir (cider-current-dir)))
+         (build-files '(("lein" . "project.clj")
+                        ("boot" . "build.boot")
+                        ("gradle" . "build.gradle"))))
+    (delq nil
+          (mapcar (lambda (candidate)
+                    (when (file-exists-p (cdr candidate))
+                      (car candidate)))
+                  build-files))))
+
 (defun cider-project-type ()
   "Determine the type, either leiningen, boot or gradle, of the current project.
-If more than one project file types are present, prompt the user to choose."
-  (let* ((default-directory (clojure-project-dir (cider-current-dir)))
-         (choices (delq nil
-                        (mapcar (lambda (candidate)
-                                  (when (file-exists-p (cdr candidate))
-                                    (car candidate)))
-                                '(("lein" . "project.clj")
-                                  ("boot" . "build.boot")
-                                  ("gradle" . "build.gradle")))))
+If more than one project file types are present, check for a preferred
+build tool in `cider-preferred-build-tool`, otherwise prompt the user to
+choose."
+  (let* ((choices (cider--identify-buildtools-present))
+         (multiple-project-choices (> (length choices) 1))
          (default (car choices)))
-    (or (if (> (length choices) 1)
-            (completing-read (format "Which command shoud be used (default %s)? "
-                                     default)
-                             choices nil t nil nil default)
-          (car choices))
-        cider-default-repl-command)))
+    (cond ((and multiple-project-choices
+                (member cider-preferred-build-tool choices))
+           cider-preferred-build-tool)
+          (multiple-project-choices
+           (completing-read (format "Which command should be used (default %s)" default)
+                            choices nil t nil nil default))
+          (choices
+           (car choices))
+          (t cider-default-repl-command))))
 
 ;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-present-p ()
