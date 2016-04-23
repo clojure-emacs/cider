@@ -220,8 +220,14 @@ namespace-qualified function of zero arity."
   "Face used to highlight compilation warnings in Clojure buffers."
   :group 'cider)
 
+(defconst cider-clojure-artifact-id "org.clojure/clojure"
+  "Artifact identifier for Clojure.")
+
 (defconst cider-minimum-clojure-version "1.7.0"
   "Minimum supported version of Clojure.")
+
+(defconst cider-latest-clojure-version "1.8.0"
+  "Latest supported version of Clojure.")
 
 (defconst cider-required-nrepl-version "0.2.12"
   "The minimum nREPL version that's known to work properly with CIDER.")

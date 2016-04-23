@@ -584,6 +584,34 @@
                      "-d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.10.2 repl -m cider.nrepl/cider-middleware -s wait"))
     (should (string= (cider-inject-jack-in-dependencies "--no-daemon clojureRepl" "gradle") "--no-daemon clojureRepl"))))
 
+(ert-deftest cider-inject-clojure-dependency ()
+  (should
+   (equal
+    `((,cider-clojure-artifact-id ,cider-minimum-clojure-version))
+    (let ((cider-jack-in-auto-inject-clojure 'minimal))
+      (cider-add-clojure-dependencies-maybe nil))))
+  (should
+   (equal
+    `((,cider-clojure-artifact-id "bob"))
+    (let ((cider-jack-in-auto-inject-clojure "bob"))
+      (cider-add-clojure-dependencies-maybe nil))))
+  (should
+   (equal
+    `((,cider-clojure-artifact-id ,cider-latest-clojure-version))
+    (let ((cider-jack-in-auto-inject-clojure 'latest))
+      (cider-add-clojure-dependencies-maybe nil))))
+  (should
+   (equal
+    '(("Hello, I love you" "won't you tell me your name"))
+    (let ((cider-jack-in-auto-inject-clojure
+           '("Hello, I love you" "won't you tell me your name")))
+      (cider-add-clojure-dependencies-maybe nil))))
+  (should
+   (eq
+    'nil
+    (let ((cider-jack-in-auto-inject-clojure nil))
+      (cider-add-clojure-dependencies-maybe nil)))))
+
 (ert-deftest cider-inject-jack-in-dependencies-add-refactor-nrepl ()
   (let ((cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0") ("cider/cider-nrepl" "0.11.0")))
         (cider-jack-in-nrepl-middlewares '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware")))

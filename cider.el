@@ -242,6 +242,23 @@ Sub-match 1 must be the project path.")
 (cider-add-to-alist 'cider-jack-in-dependencies
                     "org.clojure/tools.nrepl" "0.2.12")
 
+(defcustom cider-jack-in-auto-inject-clojure nil
+  "Version of clojure to auto-inject into REPL.
+
+If nil, do not inject clojure into the REPL.  If `latest', inject
+`cider-latest-clojure-version', which should approximate to the most recent
+version of clojure.  If `minimal', inject `cider-minimum-clojure-version',
+which will be the lowest version cider supports.  If a string, use this as
+the version number.  If it is a list, the first element should be a string,
+specifying the artifact ID, and the second element the version number."
+  :type '(choice (const :tag "None" nil)
+                 (const :tag "Latest" 'latest)
+                 (const :tag "Minimal" 'minimal)
+                 (string :tag "Specific Version")
+                 (list :tag "Artifact ID and Version"
+                       (string :tag "Artifact ID")
+                       (string :tag "Version"))))
+
 (defvar cider-jack-in-lein-plugins nil
   "List of Leiningen plugins where elements are lists of artifact name and version.")
 (put 'cider-jack-in-lein-plugins 'risky-local-variable t)
@@ -301,6 +318,24 @@ string is quoted for passing as argument to an inferior shell."
    " -- "
    params))
 
+(defun cider-add-clojure-dependencies-maybe (dependencies)
+  "Return DEPENDENCIES with an added Clojure dependency if requested.
+
+See also `cider-jack-in-auto-inject-clojure'."
+  (if cider-jack-in-auto-inject-clojure
+      (if (consp cider-jack-in-auto-inject-clojure)
+          (cons cider-jack-in-auto-inject-clojure dependencies)
+        (cons (list cider-clojure-artifact-id
+                    (cond
+                     ((stringp cider-jack-in-auto-inject-clojure)
+                      cider-jack-in-auto-inject-clojure)
+                     ((eq cider-jack-in-auto-inject-clojure 'minimal)
+                      cider-minimum-clojure-version)
+                     ((eq cider-jack-in-auto-inject-clojure 'latest)
+                      cider-latest-clojure-version)))
+              dependencies))
+    dependencies))
+
 (defun cider-inject-jack-in-dependencies (params project-type)
   "Return PARAMS with injected REPL dependencies.
 These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins' and
@@ -311,11 +346,13 @@ dependencies."
   (pcase project-type
     ("lein" (cider-lein-jack-in-dependencies
              params
-             cider-jack-in-dependencies
+             (cider-add-clojure-dependencies-maybe
+              cider-jack-in-dependencies)
              cider-jack-in-lein-plugins))
     ("boot" (cider-boot-jack-in-dependencies
              params
-             cider-jack-in-dependencies
+             (cider-add-clojure-dependencies-maybe
+              cider-jack-in-dependencies)
              cider-jack-in-lein-plugins
              cider-jack-in-nrepl-middlewares))
     ("gradle" params)

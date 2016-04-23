@@ -72,6 +72,11 @@ If you don't want `cider-jack-in` to inject dependencies automatically, set
 `cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
 the dependencies yourself (see the section below), just as in CIDER 0.10 and older.
 
+CIDER can also inject a Clojure dependency into your project, which is useful,
+for example, if your project defaults to an older version of Clojure than that
+supported by the CIDER middleware. Set `cider-jack-in-auto-inject-clojure`
+appropriately to enable this.
+
 If a standalone REPL is preferred, you need to invoke `cider-connect` (instead
 of `cider-jack-in`) and you'll need to manually add the dependencies to your
 Clojure project (explained in the following section).
