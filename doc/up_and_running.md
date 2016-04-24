@@ -77,28 +77,36 @@ ClojureScript support relies on the
 [piggieback][] nREPL middleware being
 present in your REPL session.
 
-1. Add the following dependencies to your `project.clj`
+Add the following dependencies to your project (`project.clj` in Leiningen based project
+or `built.boot` in Boot project):
 
 ```clojure
 [com.cemerick/piggieback "0.2.1"]
 [org.clojure/clojure "1.7.0"]
 ```
 
-   as well as the following option:
+as well as `piggieback` nREPL middleware:
 
+in `project.clj`:
 ```clojure
 :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 ```
 
-2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-lein-repl` if
-   you'd like to change the REPL used (the default is `rhino`).
+or in `built.boot`:
+```clojure
+(task-options!
+  repl {:middleware '[cemerick.piggieback/wrap-cljs-repl]})
+```
 
-3. Open a file in your project and issue <kbd>M-x</kbd>
-   `cider-jack-in-clojurescript` <kbd>RET</kbd>. This will start up the nREPL
-   server, and then create two REPL buffers for you, one in Clojure and one in
-   ClojureScript. All usual CIDER commands will be automatically directed to the
-   appropriate REPL, depending on whether you're visiting a `.clj` or a `.cljs`
-   file.
+Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-lein-repl` if
+you'd like to change the REPL used (the default is `rhino`).
+
+Open a file in your project and issue <kbd>M-x</kbd>
+`cider-jack-in-clojurescript` <kbd>RET</kbd>. This will start up the nREPL
+server, and then create two REPL buffers for you, one in Clojure and one in
+ClojureScript. All usual CIDER commands will be automatically directed to the
+appropriate REPL, depending on whether you're visiting a `.clj` or a `.cljs`
+file.
 
 ### Browser-connected ClojureScript REPL
 
