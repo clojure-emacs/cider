@@ -549,7 +549,9 @@ Any other value is just returned."
     "Enable `cider-enlighten-mode' to display the locals of a function when it's executed."
     "Use <\\[cider-close-ancillary-buffers]> to close all ancillary buffers created by CIDER (e.g. *cider-doc*)."
     "Exploring CIDER's menu-bar entries is a great way to discover features."
-    "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!")
+    "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!"
+    "Tweak `cider-repl-prompt-function' to customize your REPL prompt."
+    "Tweak `cider-eldoc-ns-function' to customize the way namespaces are displayed by eldoc.")
   "Some handy CIDER tips."
   )
 
