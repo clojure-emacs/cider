@@ -892,6 +892,14 @@ CONTEXT represents a completion context for compliment."
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-vars")))
 
+(defun cider-sync-request:ns-vars-with-meta (ns)
+  "Get a map of the vars in NS to its metadata information."
+  (thread-first (list "op" "ns-vars-with-meta"
+                      "session" (cider-current-session)
+                      "ns" ns)
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "ns-vars-with-meta")))
+
 (defun cider-sync-request:ns-load-all ()
   "Load all project namespaces."
   (thread-first (list "op" "ns-load-all"
@@ -935,6 +943,19 @@ CONTEXT represents a completion context for compliment."
       ;; "clojure.lang.ExceptionInfo: Unmatched delimiter ]"
       (error (car (split-string err "\n"))))
     (nrepl-dict-get response "formatted-edn")))
+
+
+;;; Cache helpers
+
+(declare-function cider-resolve-ns-symbols "cider-resolve")
+
+(defun cider-ns-vars-with-meta (ns)
+  "Return a map of the vars in NS to its metadata information.
+Get the data from `cider-repl-ns-cache' if available.
+Otherwise, perform a middleware call to get the data."
+  (if-let ((ns-symbols (cider-resolve-ns-symbols ns)))
+      (apply #'nrepl-dict ns-symbols)
+    (cider-sync-request:ns-vars-with-meta ns)))
 
 
 ;;; Connection info
