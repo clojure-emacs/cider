@@ -63,14 +63,19 @@ For convenience, some functions are already provided for this purpose:
 
 (defun cider-eldoc-format-thing (ns symbol thing)
   "Format the eldoc subject defined by NS, SYMBOL and THING.
-Normally NS and SYMBOL are used, but when empty we fallback
-to THING (e.g. for Java methods)."
-  (let ((ns (funcall cider-eldoc-ns-function ns)))
-    (if (and ns (not (string= ns "")))
-        (format "%s/%s"
-                (cider-propertize ns 'ns)
-                (cider-propertize symbol 'var))
-      (cider-propertize thing 'var))))
+THING represents the thing at point which triggered eldoc.  Normally NS and
+SYMBOL are used (they are derived from THING), but when empty we fallback to
+THING (e.g. for Java methods)."
+  (if (and symbol ns)
+      (let ((ns (funcall cider-eldoc-ns-function ns)))
+        (if (and ns (not (string= ns "")))
+            (format "%s/%s"
+                    (cider-propertize ns 'ns)
+                    (cider-propertize symbol 'var))
+          ;; in case `cider-eldoc-ns-function' returned nil or empty string
+          (cider-propertize symbol 'var)))
+    ;; we're probably dealing with some interop form
+    (cider-propertize thing 'var)))
 
 (defun cider-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.
