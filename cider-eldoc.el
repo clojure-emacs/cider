@@ -49,15 +49,28 @@
 (defvar-local cider-eldoc-last-symbol nil
   "The eldoc information for the last symbol we checked.")
 
+(defcustom cider-eldoc-ns-function #'identity
+  "A function that returns a ns string to be used by eldoc.
+Takes one argument, a namespace name.
+For convenience, some functions are already provided for this purpose:
+`cider-abbreviate-ns', and `cider-last-ns-segment'."
+  :type '(choice (const :tag "Full namespace" identity)
+                 (const :tag "Abbreviated namespace" cider-abbreviate-ns)
+                 (const :tag "Last name in namespace" cider-last-ns-segment)
+                 (function :tag "Custom function"))
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
+
 (defun cider-eldoc-format-thing (ns symbol thing)
   "Format the eldoc subject defined by NS, SYMBOL and THING.
 Normally NS and SYMBOL are used, but when empty we fallback
 to THING (e.g. for Java methods)."
-  (if (and ns (not (string= ns "")))
-      (format "%s/%s"
-              (cider-propertize ns 'ns)
-              (cider-propertize symbol 'var))
-    (cider-propertize thing 'var)))
+  (let ((ns (funcall cider-eldoc-ns-function ns)))
+    (if (and ns (not (string= ns "")))
+        (format "%s/%s"
+                (cider-propertize ns 'ns)
+                (cider-propertize symbol 'var))
+      (cider-propertize thing 'var))))
 
 (defun cider-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.

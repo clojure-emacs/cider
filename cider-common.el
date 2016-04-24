@@ -236,5 +236,21 @@ existing file ending with URL has been found."
       (16 t) ; empty empty
       (_ nil))))
 
+(defun cider-abbreviate-ns (namespace)
+  "Return a string that abbreviates NAMESPACE."
+  (when namespace
+    (let* ((names (reverse (split-string namespace "\\.")))
+           (lastname (car names)))
+      (concat (mapconcat (lambda (s) (concat (substring s 0 1) "."))
+                         (reverse (cdr names))
+                         "")
+              lastname))))
+
+(defun cider-last-ns-segment (namespace)
+  "Return the last segment of NAMESPACE."
+  (when namespace
+    (car (reverse (split-string namespace "\\.")))))
+
+
 (provide 'cider-common)
 ;;; cider-common.el ends here

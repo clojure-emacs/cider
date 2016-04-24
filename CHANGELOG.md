@@ -12,6 +12,7 @@
 * Option `cider-jack-in-auto-inject-clojure` enables the user to specify a
   version of Clojure for CIDER. This allows the user to override the version
   used in a project, particular if it is lower than minimum required for CIDER.
+* Allow the ns displayed by eldoc to be tailored via `cider-eldoc-ns-function`.
 
 ### Changes
 

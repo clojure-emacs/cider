@@ -489,18 +489,11 @@ This will not work on non-current prompts."
 
 (defun cider-repl-prompt-abbreviated (namespace)
   "Return a prompt string that abbreviates NAMESPACE."
-  (let* ((names (reverse (split-string namespace "\\.")))
-         (lastname (car names)))
-    (concat (mapconcat (lambda (s) (concat (substring s 0 1) "."))
-                       (reverse (cdr names))
-                       "")
-            lastname
-            "> ")))
+  (format "%s> " (cider-abbreviate-ns namespace)))
 
 (defun cider-repl-prompt-lastname (namespace)
   "Return a prompt string with the last name in NAMESPACE."
-  (let* ((name (car (reverse (split-string namespace "\\.")))))
-    (concat name "> ")))
+  (format "%s> " (cider-last-ns-segment namespace)))
 
 (defcustom cider-repl-prompt-function #'cider-repl-prompt-default
   "A function that returns a prompt string.
