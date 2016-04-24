@@ -126,10 +126,16 @@ This variable must be set before starting the repl connection."
         (let ((inhibit-read-only t))
           (erase-buffer)
           (dolist (list all)
-            (let ((ns (car list)))
+            (let* ((ns (car list))
+                   (ns-vars-with-meta (cider-ns-vars-with-meta ns))
+                   ;; seq of metadata maps of the instrumented vars
+                   (instrumented-meta (mapcar (apply-partially #'nrepl-dict-get ns-vars-with-meta)
+                                              (cdr list))))
               (cider-browse-ns--list (current-buffer) ns
-                                     (mapcar (apply-partially #'cider-browse-ns--properties ns)
-                                             (cdr list))
+                                     (seq-mapn #'cider-browse-ns--properties
+                                               (cdr list)
+                                               instrumented-meta)
+
                                      ns 'noerase)
               (goto-char (point-max))
               (insert "\n"))))

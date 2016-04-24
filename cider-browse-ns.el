@@ -74,25 +74,25 @@
   (setq-local truncate-lines t)
   (setq-local cider-browse-ns-current-ns nil))
 
-(defun cider-browse-ns--text-face (namespace text)
-  "Return font-lock-face for TEXT.
-The var info is fetched from the running repl and a font-lock face is decided.
+(defun cider-browse-ns--text-face (var-meta)
+  "Return font-lock-face for a var.
+VAR-META contains the metadata information used to decide a face.
 Presence of \"arglists-str\" and \"macro\" indicates a macro form.
 Only \"arglists-str\" indicates a function. Otherwise, its a variable.
 If the NAMESPACE is not loaded in the REPL, assume TEXT is a fn."
-  (let ((var-info (cider-resolve-var namespace text)))
-    (cond
-     ((not var-info) 'font-lock-function-name-face)
-     ((and (nrepl-dict-contains var-info "arglists")
-           (string= (nrepl-dict-get var-info "macro") "true"))
-      'font-lock-keyword-face)
-     ((nrepl-dict-contains var-info "arglists") 'font-lock-function-name-face)
-     (t 'font-lock-variable-name-face))))
+  (cond
+   ((not var-meta) 'font-lock-function-name-face)
+   ((and (nrepl-dict-contains var-meta "arglists")
+         (string= (nrepl-dict-get var-meta "macro") "true"))
+    'font-lock-keyword-face)
+   ((nrepl-dict-contains var-meta "arglists") 'font-lock-function-name-face)
+   (t 'font-lock-variable-name-face)))
 
-(defun cider-browse-ns--properties (namespace text)
-  "Decorate TEXT with a clickable keymap and a face."
-  (let ((face (cider-browse-ns--text-face namespace text)))
-    (propertize (or text namespace)
+(defun cider-browse-ns--properties (var var-meta)
+  "Decorate VAR with a clickable keymap and a face.
+VAR-META is used to decide a font-lock face."
+  (let ((face (cider-browse-ns--text-face var-meta)))
+    (propertize var
                 'font-lock-face face
                 'mouse-face 'highlight
                 'keymap cider-browse-ns-mouse-map)))
@@ -121,14 +121,11 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
   "List all NAMESPACE's vars in BUFFER."
   (interactive (list (completing-read "Browse namespace: " (cider-sync-request:ns-list))))
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
-    (let ((vars (cider-sync-request:ns-vars namespace)))
-      (cider-browse-ns--list (current-buffer)
-                             namespace
-                             (mapcar (lambda (var)
-                                       (format "%s"
-                                               (cider-browse-ns--properties namespace var)))
-                                     vars))
-      (setq-local cider-browse-ns-current-ns namespace))))
+    (cider-browse-ns--list (current-buffer)
+                           namespace
+                           (nrepl-dict-map #'cider-browse-ns--properties
+                                           (cider-ns-vars-with-meta namespace)))
+    (setq-local cider-browse-ns-current-ns namespace)))
 
 ;;;###autoload
 (defun cider-browse-ns-all ()
