@@ -493,6 +493,7 @@
 
 (ert-deftest test-cider-eldoc-format-thing ()
   (should (string= (cider-eldoc-format-thing "clojure.core" "map" "map") "clojure.core/map"))
+  (should (string= (cider-eldoc-format-thing "" "my-map" "my-map") "my-map"))
   (should (string= (cider-eldoc-format-thing "" "" ".toString") ".toString")))
 
 (ert-deftest test-cider-eldoc-beginning-of-sexp ()
