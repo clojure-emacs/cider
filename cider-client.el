@@ -215,6 +215,8 @@ such a link cannot be established automatically."
   "Return the matching connection type (clj or cljs) for the current buffer."
   (cond
    ((derived-mode-p 'clojurescript-mode) "cljs")
+   ((derived-mode-p 'clojurec-mode) cider-repl-type)
+   ((derived-mode-p 'clojurex-mode) cider-repl-type)
    ((derived-mode-p 'clojure-mode) "clj")
    (cider-repl-type)
    (t "clj")))
