@@ -130,10 +130,24 @@ documentation lookup, the namespace browser, and macroexpansion).
 1. Add this to your dependencies in `build.boot`:
 
 ```clojure
-[adzerk/boot-cljs-repl   "0.3.0"]
-[com.cemerick/piggieback "0.2.1"  :scope "test"]
+[adzerk/boot-cljs     "1.7.228-1" :scope "test"]
+[adzerk/boot-cljs-repl   "0.3.0"  :scope "test"]
+[pandeiro/boot-http      "0.7.2"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[org.clojure/tools.nrepl "0.2.12" :scope "test"]
+[com.cemerick/piggieback "0.2.1"  :scope "test"]
+```
+and this at the end of `build.boot`:
+```clojure
+(require
+ '[adzerk.boot-cljs :refer [cljs]]
+ '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]]
+ '[pandeiro.boot-http :refer [serve]])
+
+(deftask dev []
+  (comp (serve)
+        (watch)
+        (cljs-repl) ; order is important!!
+        (cljs)))
 ```
 
 2. Start `boot dev` in a terminal.
@@ -142,7 +156,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 4. Execute `(start-repl)` at the prompt: `boot.user> (start-repl)`.
 
-5. Connect to the running server with your browser.
+5. Connect to the running server with your browser. The address is printed on the terminal, but it's probably `http://localhost:3000`.
 
 For more information visit [boot-cljs-repl](https://github.com/adzerk-oss/boot-cljs-repl).
 
