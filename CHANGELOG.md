@@ -13,6 +13,7 @@
   version of Clojure for CIDER. This allows the user to override the version
   used in a project, particular if it is lower than minimum required for CIDER.
 * Allow the ns displayed by eldoc to be tailored via `cider-eldoc-ns-function`.
+* After connecting a ClojureScript REPL, CIDER will try to figure out if it's being served on a port and will offer to open it in a browser.
 
 ### Changes
 

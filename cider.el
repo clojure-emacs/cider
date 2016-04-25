@@ -380,6 +380,17 @@ it should start a ClojureScript REPL."
   :safe (lambda (x) (assoc x cider--cljs-repl-types))
   :group 'cider)
 
+(defun cider--offer-to-open-app-in-browser (server-buffer)
+  "Look for a server address in SERVER-BUFFER and offer to open it."
+  (when (buffer-live-p server-buffer)
+    (with-current-buffer server-buffer
+      (save-excursion
+        (goto-char (point-min))
+        (when-let ((url (and (search-forward-regexp "http://localhost:[0-9]+" nil 'noerror)
+                             (match-string 0))))
+          (when (y-or-n-p (format "Visit ‘%s’ in a browser? " url))
+            (browse-url url)))))))
+
 (defun cider-create-sibling-cljs-repl (client-buffer)
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
 The new buffer will correspond to the same project as CLIENT-BUFFER, which
@@ -414,7 +425,8 @@ should be the regular Clojure REPL started by the server process filter."
              "ns" (cider-current-ns)
              "session" nrepl-session
              "code" cider-cljs-lein-repl)
-       (cider-repl-handler (current-buffer))))))
+       (cider-repl-handler (current-buffer)))
+      (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
 
 (defun cider--select-zombie-buffer (repl-buffers)
   "Return a zombie buffer from REPL-BUFFERS, or nil if none exists."
