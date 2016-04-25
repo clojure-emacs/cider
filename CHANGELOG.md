@@ -16,6 +16,7 @@
 
 ### Changes
 
+* Simpler keybindings in macroexpand buffer. Expand one step with `m` and all expansions with `a`. Previously was `C-c C-m` and `C-c M-m`.
 * Signal an error sooner if the user misconfigured `cider-known-endpoints`.
 * `cider-inspect-read-and-inspect` is obsolete. Use `cider-inspect-expression` instead.
 * Extremely long overlays are truncated and `cider-inspect-last-result` is recommended.
