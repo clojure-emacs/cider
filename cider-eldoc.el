@@ -66,7 +66,8 @@ For convenience, some functions are already provided for this purpose:
 THING represents the thing at point which triggered eldoc.  Normally NS and
 SYMBOL are used (they are derived from THING), but when empty we fallback to
 THING (e.g. for Java methods)."
-  (if (and symbol ns)
+  (if (and ns (not (string= ns ""))
+           symbol (not (string= symbol "")))
       (let ((ns (funcall cider-eldoc-ns-function ns)))
         (if (and ns (not (string= ns "")))
             (format "%s/%s"
