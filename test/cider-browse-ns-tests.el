@@ -17,7 +17,7 @@
 (describe "cider-browse-ns"
   :var (cider-browse-ns-buffer)
   (it "lists out all forms of a namespace with correct font-locks"
-    (spy-on 'cider-ns-vars-with-meta :and-return-value
+    (spy-on 'cider-sync-request:ns-vars-with-meta :and-return-value
             '(dict "blank?" (dict "arglists" "fn arg list")))
 
     (with-temp-buffer

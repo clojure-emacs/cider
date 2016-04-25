@@ -945,19 +945,6 @@ CONTEXT represents a completion context for compliment."
     (nrepl-dict-get response "formatted-edn")))
 
 
-;;; Cache helpers
-
-(declare-function cider-resolve-ns-symbols "cider-resolve")
-
-(defun cider-ns-vars-with-meta (ns)
-  "Return a map of the vars in NS to its metadata information.
-Get the data from `cider-repl-ns-cache' if available.
-Otherwise, perform a middleware call to get the data."
-  (if-let ((ns-symbols (cider-resolve-ns-symbols ns)))
-      (apply #'nrepl-dict ns-symbols)
-    (cider-sync-request:ns-vars-with-meta ns)))
-
-
 ;;; Connection info
 (defun cider--java-version ()
   "Retrieve the underlying connection's Java version."

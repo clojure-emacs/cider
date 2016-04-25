@@ -159,19 +159,3 @@ SYMBOL is locally let-bound to the current buffer."
                 ;; older connections still work
                 (expect (cider-other-connection bb1) :to-equal b2)
                 (expect (cider-other-connection bb2) :to-equal b1)))))))))
-
-(describe "cider-ns-vars-with-meta"
-  (describe "when the data is available in the cache"
-    (it "returns the map of the vars in ns to their metadata"
-      (spy-on 'cider-resolve-ns-symbols :and-return-value
-              '("fn1" (dict "arglists" "([x])")))
-      (expect (cider-ns-vars-with-meta "blah")
-              :to-equal '(dict "fn1" (dict "arglists" "([x])")))))
-
-  (describe "when the data is not available in the cache"
-    (it "returns data by calling `ns-vars-with-meta` op on the nREPL middleware"
-      (spy-on 'cider-resolve-ns-symbols :and-return-value nil)
-      (spy-on 'cider-sync-request:ns-vars-with-meta :and-return-value
-              '(dict "fn2" (dict "arglists" "([x y])")))
-      (expect (cider-ns-vars-with-meta "blah")
-              :to-equal '(dict "fn2" (dict "arglists" "([x y])"))))))

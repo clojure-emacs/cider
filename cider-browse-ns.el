@@ -124,7 +124,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
     (cider-browse-ns--list (current-buffer)
                            namespace
                            (nrepl-dict-map #'cider-browse-ns--properties
-                                           (cider-ns-vars-with-meta namespace)))
+                                           (cider-sync-request:ns-vars-with-meta namespace)))
     (setq-local cider-browse-ns-current-ns namespace)))
 
 ;;;###autoload

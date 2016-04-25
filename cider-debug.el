@@ -127,7 +127,7 @@ This variable must be set before starting the repl connection."
           (erase-buffer)
           (dolist (list all)
             (let* ((ns (car list))
-                   (ns-vars-with-meta (cider-ns-vars-with-meta ns))
+                   (ns-vars-with-meta (cider-sync-request:ns-vars-with-meta ns))
                    ;; seq of metadata maps of the instrumented vars
                    (instrumented-meta (mapcar (apply-partially #'nrepl-dict-get ns-vars-with-meta)
                                               (cdr list))))
