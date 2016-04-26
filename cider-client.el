@@ -1053,14 +1053,13 @@ If CONN is not provided the user will be prompted to select a connection."
                   repl-buffer-name)
     (or (match-string 1 repl-buffer-name) "<no designation>")))
 
-(defun cider-change-buffers-designation ()
-  "Change the designation in cider buffer names.
+(defun cider-change-buffers-designation (designation)
+  "Change the DESIGNATION in cider buffer names.
 Buffer names changed are cider-repl and nrepl-server."
-  (interactive)
+  (interactive (list (read-string (format "Change CIDER buffer designation from '%s': "
+					  (cider-extract-designation-from-current-repl-buffer)))))
   (cider-ensure-connected)
-  (let* ((designation (read-string (format "Change CIDER buffer designation from '%s': "
-                                           (cider-extract-designation-from-current-repl-buffer))))
-         (new-repl-buffer-name (nrepl-format-buffer-name-template
+  (let ((new-repl-buffer-name (nrepl-format-buffer-name-template
                                 nrepl-repl-buffer-name-template designation)))
     (with-current-buffer (cider-current-repl-buffer)
       (rename-buffer new-repl-buffer-name)
