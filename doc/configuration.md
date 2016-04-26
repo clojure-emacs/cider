@@ -75,7 +75,7 @@ make the hidden buffers visible. They'll always be visible in
 * Change the result prefix for interactive evaluation (by default it's `=> `):
 
 ```el
-(setq cider-interactive-eval-result-prefix ";; => ")
+(setq cider-eval-result-prefix ";; => ")
 ```
 
 To remove the prefix altogether just set it to an empty string(`""`).

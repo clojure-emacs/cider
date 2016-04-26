@@ -579,7 +579,7 @@ race condition bug in `cider-restart`.
   by managing `*print-length*`. `cider-repl-print-length` can be used
   to set a limit, and `cider-repl-toggle-print-length-limiting` can be
   used to toggle the enforcement of the limit.
-* New config `cider-interactive-eval-result-prefix` controls the prefix displayed before results
+* New config `cider-eval-result-prefix` controls the prefix displayed before results
 from interactive evaluation displayed in the minibuffer.
 * New config `cider-repl-result-prefix` controls the prefix displayed before results in the REPL.
 * Font-lock interactive evaluation results as Clojure code.
