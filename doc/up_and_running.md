@@ -136,7 +136,9 @@ documentation lookup, the namespace browser, and macroexpansion).
 [weasel                  "0.7.0"  :scope "test"]
 [com.cemerick/piggieback "0.2.1"  :scope "test"]
 ```
+
 and this at the end of `build.boot`:
+
 ```clojure
 (require
  '[adzerk.boot-cljs :refer [cljs]]
