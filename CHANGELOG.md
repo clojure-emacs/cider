@@ -27,6 +27,11 @@
 * Use `cider-apropos-select` instead of `cider-apropos` in `cider-apropos-documentation-select`.
 * [#1561](https://github.com/clojure-emacs/cider/issues/1561): Use an appropriate font-lock-face for variables, macros and functions in
 the ns-browser.
+        
+## 0.12.0 (2016-04-26)
+        
+### New Features
+* [#1719] New defcustom, `cider-help-echo`, allows you disable the cider--help-echo, set cider-help-echo to nil to do it.
 
 ## 0.12.0 (2016-04-16)
 
