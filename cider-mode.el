@@ -657,6 +657,12 @@ before point."
   :type 'boolean
   :package-version '(cider "0.12.0"))
 
+(defcustom cider-help-echo t
+  "If non-nil enable cider--help-echo"
+  :group 'cider'
+  :type 'boolean'
+  :package-version '(cider "0.12.0"))
+
 (defun cider--help-echo (_ obj pos)
   "Return the help-echo string for OBJ at POS.
 See \(info \"(elisp) Special Properties\")"
@@ -686,7 +692,8 @@ property."
   (lambda (beg end &rest rest)
     (with-silent-modifications
       (remove-text-properties beg end '(cider-locals nil cider-block-dynamic-font-lock nil))
-      (add-text-properties beg end '(help-echo cider--help-echo))
+      (when cider-help-echo
+          (add-text-properties beg end '(help-echo cider--help-echo)))
       (when cider-font-lock-dynamically
         (cider--update-locals-for-region beg end)))
     (apply func beg end rest)))
