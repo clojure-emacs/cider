@@ -403,7 +403,11 @@ Tables are marked to be ignored by line wrap."
         (when (or forms args)
           (insert " ")
           (save-excursion
-            (emit (cider-font-lock-as-clojure (substring (or forms args) 1 -1))))
+            (emit (cider-font-lock-as-clojure
+                   ;; All `defn's use ([...] [...]), but some special forms use
+                   ;; (...). We only remove the parentheses on the former.
+                   (replace-regexp-in-string "\\`(\\(\\[.*\\]\\))\\'" "\\1"
+                                             (or forms args)))))
           ;; It normally doesn't happen, but it's technically conceivable for
           ;; the args string to contain unbalanced sexps, so `ignore-errors'.
           (ignore-errors

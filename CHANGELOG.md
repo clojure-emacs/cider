@@ -24,6 +24,7 @@
 
 ### Bugs fixed
 
+* Fix arglist display for `def` in the doc buffer.
 * Use `cider-apropos-select` instead of `cider-apropos` in `cider-apropos-documentation-select`.
 * [#1561](https://github.com/clojure-emacs/cider/issues/1561): Use an appropriate font-lock-face for variables, macros and functions in
 the ns-browser.
