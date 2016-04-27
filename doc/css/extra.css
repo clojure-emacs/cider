@@ -5,6 +5,7 @@ kbd {
     background-color: #fcfcfc;
     border-radius: 3px;
     box-shadow: inset 0 -1px 0 #bbb;
+    display: inline-block;
 }
 
 /* The default font-size for code blocks is 75% which makes code
