@@ -1192,7 +1192,8 @@ otherwise it's evaluated interactively."
     (save-excursion
       (goto-char (match-beginning 0))
       (if sync
-          (cider-nrepl-sync-request:eval (cider-defun-at-point))
+          (let ((nrepl-sync-request-timeout 30))
+            (cider-nrepl-sync-request:eval (cider-defun-at-point)))
         (cider-eval-defun-at-point)))))
 
 (defun cider-read-and-eval ()
