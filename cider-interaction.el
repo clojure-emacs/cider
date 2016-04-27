@@ -1192,6 +1192,8 @@ otherwise it's evaluated interactively."
     (save-excursion
       (goto-char (match-beginning 0))
       (if sync
+          ;; The first interactive eval on a file can load a lot of libs. This
+          ;; can easily lead to more than 10 sec.
           (let ((nrepl-sync-request-timeout 30))
             (cider-nrepl-sync-request:eval (cider-defun-at-point)))
         (cider-eval-defun-at-point)))))
