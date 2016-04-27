@@ -114,10 +114,43 @@ that the order here matters.
 Emacs doesn't load the new files, it only installs them on disk.  To see the
 effect of changes you have to restart Emacs.
 
-## CIDER injects its dependencies but I still get warnings when I use `cider-jack-in`
+## CIDER complains of the `cider-nrepl` version
 
-Injecting the depencies should override the old settings in the
-`~/lein/profiles.clj` file. However, this works only if those settings were placed
-in the `:repl` profile. Configuration placed in the `:user` profile will not be
-overridden. To fix this issue stop nREPL (and CIDER), remove the `cider-nrepl` and `tools.nrepl`
-dependencies from your `~/.lein/profiles.clj` and start nREPL again.
+This is a warning displayed on the REPL buffer when it starts, and usually looks like this:
+
+> **WARNING:** CIDER's version (0.12.0) does not match cider-nrepl's version (...). Things will break!
+
+where `...` might be an actual version, like `0.10.0`, or it might be `not installed` or `nil`.
+The solution to this depends on what you see and on what you're doing.
+
+### You see a number like `X.X.X`, and you're starting the REPL with `cider-connect`
+
+Your project specifies the wrong version for the cider-nrepl middleware. See the
+[instructions](http://cider.readthedocs.org/en/latest/installation/#ciders-nrepl-middleware)
+on the Installation section.
+
+### You see `not installed` or `nil`, and you're starting the REPL with `cider-connect`
+
+To use `cider-connect` you need to add the cider-nrepl middleware to your project. See the
+[instructions](http://cider.readthedocs.org/en/latest/installation/#ciders-nrepl-middleware)
+on the Installation section.
+
+### You see `not installed` or `nil`, and you're starting the REPL with `cider-jack-in`
+
+- Do `C-h v cider-inject-dependencies-at-jack-in`, and check that this variable is non-nil.
+- Make sure your project depends on at least Clojure `1.7.0`.
+- If you use leiningen, make sure your `lein --version` is at least `2.6.1`.
+- If you use boot and you've changed `cider-boot-parameters`, that's probably the cause.
+
+If the above doesn't work, you can try specifying the cider-nrepl middleware
+manually, as per the
+[instructions](http://cider.readthedocs.org/en/latest/installation/#ciders-nrepl-middleware)
+on the Installation section.
+
+### You see a number like `X.X.X`, and you're starting the REPL with `cider-jack-in`
+
+This means you're manually adding the cider-nrepl middleware in your project,
+but you shouldn't do that because `cider-jack-in` already does that for
+you. Look into the following files, and ensure you've removed all references to
+`cider-nrepl` and `tools.nrepl`: `project.clj`, `build.boot`,
+`~/.lein/profiles.clj` and `~/.boot/profile.boot`.
