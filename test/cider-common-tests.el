@@ -28,3 +28,10 @@
 
   (it "handles single-segment namespaces"
     (expect (cider-last-ns-segment "ns") :to-equal "ns")))
+
+(describe "cider--kw-to-symbol"
+  (it "returns symbol form of the given keyword"
+    (expect (cider--kw-to-symbol "symbol") :to-equal "symbol")
+    (expect (cider--kw-to-symbol ":clj.core/str") :to-equal "clj.core/str")
+    (expect (cider--kw-to-symbol "::keyword") :to-equal "keyword")
+    (expect (cider--kw-to-symbol nil) :to-equal nil)))
