@@ -296,7 +296,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;;           (find-doc part-of-name)
 ;;   Source: (source function-name)
 ;;  Javadoc: (javadoc java-object-or-class)
-;;     Exit: C-c C-q
+;;     Exit: <C-c C-q>
 ;;  Results: Stored in vars *1, *2, *3, an exception in *e;"
             host
             port
