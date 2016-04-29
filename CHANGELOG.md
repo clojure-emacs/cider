@@ -14,6 +14,7 @@
   used in a project, particular if it is lower than minimum required for CIDER.
 * Allow the ns displayed by eldoc to be tailored via `cider-eldoc-ns-function`.
 * After connecting a ClojureScript REPL, CIDER will try to figure out if it's being served on a port and will offer to open it in a browser.
+* [#1720](https://github.com/clojure-emacs/cider/issues/1720): Add a command `cider-eval-current-sexp` to evaluate the form around point (bound to `C-c C-v`).
 
 ### Changes
 

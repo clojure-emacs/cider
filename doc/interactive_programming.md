@@ -25,6 +25,7 @@ Here's a list of `cider-mode`'s keybindings:
 <kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer.
 <kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer.
 <kbd>C-M-x</kbd> <br/> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
+<kbd>C-c C-v</kbd>                   | Evaluate the form around point.
 <kbd>C-u C-M-x</kbd> <br/> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
 <kbd>C-c C-r</kbd>                   | Evaluate the region and display the result in the echo area.
 <kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
