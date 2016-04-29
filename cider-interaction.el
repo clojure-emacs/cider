@@ -1087,7 +1087,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
     (backward-kill-sexp)
     (cider-interactive-eval last-sexp (cider-eval-print-handler))))
 
-(defun cider-eval-current-sexp (&optional prefix)
+(defun cider-eval-sexp-at-point (&optional prefix)
   "Evaluate the expression around point.
 If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")

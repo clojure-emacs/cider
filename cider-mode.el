@@ -213,7 +213,7 @@ Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
 (defconst cider-mode-eval-menu
   '("CIDER Eval" :visible cider-connections
     ["Eval top-level sexp" cider-eval-defun-at-point]
-    ["Eval current sexp" cider-eval-current-sexp]
+    ["Eval current sexp" cider-eval-sexp-at-point]
     ["Eval last sexp" cider-eval-last-sexp]
     ["Eval selected region" cider-eval-region]
     ["Eval ns form" cider-eval-ns-form]
@@ -288,7 +288,7 @@ Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-w") #'cider-eval-last-sexp-and-replace)
-    (define-key map (kbd "C-c C-v") #'cider-eval-current-sexp)
+    (define-key map (kbd "C-c C-v") #'cider-eval-sexp-at-point)
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
