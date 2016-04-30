@@ -6,5 +6,4 @@
 (files "*.el" (:exclude ".dir-locals.el"))
 
 (development
- (depends-on "noflet")
  (depends-on "buttercup"))
