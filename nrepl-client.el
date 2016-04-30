@@ -1292,7 +1292,11 @@ EVENT gives the button position on window."
               (insert ")\n")
             (insert " \n")
             (cl-loop for l on (cdr object) by #'cddr
-                     do (let ((str (format "%s%s  " (make-string indent ? ) (car l))))
+                     do (let ((str (format "%s%s  " (make-string indent ?\s)
+                                           (propertize (car l) 'face
+                                                       ;; Only highlight top-level keys.
+                                                       (unless (eq (car object) 'dict)
+                                                         'font-lock-keyword-face)))))
                           (insert str)
                           (nrepl--pp (cadr l))))
             (when (eq (car object) 'dict)
