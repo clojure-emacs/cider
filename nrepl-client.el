@@ -1281,7 +1281,7 @@ EVENT gives the button position on window."
                (setq object (substring-no-properties object)))
              (pp object (current-buffer))
              (unless (listp object) (insert "\n")))
-    (let* ((head (format "(%s" (car object))))
+    (let ((head (format "(%s" (car object))))
       (cl-flet ((color (str)
                        (propertize str 'face (append '(:weight ultra-bold)
                                                      (when foreground `(:foreground ,foreground))))))
