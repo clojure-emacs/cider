@@ -26,7 +26,7 @@
 ;; CI builds.
 
 ;; To run these tests:
-;;   All tests: M-x ert t
+;;   All tests: M-x buttercup-run-at-point
 ;;
 ;;; Code:
 
