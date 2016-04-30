@@ -29,7 +29,7 @@
 * Use `cider-apropos-select` instead of `cider-apropos` in `cider-apropos-documentation-select`.
 * [#1561](https://github.com/clojure-emacs/cider/issues/1561): Use an appropriate font-lock-face for variables, macros and functions in
 the ns-browser.
-* [#1708] Fix cider-popup-buffer-display when another frame is used for the error buffer.
+* [#1708](https://github.com/clojure-emacs/cider/issues/1708): Fix `cider-popup-buffer-display` when another frame is used for the error buffer.
 
 ## 0.12.0 (2016-04-16)
 
