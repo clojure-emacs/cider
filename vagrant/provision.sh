@@ -43,7 +43,7 @@ install_emacs
 emacs --version
 
 # Install Cask for Emacs dependency management
-CASK_VERSION=0.7.2
+CASK_VERSION=0.7.4
 CASK_DIR=/opt/cask-$CASK_VERSION
 CASK_ARCHIVE=https://github.com/cask/cask/archive/v$CASK_VERSION.tar.gz
 if ! [ -d "$CASK_DIR" -a -x "/$CASK_DIR/bin/cask" ]; then
