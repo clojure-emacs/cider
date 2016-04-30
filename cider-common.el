@@ -27,6 +27,7 @@
 (require 'cider-compat)
 (require 'nrepl-dict)
 (require 'cider-util)
+(eval-when-compile (require 'tramp))
 
 (defcustom cider-prompt-for-symbol t
   "Controls when to prompt for symbol when a command requires one.
