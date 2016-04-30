@@ -25,7 +25,7 @@
 ;;; Code:
 
 (require 'cider-compat)
-(require 'nrepl-client)
+(require 'nrepl-dict)
 (require 'cider-util)
 
 (defcustom cider-prompt-for-symbol t

@@ -31,7 +31,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
-(require 'nrepl-client)
+(require 'nrepl-dict)
 
 (require 'clojure-mode)
 (require 'apropos)
@@ -78,8 +78,8 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
     (let* ((label (capitalize (if (string= type "variable") "var" type)))
            (help (concat "Display doc for this " (downcase label))))
       (cider-propertize-region (list 'apropos-symbol name
-                                     'action 'cider-apropos-doc
-                                     'help-echo help)
+                                 'action 'cider-apropos-doc
+                                 'help-echo help)
         (insert-text-button name 'type 'apropos-symbol)
         (insert "\n  ")
         (insert-text-button label 'type (intern (concat "apropos-" type)))

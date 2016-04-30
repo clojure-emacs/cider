@@ -31,7 +31,7 @@
 (require 'cider-popup)
 (require 'cider-client)
 (require 'cider-grimoire)
-(require 'nrepl-client)
+(require 'nrepl-dict)
 (require 'org-table)
 (require 'button)
 (require 'easymenu)

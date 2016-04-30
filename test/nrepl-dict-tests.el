@@ -28,7 +28,7 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'nrepl-client)
+(require 'nrepl-dict)
 
 (describe "nrepl-dict-merge"
   :var (input)

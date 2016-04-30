@@ -30,7 +30,7 @@
 (require 'cider-compat)
 (require 'cider-popup)
 
-(require 'nrepl-client)
+(require 'nrepl-dict)
 
 (require 'url-vars)
 

@@ -23,7 +23,6 @@
 
 ;;; Code:
 
-(require 'nrepl-client)
 (require 'cider-compat)
 
 (define-minor-mode cider-popup-buffer-mode

@@ -39,7 +39,7 @@
 (require 'cider-client)
 (require 'cider-compat)
 (require 'cider-util)
-(require 'nrepl-client)
+(require 'nrepl-dict)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
 

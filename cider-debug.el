@@ -25,7 +25,8 @@
 
 ;;; Code:
 
-(require 'nrepl-client)
+(require 'nrepl-dict)
+(require 'nrepl-client) ; `nrepl--mark-id-completed'
 (require 'cider-interaction)
 (require 'cider-client)
 (require 'cider-util)

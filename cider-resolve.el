@@ -65,7 +65,7 @@
 ;;; Code:
 
 (require 'cider-client)
-(require 'nrepl-client)
+(require 'nrepl-dict)
 (require 'cider-util)
 
 (defvar cider-repl-ns-cache)
