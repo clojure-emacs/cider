@@ -112,6 +112,26 @@ To remove the prefix altogether just set it to an empty string(`""`).
 
 More details can be found [here](https://github.com/clojure-emacs/cider/issues/930).
 
+* You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apropos*`
+  commands by customizing the variable `cider-filter-regexps`. It should be a list of
+  regexps matching the pattern of namespaces you want to filter out.
+
+  Its default value is `'("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl")`,
+  the most commonly used middleware collections/packages.
+
+  An important thing to note is that this list of regexps is passed on to the middleware
+  without any pre-processing. So, the regexps have to be in Clojure format (with twice the number of backslashes)
+  and not Emacs Lisp. For example, to achieve the above effect, you could also set `cider-filter-regexps` to `'(".*nrepl")`.
+
+  To customize `cider-filter-regexps`, you could use the Emacs customize UI,
+  with <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-filter-regexps`.
+
+  Or by including a similar snippet along with the other CIDER configuration.
+
+```el
+(setq cider-filter-regexps '(".*nrepl"))
+```
+
 ## Overlays
 
 When you evaluate code in Clojure files, the result is displayed in the buffer

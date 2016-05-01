@@ -814,6 +814,21 @@ If CALLBACK is nil, use `cider-load-file-handler'."
 
 
 ;;; Sync Requests
+
+(defcustom cider-filtered-namespaces-regexps
+  '("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl")
+  "List of regexps used to filter out some vars/symbols/namespaces.
+When nil, nothing is filtered out.  Otherwise, all namespaces matching any
+regexp from this list are dropped out of the \"ns-list\" op.
+Also, \"apropos\" won't include vars from such namespaces.
+This list is passed on to the nREPL middleware without any pre-processing.
+So the regexps have to be in Clojure format (with twice the number of
+backslashes) and not Emacs Lisp."
+  :type '(repeat string)
+  :safe #'listp
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
+
 (defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
   "Send \"apropos\" request for regexp QUERY.
 
@@ -827,7 +842,8 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
                       ,@(when search-ns `("search-ns" ,search-ns))
                       ,@(when docs-p '("docs?" "t"))
                       ,@(when privates-p '("privates?" "t"))
-                      ,@(when case-sensitive-p '("case-sensitive?" "t"))))))
+                      ,@(when case-sensitive-p '("case-sensitive?" "t"))
+                      "filter-regexps" ,cider-filtered-namespaces-regexps))))
     (if (member "apropos-regexp-error" (nrepl-dict-get response "status"))
         (user-error "Invalid regexp: %s" (nrepl-dict-get response "error-msg"))
       (nrepl-dict-get response "apropos-matches"))))
@@ -880,6 +896,7 @@ CONTEXT represents a completion context for compliment."
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (thread-first (list "op" "ns-list"
+                      "filter-regexps" cider-filtered-namespaces-regexps
                       "session" (cider-current-session))
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-list")))
