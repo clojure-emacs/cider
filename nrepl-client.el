@@ -71,6 +71,7 @@
 (require 'seq)
 (require 'cider-compat)
 (require 'cl-lib)
+(require 'nrepl-dict)
 (require 'queue)
 (require 'tramp)
 
