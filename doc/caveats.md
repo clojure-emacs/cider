@@ -73,7 +73,7 @@ it's not actively maintained and it doesn't behave like the Clojure nREPL.
 * `cider-nrepl` uses a lot of Java code internally itself.
 
 Those issues are not insurmountable, but are beyond the scope of our current roadmap.
-If someone would like to tackle them, we'd be happy to provide assitance.
+If someone would like to tackle them, we'd be happy to provide assistance.
 
 ## Injecting dependencies and Leiningen pedantic: abort mode
 
