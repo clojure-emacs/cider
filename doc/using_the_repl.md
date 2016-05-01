@@ -17,7 +17,7 @@ Keyboard shortcut                    | Description
 <kbd>C-c M-o</kbd>    | Switch between the Clojure and ClojureScript REPLs for the current project.
 <kbd>C-c C-u</kbd>    | Kill all text from the prompt to the current point.
 <kbd>C-c C-b</kbd> <br/> <kbd>C-c C-c</kbd>| Interrupt any pending evaluations.
-<kbd>C-up</kbd> <br/> <kbd>C-down</kbd> | Goto to previous/next input in history.
+<kbd>C-up</kbd> <br/> <kbd>C-down</kbd> | Go to to previous/next input in history.
 <kbd>M-p</kbd> <br/> <kbd>M-n</kbd> | Search the previous/next item in history using the current input as search pattern. If <kbd>M-p/M-n</kbd> is typed two times in a row, the second invocation uses the same search pattern (even if the current input has changed).
 <kbd>M-s</kbd> <br/> <kbd>M-r</kbd> | Search forward/reverse through command history with regex.
 <kbd>C-c C-n</kbd> <br/> <kbd>C-c C-p</kbd> | Move between the current and previous prompts in the REPL buffer. Pressing <kbd>RET</kbd> on a line with old input copies that line to the newest prompt.

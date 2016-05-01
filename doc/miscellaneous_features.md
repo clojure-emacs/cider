@@ -184,4 +184,4 @@ Keyboard shortcut               | Description
 <kbd>s</kbd>                    | Go to definition for item at point.
 <kbd>^</kbd>                    | Browse all namespaces.
 <kbd>n</kbd>                    | Go to next line.
-<kbd>p</kbd>                    | Go to previos line.
+<kbd>p</kbd>                    | Go to previous line.

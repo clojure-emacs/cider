@@ -6,7 +6,7 @@ command).
 
 ## Setting up a Leiningen or Boot project (optional)
 
-[Leiningen][] is the de facto standard build/project
+[Leiningen][] is the de-facto standard build/project
 management tool for Clojure. [Boot][] is a newer build tool
 offering abstractions and libraries to construct more complex build
 scenarios. Both have a similar scope to the Maven build tool favoured by Java

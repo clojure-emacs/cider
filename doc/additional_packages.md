@@ -4,7 +4,7 @@ experience. The majority of the minor modes listed here should be enabled for bo
 
 ## clj-refactor
 
-[clr-refactor](https://github.com/clojure-emacs/clj-refactor.el) builts on top
+[clr-refactor](https://github.com/clojure-emacs/clj-refactor.el) builds on top
 of clojure-mode and CIDER and adds a ton of extra functionality (e.g. the
 ability to thread/unthread expression, find and replace usages, introduce let
 bindings, extract function and so on).
