@@ -28,8 +28,7 @@
 
 (eval-and-compile
 
-  (unless (fboundp 'thread-first)
-
+  (unless (fboundp 'internal--thread-argument)
     (defmacro internal--thread-argument (first? &rest forms)
       "Internal implementation for `thread-first' and `thread-last'.
 When Argument FIRST? is non-nil argument is threaded first, else
@@ -39,8 +38,9 @@ last.  FORMS are the expressions to be threaded."
          `(internal--thread-argument
            ,first? ,(if first? `(,f ,x ,@args) `(,f ,@args ,x)) ,@rest))
         (`(,x ,f . ,rest) `(internal--thread-argument ,first? (,f ,x) ,@rest))
-        (_ (car forms))))
+        (_ (car forms)))))
 
+  (unless (fboundp 'thread-first)
     (defmacro thread-first (&rest forms)
       "Thread FORMS elements as the first argument of their successor.
 Example:
@@ -59,7 +59,6 @@ threading."
       `(internal--thread-argument t ,@forms)))
 
   (unless (fboundp 'thread-last)
-
     (defmacro thread-last (&rest forms)
       "Thread FORMS elements as the last argument of their successor.
 Example:
@@ -142,8 +141,9 @@ to bind a single value, BINDINGS can just be a plain tuple."
       `(let* ,(internal--build-bindings bindings)
          (if ,(car (internal--listify (car (last bindings))))
              ,then
-           ,@else)))
+           ,@else))))
 
+  (unless (fboundp 'when-let)
     (defmacro when-let (bindings &rest body)
       "Process BINDINGS and if all values are non-nil eval BODY.
 Argument BINDINGS is a list of tuples whose car is a symbol to be

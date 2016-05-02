@@ -26,6 +26,7 @@
 
 ### Bugs fixed
 
+* [#1712](https://github.com/clojure-emacs/cider/issues/1712): Bad compilation issue caused when installed along with `nim-mode`.
 * Fix arglist display for `def` in the doc buffer.
 * Use `cider-apropos-select` instead of `cider-apropos` in `cider-apropos-documentation-select`.
 * [#1561](https://github.com/clojure-emacs/cider/issues/1561): Use an appropriate font-lock-face for variables, macros and functions in
