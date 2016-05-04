@@ -37,23 +37,87 @@
     (expect (cider--find-rest-args-position ["fmt" "arg"])
             :to-equal nil)))
 
+(describe "cider--eldoc-format-class-names"
+  :var (class-names)
+  (before-all
+    (setq class-names '("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder")))
+
+  (it "returns a formatted class names prefix string"
+    (expect (cider--eldoc-format-class-names '("java.lang.String"))
+            :to-equal "java.lang.String")
+    (expect (cider--eldoc-format-class-names '("A" "B"))
+            :to-equal "(A B)"))
+
+  (it "respects the value of `cider-eldoc-max-class-names-to-display'"
+    (let ((cider-eldoc-max-class-names-to-display 1))
+      (expect (cider--eldoc-format-class-names '("A" "B"))
+              :to-equal "(A & 1 more)")))
+
+  (describe "when cider-eldoc-ns-function is set to cider-abbreviate-ns"
+    (it "abbreviates the class names"
+      (let ((cider-eldoc-ns-function #'cider-abbreviate-ns))
+        (expect (cider--eldoc-format-class-names '("java.lang.String"))
+                :to-equal "j.l.String")
+        (expect (cider--eldoc-format-class-names class-names)
+                :to-equal "(j.l.String j.l.StringBuffer j.l.CharSequence & 1 more)"))))
+
+  (describe "when cider-eldoc-ns-function is set to cider-last-ns-segment"
+    (it "keeps only the last ns segment"
+      (let ((cider-eldoc-ns-function #'cider-last-ns-segment))
+        (expect (cider--eldoc-format-class-names '("java.lang.String"))
+                :to-equal "String")
+        (expect (cider--eldoc-format-class-names class-names)
+                :to-equal "(String StringBuffer CharSequence & 1 more)")))))
+
 (describe "cider-eldoc-format-thing"
+  :var (class-names)
+  (before-all
+    (setq class-names '("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder")))
+
   (describe "when ns is given and it exists"
     (it "returns formatted eldoc strings of form ns/symbol"
       (expect (cider-eldoc-format-thing "clojure.core" "map" "map")
               :to-equal "clojure.core/map"))
+
     (describe "when the given ns doesnt exist"
       (it "returns eldoc formatted symbol"
-        (let ((cider-eldoc-ns-function (lambda () nil)))
+        (let ((cider-eldoc-ns-function (lambda (ns) nil)))
           (expect (cider-eldoc-format-thing "non-existent-ns" "" "my-map")
                   :to-equal "my-map")
           (expect (cider-eldoc-format-thing "" "" "my-map")
-                  :to-equal "my-map")))))
-  (describe "when ns is not given or it is a Java interop form"
-    (it "returns eldoc formatted thing"
-      (expect (cider-eldoc-format-thing "" "" ".toString")
-              :to-equal ".toString"))))
+                  :to-equal "my-map")
+          (expect (cider-eldoc-format-thing class-names "" ".length")
+                  :to-equal ".length")))))
 
+  (describe "when the given Java interop form belongs to a single class"
+    (it "returns eldoc formatted thing"
+      (expect (cider-eldoc-format-thing "java.lang.String" "" ".startsWith")
+              :to-equal "java.lang.String/.startsWith")))
+
+  (describe "when the given Java interop form belongs to multiple classes"
+    (it "joins the class list into a string"
+      (expect (cider-eldoc-format-thing class-names "" ".length")
+              :to-equal "(java.lang.String java.lang.StringBuffer java.lang.CharSequence & 1 more)/.length")))
+
+  (describe "when cider-eldoc-ns-function is set to cider-abbreviate-ns"
+    (it "abbreviates the class names"
+      (let ((cider-eldoc-ns-function #'cider-abbreviate-ns))
+        (expect (cider-eldoc-format-thing "clojure.core" "map" "map")
+                :to-equal "c.core/map")
+        (expect (cider-eldoc-format-thing '("java.lang.String") "" ".startsWith")
+                :to-equal "j.l.String/.startsWith")
+        (expect (cider-eldoc-format-thing class-names  "" ".length")
+                :to-equal "(j.l.String j.l.StringBuffer j.l.CharSequence & 1 more)/.length"))))
+
+  (describe "when cider-eldoc-ns-function is set to cider-last-ns-segment"
+    (it "keeps only the last ns segment"
+      (let ((cider-eldoc-ns-function #'cider-last-ns-segment))
+        (expect (cider-eldoc-format-thing "clojure.core" "map" "map")
+                :to-equal "core/map")
+        (expect (cider-eldoc-format-thing '("java.lang.String") "" ".startsWith")
+                :to-equal "String/.startsWith")
+        (expect (cider-eldoc-format-thing class-names  "" ".length")
+                :to-equal "(String StringBuffer CharSequence & 1 more)/.length")))))
 
 (describe "cider-eldoc-beginning-of-sexp"
   (it "moves to the beginning of the sexp"

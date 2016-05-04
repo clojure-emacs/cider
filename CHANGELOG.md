@@ -16,6 +16,7 @@
 * After connecting a ClojureScript REPL, CIDER will try to figure out if it's being served on a port and will offer to open it in a browser.
 * [#1720](https://github.com/clojure-emacs/cider/issues/1720): Add a command `cider-eval-sexp-at-point` to evaluate the form around point (bound to `C-c C-v`).
 * [#1564](https://github.com/clojure-emacs/cider/issues/1564): CIDER's internal namespaces and vars are filtered from the ns-browser and apropos functions.
+* [#1725](https://github.com/clojure-emacs/cider/issues/1725): Display class names in eldoc for interop forms.
 
 ### Changes
 

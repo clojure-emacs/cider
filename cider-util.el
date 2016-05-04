@@ -35,6 +35,7 @@
 (require 'cl-lib)
 (require 'clojure-mode)
 (require 'cider-compat)
+(require 'nrepl-dict)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 
@@ -122,6 +123,16 @@ find a symbol if there isn't one at point."
             (while (not (looking-at "\\sw\\|\\s_\\|\\`"))
               (forward-sexp -1)))
           (cider-symbol-at-point)))))
+
+(defun cider-ns-thing-at-point ()
+  "Return destructured `cider-symbol-at-point'.
+If the symbol at point is of the form ns-name/thing-name, returns a dict
+\(\"ns\" \"ns-name\" \"thing\" \"thing-name\")."
+  (let* ((sym (cider-symbol-at-point))
+         (ns-thing (split-string sym "/")))
+    (if (< (length ns-thing) 2)
+        (nrepl-dict "thing" (car ns-thing))
+      (nrepl-dict "ns" (car ns-thing) "thing" (cadr ns-thing)))))
 
 
 ;;; sexp navigation

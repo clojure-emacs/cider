@@ -32,15 +32,6 @@
 (require 'cider-util)
 
 ;;; cider-util tests
-(describe "cider-symbol-at-point"
-  (it "doesn't move the cursor"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "something else\n")
-      (expect (cider-symbol-at-point) :not :to-be-truthy)
-      (expect (cider-symbol-at-point 'lookback) :to-equal "else")
-      (expect (point) :to-equal (point-max)))))
-
 
 (describe "cider--version"
   :var (cider-version cider-codename)
@@ -64,11 +55,19 @@
     (expect (cider--version) :to-equal "0.11.0snapshot (package: 20160301.2217)")))
 
 (describe "cider-symbol-at-point"
+  (it "doesn't move the cursor"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "something else\n")
+      (expect (cider-symbol-at-point) :not :to-be-truthy)
+      (expect (cider-symbol-at-point 'lookback) :to-equal "else")
+      (expect (point) :to-equal (point-max))))
+
   (describe "when there is a symbol at point"
     (it "returns the symbol"
       (with-temp-buffer
         (insert "some-symbol    ")
-        (should (not (cider-symbol-at-point)))
+        (expect (cider-symbol-at-point) :not :to-be-truthy)
         (expect (cider-symbol-at-point 'look-back) :to-equal "some-symbol"))))
 
   (describe "when there's nothing at point"
@@ -86,6 +85,23 @@
     ;; works for normal text in a repl buffer
     (spy-on 'thing-at-point :and-return-value "boogie>")
     (expect (cider-symbol-at-point) :to-equal "boogie>")))
+
+(describe "cider-ns-thing-at-point"
+  (it "destructures the symbol at point into ns and thing"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "java.lang.String/.length")
+      (search-backward "S")
+      (expect (cider-ns-thing-at-point) :to-equal
+              (nrepl-dict "ns" "java.lang.String" "thing" ".length"))))
+
+  (it "handles a non namespace qualified form"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "map")
+      (search-backward "m")
+      (expect (cider-ns-thing-at-point) :to-equal
+              (nrepl-dict "thing" "map")))))
 
 (describe "cider-sexp-at-point"
   (describe "when the param 'bounds is not given"
