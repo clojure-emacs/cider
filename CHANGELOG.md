@@ -32,6 +32,7 @@
 * [#1561](https://github.com/clojure-emacs/cider/issues/1561): Use an appropriate font-lock-face for variables, macros and functions in
 the ns-browser.
 * [#1708](https://github.com/clojure-emacs/cider/issues/1708): Fix `cider-popup-buffer-display` when another frame is used for the error buffer.
+* [#1733](https://github.com/clojure-emacs/cider/pull/1733): Better error handling when no boot commands are found in exec-path, by assuming a sensible fallback value.
 
 ## 0.12.0 (2016-04-16)
 
