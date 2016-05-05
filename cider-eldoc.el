@@ -35,6 +35,7 @@
 (require 'cider-common) ; for cider-symbol-at-point
 (require 'cider-compat)
 (require 'cider-util)
+(require 'nrepl-dict)
 
 (require 'seq)
 
@@ -61,22 +62,68 @@ For convenience, some functions are already provided for this purpose:
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
+(defcustom cider-eldoc-max-class-names-to-display 3
+  "The maximum number of classes to display in an eldoc string.
+An eldoc string for Java interop forms can have a number of classes prefixed to
+it, when the form belongs to more than 1 class.  When, not nil we only display
+the names of first `cider-eldoc-max-class-names-to-display' classes and add
+a \"& x more\" suffix. Otherwise, all the classes are displayed."
+  :type 'integer
+  :safe #'integerp
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
+
+(defun cider--eldoc-format-class-names (class-names)
+  "Return a formatted CLASS-NAMES prefix string.
+CLASS-NAMES is a list of classes to which a Java interop form belongs.
+Only keep the first `cider-eldoc-max-class-names-to-display' names, and
+add a \"& x more\" suffix.  Return nil if the CLASS-NAMES list is empty or
+mapping `cider-eldoc-ns-function' on it returns an empty list."
+  (when-let ((eldoc-class-names (seq-remove #'null (mapcar (apply-partially cider-eldoc-ns-function) class-names)))
+             (eldoc-class-names-length (length eldoc-class-names)))
+    (cond
+     ;; truncate class-names list and then format it
+     ((and cider-eldoc-max-class-names-to-display
+           (> eldoc-class-names-length cider-eldoc-max-class-names-to-display))
+      (format "(%s & %s more)"
+              (thread-first eldoc-class-names
+                (seq-take cider-eldoc-max-class-names-to-display)
+                (cider-string-join " ")
+                (cider-propertize 'ns))
+              (- eldoc-class-names-length cider-eldoc-max-class-names-to-display)))
+
+     ;; format the whole list but add surrounding parentheses
+     ((> eldoc-class-names-length 1)
+      (format "(%s)"
+              (thread-first eldoc-class-names
+                (cider-string-join " ")
+                (cider-propertize 'ns))))
+
+     ;; don't add the parentheses
+     (t (format "%s" (car eldoc-class-names))))))
+
 (defun cider-eldoc-format-thing (ns symbol thing)
   "Format the eldoc subject defined by NS, SYMBOL and THING.
 THING represents the thing at point which triggered eldoc.  Normally NS and
 SYMBOL are used (they are derived from THING), but when empty we fallback to
 THING (e.g. for Java methods)."
-  (if (and ns (not (string= ns ""))
-           symbol (not (string= symbol "")))
-      (let ((ns (funcall cider-eldoc-ns-function ns)))
-        (if (and ns (not (string= ns "")))
-            (format "%s/%s"
-                    (cider-propertize ns 'ns)
-                    (cider-propertize symbol 'var))
-          ;; in case `cider-eldoc-ns-function' returned nil or empty string
-          (cider-propertize symbol 'var)))
-    ;; we're probably dealing with some interop form
-    (cider-propertize thing 'var)))
+  (if-let ((method-name (if (and symbol (not (string= symbol "")))
+                            symbol
+                          thing))
+           (ns-or-class (if (and ns (stringp ns))
+                            (funcall cider-eldoc-ns-function ns)
+                          (cider--eldoc-format-class-names ns))))
+      (format "%s/%s"
+              ;; we set font-lock properties of classes in `cider--eldoc-format-class-names'
+              ;; to avoid font locking the parentheses and "& x more"
+              ;; so we only propertize ns-or-class if not already done
+              (if (get-text-property 1 'face ns-or-class)
+                  ;; it is already propertized
+                  ns-or-class
+                (cider-propertize ns-or-class 'ns))
+              (cider-propertize method-name 'var))
+    ;; in case ns-or-class is nil
+    (cider-propertize method-name 'var)))
 
 (defun cider-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.
@@ -162,9 +209,8 @@ if the maximum number of sexps to skip is exceeded."
         (setq argument-index 0))
       ;; Don't do anything if current word is inside a string, vector,
       ;; hash or set literal.
-      (if (member (or (char-after (1- (point))) 0) '(?\" ?\{ ?\[))
-          nil
-        (list (cider-symbol-at-point) argument-index)))))
+      (unless (member (or (char-after (1- (point))) 0) '(?\" ?\{ ?\[))
+        (list (cider-ns-thing-at-point) argument-index)))))
 
 (defun cider-eldoc--convert-ns-keywords (thing)
   "Convert THING values that match ns macro keywords to function names."
@@ -201,14 +247,18 @@ This includes the arglist and ns and symbol name (if available)."
        (t (if (equal thing (car cider-eldoc-last-symbol))
               (cdr cider-eldoc-last-symbol)
             (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
-              (let ((arglist (nrepl-dict-get eldoc-info "eldoc"))
-                    (ns (nrepl-dict-get eldoc-info "ns"))
-                    (symbol (nrepl-dict-get eldoc-info "name")))
+              (let* ((arglist (nrepl-dict-get eldoc-info "eldoc"))
+                     (ns (nrepl-dict-get eldoc-info "ns"))
+                     (class (nrepl-dict-get eldoc-info "class"))
+                     (symbol (nrepl-dict-get eldoc-info "name"))
+                     (ns-or-class (if (and ns (not (string= ns "")))
+                                      ns
+                                    class)))
                 ;; middleware eldoc lookups are expensive, so we
                 ;; cache the last lookup.  This eliminates the need
                 ;; for extra middleware requests within the same sexp.
-                (setq cider-eldoc-last-symbol (list thing ns symbol arglist))
-                (list ns symbol arglist)))))))))
+                (setq cider-eldoc-last-symbol (list thing ns-or-class symbol arglist))
+                (list ns-or-class symbol arglist)))))))))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
@@ -216,10 +266,10 @@ This includes the arglist and ns and symbol name (if available)."
              ;; don't clobber an error message in the minibuffer
              (not (member last-command '(next-error previous-error))))
     (let* ((sexp-info (cider-eldoc-info-in-current-sexp))
-           (thing (car sexp-info))
+           (thing (nrepl-dict-get (car sexp-info) "thing"))
            (pos (cadr sexp-info))
            (eldoc-info (cider-eldoc-info thing))
-           (ns (nth 0 eldoc-info))
+           (ns (nrepl-dict-get (car sexp-info) "ns" (nth 0 eldoc-info)))
            (symbol (nth 1 eldoc-info))
            (arglists (nth 2 eldoc-info)))
       (when eldoc-info
