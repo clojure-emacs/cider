@@ -110,7 +110,8 @@ version from the CIDER package or library.")
 
 (defcustom cider-boot-command
   (or (executable-find "boot")
-      (executable-find "boot.sh"))
+      (executable-find "boot.sh")
+      "boot")
   "The command used to execute Boot."
   :type 'string
   :group 'cider
