@@ -215,14 +215,16 @@ Sub-match 1 must be the project path.")
     ("lein" cider-lein-command)
     ("boot" cider-boot-command)
     ("gradle" cider-gradle-command)
-    (_ (error "Unsupported project type `%s'" project-type))))
+    (_ (user-error "Unsupported project type `%s'" project-type))))
 
 (defun cider-jack-in-resolve-command (project-type)
+  "Determine the resolved file path to `cider-jack-in-command' if it can be
+found for the PROJECT-TYPE"
   (pcase project-type
     ("lein" (cider--lein-resolve-command))
     ("boot" (cider--boot-resolve-command))
     ("gradle" (cider--gradle-resolve-command))
-    (_ (error "Unsupported project type `%s'" project-type))))
+    (_ (user-error "Unsupported project type `%s'" project-type))))
     
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
@@ -230,8 +232,7 @@ Sub-match 1 must be the project path.")
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
     ("gradle" cider-gradle-parameters)
-    (_ (error "Unsupported project type `%s'" project-type))))
-
+    (_ (user-error "Unsupported project type `%s'" project-type))))
 
 
 ;;; Jack-in dependencies injection
@@ -662,7 +663,7 @@ choose."
 
 ;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-resolve-command ()
-  "Check if `cider-lein-command' is on the `exec-path'.
+  "Find `cider-lein-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
   (or (file-remote-p default-directory)
@@ -670,7 +671,7 @@ In case `default-directory' is non-local we assume the command is available."
       (executable-find (concat cider-lein-command ".bat"))))
 
 (defun cider--boot-resolve-command ()
-  "Check if `cider-boot-command' is on the `exec-path'.
+  "Find `cider-boot-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
   (or (file-remote-p default-directory)
@@ -678,7 +679,7 @@ In case `default-directory' is non-local we assume the command is available."
       (executable-find (concat cider-boot-command ".exe"))))
 
 (defun cider--gradle-resolve-command ()
-  "Check if `cider-gradle-command' is on the `exec-path'.
+  "Find `cider-gradle-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
   (or (file-remote-p default-directory)
