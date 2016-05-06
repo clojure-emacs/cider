@@ -650,16 +650,34 @@ REPL buffer.  This is controlled via
 `cider-interactive-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stderr))
 
-(defun cider-interactive-eval-handler (&optional buffer point)
+(defun cider--make-fringe-overlays-for-region (beg end)
+  "Place eval indicators on all sexps between BEG and END."
+  (with-current-buffer (if (markerp end)
+                           (marker-buffer end)
+                         (current-buffer))
+    (save-excursion
+      (goto-char beg)
+      (while (progn (clojure-forward-logical-sexp)
+                    (and (<= (point) end)
+                         (not (eobp))))
+        (cider--make-fringe-overlay (point))))))
+
+(defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
-If POINT is non-nil, it is the position where the evaluated sexp ends.  It
-can be used to display the evaluation result."
-  (let ((eval-buffer (current-buffer))
-        (point (when point (copy-marker point))))
+PLACE is used to display the evaluation result.
+If non-nil, it can be the position where the evaluated sexp ends,
+or it can be a list with (START END) of the evaluated region."
+  (let* ((eval-buffer (current-buffer))
+         (beg (car-safe place))
+         (end (or (car-safe (cdr-safe place)) place))
+         (beg (when beg (copy-marker beg)))
+         (end (when end (copy-marker end))))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (_buffer value)
-                                   (cider--make-fringe-overlay point)
-                                   (cider--display-interactive-eval-result value point))
+                                   (if beg
+                                       (cider--make-fringe-overlays-for-region beg end)
+                                     (cider--make-fringe-overlay end))
+                                   (cider--display-interactive-eval-result value end))
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
                                  (lambda (_buffer err)
@@ -675,11 +693,7 @@ can be used to display the evaluation result."
                                    (cider--display-interactive-eval-result value)
                                    (when (buffer-live-p buffer)
                                      (with-current-buffer buffer
-                                       (save-excursion
-                                         (goto-char (point-min))
-                                         (while (progn (clojure-forward-logical-sexp)
-                                                       (not (eobp)))
-                                           (cider--make-fringe-overlay (point))))
+                                       (cider--make-fringe-overlays-for-region (point-min) (point-max))
                                        (run-hooks 'cider-file-loaded-hook))))
                                  (lambda (_buffer value)
                                    (cider-emit-interactive-eval-output value))
@@ -1056,7 +1070,7 @@ arguments and only proceed with evaluation if it returns nil."
       (cider--prep-interactive-eval form)
       (cider-nrepl-request:eval
        form
-       (or callback (cider-interactive-eval-handler nil end))
+       (or callback (cider-interactive-eval-handler nil bounds))
        ;; always eval ns forms in the user namespace
        ;; otherwise trying to eval ns form for the first time will produce an error
        (if (cider-ns-form-p form) "user" (cider-current-ns))
