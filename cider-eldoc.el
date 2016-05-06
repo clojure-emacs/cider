@@ -210,7 +210,7 @@ if the maximum number of sexps to skip is exceeded."
       ;; Don't do anything if current word is inside a string, vector,
       ;; hash or set literal.
       (unless (member (or (char-after (1- (point))) 0) '(?\" ?\{ ?\[))
-        (list (cider-ns-thing-at-point) argument-index)))))
+        (list (cider-symbol-at-point) argument-index)))))
 
 (defun cider-eldoc--convert-ns-keywords (thing)
   "Convert THING values that match ns macro keywords to function names."
@@ -250,15 +250,25 @@ This includes the arglist and ns and symbol name (if available)."
               (let* ((arglist (nrepl-dict-get eldoc-info "eldoc"))
                      (ns (nrepl-dict-get eldoc-info "ns"))
                      (class (nrepl-dict-get eldoc-info "class"))
-                     (symbol (nrepl-dict-get eldoc-info "name"))
+                     (name (nrepl-dict-get eldoc-info "name"))
+                     (member (nrepl-dict-get eldoc-info "member"))
                      (ns-or-class (if (and ns (not (string= ns "")))
                                       ns
-                                    class)))
+                                    class))
+                     (name-or-member (if (and name (not (string= name "")))
+                                         name
+                                       (format ".%s" member))))
                 ;; middleware eldoc lookups are expensive, so we
                 ;; cache the last lookup.  This eliminates the need
                 ;; for extra middleware requests within the same sexp.
-                (setq cider-eldoc-last-symbol (list thing ns-or-class symbol arglist))
-                (list ns-or-class symbol arglist)))))))))
+                (setq cider-eldoc-last-symbol
+                      (list thing ns-or-class name-or-member arglist))
+                (list ns-or-class name-or-member arglist)))))))))
+
+(defun cider--eldoc-remove-dot-sym (sym)
+  "Remove the preceding \".\" from a namespace qualified SYM and return sym.
+Only useful for interop forms.  Clojure forms would be returned unchanged."
+  (when sym (replace-regexp-in-string "/\\." "/" sym)))
 
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
@@ -266,10 +276,10 @@ This includes the arglist and ns and symbol name (if available)."
              ;; don't clobber an error message in the minibuffer
              (not (member last-command '(next-error previous-error))))
     (let* ((sexp-info (cider-eldoc-info-in-current-sexp))
-           (thing (nrepl-dict-get (car sexp-info) "thing"))
+           (thing (car sexp-info))
            (pos (cadr sexp-info))
-           (eldoc-info (cider-eldoc-info thing))
-           (ns (nrepl-dict-get (car sexp-info) "ns" (nth 0 eldoc-info)))
+           (eldoc-info (cider-eldoc-info (cider--eldoc-remove-dot-sym thing)))
+           (ns (nth 0 eldoc-info))
            (symbol (nth 1 eldoc-info))
            (arglists (nth 2 eldoc-info)))
       (when eldoc-info

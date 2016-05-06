@@ -86,23 +86,6 @@
     (spy-on 'thing-at-point :and-return-value "boogie>")
     (expect (cider-symbol-at-point) :to-equal "boogie>")))
 
-(describe "cider-ns-thing-at-point"
-  (it "destructures the symbol at point into ns and thing"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "java.lang.String/.length")
-      (search-backward "S")
-      (expect (cider-ns-thing-at-point) :to-equal
-              (nrepl-dict "ns" "java.lang.String" "thing" ".length"))))
-
-  (it "handles a non namespace qualified form"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "map")
-      (search-backward "m")
-      (expect (cider-ns-thing-at-point) :to-equal
-              (nrepl-dict "thing" "map")))))
-
 (describe "cider-sexp-at-point"
   (describe "when the param 'bounds is not given"
     (it "returns the sexp at point"
