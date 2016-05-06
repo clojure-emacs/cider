@@ -1092,7 +1092,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
 If invoked with a PREFIX argument, print the result in the current buffer."
   (interactive "P")
   (save-excursion
-    (up-list)
+    (goto-char (cadr (cider-sexp-at-point 'bounds)))
     (cider-eval-last-sexp prefix)))
 
 (defun cider-eval-defun-to-comment (loc)
