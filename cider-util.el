@@ -128,11 +128,11 @@ find a symbol if there isn't one at point."
   "Return destructured `cider-symbol-at-point'.
 If the symbol at point is of the form ns-name/thing-name, returns a dict
 \(\"ns\" \"ns-name\" \"thing\" \"thing-name\")."
-  (let* ((sym (cider-symbol-at-point))
-         (ns-thing (split-string sym "/")))
-    (if (< (length ns-thing) 2)
-        (nrepl-dict "thing" (car ns-thing))
-      (nrepl-dict "ns" (car ns-thing) "thing" (cadr ns-thing)))))
+  (if-let ((sym (cider-symbol-at-point))
+           (ns-thing (split-string sym "/")))
+      (if (< (length ns-thing) 2)
+          (nrepl-dict "thing" (car ns-thing))
+        (nrepl-dict "ns" (car ns-thing) "thing" (cadr ns-thing)))))
 
 
 ;;; sexp navigation
