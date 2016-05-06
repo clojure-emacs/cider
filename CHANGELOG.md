@@ -24,6 +24,8 @@
 * Signal an error sooner if the user misconfigured `cider-known-endpoints`.
 * `cider-inspect-read-and-inspect` is obsolete. Use `cider-inspect-expression` instead.
 * Extremely long overlays are truncated and `cider-inspect-last-result` is recommended.
+* Signal `user-error` instead of `error` on jack-in if a project type is not supported.
+* Users with `boot.sh` instead of `boot` should customize `cider-boot-command` instead of relying on automatic detection.
 
 ### Bugs fixed
 
@@ -33,6 +35,7 @@
 * [#1561](https://github.com/clojure-emacs/cider/issues/1561): Use an appropriate font-lock-face for variables, macros and functions in
 the ns-browser.
 * [#1708](https://github.com/clojure-emacs/cider/issues/1708): Fix `cider-popup-buffer-display` when another frame is used for the error buffer.
+* [#1733](https://github.com/clojure-emacs/cider/pull/1733): Better error handling when no boot command is found in exec-path.
 
 ## 0.12.0 (2016-04-16)
 
