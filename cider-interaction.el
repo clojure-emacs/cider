@@ -657,10 +657,12 @@ REPL buffer.  This is controlled via
                          (current-buffer))
     (save-excursion
       (goto-char beg)
-      (while (progn (clojure-forward-logical-sexp)
-                    (and (<= (point) end)
-                         (not (eobp))))
-        (cider--make-fringe-overlay (point))))))
+      (condition-case nil
+          (while (progn (clojure-forward-logical-sexp)
+                        (and (<= (point) end)
+                             (not (eobp))))
+            (cider--make-fringe-overlay (point)))
+        (scan-error nil)))))
 
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
