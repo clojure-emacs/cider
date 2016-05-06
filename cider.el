@@ -109,9 +109,7 @@ version from the CIDER package or library.")
   :group 'cider)
 
 (defcustom cider-boot-command
-  (or (executable-find "boot")
-      (executable-find "boot.sh")
-      "boot")
+  "boot"
   "The command used to execute Boot."
   :type 'string
   :group 'cider
@@ -211,14 +209,6 @@ Sub-match 1 must be the project path.")
   (interactive)
   (message "CIDER %s" (cider--version)))
 
-(defun cider-command-present-p (project-type)
-  "Check if the command matching PROJECT-TYPE is present."
-  (pcase project-type
-    ("lein" 'cider--lein-present-p)
-    ("boot" 'cider--boot-present-p)
-    ("gradle" 'cider--gradle-present-p)
-    (_ (error "Unsupported project type `%s'" project-type))))
-
 (defun cider-jack-in-command (project-type)
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
   (pcase project-type
@@ -227,6 +217,13 @@ Sub-match 1 must be the project path.")
     ("gradle" cider-gradle-command)
     (_ (error "Unsupported project type `%s'" project-type))))
 
+(defun cider-jack-in-resolve-command (project-type)
+  (pcase project-type
+    ("lein" (cider--lein-resolve-command))
+    ("boot" (cider--boot-resolve-command))
+    ("gradle" (cider--gradle-resolve-command))
+    (_ (error "Unsupported project type `%s'" project-type))))
+    
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
@@ -234,6 +231,7 @@ Sub-match 1 must be the project path.")
     ("boot" cider-boot-parameters)
     ("gradle" cider-gradle-parameters)
     (_ (error "Unsupported project type `%s'" project-type))))
+
 
 
 ;;; Jack-in dependencies injection
@@ -473,22 +471,25 @@ If CLJS-TOO is non-nil, also start a ClojureScript REPL session with its
 own buffer."
   (interactive "P")
   (setq cider-current-clojure-buffer (current-buffer))
-  (let ((project-type (cider-project-type)))
-    (if (funcall (cider-command-present-p project-type))
+  (let* ((project-type (cider-project-type))
+         (command (cider-jack-in-command project-type))
+         (command-resolved (cider-jack-in-resolve-command project-type))
+         (command-params (cider-jack-in-params project-type)))
+    (if command-resolved
         (let* ((project (when prompt-project
                           (read-directory-name "Project: ")))
                (project-dir (clojure-project-dir
                              (or project (cider-current-dir))))
                (params (if prompt-project
                            (read-string (format "nREPL server command: %s "
-                                                (cider-jack-in-params project-type))
-                                        (cider-jack-in-params project-type))
-                         (cider-jack-in-params project-type)))
+                                                command-params)
+                                        command-params)
+                         command-params))
                (params (if cider-inject-dependencies-at-jack-in
                            (cider-inject-jack-in-dependencies params project-type)
                          params))
 
-               (cmd (format "%s %s" (cider-jack-in-command project-type) params)))
+               (cmd (format "%s %s" command-resolved params)))
           (when-let ((repl-buff (cider-find-reusable-repl-buffer nil project-dir)))
             (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
                   (nrepl-use-this-as-repl-buffer repl-buff))
@@ -496,7 +497,7 @@ own buffer."
                project-dir cmd
                (when cljs-too #'cider-create-sibling-cljs-repl)))))
       (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your `exec-path'"
-               (cider-jack-in-command project-type)))))
+               command))))
 
 ;;;###autoload
 (defun cider-jack-in-clojurescript (&optional prompt-project)
@@ -658,8 +659,9 @@ choose."
            (car choices))
           (t cider-default-repl-command))))
 
+
 ;; TODO: Implement a check for `cider-lein-command' over tramp
-(defun cider--lein-present-p ()
+(defun cider--lein-resolve-command ()
   "Check if `cider-lein-command' is on the `exec-path'.
 
 In case `default-directory' is non-local we assume the command is available."
@@ -667,7 +669,7 @@ In case `default-directory' is non-local we assume the command is available."
       (executable-find cider-lein-command)
       (executable-find (concat cider-lein-command ".bat"))))
 
-(defun cider--boot-present-p ()
+(defun cider--boot-resolve-command ()
   "Check if `cider-boot-command' is on the `exec-path'.
 
 In case `default-directory' is non-local we assume the command is available."
@@ -675,7 +677,7 @@ In case `default-directory' is non-local we assume the command is available."
       (executable-find cider-boot-command)
       (executable-find (concat cider-boot-command ".exe"))))
 
-(defun cider--gradle-present-p ()
+(defun cider--gradle-resolve-command ()
   "Check if `cider-gradle-command' is on the `exec-path'.
 
 In case `default-directory' is non-local we assume the command is available."
