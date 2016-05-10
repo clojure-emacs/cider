@@ -435,6 +435,35 @@ Any other value is just returned."
       (mapcar #'cider--deep-vector-to-list x)
     x))
 
+
+;;; Help mode
+
+;; Same as https://github.com/emacs-mirror/emacs/blob/86d083438dba60dc00e9e96414bf7e832720c05a/lisp/help-mode.el#L355
+;; the original function uses some buffer local variables, but the buffer used
+;; is not configurable. It defaults to (help-buffer)
+
+(defun cider--help-setup-xref (item interactive-p buffer)
+  "Invoked from commands using the \"*Help*\" buffer to install some xref info.
+
+ITEM is a (FUNCTION . ARGS) pair appropriate for recreating the help
+buffer after following a reference.  INTERACTIVE-P is non-nil if the
+calling command was invoked interactively.  In this case the stack of
+items for help buffer \"back\" buttons is cleared.  Use BUFFER for the
+buffer local variables.
+
+This should be called very early, before the output buffer is cleared,
+because we want to record the \"previous\" position of point so we can
+restore it properly when going back."
+  (with-current-buffer buffer
+    (when help-xref-stack-item
+      (push (cons (point) help-xref-stack-item) help-xref-stack)
+      (setq help-xref-forward-stack nil))
+    (when interactive-p
+      (let ((tail (nthcdr 10 help-xref-stack)))
+        ;; Truncate the stack.
+        (if tail (setcdr tail nil))))
+    (setq help-xref-stack-item item)))
+
 
 ;;; Words of inspiration
 (defun cider-user-first-name ()
