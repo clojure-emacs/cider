@@ -163,7 +163,7 @@
 (defvar cider-docview-file)
 (defvar cider-docview-line)
 
-(define-derived-mode cider-docview-mode special-mode "Doc"
+(define-derived-mode cider-docview-mode help-mode "Doc"
   "Major mode for displaying CIDER documentation
 
 \\{cider-docview-mode-map}"
@@ -384,7 +384,9 @@ Tables are marked to be ignored by line wrap."
          (super   (nrepl-dict-get info "super"))
          (ifaces  (nrepl-dict-get info "interfaces"))
          (clj-name  (if ns (concat ns "/" name) name))
-         (java-name (if member (concat class "/" member) class)))
+         (java-name (if member (concat class "/" member) class))
+         (see-also (nrepl-dict-get info "see-also")))
+    (cider--help-setup-xref (list #'cider-doc-lookup (format "%s/%s" ns name)) nil buffer)
     (with-current-buffer buffer
       (cl-flet ((emit (text &optional face)
                       (insert (if face
@@ -446,6 +448,22 @@ Tables are marked to be ignored by line wrap."
                             'follow-link t
                             'action (lambda (_x)
                                       (cider-docview-source)))
+        (when see-also
+          (insert "\n\n Also see: ")
+          (mapc (lambda (ns-sym)
+
+                  (let* ((ns-sym-split (split-string ns-sym "/"))
+                         (ns (car ns-sym-split))
+                         (sym (cadr ns-sym-split))
+                         ;; if the fn belongs to the same ns,
+                         ;; don't display the namespace prefixed name
+                         (symbol (if (equal ns ns) sym ns-sym)))
+                    (insert-button symbol
+                                   'type 'help-xref
+                                   'help-function (apply-partially #'cider-doc-lookup symbol)))
+                  (insert " "))
+                see-also))
+        (help-make-xrefs)
         (let ((beg (point-min))
               (end (point-max)))
           (nrepl-dict-map (lambda (k v)
