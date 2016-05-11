@@ -453,11 +453,11 @@ Tables are marked to be ignored by line wrap."
           (mapc (lambda (ns-sym)
 
                   (let* ((ns-sym-split (split-string ns-sym "/"))
-                         (ns (car ns-sym-split))
-                         (sym (cadr ns-sym-split))
+                         (see-also-ns (car ns-sym-split))
+                         (see-also-sym (cadr ns-sym-split))
                          ;; if the fn belongs to the same ns,
                          ;; don't display the namespace prefixed name
-                         (symbol (if (equal ns ns) sym ns-sym)))
+                         (symbol (if (equal ns see-also-ns) see-also-sym ns-sym)))
                     (insert-button symbol
                                    'type 'help-xref
                                    'help-function (apply-partially #'cider-doc-lookup symbol)))
