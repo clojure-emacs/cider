@@ -26,6 +26,7 @@
 * Extremely long overlays are truncated and `cider-inspect-last-result` is recommended.
 * Signal `user-error` instead of `error` on jack-in if a project type is not supported.
 * Users with `boot.sh` instead of `boot` should customize `cider-boot-command` instead of relying on automatic detection.
+* [#1737](https://github.com/clojure-emacs/cider/issues/1737): Show value of locals in debugger tooltip.
 
 ### Bugs fixed
 
