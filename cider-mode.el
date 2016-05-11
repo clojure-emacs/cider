@@ -659,6 +659,9 @@ before point."
   :type 'boolean
   :package-version '(cider "0.12.0"))
 
+(defvar cider--debug-mode-response)
+(defvar cider--debug-mode)
+
 (defun cider--help-echo (_ obj pos)
   "Return the help-echo string for OBJ at POS.
 See \(info \"(elisp) Special Properties\")"
@@ -671,7 +674,11 @@ See \(info \"(elisp) Special Properties\")"
             (goto-char pos)
             (when-let ((sym (cider-symbol-at-point)))
               (if (member sym (get-text-property (point) 'cider-locals))
-                  (format "`%s' is a local" sym)
+                  (concat (format "`%s' is a local" sym)
+                          (when cider--debug-mode
+                            (let* ((locals (nrepl-dict-get cider--debug-mode-response "locals"))
+                                   (local-val (cadr (assoc sym locals))))
+                                (format " with value:\n%s" local-val))))
                 (let* ((info (cider-sync-request:info sym))
                        (candidates (nrepl-dict-get info "candidates")))
                   (if candidates
