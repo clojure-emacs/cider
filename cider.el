@@ -277,12 +277,12 @@ LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
 string is quoted for passing as argument to an inferior shell."
   (concat "-d " (shell-quote-argument (format "%s:%s" (car list) (cadr list)))))
 
-(defun boot-command-prefix (dependencies)
+(defun cider-boot-command-prefix (dependencies)
   "Return a list of boot artifact strings created from DEPENDENCIES."
   (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
           " "))
 
-(defun boot-repl-task-params (params middlewares)
+(defun cider-boot-repl-task-params (params middlewares)
   (if (string-match "\\_<repl\\_>" params)
       (replace-match (concat "repl "
                              (mapconcat (lambda (middleware)
@@ -294,8 +294,8 @@ string is quoted for passing as argument to an inferior shell."
     params))
 
 (defun cider-boot-jack-in-dependencies (params dependencies plugins middlewares)
-  (concat (boot-command-prefix (append dependencies plugins))
-          (boot-repl-task-params params middlewares)))
+  (concat (cider-boot-command-prefix (append dependencies plugins))
+          (cider-boot-repl-task-params params middlewares)))
 
 (defun cider--list-as-lein-artifact (list)
   "Return an artifact string described by the elements of LIST.
