@@ -77,12 +77,15 @@ editor.
 - To use it, evaluate your functions one at a time (e.g., use <kbd>C-M-x</kbd> or
 <kbd>C-x  C-e</kbd>, because <kbd>C-c C-k</kbd> won't work).
 
-That's it! Once your code executes, the regular old buffer on the left will turn
-into the brilliant show of lights on the right.
+That's it! Once your code executes, the regular old buffer at the top will turn
+into the brilliant show of lights at the bottom.
 
 <p align="center">
-  <img src="images/enlighten_off.png" />
-  <img src="images/enlighten_on.png" />
+  <img src="images/enlighten_off.png"/>
+</p>
+
+<p align="center">
+  <img src="images/enlighten_on.png"/>
 </p>
 
 To stop displaying the locals you'll have to disable `cider-enlighten-mode`
