@@ -81,8 +81,8 @@ That's it! Once your code executes, the regular old buffer on the left will turn
 into the brilliant show of lights on the right.
 
 <p align="center">
-  <img src="../images/enlighten_off.png" width="300" />
-  <img src="../images/enlighten_on.png" width="300" />
+  <img src="../images/enlighten_disabled.png" width="300" />
+  <img src="../images/enlighten_enabled.png" width="300" />
 </p>
 
 To stop displaying the locals you'll have to disable `cider-enlighten-mode`
