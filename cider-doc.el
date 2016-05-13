@@ -456,7 +456,6 @@ Tables are marked to be ignored by line wrap."
         (when see-also
           (insert "\n\n Also see: ")
           (mapc (lambda (ns-sym)
-
                   (let* ((ns-sym-split (split-string ns-sym "/"))
                          (see-also-ns (car ns-sym-split))
                          (see-also-sym (cadr ns-sym-split))
@@ -468,7 +467,7 @@ Tables are marked to be ignored by line wrap."
                                    'help-function (apply-partially #'cider-doc-lookup symbol)))
                   (insert " "))
                 see-also))
-        (help-make-xrefs)
+        (cider--help-make-xrefs)
         (let ((beg (point-min))
               (end (point-max)))
           (nrepl-dict-map (lambda (k v)

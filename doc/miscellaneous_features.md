@@ -185,3 +185,32 @@ Keyboard shortcut               | Description
 <kbd>^</kbd>                    | Browse all namespaces.
 <kbd>n</kbd>                    | Go to next line.
 <kbd>p</kbd>                    | Go to previous line.
+
+## Documentation buffers include "See Also" references
+
+You can add references to other vars by including their names in `` ` `` in the docstring.
+If the var is in another namespace, then you'll have to include the full
+namespace qualified name in the docstring. If you want to use some other delimiter instead
+of the backticks, you'll have to update the value of `cider-doc-xref-regexp` to match that.
+The first group of the regexp should always match the var name.
+
+As an example, if you want to want to use the delimiter style used by
+[Codox](https://github.com/weavejester/codox) (`[[...]]`)  the regexp would be;
+
+```
+(setq cider-doc-xref-regexp "\\[\\[\\(.*?\\)\\]\\]")
+```
+
+![CIDER See Also](images/cider_see_also.gif)
+
+Example function with a docstring containing references:
+
+```
+(defn test-fn
+  "Test function.
+  Also see: `clojure.core/map`, `clojure.core/reduce`, `defn`.
+  You can reference variables like `thor`, `kubaru.data.zookeeper/yoda`.
+  Also works with references to java interop forms, `java.lang.String/.length`."
+  []
+  (+ 1 1))
+```
