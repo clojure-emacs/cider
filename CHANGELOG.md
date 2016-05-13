@@ -14,7 +14,7 @@
   used in a project, particular if it is lower than minimum required for CIDER.
 * Allow the ns displayed by eldoc to be tailored via `cider-eldoc-ns-function`.
 * After connecting a ClojureScript REPL, CIDER will try to figure out if it's being served on a port and will offer to open it in a browser.
-* [#1720](https://github.com/clojure-emacs/cider/issues/1720): Add a command `cider-eval-sexp-at-point` to evaluate the form around point (bound to `C-c C-v`).
+* [#1720](https://github.com/clojure-emacs/cider/issues/1720): Add a command `cider-eval-sexp-at-point` to evaluate the form around point (bound to `C-c C-v v`).
 * [#1564](https://github.com/clojure-emacs/cider/issues/1564): CIDER's internal namespaces and vars are filtered from the ns-browser and apropos functions.
 * [#1725](https://github.com/clojure-emacs/cider/issues/1725): Display class names in eldoc for interop forms.
 
@@ -27,6 +27,9 @@
 * Signal `user-error` instead of `error` on jack-in if a project type is not supported.
 * Users with `boot.sh` instead of `boot` should customize `cider-boot-command` instead of relying on automatic detection.
 * [#1737](https://github.com/clojure-emacs/cider/issues/1737): Show value of locals in debugger tooltip.
+* Rebind `cider-eval-last-sexp-and-replace` to `C-c C-v w`.
+* Rebind `cider-eval-region` to `C-c C-v r`.
+* Rebind `cider-eval-ns-form` to `C-c C-v n`.
 
 ### Bugs fixed
 

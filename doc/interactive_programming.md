@@ -19,19 +19,19 @@ Here's a list of `cider-mode`'s keybindings:
  Keyboard shortcut                    | Description
 --------------------------------------|-------------------------------
 <kbd>C-x C-e</kbd> <br/> <kbd>C-c C-e</kbd>| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
-<kbd>C-c C-w</kbd>                   | Evaluate the form preceding point and replace it with its result.
+<kbd>C-c C-v w</kbd>                   | Evaluate the form preceding point and replace it with its result.
 <kbd>C-c M-e</kbd>                   | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 <kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
 <kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer.
 <kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer.
 <kbd>C-M-x</kbd> <br/> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
-<kbd>C-c C-v</kbd>                   | Evaluate the form around point.
+<kbd>C-c C-v v</kbd>                   | Evaluate the form around point.
 <kbd>C-u C-M-x</kbd> <br/> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
-<kbd>C-c C-r</kbd>                   | Evaluate the region and display the result in the echo area.
+<kbd>C-c C-v r</kbd>                   | Evaluate the region and display the result in the echo area.
 <kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
 <kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 <kbd>C-c M-m</kbd>                   | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
-<kbd>C-c C-n</kbd>                   | Eval the ns form.
+<kbd>C-c C-v n</kbd>                   | Eval the ns form.
 <kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
 <kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
 <kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
