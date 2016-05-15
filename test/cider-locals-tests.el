@@ -39,7 +39,7 @@
              (setq out
                    ,(if (eq expected :return)
                         'result
-                      `(should (equal result ',expected)))))))
+                      `(expect result :to-equal ',expected))))))
        out)))
 
 (describe "cider--test-unless-local"
