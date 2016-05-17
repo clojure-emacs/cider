@@ -265,7 +265,7 @@ This includes the arglist and ns and symbol name (if available)."
                       (list thing ns-or-class name-or-member arglist))
                 (list ns-or-class name-or-member arglist)))))))))
 
-(defun cider--eldoc-remove-dot-sym (sym)
+(defun cider--eldoc-remove-dot (sym)
   "Remove the preceding \".\" from a namespace qualified SYM and return sym.
 Only useful for interop forms.  Clojure forms would be returned unchanged."
   (when sym (replace-regexp-in-string "/\\." "/" sym)))
@@ -278,7 +278,7 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
     (let* ((sexp-info (cider-eldoc-info-in-current-sexp))
            (thing (car sexp-info))
            (pos (cadr sexp-info))
-           (eldoc-info (cider-eldoc-info (cider--eldoc-remove-dot-sym thing)))
+           (eldoc-info (cider-eldoc-info (cider--eldoc-remove-dot thing)))
            (ns (nth 0 eldoc-info))
            (symbol (nth 1 eldoc-info))
            (arglists (nth 2 eldoc-info)))

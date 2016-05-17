@@ -147,13 +147,13 @@
         (expect (cider-eldoc-beginning-of-sexp) :to-equal nil)
         (expect (point) :to-equal 4)))))
 
-(describe "cider--eldoc-remove-dot-sym"
+(describe "cider--eldoc-remove-dot"
   (it "removes the \".\" from the namespace qualified symbols"
-    (expect (cider--eldoc-remove-dot-sym "java.lang.String/.length")
+    (expect (cider--eldoc-remove-dot "java.lang.String/.length")
             :to-equal "java.lang.String/length")
-    (expect (cider--eldoc-remove-dot-sym "clojure.string/blank?")
+    (expect (cider--eldoc-remove-dot "clojure.string/blank?")
             :to-equal "clojure.string/blank?")
-    (expect (cider--eldoc-remove-dot-sym ".length")
+    (expect (cider--eldoc-remove-dot ".length")
             :to-equal ".length")
-    (expect (cider--eldoc-remove-dot-sym "map")
+    (expect (cider--eldoc-remove-dot "map")
             :to-equal "map")))
