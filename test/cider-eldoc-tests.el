@@ -157,3 +157,82 @@
             :to-equal ".length")
     (expect (cider--eldoc-remove-dot "map")
             :to-equal "map")))
+
+(describe "cider-eldoc-info-in-current-sexp"
+  (before-all
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-eldoc-info :and-call-fake
+            (lambda (thing)
+              (pcase thing
+                ("map" '("clojure.core" "map" (("f") ("f" "coll"))))
+                ("inc" '("clojure.core" "inc" (("x"))))))))
+
+  (it "considers sym-at-point before the sym-at-sexp-beginning"
+    (with-temp-buffer
+      (clojure-mode)
+      (save-excursion (insert "(map inc [1 2 3])"))
+      ;; whem cursor is on map, display its eldoc
+      (search-forward "map")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+              '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))
+      ;; when cursor is on inc, display its eldoc
+      (search-forward "inc")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+              '("eldoc-info" ("clojure.core" "inc" (("x"))) "thing" "inc" "pos" 1))
+      ;; eldoc can be nil
+      (search-forward "1")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+              '("eldoc-info" nil "thing" nil "pos" 0))
+      ;; when cursor is at the end of sexp, display eldoc of first symbol
+      (search-forward "]")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+              '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 2))))
+
+  (it "respects the value of `cider-eldoc-display-for-symbol-at-point'"
+    (let ((cider-eldoc-display-for-symbol-at-point nil))
+      (with-temp-buffer
+        (clojure-mode)
+        (save-excursion (insert "(map inc [1 2 3])"))
+        ;; whem cursor is on map, display its eldoc
+        (search-forward "map")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))
+        ;; when cursor is on inc, still display eldoc of map
+        (search-forward "inc")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 1))
+        ;; eldoc can be nil
+        (search-forward "1")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                '("eldoc-info" nil "thing" nil "pos" 0))
+        ;; when cursor is at the end of sexp, display eldoc of first symbol
+        (search-forward "]")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 2)))))
+
+  (describe "interop forms"
+    (before-all
+      (spy-on 'cider-connected-p :and-return-value t)
+      (spy-on 'cider-eldoc-info :and-call-fake
+              (lambda (thing)
+                (pcase thing
+                  (".length" '(("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder") ".length" (("this"))))
+                  ("java.lang.String/length" '(("java.lang.String") ".length" (("this"))))))))
+
+    (describe "when class name is not given before interop forms"
+      (it "includes all possible class names in eldoc"
+        (with-temp-buffer
+          (clojure-mode)
+          (save-excursion (insert "(.length \"abc\")"))
+          (search-forward ".length")
+          (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                  '("eldoc-info" (("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder") ".length" (("this"))) "thing" ".length" "pos" 0)))))
+
+    (describe "when class name is given before interop forms"
+      (it "includes just the given class name in eldoc"
+        (with-temp-buffer
+          (clojure-mode)
+          (save-excursion (insert "(java.lang.String/.length \"abc\")"))
+          (search-forward ".length")
+          (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                  '("eldoc-info" (("java.lang.String") ".length" (("this"))) "thing" "java.lang.String/.length" "pos" 0)))))))

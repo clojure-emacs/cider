@@ -73,6 +73,15 @@ a \"& x more\" suffix. Otherwise, all the classes are displayed."
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
+(defcustom cider-eldoc-display-for-symbol-at-point t
+  "When non-nil, display eldoc for symbol at point if available.
+So in (map inc ...) when the cursor is over inc its eldoc would be
+displayed.  When nil, always display eldoc for first symbol of the sexp."
+  :type 'boolean
+  :safe 'booleanp
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
+
 (defun cider--eldoc-format-class-names (class-names)
   "Return a formatted CLASS-NAMES prefix string.
 CLASS-NAMES is a list of classes to which a Java interop form belongs.
@@ -200,17 +209,37 @@ if the maximum number of sexps to skip is exceeded."
     num-skipped-sexps))
 
 (defun cider-eldoc-info-in-current-sexp ()
-  "Return a list of the current sexp and the current argument index."
+  "Return a plist containing the sexp, its eldoc info and its argument index.
+If `cider-eldoc-display-for-symbol-at-point' is non-nil then return the symbol
+at point, if its eldoc info is available.  Else return the first symbol in
+the sexp if its eldoc is available.  Otherwise return nil."
   (save-excursion
-    (when-let ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
-               (argument-index (1- beginning-of-sexp)))
-      ;; If we are at the beginning of function name, this will be -1.
-      (when (< argument-index 0)
-        (setq argument-index 0))
-      ;; Don't do anything if current word is inside a string, vector,
-      ;; hash or set literal.
-      (unless (member (or (char-after (1- (point))) 0) '(?\" ?\{ ?\[))
-        (list (cider-symbol-at-point) argument-index)))))
+    (let* ((current-point (point))
+           (sym-at-point (progn
+                           (cider-eldoc-beginning-of-sexp)
+                           (unless (member (or (char-before (point)) 0) '(?\" ?\{ ?\[))
+                             (goto-char current-point)
+                             (cider-symbol-at-point)))))
+      ;; cider-eldoc-beginning-of-sexp is nil for variables
+      (when-let ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
+                 (argument-index (1- beginning-of-sexp)))
+        (let* (;; Don't do anything if current symbol is inside a string, vector,
+               ;; hash or set literal.
+               (sym-at-sexp-beginning (unless (member (or (char-before (point)) 0) '(?\" ?\{ ?\[))
+                                        (cider-symbol-at-point)))
+               (sym-at-point-eldoc-info (cider-eldoc-info (cider--eldoc-remove-dot sym-at-point))))
+
+          ;; If we are at the beginning of function name, this will be -1.
+          (when (< argument-index 0)
+            (setq argument-index 0))
+
+          (if (and cider-eldoc-display-for-symbol-at-point sym-at-point-eldoc-info)
+              (list "eldoc-info" sym-at-point-eldoc-info
+                    "thing" sym-at-point
+                    "pos" argument-index)
+            (list "eldoc-info" (cider-eldoc-info (cider--eldoc-remove-dot sym-at-sexp-beginning))
+                  "thing" sym-at-sexp-beginning
+                  "pos" argument-index)))))))
 
 (defun cider-eldoc--convert-ns-keywords (thing)
   "Convert THING values that match ns macro keywords to function names."
@@ -275,10 +304,10 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
   (when (and (cider-connected-p)
              ;; don't clobber an error message in the minibuffer
              (not (member last-command '(next-error previous-error))))
-    (let* ((sexp-info (cider-eldoc-info-in-current-sexp))
-           (thing (car sexp-info))
-           (pos (cadr sexp-info))
-           (eldoc-info (cider-eldoc-info (cider--eldoc-remove-dot thing)))
+    (let* ((sexp-eldoc-info (cider-eldoc-info-in-current-sexp))
+           (eldoc-info (lax-plist-get sexp-eldoc-info "eldoc-info"))
+           (pos (lax-plist-get sexp-eldoc-info "pos"))
+           (thing (lax-plist-get sexp-eldoc-info "thing"))
            (ns (nth 0 eldoc-info))
            (symbol (nth 1 eldoc-info))
            (arglists (nth 2 eldoc-info)))
