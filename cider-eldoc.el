@@ -73,6 +73,15 @@ a \"& x more\" suffix. Otherwise, all the classes are displayed."
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
+(defcustom cider-eldoc-display-for-symbol-at-point t
+  "When non-nil, display eldoc for symbol at point if available.
+So in (map inc ...) when the cursor is over inc its eldoc would be
+displayed.  When nil, always display eldoc for first symbol of the sexp."
+  :type 'boolean
+  :safe 'booleanp
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
+
 (defun cider--eldoc-format-class-names (class-names)
   "Return a formatted CLASS-NAMES prefix string.
 CLASS-NAMES is a list of classes to which a Java interop form belongs.
@@ -102,14 +111,18 @@ mapping `cider-eldoc-ns-function' on it returns an empty list."
      ;; don't add the parentheses
      (t (format "%s" (car eldoc-class-names))))))
 
-(defun cider-eldoc-format-thing (ns symbol thing)
+(defun cider-eldoc-format-thing (ns symbol thing type)
   "Format the eldoc subject defined by NS, SYMBOL and THING.
 THING represents the thing at point which triggered eldoc.  Normally NS and
 SYMBOL are used (they are derived from THING), but when empty we fallback to
-THING (e.g. for Java methods)."
+THING (e.g. for Java methods).  Format it as a function, if FUNCTION-P
+is non-nil.  Else format it as a variable."
   (if-let ((method-name (if (and symbol (not (string= symbol "")))
                             symbol
                           thing))
+           (propertized-method-name (if (equal type 'function)
+                                        (cider-propertize method-name 'var)
+                                      (cider-propertize method-name 'font-lock-variable-name-face)))
            (ns-or-class (if (and ns (stringp ns))
                             (funcall cider-eldoc-ns-function ns)
                           (cider--eldoc-format-class-names ns))))
@@ -121,9 +134,31 @@ THING (e.g. for Java methods)."
                   ;; it is already propertized
                   ns-or-class
                 (cider-propertize ns-or-class 'ns))
-              (cider-propertize method-name 'var))
+              propertized-method-name)
     ;; in case ns-or-class is nil
-    (cider-propertize method-name 'var)))
+    propertized-method-name))
+
+(defun cider-eldoc-format-variable (thing pos eldoc-info)
+  "Return the formatted eldoc string for a variable.
+THING is the variable name.  POS will always be 0 here.
+ELDOC-INFO is a p-list containing the eldoc information."
+  (let ((ns (lax-plist-get eldoc-info "ns"))
+        (symbol (lax-plist-get eldoc-info "symbol"))
+        (docstring (lax-plist-get eldoc-info "docstring")))
+    (when docstring
+      (format "%s: %s" (cider-eldoc-format-thing ns symbol thing 'var)
+              docstring))))
+
+(defun cider-eldoc-format-function (thing pos eldoc-info)
+  "Return the formatted eldoc string for a function.
+THING is the function name.  POS is the argument-index of the functions
+arglists.  ELDOC-INFO is a p-list containing the eldoc information."
+  (let ((ns (lax-plist-get eldoc-info "ns"))
+        (symbol (lax-plist-get eldoc-info "symbol"))
+        (arglists (lax-plist-get eldoc-info "arglists")))
+    (format "%s: %s"
+            (cider-eldoc-format-thing ns symbol thing 'function)
+            (cider-eldoc-format-arglist arglists pos))))
 
 (defun cider-highlight-args (arglist pos)
   "Format the the function ARGLIST for eldoc.
@@ -199,18 +234,53 @@ if the maximum number of sexps to skip is exceeded."
       (error))
     num-skipped-sexps))
 
-(defun cider-eldoc-info-in-current-sexp ()
-  "Return a list of the current sexp and the current argument index."
+(defun cider-eldoc-thing-type (eldoc-info)
+  "Return the type of the thing being displayed by eldoc.
+It can be a function or var now."
+  (pcase (lax-plist-get eldoc-info "type")
+    ("function" 'function)
+    ("variable" 'var)))
+
+(defun cider-eldoc-info-at-point ()
+  "Return eldoc info at point.
+First go to the beginning of the sexp and check if the eldoc is to be
+considered (i.e sexp is a method call) and not a map or vector literal.
+Then go back to the point and return its eldoc."
   (save-excursion
-    (when-let ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
-               (argument-index (1- beginning-of-sexp)))
-      ;; If we are at the beginning of function name, this will be -1.
-      (when (< argument-index 0)
-        (setq argument-index 0))
-      ;; Don't do anything if current word is inside a string, vector,
-      ;; hash or set literal.
-      (unless (member (or (char-after (1- (point))) 0) '(?\" ?\{ ?\[))
-        (list (cider-symbol-at-point) argument-index)))))
+    (unless (cider-in-comment-p)
+      (let* ((current-point (point)))
+        (cider-eldoc-beginning-of-sexp)
+        (unless (member (or (char-before (point)) 0) '(?\" ?\{ ?\[))
+          (goto-char current-point)
+          (when-let (eldoc-info (cider-eldoc-info
+                                 (cider--eldoc-remove-dot (cider-symbol-at-point))))
+            (list "eldoc-info" eldoc-info
+                  "thing" (cider-symbol-at-point)
+                  "pos" 0)))))))
+
+(defun cider-eldoc-info-at-sexp-beginning ()
+  "Return eldoc info for first symbol in the sexp."
+  (save-excursion
+    (let* ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
+           ;; If we are at the beginning of function name, this will be -1
+           (argument-index (max 0 (1- beginning-of-sexp))))
+      (unless (or (member (or (char-before (point)) 0) '(?\" ?\{ ?\[))
+                  (cider-in-comment-p))
+        (when-let (eldoc-info (cider-eldoc-info
+                               (cider--eldoc-remove-dot (cider-symbol-at-point))))
+          (list "eldoc-info" eldoc-info
+                "thing" (cider-symbol-at-point)
+                "pos" argument-index))))))
+
+(defun cider-eldoc-info-in-current-sexp ()
+  "Return eldoc information from the sexp.
+If `cider-eldoc-display-for-symbol-at-poin' is non-nil and
+the symbol at point has a valid eldoc available, return that.
+Otherwise return the eldoc of the first symbol of the sexp."
+  (let ((sym-at-point-eldoc-info (cider-eldoc-info-at-point)))
+    (if (and cider-eldoc-display-for-symbol-at-point sym-at-point-eldoc-info)
+        sym-at-point-eldoc-info
+      (cider-eldoc-info-at-sexp-beginning))))
 
 (defun cider-eldoc--convert-ns-keywords (thing)
   "Convert THING values that match ns macro keywords to function names."
@@ -240,14 +310,20 @@ This includes the arglist and ns and symbol name (if available)."
       ;; check if we can used the cached eldoc info
       (cond
        ;; handle keywords for map access
-       ((string-prefix-p ":" thing) (list nil thing '(("map") ("map" "not-found"))))
+       ((string-prefix-p ":" thing) (list "symbol" thing
+                                          "type" "function"
+                                          "arglists" '(("map") ("map" "not-found"))))
        ;; handle Classname. by displaying the eldoc for new
-       ((string-match-p "^[A-Z].+\\.$" thing) (list nil thing '(("args*"))))
+       ((string-match-p "^[A-Z].+\\.$" thing) (list "symbol" thing
+                                                    "type" "function"
+                                                    "arglists" '(("args*"))))
        ;; generic case
        (t (if (equal thing (car cider-eldoc-last-symbol))
-              (cdr cider-eldoc-last-symbol)
+              (cadr cider-eldoc-last-symbol)
             (when-let ((eldoc-info (cider-sync-request:eldoc thing)))
-              (let* ((arglist (nrepl-dict-get eldoc-info "eldoc"))
+              (let* ((arglists (nrepl-dict-get eldoc-info "eldoc"))
+                     (docstring (nrepl-dict-get eldoc-info "docstring"))
+                     (type (nrepl-dict-get eldoc-info "type"))
                      (ns (nrepl-dict-get eldoc-info "ns"))
                      (class (nrepl-dict-get eldoc-info "class"))
                      (name (nrepl-dict-get eldoc-info "name"))
@@ -257,15 +333,19 @@ This includes the arglist and ns and symbol name (if available)."
                                     class))
                      (name-or-member (if (and name (not (string= name "")))
                                          name
-                                       (format ".%s" member))))
+                                       (format ".%s" member)))
+                     (eldoc-plist (list "ns" ns-or-class
+                                        "symbol" name-or-member
+                                        "arglists" arglists
+                                        "docstring" docstring
+                                        "type" type)))
                 ;; middleware eldoc lookups are expensive, so we
                 ;; cache the last lookup.  This eliminates the need
                 ;; for extra middleware requests within the same sexp.
-                (setq cider-eldoc-last-symbol
-                      (list thing ns-or-class name-or-member arglist))
-                (list ns-or-class name-or-member arglist)))))))))
+                (setq cider-eldoc-last-symbol (list thing eldoc-plist))
+                eldoc-plist))))))))
 
-(defun cider--eldoc-remove-dot-sym (sym)
+(defun cider--eldoc-remove-dot (sym)
   "Remove the preceding \".\" from a namespace qualified SYM and return sym.
 Only useful for interop forms.  Clojure forms would be returned unchanged."
   (when sym (replace-regexp-in-string "/\\." "/" sym)))
@@ -275,17 +355,14 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
   (when (and (cider-connected-p)
              ;; don't clobber an error message in the minibuffer
              (not (member last-command '(next-error previous-error))))
-    (let* ((sexp-info (cider-eldoc-info-in-current-sexp))
-           (thing (car sexp-info))
-           (pos (cadr sexp-info))
-           (eldoc-info (cider-eldoc-info (cider--eldoc-remove-dot-sym thing)))
-           (ns (nth 0 eldoc-info))
-           (symbol (nth 1 eldoc-info))
-           (arglists (nth 2 eldoc-info)))
+    (let* ((sexp-eldoc-info (cider-eldoc-info-in-current-sexp))
+           (eldoc-info (lax-plist-get sexp-eldoc-info "eldoc-info"))
+           (pos (lax-plist-get sexp-eldoc-info "pos"))
+           (thing (lax-plist-get sexp-eldoc-info "thing")))
       (when eldoc-info
-        (format "%s: %s"
-                (cider-eldoc-format-thing ns symbol thing)
-                (cider-eldoc-format-arglist arglists pos))))))
+        (if (equal (cider-eldoc-thing-type eldoc-info) 'function)
+            (cider-eldoc-format-function thing pos eldoc-info)
+          (cider-eldoc-format-variable thing pos eldoc-info))))))
 
 (defun cider-eldoc-setup ()
   "Setup eldoc in the current buffer.

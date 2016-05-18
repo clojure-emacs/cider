@@ -76,47 +76,47 @@
 
   (describe "when ns is given and it exists"
     (it "returns formatted eldoc strings of form ns/symbol"
-      (expect (cider-eldoc-format-thing "clojure.core" "map" "map")
+      (expect (cider-eldoc-format-thing "clojure.core" "map" "map" 'function)
               :to-equal "clojure.core/map"))
 
     (describe "when the given ns doesnt exist"
       (it "returns eldoc formatted symbol"
         (let ((cider-eldoc-ns-function (lambda (ns) nil)))
-          (expect (cider-eldoc-format-thing "non-existent-ns" "" "my-map")
+          (expect (cider-eldoc-format-thing "non-existent-ns" "" "my-map" 'function)
                   :to-equal "my-map")
-          (expect (cider-eldoc-format-thing "" "" "my-map")
+          (expect (cider-eldoc-format-thing "" "" "my-map" 'function)
                   :to-equal "my-map")
-          (expect (cider-eldoc-format-thing class-names "" ".length")
+          (expect (cider-eldoc-format-thing class-names "" ".length" 'function)
                   :to-equal ".length")))))
 
   (describe "when the given Java interop form belongs to a single class"
     (it "returns eldoc formatted thing"
-      (expect (cider-eldoc-format-thing "java.lang.String" "" ".startsWith")
+      (expect (cider-eldoc-format-thing "java.lang.String" "" ".startsWith" 'function)
               :to-equal "java.lang.String/.startsWith")))
 
   (describe "when the given Java interop form belongs to multiple classes"
     (it "joins the class list into a string"
-      (expect (cider-eldoc-format-thing class-names "" ".length")
+      (expect (cider-eldoc-format-thing class-names "" ".length" 'function)
               :to-equal "(java.lang.String java.lang.StringBuffer java.lang.CharSequence & 1 more)/.length")))
 
   (describe "when cider-eldoc-ns-function is set to cider-abbreviate-ns"
     (it "abbreviates the class names"
       (let ((cider-eldoc-ns-function #'cider-abbreviate-ns))
-        (expect (cider-eldoc-format-thing "clojure.core" "map" "map")
+        (expect (cider-eldoc-format-thing "clojure.core" "map" "map" 'function)
                 :to-equal "c.core/map")
-        (expect (cider-eldoc-format-thing '("java.lang.String") "" ".startsWith")
+        (expect (cider-eldoc-format-thing '("java.lang.String") "" ".startsWith" 'function)
                 :to-equal "j.l.String/.startsWith")
-        (expect (cider-eldoc-format-thing class-names  "" ".length")
+        (expect (cider-eldoc-format-thing class-names  "" ".length" 'function)
                 :to-equal "(j.l.String j.l.StringBuffer j.l.CharSequence & 1 more)/.length"))))
 
   (describe "when cider-eldoc-ns-function is set to cider-last-ns-segment"
     (it "keeps only the last ns segment"
       (let ((cider-eldoc-ns-function #'cider-last-ns-segment))
-        (expect (cider-eldoc-format-thing "clojure.core" "map" "map")
+        (expect (cider-eldoc-format-thing "clojure.core" "map" "map" 'function)
                 :to-equal "core/map")
-        (expect (cider-eldoc-format-thing '("java.lang.String") "" ".startsWith")
+        (expect (cider-eldoc-format-thing '("java.lang.String") "" ".startsWith" 'function)
                 :to-equal "String/.startsWith")
-        (expect (cider-eldoc-format-thing class-names  "" ".length")
+        (expect (cider-eldoc-format-thing class-names  "" ".length" 'function)
                 :to-equal "(String StringBuffer CharSequence & 1 more)/.length")))))
 
 (describe "cider-eldoc-beginning-of-sexp"
@@ -147,13 +147,90 @@
         (expect (cider-eldoc-beginning-of-sexp) :to-equal nil)
         (expect (point) :to-equal 4)))))
 
-(describe "cider--eldoc-remove-dot-sym"
+(describe "cider--eldoc-remove-dot"
   (it "removes the \".\" from the namespace qualified symbols"
-    (expect (cider--eldoc-remove-dot-sym "java.lang.String/.length")
+    (expect (cider--eldoc-remove-dot "java.lang.String/.length")
             :to-equal "java.lang.String/length")
-    (expect (cider--eldoc-remove-dot-sym "clojure.string/blank?")
+    (expect (cider--eldoc-remove-dot "clojure.string/blank?")
             :to-equal "clojure.string/blank?")
-    (expect (cider--eldoc-remove-dot-sym ".length")
+    (expect (cider--eldoc-remove-dot ".length")
             :to-equal ".length")
-    (expect (cider--eldoc-remove-dot-sym "map")
+    (expect (cider--eldoc-remove-dot "map")
             :to-equal "map")))
+
+(describe "cider-eldoc-info-in-current-sexp"
+  (before-all
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-eldoc-info :and-call-fake
+            (lambda (thing)
+              (pcase thing
+                ("map" '("clojure.core" "map" (("f") ("f" "coll"))))
+                ("inc" '("clojure.core" "inc" (("x"))))))))
+
+  (it "considers sym-at-point before the sym-at-sexp-beginning"
+    (with-temp-buffer
+      (clojure-mode)
+      (save-excursion (insert "(map inc [1 2 3])"))
+      ;; whem cursor is on map, display its eldoc
+      (search-forward "map")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+              '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))
+      ;; when cursor is on inc, display its eldoc
+      (search-forward "inc")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+              '("eldoc-info" ("clojure.core" "inc" (("x"))) "thing" "inc" "pos" 0))
+      ;; eldoc can be nil
+      (search-forward "1")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal nil)
+      ;; when cursor is at the end of sexp, display eldoc of first symbol
+      (search-forward "]")
+      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+              '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 2))))
+
+  (it "respects the value of `cider-eldoc-display-for-symbol-at-point'"
+    (let ((cider-eldoc-display-for-symbol-at-point nil))
+      (with-temp-buffer
+        (clojure-mode)
+        (save-excursion (insert "(map inc [1 2 3])"))
+        ;; whem cursor is on map, display its eldoc
+        (search-forward "map")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))
+        ;; when cursor is on inc, still display eldoc of map
+        (search-forward "inc")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 1))
+        ;; eldoc can be nil
+        (search-forward "1")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal nil)
+        ;; when cursor is at the end of sexp, display eldoc of first symbol
+        (search-forward "]")
+        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 2)))))
+
+  (describe "interop forms"
+    (before-all
+      (spy-on 'cider-connected-p :and-return-value t)
+      (spy-on 'cider-eldoc-info :and-call-fake
+              (lambda (thing)
+                (pcase thing
+                  (".length" '(("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder") ".length" (("this"))))
+                  ("java.lang.String/length" '(("java.lang.String") ".length" (("this"))))))))
+
+    (describe "when class name is not given before interop forms"
+      (it "includes all possible class names in eldoc"
+        (with-temp-buffer
+          (clojure-mode)
+          (save-excursion (insert "(.length \"abc\")"))
+          (search-forward ".length")
+          (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                  '("eldoc-info" (("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder") ".length" (("this"))) "thing" ".length" "pos" 0)))))
+
+    (describe "when class name is given before interop forms"
+      (it "includes just the given class name in eldoc"
+        (with-temp-buffer
+          (clojure-mode)
+          (save-excursion (insert "(java.lang.String/.length \"abc\")"))
+          (search-forward ".length")
+          (expect (cider-eldoc-info-in-current-sexp) :to-equal
+                  '("eldoc-info" (("java.lang.String") ".length" (("this"))) "thing" "java.lang.String/.length" "pos" 0)))))))
