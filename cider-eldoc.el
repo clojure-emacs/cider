@@ -264,7 +264,8 @@ Then go back to the point and return its eldoc."
     (let* ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
            ;; If we are at the beginning of function name, this will be -1
            (argument-index (max 0 (1- beginning-of-sexp))))
-      (unless (or (member (or (char-before (point)) 0) '(?\" ?\{ ?\[))
+      (unless (or (memq (or (char-before (point)) 0)
+                        '(?\" ?\{ ?\[))
                   (cider-in-comment-p))
         (when-let (eldoc-info (cider-eldoc-info
                                (cider--eldoc-remove-dot (cider-symbol-at-point))))
