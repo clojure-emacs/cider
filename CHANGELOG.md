@@ -17,6 +17,7 @@
 * [#1720](https://github.com/clojure-emacs/cider/issues/1720): Add a command `cider-eval-sexp-at-point` to evaluate the form around point (bound to `C-c C-v v`).
 * [#1564](https://github.com/clojure-emacs/cider/issues/1564): CIDER's internal namespaces and vars are filtered from the ns-browser and apropos functions.
 * [#1725](https://github.com/clojure-emacs/cider/issues/1725): Display class names in eldoc for interop forms.
+* [#1572](https://github.com/clojure-emacs/cider/issues/1572): Add support for variables in eldoc.
 
 ### Changes
 

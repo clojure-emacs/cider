@@ -591,7 +591,8 @@ in the buffer."
          (arglists (nth 2 eldoc-info)))
     (when eldoc-info
       (format "%s: %s"
-              (cider-eldoc-format-thing ns symbol thing)
+              (cider-eldoc-format-thing ns symbol thing
+                                        (cider-eldoc-function-p eldoc-info))
               (cider-eldoc-format-arglist arglists 0)))))
 
 (defun cider-stdin-handler (&optional buffer)
