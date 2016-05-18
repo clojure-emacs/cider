@@ -277,10 +277,9 @@ Then go back to the point and return its eldoc."
 If `cider-eldoc-display-for-symbol-at-poin' is non-nil and
 the symbol at point has a valid eldoc available, return that.
 Otherwise return the eldoc of the first symbol of the sexp."
-  (let ((sym-at-point-eldoc-info (cider-eldoc-info-at-point)))
-    (if (and cider-eldoc-display-for-symbol-at-point sym-at-point-eldoc-info)
-        sym-at-point-eldoc-info
-      (cider-eldoc-info-at-sexp-beginning))))
+  (or (when cider-eldoc-display-for-symbol-at-point
+        (cider-eldoc-info-at-point))
+      (cider-eldoc-info-at-sexp-beginning)))
 
 (defun cider-eldoc--convert-ns-keywords (thing)
   "Convert THING values that match ns macro keywords to function names."
