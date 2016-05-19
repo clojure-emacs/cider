@@ -436,7 +436,9 @@ should be the regular Clojure REPL started by the server process filter."
                    (mapconcat #'buffer-name zombie-buffs ", ")))
       (if (= (length zombie-buffs) 1)
           (car zombie-buffs)
-        (completing-read "Choose REPL buffer: " zombie-buffs nil t)))))
+        (completing-read "Choose REPL buffer: "
+                         (mapcar #'buffer-name zombie-buffs)
+                         nil t)))))
 
 (defun cider-find-reusable-repl-buffer (endpoint project-directory)
   "Check whether a reusable connection buffer already exists.
