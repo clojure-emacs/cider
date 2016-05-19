@@ -602,9 +602,10 @@ Return buffer column number at position POS."
 
 (defun cider-propertize (text kind)
   "Propertize TEXT as KIND.
-KIND can be the symbols `ns', `var', `emph', or a face name."
+KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
   (propertize text 'face (pcase kind
-                           (`var 'font-lock-function-name-face)
+                           (`fn 'font-lock-function-name-face)
+                           (`var 'font-lock-variable-name-face)
                            (`ns 'font-lock-type-face)
                            (`emph 'font-lock-keyword-face)
                            (face face))))

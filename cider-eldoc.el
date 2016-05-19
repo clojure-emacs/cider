@@ -121,8 +121,8 @@ is non-nil.  Else format it as a variable."
                             symbol
                           thing))
            (propertized-method-name (if (equal type 'function)
-                                        (cider-propertize method-name 'var)
-                                      (cider-propertize method-name 'font-lock-variable-name-face)))
+                                        (cider-propertize method-name 'fn)
+                                      (cider-propertize method-name 'var)))
            (ns-or-class (if (and ns (stringp ns))
                             (funcall cider-eldoc-ns-function ns)
                           (cider--eldoc-format-class-names ns))))

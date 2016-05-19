@@ -1328,9 +1328,9 @@ See `cider-mode'."
          (var-name (nrepl-dict-get trace-response "var-name"))
          (var-status (nrepl-dict-get trace-response "var-status")))
     (pcase var-status
-      ("not-found" (error "Var %s not found" (cider-propertize sym 'var)))
-      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize var-name 'var)))
-      (_ (message "Var %s %s" (cider-propertize var-name 'var) var-status)))))
+      ("not-found" (error "Var %s not found" (cider-propertize sym 'fn)))
+      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize var-name 'fn)))
+      (_ (message "Var %s %s" (cider-propertize var-name 'fn) var-status)))))
 
 (defun cider-toggle-trace-var (arg)
   "Toggle var tracing.
@@ -1753,7 +1753,7 @@ With a prefix argument, prompt for function to run instead of -main."
                                         completions nil t nil
                                         'cider--namespace-history def)
                        name))))
-        (user-error "No %s var defined in any namespace" (cider-propertize name 'var))))))
+        (user-error "No %s var defined in any namespace" (cider-propertize name 'fn))))))
 
 (provide 'cider-interaction)
 
