@@ -261,9 +261,9 @@ Then go back to the point and return its eldoc."
 (defun cider-eldoc-info-at-sexp-beginning ()
   "Return eldoc info for first symbol in the sexp."
   (save-excursion
-    (let* ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
-           ;; If we are at the beginning of function name, this will be -1
-           (argument-index (max 0 (1- beginning-of-sexp))))
+    (when-let ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
+               ;; If we are at the beginning of function name, this will be -1
+               (argument-index (max 0 (1- beginning-of-sexp))))
       (unless (or (memq (or (char-before (point)) 0)
                         '(?\" ?\{ ?\[))
                   (cider-in-comment-p))
