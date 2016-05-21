@@ -460,8 +460,8 @@ Tables are marked to be ignored by line wrap."
                   (let* ((ns-sym-split (split-string ns-sym "/"))
                          (see-also-ns (car ns-sym-split))
                          (see-also-sym (cadr ns-sym-split))
-                         ;; if the fn belongs to the same ns,
-                         ;; don't display the namespace prefixed name
+                         ;; if the var belongs to the same namespace,
+                         ;; we omit the namespace to save some screen space
                          (symbol (if (equal ns see-also-ns) see-also-sym ns-sym)))
                     (insert-button symbol
                                    'type 'help-xref
