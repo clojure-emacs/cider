@@ -114,6 +114,31 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
                             'cider-browse-ns-current-ns ns)))
       (goto-char (point-min)))))
 
+(defun cider-browse-ns--first-doc-line (doc)
+  "Return the first line of the given DOC string.
+If the first line of the DOC string contains multiple sentences, only
+the first sentence is returned.  If the DOC string is nil, a Not documented
+string is returned."
+  (if doc
+      (let* ((split-newline (split-string (read doc) "\n"))
+             (first-line (car split-newline)))
+        (cond
+         ((string-match "\\. " first-line) (substring first-line 0 (match-end 0)))
+         ((= 1 (length split-newline)) first-line)
+         (t (concat first-line "..."))))
+    "Not documented."))
+
+(defun cider-browse-ns--items (namespace)
+  "Return the items to show in the namespace browser of the given NAMESPACE.
+Each item consists of a ns-var and the first line of its docstring."
+  (let* ((ns-vars-with-meta (cider-sync-request:ns-vars-with-meta namespace))
+         (propertized-ns-vars (nrepl-dict-map #'cider-browse-ns--properties ns-vars-with-meta)))
+    (mapcar (lambda (ns-var)
+              (let* ((doc (nrepl-dict-get-in ns-vars-with-meta (list ns-var "doc")))
+                     (first-doc-line (cider-browse-ns--first-doc-line doc)))
+                (concat ns-var " " (propertize first-doc-line 'font-lock-face 'font-lock-doc-face))))
+            propertized-ns-vars)))
+
 ;; Interactive Functions
 
 ;;;###autoload
@@ -123,8 +148,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
     (cider-browse-ns--list (current-buffer)
                            namespace
-                           (nrepl-dict-map #'cider-browse-ns--properties
-                                           (cider-sync-request:ns-vars-with-meta namespace)))
+                           (cider-browse-ns--items namespace))
     (setq-local cider-browse-ns-current-ns namespace)))
 
 ;;;###autoload
@@ -143,7 +167,7 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
 (defun cider-browse-ns--thing-at-point ()
   "Get the thing at point.
 Return a list of the type ('ns or 'var) and the value."
-  (let ((line (cider-string-trim (thing-at-point 'line))))
+  (let ((line (car (split-string (cider-string-trim (thing-at-point 'line)) " "))))
     (if (string-match "\\." line)
         (list 'ns line)
       (list 'var (format "%s/%s"

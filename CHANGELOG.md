@@ -33,6 +33,7 @@
 * Rebind `cider-eval-last-sexp-and-replace` to `C-c C-v w`.
 * Rebind `cider-eval-region` to `C-c C-v r`.
 * Rebind `cider-eval-ns-form` to `C-c C-v n`.
+* [#1577](https://github.com/clojure-emacs/cider/issues/1577): Show first line of docstring in ns browser.
 
 ### Bugs fixed
 
