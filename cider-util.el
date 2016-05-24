@@ -461,64 +461,56 @@ restore it properly when going back."
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
-(defun cider--parse-symbol-docstring (&optional buffer)
-  "Parse and return the first clojure symbol in BUFFER.
-Uses `cider-doc-xref-regexp' to search the symbols.
-Return nil if there are no more matches in the buffer."
-  (with-current-buffer (or buffer (current-buffer))
-    (when (re-search-forward cider-doc-xref-regexp nil t)
-      (list "symbol" (match-string 1)
-            "beg" (match-beginning 1)
-            "end" (match-end 1)))))
+(defun cider--find-symbol-xref ()
+  "Parse and return the first clojure symbol in current-buffer.
+Use `cider-doc-xref-regexp' for the search.  Set match data and return a
+string of the Clojure symbol.  Return nil if there are no more matches in
+the buffer."
+  (when (re-search-forward cider-doc-xref-regexp nil t)
+    (match-string 1)))
 
 (declare-function cider-doc-lookup "cider-doc")
 (declare-function cider--eldoc-remove-dot "cider-eldoc")
 
 ;; Similar to https://github.com/emacs-mirror/emacs/blob/65c8c7cb96c14f9c6accd03cc8851b5a3459049e/lisp/help-mode.el#L404
-(defun cider--help-make-xrefs (&optional buffer)
-  "Parse and hyperlink documentation cross-references in the given BUFFER.
-
+(defun cider--doc-make-xrefs ()
+  "Parse and hyperlink documentation cross-references in current-buffer.
 Find cross-reference information in a buffer and activate such cross
 references for selection with `help-xref'.  Cross-references are parsed
-using `cider--parse-symbol-docstring.'.
+using `cider--find-symbol-xref'.
 
-A special reference `back' is made to return back through a stack of
-help buffers.  Variable `help-back-label' specifies the text for
-that.  A similar reference `forward' is made to traverse in the opposite
-direction.  Variable `help-forward-label' specifies the text for that."
+Special references `back' and `forward' are made to go back and forth
+through a stack of help buffers.  Variables `help-back-label' and
+`help-forward-label' specify the text for that."
   (interactive "b")
 
   ;; parse the docstring and create xrefs for symbols
   (save-excursion
     (goto-char (point-min))
-    (if-let ((current-sym (cider--parse-symbol-docstring)))
-        (while current-sym
-          (when-let ((symbol (lax-plist-get current-sym "symbol"))
-                     (beg (lax-plist-get current-sym "beg"))
-                     (end (lax-plist-get current-sym "end")))
-            (make-text-button beg end
-                              'type 'help-xref
-                              'help-function (apply-partially #'cider-doc-lookup
-                                                              (cider--eldoc-remove-dot symbol))))
-          (setq current-sym (cider--parse-symbol-docstring)))))
+    (let ((symbol))
+      (while (setq symbol (cider--find-symbol-xref))
+        (replace-match "")
+        (insert-text-button symbol
+                            'type 'help-xref
+                            'help-function (apply-partially #'cider-doc-lookup
+                                                            (cider--eldoc-remove-dot symbol))))))
 
   ;; create back and forward buttons if appropiate
-  (with-current-buffer (or buffer (current-buffer))
-    (insert "\n")
-    (when (or help-xref-stack help-xref-forward-stack)
-      (insert "\n"))
-    ;; Make a back-reference in this buffer if appropriate.
+  (insert "\n")
+  (when (or help-xref-stack help-xref-forward-stack)
+    (insert "\n"))
+  ;; Make a back-reference in this buffer if appropriate.
+  (when help-xref-stack
+    (help-insert-xref-button help-back-label 'help-back
+                             (current-buffer)))
+  ;; Make a forward-reference in this buffer if appropriate.
+  (when help-xref-forward-stack
     (when help-xref-stack
-      (help-insert-xref-button help-back-label 'help-back
-                               (current-buffer)))
-    ;; Make a forward-reference in this buffer if appropriate.
-    (when help-xref-forward-stack
-      (when help-xref-stack
-        (insert "\t"))
-      (help-insert-xref-button help-forward-label 'help-forward
-                               (current-buffer)))
-    (when (or help-xref-stack help-xref-forward-stack)
-      (insert "\n"))))
+      (insert "\t"))
+    (help-insert-xref-button help-forward-label 'help-forward
+                             (current-buffer)))
+  (when (or help-xref-stack help-xref-forward-stack)
+    (insert "\n")))
 
 
 ;;; Words of inspiration

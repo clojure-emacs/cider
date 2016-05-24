@@ -467,7 +467,7 @@ Tables are marked to be ignored by line wrap."
                                    'help-function (apply-partially #'cider-doc-lookup symbol)))
                   (insert " "))
                 see-also))
-        (cider--help-make-xrefs)
+        (cider--doc-make-xrefs)
         (let ((beg (point-min))
               (end (point-max)))
           (nrepl-dict-map (lambda (k v)
