@@ -4,6 +4,7 @@
 
 ### New Features
 
+* Option `nrepl-kill-server-buffer-no-prompt` allows the user to skip the nrepl--maybe-kill-server-buffer prompt
 * [#1672](https://github.com/clojure-emacs/cider/issues/1672): Allow setting a preferred build tool when multiple are found via `cider-preferred-build-tool`.
 * Ensure Clojure version meets minimum supported by CIDER (1.7.0).
 * Fringe indicators highlight which sexps have been loaded. Disable it with `cider-use-fringe-indicators`.
