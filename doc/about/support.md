@@ -36,3 +36,9 @@ We're also encouraging users to ask CIDER-related questions on StackOverflow.
 When doing so you should use the
 [cider](http://stackoverflow.com/questions/tagged/cider) tag (ideally combined
 with the tags `emacs` and `clojure`).
+
+## Bountysource
+
+If you're willing to pay for some feature to be implemented you can use
+[Bountysource](https://www.bountysource.com/teams/cider/issues) to place a
+bounty for the work you want to be done.
