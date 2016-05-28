@@ -127,7 +127,7 @@ When true some special buffers like the server buffer will be hidden."
   :group 'nrepl)
 
 (defcustom nrepl-prompt-to-kill-server-buffer-on-quit t
-  "If non-nil, prompt the user for confirmation before killing the nrepl server and associated buffer" 
+  "If non-nil, prompt the user for confirmation before killing the nrepl server buffer and associated process." 
   :type 'boolean
   :group 'nrepl)
 
