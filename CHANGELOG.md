@@ -4,7 +4,7 @@
 
 ### New Features
 
-* Add an option `nrepl-prompt-to-kill-server-buffer-on-quit` to control whether killing nrepl server and buffer requires a confirmation prompt.
+* Add an option `nrepl-prompt-to-kill-server-buffer-on-quit` to control whether killing nREPL server buffer and process requires a confirmation prompt.
 * [#1672](https://github.com/clojure-emacs/cider/issues/1672): Allow setting a preferred build tool when multiple are found via `cider-preferred-build-tool`.
 * Ensure Clojure version meets minimum supported by CIDER (1.7.0).
 * Fringe indicators highlight which sexps have been loaded. Disable it with `cider-use-fringe-indicators`.

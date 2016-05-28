@@ -127,7 +127,7 @@ When true some special buffers like the server buffer will be hidden."
   :group 'nrepl)
 
 (defcustom nrepl-prompt-to-kill-server-buffer-on-quit t
-  "If non-nil, prompt the user for confirmation before killing the nrepl server buffer and associated process." 
+  "If non-nil, prompt the user for confirmation before killing the nrepl server buffer and associated process."
   :type 'boolean
   :group 'nrepl)
 
@@ -600,7 +600,7 @@ Do nothing if there is a REPL connected to that server."
     ;; Don't kill the server if there is a REPL connected to it.
     (when (and (not nrepl-client-buffers)
                (or (not nrepl-prompt-to-kill-server-buffer-on-quit)
-		   (y-or-n-p "Also kill server process and buffer? ")))
+                   (y-or-n-p "Also kill server process and buffer? ")))
       (let ((proc (get-buffer-process server-buf)))
         (when (process-live-p proc)
           (set-process-query-on-exit-flag proc nil)
