@@ -47,7 +47,9 @@
   :var (cider-browse-ns-buffer)
   (it "lists out all forms of a namespace with correct font-locks"
     (spy-on 'cider-sync-request:ns-vars-with-meta :and-return-value
-            '(dict "blank?" (dict "arglists" "fn arg list")))
+            '(dict "blank?"
+                   (dict "arglists" "fn arg list"
+                         "doc" "\"True if s is nil, empty, or contains only whitespace.\"")))
 
     (with-temp-buffer
       (setq cider-browse-ns-buffer (buffer-name (current-buffer)))
@@ -55,4 +57,23 @@
       (search-forward "clojure")
       (expect (get-text-property (point) 'face) :to-equal 'font-lock-type-face)
       (search-forward "blank")
-      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-function-name-face))))
+      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-function-name-face)
+      (search-forward "True")
+      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-doc-face))))
+
+(describe "cider-browse-ns--first-doc-line"
+  (it "returns Not documented if the doc string is missing"
+    (expect (cider-browse-ns--first-doc-line nil)
+            :to-equal "Not documented."))
+
+  (it "returns the first line of the doc string"
+      (expect (cider-browse-ns--first-doc-line "\"True if s is nil, empty, or contains only whitespace.\"")
+              :to-equal "True if s is nil, empty, or contains only whitespace."))
+
+  (it "returns the first sentence of the doc string if the first line contains multiple sentences"
+      (expect (cider-browse-ns--first-doc-line "\"First sentence. Second sentence.\"")
+              :to-equal "First sentence. "))
+
+  (it "returns the first line of the doc string if the first sentence spans multiple lines"
+      (expect (cider-browse-ns--first-doc-line "\"True if s is nil, empty, or\n contains only whitespace.\"")
+              :to-equal "True if s is nil, empty, or...")))
