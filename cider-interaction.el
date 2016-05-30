@@ -586,9 +586,9 @@ in the buffer."
 (defun cider-company-docsig (thing)
   "Return signature for THING."
   (let* ((eldoc-info (cider-eldoc-info thing))
-         (ns (nth 0 eldoc-info))
-         (symbol (nth 1 eldoc-info))
-         (arglists (nth 2 eldoc-info)))
+         (ns (lax-plist-get eldoc-info "ns"))
+         (symbol (lax-plist-get eldoc-info "symbol"))
+         (arglists (lax-plist-get eldoc-info "arglists")))
     (when eldoc-info
       (format "%s: %s"
               (cider-eldoc-format-thing ns symbol thing
