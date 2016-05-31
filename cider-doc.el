@@ -446,13 +446,15 @@ Tables are marked to be ignored by line wrap."
         (insert "\n")
         (if cider-docview-file
             (progn
-              (insert (propertize (if class java-name clj-name) 'font-lock-face 'font-lock-function-name-face) " is defined in ")
+              (insert (propertize (if class java-name clj-name)
+                                  'font-lock-face 'font-lock-function-name-face)
+                      " is defined in ")
               (insert-text-button cider-docview-file
                                   'follow-link t
                                   'action (lambda (_x)
                                             (cider-docview-source)))
               (insert "."))
-          (insert "No definition location information available."))
+          (insert "Definition location unavailable."))
         (when see-also
           (insert "\n\n Also see: ")
           (mapc (lambda (ns-sym)
