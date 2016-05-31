@@ -365,6 +365,17 @@ Tables are marked to be ignored by line wrap."
         (cider-docview-format-tables buffer) ; may contain literals, emphasis
         (cider-docview-wrap-text buffer))))) ; ignores code, table blocks
 
+(defun cider--abbreviate-file-protocol (file-with-protocol)
+  "Abbreviate the file-path in `file:/path/to/file'."
+  (if (string-match "\\`file:\\(.*\\)" file-with-protocol)
+      (let ((file (match-string 1 file-with-protocol))
+            (proj-dir (clojure-project-dir)))
+        (if (and proj-dir
+                 (file-in-directory-p file proj-dir))
+            (file-relative-name file proj-dir)
+          file))
+    file-with-protocol))
+
 (defun cider-docview-render-info (buffer info)
   "Emit into BUFFER formatted INFO for the Clojure or Java symbol."
   (let* ((ns      (nrepl-dict-get info "ns"))
@@ -449,7 +460,7 @@ Tables are marked to be ignored by line wrap."
               (insert (propertize (if class java-name clj-name)
                                   'font-lock-face 'font-lock-function-name-face)
                       " is defined in ")
-              (insert-text-button cider-docview-file
+              (insert-text-button (cider--abbreviate-file-protocol cider-docview-file)
                                   'follow-link t
                                   'action (lambda (_x)
                                             (cider-docview-source)))
