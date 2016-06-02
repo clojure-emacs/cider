@@ -284,12 +284,12 @@ to a still-undetermined bug in the state-stracker backend."
               ;; So we have multiple connections. Look for the connection type we
               ;; want, prioritizing the current project.
               (or (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
-                          project-connections)
+                            project-connections)
                   (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
-                          (cider-connections)))))
+                            (cider-connections)))))
     (unless cider--has-warned-about-bad-repl-type
       (setq cider--has-warned-about-bad-repl-type t)
-      (read-char
+      (read-key
        (concat "The ClojureScript REPL seems to be is misbehaving."
                (substitute-command-keys
                 "\nWe have applied a workaround, but please also file a bug report with `\\[cider-report-bug]'.")
