@@ -418,7 +418,7 @@ should be the regular Clojure REPL started by the server process filter."
       (cider-make-connection-default client-buffer)
       (pcase (assoc cider-cljs-lein-repl cider--cljs-repl-types)
         (`(,_ ,name ,info)
-         (message "Starting a %s REPLm%s" name (or info "")))
+         (message "Starting a %s REPL%s" name (or info "")))
         (_ (message "Starting a custom ClojureScript REPL")))
       (cider-nrepl-send-request
        (list "op" "eval"
