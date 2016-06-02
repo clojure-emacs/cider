@@ -859,13 +859,14 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op.
 CONTEXT represents a completion context for compliment."
-  (when-let ((dict (thread-first (list "op" "complete"
-                                       "session" (cider-current-session)
-                                       "ns" (cider-current-ns)
-                                       "symbol" str
-                                       "context" context)
-                     (cider-nrepl-send-sync-request nil 'abort-on-input))))
-    (nrepl-dict-get dict "completions")))
+  (if (cider-current-connection)
+    (when-let ((dict (thread-first (list "op" "complete"
+                                         "session" (cider-current-session)
+                                         "ns" (cider-current-ns)
+                                         "symbol" str
+                                         "context" context)
+                       (cider-nrepl-send-sync-request nil 'abort-on-input))))
+      (nrepl-dict-get dict "completions"))))
 
 (defun cider-sync-request:info (symbol &optional class member)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
