@@ -859,7 +859,7 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op.
 CONTEXT represents a completion context for compliment."
-  (if (cider-current-connection)
+  (when (cider-connected-p)
     (when-let ((dict (thread-first (list "op" "complete"
                                          "session" (cider-current-session)
                                          "ns" (cider-current-ns)
