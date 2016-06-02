@@ -271,6 +271,31 @@ CONNECTION defaults to `cider-current-connection'."
                                 (`"clj" "cljs")
                                 (_ "clj")))))
 
+(defvar cider--has-warned-about-bad-repl-type nil)
+
+(defun cider--guess-cljs-connection ()
+  "Hacky way to find a ClojureScript REPL.
+DO NOT USE THIS FUNCTION.
+It was written only to be used in `cider-map-connections', as a workaround
+to a still-undetermined bug in the state-stracker backend."
+  (when-let ((project-connections (cider-find-connection-buffer-for-project-directory
+                                   nil :all-connections))
+             (cljs-conn
+              ;; So we have multiple connections. Look for the connection type we
+              ;; want, prioritizing the current project.
+              (or (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
+                          project-connections)
+                  (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
+                          (cider-connections)))))
+    (unless cider--has-warned-about-bad-repl-type
+      (setq cider--has-warned-about-bad-repl-type t)
+      (read-char
+       (concat "The ClojureScript REPL seems to be is misbehaving."
+               (substitute-command-keys
+                "\nWe have applied a workaround, but please also file a bug report with `\\[cider-report-bug]'.")
+               "\nPress any key to continue.")))
+    cljs-conn))
+
 (defun cider-map-connections (function which &optional any-mode)
   "Call FUNCTION once for each appropriate connection.
 The function is called with one argument, the connection buffer.
@@ -303,6 +328,8 @@ connection but can be invoked from any buffer (like `cider-refresh')."
             (pcase which
               (`:any (let ((type (cider-connection-type-for-buffer)))
                        (or (cider-current-connection type)
+                           (when (equal type "cljs")
+                             (cider--guess-cljs-connection))
                            (err (substitute-command-keys
                                  (format "needs a Clojure%s REPL.\nIf you don't know what that means, you probably need to jack-in (%s)."
                                          (if (equal type "cljs") "Script" "")
