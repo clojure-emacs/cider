@@ -30,6 +30,10 @@
 (require 'buttercup)
 (require 'cider)
 
+(describe "customize-menu"
+  (it "opens without error"
+    (customize-group 'cider)))
+
 ;;; connection browser
 
 (describe "cider-connections-buffer"
