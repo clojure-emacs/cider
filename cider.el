@@ -154,7 +154,10 @@ variable will suppress this behavior and will select whatever build system
 is indicated by the variable if present.  Note, this is only when CIDER
 cannot decide which of many build systems to use and will never override a
 command when there is no ambiguity."
-  :type '(choice "lein" "boot" "gradle")
+  :type '(choice (const "lein")
+                 (const "boot")
+                 (const "gradle")
+                 (const :tag "Always ask" nil))
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
