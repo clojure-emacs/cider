@@ -7,8 +7,12 @@ something.
 
 You can evaluate Clojure code in the minibuffer from pretty much everywhere by
 using <kbd>M-x</kbd> `cider-read-and-eval` (bound in `cider-mode` buffers to
-<kbd>C-c C-:</kbd>).  <kbd>TAB</kbd> completion will work in the minibuffer,
+<kbd>C-c M-:</kbd>).  <kbd>TAB</kbd> completion will work in the minibuffer,
 just as in a REPL/source buffer.
+
+Pressing <kbd>C-c C-v .</kbd> in a Clojure buffer will insert the defun 
+at point into the minibuffer for evaluation. This way you can pass arguments 
+to the function and evaluate it and see the result in the minibuffer.
 
 You can also enable `eldoc-mode` in the minibuffer by adding the following to your
 config:

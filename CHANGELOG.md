@@ -20,6 +20,7 @@
 * [#1725](https://github.com/clojure-emacs/cider/issues/1725): Display class names in eldoc for interop forms.
 * [#1572](https://github.com/clojure-emacs/cider/issues/1572): Add support for variables in eldoc.
 * [#1736](https://github.com/clojure-emacs/cider/issues/1736): Show "See Also" links for functions/variables in documentation buffers.
+* [#1767](https://github.com/clojure-emacs/cider/issues/1767): Add a command `cider-read-and-eval-defun-at-point` to insert the defun at point into the minibuffer for evaluation (bound to `C-c C-v .`).
 
 ### Changes
 

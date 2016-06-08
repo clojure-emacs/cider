@@ -1223,10 +1223,11 @@ otherwise it's evaluated interactively."
             (cider-nrepl-sync-request:eval (cider-defun-at-point)))
         (cider-eval-defun-at-point)))))
 
-(defun cider-read-and-eval ()
-  "Read a sexp from the minibuffer and output its result to the echo area."
+(defun cider-read-and-eval (&optional value)
+  "Read a sexp from the minibuffer and output its result to the echo area.
+If VALUE is non-nil, it is inserted into the minibuffer as initial input."
   (interactive)
-  (let* ((form (cider-read-from-minibuffer "Clojure Eval: "))
+  (let* ((form (cider-read-from-minibuffer "Clojure Eval: " value))
          (override cider-interactive-eval-override)
          (ns-form (if (cider-ns-form-p form) "" (format "(ns %s)" (cider-current-ns)))))
     (with-current-buffer (get-buffer-create cider-read-eval-buffer)
@@ -1237,6 +1238,15 @@ otherwise it's evaluated interactively."
       (insert form)
       (let ((cider-interactive-eval-override override))
         (cider-interactive-eval form)))))
+
+(defun cider-read-and-eval-defun-at-point ()
+  "Insert the toplevel form at point in the minibuffer and output its result.
+The point is placed next to the function name in the minibuffer to allow
+passing arguments."
+  (interactive)
+  (let* ((fn-name (cadr (split-string (cider-defun-at-point))))
+         (form (concat "(" fn-name ")")))
+    (cider-read-and-eval (cons form (length form)))))
 
 
 ;; Connection and REPL

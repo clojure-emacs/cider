@@ -291,6 +291,7 @@ Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
     (define-key map (kbd "C-c C-v r") #'cider-eval-region)
     (define-key map (kbd "C-c C-v n") #'cider-eval-ns-form)
     (define-key map (kbd "C-c C-v v") #'cider-eval-sexp-at-point)
+    (define-key map (kbd "C-c C-v .") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
