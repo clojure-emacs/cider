@@ -592,6 +592,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "Write you some Clojure for Great Good!"
     "Oh, what a day... what a lovely day!"
     "What a day! What cannot be accomplished on such a splendid day!"
+    "Home is where your REPL is."
     ,(format "%s, I've a feeling we're not in Kansas anymore."
              (cider-user-first-name))
     ,(format "%s, this could be the start of a beautiful program."
