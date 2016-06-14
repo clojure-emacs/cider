@@ -138,16 +138,73 @@ is non-nil.  Else format it as a variable."
     ;; in case ns-or-class is nil
     propertized-method-name))
 
+(defun cider-eldoc-format-sym-doc (var ns docstring)
+  "Return the formatted eldoc string for VAR and DOCSTRING.
+
+Consider the value of `eldoc-echo-area-use-multiline-p' while formatting.
+If the entire line cannot fit in the echo area, the var name may be
+truncated or eliminated entirely from the output to make room for the
+description.
+
+Try to truncate the var with various strategies, so that the var and
+the docstring can be displayed in the minibuffer without resizing the window.
+We start with `cider-abbreviate-ns' and `cider-last-ns-segment'.
+Next, if the var is in current namespace, we remove NS from the eldoc string.
+Otherwise, only the docstring is returned."
+  (let* ((ea-multi eldoc-echo-area-use-multiline-p)
+         ;; Subtract 1 from window width since emacs will not write
+         ;; any chars to the last column, or in later versions, will
+         ;; cause a wraparound and resize of the echo area.
+         (ea-width (1- (window-width (minibuffer-window))))
+         (strip (- (+ (length var) (length docstring)) ea-width))
+         (newline (string-match-p "\n" docstring))
+         ;; Truncated var can be ea-var long
+         ;; Subtract 2 to account for the : and / added when including
+         ;; the namespace prefixed form in eldoc string
+         (ea-var (- (- ea-width (length docstring)) 2)))
+    (cond
+     ((or (eq ea-multi t)
+          (and (<= strip 0) (null newline))
+          (and ea-multi (or (> (length docstring) ea-width) newline)))
+      (format "%s: %s" var docstring))
+
+     ;; Now we have to truncate either the docstring or the var
+     (newline (cider-eldoc-format-sym-doc var ns (substring docstring 0 newline)))
+
+     ;; Only return the truncated docstring
+     ((> (length docstring) ea-width)
+      (substring docstring 0 ea-width))
+
+     ;; Try to truncate the var with cider-abbreviate-ns
+     ((<= (length (cider-abbreviate-ns var)) ea-var)
+      (format "%s: %s" (cider-abbreviate-ns var) docstring))
+
+     ;; Try to truncate var with cider-last-ns-segment
+     ((<= (length (cider-last-ns-segment var)) ea-var)
+      (format "%s: %s" (cider-last-ns-segment var) docstring))
+
+     ;; If the var is in current namespace, we try to truncate the var by
+     ;; skipping the namespace from the returned eldoc string
+     ((and (string-equal ns (cider-current-ns))
+           (<= (- (length var) (length ns)) ea-var))
+      (format "%s: %s"
+              (replace-regexp-in-string (format "%s/" ns) "" var)
+              docstring))
+
+     ;; We couldn't fit the var and docstring in the available space,
+     ;; so we just display the docstring
+     (t docstring))))
+
 (defun cider-eldoc-format-variable (thing pos eldoc-info)
   "Return the formatted eldoc string for a variable.
 THING is the variable name.  POS will always be 0 here.
 ELDOC-INFO is a p-list containing the eldoc information."
-  (let ((ns (lax-plist-get eldoc-info "ns"))
-        (symbol (lax-plist-get eldoc-info "symbol"))
-        (docstring (lax-plist-get eldoc-info "docstring")))
+  (let* ((ns (lax-plist-get eldoc-info "ns"))
+         (symbol (lax-plist-get eldoc-info "symbol"))
+         (docstring (lax-plist-get eldoc-info "docstring"))
+         (formatted-var (cider-eldoc-format-thing ns symbol thing 'var)))
     (when docstring
-      (format "%s: %s" (cider-eldoc-format-thing ns symbol thing 'var)
-              docstring))))
+      (cider-eldoc-format-sym-doc formatted-var ns docstring))))
 
 (defun cider-eldoc-format-function (thing pos eldoc-info)
   "Return the formatted eldoc string for a function.
