@@ -67,13 +67,13 @@
             :to-equal "Not documented."))
 
   (it "returns the first line of the doc string"
-      (expect (cider-browse-ns--first-doc-line "\"True if s is nil, empty, or contains only whitespace.\"")
-              :to-equal "True if s is nil, empty, or contains only whitespace."))
+    (expect (cider-browse-ns--first-doc-line "True if s is nil, empty, or contains only whitespace.")
+            :to-equal "True if s is nil, empty, or contains only whitespace."))
 
   (it "returns the first sentence of the doc string if the first line contains multiple sentences"
-      (expect (cider-browse-ns--first-doc-line "\"First sentence. Second sentence.\"")
-              :to-equal "First sentence. "))
+    (expect (cider-browse-ns--first-doc-line "First sentence. Second sentence.")
+            :to-equal "First sentence. "))
 
   (it "returns the first line of the doc string if the first sentence spans multiple lines"
-      (expect (cider-browse-ns--first-doc-line "\"True if s is nil, empty, or\n contains only whitespace.\"")
-              :to-equal "True if s is nil, empty, or...")))
+    (expect (cider-browse-ns--first-doc-line "True if s is nil, empty, or\n contains only whitespace.")
+            :to-equal "True if s is nil, empty, or...")))

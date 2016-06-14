@@ -120,7 +120,7 @@ If the first line of the DOC string contains multiple sentences, only
 the first sentence is returned.  If the DOC string is nil, a Not documented
 string is returned."
   (if doc
-      (let* ((split-newline (split-string (read doc) "\n"))
+      (let* ((split-newline (split-string doc "\n"))
              (first-line (car split-newline)))
         (cond
          ((string-match "\\. " first-line) (substring first-line 0 (match-end 0)))
@@ -135,6 +135,9 @@ Each item consists of a ns-var and the first line of its docstring."
          (propertized-ns-vars (nrepl-dict-map #'cider-browse-ns--properties ns-vars-with-meta)))
     (mapcar (lambda (ns-var)
               (let* ((doc (nrepl-dict-get-in ns-vars-with-meta (list ns-var "doc")))
+                     ;; to avoid (read nil)
+                     ;; it prompts the user for a Lisp expression
+                     (doc (when doc (read doc)))
                      (first-doc-line (cider-browse-ns--first-doc-line doc)))
                 (concat ns-var " " (propertize first-doc-line 'font-lock-face 'font-lock-doc-face))))
             propertized-ns-vars)))
