@@ -118,21 +118,21 @@ Moves CONNECTION-BUFFER to the front of variable `cider-connections'."
 (defun cider--close-connection-buffer (conn-buffer)
   "Close CONN-BUFFER, removing it from variable `cider-connections'.
 Also close associated REPL and server buffers."
-  (let ((buffer (get-buffer conn-buffer)))
+  (let ((buffer (get-buffer conn-buffer))
+        (nrepl-messages-buffer (and nrepl-log-messages
+                                    (nrepl-messages-buffer conn-buffer))))
     (setq cider-connections
           (delq buffer cider-connections))
     (when (buffer-live-p buffer)
-      ;; close the matching nREPL messages buffer
-      (when nrepl-log-messages
-        (when-let ((nrepl-messages-buffer (nrepl-messages-buffer conn-buffer)))
-          (kill-buffer nrepl-messages-buffer)))
       (with-current-buffer buffer
         (when spinner-current (spinner-stop))
         (when nrepl-tunnel-buffer
           (cider--close-buffer nrepl-tunnel-buffer)))
       ;; If this is the only (or last) REPL connected to its server, the
       ;; kill-process hook will kill the server.
-      (cider--close-buffer buffer))))
+      (cider--close-buffer buffer)
+      (when nrepl-messages-buffer
+        (kill-buffer nrepl-messages-buffer)))))
 
 
 ;;; Current connection logic
