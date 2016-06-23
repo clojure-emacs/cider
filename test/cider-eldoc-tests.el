@@ -234,3 +234,69 @@
           (search-forward ".length")
           (expect (cider-eldoc-info-in-current-sexp) :to-equal
                   '("eldoc-info" (("java.lang.String") ".length" (("this"))) "thing" "java.lang.String/.length" "pos" 0)))))))
+
+(describe "cider-eldoc-format-sym-doc"
+  :var (eldoc-echo-area-use-multiline-p)
+  (before-all
+    (spy-on 'window-width :and-return-value 177))
+
+  (it "returns the formated eldoc string"
+    (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "Simple docstring.")
+            :to-equal "kubaru.core/plane: Simple docstring."))
+
+
+  (describe "specifications for eldoc-echo-area-use-multiline-p"
+    (describe "when its value is t"
+      (before-each
+        (setq eldoc-echo-area-use-multiline-p t))
+      (it "does not truncate anything"
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                :to-equal "kubaru.core/plane: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "Line 1.\nLine 2.\nLine 3.")
+                :to-equal "kubaru.core/plane: Line 1.\nLine 2.\nLine 3.")))
+
+
+    (describe "when its value is truncate-sym-name-if-fit"
+      (before-each
+        (setq eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit))
+      (it "doesn't truncate anything if docstring doesn't fit"
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                :to-equal "kubaru.core/plane: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+
+      (it "truncates the symbol name with cider-abbreviate-ns"
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                :to-equal "k.core/plane: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+
+      (it "truncates the symbol name with cider-last-ns-segment"
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                :to-equal "core/plane: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+
+      (it "leaves out the namespace if the var is in current namespace"
+        (spy-on 'cider-current-ns :and-return-value "kubaru.core")
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                :to-equal "plane: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+
+      ;; this case would be different when it is nil
+      (it "returns as is if truncating the symbol doesn't make it fit"
+        ;; notice that the T is not deleted
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaT")
+                :to-equal "kubaru.core/plane: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaT"))
+
+      (describe "when the docstring spans multiple lines"
+        (it "returns it as is"
+          (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "Line 1.\nLine 2.\nLine 3.")
+                  :to-equal "kubaru.core/plane: Line 1.\nLine 2.\nLine 3."))))
+
+
+    (describe "when its value is nil"
+      (before-each
+        (setq eldoc-echo-area-use-multiline-p nil))
+      (it "leaves out the symbol name and truncates the docstring"
+        ;; notice the missing T from the result
+        (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaT")
+                :to-equal "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+
+      (describe "when the docstring spans multiple lines"
+        (it "returns tries to display the var with the first line"
+          (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "Line 1.\nLine 2.\nLine 3.")
+                  :to-equal "kubaru.core/plane: Line 1."))))))
