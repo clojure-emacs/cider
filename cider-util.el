@@ -559,6 +559,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "The only way of discovering the limits of the possible is to venture a little way past them into the impossible. -Arthur C. Clarke"
     "Don't wish it were easier. Wish you were better. -Jim Rohn"
     "One chord is fine. Two chords is pushing it. Three chords and you're into jazz. -Lou Reed"
+    "We are all apprentices in a craft where no one ever becomes a master. -Ernest Hemingway"
     "Clojure isn't a language, it's a building material."
     "Think big!"
     "Think bold!"
