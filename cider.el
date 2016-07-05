@@ -660,7 +660,7 @@ choose."
                 (member cider-preferred-build-tool choices))
            cider-preferred-build-tool)
           (multiple-project-choices
-           (completing-read (format "Which command should be used (default %s)" default)
+           (completing-read (format "Which command should be used (default %s): " default)
                             choices nil t nil nil default))
           (choices
            (car choices))
