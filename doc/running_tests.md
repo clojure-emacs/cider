@@ -5,12 +5,12 @@ n</kbd> or <kbd>C-c C-t C-n</kbd> in a source buffer or a REPL buffer will run
 the tests for the namespace you're currently in. CIDER is smart enough to figure
 out the namespace containing the tests. You can also run all loaded tests with
 <kbd>C-c C-t l</kbd> or <kbd>C-c C-t C-l</kbd> and all tests within a project
-with <kbd>C-c C-t p</kbd> or <kbd>C-c C-t C-p</kbd> (note that this will loaded
+with <kbd>C-c C-t p</kbd> or <kbd>C-c C-t C-p</kbd> (note that this will load
 **all** namespaces in your project). Using <kbd>C-c C-t t</kbd> or <kbd>C-c C-t
 C-t</kbd>, you can execute only the test a point.
 
 All test commands are available in REPL buffers as well. There you can also use
-<kbd>,</kbd> there to invoke some of the testing commands.
+<kbd>,</kbd> to invoke some of the testing commands.
 
 In the buffer displaying the test execution results (`*cider-test-results*`)
 you'll have a bit of additional functionality at your disposal.
