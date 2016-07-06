@@ -228,7 +228,7 @@ found for the PROJECT-TYPE"
     ("boot" (cider--boot-resolve-command))
     ("gradle" (cider--gradle-resolve-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
-    
+
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
@@ -546,11 +546,11 @@ gets associated with it."
 
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
-  (dolist (ep cider-known-endpoints)
-    (unless (stringp (or (nth 2 ep)
-                         (nth 1 ep)))
+  (dolist (endpoint cider-known-endpoints)
+    (unless (stringp (or (nth 2 endpoint)
+                         (nth 1 endpoint)))
       (user-error "The port for %s in `cider-known-endpoints' should be a string"
-                  (nth 0 ep))))
+                  (nth 0 endpoint))))
   (let* ((ssh-hosts (cider--ssh-hosts))
          (hosts (seq-uniq (append (when cider-host-history
                                     ;; history elements are strings of the form "host:port"
