@@ -765,8 +765,11 @@ text property `cider-old-input'."
   (goto-char (point-max))
   (save-restriction
     (narrow-to-region cider-repl-input-start-mark (point))
-    (while (ignore-errors (save-excursion (backward-up-list 1)) t)
-      (insert ")")))
+    (let ((matched-delimiter nil)))
+      (while (ignore-errors (save-excursion
+	   		       (backward-up-list 1)
+			       (setq matched-delimiter (string (following-char)))) t)
+      (insert (cdr (assoc matched-delimiter '(("(" . ")") ("[" . "]") ("{" . "}")))))))
   (cider-repl-return))
 
 (defun cider-repl-toggle-pretty-printing ()
