@@ -154,7 +154,8 @@ optionally search doc strings (based on DOCS-P), include private vars
   (let* ((first-action-key (car (car cider-apropos-actions)))
          (action-key (if (= 1 (length cider-apropos-actions))
                          first-action-key
-                       (completing-read (format "Choose action to apply to `%s`: " symbol)
+                       (completing-read (format "Choose action to apply to `%s` (default %s): "
+                                                symbol first-action-key)
                                         cider-apropos-actions nil nil nil nil first-action-key)))
          (action-fn (cdr (assoc action-key cider-apropos-actions))))
     (if action-fn
