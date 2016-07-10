@@ -50,7 +50,8 @@ contains only one action key, the associated action function will be
 applied automatically.  An action function can be any function that receives
 the symbol found by the apropos search as argument."
   :type '(alist :key-type string :value-type function)
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
 
 (defun cider-apropos-doc (button)
   "Display documentation for the symbol represented at BUTTON."
@@ -89,8 +90,8 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
     (let* ((label (capitalize (if (string= type "variable") "var" type)))
            (help (concat "Display doc for this " (downcase label))))
       (cider-propertize-region (list 'apropos-symbol name
-                                 'action 'cider-apropos-doc
-                                 'help-echo help)
+                                     'action 'cider-apropos-doc
+                                     'help-echo help)
         (insert-text-button name 'type 'apropos-symbol)
         (insert "\n  ")
         (insert-text-button label 'type (intern (concat "apropos-" type)))
@@ -152,9 +153,9 @@ optionally search doc strings (based on DOCS-P), include private vars
   "Apply selected action on SYMBOL."
   (let* ((first-action-key (car (car cider-apropos-actions)))
          (action-key (if (= 1 (length cider-apropos-actions))
-                     first-action-key
-                   (completing-read (format "Choose action to apply to `%s`: " symbol)
-                                    cider-apropos-actions nil nil nil nil first-action-key)))
+                         first-action-key
+                       (completing-read (format "Choose action to apply to `%s`: " symbol)
+                                        cider-apropos-actions nil nil nil nil first-action-key)))
          (action-fn (cdr (assoc action-key cider-apropos-actions))))
     (if action-fn
         (funcall action-fn symbol)
