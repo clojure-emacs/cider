@@ -760,7 +760,7 @@ text property `cider-old-input'."
       (forward-char offset))))
 
 (defun cider-repl-closing-return ()
-  "Evaluate the current input string after closing all open lists."
+  "Evaluate the current input string after closing all open parenthesized or bracketed expressions."
   (interactive)
   (goto-char (point-max))
   (save-restriction
