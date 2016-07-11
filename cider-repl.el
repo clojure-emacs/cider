@@ -760,13 +760,16 @@ text property `cider-old-input'."
       (forward-char offset))))
 
 (defun cider-repl-closing-return ()
-  "Evaluate the current input string after closing all open lists."
+  "Evaluate the current input string after closing all open parenthesized or bracketed expressions."
   (interactive)
   (goto-char (point-max))
   (save-restriction
     (narrow-to-region cider-repl-input-start-mark (point))
-    (while (ignore-errors (save-excursion (backward-up-list 1)) t)
-      (insert ")")))
+    (let ((matching-delimiter nil))
+      (while (ignore-errors (save-excursion
+			      (backward-up-list 1)
+			      (setq matching-delimiter (cdr (syntax-after (point))))) t)
+        (insert-char matching-delimiter))))
   (cider-repl-return))
 
 (defun cider-repl-toggle-pretty-printing ()

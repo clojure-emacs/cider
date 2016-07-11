@@ -36,6 +36,7 @@
 * Rebind `cider-eval-region` to `C-c C-v r`.
 * Rebind `cider-eval-ns-form` to `C-c C-v n`.
 * [#1577](https://github.com/clojure-emacs/cider/issues/1577): Show first line of docstring in ns browser.
+* `cider-repl-closing-return` (`C-<Return>`) now also completes brackets (`[]`) and curly braces (`{}`) in an expression.
 
 ### Bugs fixed
 
