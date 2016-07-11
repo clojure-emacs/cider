@@ -668,7 +668,7 @@ before point."
 See \(info \"(elisp) Special Properties\")"
   (while-no-input
     (when (and (bufferp obj) (cider-connected-p)
-               cider-use-tooltips)
+               cider-use-tooltips (not help-at-pt-display-when-idle))
       (with-current-buffer obj
         (ignore-errors
           (save-excursion

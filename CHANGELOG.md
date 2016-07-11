@@ -48,6 +48,7 @@ the ns-browser.
 * [#1708](https://github.com/clojure-emacs/cider/issues/1708): Fix `cider-popup-buffer-display` when another frame is used for the error buffer.
 * [#1733](https://github.com/clojure-emacs/cider/pull/1733): Better error handling when no boot command is found in `exec-path`.
 * Fix orphaned nrepl-messages buffer after `cider-quit`.
+* [#1782](https://github.com/clojure-emacs/cider/issues/1782): Disable mouse-over tooltips when `help-at-pt-display-when-idle` is non-nil.
 
 ## 0.12.0 (2016-04-16)
 
