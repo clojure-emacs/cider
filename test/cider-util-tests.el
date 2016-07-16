@@ -138,28 +138,6 @@
     (expect (cider-repl-prompt-abbreviated "some.pretty.long.namespace.name")
             :to-equal "s.p.l.n.name> ")))
 
-(describe "cider-repl--emit-output-at-pos"
-  (it "formats and inserts the text in the given buffer"
-    (with-temp-buffer
-      (let* ((ansi-color-names-vector ["black" "red3" "green3" "yellow3" "blue2" "magenta3" "cyan3" "gray90"])
-             (ansi-color-map (ansi-color-make-color-map)))
-        (cider-repl-reset-markers)
-
-        (cider-repl--emit-output-at-pos (current-buffer) "[30ma[0m" 'cider-repl-stdout-face (point))
-        (cider-repl--emit-output-at-pos (current-buffer) "b" 'cider-repl-stdout-face (point))
-        (cider-repl--emit-output-at-pos (current-buffer) "[31mc" 'cider-repl-stdout-face (point))
-        (cider-repl--emit-output-at-pos (current-buffer) "d[0m" 'cider-repl-stdout-face (point))
-
-        (expect (buffer-string) :to-equal "a\nb\nc\nd\n")
-        (expect (get-text-property 1 'font-lock-face)
-                :to-equal '(foreground-color . "black"))
-        (expect (get-text-property 3 'font-lock-face)
-                :to-equal 'cider-repl-stdout-face)
-        (expect (get-text-property 5 'font-lock-face)
-                :to-equal '(foreground-color . "red3"))
-        (expect (get-text-property 7 'font-lock-face)
-                :to-equal '(foreground-color . "red3"))))))
-
 (describe "cider--url-to-file"
   (it "returns a url for a given file name"
     (expect (cider--url-to-file "file:/space%20test")

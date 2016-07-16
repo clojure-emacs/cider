@@ -526,6 +526,14 @@ Return the position of the prompt beginning."
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
 
+(defun cider-repl--flush-ansi-color-context ()
+  "Flush ansi color context after printing.  
+When there is a possible unfinished ansi control sequence,
+ `ansi-color-context` maintains this list."
+  (when (and ansi-color-context (stringp (cadr ansi-color-context)))
+    (insert-before-markers (cadr ansi-color-context))
+    (setq ansi-color-context nil)))
+
 (defun cider-repl--emit-output-at-pos (buffer string output-face position &optional bol)
   "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
 If BOL is non-nil insert at the beginning of line."
@@ -540,6 +548,7 @@ If BOL is non-nil insert at the beginning of line."
            (ansi-color-apply (propertize string
                                          'font-lock-face output-face
                                          'rear-nonsticky '(font-lock-face))))
+          (cider-repl--flush-ansi-color-context)
           (when (and (= (point) cider-repl-prompt-start-mark)
                      (not (bolp)))
             (insert-before-markers "\n")
