@@ -1248,22 +1248,22 @@ passing arguments."
          (form (concat "(" fn-name ")")))
     (cider-read-and-eval (cons form (length form)))))
 
-;; Eval maps
+;; Eval keymap
 
 (defvar cider-eval-commands-map
   (let ((map (define-prefix-command 'cider-eval-commands-map)))
-    ;; duplicates with C- for convenience
-    (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
-    (define-key map (kbd "C-r") #'cider-eval-region)
-    (define-key map (kbd "C-n") #'cider-eval-ns-form)
-    (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
-    (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
     ;; single key bindings defined last for display in menu
     (define-key map (kbd "w") #'cider-eval-last-sexp-and-replace)
     (define-key map (kbd "r") #'cider-eval-region)
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
-    (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)))
+    (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
+    ;; duplicates with C- for convenience
+    (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
+    (define-key map (kbd "C-r") #'cider-eval-region)
+    (define-key map (kbd "C-n") #'cider-eval-ns-form)
+    (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
+    (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)))
 
 
 ;; Connection and REPL
