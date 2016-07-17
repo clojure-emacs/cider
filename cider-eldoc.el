@@ -120,9 +120,7 @@ is non-nil.  Else format it as a variable."
   (if-let ((method-name (if (and symbol (not (string= symbol "")))
                             symbol
                           thing))
-           (propertized-method-name (if (equal type 'function)
-                                        (cider-propertize method-name 'fn)
-                                      (cider-propertize method-name 'var)))
+           (propertized-method-name (cider-propertize method-name type))
            (ns-or-class (if (and ns (stringp ns))
                             (funcall cider-eldoc-ns-function ns)
                           (cider--eldoc-format-class-names ns))))
@@ -214,7 +212,7 @@ arglists.  ELDOC-INFO is a p-list containing the eldoc information."
         (symbol (lax-plist-get eldoc-info "symbol"))
         (arglists (lax-plist-get eldoc-info "arglists")))
     (format "%s: %s"
-            (cider-eldoc-format-thing ns symbol thing 'function)
+            (cider-eldoc-format-thing ns symbol thing 'fn)
             (cider-eldoc-format-arglist arglists pos))))
 
 (defun cider-highlight-args (arglist pos)
@@ -295,7 +293,7 @@ if the maximum number of sexps to skip is exceeded."
   "Return the type of the thing being displayed by eldoc.
 It can be a function or var now."
   (pcase (lax-plist-get eldoc-info "type")
-    ("function" 'function)
+    ("function" 'fn)
     ("variable" 'var)))
 
 (defun cider-eldoc-info-at-point ()
@@ -417,7 +415,7 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
            (pos (lax-plist-get sexp-eldoc-info "pos"))
            (thing (lax-plist-get sexp-eldoc-info "thing")))
       (when eldoc-info
-        (if (equal (cider-eldoc-thing-type eldoc-info) 'function)
+        (if (equal (cider-eldoc-thing-type eldoc-info) 'fn)
             (cider-eldoc-format-function thing pos eldoc-info)
           (cider-eldoc-format-variable thing pos eldoc-info))))))
 
