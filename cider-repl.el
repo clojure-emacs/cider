@@ -208,7 +208,7 @@ Currently, this is only used to keep `cider-repl-type' updated."
                 (when-let ((ns-dict (or (nrepl-dict-get changed-namespaces (cider-current-ns))
                                         (let ((ns-dict (cider-resolve--get-in (cider-current-ns))))
                                           (when (seq-find (lambda (ns) (nrepl-dict-get changed-namespaces ns))
-                                                        (nrepl-dict-get ns-dict "aliases"))
+                                                          (nrepl-dict-get ns-dict "aliases"))
                                             ns-dict)))))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
