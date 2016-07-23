@@ -51,6 +51,7 @@ the ns-browser.
 * [#1733](https://github.com/clojure-emacs/cider/pull/1733): Better error handling when no boot command is found in `exec-path`.
 * Fix orphaned nrepl-messages buffer after `cider-quit`.
 * [#1782](https://github.com/clojure-emacs/cider/issues/1782): Disable mouse-over tooltips when `help-at-pt-display-when-idle` is non-nil.
+* [#1811](https://github.com/clojure-emacs/cider/issues/1811): Handle properly jack-in commands with spaces in them.
 
 ## 0.12.0 (2016-04-16)
 
