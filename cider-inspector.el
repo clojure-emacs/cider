@@ -114,11 +114,41 @@ With a second prefix argument it prompts for an expression to eval and inspect."
     (4 (cider-inspect-defun-at-point))
     (16 (call-interactively #'cider-inspect-expr))))
 
+(defvar cider-inspector-location-stack nil
+  "A stack used to save point locations in inspector buffers.
+These locations are used to emulate save-excursion between
+`cider-inspector-push' and `cider-inspector-pop' operations.")
+
+(defvar cider-inspector-page-location-stack nil
+  "A stack used to save point locations in inspector buffers.
+These locations are used to emulate save-excursion between
+`cider-inspector-next-page' and `cider-inspector-prev-page' operations.")
+
+(defvar cider-inspector-last-command nil
+  "Contains the value of the most recently used `cider-inspector-*' command.
+This is used as an alternative to the built-in `last-command'. Whenever we
+invoke any command through M-x and its variants, the value of `last-command'
+is not set to the command it invokes.")
+
 ;; Operations
 (defun cider-inspector--value-handler (_buffer value)
   (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode)
   (cider-inspector-render cider-inspector-buffer value)
-  (cider-popup-buffer-display cider-inspector-buffer t))
+  (cider-popup-buffer-display cider-inspector-buffer t)
+  (with-current-buffer cider-inspector-buffer
+    (when (eq cider-inspector-last-command 'cider-inspector-pop)
+      (setq cider-inspector-last-command nil)
+      ;; Prevents error message being displayed when we try to pop
+      ;; from the top-level of a data struture
+      (when cider-inspector-location-stack
+        (goto-char (pop cider-inspector-location-stack))))
+
+    (when (eq cider-inspector-last-command 'cider-inspector-prev-page)
+      (setq cider-inspector-last-command nil)
+      ;; Prevents error message being displayed when we try to
+      ;; go to a prev-page from the first page
+      (when cider-inspector-page-location-stack
+        (goto-char (pop cider-inspector-page-location-stack))))))
 
 (defun cider-inspector--out-handler (_buffer value)
   (cider-emit-interactive-eval-output value))
@@ -157,12 +187,14 @@ current buffer's namespace."
 
 (defun cider-inspector-pop ()
   (interactive)
+  (setq cider-inspector-last-command 'cider-inspector-pop)
   (cider-nrepl-send-request
    (list "op" "inspect-pop"
          "session" (cider-current-session))
    (cider-inspector-response-handler (current-buffer))))
 
 (defun cider-inspector-push (idx)
+  (push (point) cider-inspector-location-stack)
   (cider-nrepl-send-request
    (list "op" "inspect-push"
          "idx" idx
@@ -181,6 +213,7 @@ current buffer's namespace."
 
 Does nothing if already on the last page."
   (interactive)
+  (push (point) cider-inspector-page-location-stack)
   (cider-nrepl-send-request
    (list "op" "inspect-next-page"
          "session" (cider-current-session))
@@ -191,6 +224,7 @@ Does nothing if already on the last page."
 
 Does nothing if already on the first page."
   (interactive)
+  (setq cider-inspector-last-command 'cider-inspector-prev-page)
   (cider-nrepl-send-request
    (list "op" "inspect-prev-page"
          "session" (cider-current-session))
