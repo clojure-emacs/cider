@@ -30,6 +30,13 @@ searchable via Helm.
 [helm-cider](https://github.com/clojure-emacs/helm-cider) provides Helm
 interface for certain CIDER commands (e.g. `cider-apropos`).
 
+## cider-hydra
+
+[cider-hydra](https://github.com/clojure-emacs/cider-hydra) provides a nice way
+to navigate groups of related CIDER commands.
+
+You can think of it as a fancier [which-key](https://github.com/justbur/emacs-which-key).
+
 ## squiggly-clojure
 
 [squiggly-clojure](https://github.com/clojure-emacs/squiggly-clojure) is a
