@@ -25,6 +25,11 @@ Emacs rendition of the web-based
 [official Clojure Cheatsheet](http://clojure.org/api/cheatsheet), that's easily
 searchable via Helm.
 
+## helm-cider
+
+[helm-cider](https://github.com/clojure-emacs/helm-cider) provides Helm
+interface for certain CIDER commands (e.g. `cider-apropos`).
+
 ## squiggly-clojure
 
 [squiggly-clojure](https://github.com/clojure-emacs/squiggly-clojure) is a
