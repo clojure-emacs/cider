@@ -23,6 +23,7 @@
 * [#1767](https://github.com/clojure-emacs/cider/issues/1767): Add a command `cider-read-and-eval-defun-at-point` to insert the defun at point into the minibuffer for evaluation (bound to `C-c C-v .`).
 * [#1646](https://github.com/clojure-emacs/cider/issues/1646): Add an option `cider-apropos-actions` to control the list of actions to be applied on the symbol found by an apropos search.
 * [#1783](https://github.com/clojure-emacs/cider/issues/1783): Put eval commands onto single map bound to `C-c C-v`.
+* [#1804](https://github.com/clojure-emacs/cider/issues/1804): Remember cursor position between `cider-inspector-*` operations.
 
 ### Changes
 
