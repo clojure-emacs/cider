@@ -68,3 +68,62 @@
 ;;  Javadoc: (javadoc java-object-or-class)
 ;;     Exit: <C-c C-q>
 ;;  Results: Stored in vars *1, *2, *3, an exception in *e;"))))
+
+(defvar cider-testing-ansi-colors-vector
+  ["black" "red3" "green3" "yellow3" "blue2"
+   "magenta3" "cyan3" "gray90"]
+  "Vector of translations for ansi color codes")
+
+(defmacro with-testing-ansi-table (colors &rest body)
+  `(let* ((ansi-color-names-vector ,colors)
+             (ansi-color-map (ansi-color-make-color-map)))
+     ,@body))
+
+(describe "multiple calls to cider-repl--emit-output-at-pos"
+  (it "Multiple emit output calls set properties and emit text"
+    (with-temp-buffer
+      (with-testing-ansi-table cider-testing-ansi-colors-vector
+        (cider-repl-reset-markers)
+
+        (cider-repl--emit-output-at-pos (current-buffer) "[30ma[0m" 'cider-repl-stdout-face (point))
+        (cider-repl--emit-output-at-pos (current-buffer) "b" 'cider-repl-stdout-face (point))
+        (cider-repl--emit-output-at-pos (current-buffer) "[31mc" 'cider-repl-stdout-face (point))
+        (cider-repl--emit-output-at-pos (current-buffer) "d[0m" 'cider-repl-stdout-face (point))
+
+        (expect (buffer-string) :to-equal "a\nb\nc\nd\n")
+        (expect (get-text-property 1 'font-lock-face)
+                :to-equal '(foreground-color . "black"))
+        (expect (get-text-property 3 'font-lock-face)
+                :to-equal 'cider-repl-stdout-face)
+        (expect (get-text-property 5 'font-lock-face)
+                :to-equal '(foreground-color . "red3"))
+        (expect (get-text-property 7 'font-lock-face)
+                :to-equal '(foreground-color . "red3"))))))
+
+(defun simulate-cider-output (s property)
+  "Return properties from cider-repl--emit-output-at-pos.
+PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
+'properties."
+  (with-temp-buffer
+    (with-testing-ansi-table cider-testing-ansi-colors-vector
+      (cider-repl-reset-markers)
+      (cider-repl--emit-output-at-pos (current-buffer) s nil (point-min) nil))
+    (case property
+      ('text (substring-no-properties (buffer-string)))
+      ('ansi-context ansi-color-context)
+      ('properties (substring (buffer-string))))))
+
+(describe "cider-repl--emit-output-at-pos"
+  (it "prints simple strings"
+    (expect (simulate-cider-output "hi" 'text)
+            :to-equal "hi\n"))
+
+  (it "when invlaid escape code, doesn't hold string looking for close tag"
+    (expect (simulate-cider-output "\033hi" 'text)
+            :to-equal "\033hi\n")
+    (expect (simulate-cider-output "\033hi" 'ansi-context)
+            :to-equal nil))
+
+  (it "preserves context when valid"
+    (let ((context (simulate-cider-output "[30ma[0mb[31mcd" 'ansi-context)))
+      (expect context :to-equal '((31) nil)))))
