@@ -3,10 +3,12 @@
 ## master (unreleased)
 
 ### New Features
-### Changes
-### Bugs Fixed
-* [#1677](https://github.com/clojure-emacs/cider/issues/1677): Interpret `\r` as a newline
 
+### Changes
+
+### Bugs Fixed
+
+* [#1677](https://github.com/clojure-emacs/cider/issues/1677): Interpret `\r` as a newline.
 
 ## 0.13.0 (2016-07-25)
 
