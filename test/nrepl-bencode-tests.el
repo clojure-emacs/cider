@@ -55,7 +55,9 @@ If object is incomplete, return a decoded path."
 
     (it "handles platform specific newlines"
       (expect (nrepl-bdecode-string "5:spam\n") :to-equal '("spam\n"))
-      (expect (nrepl-bdecode-string "6:spam\n") :to-equal '("spam\n")))
+      (expect (nrepl-bdecode-string "6:spam\n") :to-equal '("spam\n"))
+      (expect (nrepl-bdecode-string "6:spam\n") :to-equal '("spam\n"))
+      (expect (nrepl-bdecode-string "5:spam\r") :to-equal '("spam\n")))
 
     (it "decodes integers"
       (expect (nrepl-bdecode-string "i3e") :to-equal '(3))
