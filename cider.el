@@ -672,25 +672,28 @@ choose."
   "Find `cider-lein-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
-  (shell-quote-argument (or (file-remote-p default-directory)
-                            (executable-find cider-lein-command)
-                            (executable-find (concat cider-lein-command ".bat")))))
+  (when-let ((command (or (file-remote-p default-directory)
+                          (executable-find cider-lein-command)
+                          (executable-find (concat cider-lein-command ".bat")))))
+    (shell-quote-argument command)))
 
 (defun cider--boot-resolve-command ()
   "Find `cider-boot-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
-  (shell-quote-argument (or (file-remote-p default-directory)
-                            (executable-find cider-boot-command)
-                            (executable-find (concat cider-boot-command ".exe")))))
+  (when-let ((command (or (file-remote-p default-directory)
+                          (executable-find cider-boot-command)
+                          (executable-find (concat cider-boot-command ".exe")))))
+    (shell-quote-argument command)))
 
 (defun cider--gradle-resolve-command ()
   "Find `cider-gradle-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
-  (shell-quote-argument (or (file-remote-p default-directory)
-                            (executable-find cider-gradle-command)
-                            (executable-find (concat cider-gradle-command ".exe")))))
+  (when-let ((command (or (file-remote-p default-directory)
+                          (executable-find cider-gradle-command)
+                          (executable-find (concat cider-gradle-command ".exe")))))
+    (shell-quote-argument command)))
 
 
 ;;; Check that the connection is working well
