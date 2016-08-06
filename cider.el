@@ -502,8 +502,7 @@ own buffer."
               (nrepl-start-server-process
                project-dir cmd
                (when cljs-too #'cider-create-sibling-cljs-repl)))))
-      (message "The %s executable (specified by `cider-lein-command' or `cider-boot-command') isn't on your `exec-path'"
-               command))))
+      (user-error "The %s executable isn't on your `exec-path'" command))))
 
 ;;;###autoload
 (defun cider-jack-in-clojurescript (&optional prompt-project)
