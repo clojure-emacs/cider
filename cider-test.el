@@ -351,7 +351,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
-    (nrepl-dbind-response test (var context type message expected actual error)
+    (nrepl-dbind-response test (var context type message expected actual error gen-input)
       (cider-propertize-region (cider-intern-keys (cdr test))
         (let ((beg (point))
               (type-face (cider-test-type-simple-face type))
@@ -373,6 +373,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                                 'action '(lambda (_button) (cider-test-stacktrace))
                                 'help-echo "View causes and stacktrace")
             (insert "\n"))
+          (when gen-input
+            (cider-insert "   input: " 'font-lock-comment-face nil
+                          (cider-font-lock-as-clojure gen-input)))
           (overlay-put (make-overlay beg (point)) 'font-lock-face bg))
         (insert "\n")))))
 
