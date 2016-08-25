@@ -93,7 +93,7 @@ When set to nil the buffer will only be created."
   :group 'cider-repl)
 
 (defcustom cider-repl-scroll-on-output t
-  "Controls whether the REPL buffer auto-scolls on new output.
+  "Controls whether the REPL buffer auto-scrolls on new output.
 
 When set to t (the default), if the REPL buffer contains more lines than the
 size of the window, the buffer is automatically re-centered upon completion
