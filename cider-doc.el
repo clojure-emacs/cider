@@ -394,6 +394,7 @@ Tables are marked to be ignored by line wrap."
          (javadoc (nrepl-dict-get info "javadoc"))
          (super   (nrepl-dict-get info "super"))
          (ifaces  (nrepl-dict-get info "interfaces"))
+         (spec    (nrepl-dict-get info "spec"))
          (clj-name  (if ns (concat ns "/" name) name))
          (java-name (if member (concat class "/" member) class))
          (see-also (nrepl-dict-get info "see-also")))
@@ -455,6 +456,10 @@ Tables are marked to be ignored by line wrap."
                                         (browse-url (button-get x 'url))))
           (insert ".\n"))
         (insert "\n")
+        (when spec
+          (emit "Spec: " 'font-lock-function-name-face)
+          (mapc (lambda (s) (insert s "\n")) spec)
+          (insert "\n"))
         (if cider-docview-file
             (progn
               (insert (propertize (if class java-name clj-name)
