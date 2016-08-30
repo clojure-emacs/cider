@@ -565,7 +565,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
   \"popping over\". The button toggles this behavior.\n\n ")
       (dolist (error-type error-types)
         (let ((suppressed (cider-stacktrace-suppressed-error-p error-type)))
-          (insert-text-button error-type
+          (insert-text-button (format "%s %s" (if suppressed "Promote" "Suppress") error-type)
                               'follow-link t
                               'error-type error-type
                               'action 'cider-stacktrace-toggle-suppression
