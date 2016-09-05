@@ -245,6 +245,14 @@ found for the PROJECT-TYPE"
 (cider-add-to-alist 'cider-jack-in-dependencies
                     "org.clojure/tools.nrepl" "0.2.12")
 
+(defvar cider-jack-in-dependencies-exclusions nil
+  "List of exclusions for jack in dependencies.
+
+Elements of the list are artifact name and list of exclusions to apply for the artifact.")
+(put 'cider-jack-in-dependencies-exclusions 'risky-local-variable t)
+(cider-add-to-alist 'cider-jack-in-dependencies-exclusions
+                    "org.clojure/tools.nrepl" '("org.clojure/clojure"))
+
 (defcustom cider-jack-in-auto-inject-clojure nil
   "Version of clojure to auto-inject into REPL.
 
@@ -300,18 +308,26 @@ string is quoted for passing as argument to an inferior shell."
   (concat (cider-boot-command-prefix (append dependencies plugins))
           (cider-boot-repl-task-params params middlewares)))
 
-(defun cider--list-as-lein-artifact (list)
-  "Return an artifact string described by the elements of LIST.
-LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
-string is quoted for passing as argument to an inferior shell."
-  (shell-quote-argument (format "[%s %S]" (car list) (cadr list))))
+(defun cider--lein-artifact-exclusions (exclusions)
+  "Return an exclusions vector described by the elements of EXCLUSIONS."
+  (if exclusions
+      (format " :exclusions [%s]" (mapconcat #'identity exclusions " "))
+    ""))
 
-(defun cider-lein-jack-in-dependencies (params dependencies lein-plugins)
+(defun cider--list-as-lein-artifact (list &optional exclusions)
+  "Return an artifact string described by the elements of LIST.
+LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  Optionally a list
+of EXCLUSIONS can be provided as well.  The returned
+string is quoted for passing as argument to an inferior shell."
+  (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
+
+(defun cider-lein-jack-in-dependencies (params dependencies dependencies-exclusions lein-plugins)
   (concat
    (mapconcat #'identity
               (append (seq-map (lambda (dep)
-                                 (concat "update-in :dependencies conj "
-                                         (cider--list-as-lein-artifact dep)))
+                                 (let ((exclusions (cadr (assoc (car dep) dependencies-exclusions))))
+                                   (concat "update-in :dependencies conj "
+                                           (cider--list-as-lein-artifact dep exclusions))))
                                dependencies)
                       (seq-map (lambda (plugin)
                                  (concat "update-in :plugins conj "
@@ -351,6 +367,7 @@ dependencies."
              params
              (cider-add-clojure-dependencies-maybe
               cider-jack-in-dependencies)
+             cider-jack-in-dependencies-exclusions
              cider-jack-in-lein-plugins))
     ("boot" (cider-boot-jack-in-dependencies
              params
