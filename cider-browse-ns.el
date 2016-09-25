@@ -54,7 +54,7 @@
     (set-keymap-parent map cider-popup-buffer-mode-map)
     (define-key map "d" #'cider-browse-ns-doc-at-point)
     (define-key map "s" #'cider-browse-ns-find-at-point)
-    (define-key map [return] #'cider-browse-ns-operate-at-point)
+    (define-key map (kbd "RET") #'cider-browse-ns-operate-at-point)
     (define-key map "^" #'cider-browse-ns-all)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
