@@ -56,8 +56,7 @@ The page size can be also changed interactively within the inspector."
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map [return] #'cider-inspector-operate-on-point)
-    (define-key map "\C-m"   #'cider-inspector-operate-on-point)
+    (define-key map (kbd "RET") #'cider-inspector-operate-on-point)
     (define-key map [mouse-1] #'cider-inspector-operate-on-click)
     (define-key map "l" #'cider-inspector-pop)
     (define-key map "g" #'cider-inspector-refresh)

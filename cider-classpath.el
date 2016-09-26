@@ -34,7 +34,7 @@
 (defvar cider-classpath-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map [return] #'cider-classpath-operate-on-point)
+    (define-key map (kbd "RET") #'cider-classpath-operate-on-point)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
     map))
