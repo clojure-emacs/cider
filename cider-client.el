@@ -219,6 +219,16 @@ such a link cannot be established automatically."
    (cider-repl-type)
    (t "clj")))
 
+(defun cider-toggle-request-dispatch ()
+  "Toggles the value of `cider-request-dispatch' between static and dynamic.
+
+Handy when you're using dynamic dispatch, but you want to quickly force all
+evaluation commands to use a particular connection."
+  (interactive)
+  (let ((new-value (if (eq cider-request-dispatch 'static) 'dynamic 'static)))
+    (setq cider-request-dispatch new-value)
+    (message "Toggled CIDER request dispatch to %s." new-value)))
+
 (defun cider-current-connection (&optional type)
   "Return the REPL buffer relevant for the current Clojure source buffer.
 A REPL is relevant if its `nrepl-project-dir' is compatible with the
