@@ -52,12 +52,12 @@ In the REPL buffer, issue the following.
     your.namespace> (ns cider.nrepl.middleware.util.instrument)
     cider.nrepl.middleware.util.instrument> (def verbose-debug true)
 
-This will cause cider to print extensive information on the REPL buffer when you
+This will cause CIDER to print extensive information to the REPL buffer when you
 try to debug an expression (e.g., with <kbd>C-u
 C-M-x</kbd>). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new)
 and copy this information.
 
-## Debugging freezes & lock ups
+## Debugging freezes & lock-ups
 
 Sometimes a CIDER command might hang for a while (e.g. due to a bug or a
 configuration issue). Such problems are super annoying, but are relatively easy
@@ -74,9 +74,9 @@ least what's being required).
 ## Warning saying you have to use nREPL 0.2.12+
 
 CIDER currently requires at least nREPL 0.2.12 to work properly (there were some
-nasty bugs in older version and no support tracking where some var was defined
-in the source code). Leiningen users can add this to their `profiles.clj` to
-force the proper dependency:
+nasty bugs in older version and no support for tracking where some var was
+defined in the source code). Leiningen users can add this to their
+`profiles.clj` to force the proper dependency:
 
 ```clojure
 {:repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}}
