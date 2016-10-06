@@ -309,9 +309,9 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   "Generate the help banner."
   (substitute-command-keys
    "\n;; ======================================================================
-;; If you’re new to CIDER it is highly recommended to go through its
+;; If you're new to CIDER it is highly recommended to go through its
 ;; manual first. Type <M-x cider-view-manual> to view it.
-;; In case you’re seeing any warnings you should consult the manual’s
+;; In case you're seeing any warnings you should consult the manual's
 ;; \"Troubleshooting\" section.
 ;;
 ;; Here are few tips to get you started:
@@ -328,13 +328,13 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;; * Print CIDER's refcard and keep it close to your keyboard.
 ;;
 ;; CIDER is super customizable - try <M-x customize-group cider> to
-;; get a feel for this. If you’re thirsty for knowledge you should try
+;; get a feel for this. If you're thirsty for knowledge you should try
 ;; <M-x cider-drink-a-sip>.
 ;;
-;; If you think you’ve encountered a bug (or have some suggestions for
+;; If you think you've encountered a bug (or have some suggestions for
 ;; improvements) use <M-x cider-report-bug> to report it.
 ;;
-;; Above all else - don’t panic! In case of an emergency - procure
+;; Above all else - don't panic! In case of an emergency - procure
 ;; some (hard) cider and enjoy it responsibly!
 ;;
 ;; You can remove this message with the `cider-repl-clear-help-banner' command.
