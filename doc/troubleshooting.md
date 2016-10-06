@@ -43,7 +43,8 @@ you can step forward until you find the problem.
 
 ## Missing `*nrepl-messages*` buffer
 
-Check the value of `nrepl-log-messages`. It should be non-nil.
+nREPL message logging is not enabled by default.  Set `nrepl-log-messages` to
+`t` to activate it.
 
 ## `cider-debug` complains that it “failed to instrument ...”
 

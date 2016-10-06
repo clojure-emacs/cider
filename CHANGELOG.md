@@ -11,6 +11,8 @@ request dispatch.
 
 ### Changes
 
+* [#1758](https://github.com/clojure-emacs/cider/issues/1758): Disable nREPL message logging by default due to its negative impact on performance.
+
 ### Bugs Fixed
 
 * [#1677](https://github.com/clojure-emacs/cider/issues/1677): Interpret `\r` as a newline.

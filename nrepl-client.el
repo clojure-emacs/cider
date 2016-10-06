@@ -1031,11 +1031,15 @@ the port, and the client buffer."
 
 ;;; Messages
 
-(defcustom nrepl-log-messages t
+(defcustom nrepl-log-messages nil
   "If non-nil, log protocol messages to an nREPL messages buffer.
 
 This is extremely useful for debug purposes, as it allows you to
-inspect the communication between Emacs and an nREPL server."
+inspect the communication between Emacs and an nREPL server.
+
+Enabling the logging might have a negative impact on performance,
+so it's not recommended to keep it enabled unless you need to
+debug something."
   :type 'boolean
   :group 'nrepl)
 

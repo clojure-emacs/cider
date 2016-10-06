@@ -26,15 +26,16 @@ above allows you to override this (somewhat non-standard) behavior.
 (setq cider-prompt-for-symbol nil)
 ```
 
-* Don't log communication with the nREPL server:
+* Log communication with the nREPL server:
 
 ```el
-(setq nrepl-log-messages nil)
+(setq nrepl-log-messages t)
 ```
 
-Basically, this will dispose of buffers like `*nrepl-messages conn-name*`. The
-communication log is invaluable for debugging CIDER issues, so you're generally
-advised to keep it around.
+Basically, this will result in the creation of buffers like `*nrepl-messages
+conn-name*`. The communication log is invaluable for debugging CIDER issues, so
+you're generally advised to enable logging when you need to debug something
+nREPL related.
 
 * You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
 from appearing in some buffer switching commands like
