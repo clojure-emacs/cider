@@ -527,7 +527,7 @@ Return the position of the prompt beginning."
         prompt-start))))
 
 (defun cider-repl--flush-ansi-color-context ()
-  "Flush ansi color context after printing.  
+  "Flush ansi color context after printing.
 When there is a possible unfinished ansi control sequence,
  `ansi-color-context` maintains this list."
   (when (and ansi-color-context (stringp (cadr ansi-color-context)))
