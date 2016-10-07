@@ -207,7 +207,8 @@ Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
      :active (seq-remove #'null cider-ancillary-buffers)]
     ("nREPL" :active cider-connections
      ["Describe session" cider-describe-nrepl-session]
-     ["Close session" cider-close-nrepl-session]))
+     ["Close session" cider-close-nrepl-session]
+     ["Toggle message logging" nrepl-toggle-message-logging]))
   "Menu for CIDER mode")
 
 (defconst cider-mode-eval-menu

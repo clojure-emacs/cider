@@ -1103,6 +1103,16 @@ The message is logged to a buffer described by
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
 
+(defun nrepl-toggle-message-logging ()
+  "Toggle the value of `nrepl-log-messages' between nil and t.
+
+This in effect enables or disables the logging of nREPL messages."
+  (interactive)
+  (setq nrepl-log-messages (not nrepl-log-messages))
+  (if nrepl-log-messages
+      (message "nREPL message logging enabled")
+    (message "nREPL message logging disabled")))
+
 (defcustom nrepl-message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
   "Colors used in `nrepl-messages-buffer'."

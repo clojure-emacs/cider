@@ -8,6 +8,8 @@
 * [#1769](https://github.com/clojure-emacs/cider/issues/1769): Display function spec in the doc buffers.
 * Add a new interactive command `cider-toggle-request-dispatch`. It allows you to quickly toggle between dynamic and static
 request dispatch.
+* Add a new interactive command `nrepl-toggle-message-logging`. It allows you to quickly toggle nREPL message logging on and off
+within the scope of your current Emacs session.
 
 ### Changes
 
