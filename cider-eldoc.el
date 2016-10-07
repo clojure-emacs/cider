@@ -44,8 +44,11 @@
 (defvar cider-extra-eldoc-commands '("yas-expand")
   "Extra commands to be added to eldoc's safe commands list.")
 
-(defvar cider-eldoc-max-num-sexps-to-skip 30
-  "The maximum number of sexps to skip while searching the beginning of current sexp.")
+(defcustom cider-eldoc-max-num-sexps-to-skip 30
+  "The maximum number of sexps to skip while searching the beginning of current sexp."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "0.10.1"))
 
 (defvar-local cider-eldoc-last-symbol nil
   "The eldoc information for the last symbol we checked.")
