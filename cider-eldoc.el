@@ -408,11 +408,17 @@ This includes the arglist and ns and symbol name (if available)."
 Only useful for interop forms.  Clojure forms would be returned unchanged."
   (when sym (replace-regexp-in-string "/\\." "/" sym)))
 
+(defun cider--eldoc-edn-file-p (file-name)
+  "Check whether FILE-NAME is representing an EDN file."
+  (and file-name (equal (file-name-extension file-name) "edn")))
+
 (defun cider-eldoc ()
   "Backend function for eldoc to show argument list in the echo area."
   (when (and (cider-connected-p)
              ;; don't clobber an error message in the minibuffer
-             (not (member last-command '(next-error previous-error))))
+             (not (member last-command '(next-error previous-error)))
+             ;; don't try to provide eldoc in EDN buffers
+             (not (cider--eldoc-edn-file-p buffer-file-name)))
     (let* ((sexp-eldoc-info (cider-eldoc-info-in-current-sexp))
            (eldoc-info (lax-plist-get sexp-eldoc-info "eldoc-info"))
            (pos (lax-plist-get sexp-eldoc-info "pos"))
