@@ -17,11 +17,11 @@ you'll have a bit of additional functionality at your disposal.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
-<kbd>C-c C-t t</kbd> <br/> <kbd>C-c C-t C-t</kbd> | Run test at point.
-<kbd>C-c C-t n</kbd> <br/> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
-<kbd>C-c C-t l</kbd> <br/> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
-<kbd>C-c C-t p</kbd> <br/> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
-<kbd>C-c C-t r</kbd> <br/> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
+<kbd>g</kbd>                    | Run test at point.
+<kbd>n</kbd>                    | Run tests for current namespace.
+<kbd>l</kbd>                    | Run tests for all loaded namespaces.
+<kbd>p</kbd>                    | Run tests for all project namespaces. This loads the additional namespaces.
+<kbd>f</kbd>                    | Re-run test failures/errors.
 <kbd>M-p</kbd>                  | Move point to previous test.
 <kbd>M-n</kbd>                  | Move point to next test.
 <kbd>t</kbd> or <kbd>M-.</kbd>  | Jump to test definition.

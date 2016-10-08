@@ -168,6 +168,7 @@
     (define-key map (kbd "e") #'cider-test-stacktrace)
     ;; `f' for "run failed".
     (define-key map "f" #'cider-test-rerun-failed-tests)
+    (define-key map "n" #'cider-test-run-ns-tests)
     (define-key map "l" #'cider-test-run-loaded-tests)
     (define-key map "p" #'cider-test-run-project-tests)
     ;; `g' generally reloads the buffer.  The closest thing we have to that is
@@ -183,6 +184,7 @@
         "--"
         ["Rerun current test" cider-test-run-test]
         ["Rerun failed/erring tests" cider-test-rerun-failed-tests]
+        ["Run all ns tests" cider-test-run-ns-tests]
         ["Run all loaded tests" cider-test-run-loaded-tests]
         ["Run all project tests" cider-test-run-project-tests]
         "--"
