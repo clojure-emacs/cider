@@ -166,6 +166,8 @@
     (define-key map (kbd "e") #'cider-test-stacktrace)
     ;; `f' for "run failed".
     (define-key map "f" #'cider-test-rerun-tests)
+    (define-key map "l" #'cider-test-run-loaded-tests)
+    (define-key map "p" #'cider-test-run-project-tests)
     ;; `g' generally reloads the buffer.  The closest thing we have to that is
     ;; "run the test at point".  But it's not as nice as rerunning all tests in
     ;; this buffer.
