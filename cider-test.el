@@ -122,6 +122,7 @@
     ;; Duplicates of keys below with C- for convenience
     (define-key map (kbd "C-r") #'cider-test-rerun-failed-tests)
     (define-key map (kbd "C-t") #'cider-test-run-test)
+    (define-key map (kbd "C-g") #'cider-test-rerun-test)
     (define-key map (kbd "C-n") #'cider-test-run-ns-tests)
     (define-key map (kbd "C-l") #'cider-test-run-loaded-tests)
     (define-key map (kbd "C-p") #'cider-test-run-project-tests)
@@ -129,6 +130,7 @@
     ;; Single-key bindings defined last for display in menu
     (define-key map (kbd "r")   #'cider-test-rerun-failed-tests)
     (define-key map (kbd "t")   #'cider-test-run-test)
+    (define-key map (kbd "g")   #'cider-test-rerun-test)
     (define-key map (kbd "n")   #'cider-test-run-ns-tests)
     (define-key map (kbd "l")   #'cider-test-run-loaded-tests)
     (define-key map (kbd "p")   #'cider-test-run-project-tests)
@@ -648,6 +650,18 @@ current ns."
       (unless silent
         (message "No namespace to test in current context")))))
 
+(defvar cider-test-last-test-ns nil
+  "The ns of the last test ran with `cider-test-run-test'.")
+(defvar cider-test-last-test-var nil
+  "The var of the last test ran with `cider-test-run-test'.")
+
+(defun cider-test-update-last-test (ns var)
+  "Update the last test by setting NS and VAR.
+
+See `cider-test-rerun-test'."
+  (setq cider-test-last-test-ns ns
+        cider-test-last-test-var var))
+
 (defun cider-test-run-test ()
   "Run the test at point.
 The test ns/var exist as text properties on report items and on highlighted
@@ -657,12 +671,23 @@ is searched."
   (let ((ns  (get-text-property (point) 'ns))
         (var (get-text-property (point) 'var)))
     (if (and ns var)
-        (cider-test-execute ns (list var))
+        (progn
+          (cider-test-update-last-test ns var)
+          (cider-test-execute ns (list var)))
       (let ((ns  (clojure-find-ns))
             (def (clojure-find-def)))
         (if (and ns (member (car def) '("deftest" "defspec")))
-            (cider-test-execute ns (cdr def))
+            (progn
+              (cider-test-update-last-test ns (cdr def))
+              (cider-test-execute ns (cdr def)))
           (message "No test at point"))))))
+
+(defun cider-test-rerun-test ()
+  "Re-run the test that was previously ran."
+  (interactive)
+  (if (and cider-test-last-test-ns cider-test-last-test-var)
+      (cider-test-execute cider-test-last-test-ns cider-test-last-test-var)
+    (user-error "No test to re-run")))
 
 ;;; Auto-test mode
 (defun cider--test-silently ()

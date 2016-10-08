@@ -10,6 +10,7 @@
 request dispatch.
 * Add a new interactive command `nrepl-toggle-message-logging`. It allows you to quickly toggle nREPL message logging on and off
 within the scope of your current Emacs session.
+* [#1851](https://github.com/clojure-emacs/cider/issues/1851): Add a command to rerun the last test ran via `cider-test-run-test`. The new command is named `cider-test-rerun-test` and is about to `C-c C-t (C-)g`.
 
 ### Changes
 
