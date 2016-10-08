@@ -662,7 +662,11 @@ through a stack of help buffers.  Variables `help-back-label' and
 (defun cider-column-number-at-pos (pos)
   "Analog to `line-number-at-pos'.
 Return buffer column number at position POS."
-  (save-excursion (goto-char pos) (current-column)))
+  (save-excursion
+    (goto-char pos)
+    ;; we have to adjust the column number by 1 to account for the fact
+    ;; that Emacs starts counting columns from 0 and Clojure from 1
+    (1+ (current-column))))
 
 (defun cider-propertize (text kind)
   "Propertize TEXT as KIND.
