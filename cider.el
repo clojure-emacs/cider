@@ -758,7 +758,7 @@ message in the REPL area."
   "Handle cider initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
 buffer."
-  ;; `nrepl-connected-hook' is run in connection buffer
+  ;; `nrepl-connected-hook' is run in the connection buffer
   (cider-make-connection-default (current-buffer))
   (cider-repl-init (current-buffer))
   (cider--check-required-nrepl-version)
@@ -774,7 +774,7 @@ buffer."
   "Cleanup after nREPL connection has been lost or closed.
 This function is appended to `nrepl-disconnected-hook' in the client
 process buffer."
-  ;; `nrepl-connected-hook' is run in connection buffer
+  ;; `nrepl-connected-hook' is run in the connection buffer
   (cider-possibly-disable-on-existing-clojure-buffers)
   (run-hooks 'cider-disconnected-hook))
 
