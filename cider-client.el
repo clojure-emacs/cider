@@ -205,6 +205,15 @@ such a link cannot be established automatically."
     (when conn
       (setq-local cider-connections (list conn)))))
 
+(defun cider-toggle-buffer-connection ()
+  "Toggles the current buffer's connection between Clojure and ClojureScript."
+  (interactive)
+  (cider-ensure-connected)
+  (let ((other-conn (cider-other-connection)))
+    (if other-conn
+        (setq-local cider-connections (list other-conn))
+      (user-error "No other connection available"))))
+
 (defun cider-clear-buffer-local-connection ()
   "Remove association between the current buffer and a connection."
   (interactive)

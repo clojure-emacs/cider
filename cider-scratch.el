@@ -32,12 +32,23 @@
 
 (require 'cider-interaction)
 (require 'clojure-mode)
+(require 'easymenu)
 
 (defvar cider-clojure-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "C-j") #'cider-eval-print-last-sexp)
     (define-key map [remap paredit-newline] #'cider-eval-print-last-sexp)
+    (easy-menu-define cider-clojure-interaction-mode-menu map
+      "Menu for Clojure Interaction mode"
+      '("Clojure Interaction"
+        (["Eval and print last sexp" #'cider-eval-print-last-sexp]
+         "--"
+         ["Reset" #'cider-scratch-reset]
+         "--"
+         ["Set buffer connection" #'cider-assoc-buffer-with-connection]
+         ["Toggle buffer connection" #'cider-toggle-buffer-connection]
+         ["Reset buffer connection" #'cider-clear-buffer-local-connection])))
     map))
 
 (defconst cider-scratch-buffer-name "*cider-scratch*")
@@ -62,13 +73,23 @@ before point, and prints its value into the buffer, advancing point.
 
 \\{cider-clojure-interaction-mode-map}")
 
+(defun cider--scratch-insert-welcome-message ()
+  "Insert the welcome message for the scratch buffer."
+  (insert ";; This buffer is for Clojure experiments and evaluation.\n"
+          ";; Press C-j to evaluate the last expression.\n\n"))
+
 (defun cider-create-scratch-buffer ()
   "Create a new scratch buffer."
   (with-current-buffer (get-buffer-create cider-scratch-buffer-name)
     (cider-clojure-interaction-mode)
-    (insert ";; This buffer is for Clojure experiments and evaluation.\n"
-            ";; Press C-j to evaluate the last expression.\n\n")
+    (cider--scratch-insert-welcome-message)
     (current-buffer)))
+
+(defun cider-scratch-reset ()
+  "Reset the current scratch buffer."
+  (interactive)
+  (erase-buffer)
+  (cider--scratch-insert-welcome-message))
 
 (provide 'cider-scratch)
 

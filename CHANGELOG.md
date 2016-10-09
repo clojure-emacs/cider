@@ -12,6 +12,8 @@ request dispatch.
 within the scope of your current Emacs session.
 * [#1851](https://github.com/clojure-emacs/cider/issues/1851): Add a command to rerun the last test ran via `cider-test-run-test`. The new command is named `cider-test-rerun-test` and is about to `C-c C-t (C-)g`.
 * [#1748](https://github.com/clojure-emacs/cider/issues/1748): Add new interactive command `cider-pprint-eval-last-sexp-to-repl`.
+* [#1789](https://github.com/clojure-emacs/cider/issues/1789): Make it easy to change the connection of the cider-scratch buffer from the mode's menu.
+* New interactive command `cider-toggle-buffer-connection`.
 
 ### Changes
 
