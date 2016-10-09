@@ -59,7 +59,7 @@
   "Clojure Interactive Development Environment that Rocks."
   :prefix "cider-"
   :group 'applications
-  :link '(url-link :tag "Github" "https://github.com/clojure-emacs/cider")
+  :link '(url-link :tag "GitHub" "https://github.com/clojure-emacs/cider")
   :link '(url-link :tag "Online Manual" "https://cider.readthedocs.org")
   :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
