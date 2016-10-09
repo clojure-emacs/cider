@@ -734,7 +734,7 @@ In case `default-directory' is non-local we assume the command is available."
                                    "Clojure version (%s) is not supported (minimum %s). CIDER will not work."
                                    clojure-version cider-minimum-clojure-version))
     (cider-repl-manual-warning "installation/#prerequisites"
-                               "Clojure version information could not be determined. Requires a minimum version %s."
+                               "Can't determine Clojure's version. CIDER requires Clojure %s (or newer)."
                                cider-minimum-clojure-version)))
 
 (defun cider--check-middleware-compatibility ()
