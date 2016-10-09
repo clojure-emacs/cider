@@ -776,8 +776,8 @@ text property `cider-old-input'."
     (narrow-to-region cider-repl-input-start-mark (point))
     (let ((matching-delimiter nil))
       (while (ignore-errors (save-excursion
-			      (backward-up-list 1)
-			      (setq matching-delimiter (cdr (syntax-after (point))))) t)
+                              (backward-up-list 1)
+                              (setq matching-delimiter (cdr (syntax-after (point))))) t)
         (insert-char matching-delimiter))))
   (cider-repl-return))
 
