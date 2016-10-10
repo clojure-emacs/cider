@@ -1058,11 +1058,12 @@ operations.")
 
 (defvar nrepl-messages-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "n") #'next-line)
-    (define-key map (kbd "p") #'previous-line)
+    (define-key map (kbd "n")   #'next-line)
+    (define-key map (kbd "p")   #'previous-line)
     (define-key map (kbd "TAB") #'forward-button)
-    (define-key map (kbd "e")  #'nrepl-log-expand-button)
-    (define-key map (kbd "E")  #'nrepl-log-expand-all-buttons)
+    (define-key map (kbd "RET") #'nrepl-log-expand-button)
+    (define-key map (kbd "e")   #'nrepl-log-expand-button)
+    (define-key map (kbd "E")   #'nrepl-log-expand-all-buttons)
     (define-key map (kbd "<backtab>") #'backward-button)
     map))
 
@@ -1086,11 +1087,8 @@ operations.")
 
 (defun nrepl-log-message (msg type)
   "Log the nREPL MSG.
-
-TYPE is either request or response.
-
-The message is logged to a buffer described by
-`nrepl-message-buffer-name-template'."
+TYPE is either request or response.  The message is logged to a buffer
+described by `nrepl-message-buffer-name-template'."
   (when nrepl-log-messages
     (with-current-buffer (nrepl-messages-buffer (current-buffer))
       (setq buffer-read-only nil)
@@ -1100,8 +1098,8 @@ The message is logged to a buffer described by
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
       (nrepl-log-pp-object (nrepl-decorate-msg msg type)
-                 (nrepl-log--message-color (lax-plist-get (cdr msg) "id"))
-                 t)
+                           (nrepl-log--message-color (lax-plist-get (cdr msg) "id"))
+                           t)
       (when-let ((win (get-buffer-window)))
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
@@ -1168,8 +1166,9 @@ EVENT gives the button position on window."
                  'action #'nrepl-log-expand-button
                  'face 'link
                  'help-echo "RET: Expand object."
-                 ;; Workaround for bug#1568.
-                 'local-map '(keymap (mouse-1 . nrepl-log--expand-button-mouse)))
+                 ;; Workaround for bug#1568 (don't use local-map here; it
+                 ;; overwrites major mode map.)
+                 'keymap `(keymap (mouse-1 . nrepl-log--expand-button-mouse)))
   (insert "\n"))
 
 (defun nrepl-log--message-color (id)
