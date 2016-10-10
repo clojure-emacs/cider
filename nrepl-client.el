@@ -1098,7 +1098,8 @@ The message is logged to a buffer described by
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
       (nrepl--pp (nrepl-decorate-msg msg type)
-                 (nrepl--message-color (lax-plist-get (cdr msg) "id")))
+                 (nrepl--message-color (lax-plist-get (cdr msg) "id"))
+                 t)
       (when-let ((win (get-buffer-window)))
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
@@ -1134,7 +1135,16 @@ Set this to nil to prevent truncation."
 
 (defun nrepl--expand-button (button)
   "Expand the text hidden under overlay BUTTON."
-  (delete-overlay button))
+  (let* ((start (overlay-start button))
+         (end   (overlay-end   button))
+         (obj   (overlay-get button :nrepl-object))
+         (inhibit-read-only t))
+    (save-excursion
+      (goto-char start)
+      (delete-overlay button)
+      (delete-region start end)
+      (nrepl--pp obj)
+      (delete-char -1))))
 
 (defun nrepl--expand-button-mouse (event)
   "Expand the text hidden under overlay button.
@@ -1145,49 +1155,67 @@ EVENT gives the button position on window."
      (with-selected-window window
        (nrepl--expand-button (button-at point))))))
 
-(define-button-type 'nrepl--collapsed-dict
-  'display "..."
-  'action #'nrepl--expand-button
-  'face 'link
-  'help-echo "RET: Expand dict.")
+(defun nrepl--insert-button (label object)
+  "Insert button with LABEL and :nrepl-object property as OBJECT."
+  (insert-button label
+                 :nrepl-object object
+                 'action #'nrepl--expand-button
+                 'face 'link
+                 'help-echo "RET: Expand object."
+                 ;; Workaround for bug#1568.
+                 'local-map '(keymap (mouse-1 . nrepl--expand-button-mouse)))
+  (insert "\n"))
 
-(defun nrepl--pp (object &optional foreground)
-  "Pretty print nREPL OBJECT, delimited using FOREGROUND."
-  (if (not (and (listp object)
-                (memq (car object) '(<-- --> dict))))
-      (progn (when (stringp object)
-               (setq object (substring-no-properties object)))
-             (pp object (current-buffer))
-             (unless (listp object) (insert "\n")))
+(defun nrepl--pp-listlike (object &optional foreground button)
+  "Pretty print nREPL list like OBJECT.
+FOREGROUND and BUTTON are as in `nrepl--pp'."
+  (cl-flet ((color (str)
+                   (propertize str 'face
+                               (append '(:weight ultra-bold)
+                                       (when foreground `(:foreground ,foreground))))))
     (let ((head (format "(%s" (car object))))
-      (cl-flet ((color (str)
-                       (propertize str 'face (append '(:weight ultra-bold)
-                                                     (when foreground `(:foreground ,foreground))))))
-        (insert (color head))
-        (let ((indent (+ 2 (- (current-column) (length head))))
-              (l (point)))
-          (if (null (cdr object))
-              (insert ")\n")
-            (insert " \n")
-            (cl-loop for l on (cdr object) by #'cddr
-                     do (let ((str (format "%s%s  " (make-string indent ?\s)
-                                           (propertize (car l) 'face
-                                                       ;; Only highlight top-level keys.
-                                                       (unless (eq (car object) 'dict)
-                                                         'font-lock-keyword-face)))))
-                          (insert str)
-                          (nrepl--pp (cadr l))))
-            (when (eq (car object) 'dict)
-              (delete-char -1)
-              (let ((truncate-lines t))
-                (when (and nrepl-dict-max-message-size
-                           (> (count-screen-lines l (point) t)
-                              nrepl-dict-max-message-size))
-                  (make-button (1+ l) (point)
-                               :type 'nrepl--collapsed-dict
-                               ;; Workaround for bug#1568.
-                               'local-map '(keymap (mouse-1 . nrepl--expand-button-mouse))))))
-            (insert (color ")\n"))))))))
+      (insert (color head))
+      (let ((indent (+ 2 (- (current-column) (length head))))
+            (l (point)))
+        (if (null (cdr object))
+            (insert ")\n")
+          (insert " \n")
+          (cl-loop for l on (cdr object) by #'cddr
+                   do (let ((str (format "%s%s  " (make-string indent ?\s)
+                                         (propertize (car l) 'face
+                                                     ;; Only highlight top-level keys.
+                                                     (unless (eq (car object) 'dict)
+                                                       'font-lock-keyword-face)))))
+                        (insert str)
+                        (nrepl--pp (cadr l) nil button)))
+          (when (eq (car object) 'dict)
+            (delete-char -1))
+          (insert (color ")\n")))))))
+
+(defun nrepl--pp (object &optional foreground button)
+  "Pretty print nREPL OBJECT, delimited using FOREGROUND.
+If BUTTON is non-nil, try making a button from OBJECT instead of inserting
+it into the buffer."
+  (if-let ((head (car-safe object)))
+      ;; listlike objects
+      (cond
+       ((memq head '(<-- -->))
+        (nrepl--pp-listlike object foreground button))
+       ((eq head 'dict)
+        (if (and button (> (length object) 1))
+            (nrepl--insert-button "(dict ...)" object)
+          (nrepl--pp-listlike object foreground button)))
+       (t
+        (if (and button (> (length object) 10))
+            (nrepl--insert-button (format "(%s ...)" (prin1-to-string head)) object)
+          (pp object (current-buffer)))))
+    ;; non-list objects
+    (if (stringp object)
+        (if (and button (> (length object) 80))
+            (nrepl--insert-button (format "\"%s...\"" (substring object 0 40)) object)
+          (insert (prin1-to-string object) "\n"))
+      (pp object (current-buffer))
+      (insert "\n"))))
 
 (defun nrepl-messages-buffer-name (conn)
   "Return the name for the message buffer matching CONN."
