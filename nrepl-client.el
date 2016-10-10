@@ -1061,6 +1061,8 @@ operations.")
     (define-key map (kbd "n") #'next-line)
     (define-key map (kbd "p") #'previous-line)
     (define-key map (kbd "TAB") #'forward-button)
+    (define-key map (kbd "e")  #'nrepl-log-expand-button)
+    (define-key map (kbd "E")  #'nrepl-log-expand-all-buttons)
     (define-key map (kbd "<backtab>") #'backward-button)
     map))
 
@@ -1120,26 +1122,35 @@ This in effect enables or disables the logging of nREPL messages."
   :type '(repeat color)
   :group 'nrepl)
 
-(defun nrepl--message-color (id)
-  "Return the color to use when pretty-printing the nREPL message with ID.
-If ID is nil, return nil."
-  (when id
-    (thread-first (string-to-number id)
-      (mod (length nrepl-message-colors))
-      (nth nrepl-message-colors))))
+(defun nrepl-log-expand-button (&optional button)
+  "Expand the objects hidden in BUTTON's :nrepl-object property.
+BUTTON defaults the button at point."
+  (interactive)
+  (if-let ((button (or button (button-at (point)))))
+      (let* ((start (overlay-start button))
+             (end   (overlay-end   button))
+             (obj   (overlay-get button :nrepl-object))
+             (inhibit-read-only t))
+        (save-excursion
+          (goto-char start)
+          (delete-overlay button)
+          (delete-region start end)
+          (nrepl--pp obj)
+          (delete-char -1)))
+    (error "No button at point")))
 
-(defun nrepl--expand-button (button)
-  "Expand the text hidden under overlay BUTTON."
-  (let* ((start (overlay-start button))
-         (end   (overlay-end   button))
-         (obj   (overlay-get button :nrepl-object))
-         (inhibit-read-only t))
+(defun nrepl-log-expand-all-buttons ()
+  "Expand all buttons in nREPL log buffer."
+  (interactive)
+  (if (not (eq major-mode 'nrepl-messages-mode))
+      (user-error "Not in a `nrepl-messages-mode'")
     (save-excursion
-      (goto-char start)
-      (delete-overlay button)
-      (delete-region start end)
-      (nrepl--pp obj)
-      (delete-char -1))))
+      (let* ((pos (point-min))
+             (button (next-button pos)))
+        (while button
+          (setq pos (overlay-start button))
+          (nrepl-log-expand-button button)
+          (setq button (next-button pos)))))))
 
 (defun nrepl--expand-button-mouse (event)
   "Expand the text hidden under overlay button.
@@ -1148,18 +1159,26 @@ EVENT gives the button position on window."
   (pcase (elt event 1)
     (`(,window ,_ ,_ ,_ ,_ ,point . ,_)
      (with-selected-window window
-       (nrepl--expand-button (button-at point))))))
+       (nrepl-log-expand-button (button-at point))))))
 
-(defun nrepl--insert-button (label object)
+(defun nrepl-log-insert-button (label object)
   "Insert button with LABEL and :nrepl-object property as OBJECT."
   (insert-button label
                  :nrepl-object object
-                 'action #'nrepl--expand-button
+                 'action #'nrepl-log-expand-button
                  'face 'link
                  'help-echo "RET: Expand object."
                  ;; Workaround for bug#1568.
                  'local-map '(keymap (mouse-1 . nrepl--expand-button-mouse)))
   (insert "\n"))
+
+(defun nrepl--message-color (id)
+  "Return the color to use when pretty-printing the nREPL message with ID.
+If ID is nil, return nil."
+  (when id
+    (thread-first (string-to-number id)
+      (mod (length nrepl-message-colors))
+      (nth nrepl-message-colors))))
 
 (defun nrepl--pp-listlike (object &optional foreground button)
   "Pretty print nREPL list like OBJECT.
@@ -1197,23 +1216,23 @@ it into the buffer."
     (if-let ((head (car-safe object)))
         ;; list-like objects
         (cond
-         ;; top level dicts (always unfolded)
+         ;; top level dicts (always expanded)
          ((memq head '(<-- -->))
           (nrepl--pp-listlike object foreground button))
          ;; inner dicts
          ((eq head 'dict)
           (if (and button (> (length object) min-dict-fold-size))
-              (nrepl--insert-button "(dict ...)" object)
+              (nrepl-log-insert-button "(dict ...)" object)
             (nrepl--pp-listlike object foreground button)))
          ;; lists
          (t
           (if (and button (> (length object) min-list-fold-size))
-              (nrepl--insert-button (format "(%s ...)" (prin1-to-string head)) object)
+              (nrepl-log-insert-button (format "(%s ...)" (prin1-to-string head)) object)
             (pp object (current-buffer)))))
       ;; non-list objects
       (if (stringp object)
           (if (and button (> (length object) min-string-fold-size))
-              (nrepl--insert-button (format "\"%s...\"" (substring object 0 min-string-fold-size)) object)
+              (nrepl-log-insert-button (format "\"%s...\"" (substring object 0 min-string-fold-size)) object)
             (insert (prin1-to-string object) "\n"))
         (pp object (current-buffer))
         (insert "\n")))))
