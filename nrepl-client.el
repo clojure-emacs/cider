@@ -1099,8 +1099,8 @@ The message is logged to a buffer described by
         (re-search-forward "^(" nil t)
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
-      (nrepl--pp (nrepl-decorate-msg msg type)
-                 (nrepl--message-color (lax-plist-get (cdr msg) "id"))
+      (nrepl-log-pp-object (nrepl-decorate-msg msg type)
+                 (nrepl-log--message-color (lax-plist-get (cdr msg) "id"))
                  t)
       (when-let ((win (get-buffer-window)))
         (set-window-point win (point-max)))
@@ -1135,7 +1135,7 @@ BUTTON defaults the button at point."
           (goto-char start)
           (delete-overlay button)
           (delete-region start end)
-          (nrepl--pp obj)
+          (nrepl-log-pp-object obj)
           (delete-char -1)))
     (error "No button at point")))
 
@@ -1152,7 +1152,7 @@ BUTTON defaults the button at point."
           (nrepl-log-expand-button button)
           (setq button (next-button pos)))))))
 
-(defun nrepl--expand-button-mouse (event)
+(defun nrepl-log--expand-button-mouse (event)
   "Expand the text hidden under overlay button.
 EVENT gives the button position on window."
   (interactive "e")
@@ -1169,10 +1169,10 @@ EVENT gives the button position on window."
                  'face 'link
                  'help-echo "RET: Expand object."
                  ;; Workaround for bug#1568.
-                 'local-map '(keymap (mouse-1 . nrepl--expand-button-mouse)))
+                 'local-map '(keymap (mouse-1 . nrepl-log--expand-button-mouse)))
   (insert "\n"))
 
-(defun nrepl--message-color (id)
+(defun nrepl-log--message-color (id)
   "Return the color to use when pretty-printing the nREPL message with ID.
 If ID is nil, return nil."
   (when id
@@ -1180,9 +1180,9 @@ If ID is nil, return nil."
       (mod (length nrepl-message-colors))
       (nth nrepl-message-colors))))
 
-(defun nrepl--pp-listlike (object &optional foreground button)
+(defun nrepl-log--pp-listlike (object &optional foreground button)
   "Pretty print nREPL list like OBJECT.
-FOREGROUND and BUTTON are as in `nrepl--pp'."
+FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
   (cl-flet ((color (str)
                    (propertize str 'face
                                (append '(:weight ultra-bold)
@@ -1201,12 +1201,12 @@ FOREGROUND and BUTTON are as in `nrepl--pp'."
                                                      (unless (eq (car object) 'dict)
                                                        'font-lock-keyword-face)))))
                         (insert str)
-                        (nrepl--pp (cadr l) nil button)))
+                        (nrepl-log-pp-object (cadr l) nil button)))
           (when (eq (car object) 'dict)
             (delete-char -1))
           (insert (color ")\n")))))))
 
-(defun nrepl--pp (object &optional foreground button)
+(defun nrepl-log-pp-object (object &optional foreground button)
   "Pretty print nREPL OBJECT, delimited using FOREGROUND.
 If BUTTON is non-nil, try making a button from OBJECT instead of inserting
 it into the buffer."
@@ -1218,12 +1218,12 @@ it into the buffer."
         (cond
          ;; top level dicts (always expanded)
          ((memq head '(<-- -->))
-          (nrepl--pp-listlike object foreground button))
+          (nrepl-log--pp-listlike object foreground button))
          ;; inner dicts
          ((eq head 'dict)
           (if (and button (> (length object) min-dict-fold-size))
               (nrepl-log-insert-button "(dict ...)" object)
-            (nrepl--pp-listlike object foreground button)))
+            (nrepl-log--pp-listlike object foreground button)))
          ;; lists
          (t
           (if (and button (> (length object) min-list-fold-size))
