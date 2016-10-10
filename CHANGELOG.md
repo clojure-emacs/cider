@@ -26,7 +26,7 @@ within the scope of your current Emacs session.
 * Add option to define exclusions for injected dependecies. Fixes [#1824](https://github.com/clojure-emacs/cider/issues/1824): Can no longer jack-in to an inherited clojure version.
 * [#1820](https://github.com/clojure-emacs/cider/issues/1820): Don't try to display eldoc in EDN buffers.
 * [#1823](https://github.com/clojure-emacs/cider/issues/1823): Fix column location metadata set by interactive evaluation.
-* [#1859](https://github.com/clojure-emacs/cider/issues/1859): Remove the overhead of nREPL message log.
+* [#1859](https://github.com/clojure-emacs/cider/issues/1859): Make nREPL message log much faster. `nrepl-dict-max-message-size` custom variable was removed.
 
 ## 0.13.0 (2016-07-25)
 

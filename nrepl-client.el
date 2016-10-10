@@ -1128,11 +1128,6 @@ If ID is nil, return nil."
       (mod (length nrepl-message-colors))
       (nth nrepl-message-colors))))
 
-(defcustom nrepl-dict-max-message-size 5
-  "Max number of lines a dict can have before being truncated.
-Set this to nil to prevent truncation."
-  :type 'integer)
-
 (defun nrepl--expand-button (button)
   "Expand the text hidden under overlay BUTTON."
   (let* ((start (overlay-start button))
@@ -1196,26 +1191,32 @@ FOREGROUND and BUTTON are as in `nrepl--pp'."
   "Pretty print nREPL OBJECT, delimited using FOREGROUND.
 If BUTTON is non-nil, try making a button from OBJECT instead of inserting
 it into the buffer."
-  (if-let ((head (car-safe object)))
-      ;; listlike objects
-      (cond
-       ((memq head '(<-- -->))
-        (nrepl--pp-listlike object foreground button))
-       ((eq head 'dict)
-        (if (and button (> (length object) 1))
-            (nrepl--insert-button "(dict ...)" object)
-          (nrepl--pp-listlike object foreground button)))
-       (t
-        (if (and button (> (length object) 10))
-            (nrepl--insert-button (format "(%s ...)" (prin1-to-string head)) object)
-          (pp object (current-buffer)))))
-    ;; non-list objects
-    (if (stringp object)
-        (if (and button (> (length object) 80))
-            (nrepl--insert-button (format "\"%s...\"" (substring object 0 40)) object)
-          (insert (prin1-to-string object) "\n"))
-      (pp object (current-buffer))
-      (insert "\n"))))
+  (let ((min-dict-fold-size   1)
+        (min-list-fold-size   10)
+        (min-string-fold-size 60))
+    (if-let ((head (car-safe object)))
+        ;; list-like objects
+        (cond
+         ;; top level dicts (always unfolded)
+         ((memq head '(<-- -->))
+          (nrepl--pp-listlike object foreground button))
+         ;; inner dicts
+         ((eq head 'dict)
+          (if (and button (> (length object) min-dict-fold-size))
+              (nrepl--insert-button "(dict ...)" object)
+            (nrepl--pp-listlike object foreground button)))
+         ;; lists
+         (t
+          (if (and button (> (length object) min-list-fold-size))
+              (nrepl--insert-button (format "(%s ...)" (prin1-to-string head)) object)
+            (pp object (current-buffer)))))
+      ;; non-list objects
+      (if (stringp object)
+          (if (and button (> (length object) min-string-fold-size))
+              (nrepl--insert-button (format "\"%s...\"" (substring object 0 min-string-fold-size)) object)
+            (insert (prin1-to-string object) "\n"))
+        (pp object (current-buffer))
+        (insert "\n")))))
 
 (defun nrepl-messages-buffer-name (conn)
   "Return the name for the message buffer matching CONN."
