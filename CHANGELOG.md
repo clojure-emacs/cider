@@ -14,6 +14,7 @@ within the scope of your current Emacs session.
 * [#1748](https://github.com/clojure-emacs/cider/issues/1748): Add new interactive command `cider-pprint-eval-last-sexp-to-repl`.
 * [#1789](https://github.com/clojure-emacs/cider/issues/1789): Make it easy to change the connection of the cider-scratch buffer from the mode's menu.
 * New interactive command `cider-toggle-buffer-connection`.
+* [#1861](https://github.com/clojure-emacs/cider/issues/1861): New interactive commands in message log buffer `nrepl-log-expand-button` and `nrepl-log-expand-all-buttons`.
 
 ### Changes
 
@@ -27,6 +28,7 @@ within the scope of your current Emacs session.
 * [#1820](https://github.com/clojure-emacs/cider/issues/1820): Don't try to display eldoc in EDN buffers.
 * [#1823](https://github.com/clojure-emacs/cider/issues/1823): Fix column location metadata set by interactive evaluation.
 * [#1859](https://github.com/clojure-emacs/cider/issues/1859): Make nREPL message log much faster. `nrepl-dict-max-message-size` custom variable was removed.
+
 
 ## 0.13.0 (2016-07-25)
 
