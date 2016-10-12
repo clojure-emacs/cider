@@ -688,25 +688,27 @@ choose."
   "Find `cider-lein-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let ((command (or (file-remote-p default-directory)
+  (when-let ((command (or (and (file-remote-p default-directory) cider-lein-command)
                           (executable-find cider-lein-command)
                           (executable-find (concat cider-lein-command ".bat")))))
     (shell-quote-argument command)))
 
+;; TODO: Implement a check for `cider-boot-command' over tramp
 (defun cider--boot-resolve-command ()
   "Find `cider-boot-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let ((command (or (file-remote-p default-directory)
+  (when-let ((command (or (and (file-remote-p default-directory) cider-boot-command)
                           (executable-find cider-boot-command)
                           (executable-find (concat cider-boot-command ".exe")))))
     (shell-quote-argument command)))
 
+;; TODO: Implement a check for `cider-gradle-command' over tramp
 (defun cider--gradle-resolve-command ()
   "Find `cider-gradle-command' on `exec-path' if possible, or return `nil'.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let ((command (or (file-remote-p default-directory)
+  (when-let ((command (or (and (file-remote-p default-directory) cider-gradle-command)
                           (executable-find cider-gradle-command)
                           (executable-find (concat cider-gradle-command ".exe")))))
     (shell-quote-argument command)))
