@@ -1448,6 +1448,9 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
        ((member "invoked-before" status)
         (log-echo (format "Successfully called %s\n" before) 'font-lock-string-face))
 
+       ((member "invoked-not-resolved" status)
+        (log-echo "Could not resolve refresh function\n" 'font-lock-string-face))
+
        (reloading
         (log-echo (format "Reloading %s\n" reloading) 'font-lock-string-face))
 
