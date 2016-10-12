@@ -613,12 +613,14 @@ If BOL is non-nil insert at the beginning of the line."
           (goto-char cider-repl-input-start-mark)
           (when (and bol (not (bolp)))
             (insert-before-markers "\n"))
-          (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face))
-          (if cider-repl-use-clojure-font-lock
-              (insert-before-markers (cider-font-lock-as-clojure string))
-            (cider-propertize-region
-                '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
-              (insert-before-markers string))))))
+          (let ((prefixed-string (mapconcat (lambda (s) (concat cider-repl-result-prefix s))
+                                            (butlast (split-string string "\n") 1)
+                                            "\n")))
+            (if cider-repl-use-clojure-font-lock
+                (insert-before-markers (cider-font-lock-as-clojure prefixed-string))
+              (cider-propertize-region
+                  '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
+                (insert-before-markers prefixed-string)))))))
     (cider-repl--show-maximum-output)))
 
 (defun cider-repl-newline-and-indent ()
