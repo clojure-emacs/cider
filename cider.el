@@ -667,7 +667,7 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
 (defun cider-project-type ()
   "Determine the type, either leiningen, boot or gradle, of the current project.
 If more than one project file types are present, check for a preferred
-build tool in `cider-preferred-build-tool`, otherwise prompt the user to
+build tool in `cider-preferred-build-tool', otherwise prompt the user to
 choose."
   (let* ((choices (cider--identify-buildtools-present))
          (multiple-project-choices (> (length choices) 1))
