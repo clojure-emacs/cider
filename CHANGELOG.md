@@ -19,6 +19,7 @@ within the scope of your current Emacs session.
 ### Changes
 
 * [#1758](https://github.com/clojure-emacs/cider/issues/1758): Disable nREPL message logging by default due to its negative impact on performance.
+* Warn when running `cider-jack-in` without a Clojure project. This behaviour is controllable via `cider-allow-jack-in-without-project`.
 
 ### Bugs Fixed
 
