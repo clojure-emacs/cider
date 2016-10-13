@@ -31,7 +31,6 @@ within the scope of your current Emacs session.
 * [#1859](https://github.com/clojure-emacs/cider/issues/1859): Make nREPL message log much faster. `nrepl-dict-max-message-size` custom variable was removed.
 * [#1613](https://github.com/clojure-emacs/cider/issues/1859): Check whether a before/after refresh function is resolvable.
 
-
 ## 0.13.0 (2016-07-25)
 
 ### New Features
