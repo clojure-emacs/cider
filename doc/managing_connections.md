@@ -30,13 +30,13 @@ REPL buffer.
 You can obtain a list of all active connections using <kbd>M-x</kbd>
 `cider-connection-browser`. This buffer provides a few extra keybindings:
 
-Keyboard shortcut               | Description
---------------------------------|-------------------------------
-<kbd>d</kbd>                    | Make connection at point default.
-<kbd>k</kbd>                    | Close connection at point.
-<kbd>g</kbd>                    | Refresh connection browser.
-<kbd>RET</kbd>                  | Visit connection buffer.
-<kbd>q</kbd>                    | Close window.
+Command                              |Keyboard shortcut               | Description
+-------------------------------------|--------------------------------|-------------------------------
+`cider-connections-make-default`     |<kbd>d</kbd>                    | Make connection at point default.
+`cider-connections-close-connection` |<kbd>k</kbd>                    | Close connection at point.
+`cider-connection-browser`           |<kbd>g</kbd>                    | Refresh connection browser.
+`cider-connections-goto-connection`  |<kbd>RET</kbd>                  | Visit connection buffer.
+`cider-popup-buffer-quit-function`   |<kbd>q</kbd>                    | Close window.
 
 ## Switch to connection buffer
 

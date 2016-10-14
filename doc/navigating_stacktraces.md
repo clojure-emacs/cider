@@ -4,24 +4,24 @@ stacktraces.  Stacktraces are presented in a special major mode
 stack frames and some handy ways to navigate causes.  You'll also be able to go
 to the code in question with a single keystroke.
 
-Keyboard shortcut                    | Description
--------------------------------------|-------------------------------
-<kbd>M-p</kbd>                       | Move point to previous cause
-<kbd>M-n</kbd>                       | Move point to next cause
-<kbd>M-.</kbd> or <kbd>Return</kbd>  | Navigate to the source location (if available) for the stacktrace frame
-<kbd>Tab</kbd>                       | Cycle current cause detail
-<kbd>0</kbd> or <kbd>S-Tab</kbd>     | Cycle all cause detail
-<kbd>1</kbd>                         | Cycle cause #1 detail
-<kbd>2</kbd>                         | Cycle cause #2 detail
-<kbd>3</kbd>                         | Cycle cause #3 detail
-<kbd>4</kbd>                         | Cycle cause #4 detail
-<kbd>5</kbd>                         | Cycle cause #5 detail
-<kbd>j</kbd>                         | Toggle display of Java frames
-<kbd>c</kbd>                         | Toggle display of Clojure frames
-<kbd>r</kbd>                         | Toggle display of REPL frames
-<kbd>t</kbd>                         | Toggle display of tooling frames (e.g. compiler, nREPL middleware)
-<kbd>d</kbd>                         | Toggle display of duplicate frames
-<kbd>a</kbd>                         | Toggle display of all frames
+Command                                | Keyboard shortcut                   | Description
+---------------------------------------|-------------------------------------|--------------
+`cider-stacktrace-previous-cause`      |<kbd>M-p</kbd>                       | Move point to previous cause
+`cider-stacktrace-next-cause`          |<kbd>M-n</kbd>                       | Move point to next cause
+`cider-stacktrace-jump`                |<kbd>M-.</kbd> or <kbd>Return</kbd>  | Navigate to the source location (if available) for the stacktrace frame
+`cider-stacktrace-cycle-current-cause` |<kbd>Tab</kbd>                       | Cycle current cause detail
+`cider-stacktrace-cycle-all-causes`    |<kbd>0</kbd> or <kbd>S-Tab</kbd>     | Cycle all cause detail
+`cider-stacktrace-cycle-cause-1`       |<kbd>1</kbd>                         | Cycle cause #1 detail
+`cider-stacktrace-cycle-cause-2`       |<kbd>2</kbd>                         | Cycle cause #2 detail
+`cider-stacktrace-cycle-cause-3`       |<kbd>3</kbd>                         | Cycle cause #3 detail
+`cider-stacktrace-cycle-cause-4`       |<kbd>4</kbd>                         | Cycle cause #4 detail
+`cider-stacktrace-cycle-cause-5`       |<kbd>5</kbd>                         | Cycle cause #5 detail
+`cider-stacktrace-toggle-java`         |<kbd>j</kbd>                         | Toggle display of Java frames
+`cider-stacktrace-toggle-clj`          |<kbd>c</kbd>                         | Toggle display of Clojure frames
+`cider-stacktrace-toggle-repl`         |<kbd>r</kbd>                         | Toggle display of REPL frames
+`cider-stacktrace-toggle-tooling`      |<kbd>t</kbd>                         | Toggle display of tooling frames (e.g. compiler, nREPL middleware)
+`cider-stacktrace-toggle-duplicates`   |<kbd>d</kbd>                         | Toggle display of duplicate frames
+`cider-stacktrace-toggle-all`          |<kbd>a</kbd>                         | Toggle display of all frames
 
 You can configure whether the error buffer with stacktraces should be automatically
 shown on error. By default it will be displayed, but you can change this:
