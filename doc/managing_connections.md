@@ -36,7 +36,7 @@ Command                              |Keyboard shortcut               | Descript
 `cider-connections-close-connection` |<kbd>k</kbd>                    | Close connection at point.
 `cider-connection-browser`           |<kbd>g</kbd>                    | Refresh connection browser.
 `cider-connections-goto-connection`  |<kbd>RET</kbd>                  | Visit connection buffer.
-`cider--close-connection-buffer`     |<kbd>q</kbd>                    | Close window.
+`cider-popup-buffer-quit-function`   |<kbd>q</kbd>                    | Close window.
 
 ## Switch to connection buffer
 
