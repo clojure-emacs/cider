@@ -70,6 +70,7 @@
 ;;; Code:
 (require 'seq)
 (require 'cider-compat)
+(require 'cider-common)
 (require 'cl-lib)
 (require 'nrepl-dict)
 (require 'queue)
@@ -1072,7 +1073,8 @@ operations.")
 
 \\{nrepl-messages-mode-map}"
   (setq buffer-read-only t)
-  (setq-local truncate-lines t)
+  (when cider-special-mode-truncate-lines
+    (setq-local truncate-lines t))
   (setq-local electric-indent-chars nil)
   (setq-local comment-start ";")
   (setq-local comment-end "")

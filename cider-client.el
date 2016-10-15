@@ -388,7 +388,8 @@ connection but can be invoked from any buffer (like `cider-refresh')."
   "CIDER Connections Buffer Mode.
 \\{cider-connections-buffer-mode-map}
 \\{cider-popup-buffer-mode-map}"
-  (setq-local truncate-lines t))
+  (when cider-special-mode-truncate-lines
+    (setq-local truncate-lines t)))
 
 (defvar cider--connection-ewoc)
 (defconst cider--connection-browser-buffer-name "*cider-connections*")

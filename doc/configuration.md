@@ -125,6 +125,17 @@ More details can be found [here](https://github.com/clojure-emacs/cider/issues/9
 (setq cider-filter-regexps '(".*nrepl"))
 ```
 
+* By default contents of CIDER's special buffers such as `*cider-test-report*`
+  or `*cider-doc*` are line truncated. You can set
+  `cider-special-mode-truncate-lines` to `nil` to make those buffers use word
+  wrapping instead of line truncating.
+
+  This variable should be set before loading CIDER.
+
+``` el
+(setq cider-special-mode-truncate-lines nil)
+```
+
 ## Configuring eldoc
 
 * Enable `eldoc` in Clojure buffers:
