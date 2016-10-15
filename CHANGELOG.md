@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+### New Features
+
+* Add new customization variable `cider-special-mode-truncate-lines`.
+
+### Bugs Fixed
+
+* [#1707](https://github.com/clojure-emacs/cider/issues/1707): Allow to customize line truncating in CIDER's special buffers.
+
 ## 0.14.0 (2016-10-13)
 
 ### New Features

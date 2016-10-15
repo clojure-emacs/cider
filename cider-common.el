@@ -42,6 +42,13 @@ prompt if that throws an error."
   :group 'cider
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-special-mode-truncate-lines t
+  "If non-nil, contents of CIDER's special buffers will be line-truncated.
+Should be set before loading CIDER."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.15.0"))
+
 (defun cider--should-prompt-for-symbol (&optional invert)
   "Return the value of the variable `cider-prompt-for-symbol'.
 Optionally invert the value, if INVERT is truthy."

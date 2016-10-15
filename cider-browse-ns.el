@@ -71,7 +71,8 @@
 \\{cider-browse-ns-mode-map}"
   (setq buffer-read-only t)
   (setq-local electric-indent-chars nil)
-  (setq-local truncate-lines t)
+  (when cider-special-mode-truncate-lines
+    (setq-local truncate-lines t))
   (setq-local cider-browse-ns-current-ns nil))
 
 (defun cider-browse-ns--text-face (var-meta)
