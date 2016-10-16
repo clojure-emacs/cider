@@ -130,7 +130,8 @@ More details can be found [here](https://github.com/clojure-emacs/cider/issues/9
   `cider-special-mode-truncate-lines` to `nil` to make those buffers use word
   wrapping instead of line truncating.
 
-  This variable should be set before loading CIDER.
+  This variable should be set before loading CIDER (which means before
+  `require`-ing it or autoloading it).
 
 ``` el
 (setq cider-special-mode-truncate-lines nil)
