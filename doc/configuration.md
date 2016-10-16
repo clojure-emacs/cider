@@ -147,8 +147,8 @@ More details can be found [here](https://github.com/clojure-emacs/cider/issues/9
 
 ![Eldoc](images/eldoc.png)
 
-* CIDER also would show the eldoc for the symbol at point. So in (map inc ...)
-when the cursor is over inc its eldoc would be displayed. You can turn off this
+* CIDER also would show the eldoc for the symbol at point. So in `(map inc ...)`
+when the cursor is over `inc` its eldoc would be displayed. You can turn off this
 behaviour by:
 
 ```el
