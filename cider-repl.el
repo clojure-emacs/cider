@@ -113,6 +113,15 @@ change the setting's value."
   :type 'boolean
   :group 'cider-repl)
 
+(defcustom cider-repl-pretty-print-width nil
+  "Control the width of pretty printing on the REPL.
+This sets the wrap point for pretty printing on the repl.  If nil, it
+defaults to the variable `fill-column'."
+  :type '(restricted-sexp  :match-alternatives
+                          (integerp 'nil))
+  :group 'cider-repl
+  :package-version '(cider . "0.15.0"))
+
 (defcustom cider-repl-use-clojure-font-lock t
   "Non-nil means to use Clojure mode font-locking for input and result.
 Nil means that `cider-repl-input-face' and `cider-repl-result-face'
@@ -719,7 +728,7 @@ If NEWLINE is true then add a newline at the end of the input."
      (cider-column-number-at-pos input-start)
      (unless (or (not cider-repl-use-pretty-printing)
                  (string-match-p "\\`[ \t\r\n]*\\'" input))
-       (cider--nrepl-pprint-request-plist (1- (window-width)))))))
+       (cider--nrepl-pprint-request-plist (cider--pretty-print-width))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -788,6 +797,12 @@ text property `cider-old-input'."
   (setq cider-repl-use-pretty-printing (not cider-repl-use-pretty-printing))
   (message "Pretty printing in REPL %s."
            (if cider-repl-use-pretty-printing "enabled" "disabled")))
+
+(defun cider--pretty-print-width ()
+  "Returns the width to use for pretty-printing."
+  (or cider-repl-pretty-print-width
+      fill-column
+      80))
 
 (defun cider-repl-switch-to-other ()
   "Switch between the Clojure and ClojureScript REPLs for the current project."

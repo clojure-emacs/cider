@@ -995,7 +995,7 @@ CONTEXT represents a completion context for compliment."
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "formatted-code")))
 
-(defun cider-sync-request:format-edn (edn &optional right-margin)
+(defun cider-sync-request:format-edn (edn right-margin)
   "Perform \"format-edn\" op with EDN and RIGHT-MARGIN."
   (let* ((response (thread-first (list "op" "format-edn"
                                        "session" (cider-current-session)

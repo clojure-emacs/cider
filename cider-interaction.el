@@ -1141,13 +1141,11 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
   "Evaluate the expression preceding point and insert its pretty-printed result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (let* ((conn-buffer (cider-current-connection))
-         (right-margin (max fill-column
-                            (1- (window-width (get-buffer-window conn-buffer))))))
+  (let* ((conn-buffer (cider-current-connection)))
     (cider-interactive-eval nil
                             (cider-insert-eval-handler conn-buffer)
                             (cider-last-sexp 'bounds)
-                            (cider--nrepl-pprint-request-plist (or right-margin fill-column))))
+                            (cider--nrepl-pprint-request-plist (cider--pretty-print-width))))
   (when prefix
     (cider-switch-to-repl-buffer)))
 
@@ -1162,13 +1160,11 @@ Print its value into the current buffer."
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
   (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode))
-         (handler (cider-popup-eval-out-handler result-buffer))
-         (right-margin (max fill-column
-                            (1- (window-width (get-buffer-window result-buffer))))))
+         (handler (cider-popup-eval-out-handler result-buffer)))
     (cider-interactive-eval (when (stringp form) form)
                             handler
                             (when (consp form) form)
-                            (cider--nrepl-pprint-request-plist (or right-margin fill-column)))))
+                            (cider--nrepl-pprint-request-plist (cider--pretty-print-width)))))
 
 (defun cider-pprint-eval-last-sexp ()
   "Evaluate the sexp preceding point and pprint its value in a popup buffer."
@@ -1598,7 +1594,7 @@ of the buffer into a formatted string."
   (interactive)
   (cider-ensure-connected)
   (cider--format-buffer (lambda (edn)
-                          (cider-sync-request:format-edn edn fill-column))))
+                          (cider-sync-request:format-edn edn (cider--pretty-print-width)))))
 
 (defun cider--format-reindent (formatted start)
   "Reindent FORMATTED to align with buffer position START."
@@ -1632,7 +1628,7 @@ START and END represent the region's boundaries."
   (interactive "r")
   (cider-ensure-connected)
   (let* ((start-column (save-excursion (goto-char start) (current-column)))
-         (right-margin (- fill-column start-column)))
+         (right-margin (- (cider--pretty-print-width) start-column)))
     (cider--format-region start end
                           (lambda (edn)
                             (cider-sync-request:format-edn edn right-margin)))))
