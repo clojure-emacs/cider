@@ -69,7 +69,7 @@
 
 ;;; Code:
 (require 'seq)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'cl-lib)
 (require 'nrepl-dict)
 (require 'queue)

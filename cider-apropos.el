@@ -27,7 +27,7 @@
 
 (require 'cider-doc)
 (require 'cider-util)
-(require 'cider-compat)
+(require 'subr-x)
 
 (require 'cider-client)
 (require 'cider-popup)

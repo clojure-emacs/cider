@@ -23,7 +23,7 @@
 
 ;;; Code:
 
-(require 'cider-compat)
+(require 'subr-x)
 
 (define-minor-mode cider-popup-buffer-mode
   "Mode for CIDER popup buffers"

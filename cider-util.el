@@ -34,7 +34,7 @@
 (require 'seq)
 (require 'cl-lib)
 (require 'clojure-mode)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'nrepl-dict)
 
 (defalias 'cider-pop-back 'pop-tag-mark)

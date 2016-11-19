@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(require 'cider-compat)
+(require 'subr-x)
 (require 'nrepl-dict)
 (require 'cider-util)
 (require 'tramp)

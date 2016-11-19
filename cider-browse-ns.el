@@ -37,7 +37,7 @@
 
 (require 'cider-interaction)
 (require 'cider-client)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'cider-util)
 (require 'nrepl-dict)
 

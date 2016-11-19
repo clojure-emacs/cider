@@ -41,7 +41,7 @@
 (require 'cider-doc)
 (require 'cider-eldoc)
 (require 'cider-overlays)
-(require 'cider-compat)
+(require 'subr-x)
 
 (require 'clojure-mode)
 (require 'thingatpt)

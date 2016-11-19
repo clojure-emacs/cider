@@ -26,7 +26,7 @@
 ;;; Code:
 
 (require 'cider-common)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'cider-util)
 (require 'cider-popup)
 (require 'cider-client)

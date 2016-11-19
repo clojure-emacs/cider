@@ -32,7 +32,7 @@
 
 (require 'buttercup)
 (require 'cider)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'cl-lib)
 
 ;;; Docs

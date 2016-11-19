@@ -30,7 +30,7 @@
 (require 'button)
 (require 'easymenu)
 (require 'cider-common)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'cider-client)
 (require 'cider-util)
 

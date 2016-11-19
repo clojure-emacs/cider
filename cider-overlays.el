@@ -26,7 +26,7 @@
 ;;; Code:
 
 (require 'cider-common)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'cl-lib)
 
 
@@ -141,7 +141,7 @@ END is the position where the sexp ends, and defaults to point."
     (with-current-buffer (if (markerp end)
                              (marker-buffer end)
                            (current-buffer))
-      (save-excursion 
+      (save-excursion
         (if end
             (goto-char end)
           (setq end (point)))

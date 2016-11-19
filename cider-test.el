@@ -32,7 +32,7 @@
 (require 'cider-client)
 (require 'cider-popup)
 (require 'cider-stacktrace)
-(require 'cider-compat)
+(require 'subr-x)
 (require 'cider-overlays)
 
 (require 'button)

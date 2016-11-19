@@ -6,6 +6,10 @@
 
 * Add new customization variable `cider-special-mode-truncate-lines`.
 
+### Changes
+
+* Drop support for Emacs 24.3.
+
 ### Bugs Fixed
 
 * [#1707](https://github.com/clojure-emacs/cider/issues/1707): Allow to customize line truncating in CIDER's special buffers.

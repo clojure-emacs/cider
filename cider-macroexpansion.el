@@ -32,7 +32,7 @@
 ;;; Code:
 
 (require 'cider-mode)
-(require 'cider-compat)
+(require 'subr-x)
 
 (defconst cider-macroexpansion-buffer "*cider-macroexpansion*")
 

@@ -25,7 +25,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
-(require 'cider-compat)
+(require 'subr-x)
 
 (defvar cider-classpath-buffer "*cider-classpath*")
 

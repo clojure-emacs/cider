@@ -32,7 +32,7 @@
 (require 'cider-util)
 (require 'clojure-mode)
 
-(require 'cider-compat)
+(require 'subr-x)
 (require 'seq)
 
 ;;; Connection Buffer Management
