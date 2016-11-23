@@ -1,6 +1,7 @@
 sudo: true
 language: emacs-lisp
 env:
+  - EMACS_BINARY=emacs-24.3-bin PATH=$HOME/.evm/bin:$PATH MAKE_TEST=test
   - EMACS_BINARY=emacs-24.4-bin PATH=$HOME/.evm/bin:$PATH MAKE_TEST=test
   - EMACS_BINARY=emacs-24.5-bin PATH=$HOME/.evm/bin:$PATH MAKE_TEST=test
   - EMACS_BINARY=emacs-25.1-bin PATH=$HOME/.evm/bin:$PATH MAKE_TEST=test

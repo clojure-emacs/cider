@@ -33,7 +33,7 @@
 (require 'cider-inspector)
 (require 'cider-browse-ns)
 (require 'cider-common)
-(require 'subr-x)
+(require 'cider-compat)
 (require 'seq)
 (require 'spinner)
 
