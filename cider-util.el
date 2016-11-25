@@ -305,26 +305,6 @@ A codename is added to stable versions."
 
 ;;; Strings
 
-(defun cider-string-trim-left (string)
-  "Remove leading whitespace from STRING."
-  (if (string-match "\\`[ \t\n\r]+" string)
-      (replace-match "" t t string)
-    string))
-
-(defun cider-string-trim-right (string)
-  "Remove trailing whitespace from STRING."
-  (if (string-match "[ \t\n\r]+\\'" string)
-      (replace-match "" t t string)
-    string))
-
-(defun cider-string-trim (string)
-  "Remove leading and trailing whitespace from STRING."
-  (cider-string-trim-left (cider-string-trim-right string)))
-
-(defun cider-string-join (strings &optional separator)
-  "Join all STRINGS using SEPARATOR."
-  (mapconcat #'identity strings separator))
-
 (defun cider-join-into-alist (candidates &optional separator)
   "Make an alist from CANDIDATES.
 The keys are the elements joined with SEPARATOR and values are the original
@@ -332,7 +312,7 @@ elements.  Useful for `completing-read' when candidates are complex
 objects."
   (mapcar (lambda (el)
             (if (listp el)
-                (cons (cider-string-join el (or separator ":")) el)
+                (cons (string-join el (or separator ":")) el)
               (cons el el)))
           candidates))
 

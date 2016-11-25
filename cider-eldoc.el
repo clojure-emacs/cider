@@ -101,7 +101,7 @@ mapping `cider-eldoc-ns-function' on it returns an empty list."
       (format "(%s & %s more)"
               (thread-first eldoc-class-names
                 (seq-take cider-eldoc-max-class-names-to-display)
-                (cider-string-join " ")
+                (string-join " ")
                 (cider-propertize 'ns))
               (- eldoc-class-names-length cider-eldoc-max-class-names-to-display)))
 
@@ -109,7 +109,7 @@ mapping `cider-eldoc-ns-function' on it returns an empty list."
      ((> eldoc-class-names-length 1)
       (format "(%s)"
               (thread-first eldoc-class-names
-                (cider-string-join " ")
+                (string-join " ")
                 (cider-propertize 'ns))))
 
      ;; don't add the parentheses

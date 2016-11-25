@@ -228,7 +228,7 @@ Each element of LOCALS should be a list of at least two elements."
   ;; Force `default' face, otherwise the overlay "inherits" the face of the text
   ;; after it.
   (format (propertize "%s\n" 'face 'default)
-          (cider-string-join
+          (string-join
            (nrepl-dict-map (lambda (char cmd)
                              (when-let ((pos (cl-search char cmd)))
                                (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face cmd))

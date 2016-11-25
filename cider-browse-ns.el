@@ -172,7 +172,7 @@ Each item consists of a ns-var and the first line of its docstring."
 (defun cider-browse-ns--thing-at-point ()
   "Get the thing at point.
 Return a list of the type ('ns or 'var) and the value."
-  (let ((line (car (split-string (cider-string-trim (thing-at-point 'line)) " "))))
+  (let ((line (car (split-string (string-trim (thing-at-point 'line)) " "))))
     (if (string-match "\\." line)
         (list 'ns line)
       (list 'var (format "%s/%s"
