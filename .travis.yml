@@ -1,4 +1,4 @@
-sudo: true
+sudo: false
 language: emacs-lisp
 env:
   - EMACS_BINARY=emacs-24.4-travis MAKE_TEST=test
@@ -9,7 +9,8 @@ env:
   - MAKE_TEST=test-checks EMACS_BINARY=emacs-25.1-travis
 
 before_script:
-  - sh vagrant/provision.sh
+  - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
+  - evm install $EMACS_BINARY --use --skip
   - make elpa
 script:
   - make $MAKE_TEST
