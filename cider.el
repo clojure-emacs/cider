@@ -83,6 +83,7 @@ project inference will take place."
 (require 'cider-mode)
 (require 'cider-common)
 (require 'subr-x)
+(require 'cider-compat)
 (require 'cider-debug)
 (require 'tramp-sh)
 

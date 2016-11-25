@@ -31,6 +31,7 @@
 (require 'easymenu)
 (require 'cider-common)
 (require 'subr-x)
+(require 'cider-compat)
 (require 'cider-client)
 (require 'cider-util)
 

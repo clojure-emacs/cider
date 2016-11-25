@@ -27,6 +27,7 @@
 
 (require 'cider-common)
 (require 'subr-x)
+(require 'cider-compat)
 (require 'cl-lib)
 
 
@@ -148,7 +149,7 @@ END is the position where the sexp ends, and defaults to point."
         (clojure-forward-logical-sexp -1)
         ;; Create the green-circle overlay.
         (cider--make-overlay (point) end 'cider-fringe-indicator
-                         'before-string cider--fringe-overlay-good)))))
+                             'before-string cider--fringe-overlay-good)))))
 
 (cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result)
                                         (format (concat " " cider-eval-result-prefix "%s "))

@@ -33,6 +33,7 @@
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'subr-x)
+(require 'cider-compat)
 (require 'cider-overlays)
 
 (require 'button)

@@ -35,6 +35,7 @@
 (require 'cl-lib)
 (require 'clojure-mode)
 (require 'subr-x)
+(require 'cider-compat)
 (require 'nrepl-dict)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
