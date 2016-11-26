@@ -13,6 +13,7 @@ before_script:
   - evm install $EMACS_BINARY --use --skip
   - make elpa
 script:
+  - emacs --version
   - make $MAKE_TEST
 matrix:
   - env: EMACS_BINARY=emacs-git-snapshot-travis
