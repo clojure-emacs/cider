@@ -4,7 +4,7 @@ env:
   - EMACS_BINARY=emacs-24.4-travis MAKE_TEST=test
   - EMACS_BINARY=emacs-24.5-travis MAKE_TEST=test
   - EMACS_BINARY=emacs-25.1-travis MAKE_TEST=test
-  # - EMACS_BINARY=emacs-snapshot MAKE_TEST=test
+  - EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=test
   - MAKE_TEST=test-bytecomp EMACS_BINARY=emacs-25.1-travis
   - MAKE_TEST=test-checks EMACS_BINARY=emacs-25.1-travis
 
@@ -14,6 +14,8 @@ before_script:
   - make elpa
 script:
   - make $MAKE_TEST
+matrix:
+  - env: EMACS_BINARY=emacs-git-snapshot-travis
 
 notifications:
   webhooks:
