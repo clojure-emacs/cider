@@ -5,6 +5,7 @@
 ### New Features
 
 * Add new customization variable `cider-special-mode-truncate-lines`.
+* Add an option `cider-inspector-fill-frame` to control whether the cider inspector window fills its frame.
 
 ### Changes
 
