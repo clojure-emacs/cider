@@ -53,6 +53,12 @@ The page size can be also changed interactively within the inspector."
   :group 'cider-inspector
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-inspector-fill-frame nil
+  "Controls whether the cider inspector window fills its frame."
+  :type 'boolean
+  :group 'cider-inspector
+  :package-version '(cider . "0.15.0"))
+
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
@@ -242,6 +248,7 @@ Set the page size in paginated view to PAGE-SIZE."
   (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode)
   (cider-inspector-render cider-inspector-buffer value)
   (cider-popup-buffer-display cider-inspector-buffer t)
+  (when cider-inspector-fill-frame (delete-other-windows))
   (with-current-buffer cider-inspector-buffer
     (when (eq cider-inspector-last-command 'cider-inspector-pop)
       (setq cider-inspector-last-command nil)
