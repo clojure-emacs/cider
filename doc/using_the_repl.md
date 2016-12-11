@@ -70,6 +70,13 @@ Normally, the REPL buffer is auto-displayed in a separate window after
 (setq cider-repl-pop-to-buffer-on-connect nil)
 ```
 
+If you want the REPL buffer to be auto-displayed, but don't want it to be
+focused, use this:
+
+```el
+(setq cider-repl-pop-to-buffer-on-connect 'display-only)
+```
+
 #### Behavior on switch
 
 By default <kbd>C-c C-z</kbd> will display the REPL buffer in a different window.

@@ -84,8 +84,13 @@
 (defcustom cider-repl-pop-to-buffer-on-connect t
   "Controls whether to pop to the REPL buffer on connect.
 
-When set to nil the buffer will only be created."
-  :type 'boolean
+When set to nil the buffer will only be created, and not displayed.  When
+set to `display-only' the buffer will be displayed, but it will not become
+focused.  Otherwise the buffer is displayed and focused."
+  :type '(choice (const :tag "Create the buffer, but don't display it" nil)
+                 (const :tag "Create and display the buffer, but don't focus it"
+                   display-only)
+                 (const :tag "Create, display, and focus the buffer" t))
   :group 'cider-repl)
 
 (defcustom cider-repl-display-in-current-window nil
@@ -290,8 +295,9 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
     (cider-repl--insert-banner-and-prompt buffer))
   (when cider-repl-display-in-current-window
     (add-to-list 'same-window-buffer-names (buffer-name buffer)))
-  (when cider-repl-pop-to-buffer-on-connect
-    (pop-to-buffer buffer))
+  (pcase cider-repl-pop-to-buffer-on-connect
+    ('display-only (display-buffer buffer))
+    ((pred identity) (pop-to-buffer buffer)))
   (cider-remember-clojure-buffer cider-current-clojure-buffer)
   buffer)
 

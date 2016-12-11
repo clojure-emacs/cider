@@ -31,6 +31,7 @@ within the scope of your current Emacs session.
 * [#1789](https://github.com/clojure-emacs/cider/issues/1789): Make it easy to change the connection of the cider-scratch buffer from the mode's menu.
 * New interactive command `cider-toggle-buffer-connection`.
 * [#1861](https://github.com/clojure-emacs/cider/issues/1861): New interactive commands in message log buffer `nrepl-log-expand-button` and `nrepl-log-expand-all-buttons`.
+* [#1872](https://github.com/clojure-emacs/cider/issues/1872): Add new value `display-only` for option `cider-repl-pop-to-buffer-on-connect` that allows for showing the REPL buffer without focusing it.
 
 ### Changes
 
