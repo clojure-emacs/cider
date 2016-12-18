@@ -268,10 +268,10 @@ Elements of the list are artifact name and list of exclusions to apply for the a
 (defcustom cider-jack-in-auto-inject-clojure nil
   "Version of clojure to auto-inject into REPL.
 
-If nil, do not inject clojure into the REPL.  If `latest', inject
+If nil, do not inject Clojure into the REPL.  If `latest', inject
 `cider-latest-clojure-version', which should approximate to the most recent
-version of clojure.  If `minimal', inject `cider-minimum-clojure-version',
-which will be the lowest version cider supports.  If a string, use this as
+version of Clojure.  If `minimal', inject `cider-minimum-clojure-version',
+which will be the lowest version CIDER supports.  If a string, use this as
 the version number.  If it is a list, the first element should be a string,
 specifying the artifact ID, and the second element the version number."
   :type '(choice (const :tag "None" nil)
