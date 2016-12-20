@@ -765,7 +765,7 @@ Return the REPL buffer given by `cider-current-connection'.")
          (cider-current-session))))))
 
 (defun cider-current-session ()
-  "The REPL session to use for this buffer."
+  "Return the eval nREPL session id of the current connection."
   (with-current-buffer (cider-current-connection)
     nrepl-session))
 
@@ -774,7 +774,7 @@ Return the REPL buffer given by `cider-current-connection'.")
   (nrepl-messages-buffer (cider-current-connection)))
 
 (defun cider-current-tooling-session ()
-  "Return the current tooling session."
+  "Return the tooling nREPL session id of the current connection."
   (with-current-buffer (cider-current-connection)
     nrepl-tooling-session))
 
