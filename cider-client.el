@@ -766,7 +766,10 @@ Return the REPL buffer given by `cider-current-connection'.")
 
 (defun cider-current-session ()
   "Return the eval nREPL session id of the current connection."
-  (with-current-buffer (cider-current-connection)
+  (cider-session-for-connection (cider-current-connection)))
+
+(defun cider-session-for-connection (connection)
+  (with-current-buffer connection
     nrepl-session))
 
 (defun cider-current-messages-buffer ()
@@ -852,7 +855,9 @@ loaded.
 If CONNECTION is nil, use `cider-current-connection'.
 If CALLBACK is nil, use `cider-load-file-handler'."
   (cider-nrepl-send-request (list "op" "load-file"
-                                  "session" (cider-current-session)
+                                  "session" (if connection
+                                                (cider-session-for-connection connection)
+                                              (cider-current-session))
                                   "file" file-contents
                                   "file-path" file-path
                                   "file-name" file-name)
