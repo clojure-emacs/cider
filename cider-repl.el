@@ -296,7 +296,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (when cider-repl-display-in-current-window
     (add-to-list 'same-window-buffer-names (buffer-name buffer)))
   (pcase cider-repl-pop-to-buffer-on-connect
-    ('display-only (display-buffer buffer))
+    (`display-only (display-buffer buffer))
     ((pred identity) (pop-to-buffer buffer)))
   (cider-remember-clojure-buffer cider-current-clojure-buffer)
   buffer)
