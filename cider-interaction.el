@@ -1485,12 +1485,17 @@ the namespace tracker before reloading.  This is useful for recovering from
 some classes of error (for example, those caused by circular dependencies)
 that a normal reload would not otherwise recover from.  The trade-off of
 clearing is that stale code from any deleted files may not be completely
-unloaded."
+unloaded.
+
+With a negative prefix argument, or if MODE is `inhibit-fns', prevent any
+refresh functions (defined in cider-refresh-before-fn and
+cider-refresh-after-fn) from being invoked."
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
   (let ((clear? (member mode '(clear 16)))
-        (refresh-all? (member mode '(refresh-all 4))))
+        (refresh-all? (member mode '(refresh-all 4)))
+        (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
     (cider-map-connections
      (lambda (conn)
        ;; Inside the lambda, so the buffer is not created if we error out.
@@ -1498,14 +1503,18 @@ unloaded."
                              (cider-make-popup-buffer cider-refresh-log-buffer))))
          (when cider-refresh-show-log-buffer
            (cider-popup-buffer-display log-buffer))
+         (when inhibit-refresh-fns
+           (cider-emit-into-popup-buffer log-buffer "inhibiting refresh functions\n"))
          (when clear?
            (cider-nrepl-send-sync-request (list "op" "refresh-clear") conn))
          (cider-nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
                                                  "print-length" cider-stacktrace-print-length
                                                  "print-level" cider-stacktrace-print-level)
                                            (when (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn)))
-                                           (when cider-refresh-before-fn (list "before" cider-refresh-before-fn))
-                                           (when cider-refresh-after-fn (list "after" cider-refresh-after-fn)))
+                                           (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
+                                             (list "before" cider-refresh-before-fn))
+                                           (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
+                                             (list "after" cider-refresh-after-fn)))
                                    (lambda (response)
                                      (cider-refresh--handle-response response log-buffer))
                                    conn)))
