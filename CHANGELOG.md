@@ -16,6 +16,7 @@
 * [#1707](https://github.com/clojure-emacs/cider/issues/1707): Allow to customize line truncating in CIDER's special buffers.
 * [#1876](https://github.com/clojure-emacs/cider/issues/1876): Set pretty-printing width with `cider-repl-pretty-print-width`. If this variable is not set, fall back to `fill-column`.
 * [#1875](https://github.com/clojure-emacs/cider/issues/1875): Ensure cljc buffers can load buffer into both clj and cljs repls.
+* [#1897](https://github.com/clojure-emacs/cider/issues/1897): Bind TAB in stacktrace buffers in the terminal.
 
 ## 0.14.0 (2016-10-13)
 
