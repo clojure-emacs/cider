@@ -195,7 +195,7 @@ The error types are represented as strings."
     (define-key map "4" #'cider-stacktrace-cycle-cause-4)
     (define-key map "5" #'cider-stacktrace-cycle-cause-5)
     (define-key map "0" #'cider-stacktrace-cycle-all-causes)
-    (define-key map [tab] #'cider-stacktrace-cycle-current-cause)
+    (define-key map (kbd "TAB") #'cider-stacktrace-cycle-current-cause)
     (define-key map [backtab] #'cider-stacktrace-cycle-all-causes)
     (easy-menu-define cider-stacktrace-mode-menu map
       "Menu for CIDER's stacktrace mode"
