@@ -1488,8 +1488,8 @@ clearing is that stale code from any deleted files may not be completely
 unloaded.
 
 With a negative prefix argument, or if MODE is `inhibit-fns', prevent any
-refresh functions (defined in cider-refresh-before-fn and
-cider-refresh-after-fn) from being invoked."
+refresh functions (defined in `cider-refresh-before-fn' and
+`cider-refresh-after-fn') from being invoked."
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
