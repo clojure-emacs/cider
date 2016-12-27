@@ -1507,17 +1507,18 @@ refresh functions (defined in `cider-refresh-before-fn' and
            (cider-emit-into-popup-buffer log-buffer "inhibiting refresh functions\n"))
          (when clear?
            (cider-nrepl-send-sync-request (list "op" "refresh-clear") conn))
-         (cider-nrepl-send-request (append (list "op" (if refresh-all? "refresh-all" "refresh")
-                                                 "print-length" cider-stacktrace-print-length
-                                                 "print-level" cider-stacktrace-print-level)
-                                           (when (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn)))
-                                           (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
-                                             (list "before" cider-refresh-before-fn))
-                                           (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
-                                             (list "after" cider-refresh-after-fn)))
-                                   (lambda (response)
-                                     (cider-refresh--handle-response response log-buffer))
-                                   conn)))
+         (cider-nrepl-send-request
+          (append (list "op" (if refresh-all? "refresh-all" "refresh")
+                        "print-length" cider-stacktrace-print-length
+                        "print-level" cider-stacktrace-print-level)
+                  (when (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn)))
+                  (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
+                    (list "before" cider-refresh-before-fn))
+                  (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
+                    (list "after" cider-refresh-after-fn)))
+          (lambda (response)
+            (cider-refresh--handle-response response log-buffer))
+          conn)))
      :clj 'any-mode)))
 
 (defun cider-file-string (file)
