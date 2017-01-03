@@ -245,6 +245,10 @@ namespace-qualified function of zero arity."
     map)
   "Minibuffer keymap used for reading Clojure expressions.")
 
+(defvar-local cider-connection-created-with 'jack-in
+  "Save how the connection was created.
+Its value can be either 'jack-in or 'connect.")
+
 (defun cider-read-from-minibuffer (prompt &optional value)
   "Read a string from the minibuffer, prompting with PROMPT.
 If VALUE is non-nil, it is inserted into the minibuffer as initial-input.
@@ -1742,17 +1746,24 @@ and all ancillary CIDER buffers."
 (defun cider--restart-connection (conn)
   "Restart the connection CONN."
   (let ((project-dir (with-current-buffer conn nrepl-project-dir))
-        (buf-name (buffer-name conn)))
+        (buf-name (buffer-name conn))
+        ;; save these variables before we kill the connection
+        (conn-creation-method (with-current-buffer conn cider-connection-created-with))
+        (conn-endpoint  (with-current-buffer conn nrepl-endpoint)))
     (cider--quit-connection conn)
     ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
     ;; TODO: Find a better way to ensure `cider-quit' has finished
     (message "Waiting for CIDER connection %s to quit..."
              (cider-propertize buf-name 'bold))
     (sleep-for 2)
-    (if project-dir
-        (let ((default-directory project-dir))
-          (cider-jack-in))
-      (error "Can't restart CIDER connection for unknown project"))))
+    (pcase conn-creation-method
+      ('connect (apply #'cider-connect conn-endpoint))
+      ('jack-in (if project-dir
+                    (let ((default-directory project-dir))
+                      (cider-jack-in))
+                  (error "Can't restart CIDER connection for unknown project")))
+      (_ (error "Unexpected value %S for cider-connection-created-with"
+                conn-creation-method)))))
 
 (defun cider-restart (&optional restart-all)
   "Restart the currently active CIDER connection.
