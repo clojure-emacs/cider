@@ -35,6 +35,11 @@ customize the variable `cider-test-infer-test-ns`. It should be bound to a
 function that takes the current namespace and returns the matching test
 namespace (which may be the same as the current namespace).
 
+* If your individual tests are not defined by `deftest` or `defspec`, CIDER will
+not recognize them when searching for a test at point in `cider-test-run-test`.
+You can customize the variable `cider-test-defining-forms` to add additional
+forms for CIDER to recognize as individual test definitions.
+
 * If you want to view the test report regardless of whether the tests have
 passed or failed:
 

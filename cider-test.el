@@ -59,6 +59,15 @@
   :group 'cider-test
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-test-defining-forms '("deftest" "defspec")
+  "Forms that define individual tests.
+CIDER considers the top-level form around point to define a test if the
+form starts with one of these forms.
+Add to this list to have CIDER recognize additional test defining macros."
+  :type '(repeat string)
+  :group 'cider-test
+  :package-version '(cider . "0.15.0"))
+
 (defvar cider-test-last-summary nil
   "The summary of the last run test.")
 
@@ -680,7 +689,7 @@ is searched."
           (cider-test-execute ns (list var)))
       (let ((ns  (clojure-find-ns))
             (def (clojure-find-def)))
-        (if (and ns (member (car def) '("deftest" "defspec")))
+        (if (and ns (member (car def) cider-test-defining-forms))
             (progn
               (cider-test-update-last-test ns (cdr def))
               (cider-test-execute ns (cdr def)))

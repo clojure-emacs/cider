@@ -7,6 +7,7 @@
 * Add new customization variable `cider-special-mode-truncate-lines`.
 * Add an option `cider-inspector-fill-frame` to control whether the cider inspector window fills its frame.
 * [#1893](https://github.com/clojure-emacs/cider/issues/1893)Add negative prefix argument to `cider-refresh` to inhibit invoking of cider-refresh-functions
+* [#1776](https://github.com/clojure-emacs/cider/issues/1776)Add new customization variable `cider-test-defining-forms` allowing new test defining forms to be recognized.
 
 ### Changes
 
