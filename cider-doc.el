@@ -1,6 +1,6 @@
 ;;; cider-doc.el --- CIDER documentation functionality -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2016 Bozhidar Batsov, Jeff Valk and CIDER contributors
+;; Copyright © 2014-2017 Bozhidar Batsov, Jeff Valk and CIDER contributors
 
 ;; Author: Jeff Valk <jv@jeffvalk.com>
 
