@@ -406,6 +406,12 @@ The value can also be t, which means to font-lock as much as possible."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-font-lock-reader-conditionals t
+  "Apply font-locking to unused reader conditional expressions depending on the buffer CIDER connection type."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.15.0"))
+
 (defface cider-deprecated-face
   '((((background light)) :background "light goldenrod")
     (((background dark)) :background "#432"))
@@ -426,6 +432,101 @@ The value can also be t, which means to font-lock as much as possible."
   "Face used to mark code being traced."
   :group 'cider
   :package-version '(cider . "0.11.0"))
+
+(defface cider-reader-conditional-face
+  '((t (:inherit font-lock-comment-face)))
+  "Face used to mark unused reader conditional expressions."
+  :group 'cider
+  :package-version '(cider . "0.15.0"))
+
+(defconst cider-reader-conditionals-regexp "\\(?:#\\?@?[[:space:]\n]*(\\)"
+  "Regexp for matching reader conditionals with a non-capturing group.
+
+Starts from the reader macro characters to the opening parentheses.")
+
+(defvar cider--reader-conditionals-match-data (list nil nil)
+  "Reusable list for `match-data` in reader conditionals font lock matchers.")
+
+(defun cider--search-reader-conditionals (limit)
+  "Matcher for finding reader conditionals.
+
+Search is done with the given LIMIT."
+  (when (and cider-font-lock-reader-conditionals
+             (cider-connected-p))
+    (when (search-forward-regexp cider-reader-conditionals-regexp limit t)
+      (let ((start (match-beginning 0))
+            (state (syntax-ppss)))
+        (if (or (nth 3 state) (nth 4 state)) ; inside string or comment?
+            (cider--search-reader-conditionals limit)
+          (when (<= (point) limit)
+            (ignore-errors
+              (let ((md (match-data nil cider--reader-conditionals-match-data)))
+                (setf (nth 0 md) start)
+                (setf (nth 1 md) (point))
+                (set-match-data md)
+                t))))))))
+
+(defun cider--anchored-search-suppressed-forms-internal (limit)
+  "Helper function for `cider--anchored-search-suppressed-forms`.
+
+LIMIT is the same as the LIMIT in `cider--anchored-search-suppressed-forms`"
+  (let ((expr (read (current-buffer)))
+        (start (save-excursion (backward-sexp) (point))))
+    (when (<= (point) limit)
+      (forward-sexp)
+      (if (not (string-equal (symbol-name expr) (concat ":" (cider-connection-type-for-buffer))))
+          (ignore-errors
+            (cl-assert (<= (point) limit))
+            (let ((md (match-data nil cider--reader-conditionals-match-data)))
+              (setf (nth 0 md) start)
+              (setf (nth 1 md) (point))
+              (set-match-data md)
+              t))
+        (cider--anchored-search-suppressed-forms-internal limit)))))
+
+(defun cider--anchored-search-suppressed-forms (limit)
+  "Matcher for finding unused reader conditional expressions.
+
+An unused reader conditional expression is an expression for a platform
+that does not match the CIDER connection for the buffer.  Search is done
+with the given LIMIT."
+  (let ((result 'retry))
+    (while (and (eq result 'retry) (<= (point) limit))
+      (condition-case condition
+          (setq result (cider--anchored-search-suppressed-forms-internal limit))
+        (invalid-read-syntax
+         (setq result 'retry))
+        (wrong-type-argument
+         (setq result 'retry))
+        (scan-error
+         (setq result 'retry))
+        (end-of-file
+         (setq result nil))
+        (error
+         (setq result nil)
+         (display-warning
+          '(cider warning)
+          (format
+           (concat "Caught error during fontification while searching for forms\n"
+                   "that are suppressed by reader-conditionals. The error was: %S.")
+           condition)))))
+    (if (eq result 'retry) (setq result nil))
+    result))
+
+(defconst cider--reader-conditionals-font-lock-keywords
+  '((cider--search-reader-conditionals
+     (cider--anchored-search-suppressed-forms
+      (save-excursion
+        (let* ((state (syntax-ppss))
+               (list-pt (nth 1 state)))
+          (when list-pt
+            (goto-char list-pt)
+            (forward-list)
+            (backward-char)
+            (point))))
+      nil
+      (0 'cider-reader-conditional-face t))))
+  "Font Lock keywords for unused reader conditionals in CIDER mode.")
 
 (defun cider--unless-local-match (value)
   "Return VALUE, unless `match-string' is a local var."
@@ -721,6 +822,7 @@ property."
                      #'cider-complete-at-point)
         (font-lock-add-keywords nil cider--static-font-lock-keywords)
         (cider-refresh-dynamic-font-lock)
+        (font-lock-add-keywords nil cider--reader-conditionals-font-lock-keywords)
         ;; `font-lock-mode' might get enabled after `cider-mode'.
         (add-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock nil 'local)
         (setq-local font-lock-fontify-region-function
@@ -739,6 +841,7 @@ property."
                                   font-lock-fontify-region-function
                                   clojure-get-indent-function))
     (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
+    (font-lock-add-keywords nil cider--reader-conditionals-font-lock-keywords)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
     (font-lock-remove-keywords nil cider--static-font-lock-keywords)
     (cider--font-lock-flush)))
