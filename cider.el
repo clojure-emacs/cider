@@ -562,6 +562,8 @@ gets associated with it."
     (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer repl-buff)
            (conn (process-buffer (nrepl-start-client-process host port))))
+      (with-current-buffer conn
+        (setq cider-connection-created-with 'connect))
       (if project-dir
           (cider-assoc-project-with-connection project-dir conn)
         (let ((project-dir (clojure-project-dir)))

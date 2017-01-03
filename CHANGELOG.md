@@ -19,6 +19,7 @@
 * [#1876](https://github.com/clojure-emacs/cider/issues/1876): Set pretty-printing width with `cider-repl-pretty-print-width`. If this variable is not set, fall back to `fill-column`.
 * [#1875](https://github.com/clojure-emacs/cider/issues/1875): Ensure cljc buffers can load buffer into both clj and cljs repls.
 * [#1897](https://github.com/clojure-emacs/cider/issues/1897): Bind TAB in stacktrace buffers in the terminal.
+* [#1895](https://github.com/clojure-emacs/cider/issues/1895): Connect to the same host:port after `cider-restart` if the connection was established with `cider-connect`.
 
 ## 0.14.0 (2016-10-13)
 
