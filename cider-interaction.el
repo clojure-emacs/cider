@@ -1757,8 +1757,8 @@ and all ancillary CIDER buffers."
              (cider-propertize buf-name 'bold))
     (sleep-for 2)
     (pcase conn-creation-method
-      ('connect (apply #'cider-connect conn-endpoint))
-      ('jack-in (if project-dir
+      (`connect (apply #'cider-connect conn-endpoint))
+      (`jack-in (if project-dir
                     (let ((default-directory project-dir))
                       (cider-jack-in))
                   (error "Can't restart CIDER connection for unknown project")))
