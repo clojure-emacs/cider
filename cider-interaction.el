@@ -1762,7 +1762,7 @@ and all ancillary CIDER buffers."
                     (let ((default-directory project-dir))
                       (cider-jack-in))
                   (error "Can't restart CIDER connection for unknown project")))
-      (_ (error "Unexpected value %S for cider-connection-created-with"
+      (_ (error "Unexpected value %S for `cider-connection-created-with'"
                 conn-creation-method)))))
 
 (defun cider-restart (&optional restart-all)
