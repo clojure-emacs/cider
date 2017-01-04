@@ -63,30 +63,5 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
-## Running the tests in batch mode
-
-Install [cask](https://github.com/cask/cask) if you haven't
-already, then:
-
-```
-$ cd /path/to/cider
-$ cask
-```
-
-Run all tests with:
-
-```
-$ make test
-```
-
-(Note: tests may not run correctly inside Emacs' `shell-mode` buffers. Running
-them in a terminal is recommended.)
-
-You can also check for the presence of byte-compilation warnings in batch mode:
-
-```
-$ make test-bytecomp
-```
-
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure
