@@ -631,14 +631,16 @@ The handler simply inserts the result value in BUFFER."
 The OUTPUT can be sent to either a dedicated output buffer or the current
 REPL buffer.  This is controlled by `cider-interactive-eval-output-destination'.
 REPL-EMIT-FUNCTION emits the OUTPUT."
-  (pcase cider-interactive-eval-output-destination
-    (`output-buffer (let ((output-buffer (or (get-buffer cider-output-buffer)
-                                             (cider-popup-buffer cider-output-buffer t))))
-                      (cider-emit-into-popup-buffer output-buffer output)
-                      (pop-to-buffer output-buffer)))
-    (`repl-buffer (funcall repl-emit-function output))
-    (_ (error "Unsupported value %s for `cider-interactive-eval-output-destination'"
-              cider-interactive-eval-output-destination))))
+  (let ((buffer (cider--interactive-out-buffer output cider-interactive-eval-output-destination)))
+    (pcase buffer
+      (`output-buffer (let ((output-buffer (or (get-buffer cider-output-buffer)
+                                               (cider-popup-buffer cider-output-buffer t))))
+                        (cider-emit-into-popup-buffer output-buffer output)
+                        (pop-to-buffer output-buffer)))
+      (`repl-buffer (funcall repl-emit-function output))
+      (_ (let ((output-buffer (or (get-buffer buffer) (cider-popup-buffer buffer t))))
+           (cider-emit-into-popup-buffer output-buffer output)
+           (pop-to-buffer buffer))))))
 
 (defun cider-emit-interactive-eval-output (output)
   "Emit OUTPUT resulting from interactive code evaluation.
