@@ -5,7 +5,7 @@
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Gratipay Team](https://img.shields.io/gratipay/team/cider.svg?maxAge=2592000)](https://gratipay.com/cider/)
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
-[![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#backers) 
+[![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#backers)
 [![OpenCollective](https://opencollective.com/cider/sponsors/badge.svg)](#sponsors)
 
 <p align="center">
@@ -155,9 +155,8 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
-
-
 ## Open Collective Backers
+
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/cider#backer)]
 
 <a href="https://opencollective.com/cider/backer/0/website" target="_blank"><img src="https://opencollective.com/cider/backer/0/avatar.svg"></a>
@@ -193,7 +192,9 @@ Support us with a monthly donation and help us continue our activities. [[Become
 
 
 ## Open Collective Sponsors
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/cider#sponsor)]
+
+Become a sponsor and get your logo on our README on Github with a link to your
+site. [[Become a sponsor](https://opencollective.com/cider#sponsor)]
 
 <a href="https://opencollective.com/cider/sponsor/0/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/0/avatar.svg"></a>
 <a href="https://opencollective.com/cider/sponsor/1/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/1/avatar.svg"></a>
