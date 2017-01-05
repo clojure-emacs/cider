@@ -5,6 +5,8 @@
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Gratipay Team](https://img.shields.io/gratipay/team/cider.svg?maxAge=2592000)](https://gratipay.com/cider/)
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
+[![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#backers) 
+[![OpenCollective](https://opencollective.com/cider/sponsors/badge.svg)](#sponsors)
 
 <p align="center">
   <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
@@ -152,6 +154,77 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 [![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.1.3/dist/gratipay.png)](https://gratipay.com/cider)
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
+
+
+
+## Open Collective Backers
+Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/cider#backer)]
+
+<a href="https://opencollective.com/cider/backer/0/website" target="_blank"><img src="https://opencollective.com/cider/backer/0/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/1/website" target="_blank"><img src="https://opencollective.com/cider/backer/1/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/2/website" target="_blank"><img src="https://opencollective.com/cider/backer/2/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/3/website" target="_blank"><img src="https://opencollective.com/cider/backer/3/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/4/website" target="_blank"><img src="https://opencollective.com/cider/backer/4/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/5/website" target="_blank"><img src="https://opencollective.com/cider/backer/5/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/6/website" target="_blank"><img src="https://opencollective.com/cider/backer/6/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/7/website" target="_blank"><img src="https://opencollective.com/cider/backer/7/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/8/website" target="_blank"><img src="https://opencollective.com/cider/backer/8/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/9/website" target="_blank"><img src="https://opencollective.com/cider/backer/9/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/10/website" target="_blank"><img src="https://opencollective.com/cider/backer/10/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/11/website" target="_blank"><img src="https://opencollective.com/cider/backer/11/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/12/website" target="_blank"><img src="https://opencollective.com/cider/backer/12/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/13/website" target="_blank"><img src="https://opencollective.com/cider/backer/13/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/14/website" target="_blank"><img src="https://opencollective.com/cider/backer/14/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/15/website" target="_blank"><img src="https://opencollective.com/cider/backer/15/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/16/website" target="_blank"><img src="https://opencollective.com/cider/backer/16/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/17/website" target="_blank"><img src="https://opencollective.com/cider/backer/17/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/18/website" target="_blank"><img src="https://opencollective.com/cider/backer/18/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/19/website" target="_blank"><img src="https://opencollective.com/cider/backer/19/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/20/website" target="_blank"><img src="https://opencollective.com/cider/backer/20/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/21/website" target="_blank"><img src="https://opencollective.com/cider/backer/21/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/22/website" target="_blank"><img src="https://opencollective.com/cider/backer/22/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/23/website" target="_blank"><img src="https://opencollective.com/cider/backer/23/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/24/website" target="_blank"><img src="https://opencollective.com/cider/backer/24/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/25/website" target="_blank"><img src="https://opencollective.com/cider/backer/25/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/26/website" target="_blank"><img src="https://opencollective.com/cider/backer/26/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/27/website" target="_blank"><img src="https://opencollective.com/cider/backer/27/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/28/website" target="_blank"><img src="https://opencollective.com/cider/backer/28/avatar.svg"></a>
+<a href="https://opencollective.com/cider/backer/29/website" target="_blank"><img src="https://opencollective.com/cider/backer/29/avatar.svg"></a>
+
+
+## Open Collective Sponsors
+Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/cider#sponsor)]
+
+<a href="https://opencollective.com/cider/sponsor/0/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/1/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/2/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/3/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/4/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/5/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/6/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/7/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/8/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/9/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/9/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/10/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/10/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/11/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/11/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/12/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/12/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/13/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/13/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/14/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/14/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/15/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/15/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/16/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/16/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/17/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/17/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/18/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/18/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/19/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/19/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/20/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/20/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/21/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/21/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/22/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/22/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/23/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/23/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/24/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/24/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/25/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/25/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/26/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/26/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/27/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/27/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/28/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/28/avatar.svg"></a>
+<a href="https://opencollective.com/cider/sponsor/29/website" target="_blank"><img src="https://opencollective.com/cider/sponsor/29/avatar.svg"></a>
 
 ## License
 
