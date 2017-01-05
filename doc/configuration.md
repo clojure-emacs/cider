@@ -137,6 +137,22 @@ More details can be found [here](https://github.com/clojure-emacs/cider/issues/9
 (setq cider-special-mode-truncate-lines nil)
 ```
 
+* You can redirect certain type of output to buffers instead of the REPL.
+  This is configured by adding mappings between regular expressions and
+  buffers in `cider-redirect-output-regexps`. Any output that matches any
+  regular expression will be redirected to the corresponding buffer.
+  Note that if there are multiple matches, the first match is used,
+  and a warning is displayed.
+
+  Consider this example;
+
+```el
+(setq cider-redirect-output-regexps '(("INFO: .*" . "*cider-log*")))
+```
+
+  This would cause all output strings containg "INFO" (logging output)
+  to be redirected to the `*cider-log*` buffer.
+
 ## Configuring eldoc
 
 * Enable `eldoc` in Clojure buffers:

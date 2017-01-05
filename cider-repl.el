@@ -89,7 +89,7 @@ set to `display-only' the buffer will be displayed, but it will not become
 focused.  Otherwise the buffer is displayed and focused."
   :type '(choice (const :tag "Create the buffer, but don't display it" nil)
                  (const :tag "Create and display the buffer, but don't focus it"
-                   display-only)
+                        display-only)
                  (const :tag "Create, display, and focus the buffer" t))
   :group 'cider-repl)
 
@@ -123,7 +123,7 @@ change the setting's value."
 This sets the wrap point for pretty printing on the repl.  If nil, it
 defaults to the variable `fill-column'."
   :type '(restricted-sexp  :match-alternatives
-                          (integerp 'nil))
+                           (integerp 'nil))
   :group 'cider-repl
   :package-version '(cider . "0.15.0"))
 
@@ -154,6 +154,16 @@ you'd like to use the default Emacs behavior use
   :type 'boolean
   :group 'cider-repl
   :package-version '(cider . "0.11.0"))
+
+(defcustom cider-redirect-output-regexps
+  '()
+  "A list to define mappings from regexps to buffer names.
+Output matching the regexps would be redirected to the corresponding buffers.
+For example, if the value is ((\"INFO: .*\" . \"*cider-log*\")), all output
+strings containing INFO, would be redirected to the *cider-log* buffer."
+  :type 'list
+  :group 'cider
+  :package-version '(cider . "0.15.0"))
 
 
 ;;;; REPL buffer local variables
@@ -571,12 +581,29 @@ If BOL is non-nil insert at the beginning of line."
             (set-marker cider-repl-output-end (1- (point)))))))
     (cider-repl--show-maximum-output)))
 
+(defun cider--interactive-out-buffer (string default)
+  "Return a buffer to emit output to.
+If STRING matches with any of the regexps from `cider-redirect-output-regexps',
+return the corresponding buffer.  Otherwise, return DEFAULT."
+  (let ((buffer-candidates (seq-reduce (lambda (acc p)
+                                         (if (string-match-p (car p) string)
+                                             (cons (cdr p) acc)
+                                           acc))
+                                       cider-redirect-output-regexps '())))
+    (when (> (length buffer-candidates) 1)
+      (warn "Multiple regexps matched in cider-interactive-output-map, %s" string))
+    (or (car buffer-candidates) default)))
+
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
-  (with-current-buffer (cider-current-repl-buffer)
-    (let ((pos (cider-repl--end-of-line-before-input-start))
-          (string (replace-regexp-in-string "\n\\'" "" string)))
-      (cider-repl--emit-output-at-pos (current-buffer) string face pos t))))
+  (let ((buffer (cider--interactive-out-buffer string (cider-current-repl-buffer))))
+    (if (eq buffer (cider-current-repl-buffer))
+        (let ((pos (cider-repl--end-of-line-before-input-start))
+              (string (replace-regexp-in-string "\n\\'" "" string)))
+          (cider-repl--emit-output-at-pos (current-buffer) string face pos t))
+      (let ((output-buffer (or (get-buffer buffer) (cider-popup-buffer buffer t))))
+        (cider-emit-into-popup-buffer output-buffer string)
+        (pop-to-buffer buffer)))))
 
 (defun cider-repl-emit-interactive-stdout (string)
   "Emit STRING as interactive output."
@@ -599,8 +626,12 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
 (defun cider-repl--emit-output (buffer string face &optional bol)
   "Using BUFFER, emit STRING font-locked with FACE.
 If BOL is non-nil, emit at the beginning of the line."
-  (with-current-buffer buffer
-    (cider-repl--emit-output-at-pos buffer string face cider-repl-input-start-mark bol)))
+  (let ((buf (cider--interactive-out-buffer string buffer)))
+    (if (eq buf buffer)
+        (cider-repl--emit-output-at-pos buf string face cider-repl-input-start-mark bol)
+      (let ((output-buffer (or (get-buffer buf) (cider-popup-buffer buf t))))
+        (cider-emit-into-popup-buffer output-buffer string)
+        (pop-to-buffer buf)))))
 
 (defun cider-repl-emit-stdout (buffer string)
   "Using BUFFER, emit STRING as standard output."
