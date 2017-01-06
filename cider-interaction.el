@@ -600,6 +600,22 @@ in the buffer."
                                         (cider-eldoc-thing-type eldoc-info))
               (cider-eldoc-format-arglist arglists 0)))))
 
+;; Fuzzy completion for company-mode
+
+(defun cider-company-unfiltered-candidates (string table predicate point)
+  "Return CIDER completion candidates as is, without filtering them by prefix."
+  (cider-complete string))
+
+(add-to-list 'completion-styles-alist
+             '(cider
+               cider-company-unfiltered-candidates
+               cider-company-unfiltered-candidates
+               "CIDER backend-driven completion style."))
+
+(defun cider-company-enable-fuzzy-completion ()
+  "Enable backend-driven fuzzy completion in the current buffer."
+  (setq-local completion-styles '(cider)))
+
 (defun cider-stdin-handler (&optional buffer)
   "Make a stdin response handler for BUFFER."
   (nrepl-make-response-handler (or buffer (current-buffer))
