@@ -74,6 +74,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * [Pretty-printing of results](configuration.md#pretty-printing)
 * [Classpath browser](miscellaneous_features.md#classpath-browser)
 * [Namespace browser](miscellaneous_features.md#namespace-browser)
+* [REPL history browser](miscellaneous_features.md#repl-history-browser)
 * nREPL session management
 * [Scratchpad](miscellaneous_features.md#using-a-scratchpad)
 * [Minibuffer code evaluation](miscellaneous_features.md#evaluating-clojure-code-in-the-minibuffer)

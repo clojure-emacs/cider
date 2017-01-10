@@ -610,6 +610,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "Press <\\[cider-drink-a-sip]> to get more CIDER tips."
     "Press <\\[cider-browse-ns-all]> to start CIDER's namespace browser."
     "Press <\\[cider-classpath]> to start CIDER's classpath browser."
+    "Press <\\[cider-repl-history]> to start CIDER's REPL input history browser."
     "Press <\\[cider-macroexpand-1]> to expand the preceding macro."
     "Press <\\[cider-inspect]> to inspect the preceding expression's result."
     "Press <C-u \\[cider-inspect]> to inspect the defun at point's result."
