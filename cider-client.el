@@ -224,6 +224,8 @@ such a link cannot be established automatically."
 (defun cider-connection-type-for-buffer ()
   "Return the matching connection type (clj or cljs) for the current buffer."
   (cond
+   ;; cljc mode must be first as it derives from clj mode
+   ((derived-mode-p 'clojurec-mode) "cljc")
    ((derived-mode-p 'clojurescript-mode) "cljs")
    ((derived-mode-p 'clojure-mode) "clj")
    (cider-repl-type)
@@ -272,7 +274,12 @@ at all."
                 (guessed-type (or type (cider-connection-type-for-buffer))))
             ;; So we have multiple connections. Look for the connection type we
             ;; want, prioritizing the current project.
-            (or (seq-find (lambda (conn)
+
+            ;; when cljc buffer, use the first connection (you can rotate this
+            ;; to set priority
+            (or (when (string= "cljc" guessed-type)
+                  (car connections))
+                (seq-find (lambda (conn)
                             (equal (cider--connection-type conn) guessed-type))
                           project-connections)
                 (seq-find (lambda (conn)
