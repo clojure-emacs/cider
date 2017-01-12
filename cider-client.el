@@ -210,10 +210,9 @@ such a link cannot be established automatically."
   "Toggles the current buffer's connection between Clojure and ClojureScript."
   (interactive)
   (cider-ensure-connected)
-  (let ((other-conn (cider-other-connection)))
-    (if other-conn
-        (setq-local cider-connections (list other-conn))
-      (user-error "No other connection available"))))
+  (when-let ((conns (cider-connections)))
+    (setq-local cider-connections (append (rest conns) (list (car conns))))
+    (message "Repl type default set to: %s" (cider--connection-type (car (cider-connections))))))
 
 (defun cider-clear-buffer-local-connection ()
   "Remove association between the current buffer and a connection."
