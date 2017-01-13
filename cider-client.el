@@ -211,7 +211,7 @@ such a link cannot be established automatically."
   (interactive)
   (cider-ensure-connected)
   (when-let ((conns (cider-connections)))
-    (setq-local cider-connections (append (rest conns) (list (car conns))))
+    (setq-local cider-connections (append (cdr conns) (list (car conns))))
     (message "Repl type default set to: %s" (cider--connection-type (car (cider-connections))))))
 
 (defun cider-clear-buffer-local-connection ()
