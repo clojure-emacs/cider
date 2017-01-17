@@ -1099,6 +1099,7 @@ described by `nrepl-message-buffer-name-template'."
         (re-search-forward "^(" nil t)
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
+      (insert (format-time-string "%Y-%m-%0d %H:%M:%S.%N\n"))
       (nrepl-log-pp-object (nrepl-decorate-msg msg type)
                            (nrepl-log--message-color (lax-plist-get (cdr msg) "id"))
                            t)
