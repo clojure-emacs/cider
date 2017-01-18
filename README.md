@@ -201,7 +201,6 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 <a href="https://opencollective.com/cider/backer/28/website" target="_blank"><img src="https://opencollective.com/cider/backer/28/avatar.svg"></a>
 <a href="https://opencollective.com/cider/backer/29/website" target="_blank"><img src="https://opencollective.com/cider/backer/29/avatar.svg"></a>
 
-
 ### Open Collective Sponsors
 
 Become a sponsor and get your logo on our README on Github with a link to your
