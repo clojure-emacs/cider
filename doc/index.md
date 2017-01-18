@@ -15,8 +15,8 @@ so on.
 CIDER is the successor to the now deprecated combination of using [SLIME][] +
 [swank-clojure][] for Clojure development.
 
-Please consider
-[supporting financially its ongoing development](about/contributing.md#funding).
+**Please consider
+[supporting financially its ongoing development](about/contributing.md#funding).**
 
 ## Overview
 
