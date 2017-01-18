@@ -25,7 +25,7 @@ so on.
 CIDER is the successor to the now deprecated combination of using [SLIME][] +
 [swank-clojure][] for Clojure development.
 
-If you like the project, please consider [supporting its ongoing development](#donations).
+Please consider [supporting financially its ongoing development](#funding).
 
 ## Quickstart
 
@@ -145,7 +145,19 @@ the logo in various formats
 The logo is licensed under a
 [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_GB).
 
-## Donations
+## Funding
+
+While CIDER is free software and will always be, the project would benefit immensely from some funding.
+Raising a monthly budget of a couple of thousand dollars would make it possible to pay people to work on
+certain complex features, fund other development related stuff (e.g. hardware, conference trips) and so on.
+Raising a monthly budget of over $5000 would open the possibility of someone working full-time on the project
+which would speed up the work on the project significantly.
+
+We welcome both individual and corporate sponsors! We also offer a wide array of funding channels to account
+for your preferences (although currently Open Collective is our preferred funding platform).
+
+If you're working in a company that's making significant use of CIDER we'd appreciate it if you suggest to your company
+to become a CIDER sponsor.
 
 You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
 [Salt](https://salt.bountysource.com/teams/cider),
@@ -157,7 +169,6 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 
 ### Open Collective Backers
 
-Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/cider#backer)]
 
 <a href="https://opencollective.com/cider/backer/0/website" target="_blank"><img src="https://opencollective.com/cider/backer/0/avatar.svg"></a>
 <a href="https://opencollective.com/cider/backer/1/website" target="_blank"><img src="https://opencollective.com/cider/backer/1/avatar.svg"></a>
