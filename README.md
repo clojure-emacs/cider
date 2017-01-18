@@ -155,7 +155,7 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
-## Open Collective Backers
+### Open Collective Backers
 
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/cider#backer)]
 
@@ -191,7 +191,7 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/cider/backer/29/website" target="_blank"><img src="https://opencollective.com/cider/backer/29/avatar.svg"></a>
 
 
-## Open Collective Sponsors
+### Open Collective Sponsors
 
 Become a sponsor and get your logo on our README on Github with a link to your
 site. [[Become a sponsor](https://opencollective.com/cider#sponsor)]
