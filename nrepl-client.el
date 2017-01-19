@@ -115,6 +115,11 @@ The `nrepl-buffer-name-separator' separates cider-repl from the project name."
   :type 'boolean
   :group 'nrepl)
 
+(defcustom nrepl-use-ssh-fallback-for-remote-hosts nil
+  "If non-nil, attempt to connect via ssh to remote hosts when unable to connect directly."
+  :type 'boolean
+  :group 'nrepl)
+
 (defcustom nrepl-sync-request-timeout 10
   "The number of seconds to wait for a sync response.
 Setting this to nil disables the timeout functionality."
@@ -513,17 +518,22 @@ and kill the process buffer."
 For local hosts use a direct connection.  For remote hosts, if
 `nrepl-force-ssh-for-remote-hosts' is nil, attempt a direct connection
 first.  If `nrepl-force-ssh-for-remote-hosts' is non-nil or the direct
-connection failed, try to start a SSH tunneled connection.  Return a plist
-of the form (:proc PROC :host \"HOST\" :port PORT) that might contain
-additional key-values depending on the connection type."
+connection failed (and `nrepl-use-ssh-fallback-for-remote-hosts' is
+non-nil), try to start a SSH tunneled connection.  Return a plist of the
+form (:proc PROC :host \"HOST\" :port PORT) that might contain additional
+key-values depending on the connection type."
   (let ((localp (if host
                     (nrepl-local-host-p host)
                   (not (file-remote-p default-directory)))))
     (if localp
         (nrepl--direct-connect (or host "localhost") port)
-      (or (and host (not nrepl-force-ssh-for-remote-hosts)
-               (nrepl--direct-connect host port 'no-error))
-          (nrepl--ssh-tunnel-connect host port)))))
+      ;; we're dealing with a remote host
+      (if (and host (not nrepl-force-ssh-for-remote-hosts))
+          (nrepl--direct-connect host port 'no-error)
+        ;; direct connection failed or `nrepl-force-ssh-for-remote-hosts' is non-nil
+        (when (or nrepl-use-ssh-fallback-for-remote-hosts
+                  nrepl-force-ssh-for-remote-hosts)
+          (nrepl--ssh-tunnel-connect host port))))))
 
 (defun nrepl--direct-connect (host port &optional no-error)
   "If HOST and PORT are given, try to `open-network-stream'.

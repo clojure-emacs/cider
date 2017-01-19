@@ -11,10 +11,12 @@
 * [#1860](https://github.com/clojure-emacs/cider/issues/1860): Add `cider-repl-history` to browse the REPL input history and insert elements from it into the REPL buffer.
 * Add new customization variable `cider-font-lock-reader-conditionals` which toggles syntax highlighting of reader conditional expressions based on the buffer connection.
 * Add new face `cider-reader-conditional-face` which is used to mark unused reader conditional expressions.
+* [#1544](https://github.com/clojure-emacs/cider/issues/1544): Add a new defcustom `nrepl-use-ssh-fallback-for-remote-hosts` to control the behavior of `nrepl-connect` (and in turn that of `cider-connect`) for remote hosts.
 
 ### Changes
 
 * Drop support for Emacs 24.3.
+* Don't try to use ssh automatically when connecting to remote hosts and a direct connection fails. See `nrepl-use-ssh-fallback-for-remote-hosts`.
 
 ### Bugs Fixed
 
