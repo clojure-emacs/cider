@@ -519,7 +519,7 @@ additional key-values depending on the connection type."
   (let ((localp (if host
                     (nrepl-local-host-p host)
                   (not (file-remote-p default-directory)))))
-    (if  localp
+    (if localp
         (nrepl--direct-connect (or host "localhost") port)
       (or (and host (not nrepl-force-ssh-for-remote-hosts)
                (nrepl--direct-connect host port 'no-error))
