@@ -170,7 +170,6 @@ You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] v
 
 ### Open Collective Backers
 
-
 <a href="https://opencollective.com/cider/backer/0/website" target="_blank"><img src="https://opencollective.com/cider/backer/0/avatar.svg"></a>
 <a href="https://opencollective.com/cider/backer/1/website" target="_blank"><img src="https://opencollective.com/cider/backer/1/avatar.svg"></a>
 <a href="https://opencollective.com/cider/backer/2/website" target="_blank"><img src="https://opencollective.com/cider/backer/2/avatar.svg"></a>
