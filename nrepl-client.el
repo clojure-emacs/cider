@@ -674,7 +674,7 @@ eval requests for functionality like pretty-printing won't clobber the
 values of *1, *2, etc."
   (let* ((client-conn (process-buffer client))
          (response-main (nrepl-sync-request:clone client-conn))
-         (response-tooling (nrepl-sync-request:clone client-conn)))
+         (response-tooling (nrepl-sync-request:clone client-conn t))) ; t for tooling
     (nrepl-dbind-response response-main (new-session err)
       (if new-session
           (with-current-buffer client-conn
@@ -913,11 +913,12 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message."
                       connection
                       tooling))
 
-(defun nrepl-sync-request:clone (connection)
+(defun nrepl-sync-request:clone (connection &optional tooling)
   "Sent a :clone request to create a new client session.
 The request is dispatched via CONNECTION."
   (nrepl-send-sync-request '("op" "clone")
-                           connection))
+                           connection
+                           nil tooling))
 
 (defun nrepl-sync-request:close (connection)
   "Sent a :close request to close CONNECTION's SESSION."
