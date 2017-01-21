@@ -862,7 +862,7 @@ into a new error buffer."
   (let (causes)
     (cider-nrepl-send-request
      (append
-      (list "op" "stacktrace" "session" (cider-current-session))
+      (list "op" "stacktrace")
       (when (cider--pprint-fn)
         (list "pprint-fn" (cider--pprint-fn)))
       (when cider-stacktrace-print-length
@@ -991,8 +991,7 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
   (with-current-buffer buffer
     (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
                          (cider-stdin-handler buffer)
-                         (cider-current-connection)
-                         (cider-current-session))))
+                         (cider-current-connection))))
 
 (defun cider-emit-into-color-buffer (buffer value)
   "Emit into color BUFFER the provided VALUE."
@@ -1359,7 +1358,6 @@ See `cider-mode'."
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
   (thread-first (list "op" "toggle-trace-var"
-                      "session" (cider-current-session)
                       "ns" (cider-current-ns)
                       "sym" symbol)
     (cider-nrepl-send-sync-request)))
@@ -1389,7 +1387,6 @@ opposite of what that option dictates."
 (defun cider-sync-request:toggle-trace-ns (ns)
   "Toggle namespace tracing for NS."
   (thread-first (list "op" "toggle-trace-ns"
-                      "session" (cider-current-session)
                       "ns" ns)
     (cider-nrepl-send-sync-request)))
 
@@ -1421,7 +1418,6 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
    (lambda (sym)
      (cider-nrepl-send-request
       (list "op" "undef"
-            "session" (cider-current-session)
             "ns" (cider-current-ns)
             "symbol" sym)
       (cider-interactive-eval-handler (current-buffer))))))
@@ -1685,10 +1681,8 @@ START and END represent the region's boundaries."
   "Close an nREPL session for the current connection."
   (interactive)
   (cider-ensure-connected)
-  (let ((selected-session (completing-read "Close nREPL session: " (nrepl-sessions (cider-current-connection)))))
-    (when selected-session
-      (nrepl-sync-request:close (cider-current-connection) selected-session)
-      (message "Closed nREPL session %s" selected-session))))
+  (nrepl-sync-request:close (cider-current-connection))
+      (message "Closed nREPL session"))
 
 ;;; quiting
 (defun cider--close-buffer (buffer)
@@ -1700,10 +1694,8 @@ START and END represent the region's boundaries."
           (when (or (not nrepl-server-buffer)
                     ;; Sync request will hang if the server is dead.
                     (process-live-p (get-buffer-process nrepl-server-buffer)))
-            (when nrepl-session
-              (nrepl-sync-request:close buffer nrepl-session))
-            (when nrepl-tooling-session
-              (nrepl-sync-request:close buffer nrepl-tooling-session)))
+            (when nrepl-session or nrepl-tooling-session
+                  (nrepl-sync-request:close buffer)))
           (when proc (delete-process proc)))))
     (kill-buffer buffer)))
 
@@ -1800,9 +1792,7 @@ With a prefix argument, prompt for function to run instead of -main."
   (cider-ensure-connected)
   (let ((name (or function "-main")))
     (when-let ((response (cider-nrepl-send-sync-request
-                          (list "op" "ns-list-vars-by-name"
-                                "session" (cider-current-session)
-                                "name" name))))
+                          (list "op" "ns-list-vars-by-name" "name" name))))
       (if-let ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
           (cider-interactive-eval
            (if (= (length vars) 1)

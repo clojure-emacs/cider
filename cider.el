@@ -456,7 +456,6 @@ should be the regular Clojure REPL started by the server process filter."
       (cider-nrepl-send-request
        (list "op" "eval"
              "ns" (cider-current-ns)
-             "session" nrepl-session
              "code" cider-cljs-lein-repl)
        (cider-repl-handler (current-buffer)))
       (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
