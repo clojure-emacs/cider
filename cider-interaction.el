@@ -1662,7 +1662,7 @@ START and END represent the region's boundaries."
   (cider-ensure-connected)
   (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-current-connection)))))
     (when (and selected-session (not (equal selected-session "")))
-      (let* ((session-info (nrepl-sync-request:describe (cider-current-connection) selected-session))
+      (let* ((session-info (nrepl-sync-request:describe (cider-current-connection)))
              (ops (nrepl-dict-keys (nrepl-dict-get session-info "ops")))
              (session-id (nrepl-dict-get session-info "session"))
              (session-type (cond
