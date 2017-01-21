@@ -801,7 +801,7 @@ session already in it. This code will add it as appropriate to prevent
 connection/session drift.
 Return the ID of the sent message."
   (with-current-buffer connection
-    (let ((session (if tooling nrepl-tooling-session nrepl-session)))
+    (when-let ((session (if tooling nrepl-tooling-session nrepl-session)))
       (setq request (append request
                             (list "session" session))))
     (let* ((id (nrepl-next-request-id connection))
