@@ -799,7 +799,8 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 `nrepl-request:stdin', etc. This expects that the REQUEST does not have a
 session already in it. This code will add it as appropriate to prevent
 connection/session drift.
-Return the ID of the sent message."
+Return the ID of the sent message.
+Optional argument TOOLING Set to t if desiring the tooling session rather than the standard session."
   (with-current-buffer connection
     (when-let ((session (if tooling nrepl-tooling-session nrepl-session)))
       (setq request (append request
@@ -904,8 +905,8 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
   "Send the request INPUT and register the CALLBACK as the response handler.
 The request is dispatched via CONNECTION.  If NS is non-nil,
 include it in the request.  LINE and COLUMN, if non-nil, define the position
-of INPUT in its buffer. A CONNECTION uniquely determines two connections
-available: the standard interaction one and the tooling session. If the
+of INPUT in its buffer.  A CONNECTION uniquely determines two connections
+available: the standard interaction one and the tooling session.  If the
 tooling is desired, set TOOLING to true.
 ADDITIONAL-PARAMS is a plist to be appended to the request message."
   (nrepl-send-request (append (nrepl--eval-request input ns line column) additional-params)
@@ -915,7 +916,8 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message."
 
 (defun nrepl-sync-request:clone (connection &optional tooling)
   "Sent a :clone request to create a new client session.
-The request is dispatched via CONNECTION."
+The request is dispatched via CONNECTION.
+Optional argument TOOLING Tooling is set to t if wanting the tooling session from CONNECTION."
   (nrepl-send-sync-request '("op" "clone")
                            connection
                            nil tooling))
