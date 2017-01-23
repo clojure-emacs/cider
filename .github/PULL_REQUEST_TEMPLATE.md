@@ -16,4 +16,8 @@ by checking the relevant checkboxes):
 
 Thanks!
 
+*If you're just starting out to hack on CIDER you might find this [section of its
+manual][2] extremely useful.*
+
 [1]: https://github.com/clojure-emacs/cider/blob/master/.github/CONTRIBUTING.md
+[2]: https://cider.readthedocs.io/en/latest/hacking_on_cider/
