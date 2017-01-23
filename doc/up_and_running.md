@@ -15,7 +15,7 @@ developers (and they actually reuse many things from the Maven ecosystem).
 CIDER features a command called `cider-jack-in` that will start an nREPL server
 for a particular Leiningen or Boot project and connect to it automatically.
 This functionality depends on Leiningen 2.5.2+ or Boot
-2.0.0+. Older versions are not supported. For Leiningen, follow the installation
+2.7.0+. Older versions are not supported. For Leiningen, follow the installation
 instructions on its web site to get it up and running and afterwards create a
 project like this:
 
@@ -34,32 +34,29 @@ automatically connect to it.
 
 Alternatively you can use <kbd>C-u M-x</kbd> `cider-jack-in` <kbd>RET</kbd> to
 specify the name of a `lein` or `boot` project, without having to visit any file
-in it.
+in it. This option is also useful if your project contains both `project.clj`
+and `build.boot` and you want to launch a repl for one or the other.
 
 In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
 
 For further customizing the command line used for `cider-jack-in`, you can
 change the following (all string options):
 
- * `cider-[TOOL]-global-options`: these are passed to the command directly, in
-   first position (e.g. `-o` to `lein` enables offline mode).
- * `cider-[TOOL]-parameters`: these are usually tasks names and their parameters
-   (e.g.: `dev` for launching boot's dev task instead of the standard `repl -s
-   wait`).
+ * `cider-[TOOL]-global-options`: these are passed to the command directly, in first position (e.g. `-o` to `lein` enables offline mode).
+ * `cider-[TOOL]-parameters`: these are usually tasks names and their parameters (e.g.: `dev` for launching boot's dev task instead of the standard `repl -s  wait`).
 
 ## Connect to a running nREPL server
 
-You can go to your project's directory in a terminal and type there
-(assuming you're using Leiningen that is):
+You can go to your project's directory in a terminal and type there:
 
 ```
 $ lein repl
 ```
 
-Or with Boot:
+Or:
 
 ```
-$ boot repl wait
+$ boot repl -s wait (or whatever task launches a repl)
 ```
 
 Alternatively you can start nREPL either manually or by the facilities provided by your
@@ -147,9 +144,9 @@ documentation lookup, the namespace browser, and macroexpansion).
 1. Add this to your dependencies in `build.boot`:
 
 ```clojure
-[adzerk/boot-cljs     "1.7.228-1" :scope "test"]
-[adzerk/boot-cljs-repl   "0.3.0"  :scope "test"]
-[pandeiro/boot-http      "0.7.2"  :scope "test"]
+[adzerk/boot-cljs        "X.Y.Z"  :scope "test"]
+[adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
+[pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
 [com.cemerick/piggieback "0.2.1"  :scope "test"]
 ```
