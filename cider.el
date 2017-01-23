@@ -329,27 +329,25 @@ LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
 string is quoted for passing as argument to an inferior shell."
   (concat "-d " (shell-quote-argument (format "%s:%s" (car list) (cadr list)))))
 
-(defun cider-boot-command-prefix (dependencies)
+(defun cider-boot-dependencies (dependencies)
   "Return a list of boot artifact strings created from DEPENDENCIES."
   (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
           (when (not (seq-empty-p dependencies)) " ")))
 
-(defun cider-boot-repl-task-params (params middlewares)
-  (if (string-match "\\_<repl\\_>" params)
-      (replace-match (concat "repl "
-                             (mapconcat (lambda (middleware)
-                                          (format "-m %s" (shell-quote-argument middleware)))
-                                        middlewares
-                                        " "))
-                     'fixed 'literal params)
-    (message "Warning: `cider-boot-parameters' doesn't call the \"repl\" task, jacking-in might not work")
-    params))
+(defun cider-boot-middleware-task (params middlewares)
+  (concat "cider.tasks/add-middleware "
+          (mapconcat (lambda (middleware)
+                       (format "-m %s" (shell-quote-argument middleware)))
+                     middlewares
+                     " ")
+          " " params))
 
 (defun cider-boot-jack-in-dependencies (global-opts params dependencies plugins middlewares)
   (concat global-opts
           (when (not (seq-empty-p global-opts)) " ")
-          (cider-boot-command-prefix (append dependencies plugins))
-          (cider-boot-repl-task-params params middlewares)))
+          "-i \"(require 'cider.tasks)\" " ;; Note the white space at the end here
+          (cider-boot-dependencies (append dependencies plugins))
+          (cider-boot-middleware-task params middlewares)))
 
 (defun cider--lein-artifact-exclusions (exclusions)
   "Return an exclusions vector described by the elements of EXCLUSIONS."

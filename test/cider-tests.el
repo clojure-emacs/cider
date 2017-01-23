@@ -99,7 +99,7 @@
 
     (it "can inject dependencies in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" "boot")
-              :to-equal "-d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.10.0-SNAPSHOT repl -m cider.nrepl/cider-middleware -s wait"))
+              :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.10.0-SNAPSHOT cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
 
     (it "can inject dependencies in a gradle project"
       (expect (cider-inject-jack-in-dependencies "" "--no-daemon clojureRepl" "gradle")
@@ -116,7 +116,7 @@
 
     (it "can inject dependencies in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" "boot")
-              :to-equal "-d org.clojure/tools.nrepl\\:0.2.12 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 repl -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware -s wait")))
+              :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait")))
 
   (describe "when there are global options"
     (before-each
@@ -129,7 +129,7 @@
                 :to-equal "-o -U update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "can concat in a boot project"
         (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" "boot")
-                :to-equal "-C -o -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.11.0 repl -m cider.nrepl/cider-middleware -s wait"))
+                :to-equal "-C -o -i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
     (it "can concat in a gradle project"
         (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" "gradle")
                 :to-equal "-m --no-daemon clojureRepl"))))
