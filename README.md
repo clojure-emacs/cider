@@ -73,7 +73,7 @@ $ lein repl
 Or with Boot:
 
 ```
-$ boot repl wait
+$ boot repl -s wait
 ```
 
 Alternatively you can start nREPL either manually or by the facilities provided
