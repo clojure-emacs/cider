@@ -104,6 +104,12 @@ version from the CIDER package or library.")
   :type 'string
   :group 'cider)
 
+(defcustom cider-lein-global-options
+  nil
+  "Command global options used to execute Leiningen (e.g.: -o for offline)."
+  :type 'string
+  :group 'cider)
+
 (defcustom cider-lein-parameters
   "repl :headless"
   "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
@@ -116,6 +122,13 @@ version from the CIDER package or library.")
   :type 'string
   :group 'cider
   :package-version '(cider . "0.9.0"))
+
+(defcustom cider-boot-global-options
+  nil
+  "Command global options used to execute Boot (e.g.: -c for checkouts)."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.14.0"))
 
 (defcustom cider-boot-parameters
   "repl -s wait"
@@ -131,8 +144,15 @@ version from the CIDER package or library.")
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-gradle-global-options
+  "--no-daemon"
+  "Command line options used to execute Gradle (e.g.: -m for dry run)."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.14.0"))
+
 (defcustom cider-gradle-parameters
-  "--no-daemon clojureRepl"
+  "clojureRepl"
   "Params passed to gradle to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
@@ -172,7 +192,7 @@ When set to nil `cider-jack-in' will fail."
                  (const 'warn)
                  (const :tag "never" nil))
   :group 'cider
-  :package-version '(cider . "0.14.0"))
+  :package-version '(cider . "0.15.0"))
 
 (defcustom cider-known-endpoints nil
   "A list of connection endpoints where each endpoint is a list.
@@ -242,6 +262,14 @@ found for the PROJECT-TYPE"
     ("gradle" (cider--gradle-resolve-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
+(defun cider-jack-in-global-options (project-type)
+  "Determine the command line options for `cider-jack-in' for the PROJECT-TYPE."
+  (pcase project-type
+    ("lein" cider-lein-global-options)
+    ("boot" cider-boot-global-options)
+    ("gradle" cider-gradle-global-options)
+    (_ (user-error "Unsupported project type `%s'" project-type))))
+
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
@@ -304,7 +332,7 @@ string is quoted for passing as argument to an inferior shell."
 (defun cider-boot-command-prefix (dependencies)
   "Return a list of boot artifact strings created from DEPENDENCIES."
   (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
-          " "))
+          (when (not (seq-empty-p dependencies)) " ")))
 
 (defun cider-boot-repl-task-params (params middlewares)
   (if (string-match "\\_<repl\\_>" params)
@@ -317,8 +345,10 @@ string is quoted for passing as argument to an inferior shell."
     (message "Warning: `cider-boot-parameters' doesn't call the \"repl\" task, jacking-in might not work")
     params))
 
-(defun cider-boot-jack-in-dependencies (params dependencies plugins middlewares)
-  (concat (cider-boot-command-prefix (append dependencies plugins))
+(defun cider-boot-jack-in-dependencies (global-opts params dependencies plugins middlewares)
+  (concat global-opts
+          (when (not (seq-empty-p global-opts)) " ")
+          (cider-boot-command-prefix (append dependencies plugins))
           (cider-boot-repl-task-params params middlewares)))
 
 (defun cider--lein-artifact-exclusions (exclusions)
@@ -334,8 +364,10 @@ of EXCLUSIONS can be provided as well.  The returned
 string is quoted for passing as argument to an inferior shell."
   (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
 
-(defun cider-lein-jack-in-dependencies (params dependencies dependencies-exclusions lein-plugins)
+(defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins)
   (concat
+   global-opts
+   (when (not (seq-empty-p global-opts)) " ")
    (mapconcat #'identity
               (append (seq-map (lambda (dep)
                                  (let ((exclusions (cadr (assoc (car dep) dependencies-exclusions))))
@@ -368,7 +400,7 @@ See also `cider-jack-in-auto-inject-clojure'."
               dependencies))
     dependencies))
 
-(defun cider-inject-jack-in-dependencies (params project-type)
+(defun cider-inject-jack-in-dependencies (global-opts params project-type)
   "Return PARAMS with injected REPL dependencies.
 These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins' and
 `cider-jack-in-nrepl-middlewares' are injected from the CLI according to
@@ -377,18 +409,23 @@ boot script for supporting cider with its nREPL middleware and
 dependencies."
   (pcase project-type
     ("lein" (cider-lein-jack-in-dependencies
+             global-opts
              params
              (cider-add-clojure-dependencies-maybe
               cider-jack-in-dependencies)
              cider-jack-in-dependencies-exclusions
              cider-jack-in-lein-plugins))
     ("boot" (cider-boot-jack-in-dependencies
+             global-opts
              params
              (cider-add-clojure-dependencies-maybe
               cider-jack-in-dependencies)
              cider-jack-in-lein-plugins
              cider-jack-in-nrepl-middlewares))
-    ("gradle" params)
+    ("gradle" (concat
+               global-opts
+               (when (not (seq-empty-p global-opts)) " ")
+               params))
     (_ (error "Unsupported project type `%s'" project-type))))
 
 
@@ -509,6 +546,7 @@ own buffer."
   (let* ((project-type (cider-project-type))
          (command (cider-jack-in-command project-type))
          (command-resolved (cider-jack-in-resolve-command project-type))
+         (command-global-opts (cider-jack-in-global-options project-type))
          (command-params (cider-jack-in-params project-type)))
     (if command-resolved
         (let* ((project (when prompt-project
@@ -521,7 +559,7 @@ own buffer."
                                         command-params)
                          command-params))
                (params (if cider-inject-dependencies-at-jack-in
-                           (cider-inject-jack-in-dependencies params project-type)
+                           (cider-inject-jack-in-dependencies command-global-opts params project-type)
                          params))
 
                (cmd (format "%s %s" command-resolved params)))

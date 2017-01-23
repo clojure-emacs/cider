@@ -13,6 +13,7 @@
 * Add new face `cider-reader-conditional-face` which is used to mark unused reader conditional expressions.
 * [#1544](https://github.com/clojure-emacs/cider/issues/1544): Add a new defcustom `nrepl-use-ssh-fallback-for-remote-hosts` to control the behavior of `nrepl-connect` (and in turn that of `cider-connect`) for remote hosts.
 * [#1910](https://github.com/clojure-emacs/cider/issues/1910): Add custom company-mode completion style to show fuzzy completions from Compliment.
+* Introduce `cider-*-global-options` for customizing options that are not related to tasks.
 
 ### Changes
 

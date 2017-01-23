@@ -38,6 +38,15 @@ in it.
 
 In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
 
+For further customizing the command line used for `cider-jack-in`, you can
+change the following (all string options):
+
+ * `cider-[TOOL]-global-options`: these are passed to the command directly, in
+   first position (e.g. `-o` to `lein` enables offline mode).
+ * `cider-[TOOL]-parameters`: these are usually tasks names and their parameters
+   (e.g.: `dev` for launching boot's dev task instead of the standard `repl -s
+   wait`).
+
 ## Connect to a running nREPL server
 
 You can go to your project's directory in a terminal and type there
