@@ -262,7 +262,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
   (let (causes)
     (cider-nrepl-send-request
      (append
-      (list "op" "test-stacktrace" "session" (cider-current-session)
+      (list "op" "test-stacktrace"
             "ns" ns "var" var "index" index)
       (when (cider--pprint-fn)
         (list "pprint-fn" (cider--pprint-fn)))
@@ -594,8 +594,7 @@ If SILENT is non-nil, suppress all messages other then test results."
             "tests"  (when (stringp ns) tests)
             "load?"  (when (or (stringp ns)
                                (eq :project ns))
-                       "true")
-            "session" (cider-current-session))
+                       "true"))
       (lambda (response)
         (nrepl-dbind-response response (summary results status out err)
           (cond ((member "namespace-not-found" status)

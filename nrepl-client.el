@@ -674,7 +674,7 @@ eval requests for functionality like pretty-printing won't clobber the
 values of *1, *2, etc."
   (let* ((client-conn (process-buffer client))
          (response-main (nrepl-sync-request:clone client-conn))
-         (response-tooling (nrepl-sync-request:clone client-conn)))
+         (response-tooling (nrepl-sync-request:clone client-conn t))) ; t for tooling
     (nrepl-dbind-response response-main (new-session err)
       (if new-session
           (with-current-buffer client-conn
@@ -792,16 +792,19 @@ corresponding type of response."
   (with-current-buffer connection
     (number-to-string (cl-incf nrepl-request-counter))))
 
-(defun nrepl-send-request (request callback connection)
+(defun nrepl-send-request (request callback connection &optional tooling)
   "Send REQUEST and register response handler CALLBACK using CONNECTION.
 REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 \"par1\" ... ). See the code of `nrepl-request:clone',
-`nrepl-request:stdin', etc.
-Return the ID of the sent message."
+`nrepl-request:stdin', etc. This expects that the REQUEST does not have a
+session already in it. This code will add it as appropriate to prevent
+connection/session drift.
+Return the ID of the sent message.
+Optional argument TOOLING Set to t if desiring the tooling session rather than the standard session."
   (with-current-buffer connection
-    (when (and (not (lax-plist-get request "session"))
-               nrepl-session)
-      (setq request (append request (list "session" nrepl-session))))
+    (when-let ((session (if tooling nrepl-tooling-session nrepl-session)))
+      (setq request (append request
+                            (list "session" session))))
     (let* ((id (nrepl-next-request-id connection))
            (request (cons 'dict (lax-plist-put request "id" id)))
            (message (nrepl-bencode request)))
@@ -816,19 +819,21 @@ Return the ID of the sent message."
 (declare-function cider-repl-emit-interactive-stderr "cider-repl")
 (declare-function cider--render-stacktrace-causes "cider-interaction")
 
-(defun nrepl-send-sync-request (request connection &optional abort-on-input)
+(defun nrepl-send-sync-request (request connection &optional abort-on-input tooling)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along.
 If ABORT-ON-INPUT is non-nil, the function will return nil at the first
-sign of user input, so as not to hang the interface."
+sign of user input, so as not to hang the interface.
+If TOOLING, use the tooling session rather than the standard session."
   (let* ((time0 (current-time))
          (response (cons 'dict nil))
          (nrepl-ongoing-sync-request t)
          status)
     (nrepl-send-request request
                         (lambda (resp) (nrepl--merge response resp))
-                        connection)
+                        connection
+                        tooling)
     (while (and (not (member "done" status))
                 (not (and abort-on-input
                           (input-pending-p))))
@@ -860,21 +865,19 @@ sign of user input, so as not to hang the interface."
             (nrepl--mark-id-completed id)))
         response))))
 
-(defun nrepl-request:stdin (input callback connection session)
-  "Send a :stdin request with INPUT using CONNECTION and SESSION.
+(defun nrepl-request:stdin (input callback connection)
+  "Send a :stdin request with INPUT using CONNECTION.
 Register CALLBACK as the response handler."
   (nrepl-send-request (list "op" "stdin"
-                            "stdin" input
-                            "session" session)
+                            "stdin" input)
                       callback
                       connection))
 
-(defun nrepl-request:interrupt (pending-request-id callback connection session)
+(defun nrepl-request:interrupt (pending-request-id callback connection)
   "Send an :interrupt request for PENDING-REQUEST-ID.
-The request is dispatched using CONNECTION and SESSION.
+The request is dispatched using CONNECTION.
 Register CALLBACK as the response handler."
   (nrepl-send-request (list "op" "interrupt"
-                            "session" session
                             "interrupt-id" pending-request-id)
                       callback
                       connection))
@@ -882,14 +885,13 @@ Register CALLBACK as the response handler."
 (define-minor-mode cider-enlighten-mode nil nil (cider-mode " light")
   :global t)
 
-(defun nrepl--eval-request (input session &optional ns line column)
+(defun nrepl--eval-request (input &optional ns line column)
   "Prepare :eval request message for INPUT.
-SESSION and NS provide context for the request.
+NS provides context for the request.
 If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
 \"column\" and \"file\" are added to the message."
   (append (and ns (list "ns" ns))
           (list "op" "eval"
-                "session" session
                 "code" input)
           (when cider-enlighten-mode
             (list "enlighten" "true"))
@@ -899,45 +901,49 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
                     "line" line
                     "column" column)))))
 
-(defun nrepl-request:eval (input callback connection &optional session ns line column additional-params)
+(defun nrepl-request:eval (input callback connection &optional ns line column additional-params tooling)
   "Send the request INPUT and register the CALLBACK as the response handler.
-The request is dispatched via CONNECTION and SESSION.  If NS is non-nil,
+The request is dispatched via CONNECTION.  If NS is non-nil,
 include it in the request.  LINE and COLUMN, if non-nil, define the position
-of INPUT in its buffer.
+of INPUT in its buffer.  A CONNECTION uniquely determines two connections
+available: the standard interaction one and the tooling session.  If the
+tooling is desired, set TOOLING to true.
 ADDITIONAL-PARAMS is a plist to be appended to the request message."
-  (nrepl-send-request (append (nrepl--eval-request input session ns line column) additional-params)
+  (nrepl-send-request (append (nrepl--eval-request input ns line column) additional-params)
                       callback
-                      connection))
+                      connection
+                      tooling))
 
-(defun nrepl-sync-request:clone (connection)
+(defun nrepl-sync-request:clone (connection &optional tooling)
   "Sent a :clone request to create a new client session.
-The request is dispatched via CONNECTION."
+The request is dispatched via CONNECTION.
+Optional argument TOOLING Tooling is set to t if wanting the tooling session from CONNECTION."
   (nrepl-send-sync-request '("op" "clone")
-                           connection))
+                           connection
+                           nil tooling))
 
-(defun nrepl-sync-request:close (connection session)
+(defun nrepl-sync-request:close (connection)
   "Sent a :close request to close CONNECTION's SESSION."
-  (nrepl-send-sync-request (list "op" "close" "session" session)
-                           connection))
+  (nrepl-send-sync-request (list "op" "close")
+                           connection)
+  (nrepl-send-sync-request (list "op" "close")
+                           t)) ;; close tooling session
 
-(defun nrepl-sync-request:describe (connection &optional session)
+(defun nrepl-sync-request:describe (connection)
   "Perform :describe request for CONNECTION and SESSION."
-  (if session
-      (nrepl-send-sync-request (list "session" session "op" "describe")
-                               connection)
-    (nrepl-send-sync-request '("op" "describe")
-                             connection)))
+  (nrepl-send-sync-request '("op" "describe")
+                           connection))
 
 (defun nrepl-sync-request:ls-sessions (connection)
   "Perform :ls-sessions request for CONNECTION."
   (nrepl-send-sync-request '("op" "ls-sessions") connection))
 
-(defun nrepl-sync-request:eval (input connection session &optional ns)
+(defun nrepl-sync-request:eval (input connection &optional ns)
   "Send the INPUT to the nREPL server synchronously.
-The request is dispatched via CONNECTION and SESSION.
+The request is dispatched via CONNECTION.
 If NS is non-nil, include it in the request."
   (nrepl-send-sync-request
-   (nrepl--eval-request input session ns)
+   (nrepl--eval-request input ns)
    connection))
 
 (defun nrepl-sessions (connection)
