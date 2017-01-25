@@ -79,8 +79,7 @@ helpful for identifying each host.
 
 ## ClojureScript usage
 
-ClojureScript support relies on the
-[piggieback][] nREPL middleware being
+ClojureScript support relies on the [piggieback][] nREPL middleware being
 present in your REPL session.
 
 Add the following dependencies to your project (`project.clj` in Leiningen based project
@@ -104,8 +103,9 @@ or in `built.boot`:
   repl {:middleware '[cemerick.piggieback/wrap-cljs-repl]})
 ```
 
-Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-lein-repl` if
-you'd like to change the REPL used (the default is `rhino`).
+Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> and either
+`cider-cljs-lein-repl`, `cider-cljs-boot-repl` or `cider-cljs-gradle-repl` if
+you'd like to change the REPL used (the default is `rhino` where possible).
 
 Open a file in your project and issue <kbd>M-x</kbd>
 `cider-jack-in-clojurescript` <kbd>RET</kbd>. This will start up the nREPL
@@ -120,7 +120,8 @@ Using Weasel, you can also have a browser-connected REPL.
 
 1. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
 
-2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-cljs-lein-repl`
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> plus either
+   `cider-cljs-lein-repl`, `cider-cljs-boot-repl` or `cider-cljs-gradle-repl`
    and choose the `Weasel` option.
 
 3. Add this to your ClojureScript code:
@@ -156,7 +157,7 @@ and this at the end of `build.boot`:
 ```clojure
 (require
  '[adzerk.boot-cljs :refer [cljs]]
- '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]]
+ '[adzerk.boot-cljs-repl :refer [cljs-repl]]
  '[pandeiro.boot-http :refer [serve]])
 
 (deftask dev []
@@ -166,11 +167,10 @@ and this at the end of `build.boot`:
         (cljs)))
 ```
 
-2. Start `boot dev` in a terminal.
+2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-boot-parameters`
+   and insert `dev`.
 
-3. <kbd>M-x</kbd> `cider-connect` to localhost and select the repl process.
-
-4. Execute `(start-repl)` at the prompt: `boot.user> (start-repl)`.
+3. Open a file in your project and issue <kbd>M-x</kbd> `cider-jack-in-clojurescript`.
 
 5. Connect to the running server with your browser. The address is printed on the terminal, but it's probably `http://localhost:3000`.
 

@@ -436,7 +436,9 @@ dependencies."
     ("(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
      "Node" " (requires NodeJS to be installed)")
     ("(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
-     "Weasel" " (see Readme for additional configuration)")))
+     "Weasel" " (see http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl)")
+    ("(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
+     "Boot-cljs-repl" " (see https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
 
 (defcustom cider-cljs-lein-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
@@ -446,7 +448,39 @@ it should start a ClojureScript REPL."
                             cider--cljs-repl-types)
                  (string :tag "Custom"))
   :safe (lambda (x) (assoc x cider--cljs-repl-types))
+  :package-version '(cider . "0.11.0")
   :group 'cider)
+
+(defcustom cider-cljs-boot-repl "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
+  "Clojure form that returns a ClojureScript REPL environment.
+This is only used in boot projects.  It is evaluated in a Clojure REPL and
+it should start a ClojureScript REPL."
+  :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
+                            cider--cljs-repl-types)
+                 (string :tag "Custom"))
+  :safe (lambda (x) (assoc x cider--cljs-repl-types))
+  :package-version '(cider . "0.15.0")
+  :group 'cider)
+
+(defcustom cider-cljs-gradle-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
+  "Clojure form that returns a ClojureScript REPL environment.
+This is only used in gradle projects.  It is evaluated in a Clojure REPL and
+it should start a ClojureScript REPL."
+  :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
+                            cider--cljs-repl-types)
+                 (string :tag "Custom"))
+  :safe (lambda (x) (assoc x cider--cljs-repl-types))
+  :package-version '(cider . "0.15.0")
+  :group 'cider)
+
+(defun cider-cljs-repl-form (project-type)
+  "Return a Clojure form that returns a ClojureScript REPL environment
+based on PROJECT-TYPE."
+  (pcase project-type
+    ("lein" cider-cljs-lein-repl)
+    ("boot" cider-cljs-boot-repl)
+    ("gradle" cider-cljs-gradle-repl)
+    (_ (error "Unsupported project type `%s'" project-type))))
 
 (defun cider--offer-to-open-app-in-browser (server-buffer)
   "Look for a server address in SERVER-BUFFER and offer to open it."
@@ -475,7 +509,8 @@ should be the regular Clojure REPL started by the server process filter."
                                       (when (buffer-live-p nrepl-server-buffer)
                                         (get-buffer-process nrepl-server-buffer)))))
          (cljs-proc (apply #'nrepl-start-client-process client-process-args))
-         (cljs-buffer (process-buffer cljs-proc)))
+         (cljs-buffer (process-buffer cljs-proc))
+         (cljs-repl-form (cider-cljs-repl-form (cider-project-type))))
     (with-current-buffer cljs-buffer
       ;; The new connection has now been bumped to the top, but it's still a
       ;; Clojure REPL!  Additionally, some ClojureScript REPLs can actually take
@@ -484,14 +519,14 @@ should be the regular Clojure REPL started by the server process filter."
       ;; original Clojure REPL.  Our solution is to bump the original REPL back
       ;; up the list, so it takes priority on Clojure requests.
       (cider-make-connection-default client-buffer)
-      (pcase (assoc cider-cljs-lein-repl cider--cljs-repl-types)
+      (pcase (assoc cljs-repl-form cider--cljs-repl-types)
         (`(,_ ,name ,info)
          (message "Starting a %s REPL%s" name (or info "")))
         (_ (message "Starting a custom ClojureScript REPL")))
       (cider-nrepl-send-request
        (list "op" "eval"
              "ns" (cider-current-ns)
-             "code" cider-cljs-lein-repl)
+             "code" cljs-repl-form)
        (cider-repl-handler (current-buffer)))
       (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
 
