@@ -186,9 +186,11 @@ Returns to the buffer in which the command was invoked."
     ("Clojurescript"
      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
       :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
-Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
+Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your build tool."]
      ["Create a ClojureScript REPL from a Clojure REPL" cider-create-sibling-cljs-repl]
-     ["Configure the ClojureScript REPL to use" (customize-variable 'cider-cljs-lein-repl)])
+     ["Form for launching a ClojureScript REPL via Leiningen" (customize-variable 'cider-cljs-lein-repl)]
+     ["Form for launching a ClojureScript REPL via Boot" (customize-variable 'cider-cljs-boot-repl)]
+     ["Form for launching a ClojureScript REPL via Gradle" (customize-variable 'cider-cljs-gradle-repl)])
     "--"
     ["Connection info" cider-display-connection-info
      :active cider-connections]
@@ -342,7 +344,7 @@ Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
         :help "Connects to a REPL that's already running."]
        ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
         :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
-  Configure `cider-cljs-lein-repl' to change the ClojureScript REPL to use."]
+  Configure `cider-cljs-lein-repl', `cider-cljs-boot-repl' and `cider-cljs-gradle-repl' to change the ClojureScript REPL to use."]
        "--"
        ["View manual online" cider-view-manual])))
 
