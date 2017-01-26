@@ -1710,8 +1710,8 @@ START and END represent the region's boundaries."
           (when (or (not nrepl-server-buffer)
                     ;; Sync request will hang if the server is dead.
                     (process-live-p (get-buffer-process nrepl-server-buffer)))
-            (when nrepl-session or nrepl-tooling-session
-                  (nrepl-sync-request:close buffer)))
+            (when (or nrepl-session nrepl-tooling-session)
+              (nrepl-sync-request:close buffer)))
           (when proc (delete-process proc)))))
     (kill-buffer buffer)))
 
