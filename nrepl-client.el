@@ -927,7 +927,7 @@ Optional argument TOOLING Tooling is set to t if wanting the tooling session fro
   (nrepl-send-sync-request (list "op" "close")
                            connection)
   (nrepl-send-sync-request (list "op" "close")
-                           t)) ;; close tooling session
+                           connection nil t)) ;; close tooling session
 
 (defun nrepl-sync-request:describe (connection)
   "Perform :describe request for CONNECTION and SESSION."
