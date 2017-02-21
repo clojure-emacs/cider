@@ -83,6 +83,14 @@ Completion annotations can be disabled by setting
 
 ![Completion Annotations](images/completion-annotations.png)
 
+### Updating stale classes and methods cache
+
+Sometimes, the completion fails to recognize new classes that came with
+dependencies that were loaded dynamically after the REPL has started (e.g. via
+Boot). Executing `M-x cider-completion-flush-caches` (or going through the menu
+`CIDER Interaction->Misc->Flush completion cache`) forces the completion backend
+to re-read all classes it can find on the classpath.
+
 ### Migrating from `auto-complete-mode`
 
 In case you have some `auto-complete-mode` configuration lying around and you

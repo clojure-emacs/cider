@@ -15,6 +15,7 @@
 * [#1910](https://github.com/clojure-emacs/cider/issues/1910): Add custom company-mode completion style to show fuzzy completions from Compliment.
 * Introduce `cider-*-global-options` for customizing options that are not related to tasks.
 * [#1731](https://github.com/clojure-emacs/cider/issues/1731): Change code in order to use the new `cider.tasks/add-middleware` boot tasks.
+* [#1943](https://github.com/clojure-emacs/cider/pull/1943): Add interactive function to flush Compliment caches.
 
 ### Changes
 
