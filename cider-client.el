@@ -911,6 +911,12 @@ CONTEXT represents a completion context for compliment."
                      (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
+(defun cider-sync-request:complete-flush-caches ()
+  "Send \"complete-flush-caches\" op to flush Compliment's caches."
+  (cider-nrepl-send-sync-request (list "op" "complete-flush-caches"
+                                       "session" (cider-current-session))
+                                 'abort-on-input))
+
 (defun cider-sync-request:info (symbol &optional class member)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
   (let ((var-info (thread-first `("op" "info"

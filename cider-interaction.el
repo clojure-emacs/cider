@@ -573,6 +573,15 @@ The formatting is performed by `cider-annotate-completion-function'."
             :company-location #'cider-company-location
             :company-docsig #'cider-company-docsig))))
 
+(defun cider-completion-flush-caches ()
+  "Force Compliment to refill its caches.
+
+This command should be used if Compliment fails to pick up new classnames
+and methods from dependencies that were loaded dynamically after the REPL
+has started."
+  (interactive)
+  (cider-sync-request:complete-flush-caches))
+
 (defun cider-company-location (var)
   "Open VAR's definition in a buffer.
 
