@@ -1,6 +1,6 @@
 The canonical way to install CIDER is via `package.el` (Emacs's built-in package
-manager), but plenty of other options exist (see the
-[wiki](https://github.com/clojure-emacs/cider/wiki/Installation)).
+manager), but it can be installed manually or via alternative package managers such
+as `el-get`.
 
 ## Prerequisites
 

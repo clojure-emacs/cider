@@ -26,9 +26,7 @@ guidelines](https://github.com/clojure-emacs/cider/blob/master/.github/CONTRIBUT
 
 Good documentation is just as important as good code.
 
-Consider improving and extending the
-this manual and the
-[community wiki](https://github.com/clojure-emacs/cider/wiki).
+Consider improving and extending this manual.
 
 ### Working on the Manual
 
