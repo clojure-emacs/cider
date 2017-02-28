@@ -527,9 +527,9 @@ should be the regular Clojure REPL started by the server process filter."
          (message "Starting a %s REPL%s" name (or info "")))
         (_ (message "Starting a custom ClojureScript REPL")))
       (cider-nrepl-send-request
-       (list "op" "eval"
-             "ns" (cider-current-ns)
-             "code" cljs-repl-form)
+       `("op" "eval"
+         "ns" ,(cider-current-ns)
+         "code" ,cljs-repl-form)
        (cider-repl-handler (current-buffer)))
       (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
 

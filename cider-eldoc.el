@@ -313,9 +313,9 @@ Then go back to the point and return its eldoc."
           (goto-char current-point)
           (when-let (eldoc-info (cider-eldoc-info
                                  (cider--eldoc-remove-dot (cider-symbol-at-point))))
-            (list "eldoc-info" eldoc-info
-                  "thing" (cider-symbol-at-point)
-                  "pos" 0)))))))
+            `("eldoc-info" ,eldoc-info
+              "thing" ,(cider-symbol-at-point)
+              "pos" 0)))))))
 
 (defun cider-eldoc-info-at-sexp-beginning ()
   "Return eldoc info for first symbol in the sexp."
@@ -328,9 +328,9 @@ Then go back to the point and return its eldoc."
                   (cider-in-comment-p))
         (when-let (eldoc-info (cider-eldoc-info
                                (cider--eldoc-remove-dot (cider-symbol-at-point))))
-          (list "eldoc-info" eldoc-info
-                "thing" (cider-symbol-at-point)
-                "pos" argument-index))))))
+          `("eldoc-info" ,eldoc-info
+            "thing" ,(cider-symbol-at-point)
+            "pos" ,argument-index))))))
 
 (defun cider-eldoc-info-in-current-sexp ()
   "Return eldoc information from the sexp.

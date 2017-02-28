@@ -444,8 +444,8 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
 
 (defun cider-sync-request:ns-path (ns)
   "Get the path to the file containing NS."
-  (thread-first (list "op" "ns-path"
-                      "ns" ns)
+  (thread-first `("op" "ns-path"
+                  "ns" ,ns)
     cider-nrepl-send-sync-request
     (nrepl-dict-get "path")))
 
@@ -877,14 +877,13 @@ into a new error buffer."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes)
     (cider-nrepl-send-request
-     (append
-      (list "op" "stacktrace")
-      (when (cider--pprint-fn)
-        (list "pprint-fn" (cider--pprint-fn)))
-      (when cider-stacktrace-print-length
-        (list "print-length" cider-stacktrace-print-length))
-      (when cider-stacktrace-print-level
-        (list "print-level" cider-stacktrace-print-level)))
+     (nconc '("op" "stacktrace")
+            (when (cider--pprint-fn)
+              `("pprint-fn" ,(cider--pprint-fn)))
+            (when cider-stacktrace-print-length
+              `("print-length" ,cider-stacktrace-print-length))
+            (when cider-stacktrace-print-level
+              `("print-level" ,cider-stacktrace-print-level)))
      (lambda (response)
        ;; While the return value of `cider--handle-stacktrace-response' is not
        ;; meaningful for the last message, we do not need the value of `causes'
@@ -1373,9 +1372,9 @@ See `cider-mode'."
 
 (defun cider-sync-request:toggle-trace-var (symbol)
   "Toggle var tracing for SYMBOL."
-  (thread-first (list "op" "toggle-trace-var"
-                      "ns" (cider-current-ns)
-                      "sym" symbol)
+  (thread-first `("op" "toggle-trace-var"
+                  "ns" ,(cider-current-ns)
+                  "sym" ,symbol)
     (cider-nrepl-send-sync-request)))
 
 (defun cider--toggle-trace-var (sym)
@@ -1402,8 +1401,8 @@ opposite of what that option dictates."
 
 (defun cider-sync-request:toggle-trace-ns (ns)
   "Toggle namespace tracing for NS."
-  (thread-first (list "op" "toggle-trace-ns"
-                      "ns" ns)
+  (thread-first `("op" "toggle-trace-ns"
+                  "ns" ,ns)
     (cider-nrepl-send-sync-request)))
 
 (defun cider-toggle-trace-ns (query)
@@ -1433,9 +1432,9 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
    "Undefine symbol: "
    (lambda (sym)
      (cider-nrepl-send-request
-      (list "op" "undef"
-            "ns" (cider-current-ns)
-            "symbol" sym)
+      `("op" "undef"
+        "ns" ,(cider-current-ns)
+        "symbol" ,sym)
       (cider-interactive-eval-handler (current-buffer))))))
 
 (defun cider-refresh--handle-response (response log-buffer)
@@ -1522,16 +1521,17 @@ refresh functions (defined in `cider-refresh-before-fn' and
          (when inhibit-refresh-fns
            (cider-emit-into-popup-buffer log-buffer "inhibiting refresh functions\n"))
          (when clear?
-           (cider-nrepl-send-sync-request (list "op" "refresh-clear") conn))
+           (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
          (cider-nrepl-send-request
-          (append (list "op" (if refresh-all? "refresh-all" "refresh")
-                        "print-length" cider-stacktrace-print-length
-                        "print-level" cider-stacktrace-print-level)
-                  (when (cider--pprint-fn) (list "pprint-fn" (cider--pprint-fn)))
-                  (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
-                    (list "before" cider-refresh-before-fn))
-                  (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
-                    (list "after" cider-refresh-after-fn)))
+          (nconc `("op" ,(if refresh-all? "refresh-all" "refresh")
+                   "print-length" ,cider-stacktrace-print-length
+                   "print-level" ,cider-stacktrace-print-level)
+                 (when (cider--pprint-fn)
+                   `("pprint-fn" ,(cider--pprint-fn)))
+                 (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
+                   `("before" ,cider-refresh-before-fn))
+                 (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
+                   `("after" ,cider-refresh-after-fn)))
           (lambda (response)
             (cider-refresh--handle-response response log-buffer))
           conn)))
@@ -1808,7 +1808,8 @@ With a prefix argument, prompt for function to run instead of -main."
   (cider-ensure-connected)
   (let ((name (or function "-main")))
     (when-let ((response (cider-nrepl-send-sync-request
-                          (list "op" "ns-list-vars-by-name" "name" name))))
+                          `("op" "ns-list-vars-by-name"
+                            "name" ,name))))
       (if-let ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
           (cider-interactive-eval
            (if (= (length vars) 1)

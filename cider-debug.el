@@ -122,7 +122,7 @@ This variable must be set before starting the repl connection."
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
-  (if-let ((all (thread-first (cider-nrepl-send-sync-request (list "op" "debug-instrumented-defs"))
+  (if-let ((all (thread-first (cider-nrepl-send-sync-request '("op" "debug-instrumented-defs"))
                   (nrepl-dict-get "list"))))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))
@@ -162,11 +162,11 @@ This variable must be set before starting the repl connection."
 (defun cider--debug-init-connection ()
   "Initialize a connection with the cider.debug middleware."
   (cider-nrepl-send-request
-   (append '("op" "init-debugger")
-           (when cider-debug-print-level
-             (list "print-level" cider-debug-print-level))
-           (when cider-debug-print-length
-             (list "print-length" cider-debug-print-length)))
+   (nconc '("op" "init-debugger")
+          (when cider-debug-print-level
+            `("print-level" ,cider-debug-print-level))
+          (when cider-debug-print-length
+            `("print-length" ,cider-debug-print-length)))
    #'cider--debug-response-handler))
 
 
@@ -417,8 +417,9 @@ message."
   (when (and (string-prefix-p ":" command) force)
     (setq command (format "{:response %s :force? true}" command)))
   (cider-nrepl-send-unhandled-request
-   (list "op" "debug-input" "input" (or command ":quit")
-         "key" (or key (nrepl-dict-get cider--debug-mode-response "key"))))
+   `("op" "debug-input"
+     "input" ,(or command ":quit")
+     "key" ,(or key (nrepl-dict-get cider--debug-mode-response "key"))))
   (ignore-errors (cider--debug-mode -1)))
 
 (defun cider--debug-quit ()
