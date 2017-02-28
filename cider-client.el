@@ -731,9 +731,9 @@ with respect to the bound values of \\=`*print-length*\\=`, \\=`*print-level*\\=
 PPRINT-FN is the name of the Clojure function to use.
 RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
 result, and is included in the request if non-nil."
-  (append (list "pprint" "true"
-                "pprint-fn" (or pprint-fn (cider--pprint-fn)))
-          (and right-margin (list "print-right-margin" right-margin))))
+  (nconc `("pprint" "true"
+           "pprint-fn" ,(or pprint-fn (cider--pprint-fn)))
+         (and right-margin `("print-right-margin" ,right-margin))))
 
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
@@ -851,10 +851,10 @@ loaded.
 
 If CONNECTION is nil, use `cider-current-connection'.
 If CALLBACK is nil, use `cider-load-file-handler'."
-  (cider-nrepl-send-request (list "op" "load-file"
-                                  "file" file-contents
-                                  "file-path" file-path
-                                  "file-name" file-name)
+  (cider-nrepl-send-request `("op" "load-file"
+                              "file" ,file-contents
+                              "file-path" ,file-path
+                              "file-name" ,file-name)
                             (or callback
                                 (cider-load-file-handler (current-buffer)))
                             connection))
@@ -897,17 +897,17 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
   (cider-ensure-op-supported "classpath")
-  (thread-first (list "op" "classpath")
+  (thread-first '("op" "classpath")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "classpath")))
 
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op.
 CONTEXT represents a completion context for compliment."
-  (when-let ((dict (thread-first (list "op" "complete"
-                                       "ns" (cider-current-ns)
-                                       "symbol" str
-                                       "context" context)
+  (when-let ((dict (thread-first `("op" "complete"
+                                   "ns" ,(cider-current-ns)
+                                   "symbol" ,str
+                                   "context" ,context)
                      (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
@@ -915,9 +915,9 @@ CONTEXT represents a completion context for compliment."
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
   (let ((var-info (thread-first `("op" "info"
                                   "ns" ,(cider-current-ns)
-                                  ,@(when symbol (list "symbol" symbol))
-                                  ,@(when class (list "class" class))
-                                  ,@(when member (list "member" member)))
+                                  ,@(when symbol `("symbol" ,symbol))
+                                  ,@(when class `("class" ,class))
+                                  ,@(when member `("member" ,member)))
                     (cider-nrepl-send-sync-request))))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
@@ -927,9 +927,9 @@ CONTEXT represents a completion context for compliment."
   "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER."
   (when-let ((eldoc (thread-first `("op" "eldoc"
                                     "ns" ,(cider-current-ns)
-                                    ,@(when symbol (list "symbol" symbol))
-                                    ,@(when class (list "class" class))
-                                    ,@(when member (list "member" member)))
+                                    ,@(when symbol `("symbol" ,symbol))
+                                    ,@(when class `("class" ,class))
+                                    ,@(when member `("member" ,member)))
                       (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
@@ -937,55 +937,55 @@ CONTEXT represents a completion context for compliment."
 
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
-  (thread-first (list "op" "ns-list"
-                      "filter-regexps" cider-filtered-namespaces-regexps)
+  (thread-first `("op" "ns-list"
+                  "filter-regexps" ,cider-filtered-namespaces-regexps)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-list")))
 
 (defun cider-sync-request:ns-vars (ns)
   "Get a list of the vars in NS."
-  (thread-first (list "op" "ns-vars"
-                      "ns" ns)
+  (thread-first `("op" "ns-vars"
+                  "ns" ,ns)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-vars")))
 
 (defun cider-sync-request:ns-vars-with-meta (ns)
   "Get a map of the vars in NS to its metadata information."
-  (thread-first (list "op" "ns-vars-with-meta"
-                      "ns" ns)
+  (thread-first `("op" "ns-vars-with-meta"
+                  "ns" ,ns)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-vars-with-meta")))
 
 (defun cider-sync-request:ns-load-all ()
   "Load all project namespaces."
-  (thread-first (list "op" "ns-load-all")
+  (thread-first '("op" "ns-load-all")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "loaded-ns")))
 
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
-  (thread-first (list "op" "resource"
-                      "name" name)
+  (thread-first `("op" "resource"
+                  "name" ,name)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "resource-path")))
 
 (defun cider-sync-request:resources-list ()
   "Return a list of all resources on the classpath."
-  (thread-first (list "op" "resources-list")
+  (thread-first '("op" "resources-list")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "resources-list")))
 
 (defun cider-sync-request:format-code (code)
   "Perform nREPL \"format-code\" op with CODE."
-  (thread-first (list "op" "format-code"
-                      "code" code)
+  (thread-first `("op" "format-code"
+                  "code" ,code)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "formatted-code")))
 
 (defun cider-sync-request:format-edn (edn right-margin)
   "Perform \"format-edn\" op with EDN and RIGHT-MARGIN."
-  (let* ((response (thread-first (list "op" "format-edn"
-                                       "edn" edn)
+  (let* ((response (thread-first `("op" "format-edn"
+                                   "edn" ,edn)
                      (append (cider--nrepl-pprint-request-plist right-margin))
                      (cider-nrepl-send-sync-request)))
          (err (nrepl-dict-get response "err")))

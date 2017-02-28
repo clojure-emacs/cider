@@ -192,39 +192,39 @@ Current page will be reset to zero."
 ;; nREPL interactions
 (defun cider-sync-request:inspect-pop ()
   "Move one level up in the inspector stack."
-  (thread-first (list "op" "inspect-pop")
+  (thread-first '("op" "inspect-pop")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-push (idx)
   "Inspect the inside value specified by IDX."
-  (thread-first (list "op" "inspect-push"
-                      "idx" idx)
+  (thread-first `("op" "inspect-push"
+                  "idx" ,idx)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-refresh ()
   "Re-render the currently inspected value."
-  (thread-first (list "op" "inspect-refresh")
+  (thread-first '("op" "inspect-refresh")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-next-page ()
   "Jump to the next page in paginated collection view."
-  (thread-first (list "op" "inspect-next-page")
+  (thread-first '("op" "inspect-next-page")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-prev-page ()
   "Jump to the previous page in paginated collection view."
-  (thread-first (list "op" "inspect-prev-page")
+  (thread-first '("op" "inspect-prev-page")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-set-page-size (page-size)
   "Set the page size in paginated view to PAGE-SIZE."
-  (thread-first (list "op" "inspect-set-page-size"
-                      "page-size" page-size)
+  (thread-first `("op" "inspect-set-page-size"
+                  "page-size" ,page-size)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "value")))
 
@@ -232,8 +232,8 @@ Current page will be reset to zero."
   "Evaluate EXPR in context of NS and inspect its result.
 Set the page size in paginated view to PAGE-SIZE."
   (thread-first (append (nrepl--eval-request expr ns)
-                        (list "inspect" "true"
-                              "page-size" page-size))
+                        `("inspect" "true"
+                          "page-size" ,page-size))
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "value")))
 

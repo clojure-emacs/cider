@@ -66,15 +66,14 @@ Possible values are:
 The default for DISPLAY-NAMESPACES is taken from
 `cider-macroexpansion-display-namespaces'."
   (cider-ensure-op-supported "macroexpand")
-  (thread-first (list "op" "macroexpand"
-                      "expander" expander
-                      "code" expr
-                      "ns" (cider-current-ns)
-                      "display-namespaces"
-                      (or display-namespaces
-                          (symbol-name cider-macroexpansion-display-namespaces)))
-    (append (when cider-macroexpansion-print-metadata
-              (list "print-meta" "true")))
+  (thread-first `("op" "macroexpand"
+                  "expander" ,expander
+                  "code" ,expr
+                  "ns" ,(cider-current-ns)
+                  "display-namespaces" ,(or display-namespaces
+                                            (symbol-name cider-macroexpansion-display-namespaces)))
+    (nconc (when cider-macroexpansion-print-metadata
+             '("print-meta" "true")))
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "expansion")))
 

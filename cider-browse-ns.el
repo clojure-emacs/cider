@@ -174,11 +174,11 @@ Each item consists of a ns-var and the first line of its docstring."
 Return a list of the type ('ns or 'var) and the value."
   (let ((line (car (split-string (string-trim (thing-at-point 'line)) " "))))
     (if (string-match "\\." line)
-        (list 'ns line)
-      (list 'var (format "%s/%s"
-                         (or (get-text-property (point) 'cider-browse-ns-current-ns)
-                             cider-browse-ns-current-ns)
-                         line)))))
+        `(ns ,line)
+      `(var ,(format "%s/%s"
+                     (or (get-text-property (point) 'cider-browse-ns-current-ns)
+                         cider-browse-ns-current-ns)
+                     line)))))
 
 (defun cider-browse-ns-doc-at-point ()
   "Show the documentation for the thing at current point."

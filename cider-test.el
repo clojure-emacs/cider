@@ -261,15 +261,16 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
   "Display stacktrace for the erring NS VAR test with the assertion INDEX."
   (let (causes)
     (cider-nrepl-send-request
-     (append
-      (list "op" "test-stacktrace"
-            "ns" ns "var" var "index" index)
-      (when (cider--pprint-fn)
-        (list "pprint-fn" (cider--pprint-fn)))
-      (when cider-stacktrace-print-length
-        (list "print-length" cider-stacktrace-print-length))
-      (when cider-stacktrace-print-level
-        (list "print-level" cider-stacktrace-print-level)))
+     (nconc `("op" "test-stacktrace"
+              "ns" ,ns
+              "var" ,var
+              "index" ,index)
+            (when (cider--pprint-fn)
+              `("pprint-fn" ,(cider--pprint-fn)))
+            (when cider-stacktrace-print-length
+              `("print-length" ,cider-stacktrace-print-length))
+            (when cider-stacktrace-print-level
+              `("print-level" ,cider-stacktrace-print-level)))
      (lambda (response)
        (nrepl-dbind-response response (class status)
          (cond (class  (setq causes (cons response causes)))
@@ -586,15 +587,15 @@ If SILENT is non-nil, suppress all messages other then test results."
            (cider-test-echo-running ns (car tests))
          (cider-test-echo-running ns)))
      (cider-nrepl-send-request
-      (list "op"     (cond ((stringp ns)         "test")
-                           ((eq :project ns)     "test-all")
-                           ((eq :loaded ns)      "test-all")
-                           ((eq :non-passing ns) "retest"))
-            "ns"     (when (stringp ns) ns)
-            "tests"  (when (stringp ns) tests)
-            "load?"  (when (or (stringp ns)
-                               (eq :project ns))
-                       "true"))
+      `("op"     ,(cond ((stringp ns)         "test")
+                        ((eq :project ns)     "test-all")
+                        ((eq :loaded ns)      "test-all")
+                        ((eq :non-passing ns) "retest"))
+        "ns"     ,(when (stringp ns) ns)
+        "tests"  ,(when (stringp ns) tests)
+        "load?"  ,(when (or (stringp ns)
+                            (eq :project ns))
+                    "true"))
       (lambda (response)
         (nrepl-dbind-response response (summary results status out err)
           (cond ((member "namespace-not-found" status)
