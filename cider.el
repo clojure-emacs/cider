@@ -498,6 +498,9 @@ based on PROJECT-TYPE."
 The new buffer will correspond to the same project as CLIENT-BUFFER, which
 should be the regular Clojure REPL started by the server process filter."
   (interactive (list (cider-current-connection)))
+  ;; Load variables in .dir-locals.el into the server process buffer, so
+  ;; cider-cljs-*-repl can be set for each project individually.
+  (hack-local-variables)
   (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
          (nrepl-create-client-buffer-function #'cider-repl-create)
          (nrepl-use-this-as-repl-buffer 'new)
