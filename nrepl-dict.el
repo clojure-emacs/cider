@@ -69,7 +69,7 @@ return nil.  If DICT is not an nREPL dict object, an error is thrown."
   "Associate in DICT, KEY to VALUE.
 Return new dict.  Dict is modified by side effects."
   (if (null dict)
-      (list 'dict key value)
+      `(dict ,key ,value)
     (if (not (nrepl-dict-p dict))
         (error "Not an nREPL dict object: %s" dict)
       (setcdr dict (lax-plist-put (cdr dict) key value))
@@ -169,7 +169,7 @@ If NO-JOIN is given, return the first non nil dict."
            dict1)
           ((and (listp dict2) (listp dict1)) (append dict1 dict2))
           ((listp dict1) (append dict1 (list dict2)))
-          (t (list dict1 dict2)))))
+          (t `(,dict1 ,dict2)))))
 
 
 ;;; Dbind
