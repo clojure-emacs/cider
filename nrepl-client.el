@@ -803,8 +803,7 @@ Return the ID of the sent message.
 Optional argument TOOLING Set to t if desiring the tooling session rather than the standard session."
   (with-current-buffer connection
     (when-let ((session (if tooling nrepl-tooling-session nrepl-session)))
-      (setq request (append request
-                            (list "session" session))))
+      (setq request (append request `("session" ,session))))
     (let* ((id (nrepl-next-request-id connection))
            (request (cons 'dict (lax-plist-put request "id" id)))
            (message (nrepl-bencode request)))
@@ -868,8 +867,8 @@ If TOOLING, use the tooling session rather than the standard session."
 (defun nrepl-request:stdin (input callback connection)
   "Send a :stdin request with INPUT using CONNECTION.
 Register CALLBACK as the response handler."
-  (nrepl-send-request (list "op" "stdin"
-                            "stdin" input)
+  (nrepl-send-request `("op" "stdin"
+                        "stdin" ,input)
                       callback
                       connection))
 
@@ -877,8 +876,8 @@ Register CALLBACK as the response handler."
   "Send an :interrupt request for PENDING-REQUEST-ID.
 The request is dispatched using CONNECTION.
 Register CALLBACK as the response handler."
-  (nrepl-send-request (list "op" "interrupt"
-                            "interrupt-id" pending-request-id)
+  (nrepl-send-request `("op" "interrupt"
+                        "interrupt-id" ,pending-request-id)
                       callback
                       connection))
 
@@ -890,16 +889,16 @@ Register CALLBACK as the response handler."
 NS provides context for the request.
 If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
 \"column\" and \"file\" are added to the message."
-  (append (and ns (list "ns" ns))
-          (list "op" "eval"
-                "code" input)
-          (when cider-enlighten-mode
-            (list "enlighten" "true"))
-          (let ((file (or (buffer-file-name) (buffer-name))))
-            (when (and line column file)
-              (list "file" file
-                    "line" line
-                    "column" column)))))
+  (nconc (and ns `("ns" ,ns))
+         `("op" "eval"
+           "code" ,input)
+         (when cider-enlighten-mode
+           '("enlighten" "true"))
+         (let ((file (or (buffer-file-name) (buffer-name))))
+           (when (and line column file)
+             `("file" ,file
+               "line" ,line
+               "column" ,column)))))
 
 (defun nrepl-request:eval (input callback connection &optional ns line column additional-params tooling)
   "Send the request INPUT and register the CALLBACK as the response handler.
@@ -924,10 +923,8 @@ Optional argument TOOLING Tooling is set to t if wanting the tooling session fro
 
 (defun nrepl-sync-request:close (connection)
   "Sent a :close request to close CONNECTION's SESSION."
-  (nrepl-send-sync-request (list "op" "close")
-                           connection)
-  (nrepl-send-sync-request (list "op" "close")
-                           connection nil t)) ;; close tooling session
+  (nrepl-send-sync-request '("op" "close") connection)
+  (nrepl-send-sync-request '("op" "close") connection nil t)) ;; close tooling session
 
 (defun nrepl-sync-request:describe (connection)
   "Perform :describe request for CONNECTION and SESSION."
