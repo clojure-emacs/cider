@@ -540,7 +540,10 @@ key-values depending on the connection type."
 If NO-ERROR is non-nil, show messages instead of throwing an error."
   (if (not (and host port))
       (unless no-error
-        (error "Host (%s) and port (%s) must be provided" host port))
+        (when (not host)
+          (error "nREPL host not provided"))
+        (when (not port)
+          (error "nREPL port not provided")))
     (message "[nREPL] Establishing direct connection to %s:%s ..." host port)
     (condition-case nil
         (prog1 (list :proc (open-network-stream "nrepl-connection" nil host port)
