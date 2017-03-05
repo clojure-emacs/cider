@@ -1370,8 +1370,6 @@ constructs."
 
 \\{cider-repl-mode-map}"
   (clojure-mode-variables)
-  (setq-local lisp-indent-function #'clojure-indent-function)
-  (setq-local indent-line-function #'lisp-indent-line)
   (clojure-font-lock-setup)
   (font-lock-add-keywords nil cider--static-font-lock-keywords)
   (setq-local font-lock-fontify-region-function
