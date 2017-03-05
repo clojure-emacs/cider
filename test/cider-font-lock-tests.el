@@ -29,7 +29,7 @@
 
 ;; Utilities
 
-(defmacro test-with-temp-buffer (content &rest body)
+(defmacro cider--test-with-temp-buffer (content &rest body)
   "Evaluate BODY in a temporary buffer with CONTENT."
   (declare (debug t)
            (indent 1))
@@ -40,23 +40,24 @@
      (font-lock-fontify-buffer)
      ,@body))
 
-(defun every-face-is-at-range-p (start end face)
+(defun cider--face-covers-range-p (start end face)
   "Return true if every face from START to END has FACE."
-  (let ((all-faces (cl-loop for i from start to end collect (get-text-property i 'face))))
-    (cl-every (lambda (target-face)
+  (let ((all-faces (mapcar (lambda (i) (get-text-property i 'face)) (number-sequence start end))))
+    (seq-every-p (lambda (target-face)
+                   (or (eq face target-face)
+                       (when (consp target-face)
+                         (seq-contains target-face face))))
+                 all-faces)))
+
+(defun cider--face-exists-in-range-p (start end face)
+  "Return true if FACE exists between START to END."
+  (let ((all-faces (mapcar (lambda (i) (get-text-property i 'face)) (number-sequence start end))))
+    ;; cl-some returns t now but will change to return a truthy value in the future
+    (seq-some (lambda (target-face)
                 (or (eq face target-face)
                     (when (consp target-face)
                       (seq-contains target-face face))))
               all-faces)))
-
-(defun face-exists-at-range-p (start end face)
-  "Return true if FACE exists between START to END."
-  (let ((all-faces (cl-loop for i from start to end collect (get-text-property i 'face))))
-    (cl-some (lambda (target-face)
-               (or (eq face target-face)
-                   (when (consp target-face)
-                     (seq-contains target-face face))))
-             all-faces)))
 
 ;; Tests
 
@@ -66,67 +67,85 @@
     (it "uses cider-reader-conditional-face"
       (spy-on 'cider-connected-p :and-return-value t)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
-        (let ((cider-font-lock-reader-conditionals t))
-          (expect (face-exists-at-range-p (point-min) (point-max) 'cider-reader-conditional-face) :to-be t))))
+      (cider--test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
+        (let ((cider-font-lock-reader-conditionals t)
+              (found (cider--face-exists-in-range-p (point-min) (point-max)
+                                             'cider-reader-conditional-face)))
+          (expect found :to-be-truthy))))
 
     (it "highlights unmatched reader conditionals"
       (spy-on 'cider-connected-p :and-return-value t)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
+      (cider--test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t))
-          (expect (face-exists-at-range-p 4 12 'cider-reader-conditional-face) :not :to-be t)
-          (expect (every-face-is-at-range-p 14 24 'cider-reader-conditional-face) :to-be t)
-          (expect (every-face-is-at-range-p 26 36 'cider-reader-conditional-face) :to-be t))))
+          (expect (cider--face-exists-in-range-p 4 12 'cider-reader-conditional-face)
+                  :not :to-be-truthy)
+          (expect (cider--face-covers-range-p 14 24 'cider-reader-conditional-face)
+                  :to-be-truthy)
+          (expect (cider--face-covers-range-p 26 36 'cider-reader-conditional-face)
+                  :to-be-truthy))))
 
     (it "works with splicing"
       (spy-on 'cider-connected-p :and-return-value t)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer "[1 2 #?(:clj [3 4] :cljs [5 6] :cljr [7 8])]"
+      (cider--test-with-temp-buffer "[1 2 #?(:clj [3 4] :cljs [5 6] :cljr [7 8])]"
         (let ((cider-font-lock-reader-conditionals t))
-          (expect (face-exists-at-range-p 1 18 'cider-reader-conditional-face) :not :to-be t)
-          (expect (every-face-is-at-range-p 20 30 'cider-reader-conditional-face) :to-be t)
-          (expect (every-face-is-at-range-p 32 42 'cider-reader-conditional-face) :to-be t))))
+          (expect (cider--face-exists-in-range-p 1 18 'cider-reader-conditional-face)
+                  :not :to-be-truthy)
+          (expect (cider--face-covers-range-p 20 30 'cider-reader-conditional-face)
+                  :to-be-truthy)
+          (expect (cider--face-covers-range-p 32 42 'cider-reader-conditional-face)
+                  :to-be-truthy))))
 
     (it "does not apply inside strings or comments"
       (spy-on 'cider-connected-p :and-return-value t)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer "\"#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\" ;; #?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
+      (cider--test-with-temp-buffer "\"#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\" ;; #?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t))
-          (expect (face-exists-at-range-p (point-min) (point-max) 'cider-reader-conditional-face) :not :to-be t))))
+          (expect (cider--face-exists-in-range-p (point-min) (point-max) 'cider-reader-conditional-face)
+                  :not :to-be-truthy))))
 
     (it "does not apply inside strings or comments"
       (spy-on 'cider-connected-p :and-return-value t)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer "\"#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\" ;; #?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
+      (cider--test-with-temp-buffer "\"#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\" ;; #?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t))
-          (expect (face-exists-at-range-p (point-min) (point-max) 'cider-reader-conditional-face) :not :to-be t))))
+          (expect (cider--face-exists-in-range-p (point-min) (point-max) 'cider-reader-conditional-face)
+                  :not :to-be-truthy))))
 
     (it "highlights all unmatched reader conditionals"
       (spy-on 'cider-connected-p :and-return-value t)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer
+      (cider--test-with-temp-buffer
           "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n"
         (let ((cider-font-lock-reader-conditionals t))
-          (expect (every-face-is-at-range-p 14 24 'cider-reader-conditional-face) :to-be t)
-          (expect (every-face-is-at-range-p 26 36 'cider-reader-conditional-face) :to-be t)
-          (expect (every-face-is-at-range-p 52 62 'cider-reader-conditional-face) :to-be t)
-          (expect (every-face-is-at-range-p 64 74 'cider-reader-conditional-face) :to-be t))))
+          (expect (cider--face-covers-range-p 14 24 'cider-reader-conditional-face)
+                  :to-be-truthy)
+          (expect (cider--face-covers-range-p 26 36 'cider-reader-conditional-face)
+                  :to-be-truthy)
+          (expect (cider--face-covers-range-p 52 62 'cider-reader-conditional-face)
+                  :to-be-truthy)
+          (expect (cider--face-covers-range-p 64 74 'cider-reader-conditional-face)
+                  :to-be-truthy))))
 
     (it "does not highlight beyond the limits of the reader conditional group"
       (spy-on 'cider-connected-p :and-return-value t)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer
+      (cider--test-with-temp-buffer
           "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n"
         (let ((cider-font-lock-reader-conditionals t))
-          (expect (face-exists-at-range-p 1 3 'cider-reader-conditional-face) :not :to-be t)
-          (expect (face-exists-at-range-p 37 41 'cider-reader-conditional-face) :not :to-be t)
-          (expect (face-exists-at-range-p 75 (point-max) 'cider-reader-conditional-face) :not :to-be t)))))
+          (expect (cider--face-exists-in-range-p 1 3 'cider-reader-conditional-face)
+                  :not :to-be-truthy)
+          (expect (cider--face-exists-in-range-p 37 41 'cider-reader-conditional-face)
+                  :not :to-be-truthy)
+          (expect (cider--face-exists-in-range-p 75 (point-max) 'cider-reader-conditional-face)
+                  :not :to-be-truthy)))))
 
   (describe "when cider is not connected"
     (it "is disabled"
       (spy-on 'cider-connected-p :and-return-value nil)
       (spy-on 'cider-connection-type-for-buffer :and-return-value "clj")
-      (test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
+      (cider--test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t))
-          (expect (face-exists-at-range-p (point-min) (point-max) 'cider-reader-conditional-face) :not :to-be t))))))
+          (expect (cider--face-exists-in-range-p (point-min) (point-max) 'cider-reader-conditional-face)
+                  :not :to-be-truthy))))))
