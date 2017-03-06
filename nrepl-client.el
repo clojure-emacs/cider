@@ -533,6 +533,7 @@ key-values depending on the connection type."
               ;; direct connection failed
               ;; fallback to ssh tunneling if enabled
               (and nrepl-use-ssh-fallback-for-remote-hosts
+                   (message "[nREPL] Falling back to SSH tunneled connection ...")
                    (nrepl--ssh-tunnel-connect host port))
               ;; fallback is either not enabled or it failed as well
               (error "[nREPL] Cannot connect to %s:%s" host port))
@@ -561,7 +562,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 (defun nrepl--ssh-tunnel-connect (host port)
   "Connect to a remote machine identified by HOST and PORT through SSH tunnel."
-  (message "[nREPL] Establishing SSH tunneled connection ...")
+  (message "[nREPL] Establishing SSH tunneled connection to %s:%s ..." host port)
   (let* ((remote-dir (if host (format "/ssh:%s:" host) default-directory))
          (ssh (or (executable-find "ssh")
                   (error "[nREPL] Cannot locate 'ssh' executable")))
