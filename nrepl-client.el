@@ -529,11 +529,15 @@ key-values depending on the connection type."
         (nrepl--direct-connect (or host "localhost") port)
       ;; we're dealing with a remote host
       (if (and host (not nrepl-force-ssh-for-remote-hosts))
-          (nrepl--direct-connect host port 'no-error)
-        ;; direct connection failed or `nrepl-force-ssh-for-remote-hosts' is non-nil
-        (when (or nrepl-use-ssh-fallback-for-remote-hosts
-                  nrepl-force-ssh-for-remote-hosts)
-          (nrepl--ssh-tunnel-connect host port))))))
+          (or (nrepl--direct-connect host port 'no-error)
+              ;; direct connection failed
+              ;; fallback to ssh tunneling if enabled
+              (and nrepl-use-ssh-fallback-for-remote-hosts
+                   (nrepl--ssh-tunnel-connect host port))
+              ;; fallback is either not enabled or it failed as well
+              (error "[nREPL] Cannot connect to %s:%s" host port))
+        ;; `nrepl-force-ssh-for-remote-hosts' is non-nil
+        (nrepl--ssh-tunnel-connect host port)))))
 
 (defun nrepl--direct-connect (host port &optional no-error)
   "If HOST and PORT are given, try to `open-network-stream'.
