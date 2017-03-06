@@ -545,9 +545,9 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
   (if (not (and host port))
       (unless no-error
         (when (not host)
-          (error "nREPL host not provided"))
+          (error "[nREPL] Host not provided"))
         (when (not port)
-          (error "nREPL port not provided")))
+          (error "[nREPL] Port not provided")))
     (message "[nREPL] Establishing direct connection to %s:%s ..." host port)
     (condition-case nil
         (prog1 (list :proc (open-network-stream "nrepl-connection" nil host port)
