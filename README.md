@@ -37,7 +37,8 @@ details.
 
 ### Installation
 
-`package.el` is the built-in package manager in Emacs.
+The recommended way to install CIDER is via `package.el` - the built-in package
+manager in Emacs.
 
 CIDER is available on the two major `package.el` community
 maintained repos -
