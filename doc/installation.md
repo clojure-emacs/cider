@@ -60,6 +60,16 @@ Stable by adding this to your Emacs initialization:
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
   enabled by default in Emacs and you should not disable it!**
 
+## Installation via el-get
+
+CIDER is also available for installation from
+the [el-get](https://github.com/dimitri/el-get) package manager.
+
+Provided you've already installed `el-get` you can install CIDER with the
+following command:
+
+<kbd>M-x package-install [RET] cider [RET]</kbd>
+
 ## CIDER's nREPL middleware
 
 Much of CIDER's functionality depends on the presence of CIDER's own
