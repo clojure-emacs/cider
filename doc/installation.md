@@ -70,6 +70,21 @@ following command:
 
 <kbd>M-x package-install [RET] cider [RET]</kbd>
 
+## Manual installation
+
+Alternatively you can simply load CIDER in your Emacs straight from its source
+repo. Assuming you've already obtained the code you should add something like
+this to your Emacs configuration:
+
+```el
+;; load CIDER from its source code
+(add-to-list 'load-path "~/projects/cider")
+(require 'cider)
+```
+
+Just keep in mind that you'll have to manually install all the packages CIDER
+depends on in advance.
+
 ## CIDER's nREPL middleware
 
 Much of CIDER's functionality depends on the presence of CIDER's
