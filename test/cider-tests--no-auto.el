@@ -34,7 +34,6 @@
 (require 'cider)
 (require 'subr-x)
 (require 'cider-compat)
-(require 'cl-lib)
 
 ;;; Docs
 ;; Presenting docs erroneously would cause an ugly scene.
