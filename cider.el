@@ -111,7 +111,7 @@ version from the CIDER package or library.")
   :group 'cider)
 
 (defcustom cider-lein-parameters
-  "repl :headless"
+  "repl :headless :host ::"
   "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider)
@@ -131,7 +131,7 @@ version from the CIDER package or library.")
   :package-version '(cider . "0.14.0"))
 
 (defcustom cider-boot-parameters
-  "repl -s wait"
+  "repl -s -H :: wait"
   "Params passed to boot to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
