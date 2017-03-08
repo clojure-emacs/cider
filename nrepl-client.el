@@ -1115,6 +1115,8 @@ operations.")
 TYPE is either request or response.  The message is logged to a buffer
 described by `nrepl-message-buffer-name-template'."
   (when nrepl-log-messages
+    ;; append a time-stamp to the message before logging it
+    ;; the time-stamps are quite useful for debugging
     (setq msg (cons (car msg)
                     (lax-plist-put (cdr msg) "time-stamp"
                                    (format-time-string "%Y-%m-%0d %H:%M:%S.%N"))))
