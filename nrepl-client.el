@@ -554,7 +554,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
         (prog1 (list :proc (open-network-stream "nrepl-connection" nil host port)
                      :host host :port port)
           (message "[nREPL] Direct connection to %s:%s established" host port))
-      (error (let ((msg "[nREPL] Direct connection to %s:%s failed" host port))
+      (error (let ((msg (format "[nREPL] Direct connection to %s:%s failed" host port)))
                (if no-error
                    (message msg)
                  (error msg))
