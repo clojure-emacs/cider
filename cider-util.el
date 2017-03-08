@@ -32,7 +32,6 @@
 ;;; Code:
 
 (require 'seq)
-(require 'cl-lib)
 (require 'clojure-mode)
 (require 'subr-x)
 (require 'cider-compat)
