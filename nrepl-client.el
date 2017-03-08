@@ -1115,6 +1115,9 @@ operations.")
 TYPE is either request or response.  The message is logged to a buffer
 described by `nrepl-message-buffer-name-template'."
   (when nrepl-log-messages
+    (setq msg (cons (car msg)
+                    (lax-plist-put (cdr msg) "time-stamp"
+                                   (format-time-string "%Y-%m-%0d %H:%M:%S.%N"))))
     (with-current-buffer (nrepl-messages-buffer (current-buffer))
       (setq buffer-read-only nil)
       (when (> (buffer-size) nrepl-message-buffer-max-size)
