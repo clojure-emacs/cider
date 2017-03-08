@@ -1219,11 +1219,16 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
     (let ((head (format "(%s" (car object))))
       (insert (color head))
       (let ((indent (+ 2 (- (current-column) (length head))))
-            (l (point)))
+            (l (point))
+            (sorted-object (if (cdr object)
+                               (apply 'seq-concatenate 'list
+                                      (sort (seq-partition (copy-list (cdr object)) 2)
+                                            (lambda (a b)
+                                              (string< (car a) (car b))))))))
         (if (null (cdr object))
             (insert ")\n")
           (insert " \n")
-          (cl-loop for l on (cdr object) by #'cddr
+          (cl-loop for l on sorted-object by #'cddr
                    do (let ((str (format "%s%s  " (make-string indent ?\s)
                                          (propertize (car l) 'face
                                                      ;; Only highlight top-level keys.
