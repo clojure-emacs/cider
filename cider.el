@@ -484,7 +484,7 @@ it should start a ClojureScript REPL."
   :group 'cider)
 
 (defun cider-cljs-repl-form (project-type)
-  "Return a Clojure form that returns a ClojureScript REPL environment based on PROJECT-TYPE."
+  "Return a Clojure form returning a ClojureScript REPL environment based on PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-cljs-lein-repl)
     ("boot" cider-cljs-boot-repl)
