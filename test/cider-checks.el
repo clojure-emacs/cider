@@ -10,10 +10,13 @@
 (require 'package)
 (require 'check-declare)
 (package-initialize)
+(setq checkdoc-package-keywords-flag nil)
+(setq checkdoc-arguments-in-order-flag nil)
+(setq checkdoc-verb-check-experimental-flag nil)
+
 (let ((files (directory-files default-directory t
                               "\\`[^.].*\\.el\\'" t)))
-  ;; We need to fix checkdoc warnings before we can use this.
-  ;; (dolist (file files)
-  ;;   (checkdoc-file file))
+  (dolist (file files)
+    (checkdoc-file file))
   (when (apply #'check-declare-files files)
     (kill-emacs 1)))

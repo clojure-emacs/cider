@@ -27,7 +27,7 @@
 ;;
 ;;; Commentary:
 ;;
-;; Provides functions to interact with and create `nrepl-dict's. These are
+;; Provides functions to interact with and create `nrepl-dict's.  These are
 ;; simply plists with an extra element at the head.
 
 ;;; Code:

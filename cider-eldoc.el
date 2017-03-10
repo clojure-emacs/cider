@@ -116,7 +116,7 @@ mapping `cider-eldoc-ns-function' on it returns an empty list."
      (t (format "%s" (car eldoc-class-names))))))
 
 (defun cider-eldoc-format-thing (ns symbol thing type)
-  "Format the eldoc subject defined by NS, SYMBOL and THING.
+  "Format the eldoc subject defined by NS, SYMBOL, THING and TYPE.
 THING represents the thing at point which triggered eldoc.  Normally NS and
 SYMBOL are used (they are derived from THING), but when empty we fallback to
 THING (e.g. for Java methods).  Format it as a function, if FUNCTION-P
@@ -294,7 +294,7 @@ if the maximum number of sexps to skip is exceeded."
     num-skipped-sexps))
 
 (defun cider-eldoc-thing-type (eldoc-info)
-  "Return the type of the thing being displayed by eldoc.
+  "Return the type of the ELDOC-INFO being displayed by eldoc.
 It can be a function or var now."
   (pcase (lax-plist-get eldoc-info "type")
     ("function" 'fn)

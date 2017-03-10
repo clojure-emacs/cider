@@ -516,6 +516,8 @@ form, with symbol at point replaced by __prefix__."
       context)))
 
 (defun cider-completion--parse-candidate-map (candidate-map)
+  "Get \"candidate\" from CANDIDATE-MAP.
+Put type and ns properties on the candidate"
   (let ((candidate (nrepl-dict-get candidate-map "candidate"))
         (type (nrepl-dict-get candidate-map "type"))
         (ns (nrepl-dict-get candidate-map "ns")))
@@ -530,17 +532,20 @@ form, with symbol at point replaced by __prefix__."
     (mapcar #'cider-completion--parse-candidate-map candidates)))
 
 (defun cider-completion--get-candidate-type (symbol)
+  "Get candidate type for SYMBOL."
   (let ((type (get-text-property 0 'type symbol)))
     (or (cadr (assoc type cider-completion-annotations-alist))
         type)))
 
 (defun cider-completion--get-candidate-ns (symbol)
+  "Get candidate ns for SYMBOL."
   (when (or (eq 'always cider-completion-annotations-include-ns)
             (and (eq 'unqualified cider-completion-annotations-include-ns)
                  (not (cider-namespace-qualified-p symbol))))
     (get-text-property 0 'ns symbol)))
 
 (defun cider-default-annotate-completion-function (type ns)
+  "Get completion function based on TYPE and NS."
   (concat (when ns (format " (%s)" ns))
           (when type (format " <%s>" type))))
 
@@ -611,8 +616,8 @@ in the buffer."
 
 ;; Fuzzy completion for company-mode
 
-(defun cider-company-unfiltered-candidates (string table predicate point)
-  "Return CIDER completion candidates as is, without filtering them by prefix."
+(defun cider-company-unfiltered-candidates (string &rest _)
+  "Return CIDER completion candidates for STRING as is, unfiltered."
   (cider-complete string))
 
 (add-to-list 'completion-styles-alist
@@ -1165,7 +1170,7 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
     (cider-switch-to-repl-buffer)))
 
 (defun cider-pprint-eval-last-sexp-to-repl (&optional prefix)
-  "Evaluate the expression preceding point and insert its pretty-printed result in the REPL.
+  "Evaluate expr before point and insert its pretty-printed result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
   (let* ((conn-buffer (cider-current-connection)))
@@ -1327,7 +1332,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
   (cider-insert-in-repl (cider-last-sexp) arg))
 
 (defun cider-insert-defun-in-repl (&optional arg)
-  "Insert the top-level form at point in the REPL buffer.
+  "Insert the top level form at point in the REPL buffer.
 If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "P")
   (cider-insert-in-repl (cider-defun-at-point) arg))
@@ -1447,6 +1452,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
       (cider-interactive-eval-handler (current-buffer))))))
 
 (defun cider-refresh--handle-response (response log-buffer)
+  "Refresh LOG-BUFFER with RESPONSE."
   (nrepl-dbind-response response (out err reloading status error error-ns after before)
     (cl-flet* ((log (message &optional face)
                     (cider-emit-into-popup-buffer log-buffer message face))

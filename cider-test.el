@@ -61,8 +61,8 @@
 
 (defcustom cider-test-defining-forms '("deftest" "defspec")
   "Forms that define individual tests.
-CIDER considers the top-level form around point to define a test if the
-form starts with one of these forms.
+CIDER considers the \"top-level\" form around point to define a test if
+the form starts with one of these forms.
 Add to this list to have CIDER recognize additional test defining macros."
   :type '(repeat string)
   :group 'cider-test

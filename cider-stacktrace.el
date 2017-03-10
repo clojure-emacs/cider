@@ -96,7 +96,7 @@ cyclical data structures."
 (add-to-list 'cider-ancillary-buffers cider-error-buffer)
 
 (defcustom cider-stacktrace-suppressed-errors '()
-  "A set of errors that won't make the stacktrace buffer 'pop-over' your active window.
+  "Errors that won't make the stacktrace buffer 'pop-over' your active window.
 The error types are represented as strings."
   :type 'list
   :group 'cider-stacktrace
@@ -321,9 +321,9 @@ hidden count."
 (defun cider-stacktrace-some-suppressed-errors-p (error-types)
   "Return intersection of ERROR-TYPES and CIDER-STACKTRACE-SUPPRESSED-ERRORS.
 I.e, Return non-nil if the seq ERROR-TYPES shares any elements with
-`cider-stacktrace-suppressed-errors'.  This means that even a 'well-behaved' (ie,
-promoted) error type will be 'guilty by association' if grouped with a
-suppressed error type."
+`cider-stacktrace-suppressed-errors'.  This means that even a
+'well-behaved' (ie, promoted) error type will be 'guilty by association' if
+grouped with a suppressed error type."
   (seq-intersection error-types cider-stacktrace-suppressed-errors))
 
 (defun cider-stacktrace-suppress-error (error-type)
@@ -357,9 +357,9 @@ suppressed error type."
       (goto-char pos))))
 
 (defun cider-stacktrace-cycle-cause (num &optional level)
-  "Update element NUM of `cider-stacktrace-cause-visibility', optionally to LEVEL.
-If LEVEL is not specified, its current value is incremented.  When it reaches 3,
-it wraps to 0."
+  "Update element NUM of `cider-stacktrace-cause-visibility'.
+If LEVEL is specified, it is useed, otherwise its current value is incremented.
+When it reaches 3, it wraps to 0."
   (let ((level (or level (1+ (elt cider-stacktrace-cause-visibility num)))))
     (aset cider-stacktrace-cause-visibility num (mod level 3))
     (cider-stacktrace-apply-cause-visibility)))

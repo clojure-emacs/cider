@@ -212,7 +212,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["Describe session" cider-describe-nrepl-session]
      ["Close session" cider-close-nrepl-session]
      ["Toggle message logging" nrepl-toggle-message-logging]))
-  "Menu for CIDER mode")
+  "Menu for CIDER mode.")
 
 (defconst cider-mode-eval-menu
   '("CIDER Eval" :visible cider-connections
@@ -750,7 +750,8 @@ before point."
           (cider--parse-and-apply-locals end locals-above))))))
 
 (defun cider--docview-as-string (sym info)
-  "Return a string of what would be displayed by `cider-docview-render'."
+  "Return a string of what would be displayed by `cider-docview-render'.
+SYM and INFO is passed to `cider-docview-render'"
   (with-temp-buffer
     (cider-docview-render (current-buffer) sym info)
     (goto-char (point-max))

@@ -102,7 +102,7 @@ configure `cider-debug-prompt' instead."
   :package-version '(cider . "0.9.1"))
 
 (defcustom cider-debug-print-level 10
-  "The print-level for values displayed by the debugger.
+  "The print level for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Max depth" 10))
@@ -110,7 +110,7 @@ This variable must be set before starting the repl connection."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-debug-print-length 10
-  "The print-length for values displayed by the debugger.
+  "The print length for values displayed by the debugger.
 This variable must be set before starting the repl connection."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Max depth" 10))
@@ -710,7 +710,8 @@ TARGET is inside it.  The returned list is suitable for use in
         (goto-char starting-point)))))
 
 (defun cider-debug-move-here (&optional force)
-  "Skip any breakpoints up to point."
+  "Skip any breakpoints up to point.
+The boolean value of FORCE will be sent in the reply."
   (interactive (list (cider--uppercase-command-p)))
   (unless cider--debug-mode
     (user-error "`cider-debug-move-here' only makes sense during a debug session"))
