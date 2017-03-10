@@ -1218,18 +1218,29 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
                                        (when foreground `(:foreground ,foreground))))))
     (let ((head (format "(%s" (car object))))
       (insert (color head))
-      (let ((indent (+ 2 (- (current-column) (length head))))
-            (l (point)))
-        (if (null (cdr object))
-            (insert ")\n")
-          (insert " \n")
-          (cl-loop for l on (cdr object) by #'cddr
-                   do (let ((str (format "%s%s  " (make-string indent ?\s)
-                                         (propertize (car l) 'face
-                                                     ;; Only highlight top-level keys.
-                                                     (unless (eq (car object) 'dict)
-                                                       'font-lock-keyword-face)))))
-                        (insert str)
+      (if (null (cdr object))
+          (insert ")\n")
+        (let* ((indent (+ 2 (- (current-column) (length head))))
+               (sorted-pairs (sort (seq-partition (cl-copy-list (cdr object)) 2)
+                                   (lambda (a b)
+                                     (string< (car a) (car b)))))
+               (name-lengths (seq-map (lambda (pair) (length (car pair))) sorted-pairs))
+               (longest-name (seq-max name-lengths))
+               ;; Special entries are displayed first
+               (specialq (lambda (pair) (seq-contains '("id" "op" "session") (car pair))))
+               (special-pairs (seq-filter specialq sorted-pairs))
+               (not-special-pairs (seq-remove specialq sorted-pairs))
+               (all-pairs (seq-concatenate 'list special-pairs not-special-pairs))
+               (sorted-object (apply 'seq-concatenate 'list all-pairs)))
+          (insert "\n")
+          (cl-loop for l on sorted-object by #'cddr
+                   do (let ((indent-str (make-string indent ?\s))
+                            (name-str (propertize (car l) 'face
+                                                  ;; Only highlight top-level keys.
+                                                  (unless (eq (car object) 'dict)
+                                                    'font-lock-keyword-face)))
+                            (spaces-str (make-string (- longest-name (length (car l))) ?\s)))
+                        (insert (format "%s%s%s " indent-str name-str spaces-str))
                         (nrepl-log-pp-object (cadr l) nil button)))
           (when (eq (car object) 'dict)
             (delete-char -1))
