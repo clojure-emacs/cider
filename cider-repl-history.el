@@ -70,7 +70,8 @@ If `bury-and-delete-window', then bury the buffer, and (if there is
 more than one window) delete the window.
 
 If `delete-and-restore', then restore the window configuration to what it was
-before `cider-repl-history' was called, and kill the *cider-repl-history* buffer.
+before `cider-repl-history' was called, and kill the *cider-repl-history*
+buffer.
 
 If `quit-window', then restore the window configuration to what
 it was before `cider-repl-history' was called, and bury *cider-repl-history*.
@@ -391,7 +392,7 @@ case retun nil."
               (cider-repl-history-insert-and-highlight str))))))))
 
 (defun cider-repl-history-insert-and-quit ()
-  "Insert the item into the REPL buffer, and close the *cider-repl-history* buffer.
+  "Insert the item into the REPL buffer, and close *cider-repl-history*.
 
 The text is always inserted at the very bottom of the REPL buffer.  If your
 cursor is already at the bottom, it is advanced to the end of the inserted
@@ -401,7 +402,7 @@ text is still inserted at the end."
   (cider-repl-history-do-insert (current-buffer) (point)))
 
 (defun cider-repl-history-mouse-insert (e)
-  "Insert the item at E into the REPL buffer, and close the *cider-repl-history*.
+  "Insert the item at E into the REPL buffer, and close *cider-repl-history*.
 
 The text is always inserted at the very bottom of the REPL buffer.  If your
 cursor is already at the bottom, it is advanced to the end of the inserted

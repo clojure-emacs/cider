@@ -207,7 +207,7 @@ such a link cannot be established automatically."
       (setq-local cider-connections (list conn)))))
 
 (defun cider-toggle-buffer-connection ()
-  "Toggles the current buffer's connection between Clojure and ClojureScript."
+  "Toggle the current buffer's connection between Clojure and ClojureScript."
   (interactive)
   (cider-ensure-connected)
   (let ((other-conn (cider-other-connection)))
@@ -230,7 +230,7 @@ such a link cannot be established automatically."
    (t "clj")))
 
 (defun cider-toggle-request-dispatch ()
-  "Toggles the value of `cider-request-dispatch' between static and dynamic.
+  "Toggle the value of `cider-request-dispatch' between static and dynamic.
 
 Handy when you're using dynamic dispatch, but you want to quickly force all
 evaluation commands to use a particular connection."
@@ -766,6 +766,7 @@ Return the REPL buffer given by `cider-current-connection'.")
   (cider-session-for-connection (cider-current-connection)))
 
 (defun cider-session-for-connection (connection)
+  "Create a CIDER session for CONNECTION."
   (with-current-buffer connection
     nrepl-session))
 

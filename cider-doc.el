@@ -368,7 +368,7 @@ Tables are marked to be ignored by line wrap."
         (cider-docview-wrap-text buffer))))) ; ignores code, table blocks
 
 (defun cider--abbreviate-file-protocol (file-with-protocol)
-  "Abbreviate the file-path in `file:/path/to/file'."
+  "Abbreviate the file-path in `file:/path/to/file' of FILE-WITH-PROTOCOL."
   (if (string-match "\\`file:\\(.*\\)" file-with-protocol)
       (let ((file (match-string 1 file-with-protocol))
             (proj-dir (clojure-project-dir)))

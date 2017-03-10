@@ -92,7 +92,7 @@ If BUFFER is provided act on that buffer instead."
 
 ;;; Thing at point
 (defun cider-defun-at-point (&optional bounds)
-  "Return the text of the top-level sexp at point.
+  "Return the text of the top level sexp at point.
 If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
   (save-excursion
@@ -225,7 +225,7 @@ PROP is the name of a text property."
   "A list of buffers for different major modes.")
 
 (defun cider--make-buffer-for-mode (mode)
-  "Return a temp buffer using major-mode MODE.
+  "Return a temp buffer using `major-mode' MODE.
 This buffer is not designed to display anything to the user.  For that, use
 `cider-make-popup-buffer' instead."
   (setq cider--mode-buffers (seq-filter (lambda (x) (buffer-live-p (cdr x)))
@@ -446,7 +446,7 @@ restore it properly when going back."
   :package-version '(cider . "0.13.0"))
 
 (defun cider--find-symbol-xref ()
-  "Parse and return the first clojure symbol in current-buffer.
+  "Parse and return the first clojure symbol in current buffer.
 Use `cider-doc-xref-regexp' for the search.  Set match data and return a
 string of the Clojure symbol.  Return nil if there are no more matches in
 the buffer."
@@ -458,7 +458,7 @@ the buffer."
 
 ;; Similar to https://github.com/emacs-mirror/emacs/blob/65c8c7cb96c14f9c6accd03cc8851b5a3459049e/lisp/help-mode.el#L404
 (defun cider--doc-make-xrefs ()
-  "Parse and hyperlink documentation cross-references in current-buffer.
+  "Parse and hyperlink documentation cross-references in current buffer.
 Find cross-reference information in a buffer and activate such cross
 references for selection with `help-xref'.  Cross-references are parsed
 using `cider--find-symbol-xref'.

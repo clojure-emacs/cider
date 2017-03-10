@@ -126,12 +126,12 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
 
 ;;;###autoload
 (defun cider-macroexpand-all ()
-  "Invoke \\=`clojure.walk/macroexpand-all\\=` on the expression preceding point."
+  "Invoke \\=`macroexpand-all\\=` on the expression preceding point."
   (interactive)
   (cider-macroexpand-expr "macroexpand-all" (cider-last-sexp)))
 
 (defun cider-macroexpand-all-inplace ()
-  "Perform inplace \\=`clojure.walk/macroexpand-all\\=` on the expression preceding point."
+  "Perform inplace \\=`macroexpand-all\\=` on the expression preceding point."
   (interactive)
   (cider-macroexpand-expr-inplace "macroexpand-all"))
 

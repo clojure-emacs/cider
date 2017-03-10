@@ -254,8 +254,9 @@ Sub-match 1 must be the project path.")
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
 (defun cider-jack-in-resolve-command (project-type)
-  "Determine the resolved file path to `cider-jack-in-command' if it can be
-found for the PROJECT-TYPE"
+  "Determine the resolved file path to `cider-jack-in-command'.
+Throws an error if PROJECT-TYPE is unknown.  Known types are
+\"lein\", \"boot\", and \"gradle\"."
   (pcase project-type
     ("lein" (cider--lein-resolve-command))
     ("boot" (cider--boot-resolve-command))
@@ -335,6 +336,7 @@ string is quoted for passing as argument to an inferior shell."
           (when (not (seq-empty-p dependencies)) " ")))
 
 (defun cider-boot-middleware-task (params middlewares)
+  "Create a command to add MIDDLEWARES with corresponding PARAMS."
   (concat "cider.tasks/add-middleware "
           (mapconcat (lambda (middleware)
                        (format "-m %s" (shell-quote-argument middleware)))
@@ -343,6 +345,11 @@ string is quoted for passing as argument to an inferior shell."
           " " params))
 
 (defun cider-boot-jack-in-dependencies (global-opts params dependencies plugins middlewares)
+  "Create boot jack-in dependencies.
+Does so by concatenating GLOBAL-OPTS, DEPENDENCIES,
+PLUGINS and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
+`cider-boot-middleware-task` before concatenating and DEPENDENCIES and PLUGINS
+ are passed on to `cider-boot-dependencies`."
   (concat global-opts
           (when (not (seq-empty-p global-opts)) " ")
           "-i \"(require 'cider.tasks)\" " ;; Note the white space at the end here
@@ -363,6 +370,9 @@ string is quoted for passing as argument to an inferior shell."
   (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
 
 (defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins)
+    "Create lein jack-in dependencies.
+Does so by concatenating GLOBAL-OPTS, DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
+removed, LEIN-PLUGINS, and finally PARAMS."
   (concat
    global-opts
    (when (not (seq-empty-p global-opts)) " ")
@@ -399,7 +409,7 @@ See also `cider-jack-in-auto-inject-clojure'."
     dependencies))
 
 (defun cider-inject-jack-in-dependencies (global-opts params project-type)
-  "Return PARAMS with injected REPL dependencies.
+  "Return GLOBAL-OPTS and PARAMS with injected REPL dependencies.
 These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins' and
 `cider-jack-in-nrepl-middlewares' are injected from the CLI according to
 the used PROJECT-TYPE.  Eliminates the need for hacking profiles.clj or the
@@ -474,8 +484,7 @@ it should start a ClojureScript REPL."
   :group 'cider)
 
 (defun cider-cljs-repl-form (project-type)
-  "Return a Clojure form that returns a ClojureScript REPL environment
-based on PROJECT-TYPE."
+  "Return a Clojure form that returns a ClojureScript REPL environment based on PROJECT-TYPE."
   (pcase project-type
     ("lein" cider-cljs-lein-repl)
     ("boot" cider-cljs-boot-repl)
@@ -781,7 +790,7 @@ choose."
 
 ;; TODO: Implement a check for `cider-lein-command' over tramp
 (defun cider--lein-resolve-command ()
-  "Find `cider-lein-command' on `exec-path' if possible, or return `nil'.
+  "Find `cider-lein-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
   (when-let ((command (or (and (file-remote-p default-directory) cider-lein-command)
@@ -791,7 +800,7 @@ In case `default-directory' is non-local we assume the command is available."
 
 ;; TODO: Implement a check for `cider-boot-command' over tramp
 (defun cider--boot-resolve-command ()
-  "Find `cider-boot-command' on `exec-path' if possible, or return `nil'.
+  "Find `cider-boot-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
   (when-let ((command (or (and (file-remote-p default-directory) cider-boot-command)
@@ -801,7 +810,7 @@ In case `default-directory' is non-local we assume the command is available."
 
 ;; TODO: Implement a check for `cider-gradle-command' over tramp
 (defun cider--gradle-resolve-command ()
-  "Find `cider-gradle-command' on `exec-path' if possible, or return `nil'.
+  "Find `cider-gradle-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
   (when-let ((command (or (and (file-remote-p default-directory) cider-gradle-command)
