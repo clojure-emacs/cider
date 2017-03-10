@@ -1283,7 +1283,7 @@ The point is placed next to the function name in the minibuffer to allow
 passing arguments."
   (interactive)
   (let* ((fn-name (cadr (split-string (cider-defun-at-point))))
-         (form (concat "(" fn-name ")")))
+         (form (format "(%s)" fn-name)))
     (cider-read-and-eval (cons form (length form)))))
 
 ;; Eval keymap
