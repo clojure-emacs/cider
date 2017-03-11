@@ -68,7 +68,7 @@ the [el-get](https://github.com/dimitri/el-get) package manager.
 Provided you've already installed `el-get` you can install CIDER with the
 following command:
 
-<kbd>M-x package-install [RET] cider [RET]</kbd>
+<kbd>M-x el-get-install [RET] cider [RET]</kbd>
 
 ## Manual installation
 
