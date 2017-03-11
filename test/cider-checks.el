@@ -10,6 +10,8 @@
 (require 'package)
 (require 'check-declare)
 (package-initialize)
+
+;; disable some annoying (or non-applicable) checkdoc checks
 (setq checkdoc-package-keywords-flag nil)
 (setq checkdoc-arguments-in-order-flag nil)
 (setq checkdoc-verb-check-experimental-flag nil)
