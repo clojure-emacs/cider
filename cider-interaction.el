@@ -693,6 +693,7 @@ REPL buffer.  This is controlled via
                          (current-buffer))
     (save-excursion
       (goto-char beg)
+      (remove-overlays beg end 'cider-fringe-indicator)
       (condition-case nil
           (while (progn (clojure-forward-logical-sexp)
                         (and (<= (point) end)
@@ -709,11 +710,14 @@ or it can be a list with (START END) of the evaluated region."
          (beg (car-safe place))
          (end (or (car-safe (cdr-safe place)) place))
          (beg (when beg (copy-marker beg)))
-         (end (when end (copy-marker end))))
+         (end (when end (copy-marker end)))
+         (fringed nil))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (_buffer value)
                                    (if beg
-                                       (cider--make-fringe-overlays-for-region beg end)
+                                       (unless fringed
+                                         (cider--make-fringe-overlays-for-region beg end)
+                                         (setq fringed t))
                                      (cider--make-fringe-overlay end))
                                    (cider--display-interactive-eval-result value end))
                                  (lambda (_buffer out)
