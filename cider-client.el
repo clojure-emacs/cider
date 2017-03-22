@@ -942,6 +942,16 @@ CONTEXT represents a completion context for compliment."
         nil
       eldoc)))
 
+(defun cider-sync-request:eldoc-datomic-query (symbol)
+  "Send \"eldoc-datomic-query\" op with parameter SYMBOL."
+  (when-let ((eldoc (thread-first `("op" "eldoc-datomic-query"
+                                    "ns" ,(cider-current-ns)
+                                    ,@(when symbol `("symbol" ,symbol)))
+                      (cider-nrepl-send-sync-request nil 'abort-on-input))))
+    (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
+        nil
+      eldoc)))
+
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (thread-first `("op" "ns-list"

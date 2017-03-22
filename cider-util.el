@@ -165,6 +165,15 @@ Can only error if SKIP is non-nil."
       (forward-sexp 1)
       (cider-start-of-next-sexp))))
 
+(defun cider-second-sexp-in-list ()
+  "Return the second sexp in the list at point."
+  (condition-case nil
+      (save-excursion
+        (backward-up-list)
+        (forward-char)
+        (forward-sexp 2)
+        (cider-sexp-at-point))
+    (error nil)))
 
 ;;; Text properties
 
