@@ -300,3 +300,11 @@
         (it "returns tries to display the var with the first line"
           (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "Line 1.\nLine 2.\nLine 3.")
                   :to-equal "kubaru.core/plane: Line 1."))))))
+
+(describe "cider--eldoc-add-datomic-query-inputs-to-arglists"
+  (it "adds the datomic query inputs of the query at point to the arglist"
+    (spy-on 'cider-second-sexp-in-list :and-return-value t)
+    (spy-on 'cider-sync-request:eldoc-datomic-query
+              :and-return-value '(dict "inputs" (("$" "?first-name"))))
+    (expect (cider--eldoc-add-datomic-query-inputs-to-arglists '(("query" "&" "inputs")))
+            :to-equal '(("query" "$" "?first-name")))))

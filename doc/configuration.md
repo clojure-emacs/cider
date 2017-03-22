@@ -165,6 +165,15 @@ its behaviour.
 | `nil`  | Messages are always truncated to fit in a single line of display in the echo area.  |
 | `truncate-sym-name-if-fit` or anything non-nil | Symbol name may be truncated if it will enable the function arglist or documentation string to fit on a single line. Otherwise, behavior is just like `t` case. |
 
+* CIDER will try to add expected function arguments based on the current context
+(for example for the `datomic.api/q` function where it will show the expected
+inputs of the query at point), if the variable `cider-eldoc-display-context-dependent-info`
+is non-nil:
+
+```el
+(setq cider-eldoc-display-context-dependent-info t)
+```
+
 ## Overlays
 
 When you evaluate code in Clojure files, the result is displayed in the buffer

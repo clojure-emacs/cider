@@ -183,3 +183,11 @@
   (it "returns the refcard correct url for snapshot cider versions"
     (setq cider-version "0.11.0-snapshot")
     (expect (cider-refcard-url) :to-equal "https://github.com/clojure-emacs/cider/raw/master/doc/cider-refcard.pdf")))
+
+(describe "cider-second-sexp-in-list"
+  (it "returns the second sexp in the list"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(test-function arg1 arg2 arg3)")
+      (backward-char 2)
+      (expect (cider-second-sexp-in-list) :to-equal "arg1"))))
