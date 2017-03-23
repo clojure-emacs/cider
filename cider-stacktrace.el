@@ -158,7 +158,7 @@ The error types are represented as strings."
 (defface cider-stacktrace-suppressed-button-face
   '((((type graphic))
      :box (:line-width 3 :style pressed-button)
-     :inherit widget-inactive-face)
+     :inherit widget-inactive)
     (t :inverse-video t))
   "A button with this face represents a suppressed error type."
   :group 'cider-stacktrace
