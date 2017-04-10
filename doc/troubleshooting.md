@@ -116,6 +116,13 @@ that the order here matters.
 Emacs doesn't load the new files, it only installs them on disk.  To see the
 effect of changes you have to restart Emacs.
 
+## `cider-jack-in` complains about `Wrong type argument: stringp, nil`
+
+Emacs may not be able to locate your `boot` or `lein` command via its `exec-path` variable,
+e.g. if you installed Boot/Leiningen to a home directory. Customize `exec-path` in Emacs to include any
+non-standard paths where you installed the tool.
+
+
 ## CIDER complains of the `cider-nrepl` version
 
 This is a warning displayed on the REPL buffer when it starts, and usually looks like this:
