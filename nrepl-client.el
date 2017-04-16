@@ -120,7 +120,7 @@ The `nrepl-buffer-name-separator' separates cider-repl from the project name."
   :type 'boolean
   :group 'nrepl)
 
-(defcustom nrepl-sync-request-timeout 10
+(defcustom nrepl-sync-request-timeout 30
   "The number of seconds to wait for a sync response.
 Setting this to nil disables the timeout functionality."
   :type 'integer
