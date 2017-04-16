@@ -919,7 +919,7 @@ namespace to switch to."
   (interactive (list (if (or (derived-mode-p 'cider-repl-mode)
                              (null (cider-ns-form)))
                          (completing-read "Switch to namespace: "
-                                          (cider-sync-request:ns-list))
+                                          (first (read-from-string (cider-sync-request:ns-list))))
                        (cider-current-ns))))
   (when (or (not ns) (equal ns ""))
     (user-error "No namespace selected"))
