@@ -1594,6 +1594,22 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
        :both)
       (message "Loading %s..." filename))))
 
+(defun cider-refresh-project ()
+  "Refresh te project. This relies on clojure.tools.namespace being available in
+   the classpath."
+  (interactive)
+  (check-parens)
+  (cider-ensure-connected)
+  (cider--clear-compilation-highlights)
+  (cider--quit-error-window)
+  (cider--cache-ns-form)
+  (remove-overlays nil nil 'cider-type 'instrumented-defs)
+  (cider-nrepl-request:eval
+   "(do (require 'clojure.tools.namespace.repl) (clojure.tools.namespace.repl/refresh))"
+   (lambda (_response) nil))
+  (message "Refreshing all namespaces..."))
+
+
 (defun cider-load-file (filename)
   "Load (eval) the Clojure file FILENAME in nREPL.
 
