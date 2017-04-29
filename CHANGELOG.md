@@ -4,6 +4,7 @@
 
 ### New Features
 
+* Add new function `cider-load-all-files` (and helper `clojure-files-in-directory`).
 * Add new customization variable `cider-special-mode-truncate-lines`.
 * Add an option `cider-inspector-fill-frame` to control whether the cider inspector window fills its frame.
 * [#1893](https://github.com/clojure-emacs/cider/issues/1893): Add negative prefix argument to `cider-refresh` to inhibit invoking of cider-refresh-functions
