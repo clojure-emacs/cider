@@ -901,7 +901,7 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
 \"column\" and \"file\" are added to the message."
   (nconc (and ns `("ns" ,ns))
          `("op" "eval"
-           "code" ,input)
+           "code" ,(substring-no-properties input))
          (when cider-enlighten-mode
            '("enlighten" "true"))
          (let ((file (or (buffer-file-name) (buffer-name))))
