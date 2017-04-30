@@ -90,6 +90,16 @@ When set to nil, don't jump at all."
   :type 'boolean
   :group 'cider)
 
+(defcustom cider-auto-track-ns-form-changes t
+  "Controls whether to auto-evaluate a source buffer's ns form when changed.
+
+When non-nil CIDER will check for ns form changes before each eval command.
+When nil the users are expected to take care of the re-evaluating updated
+ns forms manually themselves."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.15.0"))
+
 (defcustom cider-prompt-save-file-on-load t
   "Controls whether to prompt to save the file when loading a buffer.
 If nil, files are not saved.
@@ -1077,8 +1087,9 @@ Clears any compilation highlights and kills the error window."
     (when (and cur-ns-form
                (not (string= cur-ns-form (cider--cached-ns-form)))
                (not (cider-ns-form-p form)))
-      ;; TODO: check for evaluation errors
-      (cider-eval-ns-form 'sync)
+      (when cider-auto-track-ns-form-changes
+        ;; TODO: check for evaluation errors
+        (cider-eval-ns-form 'sync))
       (cider--cache-ns-form))))
 
 (defvar-local cider-interactive-eval-override nil
