@@ -1066,9 +1066,9 @@ form independently.")
 (defun cider--prep-interactive-eval (form)
   "Prepare the environment for an interactive eval of FORM.
 
-If FORM is an ns-form, ensure that it is evaluated in the `user`
-namespace.  Otherwise, ensure the current ns declaration has been
+Ensure the current ns declaration has been
 evaluated (so that the ns containing FORM exists).
+If FORM is a ns declaration it's not processed and cached.
 
 Clears any compilation highlights and kills the error window."
   (cider--clear-compilation-highlights)
