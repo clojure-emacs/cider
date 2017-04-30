@@ -133,7 +133,8 @@ This function also removes itself from `post-command-hook'."
   "Whether to display evaluation indicators on the left fringe."
   :safe #'booleanp
   :group 'cider
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(cider . "0.13.0"))
 
 (defun cider--make-fringe-overlay (&optional end)
   "Place an eval indicator at the fringe before a sexp.
