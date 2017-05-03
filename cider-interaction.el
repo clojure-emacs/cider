@@ -1611,54 +1611,16 @@ The heavy lifting is done by `cider-load-buffer'."
     (find-file filename)
     (cider-load-buffer (current-buffer))))
 
-(defun clojure-files-in-directory (directory)
-  "List of all .clj files found recursively in DIRECTORY.
-
-Fork of function at: https://www.gnu.org/software/emacs/manual/html_node/eintr/Files-List.html"
-  (interactive "DDirectory name: ")
-  (cider-ensure-connected)
-  (let (clj-files-list
-        (current-directory-list
-         (directory-files-and-attributes directory t)))
-    ;; while we are in the current directory
-    (while current-directory-list
-      (cond
-       ;; check to see whether filename ends in '.clj'
-       ;; and if so, add its name to a list.
-       ((equal ".clj" (substring (car (car current-directory-list)) -4))
-        (setq clj-files-list
-              (cons (car (car current-directory-list)) clj-files-list)))
-       ;; check whether filename is that of a directory
-       ((eq t (car (cdr (car current-directory-list))))
-        ;; decide whether to skip or recurse
-        (if
-            (equal "."
-                   (substring (car (car current-directory-list)) -1))
-            ;; then do nothing since filename is that of
-            ;;   current directory or parent, "." or ".."
-            ()
-          ;; else descend into the directory and repeat the process
-          (setq clj-files-list
-                (append
-                 (clojure-files-in-directory
-                  (car (car current-directory-list)))
-                 clj-files-list)))))
-      ;; move to the next filename in the list; this also
-      ;; shortens the list so the while loop eventually comes to an end
-      (setq current-directory-list (cdr current-directory-list)))
-    ;; return the filenames
-    clj-files-list))
-
 (defun cider-load-all-files (directory)
   "Load all files in DIRECTORY (recursively)."
   (interactive "DDirectory name: ")
   (mapcar #'cider-load-file
-          (clojure-files-in-directory directory)))
+          (directory-files-recursively directory ".clj$")))
 
 (defalias 'cider-eval-file 'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
 
-(defalias 'cider-eval-all-files 'cider-load-file
+(defalias 'cider-eval-all-files 'cider-load-all-files
   "A convenience alias as some people are confused by the load-* names.")
 
 (defalias 'cider-eval-buffer 'cider-load-buffer
