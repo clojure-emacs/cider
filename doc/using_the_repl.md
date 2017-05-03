@@ -195,7 +195,7 @@ Normally code in the REPL is font-locked the same way as in
 
 #### Pretty printing in the REPL
 
-Make the REPL always pretty-print the results of your commands.
+Make the REPL always pretty-print the results of your evaluations.
 
 <kbd>M-x cider-repl-toggle-pretty-printing</kbd>
 
