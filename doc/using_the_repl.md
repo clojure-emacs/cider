@@ -199,6 +199,12 @@ Make the REPL always pretty-print the results of your commands.
 
 <kbd>M-x cider-repl-toggle-pretty-printing</kbd>
 
+To make this behavior the default:
+
+```el
+(setq cider-repl-use-pretty-printing t)
+```
+
 #### Limiting printed output in the REPL
 
 Accidentally printing large objects can be detrimental to your
