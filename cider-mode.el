@@ -235,6 +235,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     "--"
     ["Load this buffer" cider-load-buffer]
     ["Load another file" cider-load-file]
+    ["Recursively load all files in directory" cider-load-all-files]
     ["Load all project files" cider-load-all-project-ns]
     ["Refresh loaded code" cider-refresh]
     ["Run project (-main function)" cider-run])
