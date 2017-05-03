@@ -4,6 +4,10 @@ A single-page quick reference PDF for CIDER commands is available
 [here](cider-refcard.pdf). This PDF can be created manually by running
 `pdflatex` on [the CIDER refcard LaTeX file](cider-refcard.tex).
 
+## Demos
+
+* [Deep Dive into CIDER](https://www.youtube.com/watch?v=aYA4AAjLfT0) - an overview of CIDER's essential features
+
 ## Presentations
 
 * [The Evolution of the Emacs tooling for Clojure](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6) -

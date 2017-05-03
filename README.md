@@ -92,6 +92,9 @@ so you can fully empower your workflow. The best way to get acquainted with all
 available features is to go over the entire
 [CIDER manual](http://cider.readthedocs.org/).
 
+If you're into video lessons, you might also check out
+this [intro to CIDER demo](https://www.youtube.com/watch?v=aYA4AAjLfT0) as well.
+
 ## Changelog
 
 An extensive changelog is available [here](CHANGELOG.md).
