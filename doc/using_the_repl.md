@@ -5,6 +5,9 @@ library you're playing with).  The REPL offers a number of advanced features:
 * auto-completion
 * font-locking (the same as in `clojure-mode`)
 * quick access to many CIDER commands (e.g. definition and documentation lookup, tracing, etc)
+* (optional) pretty-printing of evaluation results
+* eldoc support
+* highly customizable REPL prompt
 
 Here's a list of the keybindings that are available in CIDER's REPL:
 
