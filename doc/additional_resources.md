@@ -7,6 +7,7 @@ A single-page quick reference PDF for CIDER commands is available
 ## Demos
 
 * [Deep Dive into CIDER](https://www.youtube.com/watch?v=aYA4AAjLfT0) - an overview of CIDER's essential features
+* [Emacs & Clojure, A Lispy Love Affair](https://www.youtube.com/watch?v=O6g5C4jUCUc) - an overview of all popular Emacs packages for Clojure development (including CIDER)
 
 ## Presentations
 
