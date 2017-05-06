@@ -1622,7 +1622,16 @@ The heavy lifting is done by `cider-load-buffer'."
     (find-file filename)
     (cider-load-buffer (current-buffer))))
 
+(defun cider-load-all-files (directory)
+  "Load all files in DIRECTORY (recursively).  Useful when the running nREPL on remote host."
+  (interactive "DLoad files beneath directory: ")
+  (mapcar #'cider-load-file
+          (directory-files-recursively directory ".clj$")))
+
 (defalias 'cider-eval-file 'cider-load-file
+  "A convenience alias as some people are confused by the load-* names.")
+
+(defalias 'cider-eval-all-files 'cider-load-all-files
   "A convenience alias as some people are confused by the load-* names.")
 
 (defalias 'cider-eval-buffer 'cider-load-buffer
