@@ -135,6 +135,11 @@
   "When theme is changed, update `cider-docview-code-background-color'."
   (setq cider-docview-code-background-color (cider-scale-background-color)))
 
+
+(defadvice disable-theme (after cider-docview-adapt-to-theme activate)
+  "When theme is disabled, update `cider-docview-code-background-color'."
+  (setq cider-docview-code-background-color (cider-scale-background-color)))
+
 
 ;; Mode & key bindings
 

@@ -175,6 +175,11 @@ The error types are represented as strings."
   (setq cider-stacktrace-frames-background-color (cider-scale-background-color)))
 
 
+(defadvice disable-theme (after cider-stacktrace-adapt-to-theme activate)
+  "When theme is disabled, update `cider-stacktrace-frames-background-color'."
+  (setq cider-stacktrace-frames-background-color (cider-scale-background-color)))
+
+
 ;; Mode & key bindings
 
 (defvar cider-stacktrace-mode-map

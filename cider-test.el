@@ -122,6 +122,11 @@ Add to this list to have CIDER recognize additional test defining macros."
   (setq cider-test-items-background-color (cider-scale-background-color)))
 
 
+(defadvice disable-theme (after cider-test-adapt-to-theme activate)
+  "When theme is disabled, update `cider-test-items-background-color'."
+  (setq cider-test-items-background-color (cider-scale-background-color)))
+
+
 ;;; Report mode & key bindings
 ;; The primary mode of interacting with test results is the report buffer, which
 ;; allows navigation among tests, jumping to test definitions, expected/actual
