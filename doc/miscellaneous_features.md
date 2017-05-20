@@ -145,6 +145,9 @@ and
 (setq cider-refresh-show-log-buffer t)
 ```
 
+* By default, all Clojure buffers are prompted to be saved. This behaviour can be
+  customized using `cider-prompt-save-file-on-refresh`. 
+
 ## Tracing function execution
 
 You can trace the results produced by functions using <kbd>C-c M-t v</kbd>.  The

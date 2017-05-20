@@ -111,6 +111,17 @@ If the symbol `always-save', save the file without confirmation."
   :group 'cider
   :package-version '(cider . "0.6.0"))
 
+(defcustom cider-prompt-save-file-on-cider-refresh t
+  "Controls whether to prompt to save clojure file when calling ‘cider-refresh’.
+If nil, files are not saved.
+If t, the user is prompted to save files if it's been modified.
+If the symbol `always-save', save the files without confirmation."
+  :type '(choice (const t :tag "Prompt to save files if it's been modified")
+                 (const nil :tag "Don't save the files")
+                 (const always-save :tag "Save the files without confirmation"))
+  :group 'cider
+  :package-version '(cider . "0.15.0"))
+
 (defcustom cider-completion-use-context t
   "When true, uses context at point to improve completion suggestions."
   :type 'boolean
@@ -1541,6 +1552,9 @@ refresh functions (defined in `cider-refresh-before-fn' and
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
+    (when cider-prompt-save-file-on-cider-refresh
+      (save-some-buffers (eq cider-prompt-save-file-on-cider-refresh 'always-save)
+                         (lambda () (derived-mode-p 'clojure-mode))))
     (cider-map-connections
      (lambda (conn)
        ;; Inside the lambda, so the buffer is not created if we error out.
