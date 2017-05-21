@@ -40,6 +40,7 @@
 (require 'cider-compat)
 (require 'cider-util)
 (require 'cider-resolve)
+(require 'cider-classpath)
 
 (require 'clojure-mode)
 (require 'easymenu)
