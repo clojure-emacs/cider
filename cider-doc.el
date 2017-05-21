@@ -96,6 +96,11 @@
   :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
 
+(defcustom cider-docview-select-buffer t
+  "Autoselect the documentation viewer after popup."
+  :type 'boolean
+  :group 'cider-docview-mode
+  :package-version '(cider . "0.7.0"))
 
 
 ;; Faces
@@ -263,7 +268,7 @@ opposite of what that option dictates."
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
   (if-let ((buffer (cider-create-doc-buffer symbol)))
-      (cider-popup-buffer-display buffer t)
+      (cider-popup-buffer-display buffer cider-docview-select-buffer)
     (user-error "Symbol %s not resolved" symbol)))
 
 (defun cider-doc (&optional arg)
