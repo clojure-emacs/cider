@@ -20,6 +20,7 @@
 * [#1726](https://github.com/clojure-emacs/cider/issues/1726): Order keys in printed nrepl message objects.
 * [#1832](https://github.com/clojure-emacs/cider/issues/1832): Add new customization variable `cider-eldoc-display-context-dependent-info` to control showing eldoc info for datomic query input parameters.
 * Make it possible to disable auto-evaluation of changed ns forms via the defcustom `cider-auto-track-ns-form-changes`.
+* [#1991](https://github.com/clojure-emacs/cider/issues/1832): Make it possible to disable the prompt to open a ClojureScript in a browser on connect via `cider-offer-to-open-cljs-app-in-browser`.
 * [#1995](https://github.com/clojure-emacs/cider/pull/1995): Add new customization variable `cider-doc-auto-select-buffer` to control cider-doc popup buffer auto selection.
 
 ### Changes

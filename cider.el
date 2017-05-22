@@ -226,6 +226,11 @@ This variable is used by `cider-connect'."
   :type 'boolean
   :version '(cider . "0.11.0"))
 
+(defcustom cider-offer-to-open-cljs-app-in-browser t
+  "When nil, do not offer to open ClojureScript apps in a browser on connect."
+  :type 'boolean
+  :version '(cider . "0.15.0"))
+
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
@@ -540,7 +545,8 @@ should be the regular Clojure REPL started by the server process filter."
          "ns" ,(cider-current-ns)
          "code" ,cljs-repl-form)
        (cider-repl-handler (current-buffer)))
-      (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
+      (when cider-offer-to-open-cljs-app-in-browser
+        (cider--offer-to-open-app-in-browser nrepl-server-buffer)))))
 
 (defun cider--select-zombie-buffer (repl-buffers)
   "Return a zombie buffer from REPL-BUFFERS, or nil if none exists."
