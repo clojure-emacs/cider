@@ -41,6 +41,7 @@
 * [#1897](https://github.com/clojure-emacs/cider/issues/1897): Bind TAB in stacktrace buffers in the terminal.
 * [#1895](https://github.com/clojure-emacs/cider/issues/1895): Connect to the same host:port after `cider-restart` if the connection was established with `cider-connect`.
 * [#1881](https://github.com/clojure-emacs/cider/issues/1881): Add `cider-cljs-boot-repl` and `cider-cljs-gradle-repl` defcustom and hook `boot-cljs-repl`.
+* [#1997](https://github.com/clojure-emacs/cider/pull/1997): Fix a nil error when loading a code buffer and the error buffer is visible.
 
 ## 0.14.0 (2016-10-13)
 
