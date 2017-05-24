@@ -1594,7 +1594,7 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
     (cider--clear-compilation-highlights)
     (cider--quit-error-window)
     (cider--cache-ns-form)
-    (let ((filename (buffer-file-name)))
+    (let ((filename (buffer-file-name buffer)))
       (cider-map-connections
        (lambda (connection)
          (cider-request:load-file (cider-file-string filename)
