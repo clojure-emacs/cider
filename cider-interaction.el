@@ -1590,12 +1590,10 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
                (or (eq cider-prompt-save-file-on-load 'always-save)
                    (y-or-n-p (format "Save file %s? " buffer-file-name))))
       (save-buffer))
-
     (remove-overlays nil nil 'cider-temporary t)
     (cider--clear-compilation-highlights)
     (cider--quit-error-window)
     (cider--cache-ns-form)
-
     (let ((filename (buffer-file-name buffer)))
       (cider-map-connections
        (lambda (connection)
