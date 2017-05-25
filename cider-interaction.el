@@ -100,16 +100,18 @@ ns forms manually themselves."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-prompt-save-file-on-load t
+(defcustom cider-save-file-on-load 'prompt
   "Controls whether to prompt to save the file when loading a buffer.
 If nil, files are not saved.
-If t, the user is prompted to save the file if it's been modified.
-If the symbol `always-save', save the file without confirmation."
-  :type '(choice (const t :tag "Prompt to save the file if it's been modified")
+If 'prompt, the user is prompted to save the file if it's been modified.
+If t, save the file without confirmation."
+  :type '(choice (const prompt :tag "Prompt to save the file if it's been modified")
                  (const nil :tag "Don't save the file")
-                 (const always-save :tag "Save the file without confirmation"))
+                 (const t :tag "Save the file without confirmation"))
   :group 'cider
   :package-version '(cider . "0.6.0"))
+
+(define-obsolete-variable-alias 'cider-prompt-save-file-on-load 'cider-save-file-on-load "0.15.0")
 
 (defcustom cider-prompt-save-files-on-cider-refresh t
   "Controls whether to prompt to save Clojure files on `cider-refresh'.
@@ -1611,9 +1613,9 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
   (with-current-buffer buffer
     (unless buffer-file-name
       (user-error "Buffer `%s' is not associated with a file" (current-buffer)))
-    (when (and cider-prompt-save-file-on-load
+    (when (and cider-save-file-on-load
                (buffer-modified-p)
-               (or (eq cider-prompt-save-file-on-load 'always-save)
+               (or (eq cider-save-file-on-load t)
                    (y-or-n-p (format "Save file %s? " buffer-file-name))))
       (save-buffer))
     (remove-overlays nil nil 'cider-temporary t)

@@ -60,9 +60,9 @@ make the hidden buffers visible. They'll always be visible in
 
 ```el
 ;; Don't prompt and don't save
-(setq cider-prompt-save-file-on-load nil)
+(setq cider-save-file-on-load nil)
 ;; Just save without prompting
-(setq cider-prompt-save-file-on-load 'always-save)
+(setq cider-save-file-on-load t)
 ```
 
 * Change the result prefix for interactive evaluation (by default it's `=> `):
