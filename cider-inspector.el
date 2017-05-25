@@ -394,10 +394,6 @@ that value.
           (t
            (error "No clickable part here")))))
 
-;;;###autoload
-(define-obsolete-function-alias 'cider-inspect-read-and-inspect
-  'cider-inspect-expr "0.13.0")
-
 (provide 'cider-inspector)
 
 ;;; cider-inspector.el ends here
