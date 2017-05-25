@@ -4,7 +4,7 @@
 
 ### New Features
 
-* [#1990](https://github.com/clojure-emacs/cider/issues/1990): Add new customation variable `cider-prompt-save-files-on-cider-refresh` to allow auto-saving buffers when `cider-refresh` is called.
+* [#1990](https://github.com/clojure-emacs/cider/issues/1990): Add new customation variable `cider-save-files-on-cider-refresh` to allow auto-saving buffers when `cider-refresh` is called.
 * Add new function `cider-load-all-files`, along with menu bar update.
 * Add new customization variable `cider-special-mode-truncate-lines`.
 * Add an option `cider-inspector-fill-frame` to control whether the cider inspector window fills its frame.

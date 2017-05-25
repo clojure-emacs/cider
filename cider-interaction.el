@@ -1538,7 +1538,7 @@ Its behavior is controlled by `cider-save-files-on-cider-refresh'."
   (when-let ((project-root (clojure-project-dir)))
     (when cider-save-files-on-cider-refresh
       (save-some-buffers
-       (eq cider-prompt-save-files-on-cider-refresh t)
+       (eq cider-save-files-on-cider-refresh t)
        (lambda ()
          (and
           (derived-mode-p 'clojure-mode)
