@@ -1534,7 +1534,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   "Ensure modified files are saved before certain operations.
 It's behavior is controlled by `cider-prompt-save-files-on-cider-refresh'."
   (when cider-prompt-save-files-on-cider-refresh
-    (save-some-buffers (eq cider-prompt-saves-file-on-cider-refresh 'always-save)
+    (save-some-buffers (eq cider-prompt-save-files-on-cider-refresh 'always-save)
                        (lambda () (derived-mode-p 'clojure-mode)))))
 
 (defun cider-refresh (&optional mode)
