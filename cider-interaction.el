@@ -1532,7 +1532,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 
 (defun cider-save-project-files ()
   "Ensure modified files are saved before certain operations.
-It's behavior is controlled by `cider-prompt-save-files-on-cider-refresh'."
+Its behavior is controlled by `cider-prompt-save-files-on-cider-refresh'."
   (when-let ((project-root (clojure-project-dir)))
     (when cider-prompt-save-files-on-cider-refresh
       (save-some-buffers
