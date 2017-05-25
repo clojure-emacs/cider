@@ -1530,8 +1530,8 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
     (when (member "error" status)
       (cider--render-stacktrace-causes error))))
 
-(defun cider-save-project-files ()
-  "Ensure modified files are saved before certain operations.
+(defun cider-save-project-buffers ()
+  "Ensure modified project buffers are saved before certain operations.
 Its behavior is controlled by `cider-prompt-save-files-on-cider-refresh'."
   (when-let ((project-root (clojure-project-dir)))
     (when cider-prompt-save-files-on-cider-refresh
@@ -1563,7 +1563,7 @@ refresh functions (defined in `cider-refresh-before-fn' and
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
-  (cider-save-project-files)
+  (cider-save-project-buffers)
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
