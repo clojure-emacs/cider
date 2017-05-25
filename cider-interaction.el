@@ -1530,6 +1530,13 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
     (when (member "error" status)
       (cider--render-stacktrace-causes error))))
 
+(defun cider-save-project-files ()
+  "Ensure modified files are saved before certain operations.
+It's behavior is controlled by `cider-prompt-save-files-on-cider-refresh'."
+  (when cider-prompt-save-files-on-cider-refresh
+    (save-some-buffers (eq cider-prompt-saves-file-on-cider-refresh 'always-save)
+                       (lambda () (derived-mode-p 'clojure-mode)))))
+
 (defun cider-refresh (&optional mode)
   "Reload modified and unloaded namespaces on the classpath.
 
@@ -1549,12 +1556,10 @@ refresh functions (defined in `cider-refresh-before-fn' and
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
+  (cider-save-project-files)
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
-    (when cider-prompt-save-files-on-cider-refresh
-      (save-some-buffers (eq cider-prompt-saves-file-on-cider-refresh 'always-save)
-                         (lambda () (derived-mode-p 'clojure-mode))))
     (cider-map-connections
      (lambda (conn)
        ;; Inside the lambda, so the buffer is not created if we error out.
