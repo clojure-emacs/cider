@@ -113,14 +113,14 @@ If t, save the file without confirmation."
 
 (define-obsolete-variable-alias 'cider-prompt-save-file-on-load 'cider-save-file-on-load "0.15.0")
 
-(defcustom cider-prompt-save-files-on-cider-refresh t
+(defcustom cider-save-files-on-cider-refresh 'prompt
   "Controls whether to prompt to save Clojure files on `cider-refresh'.
 If nil, files are not saved.
-If t, the user is prompted to save files if they have been modified.
-If the symbol `always-save', save the files without confirmation."
-  :type '(choice (const t :tag "Prompt to save files if they have been modified")
+If 'prompt, the user is prompted to save files if they have been modified.
+If t, save the files without confirmation."
+  :type '(choice (const prompt :tag "Prompt to save files if they have been modified")
                  (const nil :tag "Don't save the files")
-                 (const always-save :tag "Save the files without confirmation"))
+                 (const t :tag "Save the files without confirmation"))
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
@@ -1534,11 +1534,11 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 
 (defun cider-save-project-buffers ()
   "Ensure modified project buffers are saved before certain operations.
-Its behavior is controlled by `cider-prompt-save-files-on-cider-refresh'."
+Its behavior is controlled by `cider-save-files-on-cider-refresh'."
   (when-let ((project-root (clojure-project-dir)))
-    (when cider-prompt-save-files-on-cider-refresh
+    (when cider-save-files-on-cider-refresh
       (save-some-buffers
-       (eq cider-prompt-save-files-on-cider-refresh 'always-save)
+       (eq cider-prompt-save-files-on-cider-refresh t)
        (lambda ()
          (and
           (derived-mode-p 'clojure-mode)

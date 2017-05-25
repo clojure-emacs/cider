@@ -146,7 +146,7 @@ and
 ```
 
 * By default, all modified Clojure buffers are prompted to be saved. This
-  behaviour can be customized using `cider-prompt-save-files-on-refresh`.
+  behaviour can be customized using `cider-save-files-on-refresh`.
 
 ## Tracing function execution
 
