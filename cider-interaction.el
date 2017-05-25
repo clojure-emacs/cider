@@ -1533,9 +1533,16 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defun cider-save-project-files ()
   "Ensure modified files are saved before certain operations.
 It's behavior is controlled by `cider-prompt-save-files-on-cider-refresh'."
-  (when cider-prompt-save-files-on-cider-refresh
-    (save-some-buffers (eq cider-prompt-save-files-on-cider-refresh 'always-save)
-                       (lambda () (derived-mode-p 'clojure-mode)))))
+  (when-let ((project-root (clojure-project-dir)))
+    (when cider-prompt-save-files-on-cider-refresh
+      (save-some-buffers
+       (eq cider-prompt-save-files-on-cider-refresh 'always-save)
+       (lambda ()
+         (and
+          (derived-mode-p 'clojure-mode)
+          (string-prefix-p project-root
+                           (file-truename default-directory)
+                           (eq system-type 'windows-nt))))))))
 
 (defun cider-refresh (&optional mode)
   "Reload modified and unloaded namespaces on the classpath.
