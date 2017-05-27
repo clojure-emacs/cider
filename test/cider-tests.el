@@ -188,6 +188,32 @@
               :and-return-value '())
       (expect (cider-project-type) :to-equal cider-default-repl-command))))
 
+(describe "cider-cljs-repl-form"
+  (describe "when there is no overridden cider-cljs-lein-repl"
+    (it "returns the default form"
+      (expect (cider-cljs-repl-form "lein") :to-equal "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))")))
+  (describe "when there is no overridden cider-cljs-boot-repl"
+    (it "returns the default form"
+      (expect (cider-cljs-repl-form "boot") :to-equal "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))")))
+  (describe "when there is no overridden cider-cljs-gradle-repl"
+    (it "returns the overridden form not the default"
+      (expect (cider-cljs-repl-form "gradle") :to-equal "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))")))
+
+  (describe "when there overriding"
+    (before-each
+      (setq-local cider-cljs-lein-repl "(do my lein thing)")
+      (setq-local cider-cljs-boot-repl "(do my boot thing)")
+      (setq-local cider-cljs-gradle-repl "(do my gradle thing)"))
+    (describe "cider-cljs-lein-repl"
+      (it "returns the overridden form not the default"
+        (expect (cider-cljs-repl-form "lein") :to-equal "(do my lein thing)")))
+    (describe "cider-cljs-boot-repl"
+      (it "returns the overridden form not the default"
+        (expect (cider-cljs-repl-form "boot") :to-equal "(do my boot thing)")))
+    (describe "cider-cljs-gradle-repl"
+      (it "returns the overridden form not the default"
+        (expect (cider-cljs-repl-form "gradle") :to-equal "(do my gradle thing)")))))
+
 (provide 'cider-tests)
 
 ;;; cider-tests.el ends here
