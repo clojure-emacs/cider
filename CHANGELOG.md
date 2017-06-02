@@ -10,6 +10,7 @@
 * [#2015](https://github.com/clojure-emacs/cider/pull/2015): Show symbols as special forms *and* macros in `cider-doc`
 * [#2012](https://github.com/clojure-emacs/cider/pull/2012): Support special forms in `cider-apropos` and `cider-grimoire-lookup`.
 * [#2007](https://github.com/clojure-emacs/cider/pull/2007): Fontify code blocks from `cider-grimoire` if possible.
+* Add support for notifications from the NREPL server.
 * [#1990](https://github.com/clojure-emacs/cider/issues/1990): Add new customation variable `cider-save-files-on-cider-refresh` to allow auto-saving buffers when `cider-refresh` is called.
 * Add new function `cider-load-all-files`, along with menu bar update.
 * Add new customization variable `cider-special-mode-truncate-lines`.
