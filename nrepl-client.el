@@ -736,6 +736,25 @@ It is safe to call this function multiple times on the same ID."
     (puthash id handler nrepl-completed-requests)
     (remhash id nrepl-pending-requests)))
 
+(declare-function cider-repl--emit-interactive-output "cider-repl")
+(defun nrepl-notify (msg type)
+  "Handle \"notification\" server request.
+MSG is a string to be displayed.  TYPE is the type of the message.  All
+notifications are currently displayed with `message' function and emitted
+to the REPL."
+  (let* ((face (pcase type
+                 ((or "message" 'nil) 'font-lock-builtin-face)
+                 ("warning" 'warning)
+                 ("error"   'error)))
+         (msg (if face
+                  (propertize msg 'face face)
+                (format "%s: %s" (upcase type) msg))))
+    (cider-repl--emit-interactive-output msg (or face 'font-lock-builtin-face))
+    (message msg)
+    ;; Interactive eval handler covers this message, but it won't be eval
+    ;; middleware using this functionality.
+    (sit-for 2)))
+
 (defvar cider-buffer-ns)
 (defvar cider-special-mode-truncate-lines)
 (declare-function cider-need-input "cider-interaction")
@@ -779,6 +798,9 @@ corresponding type of response."
              (when stderr-handler
                (funcall stderr-handler buffer err)))
             (status
+             (when (member "notification" status)
+               (nrepl-dbind-response response (msg type)
+                 (nrepl-notify msg type)))
              (when (member "interrupted" status)
                (message "Evaluation interrupted."))
              (when (member "eval-error" status)
