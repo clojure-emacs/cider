@@ -557,11 +557,11 @@ with the given LIMIT."
                    (while plist
                      (let ((sym (pop plist))
                            (meta (pop plist)))
-                       (pcase (nrepl-dict-get meta "cider.nrepl.middleware.util.instrument/breakfunction")
+                       (pcase (nrepl-dict-get meta "cider/instrumented")
                          (`nil nil)
-                         (`"#'cider.nrepl.middleware.debug/breakpoint-if-interesting"
+                         (`"\"breakpoint-if-interesting\""
                           (push sym instrumented))
-                         (`"#'cider.nrepl.middleware.enlighten/light-form"
+                         (`"\"light-form\""
                           (push sym enlightened)))
                        ;; The ::traced keywords can be inlined by MrAnderson, so
                        ;; we catch that case too.
