@@ -4,6 +4,7 @@
 
 ### New Features
 
+* [#2007](https://github.com/clojure-emacs/cider/pull/2007): Fontify code blocks from `cider-grimoire` if possible.
 * [#1990](https://github.com/clojure-emacs/cider/issues/1990): Add new customation variable `cider-save-files-on-cider-refresh` to allow auto-saving buffers when `cider-refresh` is called.
 * Add new function `cider-load-all-files`, along with menu bar update.
 * Add new customization variable `cider-special-mode-truncate-lines`.

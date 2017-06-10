@@ -35,6 +35,9 @@
 
 (require 'url-vars)
 
+(declare-function markdown-mode "markdown-mode.el")
+(declare-function markdown-toggle-fontify-code-blocks-natively "markdown-mode.el")
+
 (defconst cider-grimoire-url "http://conj.io/")
 
 (defconst cider-grimoire-buffer "*cider-grimoire*")
@@ -78,6 +81,11 @@ opposite of what that option dictates."
   (with-current-buffer (cider-popup-buffer cider-grimoire-buffer t)
     (read-only-mode -1)
     (insert content)
+    (when (require 'markdown-mode nil 'noerror)
+      (markdown-mode)
+      (cider-popup-buffer-mode 1)
+      (when (fboundp 'markdown-toggle-fontify-code-blocks-natively)
+        (markdown-toggle-fontify-code-blocks-natively 1)))
     (read-only-mode +1)
     (goto-char (point-min))
     (current-buffer)))

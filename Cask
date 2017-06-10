@@ -6,4 +6,5 @@
 (files "*.el" (:exclude ".dir-locals.el"))
 
 (development
- (depends-on "buttercup"))
+ (depends-on "buttercup")
+ (depends-on "markdown-mode"))
