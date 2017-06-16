@@ -91,10 +91,13 @@ opposite of what that option dictates."
     (current-buffer)))
 
 (defun cider-grimoire-lookup (symbol)
-  "Look up the grimoire documentation for SYMBOL."
+  "Look up the grimoire documentation for SYMBOL.
+
+If SYMBOL is a special form, the clojure.core ns is used, as is
+Grimoire's convention."
   (if-let ((var-info (cider-var-info symbol)))
       (let ((name (nrepl-dict-get var-info "name"))
-            (ns (nrepl-dict-get var-info "ns"))
+            (ns (nrepl-dict-get var-info "ns" "clojure.core"))
             (url-request-method "GET")
             (url-request-extra-headers `(("Content-Type" . "text/plain"))))
         (url-retrieve (cider-grimoire-url name ns)
