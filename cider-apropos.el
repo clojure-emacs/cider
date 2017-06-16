@@ -54,6 +54,15 @@ the symbol found by the apropos search as argument."
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
+(define-button-type 'apropos-special-form
+  'apropos-label "Special form"
+  'apropos-short-label "s"
+  'face 'apropos-misc-button
+  'help-echo "mouse-2, RET: Display more help on this special form"
+  'follow-link t
+  'action (lambda (button)
+            (describe-function (button-get button 'apropos-symbol))))
+
 (defun cider-apropos-doc (button)
   "Display documentation for the symbol represented at BUTTON."
   (cider-doc-lookup (button-get button 'apropos-symbol)))
