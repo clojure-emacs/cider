@@ -36,6 +36,7 @@
 
 ### Bugs Fixed
 
+* [#1699](https://github.com/clojure-emacs/cider/issues/1699): Fix "Method code too large!" error that occurred during instrumentation for debugging.
 * [#1987](https://github.com/clojure-emacs/cider/issues/1987): Fix: Update faces when disabling a theme
 * [#1962](https://github.com/clojure-emacs/cider/issues/1962): Fix performance in fringe overlay placement.
 * [#1947](https://github.com/clojure-emacs/cider/issues/1947): Fix error on `cider-jack-in` when `enlighten-mode` is enabled.
