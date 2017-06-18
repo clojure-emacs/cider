@@ -57,7 +57,7 @@ the symbol found by the apropos search as argument."
 (define-button-type 'apropos-special-form
   'apropos-label "Special form"
   'apropos-short-label "s"
-  'face 'apropos-misc-button
+  'face 'font-lock-keyword-face
   'help-echo "mouse-2, RET: Display more help on this special form"
   'follow-link t
   'action (lambda (button)
