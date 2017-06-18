@@ -396,8 +396,10 @@ Tables are marked to be ignored by line wrap."
          (depr    (nrepl-dict-get info "deprecated"))
          (macro   (nrepl-dict-get info "macro"))
          (special (nrepl-dict-get info "special-form"))
-         (forms   (nrepl-dict-get info "forms-str"))
-         (args    (nrepl-dict-get info "arglists-str"))
+         (forms   (when-let ((str (nrepl-dict-get info "forms-str")))
+                    (split-string str "\n")))
+         (args    (when-let ((str (nrepl-dict-get info "arglists-str")))
+                    (split-string str "\n")))
          (doc     (or (nrepl-dict-get info "doc")
                       "Not documented."))
          (url     (nrepl-dict-get info "url"))
@@ -426,22 +428,10 @@ Tables are marked to be ignored by line wrap."
             (emit (concat "            "(cider-font-lock-as 'java-mode iface)))))
         (when (or super ifaces)
           (insert "\n"))
-        (when (or forms args)
-          (insert " ")
-          (save-excursion
-            (emit (cider-font-lock-as-clojure
-                   ;; All `defn's use ([...] [...]), but some special forms use
-                   ;; (...). We only remove the parentheses on the former.
-                   (replace-regexp-in-string "\\`(\\(\\[.*\\]\\))\\'" "\\1"
-                                             (or forms args)))))
-          ;; It normally doesn't happen, but it's technically conceivable for
-          ;; the args string to contain unbalanced sexps, so `ignore-errors'.
-          (ignore-errors
-            (forward-sexp 1)
-            (while (not (looking-at "$"))
-              (insert "\n")
-              (forward-sexp 1)))
-          (forward-line 1))
+        (when-let ((forms (or forms args)))
+          (dolist (form forms)
+            (insert " ")
+            (emit (cider-font-lock-as-clojure form))))
         (when (or special macro)
           (emit (if special "Special Form" "Macro") 'font-lock-variable-name-face))
         (when added
