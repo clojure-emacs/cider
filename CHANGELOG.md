@@ -32,6 +32,7 @@
 * Don't try to use ssh automatically when connecting to remote hosts and a direct connection fails. See `nrepl-use-ssh-fallback-for-remote-hosts`.
 * [#1945](https://github.com/clojure-emacs/cider/pull/1945): Start nREPL servers bound to `::` by default using `cider-jack-in`.
 * Renamed `cider-prompt-save-file-on-load` to `cider-save-file-on-load` and adjust its supported values accordingly (the default now is `'prompt` and `'always-save` is now simply `t`).
+* [#2014](https://github.com/clojure-emacs/cider/pull/2014): Unify the format for `forms-str` and `arglists-str`.
 
 ### Bugs Fixed
 
