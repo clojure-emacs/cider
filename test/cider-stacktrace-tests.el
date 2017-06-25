@@ -83,3 +83,34 @@
                                  (cider-stacktrace-promote-error "x")
                                  :test 'equal)
             :not :to-be-truthy)))
+
+(defun cider--testing-dict (names &optional stipulated)
+  (let ((numeric? (lambda (sym) (member sym '(line column)))))
+    (apply #'nrepl-dict
+           (append (mapcan (lambda (name) (list (symbol-name name)
+                                                (if (funcall numeric? name)
+                                                    4
+                                                  (symbol-name name))))
+                           names)
+                   stipulated))))
+
+(defun cider--frame-of-type (flags)
+  (cider--testing-dict '(file class method name var ns fn line column path)
+                       (list "flags" (mapcar #'symbol-name flags))))
+
+(describe "cider-stacktrace-frame-p-tests"
+  (it "returns true on frames"
+    (with-temp-buffer
+      ;; a stackframe
+      (cider-stacktrace-render-frame (current-buffer)
+                                     (cider--frame-of-type '(clj)))
+      (goto-char (point-min))
+      (expect (cider-stacktrace-frame-p) :to-be-truthy)))
+
+  (it "returns false otherwise"
+    (with-temp-buffer
+      ;; not a stackframe but a compile error
+      (cider-stacktrace-render-compile-error (current-buffer)
+                                             (cider--testing-dict '(file path column line)))
+      (goto-char (point-min))
+      (expect (cider-stacktrace-frame-p) :to-be nil))))

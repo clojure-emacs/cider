@@ -274,6 +274,12 @@ searching and update the hidden count text."
           (replace-match
            (number-to-string cider-stacktrace-hidden-frame-count)))))))
 
+(defun cider-stacktrace-frame-p ()
+  (get-text-property (point) 'cider-stacktrace-frame))
+
+(defun cider-stacktrace-collapsed-p ()
+  (get-text-property (point) 'collapsed))
+
 (defun cider-stacktrace-apply-filters (filters)
   "Set visibility on stack frames using FILTERS.
 Update `cider-stacktrace-hidden-frame-count' and indicate filters applied.
@@ -285,11 +291,13 @@ hidden count."
       (let ((inhibit-read-only t)
             (hidden 0))
         (while (not (eobp))
-          (unless (get-text-property (point) 'collapsed)
+          (when (and (cider-stacktrace-frame-p)
+                     (not (cider-stacktrace-collapsed-p)))
             (let* ((flags (get-text-property (point) 'flags))
                    (hide (if (seq-intersection filters flags) t nil)))
               (when hide (cl-incf hidden))
-              (put-text-property (point) (line-beginning-position 2) 'invisible hide)))
+              (put-text-property (point) (line-beginning-position 2)
+                                 'invisible hide)))
           (forward-line 1))
         (setq cider-stacktrace-hidden-frame-count hidden)))
     (cider-stacktrace-indicate-filters filters)))
@@ -607,7 +615,9 @@ This associates text properties to enable filtering and source navigation."
                 (p2 (search-forward "/"))
                 (p3 (search-forward-regexp "[^/$]+")))
             (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
-            (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)))
+            (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)
+            (put-text-property (line-beginning-position) (line-end-position)
+                               'cider-stacktrace-frame t)))
         (insert "\n")))))
 
 (declare-function cider-jump-to "cider-interaction")
@@ -717,6 +727,7 @@ through the `cider-stacktrace-suppressed-errors' variable."
             (setq num (1- num))))))
     (cider-stacktrace-initialize causes)
     (font-lock-refresh-defaults)))
+
 
 (provide 'cider-stacktrace)
 
