@@ -36,6 +36,7 @@
 (require 'subr-x)
 (require 'cider-compat)
 (require 'nrepl-dict)
+(require 'ansi-color)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 
@@ -250,16 +251,23 @@ This buffer is not designed to display anything to the user.  For that, use
           (funcall mode))
         b)))
 
+(defun cider-detect-ansi-p (string)
+  "Return non-nil if STRING is an ANSI string."
+  (string-match "^\\[" string))
+
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
-  (if (or (null cider-font-lock-max-length)
-          (< (length string) cider-font-lock-max-length))
-      (with-current-buffer (cider--make-buffer-for-mode mode)
-        (erase-buffer)
-        (insert string)
-        (font-lock-fontify-region (point-min) (point-max))
-        (buffer-string))
-    string))
+  (let ((string (if (cider-detect-ansi-p string)
+                    (ansi-color-apply string)
+                  string)))
+    (if (or (null cider-font-lock-max-length)
+            (< (length string) cider-font-lock-max-length))
+        (with-current-buffer (cider--make-buffer-for-mode mode)
+          (erase-buffer)
+          (insert string)
+          (font-lock-fontify-region (point-min) (point-max))
+          (buffer-string))
+      string)))
 
 (defun cider-font-lock-region-as (mode beg end &optional buffer)
   "Use MODE to font-lock text between BEG and END.
