@@ -36,6 +36,7 @@
 
 ### Bugs Fixed
 
+* [#2018](https://github.com/clojure-emacs/cider/issues/2018): Don't delete wrong overlays during code evaluation.
 * [#1699](https://github.com/clojure-emacs/cider/issues/1699): Fix "Method code too large!" error that occurred during instrumentation for debugging.
 * [#1987](https://github.com/clojure-emacs/cider/issues/1987): Fix: Update faces when disabling a theme
 * [#1962](https://github.com/clojure-emacs/cider/issues/1962): Fix performance in fringe overlay placement.
