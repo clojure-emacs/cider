@@ -716,7 +716,7 @@ REPL buffer.  This is controlled via
                          (current-buffer))
     (save-excursion
       (goto-char beg)
-      (remove-overlays beg end 'cider-fringe-indicator)
+      (remove-overlays beg end 'category 'cider-fringe-indicator)
       (condition-case nil
           (while (progn (clojure-forward-logical-sexp)
                         (and (<= (point) end)
