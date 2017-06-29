@@ -1,4 +1,4 @@
-;;; cider-util.el --- Common utility functions that don't belong anywhere else -*- lexical-binding: t -*-
+;; cider-util.el --- Common utility functions that don't belong anywhere else -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
 ;; Copyright © 2013-2017 Bozhidar Batsov, Artur Malabarba and CIDER contributors
@@ -251,13 +251,13 @@ This buffer is not designed to display anything to the user.  For that, use
           (funcall mode))
         b)))
 
-(defun cider-detect-ansi-p (string)
+(defun cider-ansi-color-string-p (string)
   "Return non-nil if STRING is an ANSI string."
   (string-match "^\\[" string))
 
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
-  (let ((string (if (cider-detect-ansi-p string)
+  (let ((string (if (cider-ansi-color-string-p) string
                     (ansi-color-apply string)
                   string)))
     (if (or (null cider-font-lock-max-length)
