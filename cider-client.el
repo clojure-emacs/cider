@@ -952,6 +952,27 @@ CONTEXT represents a completion context for compliment."
         nil
       eldoc)))
 
+(defun cider-sync-request:spec-list (filter-regex)
+  "Get a list of the available specs in the registry."
+  (thread-first `("op" "spec-list"
+                  "filter-regex" ,filter-regex)
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "spec-list")))
+
+(defun cider-sync-request:spec-form (spec)
+  "Get spec form from registry"
+  (thread-first `("op" "spec-form"
+                  "spec-name" ,spec)
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "spec-form")))
+
+(defun cider-sync-request:spec-example (spec)
+  "Get a spec example"
+  (thread-first `("op" "spec-example"
+                  "spec-name" ,spec)
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "spec-example")))
+
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (thread-first `("op" "ns-list"

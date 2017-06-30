@@ -3,7 +3,7 @@
 ## master (unreleased)
 
 ### New Features
-
+* Add new functions `cider-browse-spec` and `cider-browse-spec-all` which starts a spec browser.
 * [#2015](https://github.com/clojure-emacs/cider/pull/2015): Show symbols as special forms *and* macros in `cider-doc`
 * [#2012](https://github.com/clojure-emacs/cider/pull/2012): Support special forms in `cider-apropos` and `cider-grimoire-lookup`.
 * [#2007](https://github.com/clojure-emacs/cider/pull/2007): Fontify code blocks from `cider-grimoire` if possible.
