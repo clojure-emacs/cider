@@ -60,6 +60,36 @@ Stable by adding this to your Emacs initialization:
   [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
   enabled by default in Emacs and you should not disable it!**
 
+## Installation via use-package
+
+`use-package` can be used to install CIDER via the `package.el`'s repositories
+[MELPA Stable](http://stable.melpa.org) and [MELPA](http://melpa.org).
+
+If you wanted to install the version of CIDER which is what is to be found in
+the `master` branch, declare the following in your Emacs initialization file
+(`.emacs` or `init.el`):
+
+```el
+(use-package cider
+  :ensure t)
+```
+
+However, if you wanted to be a bit more conservative and only use the stable
+releases of CIDER, you'd declare the following:
+
+```el
+(use-package cider
+  :ensure t
+  :pin melpa-stable)
+```
+
+After placing one of the above s-expressions, evaluate it, for it to take effect
+by entering: <kbd>C-x C-e</kbd>.
+
+For further configuration options with `use-package`, consult the
+official [use-package repository](https://github.com/jwiegley/use-package).
+
+
 ## Installation via el-get
 
 CIDER is also available for installation from
