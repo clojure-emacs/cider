@@ -257,7 +257,7 @@ This buffer is not designed to display anything to the user.  For that, use
 
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
-  (let ((string (if (cider-ansi-color-string-p) string
+  (let ((string (if (cider-ansi-color-string-p string)
                     (ansi-color-apply string)
                   string)))
     (if (or (null cider-font-lock-max-length)
