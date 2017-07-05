@@ -108,13 +108,15 @@ version from the CIDER package or library.")
   nil
   "Command global options used to execute Leiningen (e.g.: -o for offline)."
   :type 'string
-  :group 'cider)
+  :group 'cider
+  :safe #'stringp)
 
 (defcustom cider-lein-parameters
   "repl :headless :host ::"
   "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
   :type 'string
-  :group 'cider)
+  :group 'cider
+  :safe #'stringp) 
 
 (defcustom cider-boot-command
   "boot"
@@ -128,6 +130,7 @@ version from the CIDER package or library.")
   "Command global options used to execute Boot (e.g.: -c for checkouts)."
   :type 'string
   :group 'cider
+  :safe #'stringp 
   :package-version '(cider . "0.14.0"))
 
 (defcustom cider-boot-parameters
@@ -135,6 +138,7 @@ version from the CIDER package or library.")
   "Params passed to boot to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
+  :safe #'stringp 
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-gradle-command
@@ -149,6 +153,7 @@ version from the CIDER package or library.")
   "Command line options used to execute Gradle (e.g.: -m for dry run)."
   :type 'string
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.14.0"))
 
 (defcustom cider-gradle-parameters
@@ -156,6 +161,7 @@ version from the CIDER package or library.")
   "Params passed to gradle to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-default-repl-command
@@ -165,6 +171,7 @@ This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found."
   :type 'string
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-preferred-build-tool
@@ -181,6 +188,7 @@ command when there is no ambiguity."
                  (const "gradle")
                  (const :tag "Always ask" nil))
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.13.0"))
 
 (defcustom cider-allow-jack-in-without-project 'warn
@@ -192,6 +200,7 @@ When set to nil `cider-jack-in' will fail."
                  (const 'warn)
                  (const :tag "never" nil))
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.15.0"))
 
 (defcustom cider-known-endpoints nil
@@ -224,6 +233,7 @@ This variable is used by `cider-connect'."
 (defcustom cider-inject-dependencies-at-jack-in t
   "When nil, do not inject repl dependencies (most likely nREPL middlewares) at `cider-jack-in' time."
   :type 'boolean
+  :safe #'stringp
   :version '(cider . "0.11.0"))
 
 (defcustom cider-offer-to-open-cljs-app-in-browser t
