@@ -277,6 +277,8 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     ("Browse"
      ["Browse namespace" cider-browse-ns]
      ["Browse all namespaces" cider-browse-ns-all]
+     ["Browse spec" cider-browse-spec]
+     ["Browse all specs" cider-browse-spec-all]
      ["Browse REPL input history" cider-repl-history]
      ["Browse classpath" cider-classpath]
      ["Browse classpath entry" cider-open-classpath-entry])
