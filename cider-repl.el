@@ -1328,6 +1328,8 @@ constructs."
         ["Browse classpath entry" cider-open-classpath-entry]
         ["Browse namespace" cider-browse-ns]
         ["Browse all namespaces" cider-browse-ns-all]
+        ["Browse spec" cider-browse-spec]
+        ["Browse all specs" cider-browse-spec-all]
         "--"
         ["Next prompt" cider-repl-next-prompt]
         ["Previous prompt" cider-repl-previous-prompt]
