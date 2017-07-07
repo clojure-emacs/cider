@@ -304,7 +304,7 @@ a more user friendly representation of SPEC-FORM."
 (defun cider-browse-spec-all (filter-regex)
   "List all loaded specs in BUFFER filtered by FILTER-REGEX.
 If FILTER-REGEX is empty, list all specs in the registry."
-  (interactive (list (read-string "Filter prefix: ")))
+  (interactive (list (read-string "Filter regex: ")))
   (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer t)
     (let ((specs (cider-sync-request:spec-list filter-regex)))
       (cider-browse-spec--clear-nav-history)
@@ -312,7 +312,7 @@ If FILTER-REGEX is empty, list all specs in the registry."
       (cider-browse-spec--draw-list-buffer (current-buffer)
                                            (if (string-empty-p filter-regex)
                                    "All specs in registry"
-                                 (format "All specs with `%s' prefix in registry" filter-regex))
+                                 (format "All specs matching regex `%s' in registry" filter-regex))
                                specs))))
 
 (defun cider-browse-spec--browse-at-point ()
