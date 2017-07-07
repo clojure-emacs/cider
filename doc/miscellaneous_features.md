@@ -193,6 +193,36 @@ Keyboard shortcut               | Description
 <kbd>n</kbd>                    | Go to next line.
 <kbd>p</kbd>                    | Go to previous line.
 
+## Spec browser
+
+If you are using  Clojure 1.9.0-alpha16 or newer you can browse the Clojure specs registry.
+
+If you know what you are looking for, you can type <kbd>M-x</kbd> `cider-browse-spec`.
+It will prompt you for a spec name to browse to, hit <kbd>RET</kbd> and you will find yourself
+at the spec browser.
+
+![Spec Browser](images/spec_browser.png)
+
+You can also type the command <kbd>M-x</kbd> `cider-browse-spec-all`. This command will prompt you for 
+a regex you can use to filter out the specs you are interested in, and will also take you to the spec browser. 
+
+![Spec Browser](images/spec_browser_all.png)
+
+Once in the browser you can use your mouse or the keybindings below to navigate deeper into sub specs.
+
+Keyboard shortcut               | Description
+--------------------------------|-------------------------------
+<kbd>RET</kbd>                  | Browse the spec at point.
+<kbd>^</kbd>                    | Go up in the navigation stack.
+<kbd>n</kbd>                    | Go to next spec.
+<kbd>p</kbd>                    | Go to previous spec.
+<kbd>e</kbd>                    | Generate an example for the current browser spec.
+
+If your project contains a version of `org.clojure/test.check`, you can type <kbd>e</kbd> when browsing 
+a spec to generate and print an example of it.
+
+![Spec Browser Example](images/spec_browser_gen_example.png)
+
 ## Documentation buffers include "See Also" references
 
 You can add references to other vars by including their names in `` ` `` in the docstring.
