@@ -255,7 +255,7 @@ a more user friendly representation of SPEC-FORM."
 (defun cider-browse-spec--is-nav-searchp (str-filter)
   "Return non nil if STR-FILTER is a filter term."
   (and (listp str-filter)
-       (eql (car str-filter) 'search)))
+       (eq (car str-filter) 'search)))
 
 
 ;; Interactive Functions
