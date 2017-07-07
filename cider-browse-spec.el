@@ -220,10 +220,10 @@ Display TITLE at the top and SPECS are indented underneath."
                (cl-reduce #'concat)
                (format "(s/fspec \n %s)")))
             ;; every other with no special management
-            ('t (format "(%s %s)"
+            (t (format "(%s %s)"
                         (cider-browse-spec--pprint form-tag)
                         (string-join (mapcar #'cider-browse-spec--pprint (cl-rest form)) " "))))))
-        ('t (format "%s" form))))
+        (t (format "%s" form))))
 
 (defun cider-browse-spec--draw-spec-buffer (buffer spec spec-form)
   "Reset contents of BUFFER and draws everything needed to browse the SPEC-FORM.
