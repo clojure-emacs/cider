@@ -264,20 +264,20 @@ a more user friendly representation of SPEC-FORM."
   "Move to the next spec in the buffer."
   (interactive)
   (goto-char (next-single-property-change (point) 'spec-name))
-  (when (not (get-text-property (point) 'spec-name))
+  (unless (get-text-property (point) 'spec-name)
       (goto-char (next-single-property-change (point) 'spec-name))))
 
 (defun cider-browse-spec--prev-spec ()
   "Move to the previous spec in the buffer."
   (interactive)
   (goto-char (previous-single-property-change (point) 'spec-name))
-  (when (not (get-text-property (point) 'spec-name))
+  (unless (get-text-property (point) 'spec-name)
     (goto-char (previous-single-property-change (point) 'spec-name))))
 
 (defun cider-browse-spec--print-curr-spec-example ()
   "Generate and print a spec example of the current spec in `cider-browse-spec-navigation'."
   (interactive)
-  (when (not (null cider-browse-spec-navigation))
+  (when cider-browse-spec-navigation
     (let* ((spec (cl-first cider-browse-spec-navigation))
            (example (cider-sync-request:spec-example spec)))
       (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer t)
@@ -330,7 +330,7 @@ If FILTER-REGEX is empty, list all specs in the registry."
        (if (cider-browse-spec--is-nav-searchp (cl-first cider-browse-spec-navigation))
            (cider-browse-spec-all (cl-second (pop cider-browse-spec-navigation)))
          (cider-browse-spec--browse (pop cider-browse-spec-navigation))))
-    (when (not (cider-browse-spec--is-nav-searchp (cl-first cider-browse-spec-navigation)))
+    (unless (cider-browse-spec--is-nav-searchp (cl-first cider-browse-spec-navigation))
       (cider-browse-spec-all ""))))
 
 (defun cider-browse-spec-handle-mouse (event)
