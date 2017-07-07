@@ -1,6 +1,6 @@
 ;;; cider-browse-spec.el --- CIDER spec browser
 
-;; Copyright © 2014-2017 Juan Monetta, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2017 Juan Monetta, Bozhidar Batsov and CIDER contributors
 
 ;; Author: Juan Monetta <jpmonettas@gmail.com>
 
@@ -42,6 +42,7 @@
 (require 'nrepl-dict)
 (require 'seq)
 (require 'cl-lib)
+
 ;; The buffer names used by the spec browser
 (defconst cider-browse-spec-buffer "*cider-spec-browser*")
 (defconst cider-browse-spec-example-buffer "*cider-spec-example*")
@@ -85,7 +86,7 @@ For example: (\":ring.request/header-name\" \":ring.request/headers\" \":ring/re
 ;; Non interactive functions
 
 (defun cider-browse-spec--clear-nav-history ()
-    "Clears `cider-browse-spec-navigation'."
+  "Clears `cider-browse-spec-navigation'."
   (setq cider-browse-spec-navigation '()))
 
 (defun cider-browse-spec--propertize-keyword (kw)
@@ -104,7 +105,6 @@ For example: (\":ring.request/header-name\" \":ring.request/headers\" \":ring/re
               'mouse-face 'highlight
               'keymap cider-browse-spec-mouse-map))
 
-
 (defun cider-browse-spec--draw-list-buffer (buffer title specs)
   "Reset contents of BUFFER.
 Display TITLE at the top and SPECS are indented underneath."
@@ -121,18 +121,18 @@ Display TITLE at the top and SPECS are indented underneath."
                           (cider-browse-spec--propertize-fn spec-name)))))
       (goto-char (point-min)))))
 
-(defun qualified-keyword-p (str)
+(defun cider--qualified-keyword-p (str)
   "Return non nil if STR is a namespaced keyword."
   (string-match-p "^:.+/.+$" str))
 
-(defun spec-fn-p (value fn-name)
+(defun cider--spec-fn-p (value fn-name)
   "Return non nil if VALUE is clojure.spec.[alpha]/FN-NAME."
   (string-match-p (concat "^\\(clojure.spec\\|clojure.spec.alpha\\)/" fn-name "$") value))
 
 (defun cider-browse-spec--pprint (form)
   "Given a spec FORM builds a multi line string with a pretty render of that FORM."
   (cond ((stringp form)
-         (if (qualified-keyword-p form)
+         (if (cider--qualified-keyword-p form)
              (cider-browse-spec--propertize-keyword form)
            ;; to make it easier to read replace all clojure.spec ns with s/
            ;; and remove all clojure.core ns
@@ -149,26 +149,26 @@ Display TITLE at the top and SPECS are indented underneath."
                  (format "#%s" (cl-reduce #'concat (mapcar #'cider-browse-spec--pprint (cl-rest (cl-rest form))))))
              (format "(fn [%%] %s)" (cl-reduce #'concat (mapcar #'cider-browse-spec--pprint (cl-rest (cl-rest form))))))
             ;; prettier (s/and )
-            ((spec-fn-p form-tag "and")
+            ((cider--spec-fn-p form-tag "and")
              (format "(s/and\n%s)" (string-join (thread-last (cl-rest form)
                                                   (mapcar #'cider-browse-spec--pprint)
                                                   (mapcar (lambda (x) (format "%s" x))))
                                                 "\n")))
             ;; prettier (s/or )
-            ((spec-fn-p form-tag "or")
+            ((cider--spec-fn-p form-tag "or")
              (let ((name-spec-pair (seq-partition (cl-rest form) 2)))
                (format "(s/or\n%s)" (string-join
                                      (thread-last name-spec-pair
                                        (mapcar (lambda (s) (format "%s %s" (cl-first s) (cider-browse-spec--pprint (cl-second s))))))
                                      "\n"))))
             ;; prettier (s/merge )
-            ((spec-fn-p form-tag "merge")
+            ((cider--spec-fn-p form-tag "merge")
              (format "(s/merge\n%s)" (string-join (thread-last (cl-rest form)
                                                     (mapcar #'cider-browse-spec--pprint)
                                                     (mapcar (lambda (x) (format "%s" x))))
                                                   "\n")))
             ;; prettier (s/keys )
-            ((spec-fn-p form-tag "keys")
+            ((cider--spec-fn-p form-tag "keys")
              (let ((keys-args (seq-partition (cl-rest form) 2)))
                (format "(s/keys%s)" (thread-last
                                         keys-args
@@ -184,7 +184,7 @@ Display TITLE at the top and SPECS are indented underneath."
                                                           "]"))))
                                       (cl-reduce #'concat)))))
             ;; prettier (s/multi-spec)
-            ((spec-fn-p form-tag "multi-spec")
+            ((cider--spec-fn-p form-tag "multi-spec")
              (let ((multi-method (cl-second form))
                    (retag (cl-third form))
                    (sub-specs (cl-rest (cl-rest (cl-rest form)))))
@@ -197,7 +197,7 @@ Display TITLE at the top and SPECS are indented underneath."
                                     (concat "\n\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s))))))
                         "\n"))))
             ;; prettier (s/cat )
-            ((spec-fn-p form-tag "cat")
+            ((cider--spec-fn-p form-tag "cat")
              (let ((name-spec-pairs (seq-partition (cl-rest form) 2)))
                (format "(s/cat %s)"
                        (thread-last name-spec-pairs
@@ -205,7 +205,7 @@ Display TITLE at the top and SPECS are indented underneath."
                                    (concat "\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s)))))
                          (cl-reduce #'concat)))))
             ;; prettier (s/alt )
-            ((spec-fn-p form-tag "alt")
+            ((cider--spec-fn-p form-tag "alt")
              (let ((name-spec-pairs (seq-partition (cl-rest form) 2)))
                (format "(s/alt %s)"
                        (thread-last name-spec-pairs
@@ -213,7 +213,7 @@ Display TITLE at the top and SPECS are indented underneath."
                                    (concat "\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s)))))
                          (cl-reduce #'concat)))))
             ;; prettier (s/fspec )
-            ((spec-fn-p form-tag "fspec")
+            ((cider--spec-fn-p form-tag "fspec")
              (thread-last (seq-partition (cl-rest form) 2)
                (mapcar (lambda (s)
                          (concat "\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s)))))
