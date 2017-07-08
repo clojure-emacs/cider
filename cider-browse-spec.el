@@ -230,17 +230,20 @@ Display SPEC as a title and uses `cider-browse-spec--pprint' to display
 a more user friendly representation of SPEC-FORM."
   (with-current-buffer buffer
     (let ((inhibit-read-only t))
+      (cider-browse-spec-mode)
       (erase-buffer)
       (goto-char (point-max))
-      (insert (format "Spec for : %s\n\n" spec))
+      (insert (cider-font-lock-as-clojure spec) "\n\n")
+      (insert (with-temp-buffer
+                (clojure-mode)
+                (insert (cider-browse-spec--pprint spec-form))
+                (indent-region (point-min) (point-max))
+                (font-lock-ensure)
+                (buffer-string)))
+      (insert "\n\n")
       (insert-text-button "[Back]"
                           'action (lambda (b) (call-interactively 'cider-browse-spec--navigate-back))
                           'follow-link t)
-      (insert "\n\n")
-      (insert (cider-browse-spec--pprint spec-form))
-      (clojure-mode)
-      (indent-region (point-min) (point))
-      (cider-browse-spec-mode)
       (goto-char (point-min)))))
 
 (defun cider-browse-spec--browse (spec)
