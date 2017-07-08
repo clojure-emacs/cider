@@ -114,10 +114,12 @@ Display TITLE at the top and SPECS are indented underneath."
       (goto-char (point-max))
       (insert (cider-propertize title 'emph) "\n")
       (dolist (spec-name specs)
-        (insert (format "  %s\n"
-                        (if (char-equal (elt spec-name 0) ?:)
-                            (cider-browse-spec--propertize-keyword spec-name)
-                          (cider-browse-spec--propertize-fn spec-name)))))
+        (let ((propertize-fn (if (char-equal (elt spec-name 0) ?:)
+                                 #'cider-browse-spec--propertize-keyword
+                               #'cider-browse-spec--propertize-fn)))
+          (thread-first (concat "  " (funcall propertize-fn spec-name) "\n")
+            (propertize 'spec-name spec-name)
+            insert)))
       (goto-char (point-min)))))
 
 (defun cider--qualified-keyword-p (str)
@@ -338,7 +340,8 @@ If FILTER-REGEX is empty, list all specs in the registry."
 (defun cider-browse-spec-handle-mouse (event)
   "Handle mouse click EVENT."
   (interactive "e")
-  (cider-browse-spec--browse-at-point))
+  (when (eq 'highlight (get-text-property (point) 'mouse-face))
+    (cider-browse-spec--browse-at-point)))
 
 (provide 'cider-browse-spec)
 
