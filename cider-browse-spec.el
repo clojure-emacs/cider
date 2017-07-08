@@ -297,7 +297,7 @@ a more user friendly representation of SPEC-FORM."
 (defun cider-browse-spec (spec)
   "Start a new navigation and browse to SPEC definition."
   (interactive (list (completing-read "Browse spec: "
-                                      (cider-sync-request:spec-list "")
+                                      (cider-sync-request:spec-list)
                                       nil nil
                                       (cider-symbol-at-point))))
   (cider-browse-spec--clear-nav-history)
@@ -305,9 +305,11 @@ a more user friendly representation of SPEC-FORM."
 
 
 ;;;###autoload
-(defun cider-browse-spec-all (filter-regex)
+(defun cider-browse-spec-all (&optional filter-regex)
   "List all loaded specs in BUFFER filtered by FILTER-REGEX.
-If FILTER-REGEX is empty, list all specs in the registry."
+
+Optional argument FILTER-REGEX is a regexp string matching spec names.  The
+default value, \"\", matches all specs in the registry."
   (interactive (list (read-string "Filter regex: ")))
   (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer t)
     (let ((specs (cider-sync-request:spec-list filter-regex)))
@@ -335,7 +337,7 @@ If FILTER-REGEX is empty, list all specs in the registry."
            (cider-browse-spec-all (cl-second (pop cider-browse-spec-navigation)))
          (cider-browse-spec--browse (pop cider-browse-spec-navigation))))
     (unless (cider-browse-spec--is-nav-searchp (cl-first cider-browse-spec-navigation))
-      (cider-browse-spec-all ""))))
+      (cider-browse-spec-all))))
 
 (defun cider-browse-spec-handle-mouse (event)
   "Handle mouse click EVENT."
