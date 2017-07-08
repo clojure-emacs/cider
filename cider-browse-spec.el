@@ -91,8 +91,7 @@ For example: (\":ring.request/header-name\" \":ring.request/headers\" \":ring/re
 
 (defun cider-browse-spec--propertize-keyword (kw)
   "Add properties to KW text needed by the spec browser."
-  (propertize kw
-              'font-lock-face 'clojure-keyword-face
+  (propertize (cider-font-lock-as-clojure kw)
               'spec-name kw
               'mouse-face 'highlight
               'keymap cider-browse-spec-mouse-map))
@@ -113,9 +112,9 @@ Display TITLE at the top and SPECS are indented underneath."
     (let ((inhibit-read-only t))
       (erase-buffer)
       (goto-char (point-max))
-      (insert (cider-propertize title 'emph) "\n\n")
+      (insert (cider-propertize title 'emph) "\n")
       (dolist (spec-name specs)
-        (insert (format "\t%s\n"
+        (insert (format "  %s\n"
                         (if (char-equal (elt spec-name 0) ?:)
                             (cider-browse-spec--propertize-keyword spec-name)
                           (cider-browse-spec--propertize-fn spec-name)))))
