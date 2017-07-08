@@ -952,8 +952,9 @@ CONTEXT represents a completion context for compliment."
         nil
       eldoc)))
 
-(defun cider-sync-request:spec-list (filter-regex)
+(defun cider-sync-request:spec-list (&optional filter-regex)
   "Get a list of the available specs in the registry."
+  (setq filter-regex (or filter-regex ""))
   (thread-first `("op" "spec-list"
                   "filter-regex" ,filter-regex)
     (cider-nrepl-send-sync-request)
