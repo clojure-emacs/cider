@@ -116,7 +116,7 @@ version from the CIDER package or library.")
   "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
-  :safe #'stringp) 
+  :safe #'stringp)
 
 (defcustom cider-boot-command
   "boot"
@@ -130,7 +130,7 @@ version from the CIDER package or library.")
   "Command global options used to execute Boot (e.g.: -c for checkouts)."
   :type 'string
   :group 'cider
-  :safe #'stringp 
+  :safe #'stringp
   :package-version '(cider . "0.14.0"))
 
 (defcustom cider-boot-parameters
@@ -138,7 +138,7 @@ version from the CIDER package or library.")
   "Params passed to boot to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
-  :safe #'stringp 
+  :safe #'stringp
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-gradle-command
