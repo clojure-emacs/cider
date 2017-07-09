@@ -806,18 +806,18 @@ COMMENT-PREFIX is the comment prefix to use."
   "Make a handler for evaluating and printing stdout/stderr in popup BUFFER.
 
 This is used by pretty-printing commands and intentionally discards their results."
-  (cl-flet ((popup-handler (buffer str)
-                           (cider-emit-into-popup-buffer buffer
-                                                         (ansi-color-apply str)
-                                                         nil
-                                                         t)))
-   (nrepl-make-response-handler (or buffer (current-buffer))
-                                '()
-                                ;; stdout handler
-                                #'popup-handler
-                                ;; stderr handler
-                                #'popup-handler
-                                '())))
+  (cl-flet ((popup-output-handler (buffer str)
+                                  (cider-emit-into-popup-buffer buffer
+                                                                (ansi-color-apply str)
+                                                                nil
+                                                                t)))
+    (nrepl-make-response-handler (or buffer (current-buffer))
+                                 '()
+                                 ;; stdout handler
+                                 #'popup-output-handler
+                                 ;; stderr handler
+                                 #'popup-output-handler
+                                 '())))
 
 (defun cider-visit-error-buffer ()
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
