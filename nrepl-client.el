@@ -1095,7 +1095,6 @@ operations.")
   "Major mode for displaying nREPL messages.
 
 \\{nrepl-messages-mode-map}"
-  (setq buffer-read-only t)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t))
   (setq-local electric-indent-chars nil)

@@ -70,7 +70,6 @@
   "Major mode for browsing Clojure namespaces.
 
 \\{cider-browse-ns-mode-map}"
-  (setq buffer-read-only t)
   (setq-local electric-indent-chars nil)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t))

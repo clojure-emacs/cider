@@ -85,7 +85,6 @@ The page size can be also changed interactively within the inspector."
 
 \\{cider-inspector-mode-map}"
   (set-syntax-table clojure-mode-syntax-table)
-  (setq buffer-read-only t)
   (setq-local electric-indent-chars nil)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t)))

@@ -230,7 +230,6 @@ The error types are represented as strings."
   "Major mode for filtering and navigating CIDER stacktraces.
 
 \\{cider-stacktrace-mode-map}"
-  (setq buffer-read-only t)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t))
   (setq-local electric-indent-chars nil)

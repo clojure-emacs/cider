@@ -78,7 +78,6 @@ For example: (\":ring.request/header-name\" \":ring.request/headers\" \":ring/re
   "Major mode for browsing Clojure specs.
 
 \\{cider-browse-spec-mode-map}"
-  (setq buffer-read-only t)
   (setq-local electric-indent-chars nil)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t)))
