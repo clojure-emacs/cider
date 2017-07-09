@@ -50,7 +50,7 @@
 (push cider-browse-spec-buffer cider-ancillary-buffers)
 (push cider-browse-spec-example-buffer cider-ancillary-buffers)
 
-(defvar-local cider-browse-spec-navigation '()
+(defvar cider-browse-spec-navigation '()
   "Keeps the cider spec browser navigation stack.
 A list of strings which are specs or specs searches.
 First of the list is the top of the stack.
