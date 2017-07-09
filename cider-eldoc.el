@@ -82,7 +82,7 @@ a \"& x more\" suffix. Otherwise, all the classes are displayed."
 So in (map inc ...) when the cursor is over inc its eldoc would be
 displayed.  When nil, always display eldoc for first symbol of the sexp."
   :type 'boolean
-  :safe 'booleanp
+  :safe #'booleanp
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
