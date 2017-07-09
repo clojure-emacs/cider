@@ -1065,7 +1065,8 @@ Enabling the logging might have a negative impact on performance,
 so it's not recommended to keep it enabled unless you need to
 debug something."
   :type 'boolean
-  :group 'nrepl)
+  :group 'nrepl
+  :safe #'booleanp)
 
 (defconst nrepl-message-buffer-max-size 1000000
   "Maximum size for the nREPL message buffer.
