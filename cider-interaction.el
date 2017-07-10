@@ -806,15 +806,18 @@ COMMENT-PREFIX is the comment prefix to use."
   "Make a handler for evaluating and printing stdout/stderr in popup BUFFER.
 
 This is used by pretty-printing commands and intentionally discards their results."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               '()
-                               ;; stdout handler
-                               (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer buffer (ansi-color-apply str)))
-                               ;; stderr handler
-                               (lambda (buffer str)
-                                 (cider-emit-into-popup-buffer buffer (ansi-color-apply str)))
-                               '()))
+  (cl-flet ((popup-output-handler (buffer str)
+                                  (cider-emit-into-popup-buffer buffer
+                                                                (ansi-color-apply str)
+                                                                nil
+                                                                t)))
+    (nrepl-make-response-handler (or buffer (current-buffer))
+                                 '()
+                                 ;; stdout handler
+                                 #'popup-output-handler
+                                 ;; stderr handler
+                                 #'popup-output-handler
+                                 '())))
 
 (defun cider-visit-error-buffer ()
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
@@ -1483,7 +1486,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   "Refresh LOG-BUFFER with RESPONSE."
   (nrepl-dbind-response response (out err reloading status error error-ns after before)
     (cl-flet* ((log (message &optional face)
-                    (cider-emit-into-popup-buffer log-buffer message face))
+                    (cider-emit-into-popup-buffer log-buffer message face t))
 
                (log-echo (message &optional face)
                          (log message face)
@@ -1577,7 +1580,10 @@ refresh functions (defined in `cider-refresh-before-fn' and
          (when cider-refresh-show-log-buffer
            (cider-popup-buffer-display log-buffer))
          (when inhibit-refresh-fns
-           (cider-emit-into-popup-buffer log-buffer "inhibiting refresh functions\n"))
+           (cider-emit-into-popup-buffer log-buffer
+                                         "inhibiting refresh functions\n"
+                                         nil
+                                         t))
          (when clear?
            (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
          (cider-nrepl-send-request
