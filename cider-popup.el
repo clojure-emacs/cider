@@ -105,7 +105,8 @@ and automatically removed when killed."
 
 (defun cider-emit-into-popup-buffer (buffer value &optional face inhibit-indent)
   "Emit into BUFFER the provided VALUE optionally using FACE.
-Indents emitted sexp value unless INHIBIT-INDENT is specified and non-nil."
+Indent emitted value (usually a sexp) unless INHIBIT-INDENT is specified
+and non-nil."
   ;; Long string output renders Emacs unresponsive and users might intentionally
   ;; kill the frozen popup buffer. Therefore, we don't re-create the buffer and
   ;; silently ignore the output.
