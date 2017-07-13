@@ -48,7 +48,7 @@
 * [#1588](https://github.com/clojure-emacs/cider/issues/1588): Redirect `*err*`, `java.lang.System/out`, and `java.lang.System/err` to REPL buffer on all attached sessions.
 * [#1707](https://github.com/clojure-emacs/cider/issues/1707): Allow to customize line truncating in CIDER's special buffers.
 * [#1876](https://github.com/clojure-emacs/cider/issues/1876): Set pretty-printing width with `cider-repl-pretty-print-width`. If this variable is not set, fall back to `fill-column`.
-* [#1875](https://github.com/clojure-emacs/cider/issues/1875): Ensure cljc buffers can load buffer into both clj and cljs repls.
+* [#1875](https://github.com/clojure-emacs/cider/issues/1875): Ensure that loading and evaluation in cljc buffers is performed in both clj and cljs repls.
 * [#1897](https://github.com/clojure-emacs/cider/issues/1897): Bind TAB in stacktrace buffers in the terminal.
 * [#1895](https://github.com/clojure-emacs/cider/issues/1895): Connect to the same host:port after `cider-restart` if the connection was established with `cider-connect`.
 * [#1881](https://github.com/clojure-emacs/cider/issues/1881): Add `cider-cljs-boot-repl` and `cider-cljs-gradle-repl` defcustom and hook `boot-cljs-repl`.

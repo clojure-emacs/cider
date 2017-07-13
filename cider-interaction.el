@@ -1135,15 +1135,19 @@ arguments and only proceed with evaluation if it returns nil."
                  (funcall cider-interactive-eval-override form callback bounds))
       (cider-map-connections #'ignore :any)
       (cider--prep-interactive-eval form)
-      (cider-nrepl-request:eval
-       form
-       (or callback (cider-interactive-eval-handler nil bounds))
-       ;; always eval ns forms in the user namespace
-       ;; otherwise trying to eval ns form for the first time will produce an error
-       (if (cider-ns-form-p form) "user" (cider-current-ns))
-       (when start (line-number-at-pos start))
-       (when start (cider-column-number-at-pos start))
-       additional-params))))
+      (cider-map-connections
+       (lambda (connection)
+         (cider-nrepl-request:eval
+          form
+          (or callback (cider-interactive-eval-handler nil bounds))
+          ;; always eval ns forms in the user namespace
+          ;; otherwise trying to eval ns form for the first time will produce an error
+          (if (cider-ns-form-p form) "user" (cider-current-ns))
+          (when start (line-number-at-pos start))
+          (when start (cider-column-number-at-pos start))
+          additional-params
+          connection))
+       :both))))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
