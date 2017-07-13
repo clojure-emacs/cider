@@ -91,6 +91,7 @@ cyclical data structures."
 (defvar-local cider-stacktrace-filters nil)
 (defvar-local cider-stacktrace-prior-filters nil)
 (defvar-local cider-stacktrace-cause-visibility nil)
+(defvar-local cider-stacktrace-positive-filters nil)
 
 (defconst cider-error-buffer "*cider-error*")
 (add-to-list 'cider-ancillary-buffers cider-error-buffer)
@@ -274,16 +275,31 @@ searching and update the hidden count text."
            (number-to-string cider-stacktrace-hidden-frame-count)))))))
 
 (defun cider-stacktrace-frame-p ()
+  "Indicate if the text at point is a stack frame."
   (get-text-property (point) 'cider-stacktrace-frame))
 
 (defun cider-stacktrace-collapsed-p ()
+  "Indicate if the stackframe was collapsed."
   (get-text-property (point) 'collapsed))
 
-(defun cider-stacktrace-apply-filters (filters)
-  "Set visibility on stack frames using FILTERS.
+(defun cider-stacktrace--should-hide-p (neg-filters pos-filters flags)
+  "Decide whether a stackframe should be hidden or not.
+NEG-FILTERS dictate which frames should be hidden while POS-FILTERS can
+override this and ensure that those frames are shown.
+Argument FLAGS are the flags set on the stackframe, ie: clj dup, etc."
+  (let ((neg (seq-intersection neg-filters flags))
+        (pos (seq-intersection pos-filters flags)))
+    (cond ((and pos neg) nil)
+          (pos nil)
+          (neg t)
+          (t nil))))
+
+(defun cider-stacktrace-apply-filters (neg-filters pos-filters)
+  "Set visibility on stack frames.
 Update `cider-stacktrace-hidden-frame-count' and indicate filters applied.
 Currently collapsed stacktraces are ignored, and do not contribute to the
-hidden count."
+hidden count.  NEG-FILTERS remove frames with the flag in that list and
+POS-FILTERS ensure that frames with flag is shown."
   (with-current-buffer cider-error-buffer
     (save-excursion
       (goto-char (point-min))
@@ -293,13 +309,15 @@ hidden count."
           (when (and (cider-stacktrace-frame-p)
                      (not (cider-stacktrace-collapsed-p)))
             (let* ((flags (get-text-property (point) 'flags))
-                   (hide (if (seq-intersection filters flags) t nil)))
+                   (hide (cider-stacktrace--should-hide-p neg-filters
+                                                          pos-filters
+                                                          flags)))
               (when hide (cl-incf hidden))
               (put-text-property (point) (line-beginning-position 2)
                                  'invisible hide)))
           (forward-line 1))
         (setq cider-stacktrace-hidden-frame-count hidden)))
-    (cider-stacktrace-indicate-filters filters)))
+    (cider-stacktrace-indicate-filters neg-filters pos-filters)))
 
 
 (defun cider-stacktrace-apply-cause-visibility ()
@@ -325,8 +343,8 @@ hidden count."
                   (add-text-properties (point) detail-end
                                        (list 'invisible hide
                                              'collapsed hide))))))))
-      (cider-stacktrace-apply-filters
-       cider-stacktrace-filters))))
+      (cider-stacktrace-apply-filters cider-stacktrace-filters
+                                      cider-stacktrace-positive-filters))))
 
 ;;; Internal/Middleware error suppression
 
@@ -435,7 +453,8 @@ When it reaches 3, it wraps to 0."
   (cider-stacktrace-apply-filters
    (setq cider-stacktrace-filters
          (unless cider-stacktrace-filters      ; when current filters are nil,
-           cider-stacktrace-prior-filters))))  ;  reenable prior filter set
+           cider-stacktrace-prior-filters))    ; reenable prior filter set
+   cider-stacktrace-positive-filters))
 
 (defun cider-stacktrace-toggle (flag)
   "Update `cider-stacktrace-filters' to add or remove FLAG, and apply filters."
@@ -443,7 +462,9 @@ When it reaches 3, it wraps to 0."
    (setq cider-stacktrace-filters
          (if (memq flag cider-stacktrace-filters)
              (remq flag cider-stacktrace-filters)
-           (cons flag cider-stacktrace-filters)))))
+           (cons flag cider-stacktrace-filters)))
+   cider-stacktrace-positive-filters))
+
 
 (defun cider-stacktrace-toggle-java ()
   "Toggle display of Java stack frames."

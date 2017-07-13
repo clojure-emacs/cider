@@ -87,11 +87,12 @@
 (defun cider--testing-dict (names &optional stipulated)
   (let ((numeric? (lambda (sym) (member sym '(line column)))))
     (apply #'nrepl-dict
-           (append (mapcan (lambda (name) (list (symbol-name name)
+           (append (apply #'append
+                          (mapcar (lambda (name) (list (symbol-name name)
                                                 (if (funcall numeric? name)
                                                     4
                                                   (symbol-name name))))
-                           names)
+                                  names))
                    stipulated))))
 
 (defun cider--frame-of-type (flags)
@@ -114,3 +115,15 @@
                                              (cider--testing-dict '(file path column line)))
       (goto-char (point-min))
       (expect (cider-stacktrace-frame-p) :to-be nil))))
+
+(describe "cider-stacktrace--should-hide-p-tests"
+  (it "should hide when members of the neg filters"
+    (let ((hidden1 (cider-stacktrace--should-hide-p '(a b c) '() '(a)))
+          (hidden2 (cider-stacktrace--should-hide-p '(a) '(b) '(a)))
+          (both (cider-stacktrace--should-hide-p '(a) '(a) '(a)))
+          (shown1 (cider-stacktrace--should-hide-p '(a) '(b) '(b)))
+          (shown2 (cider-stacktrace--should-hide-p '() '(a) '(a))))
+      (expect (and hidden1 hidden2)
+              :to-be-truthy)
+      (expect (or both shown1 shown2)
+              :to-be nil))))
