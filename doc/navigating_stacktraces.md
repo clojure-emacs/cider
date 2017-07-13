@@ -21,6 +21,7 @@ Command                                | Keyboard shortcut                   | D
 `cider-stacktrace-toggle-repl`         |<kbd>r</kbd>                         | Toggle display of REPL frames
 `cider-stacktrace-toggle-tooling`      |<kbd>t</kbd>                         | Toggle display of tooling frames (e.g. compiler, nREPL middleware)
 `cider-stacktrace-toggle-duplicates`   |<kbd>d</kbd>                         | Toggle display of duplicate frames
+`cider-stacktrace-show-only-project    |<kbd>p</kbd>                         | Toggle display only project frames
 `cider-stacktrace-toggle-all`          |<kbd>a</kbd>                         | Toggle display of all frames
 
 You can configure whether the error buffer with stacktraces should be automatically
