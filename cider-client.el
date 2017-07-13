@@ -669,12 +669,13 @@ Return the id of the sent message."
       (nrepl--mark-id-completed id))
     id))
 
-(defun cider-nrepl-request:eval (input callback &optional ns line column additional-params)
+(defun cider-nrepl-request:eval (input callback &optional ns line column additional-params connection)
   "Send the request INPUT and register the CALLBACK as the response handler.
 If NS is non-nil, include it in the request.  LINE and COLUMN, if non-nil,
 define the position of INPUT in its buffer.  ADDITIONAL-PARAMS is a plist
-to be appended to the request message."
-  (let ((connection (cider-current-connection)))
+to be appended to the request message.  CONNECTION is the connection
+buffer, defaults to (cider-current-connection)."
+  (let ((connection (or connection (cider-current-connection))))
     (nrepl-request:eval input
                         (if cider-show-eval-spinner
                             (cider-eval-spinner-handler connection callback)
