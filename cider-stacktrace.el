@@ -129,6 +129,12 @@ The error types are represented as strings."
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
+(defface cider-stacktrace-filter-positive-face
+  '((t (:inherit button :underline t :weight normal)))
+  "Face for filter buttons representing frames currently filtered out"
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.15.0"))
+
 (defface cider-stacktrace-face
   '((t (:inherit default)))
   "Face for stack frame text"
@@ -194,6 +200,7 @@ The error types are represented as strings."
     (define-key map "r" #'cider-stacktrace-toggle-repl)
     (define-key map "t" #'cider-stacktrace-toggle-tooling)
     (define-key map "d" #'cider-stacktrace-toggle-duplicates)
+    (define-key map "p" #'cider-stacktrace-show-only-project)
     (define-key map "a" #'cider-stacktrace-toggle-all)
     (define-key map "1" #'cider-stacktrace-cycle-cause-1)
     (define-key map "2" #'cider-stacktrace-cycle-cause-2)
@@ -224,6 +231,7 @@ The error types are represented as strings."
         ["Show/hide REPL frames" cider-stacktrace-toggle-repl]
         ["Show/hide tooling frames" cider-stacktrace-toggle-tooling]
         ["Show/hide duplicate frames" cider-stacktrace-toggle-duplicates]
+        ["Show only project frames" cider-stacktrace-show-only-project]
         ["Show/hide all frames" cider-stacktrace-toggle-all]))
     map))
 
@@ -242,29 +250,34 @@ The error types are represented as strings."
 
 ;; Stacktrace filtering
 
-(defun cider-stacktrace-indicate-filters (filters)
+(defun cider-stacktrace--face-for-filter (filter neg-filters pos-filters)
+  "Return whether we should mark the filter is active or not."
+  (cond ((member filter neg-filters) 'cider-stacktrace-filter-hidden-face)
+        ((member filter pos-filters) 'cider-stacktrace-filter-positive-face)
+        ((member filter '(project)) 'cider-stacktrace-filter-hidden-face)
+        ((null filter) 'cider-stacktrace-filter-hidden-face)
+        (t 'cider-stacktrace-filter-shown-face)))
+
+(defun cider-stacktrace-indicate-filters (filters pos-filters)
   "Update enabled state of filter buttons.
 
 Find buttons with a 'filter property; if filter is a member of FILTERS, or
 if filter is nil ('show all') and the argument list is non-nil, fontify the
 button as disabled.  Upon finding text with a 'hidden-count property, stop
-searching and update the hidden count text."
+searching and update the hidden count text. POS-FILTERS is the list of
+positive filters to always include."
   (with-current-buffer cider-error-buffer
     (save-excursion
       (goto-char (point-min))
-      (let ((inhibit-read-only t)
-            (get-face (lambda (hide)
-                        (if hide
-                            'cider-stacktrace-filter-hidden-face
-                          'cider-stacktrace-filter-shown-face))))
+      (let ((inhibit-read-only t))
         ;; Toggle buttons
         (while (not (or (get-text-property (point) 'hidden-count) (eobp)))
           (let ((button (button-at (point))))
             (when button
               (let* ((filter (button-get button 'filter))
-                     (face (funcall get-face (if filter
-                                                 (member filter filters)
-                                               filters))))
+                     (face (cider-stacktrace--face-for-filter filter
+                                                              filters
+                                                              pos-filters)))
                 (button-put button 'face face)))
             (goto-char (or (next-property-change (point))
                            (point-max)))))
@@ -465,6 +478,21 @@ When it reaches 3, it wraps to 0."
            (cons flag cider-stacktrace-filters)))
    cider-stacktrace-positive-filters))
 
+(defun cider-stacktrace-show-only-project (&optional button)
+  "Display only the stackframes from the project.
+BUTTON is the button at the top of the error buffer as the button calls
+with the button."
+  (interactive)
+  (if (null cider-stacktrace-positive-filters)
+      (progn
+        (setq-local cider-stacktrace-prior-filters cider-stacktrace-filters)
+        (setq-local cider-stacktrace-filters '(java clj repl tooling dup))
+        (setq-local cider-stacktrace-positive-filters '(project)))
+    (progn
+      (setq-local cider-stacktrace-filters cider-stacktrace-prior-filters)
+      (setq-local cider-stacktrace-positive-filters nil)))
+  (cider-stacktrace-apply-filters cider-stacktrace-filters
+                                  cider-stacktrace-positive-filters))
 
 (defun cider-stacktrace-toggle-java ()
   "Toggle display of Java stack frames."
@@ -570,6 +598,13 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
   "Emit into BUFFER toggle buttons for each of the FILTERS."
   (with-current-buffer buffer
     (insert "  Show: ")
+    (insert-text-button "Project-Only"
+                        'filter 'project
+                        'follow-link t
+                        'action 'cider-stacktrace-show-only-project
+                        'help-echo "Project frames only")
+    (insert " ") ;; if you put the space after project-only the button
+                 ;; highlighting spills into the next button
     (dolist (filter filters)
       (insert-text-button (car filter)
                           'filter (cadr filter)
@@ -578,6 +613,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
                           'help-echo (format "Toggle %s stack frames"
                                              (car filter)))
       (insert " "))
+    
     (let ((hidden "(0 frames hidden)"))
       (put-text-property 0 (length hidden) 'hidden-count t hidden)
       (insert " " hidden "\n"))))
@@ -747,7 +783,6 @@ through the `cider-stacktrace-suppressed-errors' variable."
             (setq num (1- num))))))
     (cider-stacktrace-initialize causes)
     (font-lock-refresh-defaults)))
-
 
 (provide 'cider-stacktrace)
 
