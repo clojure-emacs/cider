@@ -122,7 +122,9 @@ that of the namespace in the Clojure source buffer."
 
 (defun cider-switch-to-repl-buffer (&optional set-namespace)
   "Select the REPL buffer, when possible in an existing window.
-The buffer chosen is based on the file open in the current buffer.
+The buffer chosen is based on the file open in the current buffer. If
+multiple REPL buffers are associated with current connection the most
+recent is used.
 
 If the REPL buffer cannot be unambiguously determined, the REPL
 buffer is chosen based on the current connection buffer and a
@@ -135,7 +137,10 @@ the buffer should appear.
 With a prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "P")
-  (cider--switch-to-repl-buffer (cider-current-repl-buffer) set-namespace))
+  (let* ((connections (cider-connections))
+         (buffer (cl-some (lambda (b) (and (member b connections) b))
+                          (buffer-list))))
+    (cider--switch-to-repl-buffer buffer set-namespace)))
 
 (declare-function cider-load-buffer "cider-interaction")
 
