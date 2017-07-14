@@ -137,7 +137,7 @@ Also close associated REPL and server buffers."
 
 
 ;;; Current connection logic
-(defvar-local cider-repl-type "clj"
+(defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
 
 (defun cider-find-connection-buffer-for-project-directory (&optional project-directory all-connections)
@@ -177,6 +177,23 @@ connections are returned, instead of just the most recent."
         (if all-connections
             cider-connections
           (car cider-connections)))))
+
+(defun cider-connection-type-for-buffer ()
+  "Return the matching connection type (clj or cljs) for the current buffer.
+In cljc and cljx buffers return \"multi\". This function infers connection
+type based on the major mode. See `cider-project-connections-types' for a
+list of types of actual connections within a project."
+  (cond
+   ((derived-mode-p 'clojurescript-mode) "cljs")
+   ((derived-mode-p 'clojurec-mode) "multi")
+   ((derived-mode-p 'clojurex-mode) "multi")
+   ((derived-mode-p 'clojure-mode) "clj")
+   (cider-repl-type)))
+
+(defun cider-project-connections-types ()
+  "Return a list of types of connections within current project."
+  (let ((connections (cider-find-connection-buffer-for-project-directory nil :all-connections)))
+    (seq-uniq (seq-map #'cider--connection-type connections))))
 
 (defun cider-read-connection (prompt)
   "Completing read for connections using PROMPT."
@@ -220,14 +237,6 @@ such a link cannot be established automatically."
   (interactive)
   (cider-ensure-connected)
   (kill-local-variable 'cider-connections))
-
-(defun cider-connection-type-for-buffer ()
-  "Return the matching connection type (clj or cljs) for the current buffer."
-  (cond
-   ((derived-mode-p 'clojurescript-mode) "cljs")
-   ((derived-mode-p 'clojure-mode) "clj")
-   (cider-repl-type)
-   (t "clj")))
 
 (defun cider-toggle-request-dispatch ()
   "Toggle the value of `cider-request-dispatch' between static and dynamic.

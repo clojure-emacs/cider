@@ -28,6 +28,7 @@
 * [#1991](https://github.com/clojure-emacs/cider/issues/1832): Make it possible to disable the prompt to open a ClojureScript in a browser on connect via `cider-offer-to-open-cljs-app-in-browser`.
 * [#1995](https://github.com/clojure-emacs/cider/pull/1995): Add new customization variable `cider-doc-auto-select-buffer` to control cider-doc popup buffer auto selection.
 * Ensure that `cider-switch-to-repl-buffer` picks the most recent repl buffer if multiple connections are available.
+* Add new function `cider-project-connections-types`.
 
 ### Changes
 
@@ -41,6 +42,7 @@
 
 ### Bugs Fixed
 
+* [#2040](https://github.com/clojure-emacs/cider/issues/2040): Fix fontification of conditional expressions in cljc files.
 * [#2018](https://github.com/clojure-emacs/cider/issues/2018): Don't delete wrong overlays during code evaluation.
 * [#1699](https://github.com/clojure-emacs/cider/issues/1699): Fix "Method code too large!" error that occurred during instrumentation for debugging.
 * [#1987](https://github.com/clojure-emacs/cider/issues/1987): Fix: Update faces when disabling a theme
