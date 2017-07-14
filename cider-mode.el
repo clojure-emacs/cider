@@ -454,7 +454,6 @@ The value can also be t, which means to font-lock as much as possible."
 
 (defconst cider-reader-conditionals-regexp "\\(?:#\\?@?[[:space:]\n]*(\\)"
   "Regexp for matching reader conditionals with a non-capturing group.
-
 Starts from the reader macro characters to the opening parentheses.")
 
 (defvar cider--reader-conditionals-match-data (list nil nil)
@@ -462,7 +461,6 @@ Starts from the reader macro characters to the opening parentheses.")
 
 (defun cider--search-reader-conditionals (limit)
   "Matcher for finding reader conditionals.
-
 Search is done with the given LIMIT."
   (when (and cider-font-lock-reader-conditionals
              (cider-connected-p))
@@ -481,25 +479,26 @@ Search is done with the given LIMIT."
 
 (defun cider--anchored-search-suppressed-forms-internal (limit)
   "Helper function for `cider--anchored-search-suppressed-forms`.
-
 LIMIT is the same as the LIMIT in `cider--anchored-search-suppressed-forms`"
-  (let ((expr (read (current-buffer)))
-        (start (save-excursion (backward-sexp) (point))))
-    (when (<= (point) limit)
-      (forward-sexp)
-      (if (not (string-equal (symbol-name expr) (concat ":" (cider-connection-type-for-buffer))))
-          (ignore-errors
-            (cl-assert (<= (point) limit))
-            (let ((md (match-data nil cider--reader-conditionals-match-data)))
-              (setf (nth 0 md) start)
-              (setf (nth 1 md) (point))
-              (set-match-data md)
-              t))
-        (cider--anchored-search-suppressed-forms-internal limit)))))
+  (let ((types (cider-project-connections-types)))
+    (when (= (length types) 1)
+      (let ((type (car types))
+            (expr (read (current-buffer)))
+            (start (save-excursion (backward-sexp) (point))))
+        (when (<= (point) limit)
+          (forward-sexp)
+          (if (not (string-equal (symbol-name expr) (concat ":" type)))
+              (ignore-errors
+                (cl-assert (<= (point) limit))
+                (let ((md (match-data nil cider--reader-conditionals-match-data)))
+                  (setf (nth 0 md) start)
+                  (setf (nth 1 md) (point))
+                  (set-match-data md)
+                  t))
+            (cider--anchored-search-suppressed-forms-internal limit)))))))
 
 (defun cider--anchored-search-suppressed-forms (limit)
   "Matcher for finding unused reader conditional expressions.
-
 An unused reader conditional expression is an expression for a platform
 that does not match the CIDER connection for the buffer.  Search is done
 with the given LIMIT."
