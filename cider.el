@@ -546,6 +546,7 @@ should be the regular Clojure REPL started by the server process filter."
       ;; original Clojure REPL.  Our solution is to bump the original REPL back
       ;; up the list, so it takes priority on Clojure requests.
       (cider-make-connection-default client-buffer)
+      (setq cider-repl-type "cljs")
       (pcase (assoc cljs-repl-form cider--cljs-repl-types)
         (`(,_ ,name ,info)
          (message "Starting a %s REPL%s" name (or info "")))

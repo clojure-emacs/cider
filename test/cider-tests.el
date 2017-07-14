@@ -43,10 +43,12 @@
       (let ((b1 (current-buffer)))
         (setq-local nrepl-endpoint '("localhost" 4005))
         (setq-local nrepl-project-dir "proj")
+        (setq-local cider-repl-type "clj")
         (with-temp-buffer
           (rename-buffer "*cider-repl test2*")
           (let ((b2 (current-buffer)))
             (setq-local nrepl-endpoint '("123.123.123.123" 4006))
+            (setq-local cider-repl-type "clj")
             (let ((cider-connections (list b1 b2)))
               (cider-connection-browser)
               (with-current-buffer "*cider-connections*"
