@@ -28,6 +28,7 @@
 * Make it possible to disable auto-evaluation of changed ns forms via the defcustom `cider-auto-track-ns-form-changes`.
 * [#1991](https://github.com/clojure-emacs/cider/issues/1832): Make it possible to disable the prompt to open a ClojureScript in a browser on connect via `cider-offer-to-open-cljs-app-in-browser`.
 * [#1995](https://github.com/clojure-emacs/cider/pull/1995): Add new customization variable `cider-doc-auto-select-buffer` to control cider-doc popup buffer auto selection.
+* Ensure that `cider-current-connection` picks the most recently used connection in ambiguous cases.
 * Ensure that `cider-switch-to-repl-buffer` picks the most recent repl buffer if multiple connections are available.
 * Add new function `cider-project-connections-types`.
 

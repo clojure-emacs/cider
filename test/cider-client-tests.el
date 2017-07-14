@@ -88,6 +88,29 @@ SYMBOL is locally let-bound to the current buffer."
                 (setq major-mode 'clojurescript-mode)
                 (expect (cider-current-connection) :to-equal b2)))))))
 
+    (it "always returns the most recently used connection"
+      (with-connection-buffer "clj" bb1
+        (with-connection-buffer "cljs" bb2
+          (with-connection-buffer "clj" b1
+            (with-connection-buffer "cljs" b2
+
+              (switch-to-buffer bb2)
+              (switch-to-buffer bb1)
+              (expect (cider-current-connection) :to-equal bb1)
+
+              ;; follows type arguments
+              (expect (cider-current-connection "clj") :to-equal bb1)
+              (expect (cider-current-connection "cljs") :to-equal bb2)
+
+              ;; follows file type
+              (with-temp-buffer
+                (setq major-mode 'clojure-mode)
+                (expect (cider-current-connection) :to-equal bb1))
+
+              (with-temp-buffer
+                (setq major-mode 'clojurescript-mode)
+                (expect (cider-current-connection) :to-equal bb2)))))))
+
     (describe "when type argument is given"
       (describe "when connection of that type exists"
         (it "returns that connection buffer"
@@ -288,6 +311,7 @@ SYMBOL is locally let-bound to the current buffer."
       (with-temp-buffer
         (setq-local nrepl-endpoint '("localhost" 4005))
         (setq-local nrepl-project-dir "proj")
+        (setq-local cider-repl-type "clj")
         (expect (cider--connection-info (current-buffer))
                 :to-equal "CLJ proj@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)"))))
 
@@ -295,6 +319,7 @@ SYMBOL is locally let-bound to the current buffer."
     (it "returns information about the connection buffer without project name"
       (with-temp-buffer
         (setq-local nrepl-endpoint '("localhost" 4005))
+        (setq-local cider-repl-type "clj")
         (expect (cider--connection-info (current-buffer))
                 :to-equal "CLJ <no project>@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)")))))
 
@@ -333,9 +358,9 @@ SYMBOL is locally let-bound to the current buffer."
     (setq cider-repl-type "cljs")
     (expect (cider-connection-type-for-buffer) :to-equal "cljs"))
 
-  (it "returns clj as its default value"
+  (it "returns nil as its default value"
     (setq cider-repl-type nil)
-    (expect (cider-connection-type-for-buffer) :to-equal "clj")))
+    (expect (cider-connection-type-for-buffer) :to-equal nil)))
 
 
 (describe "cider-nrepl-send-unhandled-request"
@@ -372,12 +397,16 @@ SYMBOL is locally let-bound to the current buffer."
 
 
 (describe "cider-extract-designation-from-current-repl-buffer"
+
   (describe "when the buffers have a designation"
     (it "returns that designation string"
       (with-temp-buffer
-        (let* ((cider-connections (list (current-buffer))))
+        (let ((cider-connections (list (current-buffer)))
+              (nrepl-repl-buffer-name-template "*cider-repl%s*"))
           (rename-buffer "*cider-repl bob*")
+          (switch-to-buffer (current-buffer))
           (with-temp-buffer
+            (switch-to-buffer (current-buffer))
             (expect (cider-extract-designation-from-current-repl-buffer)
                     :to-equal "bob")
             (rename-buffer "*cider-repl apa*")
@@ -401,6 +430,7 @@ SYMBOL is locally let-bound to the current buffer."
                   (setq-local nrepl-repl-buffer repl-buffer))
                 (expect (cider-extract-designation-from-current-repl-buffer)
                         :to-equal "<no designation>")))))))))
+
 
 (describe "cider-project-name"
   (it "returns the project name extracted from the project dir"
