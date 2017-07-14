@@ -253,6 +253,9 @@ evaluation commands to use a particular connection."
 A REPL is relevant if its `nrepl-project-dir' is compatible with the
 current directory (see `cider-find-connection-buffer-for-project-directory').
 
+When there are multiple relevant connections of the same TYPE, return the
+most recently used one.
+
 If TYPE is provided, it is either \"clj\" or \"cljs\", and only a
 connection of that type is returned.  If no connections of that TYPE exist,
 return nil.
@@ -263,32 +266,38 @@ returned.  In this case, only return nil if there are no active connections
 at all."
   ;; If TYPE was specified, we only return that type (or nil).  OW, we prefer
   ;; that TYPE, but ultimately allow any type.
-  (cl-labels ((right-type-p
-               (c)
-               (when (or (not type)
-                         (and (buffer-live-p c)
-                              (with-current-buffer c (equal cider-repl-type type))))
-                 c)))
+  (cl-labels ((right-type-p (c type)
+                            (when (or (not type)
+                                      (and (buffer-live-p c)
+                                           (equal (cider--connection-type c) type)))
+                              c))
+              (most-recent-buf (connections type)
+                               (when connections
+                                 (seq-find (lambda (c)
+                                             (and (member c connections)
+                                                  (right-type-p c type)))
+                                           (buffer-list)))))
     (let ((connections (cider-connections)))
       (cond
        ((not connections) nil)
        ;; if you're in a REPL buffer, it's the connection buffer
-       ((and (derived-mode-p 'cider-repl-mode) (right-type-p (current-buffer))))
+       ((and (derived-mode-p 'cider-repl-mode) (right-type-p (current-buffer) type)))
        ((eq cider-request-dispatch 'static) (car connections))
-       ((= 1 (length connections)) (right-type-p (car connections)))
+       ((= 1 (length connections)) (right-type-p (car connections) type))
        (t (let ((project-connections (cider-find-connection-buffer-for-project-directory
                                       nil :all-connections))
                 (guessed-type (or type (cider-connection-type-for-buffer))))
-            ;; So we have multiple connections. Look for the connection type we
-            ;; want, prioritizing the current project.
-            (or (seq-find (lambda (conn)
-                            (equal (cider--connection-type conn) guessed-type))
-                          project-connections)
-                (seq-find (lambda (conn)
-                            (equal (cider--connection-type conn) guessed-type))
-                          connections)
-                (right-type-p (car project-connections))
-                (right-type-p (car connections)))))))))
+            (or
+             ;; cljc
+             (and (equal guessed-type "multi")
+                  (most-recent-buf project-connections nil))
+             ;; clj or cljs
+             (and guessed-type
+                  (or (most-recent-buf project-connections guessed-type)
+                      (most-recent-buf connections guessed-type)))
+             ;; when type was not specified or guessed
+             (most-recent-buf project-connections type)
+             (most-recent-buf connections type))))))))
 
 (defun cider-other-connection (&optional connection)
   "Return the first connection of another type than CONNECTION.
