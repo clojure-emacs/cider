@@ -56,7 +56,7 @@ In the REPL buffer, issue the following.
 
 This will cause CIDER to print extensive information to the REPL buffer when you
 try to debug an expression (e.g., with <kbd>C-u
-C-M-x</kbd>). [File an issue](https://github.com/clojure-emacs/cider-repl/issues/new)
+C-M-x</kbd>). [File an issue](https://github.com/clojure-emacs/cider-nrepl/issues/new)
 and copy this information.
 
 ## Debugging freezes & lock-ups
