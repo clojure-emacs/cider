@@ -32,6 +32,7 @@
 
 ### Changes
 
+* Handle ANSI REPL evaluation created by Puget.
 * Drop support for Emacs 24.3.
 * Don't try to use ssh automatically when connecting to remote hosts and a direct connection fails. See `nrepl-use-ssh-fallback-for-remote-hosts`.
 * [#1945](https://github.com/clojure-emacs/cider/pull/1945): Start nREPL servers bound to `::` by default using `cider-jack-in`.

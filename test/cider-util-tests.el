@@ -191,3 +191,14 @@
       (insert "(test-function arg1 arg2 arg3)")
       (backward-char 2)
       (expect (cider-second-sexp-in-list) :to-equal "arg1"))))
+
+(describe "cider-ansi-color-string-detect"
+  (it "detect ansi color successfully"
+    (expect (cider-ansi-color-string-p "[31man-ansi-str[0m")
+            :to-be-truthy)
+    (expect (cider-ansi-color-string-p "[34m[[0m[31man-ansi-str[0m[34m][0m")
+            :to-be-truthy)
+    (expect (cider-ansi-color-string-p "[an-ansi-str]")
+            :not :to-be-truthy)
+    (expect (cider-ansi-color-string-p "'an-ansi-str")
+            :not :to-be-truthy)))

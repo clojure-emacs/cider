@@ -1,4 +1,4 @@
-;;; cider-util.el --- Common utility functions that don't belong anywhere else -*- lexical-binding: t -*-
+;; cider-util.el --- Common utility functions that don't belong anywhere else -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
 ;; Copyright © 2013-2017 Bozhidar Batsov, Artur Malabarba and CIDER contributors
@@ -36,6 +36,7 @@
 (require 'subr-x)
 (require 'cider-compat)
 (require 'nrepl-dict)
+(require 'ansi-color)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 
@@ -250,16 +251,23 @@ This buffer is not designed to display anything to the user.  For that, use
           (funcall mode))
         b)))
 
+(defun cider-ansi-color-string-p (string)
+  "Return non-nil if STRING is an ANSI string."
+  (string-match "^\\[" string))
+
 (defun cider-font-lock-as (mode string)
   "Use MODE to font-lock the STRING."
-  (if (or (null cider-font-lock-max-length)
-          (< (length string) cider-font-lock-max-length))
-      (with-current-buffer (cider--make-buffer-for-mode mode)
-        (erase-buffer)
-        (insert string)
-        (font-lock-fontify-region (point-min) (point-max))
-        (buffer-string))
-    string))
+  (let ((string (if (cider-ansi-color-string-p string)
+                    (substring-no-properties (ansi-color-apply string))
+                  string)))
+    (if (or (null cider-font-lock-max-length)
+            (< (length string) cider-font-lock-max-length))
+        (with-current-buffer (cider--make-buffer-for-mode mode)
+          (erase-buffer)
+          (insert string)
+          (font-lock-fontify-region (point-min) (point-max))
+          (buffer-string))
+      string)))
 
 (defun cider-font-lock-region-as (mode beg end &optional buffer)
   "Use MODE to font-lock text between BEG and END.
