@@ -206,8 +206,7 @@ via `cider-current-connection'.")
 (declare-function cider-refresh-dynamic-font-lock "cider-mode")
 
 (defun cider-repl--state-handler (response)
-  "Handle the server state contained in RESPONSE.
-Currently, this is only used to keep `cider-repl-type' updated."
+  "Handle server state contained in RESPONSE."
   (with-demoted-errors "Error in `cider-repl--state-handler': %s"
     (when (member "state" (nrepl-dict-get response "status"))
       (nrepl-dbind-response response (repl-type changed-namespaces)
