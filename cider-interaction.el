@@ -465,13 +465,6 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
   (if (cider--prefix-invert-prompt-p prefix)
       (not cider-prompt-for-symbol) cider-prompt-for-symbol))
 
-(defun cider-sync-request:ns-path (ns)
-  "Get the path to the file containing NS."
-  (thread-first `("op" "ns-path"
-                  "ns" ,ns)
-    cider-nrepl-send-sync-request
-    (nrepl-dict-get "path")))
-
 (defun cider--find-ns (ns &optional other-window)
   "Find the file containing NS's definition.
 Optionally open it in a different window if OTHER-WINDOW is truthy."

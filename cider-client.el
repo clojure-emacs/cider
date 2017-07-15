@@ -1007,6 +1007,13 @@ CONTEXT represents a completion context for compliment."
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-vars")))
 
+(defun cider-sync-request:ns-path (ns)
+  "Get the path to the file containing NS."
+  (thread-first `("op" "ns-path"
+                  "ns" ,ns)
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "path")))
+
 (defun cider-sync-request:ns-vars-with-meta (ns)
   "Get a map of the vars in NS to its metadata information."
   (thread-first `("op" "ns-vars-with-meta"
