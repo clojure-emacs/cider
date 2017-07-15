@@ -550,6 +550,33 @@ When there is a possible unfinished ansi control sequence,
     (insert-before-markers (cadr ansi-color-context))
     (setq ansi-color-context nil)))
 
+(defvar cider-repl--root-ns-highlitht-template "\\<%s[^$/: \t\n]+"
+  "Regexp used to highlight root ns in REPL buffers.")
+
+(defvar-local cider-repl--root-ns-regexp nil
+  "Cache of root ns regexp in REPLs")
+
+(defun cider-repl--apply-current-project-color (string)
+  "Fontify project's root namespace to make stacktraces more readable.
+Foreground of `cider-stacktrace-ns-face' is used to propertize matched
+namespaces.  STRING is REPL's output."
+  (if (null nrepl-project-dir)
+      string
+    (unless cider-repl--root-ns-regexp
+      (let ((root (file-name-nondirectory (directory-file-name nrepl-project-dir))))
+        (setq cider-repl--root-ns-regexp
+              ;; Replace _ or - with regexp patter to accommodate "raw" namespaces
+              (format cider-repl--root-ns-highlitht-template
+                      (replace-regexp-in-string "[_-]+" "[_-]+" root)))))
+    (let ((start 0)
+          (end 0))
+      (while (setq start (string-match cider-repl--root-ns-regexp string end))
+        (setq end (match-end 0))
+        (let ((face-spec (list (cons 'foreground-color
+                                     (face-attribute 'cider-stacktrace-ns-face :foreground nil t)))))
+          (font-lock-prepend-text-property start end 'face face-spec string)))
+      string)))
+
 (defun cider-repl--emit-output-at-pos (buffer string output-face position &optional bol)
   "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
 If BOL is non-nil insert at the beginning of line."
@@ -560,10 +587,14 @@ If BOL is non-nil insert at the beginning of line."
           (goto-char position)
           ;; TODO: Review the need for bol
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (insert-before-markers
-           (ansi-color-apply (propertize string
-                                         'font-lock-face output-face
-                                         'rear-nonsticky '(font-lock-face))))
+          (setq string
+                (thread-first string
+                  (propertize 'font-lock-face output-face
+                              'rear-nonsticky '(font-lock-face))
+                  (ansi-color-apply)
+                  (cider-repl--apply-current-project-color)
+                  (propertize 'help-echo 'cider-locref-help-echo)))
+          (insert-before-markers string)
           (cider-repl--flush-ansi-color-context)
           (when (and (= (point) cider-repl-prompt-start-mark)
                      (not (bolp)))
@@ -930,7 +961,100 @@ namespace to switch to."
    :both))
 
 
-;;;;; History
+;;; Location References
+
+(defcustom cider-locref-regexp-alist
+  '((stdout-stacktrace "[ \t]\\(at \\([^$(]+\\).*(\\([^:()]+\\):\\([0-9]+\\))\\)" 1 2 3 4)
+    (aviso-stacktrace  "^[ \t]*\\(\\([^$/ \t]+\\).*? +\\([^:]+\\): +\\([0-9]+\\)\\)" 1 2 3 4)
+    (print-stacktrace  "\\[\\([^][$ \t]+\\).* +\\([^ \t]+\\) +\\([0-9]+\\)\\]" 0 1 2 3)
+    (timbre-log        "\\(TRACE\\|INFO\\|DEBUG\\|WARN\\|ERROR\\) +\\(\\[\\([^:]+\\):\\([0-9]+\\)\\]\\)" 2 3 nil 4))
+  "Alist holding regular expressions for inline location references.
+Each element in the alist has the form (NAME REGEXP HIGHLIGHT VAR FILE
+LINE), where NAME is the identifier of the regexp, REGEXP - regexp matching
+a location, HIGHLIGHT - sub-expression matching region to highlight on
+mouse-over, VAR - sub-expression giving Clojure VAR to look up. FILE is
+currently only used when VAR is nil and must be full resource path in that
+case."
+  :type '(alist :key-type sexp)
+  :group 'cider-repl
+  :package-version '(cider. "0.16.0"))
+
+(defun cider--locref-at-point-1 (reg-list &optional pos)
+  "Workhorse for getting locref at POS.
+REG-LIST is an entry in `cider-locref-regexp-alist'."
+  (save-excursion
+    (let ((pos (or pos (point))))
+      (goto-char pos)
+      (beginning-of-line)
+      (when (re-search-forward (nth 1 reg-list) (point-at-eol) t)
+        (let ((ix-highlight (or (nth 2 reg-list) 0))
+              (ix-var (nth 3 reg-list))
+              (ix-file (nth 4 reg-list))
+              (ix-line (nth 5 reg-list)))
+          (list
+           :type (car reg-list)
+           :highlight (cons (match-beginning ix-highlight) (match-end ix-highlight))
+           :var  (and ix-var
+                      (replace-regexp-in-string "_" "-"
+                                                (match-string-no-properties ix-var)
+                                                nil t))
+           :file (and ix-file (match-string-no-properties ix-file))
+           :line (and ix-line (string-to-number (match-string-no-properties ix-line)))))))))
+
+(defun cider-locref-at-point (&optional pos)
+  "Return a plist of components of the location reference at POS.
+Limit search to current line only and return nil if no location has been
+found.  Returned keys are :type, :highlight, :var, :file, :line, where
+:highlight is a cons of positions, :var and :file are strings or nil, :line
+is a number.  See `cider-locref-regexp-alist' for how to specify regexes
+for locref look up."
+  (seq-some (lambda (rl) (cider--locref-at-point-1 rl pos))
+            cider-locref-regexp-alist))
+
+(defun cider-jump-to-locref-at-point (&optional pos)
+  "Identify location reference at POS and navigate to it.
+This function is used from help-echo property inside REPL buffers and uses
+regexes from `cider-locref-regexp-alist' to infer locations at point."
+  (interactive)
+  (if-let ((loc (cider-locref-at-point pos)))
+      (let* ((var (plist-get loc :var))
+             (line (plist-get loc :line))
+             (file (if var
+                       (or (cider-sync-request:ns-path var)
+                           (nrepl-dict-get (cider-sync-request:info var) "file"))
+                     (plist-get loc :file))))
+        (if file
+            (cider--jump-to-loc-from-info (nrepl-dict "file" file "line" line))
+          (error "No source location for %s" var)))
+    (user-error "No location reference at point")))
+
+(defvar cider-locref-hoover-overlay
+  (let ((o (make-overlay 1 1)))
+    (overlay-put o 'category 'cider-error-hoover)
+    ;; (overlay-put o 'face 'highlight)
+    (overlay-put o 'pointer 'hand)
+    (overlay-put o 'mouse-face 'highlight)
+    (overlay-put o 'follow-link 'mouse)
+    (overlay-put o 'keymap
+                 (let ((map (make-sparse-keymap)))
+                   (define-key map [return]  'cider-jump-to-locref-at-point)
+                   (define-key map [mouse-2] 'cider-jump-to-locref-at-point)
+                   map))
+    o)
+  "Overlay used during hoovering on location references in REPL buffers.
+One for all REPLs.")
+
+(defun cider-locref-help-echo (win buffer pos)
+  "Function for help-echo property in REPL buffers.
+WIN, BUFFER and POS are the window, buffer and point under mouse position."
+  (with-current-buffer buffer
+    (if-let ((hl (plist-get (cider-locref-at-point pos) :highlight)))
+        (move-overlay cider-locref-hoover-overlay (car hl) (cdr hl))
+      (delete-overlay cider-locref-hoover-overlay))
+    nil))
+
+
+;;; History
 
 (defcustom cider-repl-wrap-history nil
   "T to wrap history around when the end is reached."

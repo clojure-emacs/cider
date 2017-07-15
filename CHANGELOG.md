@@ -5,6 +5,8 @@
 ### New Features
 
 * [#2050](https://github.com/clojure-emacs/cider/pull/2050) Use `view-mode` for `cider-grimoire` buffers
+* Make stacktraces and other location references in REPL clickable.
+* Highlight root namespace in REPL stacktraces.
 * Filter stacktrace to just frames from your project.
 * [#1918](https://github.com/clojure-emacs/cider/issues/1918): Add new commands `cider-browse-spec` and `cider-browse-spec-all` which start a spec browser.
 * [#2015](https://github.com/clojure-emacs/cider/pull/2015): Show symbols as special forms *and* macros in `cider-doc`

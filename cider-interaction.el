@@ -1125,7 +1125,7 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message.
 
 If `cider-interactive-eval-override' is a function, call it with the same
 arguments and only proceed with evaluation if it returns nil."
-  (let ((form  (or form (apply #'buffer-substring bounds)))
+  (let ((form  (or form (apply #'buffer-substring-no-properties bounds)))
         (start (car-safe bounds))
         (end   (car-safe (cdr-safe bounds))))
     (when (and start end)
