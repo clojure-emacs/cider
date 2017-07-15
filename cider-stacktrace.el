@@ -117,23 +117,17 @@ The error types are represented as strings."
   :group 'cider-stacktrace
   :package-version '(cider . "0.7.0"))
 
-(defface cider-stacktrace-filter-shown-face
+(defface cider-stacktrace-filter-active-face
   '((t (:inherit button :underline t :weight normal)))
   "Face for filter buttons representing frames currently visible"
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
-(defface cider-stacktrace-filter-hidden-face
+(defface cider-stacktrace-filter-inactive-face
   '((t (:inherit button :underline nil :weight normal)))
   "Face for filter buttons representing frames currently filtered out"
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
-
-(defface cider-stacktrace-filter-positive-face
-  '((t (:inherit button :underline t :weight normal)))
-  "Face for filter buttons representing frames currently filtered out"
-  :group 'cider-stacktrace
-  :package-version '(cider . "0.15.0"))
 
 (defface cider-stacktrace-face
   '((t (:inherit default)))
@@ -252,11 +246,18 @@ The error types are represented as strings."
 
 (defun cider-stacktrace--face-for-filter (filter neg-filters pos-filters)
   "Return whether we should mark the filter is active or not."
-  (cond ((member filter neg-filters) 'cider-stacktrace-filter-hidden-face)
-        ((member filter pos-filters) 'cider-stacktrace-filter-positive-face)
-        ((member filter '(project)) 'cider-stacktrace-filter-hidden-face)
-        ((null filter) 'cider-stacktrace-filter-hidden-face)
-        (t 'cider-stacktrace-filter-shown-face)))
+  (cond ((member filter '(clj java repl tooling dup)) ; negative filter
+         (if (member filter neg-filters)
+             'cider-stacktrace-filter-active-face
+           'cider-stacktrace-filter-inactive-face))
+        ((member filter '(project))                   ; positive filter
+         (if (member filter pos-filters)
+             'cider-stacktrace-filter-active-face
+           'cider-stacktrace-filter-inactive-face))
+        ((null filter)                               ; "all" filter
+         (if (null neg-filters)
+             'cider-stacktrace-filter-active-face
+           'cider-stacktrace-filter-inactive-face))))
 
 (defun cider-stacktrace-indicate-filters (filters pos-filters)
   "Update enabled state of filter buttons.
@@ -594,17 +595,20 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
       (setq-local fill-prefix indent)
       (fill-region beg (point)))))
 
-(defun cider-stacktrace-render-filters (buffer filters)
+(defun cider-stacktrace-render-filters (buffer special-filters filters)
   "Emit into BUFFER toggle buttons for each of the FILTERS."
   (with-current-buffer buffer
     (insert "  Show: ")
-    (insert-text-button "Project-Only"
-                        'filter 'project
-                        'follow-link t
-                        'action 'cider-stacktrace-show-only-project
-                        'help-echo "Project frames only")
-    (insert " ") ;; if you put the space after project-only the button
-                 ;; highlighting spills into the next button
+    (dolist (filter special-filters)
+      (insert-text-button (car filter)
+                          'filter (cadr filter)
+                          'follow-link t
+                          'action (or (nth 3 filter) 'cider-stacktrace-filter)
+                          'help-echo (format "Toggle %s stack frames"
+                                             (car filter)))
+      (insert " "))
+    (insert "\n")
+    (insert "  Hide: ")
     (dolist (filter filters)
       (insert-text-button (car filter)
                           'filter (cadr filter)
@@ -768,8 +772,9 @@ through the `cider-stacktrace-suppressed-errors' variable."
       ;; Stacktrace filters
       (cider-stacktrace-render-filters
        buffer
+       `(("Project-Only" project cider-stacktrace-show-only-project) ("All" ,nil))
        `(("Clojure" clj) ("Java" java) ("REPL" repl)
-         ("Tooling" tooling) ("Duplicates" dup) ("All" ,nil)))
+         ("Tooling" tooling) ("Duplicates" dup)))
       (insert "\n")
       ;; Option to suppress internal/middleware errors
       (when error-types
