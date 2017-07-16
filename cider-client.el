@@ -702,13 +702,12 @@ buffer, defaults to (cider-current-connection)."
                         ns line column additional-params)
     (cider-spinner-start connection)))
 
-(defun cider-nrepl-sync-request:eval (input &optional ns)
-  "Send the INPUT to the nREPL server synchronously.
-If NS is non-nil, include it in the request."
-  (nrepl-sync-request:eval
-   input
-   (cider-current-connection)
-   ns))
+(defun cider-nrepl-sync-request:eval (input &optional connection ns)
+  "Send the INPUT to the nREPL CONNECTION synchronously.
+If NS is non-nil, include it in the eval request."
+  (nrepl-sync-request:eval input
+                           (or connection (cider-current-connection))
+                           ns))
 
 (defcustom cider-pprint-fn 'pprint
   "Sets the function to use when pretty-printing evaluation results.
