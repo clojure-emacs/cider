@@ -616,6 +616,13 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 
 ;;; Client: Process Handling
+(defun nrepl--kill-process (proc)
+  "Kill PROC using the appropriate, os specific way.
+Implement a workaround to clean up an orphaned JVM process left around
+after exiting the REPL on some windows machines."
+  (if (memq system-type '(cygwin windows-nt))
+      (interrupt-process proc)
+    (kill-process proc)))
 
 (defun nrepl--maybe-kill-server-buffer (server-buf)
   "Kill SERVER-BUF and its process, subject to user confirmation.
@@ -628,7 +635,7 @@ Do nothing if there is a REPL connected to that server."
       (let ((proc (get-buffer-process server-buf)))
         (when (process-live-p proc)
           (set-process-query-on-exit-flag proc nil)
-          (kill-process proc))
+          (nrepl--kill-process proc))
         (kill-buffer server-buf)))))
 
 ;; `nrepl-start-client-process' is called from `nrepl-server-filter'. It
