@@ -1268,21 +1268,13 @@ command `cider-debug-defun-at-point'."
   (interactive)
   (cider--pprint-eval-form (cider-defun-at-point 'bounds)))
 
-(defun cider-eval-ns-form (&optional sync)
-  "Evaluate the current buffer's namespace form.
-
-When SYNC is true the form is evaluated synchronously,
-otherwise it's evaluated interactively."
+(defun cider-eval-ns-form ()
+  "Evaluate the current buffer's namespace form."
   (interactive)
   (when (clojure-find-ns)
     (save-excursion
       (goto-char (match-beginning 0))
-      (if sync
-          ;; The first interactive eval on a file can load a lot of libs. This
-          ;; can easily lead to more than 10 sec.
-          (let ((nrepl-sync-request-timeout 30))
-            (cider-nrepl-sync-request:eval (cider-defun-at-point)))
-        (cider-eval-defun-at-point)))))
+      (cider-eval-defun-at-point))))
 
 (defun cider-read-and-eval (&optional value)
   "Read a sexp from the minibuffer and output its result to the echo area.
