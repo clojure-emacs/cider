@@ -1065,41 +1065,31 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
       #'identity))
   "Function to translate Emacs filenames to nREPL namestrings.")
 
-(defvar-local cider--ns-form-cache (make-hash-table :test 'equal)
-  "ns form cache for the current buffer.
+(defvar-local cider--last-ns-form nil
+  "Ns-form of the most recent interactive evaluation.")
 
-The cache is a hash where the keys are connection names and the values
-are ns forms. This allows every connection to keep track of the ns
-form independently.")
-
-(defun cider--cache-ns-form ()
-  "Cache the form in the current buffer for the current connection."
-  (puthash (cider-current-connection)
-           (cider-ns-form)
-           cider--ns-form-cache))
-
-(defun cider--cached-ns-form ()
-  "Retrieve the cached ns form for the current buffer & connection."
-  (gethash (cider-current-connection) cider--ns-form-cache))
-
-(defun cider--prep-interactive-eval (form)
-  "Prepare the environment for an interactive eval of FORM.
-
-Ensure the current ns declaration has been
-evaluated (so that the ns containing FORM exists).
-If FORM is a ns declaration it's not processed and cached.
-
-Clears any compilation highlights and kills the error window."
+(defun cider--prep-interactive-eval (form connection)
+  "Prepare the environment for an interactive eval of FORM in CONNECTION.
+Ensure the current ns declaration has been evaluated (so that the ns
+containing FORM exists). Cache ns-form in the current buffer unless FORM is
+ns declaration itself. Clear any compilation highlights and kill the error
+window."
   (cider--clear-compilation-highlights)
   (cider--quit-error-window)
   (let ((cur-ns-form (cider-ns-form)))
     (when (and cur-ns-form
-               (not (string= cur-ns-form (cider--cached-ns-form)))
+               (not (string= cur-ns-form
+                             (buffer-local-value 'cider--last-ns-form connection)))
                (not (cider-ns-form-p form)))
       (when cider-auto-track-ns-form-changes
-        ;; TODO: check for evaluation errors
-        (cider-eval-ns-form 'sync))
-      (cider--cache-ns-form))))
+        ;; The first interactive eval on a file can load a lot of libs. This can
+        ;; easily lead to more than 10 sec.
+        (let ((nrepl-sync-request-timeout 30))
+          ;; TODO: check for evaluation errors
+          (cider-nrepl-sync-request:eval cur-ns-form connection)))
+      ;; cache at the end, in case of errors
+      (with-current-buffer connection
+        (setq cider--last-ns-form cur-ns-form)))))
 
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
@@ -1127,9 +1117,9 @@ arguments and only proceed with evaluation if it returns nil."
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
       (cider-map-connections #'ignore :any)
-      (cider--prep-interactive-eval form)
       (cider-map-connections
        (lambda (connection)
+         (cider--prep-interactive-eval form connection)
          (cider-nrepl-request:eval
           form
           (or callback (cider-interactive-eval-handler nil bounds))
@@ -1624,10 +1614,12 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
     (remove-overlays nil nil 'cider-temporary t)
     (cider--clear-compilation-highlights)
     (cider--quit-error-window)
-    (cider--cache-ns-form)
-    (let ((filename (buffer-file-name buffer)))
+    (let ((filename (buffer-file-name buffer))
+          (ns-form  (cider-ns-form)))
       (cider-map-connections
        (lambda (connection)
+         (with-current-buffer connection
+           (setq cider--last-ns-form ns-form))
          (cider-request:load-file (cider-file-string filename)
                                   (funcall cider-to-nrepl-filename-function
                                            (cider--server-filename filename))
@@ -1795,11 +1787,7 @@ START and END represent the region's boundaries."
 (defun cider--quit-connection (conn)
   "Quit the connection CONN."
   (when conn
-    (cider--close-connection-buffer conn)
-    ;; clean the cached ns forms for this connection in all Clojure buffers
-    (dolist (clojure-buffer (cider-util--clojure-buffers))
-      (with-current-buffer clojure-buffer
-        (remhash conn cider--ns-form-cache)))))
+    (cider--close-connection-buffer conn)))
 
 (defun cider-quit (&optional quit-all)
   "Quit the currently active CIDER connection.

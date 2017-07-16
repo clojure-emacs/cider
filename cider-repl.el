@@ -554,7 +554,7 @@ When there is a possible unfinished ansi control sequence,
   "Regexp used to highlight root ns in REPL buffers.")
 
 (defvar-local cider-repl--root-ns-regexp nil
-  "Cache of root ns regexp in REPLs")
+  "Cache of root ns regexp in REPLs.")
 
 (defun cider-repl--apply-current-project-color (string)
   "Fontify project's root namespace to make stacktraces more readable.
