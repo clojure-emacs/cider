@@ -550,32 +550,43 @@ When there is a possible unfinished ansi control sequence,
     (insert-before-markers (cadr ansi-color-context))
     (setq ansi-color-context nil)))
 
-(defvar cider-repl--root-ns-highlitht-template "\\<%s[^$/: \t\n]+"
+(defvar cider-repl--root-ns-highlitht-template "\\<\\(%s\\)[^$/: \t\n]+"
   "Regexp used to highlight root ns in REPL buffers.")
 
 (defvar-local cider-repl--root-ns-regexp nil
   "Cache of root ns regexp in REPLs.")
 
+(defvar-local cider-repl--ns-roots nil
+  "List holding all past root namespaces seen during interactive eval.")
+
+(defun cider-repl--cache-ns-roots (ns-form connection)
+  "Given NS-FORM cache root ns in CONNECTION."
+  (with-current-buffer connection
+    (when (string-match "^[ \t\n]*\(ns[ \t\n]+\\([^. \t\n]+\\)" ns-form)
+      (let ((root (match-string-no-properties 1 ns-form)))
+        (unless (member root cider-repl--ns-roots)
+          (push root cider-repl--ns-roots)
+          (let ((roots (mapconcat
+                        ;; Replace _ or - with regexp patter to accommodate "raw" namespaces
+                        (lambda (r) (replace-regexp-in-string "[_-]+" "[_-]+" r))
+                        cider-repl--ns-roots "\\|")))
+            (setq cider-repl--root-ns-regexp
+                  (format cider-repl--root-ns-highlitht-template roots))))))))
+
 (defun cider-repl--apply-current-project-color (string)
   "Fontify project's root namespace to make stacktraces more readable.
 Foreground of `cider-stacktrace-ns-face' is used to propertize matched
 namespaces.  STRING is REPL's output."
-  (if (null nrepl-project-dir)
-      string
-    (unless cider-repl--root-ns-regexp
-      (let ((root (file-name-nondirectory (directory-file-name nrepl-project-dir))))
-        (setq cider-repl--root-ns-regexp
-              ;; Replace _ or - with regexp patter to accommodate "raw" namespaces
-              (format cider-repl--root-ns-highlitht-template
-                      (replace-regexp-in-string "[_-]+" "[_-]+" root)))))
-    (let ((start 0)
-          (end 0))
-      (while (setq start (string-match cider-repl--root-ns-regexp string end))
-        (setq end (match-end 0))
-        (let ((face-spec (list (cons 'foreground-color
-                                     (face-attribute 'cider-stacktrace-ns-face :foreground nil t)))))
-          (font-lock-prepend-text-property start end 'face face-spec string)))
-      string)))
+  (if cider-repl--root-ns-regexp
+      (let ((start 0)
+            (end 0))
+        (while (setq start (string-match cider-repl--root-ns-regexp string end))
+          (setq end (match-end 0))
+          (let ((face-spec (list (cons 'foreground-color
+                                       (face-attribute 'cider-stacktrace-ns-face :foreground nil t)))))
+            (font-lock-prepend-text-property start end 'face face-spec string)))
+        string)
+    string))
 
 (defun cider-repl--emit-output-at-pos (buffer string output-face position &optional bol)
   "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
@@ -972,7 +983,7 @@ namespace to switch to."
 Each element in the alist has the form (NAME REGEXP HIGHLIGHT VAR FILE
 LINE), where NAME is the identifier of the regexp, REGEXP - regexp matching
 a location, HIGHLIGHT - sub-expression matching region to highlight on
-mouse-over, VAR - sub-expression giving Clojure VAR to look up. FILE is
+mouse-over, VAR - sub-expression giving Clojure VAR to look up.  FILE is
 currently only used when VAR is nil and must be full resource path in that
 case."
   :type '(alist :key-type sexp)

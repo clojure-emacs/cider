@@ -1081,6 +1081,7 @@ window."
                (not (string= cur-ns-form
                              (buffer-local-value 'cider--last-ns-form connection)))
                (not (cider-ns-form-p form)))
+      (cider-repl--cache-ns-roots cur-ns-form connection)
       (when cider-auto-track-ns-form-changes
         ;; The first interactive eval on a file can load a lot of libs. This can
         ;; easily lead to more than 10 sec.
@@ -1612,6 +1613,7 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
        (lambda (connection)
          (with-current-buffer connection
            (setq cider--last-ns-form ns-form))
+         (cider-repl--cache-ns-roots ns-form connection)
          (cider-request:load-file (cider-file-string filename)
                                   (funcall cider-to-nrepl-filename-function
                                            (cider--server-filename filename))
