@@ -244,13 +244,21 @@ The error types are represented as strings."
 
 ;; Stacktrace filtering
 
+(defvar cider-stacktrace--all-negative-filters
+  '(clj tooling dup java repl)
+  "Filters that remove stackframes")
+
+(defvar cider-stacktrace--all-positive-filters
+  '(project)
+  "Filters that ensure stackframes are shown")
+
 (defun cider-stacktrace--face-for-filter (filter neg-filters pos-filters)
   "Return whether we should mark the filter is active or not."
-  (cond ((member filter '(clj java repl tooling dup)) ; negative filter
+  (cond ((member filter cider-stacktrace--all-negative-filters)
          (if (member filter neg-filters)
              'cider-stacktrace-filter-active-face
            'cider-stacktrace-filter-inactive-face))
-        ((member filter '(project))                   ; positive filter
+        ((member filter cider-stacktrace--all-positive-filters)
          (if (member filter pos-filters)
              'cider-stacktrace-filter-active-face
            'cider-stacktrace-filter-inactive-face))
@@ -479,7 +487,7 @@ When it reaches 3, it wraps to 0."
            (cons flag cider-stacktrace-filters)))
    cider-stacktrace-positive-filters))
 
-(defun cider-stacktrace-show-only-project (&optional button)
+(defun cider-stacktrace-show-only-project ()
   "Display only the stackframes from the project.
 BUTTON is the button at the top of the error buffer as the button calls
 with the button."
@@ -487,7 +495,7 @@ with the button."
   (if (null cider-stacktrace-positive-filters)
       (progn
         (setq-local cider-stacktrace-prior-filters cider-stacktrace-filters)
-        (setq-local cider-stacktrace-filters '(java clj repl tooling dup))
+        (setq-local cider-stacktrace-filters cider-stacktrace-filters)
         (setq-local cider-stacktrace-positive-filters '(project)))
     (progn
       (setq-local cider-stacktrace-filters cider-stacktrace-prior-filters)
@@ -526,9 +534,11 @@ with the button."
   "Apply filter(s) indicated by the BUTTON."
   (with-temp-message "Filters may also be toggled with the keyboard."
     (let ((flag (button-get button 'filter)))
-      (if flag
-          (cider-stacktrace-toggle flag)
-        (cider-stacktrace-toggle-all)))
+      (cond ((member flag cider-stacktrace--all-negative-filters)
+             (cider-stacktrace-toggle flag))
+            ((member flag cider-stacktrace--all-positive-filters)
+             (cider-stacktrace-show-only-project))
+            (t cider-stacktrace-toggle-all)))
     (sit-for 5)))
 
 (defun cider-stacktrace-toggle-suppression (button)
@@ -603,7 +613,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
       (insert-text-button (car filter)
                           'filter (cadr filter)
                           'follow-link t
-                          'action (or (nth 3 filter) 'cider-stacktrace-filter)
+                          'action 'cider-stacktrace-filter
                           'help-echo (format "Toggle %s stack frames"
                                              (car filter)))
       (insert " "))
@@ -772,7 +782,7 @@ through the `cider-stacktrace-suppressed-errors' variable."
       ;; Stacktrace filters
       (cider-stacktrace-render-filters
        buffer
-       `(("Project-Only" project cider-stacktrace-show-only-project) ("All" ,nil))
+       `(("Project-Only" project) ("All" ,nil))
        `(("Clojure" clj) ("Java" java) ("REPL" repl)
          ("Tooling" tooling) ("Duplicates" dup)))
       (insert "\n")
