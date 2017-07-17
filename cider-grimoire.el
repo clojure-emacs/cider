@@ -86,7 +86,7 @@ opposite of what that option dictates."
       (cider-popup-buffer-mode 1)
       (when (fboundp 'markdown-toggle-fontify-code-blocks-natively)
         (markdown-toggle-fontify-code-blocks-natively 1)))
-    (read-only-mode +1)
+    (view-mode 1)
     (goto-char (point-min))
     (current-buffer)))
 
