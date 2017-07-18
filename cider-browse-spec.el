@@ -66,7 +66,7 @@
     (define-key map [mouse-1] #'cider-browse-spec-handle-mouse)
     map))
 
-(define-derived-mode cider-browse-spec-mode special-mode "browse-spec"
+(define-derived-mode cider-browse-spec-mode special-mode "Specs"
   "Major mode for browsing Clojure specs.
 
 \\{cider-browse-spec-mode-map}"
@@ -87,7 +87,7 @@
     map)
   "Keymap for `cider-browse-spec-view-mode'.")
 
-(define-derived-mode cider-browse-spec-view-mode help-mode "Spec view"
+(define-derived-mode cider-browse-spec-view-mode help-mode "Spec"
   "Major mode for displaying CIDER spec.
 
 \\{cider-browse-spec-view-mode-map}"
