@@ -289,16 +289,20 @@ a more user friendly representation of SPEC-FORM."
 (defun cider-browse-spec--next-spec ()
   "Move to the next spec in the buffer."
   (interactive)
-  (goto-char (next-single-property-change (point) 'spec-name))
-  (unless (get-text-property (point) 'spec-name)
-    (goto-char (next-single-property-change (point) 'spec-name))))
+  (when-let ((pos (next-single-property-change (point) 'spec-name)))
+    (if (get-text-property (point) 'spec-name)
+        (when-let ((next-pos (next-single-property-change pos 'spec-name)))
+          (goto-char next-pos))
+      (goto-char pos))))
 
 (defun cider-browse-spec--prev-spec ()
   "Move to the previous spec in the buffer."
   (interactive)
-  (goto-char (previous-single-property-change (point) 'spec-name))
-  (unless (get-text-property (point) 'spec-name)
-    (goto-char (previous-single-property-change (point) 'spec-name))))
+  (when-let ((pos (previous-single-property-change (point) 'spec-name)))
+    (if (get-text-property (point) 'spec-name)
+        (when-let ((prev-pos (previous-single-property-change pos 'spec-name)))
+          (goto-char prev-pos))
+      (goto-char pos))))
 
 (defun cider-browse-spec--print-curr-spec-example ()
   "Generate and print an example of the current spec."
