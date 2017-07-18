@@ -473,6 +473,26 @@ the buffer."
 (declare-function cider-doc-lookup "cider-doc")
 (declare-function cider--eldoc-remove-dot "cider-eldoc")
 
+;; Taken from: https://github.com/emacs-mirror/emacs/blob/65c8c7cb96c14f9c6accd03cc8851b5a3459049e/lisp/help-mode.el#L551-L565
+(defun cider--make-back-forward-xrefs (&optional buffer)
+  "Insert special references `back' and `forward', as in `help-make-xrefs'"
+  (with-current-buffer (or buffer (current-buffer))
+    (insert "\n")
+    (when (or help-xref-stack help-xref-forward-stack)
+      (insert "\n"))
+    ;; Make a back-reference in this buffer if appropriate.
+    (when help-xref-stack
+      (help-insert-xref-button help-back-label 'help-back
+                               (current-buffer)))
+    ;; Make a forward-reference in this buffer if appropriate.
+    (when help-xref-forward-stack
+      (when help-xref-stack
+        (insert "\t"))
+      (help-insert-xref-button help-forward-label 'help-forward
+                               (current-buffer)))
+    (when (or help-xref-stack help-xref-forward-stack)
+      (insert "\n"))))
+
 ;; Similar to https://github.com/emacs-mirror/emacs/blob/65c8c7cb96c14f9c6accd03cc8851b5a3459049e/lisp/help-mode.el#L404
 (defun cider--doc-make-xrefs ()
   "Parse and hyperlink documentation cross-references in current buffer.
@@ -495,23 +515,7 @@ through a stack of help buffers.  Variables `help-back-label' and
                             'type 'help-xref
                             'help-function (apply-partially #'cider-doc-lookup
                                                             (cider--eldoc-remove-dot symbol))))))
-
-  ;; create back and forward buttons if appropiate
-  (insert "\n")
-  (when (or help-xref-stack help-xref-forward-stack)
-    (insert "\n"))
-  ;; Make a back-reference in this buffer if appropriate.
-  (when help-xref-stack
-    (help-insert-xref-button help-back-label 'help-back
-                             (current-buffer)))
-  ;; Make a forward-reference in this buffer if appropriate.
-  (when help-xref-forward-stack
-    (when help-xref-stack
-      (insert "\t"))
-    (help-insert-xref-button help-forward-label 'help-forward
-                             (current-buffer)))
-  (when (or help-xref-stack help-xref-forward-stack)
-    (insert "\n")))
+  (cider--make-back-forward-xrefs))
 
 
 ;;; Words of inspiration
