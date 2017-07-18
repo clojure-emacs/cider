@@ -45,10 +45,7 @@
 
 ;; The buffer names used by the spec browser
 (defconst cider-browse-spec-buffer "*cider-spec-browser*")
-(defconst cider-browse-spec-example-buffer "*cider-spec-example*")
-
-(push cider-browse-spec-buffer cider-ancillary-buffers)
-(push cider-browse-spec-example-buffer cider-ancillary-buffers)
+(add-to-list 'cider-ancillary-buffers cider-browse-spec-buffer)
 
 (defvar cider-browse-spec-navigation '()
   "Keeps the cider spec browser navigation stack.
@@ -56,6 +53,8 @@ A list of strings which are specs or specs searches.
 First of the list is the top of the stack.
 Specs searches are encoded as (search \"regex\")
 For example: (\":ring.request/header-name\" \":ring.request/headers\" \":ring/request\" (search \"ring.+\"))")
+(defconst cider-browse-spec-example-buffer "*cider-spec-example*")
+(add-to-list 'cider-ancillary-buffers cider-browse-spec-example-buffer)
 
 ;; Mode Definition
 
