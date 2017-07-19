@@ -43,8 +43,7 @@
 (require 'nrepl-dict)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
-
-(push cider-browse-ns-buffer cider-ancillary-buffers)
+(add-to-list 'cider-ancillary-buffers cider-browse-ns-buffer)
 
 (defvar-local cider-browse-ns-current-ns nil)
 
