@@ -1065,9 +1065,6 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
       #'identity))
   "Function to translate Emacs filenames to nREPL namestrings.")
 
-(defvar-local cider--last-ns-form nil
-  "Ns-form of the most recent interactive evaluation.")
-
 (defun cider--prep-interactive-eval (form connection)
   "Prepare the environment for an interactive eval of FORM in CONNECTION.
 Ensure the current ns declaration has been evaluated (so that the ns
@@ -1078,10 +1075,8 @@ window."
   (cider--quit-error-window)
   (let ((cur-ns-form (cider-ns-form)))
     (when (and cur-ns-form
-               (not (string= cur-ns-form
-                             (buffer-local-value 'cider--last-ns-form connection)))
-               (not (cider-ns-form-p form)))
-      (cider-repl--cache-ns-roots cur-ns-form connection)
+               (not (cider-ns-form-p form))
+               (cider-repl--ns-form-changed-p cur-ns-form connection))
       (when cider-auto-track-ns-form-changes
         ;; The first interactive eval on a file can load a lot of libs. This can
         ;; easily lead to more than 10 sec.
@@ -1089,8 +1084,7 @@ window."
           ;; TODO: check for evaluation errors
           (cider-nrepl-sync-request:eval cur-ns-form connection)))
       ;; cache at the end, in case of errors
-      (with-current-buffer connection
-        (setq cider--last-ns-form cur-ns-form)))))
+      (cider-repl--cache-ns-form cur-ns-form connection))))
 
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
@@ -1611,9 +1605,7 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
           (ns-form  (cider-ns-form)))
       (cider-map-connections
        (lambda (connection)
-         (with-current-buffer connection
-           (setq cider--last-ns-form ns-form))
-         (cider-repl--cache-ns-roots ns-form connection)
+         (cider-repl--cache-ns-form ns-form connection)
          (cider-request:load-file (cider-file-string filename)
                                   (funcall cider-to-nrepl-filename-function
                                            (cider--server-filename filename))
