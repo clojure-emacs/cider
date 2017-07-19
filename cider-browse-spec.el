@@ -54,17 +54,13 @@
 
 (defvar cider-browse-spec-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map cider-popup-buffer-mode-map)
-    (define-key map (kbd "RET") #'cider-browse-spec--browse-at-point)
-    (define-key map "n" #'cider-browse-spec--next-spec)
-    (define-key map "p" #'cider-browse-spec--prev-spec)
+    (set-keymap-parent map (make-composed-keymap button-buffer-map
+                                                 cider-popup-buffer-mode-map))
+    (define-key map (kbd "RET") #'cider-browse-spec--browse-at)
+    (define-key map "n" #'forward-button)
+    (define-key map "p" #'backward-button)
     map)
   "Keymap for `cider-browse-spec-mode'.")
-
-(defvar cider-browse-spec-mouse-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] #'cider-browse-spec-handle-mouse)
-    map))
 
 (define-derived-mode cider-browse-spec-mode special-mode "Specs"
   "Major mode for browsing Clojure specs.
@@ -79,11 +75,11 @@
 (defvar cider-browse-spec-view-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map help-mode-map)
-    (define-key map (kbd "RET") #'cider-browse-spec--browse-at-point)
+    (define-key map (kbd "RET") #'cider-browse-spec--browse-at)
     (define-key map "^" #'cider-browse-spec-all)
     (define-key map "e" #'cider-browse-spec--print-curr-spec-example)
-    (define-key map "n" #'cider-browse-spec--next-spec)
-    (define-key map "p" #'cider-browse-spec--prev-spec)
+    (define-key map "n" #'forward-button)
+    (define-key map "p" #'backward-button)
     map)
   "Keymap for `cider-browse-spec-view-mode'.")
 
@@ -116,20 +112,11 @@
 
 ;; Non interactive functions
 
-(defun cider-browse-spec--propertize-keyword (kw)
-  "Add properties to KW text needed by the spec browser."
-  (propertize (cider-font-lock-as-clojure kw)
-              'spec-name kw
-              'mouse-face 'highlight
-              'keymap cider-browse-spec-mouse-map))
-
-(defun cider-browse-spec--propertize-fn (fname)
-  "Add properties to FNAME symbol text needed by the spec browser."
-  (propertize fname
-              'font-lock-face 'font-lock-function-name-face
-              'spec-name fname
-              'mouse-face 'highlight
-              'keymap cider-browse-spec-mouse-map))
+(define-button-type 'cider-browse-spec--spec
+  'action #'cider-browse-spec--browse-at
+  'face nil
+  'follow-link t
+  'help-echo "View spec")
 
 (defun cider-browse-spec--draw-list-buffer (buffer title specs)
   "Reset contents of BUFFER.
@@ -141,12 +128,11 @@ Display TITLE at the top and SPECS are indented underneath."
       (goto-char (point-max))
       (insert (cider-propertize title 'emph) "\n")
       (dolist (spec-name specs)
-        (let ((propertize-fn (if (char-equal (elt spec-name 0) ?:)
-                                 #'cider-browse-spec--propertize-keyword
-                               #'cider-browse-spec--propertize-fn)))
-          (thread-first (concat "  " (funcall propertize-fn spec-name) "\n")
-            (propertize 'spec-name spec-name)
-            insert)))
+        (insert (propertize "  " 'spec-name spec-name))
+        (thread-first (cider-font-lock-as-clojure spec-name)
+          (insert-text-button 'type 'cider-browse-spec--spec)
+          (button-put 'spec-name spec-name))
+        (insert (propertize "\n" 'spec-name spec-name)))
       (goto-char (point-min)))))
 
 (defun cider--qualified-keyword-p (str)
@@ -161,7 +147,11 @@ Display TITLE at the top and SPECS are indented underneath."
   "Given a spec FORM builds a multi line string with a pretty render of that FORM."
   (cond ((stringp form)
          (if (cider--qualified-keyword-p form)
-             (cider-browse-spec--propertize-keyword form)
+             (with-temp-buffer
+               (thread-first form
+                 (insert-text-button 'type 'cider-browse-spec--spec)
+                 (button-put 'spec-name form))
+               (buffer-string))
            ;; to make it easier to read replace all clojure.spec ns with s/
            ;; and remove all clojure.core ns
            (thread-last form
@@ -284,25 +274,18 @@ a more user friendly representation of SPEC-FORM."
     (goto-char (point-min))
     (current-buffer)))
 
+(defun cider-browse-spec--browse-at (&optional pos)
+  "View the definition of a spec.
+
+Optional argument POS is the position of a spec, defaulting to point.  POS
+may also be a button, so this function can be used a the button's `action'
+property."
+  (interactive)
+  (let ((pos (or pos (point))))
+    (when-let ((spec (button-get pos 'spec-name)))
+      (cider-browse-spec--browse spec))))
+
 ;; Interactive Functions
-
-(defun cider-browse-spec--next-spec ()
-  "Move to the next spec in the buffer."
-  (interactive)
-  (when-let ((pos (next-single-property-change (point) 'spec-name)))
-    (if (get-text-property (point) 'spec-name)
-        (when-let ((next-pos (next-single-property-change pos 'spec-name)))
-          (goto-char next-pos))
-      (goto-char pos))))
-
-(defun cider-browse-spec--prev-spec ()
-  "Move to the previous spec in the buffer."
-  (interactive)
-  (when-let ((pos (previous-single-property-change (point) 'spec-name)))
-    (if (get-text-property (point) 'spec-name)
-        (when-let ((prev-pos (previous-single-property-change pos 'spec-name)))
-          (goto-char prev-pos))
-      (goto-char pos))))
 
 (defun cider-browse-spec--print-curr-spec-example ()
   "Generate and print an example of the current spec."
@@ -354,18 +337,6 @@ No filter applied if the regexp is the empty string."
                                                  "All specs in registry"
                                                (format "All specs matching regex `%s' in registry" filter-regex))
                                              specs)))))
-
-(defun cider-browse-spec--browse-at-point ()
-  "Go to the definition of the spec at point inside `cider-browse-spec-buffer'."
-  (interactive)
-  (when-let ((spec (get-text-property (point) 'spec-name)))
-    (cider-browse-spec--browse spec)))
-
-(defun cider-browse-spec-handle-mouse (event)
-  "Handle mouse click EVENT."
-  (interactive "e")
-  (when (eq 'highlight (get-text-property (point) 'mouse-face))
-    (cider-browse-spec--browse-at-point)))
 
 (provide 'cider-browse-spec)
 
