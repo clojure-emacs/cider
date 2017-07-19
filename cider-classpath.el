@@ -29,8 +29,7 @@
 (require 'cider-compat)
 
 (defvar cider-classpath-buffer "*cider-classpath*")
-
-(push cider-classpath-buffer cider-ancillary-buffers)
+(add-to-list 'cider-ancillary-buffers cider-classpath-buffer)
 
 (defvar cider-classpath-mode-map
   (let ((map (make-sparse-keymap)))

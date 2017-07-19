@@ -36,8 +36,7 @@
 ;; ===================================
 
 (defconst cider-inspector-buffer "*cider-inspect*")
-
-(push cider-inspector-buffer cider-ancillary-buffers)
+(add-to-list 'cider-ancillary-buffers cider-inspector-buffer)
 
 ;;; Customization
 (defgroup cider-inspector nil

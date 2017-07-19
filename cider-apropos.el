@@ -39,8 +39,7 @@
 (require 'button)
 
 (defconst cider-apropos-buffer "*cider-apropos*")
-
-(push cider-apropos-buffer cider-ancillary-buffers)
+(add-to-list 'cider-ancillary-buffers cider-apropos-buffer)
 
 (defcustom cider-apropos-actions '(("display-doc" . cider-doc-lookup)
                                    ("find-def" . cider--find-var)
