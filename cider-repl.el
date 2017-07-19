@@ -550,7 +550,18 @@ When there is a possible unfinished ansi control sequence,
     (insert-before-markers (cadr ansi-color-context))
     (setq ansi-color-context nil)))
 
-(defvar cider-repl--root-ns-highlitht-template "\\<\\(%s\\)[^$/: \t\n]+"
+(defvar-local cider-repl--ns-forms-plist nil
+  "Plist holding ns->ns-form mappings within each connection.")
+
+(defun cider-repl--ns-form-changed-p (ns-form connection)
+  "Return non-nil if NS-FORM for CONNECTION changed since last eval."
+  (when-let ((ns (cider-ns-from-form ns-form)))
+    (not (string= ns-form
+                  (lax-plist-get
+                   (buffer-local-value 'cider-repl--ns-forms-plist connection)
+                   ns)))))
+
+(defvar cider-repl--root-ns-highlight-template "\\<\\(%s\\)[^$/: \t\n]+"
   "Regexp used to highlight root ns in REPL buffers.")
 
 (defvar-local cider-repl--root-ns-regexp nil
@@ -559,19 +570,24 @@ When there is a possible unfinished ansi control sequence,
 (defvar-local cider-repl--ns-roots nil
   "List holding all past root namespaces seen during interactive eval.")
 
-(defun cider-repl--cache-ns-roots (ns-form connection)
+(defun cider-repl--cache-ns-form (ns-form connection)
   "Given NS-FORM cache root ns in CONNECTION."
   (with-current-buffer connection
-    (when (string-match "^[ \t\n]*\(ns[ \t\n]+\\([^. \t\n]+\\)" ns-form)
-      (let ((root (match-string-no-properties 1 ns-form)))
-        (unless (member root cider-repl--ns-roots)
-          (push root cider-repl--ns-roots)
-          (let ((roots (mapconcat
-                        ;; Replace _ or - with regexp patter to accommodate "raw" namespaces
-                        (lambda (r) (replace-regexp-in-string "[_-]+" "[_-]+" r))
-                        cider-repl--ns-roots "\\|")))
-            (setq cider-repl--root-ns-regexp
-                  (format cider-repl--root-ns-highlitht-template roots))))))))
+    (when-let ((ns (cider-ns-from-form ns-form)))
+      ;; cache ns-form
+      (setq cider-repl--ns-forms-plist
+            (lax-plist-put cider-repl--ns-forms-plist ns ns-form))
+      ;; cache ns roots regexp
+      (when (string-match "\\([^.]+\\)" ns)
+        (let ((root (match-string-no-properties 1 ns)))
+          (unless (member root cider-repl--ns-roots)
+            (push root cider-repl--ns-roots)
+            (let ((roots (mapconcat
+                          ;; Replace _ or - with regexp patter to accommodate "raw" namespaces
+                          (lambda (r) (replace-regexp-in-string "[_-]+" "[_-]+" r))
+                          cider-repl--ns-roots "\\|")))
+              (setq cider-repl--root-ns-regexp
+                    (format cider-repl--root-ns-highlight-template roots)))))))))
 
 (defun cider-repl--apply-current-project-color (string)
   "Fontify project's root namespace to make stacktraces more readable.
