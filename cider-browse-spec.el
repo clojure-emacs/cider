@@ -34,14 +34,14 @@
 
 ;;; Code:
 
-(require 'cider-interaction)
 (require 'cider-client)
-(require 'subr-x)
 (require 'cider-compat)
+(require 'cider-interaction)
 (require 'cider-util)
+(require 'cl-lib)
 (require 'nrepl-dict)
 (require 'seq)
-(require 'cl-lib)
+(require 'subr-x)
 
 ;; The buffer names used by the spec browser
 (defconst cider-browse-spec-buffer "*cider-spec-browser*")
