@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.15.0 (2017-07-20)
+
 ### New Features
 
 * [#2050](https://github.com/clojure-emacs/cider/pull/2050) Use `view-mode` for `cider-grimoire` buffers
