@@ -256,7 +256,7 @@ a more user friendly representation of SPEC-FORM."
                 (clojure-mode)
                 (insert (cider-browse-spec--pprint spec-form))
                 (indent-region (point-min) (point-max))
-                (font-lock-ensure)
+                (cider--font-lock-ensure)
                 (buffer-string)))
       (cider--make-back-forward-xrefs)
       (current-buffer))))

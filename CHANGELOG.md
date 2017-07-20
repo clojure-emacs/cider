@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+### New Features
+
+### Changes
+
+### Bugs Fixed
+
+* [#2057](https://github.com/clojure-emacs/cider/pull/2057) Use `cider--font-lock-ensure` for compatibility with Emacs 24.5.
+
 ## 0.15.0 (2017-07-20)
 
 ### New Features
