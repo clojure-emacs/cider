@@ -20,5 +20,9 @@
                               "\\`[^.].*\\.el\\'" t)))
   (dolist (file files)
     (checkdoc-file file))
+  (when (get-buffer "*Warnings*")
+    (message "Failing due to checkdoc warnings...")
+    (kill-emacs 1))
+
   (when (apply #'check-declare-files files)
     (kill-emacs 1)))
