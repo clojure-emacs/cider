@@ -743,7 +743,7 @@ MSG is a string to be displayed.  TYPE is the type of the message.  All
 notifications are currently displayed with `message' function and emitted
 to the REPL."
   (let* ((face (pcase type
-                 ((or "message" 'nil) 'font-lock-builtin-face)
+                 ((or "message" `nil) 'font-lock-builtin-face)
                  ("warning" 'warning)
                  ("error"   'error)))
          (msg (if face
