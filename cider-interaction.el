@@ -1068,8 +1068,8 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
 (defun cider--prep-interactive-eval (form connection)
   "Prepare the environment for an interactive eval of FORM in CONNECTION.
 Ensure the current ns declaration has been evaluated (so that the ns
-containing FORM exists). Cache ns-form in the current buffer unless FORM is
-ns declaration itself. Clear any compilation highlights and kill the error
+containing FORM exists).  Cache ns-form in the current buffer unless FORM is
+ns declaration itself.  Clear any compilation highlights and kill the error
 window."
   (cider--clear-compilation-highlights)
   (cider--quit-error-window)
@@ -1366,7 +1366,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable CIDER's minor mode on existing Clojure buffers.
-See `cider-mode'."
+See command `cider-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook #'cider-mode)
   (dolist (buffer (cider-util--clojure-buffers))
@@ -1374,15 +1374,14 @@ See `cider-mode'."
       (cider-mode +1))))
 
 (defun cider-disable-on-existing-clojure-buffers ()
-  "Disable `cider-mode' on existing Clojure buffers.
-See `cider-mode'."
+  "Disable command `cider-mode' on existing Clojure buffers."
   (interactive)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
       (cider-mode -1))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
-  "If not connected, disable `cider-mode' on existing Clojure buffers."
+  "If not connected, disable command `cider-mode' on existing Clojure buffers."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
