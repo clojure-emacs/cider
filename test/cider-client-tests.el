@@ -111,6 +111,20 @@ SYMBOL is locally let-bound to the current buffer."
                 (setq major-mode 'clojurescript-mode)
                 (expect (cider-current-connection) :to-equal bb2)))))))
 
+    (describe "when current buffer is a 'multi' buffer"
+      (describe "when there is only one connection available"
+       (it "returns the only connection"
+         (with-connection-buffer "clj" b
+           (with-temp-buffer
+             (clojure-mode)
+             (expect (cider-current-connection "clj") :to-equal b))
+           (with-temp-buffer
+             (clojurec-mode)
+             (expect (cider-current-connection "clj") :to-equal b))
+           (with-temp-buffer
+             (clojurex-mode)
+             (expect (cider-current-connection "clj") :to-equal b))))))
+
     (describe "when type argument is given"
       (describe "when connection of that type exists"
         (it "returns that connection buffer"
