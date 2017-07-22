@@ -268,6 +268,7 @@ at all."
   ;; that TYPE, but ultimately allow any type.
   (cl-labels ((right-type-p (c type)
                             (when (or (not type)
+                                      (equal type "multi")
                                       (and (buffer-live-p c)
                                            (equal (cider--connection-type c) type)))
                               c))
