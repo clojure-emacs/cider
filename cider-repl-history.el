@@ -420,7 +420,7 @@ text is still inserted at the end."
   "Clear the highlighted entry, when one exists."
   (when cider-repl-history-previous-overlay
     (cl-assert (overlayp cider-repl-history-previous-overlay)
-               t "not an overlay")
+               nil "not an overlay")
     (overlay-put cider-repl-history-previous-overlay 'face nil)))
 
 (defun cider-repl-history-update-highlighed-entry ()
