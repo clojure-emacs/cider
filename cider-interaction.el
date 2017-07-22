@@ -1604,7 +1604,8 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
           (ns-form  (cider-ns-form)))
       (cider-map-connections
        (lambda (connection)
-         (cider-repl--cache-ns-form ns-form connection)
+         (when ns-form
+           (cider-repl--cache-ns-form ns-form connection))
          (cider-request:load-file (cider-file-string filename)
                                   (funcall cider-to-nrepl-filename-function
                                            (cider--server-filename filename))
