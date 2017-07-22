@@ -543,7 +543,7 @@ with the button."
              (cider-stacktrace-toggle flag))
             ((member flag cider-stacktrace--all-positive-filters)
              (cider-stacktrace-show-only-project))
-            (t cider-stacktrace-toggle-all)))
+            (t (cider-stacktrace-toggle-all))))
     (sit-for 5)))
 
 (defun cider-stacktrace-toggle-suppression (button)
