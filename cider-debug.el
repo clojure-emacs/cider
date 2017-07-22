@@ -396,7 +396,7 @@ In order to work properly, this mode must be activated by
     ["Customize" (customize-group 'cider-debug)]))
 
 (defun cider--uppercase-command-p ()
-  "Return true if the last command was uppercase letter."
+  "Return non-nil if the last command was uppercase letter."
   (ignore-errors
     (let ((case-fold-search nil))
       (string-match "[[:upper:]]" (string last-command-event)))))

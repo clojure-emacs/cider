@@ -67,12 +67,12 @@ Setting this to nil removes the fontification restriction."
     default-directory))
 
 (defun cider-in-string-p ()
-  "Return true if point is in a string."
+  "Return non-nil if point is in a string."
   (let ((beg (save-excursion (beginning-of-defun) (point))))
     (nth 3 (parse-partial-sexp beg (point)))))
 
 (defun cider-in-comment-p ()
-  "Return true if point is in a comment."
+  "Return non-nil if point is in a comment."
   (let ((beg (save-excursion (beginning-of-defun) (point))))
     (nth 4 (parse-partial-sexp beg (point)))))
 
@@ -84,7 +84,7 @@ which nREPL uses for temporary evaluation file names."
     (string-match-p "^form-init" fname)))
 
 (defun cider--cljc-or-cljx-buffer-p (&optional buffer)
-  "Return true if the current buffer is visiting a cljc or cljx file.
+  "Return non-nil if the current buffer is visiting a cljc or cljx file.
 
 If BUFFER is provided act on that buffer instead."
   (with-current-buffer (or buffer (current-buffer))
@@ -475,7 +475,10 @@ the buffer."
 
 ;; Taken from: https://github.com/emacs-mirror/emacs/blob/65c8c7cb96c14f9c6accd03cc8851b5a3459049e/lisp/help-mode.el#L551-L565
 (defun cider--make-back-forward-xrefs (&optional buffer)
-  "Insert special references `back' and `forward', as in `help-make-xrefs'"
+  "Insert special references `back' and `forward', as in `help-make-xrefs'.
+
+Optional argument BUFFER is the buffer in which to insert references.
+Default is current buffer."
   (with-current-buffer (or buffer (current-buffer))
     (insert "\n")
     (when (or help-xref-stack help-xref-forward-stack)

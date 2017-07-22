@@ -122,7 +122,7 @@ that of the namespace in the Clojure source buffer."
 
 (defun cider-switch-to-repl-buffer (&optional set-namespace)
   "Select the REPL buffer, when possible in an existing window.
-The buffer chosen is based on the file open in the current buffer. If
+The buffer chosen is based on the file open in the current buffer.  If
 multiple REPL buffers are associated with current connection the most
 recent is used.
 

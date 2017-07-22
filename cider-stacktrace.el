@@ -246,14 +246,19 @@ The error types are represented as strings."
 
 (defvar cider-stacktrace--all-negative-filters
   '(clj tooling dup java repl)
-  "Filters that remove stackframes")
+  "Filters that remove stackframes.")
 
 (defvar cider-stacktrace--all-positive-filters
   '(project)
-  "Filters that ensure stackframes are shown")
+  "Filters that ensure stackframes are shown.")
 
 (defun cider-stacktrace--face-for-filter (filter neg-filters pos-filters)
-  "Return whether we should mark the filter is active or not."
+  "Return whether we should mark the FILTER is active or not.
+
+NEG-FILTERS and POS-FILTERS are lists of filters to check FILTER's type.
+
+NEG-FILTERS dictate which frames should be hidden while POS-FILTERS can
+override this and ensure that those frames are shown."
   (cond ((member filter cider-stacktrace--all-negative-filters)
          (if (member filter neg-filters)
              'cider-stacktrace-filter-active-face
@@ -273,7 +278,7 @@ The error types are represented as strings."
 Find buttons with a 'filter property; if filter is a member of FILTERS, or
 if filter is nil ('show all') and the argument list is non-nil, fontify the
 button as disabled.  Upon finding text with a 'hidden-count property, stop
-searching and update the hidden count text. POS-FILTERS is the list of
+searching and update the hidden count text.  POS-FILTERS is the list of
 positive filters to always include."
   (with-current-buffer cider-error-buffer
     (save-excursion
@@ -606,7 +611,10 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
       (fill-region beg (point)))))
 
 (defun cider-stacktrace-render-filters (buffer special-filters filters)
-  "Emit into BUFFER toggle buttons for each of the FILTERS."
+  "Emit into BUFFER toggle buttons for each of the FILTERS.
+
+SPECIAL-FILTERS are filters that show stack certain stack frames, hiding
+others."
   (with-current-buffer buffer
     (insert "  Show: ")
     (dolist (filter special-filters)
@@ -627,7 +635,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
                           'help-echo (format "Toggle %s stack frames"
                                              (car filter)))
       (insert " "))
-    
+
     (let ((hidden "(0 frames hidden)"))
       (put-text-property 0 (length hidden) 'hidden-count t hidden)
       (insert " " hidden "\n"))))

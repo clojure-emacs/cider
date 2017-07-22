@@ -976,7 +976,10 @@ CONTEXT represents a completion context for compliment."
       eldoc)))
 
 (defun cider-sync-request:spec-list (&optional filter-regex)
-  "Get a list of the available specs in the registry."
+  "Get a list of the available specs in the registry.
+
+Optional argument FILTER-REGEX filters specs.  By default, all specs are
+returned."
   (setq filter-regex (or filter-regex ""))
   (thread-first `("op" "spec-list"
                   "filter-regex" ,filter-regex)
@@ -984,14 +987,14 @@ CONTEXT represents a completion context for compliment."
     (nrepl-dict-get "spec-list")))
 
 (defun cider-sync-request:spec-form (spec)
-  "Get spec form from registry"
+  "Get SPEC's form from registry."
   (thread-first `("op" "spec-form"
                   "spec-name" ,spec)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "spec-form")))
 
 (defun cider-sync-request:spec-example (spec)
-  "Get a spec example"
+  "Get an example for SPEC."
   (thread-first `("op" "spec-example"
                   "spec-name" ,spec)
     (cider-nrepl-send-sync-request)
