@@ -500,7 +500,7 @@ with the button."
   (if (null cider-stacktrace-positive-filters)
       (progn
         (setq-local cider-stacktrace-prior-filters cider-stacktrace-filters)
-        (setq-local cider-stacktrace-filters cider-stacktrace-filters)
+        (setq-local cider-stacktrace-filters cider-stacktrace--all-negative-filters)
         (setq-local cider-stacktrace-positive-filters '(project)))
     (progn
       (setq-local cider-stacktrace-filters cider-stacktrace-prior-filters)
