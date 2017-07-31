@@ -52,7 +52,6 @@
     map))
 
 (defconst cider-scratch-buffer-name "*cider-scratch*")
-(add-to-list 'cider-ancillary-buffers cider-scratch-buffer-name)
 
 ;;;###autoload
 (defun cider-scratch ()

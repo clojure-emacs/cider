@@ -1775,15 +1775,18 @@ START and END represent the region's boundaries."
   (when conn
     (cider--close-connection-buffer conn)))
 
+(defvar cider-scratch-buffer-name)
 (defun cider-quit (&optional quit-all)
   "Quit the currently active CIDER connection.
-
 With a prefix argument QUIT-ALL the command will kill all connections
 and all ancillary CIDER buffers."
   (interactive "P")
   (cider-ensure-connected)
   (if (and quit-all (y-or-n-p "Are you sure you want to quit all CIDER connections? "))
       (progn
+        (when-let ((scratch (get-buffer cider-scratch-buffer-name)))
+          (when (y-or-n-p (format "Kill %s? buffer" cider-scratch-buffer-name))
+            (kill-buffer cider-scratch-buffer-name)))
         (dolist (connection cider-connections)
           (cider--quit-connection connection))
         (message "All active nREPL connections were closed"))
