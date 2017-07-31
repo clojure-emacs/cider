@@ -6,6 +6,8 @@
 
 ### Changes
 
+* [#2045](https://github.com/clojure-emacs/cider/issues/2045) `*cider-scratch*` buffers are no longer automatically killed on connection quit.
+
 ### Bugs Fixed
 
 * [#2004](https://github.com/clojure-emacs/cider/issues/2004), [#2039](https://github.com/clojure-emacs/cider/issues/2039), [cider-nrepl#420](https://github.com/clojure-emacs/cider-nrepl/issues/420): Fix namespace issues in instrumentation and debugging commands.
