@@ -38,7 +38,7 @@ test-bytecomp : version $(ELS:.el=.elc-test)
 		-l test/cider-bytecomp-warnings.el $<
 
 test : version build
-	$(CASK) exec buttercup -L .
+	$(CASK) exec buttercup -L . -L ./test/utils/
 
 .PHONY: clean
 clean :
