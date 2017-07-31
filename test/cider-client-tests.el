@@ -31,30 +31,9 @@
 (require 'buttercup)
 (require 'cider)
 (require 'cider-client)
+(require 'cider-connection-test-utils)
 
 ;;; cider-client tests
-
-(defmacro with-connection-buffer (type symbol &rest body)
-  "Run BODY in a temp buffer, with the given repl TYPE.
-SYMBOL is locally let-bound to the current buffer."
-  (declare (indent 2)
-           (debug (sexp sexp &rest form)))
-  `(with-temp-buffer
-     (setq major-mode 'cider-repl-mode)
-     (setq cider-repl-type ,type)
-     ;; `with-current-buffer' doesn't bump the buffer up the list.
-     (switch-to-buffer (current-buffer))
-     (rename-buffer (format "*cider-repl %s-%s*" ,type (random 10000)) t)
-     (let ((cider-connections (cons (current-buffer) cider-connections))
-           (,symbol (current-buffer)))
-       ,@body)))
-
-(defmacro cider-test-with-buffers (buffer-names &rest body)
-  (let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
-    `(let (,@(mapcar create buffer-names))
-       (unwind-protect
-           ,@body
-         (mapc 'kill-buffer (list ,@buffer-names))))))
 
 (describe "cider-current-connection"
 
@@ -498,20 +477,3 @@ SYMBOL is locally let-bound to the current buffer."
     (spy-on 'cider-connected-p :and-return-value nil)
     (spy-on 'clojure-expected-ns :and-return-value "clojure-expected-ns")
     (expect (cider-expected-ns "foo") :to-equal "clojure-expected-ns")))
-
-(describe "cider-load-file"
-  (it "works as expected in empty Clojure buffers"
-    (spy-on 'cider-request:load-file :and-return-value nil)
-    (with-connection-buffer "clj" b
-     (with-temp-buffer
-       (clojure-mode)
-       (setq buffer-file-name (make-temp-name "tmp.clj"))
-       (expect (lambda () (cider-load-buffer)) :not :to-throw)))))
-
-(describe "cider-interactive-eval"
-  (it "works as expected in empty Clojure buffers"
-    (spy-on 'cider-nrepl-request:eval :and-return-value nil)
-    (with-connection-buffer "clj" b
-      (with-temp-buffer
-        (clojure-mode)
-        (expect (lambda () (cider-interactive-eval "(+ 1)")) :not :to-throw)))))

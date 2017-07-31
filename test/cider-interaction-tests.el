@@ -29,6 +29,7 @@
 
 (require 'buttercup)
 (require 'cider-interaction)
+(require 'cider-connection-test-utils)
 
 (describe "cider--var-namespace"
   (it "returns the namespace of a var"
@@ -84,3 +85,20 @@
   (it "raises a user error if the op is not supported"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (expect (lambda () (cider-load-all-project-ns)) :to-throw 'user-error)))
+
+(describe "cider-load-file"
+          (it "works as expected in empty Clojure buffers"
+              (spy-on 'cider-request:load-file :and-return-value nil)
+              (with-connection-buffer "clj" b
+                                      (with-temp-buffer
+                                        (clojure-mode)
+                                        (setq buffer-file-name (make-temp-name "tmp.clj"))
+                                        (expect (lambda () (cider-load-buffer)) :not :to-throw)))))
+
+(describe "cider-interactive-eval"
+          (it "works as expected in empty Clojure buffers"
+              (spy-on 'cider-nrepl-request:eval :and-return-value nil)
+              (with-connection-buffer "clj" b
+                                      (with-temp-buffer
+                                        (clojure-mode)
+                                        (expect (lambda () (cider-interactive-eval "(+ 1)")) :not :to-throw)))))
