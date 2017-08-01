@@ -8,22 +8,9 @@ You can connect to multiple nREPL servers using <kbd>M-x</kbd> `cider-jack-in`
 CIDER maintains a list of nREPL connections and a single 'default'
 connection. When you execute CIDER commands in a Clojure editing buffer such as
 to compile a namespace, these commands are executed against a specific
-connection. This is controlled by the variable `cider-request-dispatch` - when
-it's set to `'dynamic` (the default), CIDER will try to infer which connection
-to use from the current project and currently visited file; when `'static`
-dispatch is used all requests will always be routed to the default connection
-(this was the default behavior in CIDER before 0.10).
+connection.
 
-There's a handy command called `cider-toggle-request-dispatch`. You can use it
-to quickly switch between dynamic and static request dispatch. A common use-case
-for it would be to force temporary all evaluation commands to be using a
-particular (the default) connection.
-
-You can display the current nREPL connection using <kbd>C-c M-d</kbd>
-and rotate the default connection using <kbd>C-c M-r</kbd>. Another
-option for setting the default connection is to execute the command
-<kbd>M-x</kbd> `cider-make-connection-default` in the appropriate
-REPL buffer.
+You can display info on current nREPL connection using <kbd>C-c M-d</kbd>.
 
 ## Connection browser
 
@@ -32,7 +19,6 @@ You can obtain a list of all active connections using <kbd>M-x</kbd>
 
 Command                              |Keyboard shortcut               | Description
 -------------------------------------|--------------------------------|-------------------------------
-`cider-connections-make-default`     |<kbd>d</kbd>                    | Make connection at point default.
 `cider-connections-close-connection` |<kbd>k</kbd>                    | Close connection at point.
 `cider-connection-browser`           |<kbd>g</kbd>                    | Refresh connection browser.
 `cider-connections-goto-connection`  |<kbd>RET</kbd>                  | Visit connection buffer.

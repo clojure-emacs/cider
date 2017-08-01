@@ -47,11 +47,11 @@
         (expect (current-buffer) :to-equal expected-buffer)))))
 
 (describe "cider-selector-n"
-  :var (cider-endpoint cider-connections)
+  :var (cider-endpoint cider-connection-alist)
   (it "switches to the connection browser buffer"
     (with-temp-buffer
       (setq cider-endpoint '("123.123.123.123" 4006)
-            cider-connections (list (current-buffer)))
+            cider-connection-alist (list (current-buffer)))
       (with-temp-buffer
         ;; switch to another buffer
         (cider-invoke-selector-method-by-key ?n)
@@ -68,9 +68,9 @@
     (cider--test-selector-method ?e 'emacs-lisp-mode "*testfile*.el")))
 
 (describe "cider-seletor-method-r"
-  :var (cider-current-repl-buffer)
+  :var (cider-current-connection-repl)
   (it "switches to current REPL buffer"
-    (spy-on 'cider-current-repl-buffer :and-return-value "*cider-repl xyz*")
+    (spy-on 'cider-current-connection-repl :and-return-value "*cider-repl xyz*")
     (cider--test-selector-method ?r 'cider-repl-mode "*cider-repl xyz*")))
 
 (describe "cider-selector-method-m"

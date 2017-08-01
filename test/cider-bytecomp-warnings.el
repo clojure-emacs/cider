@@ -30,6 +30,7 @@
 
 (setq load-prefer-newer t)
 (add-to-list 'load-path (expand-file-name "./"))
+(add-to-list 'load-path (expand-file-name "./utils/"))
 (require 'package)
 (package-generate-autoloads 'cider default-directory)
 (package-initialize)

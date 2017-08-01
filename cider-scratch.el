@@ -46,9 +46,7 @@
          "--"
          ["Reset" #'cider-scratch-reset]
          "--"
-         ["Set buffer connection" #'cider-assoc-buffer-with-connection]
-         ["Toggle buffer connection" #'cider-toggle-buffer-connection]
-         ["Reset buffer connection" #'cider-clear-buffer-local-connection])))
+         ["Set buffer connection" #'cider-assoc-buffer-with-connection])))
     map))
 
 (defconst cider-scratch-buffer-name "*cider-scratch*")

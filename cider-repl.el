@@ -200,7 +200,7 @@ Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 (defvar-local cider-repl-ns-cache nil
   "A dict holding information about all currently loaded namespaces.
 This cache is stored in the connection buffer.  Other buffer's access it
-via `cider-current-connection'.")
+via `cider-current-connection-repl'.")
 
 (defvar cider-mode)
 (declare-function cider-refresh-dynamic-font-lock "cider-mode")
@@ -228,31 +228,37 @@ via `cider-current-connection'.")
 
 (declare-function cider-default-err-handler "cider-interaction")
 
-(defun cider-repl-create (endpoint)
+(defun cider-repl-create (endpoint repl-buffer connection-name)
   "Create a REPL buffer and install `cider-repl-mode'.
-ENDPOINT is a plist as returned by `nrepl-connect'."
+ENDPOINT is a plist as returned by `nrepl-connect'.  REPL-BUFFER is a
+placeholder buffer to be used as REPL.  CONNECTION-NAME is the connection
+of which this REPL is part of."
   ;; Connection might not have been set as yet. Please don't send requests here.
-  (let* ((reuse-buff (not (eq 'new nrepl-use-this-as-repl-buffer)))
-         (buff-name (nrepl-make-buffer-name nrepl-repl-buffer-name-template nil
+  (let* ((dup-ok (and repl-buffer
+                      (not (eq 'new repl-buffer))))
+         (buff-name (nrepl-make-buffer-name nrepl-repl-buffer-name-template
+                                            connection-name
                                             (plist-get endpoint :host)
                                             (plist-get endpoint :port)
-                                            reuse-buff)))
+                                            dup-ok)))
     ;; when reusing, rename the buffer accordingly
-    (when (and reuse-buff
-               (not (equal buff-name nrepl-use-this-as-repl-buffer)))
+    (when (and dup-ok
+               (not (equal buff-name (buffer-name repl-buffer))))
       ;; uniquify as it might be Nth connection to the same endpoint
       (setq buff-name (generate-new-buffer-name buff-name))
-      (with-current-buffer nrepl-use-this-as-repl-buffer
+      (with-current-buffer repl-buffer
         (rename-buffer buff-name)))
     (with-current-buffer (get-buffer-create buff-name)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode)
         (setq cider-repl-type "clj"))
-      (setq nrepl-err-handler #'cider-default-err-handler)
+      (setq cider-connection-name connection-name
+            nrepl-err-handler #'cider-default-err-handler)
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
       (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
       (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local)
+      (cider-add-connection-repl connection-name (current-buffer))
       (current-buffer))))
 
 (defun cider-repl-require-repl-utils ()
@@ -631,7 +637,7 @@ If BOL is non-nil insert at the beginning of line."
 
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
-  (with-current-buffer (cider-current-repl-buffer)
+  (with-current-buffer (cider-current-connection-repl)
     (let ((pos (cider-repl--end-of-line-before-input-start))
           (string (replace-regexp-in-string "\n\\'" "" string)))
       (cider-repl--emit-output-at-pos (current-buffer) string face pos t))))
@@ -871,7 +877,7 @@ text property `cider-old-input'."
 (defun cider-repl-switch-to-other ()
   "Switch between the Clojure and ClojureScript REPLs for the current project."
   (interactive)
-  (if-let (other-connection (cider-other-connection))
+  (if-let (other-connection (cider-other-repl))
       (switch-to-buffer other-connection)
     (message "There's no other REPL for the current project")))
 
@@ -968,12 +974,10 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
 
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
-
 If called from a cljc or cljx buffer act on both the Clojure and
-ClojureScript REPL if there are more than one REPL present.
-
-If invoked in a REPL buffer the command will prompt for the name of the
-namespace to switch to."
+ClojureScript REPL if there are more than one REPL present.  If invoked in a
+REPL buffer the command will prompt for the name of the namespace to switch
+to."
   (interactive (list (if (or (derived-mode-p 'cider-repl-mode)
                              (null (cider-ns-form)))
                          (completing-read "Switch to namespace: "
@@ -981,11 +985,9 @@ namespace to switch to."
                        (cider-current-ns))))
   (when (or (not ns) (equal ns ""))
     (user-error "No namespace selected"))
-  (cider-map-connections
-   (lambda (connection)
-     (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
-                               (cider-repl-switch-ns-handler connection)))
-   :both))
+  (dolist (repl (cider-current-connection-repls))
+    (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
+                              (cider-repl-switch-ns-handler repl))))
 
 
 ;;; Location References
@@ -1341,7 +1343,6 @@ constructs."
 (cider-repl-add-shortcut "test-report" #'cider-test-show-report)
 (cider-repl-add-shortcut "run" #'cider-run)
 (cider-repl-add-shortcut "conn-info" #'cider-display-connection-info)
-(cider-repl-add-shortcut "conn-rotate" #'cider-rotate-default-connection)
 (cider-repl-add-shortcut "hasta la vista" #'cider-quit)
 (cider-repl-add-shortcut "adios" #'cider-quit)
 (cider-repl-add-shortcut "sayonara" #'cider-quit)
