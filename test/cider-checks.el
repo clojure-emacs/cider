@@ -9,6 +9,7 @@
 (add-to-list 'load-path (expand-file-name "./"))
 (require 'package)
 (require 'check-declare)
+(require 'seq)
 (package-initialize)
 
 ;; disable some annoying (or non-applicable) checkdoc checks
@@ -16,9 +17,10 @@
 (setq checkdoc-arguments-in-order-flag nil)
 (setq checkdoc-verb-check-experimental-flag nil)
 
-(let ((files (directory-files default-directory t
-                              "\\`[^.].*\\.el\\'" t)))
-
+(let ((files (seq-filter
+              (lambda (el) (not (string-match-p "autoloads" el)))
+              (directory-files default-directory t
+                               "\\`[^.].*\\.el\\'" t))))
   ;; `checkdoc-file' was introduced in Emacs 25
   (when (fboundp 'checkdoc-file)
     (dolist (file files)
