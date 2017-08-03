@@ -3,7 +3,7 @@
 *.\#*
 *.elc
 .cask
-elpa
+elpa*
 .depend
 TAGS
 .DS_STORE
