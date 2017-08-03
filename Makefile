@@ -29,13 +29,13 @@ version:
 
 test-checks : version
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
-		-l test/cider-checks.el ./
+		-l test/scripts/cider-checks.el ./
 
 test-bytecomp : version $(ELS:.el=.elc-test)
 
 %.elc-test : %.el elpa
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
-		-l test/cider-bytecomp-warnings.el $<
+		-l test/scripts/cider-bytecomp-warnings.el $<
 
 test : version build
 	$(CASK) exec buttercup -L . -L ./test/utils/
