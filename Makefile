@@ -16,10 +16,13 @@ OBJECTS = $(ELS:.el=.elc)
 
 -include .depend
 
-elpa:
+elpa-$(EMACS):
 	$(CASK) install
 	$(CASK) update
 	touch $@
+
+.PHONY: elpa
+elpa: elpa-$(EMACS)
 
 .PHONY: build version
 build : elpa $(OBJECTS)
@@ -27,7 +30,7 @@ build : elpa $(OBJECTS)
 version:
 	$(EMACS) --version
 
-test-checks : version
+test-checks : version elpa
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
 		-l test/scripts/cider-checks.el ./
 
@@ -46,7 +49,7 @@ clean :
 
 .PHONY: elpaclean
 elpaclean : clean
-	rm -f elpa
+	rm -f elpa*
 	rm -rf .cask # Clean packages installed for development
 
 %.elc : %.el
