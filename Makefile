@@ -43,6 +43,8 @@ test-bytecomp : version $(ELS:.el=.elc-test)
 test : version build
 	$(CASK) exec buttercup -L . -L ./test/utils/
 
+test-all : test-checks test-bytecomp test
+
 .PHONY: clean
 clean :
 	rm -f .depend $(OBJECTS)
@@ -56,4 +58,4 @@ elpaclean : clean
 	$(CASK) build
 
 run-cider: elpa
-	cask exec emacs -Q -L . --eval "(require 'cider)"
+	cask exec $(EMACS) -Q -L . --eval "(require 'cider)"
