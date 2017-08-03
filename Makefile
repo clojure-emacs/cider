@@ -1,4 +1,4 @@
-EMACS ?= emacs
+export EMACS ?= emacs
 EMACSFLAGS = -L .
 CASK = cask
 VERSION = $(shell git describe --tags --abbrev=0 | sed 's/^v//')
