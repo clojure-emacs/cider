@@ -138,7 +138,7 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?r
   "Current REPL buffer."
-  (cider-current-repl-buffer))
+  (cider-current-connection-repl))
 
 (def-cider-selector-method ?n
   "Connections browser buffer."

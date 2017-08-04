@@ -50,7 +50,7 @@
   "Return info for the `cider-mode' modeline.
 
 Info contains project name and host:port endpoint."
-  (if-let ((current-connection (ignore-errors (cider-current-connection))))
+  (if-let ((current-connection (ignore-errors (cider-current-connection-repl))))
       (with-current-buffer current-connection
         (concat
          cider-repl-type
@@ -137,8 +137,9 @@ the buffer should appear.
 With a prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "P")
-  (let* ((connections (cider-connections))
-         (buffer (seq-find (lambda (b) (member b connections))
+  (cider-ensure-connected)
+  (let* ((repls (cider-current-connection-repls))
+         (buffer (seq-find (lambda (b) (member b repls))
                            (buffer-list))))
     (cider--switch-to-repl-buffer buffer set-namespace)))
 
@@ -172,7 +173,7 @@ With a prefix argument CLEAR-REPL the command clears the entire REPL buffer.
 Returns to the buffer in which the command was invoked."
   (interactive "P")
   (let ((origin-buffer (current-buffer)))
-    (switch-to-buffer (cider-current-repl-buffer))
+    (switch-to-buffer (cider-current-connection-repls))
     (if clear-repl
         (cider-repl-clear-buffer)
       (cider-repl-clear-output))
@@ -186,8 +187,8 @@ Returns to the buffer in which the command was invoked."
      :help "Starts an nREPL server (with lein, boot, or maven) and connects a REPL to it."]
     ["Connect to a REPL" cider-connect
      :help "Connects to a REPL that's already running."]
-    ["Quit" cider-quit :active cider-connections]
-    ["Restart" cider-restart :active cider-connections]
+    ["Quit" cider-quit :active cider-connection-alist]
+    ["Restart" cider-restart :active cider-connection-alist]
     ("Clojurescript"
      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
       :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
@@ -198,9 +199,11 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["Form for launching a ClojureScript REPL via Gradle" (customize-variable 'cider-cljs-gradle-repl)])
     "--"
     ["Connection info" cider-display-connection-info
-     :active cider-connections]
-    ["Rotate default connection" cider-rotate-default-connection
-     :active (cdr cider-connections)]
+     :active cider-connection-alist]
+    ("Connection assoc" :active cider-connection-alist
+     ["Assoc buffer" cider-assoc-buffer-with-connection]
+     ["Assoc directory" cider-assoc-directory-with-connection]
+     ["Assoc project" cider-assoc-project-with-connection])
     ["Select any CIDER buffer" cider-selector]
     "--"
     ["Configure CIDER" (customize-group 'cider)]
@@ -213,14 +216,14 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     "--"
     ["Close ancillary buffers" cider-close-ancillary-buffers
      :active (seq-remove #'null cider-ancillary-buffers)]
-    ("nREPL" :active cider-connections
+    ("nREPL" :active cider-connection-alist
      ["Describe session" cider-describe-nrepl-session]
      ["Close session" cider-close-nrepl-session]
      ["Toggle message logging" nrepl-toggle-message-logging]))
   "Menu for CIDER mode.")
 
 (defconst cider-mode-eval-menu
-  '("CIDER Eval" :visible cider-connections
+  '("CIDER Eval" :visible cider-connection-alist
     ["Eval top-level sexp" cider-eval-defun-at-point]
     ["Eval current sexp" cider-eval-sexp-at-point]
     ["Eval last sexp" cider-eval-last-sexp]
@@ -247,7 +250,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
   "Menu for CIDER mode eval commands.")
 
 (defconst cider-mode-interactions-menu
-  `("CIDER Interactions" :visible cider-connections
+  `("CIDER Interactions" :visible cider-connection-alist
     ["Complete symbol" complete-symbol]
     "--"
     ("REPL"
@@ -291,6 +294,19 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["Flush completion cache" cider-completion-flush-caches]))
   "Menu for CIDER interactions.")
 
+(defconst cider-connection-map
+  (let ((map (define-prefix-command 'cider-connection-map)))
+    (define-key map (kbd "a") #'cider-assoc-with-connection)
+    (define-key map (kbd "C-a") #'cider-assoc-with-connection)
+    (define-key map (kbd "b") #'cider-assoc-buffer-with-connection)
+    (define-key map (kbd "C-b") #'cider-assoc-buffer-with-connection)
+    (define-key map (kbd "d") #'cider-assoc-directory-with-connection)
+    (define-key map (kbd "C-d") #'cider-assoc-directory-with-connection)
+    (define-key map (kbd "p") #'cider-assoc-project-with-connection)
+    (define-key map (kbd "C-p") #'cider-assoc-project-with-connection)
+    (define-key map (kbd "i") #'cider-display-connection-info)
+    (define-key map (kbd "C-i") #'cider-display-connection-info)))
+
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
@@ -326,8 +342,8 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     (define-key map (kbd "C-c C-b") #'cider-interrupt)
     (define-key map (kbd "C-c ,")   'cider-test-commands-map)
     (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
+    (define-key map (kbd "C-c C-a") 'cider-connection-map)
     (define-key map (kbd "C-c M-s") #'cider-selector)
-    (define-key map (kbd "C-c M-r") #'cider-rotate-default-connection)
     (define-key map (kbd "C-c M-d") #'cider-display-connection-info)
     (define-key map (kbd "C-c C-x") #'cider-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
@@ -834,7 +850,8 @@ property."
         (add-to-list 'completion-at-point-functions
                      #'cider-complete-at-point)
         (font-lock-add-keywords nil cider--static-font-lock-keywords)
-        (cider-refresh-dynamic-font-lock)
+        (when (cider-current-connection)
+          (cider-refresh-dynamic-font-lock))
         (font-lock-add-keywords nil cider--reader-conditionals-font-lock-keywords)
         ;; `font-lock-mode' might get enabled after `cider-mode'.
         (add-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock nil 'local)

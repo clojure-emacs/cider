@@ -71,6 +71,7 @@
 (require 'seq)
 (require 'subr-x)
 (require 'cider-compat)
+(require 'cider-popup)
 (require 'cl-lib)
 (require 'nrepl-dict)
 (require 'queue)
@@ -141,10 +142,6 @@ When true some special buffers like the server buffer will be hidden."
   "Name of a function that returns a client process buffer.
 It is called with one argument, a plist containing :host, :port and :proc
 as returned by `nrepl-connect'.")
-
-(defvar nrepl-use-this-as-repl-buffer 'new
-  "Name of the buffer to use as REPL buffer.
-In case of a special value 'new, a new buffer is created.")
 
 
 ;;; Buffer Local Declarations
@@ -1022,9 +1019,7 @@ client process is started, the function is called with the client buffer."
       ;; as long as `serv-buf' is not the buffer where the let-binding was
       ;; started. http://www.gnu.org/software/emacs/manual/html_node/elisp/Creating-Buffer_002dLocal.html
       (setq-local nrepl-create-client-buffer-function
-                  nrepl-create-client-buffer-function)
-      (setq-local nrepl-use-this-as-repl-buffer
-                  nrepl-use-this-as-repl-buffer))
+                  nrepl-create-client-buffer-function))
     (message "Starting nREPL server via %s..."
              (propertize cmd 'face 'font-lock-keyword-face))
     serv-proc))

@@ -30,22 +30,28 @@
 (require 'cider)
 (require 'cider-client)
 
-(defmacro with-connection-buffer (type symbol &rest body)
-  "Run BODY in a temp buffer, with the given repl TYPE.
+(defmacro with-connection-buffer (connection-name project-dir type symbol &rest body)
+  "Run BODY in a temp buffer, within CONNECTION-NAME, PROJECT-DIR and REPL TYPE.
 SYMBOL is locally let-bound to the current buffer."
-  (declare (indent 2)
+  (declare (indent 4)
            (debug (sexp sexp &rest form)))
   `(with-temp-buffer
-     (setq major-mode 'cider-repl-mode)
-     (setq cider-repl-type ,type)
-     ;; `with-current-buffer' doesn't bump the buffer up the list.
-     (switch-to-buffer (current-buffer))
-     (rename-buffer (format "*cider-repl %s-%s*" ,type (random 10000)) t)
-     (let ((cider-connections (cons (current-buffer) cider-connections))
-           (,symbol (current-buffer)))
-       ,@body)))
+     (let ((CURBUFF (current-buffer)))
+       (setq major-mode 'cider-repl-mode
+             nrepl-project-dir ,project-dir
+             cider-repl-type ,type
+             cider-connection-name ,connection-name)
+       ;; `with-current-buffer' doesn't bump the buffer up the list.
+       (switch-to-buffer (current-buffer))
+       (rename-buffer (format "*cider-repl %s-%s*" ,type (random 10000)) t)
+       (cider-add-connection-repl ,connection-name CURBUFF)
+       (let ((,symbol CURBUFF))
+         ,@body)
+       (cider-delete-connection-repl ,connection-name CURBUFF))))
 
 (defmacro cider-test-with-buffers (buffer-names &rest body)
+  "Create buffers in BUFFER-NAMES, execute BODY and kill buffers."
+  (declare (indent 1))
   (let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
     `(let (,@(mapcar create buffer-names))
        (unwind-protect

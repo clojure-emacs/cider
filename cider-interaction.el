@@ -268,10 +268,6 @@ namespace-qualified function of zero arity."
     map)
   "Minibuffer keymap used for reading Clojure expressions.")
 
-(defvar-local cider-connection-created-with 'jack-in
-  "Save how the connection was created.
-Its value can be either 'jack-in or 'connect.")
-
 (defun cider-read-from-minibuffer (prompt &optional value)
   "Read a string from the minibuffer, prompting with PROMPT.
 If VALUE is non-nil, it is inserted into the minibuffer as initial-input.
@@ -1040,10 +1036,11 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
+  ;; FIXME: breaks with cljc
   (with-current-buffer buffer
     (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
                          (cider-stdin-handler buffer)
-                         (cider-current-connection))))
+                         (cider-current-connection-repl))))
 
 (defun cider-emit-into-color-buffer (buffer value)
   "Emit into color BUFFER the provided VALUE."
@@ -1103,6 +1100,7 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message.
 
 If `cider-interactive-eval-override' is a function, call it with the same
 arguments and only proceed with evaluation if it returns nil."
+  (cider-ensure-connected)
   (let ((form  (or form (apply #'buffer-substring-no-properties bounds)))
         (start (car-safe bounds))
         (end   (car-safe (cdr-safe bounds))))
@@ -1111,21 +1109,18 @@ arguments and only proceed with evaluation if it returns nil."
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
-      (cider-map-connections #'ignore :any)
-      (cider-map-connections
-       (lambda (connection)
-         (cider--prep-interactive-eval form connection)
-         (cider-nrepl-request:eval
-          form
-          (or callback (cider-interactive-eval-handler nil bounds))
-          ;; always eval ns forms in the user namespace
-          ;; otherwise trying to eval ns form for the first time will produce an error
-          (if (cider-ns-form-p form) "user" (cider-current-ns))
-          (when start (line-number-at-pos start))
-          (when start (cider-column-number-at-pos start))
-          additional-params
-          connection))
-       :both))))
+      (dolist (repl (cider-current-connection-repls))
+        (cider--prep-interactive-eval form repl)
+        (cider-nrepl-request:eval
+         form
+         (or callback (cider-interactive-eval-handler nil bounds))
+         ;; always eval ns forms in the user namespace
+         ;; otherwise trying to eval ns form for the first time will produce an error
+         (if (cider-ns-form-p form) "user" (cider-current-ns))
+         (when start (line-number-at-pos start))
+         (when start (cider-column-number-at-pos start))
+         additional-params
+         repl)))))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
@@ -1176,8 +1171,9 @@ With a prefix arg, LOC, insert before the form, otherwise afterwards."
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
+  ;; FIXME: handler doesn't consider cljc
   (cider-interactive-eval nil
-                          (cider-insert-eval-handler (cider-current-connection))
+                          (cider-insert-eval-handler (cider-current-connection-repl))
                           (cider-last-sexp 'bounds))
   (when prefix
     (cider-switch-to-repl-buffer)))
@@ -1186,7 +1182,8 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
   "Evaluate expr before point and insert its pretty-printed result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (let* ((conn-buffer (cider-current-connection)))
+  ;; FIME: breaks with cljc
+  (let* ((conn-buffer (cider-current-connection-repl)))
     (cider-interactive-eval nil
                             (cider-insert-eval-handler conn-buffer)
                             (cider-last-sexp 'bounds)
@@ -1321,7 +1318,8 @@ passing arguments."
 If EVAL is non-nil the form will also be evaluated."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
-  (with-current-buffer (cider-current-connection)
+  ;; FIXME: breaks with cljc
+  (with-current-buffer (cider-current-connection-repl)
     (goto-char (point-max))
     (let ((beg (point)))
       (insert form)
@@ -1380,11 +1378,6 @@ See command `cider-mode'."
     (with-current-buffer buffer
       (cider-mode -1))))
 
-(defun cider-possibly-disable-on-existing-clojure-buffers ()
-  "If not connected, disable command `cider-mode' on existing Clojure buffers."
-  (unless (cider-connected-p)
-    (cider-disable-on-existing-clojure-buffers)))
-
 
 ;;; Completion
 
@@ -1427,20 +1420,18 @@ opposite of what that option dictates."
   "Toggle ns tracing.
 Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   (interactive "P")
-  (cider-map-connections
-   (lambda (conn)
-     (with-current-buffer conn
-       (cider-ensure-op-supported "toggle-trace-ns")
-       (let ((ns (if query
-                     (completing-read "Toggle trace for ns: "
-                                      (cider-sync-request:ns-list))
-                   (cider-current-ns))))
-         (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
-                (ns-status (nrepl-dict-get trace-response "ns-status")))
-           (pcase ns-status
-             ("not-found" (error "Namespace %s not found" (cider-propertize ns 'ns)))
-             (_ (message "Namespace %s %s" (cider-propertize ns 'ns) ns-status)))))))
-   :clj))
+  (dolist (repl (cider-current-connection-repls "clj"))
+    (with-current-buffer repl
+      (cider-ensure-op-supported "toggle-trace-ns")
+      (let ((ns (if query
+                    (completing-read "Toggle trace for ns: "
+                                     (cider-sync-request:ns-list))
+                  (cider-current-ns))))
+        (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
+               (ns-status (nrepl-dict-get trace-response "ns-status")))
+          (pcase ns-status
+            ("not-found" (error "Namespace %s not found" (cider-propertize ns 'ns)))
+            (_ (message "Namespace %s %s" (cider-propertize ns 'ns) ns-status))))))))
 
 (defun cider-undef ()
   "Undefine a symbol from the current ns."
@@ -1545,34 +1536,32 @@ refresh functions (defined in `cider-refresh-before-fn' and
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
-    (cider-map-connections
-     (lambda (conn)
-       ;; Inside the lambda, so the buffer is not created if we error out.
-       (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
-                             (cider-make-popup-buffer cider-refresh-log-buffer))))
-         (when cider-refresh-show-log-buffer
-           (cider-popup-buffer-display log-buffer))
-         (when inhibit-refresh-fns
-           (cider-emit-into-popup-buffer log-buffer
-                                         "inhibiting refresh functions\n"
-                                         nil
-                                         t))
-         (when clear?
-           (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
-         (cider-nrepl-send-request
-          (nconc `("op" ,(if refresh-all? "refresh-all" "refresh")
-                   "print-length" ,cider-stacktrace-print-length
-                   "print-level" ,cider-stacktrace-print-level)
-                 (when (cider--pprint-fn)
-                   `("pprint-fn" ,(cider--pprint-fn)))
-                 (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
-                   `("before" ,cider-refresh-before-fn))
-                 (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
-                   `("after" ,cider-refresh-after-fn)))
-          (lambda (response)
-            (cider-refresh--handle-response response log-buffer))
-          conn)))
-     :clj 'any-mode)))
+    (dolist (conn (cider-current-connection-repls "clj"))
+      ;; Inside the lambda, so the buffer is not created if we error out.
+      (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
+                            (cider-make-popup-buffer cider-refresh-log-buffer))))
+        (when cider-refresh-show-log-buffer
+          (cider-popup-buffer-display log-buffer))
+        (when inhibit-refresh-fns
+          (cider-emit-into-popup-buffer log-buffer
+                                        "inhibiting refresh functions\n"
+                                        nil
+                                        t))
+        (when clear?
+          (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
+        (cider-nrepl-send-request
+         (nconc `("op" ,(if refresh-all? "refresh-all" "refresh")
+                  "print-length" ,cider-stacktrace-print-length
+                  "print-level" ,cider-stacktrace-print-level)
+                (when (cider--pprint-fn)
+                  `("pprint-fn" ,(cider--pprint-fn)))
+                (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
+                  `("before" ,cider-refresh-before-fn))
+                (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
+                  `("after" ,cider-refresh-after-fn)))
+         (lambda (response)
+           (cider-refresh--handle-response response log-buffer))
+         conn)))))
 
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
@@ -1602,16 +1591,14 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
     (cider--quit-error-window)
     (let ((filename (buffer-file-name buffer))
           (ns-form  (cider-ns-form)))
-      (cider-map-connections
-       (lambda (connection)
-         (when ns-form
-           (cider-repl--cache-ns-form ns-form connection))
-         (cider-request:load-file (cider-file-string filename)
-                                  (funcall cider-to-nrepl-filename-function
-                                           (cider--server-filename filename))
-                                  (file-name-nondirectory filename)
-                                  connection))
-       :both)
+      (dolist (repl (cider-current-connection-repls))
+        (when ns-form
+          (cider-repl--cache-ns-form ns-form repl))
+        (cider-request:load-file (cider-file-string filename)
+                                 (funcall cider-to-nrepl-filename-function
+                                          (cider--server-filename filename))
+                                 (file-name-nondirectory filename)
+                                 repl))
       (message "Loading %s..." filename))))
 
 (defun cider-load-file (filename)
@@ -1724,9 +1711,9 @@ START and END represent the region's boundaries."
   "Describe an nREPL session."
   (interactive)
   (cider-ensure-connected)
-  (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-current-connection)))))
+  (let ((selected-session (completing-read "Describe nREPL session: " (nrepl-sessions (cider-current-connection-repl)))))
     (when (and selected-session (not (equal selected-session "")))
-      (let* ((session-info (nrepl-sync-request:describe (cider-current-connection)))
+      (let* ((session-info (nrepl-sync-request:describe (cider-current-connection-repl)))
              (ops (nrepl-dict-keys (nrepl-dict-get session-info "ops")))
              (session-id (nrepl-dict-get session-info "session"))
              (session-type (cond
@@ -1745,77 +1732,26 @@ START and END represent the region's boundaries."
   "Close an nREPL session for the current connection."
   (interactive)
   (cider-ensure-connected)
-  (nrepl-sync-request:close (cider-current-connection))
-      (message "Closed nREPL session"))
-
-;;; quiting
-(defun cider--close-buffer (buffer)
-  "Close the BUFFER and kill its associated process (if any)."
-  (when (buffer-live-p buffer)
-    (with-current-buffer buffer
-      (when-let ((proc (get-buffer-process buffer)))
-        (when (process-live-p proc)
-          (when (or (not nrepl-server-buffer)
-                    ;; Sync request will hang if the server is dead.
-                    (process-live-p (get-buffer-process nrepl-server-buffer)))
-            (when (or nrepl-session nrepl-tooling-session)
-              (nrepl-sync-request:close buffer)))
-          (when proc (delete-process proc)))))
-    (kill-buffer buffer)))
-
-(defun cider-close-ancillary-buffers ()
-  "Close buffers that are shared across connections."
-  (interactive)
-  (dolist (buf-name cider-ancillary-buffers)
-    (when (get-buffer buf-name)
-      (kill-buffer buf-name))))
-
-(defun cider--quit-connection (conn)
-  "Quit the connection CONN."
-  (when conn
-    (cider--close-connection-buffer conn)))
+  (nrepl-sync-request:close (cider-current-connection-repl))
+  (message "Closed nREPL session"))
 
 (defun cider-quit (&optional quit-all)
   "Quit the currently active CIDER connection.
-
 With a prefix argument QUIT-ALL the command will kill all connections
 and all ancillary CIDER buffers."
   (interactive "P")
   (cider-ensure-connected)
   (if (and quit-all (y-or-n-p "Are you sure you want to quit all CIDER connections? "))
       (progn
-        (dolist (connection cider-connections)
-          (cider--quit-connection connection))
+        (mapc #'cider--quit-connection cider-connection-alist)
         (message "All active nREPL connections were closed"))
-    (let ((connection (cider-current-connection)))
+    (let ((conn (cider-current-connection)))
       (when (y-or-n-p (format "Are you sure you want to quit the current CIDER connection %s? "
-                              (cider-propertize (buffer-name connection) 'bold)))
-        (cider--quit-connection connection))))
+                              (cider-propertize (car conn) 'bold)))
+        (cider--quit-connection conn))))
   ;; if there are no more connections we can kill all ancillary buffers
   (unless (cider-connected-p)
     (cider-close-ancillary-buffers)))
-
-(defun cider--restart-connection (conn)
-  "Restart the connection CONN."
-  (let ((project-dir (with-current-buffer conn nrepl-project-dir))
-        (buf-name (buffer-name conn))
-        ;; save these variables before we kill the connection
-        (conn-creation-method (with-current-buffer conn cider-connection-created-with))
-        (conn-endpoint  (with-current-buffer conn nrepl-endpoint)))
-    (cider--quit-connection conn)
-    ;; Workaround for a nasty race condition https://github.com/clojure-emacs/cider/issues/439
-    ;; TODO: Find a better way to ensure `cider-quit' has finished
-    (message "Waiting for CIDER connection %s to quit..."
-             (cider-propertize buf-name 'bold))
-    (sleep-for 2)
-    (pcase conn-creation-method
-      (`connect (apply #'cider-connect conn-endpoint))
-      (`jack-in (if project-dir
-                    (let ((default-directory project-dir))
-                      (cider-jack-in))
-                  (error "Can't restart CIDER connection for unknown project")))
-      (_ (error "Unexpected value %S for `cider-connection-created-with'"
-                conn-creation-method)))))
 
 (defun cider-restart (&optional restart-all)
   "Restart the currently active CIDER connection.
@@ -1823,9 +1759,10 @@ If RESTART-ALL is t, then restarts all connections."
   (interactive "P")
   (cider-ensure-connected)
   (if restart-all
-      (dolist (conn cider-connections)
+      (dolist (conn cider-connection-alist)
         (cider--restart-connection conn))
-    (cider--restart-connection (cider-current-connection))))
+    (dolist (conn (cider-current-connection-repls))
+      (cider--restart-connection conn))))
 
 (defvar cider--namespace-history nil
   "History of user input for namespace prompts.")
