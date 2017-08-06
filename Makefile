@@ -7,6 +7,8 @@ PACKAGE_NAME = cider-$(VERSION)
 ELS = $(wildcard *.el)
 OBJECTS = $(ELS:.el=.elc)
 
+.PHONY: elpa build version test test-checks test-bytecomp test-all clean elpaclean run-cider
+
 .depend: $(ELS)
 	@echo Compute dependencies
 	@rm -f .depend
@@ -21,41 +23,33 @@ elpa-$(EMACS):
 	$(CASK) update
 	touch $@
 
-.PHONY: elpa
 elpa: elpa-$(EMACS)
 
-.PHONY: build version
-build : elpa $(OBJECTS)
+build: version elpa
+	$(CASK) build
 
 version:
 	$(EMACS) --version
 
-test-checks : version elpa
+test: version build
+	$(CASK) exec buttercup -L . -L ./test/utils/
+
+test-checks: version elpa
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
 		-l test/scripts/cider-checks.el ./
 
-test-bytecomp : version $(ELS:.el=.elc-test)
-
-%.elc-test : %.el elpa
+test-bytecomp: version elpa
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
-		-l test/scripts/cider-bytecomp-warnings.el $<
+		-l test/scripts/cider-bytecomp-warnings.el $(ELS)
 
-test : version build
-	$(CASK) exec buttercup -L . -L ./test/utils/
+test-all: test-checks test-bytecomp test
 
-test-all : test-checks test-bytecomp test
-
-.PHONY: clean
-clean :
+clean:
 	rm -f .depend $(OBJECTS)
 
-.PHONY: elpaclean
-elpaclean : clean
+elpaclean: clean
 	rm -f elpa*
 	rm -rf .cask # Clean packages installed for development
-
-%.elc : %.el
-	$(CASK) build
 
 run-cider: elpa
 	cask exec $(EMACS) -Q -L . --eval "(require 'cider)"
