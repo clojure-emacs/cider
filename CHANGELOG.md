@@ -8,7 +8,7 @@
 
 ### Bugs Fixed
 
-* [#2004](https://github.com/clojure-emacs/cider/issues/2004), [#2039](https://github.com/clojure-emacs/cider/issues/2039), [cider-nrepl#420](https://github.com/clojure-emacs/cider-nrepl/issues/420) Fix namespace issues in instrumentation and debugging commands.
+* [#2004](https://github.com/clojure-emacs/cider/issues/2004), [#2039](https://github.com/clojure-emacs/cider/issues/2039), [cider-nrepl#420](https://github.com/clojure-emacs/cider-nrepl/issues/420): Fix namespace issues in instrumentation and debugging commands.
 * Project-Only stacktrace filter: hide all other tags when viewing project-only stacktrace.
 * Fix interactive evaluation in cljc buffers with only one connection.
 * [#2058](https://github.com/clojure-emacs/cider/pull/2058) Don't cache ns-forms in buffers with no such forms.
