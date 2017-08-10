@@ -11,14 +11,14 @@
 * [#2004](https://github.com/clojure-emacs/cider/issues/2004), [#2039](https://github.com/clojure-emacs/cider/issues/2039), [cider-nrepl#420](https://github.com/clojure-emacs/cider-nrepl/issues/420): Fix namespace issues in instrumentation and debugging commands.
 * Project-Only stacktrace filter: hide all other tags when viewing project-only stacktrace.
 * Fix interactive evaluation in cljc buffers with only one connection.
-* [#2058](https://github.com/clojure-emacs/cider/pull/2058) Don't cache ns-forms in buffers with no such forms.
-* [#2057](https://github.com/clojure-emacs/cider/pull/2057) Use `cider--font-lock-ensure` for compatibility with Emacs 24.5.
+* [#2058](https://github.com/clojure-emacs/cider/pull/2058): Don't cache ns-forms in buffers with no such forms.
+* [#2057](https://github.com/clojure-emacs/cider/pull/2057): Use `cider--font-lock-ensure` for compatibility with Emacs 24.5.
 
 ## 0.15.0 (2017-07-20)
 
 ### New Features
 
-* [#2050](https://github.com/clojure-emacs/cider/pull/2050) Use `view-mode` for `cider-grimoire` buffers
+* [#2050](https://github.com/clojure-emacs/cider/pull/2050): Use `view-mode` for `cider-grimoire` buffers
 * Make stacktraces and other location references in REPL clickable.
 * Highlight root namespace in REPL stacktraces.
 * Filter stacktrace to just frames from your project.
