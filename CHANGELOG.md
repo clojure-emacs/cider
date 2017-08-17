@@ -13,6 +13,7 @@
 * Fix interactive evaluation in cljc buffers with only one connection.
 * [#2058](https://github.com/clojure-emacs/cider/pull/2058): Don't cache ns-forms in buffers with no such forms.
 * [#2057](https://github.com/clojure-emacs/cider/pull/2057): Use `cider--font-lock-ensure` for compatibility with Emacs 24.5.
+* [cider-nrepl#432](https://github.com/clojure-emacs/cider-nrepl/pull/432): Ensure `pprint` is after `load-file`.
 
 ## 0.15.0 (2017-07-20)
 
