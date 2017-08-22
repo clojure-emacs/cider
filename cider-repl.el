@@ -255,26 +255,25 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
       (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local)
       (current-buffer))))
 
-(defun cider-repl-require-repl-utils ()
-  "Require standard REPL util functions into the current REPL."
-  (interactive)
-  (cider-nrepl-request:eval
-   "(when (clojure.core/resolve 'clojure.main/repl-requires)
-      (clojure.core/map clojure.core/require clojure.main/repl-requires))"
-   (lambda (_response) nil)))
-
 (declare-function cider-set-buffer-ns "cider-mode")
-(defun cider-repl-set-initial-ns (buffer)
-  "Set the REPL BUFFER's initial namespace (by altering `cider-buffer-ns').
-This is \"user\" by default but can be overridden in apps like lein (:init-ns)."
+(defun cider-repl-require-repl-utils-and-set-ns (buffer)
+  "Require standard REPL util functions and set the ns of the REPL's BUFFER.
+Namespace is \"user\" by default, but can be overridden in apps like
+lein (:init-ns).  Both of these operations need to be done as a sync
+request at the beginning of the session.  Bundling them together for
+efficiency."
   ;; we don't want to get a timeout during init
   (let ((nrepl-sync-request-timeout nil))
     (with-current-buffer buffer
-      (let ((initial-ns (or (read
-                             (nrepl-dict-get
-                              (cider-nrepl-sync-request:eval "(str *ns*)")
-                              "value"))
-                            "user")))
+      (let* ((command "(do (when (clojure.core/resolve 'clojure.main/repl-requires)
+                            (clojure.core/map clojure.core/require clojure.main/repl-requires))
+                           (str *ns*))")
+             (response (nrepl-send-sync-request
+                        (lax-plist-put (nrepl--eval-request command)
+                                       "inhibit-cider-middleware" "true")
+                        (cider-current-connection)))
+             (initial-ns (or (read (nrepl-dict-get response "value"))
+                             "user")))
         (cider-set-buffer-ns initial-ns)))))
 
 (defvar cider-current-clojure-buffer nil
@@ -289,17 +288,28 @@ to call `cider-remember-clojure-buffer'.")
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
 client process connection.  Unless NO-BANNER is non-nil, insert a banner."
-  (cider-repl-set-initial-ns buffer)
-  (cider-repl-require-repl-utils)
-  (unless no-banner
-    (cider-repl--insert-banner-and-prompt buffer))
   (when cider-repl-display-in-current-window
     (add-to-list 'same-window-buffer-names (buffer-name buffer)))
   (pcase cider-repl-pop-to-buffer-on-connect
     (`display-only (display-buffer buffer))
     ((pred identity) (pop-to-buffer buffer)))
+  (cider-repl-require-repl-utils-and-set-ns buffer)
+  (unless no-banner
+    (cider-repl--insert-banner-and-prompt buffer))
   (cider-remember-clojure-buffer cider-current-clojure-buffer)
   buffer)
+
+(defun cider-repl--insert-banner-and-prompt (buffer)
+  "Insert REPL banner and REPL prompt in BUFFER."
+  (with-current-buffer buffer
+    (when (zerop (buffer-size))
+      (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
+      (when cider-repl-display-help-banner
+        (insert (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face))))
+    (goto-char (point-max))
+    (cider-repl--mark-output-start)
+    (cider-repl--mark-input-start)
+    (cider-repl--insert-prompt cider-buffer-ns)))
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
@@ -358,18 +368,6 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;; `cider-repl-display-help-banner' to nil.
 ;; ======================================================================
 "))
-
-(defun cider-repl--insert-banner-and-prompt (buffer)
-  "Insert REPL banner and REPL prompt in BUFFER."
-  (with-current-buffer buffer
-    (when (zerop (buffer-size))
-      (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
-      (when cider-repl-display-help-banner
-        (insert (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face))))
-    (goto-char (point-max))
-    (cider-repl--mark-output-start)
-    (cider-repl--mark-input-start)
-    (cider-repl--insert-prompt cider-buffer-ns)))
 
 
 ;;; REPL interaction
