@@ -192,7 +192,8 @@ Can only error if SKIP is non-nil."
   "Execute BODY and add PROPS to all the inserted text.
 More precisely, PROPS are added to the region between the point's
 positions before and after executing BODY."
-  (declare (indent 1))
+  (declare (indent 1)
+           (debug (sexp body)))
   (let ((start (make-symbol "start")))
     `(let ((,start (point)))
        (prog1 (progn ,@body)
