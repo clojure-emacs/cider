@@ -596,11 +596,22 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
 
 ;; Rendering
 
-(defun cider-stacktrace-emit-indented (text indent &optional fill)
-  "Insert TEXT, and INDENT and optionally FILL the entire block."
-  (let ((beg (point)))
+(defun cider-stacktrace-emit-indented (text &optional indent fill fontify)
+  "Insert TEXT, and optionally FILL and FONTIFY as clojure the entire block.
+INDENT is a string to insert before each line.  When INDENT is nil, first
+line is not indented and INDENT defaults to a white-spaced string with
+length given by `current-column'."
+  (let ((text (if fontify
+                  (cider-font-lock-as-clojure text)
+                text))
+        (do-first indent)
+        (indent (or indent (make-string (current-column) ? )))
+        (beg (point)))
     (insert text)
     (goto-char beg)
+    (when do-first
+      (insert indent))
+    (forward-line)
     (while (not (eobp))
       (insert indent)
       (forward-line))
