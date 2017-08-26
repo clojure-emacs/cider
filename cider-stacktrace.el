@@ -623,7 +623,6 @@ length given by `current-column'."
 
 (defun cider-stacktrace-render-filters (buffer special-filters filters)
   "Emit into BUFFER toggle buttons for each of the FILTERS.
-
 SPECIAL-FILTERS are filters that show stack certain stack frames, hiding
 others."
   (with-current-buffer buffer
@@ -727,10 +726,53 @@ This associates text properties to enable filtering and source navigation."
         (insert (propertize (format " at (%d:%d)" line column)
                             'font-lock-face message-face))))))
 
+(defun cider-stacktrace--insert-keyed-value (indent key &rest args)
+  "Insert KEY and ARGS prefixed by INDENT."
+     (let ((str (when args
+                  (replace-regexp-in-string "\n+\\'" "" (apply #'concat args)))))
+       (insert indent (propertize key 'face '((:weight bold)))
+               (if str (concat str "\n") ""))))
+
+(defun cider-stacktrace--emit-spec-problems (spec-data indent)
+  "Emit SPEC-DATA indented with INDENT."
+  (nrepl-dbind-response spec-data (spec value problems)
+    (insert "\n")
+    (cider-stacktrace--insert-keyed-value indent "    Spec: " (cider-font-lock-as-clojure spec))
+    (cider-stacktrace--insert-keyed-value indent "   Value: ")
+    (cider-stacktrace-emit-indented value nil nil t)
+    (insert "\n")
+    (cider-stacktrace--insert-keyed-value indent "Problems: \n")
+    (let ((indent2 (concat indent "    "))
+          (face 'font-lock-comment-face))
+      (dolist (prob problems)
+        (nrepl-dbind-response prob (in val predicate reason spec at extra)
+          (insert "\n")
+          (when (not (string= val value))
+            (cider-stacktrace--insert-keyed-value
+             indent2 "   val: " (cider-font-lock-as-clojure val)))
+          (when in
+            (cider-stacktrace--insert-keyed-value
+             indent2 "    in: " (cider-font-lock-as-clojure in)))
+          (cider-stacktrace--insert-keyed-value
+           indent2   "failed: " (cider-font-lock-as-clojure predicate))
+          (when spec
+            (cider-stacktrace--insert-keyed-value
+             indent2 "  spec: " (cider-font-lock-as-clojure spec)))
+          (when at
+            (cider-stacktrace--insert-keyed-value
+             indent2 "    at: " (cider-font-lock-as-clojure at)))
+          (when reason
+            (cider-stacktrace--insert-keyed-value
+             indent2 "reason: " reason))
+          (when extra
+            (cider-stacktrace--insert-keyed-value
+             indent2 "extras: \n")
+            (cider-stacktrace-emit-indented extra (concat indent2 "  ") nil t)))))))
+
 (defun cider-stacktrace-render-cause (buffer cause num note)
   "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE."
   (with-current-buffer buffer
-    (nrepl-dbind-response cause (class message data stacktrace)
+    (nrepl-dbind-response cause (class message data spec stacktrace)
       (let ((indent "   ")
             (class-face 'cider-stacktrace-error-class-face)
             (message-face 'cider-stacktrace-error-message-face))
@@ -747,11 +789,13 @@ This associates text properties to enable filtering and source navigation."
                 (cider-stacktrace-render-compile-error buffer cause)
               (cider-stacktrace-emit-indented
                (propertize (or message "(No message)")
-                           'font-lock-face  message-face) indent t))
+                           'font-lock-face  message-face)
+               indent t))
             (insert "\n")
+            (when spec
+              (cider-stacktrace--emit-spec-problems spec (concat indent "  ")))
             (when data
-              (cider-stacktrace-emit-indented
-               (cider-font-lock-as-clojure data) indent nil)))
+              (cider-stacktrace-emit-indented data indent nil t)))
           ;; Detail level 2: stacktrace
           (cider-propertize-region '(detail 2)
             (insert "\n")
