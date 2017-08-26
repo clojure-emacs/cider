@@ -346,7 +346,6 @@ POS-FILTERS ensure that frames with flag is shown."
         (setq cider-stacktrace-hidden-frame-count hidden)))
     (cider-stacktrace-indicate-filters neg-filters pos-filters)))
 
-
 (defun cider-stacktrace-apply-cause-visibility ()
   "Apply `cider-stacktrace-cause-visibility' to causes and reapply filters."
   (with-current-buffer cider-error-buffer
@@ -469,7 +468,6 @@ When it reaches 3, it wraps to 0."
   "Cycle the visibility of exception cause #5."
   (interactive)
   (cider-stacktrace-cycle-cause 5))
-
 
 (defun cider-stacktrace-toggle-all ()
   "Reset `cider-stacktrace-filters' if present; otherwise restore prior filters."
@@ -726,47 +724,76 @@ This associates text properties to enable filtering and source navigation."
         (insert (propertize (format " at (%d:%d)" line column)
                             'font-lock-face message-face))))))
 
-(defun cider-stacktrace--insert-keyed-value (indent key &rest args)
-  "Insert KEY and ARGS prefixed by INDENT."
-     (let ((str (when args
-                  (replace-regexp-in-string "\n+\\'" "" (apply #'concat args)))))
-       (insert indent (propertize key 'face '((:weight bold)))
-               (if str (concat str "\n") ""))))
+(defun cider-stacktrace--toggle-visibility (id)
+  "Toggle visibility of the region with ID invisibility prop.
+ID can also be a button, in which case button's property :id is used
+instead.  This function can be used directly in button actions."
+  (let ((id (if (or (numberp id) (symbolp id))
+                ;; There is no proper way to identify buttons. Assuming that
+                ;; id's can be either numbers or symbols.
+                id
+              (button-get button :id))))
+    (if (and (consp buffer-invisibility-spec)
+             (assoc id buffer-invisibility-spec))
+        (remove-from-invisibility-spec (cons id t))
+      (add-to-invisibility-spec (cons id t)))))
+
+(defun cider-stacktrace--insert-named-group (indent name &rest vals)
+  "Insert named group with the ability to toggle visibility.
+NAME is a string naming the group.  VALS are strings to be inserted after
+the NAME.  The whole group is prefixed by string INDENT."
+  (let* ((str (and vals (replace-regexp-in-string "\n+\\'" "" (apply #'concat vals))))
+         (id (and str
+                  (string-match "\n" str)
+                  (cl-gensym name))))
+    (insert indent)
+    (if id
+        (let* ((beg-link (string-match "[^ :]" name))
+               (end-link (string-match "[ :]" name (1+ beg-link))))
+          (insert (substring name 0 beg-link))
+          (insert-text-button (substring name beg-link end-link)
+                              :id id
+                              'face '((:weight bold) (:underline t))
+                              'follow-link t
+                              'help-echo "Toggle visibility"
+                              'action #'cider-stacktrace--toggle-visibility)
+          (insert (substring name end-link)))
+      (insert (propertize name 'face '((:weight bold)))))
+    (let ((pos (point)))
+      (when str
+        (cider-stacktrace-emit-indented (concat str "\n") nil nil t)
+        (when id
+          (remove-from-invisibility-spec (cons id t))
+          (let ((hide-beg (save-excursion (goto-char pos) (point-at-eol)))
+                (hide-end (1- (point-at-bol))))
+            (overlay-put (make-overlay hide-beg hide-end) 'invisible id)))))))
 
 (defun cider-stacktrace--emit-spec-problems (spec-data indent)
   "Emit SPEC-DATA indented with INDENT."
   (nrepl-dbind-response spec-data (spec value problems)
     (insert "\n")
-    (cider-stacktrace--insert-keyed-value indent "    Spec: " (cider-font-lock-as-clojure spec))
-    (cider-stacktrace--insert-keyed-value indent "   Value: ")
-    (cider-stacktrace-emit-indented value nil nil t)
+    (cider-stacktrace--insert-named-group indent "    Spec: " spec)
+    (cider-stacktrace--insert-named-group indent "   Value: " value)
     (insert "\n")
-    (cider-stacktrace--insert-keyed-value indent "Problems: \n")
+    (cider-stacktrace--insert-named-group indent "Problems: \n")
     (let ((indent2 (concat indent "    "))
           (face 'font-lock-comment-face))
       (dolist (prob problems)
         (nrepl-dbind-response prob (in val predicate reason spec at extra)
           (insert "\n")
           (when (not (string= val value))
-            (cider-stacktrace--insert-keyed-value
-             indent2 "   val: " (cider-font-lock-as-clojure val)))
+            (cider-stacktrace--insert-named-group indent2 "   val: " val))
           (when in
-            (cider-stacktrace--insert-keyed-value
-             indent2 "    in: " (cider-font-lock-as-clojure in)))
-          (cider-stacktrace--insert-keyed-value
-           indent2   "failed: " (cider-font-lock-as-clojure predicate))
+            (cider-stacktrace--insert-named-group indent2 "    in: " in))
+          (cider-stacktrace--insert-named-group indent2   "failed: " predicate)
           (when spec
-            (cider-stacktrace--insert-keyed-value
-             indent2 "  spec: " (cider-font-lock-as-clojure spec)))
+            (cider-stacktrace--insert-named-group indent2 "  spec: " spec))
           (when at
-            (cider-stacktrace--insert-keyed-value
-             indent2 "    at: " (cider-font-lock-as-clojure at)))
+            (cider-stacktrace--insert-named-group indent2 "    at: " at))
           (when reason
-            (cider-stacktrace--insert-keyed-value
-             indent2 "reason: " reason))
+            (cider-stacktrace--insert-named-group indent2 "reason: " reason))
           (when extra
-            (cider-stacktrace--insert-keyed-value
-             indent2 "extras: \n")
+            (cider-stacktrace--insert-named-group indent2 "extras: \n")
             (cider-stacktrace-emit-indented extra (concat indent2 "  ") nil t)))))))
 
 (defun cider-stacktrace-render-cause (buffer cause num note)
