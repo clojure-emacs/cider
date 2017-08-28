@@ -1054,7 +1054,7 @@ regexes from `cider-locref-regexp-alist' to infer locations at point."
                     ;; when not found, return the file detected by regexp
                     (plist-get loc :file))))
         (if file
-            (cider--jump-to-loc-from-info (nrepl-dict "file" file "line" line))
+            (cider--jump-to-loc-from-info (nrepl-dict "file" file "line" line) t)
           (error "No source location for %s" var)))
     (user-error "No location reference at point")))
 
