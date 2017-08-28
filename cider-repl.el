@@ -561,7 +561,7 @@ When there is a possible unfinished ansi control sequence,
                    (buffer-local-value 'cider-repl--ns-forms-plist connection)
                    ns)))))
 
-(defvar cider-repl--root-ns-highlight-template "\\<\\(%s\\)[^$/: \t\n]+"
+(defvar cider-repl--root-ns-highlight-template "\\_<\\(%s\\)[^$/: \t\n()]+"
   "Regexp used to highlight root ns in REPL buffers.")
 
 (defvar-local cider-repl--root-ns-regexp nil
