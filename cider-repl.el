@@ -1046,10 +1046,13 @@ regexes from `cider-locref-regexp-alist' to infer locations at point."
   (if-let ((loc (cider-locref-at-point pos)))
       (let* ((var (plist-get loc :var))
              (line (plist-get loc :line))
-             (file (if var
-                       (or (cider-sync-request:ns-path var)
-                           (nrepl-dict-get (cider-sync-request:info var) "file"))
-                     (plist-get loc :file))))
+             (file (or
+                    ;; retrieve from info middleware
+                    (when var
+                      (or (cider-sync-request:ns-path var)
+                          (nrepl-dict-get (cider-sync-request:info var) "file")))
+                    ;; when not found, return the file detected by regexp
+                    (plist-get loc :file))))
         (if file
             (cider--jump-to-loc-from-info (nrepl-dict "file" file "line" line))
           (error "No source location for %s" var)))
