@@ -484,9 +484,9 @@ Tables are marked to be ignored by line wrap."
                          ;; if the var belongs to the same namespace,
                          ;; we omit the namespace to save some screen space
                          (symbol (if (equal ns see-also-ns) see-also-sym ns-sym)))
-                    (insert-button symbol
-                                   'type 'help-xref
-                                   'help-function (apply-partially #'cider-doc-lookup symbol)))
+                    (insert-text-button symbol
+                                        'type 'help-xref
+                                        'help-function (apply-partially #'cider-doc-lookup symbol)))
                   (insert " "))
                 see-also))
         (cider--doc-make-xrefs)
