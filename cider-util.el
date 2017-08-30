@@ -309,6 +309,30 @@ Unless you specify a BUFFER it will default to the current one."
 (define-button-type 'cider-plain-button
   'face nil)
 
+(defun cider-add-face (regexp face &optional foreground-only sub-expr object)
+  "Propertize all occurrences of REGEXP with FACE.
+If FOREGROUND-ONLY is non-nil, change only the foreground of matched
+regions.  SUB-EXPR is a sub-expression of REGEXP to be
+propertized (defaults to 0).  OBJECT is an object to be
+propertized (defaults to current buffer)."
+  (setq sub-expr (or sub-expr 0))
+  (when (and regexp face)
+    (let ((beg 0)
+          (end 0))
+      (with-current-buffer (or (and (bufferp object) object)
+                               (current-buffer))
+        (while (if (stringp object)
+                   (string-match regexp object end)
+                 (re-search-forward regexp nil t))
+          (setq beg (match-beginning sub-expr)
+                end (match-end sub-expr))
+          (if foreground-only
+              (let ((face-spec (list (cons 'foreground-color
+                                           (face-attribute face :foreground nil t)))))
+                (font-lock-prepend-text-property beg end 'face face-spec object))
+            (put-text-property beg end 'face face object)))))))
+
+
 ;;; Colors
 
 (defun cider-scale-color (color scale)
