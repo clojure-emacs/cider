@@ -1785,7 +1785,7 @@ and all ancillary CIDER buffers."
   (if (and quit-all (y-or-n-p "Are you sure you want to quit all CIDER connections? "))
       (progn
         (when-let ((scratch (get-buffer cider-scratch-buffer-name)))
-          (when (y-or-n-p (format "Kill %s? buffer" cider-scratch-buffer-name))
+          (when (y-or-n-p (format "Kill %s buffer? " cider-scratch-buffer-name))
             (kill-buffer cider-scratch-buffer-name)))
         (dolist (connection cider-connections)
           (cider--quit-connection connection))
