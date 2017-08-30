@@ -213,6 +213,28 @@ PROP is the name of a text property."
   (when break (insert "\n")))
 
 
+;;; Hooks
+
+(defun cider-run-chained-hook (hook arg)
+  "Like `run-hook-with-args' but pass intermediate return values through.
+HOOK is a name of a hook (a symbol).  You can use `add-hook' or
+`remove-hook' to add functions to this variable.  ARG is passed to first
+function.  Its return value is passed to the second function and so forth
+till all functions are called or one of them returns nil.  Return the value
+return by the last called function."
+  (let ((functions (copy-sequence (symbol-value hook))))
+    (while (and functions arg)
+      (if (eq (car functions) t)
+          ;; global value of the hook
+          (let ((functions (default-value hook)))
+            (while (and functions arg)
+              (setq arg (funcall (car functions) arg))
+              (setq functions (cdr functions))))
+        (setq arg (funcall (car functions) arg)))
+      (setq functions (cdr functions)))
+    arg))
+
+
 ;;; Font lock
 
 (defalias 'cider--font-lock-ensure
