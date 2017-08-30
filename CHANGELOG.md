@@ -4,9 +4,17 @@
 
 ### New Features
 
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): New utility function `cider-add-face`.
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): New utility function `cider-run-chained-hook`.
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): New `cider-repl-preoutput-hook` that allows custom output processing. 
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): Highlight clojure.spec keywords in REPL (`cider-repl-highlight-spec-keywords` pre-output processor).
+
 ### Changes
 
 * [#2045](https://github.com/clojure-emacs/cider/issues/2045) `*cider-scratch*` buffers are no longer automatically killed on connection quit.
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): Jump to other window when clicking on location references in REPL.
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): Improve project namespace highlighting in REPLs.
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): Find locations in more cases when clicking on references in REPL.
 
 ### Bugs Fixed
 
