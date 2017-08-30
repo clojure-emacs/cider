@@ -589,24 +589,30 @@ When there is a possible unfinished ansi control sequence,
               (setq cider-repl--root-ns-regexp
                     (format cider-repl--root-ns-highlight-template roots)))))))))
 
-(defun cider-repl--apply-current-project-color (string)
+(defun cider-repl-highlight-current-project (string)
   "Fontify project's root namespace to make stacktraces more readable.
 Foreground of `cider-stacktrace-ns-face' is used to propertize matched
 namespaces.  STRING is REPL's output."
-  (if cider-repl--root-ns-regexp
-      (let ((start 0)
-            (end 0))
-        (while (setq start (string-match cider-repl--root-ns-regexp string end))
-          (setq end (match-end 0))
-          (let ((face-spec (list (cons 'foreground-color
-                                       (face-attribute 'cider-stacktrace-ns-face :foreground nil t)))))
-            (font-lock-prepend-text-property start end 'face face-spec string)))
-        string)
-    string))
+  (cider-add-face cider-repl--root-ns-regexp 'cider-stacktrace-ns-face
+                  t nil string)
+  string)
+
+(defun cider-repl-add-locref-help-echo (string)
+  "Set help-echo property of STRING to `cider-locref-help-echo'."
+  (put-text-property 0 (length string) 'help-echo 'cider-locref-help-echo string)
+  string)
+
+(defvar cider-repl-preoutput-hook '(ansi-color-apply
+                                    cider-repl-highlight-current-project
+                                    cider-repl-add-locref-help-echo)
+  "Hook run on output string before it is inserted into the REPL buffer.
+Each functions takes a string and must return a modified string.  Also see
+`cider-run-chained-hook'.")
 
 (defun cider-repl--emit-output-at-pos (buffer string output-face position &optional bol)
   "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
-If BOL is non-nil insert at the beginning of line."
+If BOL is non-nil insert at the beginning of line.  Run
+`cider-repl-preoutput-hook' on STRING."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
@@ -614,13 +620,10 @@ If BOL is non-nil insert at the beginning of line."
           (goto-char position)
           ;; TODO: Review the need for bol
           (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (setq string
-                (thread-first string
-                  (propertize 'font-lock-face output-face
-                              'rear-nonsticky '(font-lock-face))
-                  (ansi-color-apply)
-                  (cider-repl--apply-current-project-color)
-                  (propertize 'help-echo 'cider-locref-help-echo)))
+          (setq string (propertize string
+                                   'font-lock-face output-face
+                                   'rear-nonsticky '(font-lock-face)))
+          (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
           (insert-before-markers string)
           (cider-repl--flush-ansi-color-context)
           (when (and (= (point) cider-repl-prompt-start-mark)
