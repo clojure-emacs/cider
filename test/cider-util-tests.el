@@ -218,3 +218,37 @@
             :not :to-be-truthy)
     (expect (cider-ansi-color-string-p "'an-ansi-str")
             :not :to-be-truthy)))
+
+(describe "cider-add-face"
+  :var (str)
+
+  (before-each
+    (setq str "aaa bbb\n cccc\n dddd"))
+
+  (describe "works in strings"
+    (it "fontifies with correct face"
+      (cider-add-face "c+" 'font-lock-comment-face nil nil str)
+      (expect (get-pos-property 1 'face str)
+              :to-be nil)
+      (expect (get-pos-property 10 'face str)
+              :to-be 'font-lock-comment-face))
+    (it "fontifies foreground with correct face"
+      (cider-add-face "b+" 'font-lock-comment-face t nil str)
+      (expect (get-pos-property 5 'face str)
+              :to-equal `((foreground-color . ,(face-attribute 'font-lock-comment-face
+                                                               :foreground nil t)))))
+    (it "fontifies sub-expression correctly"
+      (cider-add-face "\\(a\\)aa" 'font-lock-comment-face nil 1 str)
+      (expect (get-pos-property 0 'face str)
+              :to-be 'font-lock-comment-face)
+      (expect (get-pos-property 1 'face str)
+              :to-be nil)))
+
+  (describe "works in buffers"
+    (it "fontifies with correct face"
+      (with-temp-buffer
+        (insert "aaa bbb\n cccc\n ddddd")
+        (goto-char 1)
+        (cider-add-face "c+" 'font-lock-comment-face)
+        (expect (get-pos-property 11 'face)
+                :to-be 'font-lock-comment-face)))))
