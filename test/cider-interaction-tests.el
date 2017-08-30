@@ -58,47 +58,47 @@
 (describe "cider-refresh"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (lambda () (cider-refresh)) :to-throw 'user-error)))
+    (expect (cider-refresh) :to-throw 'user-error)))
 
 (describe "cider-quit"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (lambda () (cider-quit)) :to-throw 'user-error)))
+    (expect (cider-quit) :to-throw 'user-error)))
 
 (describe "cider-restart"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (lambda () (cider-restart)) :to-throw 'user-error)))
+    (expect (cider-restart) :to-throw 'user-error)))
 
 (describe "cider-find-ns"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (lambda () (cider-find-ns)) :to-throw 'user-error))
+    (expect (cider-find-ns) :to-throw 'user-error))
   (it "raises a user error if the op is not supported"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
-    (expect (lambda () (cider-find-ns)) :to-throw 'user-error)))
+    (expect (cider-find-ns) :to-throw 'user-error)))
 
 (describe "cider-load-all-project-ns"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (lambda () (cider-load-all-project-ns)) :to-throw 'user-error))
+    (expect (cider-load-all-project-ns) :to-throw 'user-error))
   (it "raises a user error if the op is not supported"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
-    (expect (lambda () (cider-load-all-project-ns)) :to-throw 'user-error)))
+    (expect (cider-load-all-project-ns) :to-throw 'user-error)))
 
 (describe "cider-load-file"
-          (it "works as expected in empty Clojure buffers"
-              (spy-on 'cider-request:load-file :and-return-value nil)
-              (with-connection-buffer "clj" b
-                                      (with-temp-buffer
-                                        (clojure-mode)
-                                        (setq buffer-file-name (make-temp-name "tmp.clj"))
-                                        (expect (lambda () (cider-load-buffer)) :not :to-throw)))))
+  (it "works as expected in empty Clojure buffers"
+    (spy-on 'cider-request:load-file :and-return-value nil)
+    (with-connection-buffer "clj" b
+      (with-temp-buffer
+        (clojure-mode)
+        (setq buffer-file-name (make-temp-name "tmp.clj"))
+        (expect (cider-load-buffer) :not :to-throw)))))
 
 (describe "cider-interactive-eval"
-          (it "works as expected in empty Clojure buffers"
-              (spy-on 'cider-nrepl-request:eval :and-return-value nil)
-              (with-connection-buffer "clj" b
-                                      (with-temp-buffer
-                                        (clojure-mode)
-                                        (expect (lambda () (cider-interactive-eval "(+ 1)")) :not :to-throw)))))
+  (it "works as expected in empty Clojure buffers"
+    (spy-on 'cider-nrepl-request:eval :and-return-value nil)
+    (with-connection-buffer "clj" b
+      (with-temp-buffer
+        (clojure-mode)
+        (expect (cider-interactive-eval "(+ 1)") :not :to-throw)))))

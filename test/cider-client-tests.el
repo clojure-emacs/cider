@@ -438,7 +438,7 @@
     (expect (cider-ensure-connected) :to-equal nil))
   (it "raises a user-error in the absence of a connection"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (lambda () (cider-ensure-connected)) :to-throw 'user-error)))
+    (expect (cider-ensure-connected) :to-throw 'user-error)))
 
 (describe "cider-ensure-op-supported"
   (it "returns nil when the op is supported"
@@ -446,7 +446,7 @@
     (expect (cider-ensure-op-supported "foo") :to-equal nil))
   (it "raises a user-error if the op is not supported"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
-    (expect (lambda () (cider-ensure-op-supported "foo"))
+    (expect (cider-ensure-op-supported "foo")
             :to-throw 'user-error)))
 
 (describe "cider-expected-ns"
