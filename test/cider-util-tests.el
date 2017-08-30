@@ -54,6 +54,22 @@
           cider-codename "Victory")
     (expect (cider--version) :to-equal "0.11.0snapshot (package: 20160301.2217)")))
 
+(defvar some-cider-hook)
+
+(describe "cider-run-chained-hook"
+  :var (some-cider-hook)
+
+  (it "chains correctly"
+    (setq some-cider-hook (list #'upcase (lambda (x) (substring x 2 5))))
+    (expect (cider-run-chained-hook 'some-cider-hook "abcdefg")
+            :to-equal "CDE"))
+
+  (it "exits on first nil"
+    (let (here)
+      (setq some-cider-hook (list #'upcase (lambda (x) nil) (lambda (x) (setq here t))))
+      (cider-run-chained-hook 'some-cider-hook "A")
+      (expect here :to-be nil))))
+
 (describe "cider-symbol-at-point"
   (it "doesn't move the cursor"
     (with-temp-buffer
