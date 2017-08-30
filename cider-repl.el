@@ -589,6 +589,25 @@ When there is a possible unfinished ansi control sequence,
               (setq cider-repl--root-ns-regexp
                     (format cider-repl--root-ns-highlight-template roots)))))))))
 
+(defvar cider-repl-spec-keywords-regexp
+  (concat
+   (regexp-opt '("In:" " val:"
+                 " at:" "fails at:"
+                 " spec:" "fails spec:"
+                 " predicate:" "fails predicate:"))
+   "\\|^"
+   (regexp-opt '(":clojure.spec.alpha/spec"
+                 ":clojure.spec.alpha/value")
+               "\\("))
+  "Regexp matching clojure.spec `explain` keywords.")
+
+(defun cider-repl-highlight-spec-keywords (string)
+  "Highlight clojure.spec `explain` keywords in STRING.
+Foreground of `clojure-keyword-face' is used for highlight."
+  (cider-add-face cider-repl-spec-keywords-regexp
+                  'clojure-keyword-face t nil string)
+  string)
+
 (defun cider-repl-highlight-current-project (string)
   "Fontify project's root namespace to make stacktraces more readable.
 Foreground of `cider-stacktrace-ns-face' is used to propertize matched
@@ -604,6 +623,7 @@ namespaces.  STRING is REPL's output."
 
 (defvar cider-repl-preoutput-hook '(ansi-color-apply
                                     cider-repl-highlight-current-project
+                                    cider-repl-highlight-spec-keywords
                                     cider-repl-add-locref-help-echo)
   "Hook run on output string before it is inserted into the REPL buffer.
 Each functions takes a string and must return a modified string.  Also see
