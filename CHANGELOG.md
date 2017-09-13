@@ -2,11 +2,13 @@
 
 ## master (unreleased)
 
+## 0.15.1 (2017-09-13)
+
 ### New Features
 
 * [#2083](https://github.com/clojure-emacs/cider/pull/2083): New utility function `cider-add-face`.
 * [#2083](https://github.com/clojure-emacs/cider/pull/2083): New utility function `cider-run-chained-hook`.
-* [#2083](https://github.com/clojure-emacs/cider/pull/2083): New `cider-repl-preoutput-hook` that allows custom output processing. 
+* [#2083](https://github.com/clojure-emacs/cider/pull/2083): New `cider-repl-preoutput-hook` that allows custom output processing.
 * [#2083](https://github.com/clojure-emacs/cider/pull/2083): Highlight clojure.spec keywords in REPL (`cider-repl-highlight-spec-keywords` pre-output processor).
 
 ### Changes
@@ -23,7 +25,7 @@
 * Fix interactive evaluation in cljc buffers with only one connection.
 * [#2058](https://github.com/clojure-emacs/cider/pull/2058): Don't cache ns-forms in buffers with no such forms.
 * [#2057](https://github.com/clojure-emacs/cider/pull/2057): Use `cider--font-lock-ensure` for compatibility with Emacs 24.5.
-* [cider-nrepl#436](https://github.com/clojure-emacs/cider-nrepl/pull/436): Ensure that `*print-right-margin*` is not ignored by cider-nrepl middleware. 
+* [cider-nrepl#436](https://github.com/clojure-emacs/cider-nrepl/pull/436): Ensure that `*print-right-margin*` is not ignored by cider-nrepl middleware.
 * [cider-nrepl#435](https://github.com/clojure-emacs/cider-nrepl/pull/435): Allow debugging of forms with `#?(:cljs ... :clj ..)` conditionals.
 * [cider-nrepl#432](https://github.com/clojure-emacs/cider-nrepl/pull/432): Ensure `pprint` is after `load-file`.
 
