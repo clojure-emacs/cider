@@ -10,6 +10,7 @@
 * [#2083](https://github.com/clojure-emacs/cider/pull/2083): New utility function `cider-run-chained-hook`.
 * [#2083](https://github.com/clojure-emacs/cider/pull/2083): New `cider-repl-preoutput-hook` that allows custom output processing.
 * [#2083](https://github.com/clojure-emacs/cider/pull/2083): Highlight clojure.spec keywords in REPL (`cider-repl-highlight-spec-keywords` pre-output processor).
+* [#2089](https://github.com/clojure-emacs/cider/pull/2089): Allow loading buffers without associated files
 
 ### Changes
 

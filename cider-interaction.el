@@ -1590,9 +1590,8 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
   (cider-ensure-connected)
   (setq buffer (or buffer (current-buffer)))
   (with-current-buffer buffer
-    (unless buffer-file-name
-      (user-error "Buffer `%s' is not associated with a file" (current-buffer)))
-    (when (and cider-save-file-on-load
+    (when (and buffer-file-name
+               cider-save-file-on-load
                (buffer-modified-p)
                (or (eq cider-save-file-on-load t)
                    (y-or-n-p (format "Save file %s? " buffer-file-name))))
@@ -1600,8 +1599,11 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
     (remove-overlays nil nil 'cider-temporary t)
     (cider--clear-compilation-highlights)
     (cider--quit-error-window)
-    (let ((filename (buffer-file-name buffer))
-          (ns-form  (cider-ns-form)))
+    (let ((filename (or (buffer-file-name buffer)
+                        (let ((temp-file (make-temp-file (format "cider-eval-%s-" (buffer-name)))))
+                          (write-region (point-min) (point-max) temp-file nil nil nil nil)
+                          temp-file)))
+          (ns-form (cider-ns-form)))
       (cider-map-connections
        (lambda (connection)
          (when ns-form
@@ -1612,7 +1614,10 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
                                   (file-name-nondirectory filename)
                                   connection))
        :both)
-      (message "Loading %s..." filename))))
+      (message "Loading %s..." filename)
+      (unless (buffer-file-name buffer)
+        (delete-file filename)
+        (kill-buffer (file-name-nondirectory filename))))))
 
 (defun cider-load-file (filename)
   "Load (eval) the Clojure file FILENAME in nREPL.
