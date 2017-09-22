@@ -1616,7 +1616,8 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
        :both)
       (message "Loading %s..." filename)
       (unless buffer-file-name
-        (delete-file filename)))))
+        (delete-file filename)
+        (kill-buffer (file-name-nondirectory filename))))))
 
 (defun cider-load-file (filename)
   "Load (eval) the Clojure file FILENAME in nREPL.
