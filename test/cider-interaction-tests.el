@@ -93,6 +93,12 @@
       (with-temp-buffer
         (clojure-mode)
         (setq buffer-file-name (make-temp-name "tmp.clj"))
+        (expect (cider-load-buffer) :not :to-throw))))
+  (it "works as expected in empty Clojure buffers without filenames"
+    (spy-on 'cider-request:load-file :and-return-value nil)
+    (with-connection-buffer "clj" b
+      (with-temp-buffer
+        (clojure-mode)
         (expect (cider-load-buffer) :not :to-throw)))))
 
 (describe "cider-interactive-eval"
