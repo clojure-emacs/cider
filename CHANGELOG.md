@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs Fixed
+
+* [#2088](https://github.com/clojure-emacs/cider/issues/2088): Fix functions defined with def being font locked as vars instead of functions.
+
 ## 0.15.1 (2017-09-13)
 
 ### New Features
