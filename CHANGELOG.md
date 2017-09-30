@@ -2,6 +2,15 @@
 
 ## master (unreleased)
 
+### New Features
+
+* [#2082](https://github.com/clojure-emacs/cider/pull/2082), [cider-nrepl#440](https://github.com/clojure-emacs/cider-nrepl/pull/440): Add specialized stacktraces for clojure.spec assertions.
+
+### Changes
+
+* [cider-nrepl#438](https://github.com/clojure-emacs/cider-nrepl/pull/438): Improve startup time by differing loading CIDER's middleware until the first usage.
+* [#2078](https://github.com/clojure-emacs/cider/pull/2078): Improve startup time by bundling together sync requests during startup. 
+
 ### Bugs Fixed
 
 * [#2088](https://github.com/clojure-emacs/cider/issues/2088): Fix functions defined with def being font locked as vars instead of functions.
