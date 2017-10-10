@@ -82,4 +82,4 @@ Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort`
 is set. Either remove the `:pedantic? :abort` setting or switch off injecting
 the dependencies with setting `cider-inject-dependencies-at-jack-in` to `nil` and
 provide the dependencies by editing your `~/.lein/profiles.clj` as described in
-the [standalone REPL](#setting-up-a-standalone-repl) section.
+the [standalone REPL](installation.md#setting-up-a-standalone-repl) section.
