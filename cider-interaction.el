@@ -1158,7 +1158,7 @@ If invoked with a PREFIX argument, print the result in the current buffer."
     (goto-char (cadr (cider-sexp-at-point 'bounds)))
     (cider-eval-last-sexp prefix)))
 
-(defun cider-eval-last-sexp-to-comment (loc &optional prefix)
+(defun cider-eval-last-sexp-to-comment (loc)
   "Evaluate the expression preceding point and insert result as comment at LOC.
 
 With a prefix arg, LOC, insert before the form, otherwise afterwards."
