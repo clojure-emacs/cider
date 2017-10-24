@@ -1158,6 +1158,18 @@ If invoked with a PREFIX argument, print the result in the current buffer."
     (goto-char (cadr (cider-sexp-at-point 'bounds)))
     (cider-eval-last-sexp prefix)))
 
+(defun cider-eval-last-sexp-to-comment (loc &optional prefix)
+  "Evaluate the expression preceding point and insert result as comment at LOC.
+
+With a prefix arg, LOC, insert before the form, otherwise afterwards."
+  (interactive "P")
+  (let* ((bounds (cider-defun-at-point 'bounds))
+         (insertion-point (nth (if loc 0 1) bounds)))
+    (cider-interactive-eval nil
+                            (cider-eval-print-with-comment-handler
+                             (current-buffer) insertion-point ";; => ")
+                            (cider-last-sexp 'bounds))))
+
 (defun cider-eval-defun-to-comment (loc)
   "Evaluate the \"top-level\" form and insert result as comment at LOC.
 
