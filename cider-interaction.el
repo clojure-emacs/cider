@@ -244,6 +244,24 @@ namespace-qualified function of zero arity."
   "Face used to highlight compilation warnings in Clojure buffers."
   :group 'cider)
 
+(defcustom cider-comment-prefix ";; => "
+  "The prefix to insert before the first line of commented output."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.16.0"))
+
+(defcustom cider-comment-continued-prefix ";;    "
+  "The prefix to use on the second and subsequent lines of commented output."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.16.0"))
+
+(defcustom cider-comment-postfix ""
+  "The postfix to be appended after the final line of commented output."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.16.0"))
+
 (defconst cider-clojure-artifact-id "org.clojure/clojure"
   "Artifact identifier for Clojure.")
 
@@ -795,6 +813,30 @@ COMMENT-PREFIX is the comment prefix to use."
                                  (cider-emit-interactive-eval-err-output err))
                                '()))
 
+(defun cider-eval-pprint-with-multiline-comment-handler (buffer location comment-prefix continued-prefix comment-postfix)
+  "Make a handler for evaluating and inserting results in BUFFER.
+The inserted text is pretty-printed and region will be commented.
+LOCATION is the location at which to insert.
+COMMENT-PREFIX is the comment prefix for the first line of output.
+CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
+COMMENT-POSTFIX is the text to output after the last line."
+  (cl-flet ((multiline-comment-handler (buffer value)
+             (with-current-buffer buffer
+               (save-excursion
+                 (goto-char location)
+                 (let ((lines (split-string value "[\n]+" t)))
+                   ;; only the first line gets the normal comment-prefix
+                   (insert (concat comment-prefix (pop lines)))
+                   (dolist (elem lines)
+                     (insert (concat "\n" continued-prefix elem)))
+                   (unless (string= comment-postfix "")
+                     (insert comment-postfix)))))))
+    (nrepl-make-response-handler buffer
+                                 '()
+                                 #'multiline-comment-handler
+                                 #'multiline-comment-handler
+                                 '())))
+
 (defun cider-popup-eval-out-handler (&optional buffer)
   "Make a handler for evaluating and printing stdout/stderr in popup BUFFER.
 
@@ -1132,12 +1174,12 @@ arguments and only proceed with evaluation if it returns nil."
   (interactive "r")
   (cider-interactive-eval nil nil (list start end)))
 
-(defun cider-eval-last-sexp (&optional prefix)
+(defun cider-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the expression preceding point.
-If invoked with a PREFIX argument, print the result in the current buffer."
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current buffer."
   (interactive "P")
   (cider-interactive-eval nil
-                          (when prefix (cider-eval-print-handler))
+                          (when output-to-current-buffer (cider-eval-print-handler))
                           (cider-last-sexp 'bounds)))
 
 (defun cider-eval-last-sexp-and-replace ()
@@ -1150,25 +1192,93 @@ If invoked with a PREFIX argument, print the result in the current buffer."
     (backward-kill-sexp)
     (cider-interactive-eval last-sexp (cider-eval-print-handler))))
 
-(defun cider-eval-sexp-at-point (&optional prefix)
+(defun cider-eval-sexp-at-point (&optional output-to-current-buffer)
   "Evaluate the expression around point.
-If invoked with a PREFIX argument, print the result in the current buffer."
+
+If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
     (goto-char (cadr (cider-sexp-at-point 'bounds)))
-    (cider-eval-last-sexp prefix)))
+    (cider-eval-last-sexp output-to-current-buffer)))
 
-(defun cider-eval-defun-to-comment (loc)
-  "Evaluate the \"top-level\" form and insert result as comment at LOC.
+(defun cider-eval-defun-to-comment (&optional insert-before)
+  "Evaluate the \"top-level\" form and insert result as comment.
 
-With a prefix arg, LOC, insert before the form, otherwise afterwards."
+The formatting of the comment is defined in `cider-comment-prefix`
+which, by default, is \";; => \" and can be customized.
+
+With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards."
   (interactive "P")
   (let* ((bounds (cider-defun-at-point 'bounds))
-         (insertion-point (nth (if loc 0 1) bounds)))
+         (insertion-point (nth (if insert-before 0 1) bounds)))
     (cider-interactive-eval nil
                             (cider-eval-print-with-comment-handler
-                             (current-buffer) insertion-point ";; => ")
+                             (current-buffer)
+                             insertion-point
+                             cider-comment-prefix)
                             bounds)))
+
+(defun cider-pprint-form-to-comment (form-fn insert-before)
+  "Evaluate the form selected by FORM-FN and insert result as comment.
+FORM-FN can be either `cider-last-sexp` or `cider-defun-at-point`.
+
+The formatting of the comment is controlled via three options:
+    `cider-comment-prefix`           \";; => \"
+    `cider-comment-continued-prefix` \";;    \"
+    `cider-comment-postfix`          \"\"
+
+so that with customization you can optionally wrap the output
+in the reader macro \"#_( .. )\", or \"(comment ... )\", or any
+other desired formatting.
+
+If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
+  (let* ((bounds (funcall form-fn 'bounds))
+         (insertion-point (nth (if insert-before 0 1) bounds))
+         ;; when insert-before, we need a newline after the output to
+         ;; avoid commenting the first line of the form
+         (comment-postfix (concat cider-comment-postfix
+                                  (if insert-before "\n" ""))))
+    (cider-interactive-eval nil
+                            (cider-eval-pprint-with-multiline-comment-handler
+                             (current-buffer)
+                             insertion-point
+                             cider-comment-prefix
+                             cider-comment-continued-prefix
+                             comment-postfix)
+                            bounds
+                            (cider--nrepl-pprint-request-plist (cider--pretty-print-width)))))
+
+(defun cider-pprint-eval-last-sexp-to-comment (&optional insert-before)
+  "Evaluate the last sexp and insert result as comment.
+
+The formatting of the comment is controlled via three options:
+    `cider-comment-prefix`           \";; => \"
+    `cider-comment-continued-prefix` \";;    \"
+    `cider-comment-postfix`          \"\"
+
+so that with customization you can optionally wrap the output
+in the reader macro \"#_( .. )\", or \"(comment ... )\", or any
+other desired formatting.
+
+If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
+  (interactive "P")
+  (cider-pprint-form-to-comment 'cider-last-sexp insert-before))
+
+(defun cider-pprint-eval-defun-to-comment (&optional insert-before)
+  "Evaluate the \"top-level\" form and insert result as comment.
+
+The formatting of the comment is controlled via three options:
+    `cider-comment-prefix`           \";; => \"
+    `cider-comment-continued-prefix` \";;    \"
+    `cider-comment-postfix`          \"\"
+
+so that with customization you can optionally wrap the output
+in the reader macro \"#_( .. )\", or \"(comment ... )\", or any
+other desired formatting.
+
+If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
+  (interactive "P")
+  (cider-pprint-form-to-comment 'cider-defun-at-point insert-before))
 
 (declare-function cider-switch-to-repl-buffer "cider-mode")
 
@@ -1186,11 +1296,10 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
   "Evaluate expr before point and insert its pretty-printed result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (let* ((conn-buffer (cider-current-connection)))
-    (cider-interactive-eval nil
-                            (cider-insert-eval-handler conn-buffer)
-                            (cider-last-sexp 'bounds)
-                            (cider--nrepl-pprint-request-plist (cider--pretty-print-width))))
+  (cider-interactive-eval nil
+                          (cider-insert-eval-handler (cider-current-connection))
+                          (cider-last-sexp 'bounds)
+                          (cider--nrepl-pprint-request-plist (cider--pretty-print-width)))
   (when prefix
     (cider-switch-to-repl-buffer)))
 
@@ -1211,10 +1320,14 @@ Print its value into the current buffer."
                             (when (consp form) form)
                             (cider--nrepl-pprint-request-plist (cider--pretty-print-width)))))
 
-(defun cider-pprint-eval-last-sexp ()
-  "Evaluate the sexp preceding point and pprint its value in a popup buffer."
-  (interactive)
-  (cider--pprint-eval-form (cider-last-sexp 'bounds)))
+(defun cider-pprint-eval-last-sexp (&optional output-to-current-buffer)
+  "Evaluate the sexp preceding point and pprint its value.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
+buffer, else display in a popup buffer."
+  (interactive "P")
+  (if output-to-current-buffer
+      (cider-pprint-eval-last-sexp-to-comment)
+    (cider--pprint-eval-form (cider-last-sexp 'bounds))))
 
 (defun cider--prompt-and-insert-inline-dbg ()
   "Insert a #dbg button at the current sexp."
@@ -1258,10 +1371,14 @@ command `cider-debug-defun-at-point'."
                               (concat "#dbg\n" (cider-defun-at-point)))
                             nil (cider-defun-at-point 'bounds))))
 
-(defun cider-pprint-eval-defun-at-point ()
-  "Evaluate the \"top-level\" form at point and pprint its value in a popup buffer."
-  (interactive)
-  (cider--pprint-eval-form (cider-defun-at-point 'bounds)))
+(defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
+  "Evaluate the \"top-level\" form at point and pprint its value.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
+buffer, else display in a popup buffer."
+  (interactive "P")
+  (if output-to-current-buffer
+      (cider-pprint-eval-defun-to-comment)
+    (cider--pprint-eval-form (cider-defun-at-point 'bounds))))
 
 (defun cider-eval-ns-form ()
   "Evaluate the current buffer's namespace form."

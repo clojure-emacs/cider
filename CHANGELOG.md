@@ -5,6 +5,7 @@
 ### New Features
 
 * [#2082](https://github.com/clojure-emacs/cider/pull/2082), [cider-nrepl#440](https://github.com/clojure-emacs/cider-nrepl/pull/440): Add specialized stacktraces for clojure.spec assertions.
+* [#2111](https://github.com/clojure-emacs/cider/pull/2111): Add `cider-pprint-eval-last-sexp-to-comment` and `cider-pprint-eval-defun-to-comment`.
 
 ### Changes
 

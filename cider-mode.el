@@ -235,8 +235,10 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
     ["Eval last sexp to REPL" cider-eval-last-sexp-to-repl]
     ["Eval last sexp and pretty-print to REPL" cider-pprint-eval-last-sexp-to-repl]
+    ["Eval last sexp and pretty-print to comment" cider-pprint-eval-last-sexp-to-comment]
     ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
     ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
+    ["Eval top-level sexp and pretty-print to comment" cider-pprint-eval-defun-to-comment]
     "--"
     ["Load this buffer" cider-load-buffer]
     ["Load another file" cider-load-file]
