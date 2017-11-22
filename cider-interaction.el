@@ -649,8 +649,10 @@ in the buffer."
 (defun cider-stdin-handler (&optional buffer)
   "Make a stdin response handler for BUFFER."
   (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (buffer value)
-                                 (cider-repl-emit-result buffer value t))
+                               (let (after-first-call)
+                                 (lambda (buffer value)
+                                   (cider-repl-emit-result buffer value t (not after-first-call))
+                                   (setq after-first-call t)))
                                (lambda (buffer out)
                                  (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
