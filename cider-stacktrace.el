@@ -732,7 +732,7 @@ instead.  This function can be used directly in button actions."
                 ;; There is no proper way to identify buttons. Assuming that
                 ;; id's can be either numbers or symbols.
                 id
-              (button-get button :id))))
+              (button-get id :id))))
     (if (and (consp buffer-invisibility-spec)
              (assoc id buffer-invisibility-spec))
         (remove-from-invisibility-spec (cons id t))
