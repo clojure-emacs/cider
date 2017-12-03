@@ -1871,6 +1871,33 @@ With a prefix argument, prompt for function to run instead of -main."
                        name))))
         (user-error "No %s var defined in any namespace" (cider-propertize name 'fn))))))
 
+(defun cider-reverse-destructuring-form-region ()
+  "Reverse the destructuring map in current region.
+Display the result in a separate buffer.
+Example: {:keys [a] {[c] :c} :b} will result in {:a a, :b {:c [c]}}."
+  (interactive)
+  (let* ((s (thread-last (buffer-substring (mark) (point))
+                         (format "
+(let [f (fn f [form]
+     (cond
+       (map? form)  (->> form
+                         seq
+                         (reduce (fn [m [destructure-value destructure-key]]
+                                   (cond
+                                     (= :or destructure-value)   m
+                                     (= :keys destructure-value) (->> destructure-key
+                                                                      (map (fn [k]
+                                                                             [(keyword k) k]))
+                                                                      (into m))
+                                     :default                    (assoc m destructure-key (-> destructure-value
+                                                                                              f))))
+                                 {}))
+       (coll? form) (mapv f form)
+       :default     form))]
+   (f '%s))
+"))))
+                         (cider--pprint-eval-form s)))
+
 (provide 'cider-interaction)
 
 ;;; cider-interaction.el ends here
