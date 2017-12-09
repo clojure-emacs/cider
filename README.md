@@ -250,7 +250,7 @@ Copyright © 2012-2017 Tim King, Phil Hagelberg, Bozhidar Batsov, Artur Malabarb
 Distributed under the GNU General Public License, version 3
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
-[nREPL]: https://github.com/clojure/tools.nrepl
+[nREPL]:https://github.com/cemerick/nREPL
 [SLIME]: https://github.com/slime/slime
 [swank-clojure]: https://github.com/technomancy/swank-clojure
 [Sly]: https://github.com/capitaomorte/sly
