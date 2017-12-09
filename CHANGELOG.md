@@ -14,6 +14,7 @@
 ### Bugs Fixed
 
 * [#2088](https://github.com/clojure-emacs/cider/issues/2088): Fix functions defined with def being font locked as vars instead of functions.
+* [#1651](https://github.com/clojure-emacs/cider/issues/1651), [cider-nrepl#445](https://github.com/clojure-emacs/cider-nrepl/pull/455): Fix `cider-expected-ns` returns nil on boot projects
 
 ## 0.15.1 (2017-09-13)
 
