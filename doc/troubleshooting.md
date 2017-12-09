@@ -5,6 +5,10 @@ Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
 (instead of just logging the error in the `*Messages*` buffer). You can toggle
 this behavior by using <kbd>M-x</kbd> `toggle-debug-on-error`.
 
+Another good idea is to check the exchange of requests and responses between
+CIDER and the nREPL server. You can find them in the `*nrepl-messages*` buffer,
+provided you've enabled nREPL message logging.
+
 ## Debugging CIDER commands
 
 Emacs features a super powerful built-in
