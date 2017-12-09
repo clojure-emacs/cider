@@ -304,7 +304,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
-    (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
+    (define-key map (kbd "C-c M-;") #'cider-eval-last-sexp-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
     (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
