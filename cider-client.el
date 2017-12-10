@@ -837,7 +837,7 @@ Display the results in a different window."
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info t))
-    (user-error "Symbol %s not resolved" var)))
+    (user-error "Symbol `%s' not resolved" var)))
 
 (defun cider--find-var (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE."
@@ -845,7 +845,7 @@ Display the results in a different window."
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info))
-    (user-error "Symbol %s not resolved" var)))
+    (user-error "Symbol `%s' not resolved" var)))
 
 (defun cider-find-var (&optional arg var line)
   "Find definition for VAR at LINE.
