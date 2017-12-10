@@ -178,17 +178,19 @@ connections are returned, instead of just the most recent."
             cider-connections
           (car cider-connections)))))
 
-(defun cider-connection-type-for-buffer ()
-  "Return the matching connection type (clj or cljs) for the current buffer.
+(defun cider-connection-type-for-buffer (&optional buffer)
+  "Return the matching connection type (clj or cljs) for BUFFER.
 In cljc and cljx buffers return \"multi\". This function infers connection
 type based on the major mode. See `cider-project-connections-types' for a
-list of types of actual connections within a project."
-  (cond
-   ((derived-mode-p 'clojurescript-mode) "cljs")
-   ((derived-mode-p 'clojurec-mode) "multi")
-   ((derived-mode-p 'clojurex-mode) "multi")
-   ((derived-mode-p 'clojure-mode) "clj")
-   (cider-repl-type)))
+list of types of actual connections within a project.  BUFFER defaults to
+the `current-buffer'."
+  (with-current-buffer (or buffer (current-buffer))
+    (cond
+     ((derived-mode-p 'clojurescript-mode) "cljs")
+     ((derived-mode-p 'clojurec-mode) "multi")
+     ((derived-mode-p 'clojurex-mode) "multi")
+     ((derived-mode-p 'clojure-mode) "clj")
+     (cider-repl-type))))
 
 (defun cider-project-connections-types ()
   "Return a list of types of connections within current project."
