@@ -1150,11 +1150,13 @@ default connection."
   "Rotate and display the default nREPL connection."
   (interactive)
   (cider-ensure-connected)
-  (setq cider-connections
-        (append (cdr cider-connections)
-                (list (car cider-connections))))
-  (message "Default nREPL connection: %s"
-           (cider--connection-info (car cider-connections))))
+  (if (= (length (cider-connections)) 1)
+      (user-error "There's just a single active nREPL connection")
+    (setq cider-connections
+          (append (cdr cider-connections)
+                  (list (car cider-connections))))
+    (message "Default nREPL connection: %s"
+           (cider--connection-info (car cider-connections)))))
 
 (defun cider-replicate-connection (&optional conn)
   "Establish a new connection based on an existing connection.
