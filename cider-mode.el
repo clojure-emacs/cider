@@ -138,9 +138,17 @@ With a prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "P")
   (let* ((connections (cider-connections))
-         (buffer (seq-find (lambda (b) (member b connections))
-                           (buffer-list))))
-    (cider--switch-to-repl-buffer buffer set-namespace)))
+         (type (cider-connection-type-for-buffer))
+         (a-repl nil)
+         (the-repl (seq-find (lambda (b)
+                               (when (member b connections)
+                                 (unless a-repl
+                                   (setq a-repl b))
+                                 (equal type (cider-connection-type-for-buffer b))))
+                             (buffer-list))))
+    (if-let ((repl (or the-repl a-repl)))
+        (cider--switch-to-repl-buffer repl set-namespace)
+      (user-error "No REPL found"))))
 
 (declare-function cider-load-buffer "cider-interaction")
 
