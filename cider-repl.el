@@ -1381,6 +1381,7 @@ constructs."
 (cider-repl-add-shortcut "quit" #'cider-quit)
 (cider-repl-add-shortcut "restart" #'cider-restart)
 (cider-repl-add-shortcut "version" #'cider-version)
+(cider-repl-add-shortcut "require-repl-utils" #'cider-repl-require-repl-utils)
 
 (defconst cider-repl-shortcuts-help-buffer "*CIDER REPL Shortcuts Help*")
 
@@ -1507,6 +1508,7 @@ constructs."
         "--"
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
+        ["Require REPL utils" cider-repl-require-repl-utils]
         "--"
         ["Browse classpath" cider-classpath]
         ["Browse classpath entry" cider-open-classpath-entry]

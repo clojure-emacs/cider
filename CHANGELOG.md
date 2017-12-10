@@ -6,6 +6,7 @@
 
 * [#2082](https://github.com/clojure-emacs/cider/pull/2082), [cider-nrepl#440](https://github.com/clojure-emacs/cider-nrepl/pull/440): Add specialized stacktraces for clojure.spec assertions.
 * [#2111](https://github.com/clojure-emacs/cider/pull/2111): Add `cider-pprint-eval-last-sexp-to-comment` and `cider-pprint-eval-defun-to-comment`.
+* Add a REPL shortcut for `cider-repl-require-repl-utils` (this makes it easy to require common functions like `doc`, `source`, etc. in REPL buffers).
 
 ### Changes
 
