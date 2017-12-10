@@ -9,7 +9,7 @@
 
 ### Changes
 
-* [cider-nrepl#438](https://github.com/clojure-emacs/cider-nrepl/pull/438): Improve startup time by differing loading CIDER's middleware until the first usage.
+* [cider-nrepl#438](https://github.com/clojure-emacs/cider-nrepl/pull/438): Improve startup time by deferring loading CIDER's middleware until the first usage.
 * [#2078](https://github.com/clojure-emacs/cider/pull/2078): Improve startup time by bundling together sync requests during startup.
 
 ### Bugs Fixed
