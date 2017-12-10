@@ -16,6 +16,7 @@
 
 ### Bugs Fixed
 
+* `cider-switch-to-last-clojure-buffer` now switches to a Clojure buffer even when previously remembered buffer no longer exists.
 * [#2084](https://github.com/clojure-emacs/cider/issues/2084): Select correct REPL type (clj or cljs) in cider-switch-to-repl-buffer conditional on the current buffer.
 * [#2088](https://github.com/clojure-emacs/cider/issues/2088): Fix functions defined with `def` being font-locked as vars instead of functions.
 * [#1651](https://github.com/clojure-emacs/cider/issues/1651), [cider-nrepl#445](https://github.com/clojure-emacs/cider-nrepl/pull/455): Fix `cider-expected-ns` returns `nil` on boot projects.

@@ -167,12 +167,25 @@ the same as `cider-switch-to-repl-buffer',
 so that it is very convenient to jump between a
 Clojure buffer and the REPL buffer."
   (interactive)
-  (if (and (derived-mode-p 'cider-repl-mode)
-           (buffer-live-p cider-last-clojure-buffer))
-      (if cider-repl-display-in-current-window
-          (pop-to-buffer-same-window cider-last-clojure-buffer)
-        (pop-to-buffer cider-last-clojure-buffer))
-    (message "Don't know the original Clojure buffer")))
+  (if (derived-mode-p 'cider-repl-mode)
+      (let* ((a-buf nil)
+             (the-buf (if (buffer-live-p cider-last-clojure-buffer)
+                          cider-last-clojure-buffer
+                        (let ((repl-type (cider-connection-type-for-buffer)))
+                          (seq-find (lambda (b)
+                                      (unless (with-current-buffer b (derived-mode-p 'cider-repl-mode))
+                                        (when-let ((type (cider-connection-type-for-buffer b)))
+                                          (unless a-buf
+                                            (setq a-buf b))
+                                          (or (equal type "multi")
+                                              (equal type repl-type)))))
+                                    (buffer-list))))))
+        (if-let ((buf (or the-buf a-buf)))
+            (if cider-repl-display-in-current-window
+                (pop-to-buffer-same-window buf)
+              (pop-to-buffer buf))
+          (user-error "No Clojure buffer found")))
+    (user-error "Not in a CIDER REPL buffer")))
 
 (defun cider-find-and-clear-repl-output (&optional clear-repl)
   "Find the current REPL buffer and clear it.
