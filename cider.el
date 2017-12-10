@@ -300,7 +300,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   "List of dependencies where elements are lists of artifact name and version.")
 (put 'cider-jack-in-dependencies 'risky-local-variable t)
 (cider-add-to-alist 'cider-jack-in-dependencies
-                    "org.clojure/tools.nrepl" "0.2.12")
+                    "org.clojure/tools.nrepl" "0.2.13")
 
 (defvar cider-jack-in-dependencies-exclusions nil
   "List of exclusions for jack in dependencies.
