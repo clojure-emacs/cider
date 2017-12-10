@@ -329,7 +329,7 @@ to a still-undetermined bug in the state-stracker backend."
     (unless cider--has-warned-about-bad-repl-type
       (setq cider--has-warned-about-bad-repl-type t)
       (read-key
-       (concat "The ClojureScript REPL seems to be is misbehaving."
+       (concat "The ClojureScript REPL seems to be misbehaving."
                (substitute-command-keys
                 "\nWe have applied a workaround, but please also file a bug report with `\\[cider-report-bug]'.")
                "\nPress any key to continue.")))
