@@ -256,7 +256,7 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
       (current-buffer))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
-(defun cider-repl-require-repl-utils-and-set-ns (buffer)
+(defun cider-repl-set-initial-ns (buffer)
   "Require standard REPL util functions and set the ns of the REPL's BUFFER.
 Namespace is \"user\" by default, but can be overridden in apps like
 lein (:init-ns).  Both of these operations need to be done as a sync
@@ -265,16 +265,24 @@ efficiency."
   ;; we don't want to get a timeout during init
   (let ((nrepl-sync-request-timeout nil))
     (with-current-buffer buffer
-      (let* ((command "(do (when (clojure.core/resolve 'clojure.main/repl-requires)
-                            (clojure.core/map clojure.core/require clojure.main/repl-requires))
-                           (str *ns*))")
-             (response (nrepl-send-sync-request
-                        (lax-plist-put (nrepl--eval-request command)
+      (let* ((response (nrepl-send-sync-request
+                        (lax-plist-put (nrepl--eval-request "(str *ns*))")
                                        "inhibit-cider-middleware" "true")
                         (cider-current-connection)))
              (initial-ns (or (read (nrepl-dict-get response "value"))
                              "user")))
         (cider-set-buffer-ns initial-ns)))))
+
+(defun cider-repl-require-repl-utils ()
+ "Require standard REPL util functions into the current REPL."
+ (interactive)
+ (nrepl-send-sync-request
+  (lax-plist-put
+   (nrepl--eval-request
+    "(when (clojure.core/resolve 'clojure.main/repl-requires)
+       (clojure.core/map clojure.core/require clojure.main/repl-requires))")
+   "inhibit-cider-middleware" "true")
+  (cider-current-connection)))
 
 (defvar cider-current-clojure-buffer nil
   "This variable holds current buffer temporarily when connecting to a REPL.
@@ -293,7 +301,8 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (pcase cider-repl-pop-to-buffer-on-connect
     (`display-only (display-buffer buffer))
     ((pred identity) (pop-to-buffer buffer)))
-  (cider-repl-require-repl-utils-and-set-ns buffer)
+  (cider-repl-set-initial-ns buffer)
+  (cider-repl-require-repl-utils)
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
   (cider-remember-clojure-buffer cider-current-clojure-buffer)
