@@ -274,23 +274,15 @@ efficiency."
         (cider-set-buffer-ns initial-ns)))))
 
 (defun cider-repl-require-repl-utils ()
- "Require standard REPL util functions into the current REPL."
- (interactive)
- (nrepl-send-sync-request
-  (lax-plist-put
-   (nrepl--eval-request
-    "(when (clojure.core/resolve 'clojure.main/repl-requires)
+  "Require standard REPL util functions into the current REPL."
+  (interactive)
+  (nrepl-send-sync-request
+   (lax-plist-put
+    (nrepl--eval-request
+     "(when (clojure.core/resolve 'clojure.main/repl-requires)
        (clojure.core/map clojure.core/require clojure.main/repl-requires))")
-   "inhibit-cider-middleware" "true")
-  (cider-current-connection)))
-
-(defvar cider-current-clojure-buffer nil
-  "This variable holds current buffer temporarily when connecting to a REPL.
-It is set to current buffer when `cider' or `cider-jack-in' is called.
-After the REPL buffer is created, the value of this variable is used
-to call `cider-remember-clojure-buffer'.")
-
-(declare-function cider-remember-clojure-buffer "cider-mode")
+    "inhibit-cider-middleware" "true")
+   (cider-current-connection)))
 
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
@@ -305,7 +297,6 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (cider-repl-require-repl-utils)
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
-  (cider-remember-clojure-buffer cider-current-clojure-buffer)
   buffer)
 
 (defun cider-repl--insert-banner-and-prompt (buffer)
