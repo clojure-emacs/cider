@@ -1771,8 +1771,15 @@ of the buffer into a formatted string."
   (let* ((original (substring-no-properties (buffer-string)))
          (formatted (funcall formatter original)))
     (unless (equal original formatted)
-      (erase-buffer)
-      (insert formatted))))
+      (let ((current-line (line-number-at-pos))
+            (current-column (current-column)))
+        (erase-buffer)
+        (insert formatted)
+        ;; we have to preserve our point location in the buffer,
+        ;; but save-excursion doesn't work, because of erase-buffer
+        (goto-char (point-min))
+        (forward-line (1- current-line))
+        (forward-char current-column)))))
 
 (defun cider-format-buffer ()
   "Format the Clojure code in the current buffer."

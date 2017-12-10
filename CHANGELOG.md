@@ -13,6 +13,7 @@
 * [cider-nrepl#438](https://github.com/clojure-emacs/cider-nrepl/pull/438): Improve startup time by deferring loading CIDER's middleware until the first usage.
 * [#2078](https://github.com/clojure-emacs/cider/pull/2078): Improve startup time by bundling together sync requests during startup.
 * `cider-rotate-default-connection` will warn if you use it with only a single active connection.
+* `cider-format-buffer` preserves the point position.
 
 ### Bugs Fixed
 
