@@ -161,11 +161,11 @@ precedence over other connections associated with the same project.
 
 If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
 connections are returned, instead of just the most recent."
-  (when-let ((project-directory (or project-directory
+  (when-let* ((project-directory (or project-directory
                                     (clojure-project-dir (cider-current-dir))))
              (fn (if all-connections #'seq-filter #'seq-find)))
     (or (funcall fn (lambda (conn)
-                      (when-let ((conn-proj-dir (with-current-buffer conn
+                      (when-let* ((conn-proj-dir (with-current-buffer conn
                                                   nrepl-project-dir)))
                         (equal (file-truename project-directory)
                                (file-truename conn-proj-dir))))
@@ -304,7 +304,7 @@ at all."
   "Return the first connection of another type than CONNECTION.
 Only return connections in the same project or nil.
 CONNECTION defaults to `cider-current-connection'."
-  (when-let ((connection (or connection (cider-current-connection)))
+  (when-let* ((connection (or connection (cider-current-connection)))
              (connection-type (cider--connection-type connection)))
     (cider-current-connection (pcase connection-type
                                 (`"clj" "cljs")
@@ -317,7 +317,7 @@ CONNECTION defaults to `cider-current-connection'."
 DO NOT USE THIS FUNCTION.
 It was written only to be used in `cider-map-connections', as a workaround
 to a still-undetermined bug in the state-stracker backend."
-  (when-let ((project-connections (cider-find-connection-buffer-for-project-directory
+  (when-let* ((project-connections (cider-find-connection-buffer-for-project-directory
                                    nil :all-connections))
              (cljs-conn
               ;; So we have multiple connections. Look for the connection type we
@@ -387,7 +387,7 @@ connection but can be invoked from any buffer (like `cider-refresh')."
                             ((err "needs a ClojureScript REPL")))))))
       (funcall function curr)
       (when (eq which :both)
-        (when-let ((other-connection (cider-other-connection curr)))
+        (when-let* ((other-connection (cider-other-connection curr)))
           (funcall function other-connection))))))
 
 
@@ -417,7 +417,7 @@ connection but can be invoked from any buffer (like `cider-refresh')."
 (defun cider-connection-browser ()
   "Open a browser buffer for nREPL connections."
   (interactive)
-  (if-let ((buffer (get-buffer cider--connection-browser-buffer-name)))
+  (if-let* ((buffer (get-buffer cider--connection-browser-buffer-name)))
       (progn
         (cider--connections-refresh-buffer buffer)
         (unless (get-buffer-window buffer)
@@ -428,7 +428,7 @@ connection but can be invoked from any buffer (like `cider-refresh')."
   "Refresh the connections buffer, if the buffer exists.
 The connections buffer is determined by
 `cider--connection-browser-buffer-name'"
-  (when-let ((buffer (get-buffer cider--connection-browser-buffer-name)))
+  (when-let* ((buffer (get-buffer cider--connection-browser-buffer-name)))
     (cider--connections-refresh-buffer buffer)))
 
 (add-hook 'nrepl-disconnected-hook #'cider--connections-refresh)
@@ -620,7 +620,7 @@ REPL's ns, otherwise fall back to \"user\".
 When NO-DEFAULT is non-nil, it will return nil instead of \"user\"."
   (or cider-buffer-ns
       (clojure-find-ns)
-      (when-let ((repl-buf (cider-current-connection)))
+      (when-let* ((repl-buf (cider-current-connection)))
         (buffer-local-value 'cider-buffer-ns repl-buf))
       (if no-default nil "user")))
 
@@ -833,7 +833,7 @@ unless ALL is truthy."
   "Find the definition of VAR, optionally at a specific LINE.
 
 Display the results in a different window."
-  (if-let ((info (cider-var-info var)))
+  (if-let* ((info (cider-var-info var)))
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info t))
@@ -841,7 +841,7 @@ Display the results in a different window."
 
 (defun cider--find-var (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE."
-  (if-let ((info (cider-var-info var)))
+  (if-let* ((info (cider-var-info var)))
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info))
@@ -929,11 +929,11 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op.
 CONTEXT represents a completion context for compliment."
-  (when-let ((dict (thread-first `("op" "complete"
-                                   "ns" ,(cider-current-ns)
-                                   "symbol" ,str
-                                   "context" ,context)
-                     (cider-nrepl-send-sync-request nil 'abort-on-input))))
+  (when-let* ((dict (thread-first `("op" "complete"
+                                    "ns" ,(cider-current-ns)
+                                    "symbol" ,str
+                                    "context" ,context)
+                      (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:complete-flush-caches ()
@@ -956,22 +956,22 @@ CONTEXT represents a completion context for compliment."
 
 (defun cider-sync-request:eldoc (symbol &optional class member)
   "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER."
-  (when-let ((eldoc (thread-first `("op" "eldoc"
-                                    "ns" ,(cider-current-ns)
-                                    ,@(when symbol `("symbol" ,symbol))
-                                    ,@(when class `("class" ,class))
-                                    ,@(when member `("member" ,member)))
-                      (cider-nrepl-send-sync-request nil 'abort-on-input))))
+  (when-let* ((eldoc (thread-first `("op" "eldoc"
+                                     "ns" ,(cider-current-ns)
+                                     ,@(when symbol `("symbol" ,symbol))
+                                     ,@(when class `("class" ,class))
+                                     ,@(when member `("member" ,member)))
+                       (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
 
 (defun cider-sync-request:eldoc-datomic-query (symbol)
   "Send \"eldoc-datomic-query\" op with parameter SYMBOL."
-  (when-let ((eldoc (thread-first `("op" "eldoc-datomic-query"
-                                    "ns" ,(cider-current-ns)
-                                    ,@(when symbol `("symbol" ,symbol)))
-                      (cider-nrepl-send-sync-request nil 'abort-on-input))))
+  (when-let* ((eldoc (thread-first `("op" "eldoc-datomic-query"
+                                     "ns" ,(cider-current-ns)
+                                     ,@(when symbol `("symbol" ,symbol)))
+                       (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))

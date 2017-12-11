@@ -53,7 +53,7 @@ or `0` for short.
     (want))
 ```
 
-Sticking to simplicity, the `when-let` macro has one special argument (the
+Sticking to simplicity, the `when-let*` macro has one special argument (the
 binding vector) and there's no out-of-the-ordinary internal structure
 involved. So the indent spec is just `1` (which is shorthand for `[1]`).
 

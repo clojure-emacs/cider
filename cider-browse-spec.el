@@ -282,7 +282,7 @@ may also be a button, so this function can be used a the button's `action'
 property."
   (interactive)
   (let ((pos (or pos (point))))
-    (when-let ((spec (button-get pos 'spec-name)))
+    (when-let* ((spec (button-get pos 'spec-name)))
       (cider-browse-spec--browse spec))))
 
 ;; Interactive Functions
@@ -292,8 +292,8 @@ property."
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "spec-example")
-  (if-let ((spec cider-browse-spec--current-spec))
-      (if-let ((example (cider-sync-request:spec-example spec)))
+  (if-let* ((spec cider-browse-spec--current-spec))
+      (if-let* ((example (cider-sync-request:spec-example spec)))
           (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer t)
             (cider-browse-spec-example-mode)
             (setq-local cider-browse-spec--current-spec spec)

@@ -50,7 +50,7 @@
   "Return info for the `cider-mode' modeline.
 
 Info contains project name and host:port endpoint."
-  (if-let ((current-connection (ignore-errors (cider-current-connection))))
+  (if-let* ((current-connection (ignore-errors (cider-current-connection))))
       (with-current-buffer current-connection
         (concat
          cider-repl-type
@@ -377,9 +377,9 @@ re-visited."
 (defun cider--get-symbol-indent (symbol-name)
   "Return the indent metadata for SYMBOL-NAME in the current namespace."
   (let* ((ns (cider-current-ns)))
-    (if-let ((meta (cider-resolve-var ns symbol-name))
-             (indent (or (nrepl-dict-get meta "style/indent")
-                         (nrepl-dict-get meta "indent"))))
+    (if-let* ((meta (cider-resolve-var ns symbol-name))
+              (indent (or (nrepl-dict-get meta "style/indent")
+                          (nrepl-dict-get meta "indent"))))
         (let ((format (format ":indent metadata on ‘%s’ is unreadable! \nERROR: %%s"
                               symbol-name)))
           (with-demoted-errors format
@@ -387,9 +387,9 @@ re-visited."
       ;; There's no indent metadata, but there might be a clojure-mode
       ;; indent-spec with fully-qualified namespace.
       (when (string-match cider-resolve--prefix-regexp symbol-name)
-        (when-let ((sym (intern-soft (replace-match (save-match-data
-                                                      (cider-resolve-alias ns (match-string 1 symbol-name)))
-                                                    t t symbol-name 1))))
+        (when-let* ((sym (intern-soft (replace-match (save-match-data
+                                                       (cider-resolve-alias ns (match-string 1 symbol-name)))
+                                                     t t symbol-name 1))))
           (get sym 'clojure-indent-function))))))
 
 
@@ -629,8 +629,8 @@ namespace itself."
   (when (and cider-font-lock-dynamically
              font-lock-mode)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
-    (when-let ((ns (or ns (cider-current-ns)))
-               (symbols (cider-resolve-ns-symbols ns)))
+    (when-let* ((ns (or ns (cider-current-ns)))
+                (symbols (cider-resolve-ns-symbols ns)))
       (setq-local cider--dynamic-font-lock-keywords
                   (cider--compile-font-lock-keywords
                    symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
@@ -790,7 +790,7 @@ See \(info \"(elisp) Special Properties\")"
         (ignore-errors
           (save-excursion
             (goto-char pos)
-            (when-let ((sym (cider-symbol-at-point)))
+            (when-let* ((sym (cider-symbol-at-point)))
               (if (member sym (get-text-property (point) 'cider-locals))
                   (concat (format "`%s' is a local" sym)
                           (when cider--debug-mode

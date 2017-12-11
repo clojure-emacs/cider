@@ -334,7 +334,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 (defun cider--quit-error-window ()
   "Buries the `cider-error-buffer' and quits its containing window."
-  (when-let ((error-win (get-buffer-window cider-error-buffer)))
+  (when-let* ((error-win (get-buffer-window cider-error-buffer)))
     (quit-window nil error-win)))
 
 ;;;
@@ -410,12 +410,12 @@ A default value of thing at point is given when prompted."
 
 CALLBACK upon failure to invoke prompt if not prompted previously.
 Show results in a different window if OTHER-WINDOW is true."
-  (if-let ((info (cider-var-info symbol-file)))
+  (if-let* ((info (cider-var-info symbol-file)))
       (cider--jump-to-loc-from-info info other-window)
     (progn
       (cider-ensure-op-supported "resource")
-      (if-let ((resource (cider-sync-request:resource symbol-file))
-               (buffer (cider-find-file resource)))
+      (if-let* ((resource (cider-sync-request:resource symbol-file))
+                (buffer (cider-find-file resource)))
           (cider-jump-to buffer 0 other-window)
         (if (cider--prompt-for-symbol-p current-prefix-arg)
             (error "Resource or var %s not resolved" symbol-file)
@@ -448,8 +448,8 @@ value is thing at point."
   (cider-ensure-op-supported "resource")
   (when (= (length path) 0)
     (error "Cannot find resource for empty path"))
-  (if-let ((resource (cider-sync-request:resource path))
-           (buffer (cider-find-file resource)))
+  (if-let* ((resource (cider-sync-request:resource path))
+            (buffer (cider-find-file resource)))
       (cider-jump-to buffer nil (cider--open-other-window-p current-prefix-arg))
     (if (cider--prompt-for-symbol-p current-prefix-arg)
         (error "Cannot find resource %s" path)
@@ -486,7 +486,7 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
 (defun cider--find-ns (ns &optional other-window)
   "Find the file containing NS's definition.
 Optionally open it in a different window if OTHER-WINDOW is truthy."
-  (if-let ((path (cider-sync-request:ns-path ns)))
+  (if-let* ((path (cider-sync-request:ns-path ns)))
       (cider-jump-to (cider-find-file path) nil other-window)
     (user-error "Can't find %s" ns)))
 
@@ -602,7 +602,7 @@ The formatting is performed by `cider-annotate-completion-function'."
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
-  (when-let ((bounds (bounds-of-thing-at-point 'symbol)))
+  (when-let* ((bounds (bounds-of-thing-at-point 'symbol)))
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
       (list (car bounds) (cdr bounds)
@@ -626,7 +626,7 @@ has started."
 
 Returns the cons of the buffer itself and the location of VAR's definition
 in the buffer."
-  (when-let ((info (cider-var-info var))
+  (when-let* ((info (cider-var-info var))
              (file (nrepl-dict-get info "file"))
              (line (nrepl-dict-get info "line"))
              (buffer (cider-find-file file)))
@@ -857,7 +857,7 @@ This is used by pretty-printing commands and intentionally discards their result
 (defun cider-visit-error-buffer ()
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
   (interactive)
-  (if-let ((buffer (get-buffer cider-error-buffer)))
+  (if-let* ((buffer (get-buffer cider-error-buffer)))
       (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
     (user-error "No %s buffer" cider-error-buffer)))
 
@@ -1035,7 +1035,7 @@ If location could not be found, return nil."
               (col (nth 2 info)))
           (unless (or (not (stringp file))
                       (cider--tooling-file-p file))
-            (when-let ((buffer (cider-find-file file)))
+            (when-let* ((buffer (cider-find-file file)))
               (with-current-buffer buffer
                 (save-excursion
                   (save-restriction
@@ -1053,9 +1053,9 @@ If location could not be found, return nil."
   "Highlight and jump to compilation error extracted from MESSAGE.
 EVAL-BUFFER is the buffer that was current during user's interactive
 evaluation command.  Honor `cider-auto-jump-to-error'."
-  (when-let ((loc (cider--find-last-error-location message))
-             (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
-             (info (cider-extract-error-info cider-compilation-regexp message)))
+  (when-let* ((loc (cider--find-last-error-location message))
+              (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
+              (info (cider-extract-error-info cider-compilation-regexp message)))
     (let* ((face (nth 3 info))
            (note (nth 4 info))
            (auto-jump (if (eq cider-auto-jump-to-error 'errors-only)
@@ -1076,7 +1076,7 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
           ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
           ;; that case we don't jump at all in order to avoid covering *cider-error*
           ;; buffer.
-          (when-let ((win (get-buffer-window eval-buffer)))
+          (when-let* ((win (get-buffer-window eval-buffer)))
             (with-selected-window win
               (cider-jump-to (nth 2 loc) (car loc)))))))))
 
@@ -1628,7 +1628,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defun cider-save-project-buffers ()
   "Ensure modified project buffers are saved before certain operations.
 Its behavior is controlled by `cider-save-files-on-cider-refresh'."
-  (when-let ((project-root (clojure-project-dir)))
+  (when-let* ((project-root (clojure-project-dir)))
     (when cider-save-files-on-cider-refresh
       (save-some-buffers
        (eq cider-save-files-on-cider-refresh t)
@@ -1743,7 +1743,7 @@ The heavy lifting is done by `cider-load-buffer'."
                                 (when (buffer-file-name)
                                   (file-name-nondirectory
                                    (buffer-file-name))))))
-  (if-let ((buffer (find-buffer-visiting filename)))
+  (if-let* ((buffer (find-buffer-visiting filename)))
       (cider-load-buffer buffer)
     (find-file filename)
     (cider-load-buffer (current-buffer))))
@@ -1877,7 +1877,7 @@ START and END represent the region's boundaries."
   "Close the BUFFER and kill its associated process (if any)."
   (when (buffer-live-p buffer)
     (with-current-buffer buffer
-      (when-let ((proc (get-buffer-process buffer)))
+      (when-let* ((proc (get-buffer-process buffer)))
         (when (process-live-p proc)
           (when (or (not nrepl-server-buffer)
                     ;; Sync request will hang if the server is dead.
@@ -1908,7 +1908,7 @@ and all ancillary CIDER buffers."
   (cider-ensure-connected)
   (if (and quit-all (y-or-n-p "Are you sure you want to quit all CIDER connections? "))
       (progn
-        (when-let ((scratch (get-buffer cider-scratch-buffer-name)))
+        (when-let* ((scratch (get-buffer cider-scratch-buffer-name)))
           (when (y-or-n-p (format "Kill %s buffer? " cider-scratch-buffer-name))
             (kill-buffer cider-scratch-buffer-name)))
         (dolist (connection cider-connections)
@@ -1978,10 +1978,10 @@ With a prefix argument, prompt for function to run instead of -main."
   (interactive (list (when current-prefix-arg (read-string "Function name: "))))
   (cider-ensure-connected)
   (let ((name (or function "-main")))
-    (when-let ((response (cider-nrepl-send-sync-request
-                          `("op" "ns-list-vars-by-name"
-                            "name" ,name))))
-      (if-let ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
+    (when-let* ((response (cider-nrepl-send-sync-request
+                           `("op" "ns-list-vars-by-name"
+                             "name" ,name))))
+      (if-let* ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
           (cider-interactive-eval
            (if (= (length vars) 1)
                (concat "(" (car vars) ")")
