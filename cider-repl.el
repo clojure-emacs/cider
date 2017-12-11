@@ -903,7 +903,7 @@ text property `cider-old-input'."
   (interactive)
   (if-let* ((other-connection (cider-other-connection))
       (switch-to-buffer other-connection)
-    (message "There's no other REPL for the current project")))
+    (message "There's no other REPL for the current project"))))
 
 (defvar cider-repl-clear-buffer-hook)
 
