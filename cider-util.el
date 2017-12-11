@@ -115,7 +115,7 @@ instead."
   "Return the name of the symbol at point, otherwise nil.
 Ignores the REPL prompt.  If LOOK-BACK is non-nil, move backwards trying to
 find a symbol if there isn't one at point."
-  (or (when-let ((str (thing-at-point 'symbol)))
+  (or (when-let* ((str (thing-at-point 'symbol)))
         (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
           (substring-no-properties str)))
       (when look-back
@@ -131,13 +131,13 @@ find a symbol if there isn't one at point."
   "Return the sexp at point as a string, otherwise nil.
 If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
-  (when-let ((b (or (and (equal (char-after) ?\()
-                         (member (char-before) '(?\' ?\, ?\@))
-                         ;; hide stuff before ( to avoid quirks with '( etc.
-                         (save-restriction
-                           (narrow-to-region (point) (point-max))
-                           (bounds-of-thing-at-point 'sexp)))
-                    (bounds-of-thing-at-point 'sexp))))
+  (when-let* ((b (or (and (equal (char-after) ?\()
+                          (member (char-before) '(?\' ?\, ?\@))
+                          ;; hide stuff before ( to avoid quirks with '( etc.
+                          (save-restriction
+                            (narrow-to-region (point) (point-max))
+                            (bounds-of-thing-at-point 'sexp)))
+                     (bounds-of-thing-at-point 'sexp))))
     (funcall (if bounds #'list #'buffer-substring-no-properties)
              (car b) (cdr b))))
 
@@ -389,7 +389,7 @@ plugin or dependency with:
   (cider-add-to-alist 'cider-jack-in-lein-plugins
                   \"plugin/artifact-name\" \"THE-NEW-VERSION\")"
   (let ((alist (symbol-value symbol)))
-    (if-let ((cons (assoc car alist)))
+    (if-let* ((cons (assoc car alist)))
         (setcdr cons (list cadr))
       (set symbol (cons (list car cadr) alist)))))
 

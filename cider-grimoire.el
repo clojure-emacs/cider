@@ -58,7 +58,7 @@
 
 (defun cider-grimoire-web-lookup (symbol)
   "Open the grimoire documentation for SYMBOL in a web browser."
-  (if-let ((var-info (cider-var-info symbol)))
+  (if-let* ((var-info (cider-var-info symbol)))
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns")))
         (browse-url (cider-grimoire-url name ns)))
@@ -95,7 +95,7 @@ opposite of what that option dictates."
 
 If SYMBOL is a special form, the clojure.core ns is used, as is
 Grimoire's convention."
-  (if-let ((var-info (cider-var-info symbol)))
+  (if-let* ((var-info (cider-var-info symbol)))
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns" "clojure.core"))
             (url-request-method "GET")

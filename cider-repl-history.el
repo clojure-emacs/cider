@@ -426,7 +426,7 @@ text is still inserted at the end."
 (defun cider-repl-history-update-highlighed-entry ()
   "Update highlighted entry, when feature is turned on."
   (when cider-repl-history-highlight-current-entry
-    (if-let ((current-overlay (cider-repl-history-target-overlay-at (point) t)))
+    (if-let* ((current-overlay (cider-repl-history-target-overlay-at (point) t)))
         (unless (equal cider-repl-history-previous-overlay current-overlay)
           ;; We've changed overlay.  Clear current highlighting,
           ;; and highlight the new overlay.

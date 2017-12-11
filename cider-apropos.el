@@ -144,9 +144,9 @@ optionally search doc strings (based on DOCS-P), include private vars
                  (y-or-n-p "Case-sensitive? ")))))
   (cider-ensure-connected)
   (cider-ensure-op-supported "apropos")
-  (if-let ((summary (cider-apropos-summary
-                     query ns docs-p privates-p case-sensitive-p))
-           (results (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p)))
+  (if-let* ((summary (cider-apropos-summary
+                      query ns docs-p privates-p case-sensitive-p))
+            (results (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p)))
       (cider-show-apropos summary results query docs-p)
     (message "No apropos matches for %S" query)))
 
@@ -191,10 +191,10 @@ optionally search doc strings (based on DOCS-P), include private vars
                  (y-or-n-p "Case-sensitive? ")))))
   (cider-ensure-connected)
   (cider-ensure-op-supported "apropos")
-  (if-let ((summary (cider-apropos-summary
-                     query ns docs-p privates-p case-sensitive-p))
-           (results (mapcar (lambda (r) (nrepl-dict-get r "name"))
-                            (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p))))
+  (if-let* ((summary (cider-apropos-summary
+                      query ns docs-p privates-p case-sensitive-p))
+            (results (mapcar (lambda (r) (nrepl-dict-get r "name"))
+                             (cider-sync-request:apropos query ns docs-p privates-p case-sensitive-p))))
       (cider-apropos-act-on-symbol (completing-read (concat summary ": ") results))
     (message "No apropos matches for %S" query)))
 

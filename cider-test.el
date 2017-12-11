@@ -222,7 +222,7 @@ Add to this list to have CIDER recognize additional test defining macros."
 (defun cider-test-show-report ()
   "Show the test report buffer, if one exists."
   (interactive)
-  (if-let ((report-buffer (get-buffer cider-test-report-buffer)))
+  (if-let* ((report-buffer (get-buffer cider-test-report-buffer)))
       (switch-to-buffer report-buffer)
     (message "No test report buffer")))
 
@@ -230,20 +230,20 @@ Add to this list to have CIDER recognize additional test defining macros."
   "Move point to the previous test result, if one exists."
   (interactive)
   (with-current-buffer (get-buffer cider-test-report-buffer)
-    (when-let ((pos (previous-single-property-change (point) 'type)))
+    (when-let* ((pos (previous-single-property-change (point) 'type)))
       (if (get-text-property pos 'type)
           (goto-char pos)
-        (when-let ((pos (previous-single-property-change pos 'type)))
+        (when-let* ((pos (previous-single-property-change pos 'type)))
           (goto-char pos))))))
 
 (defun cider-test-next-result ()
   "Move point to the next test result, if one exists."
   (interactive)
   (with-current-buffer (get-buffer cider-test-report-buffer)
-    (when-let ((pos (next-single-property-change (point) 'type)))
+    (when-let* ((pos (next-single-property-change (point) 'type)))
       (if (get-text-property pos 'type)
           (goto-char pos)
-        (when-let ((pos (next-single-property-change pos 'type)))
+        (when-let* ((pos (next-single-property-change pos 'type)))
           (goto-char pos))))))
 
 (defun cider-test-jump (&optional arg)
@@ -513,8 +513,8 @@ The optional arg TEST denotes an individual test name."
   "Return the buffer visiting the file in which the NS VAR is defined.
 Or nil if not found."
   (cider-ensure-op-supported "info")
-  (when-let ((info (cider-var-info (concat ns "/" var)))
-             (file (nrepl-dict-get info "file")))
+  (when-let* ((info (cider-var-info (concat ns "/" var)))
+              (file (nrepl-dict-get info "file")))
     (cider-find-file file)))
 
 (defun cider-test-highlight-problems (results)
@@ -523,7 +523,7 @@ Or nil if not found."
    (lambda (ns vars)
      (nrepl-dict-map
       (lambda (var tests)
-        (when-let ((buffer (cider-find-var-file ns var)))
+        (when-let* ((buffer (cider-find-var-file ns var)))
           (dolist (test tests)
             (nrepl-dbind-response test (type)
               (unless (equal "pass" type)
@@ -538,7 +538,7 @@ Or nil if not found."
     (nrepl-dict-map
      (lambda (ns vars)
        (dolist (var (nrepl-dict-keys vars))
-         (when-let ((buffer (cider-find-var-file ns var)))
+         (when-let* ((buffer (cider-find-var-file ns var)))
            (with-current-buffer buffer
              (remove-overlays nil nil 'category 'cider-test)))))
      cider-test-last-results)))
@@ -657,9 +657,9 @@ If SILENT is non-nil, suppress all messages other then test results.
 With a prefix arg SUPPRESS-INFERENCE it will try to run the tests in the
 current ns."
   (interactive "P")
-  (if-let ((ns (if suppress-inference
-                   (cider-current-ns t)
-                 (funcall cider-test-infer-test-ns (cider-current-ns t)))))
+  (if-let* ((ns (if suppress-inference
+                    (cider-current-ns t)
+                  (funcall cider-test-infer-test-ns (cider-current-ns t)))))
       (cider-test-execute ns nil silent)
     (if (eq major-mode 'cider-test-report-mode)
         (when (y-or-n-p (concat "Test report does not define a namespace. "
