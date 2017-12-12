@@ -137,10 +137,16 @@ the buffer should appear.
 With a prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "P")
-  (let* ((connections (cider-connections))
-         (buffer (seq-find (lambda (b) (member b connections))
-                           (buffer-list))))
-    (cider--switch-to-repl-buffer buffer set-namespace)))
+    (let* ((connections (cider-connections))
+         (buffers (seq-filter (lambda (b) (member b (cider-connections))) (buffer-list)))
+         (cljs (string= "clojurescript-mode" major-mode))
+         (correct-buffer (if cljs
+                            (seq-find (lambda (b) (string-match "CLJS" (buffer-name b))) buffers)
+                           (seq-find (lambda (b) (not (string-match "CLJS" (buffer-name b)))) buffers)))
+         (default-buffer (first buffers)))
+
+    (cider--switch-to-repl-buffer (or correct-buffer default-buffer) set-namespace)))
+
 
 (declare-function cider-load-buffer "cider-interaction")
 
