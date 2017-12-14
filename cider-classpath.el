@@ -104,7 +104,7 @@
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "classpath")
-  (when-let ((entry (completing-read "Classpath entries: " (cider-sync-request:classpath))))
+  (when-let* ((entry (completing-read "Classpath entries: " (cider-sync-request:classpath))))
     (find-file-other-window entry)))
 
 (provide 'cider-classpath)

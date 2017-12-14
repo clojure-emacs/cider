@@ -122,8 +122,8 @@ This variable must be set before starting the repl connection."
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
-  (if-let ((all (thread-first (cider-nrepl-send-sync-request '("op" "debug-instrumented-defs"))
-                  (nrepl-dict-get "list"))))
+  (if-let* ((all (thread-first (cider-nrepl-send-sync-request '("op" "debug-instrumented-defs"))
+                   (nrepl-dict-get "list"))))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))
           (erase-buffer)
@@ -230,7 +230,7 @@ Each element of LOCALS should be a list of at least two elements."
   (format (propertize "%s\n" 'face 'default)
           (string-join
            (nrepl-dict-map (lambda (char cmd)
-                             (when-let ((pos (cl-search char cmd)))
+                             (when-let* ((pos (cl-search char cmd)))
                                (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face cmd))
                              cmd)
                            command-dict)
@@ -343,8 +343,8 @@ In order to work properly, this mode must be activated by
     ;; We wait a moment before clearing overlays and the read-onlyness, so that
     ;; cider-nrepl has a chance to send the next message, and so that the user
     ;; doesn't accidentally hit `n' between two messages (thus editing the code).
-    (when-let ((proc (unless nrepl-ongoing-sync-request
-                       (get-buffer-process (cider-current-connection)))))
+    (when-let* ((proc (unless nrepl-ongoing-sync-request
+                        (get-buffer-process (cider-current-connection)))))
       (accept-process-output proc 1))
     (unless cider--debug-mode
       (setq buffer-read-only nil)
@@ -443,7 +443,7 @@ Return trimmed CODE."
 ID is the id of the message that instrumented CODE.
 REASON is a keyword describing why this buffer was necessary."
   (let ((buffer-name (format cider--debug-buffer-format id)))
-    (if-let ((buffer (get-buffer buffer-name)))
+    (if-let* ((buffer (get-buffer buffer-name)))
         (cider-popup-buffer-display buffer 'select)
       (with-current-buffer (cider-popup-buffer buffer-name 'select
                                                #'clojure-mode 'ancillary)
@@ -465,7 +465,7 @@ REASON is a keyword describing why this buffer was necessary."
 
 (defun cider--debug-goto-keyval (key)
   "Find KEY in current sexp or return nil."
-  (when-let ((limit (ignore-errors (save-excursion (up-list) (point)))))
+  (when-let* ((limit (ignore-errors (save-excursion (up-list) (point)))))
     (search-forward-regexp (concat "\\_<" (regexp-quote key) "\\_>")
                            limit 'noerror)))
 
@@ -580,9 +580,9 @@ is a coordinate measure in sexps."
       (save-excursion
         (let ((out))
           ;; We prefer in-source debugging.
-          (when-let ((buf (and file line column
-                               (ignore-errors
-                                 (cider--find-buffer-for-file file)))))
+          (when-let* ((buf (and file line column
+                                (ignore-errors
+                                  (cider--find-buffer-for-file file)))))
             ;; The logic here makes it hard to use `with-current-buffer'.
             (with-current-buffer buf
               ;; This is for restoring point inside buf.
@@ -648,7 +648,7 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
 RESPONSE is a message received from the nrepl describing the value and
 coordinates of a sexp.  Create an overlay after the specified sexp
 displaying its value."
-  (when-let ((marker (cider--debug-find-source-position response)))
+  (when-let* ((marker (cider--debug-find-source-position response)))
     (with-current-buffer (marker-buffer marker)
       (save-excursion
         (goto-char marker)

@@ -512,7 +512,7 @@ it should start a ClojureScript REPL."
     (with-current-buffer server-buffer
       (save-excursion
         (goto-char (point-min))
-        (when-let ((url (and (search-forward-regexp "http://localhost:[0-9]+" nil 'noerror)
+        (when-let* ((url (and (search-forward-regexp "http://localhost:[0-9]+" nil 'noerror)
                              (match-string 0))))
           (when (y-or-n-p (format "Visit ‘%s’ in a browser? " url))
             (browse-url url)))))))
@@ -561,7 +561,7 @@ should be the regular Clojure REPL started by the server process filter."
 
 (defun cider--select-zombie-buffer (repl-buffers)
   "Return a zombie buffer from REPL-BUFFERS, or nil if none exists."
-  (when-let ((zombie-buffs (seq-remove #'get-buffer-process repl-buffers)))
+  (when-let* ((zombie-buffs (seq-remove #'get-buffer-process repl-buffers)))
     (when (y-or-n-p
            (format "Zombie REPL buffers exist (%s).  Reuse? "
                    (mapconcat #'buffer-name zombie-buffs ", ")))
@@ -579,15 +579,15 @@ and has no process, return it.  If the process is alive, ask the user for
 confirmation and return 'new/nil for y/n answer respectively.  If other
 REPL buffers with dead process exist, ask the user if any of those should
 be reused."
-  (if-let ((repl-buffers (cider-repl-buffers))
-           (exact-buff (seq-find
-                        (lambda (buff)
-                          (with-current-buffer buff
-                            (or (and endpoint
-                                     (equal endpoint nrepl-endpoint))
-                                (and project-directory
-                                     (equal project-directory nrepl-project-dir)))))
-                        repl-buffers)))
+  (if-let* ((repl-buffers (cider-repl-buffers))
+            (exact-buff (seq-find
+                         (lambda (buff)
+                           (with-current-buffer buff
+                             (or (and endpoint
+                                      (equal endpoint nrepl-endpoint))
+                                 (and project-directory
+                                      (equal project-directory nrepl-project-dir)))))
+                         repl-buffers)))
       (if (get-buffer-process exact-buff)
           (when (y-or-n-p (format "REPL buffer already exists (%s).  \
 Do you really want to create a new one? "
@@ -631,7 +631,7 @@ own buffer."
                           (and (null project-dir)
                                (eq cider-allow-jack-in-without-project 'warn)
                                (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
-                  (when-let ((repl-buff (cider-find-reusable-repl-buffer nil project-dir)))
+                  (when-let* ((repl-buff (cider-find-reusable-repl-buffer nil project-dir)))
                     (let ((nrepl-create-client-buffer-function  #'cider-repl-create)
                           (nrepl-use-this-as-repl-buffer repl-buff))
                       (nrepl-start-server-process
@@ -656,7 +656,7 @@ Create REPL buffer and start an nREPL client connection.
 When the optional param PROJECT-DIR is present, the connection
 gets associated with it."
   (interactive (cider-select-endpoint))
-  (when-let ((repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil)))
+  (when-let* ((repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil)))
     (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer repl-buff)
            (conn (process-buffer (nrepl-start-client-process host port))))
@@ -755,7 +755,7 @@ When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
   (let* ((paths (cider--running-nrepl-paths))
          (proj-ports (mapcar (lambda (d)
-                               (when-let ((port (and d (nrepl-extract-port (cider--file-path d)))))
+                               (when-let* ((port (and d (nrepl-extract-port (cider--file-path d)))))
                                  (list (file-name-nondirectory (directory-file-name d)) port)))
                              (cons (clojure-project-dir dir) paths))))
     (seq-uniq (delq nil proj-ports))))
@@ -808,9 +808,9 @@ choose."
   "Find `cider-lein-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let ((command (or (and (file-remote-p default-directory) cider-lein-command)
-                          (executable-find cider-lein-command)
-                          (executable-find (concat cider-lein-command ".bat")))))
+  (when-let* ((command (or (and (file-remote-p default-directory) cider-lein-command)
+                           (executable-find cider-lein-command)
+                           (executable-find (concat cider-lein-command ".bat")))))
     (shell-quote-argument command)))
 
 ;; TODO: Implement a check for `cider-boot-command' over tramp
@@ -818,9 +818,9 @@ In case `default-directory' is non-local we assume the command is available."
   "Find `cider-boot-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let ((command (or (and (file-remote-p default-directory) cider-boot-command)
-                          (executable-find cider-boot-command)
-                          (executable-find (concat cider-boot-command ".exe")))))
+  (when-let* ((command (or (and (file-remote-p default-directory) cider-boot-command)
+                           (executable-find cider-boot-command)
+                           (executable-find (concat cider-boot-command ".exe")))))
     (shell-quote-argument command)))
 
 ;; TODO: Implement a check for `cider-gradle-command' over tramp
@@ -828,9 +828,9 @@ In case `default-directory' is non-local we assume the command is available."
   "Find `cider-gradle-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let ((command (or (and (file-remote-p default-directory) cider-gradle-command)
-                          (executable-find cider-gradle-command)
-                          (executable-find (concat cider-gradle-command ".exe")))))
+  (when-let* ((command (or (and (file-remote-p default-directory) cider-gradle-command)
+                           (executable-find cider-gradle-command)
+                           (executable-find (concat cider-gradle-command ".exe")))))
     (shell-quote-argument command)))
 
 
@@ -839,7 +839,7 @@ In case `default-directory' is non-local we assume the command is available."
 ;; file.
 (defun cider--check-required-nrepl-version ()
   "Check whether we're using a compatible nREPL version."
-  (if-let ((nrepl-version (cider--nrepl-version)))
+  (if-let* ((nrepl-version (cider--nrepl-version)))
       (when (version< nrepl-version cider-required-nrepl-version)
         (cider-repl-manual-warning "troubleshooting/#warning-saying-you-have-to-use-nrepl-0212"
                                    "CIDER requires nREPL %s (or newer) to work properly"
@@ -850,7 +850,7 @@ In case `default-directory' is non-local we assume the command is available."
 
 (defun cider--check-clojure-version-supported ()
   "Ensure that we are meeting the minimum supported version of Clojure."
-  (if-let ((clojure-version (cider--clojure-version)))
+  (if-let* ((clojure-version (cider--clojure-version)))
       (when (version< clojure-version cider-minimum-clojure-version)
         (cider-repl-manual-warning "installation/#prerequisites"
                                    "Clojure version (%s) is not supported (minimum %s). CIDER will not work."

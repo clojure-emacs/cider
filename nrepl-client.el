@@ -501,7 +501,7 @@ and kill the process buffer."
     (message "[nREPL] Connection closed unexpectedly (%s)"
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
-    (when-let ((client-buffer (process-buffer process)))
+    (when-let* ((client-buffer (process-buffer process)))
       (nrepl--clear-client-sessions client-buffer)
       (with-current-buffer client-buffer
         (run-hooks 'nrepl-disconnected-hook)
@@ -664,11 +664,11 @@ process."
     (process-put client-proc :response-q (nrepl-response-queue))
 
     (with-current-buffer client-buf
-      (when-let ((server-buf (and server-proc (process-buffer server-proc))))
+      (when-let* ((server-buf (and server-proc (process-buffer server-proc))))
         (setq nrepl-project-dir (buffer-local-value 'nrepl-project-dir server-buf)
               nrepl-server-buffer server-buf))
       (setq nrepl-endpoint `(,host ,port)
-            nrepl-tunnel-buffer (when-let ((tunnel (plist-get endpoint :tunnel)))
+            nrepl-tunnel-buffer (when-let* ((tunnel (plist-get endpoint :tunnel)))
                                   (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)))
@@ -732,7 +732,7 @@ CONN-BUFFER refers to a (presumably) dead connection, which we can eventually re
 It is safe to call this function multiple times on the same ID."
   ;; FIXME: This should go away eventually when we get rid of
   ;; pending-request hash table
-  (when-let ((handler (gethash id nrepl-pending-requests)))
+  (when-let* ((handler (gethash id nrepl-pending-requests)))
     (puthash id handler nrepl-completed-requests)
     (remhash id nrepl-pending-requests)))
 
@@ -841,7 +841,7 @@ connection/session drift.
 Return the ID of the sent message.
 Optional argument TOOLING Set to t if desiring the tooling session rather than the standard session."
   (with-current-buffer connection
-    (when-let ((session (if tooling nrepl-tooling-session nrepl-session)))
+    (when-let* ((session (if tooling nrepl-tooling-session nrepl-session)))
       (setq request (append request `("session" ,session))))
     (let* ((id (nrepl-next-request-id connection))
            (request (cons 'dict (lax-plist-put request "id" id)))
@@ -1044,7 +1044,7 @@ client process is started, the function is called with the client buffer."
             (set-marker (process-mark process) (point)))
           (when moving
             (goto-char (process-mark process))
-            (when-let ((win (get-buffer-window)))
+            (when-let* ((win (get-buffer-window)))
               (set-window-point win (point))))))
       ;; detect the port the server is listening on from its output
       (when (string-match "nREPL server started on port \\([0-9]+\\)" output)
@@ -1159,7 +1159,7 @@ described by `nrepl-message-buffer-name-template'."
       (nrepl-log-pp-object (nrepl-decorate-msg msg type)
                            (nrepl-log--message-color (lax-plist-get (cdr msg) "id"))
                            t)
-      (when-let ((win (get-buffer-window)))
+      (when-let* ((win (get-buffer-window)))
         (set-window-point win (point-max)))
       (setq buffer-read-only t))))
 
@@ -1183,7 +1183,7 @@ This in effect enables or disables the logging of nREPL messages."
   "Expand the objects hidden in BUTTON's :nrepl-object property.
 BUTTON defaults the button at point."
   (interactive)
-  (if-let ((button (or button (button-at (point)))))
+  (if-let* ((button (or button (button-at (point)))))
       (let* ((start (overlay-start button))
              (end   (overlay-end   button))
              (obj   (overlay-get button :nrepl-object))
@@ -1282,7 +1282,7 @@ it into the buffer."
   (let ((min-dict-fold-size   1)
         (min-list-fold-size   10)
         (min-string-fold-size 60))
-    (if-let ((head (car-safe object)))
+    (if-let* ((head (car-safe object)))
         ;; list-like objects
         (cond
          ;; top level dicts (always expanded)
@@ -1337,7 +1337,7 @@ The default buffer name is *nrepl-error*."
     (setq buffer-read-only nil)
     (goto-char (point-max))
     (insert msg)
-    (when-let ((win (get-buffer-window)))
+    (when-let* ((win (get-buffer-window)))
       (set-window-point win (point-max)))
     (setq buffer-read-only t)))
 

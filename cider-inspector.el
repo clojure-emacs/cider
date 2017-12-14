@@ -142,30 +142,30 @@ Interactively, EXPR is read from the minibuffer, and NS the
 current buffer's namespace."
   (interactive (list (cider-read-from-minibuffer "Inspect expression: " (cider-sexp-at-point))
                      (cider-current-ns)))
-  (when-let (value (cider-sync-request:inspect-expr expr ns (or cider-inspector-page-size 32)))
-    (cider-inspector--render-value value)))
+  (when-let* ((value (cider-sync-request:inspect-expr expr ns (or cider-inspector-page-size 32)))
+    (cider-inspector--render-value value))))
 
 (defun cider-inspector-pop ()
   "Pop the last value off the inspector stack and render it.
 See `cider-sync-request:inspect-pop' and `cider-inspector--render-value'."
   (interactive)
   (setq cider-inspector-last-command 'cider-inspector-pop)
-  (when-let (value (cider-sync-request:inspect-pop))
-    (cider-inspector--render-value value)))
+  (when-let* ((value (cider-sync-request:inspect-pop))
+    (cider-inspector--render-value value))))
 
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it.
 See `cider-sync-request:insepect-push' and `cider-inspector--render-value'"
   (push (point) cider-inspector-location-stack)
-  (when-let (value (cider-sync-request:inspect-push idx))
-    (cider-inspector--render-value value)))
+  (when-let* ((value (cider-sync-request:inspect-push idx))
+    (cider-inspector--render-value value))))
 
 (defun cider-inspector-refresh ()
   "Re-render the currently inspected value.
 See `cider-sync-request:insepect-refresh' and `cider-inspector--render-value'"
   (interactive)
-  (when-let (value (cider-sync-request:inspect-refresh))
-    (cider-inspector--render-value value)))
+  (when-let* ((value (cider-sync-request:inspect-refresh))
+    (cider-inspector--render-value value))))
 
 (defun cider-inspector-next-page ()
   "Jump to the next page when inspecting a paginated sequence/map.
@@ -173,8 +173,8 @@ See `cider-sync-request:insepect-refresh' and `cider-inspector--render-value'"
 Does nothing if already on the last page."
   (interactive)
   (push (point) cider-inspector-page-location-stack)
-  (when-let (value (cider-sync-request:inspect-next-page))
-    (cider-inspector--render-value value)))
+  (when-let* ((value (cider-sync-request:inspect-next-page))
+    (cider-inspector--render-value value))))
 
 (defun cider-inspector-prev-page ()
   "Jump to the previous page when expecting a paginated sequence/map.
@@ -182,16 +182,16 @@ Does nothing if already on the last page."
 Does nothing if already on the first page."
   (interactive)
   (setq cider-inspector-last-command 'cider-inspector-prev-page)
-  (when-let (value (cider-sync-request:inspect-prev-page))
-    (cider-inspector--render-value value)))
+  (when-let* ((value (cider-sync-request:inspect-prev-page))
+    (cider-inspector--render-value value))))
 
 (defun cider-inspector-set-page-size (page-size)
   "Set the page size in pagination mode to the specified PAGE-SIZE.
 
 Current page will be reset to zero."
   (interactive "nPage size: ")
-  (when-let (value (cider-sync-request:inspect-set-page-size page-size))
-    (cider-inspector--render-value value)))
+  (when-let* ((value (cider-sync-request:inspect-set-page-size page-size))
+    (cider-inspector--render-value value))))
 
 ;; nREPL interactions
 (defun cider-sync-request:inspect-pop ()

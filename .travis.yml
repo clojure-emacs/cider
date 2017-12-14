@@ -1,28 +1,54 @@
 sudo: false
 language: emacs-lisp
+
+addons:
+  apt:
+    packages:
+    - autogen
+    - ca-certificates
+    - curl
+    - gcc
+    - libgmp-dev
+    - m4
+    - make
+    - pkg-config
+    - xz-utils
+
+cache:
+  directories:
+  - $HOME/local
+
 env:
-  - EMACS_BINARY=emacs-24.4-travis MAKE_TEST=test
-  - EMACS_BINARY=emacs-24.4-travis MAKE_TEST=test-bytecomp
-  - EMACS_BINARY=emacs-24.5-travis MAKE_TEST=test
-  - EMACS_BINARY=emacs-24.5-travis MAKE_TEST=test-bytecomp
-  - EMACS_BINARY=emacs-25.1-travis MAKE_TEST=test
-  - EMACS_BINARY=emacs-25.1-travis MAKE_TEST=test-bytecomp
-  - EMACS_BINARY=emacs-25.2-travis MAKE_TEST=test
-  - EMACS_BINARY=emacs-25.2-travis MAKE_TEST=test-bytecomp
-  - EMACS_BINARY=emacs-25.2-travis MAKE_TEST=test-checks
-  - EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=test
-  - EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=test-bytecomp
-  - EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=test-checks
+  global:
+    - PATH=$HOME/local/bin:$PATH
+  matrix:
+    - EMACS_BINARY=emacs-24.4-travis MAKE_TEST=test
+    - EMACS_BINARY=emacs-24.4-travis MAKE_TEST=test-bytecomp
+    - EMACS_BINARY=emacs-24.5-travis MAKE_TEST=test
+    - EMACS_BINARY=emacs-24.5-travis MAKE_TEST=test-bytecomp
+    - EMACS_BINARY=emacs-25.1-travis MAKE_TEST=test
+    - EMACS_BINARY=emacs-25.1-travis MAKE_TEST=test-bytecomp
+    - EMACS_BINARY=emacs-25.2-travis MAKE_TEST=test
+    - EMACS_BINARY=emacs-25.2-travis MAKE_TEST=test-bytecomp
+    - EMACS_BINARY=emacs-25.3-travis MAKE_TEST=test
+    - EMACS_BINARY=emacs-25.3-travis MAKE_TEST=test-bytecomp
+    - EMACS_BINARY=emacs-25.3-travis MAKE_TEST=test-checks
+    - EMACS_BINARY=emacs-26-pretest-travis MAKE_TEST=test
+    - EMACS_BINARY=emacs-26-pretest-travis MAKE_TEST=test-bytecomp
+    - EMACS_BINARY=emacs-26-pretest-travis MAKE_TEST=test-checks
+    - EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=test
+    - EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=test-bytecomp
+    - EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=test-checks
 
 before_script:
+  - sudo sh travis-ci/travis-gnutls.sh
+  - gnutls-cli -v
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
   - evm install $EMACS_BINARY --use --skip
   - make elpa
 script:
   - emacs --version
   - make $MAKE_TEST
-matrix:
-  - env: EMACS_BINARY=emacs-git-snapshot-travis
 
 notifications:
   webhooks:

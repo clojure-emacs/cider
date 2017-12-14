@@ -219,11 +219,11 @@ via `cider-current-connection'.")
               ;; Metadata changed, so signatures may have changed too.
               (setq cider-eldoc-last-symbol nil)
               (when (or cider-mode (derived-mode-p 'cider-repl-mode))
-                (when-let ((ns-dict (or (nrepl-dict-get changed-namespaces (cider-current-ns))
-                                        (let ((ns-dict (cider-resolve--get-in (cider-current-ns))))
-                                          (when (seq-find (lambda (ns) (nrepl-dict-get changed-namespaces ns))
-                                                          (nrepl-dict-get ns-dict "aliases"))
-                                            ns-dict)))))
+                (when-let* ((ns-dict (or (nrepl-dict-get changed-namespaces (cider-current-ns))
+                                         (let ((ns-dict (cider-resolve--get-in (cider-current-ns))))
+                                           (when (seq-find (lambda (ns) (nrepl-dict-get changed-namespaces ns))
+                                                           (nrepl-dict-get ns-dict "aliases"))
+                                             ns-dict)))))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
 (declare-function cider-default-err-handler "cider-interaction")
@@ -553,7 +553,7 @@ When there is a possible unfinished ansi control sequence,
 
 (defun cider-repl--ns-form-changed-p (ns-form connection)
   "Return non-nil if NS-FORM for CONNECTION changed since last eval."
-  (when-let ((ns (cider-ns-from-form ns-form)))
+  (when-let* ((ns (cider-ns-from-form ns-form)))
     (not (string= ns-form
                   (lax-plist-get
                    (buffer-local-value 'cider-repl--ns-forms-plist connection)
@@ -571,7 +571,7 @@ When there is a possible unfinished ansi control sequence,
 (defun cider-repl--cache-ns-form (ns-form connection)
   "Given NS-FORM cache root ns in CONNECTION."
   (with-current-buffer connection
-    (when-let ((ns (cider-ns-from-form ns-form)))
+    (when-let* ((ns (cider-ns-from-form ns-form)))
       ;; cache ns-form
       (setq cider-repl--ns-forms-plist
             (lax-plist-put cider-repl--ns-forms-plist ns ns-form))
@@ -892,7 +892,7 @@ text property `cider-old-input'."
 (defun cider-repl-switch-to-other ()
   "Switch between the Clojure and ClojureScript REPLs for the current project."
   (interactive)
-  (if-let (other-connection (cider-other-connection))
+  (if-let* ((other-connection (cider-other-connection)))
       (switch-to-buffer other-connection)
     (message "There's no other REPL for the current project")))
 
@@ -1064,7 +1064,7 @@ for locref look up."
 This function is used from help-echo property inside REPL buffers and uses
 regexes from `cider-locref-regexp-alist' to infer locations at point."
   (interactive)
-  (if-let ((loc (cider-locref-at-point pos)))
+  (if-let* ((loc (cider-locref-at-point pos)))
       (let* ((var (plist-get loc :var))
              (line (plist-get loc :line))
              (file (or
@@ -1099,7 +1099,7 @@ One for all REPLs.")
   "Function for help-echo property in REPL buffers.
 WIN, BUFFER and POS are the window, buffer and point under mouse position."
   (with-current-buffer buffer
-    (if-let ((hl (plist-get (cider-locref-at-point pos) :highlight)))
+    (if-let* ((hl (plist-get (cider-locref-at-point pos) :highlight)))
         (move-overlay cider-locref-hoover-overlay (car hl) (cdr hl))
       (delete-overlay cider-locref-hoover-overlay))
     nil))

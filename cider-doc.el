@@ -226,8 +226,8 @@ opposite of what that option dictates."
   "Open the source for the current symbol, if available."
   (interactive)
   (if cider-docview-file
-      (if-let ((buffer (and (not (cider--tooling-file-p cider-docview-file))
-                            (cider-find-file cider-docview-file))))
+      (if-let* ((buffer (and (not (cider--tooling-file-p cider-docview-file))
+                             (cider-find-file cider-docview-file))))
           (cider-jump-to buffer (if cider-docview-line
                                     (cons cider-docview-line nil)
                                   cider-docview-symbol)
@@ -262,12 +262,12 @@ opposite of what that option dictates."
 
 (defun cider-create-doc-buffer (symbol)
   "Populates *cider-doc* with the documentation for SYMBOL."
-  (when-let ((info (cider-var-info symbol)))
+  (when-let* ((info (cider-var-info symbol)))
     (cider-docview-render (cider-make-popup-buffer cider-doc-buffer) symbol info)))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
-  (if-let ((buffer (cider-create-doc-buffer symbol)))
+  (if-let* ((buffer (cider-create-doc-buffer symbol)))
       (cider-popup-buffer-display buffer cider-doc-auto-select-buffer)
     (user-error "Symbol %s not resolved" symbol)))
 
@@ -396,9 +396,9 @@ Tables are marked to be ignored by line wrap."
          (depr    (nrepl-dict-get info "deprecated"))
          (macro   (nrepl-dict-get info "macro"))
          (special (nrepl-dict-get info "special-form"))
-         (forms   (when-let ((str (nrepl-dict-get info "forms-str")))
+         (forms   (when-let* ((str (nrepl-dict-get info "forms-str")))
                     (split-string str "\n")))
-         (args    (when-let ((str (nrepl-dict-get info "arglists-str")))
+         (args    (when-let* ((str (nrepl-dict-get info "arglists-str")))
                     (split-string str "\n")))
          (doc     (or (nrepl-dict-get info "doc")
                       "Not documented."))
@@ -428,7 +428,7 @@ Tables are marked to be ignored by line wrap."
             (emit (concat "            "(cider-font-lock-as 'java-mode iface)))))
         (when (or super ifaces)
           (insert "\n"))
-        (when-let ((forms (or forms args)))
+        (when-let* ((forms (or forms args)))
           (dolist (form forms)
             (insert " ")
             (emit (cider-font-lock-as-clojure form))))

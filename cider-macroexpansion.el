@@ -89,7 +89,7 @@ This variable specifies both what was expanded and the expander.")
 
 (defun cider-macroexpand-expr (expander expr)
   "Macroexpand, use EXPANDER, the given EXPR."
-  (when-let ((expansion (cider-sync-request:macroexpand expander expr)))
+  (when-let* ((expansion (cider-sync-request:macroexpand expander expr)))
     (setq cider-last-macroexpand-expression expr)
     (cider-initialize-macroexpansion-buffer expansion (cider-current-ns))))
 

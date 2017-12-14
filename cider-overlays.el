@@ -239,7 +239,7 @@ overlay."
                            #'cider--remove-result-overlay-after-command
                            nil 'local)
                (cider--remove-result-overlay-after-command))))
-          (when-let ((win (get-buffer-window buffer)))
+          (when-let* ((win (get-buffer-window buffer)))
             ;; Left edge is visible.
             (when (and (<= (window-start win) (point))
                        ;; In 24.3 `<=' is still a binary perdicate.
