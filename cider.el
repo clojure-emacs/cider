@@ -604,7 +604,6 @@ start the server.
 If CLJS-TOO is non-nil, also start a ClojureScript REPL session with its
 own buffer."
   (interactive "P")
-  (setq cider-current-clojure-buffer (current-buffer))
   (let* ((project-type (cider-project-type))
          (command (cider-jack-in-command project-type))
          (command-resolved (cider-jack-in-resolve-command project-type))
@@ -657,7 +656,6 @@ Create REPL buffer and start an nREPL client connection.
 When the optional param PROJECT-DIR is present, the connection
 gets associated with it."
   (interactive (cider-select-endpoint))
-  (setq cider-current-clojure-buffer (current-buffer))
   (when-let* ((repl-buff (cider-find-reusable-repl-buffer `(,host ,port) nil)))
     (let* ((nrepl-create-client-buffer-function  #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer repl-buff)

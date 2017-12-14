@@ -83,21 +83,6 @@ entirely."
 
 
 ;;; Switching between REPL & source buffers
-(defvar-local cider-last-clojure-buffer nil
-  "A buffer-local variable holding the last Clojure source buffer.
-`cider-switch-to-last-clojure-buffer' uses this variable to jump
-back to last Clojure source buffer.")
-
-(defun cider-remember-clojure-buffer (buffer)
-  "Try to remember the BUFFER from which the user jumps.
-The BUFFER needs to be a Clojure buffer and current major mode needs
-to be `cider-repl-mode'.  The user can use `cider-switch-to-last-clojure-buffer'
-to jump back to the last Clojure source buffer."
-  (when (and buffer
-             (with-current-buffer buffer
-               (derived-mode-p 'clojure-mode))
-             (derived-mode-p 'cider-repl-mode))
-    (setq cider-last-clojure-buffer buffer)))
 
 (defun cider--switch-to-repl-buffer (repl-buffer &optional set-namespace)
   "Select the REPL-BUFFER, when possible in an existing window.
@@ -117,7 +102,6 @@ that of the namespace in the Clojure source buffer."
     ;; then if necessary we update its namespace
     (when set-namespace
       (cider-repl-set-ns (with-current-buffer buffer (cider-current-ns))))
-    (cider-remember-clojure-buffer buffer)
     (goto-char (point-max))))
 
 (defun cider-switch-to-repl-buffer (&optional set-namespace)
@@ -138,9 +122,17 @@ With a prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that
 of the namespace in the Clojure source buffer."
   (interactive "P")
   (let* ((connections (cider-connections))
-         (buffer (seq-find (lambda (b) (member b connections))
-                           (buffer-list))))
-    (cider--switch-to-repl-buffer buffer set-namespace)))
+         (type (cider-connection-type-for-buffer))
+         (a-repl)
+         (the-repl (seq-find (lambda (b)
+                               (when (member b connections)
+                                 (unless a-repl
+                                   (setq a-repl b))
+                                 (equal type (cider-connection-type-for-buffer b))))
+                             (buffer-list))))
+    (if-let ((repl (or the-repl a-repl)))
+        (cider--switch-to-repl-buffer repl set-namespace)
+      (user-error "No REPL found"))))
 
 (declare-function cider-load-buffer "cider-interaction")
 
@@ -159,12 +151,23 @@ the same as `cider-switch-to-repl-buffer',
 so that it is very convenient to jump between a
 Clojure buffer and the REPL buffer."
   (interactive)
-  (if (and (derived-mode-p 'cider-repl-mode)
-           (buffer-live-p cider-last-clojure-buffer))
-      (if cider-repl-display-in-current-window
-          (pop-to-buffer-same-window cider-last-clojure-buffer)
-        (pop-to-buffer cider-last-clojure-buffer))
-    (message "Don't know the original Clojure buffer")))
+  (if (derived-mode-p 'cider-repl-mode)
+      (let* ((a-buf)
+             (the-buf (let ((repl-type (cider-connection-type-for-buffer)))
+                        (seq-find (lambda (b)
+                                    (unless (with-current-buffer b (derived-mode-p 'cider-repl-mode))
+                                      (when-let ((type (cider-connection-type-for-buffer b)))
+                                        (unless a-buf
+                                          (setq a-buf b))
+                                        (or (equal type "multi")
+                                            (equal type repl-type)))))
+                                  (buffer-list)))))
+        (if-let ((buf (or the-buf a-buf)))
+            (if cider-repl-display-in-current-window
+                (pop-to-buffer-same-window buf)
+              (pop-to-buffer buf))
+          (user-error "No Clojure buffer found")))
+    (user-error "Not in a CIDER REPL buffer")))
 
 (defun cider-find-and-clear-repl-output (&optional clear-repl)
   "Find the current REPL buffer and clear it.
