@@ -588,6 +588,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
     ;; this abuses the -v option for ssh to get output when the port
     ;; forwarding is set up, which is used to synchronise on, so that
     ;; the port forwarding is up when we try to connect.
+    (ignore port)
     (format-spec
      "%s -v -N -L %p:localhost:%p %u'%h'"
      `((?s . ,ssh)

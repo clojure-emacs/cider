@@ -130,7 +130,8 @@ of the namespace in the Clojure source buffer."
                                    (setq a-repl b))
                                  (equal type (cider-connection-type-for-buffer b))))
                              (buffer-list))))
-    (if-let ((repl (or the-repl a-repl)))
+    (ignore the-repl)
+    (if-let* ((repl (or the-repl a-repl)))
         (cider--switch-to-repl-buffer repl set-namespace)
       (user-error "No REPL found"))))
 
@@ -156,13 +157,13 @@ Clojure buffer and the REPL buffer."
              (the-buf (let ((repl-type (cider-connection-type-for-buffer)))
                         (seq-find (lambda (b)
                                     (unless (with-current-buffer b (derived-mode-p 'cider-repl-mode))
-                                      (when-let ((type (cider-connection-type-for-buffer b)))
+                                      (when-let* ((type (cider-connection-type-for-buffer b)))
                                         (unless a-buf
                                           (setq a-buf b))
                                         (or (equal type "multi")
                                             (equal type repl-type)))))
                                   (buffer-list)))))
-        (if-let ((buf (or the-buf a-buf)))
+        (if-let* ((buf (or the-buf a-buf)))
             (if cider-repl-display-in-current-window
                 (pop-to-buffer-same-window buf)
               (pop-to-buffer buf))

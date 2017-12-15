@@ -320,7 +320,7 @@ In order to work properly, this mode must be activated by
                   (apply-partially #'cider--debug-lexical-eval
                                    (nrepl-dict-get cider--debug-mode-response "key")))
             ;; Set the keymap.
-            (nrepl-dict-map (lambda (char cmd)
+            (nrepl-dict-map (lambda (char _cmd)
                               (unless (string= char "h") ; `here' needs a special command.
                                 (define-key cider--debug-mode-map char #'cider-debug-mode-send-reply))
                               (when (string= char "o")
