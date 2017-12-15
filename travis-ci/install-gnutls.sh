@@ -23,8 +23,9 @@ then
 fi
 
 # delete cache and rebuild
-rm -rf $WORKDIR
-mkdir $WORKDIR
+rm -rf $WORKDIR/bin $WORKDIR/lib $WORKDIR/share $WORKDIR/include
+rm -rf $WORKDIR/nettle* $WORKDIR/gnutls*
+
 cd $WORKDIR
 curl -O https://ftp.gnu.org/gnu/nettle/nettle-${NETTLE_VERSION}.tar.gz \
     && tar xfz nettle-${NETTLE_VERSION}.tar.gz \
