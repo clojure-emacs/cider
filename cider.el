@@ -872,12 +872,12 @@ message in the REPL area."
                                  cider-version middleware-version))))
 
 (defun cider--subscribe-repl-to-server-out ()
-  "Subscribe to the server's *out*."
+  "Subscribe to the nREPL server's *out*."
   (cider-nrepl-send-request '("op" "out-subscribe")
                             (cider-interactive-eval-handler (current-buffer))))
 
 (defun cider--connected-handler ()
-  "Handle cider initialization after nREPL connection has been established.
+  "Handle CIDER initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
 buffer."
   ;; `nrepl-connected-hook' is run in the connection buffer
@@ -893,9 +893,9 @@ buffer."
     (cider--subscribe-repl-to-server-out)
     (when cider-auto-mode
       (cider-enable-on-existing-clojure-buffers))
-    ;; Middleware on cider-nrepl side is deferred until first usage, but
+    ;; Middleware on cider-nrepl's side is deferred until first usage, but
     ;; loading middleware concurrently can lead to occasional "require" issues
-    ;; (likely a clojure bug). Thus, we load the heavy debug middleware towards
+    ;; (likely a Clojure bug). Thus, we load the heavy debug middleware towards
     ;; the end, allowing for the faster "server-out" middleware to load
     ;; first.
     (cider--debug-init-connection)
