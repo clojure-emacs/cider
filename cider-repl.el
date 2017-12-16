@@ -711,7 +711,7 @@ of the line."
           (when (and bol (not (bolp)))
             (insert-before-markers "\n"))
           (when show-prefix
-              (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+            (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
           (if cider-repl-use-clojure-font-lock
               (insert-before-markers (cider-font-lock-as-clojure string))
             (cider-propertize-region
