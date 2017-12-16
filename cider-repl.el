@@ -698,7 +698,7 @@ If BOL is non-nil, emit at the beginning of the line."
           (cider-repl--insert-prompt cider-buffer-ns))))
     (cider-repl--show-maximum-output)))
 
-(defun cider-repl-emit-result (buffer string &optional bol)
+(defun cider-repl-emit-result (buffer string &optional bol show-prefix)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
 If BOL is non-nil insert at the beginning of the line."
   (with-current-buffer buffer
@@ -708,7 +708,8 @@ If BOL is non-nil insert at the beginning of the line."
           (goto-char cider-repl-input-start-mark)
           (when (and bol (not (bolp)))
             (insert-before-markers "\n"))
-          (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face))
+          (when show-prefix
+              (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
           (if cider-repl-use-clojure-font-lock
               (insert-before-markers (cider-font-lock-as-clojure string))
             (cider-propertize-region
@@ -766,8 +767,10 @@ the symbol."
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (nrepl-make-response-handler buffer
-                               (lambda (buffer value)
-                                 (cider-repl-emit-result buffer value t))
+                               (let (after-first-call)
+                                 (lambda (buffer value)
+                                   (cider-repl-emit-result buffer value t (not after-first-call))
+                                   (setq after-first-call t)))
                                (lambda (buffer out)
                                  (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
@@ -775,8 +778,10 @@ the symbol."
                                (lambda (buffer)
                                  (cider-repl-emit-prompt buffer))
                                nrepl-err-handler
-                               (lambda (buffer pprint-out)
-                                 (cider-repl-emit-result buffer pprint-out nil))))
+                               (let (after-first-call)
+                                 (lambda (buffer pprint-out)
+                                   (cider-repl-emit-result buffer pprint-out nil (not after-first-call))
+                                   (setq after-first-call t)))))
 
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
