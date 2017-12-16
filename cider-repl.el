@@ -700,7 +700,9 @@ If BOL is non-nil, emit at the beginning of the line."
 
 (defun cider-repl-emit-result (buffer string &optional bol show-prefix)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
-If BOL is non-nil insert at the beginning of the line."
+If BOL is non-nil insert at the beginning of the line.
+If SHOW-PREFIX is non-nil insert `cider-repl-result-prefix' at the beginning
+of the line."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
