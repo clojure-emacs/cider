@@ -669,7 +669,7 @@ in the buffer."
   (nrepl-make-response-handler (or buffer (current-buffer))
                                (let (after-first-result-chunk)
                                  (lambda (buffer value)
-                                   (cider-repl-emit-result buffer value t (not after-first-result-chunk))
+                                   (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
                                    (setq after-first-result-chunk t)))
                                (lambda (buffer out)
                                  (cider-repl-emit-stdout buffer out))

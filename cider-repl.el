@@ -698,11 +698,10 @@ If BOL is non-nil, emit at the beginning of the line."
           (cider-repl--insert-prompt cider-buffer-ns))))
     (cider-repl--show-maximum-output)))
 
-(defun cider-repl-emit-result (buffer string &optional bol show-prefix)
+(defun cider-repl-emit-result (buffer string show-prefix &optional bol)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
-If BOL is non-nil insert at the beginning of the line.
 If SHOW-PREFIX is non-nil insert `cider-repl-result-prefix' at the beginning
-of the line."
+of the line.  If BOL is non-nil insert at the beginning of the line."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
@@ -771,7 +770,7 @@ the symbol."
   (nrepl-make-response-handler buffer
                                (let (after-first-result-chunk)
                                  (lambda (buffer value)
-                                   (cider-repl-emit-result buffer value t (not after-first-result-chunk))
+                                   (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
                                    (setq after-first-result-chunk t)))
                                (lambda (buffer out)
                                  (cider-repl-emit-stdout buffer out))
@@ -782,7 +781,7 @@ the symbol."
                                nrepl-err-handler
                                (let (after-first-result-chunk)
                                  (lambda (buffer pprint-out)
-                                   (cider-repl-emit-result buffer pprint-out nil (not after-first-result-chunk))
+                                   (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
                                    (setq after-first-result-chunk t)))))
 
 (defun cider-repl--send-input (&optional newline)
