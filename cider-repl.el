@@ -767,10 +767,10 @@ the symbol."
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (nrepl-make-response-handler buffer
-                               (let (after-first-call)
+                               (let (after-first-result-chunk)
                                  (lambda (buffer value)
-                                   (cider-repl-emit-result buffer value t (not after-first-call))
-                                   (setq after-first-call t)))
+                                   (cider-repl-emit-result buffer value t (not after-first-result-chunk))
+                                   (setq after-first-result-chunk t)))
                                (lambda (buffer out)
                                  (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
@@ -778,10 +778,10 @@ the symbol."
                                (lambda (buffer)
                                  (cider-repl-emit-prompt buffer))
                                nrepl-err-handler
-                               (let (after-first-call)
+                               (let (after-first-result-chunk)
                                  (lambda (buffer pprint-out)
-                                   (cider-repl-emit-result buffer pprint-out nil (not after-first-call))
-                                   (setq after-first-call t)))))
+                                   (cider-repl-emit-result buffer pprint-out nil (not after-first-result-chunk))
+                                   (setq after-first-result-chunk t)))))
 
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
