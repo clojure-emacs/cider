@@ -10,7 +10,7 @@
 
 ### Changes
 
-* `cider-switch-to-last-clojure-buffer` switches to most recent relevant Clojure(script) buffer instead of the last "remembered" buffer.
+* `cider-switch-to-last-clojure-buffer` switches to most recent relevant Clojure(Script) buffer instead of the last "remembered" buffer.
 * [cider-nrepl#438](https://github.com/clojure-emacs/cider-nrepl/pull/438): Improve startup time by deferring loading CIDER's middleware until the first usage.
 * [#2078](https://github.com/clojure-emacs/cider/pull/2078): Improve startup time by bundling together sync requests during startup.
 * `cider-rotate-default-connection` will warn if you use it with only a single active connection.
@@ -18,11 +18,11 @@
 
 ### Bugs Fixed
 
-* [#2084](https://github.com/clojure-emacs/cider/issues/2084): Select correct REPL type (clj or cljs) in cider-switch-to-repl-buffer conditional on the current buffer.
+* [#2084](https://github.com/clojure-emacs/cider/issues/2084): Select correct REPL type (clj or cljs) in `cider-switch-to-repl-buffer` conditional on the current buffer.
 * [#2088](https://github.com/clojure-emacs/cider/issues/2088): Fix functions defined with `def` being font-locked as vars instead of functions.
 * [#1651](https://github.com/clojure-emacs/cider/issues/1651), [cider-nrepl#445](https://github.com/clojure-emacs/cider-nrepl/pull/455): Fix `cider-expected-ns` returns `nil` on boot projects.
-* [#2120](https://github.com/clojure-emacs/cider/issues/2120): Fix Travis CI build errors for emacs versions >25.2.
-* [#2117](https://github.com/clojure-emacs/cider/pull/2117): Ensure cider-repl-result-prefix is only inserted before the first result chunk.
+* [#2120](https://github.com/clojure-emacs/cider/issues/2120): Fix Travis CI build errors for Emacs versions >25.2.
+* [#2117](https://github.com/clojure-emacs/cider/pull/2117): Ensure `cider-repl-result-prefix` is only inserted before the first result chunk.
 
 ## 0.15.1 (2017-09-13)
 
