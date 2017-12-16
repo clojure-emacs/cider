@@ -893,7 +893,7 @@ buffer."
     (cider--subscribe-repl-to-server-out)
     (when cider-auto-mode
       (cider-enable-on-existing-clojure-buffers))
-    ;; Middleware on cider-nrepl side is differed until first usage, but,
+    ;; Middleware on cider-nrepl side is deferred until first usage, but
     ;; loading middleware concurrently can lead to occasional "require" issues
     ;; (likely a clojure bug). Thus, we load the heavy debug middleware towards
     ;; the end, allowing for the faster "server-out" middleware to load
