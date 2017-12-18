@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/clojure-emacs/cider.png?branch=master)](https://travis-ci.org/clojure-emacs/cider)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clojure-emacs/cider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Gratipay Team](https://img.shields.io/gratipay/team/cider.svg?maxAge=2592000)](https://gratipay.com/cider/)
+[![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/~26186/donate)
 [![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
 [![OpenCollective](https://opencollective.com/cider/sponsors/badge.svg)](#open-collective-sponsors)
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
@@ -167,9 +167,7 @@ to become a CIDER sponsor.
 You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
 [Open Collective](https://opencollective.com/cider),
 [Salt](https://salt.bountysource.com/teams/cider),
-[Gratipay](https://www.gratipay.com/cider) and PayPal.
-
-[![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.1.3/dist/gratipay.png)](https://gratipay.com/cider)
+[Liberapay](https://liberapay.com/~26186/donate) and PayPal.
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
