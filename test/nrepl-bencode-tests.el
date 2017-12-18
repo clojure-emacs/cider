@@ -28,6 +28,7 @@
 ;;; Code:
 
 (require 'buttercup)
+(require 'cl-lib)
 (require 'nrepl-client)
 
 (defun nrepl-bdecode-string (string)
@@ -74,8 +75,10 @@ If object is incomplete, return a decoded path."
     (it "decodes queues"
       (expect (nrepl-bdecode "lli1ei2ei3eeli5ei6eee")
               :to-equal (cons
-                         [cl-struct-queue nil nil]
-                         [cl-struct-nrepl-response-queue (((1 2 3) (5 6))) (((1 2 3) (5 6))) nil])))
+                         (make-queue)
+                         (let ((q (nrepl-response-queue)))
+                           (queue-enqueue q '((1 2 3) (5 6)))
+                           q))))
 
     (it "decodes list of ints"
       (expect (nrepl-bdecode-string "li1ei2ei3ei4ei5ei6ei7ei8ee")
@@ -164,28 +167,25 @@ If object is incomplete, return a decoded path."
   items, returns val and f is not called.
 7:session36:6fc999d0-3795-4d51-85fc-ccca7537ee57ed2:id2:182:ns4:user7:session36:6fc999d0-3795-4d51-85fc-ccca7537ee575:value3:niled2:id2:187:session36:6fc999d0-3795-4d51-85fc-ccca7537ee576:statusl4:doneee")
               :to-equal (cons
-                         [cl-struct-queue nil nil]
-                         [cl-struct-nrepl-response-queue
-                          ((dict "id" "18"
-                                 "out" "clojure.core/reduce\n"
-                                 "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57")
-                           (dict "id" "18"
-                                 "out" "([f coll] [f val coll])\n"
-                                 "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57")
-                           (dict "id" "18"
-                                 "out" "  f should be a function of 2 arguments. If val is not supplied,\n  returns the result of applying f to the first 2 items in coll, then\n  applying f to that result and the 3rd item, etc. If coll contains no\n  items, f must accept no arguments as well, and reduce returns the\n  result of calling f with no arguments.  If coll has only 1 item, it\n  is returned and f is not called.  If val is supplied, returns the\n  result of applying f to val and the first item in coll, then\n  applying f to that result and the 2nd item, etc. If coll contains no\n  items, returns val and f is not called.\n"
-                                 "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57")
-                           (dict "id" "18"
-                                 "ns" "user"
-                                 "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57"
-                                 "value" "nil")
-                           (dict "id" "18"
-                                 "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57"
-                                 "status" ("done")))
-                          ((dict "id" "18"
-                                 "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57"
-                                 "status" ("done")))
-                          nil])))
+                         (make-queue)
+                         (cl-reduce (lambda (q dict) (queue-enqueue q dict) q)
+                                    '((dict "id" "18"
+                                            "out" "clojure.core/reduce\n"
+                                            "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57")
+                                      (dict "id" "18"
+                                            "out" "([f coll] [f val coll])\n"
+                                            "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57")
+                                      (dict "id" "18"
+                                            "out" "  f should be a function of 2 arguments. If val is not supplied,\n  returns the result of applying f to the first 2 items in coll, then\n  applying f to that result and the 3rd item, etc. If coll contains no\n  items, f must accept no arguments as well, and reduce returns the\n  result of calling f with no arguments.  If coll has only 1 item, it\n  is returned and f is not called.  If val is supplied, returns the\n  result of applying f to val and the first item in coll, then\n  applying f to that result and the 2nd item, etc. If coll contains no\n  items, returns val and f is not called.\n"
+                                            "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57")
+                                      (dict "id" "18"
+                                            "ns" "user"
+                                            "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57"
+                                            "value" "nil")
+                                      (dict "id" "18"
+                                            "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57"
+                                            "status" ("done")))
+                                    :initial-value (nrepl-response-queue)))))
 
     (it "decodes nrepl responses with multibyte chars"
       (expect (nrepl-bdecode-string
@@ -214,9 +214,12 @@ If object is incomplete, return a decoded path."
     (it "decodes queues"
       (expect (nrepl-bdecode "lli1ei2ei3eeli5ei6eeelli1ei2ei3eeli5ei6")
               :to-equal (cons
-                         [cl-struct-queue ("i6") ("i6")]
-                         [cl-struct-nrepl-response-queue (((1 2 3) (5 6))) (((1 2 3) (5 6)))
-                                                         ((5) ((1 2 3)))]))))
+                         (let ((q (make-queue)))
+                           (queue-enqueue q "i6")
+                           q)
+                         (let ((q (nrepl-response-queue '((5) ((1 2 3))))))
+                           (queue-enqueue q '((1 2 3) (5 6)))
+                           q)))))
 
   (describe "when bencode strings are split into parts"
     (it "decodes dict"
