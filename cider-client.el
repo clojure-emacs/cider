@@ -1045,10 +1045,13 @@ returned."
     (nrepl-dict-get "resource-path")))
 
 (defun cider-sync-request:resources-list ()
-  "Return a list of all resources on the classpath."
-  (thread-first '("op" "resources-list")
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "resources-list")))
+  "Return a list of all resources on the classpath.
+
+The result entries are relative to the classpath."
+  (when-let* ((resources (thread-first '("op" "resources-list")
+                           (cider-nrepl-send-sync-request)
+                           (nrepl-dict-get "resources-list"))))
+    (seq-map (lambda (resource) (nrepl-dict-get resource "relpath")) resources)))
 
 (defun cider-sync-request:format-code (code)
   "Perform nREPL \"format-code\" op with CODE."
