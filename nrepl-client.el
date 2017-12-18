@@ -584,7 +584,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 (defun nrepl--ssh-tunnel-command (ssh dir port)
   "Command string to open SSH tunnel to the host associated with DIR's PORT."
-  (with-parsed-tramp-file-name dir nil
+  (with-parsed-tramp-file-name dir v
     ;; this abuses the -v option for ssh to get output when the port
     ;; forwarding is set up, which is used to synchronise on, so that
     ;; the port forwarding is up when we try to connect.
@@ -592,8 +592,8 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
      "%s -v -N -L %p:localhost:%p %u'%h'"
      `((?s . ,ssh)
        (?p . ,port)
-       (?h . ,host)
-       (?u . ,(if user (format "-l '%s' " user) ""))))))
+       (?h . ,v-host)
+       (?u . ,(if v-user (format "-l '%s' " v-user) ""))))))
 
 (autoload 'comint-watch-for-password-prompt "comint"  "(autoload).")
 
