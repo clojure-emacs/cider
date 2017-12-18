@@ -1,14 +1,13 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Install cask for Travis CI
 # or if already installed, then check for updates
 
-set -x
-
 WORKDIR=${HOME}/local
 CASKDIR=$WORKDIR/cask
+SCRIPTDIR=`dirname $(readlink -f $0)`
 
-. travis-ci/retry.sh
+. $SCRIPTDIR/retry.sh
 
 cask_upgrade_cask_or_reset() {
     cask upgrade-cask || { rm -rf $HOME/.emacs.d/.cask && false; }
@@ -30,4 +29,7 @@ fi
 # Install dependencies for cider as descriped in ./Cask
 # Effect is identical to "make elpa", but here we can retry
 # in the event of network failures.
-travis_retry cask_install_or_reset && touch elpa-emacs
+if [ -f Cask ]
+then
+    travis_retry cask_install_or_reset && touch elpa-emacs
+fi

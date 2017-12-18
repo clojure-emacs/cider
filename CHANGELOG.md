@@ -8,6 +8,7 @@
 * [#2111](https://github.com/clojure-emacs/cider/pull/2111): Add `cider-pprint-eval-last-sexp-to-comment` and `cider-pprint-eval-defun-to-comment`.
 * Add a REPL shortcut for `cider-repl-require-repl-utils` (this makes it easy to require common functions like `doc`, `source`, etc. in REPL buffers).
 * [#2112](https://github.com/clojure-emacs/cider/issues/2112): Add a new interactive command `cider-find-keyword` (bound to `C-c C-:`).
+* [#2144](https://github.com/clojure-emacs/cider/issues/2144): Create a Docker image to mimic the Travis environment
 
 ### Changes
 
