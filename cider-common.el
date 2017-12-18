@@ -132,11 +132,14 @@ Return the tramp prefix, or nil if BUFFER is local."
                    (with-current-buffer buffer
                      default-directory))))
     (when (tramp-tramp-file-p name)
-      (let ((vec (tramp-dissect-file-name name)))
-        (tramp-make-tramp-file-name (tramp-file-name-method vec)
-                                    (tramp-file-name-user vec)
-                                    (tramp-file-name-host vec)
-                                    nil)))))
+      (with-parsed-tramp-file-name name v
+        ;; `tramp-make-tramp-file-name' was changed to take 6 mandatory
+        ;; parameters in Emacs 26 instead of 4
+        (if (version< emacs-version "26")
+            (with-no-warnings
+              (tramp-make-tramp-file-name v-method v-user v-host v-localname))
+          (with-no-warnings
+            (tramp-make-tramp-file-name v-method v-user v-domain v-host v-port v-localname)))))))
 
 (defun cider--client-tramp-filename (name &optional buffer)
   "Return the tramp filename for path NAME relative to BUFFER.
