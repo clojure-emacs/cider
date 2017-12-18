@@ -206,7 +206,7 @@ Otherwise, only the docstring is returned."
      ;; so we just display the docstring
      (t docstring))))
 
-(defun cider-eldoc-format-variable (thing pos eldoc-info)
+(defun cider-eldoc-format-variable (thing _pos eldoc-info)
   "Return the formatted eldoc string for a variable.
 THING is the variable name.  POS will always be 0 here.
 ELDOC-INFO is a p-list containing the eldoc information."

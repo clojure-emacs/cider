@@ -584,6 +584,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 
 (defun nrepl--ssh-tunnel-command (ssh dir port)
   "Command string to open SSH tunnel to the host associated with DIR's PORT."
+  (ignore port)
   (with-parsed-tramp-file-name dir nil
     ;; this abuses the -v option for ssh to get output when the port
     ;; forwarding is set up, which is used to synchronise on, so that

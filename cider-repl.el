@@ -1101,7 +1101,7 @@ regexes from `cider-locref-regexp-alist' to infer locations at point."
   "Overlay used during hoovering on location references in REPL buffers.
 One for all REPLs.")
 
-(defun cider-locref-help-echo (win buffer pos)
+(defun cider-locref-help-echo (_win buffer pos)
   "Function for help-echo property in REPL buffers.
 WIN, BUFFER and POS are the window, buffer and point under mouse position."
   (with-current-buffer buffer
