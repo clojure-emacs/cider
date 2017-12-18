@@ -35,6 +35,12 @@
 (package-initialize)
 (load-file "cider-autoloads.el")
 (setq byte-compile-error-on-warn t)
+
+;; Avoid spurious unused lexical arg warning from `condition-case'
+;; See: https://emacs.stackexchange.com/a/10058/10269
+(when (version< emacs-version "25.1")
+  (setq byte-compile--use-old-handlers nil))
+
 (batch-byte-compile)
 
 ;;; cider-bytecomp-warnings.el ends here
