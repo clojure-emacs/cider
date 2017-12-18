@@ -706,7 +706,10 @@ gets associated with it."
 (defun cider--ssh-hosts ()
   "Retrieve all ssh host from local configuration files."
   (seq-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
-           (let ((tramp-completion-mode t))
+           ;; `tramp-completion-mode' is obsoleted in 26
+           (cl-progv (if (version< emacs-version "26")
+                         '(tramp-completion-mode)
+                       '(non-essential)) '(t)
              (tramp-completion-handle-file-name-all-completions "" "/ssh:"))))
 
 (defun cider--completing-read-host (hosts)
