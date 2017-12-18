@@ -206,10 +206,11 @@ Otherwise, only the docstring is returned."
      ;; so we just display the docstring
      (t docstring))))
 
-(defun cider-eldoc-format-variable (thing pos eldoc-info)
+(defun cider-eldoc-format-variable (thing eldoc-info)
   "Return the formatted eldoc string for a variable.
-THING is the variable name.  POS will always be 0 here.
-ELDOC-INFO is a p-list containing the eldoc information."
+
+THING is the variable name.  ELDOC-INFO is a p-list containing the eldoc
+information."
   (let* ((ns (lax-plist-get eldoc-info "ns"))
          (symbol (lax-plist-get eldoc-info "symbol"))
          (docstring (lax-plist-get eldoc-info "docstring"))
@@ -467,7 +468,7 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
       (when eldoc-info
         (if (equal (cider-eldoc-thing-type eldoc-info) 'fn)
             (cider-eldoc-format-function thing pos eldoc-info)
-          (cider-eldoc-format-variable thing pos eldoc-info))))))
+          (cider-eldoc-format-variable thing eldoc-info))))))
 
 (defun cider-eldoc-setup ()
   "Setup eldoc in the current buffer.
