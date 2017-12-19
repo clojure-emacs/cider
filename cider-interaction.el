@@ -488,7 +488,7 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
 Optionally open it in a different window if OTHER-WINDOW is truthy."
   (if-let* ((path (cider-sync-request:ns-path ns)))
       (cider-jump-to (cider-find-file path) nil other-window)
-    (user-error "Can't find %s" ns)))
+    (user-error "Can't find namespace `%s'" ns)))
 
 (defun cider-find-ns (&optional arg ns)
   "Find the file containing NS.
