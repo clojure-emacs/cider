@@ -268,6 +268,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     ,cider-doc-menu
     ("Find (jump to)"
      ["Find definition" cider-find-var]
+     ["Find namespace" cider-find-ns]
      ["Find resource" cider-find-resource]
      ["Find keyword" cider-find-keyword]
      ["Go back" cider-pop-back])

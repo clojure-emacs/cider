@@ -1487,6 +1487,7 @@ constructs."
         "--"
         ("Find"
          ["Find definition" cider-find-var]
+         ["Find namespace" cider-find-ns]
          ["Find resource" cider-find-resource]
          ["Find keyword" cider-find-keyword]
          ["Go back" cider-pop-back])
