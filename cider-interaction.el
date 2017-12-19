@@ -504,6 +504,39 @@ the results to be displayed in a different window."
            (ns (completing-read "Find namespace: " namespaces)))
       (cider--find-ns ns (cider--open-other-window-p arg)))))
 
+(defun cider-find-keyword (&optional arg)
+  "Find the namespace of the keyword at point and its first occurrence there.
+
+For instance - if the keyword at point is \":cider.demo/keyword\", this command
+would find the namespace \"cider.demo\" and afterwards find the first mention
+of \"::keyword\" there.
+
+Prompt according to prefix ARG and `cider-prompt-for-symbol'.
+A single or double prefix argument inverts the meaning of
+`cider-prompt-for-symbol'.  A prefix of `-` or a double prefix argument causes
+the results to be displayed in a different window.  The default value is
+thing at point."
+  (interactive "P")
+  (cider-ensure-connected)
+  (let* ((kw (let ((kw-at-point (cider-symbol-at-point 'look-back)))
+               (if (or cider-prompt-for-symbol arg)
+                   (read-string
+                    (format "Keyword (default %s): " kw-at-point)
+                    nil nil kw-at-point)
+                 kw-at-point)))
+         (ns-qualifier (and
+                        (string-match "^:+\\(.+\\)/.+$" kw)
+                        (match-string 1 kw)))
+         (kw-ns (if ns-qualifier
+                    (cider-resolve-alias (cider-current-ns) ns-qualifier)
+                  (cider-current-ns)))
+         (kw-to-find (concat "::" (replace-regexp-in-string "^:+\\(.+/\\)?" "" kw))))
+
+    (when (and ns-qualifier (string= kw-ns (cider-current-ns)))
+      (error "Could not resolve alias `%s' in `%s'" ns-qualifier (cider-current-ns)))
+    (cider--find-ns kw-ns arg)
+    (search-forward-regexp kw-to-find nil 'noerror)))
+
 (defvar cider-completion-last-context nil)
 
 (defun cider-completion-symbol-start-pos ()

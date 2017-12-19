@@ -269,6 +269,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     ("Find (jump to)"
      ["Find definition" cider-find-var]
      ["Find resource" cider-find-resource]
+     ["Find keyword" cider-find-keyword]
      ["Go back" cider-pop-back])
     ("Macroexpand"
      ["Macroexpand-1" cider-macroexpand-1]
@@ -301,6 +302,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
+    (define-key map (kbd "C-c C-:") #'cider-find-keyword)
     (define-key map (kbd "M-,") #'cider-pop-back)
     (define-key map (kbd "C-c M-.") #'cider-find-resource)
     (define-key map (kbd "M-TAB") #'complete-symbol)

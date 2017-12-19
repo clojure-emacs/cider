@@ -1431,6 +1431,7 @@ constructs."
 (declare-function cider-find-resource "cider-interaction")
 (declare-function cider-restart "cider-interaction")
 (declare-function cider-find-ns "cider-interaction")
+(declare-function cider-find-keyword "cider-interaction")
 (declare-function cider-switch-to-last-clojure-buffer "cider-mode")
 
 (defvar cider-repl-mode-map
@@ -1440,6 +1441,7 @@ constructs."
     (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
+    (define-key map (kbd "C-c C-:") #'cider-find-keyword)
     (define-key map (kbd "M-,") #'cider-pop-back)
     (define-key map (kbd "C-c M-.") #'cider-find-resource)
     (define-key map (kbd "RET") #'cider-repl-return)
@@ -1486,6 +1488,7 @@ constructs."
         ("Find"
          ["Find definition" cider-find-var]
          ["Find resource" cider-find-resource]
+         ["Find keyword" cider-find-keyword]
          ["Go back" cider-pop-back])
         "--"
         ["Switch to Clojure buffer" cider-switch-to-last-clojure-buffer]
