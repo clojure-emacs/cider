@@ -79,33 +79,36 @@ $ make test-bytecomp
 
 #### Running the tests in Travis CI
 
-If you prefer to see the full Travis test suite run successfully, the easiest
+If you prefer to see the full Travis CI test suite run successfully, the easiest
 way to achieve that is to create your own personal account on
-https://travis-ci.org. View your profile details on the Travis site, and toggle
-the switch to enable builds on your fork of the cider project.
+https://travis-ci.org. View your profile details on the Travis CI site, and
+toggle the switch to enable builds on your fork of the cider project.
 
-Subsequent pushes to your fork will generate a Travis build you can monitor for
-success or failure.
+Subsequent pushes to your fork will generate a Travis CI build you can monitor
+for success or failure.
 
-#### Simulating the Travis tests locally in Docker
+#### Simulating the Travis CI tests locally in Docker
 
-If you prefer not to wait for Travis all the time, or if you need to debug
-something that fails in Travis but does not fail for you on your own machine,
-then you can also run the Travis tests manually in Docker.
+If you prefer not to wait for Travis CI all the time, or if you need to debug
+something that fails in Travis CI but does not fail for you on your own machine,
+then you can also run the Travis CI tests manually in Docker.
 
 You will need to run some scripts to build and launch the Docker image.
 
 To build:
+
 ```
 $ docker/build.sh
 ```
 
-The build script uses a base image provided by the engineers at Travis. Note: the
-Travis docker image is currently more than 8GB, so be prepared with a good
-internet connection and time to spare.
+The build script uses a base image provided by the engineers at Travis CI.
+
+*Note: The Travis docker image is currently more than 8GB, so be prepared with a
+good internet connection and time to spare.*
 
 The resulting docker image is tagged simply `cider-travis`. You can run this
 image by hand, but there is a convenience script available:
+
 ```
 $ docker/run.sh
 ```
@@ -114,20 +117,22 @@ This script launches a docker container and bind-mounts your cider project
 directory as `/home/travis/cider` such that you can instantly see any code
 changes reflected inside the docker environment.
 
-For instance, you can run tests on emacs 25.3
+For instance, first you can run tests on Emacs 25.3:
+
 ```
 (emacs-25.3-travis) ~/cider$ make test
 ```
 
-and then switch to emacs 26 and test again
+And then switch to Emacs 26.1 and test again:
 
 ```
-(emacs-25.3-travis) ~/cider$ evm use emacs-26-pretest-travis
+(emacs-25.3-travis) ~/cider$ evm use Emacs-26-pretest-travis
 (emacs-26-pretest-travis) ~/cider$ cask install
 (emacs-26-pretest-travis) ~/cider$ make test
 ```
 
 You can test byte compilation too
+
 ```
 (emacs-26-pretest-travis) ~/cider$ make test-bytecomp
 ```
@@ -138,9 +143,9 @@ container will also exit. Note that `docker/run.sh` runs the container with
 container exits.
 
 So for example, by default, the docker image pre-installs only the most recent
-releases of emacs 25, emacs 26, and a recent snapshot of the emacs git
+releases of Emacs 25, Emacs 26, and a recent snapshot of the Emacs git
 repository. The `evm` tool is available should you need to install some other
-specific build. However additional versions of emacs will be discarded when
+specific build. However additional versions of Emacs will be discarded when
 you exit the docker container.
 
 ## Hacking on cider-nrepl
