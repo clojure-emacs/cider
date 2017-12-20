@@ -1,10 +1,8 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Setup a newer gnutls-cli on Travis CI
 # We need this as long as the Travis workers are Ubuntu 14.04
 # and the TLS cert chain on elpa.gnu.org is out-of-order
-
-set -x
 
 # adjust these versions as needed
 export NETTLE_VERSION=3.4
@@ -13,6 +11,12 @@ export GNUTLS_VERSION=3.5.16
 export WORKDIR=${HOME}/local/
 export LD_LIBRARY_PATH=${WORKDIR}/lib/
 export PKG_CONFIG_PATH=${WORKDIR}/lib/pkgconfig/
+
+# make sure workdir exists
+if [ ! -d ${WORKDIR} ]
+then
+    mkdir $WORKDIR
+fi
 
 # exit if the cache is valid and up-to-date
 if [ -f ${WORKDIR}/bin/gnutls-cli ] && \

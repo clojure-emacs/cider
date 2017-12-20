@@ -1,14 +1,13 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Install evm for Travis CI
 # or if already installed, then check for updates
 
-set -x
-
 WORKDIR=${HOME}/local
 EVMDIR=$WORKDIR/evm
+SCRIPTDIR=`dirname $(readlink -f $0)`
 
-. travis-ci/retry.sh
+. $SCRIPTDIR/retry.sh
 
 if [ -d $EVMDIR ]
 then
