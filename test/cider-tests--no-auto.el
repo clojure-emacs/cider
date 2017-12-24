@@ -85,7 +85,7 @@ from the latter. Remaining content is compared for string equality."
         (let ((name (cond ((symbolp sym) (symbol-name sym))
                           ((listp sym) (symbol-name (cadr sym))))))
           (if name
-              (when (not (cider-test-doc name))
+              (unless (cider-test-doc name)
                 (setq diffs (cons sym diffs)))
             (setq untested (cons sym untested)))))
       (when untested

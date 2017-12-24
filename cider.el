@@ -348,7 +348,7 @@ string is quoted for passing as argument to an inferior shell."
 (defun cider-boot-dependencies (dependencies)
   "Return a list of boot artifact strings created from DEPENDENCIES."
   (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
-          (when (not (seq-empty-p dependencies)) " ")))
+          (unless (seq-empty-p dependencies) " ")))
 
 (defun cider-boot-middleware-task (params middlewares)
   "Create a command to add MIDDLEWARES with corresponding PARAMS."
@@ -366,7 +366,7 @@ PLUGINS and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
 `cider-boot-middleware-task` before concatenating and DEPENDENCIES and PLUGINS
  are passed on to `cider-boot-dependencies`."
   (concat global-opts
-          (when (not (seq-empty-p global-opts)) " ")
+          (unless (seq-empty-p global-opts) " ")
           "-i \"(require 'cider.tasks)\" " ;; Note the white space at the end here
           (cider-boot-dependencies (append dependencies plugins))
           (cider-boot-middleware-task params middlewares)))
@@ -390,7 +390,7 @@ Does so by concatenating GLOBAL-OPTS, DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
 removed, LEIN-PLUGINS, and finally PARAMS."
   (concat
    global-opts
-   (when (not (seq-empty-p global-opts)) " ")
+   (unless (seq-empty-p global-opts) " ")
    (mapconcat #'identity
               (append (seq-map (lambda (dep)
                                  (let ((exclusions (cadr (assoc (car dep) dependencies-exclusions))))
@@ -447,7 +447,7 @@ dependencies."
              cider-jack-in-nrepl-middlewares))
     ("gradle" (concat
                global-opts
-               (when (not (seq-empty-p global-opts)) " ")
+               (unless (seq-empty-p global-opts) " ")
                params))
     (_ (error "Unsupported project type `%s'" project-type))))
 

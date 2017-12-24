@@ -615,7 +615,7 @@ text from the *cider-repl-history* buffer."
                              #'copy-sequence
                            #'substring-no-properties)
                          cider-command-history)))
-            (when (not cider-repl-history-display-duplicates)
+            (unless cider-repl-history-display-duplicates
               ;; display highest or lowest duplicate.
               ;; if `cider-repl-history-display-duplicate-highest' is t,
               ;; display highest (most recent) duplicate.

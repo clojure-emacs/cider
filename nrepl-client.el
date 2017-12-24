@@ -545,9 +545,9 @@ key-values depending on the connection type."
 If NO-ERROR is non-nil, show messages instead of throwing an error."
   (if (not (and host port))
       (unless no-error
-        (when (not host)
+        (unless host
           (error "[nREPL] Host not provided"))
-        (when (not port)
+        (unless port
           (error "[nREPL] Port not provided")))
     (message "[nREPL] Establishing direct connection to %s:%s ..." host port)
     (condition-case nil
