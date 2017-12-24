@@ -7,6 +7,7 @@
 [![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/bbatsov/donate)
 [![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
 [![OpenCollective](https://opencollective.com/cider/sponsors/badge.svg)](#open-collective-sponsors)
+[![Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://www.patreon.com/bbatsov)
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
 <p align="center">
@@ -167,6 +168,7 @@ to become a CIDER sponsor.
 You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
 [Open Collective](https://opencollective.com/cider),
 [Salt](https://salt.bountysource.com/teams/cider),
+[Patreon](https://www.patreon.com/bbatsov),
 [Liberapay](https://liberapay.com/bbatsov/donate) and PayPal.
 
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
