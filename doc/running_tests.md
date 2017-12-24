@@ -3,11 +3,22 @@
 You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c C-t
 n</kbd> or <kbd>C-c C-t C-n</kbd> in a source buffer or a REPL buffer will run
 the tests for the namespace you're currently in. CIDER is smart enough to figure
-out the namespace containing the tests. You can also run all loaded tests with
-<kbd>C-c C-t l</kbd> or <kbd>C-c C-t C-l</kbd> and all tests within a project
-with <kbd>C-c C-t p</kbd> or <kbd>C-c C-t C-p</kbd> (note that this will load
-**all** namespaces in your project). Using <kbd>C-c C-t t</kbd> or <kbd>C-c C-t
-C-t</kbd>, you can execute only the test a point.
+out the namespace containing the tests. The inference logic works in a pretty
+simple manner - if you're in an implementation namespace (e.g. `some.ns`) CIDER
+will try to find a matching test namespace (by default `some.ns-test`) and run
+the tests there. On the other hand - if you're in something that looks like a
+test namespace (e.g. `some.ns-test`), then the command will simply run the tests
+in that namespace. From time to time, however, you might want to suppress the
+test namespace inference logic (e.g. you have some tests in the implementation
+namespace that were defined with `clojure.test/with-test`)
+- in such cases you should use <kbd>C-u C-c C-t C-n</kbd>, which will simply run
+whatever tests are present in the currently visited/active namespace.
+
+You can also run all loaded tests with <kbd>C-c C-t l</kbd> or <kbd>C-c C-t
+C-l</kbd> and all tests within a project with <kbd>C-c C-t p</kbd> or <kbd>C-c
+C-t C-p</kbd> (note that this will load **all** namespaces in your
+project). Using <kbd>C-c C-t t</kbd> or <kbd>C-c C-t C-t</kbd>, you can execute
+only the test a point.
 
 All test commands are available in REPL buffers as well. There you can also use
 <kbd>,</kbd> to invoke some of the testing commands.
