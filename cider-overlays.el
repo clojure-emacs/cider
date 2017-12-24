@@ -241,9 +241,7 @@ overlay."
                (cider--remove-result-overlay-after-command))))
           (when-let* ((win (get-buffer-window buffer)))
             ;; Left edge is visible.
-            (when (and (<= (window-start win) (point))
-                       ;; In 24.3 `<=' is still a binary perdicate.
-                       (<= (point) (window-end win))
+            (when (and (<= (window-start win) (point) (window-end win))
                        ;; Right edge is visible. This is a little conservative
                        ;; if the overlay contains line breaks.
                        (or (< (+ (current-column) (string-width value))
