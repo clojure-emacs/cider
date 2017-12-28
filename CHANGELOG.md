@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.16.0 (2017-12-28)
+
 ### New Features
 
 * [#2082](https://github.com/clojure-emacs/cider/pull/2082), [cider-nrepl#440](https://github.com/clojure-emacs/cider-nrepl/pull/440): Add specialized stacktraces for clojure.spec assertions.
