@@ -273,12 +273,21 @@ are, however, ways to improve upon the standard completion if you wish to.
 (require 'icomplete)
 ```
 
+You can learn more about `icomplete`
+[here](https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html).
+
 ### ido
 
 `ido` is also bundled with Emacs and offers more features than `icomplete`.
 If you are using `ido`, be sure to use both `ido-everywhere`
-and [`ido-ubiquitous`](https://github.com/DarwinAwardWinner/ido-ubiquitous).
+and [`ido-completing-read+`](https://github.com/DarwinAwardWinner/ido-completing-read-plus).
 You might also want to install [`ido-flex`](https://github.com/lewang/flx).
+
+### ivy (recommended)
+
+If you're fine with installing a third-party package for enhanced minibuffer
+completion you can't go wrong with the modern and versatile
+[ivy](http://oremacs.com/2015/04/16/ivy-mode/).
 
 ## Pretty-printing
 
