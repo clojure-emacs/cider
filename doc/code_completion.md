@@ -1,6 +1,11 @@
 CIDER provides intelligent code completion for both source buffers (powered by
 `cider-mode`) and REPL buffers.
 
+Internally CIDER leverages
+[compliment](https://github.com/alexander-yakushev/compliment) for Clojure and
+[cljs-tooling](https://github.com/clojure-emacs/cljs-tooling) for ClojureScript.
+Improvements to the two libraries automatically translate to improvements in CIDER.
+
 ## Standard completion
 
 Out-of-the box CIDER uses the standard Emacs tooling for code completion. When you
