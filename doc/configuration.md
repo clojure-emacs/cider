@@ -1,32 +1,44 @@
+In the spirit of Emacs almost every aspect of CIDER's behaviour
+is configurable. We've tried to come up with some reasonable
+defaults, but we've also tried to account for different people's
+preferences, so everyone could make CIDER as comfortable as
+possible for them.
+
+You can see every single customizable configuration option with the command
+<kbd>M-x customize-group RET cider</kbd>.
+
 You can certainly use CIDER without configuring it any further,
 but here are some ways other folks are adjusting their CIDER
 experience.
 
 ## Basic configuration
 
-* Suppress auto-enabling of `cider-mode` in `clojure-mode` buffers, when starting
-  CIDER:
-
-```el
-(setq cider-auto-mode nil)
-```
+### Auto-enabling cider-mode in clojure-mode buffers
 
 By default CIDER will enable `cider-mode` in all `clojure-mode` buffers when the
 first CIDER connection is established. It will also add a `clojure-mode` hook to
 enable it on newly created `clojure-mode` buffers. The configuration snippet
-above allows you to override this (somewhat non-standard) behavior.
+bellow allows you to override this (somewhat non-standard) behavior.
 
-* By default, interactive commands that require a symbol (e.g. `cider-doc`) will
-  prompt for the symbol, with the prompt defaulting to the symbol at point. You
-  can set `cider-prompt-for-symbol` to `nil` to instead try the command with the
-  symbol at point first, and only prompt if that fails (this used to be the
-  default behavior in older CIDER releases).
+
+```el
+;; Suppress auto-enabling of `cider-mode` in `clojure-mode` buffers, when starting CIDER
+(setq cider-auto-mode nil)
+```
+
+### Prompt for confirmation of the symbol at point
+
+By default, interactive commands that require a symbol (e.g. `cider-doc`) will
+prompt for the symbol, with the prompt defaulting to the symbol at point. You
+can set `cider-prompt-for-symbol` to `nil` to instead try the command with the
+symbol at point first, and only prompt if that fails (this used to be the
+default behavior in older CIDER releases).
 
 ```el
 (setq cider-prompt-for-symbol nil)
 ```
 
-* Log communication with the nREPL server:
+### Log communication with the nREPL server
 
 ```el
 (setq nrepl-log-messages t)
@@ -37,7 +49,9 @@ conn-name*`. The communication log is invaluable for debugging CIDER issues, so
 you're generally advised to enable logging when you need to debug something
 nREPL related.
 
-* You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
+### Hide special nREPL buffers
+
+You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
 from appearing in some buffer switching commands like
 `switch-to-buffer`(<kbd>C-x b</kbd>) like this:
 
@@ -49,14 +63,18 @@ When using `switch-to-buffer`, pressing <kbd>SPC</kbd> after the command will
 make the hidden buffers visible. They'll always be visible in
 `list-buffers` (<kbd>C-x C-b</kbd>).
 
-* To prefer local resources to remote (tramp) ones when both are available:
+### Prefer local resources over remote ones
+
+To prefer local resources to remote (tramp) ones when both are available:
 
 ```el
 (setq cider-prefer-local-resources t)
 ```
 
-* Prevent <kbd>C-c C-k</kbd> from prompting to save the file corresponding to
-  the buffer being loaded, if it's modified:
+### Auto-save Clojure buffers on load
+
+Normally CIDER would prompt you to save a modified Clojure buffer on <kbd>C-c C-k</kbd> (`cider-load-buffer`).
+You can change this behaviour by adjusting `cider-save-file-on-load`:
 
 ```el
 ;; Don't prompt and don't save
@@ -65,7 +83,9 @@ make the hidden buffers visible. They'll always be visible in
 (setq cider-save-file-on-load t)
 ```
 
-* Change the result prefix for interactive evaluation (by default it's `=> `):
+### Changing the result prefix for interactive evaluation
+
+Change the result prefix for interactive evaluation (by default it's `=> `):
 
 ```el
 (setq cider-eval-result-prefix ";; => ")
@@ -73,25 +93,29 @@ make the hidden buffers visible. They'll always be visible in
 
 To remove the prefix altogether just set it to an empty string(`""`).
 
-* CIDER can syntax highlight symbols that are known to be defined. By default,
-  this is done on symbols from the `clojure.core` namespace as well as macros
-  from any namespace. If you'd like CIDER to also colorize usages of functions
-  and variables from any namespace, do:
+### Dynamic Syntax Highlighting
+
+CIDER can syntax highlight symbols that are known to be defined. By default,
+this is done on symbols from the `clojure.core` namespace as well as macros
+from any namespace. If you'd like CIDER to also colorize usages of functions
+and variables from any namespace, do:
 
 ```el
 (setq cider-font-lock-dynamically '(macro core function var))
 ```
 
-* If you are targeting the JVM and prefer a local copy of the JDK API
-  documentation over Oracle's official copy (e.g., for
-  [JavaSE 8](http://docs.oracle.com/javase/8/docs/api/)), per nREPL's
-  [`javadoc-info` logic (accurate as of 29 Dec 2014)](http://docs.oracle.com/javase/8/docs/api/),
-  you can arrange your project to include the **root** path of the local API doc
-  (i.e., where the `index.html` is located) to be included on your classpath
-  (i.e., where the doc HTML files can be located by
-  `clojure.java.io/resource`). For example, for Leiningen, with the local API
-  path being `/usr/share/doc/java/api/`, put the following line in
-  `project.clj`:
+### Use a local copy of the JDK API documentation
+
+If you are targeting the JVM and prefer a local copy of the JDK API
+documentation over Oracle's official copy (e.g., for
+[JavaSE 8](http://docs.oracle.com/javase/8/docs/api/)), per nREPL's
+[`javadoc-info` logic (accurate as of 29 Dec 2014)](http://docs.oracle.com/javase/8/docs/api/),
+you can arrange your project to include the **root** path of the local API doc
+(i.e., where the `index.html` is located) to be included on your classpath
+(i.e., where the doc HTML files can be located by
+`clojure.java.io/resource`). For example, for Leiningen, with the local API
+path being `/usr/share/doc/java/api/`, put the following line in
+`project.clj`:
 
 ```clj
 :dev {:resource-paths ["/usr/share/doc/java/api/"]}
@@ -105,33 +129,37 @@ To remove the prefix altogether just set it to an empty string(`""`).
 
 More details can be found [here](https://github.com/clojure-emacs/cider/issues/930).
 
-* You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apropos*`
-  commands by customizing the variable `cider-filter-regexps`. It should be a list of
-  regexps matching the pattern of namespaces you want to filter out.
+### Filter out namespaces in certain namespace-related commands
 
-  Its default value is `'("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl")`,
-  the most commonly used middleware collections/packages.
+You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apropos*`
+commands by customizing the variable `cider-filter-regexps`. It should be a list of
+regexps matching the pattern of namespaces you want to filter out.
 
-  An important thing to note is that this list of regexps is passed on to the middleware
-  without any pre-processing. So, the regexps have to be in Clojure format (with twice the number of backslashes)
-  and not Emacs Lisp. For example, to achieve the above effect, you could also set `cider-filter-regexps` to `'(".*nrepl")`.
+Its default value is `'("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl")`,
+the most commonly used middleware collections/packages.
 
-  To customize `cider-filter-regexps`, you could use the Emacs customize UI,
-  with <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-filter-regexps`.
+An important thing to note is that this list of regexps is passed on to the middleware
+without any pre-processing. So, the regexps have to be in Clojure format (with twice the number of backslashes)
+and not Emacs Lisp. For example, to achieve the above effect, you could also set `cider-filter-regexps` to `'(".*nrepl")`.
 
-  Or by including a similar snippet along with the other CIDER configuration.
+To customize `cider-filter-regexps`, you could use the Emacs customize UI,
+with <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-filter-regexps`.
+
+Or by including a similar snippet along with the other CIDER configuration.
 
 ```el
 (setq cider-filter-regexps '(".*nrepl"))
 ```
 
-* By default contents of CIDER's special buffers such as `*cider-test-report*`
-  or `*cider-doc*` are line truncated. You can set
-  `cider-special-mode-truncate-lines` to `nil` to make those buffers use word
-  wrapping instead of line truncating.
+### Truncate long lines in special buffers
 
-  This variable should be set before loading CIDER (which means before
-  `require`-ing it or autoloading it).
+By default contents of CIDER's special buffers such as `*cider-test-report*`
+or `*cider-doc*` are line truncated. You can set
+`cider-special-mode-truncate-lines` to `nil` to make those buffers use word
+wrapping instead of line truncating.
+
+**This variable should be set before loading CIDER** (which means before
+`require`-ing it or autoloading it).
 
 ``` el
 (setq cider-special-mode-truncate-lines nil)
