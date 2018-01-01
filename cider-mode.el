@@ -186,12 +186,12 @@ Returns to the buffer in which the command was invoked."
 (defconst cider-mode-menu
   `("CIDER"
     ["Start a REPL" cider-jack-in
-     :help "Starts an nREPL server (with lein, boot, or maven) and connects a REPL to it."]
+     :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
     ["Connect to a REPL" cider-connect
      :help "Connects to a REPL that's already running."]
     ["Quit" cider-quit :active cider-connections]
     ["Restart" cider-restart :active cider-connections]
-    ("Clojurescript"
+    ("ClojureScript"
      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
       :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
 Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your build tool."]
@@ -358,7 +358,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
   This is displayed in `clojure-mode' buffers, if `cider-mode' is not active."
      `("CIDER" :visible (not cider-mode)
        ["Start a REPL" cider-jack-in
-        :help "Starts an nREPL server (with lein, boot, or maven) and connects a REPL to it."]
+        :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
        ["Connect to a REPL" cider-connect
         :help "Connects to a REPL that's already running."]
        ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
