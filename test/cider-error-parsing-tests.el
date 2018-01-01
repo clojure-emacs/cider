@@ -1,6 +1,6 @@
 ;;; cider-error-parsing-tests.el
 
-;; Copyright © 2012-2017 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2018 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>

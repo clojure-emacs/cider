@@ -1,6 +1,6 @@
 ;;; cider-grimoire.el --- Grimoire integration -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2017 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2018 Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 

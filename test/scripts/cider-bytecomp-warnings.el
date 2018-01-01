@@ -1,6 +1,6 @@
 ;;; cider-bytecomp-warnings.el --- Check for byte-compilation problems
 
-;; Copyright © 2012-2017 Bozhidar Batsov and contributors
+;; Copyright © 2012-2018 Bozhidar Batsov and contributors
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
