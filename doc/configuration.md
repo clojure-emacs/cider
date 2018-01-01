@@ -20,7 +20,6 @@ first CIDER connection is established. It will also add a `clojure-mode` hook to
 enable it on newly created `clojure-mode` buffers. The configuration snippet
 bellow allows you to override this (somewhat non-standard) behavior.
 
-
 ```el
 ;; Suppress auto-enabling of `cider-mode` in `clojure-mode` buffers, when starting CIDER
 (setq cider-auto-mode nil)
