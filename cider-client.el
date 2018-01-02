@@ -225,14 +225,35 @@ such a link cannot be established automatically."
     (when conn
       (setq-local cider-connections (list conn)))))
 
-(defun cider-toggle-buffer-connection ()
-  "Toggle the current buffer's connection between Clojure and ClojureScript."
-  (interactive)
+(defun cider-toggle-buffer-connection (&optional restore-all)
+  "Toggle the current buffer's connection between Clojure and ClojureScript.
+
+Default behavior of a cljc buffer is to send eval commands to both Clojure
+and ClojureScript.  This function sets a local buffer variable to hide one
+or the other.  Optional argument RESTORE-ALL undo any toggled behavior by
+using the default list of connections."
+  (interactive "P")
   (cider-ensure-connected)
-  (let ((other-conn (cider-other-connection)))
-    (if other-conn
-        (setq-local cider-connections (list other-conn))
-      (user-error "No other connection available"))))
+  (if restore-all
+      (progn
+        (kill-local-variable 'cider-connections)
+        (let ((types (mapcar #'cider--connection-type (cider-connections))))
+          (message (format "Cider connections available: %s" types))))
+    (let ((current-conn (cider-current-connection))
+          (was-local (local-variable-p 'cider-connections))
+          (original-connections (cider-connections)))
+      ;; we set the local variable to eclipse all connections in favor of the
+      ;; toggled connection. to recover the full list we must remove the
+      ;; obfuscation
+      (kill-local-variable 'cider-connections)
+      (if-let* ((other-conn (cider-other-connection current-conn)))
+        (progn
+          (setq-local cider-connections (list other-conn))
+          (message (format "Connection set to %s" (cider--connection-type other-conn))))
+        (progn
+          (when was-local
+            (setq-local cider-connections original-connections))
+          (user-error "No other connection available"))))))
 
 (defun cider-clear-buffer-local-connection ()
   "Remove association between the current buffer and a connection."

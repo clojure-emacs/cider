@@ -235,6 +235,46 @@
             :to-equal "stub")
     (expect (cider-var-info "") :to-equal nil)))
 
+(describe "cider-toggle-buffer-connection"
+  (spy-on 'message :and-return-value nil)
+
+  (describe "when there are multiple connections"
+    (it "toggles between multiple buffers"
+      (with-connection-buffer "clj" clj-buffer
+        (with-connection-buffer "cljs" cljs-buffer
+          (with-temp-buffer
+            (setq major-mode 'clojurec-mode)
+            (expect (cider-connections)
+                    :to-equal (list cljs-buffer clj-buffer))
+
+            (cider-toggle-buffer-connection)
+            (expect (cider-connections)
+                    :to-equal (list clj-buffer))
+
+            (cider-toggle-buffer-connection)
+            (expect (cider-connections)
+                    :to-equal (list cljs-buffer))
+
+            (cider-toggle-buffer-connection t)
+            (expect (cider-connections)
+                    :to-equal (list cljs-buffer clj-buffer)))))))
+
+  (describe "when there is a single connection"
+    (it "reports a user error"
+      (with-connection-buffer "clj" clj-buffer
+        (with-temp-buffer
+          (setq major-mode 'clojurec-mode)
+          (expect (cider-connections)
+                  :to-equal (list clj-buffer))
+
+          (expect (cider-toggle-buffer-connection) :to-throw 'user-error)
+
+          (expect (cider-connections)
+                  :to-equal (list clj-buffer))
+
+          (expect (local-variable-p 'cider-connections)
+                  :to-be nil))))))
+
 (describe "cider-make-connection-default"
   :var (connections)
 
