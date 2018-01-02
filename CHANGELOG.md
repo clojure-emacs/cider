@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* [#2151](https://github.com/clojure-emacs/cider/pull/2151) Improve formatting of spec in `cider-doc` buffer
+
 ## 0.16.0 (2017-12-28)
 
 ### New Features
