@@ -215,3 +215,17 @@ You should also check out
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/cemerick/piggieback
+
+## Working with cljc files
+
+Ordinarily, CIDER dispatches code from `clj` files to Clojure repls and `cljs`
+files to ClojureScript repls. However, `cljc` files have two possible connection
+targets. By default, CIDER tries to evaluate `cljc` files in all connection
+buffers, both `clj` and `cljs`. This can be modified with
+`M-x cider-toggle-connection-buffer`. Toggling this once will choose one of the
+connections as the primary, and successive calls to `M-x
+cider-toggle-connection-buffer` will alternate which connection to use. To
+restore evaluation to both connections, invoke `M-x
+cider-toggle-connection-buffer` with a prefix argument. If there is only a
+Clojure connection, no toggling will happen and a message will inform you that
+there are no other connections to switch to.
