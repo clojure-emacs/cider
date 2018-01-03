@@ -216,16 +216,25 @@ You should also check out
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/cemerick/piggieback
 
-## Working with cljc files
+## Working with `.cljc` files
 
-Ordinarily, CIDER dispatches code from `clj` files to Clojure repls and `cljs`
-files to ClojureScript repls. However, `cljc` files have two possible connection
-targets. By default, CIDER tries to evaluate `cljc` files in all connection
-buffers, both `clj` and `cljs`. This can be modified with
-`M-x cider-toggle-connection-buffer`. Toggling this once will choose one of the
-connections as the primary, and successive calls to `M-x
-cider-toggle-connection-buffer` will alternate which connection to use. To
-restore evaluation to both connections, invoke `M-x
-cider-toggle-connection-buffer` with a prefix argument. If there is only a
-Clojure connection, no toggling will happen and a message will inform you that
-there are no other connections to switch to.
+Ordinarily, CIDER dispatches code from `clj` files to Clojure REPLs and `cljs`
+files to ClojureScript REPLs. However, `cljc` files have two possible connection
+targets. By default, CIDER tries to evaluate `cljc` files in all matching
+connection buffers, both `clj` and `cljs` (if present).
+
+Simply put - if you're evaluating the code `(+ 2 2)` in a `cljc` file and you
+have an active Clojure and and active ClojureScript REPL, then the code is going
+to be evaluated 2 times - once for each of them. This behavior might be a bit
+confusing, but that's what we came up with, when ruminating what was the most
+logical thing to do out-of-the-box.
+
+This can be modified with <kbd>M-x</kbd> `cider-toggle-connection-buffer`
+<kbd>RET</kbd>. Toggling this once will choose one of the connections as the
+primary, and successive calls to <kbd>M-x</kbd> `cider-toggle-connection-buffer`
+<kbd>RET</kbd> will alternate which connection to use. To restore evaluation to
+both connections, invoke `cider-toggle-connection-buffer` with a prefix argument
+(<kbd>C-u M-x</kbd> `cider-toggle-connection-buffer` <kbd>RET</kbd>).
+
+If there is only a Clojure connection, no toggling will happen and a message
+will inform you that there are no other connections to switch to.
