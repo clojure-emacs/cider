@@ -4,11 +4,11 @@
 
 ### Bugs Fixed
 
-* [#1913](https://github.com/clojure-emacs/cider/issues/1913): Fix `cider-toggle-buffer-connection` to allow cycling of connection and restoring all connections in cljc buffers
+* [#1913](https://github.com/clojure-emacs/cider/issues/1913): Fix `cider-toggle-buffer-connection` to allow cycling of connection and restoring all connections in cljc buffers.
 
 ### Changes
 
-* [#2151](https://github.com/clojure-emacs/cider/pull/2151) Improve formatting of spec in `cider-doc` buffer
+* [#2151](https://github.com/clojure-emacs/cider/pull/2151) Improve formatting of spec in `cider-doc` buffer.
 
 ## 0.16.0 (2017-12-28)
 
