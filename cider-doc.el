@@ -462,7 +462,16 @@ Tables are marked to be ignored by line wrap."
         (insert "\n")
         (when spec
           (emit "Spec: " 'font-lock-function-name-face)
-          (mapc (lambda (s) (insert s "\n")) spec)
+          (dolist (part spec)
+            (let ((role (car part))
+                  (desc (cadr part)))
+              (insert (format "%-4s: " role))
+              (thread-first desc
+                cider-sync-request:format-code
+                cider-font-lock-as-clojure
+                (split-string "\n")
+                insert-rectangle))
+            (insert "\n"))
           (insert "\n"))
         (if cider-docview-file
             (progn
