@@ -172,7 +172,10 @@ Clojure buffer and the REPL buffer."
 (defun cider-find-and-clear-repl-output (&optional clear-repl)
   "Find the current REPL buffer and clear it.
 With a prefix argument CLEAR-REPL the command clears the entire REPL buffer.
-Returns to the buffer in which the command was invoked."
+Returns to the buffer in which the command was invoked.
+
+See also the related commands `cider-repl-clear-buffer' and
+`cider-repl-clear-output'."
   (interactive "P")
   (let ((origin-buffer (current-buffer)))
     (switch-to-buffer (cider-current-repl-buffer))
