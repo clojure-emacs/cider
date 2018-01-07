@@ -123,6 +123,22 @@ create a valid path."
         (match-string 1 filename)
       filename)))
 
+(defun cider-make-tramp-prefix (method user host)
+  "Constructs a Tramp file prefix from METHOD, USER, HOST. It originated from 
+Tramp's `tramp-make-tramp-file-name'. The original be forced to make full file
+ name with `with-parsed-tramp-file-name', not providing prefix only option.
+This function does not support to emacs-version 26"
+  (concat tramp-prefix-format
+          (when (not (zerop (length method)))
+            (concat method tramp-postfix-method-format))
+          (when (not (zerop (length user)))
+            (concat user tramp-postfix-user-format))
+          (when host
+            (if (string-match tramp-ipv6-regexp host)
+                (concat tramp-prefix-ipv6-format host tramp-postfix-ipv6-format)
+              host))
+          tramp-postfix-host-format))
+
 (defun cider-tramp-prefix (&optional buffer)
   "Use the filename for BUFFER to determine a tramp prefix.
 Defaults to the current buffer.
@@ -137,7 +153,7 @@ Return the tramp prefix, or nil if BUFFER is local."
         ;; parameters in Emacs 26 instead of 4
         (if (version< emacs-version "26")
             (with-no-warnings
-              (tramp-make-tramp-file-name v-method v-user v-host v-localname))
+              (cider-make-tramp-prefix v-method v-user v-host))
           (with-no-warnings
             (tramp-make-tramp-file-name v-method v-user v-domain v-host v-port v-localname)))))))
 
@@ -147,6 +163,7 @@ If BUFFER has a tramp prefix, it will be added as a prefix to NAME.
 If the resulting path is an existing tramp file, it returns the path,
 otherwise, nil."
   (let* ((buffer (or buffer (current-buffer)))
+         (name (replace-regexp-in-string "^file:" "" name))
          (name (concat (cider-tramp-prefix buffer) name)))
     (if (tramp-handle-file-exists-p name)
         name)))
@@ -215,6 +232,7 @@ existing file ending with URL has been found."
                      ;; moves up to matching line
                      (forward-line -1)
                      (archive-extract)
+                     (kill-buffer (previous-buffer))
                      (current-buffer))
                  ;; Use external zip program to just extract the single file
                  (with-current-buffer (generate-new-buffer
