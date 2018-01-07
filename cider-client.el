@@ -238,7 +238,7 @@ using the default list of connections."
       (progn
         (kill-local-variable 'cider-connections)
         (let ((types (mapcar #'cider--connection-type (cider-connections))))
-          (message (format "Cider connections available: %s" types))))
+          (message (format "CIDER connections available: %s" types))))
     (let ((current-conn (cider-current-connection))
           (was-local (local-variable-p 'cider-connections))
           (original-connections (cider-connections)))
