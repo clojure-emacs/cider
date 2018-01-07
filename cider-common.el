@@ -127,7 +127,7 @@ create a valid path."
   "Constructs a Tramp file prefix from METHOD, USER, HOST.
 It originated from Tramp's `tramp-make-tramp-file-name'.  The original be forced
 to make full file name with `with-parsed-tramp-file-name', not providing
-prefix only option.  This function does not support to emacs 26 or later."
+prefix only option.  This function does not support to Emacs 26 or later."
   (concat tramp-prefix-format
           (when (not (zerop (length method)))
             (concat method tramp-postfix-method-format))
