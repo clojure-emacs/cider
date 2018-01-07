@@ -124,10 +124,10 @@ create a valid path."
       filename)))
 
 (defun cider-make-tramp-prefix (method user host)
-  "Constructs a Tramp file prefix from METHOD, USER, HOST. It originated from 
-Tramp's `tramp-make-tramp-file-name'. The original be forced to make full file
- name with `with-parsed-tramp-file-name', not providing prefix only option.
-This function does not support to emacs-version 26"
+  "Constructs a Tramp file prefix from METHOD, USER, HOST.
+It originated from Tramp's `tramp-make-tramp-file-name'.  The original be forced
+to make full file name with `with-parsed-tramp-file-name', not providing
+prefix only option.  This function does not support to `emacs-version' 26"
   (concat tramp-prefix-format
           (when (not (zerop (length method)))
             (concat method tramp-postfix-method-format))
