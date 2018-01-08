@@ -184,11 +184,11 @@
   :var (cider-version)
   (it "returns the manual correct url for stable cider versions"
     (setq cider-version "0.11.0")
-    (expect (cider-manual-url) :to-equal "http://cider.readthedocs.org/en/stable/"))
+    (expect (cider-manual-url) :to-equal "http://cider.readthedocs.io/en/stable/"))
 
   (it "returns the manual correct url for snapshot cider versions"
     (setq cider-version "0.11.0-snapshot")
-    (expect (cider-manual-url) :to-equal "http://cider.readthedocs.org/en/latest/")))
+    (expect (cider-manual-url) :to-equal "http://cider.readthedocs.io/en/latest/")))
 
 (describe "cider-refcard-url"
   :var (cider-version)

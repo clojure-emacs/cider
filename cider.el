@@ -60,7 +60,7 @@
   :prefix "cider-"
   :group 'applications
   :link '(url-link :tag "GitHub" "https://github.com/clojure-emacs/cider")
-  :link '(url-link :tag "Online Manual" "https://cider.readthedocs.org")
+  :link '(url-link :tag "Online Manual" "https://cider.readthedocs.io")
   :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
 (defcustom cider-prompt-for-project-on-connect 'when-needed

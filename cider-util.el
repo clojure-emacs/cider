@@ -399,7 +399,7 @@ plugin or dependency with:
 
 (defvar cider-version)
 
-(defconst cider-manual-url "http://cider.readthedocs.org/en/%s/"
+(defconst cider-manual-url "http://cider.readthedocs.io/en/%s/"
   "The URL to CIDER's manual.")
 
 (defun cider--manual-version ()
