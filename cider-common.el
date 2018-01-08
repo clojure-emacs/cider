@@ -219,6 +219,7 @@ existing file ending with URL has been found."
          (when-let* ((entry (match-string 3 url))
                      (file  (cider--url-to-file (match-string 2 url)))
                      (path  (cider--file-path file))
+                     (trash (replace-regexp-in-string "^/.+/" "" path))
                      (name  (format "%s:%s" path entry)))
            (or (find-buffer-visiting name)
                (if (tramp-tramp-file-p path)
@@ -232,7 +233,7 @@ existing file ending with URL has been found."
                      ;; moves up to matching line
                      (forward-line -1)
                      (archive-extract)
-                     (kill-buffer (previous-buffer))
+                     (kill-buffer trash)
                      (current-buffer))
                  ;; Use external zip program to just extract the single file
                  (with-current-buffer (generate-new-buffer
