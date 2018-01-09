@@ -18,7 +18,7 @@ You can also run all loaded tests with <kbd>C-c C-t l</kbd> or <kbd>C-c C-t
 C-l</kbd> and all tests within a project with <kbd>C-c C-t p</kbd> or <kbd>C-c
 C-t C-p</kbd> (note that this will load **all** namespaces in your
 project). Using <kbd>C-c C-t t</kbd> or <kbd>C-c C-t C-t</kbd>, you can execute
-only the test a point.
+only the test at point.
 
 All test commands are available in REPL buffers as well. There you can also use
 <kbd>,</kbd> to invoke some of the testing commands.
