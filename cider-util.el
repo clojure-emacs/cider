@@ -31,13 +31,16 @@
 
 ;;; Code:
 
-(require 'seq)
-(require 'clojure-mode)
-(require 'subr-x)
-(require 'cider-compat)
-(require 'nrepl-dict)
+;; Built-ins
 (require 'ansi-color)
 (require 'color)
+(require 'seq)
+(require 'subr-x)
+
+;; clojure-mode and CIDER
+(require 'cider-compat)
+(require 'clojure-mode)
+(require 'nrepl-dict)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 
