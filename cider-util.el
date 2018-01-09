@@ -37,6 +37,7 @@
 (require 'cider-compat)
 (require 'nrepl-dict)
 (require 'ansi-color)
+(require 'color)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 
@@ -336,19 +337,12 @@ propertized (defaults to current buffer)."
 
 ;;; Colors
 
-(defun cider-scale-color (color scale)
-  "For a COLOR hex string or name, adjust intensity of RGB components by SCALE."
-  (let* ((rgb (color-values color))
-         (scaled-rgb (mapcar (lambda (n)
-                               (format "%04x" (round (+ n (* scale 65535)))))
-                             rgb)))
-    (apply #'concat "#" scaled-rgb)))
-
 (defun cider-scale-background-color ()
   "Scale the current background color to get a slighted muted version."
   (let ((color (frame-parameter nil 'background-color))
-        (dark (eq (frame-parameter nil 'background-mode) 'dark)))
-    (cider-scale-color color (if dark 0.05 -0.05))))
+        (darkp (eq (frame-parameter nil 'background-mode) 'dark)))
+    (unless (equal "unspecified-bg" color)
+      (color-lighten-name color (if darkp 5 -5)))))
 
 (autoload 'pkg-info-version-info "pkg-info.el")
 
