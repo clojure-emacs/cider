@@ -141,7 +141,7 @@ prefix only option."
 
 (defun cider-tramp-prefix (&optional buffer)
   "Use the filename for BUFFER to determine a tramp prefix.
-Defaults to the current buffer. Return the tramp prefix, or nil
+Defaults to the current buffer.  Return the tramp prefix, or nil
 if BUFFER is local."
   (let* ((buffer (or buffer (current-buffer)))
          (name (or (buffer-file-name buffer)
