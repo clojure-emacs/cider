@@ -36,6 +36,7 @@
 (require 'org-table)
 (require 'button)
 (require 'easymenu)
+(require 'cider-browse-spec)
 
 
 ;;; Variables
@@ -461,18 +462,14 @@ Tables are marked to be ignored by line wrap."
           (insert ".\n"))
         (insert "\n")
         (when spec
-          (emit "Spec: " 'font-lock-function-name-face)
-          (dolist (part spec)
-            (let ((role (car part))
-                  (desc (cadr part)))
-              (insert (format "%-4s: " role))
-              (thread-first desc
-                cider-sync-request:format-code
-                cider-font-lock-as-clojure
-                (split-string "\n")
-                insert-rectangle))
-            (insert "\n"))
-          (insert "\n"))
+          (emit "Spec:" 'font-lock-function-name-face)
+          (insert (cider-browse-spec--pprint-indented spec))
+          (insert "\n\n")
+          (insert-text-button "Browse spec"
+                              'follow-link t
+                              'action (lambda (_)
+                                        (cider-browse-spec (format "%s/%s" ns name))))
+          (insert "\n\n"))
         (if cider-docview-file
             (progn
               (insert (propertize (if class java-name clj-name)

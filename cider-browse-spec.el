@@ -36,7 +36,6 @@
 
 (require 'cider-client)
 (require 'cider-compat)
-(require 'cider-interaction)
 (require 'cider-util)
 (require 'cl-lib)
 (require 'nrepl-dict)
@@ -233,15 +232,30 @@ Display TITLE at the top and SPECS are indented underneath."
             ;; prettier (s/fspec )
             ((cider--spec-fn-p form-tag "fspec")
              (thread-last (seq-partition (cl-rest form) 2)
+               (cl-remove-if (lambda (s) (and (stringp (cl-second s))
+                                              (string-empty-p (cl-second s))))) 
                (mapcar (lambda (s)
-                         (concat "\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s)))))
+                         (format "\n%-11s: %s" (pcase (cl-first s)
+                                                (":args" "arguments")
+                                                (":ret" "returns")
+                                                (":fn" "invariants"))
+                                 (cider-browse-spec--pprint (cl-second s)))))
                (cl-reduce #'concat)
-               (format "(s/fspec \n %s)")))
+               (format "%s")))
             ;; every other with no special management
             (t (format "(%s %s)"
                        (cider-browse-spec--pprint form-tag)
                        (string-join (mapcar #'cider-browse-spec--pprint (cl-rest form)) " "))))))
         (t (format "%s" form))))
+
+(defun cider-browse-spec--pprint-indented (spec-form)
+  "Given a SPEC-FORM returns a string with it pretty printed, indented and clojure font locked."
+  (with-temp-buffer
+    (clojure-mode)
+    (insert (cider-browse-spec--pprint spec-form))
+    (indent-region (point-min) (point-max))
+    (cider--font-lock-ensure)
+    (buffer-string)))
 
 (defun cider-browse-spec--draw-spec-buffer (buffer spec spec-form)
   "Reset contents of BUFFER and draws everything needed to browse the SPEC-FORM.
@@ -252,12 +266,7 @@ a more user friendly representation of SPEC-FORM."
       (cider--help-setup-xref (list #'cider-browse-spec spec) nil buffer)
       (goto-char (point-max))
       (insert (cider-font-lock-as-clojure spec) "\n\n")
-      (insert (with-temp-buffer
-                (clojure-mode)
-                (insert (cider-browse-spec--pprint spec-form))
-                (indent-region (point-min) (point-max))
-                (cider--font-lock-ensure)
-                (buffer-string)))
+      (insert (cider-browse-spec--pprint-indented spec-form))
       (cider--make-back-forward-xrefs)
       (current-buffer))))
 
