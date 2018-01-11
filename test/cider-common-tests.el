@@ -5,6 +5,7 @@
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>
+;;         HyungSuk Ryu <soulawaker@gmail.com>
 
 ;; This file is NOT part of GNU Emacs.
 
