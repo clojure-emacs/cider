@@ -673,6 +673,18 @@ gets associated with it."
            ;; always prompt
            (t (cider-assoc-project-with-connection nil conn))))))))
 
+(defun cider-repl-set-type (&optional type)
+  "Set REPL TYPE to \"clj\" or \"cljs\"."
+  (interactive)
+  (let ((type (or type (completing-read "Set REPL type to: " '("clj" "cljs")))))
+    (setq cider-repl-type type)))
+
+(defun cider-connect-clojurescript ()
+  "Connect to a clojurescript repl."
+  (interactive)
+  (cider-connect)
+  (cider-repl-set-type "cljs"))
+
 (defun cider-current-host ()
   "Retrieve the current host."
   (if (and (stringp buffer-file-name)

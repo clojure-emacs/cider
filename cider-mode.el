@@ -228,6 +228,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
 (defconst cider-mode-eval-menu
   '("CIDER Eval" :visible cider-connections
     ["Eval top-level sexp" cider-eval-defun-at-point]
+    ["Eval top-level sexp to point" cider-eval-defun-to-point]
     ["Eval current sexp" cider-eval-sexp-at-point]
     ["Eval last sexp" cider-eval-last-sexp]
     ["Eval selected region" cider-eval-region]

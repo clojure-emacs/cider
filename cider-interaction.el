@@ -1406,6 +1406,50 @@ command `cider-debug-defun-at-point'."
                               (concat "#dbg\n" (cider-defun-at-point)))
                             nil (cider-defun-at-point 'bounds))))
 
+(defun cider--calculate-opening-delimiters ()
+  "Walks up the list of expressions to collect all sexp opening delimiters.
+
+The result is a list of the delimiters.
+
+That function is used in `cider-eval-defun-to-point' so it can make an
+incomplete expression complete."
+  (interactive)
+  (let ((result nil))
+    (save-excursion
+      (condition-case nil
+         (while t
+           (backward-up-list)
+           (push (char-after) result))
+       (error result)))))
+
+(defun cider--matching-delimiter (delimiter)
+  "Get the matching (opening/closing) delimiter for DELIMITER."
+  (pcase delimiter
+    (?\( ?\))
+    (?\[ ?\])
+    (?\{ ?\})
+    (?\) ?\()
+    (?\] ?\[)
+    (?\} ?\{)))
+
+(defun cider--calculate-closing-delimiters ()
+  "Compute the list of closing delimiters to make the defun before point valid."
+  (mapcar #'cider--matching-delimiter (cider--calculate-opening-delimiters)))
+
+(defun cider-eval-defun-to-point ()
+  "Evaluate the current toplevel form up to point.
+
+It constructs an expression to eval in the following manner:
+
+- It find the code between the point and the start of the toplevel expression;
+- It balances this bit of code by closing all open expressions;
+- It evaluates the resulting code using `cider-interactive-eval'."
+  (interactive)
+  (let* ((beg-of-defun (save-excursion (beginning-of-defun) (point)))
+         (code (buffer-substring-no-properties beg-of-defun (point)))
+         (code (concat code (cider--calculate-closing-delimiters))))
+    (cider-interactive-eval code)))
+
 (defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
   "Evaluate the \"top-level\" form at point and pprint its value.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
@@ -1458,12 +1502,14 @@ passing arguments."
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
+    (define-key map (kbd "z") #'cider-eval-defun-to-point)
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
     (define-key map (kbd "C-r") #'cider-eval-region)
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
-    (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)))
+    (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
+    (define-kee map (kbd "C-z") #'cider-eval-defun-to-point)))
 
 
 ;; Connection and REPL

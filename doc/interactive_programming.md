@@ -27,12 +27,13 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-eval-defun-at-point`                   |<kbd>C-M-x</kbd> <br/> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
 `cider-eval-sexp-at-point`                    |<kbd>C-c C-v v</kbd>                 | Evaluate the form around point.
 `cider-eval-defun-at-point`                   |<kbd>C-u C-M-x</kbd> <br/> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation
+`cider-eval-defun-to-point`                   |<kbd>C-c C-v z</kbd>                 | Evaluate the preceding top-level form up to the point.
 `cider-eval-region`                           |<kbd>C-c C-v r</kbd>                 | Evaluate the region and display the result in the echo area.
 `cider-interrupt`                             |<kbd>C-c C-b</kbd>                   | Interrupt any pending evaluations.
 `cider-macroexpand-1`                         |<kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 `cider-macroexpand-all`                       |<kbd>C-c M-m</kbd>                   | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
 `cider-eval-ns-form`                          |<kbd>C-c C-v n</kbd>                 | Eval the ns form.
-`cider-repl-set-ns`                           |<kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer. 
+`cider-repl-set-ns`                           |<kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
 `cider-switch-to-repl-buffer`                 |<kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
 `cider-switch-to-repl-buffer`                 |<kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
 `cider-load-buffer-and-switch-to-repl-buffer` |<kbd>C-c M-z</kbd>                   | Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
