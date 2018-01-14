@@ -1542,7 +1542,7 @@ passing arguments."
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
-    (define-kee map (kbd "C-z") #'cider-eval-defun-to-point)
+    (define-key map (kbd "C-z") #'cider-eval-defun-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
 
