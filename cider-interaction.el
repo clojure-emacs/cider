@@ -1236,6 +1236,37 @@ If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
     (goto-char (cadr (cider-sexp-at-point 'bounds)))
     (cider-eval-last-sexp output-to-current-buffer)))
 
+(defvar-local cider-previous-eval-context nil
+  "The previous evaluation context if any.
+
+That's set by commands like `cider-eval-last-sexp-in-context'.")
+
+(defun cider--eval-in-context (code)
+  "Evaluate CODE in user-provided evaluation context."
+  (let* ((code (string-trim-right code))
+         (eval-context (read-string
+                        (format "Evaluation context (let-style) for `%s': " code)
+                        cider-previous-eval-context))
+         (code (concat "(let [" eval-context "]\n  " code ")")))
+    (cider-interactive-eval code)
+    (setq-local cider-previous-eval-context eval-context)))
+
+(defun cider-eval-last-sexp-in-context ()
+  "Evaluate the preceding sexp in user-supplied context.
+
+The context is just a let binding vector (without the brackets).
+The context is remembered between command invocations."
+  (interactive)
+  (cider--eval-in-context (cider-last-sexp)))
+
+(defun cider-eval-sexp-at-point-in-context ()
+  "Evaluate the preceding sexp in user-supplied context.
+
+The context is just a let binding vector (without the brackets).
+The context is remembered between command invocations."
+  (interactive)
+  (cider--eval-in-context (cider-sexp-at-point)))
+
 (defun cider-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
 
@@ -1503,13 +1534,17 @@ passing arguments."
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "z") #'cider-eval-defun-to-point)
+    (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
+    (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
     (define-key map (kbd "C-r") #'cider-eval-region)
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
-    (define-kee map (kbd "C-z") #'cider-eval-defun-to-point)))
+    (define-kee map (kbd "C-z") #'cider-eval-defun-to-point)
+    (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
+    (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
 
 
 ;; Connection and REPL

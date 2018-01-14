@@ -5,6 +5,7 @@
 ### New features
 
 * [#2161](https://github.com/clojure-emacs/cider/issues/2161): Add new interactive command `cider-eval-defun-to-point` which is bound to `C-c C-v (C-)z`. It evaluates the current top-level form up to the point.
+* [#2113](https://github.com/clojure-emacs/cider/issues/2113): Add new interactive commands `cider-eval-last-sexp-in-context` (bound to `C-c C-v (C-)c`) and `cider-eval-sexp-at-point-in-context` (bound to `C-c C-v (C-)b`).
 
 ### Bugs Fixed
 
