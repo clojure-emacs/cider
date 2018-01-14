@@ -220,6 +220,22 @@ section of your Leiningen project's configuration.
 :repl-options {:init (set! *print-length* 50)}
 ```
 
+#### Customizing newline interaction
+
+Ordinarily <kbd>Return</kbd> sends a form for evaluation meaning entering a
+newline requires a special chord: <kbd>C-j</kbd>. When entering forms that span
+multiple lines, it may be desirable to make evaluation require the special
+invocation and have entering a new-line be the default.
+
+The following customization of the `cider-repl-mode-map` will change these
+keybindings so that <kbd>Return</kbd> will introduce a new-line and
+<kbd>C-<return></kbd> will send the form off for evaluation.
+
+``` el
+(define-key cider-repl-mode-map (kbd "RET") #'cider-repl-newline-and-indent)
+(define-key cider-repl-mode-map (kbd "C-<return>") #'cider-repl-return)
+```
+
 #### REPL history
 
 * To make the REPL history wrap around when its end is reached:
