@@ -671,19 +671,18 @@ gets associated with it."
            ;; associate if we're in a project, prompt otherwise
            ((eq cider-prompt-for-project-on-connect 'when-needed) (cider-assoc-project-with-connection project-dir conn))
            ;; always prompt
-           (t (cider-assoc-project-with-connection nil conn))))))))
-
-(defun cider-repl-set-type (&optional type)
-  "Set REPL TYPE to \"clj\" or \"cljs\"."
-  (interactive)
-  (let ((type (or type (completing-read "Set REPL type to: " '("clj" "cljs")))))
-    (setq cider-repl-type type)))
+           (t (cider-assoc-project-with-connection nil conn)))))
+      conn)))
 
 (defun cider-connect-clojurescript ()
-  "Connect to a clojurescript repl."
+  "Connect to a ClojureScript REPL.
+
+It just delegates pretty much everything to `cider-connect' and just sets
+the appropriate REPL type in the end."
   (interactive)
-  (cider-connect)
-  (cider-repl-set-type "cljs"))
+  (when-let* ((conn (call-interactively #'cider-connect)))
+    (with-current-buffer conn
+      (setq cider-repl-type "cljs"))))
 
 (defun cider-current-host ()
   "Retrieve the current host."

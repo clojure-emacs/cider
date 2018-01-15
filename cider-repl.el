@@ -1017,6 +1017,15 @@ namespace to switch to."
                                (cider-repl-switch-ns-handler connection)))
    :both))
 
+(defun cider-repl-set-type (&optional type)
+  "Set REPL TYPE to \"clj\" or \"cljs\"."
+  (interactive)
+  (let ((type (or type (completing-read
+                        (format "Set REPL type (currently `%s') to: "
+                                cider-repl-type)
+                        '("clj" "cljs")))))
+    (setq cider-repl-type type)))
+
 
 ;;; Location References
 
@@ -1511,6 +1520,7 @@ constructs."
         ["Refresh loaded code" cider-refresh]
         "--"
         ["Set REPL ns" cider-repl-set-ns]
+        ["Set REPL type" cider-repl-set-type]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
         ["Require REPL utils" cider-repl-require-repl-utils]
         "--"

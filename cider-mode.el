@@ -363,10 +363,12 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      "Menu for Clojure mode.
   This is displayed in `clojure-mode' buffers, if `cider-mode' is not active."
      `("CIDER" :visible (not cider-mode)
-       ["Start a REPL" cider-jack-in
+       ["Start a Clojure REPL" cider-jack-in
         :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
-       ["Connect to a REPL" cider-connect
+       ["Connect to a Clojure REPL" cider-connect
         :help "Connects to a REPL that's already running."]
+       ["Connect to a ClojureScript REPL" cider-connect-clojurescript
+        :help "Connects to a ClojureScript REPL that's already running."]
        ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
         :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
   Configure `cider-cljs-lein-repl', `cider-cljs-boot-repl' and `cider-cljs-gradle-repl' to change the ClojureScript REPL to use."]
