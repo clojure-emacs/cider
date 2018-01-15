@@ -233,7 +233,7 @@ Display TITLE at the top and SPECS are indented underneath."
             ((cider--spec-fn-p form-tag "fspec")
              (thread-last (seq-partition (cl-rest form) 2)
                (cl-remove-if (lambda (s) (and (stringp (cl-second s))
-                                              (string-empty-p (cl-second s))))) 
+                                              (string-empty-p (cl-second s)))))
                (mapcar (lambda (s)
                          (format "\n%-11s: %s" (pcase (cl-first s)
                                                 (":args" "arguments")
@@ -351,7 +351,6 @@ With a prefix argument ARG, prompts for a regexp to filter specs.
 No filter applied if the regexp is the empty string."
   (interactive "P")
   (cider-browse-spec-regex (if arg (read-string "Filter regex: ") "")))
-
 
 (provide 'cider-browse-spec)
 
