@@ -561,10 +561,11 @@ Achieved by destructively manipulating the `cider-stacktrace-suppressed-errors' 
         (button-put button 'help-echo "Click to promote these stacktraces."))
       (button-put button 'suppressed (not suppressed)))))
 
-(defvar cider-jdk-src-paths '("/usr/lib/jvm/openjdk-8/src.zip")
+(defcustom cider-jdk-src-paths '("/usr/lib/jvm/openjdk-8/src.zip")
   "Used by `cider-stacktrace-navigate'.
 Zip files work, but it's better to extract them and put the directory paths here.
-Clojure sources here: https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/.")
+Clojure sources here: https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/."
+  :type '(list string))
 
 (defun cider-resolve-java-class (class)
   "Return a zip path to a file that corresponds to CLASS."

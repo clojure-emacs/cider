@@ -117,6 +117,31 @@ path being `/usr/share/doc/java/api/`, put the following line in
 
 More details can be found [here](https://github.com/clojure-emacs/cider/issues/930).
 
+### Use a local copy of the Java source code
+
+When an exception is thrown, e.g. when eval-ing `(. clojure.lang.RT foo)`, a
+stack trace pops up. Some places of the stack trace link to Clojure files,
+others to Java files. By default, you can click the Clojure file links to
+navigate there. If you configure `cider-jdk-src-paths`, you can also click the
+Java file links to navigate there.
+
+Here's how do get the JDK source on Ubuntu:
+
+    sudo apt install openjdk-8-source
+
+The zip is installed to `/usr/lib/jvm/openjdk-8/src.zip`.
+
+You can download Clojure Java source code from
+[here](https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/clojure-1.8.0-sources.jar).
+
+Extract both and configure e.g. like so:
+
+    (setq cider-jdk-src-paths '("~/java/clojure-1.8.0-sources"
+                                "~/java/openjvm-8-src"))
+
+It's possible to use `jar` or `zip` files `cider-jdk-src-paths`, but extracting
+them is better since you get features like `ag` or `dired-jump`.
+
 ### Filter out namespaces in certain namespace-related commands
 
 You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apropos*`
