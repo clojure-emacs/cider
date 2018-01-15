@@ -561,33 +561,6 @@ Achieved by destructively manipulating the `cider-stacktrace-suppressed-errors' 
         (button-put button 'help-echo "Click to promote these stacktraces."))
       (button-put button 'suppressed (not suppressed)))))
 
-(defcustom cider-jdk-src-paths '("/usr/lib/jvm/openjdk-8/src.zip")
-  "Used by `cider-stacktrace-navigate'.
-Zip/jar files work, but it's better to extract them and put the directory
-paths here.  Clojure sources here:
-https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/."
-  :package-version '(cider . "0.17.0")
-  :type '(list string))
-
-(defun cider-resolve-java-class (class)
-  "Return a path to a Java source file that corresponds to CLASS.
-
-This will be a zip/jar path for archived sources and a normal
-file path otherwise."
-  (when class
-    (let ((file-name (concat (replace-regexp-in-string "\\." "/" class) ".java")))
-      (cl-find-if
-       'file-exists-p
-       (mapcar
-        (lambda (d)
-          (cond ((file-directory-p d)
-                 (expand-file-name file-name d))
-                ((and (file-exists-p d)
-                      (member (file-name-extension d) '("jar" "zip")))
-                 (format "zip:file:%s!/%s" d file-name))
-                (t (error "Unexpected archive: %s" d))))
-        cider-jdk-src-paths)))))
-
 (defun cider-stacktrace-navigate (button)
   "Navigate to the stack frame source represented by the BUTTON."
   (let* ((var (button-get button 'var))
