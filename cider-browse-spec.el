@@ -329,16 +329,12 @@ Generates a new example for the current spec."
                                       (cider-symbol-at-point))))
   (cider-browse-spec--browse spec))
 
-;;;###autoload
-(defun cider-browse-spec-all (&optional arg)
-  "Open list of specs in a popup buffer.
-
-With a prefix argument ARG, prompts for a regexp to filter specs.
-No filter applied if the regexp is the empty string."
-  (interactive "P")
+(defun cider-browse-spec-regex (regex)
+  "Open the list of specs that matches REGEX in a popup buffer.
+Displays all specs when REGEX is nil."
   (cider-ensure-connected)
   (cider-ensure-op-supported "spec-list")
-  (let ((filter-regex (if arg (read-string "Filter regex: ") "")))
+  (let ((filter-regex (or regex "")))
     (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer t)
       (let ((specs (cider-sync-request:spec-list filter-regex)))
         (cider-browse-spec--draw-list-buffer (current-buffer)
@@ -346,6 +342,16 @@ No filter applied if the regexp is the empty string."
                                                  "All specs in registry"
                                                (format "All specs matching regex `%s' in registry" filter-regex))
                                              specs)))))
+
+;;;###autoload
+(defun cider-browse-spec-all (&optional arg)
+  "Open list of specs in a popup buffer.
+
+With a prefix argument ARG, prompts for a regexp to filter specs.
+No filter applied if the regexp is the empty string."
+  (interactive "P")
+  (cider-browse-spec-regex (if arg (read-string "Filter regex: ") "")))
+
 
 (provide 'cider-browse-spec)
 
