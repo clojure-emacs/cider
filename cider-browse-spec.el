@@ -252,7 +252,8 @@ Display TITLE at the top and SPECS are indented underneath."
         (t (format "%s" form))))
 
 (defun cider-browse-spec--pprint-indented (spec-form)
-  "Given a SPEC-FORM returns a string with it pretty printed, indented and clojure font locked."
+  "Indent (pretty-print) and font-lock SPEC-FORM.
+Return the result as a string."
   (with-temp-buffer
     (clojure-mode)
     (insert (cider-browse-spec--pprint spec-form))
