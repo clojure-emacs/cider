@@ -561,6 +561,29 @@ Achieved by destructively manipulating the `cider-stacktrace-suppressed-errors' 
         (button-put button 'help-echo "Click to promote these stacktraces."))
       (button-put button 'suppressed (not suppressed)))))
 
+(defcustom cider-jdk-src-paths '("/usr/lib/jvm/openjdk-8/src.zip")
+  "Used by `cider-stacktrace-navigate'.
+Zip files work, but it's better to extract them and put the directory paths here.
+Clojure sources here: https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/."
+  :package-version '(cider . "0.17.0")
+  :type '(list string))
+
+(defun cider-resolve-java-class (class)
+  "Return a zip path to a file that corresponds to CLASS."
+  (when class
+    (let ((file-name (concat (replace-regexp-in-string "\\." "/" class) ".java")))
+      (cl-find-if
+       'file-exists-p
+       (mapcar
+        (lambda (d)
+          (cond ((file-directory-p d)
+                 (expand-file-name file-name d))
+                ((and (file-exists-p d)
+                      (member (file-name-extension d) '("jar" "zip")))
+                 (format "zip:file:%s!/%s" d file-name))
+                (t (error "Unexpected archive: %s" d))))
+        cider-jdk-src-paths)))))
+
 (defun cider-stacktrace-navigate (button)
   "Navigate to the stack frame source represented by the BUTTON."
   (let* ((var (button-get button 'var))
@@ -574,9 +597,12 @@ Achieved by destructively manipulating the `cider-stacktrace-suppressed-errors' 
          ;; Set `line-shift' to the number of lines from the beginning of defn.
          (line-shift (- (or (button-get button 'line) 0)
                         (or (nrepl-dict-get info "line") 1)))
+         (file (or
+                (and (null var) (cider-resolve-java-class class))
+                (nrepl-dict-get info "file")
+                (button-get button 'file)))
          ;; give priority to `info` files as `info` returns full paths.
-         (info (nrepl-dict-put info "file" (or (nrepl-dict-get info "file")
-                                               (button-get button 'file)))))
+         (info (nrepl-dict-put info "file" file)))
     (cider--jump-to-loc-from-info info t)
     (forward-line line-shift)
     (back-to-indentation)))
