@@ -744,6 +744,7 @@ KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
 Zip/jar files work, but it's better to extract them and put the directory
 paths here.  Clojure sources here:
 https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/."
+  :group 'cider
   :package-version '(cider . "0.17.0")
   :type '(list string))
 
