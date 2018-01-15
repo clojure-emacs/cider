@@ -42,6 +42,9 @@
 (require 'seq)
 (require 'subr-x)
 
+(eval-when-compile
+  (defvar help-mode-map))
+
 ;; The buffer names used by the spec browser
 (defconst cider-browse-spec-buffer "*cider-spec-browser*")
 (add-to-list 'cider-ancillary-buffers cider-browse-spec-buffer)
