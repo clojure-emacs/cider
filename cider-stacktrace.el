@@ -576,10 +576,12 @@ Clojure sources here: https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/.
        'file-exists-p
        (mapcar
         (lambda (d)
-          (if (file-directory-p d)
-              (expand-file-name file-name d)
-            (when (file-exists-p d)
-              (format "zip:file:%s!/%s" d file-name))))
+          (cond ((file-directory-p d)
+                 (expand-file-name file-name d))
+                ((and (file-exists-p d)
+                      (member (file-name-extension d) '("jar" "zip")))
+                 (format "zip:file:%s!/%s" d file-name))
+                (t (error "Unexpected archive: %s" d))))
         cider-jdk-src-paths)))))
 
 (defun cider-stacktrace-navigate (button)
