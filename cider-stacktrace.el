@@ -565,6 +565,7 @@ Achieved by destructively manipulating the `cider-stacktrace-suppressed-errors' 
   "Used by `cider-stacktrace-navigate'.
 Zip files work, but it's better to extract them and put the directory paths here.
 Clojure sources here: https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/."
+  :package-version '(cider . "0.17.0")
   :type '(list string))
 
 (defun cider-resolve-java-class (class)
