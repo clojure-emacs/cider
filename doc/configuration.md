@@ -125,7 +125,12 @@ others to Java files. By default, you can click the Clojure file links to
 navigate there. If you configure `cider-jdk-src-paths`, you can also click the
 Java file links to navigate there.
 
-Here's how do get the JDK source on Ubuntu:
+On Windows and macOS the JDK source code is bundled with the JDK. On Windows its
+typical location is `C:\Program Files\Java\{jdk-version}\src.zip`
+and on macOS its `/Library/Java/JavaVirtualMachines/{jdk-version}/Contents/Home/src.zip`.
+
+On Linux distributions usually the source code is distributed as a separate package.
+Here's how do get the JDK 8 source on Ubuntu:
 
     sudo apt install openjdk-8-source
 
