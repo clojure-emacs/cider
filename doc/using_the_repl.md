@@ -220,6 +220,16 @@ section of your Leiningen project's configuration.
 :repl-options {:init (set! *print-length* 50)}
 ```
 
+#### Customizing the initial REPL namespace
+
+Normally the CIDER REPL will start with the `user` namespace.
+You can supply a default value for REPL sessions via the `repl-options` section
+of your Leiningen project's configuration.
+
+```clojure
+:repl-options {:init-ns 'my-ns}
+```
+
 #### Customizing newline interaction
 
 Ordinarily <kbd>Return</kbd> sends a form for evaluation meaning entering a
