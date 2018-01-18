@@ -688,9 +688,12 @@ is searched."
   (let ((ns  (get-text-property (point) 'ns))
         (var (get-text-property (point) 'var)))
     (if (and ns var)
+        ;; we're in a `cider-test-report-mode' buffer
+        ;; or on a highlighted failed/erred test definition
         (progn
           (cider-test-update-last-test ns var)
           (cider-test-execute ns (list var)))
+      ;; we're in a `clojure-mode' buffer
       (let ((ns  (clojure-find-ns))
             (def (clojure-find-def)))
         (if (and ns (member (car def) cider-test-defining-forms))
