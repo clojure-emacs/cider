@@ -128,6 +128,7 @@ Add to this list to have CIDER recognize additional test defining macros."
 
 
 ;;; Report mode & key bindings
+;;
 ;; The primary mode of interacting with test results is the report buffer, which
 ;; allows navigation among tests, jumping to test definitions, expected/actual
 ;; diff-ing, and cause/stacktrace inspection for test errors.
@@ -477,6 +478,7 @@ The optional arg TEST denotes an individual test name."
                test var fail error))))
 
 ;;; Test definition highlighting
+;;
 ;; On receipt of test results, failing/erring test definitions are highlighted.
 ;; Highlights are cleared on the next report run, and may be cleared manually
 ;; by the user.
@@ -545,6 +547,7 @@ Or nil if not found."
 
 
 ;;; Test namespaces
+;;
 ;; Test namespace inference exists to enable DWIM test running functions: the
 ;; same "run-tests" function should be able to be used in a source file, and in
 ;; its corresponding test namespace. To provide this, we need to map the
