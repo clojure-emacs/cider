@@ -14,6 +14,7 @@
 
 * [#1913](https://github.com/clojure-emacs/cider/issues/1913): Fix `cider-toggle-buffer-connection` to allow cycling of connection and restoring all connections in cljc buffers.
 * [#2148](https://github.com/clojure-emacs/cider/issues/2148): Fix `jump to definition` working properly when remote `cider-jack-in` and `cider-connect`.
+* Font-lock failed assertions even in tests that were evaluated interactively.
 
 ### Changes
 

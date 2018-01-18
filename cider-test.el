@@ -492,11 +492,11 @@ The optional arg TEST denotes an individual test name."
 (defun cider-test-highlight-problem (buffer test)
   "Highlight the BUFFER test definition for the non-passing TEST."
   (with-current-buffer buffer
-    (nrepl-dbind-response test (type file line message expected actual)
-      ;; we have to watch out for vars without proper location metadata
-      ;; right now everything evaluated interactively lacks this data
-      ;; TODO: Figure out what to do when the metadata is missing
-      (when (and file line (not (cider--tooling-file-p file)))
+    ;; we don't need the file name here, as we always operate on the current
+    ;; buffer and the line data is correct even for vars that were
+    ;; defined interactively
+    (nrepl-dbind-response test (type line message expected actual)
+      (when line
         (save-excursion
           (goto-char (point-min))
           (forward-line (1- line))
