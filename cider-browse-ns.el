@@ -41,6 +41,7 @@
 (require 'cider-compat)
 (require 'cider-util)
 (require 'nrepl-dict)
+(require 'easymenu)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
 (add-to-list 'cider-ancillary-buffers cider-browse-ns-buffer)
@@ -58,6 +59,13 @@
     (define-key map "^" #'cider-browse-ns-all)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
+    (easy-menu-define cider-browse-ns-mode-menu map
+      "Menu for CIDER's namespace browser"
+      '("Namespace Browser"
+        ["Show doc" cider-browse-ns-doc-at-point]
+        ["Go to definition" cider-browse-ns-find-at-point]
+        "--"
+        ["Browse all namespaces" cider-browse-ns-all]))
     map))
 
 (defvar cider-browse-ns-mouse-map

@@ -9,6 +9,7 @@
 * [#2113](https://github.com/clojure-emacs/cider/issues/2113): Add new interactive commands `cider-eval-last-sexp-in-context` (bound to `C-c C-v (C-)c`) and `cider-eval-sexp-at-point-in-context` (bound to `C-c C-v (C-)b`).
 * Add new interactive command `cider-repl-set-type`.
 * [#1976](https://github.com/clojure-emacs/cider/issues/1976): Add new interactive command `cider-connect-clojurescript`.
+* Add a menu for `cider-browse-ns-mode`.
 
 ### Bugs Fixed
 
