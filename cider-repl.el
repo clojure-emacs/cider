@@ -136,7 +136,9 @@ will be used."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-repl-result-prefix ""
-  "The prefix displayed in the REPL before a result value."
+  "The prefix displayed in the REPL before a result value.
+By default there's no prefix, but you can specify something
+like \"=>\" if want results to stand out more."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.5.0"))
