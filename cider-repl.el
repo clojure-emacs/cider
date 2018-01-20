@@ -151,6 +151,18 @@ you'd like to use the default Emacs behavior use
   :type 'symbol
   :group 'cider-repl)
 
+(defcustom cider-repl-print-length 100
+  "Initial value for *print-length* set during REPL start."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "0.17.0"))
+
+(defcustom cider-repl-print-level nil
+  "Initial value for *print-level* set during REPL start."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "0.17.0"))
+
 (defcustom cider-repl-display-help-banner t
   "When non-nil a bit of help text will be displayed on REPL start."
   :type 'boolean
@@ -286,6 +298,24 @@ efficiency."
     "inhibit-cider-middleware" "true")
    (cider-current-connection)))
 
+(defun cider-repl--build-config-expression ()
+  "Build the initial config expression."
+  (concat
+   "(do"
+   (when cider-repl-print-length (format " (set! *print-length* %d)" cider-repl-print-length))
+   (when cider-repl-print-level (format " (set! *print-level* %d)" cider-repl-print-level))
+   ")"))
+
+(defun cider-repl-set-config ()
+  "Set an inititial REPL configuration."
+  (interactive)
+  (nrepl-send-sync-request
+   (lax-plist-put
+    (nrepl--eval-request
+     (cider-repl--build-config-expression))
+    "inhibit-cider-middleware" "true")
+   (cider-current-connection)))
+
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
@@ -297,6 +327,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
     ((pred identity) (pop-to-buffer buffer)))
   (cider-repl-set-initial-ns buffer)
   (cider-repl-require-repl-utils)
+  (cider-repl-set-config)
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
   buffer)

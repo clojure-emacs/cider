@@ -10,6 +10,7 @@
 * Add new interactive command `cider-repl-set-type`.
 * [#1976](https://github.com/clojure-emacs/cider/issues/1976): Add new interactive command `cider-connect-clojurescript`.
 * Add a menu for `cider-browse-ns-mode`.
+* [#2160](https://github.com/clojure-emacs/cider/issues/2160): Make it possible to configure the default `*print-level*` and `*print-length*` via defcustoms (`cider-repl-print-level` and `cider-repl-print-length`).
 
 ### Bugs Fixed
 
