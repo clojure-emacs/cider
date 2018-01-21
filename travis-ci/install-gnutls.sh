@@ -38,6 +38,8 @@ curl -O https://ftp.gnu.org/gnu/nettle/nettle-${NETTLE_VERSION}.tar.gz \
     && make -j4 install \
     && make distclean
 
+if [ "$?" -ne "0" ]; then exit 1; fi
+
 cd $WORKDIR
 curl -O https://www.gnupg.org/ftp/gcrypt/gnutls/v3.5/gnutls-${GNUTLS_VERSION}.tar.xz \
     && xz -d -k gnutls-${GNUTLS_VERSION}.tar.xz \
