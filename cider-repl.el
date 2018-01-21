@@ -300,21 +300,22 @@ efficiency."
 
 (defun cider-repl--build-config-expression ()
   "Build the initial config expression."
-  (concat
-   "(do"
-   (when cider-repl-print-length (format " (set! *print-length* %d)" cider-repl-print-length))
-   (when cider-repl-print-level (format " (set! *print-level* %d)" cider-repl-print-level))
-   ")"))
+  (when (or cider-repl-print-length cider-repl-print-level)
+    (concat
+     "(do"
+     (when cider-repl-print-length (format " (set! *print-length* %d)" cider-repl-print-length))
+     (when cider-repl-print-level (format " (set! *print-level* %d)" cider-repl-print-level))
+     ")")))
 
 (defun cider-repl-set-config ()
   "Set an inititial REPL configuration."
   (interactive)
-  (nrepl-send-sync-request
-   (lax-plist-put
-    (nrepl--eval-request
-     (cider-repl--build-config-expression))
-    "inhibit-cider-middleware" "true")
-   (cider-current-connection)))
+  (when-let* ((config-expression (cider-repl--build-config-expression)))
+    (nrepl-send-sync-request
+     (lax-plist-put
+      (nrepl--eval-request config-expression)
+      "inhibit-cider-middleware" "true")
+     (cider-current-connection))))
 
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
