@@ -87,12 +87,12 @@ which nREPL uses for temporary evaluation file names."
   (let ((fname (file-name-nondirectory file-name)))
     (string-match-p "^form-init" fname)))
 
-(defun cider--cljc-or-cljx-buffer-p (&optional buffer)
-  "Return non-nil if the current buffer is visiting a cljc or cljx file.
+(defun cider--cljc-buffer-p (&optional buffer)
+  "Return non-nil if the current buffer is visiting a cljc file.
 
 If BUFFER is provided act on that buffer instead."
   (with-current-buffer (or buffer (current-buffer))
-    (or (derived-mode-p 'clojurec-mode) (derived-mode-p 'clojurex-mode))))
+    (or (derived-mode-p 'clojurec-mode))))
 
 
 ;;; Thing at point

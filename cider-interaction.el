@@ -1816,7 +1816,7 @@ refresh functions (defined in `cider-refresh-before-fn' and
   "Load (eval) BUFFER's file in nREPL.
 If no buffer is provided the command acts on the current buffer.
 
-If the buffer is for a cljc or cljx file, and both a Clojure and
+If the buffer is for a cljc file, and both a Clojure and
 ClojureScript REPL exists for the project, it is evaluated in both REPLs."
   (interactive)
   (check-parens)
@@ -1850,7 +1850,7 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
 (defun cider-load-file (filename)
   "Load (eval) the Clojure file FILENAME in nREPL.
 
-If the file is a cljc or cljx file, and both a Clojure and ClojureScript
+If the file is a cljc file, and both a Clojure and ClojureScript
 REPL exists for the project, it is evaluated in both REPLs.
 
 The heavy lifting is done by `cider-load-buffer'."

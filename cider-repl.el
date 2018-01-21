@@ -1032,7 +1032,7 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
 
-If called from a cljc or cljx buffer act on both the Clojure and
+If called from a cljc buffer act on both the Clojure and
 ClojureScript REPL if there are more than one REPL present.
 
 If invoked in a REPL buffer the command will prompt for the name of the
