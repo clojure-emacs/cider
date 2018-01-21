@@ -37,6 +37,7 @@
 (require 'cider-overlays)
 
 (require 'button)
+(require 'cl-lib)
 (require 'easymenu)
 (require 'seq)
 
@@ -375,33 +376,53 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
-    (nrepl-dbind-response test (var context type message expected actual error gen-input)
-      (cider-propertize-region (cider-intern-keys (cdr test))
-        (let ((beg (point))
-              (type-face (cider-test-type-simple-face type))
-              (bg `(:background ,cider-test-items-background-color)))
-          (cider-insert (capitalize type) type-face nil " in ")
-          (cider-insert var 'font-lock-function-name-face t)
-          (when context  (cider-insert context 'font-lock-doc-face t))
-          (when message  (cider-insert message 'font-lock-doc-string-face t))
-          (when expected
-            (cider-insert "expected: " 'font-lock-comment-face nil
-                          (cider-font-lock-as-clojure expected)))
-          (when actual
-            (cider-insert "  actual: " 'font-lock-comment-face nil
-                          (cider-font-lock-as-clojure actual)))
-          (when error
-            (cider-insert "   error: " 'font-lock-comment-face nil)
-            (insert-text-button error
-                                'follow-link t
-                                'action '(lambda (_button) (cider-test-stacktrace))
-                                'help-echo "View causes and stacktrace")
-            (insert "\n"))
-          (when gen-input
-            (cider-insert "   input: " 'font-lock-comment-face nil
-                          (cider-font-lock-as-clojure gen-input)))
-          (overlay-put (make-overlay beg (point)) 'font-lock-face bg))
-        (insert "\n")))))
+    (nrepl-dbind-response test (var context type message expected actual diffs error gen-input)
+      (cl-flet ((insert-label (s)
+                  (cider-insert (format "%8s: " s) 'font-lock-comment-face))
+                (insert-align-label (s)
+                  (insert (format "%12s" s)))
+                (insert-rect (s)
+                  (insert-rectangle (thread-first s
+                                      cider-font-lock-as-clojure
+                                      (split-string "\n")))
+                  (beginning-of-line)))
+        (cider-propertize-region (cider-intern-keys (cdr test))
+          (let ((beg (point))
+                (type-face (cider-test-type-simple-face type))
+                (bg `(:background ,cider-test-items-background-color)))
+            (cider-insert (capitalize type) type-face nil " in ")
+            (cider-insert var 'font-lock-function-name-face t)
+            (when context  (cider-insert context 'font-lock-doc-face t))
+            (when message  (cider-insert message 'font-lock-doc-string-face t))
+            (when expected
+              (insert-label "expected")
+              (insert-rect expected)
+              (insert "\n"))
+            (if diffs
+                (dolist (d diffs)
+                  (cl-destructuring-bind (actual (removed added)) d
+                    (insert-label "actual")
+                    (insert-rect actual)
+                    (insert-label "diff")
+                    (insert "- ")
+                    (insert-rect removed)
+                    (insert-align-label "+ ")
+                    (insert-rect added)
+                    (insert "\n")))
+              (insert-label "actual")
+              (insert-rect actual))
+            (when error
+              (insert-label "error")
+              (insert-text-button error
+                                  'follow-link t
+                                  'action '(lambda (_button) (cider-test-stacktrace))
+                                  'help-echo "View causes and stacktrace")
+              (insert "\n"))
+            (when gen-input
+              (insert-label "input")
+              (insert (cider-font-lock-as-clojure gen-input)))
+            (overlay-put (make-overlay beg (point)) 'font-lock-face bg))
+          (insert "\n"))))))
 
 (defun cider-test-non-passing (tests)
   "For a list of TESTS, each an nrepl-dict, return only those that did not pass."
