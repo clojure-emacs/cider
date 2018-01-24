@@ -409,8 +409,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                     (insert-align-label "+ ")
                     (insert-rect added)
                     (insert "\n")))
-              (insert-label "actual")
-              (insert-rect actual))
+              (when actual
+                (insert-label "actual")
+                (insert-rect actual)))
             (when error
               (insert-label "error")
               (insert-text-button error
