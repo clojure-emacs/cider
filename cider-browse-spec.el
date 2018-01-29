@@ -41,9 +41,7 @@
 (require 'nrepl-dict)
 (require 'seq)
 (require 'subr-x)
-
-(eval-when-compile
-  (defvar help-mode-map))
+(require 'help-mode)
 
 ;; The buffer names used by the spec browser
 (defconst cider-browse-spec-buffer "*cider-spec-browser*")
