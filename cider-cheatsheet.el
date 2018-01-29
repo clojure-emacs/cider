@@ -122,7 +122,7 @@
        (clojure.core list list*))
       ("Examine"
        (clojure.core first nth peek))
-      ("'Change'"
+      ("Change"
        (clojure.core cons conj rest pop)))
 
      ("Vectors"
@@ -131,7 +131,7 @@
       ("Examine"
        (clojure.core get peek))
 
-      ("'Change'"
+      ("Change"
        (clojure.core assoc pop subvec replace conj rseq))
       ("Ops"
        (clojure.core mapv filterv reduce-kv)))
@@ -141,7 +141,7 @@
        (clojure.core set hash-set sorted-set sorted-set-by))
       ("Examine"
        (clojure.core get contains?))
-      ("'Change'"
+      ("Change"
        (clojure.core conj disj))
       ("Relational Algebra"
        (clojure.set join select project union difference intersection))
@@ -155,7 +155,7 @@
        (clojure.core hash-map array-map zipmap sorted-map sorted-map-by bean frequencies group-by))
       ("Examine"
        (clojure.core get get-in contains? find keys vals map-entry?))
-      ("'Change'"
+      ("Change"
        (clojure.core assoc assoc-in dissoc merge merge-with select-keys update update-in))
       ("Entry"
        (clojure.core key val))
@@ -257,7 +257,7 @@
       (clojure.core with-in-str with-local-vars with-open with-out-str with-precision with-redefs with-redefs-fn))
      ("Lazy"
       (clojure.core lazy-cat lazy-seq delay delay?))
-     ("Doc."
+     ("Doc"
       (clojure.core assert comment)
       (clojure.repl doc dir dir-fn source-fn)))
 
@@ -374,7 +374,7 @@
       (clojure.core rest nthrest fnext nnext drop drop-while take-last for))
      ("Head-items"
       (clojure.core take take-nth take-while butlast drop-last for))
-     ("'Change'"
+     ("Change"
       (clojure.core conj concat distinct flatten group-by partition partition-all partition-by split-at split-with filter remove replace shuffle random-sample))
      ("Rearrange"
       (clojure.core reverse sort sort-by compare))
