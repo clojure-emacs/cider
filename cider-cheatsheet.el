@@ -399,7 +399,7 @@
       (clojure.zip up down left right leftmost rightmost))
      ("Get seq"
       (clojure.zip lefts rights path children))
-     ("'Change'"
+     ("Change"
       (clojure.zip make-node replace edit insert-child insert-left insert-right append-child remove))
      ("Move"
       (clojure.zip next prev))
@@ -415,10 +415,10 @@
 
     ("Transients"
      (:url "Documentation" "http://clojure.org/transients")
-     ("Create")
-     (clojure.core transient persistent!)
-     ("Change")
-     (clojure.core conj! pop! assoc! dissoc! disj!))
+     ("Create"
+      (clojure.core transient persistent!))
+     ("Change"
+      (clojure.core conj! pop! assoc! dissoc! disj!)))
     ("Misc"
      ("Compare"
       (clojure.core = == identical? not= not compare)
