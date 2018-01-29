@@ -301,6 +301,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["Browse classpath" cider-classpath]
      ["Browse classpath entry" cider-open-classpath-entry])
     ("Misc"
+     ["Clojure Cheatsheet" cider-cheatsheet]
      ["Flush completion cache" cider-completion-flush-caches]))
   "Menu for CIDER interactions.")
 

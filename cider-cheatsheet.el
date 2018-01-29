@@ -28,6 +28,9 @@
 
 ;;; Code:
 
+(require 'cider-doc)
+(require 'seq)
+
 (defconst cider-cheatsheet-hierarchy
   '(("Primitives"
      ("Numbers"
@@ -507,6 +510,44 @@ of the list.  The head may be:
 Note that some Clojure symbols appear in more than once.  This is entirely
 intentional.  For instance, `map` belongs in the sections on collections
 and transducers.")
+
+(defun cider-cheatsheet--expand-vars (list)
+  "Expand the symbols in LIST to fully-qualified var names.
+
+This list is supposed to have the following format:
+
+  (my-ns var1 var2 var3)"
+  (let ((ns (car list))
+        (vars (cdr list)))
+    (if (eq ns :special)
+        (mapcar #'symbol-name vars)
+      (mapcar (lambda (var) (format "%s/%s" ns var)) vars))))
+
+(defun cider-cheatsheet--select-var (var-list)
+  "Expand the symbols in VAR-LIST to fully-qualified var names.
+
+The list can hold one or more lists inside - one per each namespace."
+  (let ((namespaced-vars (seq-mapcat #'cider-cheatsheet--expand-vars
+                                     (seq-remove (lambda (list)
+                                                   (eq (car list) :url))
+                                                 var-list))))
+    (cider-doc-lookup (completing-read "Select var: " namespaced-vars))))
+
+;;;###autoload
+(defun cider-cheatsheet ()
+  "Navigate `cider-cheatsheet-hierarchy' with `completing-read'.
+
+When you make it to a Clojure var its doc buffer gets displayed."
+  (interactive)
+  (let ((section nil)
+        (cheatsheet-data cider-cheatsheet-hierarchy))
+    (while (stringp (caar cheatsheet-data))
+      (let* ((sections (seq-filter #'stringp (mapcar #'car cheatsheet-data)))
+             (sel-section (completing-read "Select cheatsheet section: " sections))
+             (section-data (seq-find (lambda (elem) (equal (car elem) sel-section)) cheatsheet-data)))
+        (setq section sel-section)
+        (setq cheatsheet-data (cdr section-data))))
+    (cider-cheatsheet--select-var cheatsheet-data)))
 
 (provide 'cider-cheatsheet)
 

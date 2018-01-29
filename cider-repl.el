@@ -1581,6 +1581,8 @@ constructs."
         ["Quit" cider-quit]
         ["Restart" cider-restart]
         "--"
+        ["Clojure Cheatsheet" cider-cheatsheet]
+        "--"
         ["A sip of CIDER" cider-drink-a-sip]
         ["View manual online" cider-view-manual]
         ["View refcard online" cider-view-refcard]
