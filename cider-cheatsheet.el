@@ -83,7 +83,6 @@
        (clojure.core count get subs compare)
        (clojure.string join escape split split-lines replace replace-first reverse re-quote-replacement index-of last-index-of starts-with? ends-with? includes?))
       ("Regex"
-       (:url "Java's Regex Syntax" "http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html")
        (clojure.core re-find re-seq re-matches re-pattern re-matcher re-groups)
        (clojure.string replace replace-first re-quote-replacement))
       ("Letters"
@@ -193,7 +192,6 @@
      ("EDN"
       (clojure.edn read read-string))
      ("Compiling Code & Class Generation"
-      (:url "Documentation" "http://clojure.org/compilation")
       (clojure.core *compile-files* *compile-path* *file* *warn-on-reflection* compile gen-class gen-interface loaded-libs test))
      ("Misc"
       (clojure.core eval force name *clojure-version* clojure-version *command-line-args*))
@@ -204,7 +202,6 @@
       (clojure.java.shell  sh with-sh-dir with-sh-env)))
 
     ("Vars & Global Environment"
-     (:url "Documentation" "http://clojure.org/vars")
      ("Def Variants"
       (:special def)
       (clojure.core defn defn- definline defmacro defmethod defmulti defonce defrecord))
@@ -221,13 +218,10 @@
 
     ("Abstractions"
      ("Protocols"
-      (:url "Documentation" "http://clojure.org/protocols")
       (clojure.core defprotocol extend extend-type extend-protocol reify extends? satisfies? extenders))
      ("Records & Types"
-      (:url "Documentation" "http://clojure.org/datatypes")
       (clojure.core defrecord deftype))
      ("Multimethods"
-      (:url "Documentation" "http://clojure.org/multimethods")
       ("Define"
        (clojure.core defmulti defmethod))
       ("Dispatch"
@@ -240,7 +234,6 @@
        (clojure.core derive isa? parents ancestors descendants make-hierarchy))))
 
     ("Macros"
-     (:url "Documentation" "http://clojure.org/macros")
      ("Create"
       (clojure.core defmacro definline))
      ("Debug"
@@ -262,7 +255,6 @@
       (clojure.repl doc dir dir-fn source-fn)))
 
     ("Java Interop"
-     (:url "Documentation" "http://clojure.org/java_interop")
      ("General"
       (:special new set!)
       (clojure.core .. doto bean comparator enumeration-seq import iterator-seq memfn definterface supers bases))
@@ -281,7 +273,6 @@
       (clojure.repl pst)))
 
     ("Namespaces"
-     (:url "Documentation" "http://clojure.org/namespaces")
      ("Current"
       (clojure.core *ns*))
      ("Create Switch"
@@ -305,7 +296,6 @@
       (clojure.core load load-file load-reader load-string)))
 
     ("Concurrency"
-     (:url "Documentation" "http://clojure.org/atoms")
      ("Atoms"
       (clojure.core atom swap! reset! compare-and-set!))
      ("Futures"
@@ -317,7 +307,6 @@
       (clojure.core locking pcalls pvalues pmap seque promise deliver))
 
      ("Refs & Transactions"
-      (:url "Documentation" "http://clojure.org/refs")
       ("Create"
        (clojure.core ref))
       ("Examine"
@@ -332,7 +321,6 @@
        (clojure.core ref-history-count ref-max-history ref-min-history)))
 
      ("Agents & Asynchronous Actions"
-      (:url "Documentation" "http://clojure.org/agents")
       ("Create"
        (clojure.core agent))
       ("Examine"
@@ -417,7 +405,6 @@
       (clojure.java.javadoc javadoc)))
 
     ("Transients"
-     (:url "Documentation" "http://clojure.org/transients")
      ("Create"
       (clojure.core transient persistent!))
      ("Change"
@@ -458,7 +445,6 @@
      (clojure.core meta with-meta alter-meta! reset-meta! vary-meta))
 
     ("Special Forms"
-     (:url "Documentation" "http://clojure.org/special_forms")
      (:special def if do quote var recur throw try monitor-enter monitor-exit)
      (clojure.core fn loop)
      ("Binding / Destructuring"
