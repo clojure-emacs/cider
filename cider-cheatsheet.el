@@ -528,7 +528,7 @@ When you make it to a Clojure var its doc buffer gets displayed."
   (let ((section nil)
         (cheatsheet-data cider-cheatsheet-hierarchy))
     (while (stringp (caar cheatsheet-data))
-      (let* ((sections (seq-filter #'stringp (mapcar #'car cheatsheet-data)))
+      (let* ((sections (mapcar #'car cheatsheet-data))
              (sel-section (completing-read "Select cheatsheet section: " sections))
              (section-data (seq-find (lambda (elem) (equal (car elem) sel-section)) cheatsheet-data)))
         (setq section sel-section)
