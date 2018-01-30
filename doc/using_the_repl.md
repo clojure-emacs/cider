@@ -223,7 +223,7 @@ section of your Leiningen project's configuration.
 or via `cider-repl-print-length` (set to 100 by default). In case both are
 present, CIDER's config will take precedence over what came from Lein.
 
-Everything about applies for `*print-level*` as well. CIDER's configuration
+All of this applies to `*print-level*` as well. CIDER's configuration
 variable for it is named `cider-repl-print-level` (set to `nil` by default).
 
 #### Customizing the initial REPL namespace
