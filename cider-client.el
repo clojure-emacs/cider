@@ -188,7 +188,6 @@ the `current-buffer'."
     (cond
      ((derived-mode-p 'clojurescript-mode) "cljs")
      ((derived-mode-p 'clojurec-mode) "multi")
-     ((derived-mode-p 'clojurex-mode) "multi")
      ((derived-mode-p 'clojure-mode) "clj")
      (cider-repl-type))))
 
@@ -372,9 +371,8 @@ over.
         there is no Clojure connection (use this for commands only
         supported in Clojure).
  :cljs - Like :clj, but demands a ClojureScript connection instead.
- :both - In `clojurec-mode' or `clojurex-mode' act on both connections,
-         otherwise function like :any.  Obviously, this option might run
-         FUNCTION twice.
+ :both - In `clojurec-mode' act on both connections, otherwise function
+         like :any.  Obviously, this option might run FUNCTION twice.
 
 If ANY-MODE is non-nil, :clj and :cljs don't signal errors due to being in
 the wrong major mode (they still signal if the desired connection type
