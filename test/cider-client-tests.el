@@ -99,9 +99,6 @@
              (expect (cider-current-connection "clj") :to-equal b))
            (with-temp-buffer
              (clojurec-mode)
-             (expect (cider-current-connection "clj") :to-equal b))
-           (with-temp-buffer
-             (clojurex-mode)
              (expect (cider-current-connection "clj") :to-equal b))))))
 
     (describe "when type argument is given"
