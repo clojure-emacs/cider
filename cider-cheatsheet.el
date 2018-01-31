@@ -525,13 +525,11 @@ The list can hold one or more lists inside - one per each namespace."
 
 When you make it to a Clojure var its doc buffer gets displayed."
   (interactive)
-  (let ((section nil)
-        (cheatsheet-data cider-cheatsheet-hierarchy))
+  (let ((cheatsheet-data cider-cheatsheet-hierarchy))
     (while (stringp (caar cheatsheet-data))
       (let* ((sections (mapcar #'car cheatsheet-data))
              (sel-section (completing-read "Select cheatsheet section: " sections))
              (section-data (seq-find (lambda (elem) (equal (car elem) sel-section)) cheatsheet-data)))
-        (setq section sel-section)
         (setq cheatsheet-data (cdr section-data))))
     (cider-cheatsheet--select-var cheatsheet-data)))
 
