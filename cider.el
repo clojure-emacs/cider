@@ -143,22 +143,22 @@ version from the CIDER package or library.")
 
 (defcustom cider-clojure-command
   "clojure"
-  "The command used to execute clj (included first in Clojure 1.9)."
+  "The command used to execute clojure with tools.deps (requires Clojure 1.9+)."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.17.0"))
 
-(defcustom cider-clj-global-options
+(defcustom cider-clojure-global-options
   nil
-  "Command line options used to execute clj."
+  "Command line options used to execute clojure with tools.deps."
   :type 'string
   :group 'cider
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
-(defcustom cider-clj-parameters
+(defcustom cider-clojure-parameters
   "-e '(require (quote cider-nrepl.main)) (cider-nrepl.main/init [\"cider.nrepl/cider-middleware\"])'"
-  "Params passed to clj to start an nREPL server via `cider-jack-in'."
+  "Params passed to clojure to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
   :safe #'stringp
@@ -193,7 +193,7 @@ version from the CIDER package or library.")
 This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found.
 
-As clj is bundled with Clojure itself, it's the default REPL command."
+As tools.deps is bundled with Clojure itself, it's the default REPL command."
   :type 'string
   :group 'cider
   :safe #'stringp
@@ -302,7 +302,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" (cider--lein-resolve-command))
     ("boot" (cider--boot-resolve-command))
-    ("clojure" (cider--clj-resolve-command))
+    ("clojure" (cider--clojure-resolve-command))
     ("gradle" (cider--gradle-resolve-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -320,7 +320,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
-    ("clojure" cider-clj-parameters)
+    ("clojure" cider-clojure-parameters)
     ("gradle" cider-gradle-parameters)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -435,8 +435,8 @@ removed, LEIN-PLUGINS, and finally PARAMS."
    " -- "
    params))
 
-(defun cider-clj-jack-in-dependencies (global-opts params dependencies)
-  "Create clj jack-in dependencies.
+(defun cider-clojure-jack-in-dependencies (global-opts params dependencies)
+  "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
   (let ((dependencies (append dependencies
                               `(("cider/orchard" "0.1.0-SNAPSHOT")
@@ -491,7 +491,7 @@ dependencies."
               cider-jack-in-dependencies)
              cider-jack-in-lein-plugins
              cider-jack-in-nrepl-middlewares))
-    ("clojure" (cider-clj-jack-in-dependencies
+    ("clojure" (cider-clojure-jack-in-dependencies
                 global-opts
                 params
                 (cider-add-clojure-dependencies-maybe
@@ -527,7 +527,7 @@ it should start a ClojureScript REPL."
   :package-version '(cider . "0.11.0")
   :group 'cider)
 
-(defcustom cider-cljs-clj-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
+(defcustom cider-cljs-clojure-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
   "Clojure form that returns a ClojureScript REPL environment.
 This is only used in clj projects.  It is evaluated in a Clojure REPL and
 it should start a ClojureScript REPL."
@@ -565,7 +565,7 @@ it should start a ClojureScript REPL."
   (pcase project-type
     ("lein" cider-cljs-lein-repl)
     ("boot" cider-cljs-boot-repl)
-    ("clojure" cider-cljs-clj-repl)
+    ("clojure" cider-cljs-clojure-repl)
     ("gradle" cider-cljs-gradle-repl)
     (_ (error "Unsupported project type `%s'" project-type))))
 
@@ -913,7 +913,7 @@ In case `default-directory' is non-local we assume the command is available."
     (shell-quote-argument command)))
 
 ;; TODO: Implement a check for `cider-clojure-command' over tramp
-(defun cider--clj-resolve-command ()
+(defun cider--clojure-resolve-command ()
   "Find `cider-clojure-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
