@@ -311,7 +311,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" cider-lein-global-options)
     ("boot" cider-boot-global-options)
-    ("clojure" cider-boot-global-options)
+    ("clojure" cider-clojure-global-options)
     ("gradle" cider-gradle-global-options)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
