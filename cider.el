@@ -737,6 +737,7 @@ gets associated with it."
            (t (cider-assoc-project-with-connection nil conn)))))
       conn)))
 
+;;;###autoload
 (defun cider-connect-clojurescript ()
   "Connect to a ClojureScript REPL.
 
@@ -1002,7 +1003,8 @@ process buffer."
   '(progn
      (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in)
      (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-clojurescript)
-     (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect)))
+     (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect)
+     (define-key clojure-mode-map (kbd "C-c M-C") #'cider-connect-clojurescript)))
 
 (provide 'cider)
 
