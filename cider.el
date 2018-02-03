@@ -141,8 +141,8 @@ version from the CIDER package or library.")
   :safe #'stringp
   :package-version '(cider . "0.9.0"))
 
-(defcustom cider-clj-command
-  "clj"
+(defcustom cider-clojure-command
+  "clojure"
   "The command used to execute clj (included first in Clojure 1.9)."
   :type 'string
   :group 'cider
@@ -188,7 +188,7 @@ version from the CIDER package or library.")
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-default-repl-command
-  "clj"
+  cider-clojure-command
   "The default command and parameters to use when connecting to nREPL.
 This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found.
@@ -210,7 +210,7 @@ cannot decide which of many build systems to use and will never override a
 command when there is no ambiguity."
   :type '(choice (const "lein")
                  (const "boot")
-                 (const "clj")
+                 (const "clojure")
                  (const "gradle")
                  (const :tag "Always ask" nil))
   :group 'cider
@@ -291,7 +291,7 @@ Sub-match 1 must be the project path.")
   (pcase project-type
     ("lein" cider-lein-command)
     ("boot" cider-boot-command)
-    ("clj" cider-clj-command)
+    ("clojure" cider-clojure-command)
     ("gradle" cider-gradle-command)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -302,7 +302,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" (cider--lein-resolve-command))
     ("boot" (cider--boot-resolve-command))
-    ("clj" (cider--clj-resolve-command))
+    ("clojure" (cider--clj-resolve-command))
     ("gradle" (cider--gradle-resolve-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -311,7 +311,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" cider-lein-global-options)
     ("boot" cider-boot-global-options)
-    ("clj" cider-boot-global-options)
+    ("clojure" cider-boot-global-options)
     ("gradle" cider-gradle-global-options)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -320,7 +320,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
-    ("clj" cider-clj-parameters)
+    ("clojure" cider-clj-parameters)
     ("gradle" cider-gradle-parameters)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -415,7 +415,7 @@ string is quoted for passing as argument to an inferior shell."
   (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
 
 (defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins)
-    "Create lein jack-in dependencies.
+  "Create lein jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
 removed, LEIN-PLUGINS, and finally PARAMS."
   (concat
@@ -491,11 +491,11 @@ dependencies."
               cider-jack-in-dependencies)
              cider-jack-in-lein-plugins
              cider-jack-in-nrepl-middlewares))
-    ("clj" (cider-clj-jack-in-dependencies
-             global-opts
-             params
-             (cider-add-clojure-dependencies-maybe
-              cider-jack-in-dependencies)))
+    ("clojure" (cider-clj-jack-in-dependencies
+                global-opts
+                params
+                (cider-add-clojure-dependencies-maybe
+                 cider-jack-in-dependencies)))
     ("gradle" (concat
                global-opts
                (unless (seq-empty-p global-opts) " ")
@@ -565,7 +565,7 @@ it should start a ClojureScript REPL."
   (pcase project-type
     ("lein" cider-cljs-lein-repl)
     ("boot" cider-cljs-boot-repl)
-    ("clj" cider-cljs-clj-repl)
+    ("clojure" cider-cljs-clj-repl)
     ("gradle" cider-cljs-gradle-repl)
     (_ (error "Unsupported project type `%s'" project-type))))
 
@@ -576,7 +576,7 @@ it should start a ClojureScript REPL."
       (save-excursion
         (goto-char (point-min))
         (when-let* ((url (and (search-forward-regexp "http://localhost:[0-9]+" nil 'noerror)
-                             (match-string 0))))
+                              (match-string 0))))
           (when (y-or-n-p (format "Visit ‘%s’ in a browser? " url))
             (browse-url url)))))))
 
@@ -654,7 +654,7 @@ be reused."
       (if (get-buffer-process exact-buff)
           (when (y-or-n-p (format "REPL buffer already exists (%s).  \
 Do you really want to create a new one? "
-                                  exact-buff))
+                           exact-buff))
             'new)
         exact-buff)
     (or (cider--select-zombie-buffer repl-buffers) 'new)))
@@ -855,7 +855,7 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
   (let* ((default-directory (clojure-project-dir (cider-current-dir)))
          (build-files '(("lein" . "project.clj")
                         ("boot" . "build.boot")
-                        ("clj" . "deps.edn")
+                        ("clojure" . "deps.edn")
                         ("gradle" . "build.gradle"))))
     (delq nil
           (mapcar (lambda (candidate)
@@ -912,14 +912,14 @@ In case `default-directory' is non-local we assume the command is available."
                            (executable-find (concat cider-gradle-command ".exe")))))
     (shell-quote-argument command)))
 
-;; TODO: Implement a check for `cider-clj-command' over tramp
+;; TODO: Implement a check for `cider-clojure-command' over tramp
 (defun cider--clj-resolve-command ()
-  "Find `cider-clj-command' on `exec-path' if possible, or return nil.
+  "Find `cider-clojure-command' on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) cider-clj-command)
-                           (executable-find cider-clj-command)
-                           (executable-find (concat cider-clj-command ".exe")))))
+  (when-let* ((command (or (and (file-remote-p default-directory) cider-clojure-command)
+                           (executable-find cider-clojure-command)
+                           (executable-find (concat cider-clojure-command ".exe")))))
     (shell-quote-argument command)))
 
 
