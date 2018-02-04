@@ -1,4 +1,4 @@
-FROM travisci/ci-garnet:packer-1490989530
+FROM travisci/ci-garnet:packer-1512502276-986baf0
 
 RUN apt-get update -y \
  && apt-get install -y \
