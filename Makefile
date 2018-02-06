@@ -5,9 +5,10 @@ VERSION = $(shell git describe --tags --abbrev=0 | sed 's/^v//')
 PACKAGE_NAME = cider-$(VERSION)
 
 ELS = $(wildcard *.el)
+LINTELS = $(filter-out cider-autoloads.el,$(ELS))
 OBJECTS = $(ELS:.el=.elc)
 
-.PHONY: elpa build version test test-checks test-bytecomp test-all clean elpaclean run-cider
+.PHONY: elpa build version test lint clean elpaclean run-cider
 
 .depend: $(ELS)
 	@echo Compute dependencies
@@ -34,15 +35,15 @@ version:
 test: version build
 	$(CASK) exec buttercup -L . -L ./test/utils/
 
-test-checks: version elpa
-	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
-		-l test/scripts/cider-checks.el ./
+lint: version elpa
+	$(CASK) exec $(EMACS) -Q --batch \
+		--eval "(setq enable-local-variables :safe)" \
+		-l elisp-lint.el -f elisp-lint-files-batch \
+		--no-package-format \
+                --no-fill-column \
+		$(LINTELS)
 
-test-bytecomp: version elpa
-	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
-		-l test/scripts/cider-bytecomp-warnings.el $(ELS)
-
-test-all: test-checks test-bytecomp test
+test-all: lint test
 
 clean:
 	rm -f .depend $(OBJECTS)

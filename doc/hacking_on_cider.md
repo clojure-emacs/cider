@@ -71,10 +71,10 @@ $ make test
 (Note: tests may not run correctly inside Emacs' `shell-mode` buffers. Running
 them in a terminal is recommended.)
 
-You can also check for the presence of byte-compilation warnings in batch mode:
+You can also check for compliance with a variety of coding standards in batch mode (including docstrings and byte-compilation warnings):
 
 ```
-$ make test-bytecomp
+$ make lint
 ```
 
 #### Running the tests in Travis CI
