@@ -162,11 +162,11 @@ precedence over other connections associated with the same project.
 If ALL-CONNECTIONS is non-nil, the return value is a list and all matching
 connections are returned, instead of just the most recent."
   (when-let* ((project-directory (or project-directory
-                                    (clojure-project-dir (cider-current-dir))))
-             (fn (if all-connections #'seq-filter #'seq-find)))
+                                     (clojure-project-dir (cider-current-dir))))
+              (fn (if all-connections #'seq-filter #'seq-find)))
     (or (funcall fn (lambda (conn)
                       (when-let* ((conn-proj-dir (with-current-buffer conn
-                                                  nrepl-project-dir)))
+                                                   nrepl-project-dir)))
                         (equal (file-truename project-directory)
                                (file-truename conn-proj-dir))))
                  cider-connections)
@@ -246,9 +246,9 @@ using the default list of connections."
       ;; obfuscation
       (kill-local-variable 'cider-connections)
       (if-let* ((other-conn (cider-other-connection current-conn)))
-        (progn
-          (setq-local cider-connections (list other-conn))
-          (message (format "Connection set to %s" (cider--connection-type other-conn))))
+          (progn
+            (setq-local cider-connections (list other-conn))
+            (message (format "Connection set to %s" (cider--connection-type other-conn))))
         (progn
           (when was-local
             (setq-local cider-connections original-connections))
@@ -327,7 +327,7 @@ at all."
 Only return connections in the same project or nil.
 CONNECTION defaults to `cider-current-connection'."
   (when-let* ((connection (or connection (cider-current-connection)))
-             (connection-type (cider--connection-type connection)))
+              (connection-type (cider--connection-type connection)))
     (cider-current-connection (pcase connection-type
                                 (`"clj" "cljs")
                                 (_ "clj")))))
@@ -340,14 +340,14 @@ DO NOT USE THIS FUNCTION.
 It was written only to be used in `cider-map-connections', as a workaround
 to a still-undetermined bug in the state-stracker backend."
   (when-let* ((project-connections (cider-find-connection-buffer-for-project-directory
-                                   nil :all-connections))
-             (cljs-conn
-              ;; So we have multiple connections. Look for the connection type we
-              ;; want, prioritizing the current project.
-              (or (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
-                            project-connections)
-                  (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
-                            (cider-connections)))))
+                                    nil :all-connections))
+              (cljs-conn
+               ;; So we have multiple connections. Look for the connection type we
+               ;; want, prioritizing the current project.
+               (or (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
+                             project-connections)
+                   (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
+                             (cider-connections)))))
     (unless cider--has-warned-about-bad-repl-type
       (setq cider--has-warned-about-bad-repl-type t)
       (read-key
@@ -1180,7 +1180,7 @@ default connection."
           (append (cdr cider-connections)
                   (list (car cider-connections))))
     (message "Default nREPL connection: %s"
-           (cider--connection-info (car cider-connections)))))
+             (cider--connection-info (car cider-connections)))))
 
 
 (declare-function cider-connect "cider")

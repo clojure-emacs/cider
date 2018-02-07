@@ -676,8 +676,8 @@ text from the *cider-repl-history* buffer."
   (interactive)
   (cl-assert (eq major-mode 'cider-repl-history-mode))
   (cider-repl-history-setup cider-repl-history-repl-window
-                       cider-repl-history-repl-buffer
-                       (current-buffer))
+                            cider-repl-history-repl-buffer
+                            (current-buffer))
   (cider-repl-history-resize-window))
 
 (defun cider-repl-history-occur (regexp)
@@ -687,9 +687,9 @@ text from the *cider-repl-history* buffer."
           "Display command history entries matching" nil)))
   (cl-assert (eq major-mode 'cider-repl-history-mode))
   (cider-repl-history-setup cider-repl-history-repl-window
-                       cider-repl-history-repl-buffer
-                       (current-buffer)
-                       regexp)
+                            cider-repl-history-repl-buffer
+                            (current-buffer)
+                            regexp)
   (cider-repl-history-resize-window))
 
 (put 'cider-repl-history-mode 'mode-class 'special)

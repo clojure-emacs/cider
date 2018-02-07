@@ -153,9 +153,9 @@ END is the position where the sexp ends, and defaults to point."
                              'before-string cider--fringe-overlay-good)))))
 
 (cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result)
-                                        (format (concat " " cider-eval-result-prefix "%s "))
-                                        (prepend-face 'cider-result-overlay-face)
-                                        &allow-other-keys)
+                                            (format (concat " " cider-eval-result-prefix "%s "))
+                                            (prepend-face 'cider-result-overlay-face)
+                                            &allow-other-keys)
   "Place an overlay displaying VALUE at the end of line.
 VALUE is used as the overlay's after-string property, meaning it is
 displayed at the end of the overlay.  The overlay itself is placed from

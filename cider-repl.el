@@ -89,7 +89,7 @@ set to `display-only' the buffer will be displayed, but it will not become
 focused.  Otherwise the buffer is displayed and focused."
   :type '(choice (const :tag "Create the buffer, but don't display it" nil)
                  (const :tag "Create and display the buffer, but don't focus it"
-                   display-only)
+                        display-only)
                  (const :tag "Create, display, and focus the buffer" t))
   :group 'cider-repl)
 
@@ -123,7 +123,7 @@ change the setting's value."
 This sets the wrap point for pretty printing on the repl.  If nil, it
 defaults to the variable `fill-column'."
   :type '(restricted-sexp  :match-alternatives
-                          (integerp 'nil))
+                           (integerp 'nil))
   :group 'cider-repl
   :package-version '(cider . "0.15.0"))
 
