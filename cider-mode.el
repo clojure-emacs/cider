@@ -33,6 +33,7 @@
 
 (require 'clojure-mode)
 (require 'cider-interaction)
+(require 'cider-profile)
 (require 'cider-test)
 (require 'cider-eldoc)
 (require 'cider-resolve)
@@ -344,6 +345,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-r") #'cider-rotate-default-connection)
     (define-key map (kbd "C-c M-d") #'cider-display-connection-info)
+    (define-key map (kbd "C-c C-=") #'cider-profile-map)
     (define-key map (kbd "C-c C-x") #'cider-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (dolist (variable '(cider-mode-interactions-menu
