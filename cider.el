@@ -647,7 +647,7 @@ be reused."
       (if (get-buffer-process exact-buff)
           (when (y-or-n-p (format "REPL buffer already exists (%s).  \
 Do you really want to create a new one? "
-                           exact-buff))
+                                  exact-buff))
             'new)
         exact-buff)
     (or (cider--select-zombie-buffer repl-buffers) 'new)))

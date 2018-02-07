@@ -660,9 +660,9 @@ has started."
 Returns the cons of the buffer itself and the location of VAR's definition
 in the buffer."
   (when-let* ((info (cider-var-info var))
-             (file (nrepl-dict-get info "file"))
-             (line (nrepl-dict-get info "line"))
-             (buffer (cider-find-file file)))
+              (file (nrepl-dict-get info "file"))
+              (line (nrepl-dict-get info "line"))
+              (buffer (cider-find-file file)))
     (with-current-buffer buffer
       (save-excursion
         (goto-char (point-min))
@@ -856,16 +856,16 @@ COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
   (cl-flet ((multiline-comment-handler (buffer value)
-             (with-current-buffer buffer
-               (save-excursion
-                 (goto-char location)
-                 (let ((lines (split-string value "[\n]+" t)))
-                   ;; only the first line gets the normal comment-prefix
-                   (insert (concat comment-prefix (pop lines)))
-                   (dolist (elem lines)
-                     (insert (concat "\n" continued-prefix elem)))
-                   (unless (string= comment-postfix "")
-                     (insert comment-postfix)))))))
+              (with-current-buffer buffer
+                (save-excursion
+                  (goto-char location)
+                  (let ((lines (split-string value "[\n]+" t)))
+                    ;; only the first line gets the normal comment-prefix
+                    (insert (concat comment-prefix (pop lines)))
+                    (dolist (elem lines)
+                      (insert (concat "\n" continued-prefix elem)))
+                    (unless (string= comment-postfix "")
+                      (insert comment-postfix)))))))
     (nrepl-make-response-handler buffer
                                  '()
                                  #'multiline-comment-handler
@@ -1448,10 +1448,10 @@ incomplete expression complete."
   (let ((result nil))
     (save-excursion
       (condition-case nil
-         (while t
-           (backward-up-list)
-           (push (char-after) result))
-       (error result)))))
+          (while t
+            (backward-up-list)
+            (push (char-after) result))
+        (error result)))))
 
 (defun cider--matching-delimiter (delimiter)
   "Get the matching (opening/closing) delimiter for DELIMITER."
@@ -2014,7 +2014,7 @@ START and END represent the region's boundaries."
   (interactive)
   (cider-ensure-connected)
   (nrepl-sync-request:close (cider-current-connection))
-      (message "Closed nREPL session"))
+  (message "Closed nREPL session"))
 
 ;;; quiting
 (defun cider--close-buffer (buffer)

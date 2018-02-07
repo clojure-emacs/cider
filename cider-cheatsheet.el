@@ -294,7 +294,7 @@
       (clojure.core .. doto bean comparator enumeration-seq import iterator-seq memfn definterface supers bases))
      ("Cast"
       (clojure.core boolean byte short char int long float double bigdec bigint num cast biginteger))
-      ("Exceptions"
+     ("Exceptions"
       (:special throw try catch finally)
       (clojure.core ex-info ex-data Throwable->map StackTraceElement->vec)
       (clojure.repl pst))

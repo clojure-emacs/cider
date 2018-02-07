@@ -439,19 +439,19 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
 (defun cider--eldoc-add-datomic-query-inputs-to-arglists (arglists)
   "Add the expected inputs of the datomic query to the ARGLISTS."
   (if (cider-second-sexp-in-list)
-    (let* ((query (cider-second-sexp-in-list))
-           (query-inputs (nrepl-dict-get
-                          (cider-sync-request:eldoc-datomic-query query)
-                          "inputs")))
-      (if query-inputs
-          (thread-first
-              (thread-last arglists
-                (car)
-                (remove "&")
-                (remove "inputs"))
-            (append (car query-inputs))
-            (list))
-        arglists))
+      (let* ((query (cider-second-sexp-in-list))
+             (query-inputs (nrepl-dict-get
+                            (cider-sync-request:eldoc-datomic-query query)
+                            "inputs")))
+        (if query-inputs
+            (thread-first
+                (thread-last arglists
+                  (car)
+                  (remove "&")
+                  (remove "inputs"))
+              (append (car query-inputs))
+              (list))
+          arglists))
     arglists))
 
 (defun cider-eldoc ()
