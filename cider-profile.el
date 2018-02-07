@@ -52,13 +52,13 @@ If optional QUERY is specified, set max-sample-count and display new value."
       (cider-nrepl-send-request
        (let ((max-samples (if (numberp query) query '())))
          (message "query: %s" max-samples)
-         (list "op" "set-max-samples" "max-samples" max-samples))
+         `("op" "set-max-samples" "max-samples" ,max-samples))
        (cider-profile-message-response-handler
         (lambda (_buffer value)
           (let ((value (if (zerop (length value)) "unlimited" value)))
             (message "max-sample-count is now %s." value)))))
     (cider-nrepl-send-request
-     (list "op" "get-max-samples")
+     '("op" "get-max-samples")
      (nrepl-make-response-handler
       (current-buffer)
       (lambda (_buffer value)
@@ -70,7 +70,7 @@ If optional QUERY is specified, set max-sample-count and display new value."
   query)
 
 ;;;###autoload
-(defun cider-profile-var-profiledp (query)
+(defun cider-profile-var-profiled-p (query)
   "Displays the profiling status of var under point.
 Prompts for var if none under point or QUERY is present."
   (interactive "P")
@@ -80,36 +80,37 @@ Prompts for var if none under point or QUERY is present."
    (lambda (sym)
      (let ((ns (cider-current-ns)))
        (cider-nrepl-send-request
-        (list "op" "is-var-profiled"
-              "ns" ns
-              "sym" sym)
+        `("op" "is-var-profiled"
+          "ns" ,ns
+          "sym" ,sym)
         (cider-profile-message-response-handler
          (lambda (_buffer value)
-           (cond ((equal value "profiled")
-                  (message "profiling %s/%s." ns sym))
-                 ((equal value "unprofiled")
-                  (message "not profiling %s/%s." ns sym))
-                 ((equal value "unbound")
-                  (message "%s/%s is not bound." ns sym)))))))))
+           (pcase value
+             ("profiled" (message "profiling %s/%s." ns sym))
+             ("unprofiled" (message "not profiling %s/%s." ns sym))
+             ("unbound" (message "%s/%s is unbound." ns sym)))))))))
   query)
 
 ;;;###autoload
 (defun cider-profile-ns-toggle (&optional query)
-  "Toggle profiling for the ns associated with optional QUERY or, if nil current ns."
+  "Toggle profiling for the ns associated with optional QUERY.
+
+If optional argument QUERY is non-nil, prompt for ns.  Otherwise use
+current ns."
   (interactive "P")
   (cider-ensure-op-supported "toggle-profile-ns")
-  (let ((ns (if query (completing-read
-                       "Toggle profiling for ns: " (cider-sync-request:ns-list))
+  (let ((ns (if query
+                (completing-read "Toggle profiling for ns: "
+                                 (cider-sync-request:ns-list))
               (cider-current-ns))))
     (cider-nrepl-send-request
-     (list "op" "toggle-profile-ns"
-           "ns" ns)
+     `("op" "toggle-profile-ns"
+       "ns" ,ns)
      (cider-profile-message-response-handler
       (lambda (_buffer value)
-        (cond ((equal value "profiled")
-               (message "profiling %s." ns))
-              ((equal value "unprofiled")
-               (message "not profiling %s." ns)))))))
+        (pcase value
+          ("profiled" (message "profiling %s." ns))
+          ("unprofiled" (message "not profiling %s." ns)))))))
   query)
 
 ;;;###autoload
@@ -124,17 +125,15 @@ With prefix arg or no symbol at point, prompts for a var."
    (lambda (sym)
      (let ((ns (cider-current-ns)))
        (cider-nrepl-send-request
-        (list "op" "toggle-profile"
-              "ns" ns
-              "sym" sym)
+        `("op" "toggle-profile"
+          "ns" ,ns
+          "sym" ,sym)
         (cider-profile-message-response-handler
          (lambda (_buffer value)
-           (cond ((equal value "profiled")
-                  (message (format "profiling %s/%s." ns sym)))
-                 ((equal value "unprofiled")
-                  (message (format "not profiling %s/%s." ns sym)))
-                 ((equal value "unbound")
-                  (message (format "%s/%s is not bound." ns sym))))))))))
+           (pcase value
+             ("profiled" (message (format "profiling %s/%s." ns sym)))
+             ("unprofiled" (message (format "not profiling %s/%s." ns sym)))
+             ("unbound" (message (format "%s/%s is unbound." ns sym))))))))))
   query)
 
 (defun cider-profile-display-stats (stats-response)
@@ -157,7 +156,7 @@ With prefix arg or no symbol at point, prompts for a var."
   (interactive)
   (cider-ensure-op-supported "profile-summary")
   (cider-profile-display-stats
-   (cider-nrepl-send-sync-request (list "op" "profile-summary"))))
+   (cider-nrepl-send-sync-request '("op" "profile-summary"))))
 
 ;;;###autoload
 (defun cider-profile-var-summary (query)
@@ -171,9 +170,9 @@ With prefix arg or no symbol at point, prompts for a var."
    (lambda (sym)
      (cider-profile-display-stats
       (cider-nrepl-send-sync-request
-       (list "op" "profile-var-summary"
-             "ns" (cider-current-ns)
-             "sym" sym)))))
+       `("op" "profile-var-summary"
+         "ns" ,(cider-current-ns)
+         "sym" ,sym)))))
   query)
 
 ;;;###autoload
@@ -182,7 +181,7 @@ With prefix arg or no symbol at point, prompts for a var."
   (interactive)
   (cider-ensure-op-supported "clear-profile")
   (cider-nrepl-send-request
-   (list "op" "clear-profile")
+   '("op" "clear-profile")
    (cider-profile-message-response-handler
     (lambda (_buffer value)
       (when (equal value "cleared")
