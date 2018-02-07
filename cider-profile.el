@@ -26,9 +26,20 @@
 ;;; Code:
 
 (require 'cider-client)
-(require 'cider-mode)
 
 (defconst cider-profile-buffer "*cider-profile*")
+
+(defvar cider-profile-map
+  (let ((map (define-prefix-command 'cider-profile-map)))
+    (define-key map (kbd "t") #'cider-profile-toggle)
+    (define-key map (kbd "c") #'cider-profile-clear)
+    (define-key map (kbd "S") #'cider-profile-summary)
+    (define-key map (kbd "s") #'cider-profile-var-summary)
+    (define-key map (kbd "n") #'cider-profile-ns-toggle)
+    (define-key map (kbd "v") #'cider-profile-var-profiled-p)
+    (define-key map (kbd "+") #'cider-profile-samples)
+    map)
+  "CIDER profiler keymap.")
 
 ;;;###autoload
 (defun cider-profile-message-response-handler (handler &optional buffer)
@@ -186,16 +197,6 @@ With prefix arg or no symbol at point, prompts for a var."
     (lambda (_buffer value)
       (when (equal value "cleared")
         (message "cleared profile data."))))))
-
-
-
-(define-key cider-mode-map (kbd "C-c C-= t") #'cider-profile-toggle)
-(define-key cider-mode-map (kbd "C-c C-= c") #'cider-profile-clear)
-(define-key cider-mode-map (kbd "C-c C-= S") #'cider-profile-summary)
-(define-key cider-mode-map (kbd "C-c C-= s") #'cider-profile-var-summary)
-(define-key cider-mode-map (kbd "C-c C-= n") #'cider-profile-ns-toggle)
-(define-key cider-mode-map (kbd "C-c C-= v") #'cider-profile-var-profiledp)
-(define-key cider-mode-map (kbd "C-c C-= +") #'cider-profile-samples)
 
 (provide 'cider-profile)
 
