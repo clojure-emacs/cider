@@ -1,4 +1,4 @@
-;;; cider-profile.el --- CIDER support for thunknyc/profile
+;;; cider-profile.el --- CIDER support for thunknyc/profile  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2014-2018 Edwin Watkeys and CIDER contributors
 
