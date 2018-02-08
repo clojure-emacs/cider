@@ -41,6 +41,17 @@
     map)
   "CIDER profiler keymap.")
 
+(defconst cider-profile-menu
+  '("Profile"
+    ["Toggle var profiling" cider-profile-toggle]
+    ["Toggle namespace profiling" cider-profile-ns-toggle]
+    "--"
+    ["Display var profiling status" cider-profile-var-profiled-p]
+    ["Display max sample count" cider-profile-samples]
+    ["Display summary" cider-profile-summary]
+    ["Clear data" cider-profile-clear])
+  "CIDER profiling submenu.")
+
 ;;;###autoload
 (defun cider-profile-message-response-handler (handler &optional buffer)
   "Default message response handler.
@@ -171,9 +182,10 @@ With prefix arg or no symbol at point, prompts for a var."
 
 ;;;###autoload
 (defun cider-profile-var-summary (query)
-  "Display profile date var under point QUERY.
-Defaults to the symbol at point.
-With prefix arg or no symbol at point, prompts for a var."
+  "Display profile data for var under point QUERY.
+
+Defaults to the symbol at point.  With prefix arg or no symbol at point,
+prompts for a var."
   (interactive "P")
   (cider-ensure-op-supported "profile-var-summary")
   (cider-read-symbol-name
