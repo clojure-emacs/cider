@@ -52,16 +52,12 @@
     ["Clear data" cider-profile-clear])
   "CIDER profiling submenu.")
 
-;;;###autoload
-(defun cider-profile-message-response-handler (handler &optional buffer)
-  "Default message response handler.
-It takes HANDLER to process the message on an optional BUFFER or the current buffer if not specified."
+(defun cider-profile--make-response-handler (handler &optional buffer)
+  "Make a response handler using value handler HANDLER for connection BUFFER.
+
+Optional argument BUFFER defaults to current buffer."
   (nrepl-make-response-handler
-   (or buffer (current-buffer))
-   handler
-   '()
-   '()
-   '()))
+   (or buffer (current-buffer)) handler nil nil nil))
 
 ;;;###autoload
 (defun cider-profile-samples (&optional query)
@@ -75,20 +71,16 @@ If optional QUERY is specified, set max-sample-count and display new value."
        (let ((max-samples (if (numberp query) query '())))
          (message "query: %s" max-samples)
          `("op" "set-max-samples" "max-samples" ,max-samples))
-       (cider-profile-message-response-handler
+       (cider-profile--make-response-handler
         (lambda (_buffer value)
           (let ((value (if (zerop (length value)) "unlimited" value)))
             (message "max-sample-count is now %s." value)))))
     (cider-nrepl-send-request
      '("op" "get-max-samples")
-     (nrepl-make-response-handler
-      (current-buffer)
+     (cider-profile--make-response-handler
       (lambda (_buffer value)
         (let ((value (if (zerop (length value)) "unlimited" value)))
-          (message "max-sample-count is now %s." value)))
-      '()
-      '()
-      '())))
+          (message "max-sample-count is now %s." value))))))
   query)
 
 ;;;###autoload
@@ -105,7 +97,7 @@ Prompts for var if none under point or QUERY is present."
         `("op" "is-var-profiled"
           "ns" ,ns
           "sym" ,sym)
-        (cider-profile-message-response-handler
+        (cider-profile--make-response-handler
          (lambda (_buffer value)
            (pcase value
              ("profiled" (message "profiling %s/%s." ns sym))
@@ -128,7 +120,7 @@ current ns."
     (cider-nrepl-send-request
      `("op" "toggle-profile-ns"
        "ns" ,ns)
-     (cider-profile-message-response-handler
+     (cider-profile--make-response-handler
       (lambda (_buffer value)
         (pcase value
           ("profiled" (message "profiling %s." ns))
@@ -150,7 +142,7 @@ With prefix arg or no symbol at point, prompts for a var."
         `("op" "toggle-profile"
           "ns" ,ns
           "sym" ,sym)
-        (cider-profile-message-response-handler
+        (cider-profile--make-response-handler
          (lambda (_buffer value)
            (pcase value
              ("profiled" (message (format "profiling %s/%s." ns sym)))
@@ -205,7 +197,7 @@ prompts for a var."
   (cider-ensure-op-supported "clear-profile")
   (cider-nrepl-send-request
    '("op" "clear-profile")
-   (cider-profile-message-response-handler
+   (cider-profile--make-response-handler
     (lambda (_buffer value)
       (when (equal value "cleared")
         (message "cleared profile data."))))))
