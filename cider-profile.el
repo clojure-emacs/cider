@@ -1,6 +1,6 @@
 ;;; cider-profile.el --- CIDER support for thunknyc/profile
 
-;; Copyright © 2015-2018  Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2014-2018 Edwin Watkeys and CIDER contributors
 
 ;; Author: Juan E. Maya <jmayaalv@gmail.com>
 
@@ -20,6 +20,7 @@
 ;;; Commentary:
 
 ;; Provides coarse-grained interactive profiling support.
+;; Based on earlier work by Edwin Watkeys (https://github.com/thunknyc/nrepl-profile).
 
 ;;; Code:
 
