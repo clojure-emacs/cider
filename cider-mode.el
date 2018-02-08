@@ -279,6 +279,14 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["Find resource" cider-find-resource]
      ["Find keyword" cider-find-keyword]
      ["Go back" cider-pop-back])
+    ("Browse"
+     ["Browse namespace" cider-browse-ns]
+     ["Browse all namespaces" cider-browse-ns-all]
+     ["Browse spec" cider-browse-spec]
+     ["Browse all specs" cider-browse-spec-all]
+     ["Browse REPL input history" cider-repl-history]
+     ["Browse classpath" cider-classpath]
+     ["Browse classpath entry" cider-open-classpath-entry])
     ("Macroexpand"
      ["Macroexpand-1" cider-macroexpand-1]
      ["Macroexpand-all" cider-macroexpand-all])
@@ -293,14 +301,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["List instrumented defs" cider-browse-instrumented-defs]
      "--"
      ["Configure the Debugger" (customize-group 'cider-debug)])
-    ("Browse"
-     ["Browse namespace" cider-browse-ns]
-     ["Browse all namespaces" cider-browse-ns-all]
-     ["Browse spec" cider-browse-spec]
-     ["Browse all specs" cider-browse-spec-all]
-     ["Browse REPL input history" cider-repl-history]
-     ["Browse classpath" cider-classpath]
-     ["Browse classpath entry" cider-open-classpath-entry])
+    ,cider-profile-menu
     ("Misc"
      ["Clojure Cheatsheet" cider-cheatsheet]
      ["Flush completion cache" cider-completion-flush-caches]))
