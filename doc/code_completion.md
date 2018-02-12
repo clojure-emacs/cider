@@ -52,9 +52,6 @@ you can add this to your config:
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 ```
 
-`company-indent-or-complete-common` is available only in `company-mode` 0.9+ (at
-the time of this writing it's still in development).
-
 ### Fuzzy candidate matching
 
 By default `company-mode` will provide completion candidates with the assumption
