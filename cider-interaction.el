@@ -1955,6 +1955,7 @@ of the buffer into a formatted string."
 (defun cider-format-buffer ()
   "Format the Clojure code in the current buffer."
   (interactive)
+  (check-parens)
   (cider-ensure-connected)
   (cider--format-buffer #'cider-sync-request:format-code))
 
@@ -1964,6 +1965,7 @@ of the buffer into a formatted string."
 (defun cider-format-edn-buffer ()
   "Format the EDN data in the current buffer."
   (interactive)
+  (check-parens)
   (cider-ensure-connected)
   (cider--format-buffer (lambda (edn)
                           (cider-sync-request:format-edn edn (cider--pretty-print-width)))))
