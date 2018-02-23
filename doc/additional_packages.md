@@ -18,13 +18,6 @@ down the road.
 **Make sure that the version of `clj-refactor` you've installed is compatible with
 your CIDER version.**
 
-## clojure-cheatsheet
-
-[clojure-cheatsheet](https://github.com/clojure-emacs/clojure-cheatsheet) in an
-Emacs rendition of the web-based
-[official Clojure Cheatsheet](http://clojure.org/api/cheatsheet), that's easily
-searchable via Helm.
-
 ## helm-cider
 
 [helm-cider](https://github.com/clojure-emacs/helm-cider) provides Helm
