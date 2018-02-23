@@ -38,7 +38,12 @@ Flycheck checker for Clojure, using tools like
 [core.typed](http://typedclojure.org/) and
 [kibit](https://github.com/jonase/kibit).
 
-## inf-clojure
+## sayid
+
+[sayid](http://bpiel.github.io/sayid/) is a powerful alternative of CIDER's
+built-in basic tracing functionality.
+
+## Inf-clojure
 
 This package provides basic interaction with a Clojure subprocess (REPL). It's
 based on ideas from the popular inferior-lisp package.
