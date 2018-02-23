@@ -98,14 +98,6 @@ RainbowDelimiters you can enable it in the REPL like this:
 (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
 ```
 
-## auto-complete
-
-[auto-complete](http://cx4a.org/software/auto-complete/) is a popular Emacs
-interactive auto-completion
-framework. [ac-cider](https://github.com/clojure-emacs/ac-cider) provides a
-completion source for auto-complete-mode, including, where CIDER provides it,
-pop-up documentation for completed symbols.
-
 ## eval-sexp-fu
 
 [eval-sexp-fu](https://github.com/hchbaw/eval-sexp-fu.el) provides some visual

@@ -78,7 +78,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * nREPL session management
 * [Scratchpad](miscellaneous_features.md#using-a-scratchpad)
 * [Minibuffer code evaluation](miscellaneous_features.md#evaluating-clojure-code-in-the-minibuffer)
-* Integration with [company-mode][] and [auto-complete-mode][]
+* Integration with [company-mode][]
 * [Support for working with multiple simultaneous nREPL connections](managing_connections.md)
 
 ![CIDER Screenshot](images/cider-overview.png)
@@ -89,7 +89,6 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 [Sly]: https://github.com/capitaomorte/sly
 [Geiser]: https://github.com/jaor/geiser
 [company-mode]: http://company-mode.github.io/
-[auto-complete-mode]: https://github.com/clojure-emacs/ac-cider
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/cemerick/piggieback
