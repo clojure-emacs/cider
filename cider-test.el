@@ -426,7 +426,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
           (insert "\n"))))))
 
 (defun cider-test-non-passing (tests)
-  "For a list of TESTS, each an nrepl-dict, return only those that did not pass."
+  "For a list of TESTS, each an `nrepl-dict`, return only those that did not pass."
   (seq-filter (lambda (test)
                 (unless (equal (nrepl-dict-get test "type") "pass")
                   test))

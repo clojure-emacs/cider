@@ -252,7 +252,7 @@ This variable is used by `cider-connect'."
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-auto-mode t
-  "When non-nil, automatically enable `cider-mode' for all Clojure buffers."
+  "When non-nil, automatically enable cider mode for all Clojure buffers."
   :type 'boolean
   :package-version '(cider . "0.9.0"))
 
