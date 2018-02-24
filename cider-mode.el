@@ -48,7 +48,7 @@
   :package-version '(cider "0.10.0"))
 
 (defun cider--modeline-info ()
-  "Return info for the `cider-mode' modeline.
+  "Return info for the cider mode modeline.
 
 Info contains project name and host:port endpoint."
   (if-let* ((current-connection (ignore-errors (cider-current-connection))))
@@ -67,16 +67,15 @@ Info contains project name and host:port endpoint."
 ;;;###autoload
 (defcustom cider-mode-line
   '(:eval (format " cider[%s]" (cider--modeline-info)))
-  "Mode line lighter for `cider-mode'.
+  "Mode line lighter for cider mode.
 
 The value of this variable is a mode line template as in
-`mode-line-format'.  See Info Node `(elisp)Mode Line Format' for
-details about mode line templates.
+`mode-line-format'.  See Info Node `(elisp)Mode Line Format' for details
+about mode line templates.
 
-Customize this variable to change how `cider-mode' displays its
-status in the mode line.  The default value displays the current connection.
-Set this variable to nil to disable the mode line
-entirely."
+Customize this variable to change how cider mode displays its status in the
+mode line.  The default value displays the current connection.  Set this
+variable to nil to disable the mode line entirely."
   :group 'cider
   :type 'sexp
   :risky t
