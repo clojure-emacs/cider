@@ -374,8 +374,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
        ["Connect to a ClojureScript REPL" cider-connect-clojurescript
         :help "Connects to a ClojureScript REPL that's already running."]
        ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
-        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
-  Configure `cider-cljs-lein-repl', `cider-cljs-boot-repl' and `cider-cljs-gradle-repl' to change the ClojureScript REPL to use."]
+        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
        "--"
        ["View manual online" cider-view-manual])))
 

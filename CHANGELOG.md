@@ -29,6 +29,7 @@
 * [#2151](https://github.com/clojure-emacs/cider/pull/2151): Improve formatting of spec in `cider-doc` buffer.
 * Remove support for CLJX.
 * [#2171](https://github.com/clojure-emacs/cider/issues/2171): Update `See Also` mappings for Clojure 1.9.
+* [#2202](https://github.com/clojure-emacs/cider/issues/2202): Make `cider-jack-in-clojurescript` prompt from the ClojureScript REPL type to use.
 
 ## 0.16.0 (2017-12-28)
 

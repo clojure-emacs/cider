@@ -103,9 +103,10 @@ or in `built.boot`:
   repl {:middleware '[cemerick.piggieback/wrap-cljs-repl]})
 ```
 
-Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> and either
-`cider-cljs-lein-repl`, `cider-cljs-boot-repl` or `cider-cljs-gradle-repl` if
-you'd like to change the REPL used (the default is `rhino` where possible).
+There are many ClojureScript REPLs out there and it's often hard to wrap your
+head around them and the differences between them. You'd do well to read [this
+awesome article](https://lambdaisland.com/guides/clojure-repls/clojurescript-repls)
+before proceeding with the rest of the instructions listed here.
 
 Open a file in your project and issue <kbd>M-x</kbd>
 `cider-jack-in-clojurescript` <kbd>RET</kbd>. This will start up the nREPL
@@ -120,9 +121,9 @@ Using Weasel, you can also have a browser-connected REPL.
 
 1. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
 
-2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> plus either
-   `cider-cljs-lein-repl`, `cider-cljs-boot-repl` or `cider-cljs-gradle-repl`
-   and choose the `Weasel` option.
+2. Issue <kbd>M-x</kbd> `cider-jack-in-clojurescript` <kbd>RET</kbd> and choose
+   the `Weasel` option when prompted about the ClojureScript REPL type you want
+   to use.
 
 3. Add this to your ClojureScript code:
 
@@ -196,15 +197,9 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
 ```
 
-4. Instruct CIDER to use Figwheel in your Emacs config:
+4. Start the REPL with `cider-jack-in-clojurescript` (<kbd>C-c M-J</kbd>)
 
-```el
-(setq cider-cljs-lein-repl "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))")
-```
-
-5. Start the REPL with `cider-jack-in-clojurescript` (<kbd>C-c M-J</kbd>)
-
-6. Open a browser to the Figwheel URL so that it can connect to your application.
+5. Open a browser to the Figwheel URL so that it can connect to your application.
 
 You now have two nREPL connections, one for Clojure and one for ClojureScript.
 CIDER will determine which to use based on the type of file you're editing.

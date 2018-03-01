@@ -504,70 +504,31 @@ dependencies."
 
 
 ;;; ClojureScript REPL creation
-(defconst cider--cljs-repl-types
-  '(("(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
-     "Rhino" "")
-    ("(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
-     "Figwheel-sidecar" " (add figwheel-sidecar to your plugins)")
-    ("(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
-     "Node" " (requires NodeJS to be installed)")
-    ("(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
-     "Weasel" " (see http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl)")
-    ("(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
-     "Boot-cljs-repl" " (see https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
+(defconst cider-cljs-repl-types
+  '(("Rhino" "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))" "")
+    ("Figwhell-sidecar" "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
+     " (add figwheel-sidecar to your plugins)")
+    ("Node" "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
+     " (requires NodeJS to be installed)")
+    ("Weasel" "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
+     " (see http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl)")
+    ("Boot-cljs-repl" "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
+     " (see https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md"))
+  "A list of supported ClojureScript REPLs.
 
-(defcustom cider-cljs-lein-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
-  "Clojure form that returns a ClojureScript REPL environment.
-This is only used in lein projects.  It is evaluated in a Clojure REPL and
-it should start a ClojureScript REPL."
-  :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
-                            cider--cljs-repl-types)
-                 (string :tag "Custom"))
-  :safe (lambda (x) (assoc x cider--cljs-repl-types))
-  :package-version '(cider . "0.11.0")
-  :group 'cider)
+For each one we have its name, the form we need to evaluate in a Clojure
+REPL to start the ClojureScript REPL and some installation instructions (if
+necessary).")
 
-(defcustom cider-cljs-clojure-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
-  "Clojure form that returns a ClojureScript REPL environment.
-This is only used in clj projects.  It is evaluated in a Clojure REPL and
-it should start a ClojureScript REPL."
-  :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
-                            cider--cljs-repl-types)
-                 (string :tag "Custom"))
-  :safe (lambda (x) (assoc x cider--cljs-repl-types))
-  :package-version '(cider . "0.17.0")
-  :group 'cider)
+(make-obsolete-variable 'cider-cljs-lein-repl "The ClojureScript REPL type is now selected interactively" "0.17")
+(make-obsolete-variable 'cider-cljs-boot-repl "The ClojureScript REPL type is now selected interactively" "0.17")
+(make-obsolete-variable 'cider-cljs-gradle-repl "The ClojureScript REPL type is now selected interactively" "0.17")
 
-(defcustom cider-cljs-boot-repl "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
-  "Clojure form that returns a ClojureScript REPL environment.
-This is only used in boot projects.  It is evaluated in a Clojure REPL and
-it should start a ClojureScript REPL."
-  :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
-                            cider--cljs-repl-types)
-                 (string :tag "Custom"))
-  :safe (lambda (x) (assoc x cider--cljs-repl-types))
-  :package-version '(cider . "0.15.0")
-  :group 'cider)
-
-(defcustom cider-cljs-gradle-repl "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
-  "Clojure form that returns a ClojureScript REPL environment.
-This is only used in gradle projects.  It is evaluated in a Clojure REPL and
-it should start a ClojureScript REPL."
-  :type `(choice ,@(seq-map (lambda (x) `(const :tag ,(apply #'concat (cdr x)) ,(car x)))
-                            cider--cljs-repl-types)
-                 (string :tag "Custom"))
-  :safe (lambda (x) (assoc x cider--cljs-repl-types))
-  :package-version '(cider . "0.15.0")
-  :group 'cider)
-
-(defun cider-cljs-repl-form (project-type)
-  "Return a Clojure form returning a ClojureScript REPL environment based on PROJECT-TYPE."
-  (pcase project-type
-    ("lein" cider-cljs-lein-repl)
-    ("boot" cider-cljs-boot-repl)
-    ("clojure" cider-cljs-clojure-repl)
-    ("gradle" cider-cljs-gradle-repl)
-    (_ (error "Unsupported project type `%s'" project-type))))
+(defun cider-select-cljs-repl ()
+  "Select the ClojureScript REPL to use with `cider-jack-in-clojurescript'."
+  (let* ((repl-types (mapcar #'car cider-cljs-repl-types))
+         (selected-type (completing-read "Select ClojureScript REPL type: " repl-types)))
+     (cadr (seq-find (lambda (entry) (equal (car entry) selected-type)) cider-cljs-repl-types))))
 
 (defun cider--offer-to-open-app-in-browser (server-buffer)
   "Look for a server address in SERVER-BUFFER and offer to open it."
@@ -600,7 +561,7 @@ should be the regular Clojure REPL started by the server process filter."
                                         (get-buffer-process nrepl-server-buffer)))))
          (cljs-proc (apply #'nrepl-start-client-process client-process-args))
          (cljs-buffer (process-buffer cljs-proc))
-         (cljs-repl-form (cider-cljs-repl-form (cider-project-type))))
+         (cljs-repl-form (cider-select-cljs-repl)))
     (with-current-buffer cljs-buffer
       ;; The new connection has now been bumped to the top, but it's still a
       ;; Clojure REPL!  Additionally, some ClojureScript REPLs can actually take
