@@ -26,6 +26,7 @@
 * [#2029](https://github.com/clojure-emacs/cider/pull/2154): Make cider-doc use cider-browse-spec functionality to print the spec part of the doc buffer
 * [#2151](https://github.com/clojure-emacs/cider/pull/2151): Improve formatting of spec in `cider-doc` buffer.
 * Remove support for CLJX.
+* Fix `cider-eval-region` masking `clojure-refactor-map` in `cider-repl-mode`
 * [#2171](https://github.com/clojure-emacs/cider/issues/2171): Update `See Also` mappings for Clojure 1.9.
 
 ## 0.16.0 (2017-12-28)

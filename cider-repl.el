@@ -1469,7 +1469,7 @@ constructs."
 (defvar cider-repl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
-(declare-function cider-eval-region "cider-interaction")
+(declare-function cider-eval-commands-map "cider-interaction")
 (declare-function cider-eval-last-sexp "cider-interaction")
 (declare-function cider-refresh "cider-interaction")
 (declare-function cider-toggle-trace-ns "cider-interaction")
@@ -1522,7 +1522,8 @@ constructs."
     (define-key map (kbd "C-c M-t n") #'cider-toggle-trace-ns)
     (define-key map (kbd "C-c C-x") #'cider-refresh)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
-    (define-key map (kbd "C-c C-r") #'cider-eval-region)
+    (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
+    (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
     (define-key map (string cider-repl-shortcut-dispatch-char) #'cider-repl-handle-shortcut)
     (easy-menu-define cider-repl-mode-menu map
       "Menu for CIDER's REPL mode"
