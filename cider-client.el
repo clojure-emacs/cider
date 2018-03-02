@@ -1182,6 +1182,8 @@ default connection."
     (message "Default nREPL connection: %s"
            (cider--connection-info (car cider-connections)))))
 
+
+(declare-function cider-connect "cider")
 (defun cider-replicate-connection (&optional conn)
   "Establish a new connection based on an existing connection.
 The new connection will use the same host and port.
