@@ -506,13 +506,13 @@ dependencies."
 ;;; ClojureScript REPL creation
 (defconst cider-cljs-repl-types
   '(("Rhino" "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))" "")
-    ("Figwheel-sidecar" "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
+    ("Figwheel" "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
      " (add figwheel-sidecar to your plugins)")
     ("Node" "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
      " (requires NodeJS to be installed)")
     ("Weasel" "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
      " (see http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl)")
-    ("Boot-cljs-repl" "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
+    ("Boot" "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
      " (see https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md"))
   "A list of supported ClojureScript REPLs.
 
@@ -520,15 +520,42 @@ For each one we have its name, the form we need to evaluate in a Clojure
 REPL to start the ClojureScript REPL and some installation instructions (if
 necessary).")
 
-(make-obsolete-variable 'cider-cljs-lein-repl "The ClojureScript REPL type is now selected interactively" "0.17")
-(make-obsolete-variable 'cider-cljs-boot-repl "The ClojureScript REPL type is now selected interactively" "0.17")
-(make-obsolete-variable 'cider-cljs-gradle-repl "The ClojureScript REPL type is now selected interactively" "0.17")
+(defcustom cider-default-cljs-repl nil
+  "The default ClojureScript REPL to start.
+
+This affects commands like `cider-jack-in-clojurescript'.  Generally it's
+intended to be set via .dir-locals.el for individual projects, as its
+relatively unlikely you'd like to use the same type of REPL in each project
+you're working on."
+  :type '(choice (const "Rhino")
+                 (const "Figwheel")
+                 (const "Node")
+                 (const "Weasel")
+                 (const "Boot"))
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "0.17.0"))
+
+(make-obsolete-variable 'cider-cljs-lein-repl 'cider-default-cljs-repl "0.17")
+(make-obsolete-variable 'cider-cljs-boot-repl 'cider-default-cljs-repl "0.17")
+(make-obsolete-variable 'cider-cljs-gradle-repl 'cider-default-cljs-repl "0.17")
 
 (defun cider-select-cljs-repl ()
   "Select the ClojureScript REPL to use with `cider-jack-in-clojurescript'."
   (let* ((repl-types (mapcar #'car cider-cljs-repl-types))
          (selected-type (completing-read "Select ClojureScript REPL type: " repl-types)))
-     (cadr (seq-find (lambda (entry) (equal (car entry) selected-type)) cider-cljs-repl-types))))
+    (cadr (seq-find (lambda (entry)
+                      (equal (car entry)
+                             selected-type))
+                    cider-cljs-repl-types))))
+
+(defun cider-default-cljs-repl-form ()
+  "Get the default cljs REPL form if set."
+  (when cider-default-cljs-repl
+    (cadr (seq-find
+           (lambda (entry)
+             (equal (car entry) cider-default-cljs-repl))
+           cider-cljs-repl-types))))
 
 (defun cider--offer-to-open-app-in-browser (server-buffer)
   "Look for a server address in SERVER-BUFFER and offer to open it."
@@ -544,10 +571,13 @@ necessary).")
 (defun cider-create-sibling-cljs-repl (client-buffer)
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
 The new buffer will correspond to the same project as CLIENT-BUFFER, which
-should be the regular Clojure REPL started by the server process filter."
+should be the regular Clojure REPL started by the server process filter.
+
+Normally this would prompt for the ClojureScript REPL to start (e.g. Node,
+Figwheel, etc), unless you've set `cider-default-cljs-repl'."
   (interactive (list (cider-current-connection)))
   ;; Load variables in .dir-locals.el into the server process buffer, so
-  ;; cider-cljs-*-repl can be set for each project individually.
+  ;; cider-default-cljs-repl can be set for each project individually.
   (hack-local-variables)
   (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
          (nrepl-create-client-buffer-function #'cider-repl-create)
@@ -561,7 +591,8 @@ should be the regular Clojure REPL started by the server process filter."
                                         (get-buffer-process nrepl-server-buffer)))))
          (cljs-proc (apply #'nrepl-start-client-process client-process-args))
          (cljs-buffer (process-buffer cljs-proc))
-         (cljs-repl-form (cider-select-cljs-repl)))
+         (cljs-repl-form (or (cider-default-cljs-repl-form)
+                             (cider-select-cljs-repl))))
     (with-current-buffer cljs-buffer
       ;; The new connection has now been bumped to the top, but it's still a
       ;; Clojure REPL!  Additionally, some ClojureScript REPLs can actually take
