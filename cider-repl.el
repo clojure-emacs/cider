@@ -1398,6 +1398,7 @@ constructs."
 (declare-function cider-repl-history "cider-repl-history")
 (declare-function cider-run "cider-interaction")
 (declare-function cider-refresh "cider-interaction")
+(declare-function cider-version "cider")
 (cider-repl-add-shortcut "clear-output" #'cider-repl-clear-output)
 (cider-repl-add-shortcut "clear" #'cider-repl-clear-buffer)
 (cider-repl-add-shortcut "clear-banners" #'cider-repl-clear-banners)
@@ -1479,6 +1480,9 @@ constructs."
 (declare-function cider-find-ns "cider-interaction")
 (declare-function cider-find-keyword "cider-interaction")
 (declare-function cider-switch-to-last-clojure-buffer "cider-mode")
+(declare-function cider-macroexpand-1 "cider-macroexpansion")
+(declare-function cider-macroexpand-all "cider-macroexpansion")
+(declare-function cider-selector "cider-selector")
 
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))

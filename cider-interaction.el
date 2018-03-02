@@ -2066,6 +2066,8 @@ and all ancillary CIDER buffers."
   (unless (cider-connected-p)
     (cider-close-ancillary-buffers)))
 
+(declare-function cider-connect "cider")
+(declare-function cider-jack-in "cider")
 (defun cider--restart-connection (conn)
   "Restart the connection CONN."
   (let ((project-dir (with-current-buffer conn nrepl-project-dir))

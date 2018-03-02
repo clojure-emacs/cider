@@ -307,6 +307,9 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["Flush completion cache" cider-completion-flush-caches]))
   "Menu for CIDER interactions.")
 
+(declare-function cider-macroexpand-1 "cider-macroexpansion")
+(declare-function cider-macroexpand-all "cider-macroexpansion")
+(declare-function cider-selector "cider-selector")
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)

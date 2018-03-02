@@ -47,6 +47,11 @@
   :group 'cider)
 
 
+(declare-function cider-apropos "cider-apropos")
+(declare-function cider-apropos-select "cider-apropos")
+(declare-function cider-apropos-documentation "cider-apropos")
+(declare-function cider-apropos-documentation-select "cider-apropos")
+
 (defvar cider-doc-map
   (let (cider-doc-map)
     (define-prefix-command 'cider-doc-map)
