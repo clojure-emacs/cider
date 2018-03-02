@@ -25,6 +25,7 @@
 * [#2163](https://github.com/clojure-emacs/cider/issues/2163): Add `cider-browse-spec-regex`, and changed `cider-browse-spec-all` to use it.
 * [#2029](https://github.com/clojure-emacs/cider/pull/2154): Make cider-doc use cider-browse-spec functionality to print the spec part of the doc buffer
 * [#2151](https://github.com/clojure-emacs/cider/pull/2151): Improve formatting of spec in `cider-doc` buffer.
+* [#2211](https://github.com/clojure-emacs/cider/issues/2211): Scope .dir-locals.el settings to specific modes.
 * Remove support for CLJX.
 * [#2171](https://github.com/clojure-emacs/cider/issues/2171): Update `See Also` mappings for Clojure 1.9.
 
