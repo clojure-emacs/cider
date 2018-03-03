@@ -1470,7 +1470,6 @@ constructs."
 (defvar cider-repl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
-(declare-function cider-eval-commands-map "cider-interaction")
 (declare-function cider-eval-last-sexp "cider-interaction")
 (declare-function cider-refresh "cider-interaction")
 (declare-function cider-toggle-trace-ns "cider-interaction")
