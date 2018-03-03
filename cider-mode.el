@@ -33,6 +33,7 @@
 
 (require 'clojure-mode)
 (require 'cider-interaction)
+(require 'cider-profile)
 (require 'cider-test)
 (require 'cider-eldoc)
 (require 'cider-resolve)
@@ -278,6 +279,14 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["Find resource" cider-find-resource]
      ["Find keyword" cider-find-keyword]
      ["Go back" cider-pop-back])
+    ("Browse"
+     ["Browse namespace" cider-browse-ns]
+     ["Browse all namespaces" cider-browse-ns-all]
+     ["Browse spec" cider-browse-spec]
+     ["Browse all specs" cider-browse-spec-all]
+     ["Browse REPL input history" cider-repl-history]
+     ["Browse classpath" cider-classpath]
+     ["Browse classpath entry" cider-open-classpath-entry])
     ("Macroexpand"
      ["Macroexpand-1" cider-macroexpand-1]
      ["Macroexpand-all" cider-macroexpand-all])
@@ -292,14 +301,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
      ["List instrumented defs" cider-browse-instrumented-defs]
      "--"
      ["Configure the Debugger" (customize-group 'cider-debug)])
-    ("Browse"
-     ["Browse namespace" cider-browse-ns]
-     ["Browse all namespaces" cider-browse-ns-all]
-     ["Browse spec" cider-browse-spec]
-     ["Browse all specs" cider-browse-spec-all]
-     ["Browse REPL input history" cider-repl-history]
-     ["Browse classpath" cider-classpath]
-     ["Browse classpath entry" cider-open-classpath-entry])
+    ,cider-profile-menu
     ("Misc"
      ["Clojure Cheatsheet" cider-cheatsheet]
      ["Flush completion cache" cider-completion-flush-caches]))
@@ -344,6 +346,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-r") #'cider-rotate-default-connection)
     (define-key map (kbd "C-c M-d") #'cider-display-connection-info)
+    (define-key map (kbd "C-c C-=") #'cider-profile-map)
     (define-key map (kbd "C-c C-x") #'cider-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (dolist (variable '(cider-mode-interactions-menu
@@ -371,8 +374,7 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
        ["Connect to a ClojureScript REPL" cider-connect-clojurescript
         :help "Connects to a ClojureScript REPL that's already running."]
        ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
-        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
-  Configure `cider-cljs-lein-repl', `cider-cljs-boot-repl' and `cider-cljs-gradle-repl' to change the ClojureScript REPL to use."]
+        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
        "--"
        ["View manual online" cider-view-manual])))
 

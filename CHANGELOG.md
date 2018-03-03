@@ -13,12 +13,14 @@
 * Add a menu for `cider-browse-ns-mode`.
 * [#2160](https://github.com/clojure-emacs/cider/issues/2160): Make it possible to configure the default `*print-level*` and `*print-length*` via defcustoms (`cider-repl-print-level` and `cider-repl-print-length`).
 * New interactive command `cider-cheatsheet` allows you to browse the Clojure Cheatsheet with an Emacs interface.
+* [#2191](https://github.com/clojure-emacs/cider/issues/2191): Add support for jacking-in just with the `clojure` command-line tool and `tools.deps`.
 
 ### Bugs Fixed
 
 * [#1913](https://github.com/clojure-emacs/cider/issues/1913): Fix `cider-toggle-buffer-connection` to allow cycling of connection and restoring all connections in cljc buffers.
 * [#2148](https://github.com/clojure-emacs/cider/issues/2148): Fix `jump to definition` working properly when remote `cider-jack-in` and `cider-connect`.
 * Font-lock failed assertions even in tests that were evaluated interactively.
+* [#2102](https://github.com/clojure-emacs/cider/issues/2102): Make `cider-format-buffer` handle mismatched parens gracefully.
 
 ### Changes
 
@@ -27,6 +29,7 @@
 * [#2151](https://github.com/clojure-emacs/cider/pull/2151): Improve formatting of spec in `cider-doc` buffer.
 * Remove support for CLJX.
 * [#2171](https://github.com/clojure-emacs/cider/issues/2171): Update `See Also` mappings for Clojure 1.9.
+* [#2202](https://github.com/clojure-emacs/cider/issues/2202): Make `cider-jack-in-clojurescript` prompt from the ClojureScript REPL type to use.
 
 ## 0.16.0 (2017-12-28)
 

@@ -52,9 +52,6 @@ you can add this to your config:
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 ```
 
-`company-indent-or-complete-common` is available only in `company-mode` 0.9+ (at
-the time of this writing it's still in development).
-
 ### Fuzzy candidate matching
 
 By default `company-mode` will provide completion candidates with the assumption
@@ -95,12 +92,3 @@ dependencies that were loaded dynamically after the REPL has started (e.g. via
 Boot). Executing `M-x cider-completion-flush-caches` (or going through the menu
 `CIDER Interaction->Misc->Flush completion cache`) forces the completion backend
 to re-read all classes it can find on the classpath.
-
-### Migrating from `auto-complete-mode`
-
-In case you have some `auto-complete-mode` configuration lying around and you
-want to switch to `company-mode` there are a few steps you have to take:
-
-* Disable `ac-cider-setup` or `ac-nrepl-setup` from running on CIDER hooks
-
-* Remove `cider-mode` and `cider-repl-mode` from the `ac-modes` list

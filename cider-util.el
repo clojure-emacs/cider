@@ -644,6 +644,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "Home is where your REPL is."
     "The worst day programming is better than the best day working."
     "The only thing worse than a rebel without a cause is a REPL without a cause."
+    "In the absence of parentheses, chaos prevails."
     ,(format "%s, I've a feeling we're not in Kansas anymore."
              (cider-user-first-name))
     ,(format "%s, this could be the start of a beautiful program."

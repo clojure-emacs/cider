@@ -18,13 +18,6 @@ down the road.
 **Make sure that the version of `clj-refactor` you've installed is compatible with
 your CIDER version.**
 
-## clojure-cheatsheet
-
-[clojure-cheatsheet](https://github.com/clojure-emacs/clojure-cheatsheet) in an
-Emacs rendition of the web-based
-[official Clojure Cheatsheet](http://clojure.org/api/cheatsheet), that's easily
-searchable via Helm.
-
 ## helm-cider
 
 [helm-cider](https://github.com/clojure-emacs/helm-cider) provides Helm
@@ -45,7 +38,12 @@ Flycheck checker for Clojure, using tools like
 [core.typed](http://typedclojure.org/) and
 [kibit](https://github.com/jonase/kibit).
 
-## inf-clojure
+## sayid
+
+[sayid](http://bpiel.github.io/sayid/) is a powerful alternative of CIDER's
+built-in basic tracing functionality.
+
+## Inf-clojure
 
 This package provides basic interaction with a Clojure subprocess (REPL). It's
 based on ideas from the popular inferior-lisp package.
@@ -104,14 +102,6 @@ RainbowDelimiters you can enable it in the REPL like this:
 ```el
 (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
 ```
-
-## auto-complete
-
-[auto-complete](http://cx4a.org/software/auto-complete/) is a popular Emacs
-interactive auto-completion
-framework. [ac-cider](https://github.com/clojure-emacs/ac-cider) provides a
-completion source for auto-complete-mode, including, where CIDER provides it,
-pop-up documentation for completed symbols.
 
 ## eval-sexp-fu
 

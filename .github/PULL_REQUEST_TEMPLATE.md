@@ -10,9 +10,8 @@ by checking the relevant checkboxes):
 - [ ] You've added tests (if possible) to cover your change(s)
 - [ ] All tests are passing (`make test`)
 - [ ] The new code is not generating bytecode or `M-x checkdoc` warnings
-- [ ] You've updated the changelog (if adding/changing user-visible functionality)
-- [ ] You've updated the readme (if adding/changing user-visible functionality)
-- [ ] You've updated the refcard (if you made changes to the commands listed there)
+- [ ] You've updated the [changelog][3] (if adding/changing user-visible functionality)
+- [ ] You've updated the [user manual][4] (if adding/changing user-visible functionality)
 
 Thanks!
 
@@ -21,3 +20,5 @@ manual][2] extremely useful.*
 
 [1]: https://github.com/clojure-emacs/cider/blob/master/.github/CONTRIBUTING.md
 [2]: https://cider.readthedocs.io/en/latest/hacking_on_cider/
+[3]: https://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md
+[4]: https://github.com/clojure-emacs/cider/tree/master/doc

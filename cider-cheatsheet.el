@@ -105,7 +105,7 @@
 
     ("Collections"
      ("Generic Ops"
-      (clojure.core count empty not-empty into conj))
+      (clojure.core count bounded-count empty not-empty into conj))
      ("Tree Walking"
       (clojure.walk walk prewalk prewalk-demo prewalk-replace postwalk postwalk-demo postwalk-replace keywordize-keys stringify-keys))
      ("Content tests"
@@ -147,7 +147,9 @@
       ("Get map"
        (clojure.set index rename-keys rename map-invert))
       ("Test"
-       (clojure.set subset? superset?)))
+       (clojure.set subset? superset?))
+      ("Sorted Sets"
+       (clojure.core rseq subseq rsubseq)))
 
      ("Maps"
       ("Create"
@@ -177,11 +179,43 @@
 
     ("Transducers"
      ("Create"
-      (clojure.core cat dedupe distinct drop drop-while filter interpose keep keep-indexed map map-indexed mapcat partition-all partition-by random-sample remove replace take take-nth take-while))
+      (clojure.core cat dedupe distinct drop drop-while filter halt-when interpose keep keep-indexed map map-indexed mapcat partition-all partition-by random-sample remove replace take take-nth take-while))
      ("Call"
       (clojure.core ->Eduction eduction into sequence transduce completing run!))
      ("Early Termination"
       (clojure.core deref reduced reduced? ensure-reduced unreduced)))
+
+    ("Spec"
+     ("Operations"
+      (clojure.spec.alpha valid? conform unform explain explain-data explain-str explain-out form describe assert check-asserts check-asserts?))
+     ("Generator Ops"
+      (clojure.spec.alpha gen exercise exercise-fn))
+     ("Defn & Registry"
+      (clojure.spec.alpha def fdef registry get-spec spec? spec with-gen))
+     ("Logical"
+      (clojure.spec.alpha and or))
+     ("Collection"
+      (clojure.spec.alpha coll-of map-of every every-kv keys merge))
+     ("Regex "
+      (clojure.spec.alpha cat alt * + \? & keys*))
+     ("Range"
+      (clojure.spec.alpha int-in inst-in double-in int-in-range? inst-in-range?))
+     ("Custom Explain"
+      (clojure.spec.alpha explain-printer *explain-out*))
+     ("Other"
+      (clojure.spec.alpha nilable multi-spec fspec conformer))
+
+     ("Predicates with test.check generators"
+      ("Numbers"
+       (clojure.core number? rational? integer? ratio? decimal? float? zero? double? int? nat-int? neg-int? pos-int?))
+      ("Symbols & Keywords"
+       (clojure.core keyword? symbol? ident? qualified-ident? qualified-keyword? qualified-symbol? simple-ident? simple-keyword? simple-symbol?))
+      ("Scalars"
+       (clojure.core string? true? false? nil? some? boolean? bytes? inst? uri? uuid?))
+      ("Collections"
+       (clojure.core list? map? set? vector? associative? coll? sequential? seq? empty? indexed? seqable?))
+      ("Other"
+       (clojure.core any?))))
 
     ("Other"
      ("XML"
@@ -199,7 +233,7 @@
       (clojure.pprint pprint print-table pp *print-right-margin*))
      ("Browser / Shell"
       (clojure.java.browse browse-url)
-      (clojure.java.shell  sh with-sh-dir with-sh-env)))
+      (clojure.java.shell sh with-sh-dir with-sh-env)))
 
     ("Vars & Global Environment"
      ("Def Variants"
@@ -260,17 +294,22 @@
       (clojure.core .. doto bean comparator enumeration-seq import iterator-seq memfn definterface supers bases))
      ("Cast"
       (clojure.core boolean byte short char int long float double bigdec bigint num cast biginteger))
-     ("Java Arrays"
+      ("Exceptions"
+      (:special throw try catch finally)
+      (clojure.core ex-info ex-data Throwable->map StackTraceElement->vec)
+      (clojure.repl pst))
+     ("Arrays"
       ("Create"
        (clojure.core boolean-array byte-array double-array char-array float-array int-array long-array make-array object-array short-array to-array))
       ("Manipulate"
        (clojure.core aclone aget aset alength amap areduce aset-int aset-long aset-short aset-boolean aset-byte aset-char aset-double aset-float))
       ("Cast"
        (clojure.core booleans bytes chars doubles floats ints longs shorts)))
-     ("Exceptions"
-      (:special throw try catch finally)
-      (clojure.core ex-info ex-data Throwable->map)
-      (clojure.repl pst)))
+     ("Proxy"
+      ("Create"
+       (clojure.core proxy get-proxy-class construct-proxy init-proxy))
+      ("Misc"
+       (clojure.core proxy-mappings proxy-super update-proxy))))
 
     ("Namespaces"
      ("Current"
@@ -297,7 +336,7 @@
 
     ("Concurrency"
      ("Atoms"
-      (clojure.core atom swap! reset! compare-and-set!))
+      (clojure.core atom swap! swap-vals! reset! reset-vals! compare-and-set!))
      ("Futures"
       (clojure.core future future-call future-cancel future-cancelled? future-done? future?))
      ("Threads"
@@ -449,6 +488,7 @@
      (clojure.core fn loop)
      ("Binding / Destructuring"
       (clojure.core let fn letfn defn defmacro loop for doseq if-let if-some when-let when-some)))
+
     ("Async"
      ("Main"
       (clojure.core.async go go-loop <! <!! >! >!! chan put! take take! close! timeout offer! poll! promise-chan))
@@ -460,7 +500,6 @@
       (clojure.core.async pipeline pipeline-async pipeline-blocking))
      ("Threading"
       (clojure.core.async thread thread-call))
-
      ("Mixing"
       (clojure.core.async admix solo-mode mix unmix unmix-all toggle merge pipe unique))
      ("Multiples"
