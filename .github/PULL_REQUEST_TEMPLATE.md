@@ -9,7 +9,8 @@ by checking the relevant checkboxes):
 - [ ] The commits are consistent with our [contribution guidelines][1]
 - [ ] You've added tests (if possible) to cover your change(s)
 - [ ] All tests are passing (`make test`)
-- [ ] The new code is not generating bytecode or `M-x checkdoc` warnings
+- [ ] The new code is not generating bytecode
+- [ ] `M-x checkdoc` does not generate any warnings
 - [ ] You've updated the [changelog][3] (if adding/changing user-visible functionality)
 - [ ] You've updated the [user manual][4] (if adding/changing user-visible functionality)
 
