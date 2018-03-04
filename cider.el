@@ -506,6 +506,7 @@ dependencies."
 ;;; ClojureScript REPL creation
 (defconst cider-cljs-repl-types
   '(("Rhino" "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))" "")
+    ("Nashorn" "(cemerick.piggieback/cljs-repl (cljs.repl.nashorn/repl-env))" " (part of Java 8 and newer)")
     ("Figwheel" "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
      " (add figwheel-sidecar to your plugins)")
     ("Node" "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
@@ -528,6 +529,7 @@ intended to be set via .dir-locals.el for individual projects, as its
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
   :type '(choice (const "Rhino")
+                 (const "Nashorn")
                  (const "Figwheel")
                  (const "Node")
                  (const "Weasel")
