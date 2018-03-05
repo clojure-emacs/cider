@@ -248,7 +248,7 @@ using the default list of connections."
       (if-let* ((other-conn (cider-other-connection current-conn)))
           (progn
             (setq-local cider-connections (list other-conn))
-            (message (format "Connection set to %s" (cider--connection-type other-conn))))
+            (message "Connection set to %s" (cider--connection-type other-conn)))
         (progn
           (when was-local
             (setq-local cider-connections original-connections))
