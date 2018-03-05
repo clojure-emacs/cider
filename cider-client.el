@@ -808,6 +808,14 @@ going to clobber *1/2/3)."
                            t  ; tooling
                            ))
 
+(defun cider-namespace-present-p (ns)
+  "Check whether NS is present or not."
+  (if (thread-first (cider-sync-tooling-eval (format "(if (find-ns '%s) 1 nil)" ns))
+        (nrepl-dict-get "value")
+        (read))
+      t
+    nil))
+
 (defalias 'cider-current-repl-buffer #'cider-current-connection
   "The current REPL buffer.
 Return the REPL buffer given by `cider-current-connection'.")

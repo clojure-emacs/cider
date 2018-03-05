@@ -32,6 +32,7 @@
 * Fix `cider-eval-region` masking `clojure-refactor-map` in `cider-repl-mode`.
 * [#2171](https://github.com/clojure-emacs/cider/issues/2171): Update `See Also` mappings for Clojure 1.9.
 * [#2202](https://github.com/clojure-emacs/cider/issues/2202): Make `cider-jack-in-clojurescript` prompt from the ClojureScript REPL type to use.
+* [#2202](https://github.com/clojure-emacs/cider/issues/2202): Don't try to start a ClojureScript REPL before checking whether that's possible or not.
 
 ## 0.16.0 (2017-12-28)
 
