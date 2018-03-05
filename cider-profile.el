@@ -74,13 +74,13 @@ If optional QUERY is specified, set max-sample-count and display new value."
        (cider-profile--make-response-handler
         (lambda (_buffer value)
           (let ((value (if (zerop (length value)) "unlimited" value)))
-            (message "max-sample-count is now %s." value)))))
+            (message "max-sample-count is now %s" value)))))
     (cider-nrepl-send-request
      '("op" "get-max-samples")
      (cider-profile--make-response-handler
       (lambda (_buffer value)
         (let ((value (if (zerop (length value)) "unlimited" value)))
-          (message "max-sample-count is now %s." value))))))
+          (message "max-sample-count is now %s" value))))))
   query)
 
 ;;;###autoload
@@ -100,9 +100,9 @@ Prompts for var if none under point or QUERY is present."
         (cider-profile--make-response-handler
          (lambda (_buffer value)
            (pcase value
-             ("profiled" (message "profiling %s/%s." ns sym))
-             ("unprofiled" (message "not profiling %s/%s." ns sym))
-             ("unbound" (message "%s/%s is unbound." ns sym)))))))))
+             ("profiled" (message "Profiling is currently enabled for %s/%s" ns sym))
+             ("unprofiled" (message "Profiling  is currently disabled for %s/%s" ns sym))
+             ("unbound" (message "%s/%s is unbound" ns sym)))))))))
   query)
 
 ;;;###autoload
@@ -123,8 +123,8 @@ current ns."
      (cider-profile--make-response-handler
       (lambda (_buffer value)
         (pcase value
-          ("profiled" (message "profiling %s." ns))
-          ("unprofiled" (message "not profiling %s." ns)))))))
+          ("profiled" (message "Profiling enabled for %s" ns))
+          ("unprofiled" (message "Profiling disabled for %s" ns)))))))
   query)
 
 ;;;###autoload
@@ -145,9 +145,9 @@ With prefix arg or no symbol at point, prompts for a var."
         (cider-profile--make-response-handler
          (lambda (_buffer value)
            (pcase value
-             ("profiled" (message (format "profiling %s/%s." ns sym)))
-             ("unprofiled" (message (format "not profiling %s/%s." ns sym)))
-             ("unbound" (message (format "%s/%s is unbound." ns sym))))))))))
+             ("profiled" (message "Profiling enabled for %s/%s" ns sym))
+             ("unprofiled" (message "Profiling disabled for %s/%s" ns sym))
+             ("unbound" (message "%s/%s is unbound" ns sym)))))))))
   query)
 
 (defun cider-profile-display-stats (stats-response)
@@ -200,7 +200,7 @@ prompts for a var."
    (cider-profile--make-response-handler
     (lambda (_buffer value)
       (when (equal value "cleared")
-        (message "cleared profile data."))))))
+        (message "Cleared profile data"))))))
 
 (provide 'cider-profile)
 
