@@ -280,7 +280,7 @@ efficiency."
   (let ((nrepl-sync-request-timeout nil))
     (with-current-buffer buffer
       (let* ((response (nrepl-send-sync-request
-                        (lax-plist-put (nrepl--eval-request "(str *ns*))")
+                        (lax-plist-put (nrepl--eval-request "(str *ns*)")
                                        "inhibit-cider-middleware" "true")
                         (cider-current-connection)))
              (initial-ns (or (read (nrepl-dict-get response "value"))
