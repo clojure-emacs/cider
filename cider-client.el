@@ -782,13 +782,31 @@ result, and is included in the request if non-nil."
 
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
-NS specifies the namespace in which to evaluate the request."
+NS specifies the namespace in which to evaluate the request.
+
+Requests evaluated in the tooling nREPL session don't affect the
+thread-local bindings of the primary eval nREPL session (e.g. this is not
+going to clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-request:eval input
                       callback
                       (cider-current-connection)
                       ns nil nil nil t  ; tooling
                       ))
+
+(defun cider-sync-tooling-eval (input &optional ns)
+  "Send the request INPUT and evaluate in synchronously.
+NS specifies the namespace in which to evaluate the request.
+
+Requests evaluated in the tooling nREPL session don't affect the
+thread-local bindings of the primary eval nREPL session (e.g. this is not
+going to clobber *1/2/3)."
+  ;; namespace forms are always evaluated in the "user" namespace
+  (nrepl-sync-request:eval input
+                           (cider-current-connection)
+                           ns
+                           t  ; tooling
+                           ))
 
 (defalias 'cider-current-repl-buffer #'cider-current-connection
   "The current REPL buffer.
