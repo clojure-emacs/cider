@@ -650,19 +650,19 @@ Figwheel, etc), unless you've set `cider-default-cljs-repl'."
            "code" ,cljs-repl-form)
          (cider-repl-handler (current-buffer)))
         (when cider-offer-to-open-cljs-app-in-browser
-          (cider--offer-to-open-app-in-browser nrepl-server-buffer)))))
+          (cider--offer-to-open-app-in-browser nrepl-server-buffer))))))
 
-  (defun cider--select-zombie-buffer (repl-buffers)
-    "Return a zombie buffer from REPL-BUFFERS, or nil if none exists."
-    (when-let* ((zombie-buffs (seq-remove #'get-buffer-process repl-buffers)))
-      (when (y-or-n-p
-             (format "Zombie REPL buffers exist (%s).  Reuse? "
-                     (mapconcat #'buffer-name zombie-buffs ", ")))
-        (if (= (length zombie-buffs) 1)
-            (car zombie-buffs)
-          (completing-read "Choose REPL buffer: "
-                           (mapcar #'buffer-name zombie-buffs)
-                           nil t))))))
+(defun cider--select-zombie-buffer (repl-buffers)
+  "Return a zombie buffer from REPL-BUFFERS, or nil if none exists."
+  (when-let* ((zombie-buffs (seq-remove #'get-buffer-process repl-buffers)))
+    (when (y-or-n-p
+           (format "Zombie REPL buffers exist (%s).  Reuse? "
+                   (mapconcat #'buffer-name zombie-buffs ", ")))
+      (if (= (length zombie-buffs) 1)
+          (car zombie-buffs)
+        (completing-read "Choose REPL buffer: "
+                         (mapcar #'buffer-name zombie-buffs)
+                         nil t)))))
 
 (defun cider-find-reusable-repl-buffer (endpoint project-directory)
   "Check whether a reusable connection buffer already exists.
