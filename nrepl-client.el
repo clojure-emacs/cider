@@ -974,13 +974,17 @@ Optional argument TOOLING Tooling is set to t if wanting the tooling session fro
   "Perform :ls-sessions request for CONNECTION."
   (nrepl-send-sync-request '("op" "ls-sessions") connection))
 
-(defun nrepl-sync-request:eval (input connection &optional ns)
+(defun nrepl-sync-request:eval (input connection &optional ns tooling)
   "Send the INPUT to the nREPL server synchronously.
 The request is dispatched via CONNECTION.
-If NS is non-nil, include it in the request."
+If NS is non-nil, include it in the request
+If TOOLING is non-nil the evaluation is done using the tooling nREPL
+session."
   (nrepl-send-sync-request
    (nrepl--eval-request input ns)
-   connection))
+   connection
+   nil
+   tooling))
 
 (defun nrepl-sessions (connection)
   "Get a list of active sessions on the nREPL server using CONNECTION."
