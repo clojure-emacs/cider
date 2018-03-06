@@ -506,28 +506,33 @@ dependencies."
 ;;; ClojureScript REPL creation
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
-  (when (string-prefix-p "1.7" (cider--java-version))
-    (user-error "Nashorn is supported only on Java 8 or newer")))
+  ;; (when (string-prefix-p "1.7" (cider--java-version))
+  ;;   (user-error "Nashorn is supported only on Java 8 or newer"))
+  )
 
 (defun cider-check-node-requirements ()
   "Check whether we can start a Node ClojureScript REPL."
-  (unless (executable-find "node")
-    (user-error "Node.js is not present on the exec-path.  Make sure you've installed it and your exec-path is properly set")))
+  ;; (unless (executable-find "node")
+  ;;   (user-error "Node.js is not present on the exec-path.  Make sure you've installed it and your exec-path is properly set"))
+  )
 
 (defun cider-check-figwheel-requirements ()
   "Check whether we can start a Figwheel ClojureScript REPL."
-  (unless (cider-namespace-present-p "figwheel-sidecar.repl-api")
-    (user-error "Figwheel is not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage")))
+  ;; (unless (cider-namespace-present-p "figwheel-sidecar.repl-api")
+  ;;   (user-error "Figwheel is not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage"))
+  )
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
-  (unless (cider-namespace-present-p "weasel.repl.websocket")
-    (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl")))
+  ;; (unless (cider-namespace-present-p "weasel.repl.websocket")
+  ;;   (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl"))
+  )
 
 (defun cider-check-boot-requirements ()
   "Check whether we can start a Boot ClojureScript REPL."
-  (unless (cider-namespace-present-p "adzerk.boot-cljs-repl")
-    (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
+  ;; (unless (cider-namespace-present-p "adzerk.boot-cljs-repl")
+  ;;   (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md"))
+  )
 
 (defconst cider-cljs-repl-types
   '(("Rhino" "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
