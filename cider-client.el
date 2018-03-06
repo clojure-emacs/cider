@@ -808,13 +808,9 @@ going to clobber *1/2/3)."
                            t  ; tooling
                            ))
 
-(defun cider-namespace-present-p (ns)
-  "Check whether NS is present or not."
-  (if (thread-first (cider-sync-tooling-eval (format "(if (find-ns '%s) 1 nil)" ns))
-        (nrepl-dict-get "value")
-        (read))
-      t
-    nil))
+(defun cider-library-present-p (lib)
+  "Check whether LIB is present on the classpath."
+  (seq-find (lambda (s) (string-match-p (concat lib ".*\\.jar") s)) (cider-sync-request:classpath)))
 
 (defalias 'cider-current-repl-buffer #'cider-current-connection
   "The current REPL buffer.

@@ -516,17 +516,17 @@ dependencies."
 
 (defun cider-check-figwheel-requirements ()
   "Check whether we can start a Figwheel ClojureScript REPL."
-  (unless (cider-namespace-present-p "figwheel-sidecar.repl-api")
-    (user-error "Figwheel is not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage")))
+  (unless (cider-library-present-p "figwheel-sidecar")
+    (user-error "Figwheel-sidecar is not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage")))
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
-  (unless (cider-namespace-present-p "weasel.repl.websocket")
+  (unless (cider-library-present-p "weasel")
     (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl")))
 
 (defun cider-check-boot-requirements ()
   "Check whether we can start a Boot ClojureScript REPL."
-  (unless (cider-namespace-present-p "adzerk.boot-cljs-repl")
+  (unless (cider-library-present-p "boot-cljs-repl")
     (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
 
 (defconst cider-cljs-repl-types
@@ -601,7 +601,9 @@ you're working on."
 
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
-  (unless (cider-namespace-present-p "cemerick.piggieback")
+  (unless (cider-library-present-p "clojurescript")
+    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details"))
+  (unless (cider-library-present-p "piggieback")
     (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
 
 (defun cider-create-sibling-cljs-repl (client-buffer)
