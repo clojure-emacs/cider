@@ -615,7 +615,7 @@ When there is a possible unfinished ansi control sequence,
           (unless (member root cider-repl--ns-roots)
             (push root cider-repl--ns-roots)
             (let ((roots (mapconcat
-                          ;; Replace _ or - with regexp patter to accommodate "raw" namespaces
+                          ;; Replace _ or - with regexp pattern to accommodate "raw" namespaces
                           (lambda (r) (replace-regexp-in-string "[_-]+" "[_-]+" r))
                           cider-repl--ns-roots "\\|")))
               (setq cider-repl--root-ns-regexp
