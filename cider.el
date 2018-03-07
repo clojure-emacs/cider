@@ -599,10 +599,13 @@ you're working on."
           (when (y-or-n-p (format "Visit ‘%s’ in a browser? " url))
             (browse-url url)))))))
 
+(defun cider-verify-clojurescript-is-present ()
+  "Check whether ClojureScript is present."
+  (unless (cider-library-present-p "clojurescript")
+    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
+
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
-  (unless (cider-library-present-p "clojurescript")
-    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details"))
   (unless (cider-library-present-p "piggieback")
     (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
 
@@ -614,6 +617,8 @@ should be the regular Clojure REPL started by the server process filter.
 Normally this would prompt for the ClojureScript REPL to start (e.g. Node,
 Figwheel, etc), unless you've set `cider-default-cljs-repl'."
   (interactive (list (cider-current-connection)))
+  ;; We can't start a ClojureScript REPL without ClojureScript and Piggieback
+  (cider-verify-clojurescript-is-present)
   (cider-verify-piggieback-is-present)
   ;; Load variables in .dir-locals.el into the server process buffer, so
   ;; cider-default-cljs-repl can be set for each project individually.
@@ -622,6 +627,8 @@ Figwheel, etc), unless you've set `cider-default-cljs-repl'."
                             (cider-select-cljs-repl)))
          (cljs-repl-form (cider-cljs-repl-form cljs-repl-type)))
     (cider-verify-cljs-repl-requirements cljs-repl-type)
+    ;; if all the requirements are met we can finally proceed with starting
+    ;; the ClojureScript REPL for `cljs-repl-type'
     (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
            (nrepl-create-client-buffer-function #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer 'new)
@@ -646,6 +653,8 @@ Figwheel, etc), unless you've set `cider-default-cljs-repl'."
         (pcase cider-cljs-repl-types
           (`(,name ,_ ,info)
            (message "Starting a %s REPL%s" name (or info ""))))
+        ;; So far we have just another Clojure REPL.  It's time to convert it
+        ;; to a ClojureScript REPL with a magic incantation.
         (cider-nrepl-send-request
          `("op" "eval"
            "ns" ,(cider-current-ns)
