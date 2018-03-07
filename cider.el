@@ -615,13 +615,13 @@ Normally this would prompt for the ClojureScript REPL to start (e.g. Node,
 Figwheel, etc), unless you've set `cider-default-cljs-repl'."
   (interactive (list (cider-current-connection)))
   (cider-verify-piggieback-is-present)
+  ;; Load variables in .dir-locals.el into the server process buffer, so
+  ;; cider-default-cljs-repl can be set for each project individually.
+  (hack-local-variables)
   (let* ((cljs-repl-type (or cider-default-cljs-repl
                             (cider-select-cljs-repl)))
          (cljs-repl-form (cider-cljs-repl-form cljs-repl-type)))
     (cider-verify-cljs-repl-requirements cljs-repl-type)
-    ;; Load variables in .dir-locals.el into the server process buffer, so
-    ;; cider-default-cljs-repl can be set for each project individually.
-    (hack-local-variables)
     (let* ((nrepl-repl-buffer-name-template "*cider-repl CLJS%s*")
            (nrepl-create-client-buffer-function #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer 'new)
