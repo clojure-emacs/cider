@@ -83,7 +83,7 @@ ClojureScript support relies on the [piggieback][] nREPL middleware being
 present in your REPL session.
 
 Add the following dependencies to your project (`project.clj` in Leiningen based project
-or `built.boot` in Boot project):
+or `build.boot` in Boot project):
 
 ```clojure
 [com.cemerick/piggieback "0.2.1"]
@@ -97,7 +97,7 @@ in `project.clj`:
 :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 ```
 
-or in `built.boot`:
+or in `build.boot`:
 ```clojure
 (task-options!
   repl {:middleware '[cemerick.piggieback/wrap-cljs-repl]})
