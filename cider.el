@@ -583,9 +583,9 @@ you're working on."
 (defun cider-verify-cljs-repl-requirements (repl-type)
   "Verify that the requirements for REPL-TYPE are met."
   (when-let* ((fun (nth 2 (seq-find
-                       (lambda (entry)
-                         (equal (car entry) repl-type))
-                       cider-cljs-repl-types))))
+                           (lambda (entry)
+                             (equal (car entry) repl-type))
+                           cider-cljs-repl-types))))
     (funcall fun)))
 
 (defun cider--offer-to-open-app-in-browser (server-buffer)
@@ -624,7 +624,7 @@ Figwheel, etc), unless you've set `cider-default-cljs-repl'."
   ;; cider-default-cljs-repl can be set for each project individually.
   (hack-local-variables)
   (let* ((cljs-repl-type (or cider-default-cljs-repl
-                            (cider-select-cljs-repl)))
+                             (cider-select-cljs-repl)))
          (cljs-repl-form (cider-cljs-repl-form cljs-repl-type)))
     (cider-verify-cljs-repl-requirements cljs-repl-type)
     ;; if all the requirements are met we can finally proceed with starting
