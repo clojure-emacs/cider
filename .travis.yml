@@ -1,19 +1,6 @@
 sudo: false
 language: emacs-lisp
 
-addons:
-  apt:
-    packages:
-    - autogen
-    - ca-certificates
-    - curl
-    - gcc
-    - libgmp-dev
-    - m4
-    - make
-    - pkg-config
-    - xz-utils
-
 cache:
   directories:
   - $HOME/local
@@ -65,8 +52,6 @@ jobs:
     - env: EMACS_BINARY=emacs-git-snapshot-travis MAKE_TEST=lint
 
 before_script:
-  - sh travis-ci/install-gnutls.sh
-  - gnutls-cli -v
   - sh travis-ci/install-evm.sh
   - evm install $EMACS_BINARY --use --skip
   - sh travis-ci/install-cask.sh
