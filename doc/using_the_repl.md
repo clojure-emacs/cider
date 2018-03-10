@@ -13,7 +13,7 @@ Here's a list of the keybindings that are available in CIDER's REPL:
 
 Keyboard shortcut                    | Description
 -------------------------------------|------------------------------
-<kbd>RET</kbd>        | Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
+<kbd>RET</kbd>        | Evaluate the current input in Clojure if it is complete. If incomplete, open a new line and indent. If the current input is a blank string (containing only whitespace including newlines) then clear the input without evaluating and print a fresh prompt. If invoked with a prefix argument is given then the input is evaluated without checking for completeness.
 <kbd>C-RET</kbd>      | Close any unmatched parenthesis and then evaluate the current input in Clojure.
 <kbd>C-j</kbd>        | Open a new line and indent.
 <kbd>C-c C-o</kbd>    | Remove the output of the previous evaluation from the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt.
