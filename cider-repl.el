@@ -823,37 +823,44 @@ the symbol."
 If NEWLINE is true then add a newline at the end of the input."
   (unless (cider-repl--in-input-area-p)
     (error "No input at point"))
-  (goto-char (point-max))
-  (let ((end (point)))             ; end of input, without the newline
-    (cider-repl--add-to-input-history (buffer-substring cider-repl-input-start-mark end))
-    (when newline
-      (insert "\n")
-      (cider-repl--show-maximum-output))
-    (let ((inhibit-modification-hooks t))
-      (add-text-properties cider-repl-input-start-mark
-                           (point)
-                           `(cider-old-input
-                             ,(cl-incf cider-repl-old-input-counter))))
-    (unless cider-repl-use-clojure-font-lock
-      (let ((overlay (make-overlay cider-repl-input-start-mark end)))
-        ;; These properties are on an overlay so that they won't be taken
-        ;; by kill/yank.
-        (overlay-put overlay 'read-only t)
-        (overlay-put overlay 'font-lock-face 'cider-repl-input-face))))
-  (let ((input (cider-repl--current-input))
-        (input-start (save-excursion (cider-repl-beginning-of-defun) (point))))
-    (goto-char (point-max))
-    (cider-repl--mark-input-start)
-    (cider-repl--mark-output-start)
-    (cider-nrepl-request:eval
-     input
-     (cider-repl-handler (current-buffer))
-     (cider-current-ns)
-     (line-number-at-pos input-start)
-     (cider-column-number-at-pos input-start)
-     (unless (or (not cider-repl-use-pretty-printing)
-                 (string-match-p "\\`[ \t\r\n]*\\'" input))
-       (cider--nrepl-pprint-request-plist (cider--pretty-print-width))))))
+  (let ((input (cider-repl--current-input)))
+    (if (string-blank-p input)
+        ;; don't evaluate a blank string, but erase it and emit
+        ;; a fresh prompt to acknowledge to the user.
+        (progn
+          (cider-repl--replace-input "")
+          (cider-repl-emit-prompt (current-buffer)))
+      ;; otherwise evaluate the input
+      (goto-char (point-max))
+      (let ((end (point)))              ; end of input, without the newline
+        (cider-repl--add-to-input-history input)
+        (when newline
+          (insert "\n")
+          (cider-repl--show-maximum-output))
+        (let ((inhibit-modification-hooks t))
+          (add-text-properties cider-repl-input-start-mark
+                               (point)
+                               `(cider-old-input
+                                 ,(cl-incf cider-repl-old-input-counter))))
+        (unless cider-repl-use-clojure-font-lock
+          (let ((overlay (make-overlay cider-repl-input-start-mark end)))
+            ;; These properties are on an overlay so that they won't be taken
+            ;; by kill/yank.
+            (overlay-put overlay 'read-only t)
+            (overlay-put overlay 'font-lock-face 'cider-repl-input-face))))
+      (let ((input-start (save-excursion (cider-repl-beginning-of-defun) (point))))
+        (goto-char (point-max))
+        (cider-repl--mark-input-start)
+        (cider-repl--mark-output-start)
+        (cider-nrepl-request:eval
+         input
+         (cider-repl-handler (current-buffer))
+         (cider-current-ns)
+         (line-number-at-pos input-start)
+         (cider-column-number-at-pos input-start)
+         (unless (or (not cider-repl-use-pretty-printing)
+                     (string-match-p "\\`[ \t\r\n]*\\'" input))
+           (cider--nrepl-pprint-request-plist (cider--pretty-print-width))))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
