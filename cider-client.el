@@ -1,4 +1,4 @@
-;;; cider-client.el --- A layer of abstraction above the actual client code. -*- lexical-binding: t -*-
+;;; cider-client.el --- A layer of abstraction above low-level nREPL client code. -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2018 Bozhidar Batsov
 ;;
@@ -21,7 +21,7 @@
 
 ;;; Commentary:
 
-;; A layer of abstraction above the actual client code.
+;; A layer of abstraction above the low-level nREPL client code.
 
 ;;; Code:
 
