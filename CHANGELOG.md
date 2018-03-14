@@ -19,6 +19,7 @@
 * [#2241](https://github.com/clojure-emacs/cider/pull/2241): Make `cider-test-ediff` diff eval'ed values.
 * Add support for shadow-cljs to `cider-jack-in`.
 * [#2244](https://github.com/clojure-emacs/cider/issues/2244): Display the REPL type in the modeline.
+* [#2238](https://github.com/clojure-emacs/cider/pull/2238): Allow specifying predicates for entries in `cider-jack-in-lein-plugins` and `cider-jack-in-nrepl-middlewares`.
 
 ### Bugs Fixed
 

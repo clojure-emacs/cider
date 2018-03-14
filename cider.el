@@ -157,8 +157,10 @@ version from the CIDER package or library.")
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-clojure-cli-parameters
-  "-e '(require (quote cider-nrepl.main)) (cider-nrepl.main/init [\"cider.nrepl/cider-middleware\"])'"
-  "Params passed to clojure to start an nREPL server via `cider-jack-in'."
+  "-e '(require (quote cider-nrepl.main)) (cider-nrepl.main/init %s)'"
+  "Params passed to clojure to start an nREPL server via `cider-jack-in'.
+This is evaluated using `format', with the first argument being the Clojure
+vector of middleware variables as a string."
   :type 'string
   :group 'cider
   :safe #'stringp
@@ -346,7 +348,14 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
-    ("clojure-cli" cider-clojure-cli-parameters)
+    ("clojure-cli" (format cider-clojure-cli-parameters
+                           (concat
+                            "["
+                            (mapconcat
+                             (apply-partially #'format "\"%s\"")
+                             (cider-jack-in-normalized-nrepl-middlewares)
+                             ", ")
+                            "]")))
     ("shadow-cljs" cider-shadow-cljs-parameters)
     ("gradle" cider-gradle-parameters)
     (_ (user-error "Unsupported project type `%s'" project-type))))
@@ -385,16 +394,59 @@ specifying the artifact ID, and the second element the version number."
                        (string :tag "Version"))))
 
 (defvar cider-jack-in-lein-plugins nil
-  "List of Leiningen plugins where elements are lists of artifact name and version.")
+  "List of Leiningen plugins to be injected at jack-in.
+Each element is a list of artifact name and version, followed optionally by
+keyword arguments.  The only keyword argument currently accepted is
+`:predicate', which should be given a function that takes the list (name,
+version, and keyword arguments) and returns non-nil to indicate that the
+plugin should actually be injected.  (This is useful primarily for packages
+that extend CIDER, not for users.  For example, a refactoring package might
+want to inject some middleware only when within a project context.)")
 (put 'cider-jack-in-lein-plugins 'risky-local-variable t)
 (cider-add-to-alist 'cider-jack-in-lein-plugins
                     "cider/cider-nrepl" (upcase cider-version))
 
+(defun cider-jack-in-normalized-lein-plugins ()
+  "Return a normalized list of Leiningen plugins to be injected.
+See `cider-jack-in-lein-plugins' for the format, except that the list
+returned by this function does not include keyword arguments."
+  (thread-last cider-jack-in-lein-plugins
+    (seq-filter
+     (lambda (spec)
+       (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
+           (funcall pred spec)
+         t)))
+    (mapcar
+     (lambda (spec)
+       (seq-take spec 2)))))
+
 (defvar cider-jack-in-nrepl-middlewares nil
   "List of Clojure variable names.
-Each of these Clojure variables should hold a vector of nREPL middlewares.")
+Each of these Clojure variables should hold a vector of nREPL middlewares.
+Instead of a string, an element can be a list containing a string followed
+by optional keyword arguments.  The only keyword argument currently
+accepted is `:predicate', which should be given a function that takes the
+list (string and keyword arguments) and returns non-nil to indicate that
+the middlewares should actually be injected.")
 (put 'cider-jack-in-nrepl-middlewares 'risky-local-variable t)
 (add-to-list 'cider-jack-in-nrepl-middlewares "cider.nrepl/cider-middleware")
+
+(defun cider-jack-in-normalized-nrepl-middlewares ()
+  "Return a normalized list of middleware variable names.
+See `cider-jack-in-nrepl-middlewares' for the format, except that the list
+returned by this function only contains strings."
+  (thread-last cider-jack-in-nrepl-middlewares
+    (seq-filter
+     (lambda (spec)
+       (or (not (listp spec))
+           (if-let* ((pred (plist-get (cdr spec) :predicate)))
+               (funcall pred spec)
+             t))))
+    (mapcar
+     (lambda (spec)
+       (if (listp spec)
+           (car spec)
+         spec)))))
 
 (defun cider--list-as-boot-artifact (list)
   "Return a boot artifact string described by the elements of LIST.
@@ -523,14 +575,14 @@ dependencies."
              (cider-add-clojure-dependencies-maybe
               cider-jack-in-dependencies)
              cider-jack-in-dependencies-exclusions
-             cider-jack-in-lein-plugins))
+             (cider-jack-in-normalized-lein-plugins)))
     ("boot" (cider-boot-jack-in-dependencies
              global-opts
              params
              (cider-add-clojure-dependencies-maybe
               cider-jack-in-dependencies)
-             cider-jack-in-lein-plugins
-             cider-jack-in-nrepl-middlewares))
+             (cider-jack-in-normalized-lein-plugins)
+             (cider-jack-in-normalized-nrepl-middlewares)))
     ("clojure-cli" (cider-clojure-cli-jack-in-dependencies
                     global-opts
                     params
