@@ -608,6 +608,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "Don't wish it were easier. Wish you were better. -Jim Rohn"
     "One chord is fine. Two chords is pushing it. Three chords and you're into jazz. -Lou Reed"
     "We are all apprentices in a craft where no one ever becomes a master. -Ernest Hemingway"
+    "A designer knows he has achieved perfection not when there is nothing left to add, but when there is nothing left to take away. -Antoine de Saint-Exupery"
     "Clojure isn't a language, it's a building material."
     "Think big!"
     "Think bold!"
