@@ -16,6 +16,7 @@
 * [#2191](https://github.com/clojure-emacs/cider/issues/2191): Add support for jacking-in just with the `clojure` command-line tool and `tools.deps`.
 * Make it possible to start a Nashorn ClojureScript REPL.
 * [#2235](https://github.com/clojure-emacs/cider/pull/2235): Make the REPL ignore blank input rather than evaluating.
+* [#2241](https://github.com/clojure-emacs/cider/pull/2241): Make `cider-test-ediff` diff eval'ed values
 
 ### Bugs Fixed
 
