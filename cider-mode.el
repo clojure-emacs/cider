@@ -50,7 +50,7 @@
 (defun cider--modeline-info ()
   "Return info for the cider mode modeline.
 
-Info contains project name and host:port endpoint."
+Info contains the connection type, project name and host:port endpoint."
   (if-let* ((current-connection (ignore-errors (cider-current-connection))))
       (with-current-buffer current-connection
         (concat
