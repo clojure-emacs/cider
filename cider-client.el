@@ -338,7 +338,7 @@ CONNECTION defaults to `cider-current-connection'."
   "Hacky way to find a ClojureScript REPL.
 DO NOT USE THIS FUNCTION.
 It was written only to be used in `cider-map-connections', as a workaround
-to a still-undetermined bug in the state-stracker backend."
+to a still-undetermined bug in the state-tracker backend."
   (when-let* ((project-connections (cider-find-connection-buffer-for-project-directory
                                     nil :all-connections))
               (cljs-conn
