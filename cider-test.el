@@ -305,35 +305,48 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
 (defvar cider-test-ediff-buffers nil
   "The expected/actual buffers used to display diff.")
 
+(defun cider-test--extract-from-actual (actual n)
+  "Extract form N from ACTUAL, ignoring outermost not.
+
+ACTUAL is a string like \"(not (= 3 4))\", of the sort returned by
+clojure.test.
+
+N = 1 => 3, N = 2 => 4, etc."
+  (with-temp-buffer
+    (insert actual)
+    (clojure-mode)
+    (goto-char (point-min))
+    (re-search-forward "(" nil t 2)
+    (clojure-forward-logical-sexp n)
+    (forward-whitespace 1)
+    (let ((beg (point)))
+      (clojure-forward-logical-sexp)
+      (buffer-substring beg (point)))))
+
 (defun cider-test-ediff ()
   "Show diff of the expected vs actual value for the test at point.
 With the actual value, the outermost '(not ...)' s-expression is removed."
   (interactive)
-  (let ((expected (get-text-property (point) 'expected))
-        (actual   (get-text-property (point) 'actual)))
-    (if (and expected actual)
-        (let ((expected-buffer (generate-new-buffer " *expected*"))
-              (actual-buffer   (generate-new-buffer " *actual*")))
-          (with-current-buffer expected-buffer
-            (insert expected)
-            (clojure-mode))
-          (with-current-buffer actual-buffer
-            (insert actual)
-            (goto-char (point-min))
-            (forward-char)
-            (forward-sexp)
-            (forward-whitespace 1)
-            (let ((beg (point)))
-              (forward-sexp)
-              (let ((actual* (buffer-substring beg (point))))
-                (erase-buffer)
-                (insert actual*)))
-            (clojure-mode))
-          (apply 'ediff-buffers
-                 (setq cider-test-ediff-buffers
-                       (list (buffer-name expected-buffer)
-                             (buffer-name actual-buffer)))))
-      (message "No test failure at point"))))
+  (let* ((expected-buffer (generate-new-buffer " *expected*"))
+         (actual-buffer   (generate-new-buffer " *actual*"))
+         (diffs (get-text-property (point) 'diffs))
+         (actual* (get-text-property (point) 'actual))
+         (expected (cond (diffs (get-text-property (point) 'expected))
+                         (actual* (cider-test--extract-from-actual actual* 1))))
+         (actual (cond (diffs (caar diffs))
+                       (actual* (cider-test--extract-from-actual actual* 2)))))
+    (if (not (and expected actual))
+        (message "No test failure at point")
+      (with-current-buffer expected-buffer
+        (insert expected)
+        (clojure-mode))
+      (with-current-buffer actual-buffer
+        (insert actual)
+        (clojure-mode))
+      (apply #'ediff-buffers
+             (setq cider-test-ediff-buffers
+                   (list (buffer-name expected-buffer)
+                         (buffer-name actual-buffer)))))))
 
 (defun cider-test-ediff-cleanup ()
   "Cleanup expected/actual buffers used for diff."
