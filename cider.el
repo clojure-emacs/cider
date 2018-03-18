@@ -439,8 +439,7 @@ removed, LEIN-PLUGINS, and finally PARAMS."
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
   (let ((dependencies (append dependencies
-                              `(("cider/orchard" "0.1.0-SNAPSHOT")
-                                ("cider/cider-nrepl" ,(upcase cider-version))))))
+                              `(("cider/cider-nrepl" ,(upcase cider-version))))))
     (concat
      global-opts
      (unless (seq-empty-p global-opts) " ")
