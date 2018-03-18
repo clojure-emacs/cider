@@ -397,7 +397,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 ;; Above all else - don't panic! In case of an emergency - procure
 ;; some (hard) cider and enjoy it responsibly!
 ;;
-;; You can remove this message with the `cider-repl-clear-help-banner' command.
+;; You can remove this message with the <M-x cider-repl-clear-help-banner> command.
 ;; You can disable it from appearing on start by setting
 ;; `cider-repl-display-help-banner' to nil.
 ;; ======================================================================
