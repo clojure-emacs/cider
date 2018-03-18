@@ -344,9 +344,9 @@ to a still-undetermined bug in the state-stracker backend."
               (cljs-conn
                ;; So we have multiple connections. Look for the connection type we
                ;; want, prioritizing the current project.
-               (or (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
+               (or (seq-find (lambda (c) (with-current-buffer c (equal cider-repl-type "cljs")))
                              project-connections)
-                   (seq-find (lambda (c) (string-match "\\bCLJS\\b" (buffer-name c)))
+                   (seq-find (lambda (c) (with-current-buffer c (equal cider-repl-type "cljs")))
                              (cider-connections)))))
     (unless cider--has-warned-about-bad-repl-type
       (setq cider--has-warned-about-bad-repl-type t)
