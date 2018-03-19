@@ -179,8 +179,8 @@ pretty much anything, though. (perhaps we should change this?) To run the
 Clojure and ClojureScript tests you should specify some profile like this:
 
 ```
-$ lein with-profile +1.8,+test-clj test"
-$ lein with-profile +1.8,+test-cljs test"
+$ lein with-profile +1.8,+test-clj test
+$ lein with-profile +1.8,+test-cljs test
 ```
 
 This will run all Clojure and ClojureScript tests against version 1.8 of both
