@@ -2,7 +2,7 @@
 
 ;; Copyright © 2014-2018 Edwin Watkeys and CIDER contributors
 
-;; Author: Edwind Watkeys <edw@poseur.com>
+;; Author: Edwin Watkeys <edw@poseur.com>
 ;;         Juan E. Maya <jmayaalv@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
