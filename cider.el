@@ -503,28 +503,44 @@ dependencies."
 
 
 ;;; ClojureScript REPL creation
+
+(defun cider-verify-clojurescript-is-present ()
+  "Check whether ClojureScript is present."
+  (unless (cider-library-present-p "clojurescript")
+    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
+
+(defun cider-verify-piggieback-is-present ()
+  "Check whether the piggieback middleware is present."
+  (unless (cider-library-present-p "piggieback")
+    (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
+
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
+  (cider-verify-piggieback-is-present)
   (when (string-prefix-p "1.7" (cider--java-version))
     (user-error "Nashorn is supported only on Java 8 or newer")))
 
 (defun cider-check-node-requirements ()
   "Check whether we can start a Node ClojureScript REPL."
+  (cider-verify-piggieback-is-present)
   (unless (executable-find "node")
     (user-error "Node.js is not present on the exec-path.  Make sure you've installed it and your exec-path is properly set")))
 
 (defun cider-check-figwheel-requirements ()
   "Check whether we can start a Figwheel ClojureScript REPL."
+  (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel-sidecar")
     (user-error "Figwheel-sidecar is not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage")))
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
+  (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "weasel")
     (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl")))
 
 (defun cider-check-boot-requirements ()
   "Check whether we can start a Boot ClojureScript REPL."
+  (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "boot-cljs-repl")
     (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
 
@@ -598,16 +614,6 @@ you're working on."
           (when (y-or-n-p (format "Visit ‘%s’ in a browser? " url))
             (browse-url url)))))))
 
-(defun cider-verify-clojurescript-is-present ()
-  "Check whether ClojureScript is present."
-  (unless (cider-library-present-p "clojurescript")
-    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
-
-(defun cider-verify-piggieback-is-present ()
-  "Check whether the piggieback middleware is present."
-  (unless (cider-library-present-p "piggieback")
-    (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
-
 (defun cider-create-sibling-cljs-repl (client-buffer)
   "Create a ClojureScript REPL with the same server as CLIENT-BUFFER.
 The new buffer will correspond to the same project as CLIENT-BUFFER, which
@@ -616,9 +622,8 @@ should be the regular Clojure REPL started by the server process filter.
 Normally this would prompt for the ClojureScript REPL to start (e.g. Node,
 Figwheel, etc), unless you've set `cider-default-cljs-repl'."
   (interactive (list (cider-current-connection)))
-  ;; We can't start a ClojureScript REPL without ClojureScript and Piggieback
+  ;; We can't start a ClojureScript REPL without ClojureScript
   (cider-verify-clojurescript-is-present)
-  (cider-verify-piggieback-is-present)
   ;; Load variables in .dir-locals.el into the server process buffer, so
   ;; cider-default-cljs-repl can be set for each project individually.
   (hack-local-variables)
