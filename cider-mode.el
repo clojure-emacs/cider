@@ -192,6 +192,8 @@ See also the related commands `cider-repl-clear-buffer' and
      :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
     ["Connect to a REPL" cider-connect
      :help "Connects to a REPL that's already running."]
+    ["Replicate connection" cider-replicate-connection
+     :help "Opens another connection based on a existing one. The new connection uses the same host and port as the base connection."]
     ["Quit" cider-quit :active cider-connections]
     ["Restart" cider-restart :active cider-connections]
     ("ClojureScript"
