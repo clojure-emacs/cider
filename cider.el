@@ -633,7 +633,7 @@ Figwheel, etc), unless you've set `cider-default-cljs-repl'."
     (cider-verify-cljs-repl-requirements cljs-repl-type)
     ;; if all the requirements are met we can finally proceed with starting
     ;; the ClojureScript REPL for `cljs-repl-type'
-    (let* ((nrepl-repl-buffer-name-template "*cider-repl %s(cljs)*")
+    (let* ((nrepl-repl-buffer-name-template "*cider-repl%s(cljs)*")
            (nrepl-create-client-buffer-function #'cider-repl-create)
            (nrepl-use-this-as-repl-buffer 'new)
            (client-process-args (with-current-buffer client-buffer
