@@ -279,7 +279,8 @@ PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
   "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
   (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
       (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
-      (nrepl--port-from-file (expand-file-name "target/repl-port" dir))))
+      (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
+      (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir))))
 
 (defun nrepl--port-from-file (file)
   "Attempts to read port from a file named by FILE."
