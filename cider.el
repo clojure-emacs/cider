@@ -233,7 +233,7 @@ cannot decide which of many build systems to use and will never override a
 command when there is no ambiguity."
   :type '(choice (const "lein")
                  (const "boot")
-                 (const "clojure")
+                 (const "clojure-cli")
                  (const "shadow-cljs")
                  (const "gradle")
                  (const :tag "Always ask" nil))
@@ -315,7 +315,7 @@ Sub-match 1 must be the project path.")
   (pcase project-type
     ("lein" cider-lein-command)
     ("boot" cider-boot-command)
-    ("clojure" cider-clojure-cli-command)
+    ("clojure-cli" cider-clojure-cli-command)
     ("shadow-cljs" cider-shadow-cljs-command)
     ("gradle" cider-gradle-command)
     (_ (user-error "Unsupported project type `%s'" project-type))))
@@ -327,7 +327,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" (cider--lein-resolve-command))
     ("boot" (cider--boot-resolve-command))
-    ("clojure" (cider--clojure-cli-resolve-command))
+    ("clojure-cli" (cider--clojure-cli-resolve-command))
     ("shadow-cljs" (cider--shadow-cljs-resolve-command))
     ("gradle" (cider--gradle-resolve-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
@@ -337,7 +337,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" cider-lein-global-options)
     ("boot" cider-boot-global-options)
-    ("clojure" cider-clojure-cli-global-options)
+    ("clojure-cli" cider-clojure-cli-global-options)
     ("shadow-cljs" cider-shadow-cljs-global-options)
     ("gradle" cider-gradle-global-options)
     (_ (user-error "Unsupported project type `%s'" project-type))))
@@ -347,7 +347,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
   (pcase project-type
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
-    ("clojure" cider-clojure-cli-parameters)
+    ("clojure-cli" cider-clojure-cli-parameters)
     ("shadow-cljs" cider-shadow-cljs-parameters)
     ("gradle" cider-gradle-parameters)
     (_ (user-error "Unsupported project type `%s'" project-type))))
@@ -463,7 +463,7 @@ removed, LEIN-PLUGINS, and finally PARAMS."
    " -- "
    params))
 
-(defun cider-clojure-jack-in-dependencies (global-opts params dependencies)
+(defun cider-clojure-cli-jack-in-dependencies (global-opts params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
   (let ((dependencies (append dependencies
@@ -532,11 +532,11 @@ dependencies."
               cider-jack-in-dependencies)
              cider-jack-in-lein-plugins
              cider-jack-in-nrepl-middlewares))
-    ("clojure" (cider-clojure-jack-in-dependencies
-                global-opts
-                params
-                (cider-add-clojure-dependencies-maybe
-                 cider-jack-in-dependencies)))
+    ("clojure-cli" (cider-clojure-cli-jack-in-dependencies
+                    global-opts
+                    params
+                    (cider-add-clojure-dependencies-maybe
+                     cider-jack-in-dependencies)))
     ("shadow-cljs" (cider-shadow-cljs-jack-in-dependencies
                     global-opts
                     params
@@ -948,7 +948,7 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
   (let* ((default-directory (clojure-project-dir (cider-current-dir)))
          (build-files '(("lein" . "project.clj")
                         ("boot" . "build.boot")
-                        ("clojure" . "deps.edn")
+                        ("clojure-cli" . "deps.edn")
                         ("shadow-cljs" . "shadow-cljs.edn")
                         ("gradle" . "build.gradle"))))
     (delq nil
