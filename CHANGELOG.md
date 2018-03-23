@@ -17,6 +17,7 @@
 * Make it possible to start a Nashorn ClojureScript REPL.
 * [#2235](https://github.com/clojure-emacs/cider/pull/2235): Make the REPL ignore blank input rather than evaluating.
 * [#2241](https://github.com/clojure-emacs/cider/pull/2241): Make `cider-test-ediff` diff eval'ed values
+* Add support for shadow-cljs to `cider-jack-in`.
 
 ### Bugs Fixed
 

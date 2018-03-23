@@ -164,6 +164,29 @@ version from the CIDER package or library.")
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
+(defcustom cider-shadow-cljs-command
+  "shadow-cljs"
+  "The command used to execute shadow-cljs."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.17.0"))
+
+(defcustom cider-shadow-cljs-global-options
+  ""
+  "Command line options used to execute shadow-cljs (e.g.: -v for verbose mode)."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "0.17.0"))
+
+(defcustom cider-shadow-cljs-parameters
+  "server"
+  "Params passed to shadow-cljs to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "0.17.0"))
+
 (defcustom cider-gradle-command
   "gradle"
   "The command used to execute Gradle."
@@ -211,6 +234,7 @@ command when there is no ambiguity."
   :type '(choice (const "lein")
                  (const "boot")
                  (const "clojure")
+                 (const "shadow-cljs")
                  (const "gradle")
                  (const :tag "Always ask" nil))
   :group 'cider
@@ -292,6 +316,7 @@ Sub-match 1 must be the project path.")
     ("lein" cider-lein-command)
     ("boot" cider-boot-command)
     ("clojure" cider-clojure-cli-command)
+    ("shadow-cljs" cider-shadow-cljs-command)
     ("gradle" cider-gradle-command)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -303,6 +328,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
     ("lein" (cider--lein-resolve-command))
     ("boot" (cider--boot-resolve-command))
     ("clojure" (cider--clojure-cli-resolve-command))
+    ("shadow-cljs" (cider--shadow-cljs-resolve-command))
     ("gradle" (cider--gradle-resolve-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -312,6 +338,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
     ("lein" cider-lein-global-options)
     ("boot" cider-boot-global-options)
     ("clojure" cider-clojure-cli-global-options)
+    ("shadow-cljs" cider-shadow-cljs-global-options)
     ("gradle" cider-gradle-global-options)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -321,6 +348,7 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
     ("lein" cider-lein-parameters)
     ("boot" cider-boot-parameters)
     ("clojure" cider-clojure-cli-parameters)
+    ("shadow-cljs" cider-shadow-cljs-parameters)
     ("gradle" cider-gradle-parameters)
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
@@ -450,6 +478,20 @@ Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
      "}}' "
      params)))
 
+(defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
+  "Create shadow-cljs jack-in deps.
+Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
+  (let ((dependencies (append dependencies
+                              `(("cider/cider-nrepl" ,(upcase cider-version))))))
+    (concat
+     global-opts
+     (unless (seq-empty-p global-opts) " ")
+     (mapconcat #'identity
+                (seq-map (lambda (dep) (format "-d %s:%s" (car dep) (cadr dep)))  dependencies)
+                " ")
+     " "
+     params)))
+
 (defun cider-add-clojure-dependencies-maybe (dependencies)
   "Return DEPENDENCIES with an added Clojure dependency if requested.
 
@@ -495,6 +537,11 @@ dependencies."
                 params
                 (cider-add-clojure-dependencies-maybe
                  cider-jack-in-dependencies)))
+    ("shadow-cljs" (cider-shadow-cljs-jack-in-dependencies
+                    global-opts
+                    params
+                    (cider-add-clojure-dependencies-maybe
+                     cider-jack-in-dependencies)))
     ("gradle" (concat
                global-opts
                (unless (seq-empty-p global-opts) " ")
@@ -902,6 +949,7 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
          (build-files '(("lein" . "project.clj")
                         ("boot" . "build.boot")
                         ("clojure" . "deps.edn")
+                        ("shadow-cljs" . "shadow-cljs.edn")
                         ("gradle" . "build.gradle"))))
     (delq nil
           (mapcar (lambda (candidate)
@@ -966,6 +1014,16 @@ In case `default-directory' is non-local we assume the command is available."
   (when-let* ((command (or (and (file-remote-p default-directory) cider-clojure-cli-command)
                            (executable-find cider-clojure-cli-command)
                            (executable-find (concat cider-clojure-cli-command ".exe")))))
+    (shell-quote-argument command)))
+
+;; TODO: Implement a check for `cider-shadow-cljs-command' over tramp
+(defun cider--shadow-cljs-resolve-command ()
+  "Find `cider-shadow-cljs-command' on `exec-path' if possible, or return nil.
+
+In case `default-directory' is non-local we assume the command is available."
+  (when-let* ((command (or (and (file-remote-p default-directory) cider-shadow-cljs-command)
+                           (executable-find cider-shadow-cljs-command)
+                           (executable-find (concat cider-shadow-cljs-command ".exe")))))
     (shell-quote-argument command)))
 
 
