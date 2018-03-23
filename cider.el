@@ -325,11 +325,11 @@ Sub-match 1 must be the project path.")
 Throws an error if PROJECT-TYPE is unknown.  Known types are
 \"lein\", \"boot\", and \"gradle\"."
   (pcase project-type
-    ("lein" (cider--lein-resolve-command))
-    ("boot" (cider--boot-resolve-command))
-    ("clojure-cli" (cider--clojure-cli-resolve-command))
-    ("shadow-cljs" (cider--shadow-cljs-resolve-command))
-    ("gradle" (cider--gradle-resolve-command))
+    ("lein" (cider--resolve-command cider-lein-command))
+    ("boot" (cider--resolve-command cider-boot-command))
+    ("clojure-cli" (cider--resolve-command cider-clojure-cli-command))
+    ("shadow-cljs" (cider--resolve-command cider-shadow-cljs-command))
+    ("gradle" (cider--resolve-command cider-gradle-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
 (defun cider-jack-in-global-options (project-type)
@@ -976,54 +976,14 @@ choose."
           (t cider-default-repl-command))))
 
 
-;; TODO: Implement a check for `cider-lein-command' over tramp
-(defun cider--lein-resolve-command ()
-  "Find `cider-lein-command' on `exec-path' if possible, or return nil.
+;; TODO: Implement a check for command presence over tramp
+(defun cider--resolve-command (command)
+  "Find COMMAND on `exec-path' if possible, or return nil.
 
 In case `default-directory' is non-local we assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) cider-lein-command)
-                           (executable-find cider-lein-command)
-                           (executable-find (concat cider-lein-command ".bat")))))
-    (shell-quote-argument command)))
-
-;; TODO: Implement a check for `cider-boot-command' over tramp
-(defun cider--boot-resolve-command ()
-  "Find `cider-boot-command' on `exec-path' if possible, or return nil.
-
-In case `default-directory' is non-local we assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) cider-boot-command)
-                           (executable-find cider-boot-command)
-                           (executable-find (concat cider-boot-command ".exe")))))
-    (shell-quote-argument command)))
-
-;; TODO: Implement a check for `cider-gradle-command' over tramp
-(defun cider--gradle-resolve-command ()
-  "Find `cider-gradle-command' on `exec-path' if possible, or return nil.
-
-In case `default-directory' is non-local we assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) cider-gradle-command)
-                           (executable-find cider-gradle-command)
-                           (executable-find (concat cider-gradle-command ".exe")))))
-    (shell-quote-argument command)))
-
-;; TODO: Implement a check for `cider-clojure-cli-command' over tramp
-(defun cider--clojure-cli-resolve-command ()
-  "Find `cider-clojure-cli-command' on `exec-path' if possible, or return nil.
-
-In case `default-directory' is non-local we assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) cider-clojure-cli-command)
-                           (executable-find cider-clojure-cli-command)
-                           (executable-find (concat cider-clojure-cli-command ".exe")))))
-    (shell-quote-argument command)))
-
-;; TODO: Implement a check for `cider-shadow-cljs-command' over tramp
-(defun cider--shadow-cljs-resolve-command ()
-  "Find `cider-shadow-cljs-command' on `exec-path' if possible, or return nil.
-
-In case `default-directory' is non-local we assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) cider-shadow-cljs-command)
-                           (executable-find cider-shadow-cljs-command)
-                           (executable-find (concat cider-shadow-cljs-command ".exe")))))
+  (when-let* ((command (or (and (file-remote-p default-directory) command)
+                           (executable-find command)
+                           (executable-find (concat command ".bat")))))
     (shell-quote-argument command)))
 
 
