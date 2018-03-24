@@ -782,13 +782,13 @@ EVAL-ERROR-HANDLER is nil, the default `nrepl-err-handler' is used.  If any
 of the other supplied handlers are nil nothing happens for the
 corresponding type of response."
   (lambda (response)
-    (nrepl-dbind-response response (content-type value ns out err status id pprint-out)
+    (nrepl-dbind-response response (content-type content value ns out err status id pprint-out)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
             (cider-set-buffer-ns ns))))
-      (cond ((and value content-type content-type-handler)
-             (funcall content-type-handler buffer value content-type))
+      (cond ((and content content-type content-type-handler)
+             (funcall content-type-handler buffer content content-type))
             (value
              (when value-handler
                (funcall value-handler buffer value)))
