@@ -210,8 +210,7 @@ version from the CIDER package or library.")
   :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-default-repl-command
-  cider-clojure-cli-command
+(defcustom cider-default-repl-command "clojure-cli"
   "The default command and parameters to use when connecting to nREPL.
 This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found.
