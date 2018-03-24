@@ -644,7 +644,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "What a day! What cannot be accomplished on such a splendid day!"
     "Home is where your REPL is."
     "The worst day programming is better than the best day working."
-    "The only thing worse than a rebel without a cause is a REPL without a cause."
+    "The only thing worse than a rebel without a cause is a REPL without a clause."
     "In the absence of parentheses, chaos prevails."
     "One REPL to rule them all, One REPL to find them, One REPL to bring them all, and in parentheses bind them!"
     ,(format "%s, I've a feeling we're not in Kansas anymore."
