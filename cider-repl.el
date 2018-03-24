@@ -799,23 +799,56 @@ the symbol."
                t)))
           (t t))))
 
+(defun cider-repl--display-image (type buffer string &optional show-prefix bol)
+  (with-current-buffer buffer
+    (save-excursion
+      (cider-save-marker cider-repl-output-start
+        (cider-save-marker cider-repl-output-end
+          (goto-char cider-repl-input-start-mark)
+          (when (and bol (not (bolp)))
+            (insert-before-markers "\n"))
+          (when show-prefix
+            (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+          (let ((image (create-image (substring string 1 -1) type)))
+            (insert-image image string))
+          (set-marker cider-repl-input-start-mark (point) buffer)
+          (set-marker cider-repl-prompt-start-mark (point) buffer))))
+    (cider-repl--show-maximum-output)))
+
+(setq cider-repl-content-type-handler-alist
+  '(("image/jpeg" . (lambda (u v s b) (cider-repl--display-image 'jpeg u v s b)))
+    ("image/jpeg;base64" . (lambda (u v s b) (cider-repl--display-image 'jpeg u (base64-decode-string v) s b)))
+    ("image/png". (lambda (u v s b) (cider-repl--display-image 'png u v s b)))
+    ("image/png;base64" . (lambda (u v s b) (cider-repl--display-image 'png u (base64-decode-string v) s v)))))
+
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
-  (nrepl-make-response-handler buffer
-                               (let (after-first-result-chunk)
+  (let (after-first-result-chunk
+        force-prompt)
+    (nrepl-make-response-handler buffer
                                  (lambda (buffer value)
                                    (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
-                                   (setq after-first-result-chunk t)))
+                                   (setq after-first-result-chunk t))
                                (lambda (buffer out)
                                  (cider-repl-emit-stdout buffer out))
                                (lambda (buffer err)
                                  (cider-repl-emit-stderr buffer err))
                                (lambda (buffer)
-                                 (cider-repl-emit-prompt buffer))
+                                 (cider-repl-emit-prompt buffer)
+                                 (let ((win (get-buffer-window (current-buffer) t)))
+                                   (when (and win force-prompt)
+                                     (with-selected-window win
+                                       (set-window-point win cider-repl-input-start-mark))
+                                     (cider-repl--show-maximum-output))))
                                nrepl-err-handler
-                               (let (after-first-result-chunk)
-                                 (lambda (buffer pprint-out)
-                                   (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
+                               (lambda (buffer pprint-out)
+                                 (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
+                                 (setq after-first-result-chunk t))
+                               (lambda (buffer value content-type)
+                                   (if-let ((handler (cdr (assoc content-type cider-repl-content-type-handler-alist))))
+                                       (progn (funcall handler buffer value (not after-first-result-chunk) t)
+                                              (setq force-prompt t))
+                                     (cider-repl-emit-result buffer value (not after-first-result-chunk) t))
                                    (setq after-first-result-chunk t)))))
 
 (defun cider-repl--send-input (&optional newline)

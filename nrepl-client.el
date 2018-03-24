@@ -764,7 +764,8 @@ to the REPL."
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler
-                                           pprint-out-handler)
+                                           pprint-out-handler
+                                           content-type-handler)
   "Make a response handler for connection BUFFER.
 A handler is a function that takes one argument - response received from
 the server process.  The response is an alist that contains at least 'id'
@@ -781,12 +782,14 @@ EVAL-ERROR-HANDLER is nil, the default `nrepl-err-handler' is used.  If any
 of the other supplied handlers are nil nothing happens for the
 corresponding type of response."
   (lambda (response)
-    (nrepl-dbind-response response (value ns out err status id pprint-out)
+    (nrepl-dbind-response response (content-type value ns out err status id pprint-out)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
             (cider-set-buffer-ns ns))))
-      (cond (value
+      (cond ((and value content-type content-type-handler)
+             (funcall content-type-handler buffer value content-type))
+            (value
              (when value-handler
                (funcall value-handler buffer value)))
             (out
