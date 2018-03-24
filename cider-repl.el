@@ -799,7 +799,7 @@ the symbol."
                t)))
           (t t))))
 
-(defun cider-repl--display-image (type buffer string &optional show-prefix bol)
+(defun cider-repl--display-image (buffer image &optional show-prefix bol)
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
@@ -809,17 +809,24 @@ the symbol."
             (insert-before-markers "\n"))
           (when show-prefix
             (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
-          (let ((image (create-image string type)))
-            (insert-image image string))
+          (insert-image image)
           (set-marker cider-repl-input-start-mark (point) buffer)
           (set-marker cider-repl-prompt-start-mark (point) buffer))))
     (cider-repl--show-maximum-output)))
 
 (setq cider-repl-content-type-handler-alist
-  '(("image/jpeg" . (lambda (u v s b) (cider-repl--display-image 'jpeg u v s b)))
-    ("image/jpeg;base64" . (lambda (u v s b) (cider-repl--display-image 'jpeg u (base64-decode-string v) s b)))
-    ("image/png". (lambda (u v s b) (cider-repl--display-image 'png u v s b)))
-    ("image/png;base64" . (lambda (u v s b) (cider-repl--display-image 'png u (base64-decode-string v) s v)))))
+  '(("image/jpeg" .
+     (lambda (u v s b)
+       (cider-repl--display-image u (create-image v 'jpeg) s b)))
+    ("image/jpeg;base64" .
+     (lambda (u v s b)
+       (cider-repl--display-image u (create-image (base64-decode-string v) 'jpeg 't) s b)))
+    ("image/png".
+     (lambda (u v s b)
+       (cider-repl--display-image u (create-image v 'png) s b)))
+    ("image/png;base64" .
+     (lambda (u v s b)
+       (cider-repl--display-image u (create-image (base64-decode-string v) 'png 't) s v)))))
 
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
