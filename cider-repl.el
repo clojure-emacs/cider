@@ -817,33 +817,47 @@ the symbol."
 
 (defcustom cider-repl-image-margin 10
   "Number or pair of numbers encoding either a symmetric margin for REPL
-  visualized images, or the `(x . y)' offset to use in placing the image.")
+  visualized images, or the `(x . y)' offset to use in placing the image."
+  :group 'cider-repl
+  :package-version '(cider . "0.17.0"))
 
 (defun cider-repl--image (image type datap)
   (create-image (if datap (base64-decode-string image) image) type datap
                 :margin cider-repl-image-margin))
 
-(setq cider-repl-content-type-handler-alist
-      '(("image/jpeg" .
-         (lambda (buffer image &optional show-prefix bol)
-           (cider-repl--display-image buffer
-                                      (cider-repl--image image 'jpeg nil)
-                                      show-prefix bol image)))
-        ("image/jpeg;base64" .
-         (lambda (buffer image &optional show-prefix bol)
-           (cider-repl--display-image buffer
-                                      (cider-repl--image image 'jpeg t)
-                                      show-prefix bol)))
-        ("image/png".
-         (lambda (buffer image &optional show-prefix bol)
-           (cider-repl--display-image buffer
-                                      (cider-repl--image image 'png nil)
-                                      show-prefix bol image)))
-        ("image/png;base64" .
-         (lambda (buffer image &optional show-prefix bol)
-           (cider-repl--display-image buffer
-                                      (cider-repl--image image 'png t)
-                                      show-prefix bol)))))
+(defun cider-repl-handle-jpeg (buffer image &optional show-prefix bol)
+  (cider-repl--display-image buffer
+                             (cider-repl--image image 'jpeg nil)
+                             show-prefix bol image))
+
+(defun cider-repl-handle-jpeg64 (buffer image &optional show-prefix bol)
+  (cider-repl--display-image buffer
+                             (cider-repl--image image 'jpeg t)
+                             show-prefix bol))
+
+(defun cider-repl-handle-png (buffer image &optional show-prefix bol)
+  (cider-repl--display-image buffer
+                             (cider-repl--image image 'png nil)
+                             show-prefix bol image))
+
+(defun cider-repl-handle-png64 (buffer image &optional show-prefix bol)
+  (cider-repl--display-image buffer
+                             (cider-repl--image image 'png t)
+                             show-prefix bol))
+
+(defcustom cider-repl-content-type-handler-alist
+  '(("image/jpeg" . #'cider-repl-handle-jpeg)
+    ("image/jpeg;base64" .  #'cider-repl-handle-jpeg64)
+    ("image/png". #'cider-repl-handle-png)
+    ("image/png;base64" . #'cider-repl-handle-png64))
+  "Association list from content-types to handlers for inserting nREPL
+responses of that content type  into the CIDER REPL buffer.
+
+Handlers must be functions of two required and two optional arguments -
+being the REPL buffer to insert into, the value of the given content type
+as a raw string, the REPL's show prefix as any and an end-of-line flag."
+  :group 'cider-repl
+  :package-version '(cider . "0.17.0"))
 
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
