@@ -225,7 +225,7 @@ via `cider-current-connection'.")
     (when (member "state" (nrepl-dict-get response "status"))
       (nrepl-dbind-response response (repl-type changed-namespaces)
         (when repl-type
-          (setq cider-repl-type repl-type))
+          (cider-repl-set-type repl-type))
         (unless (nrepl-dict-empty-p changed-namespaces)
           (setq cider-repl-ns-cache (nrepl-dict-merge cider-repl-ns-cache changed-namespaces))
           (dolist (b (buffer-list))
@@ -261,7 +261,7 @@ ENDPOINT is a plist as returned by `nrepl-connect'."
     (with-current-buffer (get-buffer-create buff-name)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode)
-        (setq cider-repl-type "clj"))
+        (cider-repl-set-type "clj"))
       (setq nrepl-err-handler #'cider-default-err-handler)
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
@@ -1065,7 +1065,10 @@ namespace to switch to."
                         (format "Set REPL type (currently `%s') to: "
                                 cider-repl-type)
                         '("clj" "cljs")))))
-    (setq cider-repl-type type)))
+    (setq cider-repl-type type)
+    (if (equal type "cljs")
+        (setq mode-name "REPL[cljs]")
+      (setq mode-name "REPL[clj]"))))
 
 
 ;;; Location References

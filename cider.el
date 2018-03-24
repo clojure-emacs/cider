@@ -700,7 +700,7 @@ Figwheel, etc), unless you've set `cider-default-cljs-repl'."
         ;; original Clojure REPL.  Our solution is to bump the original REPL back
         ;; up the list, so it takes priority on Clojure requests.
         (cider-make-connection-default client-buffer)
-        (setq cider-repl-type "cljs")
+        (cider-repl-set-type "cljs")
         (pcase cider-cljs-repl-types
           (`(,name ,_ ,info)
            (message "Starting a %s REPL%s" name (or info ""))))
@@ -838,7 +838,7 @@ the appropriate REPL type in the end."
   (interactive)
   (when-let* ((conn (call-interactively #'cider-connect)))
     (with-current-buffer conn
-      (setq cider-repl-type "cljs"))))
+      (cider-repl-set-type "cljs"))))
 
 (defun cider-current-host ()
   "Retrieve the current host."
