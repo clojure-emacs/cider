@@ -848,31 +848,34 @@ the symbol."
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (let (after-first-result-chunk
         force-prompt)
-    (nrepl-make-response-handler buffer
-                                 (lambda (buffer value)
-                                   (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
-                                   (setq after-first-result-chunk t))
-                                 (lambda (buffer out)
-                                   (cider-repl-emit-stdout buffer out))
-                                 (lambda (buffer err)
-                                   (cider-repl-emit-stderr buffer err))
-                                 (lambda (buffer)
-                                   (cider-repl-emit-prompt buffer)
-                                   (let ((win (get-buffer-window (current-buffer) t)))
-                                     (when (and win force-prompt)
-                                       (with-selected-window win
-                                         (set-window-point win cider-repl-input-start-mark))
-                                       (cider-repl--show-maximum-output))))
-                                 nrepl-err-handler
-                                 (lambda (buffer pprint-out)
-                                   (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
-                                   (setq after-first-result-chunk t))
-                                 (lambda (buffer value content-type)
-                                   (if-let ((handler (cdr (assoc content-type cider-repl-content-type-handler-alist))))
-                                       (progn (funcall handler buffer value (not after-first-result-chunk) t)
-                                              (setq force-prompt t))
-                                     (cider-repl-emit-result buffer value (not after-first-result-chunk) t))
-                                   (setq after-first-result-chunk t)))))
+    (nrepl-make-response-handler
+     buffer
+     (lambda (buffer value)
+       (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
+       (setq after-first-result-chunk t))
+     (lambda (buffer out)
+       (cider-repl-emit-stdout buffer out))
+     (lambda (buffer err)
+       (cider-repl-emit-stderr buffer err))
+     (lambda (buffer)
+       (cider-repl-emit-prompt buffer)
+       (let ((win (get-buffer-window (current-buffer) t)))
+         (when (and win force-prompt)
+           (with-selected-window win
+             (set-window-point win cider-repl-input-start-mark))
+           (cider-repl--show-maximum-output))))
+     nrepl-err-handler
+     (lambda (buffer pprint-out)
+       (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
+       (setq after-first-result-chunk t))
+     (lambda (buffer value content-type)
+       (if-let ((handler (cdr (assoc content-type
+                                     cider-repl-content-type-handler-alist))))
+           (progn (funcall handler buffer value
+                           (not after-first-result-chunk) t)
+                  (setq force-prompt t))
+         (cider-repl-emit-result buffer value (not after-first-result-chunk) t))
+       (setq after-first-result-chunk t)))))
 
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
