@@ -870,8 +870,8 @@ the symbol."
        (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
        (setq after-first-result-chunk t))
      (lambda (buffer value content-type)
-       (if-let ((handler (cdr (assoc content-type
-                                     cider-repl-content-type-handler-alist))))
+       (if-let* ((handler (cdr (assoc content-type
+                                      cider-repl-content-type-handler-alist))))
            (progn (funcall handler buffer value
                            (not after-first-result-chunk) t)
                   (setq force-prompt t))
