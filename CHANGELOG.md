@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#2248](https://github.com/clojure-emacs/cider/pull/2248): `cider-repl` can now display recognized images in the REPL buffer.
 * [#2172](https://github.com/clojure-emacs/cider/pull/2172): Render diffs for expected / actual test results.
 * [#2167](https://github.com/clojure-emacs/cider/pull/2167): Add new defcustom `cider-jdk-src-paths`. Configure it to connect stack trace links to Java source code.
 * [#2161](https://github.com/clojure-emacs/cider/issues/2161): Add new interactive command `cider-eval-defun-to-point` which is bound to `C-c C-v (C-)z`. It evaluates the current top-level form up to the point.
