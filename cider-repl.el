@@ -809,7 +809,7 @@ the symbol."
             (insert-before-markers "\n"))
           (when show-prefix
             (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
-          (let ((image (create-image (substring string 1 -1) type)))
+          (let ((image (create-image string type)))
             (insert-image image string))
           (set-marker cider-repl-input-start-mark (point) buffer)
           (set-marker cider-repl-prompt-start-mark (point) buffer))))
