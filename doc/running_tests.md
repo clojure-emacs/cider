@@ -13,12 +13,24 @@ test namespace inference logic (e.g. you have some tests in the implementation
 namespace that were defined with `clojure.test/with-test`)
 - in such cases you should use <kbd>C-u C-c C-t C-n</kbd>, which will simply run
 whatever tests are present in the currently visited/active namespace.
+You can also press <kbd>C-c C-t C-s</kbd> to run a subset of the tests defined in
+the namespace prefiltered by a test selector. CIDER will ask you for this selector
+in the minibuffer. If you call this command with a prefix (<kbd>C-u C-c C-t C-s</kbd>)
+you can suppress the inference logic as for run tests for the namespace.
 
 You can also run all loaded tests with <kbd>C-c C-t l</kbd> or <kbd>C-c C-t
 C-l</kbd> and all tests within a project with <kbd>C-c C-t p</kbd> or <kbd>C-c
 C-t C-p</kbd> (note that this will load **all** namespaces in your
-project). Using <kbd>C-c C-t t</kbd> or <kbd>C-c C-t C-t</kbd>, you can execute
-only the test at point.
+project). If you call these two with a prefix CIDER will ask for a test selector
+and only run those tests in the project which are marked with that selector. Using
+<kbd>C-c C-t t</kbd> or <kbd>C-c C-t C-t</kbd>, you can execute only the
+test at point.
+
+Test selector is originally a `leiningen` feature see `lein help test` for some explanation.
+People use them to define subsets of tests usually run together for different purposes. For
+example you can mark some of your tests with the `^:smoke` metadata marker others with
+`^:integration`. This enables you to run these tests separately in your build pipeline.
+This feature in CIDER helps you to run these subsets in your development environment.
 
 All test commands are available in REPL buffers as well. There you can also use
 <kbd>,</kbd> to invoke some of the testing commands.
@@ -30,6 +42,7 @@ Keyboard shortcut               | Description
 --------------------------------|-------------------------------
 <kbd>g</kbd>                    | Run test at point.
 <kbd>n</kbd>                    | Run tests for current namespace.
+<kbd>s</kbd>                    | Run tests for current namespace prefiltered with a selector.
 <kbd>l</kbd>                    | Run tests for all loaded namespaces.
 <kbd>p</kbd>                    | Run tests for all project namespaces. This loads the additional namespaces.
 <kbd>f</kbd>                    | Re-run test failures/errors.
