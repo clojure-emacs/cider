@@ -824,6 +824,7 @@ SHOW-PREFIX and BOL."
 
 Either a single number of pixels - interpreted as a symmetric margin, or
 pair of numbers `(x . y)' encoding an arbitrary margin."
+  :type '(choice integer (vector integer integer))
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 
