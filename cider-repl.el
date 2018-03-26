@@ -801,6 +801,10 @@ the symbol."
           (t t))))
 
 (defun cider-repl--display-image (buffer image &optional show-prefix bol string)
+  "Insert IMAGE into BUFFER at the current point.
+
+For compatibility with the rest of CIDER's REPL machinery, supports
+SHOW-PREFIX and BOL."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
@@ -816,31 +820,49 @@ the symbol."
     (cider-repl--show-maximum-output)))
 
 (defcustom cider-repl-image-margin 10
-  "Number or pair of numbers encoding either a symmetric margin for REPL
-  visualized images, or the `(x . y)' offset to use in placing the image."
+  "Specifies the margin to be applied to images displayed in the REPL.
+
+Either a single number of pixels - interpreted as a symmetric margin, or
+pair of numbers `(x . y)' encoding an arbitrary margin."
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 
-(defun cider-repl--image (image type datap)
-  (create-image (if datap (base64-decode-string image) image) type datap
+(defun cider-repl--image (file-or-data type datap)
+  "A helper for creating images with CIDER's image options.
+
+FILE-OR-DATA is either the path to an image or its base64 coded data.  TYPE
+is a symbol indicating the image type.  DATAP indicates whether the image is
+the base64'd image data or a filename.
+
+Returns an image instance with a margin per `cider-repl-image-margin'."
+  (create-image (if datap (base64-decode-string file-or-data) file-or-data)
+                type datap
                 :margin cider-repl-image-margin))
 
 (defun cider-repl-handle-jpeg (buffer image &optional show-prefix bol)
+  "A handler for inserting a jpeg IMAGE file into a repl BUFFER.
+Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'jpeg nil)
                              show-prefix bol image))
 
 (defun cider-repl-handle-jpeg64 (buffer image &optional show-prefix bol)
+  "A handler for inserting base64 coded jpeg IMAGE data into a repl BUFFER.
+Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'jpeg t)
                              show-prefix bol))
 
 (defun cider-repl-handle-png (buffer image &optional show-prefix bol)
+  "A handler for inserting a png IMAGE file into a repl BUFFER.
+Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'png nil)
                              show-prefix bol image))
 
 (defun cider-repl-handle-png64 (buffer image &optional show-prefix bol)
+  "Handler for inserting base64 png IMAGE data into a repl BUFFER.
+Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'png t)
                              show-prefix bol))
@@ -850,12 +872,11 @@ the symbol."
     ("image/jpeg;base64" .  #'cider-repl-handle-jpeg64)
     ("image/png". #'cider-repl-handle-png)
     ("image/png;base64" . #'cider-repl-handle-png64))
-  "Association list from content-types to handlers for inserting nREPL
-responses of that content type  into the CIDER REPL buffer.
+  "Association list from content-types to handlers.
 
-Handlers must be functions of two required and two optional arguments -
-being the REPL buffer to insert into, the value of the given content type
-as a raw string, the REPL's show prefix as any and an end-of-line flag."
+Handlers must be functions of two required and two optional arguments - the
+REPL buffer to insert into, the value of the given content type as a raw
+string, the REPL's show prefix as any and an `end-of-line' flag."
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 

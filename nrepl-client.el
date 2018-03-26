@@ -780,9 +780,11 @@ example, if 'value' key is present, the response is of type 'value', if
 Depending on the type, the handler dispatches the appropriate value to one
 of the supplied handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
 DONE-HANDLER, EVAL-ERROR-HANDLER, PPRINT-OUT-HANDLER and
-CONTENT-TYPE-HANDLER. Handlers are functions of the buffer and the value
-they handle, except for the optional CONTENT-TYPE-HANDLER which should be a
-function of the buffer, content and content-type to be handled.
+CONTENT-TYPE-HANDLER.
+
+ Handlers are functions of the buffer and the value they handle, except for
+the optional CONTENT-TYPE-HANDLER which should be a function of the buffer,
+content and content-type to be handled.
 
 If the optional EVAL-ERROR-HANDLER is nil, the default `nrepl-err-handler'
 is used.  If any of the other supplied handlers are nil nothing happens for
