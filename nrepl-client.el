@@ -38,7 +38,7 @@
 ;; The nREPL communication process can be broadly represented as follows:
 ;;
 ;;    1) The server process is started as an Emacs subprocess (usually by
-;;      `cider-jack-in', which in turn fires up leiningen or boot).  Note that
+;;       `cider-jack-in', which in turn fires up leiningen or boot).  Note that
 ;;       if a connection was established using `cider-connect' there won't be
 ;;       a server process.
 ;;
