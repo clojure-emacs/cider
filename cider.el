@@ -167,8 +167,10 @@ vector of middleware variables as a string."
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-shadow-cljs-command
-  "shadow-cljs"
-  "The command used to execute shadow-cljs."
+  "npx shadow-cljs"
+  "The command used to execute shadow-cljs.
+
+By default we favor the project-specific shadow-cljs over the system-wide."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.17.0"))
@@ -329,7 +331,9 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
     ("lein" (cider--resolve-command cider-lein-command))
     ("boot" (cider--resolve-command cider-boot-command))
     ("clojure-cli" (cider--resolve-command cider-clojure-cli-command))
-    ("shadow-cljs" (cider--resolve-command cider-shadow-cljs-command))
+    ;; here we have to account for the possibility that the command is either
+    ;; "npx shadow-cljs" or just "shadow-cljs"
+    ("shadow-cljs" (cider--resolve-command ((split-string cider-shadow-cljs-command))))
     ("gradle" (cider--resolve-command cider-gradle-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
