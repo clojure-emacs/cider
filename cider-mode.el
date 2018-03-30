@@ -248,6 +248,9 @@ Configure `cider-cljs-*-repl' to change the ClojureScript REPL to use for your b
     ["Eval last sexp and pretty-print to REPL" cider-pprint-eval-last-sexp-to-repl]
     ["Eval last sexp and pretty-print to comment" cider-pprint-eval-last-sexp-to-comment]
     ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
+    ["Insert top-level sexp in REPL" cider-insert-defun-in-repl]
+    ["Insert region in REPL" cider-insert-region-in-repl]
+    ["Insert ns form in REPL" cider-insert-ns-form-in-repl]
     ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
     ["Eval top-level sexp and pretty-print to comment" cider-pprint-eval-defun-to-comment]
     "--"
