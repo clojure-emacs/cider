@@ -77,6 +77,14 @@ helpful for identifying each host.
 (setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
 ```
 
+If you use boot and spawn a repl server from another directory that is not a
+boot project, you can specify directories for cider to search for the
+.nrepl-port file with the `cider-nrepl-port-search-paths`.
+
+```el
+'(cider-nrepl-port-search-paths (quote ("~" "~/.boot")))
+```
+
 ## ClojureScript usage
 
 ClojureScript support relies on the [piggieback][] nREPL middleware being

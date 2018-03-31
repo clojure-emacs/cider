@@ -473,7 +473,9 @@ and try to associate the created connection with this project automatically.
 ## 0.9.0 (2015-06-16)
 
 ### New features
-
+* New defcustom `cider-nrepl-port-search-paths`.
+  Used when `cider-connect` does a lookup of local ports. Mainly should be set when
+  using boot Repl server from some directory other than a specific project's.
 * [#1109](https://github.com/clojure-emacs/cider/issues/1109): New defcustom `cider-auto-mode`.
 On by default, when `nil` don't automatically enable `cider-mode` in all Clojure buffers.
 * [#1061](https://github.com/clojure-emacs/cider/issues/1061): New command `cider-find-ns`, bound to <kbd>C-c C-.</kbd>, which prompts for an ns and jumps to the corresponding source file.
