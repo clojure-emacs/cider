@@ -646,6 +646,20 @@ dependencies."
   (unless (cider-library-present-p "boot-cljs-repl")
     (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
 
+(defun cider-check-shadow-cljs-requirements ()
+  "Check whether we can start a shadow-cljs REPL."
+  (unless (cider-library-present-p "shadow-cljs")
+    (user-error "The shadow-cljs ClojureScript REPL is not available")))
+
+(defun cider-shadow-cljs-init-form ()
+  "Generate the init form for a shadow-cljs REPL.
+
+We have to prompt the user to select a build, that's why
+this is a command, not just a string."
+  (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :%s) (shadow/nrepl-select :%s))")
+        (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build: "))))
+    (format form build build)))
+
 (defconst cider-cljs-repl-types
   '(("Rhino" "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
      nil)
@@ -658,11 +672,14 @@ dependencies."
     ("Weasel" "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
      cider-check-weasel-requirements)
     ("Boot" "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
-     cider-check-boot-requirements))
+     cider-check-boot-requirements)
+    ("Shadow" cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements))
   "A list of supported ClojureScript REPLs.
 
 For each one we have its name, the form we need to evaluate in a Clojure
-REPL to start the ClojureScript REPL and functions to very their requirements.")
+REPL to start the ClojureScript REPL and functions to very their requirements.
+
+The form should be either a string or a function producing a string.")
 
 (defcustom cider-default-cljs-repl nil
   "The default ClojureScript REPL to start.
@@ -692,10 +709,14 @@ you're working on."
 
 (defun cider-cljs-repl-form (repl-type)
   "Get the cljs REPL form for REPL-TYPE."
-  (cadr (seq-find
-         (lambda (entry)
-           (equal (car entry) repl-type))
-         cider-cljs-repl-types)))
+  (let ((repl-form (cadr (seq-find
+                          (lambda (entry)
+                            (equal (car entry) repl-type))
+                          cider-cljs-repl-types))))
+    ;; repl-form can be either a string or a function producing a string
+    (if (symbolp repl-form)
+        (funcall repl-form)
+      repl-form)))
 
 (defun cider-verify-cljs-repl-requirements (repl-type)
   "Verify that the requirements for REPL-TYPE are met."
