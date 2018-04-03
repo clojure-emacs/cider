@@ -294,6 +294,13 @@ This variable is used by `cider-connect'."
   :type 'boolean
   :version '(cider . "0.15.0"))
 
+(defcustom cider-nrepl-port-search-paths nil
+  "When non-nil, `cider-connect' search the paths for the .nrepl-port file.
+After selecting hostname, any .nrepl-port file locaded in these paths will
+be used to display the port number to select";
+  :type '(repeat (string :tag "directory"))
+  :group 'cider)
+
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
@@ -1000,7 +1007,8 @@ of remote SSH hosts."
   "Locate ports of running nREPL servers.
 When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
-  (let* ((paths (cider--running-nrepl-paths))
+  (let* ((paths (append cider-nrepl-port-search-paths
+                        (cider--running-nrepl-paths)))
          (proj-ports (mapcar (lambda (d)
                                (when-let* ((port (and d (nrepl-extract-port (cider--file-path d)))))
                                  (list (file-name-nondirectory (directory-file-name d)) port)))
