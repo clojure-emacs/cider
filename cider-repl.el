@@ -1417,7 +1417,7 @@ constructs."
 (cider-repl-add-shortcut "clear-help-banner" #'cider-repl-clear-help-banner)
 (cider-repl-add-shortcut "ns" #'cider-repl-set-ns)
 (cider-repl-add-shortcut "toggle-pretty" #'cider-repl-toggle-pretty-printing)
-(cider-repl-add-shortcut "browse-ns" (lambda () (cider-browse-ns (cider-current-ns))))
+(cider-repl-add-shortcut "browse-ns" (lambda () (interactive) (cider-browse-ns (cider-current-ns))))
 (cider-repl-add-shortcut "classpath" #'cider-classpath)
 (cider-repl-add-shortcut "history" #'cider-repl-history)
 (cider-repl-add-shortcut "trace-ns" #'cider-toggle-trace-ns)
@@ -1428,8 +1428,8 @@ constructs."
 (cider-repl-add-shortcut "test-all" #'cider-test-run-loaded-tests)
 (cider-repl-add-shortcut "test-project" #'cider-test-run-project-tests)
 (cider-repl-add-shortcut "test-ns-with-selector" #'cider-test-run-ns-tests-with-selector)
-(cider-repl-add-shortcut "test-all-with-selector" (lambda () (cider-test-run-loaded-tests 'prompt-for-selector)))
-(cider-repl-add-shortcut "test-project-with-selector" (lambda () (cider-test-run-project-tests 'prompt-for-selector)))
+(cider-repl-add-shortcut "test-all-with-selector" (lambda () (interactive) (cider-test-run-loaded-tests 'prompt-for-selector)))
+(cider-repl-add-shortcut "test-project-with-selector" (lambda () (interactive) (cider-test-run-project-tests 'prompt-for-selector)))
 (cider-repl-add-shortcut "test-report" #'cider-test-show-report)
 (cider-repl-add-shortcut "run" #'cider-run)
 (cider-repl-add-shortcut "conn-info" #'cider-display-connection-info)
@@ -1471,7 +1471,7 @@ constructs."
       (if (not (equal command ""))
           (let ((command-func (gethash command cider-repl-shortcuts)))
             (if command-func
-                (call-interactively (gethash command cider-repl-shortcuts))
+                (call-interactively command-func)
               (error "Unknown command %S.  Available commands: %s"
                      command-func
                      (mapconcat 'identity (cider-repl--available-shortcuts) ", "))))
