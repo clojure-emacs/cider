@@ -113,7 +113,7 @@ If this is set to nil, no re-centering takes place."
   :package-version '(cider . "0.11.0"))
 
 (defcustom cider-repl-use-pretty-printing nil
-  "Control whether the results in REPL are pretty-printed or not.
+  "Control whether results in the REPL are pretty-printed or not.
 The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean
@@ -127,6 +127,13 @@ defaults to the variable `fill-column'."
                            (integerp 'nil))
   :group 'cider-repl
   :package-version '(cider . "0.15.0"))
+
+(defcustom cider-repl-use-content-types t
+  "Control whether REPL results are presented using content-type information or not.
+The `cider-toggle-content-types' command can be used to interactively
+change the setting's value."
+  :type 'boolean
+  :group 'cider-repl)
 
 (defcustom cider-repl-use-clojure-font-lock t
   "Non-nil means to use Clojure mode font-locking for input and result.
@@ -914,6 +921,14 @@ string, the REPL's show prefix as any and an `end-of-line' flag."
          (cider-repl-emit-result buffer value (not after-first-result-chunk) t))
        (setq after-first-result-chunk t)))))
 
+(defun cider--repl-request-plist (right-margin &optional pprint-fn)
+  "Plist to be appended to generic eval requests, as for the REPL.
+PPRINT-FN and RIGHT-MARGIN are as in `cider--nrepl-pprint-request-plist'."
+  (nconc (when cider-repl-use-pretty-printing
+           (cider--nrepl-pprint-request-plist right-margin pprint-fn))
+         (when cider-repl-use-content-types
+           (cider--nrepl-content-type-plist))))
+
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
 If NEWLINE is true then add a newline at the end of the input."
@@ -954,9 +969,7 @@ If NEWLINE is true then add a newline at the end of the input."
          (cider-current-ns)
          (line-number-at-pos input-start)
          (cider-column-number-at-pos input-start)
-         (unless (or (not cider-repl-use-pretty-printing)
-                     (string-match-p "\\`[ \t\r\n]*\\'" input))
-           (cider--nrepl-pprint-request-plist (cider--pretty-print-width))))))))
+         (cider--repl-request-plist (cider--pretty-print-width)))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -1031,6 +1044,13 @@ text property `cider-old-input'."
   (or cider-repl-pretty-print-width
       fill-column
       80))
+
+(defun cider-repl-toggle-content-types ()
+  "Toggle content-type rendering in the REPL."
+  (interactive)
+  (setq cider-repl-use-content-types (not cider-repl-use-content-types))
+  (message "Content-type support in REPL %s."
+           (if cider-repl-use-content-types "enabled" "disabled")))
 
 (defun cider-repl-switch-to-other ()
   "Switch between the Clojure and ClojureScript REPLs for the current project."

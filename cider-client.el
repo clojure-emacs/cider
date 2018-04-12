@@ -780,6 +780,10 @@ result, and is included in the request if non-nil."
            "pprint-fn" ,(or pprint-fn (cider--pprint-fn)))
          (and right-margin `("print-right-margin" ,right-margin))))
 
+(defun cider--nrepl-content-type-plist ()
+  "Plist to be appended to an eval request to make it use content-types."
+  '("content-type" "true"))
+
 (defun cider-tooling-eval (input callback &optional ns)
   "Send the request INPUT and register the CALLBACK as the response handler.
 NS specifies the namespace in which to evaluate the request.
