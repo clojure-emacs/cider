@@ -847,28 +847,28 @@ Returns an image instance with a margin per `cider-repl-image-margin'."
                 type datap
                 :margin cider-repl-image-margin))
 
-(defun cider-repl-handle-jpeg (buffer image &optional show-prefix bol)
+(defun cider-repl-handle-jpeg (_type buffer image &optional show-prefix bol)
   "A handler for inserting a jpeg IMAGE file into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'jpeg nil)
                              show-prefix bol image))
 
-(defun cider-repl-handle-jpeg64 (buffer image &optional show-prefix bol)
+(defun cider-repl-handle-jpeg64 (_type buffer image &optional show-prefix bol)
   "A handler for inserting base64 coded jpeg IMAGE data into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'jpeg t)
                              show-prefix bol))
 
-(defun cider-repl-handle-png (buffer image &optional show-prefix bol)
+(defun cider-repl-handle-png (_type buffer image &optional show-prefix bol)
   "A handler for inserting a png IMAGE file into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'png nil)
                              show-prefix bol image))
 
-(defun cider-repl-handle-png64 (buffer image &optional show-prefix bol)
+(defun cider-repl-handle-png64 (_type buffer image &optional show-prefix bol)
   "Handler for inserting base64 png IMAGE data into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
@@ -913,9 +913,11 @@ string, the REPL's show prefix as any and an `end-of-line' flag."
        (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
        (setq after-first-result-chunk t))
      (lambda (buffer value content-type)
-       (if-let* ((handler (cdr (assoc content-type
+       (if-let* ((content-attrs (caar content-type))
+                 (content-type* (car content-type))
+                 (handler (cdr (assoc content-type*
                                       cider-repl-content-type-handler-alist))))
-           (progn (funcall handler buffer value
+           (progn (funcall handler buffer content-type value
                            (not after-first-result-chunk) t)
                   (setq force-prompt t))
          (cider-repl-emit-result buffer value (not after-first-result-chunk) t))
