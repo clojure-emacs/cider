@@ -660,6 +660,17 @@ this is a command, not just a string."
         (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build: "))))
     (format form build build)))
 
+(defun cider-custom-cljs-repl-init-form ()
+  "Prompt for a form that would start a ClojureScript REPL.
+
+The supplied string will be wrapped in a do form if needed."
+  (let ((form (read-from-minibuffer "Please, provide a form to start a ClojureScript REPL: ")))
+    ;; TODO: We should probably make this more robust (e.g. by using a regexp or
+    ;; parsing the form).
+    (if (string-prefix-p "(do" form)
+        form
+      (format "(do %s)" form))))
+
 (defconst cider-cljs-repl-types
   '(("Rhino" "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
      nil)
@@ -673,7 +684,8 @@ this is a command, not just a string."
      cider-check-weasel-requirements)
     ("Boot" "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
      cider-check-boot-requirements)
-    ("Shadow" cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements))
+    ("Shadow" cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements)
+    ("Custom" cider-custom-cljs-repl-init-form nil))
   "A list of supported ClojureScript REPLs.
 
 For each one we have its name, the form we need to evaluate in a Clojure
