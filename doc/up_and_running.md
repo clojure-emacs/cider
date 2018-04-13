@@ -209,7 +209,7 @@ You should also check out
 
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
-[piggieback]: https://github.com/cemerick/piggieback
+[piggieback]: https://github.com/clojure-emacs/piggieback
 
 ## Working with `.cljc` files
 
