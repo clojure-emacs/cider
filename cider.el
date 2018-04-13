@@ -705,7 +705,9 @@ you're working on."
                  (const "Figwheel")
                  (const "Node")
                  (const "Weasel")
-                 (const "Boot"))
+                 (const "Boot")
+                 (const "Shadow")
+                 (const "Custom"))
   :group 'cider
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
