@@ -521,8 +521,7 @@ removed, LEIN-PLUGINS, and finally PARAMS."
 (defun cider-clojure-cli-jack-in-dependencies (global-opts params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
-  (let ((dependencies (append dependencies
-                              `(("cider/cider-nrepl" ,(upcase cider-version))))))
+  (let ((dependencies (append dependencies cider-jack-in-lein-plugins)))
     (concat
      global-opts
      (unless (seq-empty-p global-opts) " ")
@@ -536,8 +535,7 @@ Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
-  (let ((dependencies (append dependencies
-                              `(("cider/cider-nrepl" ,(upcase cider-version))))))
+  (let ((dependencies (append dependencies cider-jack-in-lein-plugins)))
     (concat
      global-opts
      (unless (seq-empty-p global-opts) " ")
