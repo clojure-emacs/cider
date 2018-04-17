@@ -886,7 +886,7 @@ own buffer."
                            (cider-inject-jack-in-dependencies command-global-opts params project-type)
                          params))
 
-               (cmd (format "%s %s" command-resolved params)))
+               (cmd (format "%s %s" command params)))
           (if (or project-dir cider-allow-jack-in-without-project)
               (progn
                 (when (or project-dir
