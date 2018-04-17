@@ -480,7 +480,7 @@ PLUGINS and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
  are passed on to `cider-boot-dependencies`."
   (concat global-opts
           (unless (seq-empty-p global-opts) " ")
-          "-i \"(require 'cider.tasks)\" " ;; Note the white space at the end here
+          "-i \"(require 'cider.tasks)\" " ;; Note the space at the end here
           (cider-boot-dependencies (append dependencies plugins))
           (cider-boot-middleware-task params middlewares)))
 
