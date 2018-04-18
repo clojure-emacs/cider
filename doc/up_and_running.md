@@ -86,7 +86,7 @@ Add the following dependencies to your project (`project.clj` in Leiningen based
 or `build.boot` in Boot project):
 
 ```clojure
-[com.cemerick/piggieback "0.2.1"]
+[cider/piggieback "0.3.0"]
 [org.clojure/clojure "1.7.0"]
 ```
 
@@ -94,13 +94,13 @@ as well as `piggieback` nREPL middleware:
 
 in `project.clj`:
 ```clojure
-:repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+:repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 ```
 
 or in `build.boot`:
 ```clojure
 (task-options!
-  repl {:middleware '[cemerick.piggieback/wrap-cljs-repl]})
+  repl {:middleware '[cider.piggieback/wrap-cljs-repl]})
 ```
 
 There are many ClojureScript REPLs out there and it's often hard to wrap your
@@ -150,7 +150,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[com.cemerick/piggieback "0.2.1"  :scope "test"]
+[cider/piggieback "0.3.0"  :scope "test"]
 ```
 
 and this at the end of `build.boot`:
@@ -187,14 +187,14 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 2. Add these to your dev `:dependencies`:
 
 ```clojure
-[com.cemerick/piggieback "0.2.1"]
+[cider/piggieback "0.3.0"]
 [figwheel-sidecar "0.5.0-2"]
 ```
 
 3. Add this to your dev `:repl-options`:
 
 ```clojure
-:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+:nrepl-middleware [cider.piggieback/wrap-cljs-repl]
 ```
 
 4. Start the REPL with `cider-jack-in-clojurescript` (<kbd>C-c M-J</kbd>)
