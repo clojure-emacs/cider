@@ -41,6 +41,8 @@
 * [#2202](https://github.com/clojure-emacs/cider/issues/2202): Don't try to start a ClojureScript REPL before checking whether that's possible or not.
 * [orchard#24](https://github.com/clojure-emacs/orchard/pull/24): Inspector now separately renders clickable keys and values when inspecting maps.
 * [orchard#24](https://github.com/clojure-emacs/orchard/pull/24): Inspector now remembers the current page of each level of nesting when navigating big and nested collection.
+* Require piggieback 0.3 or newer.
+* Drops support for Rhino in favour of the modern Nashorn.
 
 ## 0.16.0 (2017-12-28)
 

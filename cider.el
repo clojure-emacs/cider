@@ -670,9 +670,7 @@ The supplied string will be wrapped in a do form if needed."
       (format "(do %s)" form))))
 
 (defvar cider-cljs-repl-types
-  '(("Rhino" "(cemerick.piggieback/cljs-repl (cljs.repl.rhino/repl-env))"
-     nil)
-    ("Nashorn" "(cemerick.piggieback/cljs-repl (cljs.repl.nashorn/repl-env))"
+  '(("Nashorn" "(cemerick.piggieback/cljs-repl (cljs.repl.nashorn/repl-env))"
      cider-check-nashorn-requirements)
     ("Figwheel" "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
      cider-check-figwheel-requirements)
@@ -718,8 +716,7 @@ This affects commands like `cider-jack-in-clojurescript'.  Generally it's
 intended to be set via .dir-locals.el for individual projects, as its
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
-  :type '(choice (const "Rhino")
-                 (const "Nashorn")
+  :type '(choice (const "Nashorn")
                  (const "Figwheel")
                  (const "Node")
                  (const "Weasel")
