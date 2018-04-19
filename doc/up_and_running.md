@@ -82,22 +82,24 @@ helpful for identifying each host.
 ClojureScript support relies on the [piggieback][] nREPL middleware being
 present in your REPL session.
 
-Add the following dependencies to your project (`project.clj` in Leiningen based project
-or `build.boot` in Boot project):
+Add the following dependencies to your project (`project.clj` in
+Leiningen based project or `build.boot` in Boot project):
 
 ```clojure
-[cider/piggieback "0.3.0"]
+[cider/piggieback "0.3.1"]
 [org.clojure/clojure "1.7.0"]
 ```
 
 as well as `piggieback` nREPL middleware:
 
 in `project.clj`:
+
 ```clojure
 :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 ```
 
 or in `build.boot`:
+
 ```clojure
 (task-options!
   repl {:middleware '[cider.piggieback/wrap-cljs-repl]})
@@ -150,7 +152,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[cider/piggieback "0.3.0"  :scope "test"]
+[cider/piggieback "0.3.1"  :scope "test"]
 ```
 
 and this at the end of `build.boot`:
@@ -187,9 +189,13 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 2. Add these to your dev `:dependencies`:
 
 ```clojure
-[cider/piggieback "0.3.0"]
-[figwheel-sidecar "0.5.0-2"]
+[cider/piggieback "0.3.1"]
+[figwheel-sidecar "0.5.16"] ; use here whatever the current version of figwheel is
 ```
+
+Keep in mind that figwheel 0.5.16 is the first to support piggieback
+0.3. If you're using an older figwheel you should stick to piggieback
+0.2.2 (which uses the old `com.cemerick/piggieback` package coordinates).
 
 3. Add this to your dev `:repl-options`:
 
