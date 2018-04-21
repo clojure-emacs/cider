@@ -604,6 +604,14 @@ dependencies."
 
 ;;; ClojureScript REPL creation
 
+(defcustom cider-check-cljs-repl-requirements t
+  "When non-nil will run the requirement checks for the different cljs repls.
+
+Generally you should not disable this unless you run into some faulty check."
+  :type 'boolean
+  :safe #'booleanp
+  :version '(cider . "0.17.0"))
+
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
   (unless (cider-library-present-p "clojurescript")
@@ -775,14 +783,16 @@ Normally this would prompt for the ClojureScript REPL to start (e.g. Node,
 Figwheel, etc), unless you've set `cider-default-cljs-repl'."
   (interactive (list (cider-current-connection)))
   ;; We can't start a ClojureScript REPL without ClojureScript
-  (cider-verify-clojurescript-is-present)
+  (when cider-check-cljs-repl-requirements
+    (cider-verify-clojurescript-is-present))
   ;; Load variables in .dir-locals.el into the server process buffer, so
   ;; cider-default-cljs-repl can be set for each project individually.
   (hack-local-variables)
   (let* ((cljs-repl-type (or cider-default-cljs-repl
                              (cider-select-cljs-repl)))
          (cljs-repl-form (cider-cljs-repl-form cljs-repl-type)))
-    (cider-verify-cljs-repl-requirements cljs-repl-type)
+    (when cider-check-cljs-repl-requirements
+      (cider-verify-cljs-repl-requirements cljs-repl-type))
     ;; if all the requirements are met we can finally proceed with starting
     ;; the ClojureScript REPL for `cljs-repl-type'
     (let* ((nrepl-repl-buffer-name-template "*cider-repl%s(cljs)*")
