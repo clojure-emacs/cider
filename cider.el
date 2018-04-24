@@ -286,7 +286,7 @@ This variable is used by `cider-connect'."
 (defcustom cider-inject-dependencies-at-jack-in t
   "When nil, do not inject repl dependencies (most likely nREPL middlewares) at `cider-jack-in' time."
   :type 'boolean
-  :safe #'stringp
+  :safe #'booleanp
   :version '(cider . "0.11.0"))
 
 (defcustom cider-offer-to-open-cljs-app-in-browser t
