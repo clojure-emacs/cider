@@ -21,6 +21,7 @@
 * [#2244](https://github.com/clojure-emacs/cider/issues/2244): Display the REPL type in the modeline.
 * [#2238](https://github.com/clojure-emacs/cider/pull/2238): Allow specifying predicates for entries in `cider-jack-in-lein-plugins` and `cider-jack-in-nrepl-middlewares`.
 * Add support for test selectors. If test all or all loaded is called with a prefix ask for filter test selectors in the minibuffer and only run those tests in the project which match the filters. Add variation of test namespace which asks for filter selectors the same way and only runs a subset of the namespace tests.
+* Add a configuration variable allowing to control whether server output should be redirected to the REPL (`cider-redirect-server-output-to-repl`).
 
 ### Bugs Fixed
 

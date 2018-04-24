@@ -1139,6 +1139,15 @@ message in the REPL area."
                                  "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
                                  cider-version middleware-version))))
 
+(defcustom cider-redirect-server-output-to-repl  t
+  "Controls whether nREPL server output would be redirected to the REPL.
+When non-nil the output would end up in both the nrepl-server buffer (when
+available) and the matching REPL buffer."
+  :type 'boolean
+  :group 'cider
+  :safe #'booleanp
+  :package-version '(cider . "0.17.0"))
+
 (defun cider--subscribe-repl-to-server-out ()
   "Subscribe to the nREPL server's *out*."
   (cider-nrepl-send-request '("op" "out-subscribe")
@@ -1158,7 +1167,8 @@ buffer."
     (cider--check-required-nrepl-version)
     (cider--check-clojure-version-supported)
     (cider--check-middleware-compatibility)
-    (cider--subscribe-repl-to-server-out)
+    (when cider-redirect-server-output-to-repl
+      (cider--subscribe-repl-to-server-out))
     (when cider-auto-mode
       (cider-enable-on-existing-clojure-buffers))
     ;; Middleware on cider-nrepl's side is deferred until first usage, but
