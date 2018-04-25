@@ -175,3 +175,19 @@ but you shouldn't do that because `cider-jack-in` already does that for
 you. Look into the following files, and ensure you've removed all references to
 `cider-nrepl` and `tools.nrepl`: `project.clj`, `build.boot`,
 `~/.lein/profiles.clj` and `~/.boot/profile.boot`.
+
+### I get some error related to refactor-nrepl on startup
+
+The package `clj-refactor` would normally inject its own middleware on
+`cider-jack-in`, just as CIDER itself would. Usually that's not a
+problem, as long as you're using compatible versions of CIDER and
+`clj-refactor`, but if you're getting some error probably that's not
+the case. You've got two options to solve this:
+
+* Use compatible versions of the two projects (e.g. their most recent
+  snapshots or most recent stable releases)
+* Disable the `clj-refactor` middleware injection:
+
+```el
+(setq cljr-inject-dependencies-at-jack-in nil)
+```
