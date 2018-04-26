@@ -200,6 +200,8 @@ See also the related commands `cider-repl-clear-buffer' and
      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
       :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
 Configure `cider-cljs-repl-types' to change the ClojureScript REPL to use for your build tool."]
+     ["Connect to a ClojureScript REPL" cider-connect-clojurescript
+     :help "Connects to a ClojureScript REPL that's already running."]
      ["Create a ClojureScript REPL from a Clojure REPL" cider-create-sibling-cljs-repl])
     "--"
     ["Connection info" cider-display-connection-info
