@@ -662,9 +662,9 @@ Generally you should not disable this unless you run into some faulty check."
 
 We have to prompt the user to select a build, that's why
 this is a command, not just a string."
-  (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :%s) (shadow/nrepl-select :%s))")
+  (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :%s) (while (not (shadow/repl-client-connected? (shadow/get-worker :%s))) (Thread/sleep 1000)) (shadow/nrepl-select :%s))")
         (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build: "))))
-    (format form build build)))
+    (format form build build build)))
 
 (defun cider-custom-cljs-repl-init-form ()
   "Prompt for a form that would start a ClojureScript REPL.
