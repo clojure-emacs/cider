@@ -79,13 +79,22 @@ helpful for identifying each host.
 
 ## ClojureScript usage
 
-ClojureScript support relies on the [piggieback][] nREPL middleware being
-present in your REPL session.
+CIDER works with ClojureScript, but you should keep in mind that not all
+the functionality available with Clojure exists for ClojureScript (at least
+not yet). To give you a concrete example - things like running tests and
+the debugger are currently Clojure-only features.
 
-Add the following dependencies to your project (`project.clj` in
-Leiningen based project or `build.boot` in Boot project):
+ClojureScript support relies on the [piggieback][] nREPL middleware
+being present in your REPL session. There's one exception to this,
+though - [shadow-cljs][]. It has its own nREPL middleware and doesn't rely
+on piggieback at all.
+
+To setup piggieback add the following dependencies to your project
+(`project.clj` in Leiningen based project or `build.boot` in Boot
+project):
 
 ```clojure
+;; use whatever are the most recent versions here
 [cider/piggieback "0.3.1"]
 [org.clojure/clojure "1.7.0"]
 ```
@@ -116,6 +125,33 @@ server, and then create two REPL buffers for you, one in Clojure and one in
 ClojureScript. All usual CIDER commands will be automatically directed to the
 appropriate REPL, depending on whether you're visiting a `.clj` or a `.cljs`
 file.
+
+`cider-jack-in-clojurescript` will prompt you about the type of
+ClojureScript to start. Keep in mind that some of the REPLs will
+require some additional setup, before you can make use of them (e.g. you'll
+need to have Node.js installed to be able to start a node REPL).
+
+You can suppress the prompt the REPL to use by setting `cider-default-cljs-repl`.
+Here's an example that will make Nashorn the default:
+
+```el
+(setq cider-default-cljs-repl "Nashorn")
+```
+
+All supported ClojureScript REPLs are stored in
+`cider-cljs-repl-types`. If you need to extend it, you should use
+`cider-register-cljs-repl-type` in your Emacs configuration.
+
+```el
+(cider-register-cljs-repl-type "super-cljs" "(do (...))" optional-requirements-function)
+```
+
+You can also create a ClojureScript REPL with the command
+`cider-create-sibling-cljs-repl` in cases where you already have a
+Clojure REPL running.
+
+Continue reading for the additional setup needed for the various ClojureScript
+REPLs out there.
 
 ### Browser-connected ClojureScript REPL
 
@@ -213,9 +249,26 @@ CIDER will determine which to use based on the type of file you're editing.
 You should also check out
 [Figwheel's wiki](https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl).
 
+### Using shadow-cljs
+
+Provided you've configured your project correctly you can simply use
+`cider-jack-in-clojurescript` to use `shadow-cljs`.
+
+This will automatically start the shadow-cljs server and connect to it. You'll also
+be prompted for the build to use.
+
+Alternatively you can start the server manually with something like:
+
+```
+npx shadow-cljs server
+```
+
+And connect to it with `cider-connect`.
+
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/clojure-emacs/piggieback
+[shadow-cljs]: https://github.com/thheller/shadow-cljs
 
 ## Working with `.cljc` files
 
