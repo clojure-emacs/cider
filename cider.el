@@ -918,6 +918,8 @@ start the server."
   (interactive "P")
   (cider-jack-in prompt-project 'cljs-too))
 
+(defalias 'cider-jack-in-cljs #'cider-jack-in-clojurescript)
+
 ;;;###autoload
 (defun cider-connect (host port &optional project-dir)
   "Connect to an nREPL server identified by HOST and PORT.
@@ -954,6 +956,8 @@ the appropriate REPL type in the end."
   (when-let* ((conn (call-interactively #'cider-connect)))
     (with-current-buffer conn
       (cider-repl-set-type "cljs"))))
+
+(defalias 'cider-connect-cljs #'cider-connect-clojurescript)
 
 (defun cider-current-host ()
   "Retrieve the current host."
