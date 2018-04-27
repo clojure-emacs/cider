@@ -7,6 +7,7 @@ pages:
 - Home: index.md
 - Installation: installation.md
 - Up and Running: up_and_running.md
+- ClojureScript: clojurescript.md
 - Interactive Programming: interactive_programming.md
 - Using the REPL: using_the_repl.md
 - Code Completion: code_completion.md
