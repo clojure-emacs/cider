@@ -791,7 +791,8 @@ is used.  If any of the other supplied handlers are nil nothing happens for
 the corresponding type of response."
   (lambda (response)
     (nrepl-dbind-response response (content-type content-transfer-encoding body
-                                    value ns out err status id pprint-out)
+                                                 value ns out err status id
+                                                 pprint-out)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
