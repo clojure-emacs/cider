@@ -877,6 +877,8 @@ Part of the default `cider-repl-content-type-handler-alist'."
                              show-prefix bol))
 
 (defun cider-repl-handle-external-body (type buffer _ &optional show-prefix bol)
+  "Handler for slurping external content into BUFFER.
+Handles an external-body TYPE by issuing a slurp request to fetch the body."
   (if-let* ((args        (second type))
             (access-type (nrepl-dict-get args "access-type")))
       (nrepl-send-request
