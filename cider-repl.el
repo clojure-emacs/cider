@@ -871,7 +871,7 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
        (list "op" "slurp" "url" (nrepl-dict-get args "URL"))
        (cider-repl-handler buffer)
        (cider-current-connection)))
- nil)
+  nil)
 
 (defcustom cider-repl-content-type-handler-alist
   `(("message/external-body" . ,#'cider-repl-handle-external-body)
