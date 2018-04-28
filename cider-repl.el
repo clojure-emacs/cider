@@ -824,7 +824,8 @@ SHOW-PREFIX and BOL."
           (insert-image image string)
           (set-marker cider-repl-input-start-mark (point) buffer)
           (set-marker cider-repl-prompt-start-mark (point) buffer))))
-    (cider-repl--show-maximum-output)))
+    (cider-repl--show-maximum-output))
+  t)
 
 (defcustom cider-repl-image-margin 10
   "Specifies the margin to be applied to images displayed in the REPL.
@@ -875,11 +876,21 @@ Part of the default `cider-repl-content-type-handler-alist'."
                              (cider-repl--image image 'png t)
                              show-prefix bol))
 
+(defun cider-repl-handle-external-body (type buffer _ &optional show-prefix bol)
+  (if-let* ((args        (second type))
+            (access-type (nrepl-dict-get args "access-type")))
+      (nrepl-send-request
+       (list "op" "slurp" "url" (nrepl-dict-get args "URL"))
+       (cider-repl-handler buffer)
+       (cider-current-connection)))
+ nil)
+
 (defcustom cider-repl-content-type-handler-alist
-  '(("image/jpeg" . #'cider-repl-handle-jpeg)
-    ("image/jpeg;base64" .  #'cider-repl-handle-jpeg64)
-    ("image/png". #'cider-repl-handle-png)
-    ("image/png;base64" . #'cider-repl-handle-png64))
+  `(("message/external-body" . ,#'cider-repl-handle-external-body)
+    ("image/jpeg" . ,#'cider-repl-handle-jpeg)
+    ("image/jpeg;base64" . ,#'cider-repl-handle-jpeg64)
+    ("image/png" . ,#'cider-repl-handle-png)
+    ("image/png;base64" . ,#'cider-repl-handle-png64))
   "Association list from content-types to handlers.
 
 Handlers must be functions of two required and two optional arguments - the
@@ -891,7 +902,7 @@ string, the REPL's show prefix as any and an `end-of-line' flag."
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (let (after-first-result-chunk
-        force-prompt)
+        (show-prompt t))
     (nrepl-make-response-handler
      buffer
      (lambda (buffer value)
@@ -902,26 +913,27 @@ string, the REPL's show prefix as any and an `end-of-line' flag."
      (lambda (buffer err)
        (cider-repl-emit-stderr buffer err))
      (lambda (buffer)
-       (cider-repl-emit-prompt buffer)
-       (let ((win (get-buffer-window (current-buffer) t)))
-         (when (and win force-prompt)
-           (with-selected-window win
-             (set-window-point win cider-repl-input-start-mark))
-           (cider-repl--show-maximum-output))))
+       (when show-prompt
+         (cider-repl-emit-prompt buffer)
+         (let ((win (get-buffer-window (current-buffer) t)))
+           (when win
+             (with-selected-window win
+               (set-window-point win cider-repl-input-start-mark))
+             (cider-repl--show-maximum-output)))))
      nrepl-err-handler
      (lambda (buffer pprint-out)
        (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
        (setq after-first-result-chunk t))
      (lambda (buffer value content-type)
-       (if-let* ((content-attrs (caar content-type))
-                 (content-type* (car content-type))
+       (if-let* ((content-attrs (second content-type))
+                 (content-type* (first content-type))
                  (handler (cdr (assoc content-type*
                                       cider-repl-content-type-handler-alist))))
-           (progn (funcall handler buffer content-type value
-                           (not after-first-result-chunk) t)
-                  (setq force-prompt t))
-         (cider-repl-emit-result buffer value (not after-first-result-chunk) t))
-       (setq after-first-result-chunk t)))))
+           (setq after-first-result-chunk t
+                 show-prompt (funcall handler content-type buffer value
+                                      (not after-first-result-chunk) t))
+         (progn (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
+                (setq after-first-result-chunk t)))))))
 
 (defun cider--repl-request-plist (right-margin &optional pprint-fn)
   "Plist to be appended to generic eval requests, as for the REPL.
