@@ -836,49 +836,34 @@ pair of numbers `(x . y)' encoding an arbitrary margin."
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 
-(defun cider-repl--image (file-or-data type datap)
+(defun cider-repl--image (data type datap)
   "A helper for creating images with CIDER's image options.
 
 FILE-OR-DATA is either the path to an image or its base64 coded data.  TYPE
 is a symbol indicating the image type.  DATAP indicates whether the image is
-the base64'd image data or a filename.
+the raw image data or a filename.
 
 Returns an image instance with a margin per `cider-repl-image-margin'."
-  (create-image (if datap (base64-decode-string file-or-data) file-or-data)
-                type datap
+  (create-image data type datap
                 :margin cider-repl-image-margin))
 
 (defun cider-repl-handle-jpeg (_type buffer image &optional show-prefix bol)
-  "A handler for inserting a jpeg IMAGE file into a repl BUFFER.
-Part of the default `cider-repl-content-type-handler-alist'."
-  (cider-repl--display-image buffer
-                             (cider-repl--image image 'jpeg nil)
-                             show-prefix bol image))
-
-(defun cider-repl-handle-jpeg64 (_type buffer image &optional show-prefix bol)
-  "A handler for inserting base64 coded jpeg IMAGE data into a repl BUFFER.
+  "A handler for inserting a jpeg IMAGE into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'jpeg t)
-                             show-prefix bol))
-
-(defun cider-repl-handle-png (_type buffer image &optional show-prefix bol)
-  "A handler for inserting a png IMAGE file into a repl BUFFER.
-Part of the default `cider-repl-content-type-handler-alist'."
-  (cider-repl--display-image buffer
-                             (cider-repl--image image 'png nil)
                              show-prefix bol image))
 
-(defun cider-repl-handle-png64 (_type buffer image &optional show-prefix bol)
-  "Handler for inserting base64 png IMAGE data into a repl BUFFER.
+(defun cider-repl-handle-png (_type buffer image &optional show-prefix bol)
+  "A handler for inserting a png IMAGE into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'png t)
-                             show-prefix bol))
+                             show-prefix bol image))
 
 (defun cider-repl-handle-external-body (type buffer _ &optional show-prefix bol)
   "Handler for slurping external content into BUFFER.
-Handles an external-body TYPE by issuing a slurp request to fetch the body."
+Handles an external-body TYPE by issuing a slurp request to fetch the content."
   (if-let* ((args        (second type))
             (access-type (nrepl-dict-get args "access-type")))
       (nrepl-send-request
@@ -890,9 +875,7 @@ Handles an external-body TYPE by issuing a slurp request to fetch the body."
 (defcustom cider-repl-content-type-handler-alist
   `(("message/external-body" . ,#'cider-repl-handle-external-body)
     ("image/jpeg" . ,#'cider-repl-handle-jpeg)
-    ("image/jpeg;base64" . ,#'cider-repl-handle-jpeg64)
-    ("image/png" . ,#'cider-repl-handle-png)
-    ("image/png;base64" . ,#'cider-repl-handle-png64))
+    ("image/png" . ,#'cider-repl-handle-png))
   "Association list from content-types to handlers.
 
 Handlers must be functions of two required and two optional arguments - the
