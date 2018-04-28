@@ -895,7 +895,13 @@ Part of the default `cider-repl-content-type-handler-alist'."
 
 Handlers must be functions of two required and two optional arguments - the
 REPL buffer to insert into, the value of the given content type as a raw
-string, the REPL's show prefix as any and an `end-of-line' flag."
+string, the REPL's show prefix as any and an `end-of-line' flag.
+
+The return value of the handler should be a flag, indicating whether or not
+the REPL is ready for a prompt to be displayed. Most handlers should return
+`t', as the content-type response is (currently) an alternative to the
+value response. However for handlers which themselves issue subsequent
+nREPL ops, it may be convenient to prevent inserting a prompt."
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 
