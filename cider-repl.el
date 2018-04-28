@@ -820,7 +820,8 @@ SHOW-PREFIX and BOL."
           (when (and bol (not (bolp)))
             (insert-before-markers "\n"))
           (when show-prefix
-            (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+            (insert-before-markers
+             (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
           (insert-image image string)
           (set-marker cider-repl-input-start-mark (point) buffer)
           (set-marker cider-repl-prompt-start-mark (point) buffer))))
