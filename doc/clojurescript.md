@@ -56,7 +56,7 @@ You can suppress the prompt the REPL to use by setting `cider-default-cljs-repl`
 Here's an example that will make Nashorn the default:
 
 ```el
-(setq cider-default-cljs-repl "Nashorn")
+(setq cider-default-cljs-repl 'nashorn)
 ```
 
 All supported ClojureScript REPLs are stored in
@@ -64,7 +64,7 @@ All supported ClojureScript REPLs are stored in
 `cider-register-cljs-repl-type` in your Emacs configuration.
 
 ```el
-(cider-register-cljs-repl-type "super-cljs" "(do (...))" optional-requirements-function)
+(cider-register-cljs-repl-type 'super-cljs "(do (...))" optional-requirements-function)
 ```
 
 You can also create a ClojureScript REPL with the command

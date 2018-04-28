@@ -678,18 +678,18 @@ The supplied string will be wrapped in a do form if needed."
       (format "(do %s)" form))))
 
 (defvar cider-cljs-repl-types
-  '(("Nashorn" "(cemerick.piggieback/cljs-repl (cljs.repl.nashorn/repl-env))"
+  '((nashorn "(cemerick.piggieback/cljs-repl (cljs.repl.nashorn/repl-env))"
      cider-check-nashorn-requirements)
-    ("Figwheel" "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
+    (figwheel "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
      cider-check-figwheel-requirements)
-    ("Node" "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
+    (node "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
      cider-check-node-requirements)
-    ("Weasel" "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
+    (weasel "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
      cider-check-weasel-requirements)
-    ("Boot" "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
+    (boot "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
      cider-check-boot-requirements)
-    ("Shadow" cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements)
-    ("Custom" cider-custom-cljs-repl-init-form nil))
+    (shadow cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements)
+    (custom cider-custom-cljs-repl-init-form nil))
   "A list of supported ClojureScript REPLs.
 
 For each one we have its name, the form we need to evaluate in a Clojure
@@ -697,20 +697,20 @@ REPL to start the ClojureScript REPL and functions to very their requirements.
 
 The form should be either a string or a function producing a string.")
 
-(defun cider-register-cljs-repl-type (name init-form &optional requirements-fn)
+(defun cider-register-cljs-repl-type (type init-form &optional requirements-fn)
   "Register a new ClojureScript REPL type.
 
 Types are defined by the following:
 
-- NAME - string identifier that will be used to refer to the REPL typel
+- TYPE - symbol identifier that will be used to refer to the REPL type
 - INIT-FORM - string or function (symbol) producing string
 - REQUIREMENTS-FN - function to check whether the REPL can be started.
 This param is optional.
 
 All this function does is modifying `cider-cljs-repl-types'.
 It's intended to be used in your Emacs config."
-  (unless (stringp name)
-    (user-error "The REPL name must be a string"))
+  (unless (symbolp type)
+    (user-error "The REPL type must be a symbol"))
   (unless (or (stringp init-form) (symbolp init-form))
     (user-error "The init form must be a string or a symbol referring to a function"))
   (unless (or (null requirements-fn) (symbolp requirements-fn))
@@ -724,15 +724,15 @@ This affects commands like `cider-jack-in-clojurescript'.  Generally it's
 intended to be set via .dir-locals.el for individual projects, as its
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
-  :type '(choice (const "Nashorn")
-                 (const "Figwheel")
-                 (const "Node")
-                 (const "Weasel")
-                 (const "Boot")
-                 (const "Shadow")
-                 (const "Custom"))
+  :type '(choice (const :tag "Nashorn"  nashorn)
+                 (const :tag "Figwheel" figwheel)
+                 (const :tag "Node"     node)
+                 (const :tag "Weasel"   weasel)
+                 (const :tag "Boot"     boot)
+                 (const :tag "Shadow"   shadow)
+                 (const :tag "Custom"   custom))
   :group 'cider
-  :safe #'stringp
+  :safe #'symbolp
   :package-version '(cider . "0.17.0"))
 
 (make-obsolete-variable 'cider-cljs-lein-repl 'cider-default-cljs-repl "0.17")
@@ -742,13 +742,13 @@ you're working on."
 (defun cider-select-cljs-repl ()
   "Select the ClojureScript REPL to use with `cider-jack-in-clojurescript'."
   (let ((repl-types (mapcar #'car cider-cljs-repl-types)))
-    (completing-read "Select ClojureScript REPL type: " repl-types)))
+    (intern (completing-read "Select ClojureScript REPL type: " repl-types))))
 
 (defun cider-cljs-repl-form (repl-type)
   "Get the cljs REPL form for REPL-TYPE."
   (let ((repl-form (cadr (seq-find
                           (lambda (entry)
-                            (equal (car entry) repl-type))
+                            (eq (car entry) repl-type))
                           cider-cljs-repl-types))))
     ;; repl-form can be either a string or a function producing a string
     (if (symbolp repl-form)
@@ -759,7 +759,7 @@ you're working on."
   "Verify that the requirements for REPL-TYPE are met."
   (when-let* ((fun (nth 2 (seq-find
                            (lambda (entry)
-                             (equal (car entry) repl-type))
+                             (eq (car entry) repl-type))
                            cider-cljs-repl-types))))
     (funcall fun)))
 
