@@ -862,10 +862,10 @@ Part of the default `cider-repl-content-type-handler-alist'."
                              (cider-repl--image image 'png t)
                              show-prefix bol image))
 
-(defun cider-repl-handle-external-body (type buffer _ &optional show-prefix bol)
+(defun cider-repl-handle-external-body (type buffer _ &optional _show-prefix _bol)
   "Handler for slurping external content into BUFFER.
 Handles an external-body TYPE by issuing a slurp request to fetch the content."
-  (if-let* ((args        (second type))
+  (if-let* ((args        (cadr type))
             (access-type (nrepl-dict-get args "access-type")))
       (nrepl-send-request
        (list "op" "slurp" "url" (nrepl-dict-get args "URL"))
@@ -917,8 +917,8 @@ nREPL ops, it may be convenient to prevent inserting a prompt."
        (cider-repl-emit-result buffer pprint-out (not after-first-result-chunk))
        (setq after-first-result-chunk t))
      (lambda (buffer value content-type)
-       (if-let* ((content-attrs (second content-type))
-                 (content-type* (first content-type))
+       (if-let* ((content-attrs (cadr content-type))
+                 (content-type* (car content-type))
                  (handler (cdr (assoc content-type*
                                       cider-repl-content-type-handler-alist))))
            (setq after-first-result-chunk t
