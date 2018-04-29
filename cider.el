@@ -615,12 +615,12 @@ Generally you should not disable this unless you run into some faulty check."
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
   (unless (cider-library-present-p "clojurescript")
-    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
+    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/clojurescript for details")))
 
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
   (unless (cider-library-present-p "piggieback")
-    (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage for details")))
+    (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/clojurescript for details")))
 
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
@@ -638,13 +638,13 @@ Generally you should not disable this unless you run into some faulty check."
   "Check whether we can start a Figwheel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel-sidecar")
-    (user-error "Figwheel-sidecar is not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage")))
+    (user-error "Figwheel-sidecar is not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript")))
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "weasel")
-    (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/up_and_running/#browser-connected-clojurescript-repl")))
+    (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript/#browser-connected-clojurescript-repl")))
 
 (defun cider-check-boot-requirements ()
   "Check whether we can start a Boot ClojureScript REPL."
