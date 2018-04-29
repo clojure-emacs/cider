@@ -679,15 +679,15 @@ The supplied string will be wrapped in a do form if needed."
 
 (defvar cider-cljs-repl-types
   '((nashorn "(cemerick.piggieback/cljs-repl (cljs.repl.nashorn/repl-env))"
-     cider-check-nashorn-requirements)
+             cider-check-nashorn-requirements)
     (figwheel "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
-     cider-check-figwheel-requirements)
+              cider-check-figwheel-requirements)
     (node "(do (require 'cljs.repl.node) (cemerick.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
-     cider-check-node-requirements)
+          cider-check-node-requirements)
     (weasel "(do (require 'weasel.repl.websocket) (cemerick.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
-     cider-check-weasel-requirements)
+            cider-check-weasel-requirements)
     (boot "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
-     cider-check-boot-requirements)
+          cider-check-boot-requirements)
     (shadow cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements)
     (custom cider-custom-cljs-repl-init-form nil))
   "A list of supported ClojureScript REPLs.
