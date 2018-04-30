@@ -873,7 +873,7 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
        (cider-current-connection)))
   nil)
 
-(defcustom cider-repl-content-type-handler-alist
+(defvar cider-repl-content-type-handler-alist
   `(("message/external-body" . ,#'cider-repl-handle-external-body)
     ("image/jpeg" . ,#'cider-repl-handle-jpeg)
     ("image/png" . ,#'cider-repl-handle-png))
@@ -887,9 +887,7 @@ The return value of the handler should be a flag, indicating whether or not
 the REPL is ready for a prompt to be displayed.  Most handlers should return
 t, as the content-type response is (currently) an alternative to the
 value response.  However for handlers which themselves issue subsequent
-nREPL ops, it may be convenient to prevent inserting a prompt."
-  :group 'cider-repl
-  :package-version '(cider . "0.17.0"))
+nREPL ops, it may be convenient to prevent inserting a prompt.")
 
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
