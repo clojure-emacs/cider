@@ -715,7 +715,7 @@ It's intended to be used in your Emacs config."
     (user-error "The init form must be a string or a symbol referring to a function"))
   (unless (or (null requirements-fn) (symbolp requirements-fn))
     (user-error "The requirements-fn must be a symbol referring to a function"))
-  (add-to-list 'cider-cljs-repl-types (list name init-form requirements-fn)))
+  (add-to-list 'cider-cljs-repl-types (list type init-form requirements-fn)))
 
 (defcustom cider-default-cljs-repl nil
   "The default ClojureScript REPL to start.
