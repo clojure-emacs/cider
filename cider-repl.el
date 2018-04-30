@@ -886,7 +886,7 @@ string, the REPL's show prefix as any and an `end-of-line' flag.
 The return value of the handler should be a flag, indicating whether or not
 the REPL is ready for a prompt to be displayed.  Most handlers should return
 t, as the content-type response is (currently) an alternative to the
-value response . However for handlers which themselves issue subsequent
+value response.  However for handlers which themselves issue subsequent
 nREPL ops, it may be convenient to prevent inserting a prompt."
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
