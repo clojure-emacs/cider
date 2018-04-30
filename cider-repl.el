@@ -129,7 +129,7 @@ defaults to the variable `fill-column'."
   :package-version '(cider . "0.15.0"))
 
 (defcustom cider-repl-use-content-types t
-  "Control whether REPL results are presented using content-type information or not.
+  "Control whether REPL results are presented using content-type information.
 The `cider-toggle-content-types' command can be used to interactively
 change the setting's value."
   :type 'boolean
@@ -840,7 +840,7 @@ pair of numbers `(x . y)' encoding an arbitrary margin."
 (defun cider-repl--image (data type datap)
   "A helper for creating images with CIDER's image options.
 
-FILE-OR-DATA is either the path to an image or its base64 coded data.  TYPE
+DATA is either the path to an image or its base64 coded data.  TYPE
 is a symbol indicating the image type.  DATAP indicates whether the image is
 the raw image data or a filename.
 
@@ -884,9 +884,9 @@ REPL buffer to insert into, the value of the given content type as a raw
 string, the REPL's show prefix as any and an `end-of-line' flag.
 
 The return value of the handler should be a flag, indicating whether or not
-the REPL is ready for a prompt to be displayed. Most handlers should return
-`t', as the content-type response is (currently) an alternative to the
-value response. However for handlers which themselves issue subsequent
+the REPL is ready for a prompt to be displayed.  Most handlers should return
+t, as the content-type response is (currently) an alternative to the
+value response . However for handlers which themselves issue subsequent
 nREPL ops, it may be convenient to prevent inserting a prompt."
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
