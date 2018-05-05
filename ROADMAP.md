@@ -63,6 +63,14 @@ This merger also relies on collaboration from the refactor-nrepl team.
 
 ## Socket REPL support (and potentially unrepl/prepl support as well)
 
+Eventually we want to support socket REPLs of any kind (plain, unrepl,
+prepl) in the same manner we support nREPL today (meaning everything
+should work with them). The bulk of the work to achieve this is
+related to making the CIDER client and server code nREPL agnostic,
+so. Work for this is already underway with respect to the server code
+(that's the `orchard` project), but hasn't started on the client
+(Emacs) side.
+
 ### Decouple the CIDER code from nREPL
 
 * Isolate the connection-specific code in a couple of client libraries and build a
@@ -70,4 +78,10 @@ generic API on top of them dispatching based on the connection type.
 
 ### Implement a socket REPL client
 
+That should be relatively straightforward, as the communication
+protocol for the socket REPL is pretty simple.  `parseclj` should be
+used to "encode/decode" EDN data.
+
 ### Transition everything non-nREPL specific to Orchard
+
+Already in progress, a lot of functionality already lives is orchard as of version 0.1.
