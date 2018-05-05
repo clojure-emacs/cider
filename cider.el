@@ -918,6 +918,7 @@ start the server."
   (interactive "P")
   (cider-jack-in prompt-project 'cljs-too))
 
+;;;###autoload
 (defalias 'cider-jack-in-cljs #'cider-jack-in-clojurescript)
 
 ;;;###autoload
@@ -957,6 +958,7 @@ the appropriate REPL type in the end."
     (with-current-buffer conn
       (cider-repl-set-type "cljs"))))
 
+;;;###autoload
 (defalias 'cider-connect-cljs #'cider-connect-clojurescript)
 
 (defun cider-current-host ()
