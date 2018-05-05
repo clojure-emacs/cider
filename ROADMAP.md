@@ -1,9 +1,9 @@
-# CIDER Roadmap (as of February, 2018)
+# CIDER Roadmap (as of May, 2018)
 
-That's a very high-level roadmap for CIDER. It focus on the most
+That's a very high-level roadmap for CIDER. It focuses on the most
 important challenges we need to tackle.
 
-It's meant to give a general idea of users about the direction we
+It's meant to give users a general idea about the direction we
 envision for the project's future, and collaborators a good list of
 high-impact tasks to tackle.
 
@@ -16,7 +16,7 @@ high-impact tasks to tackle.
 
 ## Internal improvements
 
-* replaces usages of Elisp's `read` with `parseclj`
+* replace usages of Elisp's `read` with `parseclj`
 * break down `cider-interaction.el` and remove this file completely
 * improve the connection management (https://github.com/clojure-emacs/cider/pull/2069)
 * improve nREPL callback handling (https://github.com/clojure-emacs/cider/issues/1099)
@@ -29,8 +29,8 @@ high-impact tasks to tackle.
 * Implement some deps injection for ClojureScript REPLs
 * Providing meaningful errors when starting ClojureScript REPLs
 * Make it possible to have a project with only a ClojureScript REPL
-* Merge cljs-tooling into orchard and evolve it a bit
-* Tackle some of the open Piggieback issues (e.g. https://github.com/cemerick/piggieback/issues/73)
+* Merge cljs-tooling into orchard and evolve it a bit (under
+  consideration, might be better to keep it a separate library)
 * Add ability to restart a ClojureScript REPL (https://github.com/clojure-emacs/cider/issues/1874)
 
 ### Add ClojureScript support for more commands
@@ -40,9 +40,22 @@ high-impact tasks to tackle.
 
 ### Always show meaningful errors if a command is not supported under ClojureScript
 
+Right now it's very confusing if you try to run a Clojure-only command with a ClojureScript REPL.
+You'd get some really weird error instead of something nice like "command X is not supported for ClojureScript".
+
 ### Add debugging support for ClojureScript
 
+There's a bit of info on the subject [here](https://github.com/clojure-emacs/cider/issues/1416).
+
 ## Gradual merger with refactor-nrepl
+
+It would make sense to move some important refactor-nrepl
+functionality into CIDER, provided it doesn't depend on anything
+complex (e.g. building an AST for the entire project).
+
+Below follow a few such candidates.
+
+This merger also relies on collaboration from the refactor-nrepl team.
 
 ### Move hotload deps to CIDER
 
