@@ -130,10 +130,11 @@ defaults to the variable `fill-column'."
 
 (defcustom cider-repl-use-content-types t
   "Control whether REPL results are presented using content-type information.
-The `cider-toggle-content-types' command can be used to interactively
+The `cider-repl-toggle-content-types' command can be used to interactively
 change the setting's value."
   :type 'boolean
-  :group 'cider-repl)
+  :group 'cider-repl
+  :package-version '(cider . "0.17.0"))
 
 (defcustom cider-repl-use-clojure-font-lock t
   "Non-nil means to use Clojure mode font-locking for input and result.
