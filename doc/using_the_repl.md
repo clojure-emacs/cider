@@ -208,6 +208,22 @@ To make this behavior the default:
 (setq cider-repl-use-pretty-printing t)
 ```
 
+#### Displaying images in the REPL
+
+Starting with CIDER 0.17 (Andalucía) expressions that evaluate to
+images will be rendered as images in the REPL. You can disable this
+behavior if you don't like it.
+
+```el
+(setq cider-repl-use-content-types nil)
+```
+
+Alternatively you can toggle this behaviour on and off using <kbd>M-x
+cider-repl-toggle-content-types</kbd>.
+
+Currently the feature doesn't work well with pretty-printing in the REPL,
+so you're advised not to enable both of them at the same time.
+
 #### Limiting printed output in the REPL
 
 Accidentally printing large objects can be detrimental to your
