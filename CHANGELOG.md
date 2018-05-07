@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.17.0 (2018-05-07)
+
 ### New features
 
 * [#2248](https://github.com/clojure-emacs/cider/pull/2248): `cider-repl` can now display recognized images in the REPL buffer.
