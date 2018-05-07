@@ -16,8 +16,8 @@ project):
 
 ```clojure
 ;; use whatever are the most recent versions here
-[cider/piggieback "0.3.1"]
-[org.clojure/clojure "1.7.0"]
+[cider/piggieback "0.3.2"]
+[org.clojure/clojure "1.9.0"]
 ```
 
 as well as `piggieback` nREPL middleware:
@@ -109,7 +109,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[cider/piggieback "0.3.1"  :scope "test"]
+[cider/piggieback "0.3.2"  :scope "test"]
 ```
 
 and this at the end of `build.boot`:
@@ -146,7 +146,7 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 2. Add these to your dev `:dependencies`:
 
 ```clojure
-[cider/piggieback "0.3.1"]
+[cider/piggieback "0.3.2"]
 [figwheel-sidecar "0.5.16"] ; use here whatever the current version of figwheel is
 ```
 
