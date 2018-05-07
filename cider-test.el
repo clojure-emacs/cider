@@ -767,12 +767,14 @@ is searched."
           (cider-test-update-last-test ns var)
           (cider-test-execute ns (list var)))
       ;; we're in a `clojure-mode' buffer
-      (let ((ns  (clojure-find-ns))
-            (def (clojure-find-def)))
-        (if (and ns (member (car def) cider-test-defining-forms))
+      (let* ((ns  (clojure-find-ns))
+             (def (clojure-find-def)) ; it's a list of the form (deftest something)
+             (deftype (car def))
+             (var (cadr def)))
+        (if (and ns (member deftype cider-test-defining-forms))
             (progn
-              (cider-test-update-last-test ns (cdr def))
-              (cider-test-execute ns (cdr def)))
+              (cider-test-update-last-test ns (list var))
+              (cider-test-execute ns (list var)))
           (message "No test at point"))))))
 
 (defun cider-test-rerun-test ()
