@@ -52,6 +52,10 @@
 ;;; Usage:
 
 ;; M-x cider-jack-in
+;; M-x cider-jack-in-cljs
+;;
+;; M-x cider-connect
+;; M-x cider-connect-cljs
 
 ;;; Code:
 
