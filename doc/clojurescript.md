@@ -67,6 +67,23 @@ All supported ClojureScript REPLs are stored in
 (cider-register-cljs-repl-type 'super-cljs "(do (...))" optional-requirements-function)
 ```
 
+You can also modify the known ClojureScript REPLs on a per-project basis using
+`.dir-locals.el`:
+
+```el
+;; replace the list of REPLs types and set some default
+((nil
+  (cider-default-cljs-repl . super-cljs)
+  (cider-cljs-repl-types . ((super-cljs "(do (foo) (bar))")))))
+```
+
+```el
+;; modify the list of known REPLs and set some default
+((nil
+  (eval . (cider-register-cljs-repl-type 'super-cljs "(do (foo) (bar))"))
+  (cider-default-cljs-repl . super-cljs)))
+```
+
 You can also create a ClojureScript REPL with the command
 `cider-create-sibling-cljs-repl` in cases where you already have a
 Clojure REPL running.
