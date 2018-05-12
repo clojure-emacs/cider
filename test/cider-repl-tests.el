@@ -154,3 +154,61 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
       (expect (cider-repl--build-config-expression)
               :to-equal
               "(do (set! *print-length* 10) (set! *print-level* 10))"))))
+
+(describe "cider-locref-at-point"
+  (it "works with stdout-stacktrace refs"
+    (with-temp-buffer
+      (insert "\n\tat clojure.lang.AFn.applyToHelper(AFn.java:160)")
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type stdout-stacktrace :highlight (3 . 50) :var "clojure.lang.AFn.applyToHelper" :file "AFn.java" :line 160))
+      (insert "\n\tat cljs.analyzer$macroexpand_1_STAR_$fn__4642.invoke(analyzer.cljc:3286)")
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type stdout-stacktrace :highlight (52 . 124) :var "cljs.analyzer" :file "analyzer.cljc" :line 3286))
+      (insert "\n\tat cljs.closure$compile_file.invoke(closure.clj:531)")
+	  (expect (cider-locref-at-point)
+              :to-equal
+              '(:type stdout-stacktrace :highlight (126 . 178) :var "cljs.closure" :file "closure.clj" :line 531))))
+  (it "works with print-stacktrace"
+    (with-temp-buffer
+      (insert "\n[clojure.core$eval invoke core.clj 3202]")
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type print-stacktrace :highlight (2 . 42) :var "clojure.core" :file "core.clj" :line 3202))))
+  (it "works with avis exceptions"
+    (with-temp-buffer
+      (insert "\n                        java.util.concurrent.ThreadPoolExecutor$Worker.run  ThreadPoolExecutor.java:  624
+             clojure.tools.nrepl.middleware.interruptible-eval/run-next/fn   interruptible_eval.clj:  190")
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type aviso-stacktrace :highlight (121 . 213) :var "clojure.tools.nrepl.middleware.interruptible-eval" :file "interruptible_eval.clj" :line 190))
+      (previous-line)
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type aviso-stacktrace :highlight (26 . 107) :var "java.util.concurrent.ThreadPoolExecutor" :file "ThreadPoolExecutor.java" :line 624))))
+  (it "works with timbre logs"
+    (with-temp-buffer
+      (insert "\n18-05-12 10:17:52 galago ERROR [errors:8] - An error
+18-05-12 10:17:52 galago WARN [errors:8] - A warning
+18-05-12 10:17:52 galago INFO [errors:8] - An info")
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type timbre-log :highlight (138 . 148) :var "errors" :file nil :line 8))
+      (previous-line)
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type timbre-log :highlight (85 . 95) :var "errors" :file nil :line 8))))
+  (it "works with cljs warnings"
+    (with-temp-buffer
+      (insert "\nWARNING: Wrong number of args (1) passed to aaa/bbb at line 42 /path/to/aaa/bbb.cljc")
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type cljs-message :highlight (54 . 86) :var nil :file "/path/to/aaa/bbb.cljc" :line 42))))
+  (it "works with reflection warnings"
+    (with-temp-buffer
+      (insert "\nReflection warning, cider/nrepl/middleware/slurp.clj:103:16 - reference to field getInputStream can't be resolved.")
+      (move-to-column 20)
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type reflection :highlight (22 . 61) :var nil :file "cider/nrepl/middleware/slurp.clj" :line 103)))))
