@@ -183,7 +183,7 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
       (expect (cider-locref-at-point)
               :to-equal
               '(:type aviso-stacktrace :highlight (121 . 213) :var "clojure.tools.nrepl.middleware.interruptible-eval" :file "interruptible_eval.clj" :line 190))
-      (previous-line)
+      (line-move -1)
       (expect (cider-locref-at-point)
               :to-equal
               '(:type aviso-stacktrace :highlight (26 . 107) :var "java.util.concurrent.ThreadPoolExecutor" :file "ThreadPoolExecutor.java" :line 624))))
@@ -195,7 +195,7 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
       (expect (cider-locref-at-point)
               :to-equal
               '(:type timbre-log :highlight (138 . 148) :var "errors" :file nil :line 8))
-      (previous-line)
+      (line-move -1)
       (expect (cider-locref-at-point)
               :to-equal
               '(:type timbre-log :highlight (85 . 95) :var "errors" :file nil :line 8))))
