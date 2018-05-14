@@ -46,6 +46,11 @@
   :prefix "cider-doc-"
   :group 'cider)
 
+(defcustom cider-doc-auto-select-buffer t
+  "Controls whether to auto-select the doc popup buffer."
+  :type 'boolean
+  :group 'cider-doc
+  :package-version  '(cider . "0.15.0"))
 
 (declare-function cider-apropos "cider-apropos")
 (declare-function cider-apropos-select "cider-apropos")
@@ -101,12 +106,6 @@
   :type 'list
   :group 'cider-docview-mode
   :package-version '(cider . "0.7.0"))
-
-(defcustom cider-doc-auto-select-buffer t
-  "Controls whether to auto-select the doc popup buffer."
-  :type 'boolean
-  :group 'cider-doc
-  :package-version  '(cider . "0.15.0"))
 
 
 ;; Faces
