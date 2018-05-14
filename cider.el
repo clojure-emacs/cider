@@ -150,6 +150,7 @@ version from the CIDER package or library.")
   "The command used to execute clojure with tools.deps (requires Clojure 1.9+)."
   :type 'string
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-clojure-cli-global-options
@@ -177,6 +178,7 @@ vector of middleware variables as a string."
 By default we favor the project-specific shadow-cljs over the system-wide."
   :type 'string
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-shadow-cljs-global-options
@@ -200,6 +202,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   "The command used to execute Gradle."
   :type 'string
   :group 'cider
+  :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-gradle-global-options
@@ -285,6 +288,7 @@ This variable is used by `cider-connect'."
 (defcustom cider-auto-mode t
   "When non-nil, automatically enable cider mode for all Clojure buffers."
   :type 'boolean
+  :safe #'booleanp
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-inject-dependencies-at-jack-in t
@@ -296,6 +300,7 @@ This variable is used by `cider-connect'."
 (defcustom cider-offer-to-open-cljs-app-in-browser t
   "When nil, do not offer to open ClojureScript apps in a browser on connect."
   :type 'boolean
+  :safe #'booleanp
   :version '(cider . "0.15.0"))
 
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
