@@ -682,7 +682,7 @@ The supplied string will be wrapped in a do form if needed."
       (format "(do %s)" form))))
 
 (defvar cider-cljs-repl-types
-  '((nashorn "(cider.piggieback/cljs-repl (cljs.repl.nashorn/repl-env))"
+  '((nashorn "(do (require 'cljs.repl.nashorn) (cider.piggieback/cljs-repl (cljs.repl.nashorn/repl-env)))"
              cider-check-nashorn-requirements)
     (figwheel "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
               cider-check-figwheel-requirements)
