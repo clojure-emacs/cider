@@ -9,8 +9,9 @@ release). If you're new to Emacs you might want to go through
 [the guided tour of Emacs](https://www.gnu.org/software/emacs/tour/index.html)
 and the built-in tutorial (just press <kbd>C-h t</kbd>).
 
-CIDER officially supports Emacs 24.4+, Java 7+ and Clojure(Script) 1.7+.
-CIDER 0.10 was the final release which supported Java 6 and Clojure 1.5 and 1.6.
+CIDER officially supports Emacs 24.4+, Java 8+ and Clojure(Script)
+1.8+.  CIDER 0.17 (Andalucía) was the final release which supported
+Java 7 and Clojure(Script) 1.7.
 
 You'll also need a recent version of your favorite build tool (Leiningen, Boot
 or Gradle) to be able to start CIDER via `cider-jack-in`. Generally it's a good
