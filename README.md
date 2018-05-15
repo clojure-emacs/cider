@@ -24,9 +24,6 @@ features are centered around `cider-mode`, an Emacs minor-mode that complements
 compilation, debugging, definition and documentation lookup, running tests and
 so on.
 
-CIDER is the successor to the now deprecated combination of using [SLIME][] +
-[swank-clojure][] for Clojure development.
-
 **Please consider [supporting financially its ongoing development](#funding).**
 
 ## Quickstart
@@ -251,8 +248,6 @@ Distributed under the GNU General Public License, version 3
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
 [nREPL]:https://github.com/cemerick/nREPL
-[SLIME]: https://github.com/slime/slime
-[swank-clojure]: https://github.com/technomancy/swank-clojure
 [Sly]: https://github.com/capitaomorte/sly
 [Geiser]: https://github.com/jaor/geiser
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode

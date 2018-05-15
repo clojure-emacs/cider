@@ -12,8 +12,8 @@ features are centered around `cider-mode`, an Emacs minor-mode that complements
 compilation, debugging, definition and documentation lookup, running tests and
 so on.
 
-CIDER is the successor to the now deprecated combination of using [SLIME][] +
-[swank-clojure][] for Clojure development.
+CIDER was originally inspired by the powerful Common Lisp interactive
+development environment [SLIME][].
 
 **Please consider
 [supporting financially its ongoing development](about/contributing.md#funding).**
@@ -32,10 +32,8 @@ using CIDER - you're constantly interacting with it and changing it.
 You can find more details about the typical CIDER workflow in the
 [Interactive Programming](interactive_programming.md) section. While we're a bit
 short on video tutorials, you can check out this
-[tutorial about SLIME](https://www.youtube.com/watch?v=_B_4vhsmRRI) to get a
-feel about what do we mean by an "Interactive Development Environment".  There
-are plenty of differences between CIDER and SLIME, but the core ideas are pretty
-much the same (and SLIME served as the principle inspiration for CIDER).
+[into to CIDER](https://www.youtube.com/watch?v=aYA4AAjLfT0) to get a
+feel about what do we mean by an "Interactive Development Environment".
 
 CIDER's built on top of [nREPL][], the Clojure networked REPL server.
 
@@ -85,7 +83,6 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 
 [nREPL]: https://github.com/clojure/tools.nrepl
 [SLIME]: https://github.com/slime/slime
-[swank-clojure]: https://github.com/technomancy/swank-clojure
 [Sly]: https://github.com/capitaomorte/sly
 [Geiser]: https://github.com/jaor/geiser
 [company-mode]: http://company-mode.github.io/
