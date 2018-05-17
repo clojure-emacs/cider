@@ -869,7 +869,7 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
   (if-let* ((args        (cadr type))
             (access-type (nrepl-dict-get args "access-type")))
       (nrepl-send-request
-       (list "op" "slurp" "url" (nrepl-dict-get args "URL"))
+       (list "op" "slurp" "url" (nrepl-dict-get args access-type))
        (cider-repl-handler buffer)
        (cider-current-connection)))
   nil)
