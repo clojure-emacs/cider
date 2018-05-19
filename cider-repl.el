@@ -854,14 +854,14 @@ Returns an image instance with a margin per `cider-repl-image-margin'."
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'jpeg t)
-                             show-prefix bol image))
+                             show-prefix bol " "))
 
 (defun cider-repl-handle-png (_type buffer image &optional show-prefix bol)
   "A handler for inserting a png IMAGE into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'png t)
-                             show-prefix bol image))
+                             show-prefix bol " "))
 
 (defun cider-repl-handle-external-body (type buffer _ &optional _show-prefix _bol)
   "Handler for slurping external content into BUFFER.
@@ -869,7 +869,7 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
   (if-let* ((args        (cadr type))
             (access-type (nrepl-dict-get args "access-type")))
       (nrepl-send-request
-       (list "op" "slurp" "url" (nrepl-dict-get args "URL"))
+       (list "op" "slurp" "url" (nrepl-dict-get args access-type))
        (cider-repl-handler buffer)
        (cider-current-connection)))
   nil)
