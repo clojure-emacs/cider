@@ -925,7 +925,10 @@ own buffer."
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
-  (cider-jack-in prompt-project 'cljs-too))
+  ;; TODO: That should be streamlined and made configurable
+  (let ((cider-jack-in-dependencies (cons '("cider/piggieback" "0.3.5") cider-jack-in-dependencies))
+        (cider-jack-in-nrepl-middlewares (cons "cider.piggieback/wrap-cljs-repl" cider-jack-in-nrepl-middlewares)))
+    (cider-jack-in prompt-project 'cljs-too)))
 
 ;;;###autoload
 (defalias 'cider-jack-in-cljs #'cider-jack-in-clojurescript)
