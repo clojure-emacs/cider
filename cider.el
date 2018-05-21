@@ -536,7 +536,7 @@ Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
      (unless (seq-empty-p global-opts) " ")
      "-Sdeps '{:deps {"
      (mapconcat #'identity
-                (seq-map (lambda (dep) (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))  dependencies)
+                (seq-map (lambda (dep) (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep))) dependencies)
                 " ")
      "}}' "
      params)))
@@ -549,7 +549,7 @@ Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
      global-opts
      (unless (seq-empty-p global-opts) " ")
      (mapconcat #'identity
-                (seq-map (lambda (dep) (format "-d %s:%s" (car dep) (cadr dep)))  dependencies)
+                (seq-map (lambda (dep) (format "-d %s:%s" (car dep) (cadr dep))) dependencies)
                 " ")
      " "
      params)))
