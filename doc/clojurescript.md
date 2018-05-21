@@ -5,10 +5,23 @@ the functionality available with Clojure exists for ClojureScript (at least
 not yet). To give you a concrete example - things like running tests and
 the debugger are currently Clojure-only features.
 
+
+### Piggieback
+
 ClojureScript support relies on the [piggieback][] nREPL middleware
 being present in your REPL session. There's one exception to this,
 though - [shadow-cljs][]. It has its own nREPL middleware and doesn't rely
 on piggieback at all.
+
+If `cider-inject-dependencies-at-jack-in` is enabled (which is the default) then
+piggieback will be automatically added and configured for your project when
+doing `cider-jack-in-cljs`.
+
+If this configuration option is disabled or you're going to connect to
+an already running nREPL server using `cider-connect-cljs` - continue
+reading ahead.
+
+#### Manual Piggieback Setup
 
 To setup piggieback add the following dependencies to your project
 (`project.clj` in Leiningen based project or `build.boot` in Boot
@@ -34,6 +47,8 @@ or in `build.boot`:
 (task-options!
   repl {:middleware '[cider.piggieback/wrap-cljs-repl]})
 ```
+
+### Starting a ClojureScript REPL
 
 There are many ClojureScript REPLs out there and it's often hard to wrap your
 head around them and the differences between them. You'd do well to read [this
@@ -126,7 +141,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[cider/piggieback "0.3.4"  :scope "test"]
+[cider/piggieback "0.3.4"  :scope "test"] ; not needed for cider-jack-in-cljs
 ```
 
 and this at the end of `build.boot`:
@@ -163,7 +178,7 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 2. Add these to your dev `:dependencies`:
 
 ```clojure
-[cider/piggieback "0.3.4"]
+[cider/piggieback "0.3.4"] ; not needed for cider-jack-in-cljs
 [figwheel-sidecar "0.5.16"] ; use here whatever the current version of figwheel is
 ```
 
@@ -171,7 +186,7 @@ Keep in mind that figwheel 0.5.16 is the first to support piggieback
 0.3. If you're using an older figwheel you should stick to piggieback
 0.2.2 (which uses the old `com.cemerick/piggieback` package coordinates).
 
-3. Add this to your dev `:repl-options`:
+3. Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
 
 ```clojure
 :nrepl-middleware [cider.piggieback/wrap-cljs-repl]

@@ -919,15 +919,46 @@ own buffer."
             (user-error "`cider-jack-in' is not allowed without a Clojure project")))
       (user-error "The %s executable isn't on your `exec-path'" command))))
 
+(defvar cider-jack-in-cljs-dependencies nil
+  "List of dependencies where elements are lists of artifact name and version.
+Added to `cider-jack-in-dependencies' when doing `cider-jack-in-cljs'.")
+(put 'cider-jack-in-cljs-dependencies 'risky-local-variable t)
+(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.3.5")
+
+(defvar cider-jack-in-cljs-lein-plugins nil
+  "List of Leiningen plugins to be injected at jack-in.
+Added to `cider-jack-in-lein-plugins' when doing `cider-jack-in-cljs'.
+Each element is a list of artifact name and version, followed optionally by
+keyword arguments.  The only keyword argument currently accepted is
+`:predicate', which should be given a function that takes the list (name,
+version, and keyword arguments) and returns non-nil to indicate that the
+plugin should actually be injected.  (This is useful primarily for packages
+that extend CIDER, not for users.  For example, a refactoring package might
+want to inject some middleware only when within a project context.)")
+(put 'cider-jack-in-cljs-lein-plugins 'risky-local-variable t)
+
+(defvar cider-jack-in-cljs-nrepl-middlewares nil
+  "List of Clojure variable names.
+Added to `cider-jack-in-nrepl-middlewares' when doing `cider-jack-in-cljs'.
+Each of these Clojure variables should hold a vector of nREPL middlewares.
+Instead of a string, an element can be a list containing a string followed
+by optional keyword arguments.  The only keyword argument currently
+accepted is `:predicate', which should be given a function that takes the
+list (string and keyword arguments) and returns non-nil to indicate that
+the middlewares should actually be injected.")
+(put 'cider-jack-in-cljs-nrepl-middlewares 'risky-local-variable t)
+(add-to-list 'cider-jack-in-cljs-nrepl-middlewares "cider.piggieback/wrap-cljs-repl")
+
 ;;;###autoload
 (defun cider-jack-in-clojurescript (&optional prompt-project)
   "Start an nREPL server and connect to it both Clojure and ClojureScript REPLs.
 If PROMPT-PROJECT is t, then prompt for the project for which to
 start the server."
   (interactive "P")
-  ;; TODO: That should be streamlined and made configurable
-  (let ((cider-jack-in-dependencies (cons '("cider/piggieback" "0.3.5") cider-jack-in-dependencies))
-        (cider-jack-in-nrepl-middlewares (cons "cider.piggieback/wrap-cljs-repl" cider-jack-in-nrepl-middlewares)))
+  ;; We override the standard jack-in deps to inject additional ClojureScript-specific deps
+  (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
+        (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
+        (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
     (cider-jack-in prompt-project 'cljs-too)))
 
 ;;;###autoload
