@@ -13,9 +13,9 @@ CIDER officially supports Emacs 24.4+, Java 8+ and Clojure(Script)
 1.8+.  CIDER 0.17 (Andalucía) was the final release which supported
 Java 7 and Clojure(Script) 1.7.
 
-You'll also need a recent version of your favorite build tool (Leiningen, Boot
-or Gradle) to be able to start CIDER via `cider-jack-in`. Generally it's a good
-idea to use their latest stable versions.
+You'll also need a recent version of either the Clojure CLI tools or your
+favorite build tool (Leiningen, Boot or Gradle) to be able to start CIDER via
+`cider-jack-in`. Generally it's a good idea to use their latest stable versions.
 
 **CIDER does not support ClojureCLR.**
 

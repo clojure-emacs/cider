@@ -1,13 +1,12 @@
 The only requirement to use CIDER is to have an nREPL server to which it may
 connect. Many Clojurians favour the use of tools like Leiningen, Boot or Gradle
 to start an nREPL server, but the use of one of them is not a prerequisite to
-use CIDER (however, it *is* required if you want to use the `cider-jack-in`
-command).
+use CIDER.
 
 ## Setting up a Leiningen or Boot project (optional)
 
-[Leiningen][] is the de-facto standard build/project
-management tool for Clojure. [Boot][] is a newer build tool
+[Leiningen](https://leiningen.org) is the de-facto standard build/project
+management tool for Clojure. [Boot](http://boot-clj.com) is a newer build tool
 offering abstractions and libraries to construct more complex build
 scenarios. Both have a similar scope to the Maven build tool favoured by Java
 developers (and they actually reuse many things from the Maven ecosystem).
@@ -27,15 +26,18 @@ The two main ways to obtain an nREPL connection are discussed in the following s
 
 ## Launch an nREPL server and client from Emacs
 
-Simply open in Emacs a file belonging to your `lein` or `boot` project (like
-`foo.clj`) and type <kbd>M-x</kbd> `cider-jack-in` <kbd>RET</kbd>. This will
-start an nREPL server with all the project dependencies loaded in and CIDER will
-automatically connect to it.
+Simply open in Emacs a file belonging to your project (like `foo.clj`) and type
+<kbd>M-x</kbd> `cider-jack-in` <kbd>RET</kbd>. This will start an nREPL server
+and CIDER will automatically connect to it.
+
+If it is a `lein`, `boot` or `tools.deps (deps.edn)` project nREPL will be
+started with all dependencies loaded.
 
 Alternatively you can use <kbd>C-u M-x</kbd> `cider-jack-in` <kbd>RET</kbd> to
-specify the name of a `lein` or `boot` project, without having to visit any file
-in it. This option is also useful if your project contains both `project.clj`
-and `build.boot` and you want to launch a repl for one or the other.
+specify the name of a `lein`, `boot` or `tools.deps` project, without having to
+visit any file in it. This option is also useful if your project contains some
+combination of `project.clj`, `build.boot` and `deps.edn` and you want to launch
+a repl for one or the other.
 
 In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
 
@@ -53,10 +55,16 @@ You can go to your project's directory in a terminal and type there:
 $ lein repl
 ```
 
-Or:
+Or for `boot`:
 
 ```
 $ boot repl -s wait (or whatever task launches a repl)
+```
+
+It is also possible for plain `clj`, although the command is somewhat longer:
+
+```
+$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.18.0-SNAPSHOT"} }}' -e '(require (quote cider-nrepl.main)) (cider-nrepl.main/init ["cider.nrepl/cider-middleware"])'
 ```
 
 Alternatively you can start nREPL either manually or by the facilities provided by your
