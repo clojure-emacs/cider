@@ -623,12 +623,12 @@ Generally you should not disable this unless you run into some faulty check."
 
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
-  (unless (cider-library-present-p "clojurescript")
+  (unless (cider-library-present-p "org.clojure/clojurescript")
     (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/clojurescript for details")))
 
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
-  (unless (cider-library-present-p "piggieback")
+  (unless (cider-library-present-p "cider/piggieback")
     (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/clojurescript for details")))
 
 (defun cider-check-nashorn-requirements ()
@@ -646,24 +646,24 @@ Generally you should not disable this unless you run into some faulty check."
 (defun cider-check-figwheel-requirements ()
   "Check whether we can start a Figwheel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
-  (unless (cider-library-present-p "figwheel-sidecar")
+  (unless (cider-library-present-p "figwheel-sidecar/figwheel-sidecar")
     (user-error "Figwheel-sidecar is not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript")))
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
-  (unless (cider-library-present-p "weasel")
+  (unless (cider-library-present-p "weasel/weasel")
     (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript/#browser-connected-clojurescript-repl")))
 
 (defun cider-check-boot-requirements ()
   "Check whether we can start a Boot ClojureScript REPL."
   (cider-verify-piggieback-is-present)
-  (unless (cider-library-present-p "boot-cljs-repl")
+  (unless (cider-library-present-p "adzerk/boot-cljs-repl")
     (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
 
 (defun cider-check-shadow-cljs-requirements ()
   "Check whether we can start a shadow-cljs REPL."
-  (unless (cider-library-present-p "shadow-cljs")
+  (unless (cider-library-present-p "thheller/shadow-cljs")
     (user-error "The shadow-cljs ClojureScript REPL is not available")))
 
 (defun cider-shadow-cljs-init-form ()

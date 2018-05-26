@@ -812,9 +812,29 @@ going to clobber *1/2/3)."
                            t  ; tooling
                            ))
 
+;; TODO: Add some unit tests and pretty those two functions up.
+(defun cider-classpath-libs ()
+  "Return a list of all libs on the classpath."
+  (let ((libs (seq-filter (lambda (cp-entry)
+                            (string-suffix-p ".jar" cp-entry))
+                          (cider-sync-request:classpath))))
+    (thread-last libs
+      (seq-map (lambda (s) (split-string s "/")))
+      (seq-map #'reverse)
+      (seq-map (lambda (l) (reverse (seq-take l 4)))))))
+
 (defun cider-library-present-p (lib)
-  "Check whether LIB is present on the classpath."
-  (seq-find (lambda (s) (string-match-p (concat lib ".*\\.jar") s)) (cider-sync-request:classpath)))
+  "Check whether LIB is present on the classpath.
+
+The library is a string of the format \"group-id/artifact-id\"."
+  (let* ((lib (split-string lib "/"))
+         (group-id (car lib))
+         (artifact-id (cadr lib)))
+    (seq-find (lambda (lib)
+                (let ((g (car lib))
+                      (a (cadr lib)))
+                  (and (equal group-id g) (equal artifact-id a))))
+              (cider-classpath-libs))))
 
 (defalias 'cider-current-repl-buffer #'cider-current-connection
   "The current REPL buffer.
