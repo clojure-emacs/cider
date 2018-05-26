@@ -1006,10 +1006,8 @@ the appropriate REPL type in the end."
 
 (defun cider-current-host ()
   "Retrieve the current host."
-  (if (and (stringp buffer-file-name)
-           (file-remote-p buffer-file-name)
-           (boundp 'tramp-current-host))
-      tramp-current-host
+  (if (stringp buffer-file-name)
+      (file-remote-p buffer-file-name 'host)
     "localhost"))
 
 (defun cider-select-endpoint ()
