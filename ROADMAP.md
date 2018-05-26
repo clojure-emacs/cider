@@ -16,7 +16,7 @@ high-impact tasks to tackle.
 
 ## Internal improvements
 
-* replace usages of Elisp's `read` with `parseclj`
+* replace usages of Elisp's `read` with `parseedn`
 * break down `cider-interaction.el` and remove this file completely
 * improve the connection management (https://github.com/clojure-emacs/cider/pull/2069)
 * improve nREPL callback handling (https://github.com/clojure-emacs/cider/issues/1099)
