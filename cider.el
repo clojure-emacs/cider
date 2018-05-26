@@ -623,7 +623,7 @@ Generally you should not disable this unless you run into some faulty check."
 
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
-  (unless (cider-library-present-p "org.clojure/clojurescript")
+  (unless (cider-library-present-p "clojure/clojurescript")
     (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/clojurescript for details")))
 
 (defun cider-verify-piggieback-is-present ()
