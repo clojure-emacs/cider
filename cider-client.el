@@ -813,6 +813,7 @@ going to clobber *1/2/3)."
                            ))
 
 ;; TODO: Add some unit tests and pretty those two functions up.
+;; FIXME: Currently that's broken for group-id with multiple segments (e.g. org.clojure/clojure)
 (defun cider-classpath-libs ()
   "Return a list of all libs on the classpath."
   (let ((libs (seq-filter (lambda (cp-entry)
