@@ -92,7 +92,7 @@ found."
 If the list is empty and buffer-local, return the global value."
   (or (setq cider-connections
             (seq-filter #'buffer-live-p cider-connections))
-      (when (local-variable-p 'cider-connect)
+      (when (local-variable-p 'cider-connections)
         (kill-local-variable 'cider-connections)
         (seq-filter #'buffer-live-p cider-connections))))
 
