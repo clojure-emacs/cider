@@ -64,12 +64,17 @@ There are two more selective strategies for the error buffer:
 (setq cider-auto-select-error-buffer nil)
 ```
 
-* Error buffer stacktraces may be filtered by default. Valid filter types
-include `java`, `clj`, `repl`, `tooling`, and `dup`. Setting this to `nil` will
-show all stacktrace frames.
+* Error buffer stacktraces may be filtered by default. Valid filter
+types include `java`, `clj`, `repl`, `tooling`, and `dup`. There are
+also "positive" filtering types. The value `project` will cause only
+project frames to be shown or `all` will force all stackframes to be
+shown. Note that `project` and `all` are mutually exclusive. Whichever
+one is first will determine the behavior if they are both present.
 
 ```el
 (setq cider-stacktrace-default-filters '(tooling dup))
+;; or
+(setq cider-stacktrace-default-filters '(project))
 ```
 
 * Error messages may be wrapped for readability. If this value is nil, messages
