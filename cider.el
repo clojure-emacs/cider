@@ -755,14 +755,15 @@ you're working on."
 
 (defun cider-cljs-repl-form (repl-type)
   "Get the cljs REPL form for REPL-TYPE."
-  (let ((repl-form (cadr (seq-find
-                          (lambda (entry)
-                            (eq (car entry) repl-type))
-                          cider-cljs-repl-types))))
-    ;; repl-form can be either a string or a function producing a string
-    (if (symbolp repl-form)
-        (funcall repl-form)
-      repl-form)))
+  (if-let* ((repl-form (cadr (seq-find
+                              (lambda (entry)
+                                (eq (car entry) repl-type))
+                              cider-cljs-repl-types))))
+      ;; repl-form can be either a string or a function producing a string
+      (if (symbolp repl-form)
+          (funcall repl-form)
+        repl-form)
+    (user-error "No ClojureScript REPL type %s found.  Please make sure that `cider-cljs-repl-types' has an entry for it" repl-type)))
 
 (defun cider-verify-cljs-repl-requirements (repl-type)
   "Verify that the requirements for REPL-TYPE are met."

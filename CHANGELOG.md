@@ -9,6 +9,7 @@
 ### Bugs fixed
 
 * [#2286](https://github.com/clojure-emacs/cider/issues/2286): Fix eldoc issue with images in the REPL.
+* [#2307](https://github.com/clojure-emacs/cider/pull/2307): Use a better error when a cljs repl form cannot be found.
 
 ## 0.17.0 (2018-05-07)
 
