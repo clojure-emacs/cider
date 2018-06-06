@@ -290,6 +290,10 @@ Configure `cider-cljs-repl-types' to change the ClojureScript REPL to use for yo
      ["Browse REPL input history" cider-repl-history]
      ["Browse classpath" cider-classpath]
      ["Browse classpath entry" cider-open-classpath-entry])
+    ("Format"
+     ["Format EDN last sexp" cider-format-edn-last-sexp]
+     ["Format EDN region" cider-format-edn-region]
+     ["Format EDN buffer" cider-format-edn-buffer])
     ("Macroexpand"
      ["Macroexpand-1" cider-macroexpand-1]
      ["Macroexpand-all" cider-macroexpand-all])

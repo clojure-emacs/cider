@@ -8,6 +8,7 @@
 
 ### Bugs fixed
 
+* [#2310](https://github.com/clojure-emacs/cider/issues/2310): `cider-format-edn-last-sexp` will format the last sexp.
 * [#2294](https://github.com/clojure-emacs/cider/issues/2294): Fix setting default stacktrace filters.
 * [#2286](https://github.com/clojure-emacs/cider/issues/2286): Fix eldoc issue with images in the REPL.
 
