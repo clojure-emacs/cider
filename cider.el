@@ -649,6 +649,12 @@ Generally you should not disable this unless you run into some faulty check."
   (unless (cider-library-present-p "figwheel-sidecar/figwheel-sidecar")
     (user-error "Figwheel-sidecar is not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript")))
 
+(defun cider-check-figwheel-main-requirements ()
+  "Check whether we can start a Figwheel ClojureScript REPL."
+  (cider-verify-piggieback-is-present)
+  (unless (cider-library-present-p "bhauman/figwheel-main")
+    (user-error "Figwheel-main is not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript")))
+
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
@@ -675,6 +681,22 @@ this is a command, not just a string."
         (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build: "))))
     (format form build build)))
 
+(defcustom cider-figwheel-main-default-options nil
+  "Defines the `figwheel.main/start' options.
+
+Note that figwheel-main/start can also accept a map of options, refer to
+Figwheel for details."
+  :type 'string
+  :safe (lambda (s) (or (null s) (stringp s)))
+  :package-version '(cider . "0.18.0"))
+
+(defun cider-figwheel-main-init-form ()
+  "Produce the figwheel-main ClojureScript init form."
+  (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
+        (options (or cider-figwheel-main-default-options
+                     (read-from-minibuffer "Select figwheel-main build: "))))
+    (format form options)))
+
 (defun cider-custom-cljs-repl-init-form ()
   "Prompt for a form that would start a ClojureScript REPL.
 
@@ -691,6 +713,7 @@ The supplied string will be wrapped in a do form if needed."
              cider-check-nashorn-requirements)
     (figwheel "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
               cider-check-figwheel-requirements)
+    (figwheel-main cider-figwheel-main-init-form cider-check-figwheel-main-requirements)
     (node "(do (require 'cljs.repl.node) (cider.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
           cider-check-node-requirements)
     (weasel "(do (require 'weasel.repl.websocket) (cider.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
