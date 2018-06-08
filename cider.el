@@ -924,7 +924,7 @@ own buffer."
   "List of dependencies where elements are lists of artifact name and version.
 Added to `cider-jack-in-dependencies' when doing `cider-jack-in-cljs'.")
 (put 'cider-jack-in-cljs-dependencies 'risky-local-variable t)
-(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.3.5")
+(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.3.6")
 
 (defvar cider-jack-in-cljs-lein-plugins nil
   "List of Leiningen plugins to be injected at jack-in.
