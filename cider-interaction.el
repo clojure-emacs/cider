@@ -1981,6 +1981,11 @@ START and END represent the region's boundaries."
                           (lambda (edn)
                             (cider-sync-request:format-edn edn right-margin)))))
 
+(defun cider-format-edn-last-sexp ()
+  "Format the EDN data of the last sexp."
+  (interactive)
+  (apply 'cider-format-edn-region (cider-sexp-at-point 'bounds)))
+
 
 ;;; Interrupt evaluation
 
