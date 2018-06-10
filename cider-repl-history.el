@@ -258,18 +258,14 @@ call `cider-repl-history' again.")
 (defun cider-repl-history-read-regexp (msg use-default-p)
   "Get a regular expression from the user, prompting with MSG; previous entry is default if USE-DEFAULT-P."
   (let* ((default (car regexp-history))
+         (prompt (if (and default use-default-p)
+                     (format "%s for regexp (default `%s'): "
+                             msg
+                             default)
+                   (format "%s (regexp): " msg)))
          (input
-          (read-from-minibuffer
-           (if (and default use-default-p)
-               (format "%s for regexp (default `%s'): "
-                       msg
-                       default)
-             (format "%s (regexp): " msg))
-           nil
-           nil
-           nil
-           'regexp-history
-           (if use-default-p nil default))))
+          (read-from-minibuffer prompt nil nil nil 'regexp-history
+                                (if use-default-p nil default))))
     (if (equal input "")
         (if use-default-p default nil)
       input)))

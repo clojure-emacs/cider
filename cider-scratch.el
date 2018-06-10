@@ -44,11 +44,7 @@
       '("Clojure Interaction"
         (["Eval and print last sexp" #'cider-eval-print-last-sexp]
          "--"
-         ["Reset" #'cider-scratch-reset]
-         "--"
-         ["Set buffer connection" #'cider-assoc-buffer-with-connection]
-         ["Toggle buffer connection" #'cider-toggle-buffer-connection]
-         ["Reset buffer connection" #'cider-clear-buffer-local-connection])))
+         ["Reset" #'cider-scratch-reset])))
     map))
 
 (defconst cider-scratch-buffer-name "*cider-scratch*")

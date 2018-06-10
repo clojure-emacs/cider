@@ -100,7 +100,7 @@ You can also modify the known ClojureScript REPLs on a per-project basis using
 ```
 
 You can also create a ClojureScript REPL with the command
-`cider-create-sibling-cljs-repl` in cases where you already have a
+`cider-jack-in-sibling-clojurescript` in cases where you already have a
 Clojure REPL running.
 
 Continue reading for the additional setup needed for the various ClojureScript

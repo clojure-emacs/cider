@@ -36,44 +36,6 @@
 
 ;;; connection browser
 
-(describe "cider-connections-buffer"
-  (it "lists all the active connections"
-    (with-temp-buffer
-      (rename-buffer "*cider-repl test1*")
-      (let ((b1 (current-buffer)))
-        (setq-local nrepl-endpoint '("localhost" 4005))
-        (setq-local nrepl-project-dir "proj")
-        (setq-local cider-repl-type "clj")
-        (with-temp-buffer
-          (rename-buffer "*cider-repl test2*")
-          (let ((b2 (current-buffer)))
-            (setq-local nrepl-endpoint '("123.123.123.123" 4006))
-            (setq-local cider-repl-type "clj")
-            (let ((cider-connections (list b1 b2)))
-              (cider-connection-browser)
-              (with-current-buffer "*cider-connections*"
-                (expect (buffer-string) :to-equal "  REPL                           Host             Port    Project          Type
-
-* *cider-repl test1*             localhost         4005   proj             Clojure
-  *cider-repl test2*             123.123.123.123   4006   -                Clojure\n\n")
-
-                (goto-line 4)         ; somewhere in the second connection listed
-                (cider-connections-make-default)
-                (expect (car cider-connections) :to-equal b2)
-                (message "%s" (cider-connections))
-                (expect (buffer-string) :to-equal "  REPL                           Host             Port    Project          Type
-
-  *cider-repl test1*             localhost         4005   proj             Clojure
-* *cider-repl test2*             123.123.123.123   4006   -                Clojure\n\n")
-                (goto-line 4)         ; somewhere in the second connection listed
-                (cider-connections-close-connection)
-                (expect cider-connections :to-equal (list b1))
-                (expect (buffer-string) :to-equal "  REPL                           Host             Port    Project          Type
-
-* *cider-repl test1*             localhost         4005   proj             Clojure\n\n")
-                (cider-connections-goto-connection)
-                (expect (current-buffer) :to-equal b1)
-                (kill-buffer "*cider-connections*")))))))))
 
 (describe "cider-inject-jack-in-dependencies"
   :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares cider-jack-in-lein-plugins cider-jack-in-dependencies-exclusions)
@@ -90,14 +52,14 @@
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a lein project with an exclusion"
-        (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure"))))
-        (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
-                :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+      (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure"))))
+      (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
+              :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
-        (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
-        (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
-                :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\ foo.bar/baz\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+      (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
+      (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
+              :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\ foo.bar/baz\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" "boot")
@@ -127,14 +89,14 @@
       (setq-local cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.11.0")))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can concat in a lein project"
-        (expect (cider-inject-jack-in-dependencies "-o -U" "repl :headless" "lein")
-                :to-equal "-o -U update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
+      (expect (cider-inject-jack-in-dependencies "-o -U" "repl :headless" "lein")
+              :to-equal "-o -U update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "can concat in a boot project"
-        (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" "boot")
-                :to-equal "-C -o -i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
+      (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" "boot")
+              :to-equal "-C -o -i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
     (it "can concat in a gradle project"
-        (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" "gradle")
-                :to-equal "-m --no-daemon clojureRepl")))
+      (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" "gradle")
+              :to-equal "-m --no-daemon clojureRepl")))
 
   (describe "when there are predicates"
     :var (plugins-predicate middlewares-predicate)

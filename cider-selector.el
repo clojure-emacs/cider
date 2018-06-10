@@ -138,16 +138,11 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?r
   "Current REPL buffer."
-  (cider-current-repl-buffer))
-
-(def-cider-selector-method ?n
-  "Connections browser buffer."
-  (cider-connection-browser)
-  cider--connection-browser-buffer-name)
+  (cider-current-connection))
 
 (def-cider-selector-method ?m
   "Current connection's *nrepl-messages* buffer."
-  (cider-current-messages-buffer))
+  (nrepl-messages-buffer (cider-current-connection)))
 
 (def-cider-selector-method ?x
   "*cider-error* buffer."
