@@ -1564,6 +1564,12 @@ passing arguments."
 
 ;; Connection and REPL
 
+(defcustom cider-switch-to-repl-after-insert-p t
+  "Whether to switch to the repl after inserting a form into the repl"
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
+
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
 If EVAL is non-nil the form will also be evaluated."
@@ -1576,7 +1582,8 @@ If EVAL is non-nil the form will also be evaluated."
       (indent-region beg (point)))
     (when eval
       (cider-repl-return)))
-  (cider-switch-to-repl-buffer))
+  (when cider-switch-to-repl-after-insert-p
+   (cider-switch-to-repl-buffer)))
 
 (defun cider-insert-last-sexp-in-repl (&optional arg)
   "Insert the expression preceding point in the REPL buffer.
