@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-interaction)
 
 (defconst cider-profile-buffer "*cider-profile*")
 
