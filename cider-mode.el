@@ -331,6 +331,7 @@ Configure `cider-cljs-repl-types' to change the ClojureScript REPL to use for yo
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
+    (define-key map (kbd "C-c C-j") 'cider-insert-commands-map)
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)

@@ -1536,6 +1536,7 @@ passing arguments."
     (define-key map (kbd "z") #'cider-eval-defun-to-point)
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
+
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
     (define-key map (kbd "C-r") #'cider-eval-region)
@@ -1545,6 +1546,20 @@ passing arguments."
     (define-key map (kbd "C-z") #'cider-eval-defun-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
+
+(defvar cider-insert-commands-map
+  (let ((map (define-prefix-command 'cider-insert-commands-map)))
+    ;; single key bindings defined last for display in menu
+    (define-key map (kbd "e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "d") #'cider-insert-defun-in-repl)
+    (define-key map (kbd "r") #'cider-insert-region-in-repl)
+    (define-key map (kbd "n") #'cider-insert-ns-form-in-repl)
+
+    ;; duplicates with C- for convenience
+    (define-key map (kbd "C-e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "C-d") #'cider-insert-defun-in-repl)
+    (define-key map (kbd "C-r") #'cider-insert-region-in-repl)
+    (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)))
 
 
 ;; Connection and REPL
