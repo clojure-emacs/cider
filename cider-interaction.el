@@ -1565,7 +1565,7 @@ passing arguments."
 ;; Connection and REPL
 
 (defcustom cider-switch-to-repl-after-insert-p t
-  "Whether to switch to the repl after inserting a form into the repl"
+  "Whether to switch to the repl after inserting a form into the repl."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "0.18.0"))
@@ -1573,7 +1573,7 @@ passing arguments."
 (defcustom cider-invert-insert-eval-p nil
   "Whether to invert the behavior of evaling.
 Default behavior when inserting is to NOT eval the form and only eval with
-a prefix. This allows to invert this so that default behavior is to insert
+a prefix.  This allows to invert this so that default behavior is to insert
 and eval and the prefix is required to prevent evaluation."
   :type 'boolean
   :group 'cider
