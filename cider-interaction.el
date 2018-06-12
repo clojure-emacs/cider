@@ -1536,6 +1536,7 @@ passing arguments."
     (define-key map (kbd "z") #'cider-eval-defun-to-point)
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
+
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
     (define-key map (kbd "C-r") #'cider-eval-region)
@@ -1546,8 +1547,37 @@ passing arguments."
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
 
+(defvar cider-insert-commands-map
+  (let ((map (define-prefix-command 'cider-insert-commands-map)))
+    ;; single key bindings defined last for display in menu
+    (define-key map (kbd "e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "d") #'cider-insert-defun-in-repl)
+    (define-key map (kbd "r") #'cider-insert-region-in-repl)
+    (define-key map (kbd "n") #'cider-insert-ns-form-in-repl)
+
+    ;; duplicates with C- for convenience
+    (define-key map (kbd "C-e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "C-d") #'cider-insert-defun-in-repl)
+    (define-key map (kbd "C-r") #'cider-insert-region-in-repl)
+    (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)))
+
 
 ;; Connection and REPL
+
+(defcustom cider-switch-to-repl-after-insert-p t
+  "Whether to switch to the repl after inserting a form into the repl."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
+
+(defcustom cider-invert-insert-eval-p nil
+  "Whether to invert the behavior of evaling.
+Default behavior when inserting is to NOT eval the form and only eval with
+a prefix.  This allows to invert this so that default behavior is to insert
+and eval and the prefix is required to prevent evaluation."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
 
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
@@ -1559,9 +1589,12 @@ If EVAL is non-nil the form will also be evaluated."
     (let ((beg (point)))
       (insert form)
       (indent-region beg (point)))
-    (when eval
+    (when (if cider-invert-insert-eval-p
+              (not eval)
+            eval)
       (cider-repl-return)))
-  (cider-switch-to-repl-buffer))
+  (when cider-switch-to-repl-after-insert-p
+    (cider-switch-to-repl-buffer)))
 
 (defun cider-insert-last-sexp-in-repl (&optional arg)
   "Insert the expression preceding point in the REPL buffer.
