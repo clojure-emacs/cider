@@ -100,6 +100,8 @@ ns forms manually themselves."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
+(define-obsolete-variable-alias 'cider-prompt-save-file-on-load 'cider-save-file-on-load "0.15.0")
+
 (defcustom cider-save-file-on-load 'prompt
   "Controls whether to prompt to save the file when loading a buffer.
 If nil, files are not saved.
@@ -110,8 +112,6 @@ If t, save the file without confirmation."
                  (const t :tag "Save the file without confirmation"))
   :group 'cider
   :package-version '(cider . "0.6.0"))
-
-(define-obsolete-variable-alias 'cider-prompt-save-file-on-load 'cider-save-file-on-load "0.15.0")
 
 (defcustom cider-save-files-on-cider-refresh 'prompt
   "Controls whether to prompt to save Clojure files on `cider-refresh'.
