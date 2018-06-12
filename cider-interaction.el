@@ -1570,6 +1570,15 @@ passing arguments."
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
+(defcustom cider-invert-insert-eval-p nil
+  "Whether to invert the behavior of evaling.
+Default behavior when inserting is to NOT eval the form and only eval with
+a prefix. This allows to invert this so that default behavior is to insert
+and eval and the prefix is required to prevent evaluation."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
+
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
 If EVAL is non-nil the form will also be evaluated."
@@ -1580,10 +1589,12 @@ If EVAL is non-nil the form will also be evaluated."
     (let ((beg (point)))
       (insert form)
       (indent-region beg (point)))
-    (when eval
+    (when (if cider-invert-insert-eval-p
+              (not eval)
+            eval)
       (cider-repl-return)))
   (when cider-switch-to-repl-after-insert-p
-   (cider-switch-to-repl-buffer)))
+    (cider-switch-to-repl-buffer)))
 
 (defun cider-insert-last-sexp-in-repl (&optional arg)
   "Insert the expression preceding point in the REPL buffer.
