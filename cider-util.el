@@ -132,9 +132,9 @@ position."
     (save-match-data
       ;; ensure point is against the nearest form
       (when (not (looking-at-p "[[:graph:]]"))
-       (while (not (looking-at-p "[[:graph:]]"))
-         (backward-char 1))
-       (forward-char 1))
+        (while (not (looking-at-p "[[:graph:]]"))
+          (backward-char 1))
+        (forward-char 1))
       (let ((cider-original (point))
             top-level-limits
             cider-comment-end
@@ -146,18 +146,18 @@ position."
         (forward-char 1)                  ;; skip paren so we start at comment
         (clojure-forward-logical-sexp)    ;; skip past the comment form itself
         (condition-case nil
-         (while (and (< (point) cider-comment-end)
-                     (null top-level-limits))
-           (let (cider-sexp-start cider-sexp-end)
-             (clojure-forward-logical-sexp 1) ;; goto end of form
-             (setq cider-sexp-end (point))
-             ;; set beginning of form to exclude whitespace between this and end of last
-             (clojure-backward-logical-sexp 1)
-             (setq cider-sexp-start (point))
-             (goto-char cider-sexp-end)
-             (when (<= cider-sexp-start cider-original cider-sexp-end)
-               (setq top-level-limits (list cider-sexp-start cider-sexp-end)))))
-         (scan-error nil))
+            (while (and (< (point) cider-comment-end)
+                        (null top-level-limits))
+              (let (cider-sexp-start cider-sexp-end)
+                (clojure-forward-logical-sexp 1) ;; goto end of form
+                (setq cider-sexp-end (point))
+                ;; set beginning of form to exclude whitespace between this and end of last
+                (clojure-backward-logical-sexp 1)
+                (setq cider-sexp-start (point))
+                (goto-char cider-sexp-end)
+                (when (<= cider-sexp-start cider-original cider-sexp-end)
+                  (setq top-level-limits (list cider-sexp-start cider-sexp-end)))))
+          (scan-error nil))
         (if top-level-limits
             (cider--text-or-limits bounds (car top-level-limits) (cadr top-level-limits))
           (cider--text-or-limits bounds cider-comment-start cider-comment-end))))))
