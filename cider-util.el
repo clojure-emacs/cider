@@ -96,17 +96,86 @@ If BUFFER is provided act on that buffer instead."
 
 
 ;;; Thing at point
+
+(defun cider--text-or-limits (bounds start end)
+  "Returns the substring or the bounds of text.
+If BOUNDS is non-nil, returns the list (START END) of character
+positions.  Else returns the substring from START to END."
+  (funcall (if bounds #'list #'buffer-substring-no-properties)
+           start end))
+
+(defun cider-top-level-comment-p ()
+  "Return non-nil if point is in a comment form."
+  (save-excursion
+    (end-of-defun)
+    (clojure-backward-logical-sexp 1)
+    (forward-char 1)
+    (clojure-forward-logical-sexp 1)
+    (clojure-backward-logical-sexp 1)
+    (looking-at-p "comment")))
+
+(defcustom cider-eval-toplevel-inside-comment-form nil
+  "Eval top level forms inside comment forms instead of the comment form itself.
+Experimental.  Function `cider-defun-at-point' is used extensively so if we
+change this heuristic it needs to be bullet-proof and desired.  While
+testing, give an easy way to turn this new behavior off."
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider . "0.18.0"))
+
+(defun cider-defun-inside-comment-form (&optional bounds)
+  "Return the toplevel form inside a comment containing point.
+Assumes point is inside a (comment ....) form and will return the text of
+that form or if BOUNDS, will return a list of the starting and ending
+position."
+  (save-excursion
+    (save-match-data
+      ;; ensure point is against the nearest form
+      (when (not (looking-at-p "[[:graph:]]"))
+       (while (not (looking-at-p "[[:graph:]]"))
+         (backward-char 1))
+       (forward-char 1))
+      (let ((cider-original (point))
+            top-level-limits
+            cider-comment-end
+            cider-comment-start) ;;NB: comment-start is a global var and cannot be shadowed
+        (end-of-defun)
+        (setq cider-comment-end (point))
+        (clojure-backward-logical-sexp 1) ;; beginning of comment form
+        (setq cider-comment-start (point))
+        (forward-char 1)                  ;; skip paren so we start at comment
+        (clojure-forward-logical-sexp)    ;; skip past the comment form itself
+        (condition-case nil
+         (while (and (< (point) cider-comment-end)
+                     (null top-level-limits))
+           (let (cider-sexp-start cider-sexp-end)
+             (clojure-forward-logical-sexp 1) ;; goto end of form
+             (setq cider-sexp-end (point))
+             ;; set beginning of form to exclude whitespace between this and end of last
+             (clojure-backward-logical-sexp 1)
+             (setq cider-sexp-start (point))
+             (goto-char cider-sexp-end)
+             (when (<= cider-sexp-start cider-original cider-sexp-end)
+               (setq top-level-limits (list cider-sexp-start cider-sexp-end)))))
+         (scan-error nil))
+        (if top-level-limits
+            (cider--text-or-limits bounds (car top-level-limits) (cadr top-level-limits))
+          (cider--text-or-limits bounds cider-comment-start cider-comment-end))))))
+
 (defun cider-defun-at-point (&optional bounds)
   "Return the text of the top level sexp at point.
 If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
-  (save-excursion
-    (save-match-data
-      (end-of-defun)
-      (let ((end (point)))
-        (clojure-backward-logical-sexp 1)
-        (funcall (if bounds #'list #'buffer-substring-no-properties)
-                 (point) end)))))
+  (if (and cider-eval-toplevel-inside-comment-form
+           (cider-top-level-comment-p))
+      (cider-defun-inside-comment-form bounds)
+    (let ((original-position (point)))
+      (save-excursion
+        (save-match-data
+          (end-of-defun)
+          (let ((end (point)))
+            (clojure-backward-logical-sexp 1)
+            (cider--text-or-limits bounds (point) end)))))))
 
 (defun cider-ns-form ()
   "Retrieve the ns form."

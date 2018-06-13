@@ -17,6 +17,7 @@
 
 ### New features
 
+* Allow evaling top level forms in a comment form rather than the entire comment form with `cider-eval-toplevel-inside-comment-form`.
 * Create keymap for inserting forms into the repl at `C-c C-j`.
 * Add new defcustom `cider-invert-insert-eval-p`: Set to cause insert-to-repl commands to eval the forms by default when inserted.
 * Add new defcustom `cider-switch-to-repl-after-insert-p`: Set to prevent cursor from going to the repl when inserting a form in the repl with the insert-to-repl commands.
