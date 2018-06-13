@@ -169,13 +169,12 @@ instead."
   (if (and cider-eval-toplevel-inside-comment-form
            (cider-top-level-comment-p))
       (cider-defun-inside-comment-form bounds)
-    (let ((original-position (point)))
-      (save-excursion
-        (save-match-data
-          (end-of-defun)
-          (let ((end (point)))
-            (clojure-backward-logical-sexp 1)
-            (cider--text-or-limits bounds (point) end)))))))
+    (save-excursion
+      (save-match-data
+        (end-of-defun)
+        (let ((end (point)))
+          (clojure-backward-logical-sexp 1)
+          (cider--text-or-limits bounds (point) end))))))
 
 (defun cider-ns-form ()
   "Retrieve the ns form."
