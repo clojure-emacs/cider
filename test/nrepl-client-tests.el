@@ -30,34 +30,30 @@
 (require 'buttercup)
 (require 'cider)
 
-(describe "nrepl-connection-buffer-name"
+(describe "nrepl-repl-buffer-name"
   :var (nrepl-hide-special-buffers nrepl-endpoint)
-  (before-all (setq-local nrepl-endpoint '("localhost" 1)))
+  (before-all (setq-local nrepl-endpoint '(:host "localhost" :port 1)))
 
   (describe "when nrepl-hide-special-buffers is nil"
     (it "returns the name of the connection buffer, which would make it visible in buffer changing commands"
-      (expect (nrepl-connection-buffer-name)
-              :to-equal "*nrepl-connection localhost*")))
-
-  (describe "when nrepl-hide-special-buffers is t"
-    (it "returns the name of the connection buffer, which hides it in buffer changing commands"
-      (setq nrepl-hide-special-buffers t)
-      (expect (nrepl-connection-buffer-name)
-              :to-equal " *nrepl-connection localhost*"))))
+      (expect (nrepl-repl-buffer-name)
+              :to-equal "*cider-repl localhost*"))))
 
 (describe "nrepl-server-buffer-name"
-  :var (nrepl-hide-special-buffers nrepl-endpoint)
-  (before-all (setq-local nrepl-endpoint '("localhost" 1)))
+  :var (nrepl-hide-special-buffers nrepl-buffer-name-show-port nrepl-endpoint)
+  (before-all (setq-local nrepl-endpoint '(:host "localhost" :port 1)))
 
   (describe "when nrepl-hide-special-buffers is nil"
     (it "returns the name of the server buffer, which would make it visible in buffer changing commands"
-      (setq nrepl-hide-special-buffers nil)
+      (setq nrepl-hide-special-buffers nil
+            nrepl-buffer-name-show-port nil)
       (expect (nrepl-server-buffer-name)
               :to-equal "*nrepl-server localhost*")))
 
   (describe "when nrepl-hide-special-buffers is t"
     (it "returns the name of the server buffer, which hides it in buffer changing commands"
-      (setq nrepl-hide-special-buffers t)
+      (setq nrepl-hide-special-buffers t
+            nrepl-buffer-name-show-port nil)
       (expect (nrepl-server-buffer-name)
               :to-equal " *nrepl-server localhost*"))))
 
@@ -98,7 +94,7 @@
 (describe "nrepl-make-buffer-name"
   (it "generates a buffer name from the given template"
     (with-temp-buffer
-      (setq-local nrepl-endpoint '("localhost" 1))
+      (setq-local nrepl-endpoint '(:host "localhost" :port 1))
       (expect (nrepl-make-buffer-name "*buff-name%s*")
               :to-equal "*buff-name localhost*")))
 
@@ -118,14 +114,14 @@
   (it "can include nREPL port in the buffer name"
     (with-temp-buffer
       (setq-local nrepl-buffer-name-show-port t)
-      (setq-local nrepl-endpoint '("localhost" 4009))
+      (setq-local nrepl-endpoint '(:host "localhost" :port 4009))
       (expect (nrepl-make-buffer-name "*buff-name%s*")
               :to-equal "*buff-name localhost:4009*")))
 
   (it "can ignore the nREPL port in the buffer name"
     (with-temp-buffer
       (setq-local nrepl-buffer-name-show-port nil)
-      (setq-local nrepl-endpoint '("localhost" 4009))
+      (setq-local nrepl-endpoint '(:host "localhost" :port 4009))
       (expect (nrepl-make-buffer-name "*buff-name%s*")
               :to-equal "*buff-name localhost*")))
 
@@ -133,7 +129,7 @@
     (with-temp-buffer
       (setq-local nrepl-buffer-name-show-port t)
       (setq-local nrepl-project-dir "proj")
-      (setq-local nrepl-endpoint '("localhost" 4009))
+      (setq-local nrepl-endpoint '(:host "localhost" :port 4009))
       (expect (nrepl-make-buffer-name "*buff-name%s*")
               :to-equal "*buff-name proj:4009*")))
 
@@ -156,27 +152,15 @@
     (with-temp-buffer
       (setq-local nrepl-buffer-name-show-port t)
       (setq-local nrepl-project-dir "proj")
-      (setq-local nrepl-endpoint '("localhost" 4009))
+      (setq-local nrepl-endpoint '(:host "localhost" :port 4009))
       (let* ((cider-new-buffer (nrepl-make-buffer-name "*buff-name%s*")))
         (get-buffer-create cider-new-buffer)
         (expect cider-new-buffer :to-equal "*buff-name proj:4009*")
         (with-temp-buffer
           (setq-local nrepl-buffer-name-show-port t)
           (setq-local nrepl-project-dir "proj")
-          (setq-local nrepl-endpoint '("localhost" 4009))
+          (setq-local nrepl-endpoint '(:host "localhost" :port 4009))
           (expect (nrepl-make-buffer-name "*buff-name%s*")
                   :to-match "buff-name proj:4009\\*<1\\|2>")
           (kill-buffer cider-new-buffer))))))
 
-(describe "cider-clojure-buffer-name"
-  (it "returns a buffer name using `nrepl-repl-buffer-name-template'"
-    (with-temp-buffer
-      (setq-local nrepl-endpoint '("localhost" 1))
-      (expect (nrepl-make-buffer-name nrepl-repl-buffer-name-template)
-              :to-equal "*cider-repl localhost*")))
-
-  (it "respects the value of `nrepl-project-dir'"
-    (with-temp-buffer
-      (setq-local nrepl-project-dir "/a/test/directory/project")
-      (expect (nrepl-make-buffer-name nrepl-repl-buffer-name-template)
-              :to-equal "*cider-repl project*"))))

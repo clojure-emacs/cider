@@ -89,19 +89,21 @@
 (describe "cider-load-file"
   (it "works as expected in empty Clojure buffers"
     (spy-on 'cider-request:load-file :and-return-value nil)
-    (with-connection-buffer "clj" b
-      (with-temp-buffer
-        (clojure-mode)
-        (setq buffer-file-name (make-temp-name "tmp.clj"))
-        (expect (cider-load-buffer) :not :to-throw)))))
+    (let ((default-directory "/tmp/a-dir"))
+      (with-repl-buffer "load-file-session" "clj" b
+        (with-temp-buffer
+          (clojure-mode)
+          (setq buffer-file-name (make-temp-name "tmp.clj"))
+          (expect (cider-load-buffer) :not :to-throw))))))
 
 (describe "cider-interactive-eval"
   (it "works as expected in empty Clojure buffers"
     (spy-on 'cider-nrepl-request:eval :and-return-value nil)
-    (with-connection-buffer "clj" b
-      (with-temp-buffer
-        (clojure-mode)
-        (expect (cider-interactive-eval "(+ 1)") :not :to-throw)))))
+    (let ((default-directory "/tmp/a-dir"))
+      (with-repl-buffer "interaction-session" "clj" b
+        (with-temp-buffer
+          (clojure-mode)
+          (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))
 
 (describe "cider--calculate-opening-delimiters"
   (it "returns the right opening delimiters"
