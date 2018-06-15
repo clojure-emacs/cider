@@ -206,7 +206,8 @@ of the name.  If optional DUP-OK is non-nil, the returned buffer is not
          (name (nrepl-format-buffer-name-template
                 buffer-name-template
                 (concat (if project-name project-name (or host (plist-get nrepl-endpoint :host)))
-                        (if (and nrepl-proj-port nrepl-buffer-name-show-port)
+                        (if (and nrepl-proj-port
+                                 nrepl-buffer-name-show-port)
                             (format ":%s" nrepl-proj-port) "")
                         (if extras (format "(%s)" extras) "")))))
     (if dup-ok

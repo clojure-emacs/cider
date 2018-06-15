@@ -64,7 +64,6 @@ Only considers buffers that are not already visible."
 The user is prompted for a single character indicating the method by
 which to choose a new buffer.  The `?' character describes then
 available methods.  OTHER-WINDOW provides an optional target.
-
 See `def-cider-selector-method' for defining new methods."
   (interactive)
   (message "Select [%s]: "
@@ -85,7 +84,6 @@ See `def-cider-selector-method' for defining new methods."
 
 (defmacro def-cider-selector-method (key description &rest body)
   "Define a new `cider-select' buffer selection method.
-
 KEY is the key the user will enter to choose this method.
 
 DESCRIPTION is a one-line sentence describing how the method

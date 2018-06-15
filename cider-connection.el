@@ -199,7 +199,8 @@ about this buffer (like `cider-repl-type')."
 Don't restart the server or other connections within the same session.  Use
 `sesman-restart' to restart the entire session."
   (interactive)
-  (let* ((repl (cider-current-repl))
+  (let* ((repl (or (cider-current-repl)
+                   (user-error "No current REPL. Have you linked a session?")))
          (params (thread-first (cider--gather-connect-params repl)
                    (plist-put :session-name (sesman-get-session-name-for-object 'CIDER repl))
                    (plist-put :repl-buffer repl))))
@@ -244,8 +245,8 @@ Don't restart the server or other connections within the same session.  Use
 
 ;;; Sesman's Session-Wise Management UI
 
-(cl-defmethod sesman-session-object-type ((system (eql CIDER)))
-  'buffer)
+(cl-defmethod sesman-more-relevant-p ((system (eql CIDER)) session1 session2)
+  (sesman-more-recent-p (cdr session1) (cdr session2)))
 
 (cl-defmethod sesman-session-info ((system (eql CIDER)) session)
   (interactive "P")
@@ -391,7 +392,7 @@ with the repl buffer set as current."
 ;;; Current/other REPLs
 
 (defun cider-current-repl (&optional type)
-  "Get first repl of TYPE from current session.
+  "Get the most recent REPL of TYPE from the current session.
 TYPE is either \"clj\" or \"cljs\".  When nil, infer the REPL from the
 current buffer."
   (if (and (derived-mode-p 'cider-repl-mode)
@@ -399,8 +400,12 @@ current buffer."
                (string= cider-repl-type type)))
       ;; shortcut when in REPL buffer
       (current-buffer)
-    (let ((type (or type (cider-repl-type-for-buffer))))
-      (car (cider-repls type)))))
+    (let* ((type (or type (cider-repl-type-for-buffer)))
+           (repls (cider-repls type)))
+      ;; pick the most recent one
+      (seq-find (lambda (b)
+                  (member b repls))
+                (buffer-list)))))
 
 (defun cider-repls (&optional type)
   "Return cider REPLs of TYPE from the current session.
@@ -438,7 +443,7 @@ Error is signaled if no REPL buffer of specified type exists."
            (repls (cider-repls type)))
       (unless repls
         ;; cannot happen with "multi"
-        (user-error "No %s REPLs found" type))
+        (user-error "No %s REPLs found. Have you linked a session?" type))
       (mapcar function repls))))
 
 

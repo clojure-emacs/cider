@@ -241,22 +241,19 @@ By default, calls `sesman-quit-session' and then
   "Return a list of context types understood by SYSTEM."
   '(buffer directory project))
 
-(cl-defgeneric sesman-session-object-type (system)
-  "Return type (a symbol) of the constituents of the session object.
-Depending on this type, sesman might provide additional
-functionality (e.g. a better default for
-`sesman-more-relevant-p'). Currently only 'buffer is understood."
-  nil)
-
 (cl-defgeneric sesman-more-relevant-p (system session1 session2)
   "Return non-nil if SESSION1 should be sorted before SESSION2.
-By default, sort by session name. Systems should overwrite this
-method to provide a more meaningful ordering. When a system
-method `sesman-session-object-type' is 'buffer, the default
-method orders sessions in the most recently used order."
-  (if (eq 'buffer (sesman-session-object-type system))
-      (sesman--more-recent-p (cdr session1) (cdr session2))
-    (not (string-greaterp (car session1) (car session2)))))
+By default, sort by session name. Systems should overwrite this method to
+provide a more meaningful ordering. If your system objects are buffers you
+can use `sesman-more-relevant-p' utility in this method."
+  (not (string-greaterp (car session1) (car session2))))
+
+;; (cl-defgeneric sesman-session-object-type (system)
+;;   "Return type (a symbol) of the constituents of the session object.
+;; Depending on this type, sesman might provide additional
+;; functionality (e.g. a better default for
+;; `sesman-more-relevant-p'). Currently only 'buffer is understood."
+;;   nil)
 
 ;; (cl-defgeneric sesman-friendly-session-p (system session)
 ;;   "Non-nil if SYSTEM's SESSION is friendly to current context.
@@ -519,6 +516,21 @@ in any session. This is useful if there are several
 (defun sesman-get-session-name-for-object (system object &optional no-error)
   (car (sesman-get-session-for-object system object no-error)))
 
+(defun sesman-more-recent-p (bufs1 bufs2)
+  "Return t if BUFS1 is more recent than BUFS2.
+BUFS1 and BUFS2 are either buffers or lists of buffers. When lists of
+buffers, most recent buffers from each list are considered. To be used
+primarily in `sesman-more-relevant-p' methods when session objects are
+buffers."
+  (let ((bufs1 (if (bufferp bufs1) (list bufs1) bufs1))
+        (bufs2 (if (bufferp bufs2) (list bufs2) bufs2)))
+    (eq 1 (seq-some (lambda (b)
+                      (if (member b bufs1)
+                          1
+                        (when (member b bufs2)
+                          -1)))
+                    (buffer-list)))))
+
 
 ;;; Contexts
 
@@ -562,14 +574,6 @@ in any session. This is useful if there are several
    ((or (equal which '(16)) (eq which 'all) (eq which t))
     (sesman--all-system-sessions system))
    (t (error "Invalid which argument (%s)" which))))
-
-(defun sesman--more-recent-p (bufs1 bufs2)
-  (eq 1 (seq-some (lambda (b)
-                    (if (member b bufs1)
-                        1
-                      (when (member b bufs2)
-                        -1)))
-                  (buffer-list))))
 
 (defun sesman--cap-system-name (system)
   (let ((name (symbol-name system)))

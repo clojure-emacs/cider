@@ -513,7 +513,7 @@ with the given LIMIT."
   (let ((repl-types (seq-uniq (seq-map #'cider-repl-type (cider-repls))))
         (result 'retry))
     (while (and (eq result 'retry) (<= (point) limit))
-      (condition-case condition
+      (condition-case-unless-debug condition
           (setq result
                 (cider--anchored-search-suppressed-forms-internal
                  repl-types limit))
