@@ -1,4 +1,4 @@
-;;; cider-repl.el --- REPL interactions -*- lexical-binding: t -*-
+;;; cider-repl.el --- CIDER REPL mode interactions -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
 ;; Copyright © 2013-2018 Bozhidar Batsov, Artur Malabarba and CIDER contributors
@@ -28,7 +28,8 @@
 
 ;;; Commentary:
 
-;; REPL interactions.
+;; This functionality concerns `cider-repl-mode' and REPL interaction. For
+;; REPL/connection life-cycle management see cider-connection.el.
 
 ;;; Code:
 
@@ -204,14 +205,6 @@ Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
   "Marker for the end of output.
 Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 
-(defvar-local cider-repl-type nil
-  "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
-
-(defun cider-repl-type (repl-buffer)
-  "Get REPL-BUFFER's type.
-Return value matches `cider-repl-type'."
-  (buffer-local-value 'cider-repl-type repl-buffer))
-
 (defun cider-repl-tab ()
   "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
   (interactive)
@@ -242,7 +235,7 @@ This cache is stored in the connection buffer.")
     (when (member "state" (nrepl-dict-get response "status"))
       (nrepl-dbind-response response (repl-type changed-namespaces)
         (when repl-type
-          (cider-repl-set-type repl-type))
+          (cider-set-repl-type repl-type))
         (unless (nrepl-dict-empty-p changed-namespaces)
           (setq cider-repl-ns-cache (nrepl-dict-merge cider-repl-ns-cache changed-namespaces))
           (dolist (b (buffer-list))
@@ -257,37 +250,6 @@ This cache is stored in the connection buffer.")
                                              ns-dict)))))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
-(declare-function cider-default-err-handler "cider-interaction")
-(defvar-local cider-repl-init-function nil)
-(defun cider-repl-create (params)
-  "Create new repl buffer.
-PARAMS is a plist which contains :repl-type, :host, :port, :project-dir,
-:repl-init-function and :session-name.  When non-nil, :repl-init-function must be a
-function with no arguments which is called after repl creation function
-with the repl buffer set as current."
-  ;; Connection might not have been set as yet. Please don't send requests in
-  ;; this function, but use cider--connected-handler instead.
-  (let ((buffer (or (plist-get params :repl-buffer)
-                    (get-buffer-create (generate-new-buffer-name "*cider-uninitialized-repl*")))))
-    (with-current-buffer buffer
-      (let ((ses-name (or (plist-get params :session-name)
-                          (cider-new-session-name params))))
-        (sesman-add-object 'CIDER ses-name buffer t))
-      (unless (derived-mode-p 'cider-repl-mode)
-        (cider-repl-mode))
-      (setq nrepl-err-handler #'cider-default-err-handler
-            ;; used as a new-repl marker in cider-repl-set-type
-            mode-name nil
-            ;; REPLs start with clj and then "upgrade" to a different type
-            cider-repl-type "clj"
-            ;; ran at the end of cider--connected-handler
-            cider-repl-init-function (plist-get params :repl-init-function))
-      (cider-repl-reset-markers)
-      (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
-      (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
-      (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local)
-      (current-buffer))))
-
 (declare-function cider-set-buffer-ns "cider-mode")
 (defun cider-repl-set-initial-ns (buffer)
   "Require standard REPL util functions and set the ns of the REPL's BUFFER.
@@ -301,7 +263,7 @@ efficiency."
       (let* ((response (nrepl-send-sync-request
                         (lax-plist-put (nrepl--eval-request "(str *ns*)")
                                        "inhibit-cider-middleware" "true")
-                        (cider-current-connection)))
+                        (cider-current-repl)))
              (initial-ns (or (read (nrepl-dict-get response "value"))
                              "user")))
         (cider-set-buffer-ns initial-ns)))))
@@ -315,7 +277,7 @@ efficiency."
      "(when (clojure.core/resolve 'clojure.main/repl-requires)
        (clojure.core/map clojure.core/require clojure.main/repl-requires))")
     "inhibit-cider-middleware" "true")
-   (cider-current-connection)))
+   (cider-current-repl)))
 
 (defun cider-repl--build-config-expression ()
   "Build the initial config expression."
@@ -334,7 +296,7 @@ efficiency."
      (lax-plist-put
       (nrepl--eval-request config-expression)
       "inhibit-cider-middleware" "true")
-     (cider-current-connection))))
+     (cider-current-repl))))
 
 (defun cider-repl-init (buffer &optional no-banner)
   "Initialize the REPL in BUFFER.
@@ -703,7 +665,7 @@ If BOL is non-nil insert at the beginning of line.  Run
 
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
-  (with-current-buffer (cider-current-connection)
+  (with-current-buffer (cider-current-repl)
     (let ((pos (cider-repl--end-of-line-before-input-start))
           (string (replace-regexp-in-string "\n\\'" "" string)))
       (cider-repl--emit-output-at-pos (current-buffer) string face pos t))))
@@ -839,7 +801,6 @@ SHOW-PREFIX and BOL."
 
 (defcustom cider-repl-image-margin 10
   "Specifies the margin to be applied to images displayed in the REPL.
-
 Either a single number of pixels - interpreted as a symmetric margin, or
 pair of numbers `(x . y)' encoding an arbitrary margin."
   :type '(choice integer (vector integer integer))
@@ -848,12 +809,10 @@ pair of numbers `(x . y)' encoding an arbitrary margin."
 
 (defun cider-repl--image (data type datap)
   "A helper for creating images with CIDER's image options.
-
-DATA is either the path to an image or its base64 coded data.  TYPE
-is a symbol indicating the image type.  DATAP indicates whether the image is
-the raw image data or a filename.
-
-Returns an image instance with a margin per `cider-repl-image-margin'."
+DATA is either the path to an image or its base64 coded data.  TYPE is a
+symbol indicating the image type.  DATAP indicates whether the image is the
+raw image data or a filename.  Returns an image instance with a margin per
+`cider-repl-image-margin'."
   (create-image data type datap
                 :margin cider-repl-image-margin))
 
@@ -879,7 +838,7 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
       (nrepl-send-request
        (list "op" "slurp" "url" (nrepl-dict-get args access-type))
        (cider-repl-handler buffer)
-       (cider-current-connection)))
+       (cider-current-repl)))
   nil)
 
 (defvar cider-repl-content-type-handler-alist
@@ -887,7 +846,6 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
     ("image/jpeg" . ,#'cider-repl-handle-jpeg)
     ("image/png" . ,#'cider-repl-handle-png))
   "Association list from content-types to handlers.
-
 Handlers must be functions of two required and two optional arguments - the
 REPL buffer to insert into, the value of the given content type as a raw
 string, the REPL's show prefix as any and an `end-of-line' flag.
@@ -1069,8 +1027,8 @@ text property `cider-old-input'."
   "Switch between the Clojure and ClojureScript REPLs for the current project."
   (interactive)
   ;; FIXME: implement cycling as session can hold more than two REPLs
-  (if-let* ((this-repl (cider-current-connection))
-            (other-repls (seq-remove (lambda (r) (eq r this-repl)) (cider-connections))))
+  (if-let* ((this-repl (cider-current-repl))
+            (other-repls (seq-remove (lambda (r) (eq r this-repl)) (cider-repls))))
       (switch-to-buffer (car other-repls))
     (message "There's no other REPL for the current project")))
 
@@ -1083,7 +1041,6 @@ text property `cider-old-input'."
 
 (defun cider-repl-clear-buffer ()
   "Clear the currently visited REPL buffer completely.
-
 See also the related commands `cider-repl-clear-output' and
 `cider-find-and-clear-repl-output'."
   (interactive)
@@ -1180,27 +1137,10 @@ command will prompt for the name of the namespace to switch to."
                        (cider-current-ns))))
   (when (or (not ns) (equal ns ""))
     (user-error "No namespace selected"))
-  (cider-map-connections :auto
+  (cider-map-repls :auto
     (lambda (connection)
       (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
                                 (cider-repl-switch-ns-handler connection)))))
-
-(defun cider-repl-set-type (&optional type)
-  "Set REPL TYPE to \"clj\" or \"cljs\".
-Assume that the current buffer is a REPL."
-  (let ((type (or type (completing-read
-                        (format "Set REPL type (currently `%s') to: "
-                                cider-repl-type)
-                        '("clj" "cljs")))))
-    (when (or (not (equal cider-repl-type type))
-              (null mode-name))
-      (setq cider-repl-type type)
-      (setq mode-name (format "REPL[%s]" type))
-      (rename-buffer (nrepl-repl-buffer-name))
-      (when (and nrepl-log-messages nrepl-messages-buffer)
-        (let ((mbuf-name (nrepl-messages-buffer-name (current-buffer))))
-          (with-current-buffer nrepl-messages-buffer
-            (rename-buffer mbuf-name)))))))
 
 
 ;;; Location References

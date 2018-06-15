@@ -1090,7 +1090,7 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
   (with-current-buffer buffer
     (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
                          (cider-stdin-handler buffer)
-                         (cider-current-connection))))
+                         (cider-current-repl))))
 
 (defun cider-emit-into-color-buffer (buffer value)
   "Emit into color BUFFER the provided VALUE."
@@ -1158,7 +1158,7 @@ arguments and only proceed with evaluation if it returns nil."
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
-      (cider-map-connections :auto
+      (cider-map-repls :auto
         (lambda (connection)
           (cider--prep-interactive-eval form connection)
           (cider-nrepl-request:eval
@@ -1318,7 +1318,7 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
   (cider-interactive-eval nil
-                          (cider-insert-eval-handler (cider-current-connection))
+                          (cider-insert-eval-handler (cider-current-repl))
                           (cider-last-sexp 'bounds))
   (when prefix
     (cider-switch-to-repl-buffer)))
@@ -1328,7 +1328,7 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
   (cider-interactive-eval nil
-                          (cider-insert-eval-handler (cider-current-connection))
+                          (cider-insert-eval-handler (cider-current-repl))
                           (cider-last-sexp 'bounds)
                           (cider--nrepl-pprint-request-plist (cider--pretty-print-width)))
   (when prefix
@@ -1547,7 +1547,7 @@ and eval and the prefix is required to prevent evaluation."
 If EVAL is non-nil the form will also be evaluated."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
-  (with-current-buffer (cider-current-connection)
+  (with-current-buffer (cider-current-repl)
     (goto-char (point-max))
     (let ((beg (point)))
       (insert form)
@@ -1655,7 +1655,7 @@ opposite of what that option dictates."
   "Toggle ns tracing.
 Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   (interactive "P")
-  (cider-map-connections :clj-strict
+  (cider-map-repls :clj-strict
     (lambda (conn)
       (with-current-buffer conn
         (cider-ensure-op-supported "toggle-trace-ns")
@@ -1772,7 +1772,7 @@ refresh functions (defined in `cider-refresh-before-fn' and
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
-    (cider-map-connections :clj
+    (cider-map-repls :clj
       (lambda (conn)
         ;; Inside the lambda, so the buffer is not created if we error out.
         (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
@@ -1828,7 +1828,7 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
     (cider--quit-error-window)
     (let ((filename (buffer-file-name buffer))
           (ns-form  (cider-ns-form)))
-      (cider-map-connections :auto
+      (cider-map-repls :auto
         (lambda (connection)
           (when ns-form
             (cider-repl--cache-ns-form ns-form connection))

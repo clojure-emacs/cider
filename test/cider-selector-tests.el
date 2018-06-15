@@ -56,9 +56,9 @@
     (cider--test-selector-method ?e 'emacs-lisp-mode "*testfile*.el")))
 
 (describe "cider-seletor-method-r"
-  :var (cider-current-connection)
+  :var (cider-current-repl)
   (it "switches to current REPL buffer"
-    (spy-on 'cider-current-connection :and-return-value "*cider-repl xyz*")
+    (spy-on 'cider-current-repl :and-return-value "*cider-repl xyz*")
     (cider--test-selector-method ?r 'cider-repl-mode "*cider-repl xyz*")))
 
 (describe "cider-selector-method-m"

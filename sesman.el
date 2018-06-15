@@ -195,14 +195,14 @@ sessions."
     ["Show Links" sesman-show-links]
     "--"
     ["Start" sesman-start]
-    ["Restart" sesman-restart :active (sesman-has-sessions-p)]
-    ["Quit" sesman-quit :active (sesman-has-sessions-p)]
+    ["Restart" sesman-restart :active (sesman-connected-p)]
+    ["Quit" sesman-quit :active (sesman-connected-p)]
     "--"
-    ["Link with Buffer" sesman-link-with-buffer :active (sesman-has-sessions-p)]
-    ["Link with Directory" sesman-link-with-directory :active (sesman-has-sessions-p)]
-    ["Link with Project" sesman-link-with-project :active (sesman-has-sessions-p)]
+    ["Link with Buffer" sesman-link-with-buffer :active (sesman-connected-p)]
+    ["Link with Directory" sesman-link-with-directory :active (sesman-connected-p)]
+    ["Link with Project" sesman-link-with-project :active (sesman-connected-p)]
     "--"
-    ["Unlink" sesman-unlink :active (sesman-has-sessions-p)])
+    ["Unlink" sesman-unlink :active (sesman-connected-p)])
   "Menu for Sesman")
 
 (defun sesman-install-menu (map)

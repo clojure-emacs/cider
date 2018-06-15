@@ -344,7 +344,7 @@ In order to work properly, this mode must be activated by
     ;; cider-nrepl has a chance to send the next message, and so that the user
     ;; doesn't accidentally hit `n' between two messages (thus editing the code).
     (when-let* ((proc (unless nrepl-ongoing-sync-request
-                        (get-buffer-process (cider-current-connection)))))
+                        (get-buffer-process (cider-current-repl)))))
       (accept-process-output proc 1))
     (unless cider--debug-mode
       (setq buffer-read-only nil)

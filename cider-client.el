@@ -108,7 +108,7 @@ REPL's ns, otherwise fall back to \"user\".  When NO-DEFAULT is non-nil, it
 will return nil instead of \"user\"."
   (or cider-buffer-ns
       (clojure-find-ns)
-      (when-let* ((repl (cider-current-connection)))
+      (when-let* ((repl (cider-current-repl)))
         (buffer-local-value 'cider-buffer-ns repl))
       (if no-default nil "user")))
 
@@ -138,7 +138,7 @@ to the file backing the current buffer.  The command falls back to
 
 (defun cider-nrepl-op-supported-p (op &optional connection)
   "Check whether the CONNECTION supports the nREPL middleware OP."
-  (nrepl-op-supported-p op (or connection (cider-current-connection))))
+  (nrepl-op-supported-p op (or connection (cider-current-repl))))
 
 (defvar cider-version)
 (defun cider-ensure-op-supported (op)
@@ -153,7 +153,7 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
                                     \"par1\" ... ).
 If CONNECTION is provided dispatch to that connection instead of
 the current connection.  Return the id of the sent message."
-  (nrepl-send-request request callback (or connection (cider-current-connection))))
+  (nrepl-send-request request callback (or connection (cider-current-repl))))
 
 (defun cider-nrepl-send-sync-request (request &optional connection abort-on-input)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
@@ -163,13 +163,13 @@ If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface."
   (nrepl-send-sync-request request
-                           (or connection (cider-current-connection))
+                           (or connection (cider-current-repl))
                            abort-on-input))
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
 Immediately mark the REQUEST as done.  Return the id of the sent message."
-  (let* ((conn (or connection (cider-current-connection)))
+  (let* ((conn (or connection (cider-current-repl)))
          (id (nrepl-send-request request #'ignore conn)))
     (with-current-buffer conn
       (nrepl--mark-id-completed id))
@@ -180,8 +180,8 @@ Immediately mark the REQUEST as done.  Return the id of the sent message."
 If NS is non-nil, include it in the request.  LINE and COLUMN, if non-nil,
 define the position of INPUT in its buffer.  ADDITIONAL-PARAMS is a plist
 to be appended to the request message.  CONNECTION is the connection
-buffer, defaults to (cider-current-connection)."
-  (let ((connection (or connection (cider-current-connection))))
+buffer, defaults to (cider-current-repl)."
+  (let ((connection (or connection (cider-current-repl))))
     (nrepl-request:eval input
                         (if cider-show-eval-spinner
                             (cider-eval-spinner-handler connection callback)
@@ -193,7 +193,7 @@ buffer, defaults to (cider-current-connection)."
 (defun cider-nrepl-sync-request:eval (input &optional connection ns)
   "Send the INPUT to the nREPL CONNECTION synchronously.
 If NS is non-nil, include it in the eval request."
-  (nrepl-sync-request:eval input (or connection (cider-current-connection)) ns))
+  (nrepl-sync-request:eval input (or connection (cider-current-repl)) ns))
 
 (defcustom cider-pprint-fn 'pprint
   "Sets the function to use when pretty-printing evaluation results.
@@ -252,7 +252,7 @@ clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-request:eval input
                       callback
-                      (or connection (cider-current-connection))
+                      (or connection (cider-current-repl))
                       ns nil nil nil 'tooling))
 
 (defun cider-sync-tooling-eval (input &optional ns connection)
@@ -263,7 +263,7 @@ bindings of the primary eval nREPL session (e.g. this is not going to
 clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-sync-request:eval input
-                           (or connection (cider-current-connection))
+                           (or connection (cider-current-repl))
                            ns
                            'tooling))
 
@@ -296,22 +296,22 @@ The library is a string of the format \"group-id/artifact-id\"."
   "Interrupt any pending evaluations."
   (interactive)
   ;; FIXME: does this work correctly in cljc files?
-  (with-current-buffer (cider-current-connection)
+  (with-current-buffer (cider-current-repl)
     (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
       (dolist (request-id pending-request-ids)
         (nrepl-request:interrupt
          request-id
          (cider-interrupt-handler (current-buffer))
-         (cider-current-connection))))))
+         (cider-current-repl))))))
 
 (defun cider-nrepl-eval-session ()
   "Return the eval nREPL session id of the current connection."
-  (with-current-buffer (cider-current-connection)
+  (with-current-buffer (cider-current-repl)
     nrepl-session))
 
 (defun cider-nrepl-tooling-session ()
   "Return the tooling nREPL session id of the current connection."
-  (with-current-buffer (cider-current-connection)
+  (with-current-buffer (cider-current-repl)
     nrepl-tooling-session))
 
 (defun cider--var-choice (var-info)
@@ -382,7 +382,7 @@ thing at point."
 (defun cider-request:load-file (file-contents file-path file-name &optional connection callback)
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
-loaded.  If CONNECTION is nil, use `cider-current-connection'.  If CALLBACK
+loaded.  If CONNECTION is nil, use `cider-current-repl'.  If CALLBACK
 is nil, use `cider-load-file-handler'."
   (cider-nrepl-send-request `("op" "load-file"
                               "file" ,file-contents

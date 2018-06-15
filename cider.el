@@ -829,6 +829,15 @@ Return REPL-TYPE if requirements are met."
 
 ;;; Barefoot Connectors
 
+(defun cider--connect (params)
+  (process-buffer
+   (nrepl-start-client-process
+    (plist-get params :host)
+    (plist-get params :port)
+    (plist-get params :server)
+    (lambda (_)
+      (cider-repl-create params)))))
+
 (defun cider--jack-in (prompt-project on-port-callback)
   (declare (indent 1))
   (let* ((project-type (cider-project-type))
@@ -935,7 +944,7 @@ dependencies are met."
   "Create a Clojure REPL with the same server as OTHER-REPL.
 OTHER-REPL can also be a server buffer, in which case a new session with a
 REPL for that server is created."
-  (interactive (list (cider-current-connection)))
+  (interactive (list (cider-current-repl)))
   (cider--connect
    (let ((ses-name (unless (nrepl-server-p other-repl)
                      (car (sesman-get-session-for-object 'CIDER other-repl)))))
@@ -951,7 +960,7 @@ Normally this would prompt for the ClojureScript REPL to start (e.g. Node,
 Figwheel, etc), unless you've set `cider-default-cljs-repl'.  OTHER-REPL
 can also be a server buffer, in which case a new session with a REPL for
 that server is created."
-  (interactive (list (cider-current-connection)))
+  (interactive (list (cider-current-repl)))
   (let ((cljs-repl-type (or cider-default-cljs-repl
                             (cider-select-cljs-repl)))
         (ses-name (unless (nrepl-server-p other-repl)
@@ -1199,7 +1208,7 @@ In case `default-directory' is non-local we assume the command is available."
 Retrieve the underlying connection's CIDER-nREPL version and checks if the
 middleware used is compatible with CIDER.  If not, will display a warning
 message in the REPL area."
-  (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-connection)))
+  (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-repl)))
          (middleware-version  (nrepl-dict-get version-dict "version-string" "not installed")))
     (unless (equal cider-version middleware-version)
       (cider-repl-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"

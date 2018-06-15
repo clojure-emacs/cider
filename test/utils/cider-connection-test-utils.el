@@ -41,7 +41,7 @@ SYMBOL is locally let-bound to the current buffer."
      ;; `with-current-buffer' doesn't bump the buffer up the list.
      (switch-to-buffer (current-buffer))
      (rename-buffer (format "*cider-repl %s-%s*" ,type (random 10000)) t)
-     (let ((cider-connections (cons (current-buffer) cider-connections))
+     (let ((cider-repls (cons (current-buffer) cider-repls))
            (,symbol (current-buffer)))
        ,@body)))
 
