@@ -947,7 +947,7 @@ REPL for that server is created."
   (interactive (list (cider-current-repl)))
   (cider--connect
    (let ((ses-name (unless (nrepl-server-p other-repl)
-                     (car (sesman-get-session-for-object 'CIDER other-repl)))))
+                     (sesman-session-name-for-object 'CIDER other-repl))))
      (thread-first (cider--gather-connect-params other-repl)
        (plist-put :repl-type "clj")
        (plist-put :session-name ses-name)
@@ -964,7 +964,7 @@ that server is created."
   (let ((cljs-repl-type (or cider-default-cljs-repl
                             (cider-select-cljs-repl)))
         (ses-name (unless (nrepl-server-p other-repl)
-                    (sesman-get-session-name-for-object 'CIDER other-repl))))
+                    (sesman-session-name-for-object 'CIDER other-repl))))
     (cider--connect
      (thread-first (cider--gather-connect-params other-repl)
        (plist-put :repl-type "cljs")

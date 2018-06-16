@@ -202,7 +202,7 @@ Don't restart the server or other connections within the same session.  Use
   (let* ((repl (or (cider-current-repl)
                    (user-error "No current REPL. Have you linked a session?")))
          (params (thread-first (cider--gather-connect-params repl)
-                   (plist-put :session-name (sesman-get-session-name-for-object 'CIDER repl))
+                   (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
                    (plist-put :repl-buffer repl))))
     (cider--close-connection repl 'no-kill)
     (cider--connect params)))
