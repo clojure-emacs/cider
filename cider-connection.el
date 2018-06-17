@@ -113,7 +113,12 @@ buffer."
     (with-current-buffer repl
       (when spinner-current (spinner-stop))
       (when nrepl-tunnel-buffer
-        (cider--close-buffer nrepl-tunnel-buffer)))
+        (cider--close-buffer nrepl-tunnel-buffer))
+      (when no-kill
+        ;; inform sentinel not to kill the server, if any
+        (thread-first (get-buffer-process repl)
+          (process-plist)
+          (plist-put :no-server-kill t))))
     (let ((proc (get-buffer-process repl)))
       (when (and (process-live-p proc)
                  (or (not nrepl-server-buffer)
@@ -283,7 +288,7 @@ Don't restart the server or other connections within the same session.  Use
 `sesman-restart' to restart the entire session."
   (interactive)
   (let* ((repl (or (cider-current-repl)
-                   (user-error "No current REPL.  Have you linked a session?")))
+                   (user-error "No linked REPL")))
          (params (thread-first (cider--gather-connect-params repl)
                    (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
                    (plist-put :repl-buffer repl))))

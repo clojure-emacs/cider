@@ -494,7 +494,8 @@ and kill the process buffer."
       (with-current-buffer client-buffer
         (run-hooks 'nrepl-disconnected-hook)
         (let ((server-buffer nrepl-server-buffer))
-          (when (buffer-live-p server-buffer)
+          (when (and (buffer-live-p server-buffer)
+                     (not (plist-get (process-plist process) :no-server-kill)))
             (setq nrepl-server-buffer nil)
             (nrepl--maybe-kill-server-buffer server-buffer)))))))
 
