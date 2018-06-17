@@ -158,7 +158,7 @@ Clojure buffer and the REPL buffer."
 (defun cider-find-and-clear-repl-output (&optional clear-repl)
   "Find the current REPL buffer and clear it.
 With a prefix argument CLEAR-REPL the command clears the entire REPL
-buffer. Returns to the buffer in which the command was invoked.  See also
+buffer.  Returns to the buffer in which the command was invoked.  See also
 the related commands `cider-repl-clear-buffer' and
 `cider-repl-clear-output'."
   (interactive "P")
@@ -488,7 +488,8 @@ Search is done with the given LIMIT."
 
 (defun cider--anchored-search-suppressed-forms-internal (repl-types limit)
   "Helper function for `cider--anchored-search-suppressed-forms`.
-LIMIT is the same as the LIMIT in `cider--anchored-search-suppressed-forms`"
+REPL-TYPES is a list of strings repl-type strings.  LIMIT is the same as
+the LIMIT in `cider--anchored-search-suppressed-forms`"
   (when (= (length repl-types) 1)
     (let ((type (car repl-types))
           (expr (read (current-buffer)))

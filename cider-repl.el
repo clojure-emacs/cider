@@ -28,7 +28,7 @@
 
 ;;; Commentary:
 
-;; This functionality concerns `cider-repl-mode' and REPL interaction. For
+;; This functionality concerns `cider-repl-mode' and REPL interaction.  For
 ;; REPL/connection life-cycle management see cider-connection.el.
 
 ;;; Code:
@@ -677,16 +677,6 @@ If BOL is non-nil insert at the beginning of line.  Run
 (defun cider-repl-emit-interactive-stderr (string)
   "Emit STRING as interactive err output."
   (cider-repl--emit-interactive-output string 'cider-repl-stderr-face))
-
-(defun cider-repl-manual-warning (section-id format &rest args)
-  "Emit a warning to the REPL and link to the online manual.
-SECTION-ID is the section to link to.  The link is added on the last line.
-FORMAT is a format string to compile with ARGS and display on the REPL."
-  (let ((message (apply #'format format args)))
-    (cider-repl-emit-interactive-stderr
-     (concat "WARNING: " message "\n         "
-             (cider--manual-button "More information" section-id)
-             "."))))
 
 (defun cider-repl--emit-output (buffer string face &optional bol)
   "Using BUFFER, emit STRING font-locked with FACE.

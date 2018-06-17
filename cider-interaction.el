@@ -98,6 +98,7 @@ ns forms manually themselves."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
+(define-obsolete-variable-alias 'cider-prompt-save-file-on-load 'cider-save-file-on-load "0.15.0")
 (defcustom cider-save-file-on-load 'prompt
   "Controls whether to prompt to save the file when loading a buffer.
 If nil, files are not saved.
@@ -108,8 +109,6 @@ If t, save the file without confirmation."
                  (const t :tag "Save the file without confirmation"))
   :group 'cider
   :package-version '(cider . "0.6.0"))
-
-(define-obsolete-variable-alias 'cider-prompt-save-file-on-load 'cider-save-file-on-load "0.15.0")
 
 (defcustom cider-save-files-on-cider-refresh 'prompt
   "Controls whether to prompt to save Clojure files on `cider-refresh'.
@@ -263,9 +262,6 @@ namespace-qualified function of zero arity."
 (defconst cider-latest-clojure-version "1.8.0"
   "Latest supported version of Clojure.")
 
-(defconst cider-required-nrepl-version "0.2.12"
-  "The minimum nREPL version that's known to work properly with CIDER.")
-
 ;;; Minibuffer
 (defvar cider-minibuffer-history '()
   "History list of expressions read from the minibuffer.")
@@ -388,7 +384,7 @@ show dired on project.  If var is not found, try to jump to resource of the
 same name.  When called interactively, a prompt is given according to the
 variable `cider-prompt-for-symbol'.  A single or double prefix argument
 inverts the meaning.  A prefix of `-' or a double prefix argument causes
-the results to be displayed in a different window. A default value of thing
+the results to be displayed in a different window.  A default value of thing
 at point is given when prompted."
   (interactive (cider--find-dwim-interactive "Jump to: "))
   (cider--find-dwim symbol-file `cider-find-dwim

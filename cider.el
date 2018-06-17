@@ -829,16 +829,10 @@ Return REPL-TYPE if requirements are met."
 
 ;;; Barefoot Connectors
 
-(defun cider--connect (params)
-  (process-buffer
-   (nrepl-start-client-process
-    (plist-get params :host)
-    (plist-get params :port)
-    (plist-get params :server)
-    (lambda (_)
-      (cider-repl-create params)))))
-
-(defun cider--jack-in (prompt-project on-port-callback)
+(defun cider--jack-in (do-prompt on-port-callback)
+  "Core of all cider-jack-in-xyz functions.
+Prompt for the project and nREPL server command when DO-PROMPT is non-nil.
+ON-PORT-CALLBACK is passed to `nrepl-start-server-process'."
   (declare (indent 1))
   (let* ((project-type (cider-project-type))
          (command (cider-jack-in-command project-type))
@@ -846,11 +840,11 @@ Return REPL-TYPE if requirements are met."
          (command-global-opts (cider-jack-in-global-options project-type))
          (command-params (cider-jack-in-params project-type)))
     (if command-resolved
-        (let* ((project (when prompt-project
+        (let* ((project (when do-prompt
                           (read-directory-name "Project: ")))
                (project-dir (clojure-project-dir
                              (or project (cider-current-dir))))
-               (params (if prompt-project
+               (params (if do-prompt
                            (read-string (format "nREPL server command: %s " command-params)
                                         command-params)
                          command-params))
@@ -870,7 +864,7 @@ Return REPL-TYPE if requirements are met."
 
 (defun cider--check-cljs (&optional repl-type no-error)
   "Verify that all cljs requirements are met for cljs REPL-TYPE.
-Return REPL-TYPE of requirement are met, and throw an user-error otherwise.
+Return REPL-TYPE of requirement are met, and throw an ‘user-error’ otherwise.
 When NO-ERROR is non-nil, don't throw an error, issue a message and return
 nil."
   (if no-error
@@ -885,7 +879,7 @@ nil."
     (cider-verify-cljs-repl-requirements repl-type)))
 
 (defun cider--cljs-init-hook-builder (cljs-repl-type)
-  "Create an cljs repl initializer for CLJS-REPL-TYPE"
+  "Create an cljs repl initializer for CLJS-REPL-TYPE."
   (lambda ()
     (cider--check-cljs cljs-repl-type)
     (cider-nrepl-send-request
@@ -901,37 +895,37 @@ nil."
 ;;; User Level Connectors
 
 ;;;###autoload
-(defun cider-jack-in-clj (&optional prompt-project)
+(defun cider-jack-in-clj (&optional do-prompt)
   "Start an nREPL server for the current project and connect to it.
-Prompt for the project when PROMPT-PROJECT is non-nil."
+Prompt for the project and nREPL server command when DO-PROMPT is non-nil."
   (interactive "P")
-  (cider--jack-in prompt-project
+  (cider--jack-in do-prompt
     (lambda (server-buffer)
       (cider-connect-sibling-clj server-buffer))))
 
 ;;;###autoload
-(defun cider-jack-in-cljs (&optional prompt-project)
+(defun cider-jack-in-cljs (&optional do-prompt)
   "Start an nREPL server for the current project and connect to it.
-Prompt for the project when PROMPT-PROJECT is non-nil."
+Prompt for the project and nREPL server command when DO-PROMPT is non-nil."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
-    (cider--jack-in prompt-project
+    (cider--jack-in do-prompt
       (lambda (server-buffer)
         (cider-connect-sibling-cljs server-buffer)))))
 
 ;;;###autoload
-(defun cider-jack-in-cljcljs (&optional prompt-project soft-cljs-start)
+(defun cider-jack-in-cljcljs (&optional do-prompt soft-cljs-start)
   "Start an nREPL server and connect with clj and cljs REPLs.
-Prompt for the project when PROMPT-PROJECT is non-nil.  When
-SOFT-CLJS-START is non-nil, start cljs REPL only when the ClojureScript
-dependencies are met."
+Prompt for the project and nREPL server command when DO-PROMPT is non-nil.
+When SOFT-CLJS-START is non-nil, start cljs REPL only when the
+ClojureScript dependencies are met."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
-    (cider--jack-in prompt-project
+    (cider--jack-in do-prompt
       (lambda (server-buffer)
         (let ((clj-repl (cider-connect-sibling-clj server-buffer)))
           (if soft-cljs-start
@@ -945,7 +939,7 @@ dependencies are met."
 OTHER-REPL can also be a server buffer, in which case a new session with a
 REPL for that server is created."
   (interactive (list (cider-current-repl)))
-  (cider--connect
+  (cider-nrepl-connect
    (let ((ses-name (unless (nrepl-server-p other-repl)
                      (sesman-session-name-for-object 'CIDER other-repl))))
      (thread-first (cider--gather-connect-params other-repl)
@@ -965,7 +959,7 @@ that server is created."
                             (cider-select-cljs-repl)))
         (ses-name (unless (nrepl-server-p other-repl)
                     (sesman-session-name-for-object 'CIDER other-repl))))
-    (cider--connect
+    (cider-nrepl-connect
      (thread-first (cider--gather-connect-params other-repl)
        (plist-put :repl-type "cljs")
        (plist-put :session-name ses-name)
@@ -975,7 +969,7 @@ that server is created."
 (defun cider-connect-clj (host port)
   "Initialize a CLJ connection to an nREPL server at HOST and PORT."
   (interactive (cider-select-endpoint))
-  (cider--connect
+  (cider-nrepl-connect
    (list :host host :port port
          :repl-type "clj"
          :repl-init-function nil
@@ -985,11 +979,11 @@ that server is created."
 
 ;;;###autoload
 (defun cider-connect-cljs (host port)
-  "Initialize a CLJS connection to an nREPL server at HOST and PORT."  
+  "Initialize a CLJS connection to an nREPL server at HOST and PORT."
   (interactive (cider-select-endpoint))
   (let ((cljs-repl-type (or cider-default-cljs-repl
                             (cider-select-cljs-repl))))
-    (cider--connect
+    (cider-nrepl-connect
      (list :host host :port port
            :repl-type "cljs"
            :repl-init-function (cider--cljs-init-hook-builder cljs-repl-type)
@@ -1176,58 +1170,6 @@ In case `default-directory' is non-local we assume the command is available."
                            (executable-find command)
                            (executable-find (concat command ".bat")))))
     (shell-quote-argument command)))
-
-
-;;; Check that the connection is working well
-;; TODO: This is nrepl specific. It should eventually go into some cider-nrepl-client
-;; file.
-(defun cider--check-required-nrepl-version ()
-  "Check whether we're using a compatible nREPL version."
-  (if-let* ((nrepl-version (cider--nrepl-version)))
-      (when (version< nrepl-version cider-required-nrepl-version)
-        (cider-repl-manual-warning "troubleshooting/#warning-saying-you-have-to-use-nrepl-0212"
-                                   "CIDER requires nREPL %s (or newer) to work properly"
-                                   cider-required-nrepl-version))
-    (cider-repl-manual-warning "troubleshooting/#warning-saying-you-have-to-use-nrepl-0212"
-                               "Can't determine nREPL's version.\nPlease, update nREPL to %s."
-                               cider-required-nrepl-version)))
-
-(defun cider--check-clojure-version-supported ()
-  "Ensure that we are meeting the minimum supported version of Clojure."
-  (if-let* ((clojure-version (cider--clojure-version)))
-      (when (version< clojure-version cider-minimum-clojure-version)
-        (cider-repl-manual-warning "installation/#prerequisites"
-                                   "Clojure version (%s) is not supported (minimum %s). CIDER will not work."
-                                   clojure-version cider-minimum-clojure-version))
-    (cider-repl-manual-warning "installation/#prerequisites"
-                               "Can't determine Clojure's version. CIDER requires Clojure %s (or newer)."
-                               cider-minimum-clojure-version)))
-
-(defun cider--check-middleware-compatibility ()
-  "CIDER frontend/backend compatibility check.
-Retrieve the underlying connection's CIDER-nREPL version and checks if the
-middleware used is compatible with CIDER.  If not, will display a warning
-message in the REPL area."
-  (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-repl)))
-         (middleware-version  (nrepl-dict-get version-dict "version-string" "not installed")))
-    (unless (equal cider-version middleware-version)
-      (cider-repl-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
-                                 "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
-                                 cider-version middleware-version))))
-
-(defcustom cider-redirect-server-output-to-repl  t
-  "Controls whether nREPL server output would be redirected to the REPL.
-When non-nil the output would end up in both the nrepl-server buffer (when
-available) and the matching REPL buffer."
-  :type 'boolean
-  :group 'cider
-  :safe #'booleanp
-  :package-version '(cider . "0.17.0"))
-
-(defun cider--subscribe-repl-to-server-out ()
-  "Subscribe to the nREPL server's *out*."
-  (cider-nrepl-send-request '("op" "out-subscribe")
-                            (cider-interactive-eval-handler (current-buffer))))
 
 ;;;###autoload
 (eval-after-load 'clojure-mode

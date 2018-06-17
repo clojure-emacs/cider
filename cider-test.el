@@ -641,51 +641,51 @@ The include/exclude selectors will be used to filter the tests before
            (split-string
             (cider-read-from-minibuffer "Test selectors to exclude (space separated): ")))))
     (cider-map-repls :clj-strict
-                     (lambda (conn)
-                       (unless silent
-                         (if (and tests (= (length tests) 1))
-                             ;; we generate a different message when running individual tests
-                             (cider-test-echo-running ns (car tests))
-                           (cider-test-echo-running ns)))
-                       (cider-nrepl-send-request
-                        `("op"       ,(cond ((stringp ns)         "test")
-                                            ((eq :project ns)     "test-all")
-                                            ((eq :loaded ns)      "test-all")
-                                            ((eq :non-passing ns) "retest"))
-                          "includes" ,(when (listp include-selectors) include-selectors)
-                          "excludes" ,(when (listp exclude-selectors) exclude-selectors)
-                          "ns"       ,(when (stringp ns) ns)
-                          "tests"    ,(when (stringp ns) tests)
-                          "load?"    ,(when (or (stringp ns) (eq :project ns)) "true"))
-                        (lambda (response)
-                          (nrepl-dbind-response response (summary results status out err)
-                            (cond ((member "namespace-not-found" status)
-                                   (unless silent
-                                     (message "No test namespace: %s" (cider-propertize ns 'ns))))
-                                  (out (cider-emit-interactive-eval-output out))
-                                  (err (cider-emit-interactive-eval-err-output err))
-                                  (results
-                                   (nrepl-dbind-response summary (error fail)
-                                     (setq cider-test-last-summary summary)
-                                     (setq cider-test-last-results results)
-                                     (cider-test-highlight-problems results)
-                                     (cider-test-echo-summary summary results)
-                                     (if (or (not (zerop (+ error fail)))
-                                             cider-test-show-report-on-success)
-                                         (cider-test-render-report
-                                          (cider-popup-buffer
-                                           cider-test-report-buffer
-                                           cider-auto-select-test-report-buffer)
-                                          summary
-                                          results)
-                                       (when (get-buffer cider-test-report-buffer)
-                                         (with-current-buffer cider-test-report-buffer
-                                           (let ((inhibit-read-only t))
-                                             (erase-buffer)))
-                                         (cider-test-render-report
-                                          cider-test-report-buffer
-                                          summary results))))))))
-                        conn)))))
+      (lambda (conn)
+        (unless silent
+          (if (and tests (= (length tests) 1))
+              ;; we generate a different message when running individual tests
+              (cider-test-echo-running ns (car tests))
+            (cider-test-echo-running ns)))
+        (cider-nrepl-send-request
+         `("op"       ,(cond ((stringp ns)         "test")
+                             ((eq :project ns)     "test-all")
+                             ((eq :loaded ns)      "test-all")
+                             ((eq :non-passing ns) "retest"))
+           "includes" ,(when (listp include-selectors) include-selectors)
+           "excludes" ,(when (listp exclude-selectors) exclude-selectors)
+           "ns"       ,(when (stringp ns) ns)
+           "tests"    ,(when (stringp ns) tests)
+           "load?"    ,(when (or (stringp ns) (eq :project ns)) "true"))
+         (lambda (response)
+           (nrepl-dbind-response response (summary results status out err)
+             (cond ((member "namespace-not-found" status)
+                    (unless silent
+                      (message "No test namespace: %s" (cider-propertize ns 'ns))))
+                   (out (cider-emit-interactive-eval-output out))
+                   (err (cider-emit-interactive-eval-err-output err))
+                   (results
+                    (nrepl-dbind-response summary (error fail)
+                      (setq cider-test-last-summary summary)
+                      (setq cider-test-last-results results)
+                      (cider-test-highlight-problems results)
+                      (cider-test-echo-summary summary results)
+                      (if (or (not (zerop (+ error fail)))
+                              cider-test-show-report-on-success)
+                          (cider-test-render-report
+                           (cider-popup-buffer
+                            cider-test-report-buffer
+                            cider-auto-select-test-report-buffer)
+                           summary
+                           results)
+                        (when (get-buffer cider-test-report-buffer)
+                          (with-current-buffer cider-test-report-buffer
+                            (let ((inhibit-read-only t))
+                              (erase-buffer)))
+                          (cider-test-render-report
+                           cider-test-report-buffer
+                           summary results))))))))
+         conn)))))
 
 (defun cider-test-rerun-failed-tests ()
   "Rerun failed and erring tests from the last test run."

@@ -17,6 +17,8 @@
                               (nrepl-dbind-response . 2)
                               (cider-save-marker . 1)
                               (cider-propertize-region . 1)
+                              (cider-map-repls . 1)
+                              (cider--jack-in . 1)
                               (cider--make-result-overlay . 1)
                               ;; need better solution for indenting cl-flet bindings
                               (multiline-comment-handler . defun) ;; cl-flet

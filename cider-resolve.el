@@ -103,9 +103,10 @@ Return nil only if VAR cannot be resolved."
 
 (defun cider-resolve-core-ns ()
   "Return a dict of the core namespace for current connection.
-This will be clojure.core or cljs.core depending on `cider-repl-type'."
+This will be clojure.core or cljs.core depending on the return value of the
+function `cider-repl-type'."
   (when-let* ((repl (cider-current-repl)))
-    (with-current-buffer repl 
+    (with-current-buffer repl
       (cider-resolve--get-in (if (equal cider-repl-type "cljs")
                                  "cljs.core"
                                "clojure.core")))))

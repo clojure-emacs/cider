@@ -196,7 +196,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 If not supplied PROJECT-DIR, HOST and PORT default to the buffer local
 value of the `nrepl-project-dir' and `nrepl-endpoint'.  The name will
 include the project name if available or the endpoint host if it is
-not. The name will also include the connection port if
+not.  The name will also include the connection port if
 `nrepl-buffer-name-show-port' is true.  EXTRAS is appended towards the end
 of the name.  If optional DUP-OK is non-nil, the returned buffer is not
 \"uniquified\" by a call to `generate-new-buffer-name'."
@@ -220,7 +220,8 @@ of the name.  If optional DUP-OK is non-nil, the returned buffer is not
 
 (defun nrepl-repl-buffer-name (&optional project-dir host port dup-ok)
   "Return the name of the repl buffer.
-PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
+PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'.  DUP-OK is
+as in `nrepl-make-buffer-name'."
   (nrepl-make-buffer-name nrepl-repl-buffer-name-template
                           project-dir host port cider-repl-type dup-ok))
 
@@ -613,6 +614,7 @@ after exiting the REPL on some windows machines."
     (kill-process proc)))
 
 (defun nrepl-kill-server-buffer (server-buf)
+  "Kill SERVER-BUF and its process."
   (when (buffer-live-p server-buf)
     (let ((proc (get-buffer-process server-buf)))
       (when (process-live-p proc)
@@ -642,9 +644,7 @@ Emacs.  BUFFER-BUILDER is a function of one argument (endpoint returned by
 process."
   (let* ((endpoint (nrepl-connect host port))
          (client-proc (plist-get endpoint :proc))
-         (host (plist-get endpoint :host))
-         (port (plist-get endpoint :port))
-         (builder (or buffer-builder nrepl-default-client-buffer-builder))
+         (builder (or buffer-builder #'nrepl-default-client-buffer-builder))
          (client-buf (funcall builder endpoint)))
 
     (set-process-buffer client-proc client-buf)
@@ -1020,7 +1020,7 @@ session."
 
 (defun nrepl-start-server-process (directory cmd on-port-callback)
   "Start nREPL server process in DIRECTORY using shell command CMD.
-Return a newly created process. Set `nrepl-server-filter' as the process
+Return a newly created process.  Set `nrepl-server-filter' as the process
 filter, which starts REPL process with its own buffer once the server has
 started.  ON-PORT-CALLBACK is a function of one argument (server buffer)
 which is called by the process filter once the port of the connection has
@@ -1069,8 +1069,7 @@ been determined."
             (when nrepl-on-port-callback
               (funcall nrepl-on-port-callback (process-buffer process)))))))))
 
-(declare-function cider--close-connection "cider-client")
-
+(declare-function cider--close-connection "cider-connection")
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
   (let* ((server-buffer (process-buffer process))
@@ -1184,7 +1183,7 @@ This in effect enables or disables the logging of nREPL messages."
 
 (defcustom nrepl-message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
-  "Colors used in `nrepl-messages-buffer'."
+  "Colors used in the messages buffer."
   :type '(repeat color)
   :group 'nrepl)
 

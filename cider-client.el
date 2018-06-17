@@ -399,7 +399,7 @@ is nil, use `cider-load-file-handler'."
   '("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl")
   "List of regexps used to filter out some vars/symbols/namespaces.
 When nil, nothing is filtered out.  Otherwise, all namespaces matching any
-regexp from this list are dropped out of the \"ns-list\" op. Also,
+regexp from this list are dropped out of the \"ns-list\" op.  Also,
 \"apropos\" won't include vars from such namespaces.  This list is passed
 on to the nREPL middleware without any pre-processing.  So the regexps have
 to be in Clojure format (with twice the number of backslashes) and not
