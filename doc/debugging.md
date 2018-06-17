@@ -3,6 +3,12 @@ CIDER ships with a powerful interactive Clojure debugger inspired by Emacs's own
 
 ![CIDER Debugger](images/cider_debugger.gif)
 
+!!! Warning "ClojureScript Support"
+
+    The debugger currently **does not** support ClojureScript. See
+    [this issue](https://github.com/clojure-emacs/cider/issues/1416)
+    for more details.
+
 ## Debugging
 
 The debugger can be invoked in several ways, the simplest one is to type
@@ -140,9 +146,11 @@ C-M-x` or `C-u C-u C-c C-c`.
 
 ## Internal Details
 
-*This section explains a bit of the inner workings of the debugger. It is
-intended mostly to help those who are interested in contributing, and doesn't
-teach anything about the debugger's usage.*
+!!! Note
+
+    This section explains a bit of the inner workings of the debugger. It is
+    intended mostly to help those who are interested in contributing, and doesn't
+    teach anything about the debugger's usage.
 
 The CIDER debugger works in several steps:
 
