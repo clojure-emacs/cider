@@ -64,7 +64,7 @@
   :prefix "cider-"
   :group 'applications
   :link '(url-link :tag "GitHub" "https://github.com/clojure-emacs/cider")
-  :link '(url-link :tag "Online Manual" "https://cider.readthedocs.io")
+  :link '(url-link :tag "Online Manual" "https://docs.cider.mx")
   :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
 (defcustom cider-prompt-for-project-on-connect 'when-needed
@@ -624,12 +624,12 @@ Generally you should not disable this unless you run into some faulty check."
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
   (unless (cider-library-present-p "clojure/clojurescript")
-    (user-error "ClojureScript is not available.  See http://cider.readthedocs.io/en/latest/clojurescript for details")))
+    (user-error "ClojureScript is not available.  See http://docs.cider.mx/en/latest/clojurescript for details")))
 
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
   (unless (cider-library-present-p "cider/piggieback")
-    (user-error "Piggieback is not available.  See http://cider.readthedocs.io/en/latest/clojurescript for details")))
+    (user-error "Piggieback is not available.  See http://docs.cider.mx/en/latest/clojurescript for details")))
 
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
@@ -647,19 +647,19 @@ Generally you should not disable this unless you run into some faulty check."
   "Check whether we can start a Figwheel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel-sidecar/figwheel-sidecar")
-    (user-error "Figwheel-sidecar is not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript")))
+    (user-error "Figwheel-sidecar is not available.  Please check http://docs.cider.mx/en/latest/clojurescript")))
 
 (defun cider-check-figwheel-main-requirements ()
   "Check whether we can start a Figwheel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "bhauman/figwheel-main")
-    (user-error "Figwheel-main is not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript")))
+    (user-error "Figwheel-main is not available.  Please check http://docs.cider.mx/en/latest/clojurescript")))
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "weasel/weasel")
-    (user-error "Weasel in not available.  Please check http://cider.readthedocs.io/en/latest/clojurescript/#browser-connected-clojurescript-repl")))
+    (user-error "Weasel in not available.  Please check http://docs.cider.mx/en/latest/clojurescript/#browser-connected-clojurescript-repl")))
 
 (defun cider-check-boot-requirements ()
   "Check whether we can start a Boot ClojureScript REPL."

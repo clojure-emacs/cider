@@ -30,7 +30,7 @@ so on.
 
 The instructions that follow are meant to get you from zero to a running CIDER
 REPL in under 5 minutes.  See the
-[official manual](http://cider.readthedocs.io/en/latest/) for (way) more
+[official manual](http://docs.cider.mx) for (way) more
 details.
 
 ### Installation
@@ -88,7 +88,7 @@ In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c<
 CIDER packs a ton of functionality and you really want to be familiar with it,
 so you can fully empower your workflow. The best way to get acquainted with all
 available features is to go over the entire
-[CIDER manual](http://cider.readthedocs.io/).
+[CIDER manual](http://docs.cider.mx/).
 
 If you're into video lessons, you might also check out
 this [intro to CIDER demo](https://www.youtube.com/watch?v=aYA4AAjLfT0) as well.
