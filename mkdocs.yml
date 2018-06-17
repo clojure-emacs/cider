@@ -34,4 +34,6 @@ pages:
     - License: about/license.md
 extra_css:
   - css/extra.css
+markdown_extensions:
+  - admonition
 theme: readthedocs

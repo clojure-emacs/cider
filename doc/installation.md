@@ -201,6 +201,6 @@ It goes without saying that your project should depend on `cider-nrepl`.
 
 !!! note
 
-`x.y.z` should match the version of CIDER you're currently using (say `0.17.0`).
-For snapshot releases of CIDER you should use the snapshot of the plugin as well
-(say `0.18.0-SNAPSHOT`).
+    `x.y.z` should match the version of CIDER you're currently using (say `0.17.0`).
+    For snapshot releases of CIDER you should use the snapshot of the plugin as well
+    (say `0.18.0-SNAPSHOT`).
