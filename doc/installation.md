@@ -17,7 +17,7 @@ You'll also need a recent version of either the Clojure CLI tools or your
 favorite build tool (Leiningen, Boot or Gradle) to be able to start CIDER via
 `cider-jack-in`. Generally it's a good idea to use their latest stable versions.
 
-!!! Warning
+!!! warning
 
     CIDER does not support ClojureCLR.
 
@@ -59,7 +59,7 @@ Stable by adding this to your Emacs initialization:
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 ```
 
-!!! Note
+!!! note
 
     CIDER has dependencies (e.g. `queue` & `seq`) that are only available in the
     [GNU ELPA repository](https://elpa.gnu.org/). It's the only package repository
@@ -159,7 +159,7 @@ A minimal `profiles.clj` for CIDER would be:
 {:repl {:plugins [[cider/cider-nrepl "0.17.0"]]}}
 ```
 
-!!! Warning
+!!! warning
 
     Be careful not to place this in the `:user` profile, as this way CIDER's
     middleware will always get loaded, causing `lein` to start slower.  You really
@@ -199,7 +199,7 @@ server with CIDER's own nREPL handler.
 
 It goes without saying that your project should depend on `cider-nrepl`.
 
-***
+!!! note
 
 `x.y.z` should match the version of CIDER you're currently using (say `0.17.0`).
 For snapshot releases of CIDER you should use the snapshot of the plugin as well
