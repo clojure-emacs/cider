@@ -81,7 +81,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 
 ![CIDER Screenshot](images/cider-overview.png)
 
-[nREPL]: https://github.com/clojure/tools.nrepl
+[nREPL]: https://github.com/nrepl/nrepl
 [SLIME]: https://github.com/slime/slime
 [Sly]: https://github.com/capitaomorte/sly
 [Geiser]: https://github.com/jaor/geiser
