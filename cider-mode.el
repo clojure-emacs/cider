@@ -514,7 +514,7 @@ with the given LIMIT."
   (let ((repl-types (seq-uniq (seq-map #'cider-repl-type (cider-repls))))
         (result 'retry))
     (while (and (eq result 'retry) (<= (point) limit))
-      (condition-case-unless-debug condition
+      (condition-case condition
           (setq result
                 (cider--anchored-search-suppressed-forms-internal
                  repl-types limit))
@@ -860,8 +860,7 @@ property."
           (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
         (setq next-error-function #'cider-jump-to-compilation-error))
-    (mapc #'kill-local-variable '(sesman-system
-                                  completion-at-point-functions
+    (mapc #'kill-local-variable '(completion-at-point-functions
                                   next-error-function
                                   x-gtk-use-system-tooltips
                                   font-lock-fontify-region-function
