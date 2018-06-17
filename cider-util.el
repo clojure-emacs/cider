@@ -689,7 +689,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "Press <C-u C-u \\[cider-inspect]> to read Clojure code from the minibuffer and inspect its result."
     "Press <\\[cider-refresh]> to reload modified and unloaded namespaces."
     "You can define Clojure functions to be called before and after `cider-refresh' (see `cider-refresh-before-fn' and `cider-refresh-after-fn'."
-    "Press <\\[cider-display-connection-info]> to view information about the connection."
+    "Press <\\[cider-describe-current-connection]> to view information about the connection."
     "Press <\\[cider-undef]> to undefine a symbol in the current namespace."
     "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation."
     "Use <M-x customize-group RET cider RET> to see every possible setting you can customize."

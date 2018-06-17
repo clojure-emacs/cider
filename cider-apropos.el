@@ -174,7 +174,6 @@ optionally search doc strings (based on DOCS-P), include private vars
 ;;;###autoload
 (defun cider-apropos-select (query &optional ns docs-p privates-p case-sensitive-p)
   "Similar to `cider-apropos', but presents the results in a completing read.
-
 Show all symbols whose names match QUERY, a regular expression.
 QUERY can also be a list of space-separated words (e.g. take while) which
 will be converted to a regular expression (like take.+while) automatically

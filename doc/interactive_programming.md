@@ -37,8 +37,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-switch-to-repl-buffer`                 |<kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
 `cider-switch-to-repl-buffer`                 |<kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
 `cider-load-buffer-and-switch-to-repl-buffer` |<kbd>C-c M-z</kbd>                   | Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
-`cider-display-connection-info`               |<kbd>C-c M-d</kbd>                   | Display default REPL connection details, including project directory name, buffer namespace, host and port.
-`cider-rotate-default-connection`             |<kbd>C-c M-r</kbd>                   | Rotate and display the default nREPL connection.
+`cider-describe-current-connection            |<kbd>C-c M-d</kbd>                   | Display default REPL connection details, including project directory name, buffer namespace, host and port.
 `cider-find-and-clear-repl-output`            |<kbd>C-c C-o</kbd>                   | Clear the last output in the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 `cider-load-buffer`                           |<kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 `cider-load-file`                             |<kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
@@ -67,7 +66,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-find-ns`                               |<kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
 `cider-pop-back`                              |<kbd>M-,</kbd>                       | Return to your pre-jump location.
 `complete-symbol`                             |<kbd>M-TAB</kbd>                     | Complete the symbol at point.
-`cider-quit`                                  |<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection. With a prefix argument it will quit all connections.
+`cider-quit`                                  |<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection.
 
 There's no need to memorize this list. In any Clojure buffer with `cider-mode`
 active you'll have a CIDER menu available, which lists all the most important

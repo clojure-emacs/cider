@@ -9,8 +9,6 @@ env:
   global:
     - PATH=$HOME/local/bin:$HOME/local/evm/bin:$HOME/local/cask/bin:$PATH
   matrix:
-    - EMACS_BINARY=emacs-24.4-travis MAKE_TEST=test
-    - EMACS_BINARY=emacs-24.5-travis MAKE_TEST=test
     - EMACS_BINARY=emacs-25.1-travis MAKE_TEST=test
     - EMACS_BINARY=emacs-25.2-travis MAKE_TEST=test
     - EMACS_BINARY=emacs-25.3-travis MAKE_TEST=test
@@ -24,10 +22,6 @@ stages:
 jobs:
   include:
     # linting for code quality
-    - stage: check
-      env: EMACS_BINARY=emacs-24.4-travis MAKE_TEST=lint
-    - stage: check
-      env: EMACS_BINARY=emacs-24.5-travis MAKE_TEST=lint
     - stage: check
       env: EMACS_BINARY=emacs-25.1-travis MAKE_TEST=lint
     - stage: check

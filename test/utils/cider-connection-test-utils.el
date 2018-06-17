@@ -30,26 +30,29 @@
 (require 'cider)
 (require 'cider-client)
 
-(defmacro with-connection-buffer (type symbol &rest body)
+(defmacro with-repl-buffer (ses-name type symbol &rest body)
   "Run BODY in a temp buffer, with the given repl TYPE.
-SYMBOL is locally let-bound to the current buffer."
-  (declare (indent 2)
+SES-NAME is Sesman's session. SYMBOL is locally let-bound to the
+current buffer."
+  (declare (indent 3)
            (debug (sexp sexp &rest form)))
   `(with-temp-buffer
      (setq major-mode 'cider-repl-mode)
      (setq cider-repl-type ,type)
+     (setq sesman-system 'CIDER)
+     (sesman-add-object 'CIDER ,ses-name (current-buffer) t)
      ;; `with-current-buffer' doesn't bump the buffer up the list.
      (switch-to-buffer (current-buffer))
-     (rename-buffer (format "*cider-repl %s-%s*" ,type (random 10000)) t)
-     (let ((cider-connections (cons (current-buffer) cider-connections))
-           (,symbol (current-buffer)))
-       ,@body)))
+     (rename-buffer (format "*%s:%s:%s*(%s)"
+                            ,ses-name ,(symbol-name symbol) ,type (random 10000)) t)
+     (let ((,symbol (current-buffer)))
+       ,@body
+       (sesman-remove-object 'CIDER ,ses-name (current-buffer) t 'no-error))))
 
 (defmacro cider-test-with-buffers (buffer-names &rest body)
   (let ((create (lambda (b) (list b `(generate-new-buffer " *temp*")))))
     `(let (,@(mapcar create buffer-names))
-       (unwind-protect
-           ,@body
-         (mapc 'kill-buffer (list ,@buffer-names))))))
+       ,@body
+       (mapc 'kill-buffer (list ,@buffer-names)))))
 
 (provide 'cider-connection-test-utils)

@@ -64,9 +64,11 @@
 (describe "reader conditional font-lock"
 
   (describe "when cider is connected"
+
     (it "uses cider-reader-conditional-face"
       (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-project-connections-types :and-return-value '("clj"))
+      (spy-on 'cider-repls :and-return-value '(list t))
+      (spy-on 'cider-repl-type :and-return-value "clj")
       (cider--test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t)
               (found (cider--face-exists-in-range-p (point-min) (point-max)
@@ -75,19 +77,21 @@
 
     (it "highlights unmatched reader conditionals"
       (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-project-connections-types :and-return-value '("clj"))
+      (spy-on 'cider-repls :and-return-value '(list t))
+      (spy-on 'cider-repl-type :and-return-value "clj")
       (cider--test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t))
           (expect (cider--face-exists-in-range-p 4 12 'cider-reader-conditional-face)
                   :not :to-be-truthy)
           (expect (cider--face-covers-range-p 14 24 'cider-reader-conditional-face)
                   :to-be-truthy)
-          (expect (cider--face-covers-range-p 26 36 'cider-reader-conditional-face)
+          (expect (cider--face-covers-range-p 26 34 'cider-reader-conditional-face)
                   :to-be-truthy))))
 
     (it "works with splicing"
       (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-project-connections-types :and-return-value '("clj"))
+      (spy-on 'cider-repls :and-return-value '(list t))
+      (spy-on 'cider-repl-type :and-return-value "clj")
       (cider--test-with-temp-buffer "[1 2 #?(:clj [3 4] :cljs [5 6] :cljr [7 8])]"
         (let ((cider-font-lock-reader-conditionals t))
           (expect (cider--face-exists-in-range-p 1 18 'cider-reader-conditional-face)
@@ -99,15 +103,8 @@
 
     (it "does not apply inside strings or comments"
       (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-project-connections-types :and-return-value '("clj"))
-      (cider--test-with-temp-buffer "\"#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\" ;; #?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
-        (let ((cider-font-lock-reader-conditionals t))
-          (expect (cider--face-exists-in-range-p (point-min) (point-max) 'cider-reader-conditional-face)
-                  :not :to-be-truthy))))
-
-    (it "does not apply inside strings or comments"
-      (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-project-connections-types :and-return-value '("clj"))
+      (spy-on 'cider-repls :and-return-value '(list t))
+      (spy-on 'cider-repl-type :and-return-value "clj")
       (cider--test-with-temp-buffer "\"#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\" ;; #?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t))
           (expect (cider--face-exists-in-range-p (point-min) (point-max) 'cider-reader-conditional-face)
@@ -115,7 +112,8 @@
 
     (it "highlights all unmatched reader conditionals"
       (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-project-connections-types :and-return-value '("cljs"))
+      (spy-on 'cider-repls :and-return-value '(list t))
+      (spy-on 'cider-repl-type :and-return-value "cljs")
       (cider--test-with-temp-buffer
           "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n"
         (let ((cider-font-lock-reader-conditionals t))
@@ -130,7 +128,8 @@
 
     (it "does not highlight beyond the limits of the reader conditional group"
       (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-project-connections-types :and-return-value '("clj"))
+      (spy-on 'cider-repls :and-return-value '(list t))
+      (spy-on 'cider-repl-type :and-return-value "clj")
       (cider--test-with-temp-buffer
           "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n#?(:clj 'clj :cljs 'cljs :cljr 'cljr)\n"
         (let ((cider-font-lock-reader-conditionals t))
@@ -144,12 +143,13 @@
   (describe "when multiple connections are connected"
     (it "is disabled"
       (spy-on 'cider-connected-p :and-return-value nil)
-      (spy-on 'cider-project-connections-types :and-return-value '("clj" "cljs"))
+      (spy-on 'cider-repls :and-return-value '(list t))
+      (spy-on 'cider-repl-type :and-return-value '("clj" "cljs"))
       (cider--test-with-temp-buffer "#?(:clj 'clj :cljs 'cljs :cljr 'cljr)"
         (let ((cider-font-lock-reader-conditionals t))
           (expect (cider--face-exists-in-range-p (point-min) (point-max) 'cider-reader-conditional-face)
                   :not :to-be-truthy)))))
-  
+
   (describe "when cider is not connected"
     (it "is disabled"
       (spy-on 'cider-connected-p :and-return-value nil)

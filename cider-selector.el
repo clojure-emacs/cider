@@ -64,7 +64,6 @@ Only considers buffers that are not already visible."
 The user is prompted for a single character indicating the method by
 which to choose a new buffer.  The `?' character describes then
 available methods.  OTHER-WINDOW provides an optional target.
-
 See `def-cider-selector-method' for defining new methods."
   (interactive)
   (message "Select [%s]: "
@@ -85,7 +84,6 @@ See `def-cider-selector-method' for defining new methods."
 
 (defmacro def-cider-selector-method (key description &rest body)
   "Define a new `cider-select' buffer selection method.
-
 KEY is the key the user will enter to choose this method.
 
 DESCRIPTION is a one-line sentence describing how the method
@@ -138,16 +136,11 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?r
   "Current REPL buffer."
-  (cider-current-repl-buffer))
-
-(def-cider-selector-method ?n
-  "Connections browser buffer."
-  (cider-connection-browser)
-  cider--connection-browser-buffer-name)
+  (cider-current-repl))
 
 (def-cider-selector-method ?m
   "Current connection's *nrepl-messages* buffer."
-  (cider-current-messages-buffer))
+  (nrepl-messages-buffer (cider-current-repl)))
 
 (def-cider-selector-method ?x
   "*cider-error* buffer."

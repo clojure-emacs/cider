@@ -26,6 +26,8 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-popup)
+(require 'cider-interaction)
 
 (defconst cider-profile-buffer "*cider-profile*")
 
@@ -175,7 +177,6 @@ With prefix arg or no symbol at point, prompts for a var."
 ;;;###autoload
 (defun cider-profile-var-summary (query)
   "Display profile data for var under point QUERY.
-
 Defaults to the symbol at point.  With prefix arg or no symbol at point,
 prompts for a var."
   (interactive "P")

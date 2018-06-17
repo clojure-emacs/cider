@@ -36,8 +36,7 @@
     (spy-on 'cider--java-version :and-return-value "1.8.0_31")
     (spy-on 'cider--clojure-version :and-return-value "1.8.0")
     (spy-on 'cider--nrepl-version :and-return-value "0.2.12")
-    (spy-on 'cider--connection-host :and-return-value "localhost")
-    (spy-on 'cider--connection-port :and-return-value "54018")
+    (setq nrepl-endpoint (list :host "localhost" :port "54018"))
     (setq cider-version "0.12.0")
     (setq cider-codename "Seattle"))
 

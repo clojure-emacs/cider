@@ -72,8 +72,8 @@
 
 (defun cider-resolve--get-in (&rest keys)
   "Return (nrepl-dict-get-in cider-repl-ns-cache KEYS)."
-  (when cider-connections
-    (with-current-buffer (cider-current-connection)
+  (when-let* ((conn (cider-current-repl)))
+    (with-current-buffer conn
       (nrepl-dict-get-in cider-repl-ns-cache keys))))
 
 (defun cider-resolve-alias (ns alias)
@@ -103,9 +103,10 @@ Return nil only if VAR cannot be resolved."
 
 (defun cider-resolve-core-ns ()
   "Return a dict of the core namespace for current connection.
-This will be clojure.core or cljs.core depending on `cider-repl-type'."
-  (when (cider-connected-p)
-    (with-current-buffer (cider-current-connection)
+This will be clojure.core or cljs.core depending on the return value of the
+function `cider-repl-type'."
+  (when-let* ((repl (cider-current-repl)))
+    (with-current-buffer repl
       (cider-resolve--get-in (if (equal cider-repl-type "cljs")
                                  "cljs.core"
                                "clojure.core")))))
