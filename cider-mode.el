@@ -108,17 +108,18 @@ Hint: You can use `display-buffer-reuse-frames' and
 `special-display-buffer-names' to customize the frame in which
 the buffer should appear."
   (interactive "P")
-  (let* ((repls (sesman-ensure-linked-session 'CIDER))
-         (type (cider-repl-type-for-buffer))
-         (a-repl)
-         (the-repl (seq-find (lambda (buf)
-                               (when (member buf repls)
-                                 (unless a-repl
-                                   (setq a-repl buf))
-                                 (equal type (cider-repl-type-for-buffer buf))))
-                             (buffer-list))))
-    (let ((repl (or the-repl a-repl)))
-      (cider--switch-to-repl-buffer repl set-namespace))))
+  (if-let* ((repls (cider-repls)))
+      (let* ((type (cider-repl-type-for-buffer))
+             (a-repl)
+             (the-repl (seq-find (lambda (buf)
+                                   (when (member buf repls)
+                                     (unless a-repl
+                                       (setq a-repl buf))
+                                     (equal type (cider-repl-type-for-buffer buf))))
+                                 (buffer-list))))
+        (let ((repl (or the-repl a-repl)))
+          (cider--switch-to-repl-buffer repl set-namespace)))
+    (user-error "No linked REPL")))
 
 (declare-function cider-load-buffer "cider-interaction")
 
