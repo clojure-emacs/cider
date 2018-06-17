@@ -916,7 +916,7 @@ Prompt for the project and nREPL server command when DO-PROMPT is non-nil."
         (cider-connect-sibling-cljs server-buffer)))))
 
 ;;;###autoload
-(defun cider-jack-in-cljcljs (&optional do-prompt soft-cljs-start)
+(defun cider-jack-in-clj&cljs (&optional do-prompt soft-cljs-start)
   "Start an nREPL server and connect with clj and cljs REPLs.
 Prompt for the project and nREPL server command when DO-PROMPT is non-nil.
 When SOFT-CLJS-START is non-nil, start cljs REPL only when the
@@ -992,7 +992,7 @@ that server is created."
                             default-directory)))))
 
 ;;;###autoload
-(defun cider-connect-cljcljs (host port &optional soft-cljs-start)
+(defun cider-connect-clj&cljs (host port &optional soft-cljs-start)
   "Initialize a CLJ and CLJS connection to an nREPL server at HOST and PORT.
 When SOFT-CLJS-START is non-nil, don't start if ClojureScript requirements
 are not met."

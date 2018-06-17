@@ -344,10 +344,10 @@ Don't restart the server or other connections within the same session.  Use
             (cider--connection-info repl t)
             (mapconcat #'buffer-name (cdr session) ", "))))
 
-(declare-function cider-jack-in-cljcljs "cider")
+(declare-function cider-jack-in-clj&cljs "cider")
 (cl-defmethod sesman-start-session ((_system (eql CIDER)))
   "Start a clj session with a cljs REPL if cljs requirements are met."
-  (cider-jack-in-cljcljs nil t))
+  (cider-jack-in-clj&cljs nil t))
 
 (cl-defmethod sesman-quit-session ((_system (eql CIDER)) session)
   (mapc #'cider--close-connection (cdr session))
