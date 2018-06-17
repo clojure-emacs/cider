@@ -88,6 +88,8 @@ running nREPL server.
     you want to establish remote nREPL connections to. Using an optional label is
     helpful for identifying each host.
 
-    ```el
-    (setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
+    ```
+    (setq cider-known-endpoints
+      '(("host-a" "10.10.10.1" "7888")
+        ("host-b" "7888")))
     ```
