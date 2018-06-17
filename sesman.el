@@ -39,6 +39,7 @@
 ;;
 ;;; Code:
 
+(require 'cl-generic)
 (require 'project)
 (require 'seq)
 (require 'subr-x)

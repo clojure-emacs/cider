@@ -12,7 +12,7 @@
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
 ;; Version: 0.18.0-snapshot
-;; Package-Requires: ((emacs "25") (clojure-mode "5.7.0") (pkg-info "0.4") (queue "0.1.1") (spinner "1.7") (seq "2.16") (sesman "0.1.0"))
+;; Package-Requires: ((emacs "25") (clojure-mode "5.7.0") (pkg-info "0.4") (queue "0.1.1") (spinner "1.7") (seq "2.16"))
 ;; Keywords: languages, clojure, cider
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -81,8 +81,8 @@
 (require 'cider-debug)
 (require 'tramp-sh)
 (require 'cider-repl-history)
-
 (require 'seq)
+(require 'sesman)
 
 (defconst cider-version "0.18.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
@@ -1181,6 +1181,7 @@ In case `default-directory' is non-local we assume the command is available."
      (define-key clojure-mode-map (kbd "C-c M-s") #'cider-connect-sibling-clj)
      (define-key clojure-mode-map (kbd "C-c M-S") #'cider-connect-sibling-cljs)
      (define-key clojure-mode-map (kbd "C-c C-s") 'sesman-map)
+     (require 'sesman)
      (sesman-install-menu clojure-mode-map)))
 
 (provide 'cider)
