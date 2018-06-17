@@ -1,10 +1,12 @@
 CIDER provides intelligent code completion for both source buffers (powered by
 `cider-mode`) and REPL buffers.
 
-Internally CIDER leverages
-[compliment](https://github.com/alexander-yakushev/compliment) for Clojure and
-[cljs-tooling](https://github.com/clojure-emacs/cljs-tooling) for ClojureScript.
-Improvements to the two libraries automatically translate to improvements in CIDER.
+!!! Note
+
+    Internally CIDER leverages
+    [compliment](https://github.com/alexander-yakushev/compliment) for Clojure and
+    [cljs-tooling](https://github.com/clojure-emacs/cljs-tooling) for ClojureScript.
+    Improvements to the two libraries automatically translate to improvements in CIDER.
 
 ## Standard completion
 
@@ -80,10 +82,12 @@ used to format the annotation can be configured by
 `cider-completion-annotations-alist` and the context in which their namespace is
 included is configured by `cider-completion-annotations-include-ns.`
 
-Completion annotations can be disabled by setting
-`cider-annotate-completion-candidates` to `nil`.
-
 ![Completion Annotations](images/completion-annotations.png)
+
+!!! Tip
+
+    Completion annotations can be disabled by setting
+    `cider-annotate-completion-candidates` to `nil`.
 
 ### Updating stale classes and methods cache
 
