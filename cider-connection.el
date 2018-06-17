@@ -121,7 +121,6 @@ buffer."
                      (process-live-p (get-buffer-process nrepl-server-buffer))))
         (nrepl-sync-request:close repl)
         (delete-process proc)))
-    (sesman-remove-object 'CIDER nil repl t t)
     (when-let* ((messages-buffer (and nrepl-log-messages
                                       (nrepl-messages-buffer repl))))
       (kill-buffer messages-buffer))
@@ -130,7 +129,9 @@ buffer."
           (goto-char (point-max))
           (cider-repl-emit-interactive-stderr
            (format "*** Closed on %s ***\n" (current-time-string))))
-      (kill-buffer repl))))
+      (kill-buffer repl)))
+  (when repl
+    (sesman-remove-object 'CIDER nil repl (not no-kill) t)))
 
 (defun cider-emit-manual-warning (section-id format &rest args)
   "Emit a warning to the REPL and link to the online manual.
@@ -219,7 +220,6 @@ This function is appended to `nrepl-disconnected-hook' in the client
 process buffer."
   ;; `nrepl-connected-hook' is run in the connection buffer
   (cider-possibly-disable-on-existing-clojure-buffers)
-  (sesman-remove-object 'CIDER nil (current-buffer) t t)
   (run-hooks 'cider-disconnected-hook))
 
 
