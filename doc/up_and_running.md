@@ -39,7 +39,10 @@ visit any file in it. This option is also useful if your project contains some
 combination of `project.clj`, `build.boot` and `deps.edn` and you want to launch
 a repl for one or the other.
 
-In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
+
+!!! Tip
+
+    In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c M-j</kbd>.
 
 For further customizing the command line used for `cider-jack-in`, you can
 change the following (all string options):
@@ -49,7 +52,7 @@ change the following (all string options):
 
 ## Connect to a running nREPL server
 
-You can go to your project's directory in a terminal and type there:
+Go to your project's directory in a terminal and type there:
 
 ```
 $ lein repl
@@ -67,20 +70,24 @@ It is also possible for plain `clj`, although the command is somewhat longer:
 $ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.18.0-SNAPSHOT"} }}' -e '(require (quote cider-nrepl.main)) (cider-nrepl.main/init ["cider.nrepl/cider-middleware"])'
 ```
 
-Alternatively you can start nREPL either manually or by the facilities provided by your
-project's build tool (Maven, etc).
+Alternatively you can start nREPL either manually or by the facilities
+provided by your project's build tool (Maven, etc).
 
-After you get your nREPL server running go back to Emacs.  Typing there
-<kbd>M-x</kbd> `cider-connect` <kbd>RET</kbd> will allow you to connect to the
+After you get your nREPL server running, go back to Emacs.  Type there
+<kbd>M-x</kbd> `cider-connect` <kbd>RET</kbd> to connect to the
 running nREPL server.
 
-In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
+!!! Tip
 
-You can configure known endpoints used by the `cider-connect` command offered
-via a completing read. This is useful if you have a list of common host/ports
-you want to establish remote nREPL connections to. Using an optional label is
-helpful for identifying each host.
+    In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
 
-```el
-(setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
-```
+!!! Tip
+
+    You can configure known endpoints used by the `cider-connect` command offered
+    via a completing read. This is useful if you have a list of common host/ports
+    you want to establish remote nREPL connections to. Using an optional label is
+    helpful for identifying each host.
+
+    ```el
+    (setq cider-known-endpoints '(("host-a" "10.10.10.1" "7888") ("host-b" "7888")))
+    ```
