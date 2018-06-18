@@ -899,10 +899,12 @@ Prompt for the project and nREPL server command when DO-PROMPT is non-nil."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
-        (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
+        (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
+        (cljs-repl-type cider-default-cljs-repl))
     (cider--jack-in do-prompt
       (lambda (server-buffer)
-        (cider-connect-sibling-cljs server-buffer)))))
+        (let ((cider-default-cljs-repl cljs-repl-type))
+          (cider-connect-sibling-cljs server-buffer))))))
 
 ;;;###autoload
 (defun cider-jack-in-clj&cljs (&optional do-prompt soft-cljs-start)
@@ -913,14 +915,16 @@ ClojureScript dependencies are met."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
-        (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
+        (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
+        (cljs-repl-type cider-default-cljs-repl))
     (cider--jack-in do-prompt
       (lambda (server-buffer)
         (let ((clj-repl (cider-connect-sibling-clj server-buffer)))
           (if soft-cljs-start
-              (when-let* ((cider-default-cljs-repl (cider--check-cljs nil 'no-error)))
+              (when-let* ((cider-default-cljs-repl (cider--check-cljs cljs-repl-type 'no-error)))
                 (cider-connect-sibling-cljs clj-repl))
-            (cider-connect-sibling-cljs clj-repl)))))))
+            (let ((cider-default-cljs-repl cljs-repl-type))
+              (cider-connect-sibling-cljs clj-repl))))))))
 
 ;;;###autoload
 (defun cider-connect-sibling-clj (other-repl)
@@ -944,8 +948,7 @@ Figwheel, etc), unless you've set `cider-default-cljs-repl'.  OTHER-REPL
 can also be a server buffer, in which case a new session with a REPL for
 that server is created."
   (interactive (list (cider-current-repl)))
-  (let ((cljs-repl-type (or cider-default-cljs-repl
-                            (cider-select-cljs-repl)))
+  (let ((cljs-repl-type (or cider-default-cljs-repl (cider-select-cljs-repl)))
         (ses-name (unless (nrepl-server-p other-repl)
                     (sesman-session-name-for-object 'CIDER other-repl))))
     (cider-nrepl-connect
