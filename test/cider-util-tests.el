@@ -160,7 +160,7 @@ and point left there."
               (right)     |
               (wrong))"
          (expect (cider-defun-inside-comment-form) :to-equal "(right)")))
-    (it "attaches to the previous top level comment even if its on the same line"
+    (it "attaches to the next top level comment even if its on the same line"
       (cider-buffer-with-text
           "(comment
               (wrong)
@@ -182,16 +182,16 @@ and point left there."
               (wrong)
               (wrong)
               (right|))"
+          (expect (cider-defun-inside-comment-form) :to-equal "(right)")))
+    (it "works on the last form even after the comment form"
+      (cider-buffer-with-text
+          "(comment (wrong) (wrong) (right)) |"
           (expect (cider-defun-inside-comment-form) :to-equal "(right)"))))
   (describe "returns entire comment form when"
     (it "the comment form is empty"
       (cider-buffer-with-text
           "(comment|)"
-          (expect (cider-defun-inside-comment-form) :to-equal "(comment)")))
-    (it "point is after the comment form"
-      (cider-buffer-with-text
-          "(comment stuff stuff stuff)|"
-          (expect (cider-defun-inside-comment-form) :to-equal "(comment stuff stuff stuff)")))))
+          (expect (cider-defun-inside-comment-form) :to-equal "(comment)")))))
 
 (describe "cider-defun-at-point"
   (describe "when the param 'bounds is not given"
