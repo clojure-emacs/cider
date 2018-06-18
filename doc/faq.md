@@ -8,8 +8,12 @@ Yes.
 
 ## What are CIDER's installation prerequisites?
 
-CIDER officially supports Emacs 24.4+, Java 7+ and Clojure(Script) 1.7+.
-CIDER 0.10 was the final release which supported Java 6 and Clojure 1.5 and 1.6.
+CIDER officially supports Emacs 25.1+, Java 8+ and Clojure(Script) 1.8+.
+
+
+!!! note
+
+    CIDER 0.17 was the final release which supported Java 7 and Clojure(Script) 1.7.
 
 ## What's the relationship between CIDER and nrepl.el?
 
