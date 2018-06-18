@@ -16,6 +16,7 @@
 ### Changes
 
 * Bump the minimum required Emacs version to 25.1.
+* Drop support for Java 7 and Clojure(Script) 1.7.
 
 ## 0.17.0 (2018-05-07)
 
