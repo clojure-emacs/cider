@@ -70,7 +70,7 @@ PARAMS is a plist containing :host, :port, :server and other parameters for
 
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
-  (sesman-has-links-p 'CIDER))
+  (process-live-p (get-buffer-process (cider-current-repl))))
 
 (defun cider-ensure-connected ()
   "Ensure there is a linked CIDER session."
