@@ -38,7 +38,6 @@
 (require 'cider-interaction)
 (require 'cider-client)
 (require 'subr-x)
-(require 'cider-compat)
 (require 'cider-util)
 (require 'nrepl-dict)
 (require 'easymenu)

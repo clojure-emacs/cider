@@ -39,7 +39,6 @@
 (require 'cider-resolve)
 (require 'cider-doc)
 (require 'subr-x)
-(require 'cider-compat)
 
 (defcustom cider-mode-line-show-connection t
   "If the mode-line lighter should detail the connection."

@@ -38,7 +38,6 @@
 (require 'subr-x)
 
 ;; clojure-mode and CIDER
-(require 'cider-compat)
 (require 'clojure-mode)
 (require 'nrepl-dict)
 
