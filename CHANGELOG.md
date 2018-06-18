@@ -5,6 +5,10 @@
 ### New features
 
 * Inject piggieback automatically on `cider-jack-in-clojurescript`.
+* [#2322](https://github.com/clojure-emacs/cider/pull/2322) Add new defcustom `cider-insert-and-step-forward-p`: Set to jump forward one sexp after `cider-insert-in-repl` commands.
+* [#2319](https://github.com/clojure-emacs/cider/pull/2319) Create keymap for inserting forms into the repl at `C-c C-j`.
+* [#2319](https://github.com/clojure-emacs/cider/pull/2319) Add new defcustom `cider-invert-insert-eval-p`: Set to cause `cider-insert-in-repl` commands to eval the forms by default when inserted.
+* [#2319](https://github.com/clojure-emacs/cider/pull/2319) Add new defcustom `cider-switch-to-repl-after-insert-p`: Set to prevent cursor from going to the repl when inserting a form in the repl with the `cider-insert-in-repl` commands.
 
 ### Bugs fixed
 
@@ -22,9 +26,6 @@
 
 ### New features
 
-* Create keymap for inserting forms into the repl at `C-c C-j`.
-* Add new defcustom `cider-invert-insert-eval-p`: Set to cause insert-to-repl commands to eval the forms by default when inserted.
-* Add new defcustom `cider-switch-to-repl-after-insert-p`: Set to prevent cursor from going to the repl when inserting a form in the repl with the insert-to-repl commands.
 * [#2248](https://github.com/clojure-emacs/cider/pull/2248): `cider-repl` can now display recognized images in the REPL buffer.
 * [#2172](https://github.com/clojure-emacs/cider/pull/2172): Render diffs for expected / actual test results.
 * [#2167](https://github.com/clojure-emacs/cider/pull/2167): Add new defcustom `cider-jdk-src-paths`. Configure it to connect stack trace links to Java source code.

@@ -1537,6 +1537,14 @@ and eval and the prefix is required to prevent evaluation."
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
+(defcustom cider-insert-and-step-forward-p nil
+  "Whether to step forward one sexp after inserting.
+Default behavior when inserting is to stay on the evaluated sexp.  This
+allows to jump to the next sexp right after that."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
+
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
 If EVAL is non-nil the form will also be evaluated."
@@ -1551,6 +1559,8 @@ If EVAL is non-nil the form will also be evaluated."
               (not eval)
             eval)
       (cider-repl-return)))
+  (when cider-insert-and-step-forward-p
+    (forward-sexp))
   (when cider-switch-to-repl-after-insert-p
     (cider-switch-to-repl-buffer)))
 
