@@ -73,13 +73,14 @@
 (require 'cider-client)
 (require 'cider-eldoc)
 (require 'cider-repl)
+(require 'cider-repl-history)
 (require 'cider-connection)
 (require 'cider-mode)
 (require 'cider-common)
-(require 'subr-x)
 (require 'cider-debug)
+
 (require 'tramp-sh)
-(require 'cider-repl-history)
+(require 'subr-x)
 (require 'seq)
 (require 'sesman)
 
