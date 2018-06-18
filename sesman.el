@@ -109,14 +109,16 @@ Can be either a symbol, or a function returning a symbol.")
 (defun sesman--link-session (system session &optional cxt-type)
   (let* ((ses-name (or (car-safe session)
                        (error "SESSION must be a headed list")))
-         (cxt-val (or (if cxt-type
-                          (sesman-context cxt-type)
-                        (seq-some (lambda (ctype)
-                                    (let ((val (sesman-context ctype)))
-                                      (setq cxt-type ctype)
-                                      val))
-                                  (reverse (sesman-context-types system))))
-                      (user-error "No local context of type %s" cxt-type)))
+         (cxt-val (sesman--expand-path-maybe
+                   (or (if cxt-type
+                           (sesman-context cxt-type)
+                         ;; use the lest specific context-type available
+                         (seq-some (lambda (ctype)
+                                     (let ((val (sesman-context ctype)))
+                                       (setq cxt-type ctype)
+                                       val))
+                                   (reverse (sesman-context-types system))))
+                       (user-error "No local context of type %s" cxt-type))))
          (key (cons system ses-name))
          (link (list key cxt-type cxt-val)))
     (if (member cxt-type sesman-single-link-context-types)
@@ -146,6 +148,13 @@ Can be either a symbol, or a function returning a symbol.")
          (error (format "%s association not allowed for this system (%s)"
                         ,(capitalize (symbol-name cxt-type))
                         system))))))
+
+(defun sesman--expand-path-maybe (obj)
+  (cond
+   ((stringp obj) (expand-file-name obj))
+   ((and (consp obj) (stringp (cdr obj)))
+    (cons (car obj) (expand-file-name (cdr obj))))
+   (t obj)))
 
 ;; FIXME: incorporate `sesman-abbreviate-paths'
 (defun sesman--abbrev-path-maybe (obj)
@@ -716,12 +725,12 @@ buffers."
 (cl-defmethod sesman-relevant-context-p ((_cxt-type (eql directory)) dir)
   "Non-nil if DIR is the parent or equals the `default-directory'."
   (when (and dir default-directory)
-    (string-match-p (concat "^" dir) default-directory)))
+    (string-match-p (concat "^" dir) (expand-file-name default-directory))))
 (cl-defmethod sesman-relevant-context-p ((_cxt-type (eql project)) proj)
   "Non-nil if PROJ is the parent or equals the `default-directory'."
   (when (and proj default-directory)
-    (string-match-p (concat "^" (expand-file-name (cdr proj)))
-                    default-directory)))
+    (string-match-p (concat "^" (cdr proj))
+                    (expand-file-name default-directory))))
 
 
 (provide 'sesman)
