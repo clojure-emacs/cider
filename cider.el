@@ -814,18 +814,6 @@ Return REPL-TYPE if requirements are met."
           (when (y-or-n-p (format "Visit ‘%s’ in a browser? " url))
             (browse-url url)))))))
 
-(defun cider--select-zombie-buffer (repl-buffers)
-  "Return a zombie buffer from REPL-BUFFERS, or nil if none exists."
-  (when-let* ((zombie-buffs (seq-remove #'get-buffer-process repl-buffers)))
-    (when (y-or-n-p
-           (format "Zombie REPL buffers exist (%s).  Reuse? "
-                   (mapconcat #'buffer-name zombie-buffs ", ")))
-      (if (= (length zombie-buffs) 1)
-          (car zombie-buffs)
-        (completing-read "Choose REPL buffer: "
-                         (mapcar #'buffer-name zombie-buffs)
-                         nil t)))))
-
 
 ;;; Barefoot Connectors
 
