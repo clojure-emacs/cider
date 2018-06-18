@@ -32,13 +32,14 @@
 (require 'cider-client)
 (require 'cider-popup)
 (require 'cider-stacktrace)
+(require 'subr-x)
+(require 'cider-compat)
 (require 'cider-overlays)
 
 (require 'button)
 (require 'cl-lib)
 (require 'easymenu)
 (require 'seq)
-(require 'subr-x)
 
 ;;; Variables
 

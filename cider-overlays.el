@@ -27,6 +27,7 @@
 
 (require 'cider-common)
 (require 'subr-x)
+(require 'cider-compat)
 (require 'cl-lib)
 
 

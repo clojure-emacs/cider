@@ -35,6 +35,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-compat)
 (require 'cider-util)
 (require 'cl-lib)
 (require 'nrepl-dict)

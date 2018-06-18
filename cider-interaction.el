@@ -41,6 +41,8 @@
 (require 'cider-doc)
 (require 'cider-eldoc)
 (require 'cider-overlays)
+(require 'subr-x)
+(require 'cider-compat)
 
 (require 'clojure-mode)
 (require 'thingatpt)
@@ -50,7 +52,6 @@
 (require 'compile)
 (require 'etags) ; for find-tags-marker-ring
 (require 'tramp)
-(require 'subr-x)
 
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-result-buffer "*cider-result*")

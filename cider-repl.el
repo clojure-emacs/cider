@@ -39,6 +39,7 @@
 (require 'cider-eldoc) ; for cider-eldoc-setup
 (require 'cider-common)
 (require 'subr-x)
+(require 'cider-compat)
 (require 'cider-util)
 (require 'cider-resolve)
 

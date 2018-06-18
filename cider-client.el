@@ -33,6 +33,7 @@
 (require 'clojure-mode)
 
 (require 'subr-x)
+(require 'cider-compat)
 (require 'seq)
 
 

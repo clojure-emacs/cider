@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'cider-compat)
 (require 'cider-popup)
 (require 'clojure-mode)
 (require 'derived)
