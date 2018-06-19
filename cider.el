@@ -1017,14 +1017,14 @@ are not met."
 ;;;###autoload
 (defalias 'cider-connect-sibling-clojurescript #'cider-connect-sibling-cljs)
 
+
+;;; Helpers
+
 (defun cider-current-host ()
   "Retrieve the current host."
   (if (stringp buffer-file-name)
       (file-remote-p buffer-file-name 'host)
     "localhost"))
-
-
-;;; Helpers
 
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
