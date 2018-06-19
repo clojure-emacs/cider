@@ -174,19 +174,22 @@ the related commands `cider-repl-clear-buffer' and
 ;;; The menu-bar
 (defconst cider-mode-menu
   `("CIDER"
-    ["Start a REPL" cider-jack-in
-     :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
-    ["Connect to a REPL" cider-connect
-     :help "Connects to a REPL that's already running."]
-    ["Quit" cider-quit :active (cider-connected-p)]
-    ["Restart" cider-restart :active (cider-connected-p)]
+    ["Start or connect to any REPL" cider
+     :help "A simple wrapper around all commands for starting/connecting to a REPL."]
+    ("Clojure"
+     ["Start a Clojure REPL" cider-jack-in
+      :help "Starts an nREPL server and connects a Clojure REPL to it."]
+     ["Connect to a Clojure REPL" cider-connect
+      :help "Connects to a REPL that's already running."])
     ("ClojureScript"
-     ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
-      :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL.
-Configure `cider-cljs-repl-types' to change the ClojureScript REPL to use for your build tool."]
+     ["Start a ClojureScript REPL" cider-jack-in-clojurescript
+      :help "Starts an nREPL server and connects a ClojureScript REPL to it."]
      ["Connect to a ClojureScript REPL" cider-connect-clojurescript
       :help "Connects to a ClojureScript REPL that's already running."]
      ["Create a ClojureScript REPL from a Clojure REPL" cider-jack-in-sibling-clojurescript])
+    "--"
+    ["Quit" cider-quit :active (cider-connected-p)]
+    ["Restart" cider-restart :active (cider-connected-p)]
     "--"
     ["Connection info" cider-describe-current-connection
      :active (cider-connected-p)]
@@ -204,8 +207,8 @@ Configure `cider-cljs-repl-types' to change the ClojureScript REPL to use for yo
      :active (seq-remove #'null cider-ancillary-buffers)]
     ("nREPL" :active (cider-connected-p)
      ["Describe nrepl session" cider-describe-nrepl-session]
-     ["Toggle message logging" nrepl-toggle-message-logging]))
-  "Menu for CIDER mode.")
+     ["Toggle message logging" nrepl-toggle-message-logging])
+    "Menu for CIDER mode."))
 
 (defconst cider-mode-eval-menu
   '("CIDER Eval" :visible (cider-connected-p)

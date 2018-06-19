@@ -5,6 +5,7 @@
 ### New features
 
 * Inject piggieback automatically on `cider-jack-in-clojurescript`.
+* Introduce a new command named `cider` (`C-c M-x`) that acts as a simple wrapper around all commands for starting/connecting to REPLs.
 
 ### Bugs fixed
 

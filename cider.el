@@ -995,6 +995,23 @@ are not met."
           (cider-connect-sibling-cljs clj-repl))
       (cider-connect-sibling-cljs clj-repl))))
 
+(defvar cider-connection-init-commands
+  '(cider-jack-in-clj
+    cider-jack-in-cljs
+    cider-connect-clj
+    cider-connect-cljs
+    cider-connect-clj&cljs
+    cider-connect-sibling-clj
+    cider-connect-sibling-cljs)
+  "A list of all user-level connection init commands in CIDER.")
+
+;;;###autoload
+(defun cider ()
+  "Start a connection of any type interactively."
+  (interactive)
+  (when-let* ((command (intern (completing-read "Select command: " cider-connection-init-commands))))
+    (call-interactively command)))
+
 
 ;;; Aliases
 
@@ -1166,6 +1183,7 @@ In case `default-directory' is non-local we assume the command is available."
 ;;;###autoload
 (eval-after-load 'clojure-mode
   '(progn
+     (define-key clojure-mode-map (kbd "C-c M-x") #'cider)
      (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
      (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
      (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect-clj)
