@@ -3,6 +3,7 @@
 
 ((emacs-lisp-mode
   (bug-reference-url-format . "https://github.com/clojure-emacs/cider/issues/%s")
+  (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")
   (indent-tabs-mode)
   (fill-column . 80)
   (sentence-end-double-space . t)
@@ -28,9 +29,7 @@
                               (cl-defun . 2)
                               (with-parsed-tramp-file-name . 2)
                               (thread-first . 1)
-                              (thread-last . 1))))
- (emacs-lisp-mode
-  (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")))
+                              (thread-last . 1)))))
 
 ;; To use the bug-reference stuff, do:
 ;;     (add-hook 'text-mode-hook #'bug-reference-mode)
