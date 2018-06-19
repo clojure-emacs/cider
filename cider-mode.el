@@ -212,6 +212,7 @@ Configure `cider-cljs-repl-types' to change the ClojureScript REPL to use for yo
     ["Eval top-level sexp" cider-eval-defun-at-point]
     ["Eval top-level sexp to point" cider-eval-defun-to-point]
     ["Eval current sexp" cider-eval-sexp-at-point]
+    ["Eval current sexp to point" cider-eval-sexp-to-point]
     ["Eval current sexp in context" cider-eval-sexp-at-point-in-context]
     ["Eval last sexp" cider-eval-last-sexp]
     ["Eval last sexp in context" cider-eval-last-sexp-in-context]
