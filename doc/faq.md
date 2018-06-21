@@ -51,7 +51,7 @@ maintainer (Bozhidar).
 
     Bozhidar really loves Spain and the West Coast of the US, so he tends
     to name really special releases with codenames related to them (e.g.
-    Seattle, California, Andalicia, etc).
+    Seattle, California, Andalucia, etc).
 
 ## Is using CIDER a good idea if I'm new to both Emacs and Clojure?
 
