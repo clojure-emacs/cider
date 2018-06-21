@@ -141,7 +141,8 @@ change the setting's value."
 (defcustom cider-repl-auto-detect-type t
   "Control whether to auto-detect the REPL type using track-state information.
 If you disable this you'll have to manually change the REPL type between
-Clojure and ClojureScript when invoking REPL type changing forms."
+Clojure and ClojureScript when invoking REPL type changing forms.
+Use `cider-set-repl-type' to manually change the REPL type."
   :type 'boolean
   :group 'cider-repl
   :package-version '(cider . "0.18.0"))

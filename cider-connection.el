@@ -431,6 +431,7 @@ For the REPL type use the function `cider-repl-type'."
 (defun cider-set-repl-type (&optional type)
   "Set REPL TYPE to \"clj\" or \"cljs\".
 Assume that the current buffer is a REPL."
+  (interactive)
   (let ((type (or type (completing-read
                         (format "Set REPL type (currently `%s') to: "
                                 cider-repl-type)
