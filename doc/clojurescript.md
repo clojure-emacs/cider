@@ -220,7 +220,7 @@ And connect to it with `cider-connect`.
 
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
-[piggieback]: https://github.com/clojure-emacs/piggieback
+[piggieback]: https://github.com/nrepl/piggieback
 [shadow-cljs]: https://github.com/thheller/shadow-cljs
 
 ## Working with `.cljc` files

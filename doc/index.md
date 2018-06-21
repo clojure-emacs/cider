@@ -99,7 +99,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 [company-mode]: http://company-mode.github.io/
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
-[piggieback]: https://github.com/clojure-emacs/piggieback
+[piggieback]: https://github.com/nrepl/piggieback
 [vim-fireplace]: https://github.com/tpope/vim-fireplace
 [CCW]: https://github.com/laurentpetit/ccw
 [cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
