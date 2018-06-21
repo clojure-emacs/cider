@@ -126,7 +126,7 @@ we'll continue supporting nREPL as well.
 
 Not at all. The functionality in `cider-nrepl` is pretty editor-agnostic and is
 utilized by various editor plugins. Some prominent examples would be
-`vim-fireplace` and Eclipse's CCW.
+`vim-fireplace` and Visual Studio Code's `calva`.
 
 ## How can I see all the configuration options available in CIDER?
 

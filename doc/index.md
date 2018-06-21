@@ -59,7 +59,7 @@ interactive development environment like CIDER.
 
     Much of the middleware we originally
     developed for CIDER is editor-agnostic and is being used by other Clojure
-    development environments as well (e.g. [vim-fireplace][] & [CCW][]).
+    development environments as well (e.g. [vim-fireplace][] & [calva][]).
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
 
@@ -101,7 +101,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/nrepl/piggieback
 [vim-fireplace]: https://github.com/tpope/vim-fireplace
-[CCW]: https://github.com/laurentpetit/ccw
+[calva]: https://github.com/BetterThanTomorrow/calva
 [cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure
