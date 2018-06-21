@@ -116,7 +116,7 @@ Sure! See [additional packages](additional_packages.md) for details.
 
 ## Where can I get help regarding CIDER?
 
-See the [Support](support.md) section of the manual.
+See the [Support](about/support.md) section of the manual.
 
 ## What should I do if I run into some issues with CIDER?
 
