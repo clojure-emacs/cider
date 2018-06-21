@@ -138,6 +138,14 @@ change the setting's value."
   :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 
+(defcustom cider-repl-auto-detect-type t
+  "Control whether to auto-detect the REPL type using track-state information.
+If you disable this you'll have to manually change the REPL type between
+Clojure and ClojureScript when invoking REPL type changing forms."
+  :type 'boolean
+  :group 'cider-repl
+  :package-version '(cider . "0.18.0"))
+
 (defcustom cider-repl-use-clojure-font-lock t
   "Non-nil means to use Clojure mode font-locking for input and result.
 Nil means that `cider-repl-input-face' and `cider-repl-result-face'
@@ -234,7 +242,7 @@ This cache is stored in the connection buffer.")
   (with-demoted-errors "Error in `cider-repl--state-handler': %s"
     (when (member "state" (nrepl-dict-get response "status"))
       (nrepl-dbind-response response (repl-type changed-namespaces)
-        (when repl-type
+        (when (and repl-type cider-repl-auto-detect-type)
           (cider-set-repl-type repl-type))
         (unless (nrepl-dict-empty-p changed-namespaces)
           (setq cider-repl-ns-cache (nrepl-dict-merge cider-repl-ns-cache changed-namespaces))
