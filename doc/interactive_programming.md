@@ -68,18 +68,23 @@ Here's a list of `cider-mode`'s keybindings:
 `complete-symbol`                             |<kbd>M-TAB</kbd>                     | Complete the symbol at point.
 `cider-quit`                                  |<kbd>C-c C-q</kbd>                   | Quit the current nREPL connection.
 
-There's no need to memorize this list. In any Clojure buffer with `cider-mode`
-active you'll have a CIDER menu available, which lists all the most important
-commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
-get a list of the keybindings for `cider-mode`.
+!!! Tip
+
+    There's no need to memorize this list. In any Clojure buffer with `cider-mode`
+    active you'll have a CIDER menu available, which lists all the most important
+    commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
+    get a list of the keybindings for `cider-mode`.
 
 ![CIDER interactions menu](images/menu_example.png)
 
-An even better solution would be to install [which-key][], which will
-automatically show you a list of available keybindings as you start typing some
-keys. This will simplify your interactions with CIDER quite a lot (especially in
-the beginning). Here's what you'd see if you typed <kbd>C-c C-d</kbd> in a
-Clojure buffer:
+
+!!! Tip
+
+    An even better solution would be to install [which-key][], which will
+    automatically show you a list of available keybindings as you start typing some
+    keys. This will simplify your interactions with CIDER quite a lot (especially in
+    the beginning). Here's what you'd see if you typed <kbd>C-c C-d</kbd> in a
+    Clojure buffer:
 
 ![CIDER which-key](images/cider-which-key.png)
 

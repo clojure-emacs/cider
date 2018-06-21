@@ -52,9 +52,14 @@ CIDER's basic architecture looks something like this:
 Clojure code gets executed by an nREPL server. CIDER sends requests to the
 server and processes its responses. The server's functionality is augmented by
 additional nREPL middleware, designed specifically to address the needs of an
-interactive development environment like CIDER. Much of the middleware we
-developed for CIDER is editor-agnostic and is being used by other Clojure
-development environments as well (e.g. [vim-fireplace][] & [CCW][]).
+interactive development environment like CIDER.
+
+
+!!! Note
+
+    Much of the middleware we originally
+    developed for CIDER is editor-agnostic and is being used by other Clojure
+    development environments as well (e.g. [vim-fireplace][] & [CCW][]).
 
 CIDER packs plenty of features. Here are some of them (in no particular order):
 

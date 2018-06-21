@@ -15,8 +15,10 @@ Emacs features a super powerful built-in
 [Emacs Lisp debugger](http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html)
 and using it is the best way to diagnose problems of any kind.
 
-Here's a [great crash course](https://www.youtube.com/watch?v=odkYXXYOxpo) on
-using the debugger.
+!!! Tip
+
+    Here's a [great crash course](https://www.youtube.com/watch?v=odkYXXYOxpo) on
+    using the debugger.
 
 To debug some command you need to do the following:
 
@@ -40,8 +42,10 @@ it is pretty simple:
 2. Invoke some commands.
 3. Get the report with <kbd>M-x</kbd> `profiler-report`.
 
-If you intend to share the profiling results with someone it's a good idea to
-save the report buffer to a file with <kbd>C-x C-w</kbd>.
+!!! Tip
+
+    If you intend to share the profiling results with someone it's a good idea to
+    save the report buffer to a file with <kbd>C-x C-w</kbd>.
 
 ## Commonly encountered problems (and how to solve them)
 
