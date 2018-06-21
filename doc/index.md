@@ -12,8 +12,14 @@ features are centered around `cider-mode`, an Emacs minor-mode that complements
 compilation, debugging, definition and documentation lookup, running tests and
 so on.
 
-CIDER was originally inspired by the powerful Common Lisp interactive
-development environment [SLIME][].
+!!! Note
+
+    CIDER was originally inspired by the powerful Common Lisp interactive
+    development environment [SLIME][]. In the beginning we started by
+    adapting SLIME's core functionality to Clojure, but over the course of time
+    CIDER became pretty different from SLIME in many areas. Check out
+    [this presentation](https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6)
+    if you'd like to know more about CIDER's early history.
 
 **Please consider
 [supporting financially its ongoing development](about/contributing.md#funding).**
