@@ -38,7 +38,7 @@ command to start a REPL process for you.
 
 ## Isn't IntelliJ's Cursive the best Clojure IDE?
 
-Cursive is pretty awesome. Depending on your programming preferences (using an IDE vs
+Cursive is pretty awesome! Depending on your programming preferences (using an IDE vs
 building a custom editing experience tailored to your needs) it might be a better
 option for you than CIDER.
 
@@ -46,6 +46,12 @@ option for you than CIDER.
 
 The codenames are usually some of the favourite places of CIDER's head
 maintainer (Bozhidar).
+
+!!! Tip
+
+    Bozhidar really loves Spain and the West Coast of the US, so he tends
+    to name really special releases with codenames related to them (e.g.
+    Seattle, California, Andalicia, etc).
 
 ## Is using CIDER a good idea if I'm new to both Emacs and Clojure?
 
@@ -78,9 +84,20 @@ when the most important refactoring functionality from our sibling
 project [clj-refactor](https://github.com/clojure-emacs/clj-refactor.el) lands
 into CIDER.
 
+!!! Note
+
+    While there's no exact roadmap for the 1.0 release, we do have *a*
+    [roadmap](https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md).
+
 ## Is it true that stable CIDER releases often happen around major Clojure conferences?
 
 Yep. We want to give people a reason to talk about CIDER at such events. :-)
+
+!!! Tip
+
+    Inviting Bozhidar or any other core CIDER developers to present at Clojure
+    conferences is likely going to results in more CIDER releases,
+    so you should totally do this!
 
 ## How unstable is the MELPA build of CIDER?
 
@@ -99,6 +116,11 @@ for the socket REPL.
 
 That's extremely unlikely. Even if we eventually add support for the new socket REPL,
 we'll continue supporting nREPL as well.
+
+!!! Note
+
+    Recently nREPL was migrated out of `clojure-contrib` and its development
+    has once again picked up. Check out nREPL's new home [here](https://github.com/nrepl/nREPL).
 
 ## Is CIDER's nREPL middleware Emacs specific?
 
