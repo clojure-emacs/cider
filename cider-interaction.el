@@ -1427,18 +1427,21 @@ incomplete expression complete."
   "Compute the list of closing delimiters to make the defun before point valid."
   (mapcar #'cider--matching-delimiter (cider--calculate-opening-delimiters)))
 
-(defun cider-eval-defun-to-point ()
+(defun cider-eval-defun-to-point (&optional output-to-current-buffer)
   "Evaluate the current toplevel form up to point.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current buffer.
 It constructs an expression to eval in the following manner:
 
 - It find the code between the point and the start of the toplevel expression;
 - It balances this bit of code by closing all open expressions;
 - It evaluates the resulting code using `cider-interactive-eval'."
-  (interactive)
+  (interactive "P")
   (let* ((beg-of-defun (save-excursion (beginning-of-defun) (point)))
          (code (buffer-substring-no-properties beg-of-defun (point)))
          (code (concat code (cider--calculate-closing-delimiters))))
-    (cider-interactive-eval code)))
+    (cider-interactive-eval
+     code
+     (when output-to-current-buffer (cider-eval-print-handler))))
 
 (defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
   "Evaluate the \"top-level\" form at point and pprint its value.
