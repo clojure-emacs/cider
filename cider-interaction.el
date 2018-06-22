@@ -1443,6 +1443,24 @@ It constructs an expression to eval in the following manner:
      code
      (when output-to-current-buffer (cider-eval-print-handler)))))
 
+(defun cider-eval-sexp-to-point (&optional  output-to-current-buffer)
+  "Evaluate the current sexp form up to point.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current buffer.
+It constructs an expression to eval in the following manner:
+
+- It finds the code between the point and the start of the sexp expression;
+- It balances this bit of code by closing the expression;
+- It evaluates the resulting code using `cider-interactive-eval'."
+  (interactive "P")
+  (let* ((beg-of-sexp (save-excursion (up-list) (backward-list) (point)))
+         (beg-delimiter (save-excursion (up-list) (backward-list) (char-after)))
+         (beg-set?  (save-excursion (up-list) (backward-list) (char-before)))
+         (code (buffer-substring-no-properties beg-of-sexp (point)))
+         (code (if (= beg-set? ?#) (concat (list beg-set?) code) code))
+         (code (concat code (list (cider--matching-delimiter beg-delimiter)))))
+    (cider-interactive-eval code
+                            (when output-to-current-buffer (cider-eval-print-handler)))))
+
 (defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
   "Evaluate the \"top-level\" form at point and pprint its value.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
@@ -1494,6 +1512,7 @@ passing arguments."
     (define-key map (kbd "r") #'cider-eval-region)
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
+    (define-key map (kbd "o") #'cider-eval-sexp-to-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "z") #'cider-eval-defun-to-point)
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
@@ -1504,6 +1523,7 @@ passing arguments."
     (define-key map (kbd "C-r") #'cider-eval-region)
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
+    (define-key map (kbd "C-o") #'cider-eval-sexp-to-point)
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "C-z") #'cider-eval-defun-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
