@@ -1175,7 +1175,8 @@ arguments and only proceed with evaluation if it returns nil."
 
 (defun cider-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the expression preceding point.
-If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current buffer."
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
+buffer."
   (interactive "P")
   (cider-interactive-eval nil
                           (when output-to-current-buffer (cider-eval-print-handler))
@@ -1429,8 +1430,8 @@ incomplete expression complete."
 
 (defun cider-eval-defun-to-point (&optional output-to-current-buffer)
   "Evaluate the current toplevel form up to point.
-If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current buffer.
-It constructs an expression to eval in the following manner:
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
+buffer.  It constructs an expression to eval in the following manner:
 
 - It find the code between the point and the start of the toplevel expression;
 - It balances this bit of code by closing all open expressions;
@@ -1445,8 +1446,8 @@ It constructs an expression to eval in the following manner:
 
 (defun cider-eval-sexp-to-point (&optional  output-to-current-buffer)
   "Evaluate the current sexp form up to point.
-If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current buffer.
-It constructs an expression to eval in the following manner:
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
+buffer.  It constructs an expression to eval in the following manner:
 
 - It finds the code between the point and the start of the sexp expression;
 - It balances this bit of code by closing the expression;
