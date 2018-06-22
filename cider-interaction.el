@@ -1441,7 +1441,7 @@ It constructs an expression to eval in the following manner:
          (code (concat code (cider--calculate-closing-delimiters))))
     (cider-interactive-eval
      code
-     (when output-to-current-buffer (cider-eval-print-handler))))
+     (when output-to-current-buffer (cider-eval-print-handler)))))
 
 (defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
   "Evaluate the \"top-level\" form at point and pprint its value.
