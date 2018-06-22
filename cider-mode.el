@@ -214,16 +214,15 @@ the related commands `cider-repl-clear-buffer' and
   '("CIDER Eval" :visible (cider-connected-p)
     ["Eval top-level sexp" cider-eval-defun-at-point]
     ["Eval top-level sexp to point" cider-eval-defun-to-point]
+    ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
+    ["Eval top-level sexp and pretty-print to comment" cider-pprint-eval-defun-to-comment]
+    "--"
     ["Eval current sexp" cider-eval-sexp-at-point]
     ["Eval current sexp to point" cider-eval-sexp-to-point]
     ["Eval current sexp in context" cider-eval-sexp-at-point-in-context]
+    "--"
     ["Eval last sexp" cider-eval-last-sexp]
     ["Eval last sexp in context" cider-eval-last-sexp-in-context]
-    ["Eval selected region" cider-eval-region]
-    ["Eval ns form" cider-eval-ns-form]
-    "--"
-    ["Interrupt evaluation" cider-interrupt]
-    "--"
     ["Eval last sexp and insert" cider-eval-print-last-sexp
      :keys "\\[universal-argument] \\[cider-eval-last-sexp]"]
     ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
@@ -231,12 +230,16 @@ the related commands `cider-repl-clear-buffer' and
     ["Eval last sexp to REPL" cider-eval-last-sexp-to-repl]
     ["Eval last sexp and pretty-print to REPL" cider-pprint-eval-last-sexp-to-repl]
     ["Eval last sexp and pretty-print to comment" cider-pprint-eval-last-sexp-to-comment]
+    "--"
+    ["Eval selected region" cider-eval-region]
+    ["Eval ns form" cider-eval-ns-form]
+    "--"
+    ["Interrupt evaluation" cider-interrupt]
+    "--"
     ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
     ["Insert top-level sexp in REPL" cider-insert-defun-in-repl]
     ["Insert region in REPL" cider-insert-region-in-repl]
     ["Insert ns form in REPL" cider-insert-ns-form-in-repl]
-    ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
-    ["Eval top-level sexp and pretty-print to comment" cider-pprint-eval-defun-to-comment]
     "--"
     ["Load this buffer" cider-load-buffer]
     ["Load another file" cider-load-file]
