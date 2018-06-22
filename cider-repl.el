@@ -1562,8 +1562,8 @@ constructs."
 
 (declare-function cider-eval-last-sexp "cider-interaction")
 (declare-function cider-refresh "cider-interaction")
-(declare-function cider-toggle-trace-ns "cider-interaction")
-(declare-function cider-toggle-trace-var "cider-interaction")
+(declare-function cider-toggle-trace-ns "cider-tracing")
+(declare-function cider-toggle-trace-var "cider-tracing")
 (declare-function cider-find-resource "cider-interaction")
 (declare-function cider-find-ns "cider-interaction")
 (declare-function cider-find-keyword "cider-interaction")

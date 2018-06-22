@@ -1566,58 +1566,6 @@ See command `cider-mode'."
 
 ;;; Completion
 
-(defun cider-sync-request:toggle-trace-var (symbol)
-  "Toggle var tracing for SYMBOL."
-  (thread-first `("op" "toggle-trace-var"
-                  "ns" ,(cider-current-ns)
-                  "sym" ,symbol)
-    (cider-nrepl-send-sync-request)))
-
-(defun cider--toggle-trace-var (sym)
-  "Toggle var tracing for SYM."
-  (let* ((trace-response (cider-sync-request:toggle-trace-var sym))
-         (var-name (nrepl-dict-get trace-response "var-name"))
-         (var-status (nrepl-dict-get trace-response "var-status")))
-    (pcase var-status
-      ("not-found" (error "Var %s not found" (cider-propertize sym 'fn)))
-      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize var-name 'fn)))
-      (_ (message "Var %s %s" (cider-propertize var-name 'fn) var-status)))))
-
-(defun cider-toggle-trace-var (arg)
-  "Toggle var tracing.
-Prompts for the symbol to use, or uses the symbol at point, depending on
-the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
-opposite of what that option dictates."
-  (interactive "P")
-  (cider-ensure-op-supported "toggle-trace-var")
-  (funcall (cider-prompt-for-symbol-function arg)
-           "Toggle trace for var"
-           #'cider--toggle-trace-var))
-
-(defun cider-sync-request:toggle-trace-ns (ns)
-  "Toggle namespace tracing for NS."
-  (thread-first `("op" "toggle-trace-ns"
-                  "ns" ,ns)
-    (cider-nrepl-send-sync-request)))
-
-(defun cider-toggle-trace-ns (query)
-  "Toggle ns tracing.
-Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
-  (interactive "P")
-  (cider-map-repls :clj-strict
-    (lambda (conn)
-      (with-current-buffer conn
-        (cider-ensure-op-supported "toggle-trace-ns")
-        (let ((ns (if query
-                      (completing-read "Toggle trace for ns: "
-                                       (cider-sync-request:ns-list))
-                    (cider-current-ns))))
-          (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
-                 (ns-status (nrepl-dict-get trace-response "ns-status")))
-            (pcase ns-status
-              ("not-found" (error "Namespace %s not found" (cider-propertize ns 'ns)))
-              (_ (message "Namespace %s %s" (cider-propertize ns 'ns) ns-status)))))))))
-
 (defun cider-undef ()
   "Undefine a symbol from the current ns."
   (interactive)
