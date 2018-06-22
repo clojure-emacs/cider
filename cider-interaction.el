@@ -1403,7 +1403,7 @@ command `cider-debug-defun-at-point'."
   "Walks up the list of expressions to collect all sexp opening delimiters.
 The result is a list of the delimiters.
 
-That function is used in `cider-eval-defun-to-point' so it can make an
+That function is used in `cider-eval-defun-up-to-point' so it can make an
 incomplete expression complete."
   (interactive)
   (let ((result nil))
@@ -1428,7 +1428,7 @@ incomplete expression complete."
   "Compute the list of closing delimiters to make the defun before point valid."
   (mapcar #'cider--matching-delimiter (cider--calculate-opening-delimiters)))
 
-(defun cider-eval-defun-to-point (&optional output-to-current-buffer)
+(defun cider-eval-defun-up-to-point (&optional output-to-current-buffer)
   "Evaluate the current toplevel form up to point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer.  It constructs an expression to eval in the following manner:
@@ -1444,7 +1444,7 @@ buffer.  It constructs an expression to eval in the following manner:
      code
      (when output-to-current-buffer (cider-eval-print-handler)))))
 
-(defun cider-eval-sexp-to-point (&optional  output-to-current-buffer)
+(defun cider-eval-sexp-up-to-point (&optional  output-to-current-buffer)
   "Evaluate the current sexp form up to point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer.  It constructs an expression to eval in the following manner:
@@ -1513,9 +1513,9 @@ passing arguments."
     (define-key map (kbd "r") #'cider-eval-region)
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
-    (define-key map (kbd "o") #'cider-eval-sexp-to-point)
+    (define-key map (kbd "o") #'cider-eval-sexp-up-to-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
-    (define-key map (kbd "z") #'cider-eval-defun-to-point)
+    (define-key map (kbd "z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
 
@@ -1524,9 +1524,9 @@ passing arguments."
     (define-key map (kbd "C-r") #'cider-eval-region)
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
-    (define-key map (kbd "C-o") #'cider-eval-sexp-to-point)
+    (define-key map (kbd "C-o") #'cider-eval-sexp-up-to-point)
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
-    (define-key map (kbd "C-z") #'cider-eval-defun-to-point)
+    (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
 

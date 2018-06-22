@@ -24,7 +24,8 @@
 
 * Bump the minimum required Emacs version to 25.1.
 * Drop support for Java 7 and Clojure(Script) 1.7.
-* Add support for printing to the current buffer to `cider-eval-defun-to-point`.
+* Rename `cider-eval-defun-to-point` to `cider-eval-defun-up-to-point`.
+* Add support for printing to the current buffer to `cider-eval-defun-up-to-point`.
 
 ## 0.17.0 (2018-05-07)
 
