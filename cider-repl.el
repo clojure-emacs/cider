@@ -145,6 +145,7 @@ Clojure and ClojureScript when invoking REPL type changing forms.
 Use `cider-set-repl-type' to manually change the REPL type."
   :type 'boolean
   :group 'cider-repl
+  :safe #'booleanp
   :package-version '(cider . "0.18.0"))
 
 (defcustom cider-repl-use-clojure-font-lock t
