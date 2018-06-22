@@ -998,6 +998,7 @@ are not met."
 (defvar cider-connection-init-commands
   '(cider-jack-in-clj
     cider-jack-in-cljs
+    cider-jack-in-clj&cljs
     cider-connect-clj
     cider-connect-cljs
     cider-connect-clj&cljs
