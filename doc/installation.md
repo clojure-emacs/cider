@@ -50,6 +50,13 @@ time. Never-the-less, installing from MELPA is a reasonable way of
 obtaining CIDER, as the `master` branch is normally quite stable
 and serious regressions there are usually fixed pretty quickly.
 
+!!! Tip
+
+    If you don't want to (or can't) wait for MELPA to rebuild CIDER,
+    you can easily build and install an up-to-date MELPA package locally yourself. Check out
+    [this article](http://emacsredux.com/blog/2015/05/10/building-melpa-packages-locally/)
+    for details on the subject.
+
 Generally, users of the non-adventurous kind are advised to stick
 with the stable releases, available from MELPA Stable.
 In Emacs 24.4+, you can pin CIDER to always use MELPA
