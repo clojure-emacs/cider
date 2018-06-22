@@ -200,12 +200,14 @@ and eval and the prefix is required to prevent evaluation."
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
-(defun cider-insert-in-repl (form eval)
+(defun cider-insert-in-repl (form eval &optional repl-type)
   "Insert FORM in the REPL buffer and switch to it.
-If EVAL is non-nil the form will also be evaluated."
+If EVAL is non-nil the form will also be evaluated.
+
+Optionally pass the REPL-TYPE on which you want to act."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
-  (with-current-buffer (cider-current-repl)
+  (with-current-buffer (cider-current-repl repl-type)
     (goto-char (point-max))
     (let ((beg (point)))
       (insert form)
