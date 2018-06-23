@@ -38,6 +38,7 @@
 (require 'cider-eldoc)
 (require 'cider-resolve)
 (require 'cider-doc)
+(require 'cider-completion)
 (require 'subr-x)
 (require 'cider-compat)
 

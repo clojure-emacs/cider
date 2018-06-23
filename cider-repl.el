@@ -1701,7 +1701,7 @@ constructs."
         (let ((font-lock-dont-widen t))
           (apply func (max beg cider-repl-input-start-mark) end rest))))))
 
-(declare-function cider-complete-at-point "cider-interaction")
+(declare-function cider-complete-at-point "cider-completion")
 (defvar cider--static-font-lock-keywords)
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
