@@ -1522,9 +1522,6 @@ See command `cider-mode'."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
-
-;;; Completion
-
 (defun cider-undef ()
   "Undefine a symbol from the current ns."
   (interactive)
