@@ -1609,112 +1609,6 @@ The heavy lifting is done by `cider-load-buffer'."
 (defalias 'cider-eval-buffer 'cider-load-buffer
   "A convenience alias as some people are confused by the load-* names.")
 
-
-;; Format
-
-(defun cider--format-reindent (formatted start)
-  "Reindent FORMATTED to align with buffer position START."
-  (let* ((start-column (save-excursion (goto-char start) (current-column)))
-         (indent-line (concat "\n" (make-string start-column ? ))))
-    (replace-regexp-in-string "\n" indent-line formatted)))
-
-
-;;; Format region
-
-(defun cider--format-region (start end formatter)
-  "Format the contents of the given region.
-
-START and END represent the region's boundaries.
-
-FORMATTER is a function of one argument which is used to convert
-the string contents of the region into a formatted string.
-
-Uses the following heuristic to try to maintain point position:
-
-- Take a snippet of text starting at current position, up to 64 chars.
-- Search for the snippet, with lax whitespace, in the formatted text.
-  - If snippet is less than 64 chars (point was near end of buffer), search
-    from end instead of beginning.
-- Place point at match beginning, or `point-min' if no match."
-  (let* ((original (buffer-substring-no-properties start end))
-         (formatted (funcall formatter original))
-         (indented (cider--format-reindent formatted start)))
-    (unless (equal original indented)
-      (let* ((pos (point))
-             (pos-max (1+ (buffer-size)))
-             (l 64)
-             (endp (> (+ pos l) pos-max))
-             (snippet (thread-last (buffer-substring-no-properties
-                                    pos (min (+ pos l) pos-max))
-                        (replace-regexp-in-string "[[:space:]\t\n\r]+" "[[:space:]\t\n\r]*"))))
-        (delete-region start end)
-        (insert indented)
-        (goto-char (if endp (point-max) (point-min)))
-        (funcall (if endp #'re-search-backward #'re-search-forward) snippet nil t)
-        (goto-char (or (match-beginning 0) start))
-        (when (looking-at-p "\n") (forward-char))))))
-
-(defun cider-format-region (start end)
-  "Format the Clojure code in the current region.
-START and END represent the region's boundaries."
-  (interactive "r")
-  (cider-ensure-connected)
-  (cider--format-region start end #'cider-sync-request:format-code))
-
-
-;;; Format defun
-
-(defun cider-format-defun ()
-  "Format the code in the current defun."
-  (interactive)
-  (cider-ensure-connected)
-  (save-excursion
-    (mark-defun)
-    (cider-format-region (region-beginning) (region-end))))
-
-
-;;; Format buffer
-
-(defun cider--format-buffer (formatter)
-  "Format the contents of the current buffer.
-
-Uses FORMATTER, a function of one argument, to convert the string contents
-of the buffer into a formatted string."
-  (cider--format-region 1 (1+ (buffer-size)) formatter))
-
-(defun cider-format-buffer ()
-  "Format the Clojure code in the current buffer."
-  (interactive)
-  (check-parens)
-  (cider-ensure-connected)
-  (cider--format-buffer #'cider-sync-request:format-code))
-
-
-;;; Format EDN
-
-(defun cider-format-edn-buffer ()
-  "Format the EDN data in the current buffer."
-  (interactive)
-  (check-parens)
-  (cider-ensure-connected)
-  (cider--format-buffer (lambda (edn)
-                          (cider-sync-request:format-edn edn (cider--pretty-print-width)))))
-
-(defun cider-format-edn-region (start end)
-  "Format the EDN data in the current region.
-START and END represent the region's boundaries."
-  (interactive "r")
-  (cider-ensure-connected)
-  (let* ((start-column (save-excursion (goto-char start) (current-column)))
-         (right-margin (- (cider--pretty-print-width) start-column)))
-    (cider--format-region start end
-                          (lambda (edn)
-                            (cider-sync-request:format-edn edn right-margin)))))
-
-(defun cider-format-edn-last-sexp ()
-  "Format the EDN data of the last sexp."
-  (interactive)
-  (apply 'cider-format-edn-region (cider-sexp-at-point 'bounds)))
 
 
 ;;; Interrupt evaluation
