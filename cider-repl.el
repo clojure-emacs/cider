@@ -1477,7 +1477,7 @@ constructs."
   "Add a REPL shortcut command, defined by NAME and HANDLER."
   (puthash name handler cider-repl-shortcuts))
 
-(declare-function cider-toggle-trace-ns "cider-interaction")
+(declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-undef "cider-interaction")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-classpath "cider-classpath")
