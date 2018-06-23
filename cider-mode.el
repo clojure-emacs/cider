@@ -381,6 +381,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-selector "cider-selector")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
+(declare-function cider-refresh "cider-refresh")
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)

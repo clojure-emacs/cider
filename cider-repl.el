@@ -1483,7 +1483,7 @@ constructs."
 (declare-function cider-classpath "cider-classpath")
 (declare-function cider-repl-history "cider-repl-history")
 (declare-function cider-run "cider-interaction")
-(declare-function cider-refresh "cider-interaction")
+(declare-function cider-refresh "cider-refresh")
 (declare-function cider-version "cider")
 (declare-function cider-test-run-loaded-tests "cider-test")
 (declare-function cider-test-run-project-tests "cider-test")
@@ -1561,7 +1561,6 @@ constructs."
   (copy-syntax-table clojure-mode-syntax-table))
 
 (declare-function cider-eval-last-sexp "cider-interaction")
-(declare-function cider-refresh "cider-interaction")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
 (declare-function cider-find-resource "cider-interaction")
