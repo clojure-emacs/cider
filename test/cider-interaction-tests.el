@@ -55,11 +55,6 @@
            (expect (funcall cider-to-nrepl-filename-function unix-file-name)
                    :to-equal unix-file-name)))))
 
-(describe "cider-refresh"
-  (it "raises a user error if cider is not connected"
-    (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (cider-refresh) :to-throw 'user-error)))
-
 (describe "cider-quit"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
