@@ -1493,14 +1493,6 @@ passing arguments."
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
 
-(defun cider-ping ()
-  "Check that communication with the nREPL server works."
-  (interactive)
-  (thread-first (cider-nrepl-sync-request:eval "\"PONG\"")
-    (nrepl-dict-get "value")
-    (read)
-    (message)))
-
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable CIDER's minor mode on existing Clojure buffers.
 See command `cider-mode'."
