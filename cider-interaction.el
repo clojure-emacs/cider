@@ -915,7 +915,7 @@ The context is remembered between command invocations."
 (defun cider-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
 
-The formatting of the comment is defined in `cider-comment-prefix`
+The formatting of the comment is defined in `cider-comment-prefix'
 which, by default, is \";; => \" and can be customized.
 
 With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards."
@@ -931,12 +931,12 @@ With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards.
 
 (defun cider-pprint-form-to-comment (form-fn insert-before)
   "Evaluate the form selected by FORM-FN and insert result as comment.
-FORM-FN can be either `cider-last-sexp` or `cider-defun-at-point`.
+FORM-FN can be either `cider-last-sexp' or `cider-defun-at-point'.
 
 The formatting of the comment is controlled via three options:
-    `cider-comment-prefix`           \";; => \"
-    `cider-comment-continued-prefix` \";;    \"
-    `cider-comment-postfix`          \"\"
+    `cider-comment-prefix'           \";; => \"
+    `cider-comment-continued-prefix' \";;    \"
+    `cider-comment-postfix'          \"\"
 
 so that with customization you can optionally wrap the output
 in the reader macro \"#_( .. )\", or \"(comment ... )\", or any
@@ -963,9 +963,9 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   "Evaluate the last sexp and insert result as comment.
 
 The formatting of the comment is controlled via three options:
-    `cider-comment-prefix`           \";; => \"
-    `cider-comment-continued-prefix` \";;    \"
-    `cider-comment-postfix`          \"\"
+    `cider-comment-prefix'           \";; => \"
+    `cider-comment-continued-prefix' \";;    \"
+    `cider-comment-postfix'          \"\"
 
 so that with customization you can optionally wrap the output
 in the reader macro \"#_( .. )\", or \"(comment ... )\", or any
@@ -979,9 +979,9 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   "Evaluate the \"top-level\" form and insert result as comment.
 
 The formatting of the comment is controlled via three options:
-    `cider-comment-prefix`           \";; => \"
-    `cider-comment-continued-prefix` \";;    \"
-    `cider-comment-postfix`          \"\"
+    `cider-comment-prefix'           \";; => \"
+    `cider-comment-continued-prefix' \";;    \"
+    `cider-comment-postfix'          \"\"
 
 so that with customization you can optionally wrap the output
 in the reader macro \"#_( .. )\", or \"(comment ... )\", or any
