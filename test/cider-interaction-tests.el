@@ -65,14 +65,6 @@
     (spy-on 'cider-connected-p :and-return-value nil)
     (expect (cider-restart) :to-throw 'user-error)))
 
-(describe "cider-find-ns"
-  (it "raises a user error if cider is not connected"
-    (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (cider-find-ns) :to-throw 'user-error))
-  (it "raises a user error if the op is not supported"
-    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
-    (expect (cider-find-ns) :to-throw 'user-error)))
-
 (describe "cider-load-all-project-ns"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
