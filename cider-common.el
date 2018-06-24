@@ -87,6 +87,7 @@ INVERT is used to invert the semantics of the function `cider--should-prompt-for
   "Minibuffer keymap used for reading Clojure expressions.")
 
 (declare-function cider-complete-at-point "cider-completion")
+(declare-function cider-eldoc "cider-eldoc")
 (defun cider-read-from-minibuffer (prompt &optional value)
   "Read a string from the minibuffer, prompting with PROMPT.
 If VALUE is non-nil, it is inserted into the minibuffer as initial-input.
