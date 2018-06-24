@@ -1221,27 +1221,6 @@ passing arguments."
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
 
-(defun cider-enable-on-existing-clojure-buffers ()
-  "Enable CIDER's minor mode on existing Clojure buffers.
-See command `cider-mode'."
-  (interactive)
-  (add-hook 'clojure-mode-hook #'cider-mode)
-  (dolist (buffer (cider-util--clojure-buffers))
-    (with-current-buffer buffer
-      (cider-mode +1))))
-
-(defun cider-disable-on-existing-clojure-buffers ()
-  "Disable command `cider-mode' on existing Clojure buffers."
-  (interactive)
-  (dolist (buffer (cider-util--clojure-buffers))
-    (with-current-buffer buffer
-      (cider-mode -1))))
-
-(defun cider-possibly-disable-on-existing-clojure-buffers ()
-  "If not connected, disable command `cider-mode' on existing Clojure buffers."
-  (unless (cider-connected-p)
-    (cider-disable-on-existing-clojure-buffers)))
-
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
   (with-current-buffer (find-file-noselect file)

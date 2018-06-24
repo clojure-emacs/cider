@@ -276,12 +276,6 @@ This variable is used by `cider-connect'."
   :group 'cider
   :package-version '(cider . "0.9.0"))
 
-(defcustom cider-auto-mode t
-  "When non-nil, automatically enable cider mode for all Clojure buffers."
-  :type 'boolean
-  :safe #'booleanp
-  :package-version '(cider . "0.9.0"))
-
 (defcustom cider-inject-dependencies-at-jack-in t
   "When nil, do not inject repl dependencies (most likely nREPL middlewares) at `cider-jack-in' time."
   :type 'boolean

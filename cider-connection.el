@@ -50,6 +50,12 @@ available) and the matching REPL buffer."
   :safe #'booleanp
   :package-version '(cider . "0.17.0"))
 
+(defcustom cider-auto-mode t
+  "When non-nil, automatically enable cider mode for all Clojure buffers."
+  :type 'boolean
+  :safe #'booleanp
+  :package-version '(cider . "0.9.0"))
+
 (defconst cider-required-nrepl-version "0.2.12"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
@@ -188,8 +194,27 @@ message in the REPL area."
   (cider-nrepl-send-request '("op" "out-subscribe")
                             (cider-interactive-eval-handler (current-buffer))))
 
-(defvar cider-auto-mode)
-(declare-function cider-enable-on-existing-clojure-buffers "cider-interaction")
+(defun cider-enable-on-existing-clojure-buffers ()
+  "Enable CIDER's minor mode on existing Clojure buffers.
+See command `cider-mode'."
+  (interactive)
+  (add-hook 'clojure-mode-hook #'cider-mode)
+  (dolist (buffer (cider-util--clojure-buffers))
+    (with-current-buffer buffer
+      (cider-mode +1))))
+
+(defun cider-disable-on-existing-clojure-buffers ()
+  "Disable command `cider-mode' on existing Clojure buffers."
+  (interactive)
+  (dolist (buffer (cider-util--clojure-buffers))
+    (with-current-buffer buffer
+      (cider-mode -1))))
+
+(defun cider-possibly-disable-on-existing-clojure-buffers ()
+  "If not connected, disable command `cider-mode' on existing Clojure buffers."
+  (unless (cider-connected-p)
+    (cider-disable-on-existing-clojure-buffers)))
+
 (declare-function cider--debug-init-connection "cider-debug")
 (defun cider--connected-handler ()
   "Handle CIDER initialization after nREPL connection has been established.
