@@ -1221,7 +1221,7 @@ passing arguments."
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
 
-(defun cider-file-string (file)
+(defun cider--file-string (file)
   "Read the contents of a FILE and return as a string."
   (with-current-buffer (find-file-noselect file)
     (substring-no-properties (buffer-string))))
@@ -1253,7 +1253,7 @@ ClojureScript REPL exists for the project, it is evaluated in both REPLs."
         (lambda (connection)
           (when ns-form
             (cider-repl--cache-ns-form ns-form connection))
-          (cider-request:load-file (cider-file-string filename)
+          (cider-request:load-file (cider--file-string filename)
                                    (funcall cider-to-nrepl-filename-function
                                             (cider--server-filename filename))
                                    (file-name-nondirectory filename)
