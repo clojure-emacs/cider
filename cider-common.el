@@ -122,7 +122,53 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
   (condition-case nil (funcall callback (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))
     ('error (funcall callback (cider-read-from-minibuffer prompt)))))
 
-(declare-function cider-jump-to "cider-interaction")
+(declare-function cider-mode "cider-mode")
+
+(defun cider-jump-to (buffer &optional pos other-window)
+  "Push current point onto marker ring, and jump to BUFFER and POS.
+POS can be either a number, a cons, or a symbol.
+If a number, it is the character position (the point).
+If a cons, it specifies the position as (LINE . COLUMN).  COLUMN can be nil.
+If a symbol, `cider-jump-to' searches for something that looks like the
+symbol's definition in the file.
+If OTHER-WINDOW is non-nil don't reuse current window."
+  (with-no-warnings
+    (ring-insert find-tag-marker-ring (point-marker)))
+  (if other-window
+      (pop-to-buffer buffer)
+    ;; like switch-to-buffer, but reuse existing window if BUFFER is visible
+    (pop-to-buffer buffer '((display-buffer-reuse-window display-buffer-same-window))))
+  (with-current-buffer buffer
+    (widen)
+    (goto-char (point-min))
+    (cider-mode +1)
+    (cond
+     ;; Line-column specification.
+     ((consp pos)
+      (forward-line (1- (or (car pos) 1)))
+      (if (cdr pos)
+          (move-to-column (cdr pos))
+        (back-to-indentation)))
+     ;; Point specification.
+     ((numberp pos)
+      (goto-char pos))
+     ;; Symbol or string.
+     (pos
+      ;; Try to find (def full-name ...).
+      (if (or (save-excursion
+                (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote pos))
+                                       nil 'noerror))
+              (let ((name (replace-regexp-in-string ".*/" "" pos)))
+                ;; Try to find (def name ...).
+                (or (save-excursion
+                      (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
+                                             nil 'noerror))
+                    ;; Last resort, just find the first occurrence of `name'.
+                    (save-excursion
+                      (search-forward name nil 'noerror)))))
+          (goto-char (match-beginning 0))
+        (message "Can't find %s in %s" pos (buffer-file-name))))
+     (t nil))))
 
 (defun cider--find-buffer-for-file (file)
   "Return a buffer visiting FILE.
