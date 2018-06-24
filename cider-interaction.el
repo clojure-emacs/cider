@@ -1274,7 +1274,8 @@ The heavy lifting is done by `cider-load-buffer'."
     (cider-load-buffer (current-buffer))))
 
 (defun cider-load-all-files (directory)
-  "Load all files in DIRECTORY (recursively).  Useful when the running nREPL on remote host."
+  "Load all files in DIRECTORY (recursively).
+Useful when the running nREPL on remote host."
   (interactive "DLoad files beneath directory: ")
   (mapcar #'cider-load-file
           (directory-files-recursively directory ".clj$")))
