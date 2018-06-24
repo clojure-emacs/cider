@@ -224,9 +224,6 @@ opposite of what that option dictates."
            "Javadoc for"
            #'cider-javadoc-handler))
 
-(declare-function cider-find-file "cider-common")
-(declare-function cider-jump-to "cider-interaction")
-
 (defun cider-docview-source ()
   "Open the source for the current symbol, if available."
   (interactive)

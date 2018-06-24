@@ -710,8 +710,6 @@ This associates text properties to enable filtering and source navigation."
                                'cider-stacktrace-frame t)))
         (insert "\n")))))
 
-(declare-function cider-jump-to "cider-interaction")
-
 (defun cider-stacktrace-render-compile-error (buffer cause)
   "Emit into BUFFER the compile error CAUSE, and enable jumping to it."
   (with-current-buffer buffer
