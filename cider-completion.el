@@ -30,6 +30,7 @@
 
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-eldoc)
 (require 'nrepl-dict)
 
 (defcustom cider-completion-use-context t
