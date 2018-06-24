@@ -53,6 +53,7 @@ available) and the matching REPL buffer."
 (defcustom cider-auto-mode t
   "When non-nil, automatically enable cider mode for all Clojure buffers."
   :type 'boolean
+  :group 'cider
   :safe #'booleanp
   :package-version '(cider . "0.9.0"))
 
