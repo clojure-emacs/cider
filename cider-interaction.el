@@ -1387,13 +1387,6 @@ The heavy lifting is done by `cider-load-buffer'."
   "A convenience alias as some people are confused by the load-* names.")
 
 
-
-;;; Interrupt evaluation
-
-(defun cider-interrupt-handler (buffer)
-  "Create an interrupt response handler for BUFFER."
-  (nrepl-make-response-handler buffer nil nil nil nil))
-
 (defvar cider--namespace-history nil
   "History of user input for namespace prompts.")
 
