@@ -171,6 +171,51 @@ the related commands `cider-repl-clear-buffer' and
       (cider-repl-clear-output))
     (switch-to-buffer origin-buffer)))
 
+(defun cider-undef ()
+  "Undefine a symbol from the current ns."
+  (interactive)
+  (cider-ensure-op-supported "undef")
+  (cider-read-symbol-name
+   "Undefine symbol: "
+   (lambda (sym)
+     (cider-nrepl-send-request
+      `("op" "undef"
+        "ns" ,(cider-current-ns)
+        "symbol" ,sym)
+      (cider-interactive-eval-handler (current-buffer))))))
+
+;;; cider-run
+(defvar cider--namespace-history nil
+  "History of user input for namespace prompts.")
+
+(defun cider--var-namespace (var)
+  "Return the namespace of VAR.
+VAR is a fully qualified Clojure variable name as a string."
+  (replace-regexp-in-string "\\(?:#'\\)?\\(.*\\)/.*" "\\1" var))
+
+(defun cider-run (&optional function)
+  "Run -main or FUNCTION, prompting for its namespace if necessary.
+With a prefix argument, prompt for function to run instead of -main."
+  (interactive (list (when current-prefix-arg (read-string "Function name: "))))
+  (cider-ensure-connected)
+  (let ((name (or function "-main")))
+    (when-let* ((response (cider-nrepl-send-sync-request
+                           `("op" "ns-list-vars-by-name"
+                             "name" ,name))))
+      (if-let* ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
+          (cider-interactive-eval
+           (if (= (length vars) 1)
+               (concat "(" (car vars) ")")
+             (let* ((completions (mapcar #'cider--var-namespace vars))
+                    (def (or (car cider--namespace-history)
+                             (car completions))))
+               (format "(#'%s/%s)"
+                       (completing-read (format "Namespace (%s): " def)
+                                        completions nil t nil
+                                        'cider--namespace-history def)
+                       name))))
+        (user-error "No %s var defined in any namespace" (cider-propertize name 'fn))))))
+
 ;;; Insert (and eval) in REPL functionality
 (defvar cider-insert-commands-map
   (let ((map (define-prefix-command 'cider-insert-commands-map)))

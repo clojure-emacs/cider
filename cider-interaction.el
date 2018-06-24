@@ -1242,19 +1242,6 @@ See command `cider-mode'."
   (unless (cider-connected-p)
     (cider-disable-on-existing-clojure-buffers)))
 
-(defun cider-undef ()
-  "Undefine a symbol from the current ns."
-  (interactive)
-  (cider-ensure-op-supported "undef")
-  (cider-read-symbol-name
-   "Undefine symbol: "
-   (lambda (sym)
-     (cider-nrepl-send-request
-      `("op" "undef"
-        "ns" ,(cider-current-ns)
-        "symbol" ,sym)
-      (cider-interactive-eval-handler (current-buffer))))))
-
 (defun cider-file-string (file)
   "Read the contents of a FILE and return as a string."
   (with-current-buffer (find-file-noselect file)
@@ -1326,15 +1313,6 @@ The heavy lifting is done by `cider-load-buffer'."
 (defalias 'cider-eval-buffer 'cider-load-buffer
   "A convenience alias as some people are confused by the load-* names.")
 
-
-(defvar cider--namespace-history nil
-  "History of user input for namespace prompts.")
-
-(defun cider--var-namespace (var)
-  "Return the namespace of VAR.
-VAR is a fully qualified Clojure variable name as a string."
-  (replace-regexp-in-string "\\(?:#'\\)?\\(.*\\)/.*" "\\1" var))
-
 (defun cider-load-all-project-ns ()
   "Load all namespaces in the current project."
   (interactive)
@@ -1344,29 +1322,6 @@ VAR is a fully qualified Clojure variable name as a string."
     (message "Loading all project namespaces...")
     (let ((loaded-ns-count (length (cider-sync-request:ns-load-all))))
       (message "Loaded %d namespaces" loaded-ns-count))))
-
-(defun cider-run (&optional function)
-  "Run -main or FUNCTION, prompting for its namespace if necessary.
-With a prefix argument, prompt for function to run instead of -main."
-  (interactive (list (when current-prefix-arg (read-string "Function name: "))))
-  (cider-ensure-connected)
-  (let ((name (or function "-main")))
-    (when-let* ((response (cider-nrepl-send-sync-request
-                           `("op" "ns-list-vars-by-name"
-                             "name" ,name))))
-      (if-let* ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
-          (cider-interactive-eval
-           (if (= (length vars) 1)
-               (concat "(" (car vars) ")")
-             (let* ((completions (mapcar #'cider--var-namespace vars))
-                    (def (or (car cider--namespace-history)
-                             (car completions))))
-               (format "(#'%s/%s)"
-                       (completing-read (format "Namespace (%s): " def)
-                                        completions nil t nil
-                                        'cider--namespace-history def)
-                       name))))
-        (user-error "No %s var defined in any namespace" (cider-propertize name 'fn))))))
 
 (provide 'cider-interaction)
 

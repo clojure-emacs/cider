@@ -1479,11 +1479,11 @@ constructs."
   (puthash name handler cider-repl-shortcuts))
 
 (declare-function cider-toggle-trace-ns "cider-tracing")
-(declare-function cider-undef "cider-interaction")
+(declare-function cider-undef "cider-mode")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-classpath "cider-classpath")
 (declare-function cider-repl-history "cider-repl-history")
-(declare-function cider-run "cider-interaction")
+(declare-function cider-run "cider-mode")
 (declare-function cider-refresh "cider-refresh")
 (declare-function cider-version "cider")
 (declare-function cider-test-run-loaded-tests "cider-test")
