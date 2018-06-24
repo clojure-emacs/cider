@@ -93,7 +93,6 @@ cyclical data structures."
 (defvar-local cider-stacktrace-positive-filters nil)
 
 (defconst cider-error-buffer "*cider-error*")
-(add-to-list 'cider-ancillary-buffers cider-error-buffer)
 
 (defcustom cider-stacktrace-suppressed-errors '()
   "Errors that won't make the stacktrace buffer 'pop-over' your active window.

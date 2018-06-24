@@ -36,7 +36,6 @@
 (require 'cider-compat)
 
 (defconst cider-macroexpansion-buffer "*cider-macroexpansion*")
-(add-to-list 'cider-ancillary-buffers cider-macroexpansion-buffer)
 
 (defcustom cider-macroexpansion-display-namespaces 'tidy
   "Determines if namespaces are displayed in the macroexpansion buffer.
@@ -163,8 +162,7 @@ and point is placed after the expanded form."
 
 (defun cider-create-macroexpansion-buffer ()
   "Create a new macroexpansion buffer."
-  (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer t)
-    (clojure-mode)
+  (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer 'select 'clojure-mode 'ancillary)
     (cider-mode -1)
     (cider-macroexpansion-mode 1)
     (current-buffer)))

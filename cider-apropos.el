@@ -39,7 +39,6 @@
 (require 'button)
 
 (defconst cider-apropos-buffer "*cider-apropos*")
-(add-to-list 'cider-ancillary-buffers cider-apropos-buffer)
 
 (defcustom cider-apropos-actions '(("display-doc" . cider-doc-lookup)
                                    ("find-def" . cider--find-var)
@@ -116,9 +115,8 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
 
 (defun cider-show-apropos (summary results query docs-p)
   "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
-  (with-current-buffer (cider-popup-buffer cider-apropos-buffer t)
+  (with-current-buffer (cider-popup-buffer cider-apropos-buffer 'select 'apropos-mode 'ancillary)
     (let ((inhibit-read-only t))
-      (apropos-mode)
       (if (boundp 'header-line-format)
           (setq-local header-line-format summary)
         (insert summary "\n\n"))

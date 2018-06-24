@@ -45,7 +45,6 @@
 (require 'easymenu)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
-(add-to-list 'cider-ancillary-buffers cider-browse-ns-buffer)
 
 (defvar-local cider-browse-ns-current-ns nil)
 
@@ -157,7 +156,7 @@ Each item consists of a ns-var and the first line of its docstring."
 (defun cider-browse-ns (namespace)
   "List all NAMESPACE's vars in BUFFER."
   (interactive (list (completing-read "Browse namespace: " (cider-sync-request:ns-list))))
-  (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
+  (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
     (cider-browse-ns--list (current-buffer)
                            namespace
                            (cider-browse-ns--items namespace))
@@ -167,7 +166,7 @@ Each item consists of a ns-var and the first line of its docstring."
 (defun cider-browse-ns-all ()
   "List all loaded namespaces in BUFFER."
   (interactive)
-  (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
+  (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
     (let ((names (cider-sync-request:ns-list)))
       (cider-browse-ns--list (current-buffer)
                              "All loaded namespaces"

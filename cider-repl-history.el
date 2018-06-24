@@ -37,7 +37,6 @@
 (require 'pulse)
 
 (defconst cider-repl-history-buffer "*cider-repl-history*")
-(add-to-list 'cider-ancillary-buffers cider-repl-history-buffer)
 
 (defgroup cider-repl-history nil
   "A package for browsing and inserting the items in the CIDER command history."

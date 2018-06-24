@@ -36,7 +36,6 @@
 ;; ===================================
 
 (defconst cider-inspector-buffer "*cider-inspect*")
-(add-to-list 'cider-ancillary-buffers cider-inspector-buffer)
 
 ;;; Customization
 (defgroup cider-inspector nil
@@ -244,7 +243,7 @@ Set the page size in paginated view to PAGE-SIZE."
 ;; Render Inspector from Structured Values
 (defun cider-inspector--render-value (value)
   "Render VALUE."
-  (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode)
+  (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode 'ancillary)
   (cider-inspector-render cider-inspector-buffer value)
   (cider-popup-buffer-display cider-inspector-buffer t)
   (when cider-inspector-fill-frame (delete-other-windows))

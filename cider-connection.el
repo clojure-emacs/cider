@@ -339,10 +339,7 @@ Don't restart the server or other connections within the same session.  Use
   (message "%s" (cider--connection-info (cider-current-repl))))
 (define-obsolete-function-alias 'cider-display-connection-info 'cider-describe-current-connection "0.18.0")
 
-(defvar cider-ancillary-buffers) ; defined in cider-common.el
-
 (defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
-(add-to-list 'cider-ancillary-buffers cider-nrepl-session-buffer)
 
 (defun cider-describe-nrepl-session ()
   "Describe an nREPL session."
@@ -358,7 +355,7 @@ Don't restart the server or other connections within the same session.  Use
                             ((equal session-id (cider-nrepl-eval-session)) "Active eval")
                             ((equal session-id (cider-nrepl-tooling-session)) "Active tooling")
                             (t "Unknown"))))
-        (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer)
+        (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer nil 'ancillary)
           (read-only-mode -1)
           (insert (format "Session: %s\n" session-id)
                   (format "Type: %s session\n" session-type)

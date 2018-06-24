@@ -45,10 +45,7 @@
 
 ;; The buffer names used by the spec browser
 (defconst cider-browse-spec-buffer "*cider-spec-browser*")
-(add-to-list 'cider-ancillary-buffers cider-browse-spec-buffer)
-
 (defconst cider-browse-spec-example-buffer "*cider-spec-example*")
-(add-to-list 'cider-ancillary-buffers cider-browse-spec-example-buffer)
 
 ;; Mode Definition
 
@@ -276,8 +273,7 @@ a more user friendly representation of SPEC-FORM."
   "Browse SPEC."
   (cider-ensure-connected)
   (cider-ensure-op-supported "spec-form")
-  (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer t)
-    (cider-browse-spec-view-mode)
+  (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select #'cider-browse-spec-view-mode 'ancillary)
     (setq-local cider-browse-spec--current-spec spec)
     (cider-browse-spec--draw-spec-buffer (current-buffer)
                                          spec
@@ -305,8 +301,7 @@ property."
   (cider-ensure-op-supported "spec-example")
   (if-let* ((spec cider-browse-spec--current-spec))
       (if-let* ((example (cider-sync-request:spec-example spec)))
-          (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer t)
-            (cider-browse-spec-example-mode)
+          (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer 'select #'cider-browse-spec-example-mode 'ancillary)
             (setq-local cider-browse-spec--current-spec spec)
             (let ((inhibit-read-only t))
               (insert "Example of " (cider-font-lock-as-clojure spec))
@@ -337,7 +332,7 @@ Displays all specs when REGEX is nil."
   (cider-ensure-connected)
   (cider-ensure-op-supported "spec-list")
   (let ((filter-regex (or regex "")))
-    (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer t)
+    (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select nil 'ancillary)
       (let ((specs (cider-sync-request:spec-list filter-regex)))
         (cider-browse-spec--draw-list-buffer (current-buffer)
                                              (if (string-empty-p filter-regex)

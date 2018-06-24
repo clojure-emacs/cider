@@ -81,6 +81,10 @@ If prefix argument KILL is non-nil, kill the buffer instead of burying it."
 
 (defvar-local cider-popup-output-marker nil)
 
+(defvar cider-ancillary-buffers nil
+  "A list ancillary buffers created by the various CIDER commands.
+We track them mostly to be able to clean them up on quit.")
+
 (defun cider-make-popup-buffer (name &optional mode ancillary)
   "Create a temporary buffer called NAME using major MODE (if specified).
 If ANCILLARY is non-nil, the buffer is added to `cider-ancillary-buffers'

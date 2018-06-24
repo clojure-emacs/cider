@@ -50,10 +50,6 @@ Should be set before loading CIDER."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
-(defvar cider-ancillary-buffers nil
-  "A list ancillary buffers created by the various CIDER commands.
-We track them mostly to be able to clean them up on quit.")
-
 (defun cider--should-prompt-for-symbol (&optional invert)
   "Return the value of the variable `cider-prompt-for-symbol'.
 Optionally invert the value, if INVERT is truthy."
