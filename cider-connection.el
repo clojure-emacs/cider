@@ -221,6 +221,7 @@ See command `cider-mode'."
     (cider-disable-on-existing-clojure-buffers)))
 
 (declare-function cider--debug-init-connection "cider-debug")
+(declare-function cider-repl-init "cider-repl")
 (defun cider--connected-handler ()
   "Handle CIDER initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
