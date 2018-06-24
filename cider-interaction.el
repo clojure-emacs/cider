@@ -56,8 +56,6 @@
 
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-result-buffer "*cider-result*")
-(defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
-(add-to-list 'cider-ancillary-buffers cider-nrepl-session-buffer)
 
 (defcustom cider-show-error-buffer t
   "Control the popup behavior of cider stacktraces.

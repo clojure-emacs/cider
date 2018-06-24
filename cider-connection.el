@@ -334,6 +334,9 @@ Don't restart the server or other connections within the same session.  Use
   (message "%s" (cider--connection-info (cider-current-repl))))
 (define-obsolete-function-alias 'cider-display-connection-info 'cider-describe-current-connection "0.18.0")
 
+(defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
+(add-to-list 'cider-ancillary-buffers cider-nrepl-session-buffer)
+
 (defun cider-describe-nrepl-session ()
   "Describe an nREPL session."
   (interactive)
