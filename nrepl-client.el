@@ -750,7 +750,7 @@ to the REPL."
 
 (defvar cider-buffer-ns)
 (defvar cider-special-mode-truncate-lines)
-(declare-function cider-need-input "cider-interaction")
+(declare-function cider-need-input "cider-client")
 (declare-function cider-set-buffer-ns "cider-mode")
 
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler

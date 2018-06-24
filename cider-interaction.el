@@ -417,20 +417,6 @@ thing at point."
     (cider--find-ns kw-ns arg)
     (search-forward-regexp kw-to-find nil 'noerror)))
 
-
-(defun cider-stdin-handler (&optional buffer)
-  "Make a stdin response handler for BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (let (after-first-result-chunk)
-                                 (lambda (buffer value)
-                                   (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
-                                   (setq after-first-result-chunk t)))
-                               (lambda (buffer out)
-                                 (cider-repl-emit-stdout buffer out))
-                               (lambda (buffer err)
-                                 (cider-repl-emit-stderr buffer err))
-                               nil))
-
 (defun cider-insert-eval-handler (&optional buffer)
   "Make an nREPL evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
@@ -827,13 +813,6 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
           (when-let* ((win (get-buffer-window eval-buffer)))
             (with-selected-window win
               (cider-jump-to (nth 2 loc) (car loc)))))))))
-
-(defun cider-need-input (buffer)
-  "Handle an need-input request from BUFFER."
-  (with-current-buffer buffer
-    (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
-                         (cider-stdin-handler buffer)
-                         (cider-current-repl))))
 
 (defun cider-emit-into-color-buffer (buffer value)
   "Emit into color BUFFER the provided VALUE."
