@@ -29,8 +29,6 @@
 ;;
 ;;; Code:
 
-(require 'cider-repl)
-
 (require 'nrepl-client)
 (require 'cl-lib)
 (require 'sesman)
@@ -114,6 +112,7 @@ PROC-BUFFER is either server or client buffer."
         (delete-process proc)))
     (kill-buffer buffer)))
 
+(declare-function cider-repl-emit-interactive-stderr "cider-repl")
 (defun cider--close-connection (repl &optional no-kill)
   "Close connection associated with REPL.
 When NO-KILL is non-nil stop the connection but don't kill the REPL
@@ -483,6 +482,9 @@ Assume that the current buffer is a REPL."
             (rename-buffer mbuf-name)))))))
 
 (declare-function cider-default-err-handler "cider-interaction")
+(declare-function cider-repl-mode "cider-repl")
+(declare-function cider-repl--state-handler "cider-repl")
+(declare-function cider-repl-reset-markers "cider-repl")
 (defvar-local cider-repl-init-function nil)
 (defun cider-repl-create (params)
   "Create new repl buffer.
