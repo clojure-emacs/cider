@@ -161,47 +161,9 @@ If t, save the file without confirmation."
 (defconst cider-latest-clojure-version "1.8.0"
   "Latest supported version of Clojure.")
 
-;;; Minibuffer
-(defvar cider-minibuffer-history '()
-  "History list of expressions read from the minibuffer.")
-
-(defvar cider-minibuffer-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map minibuffer-local-map)
-    (define-key map (kbd "TAB") #'complete-symbol)
-    (define-key map (kbd "M-TAB") #'complete-symbol)
-    map)
-  "Minibuffer keymap used for reading Clojure expressions.")
-
 (defvar-local cider-connection-created-with 'jack-in
   "Save how the connection was created.
 Its value can be either 'jack-in or 'connect.")
-
-(defun cider-read-from-minibuffer (prompt &optional value)
-  "Read a string from the minibuffer, prompting with PROMPT.
-If VALUE is non-nil, it is inserted into the minibuffer as initial-input.
-PROMPT need not end with \": \". If it doesn't, VALUE is displayed on the
-prompt as a default value (used if the user doesn't type anything) and is
-not used as initial input (input is left empty)."
-  (minibuffer-with-setup-hook
-      (lambda ()
-        (set-syntax-table clojure-mode-syntax-table)
-        (add-hook 'completion-at-point-functions
-                  #'cider-complete-at-point nil t)
-        (setq-local eldoc-documentation-function #'cider-eldoc)
-        (run-hooks 'eval-expression-minibuffer-setup-hook))
-    (let* ((has-colon (string-match ": \\'" prompt))
-           (input (read-from-minibuffer (cond
-                                         (has-colon prompt)
-                                         (value (format "%s (default %s): " prompt value))
-                                         (t (format "%s: " prompt)))
-                                        (when has-colon value) ; initial-input
-                                        cider-minibuffer-map nil
-                                        'cider-minibuffer-history
-                                        (unless has-colon value)))) ; default-value
-      (if (and (equal input "") value (not has-colon))
-          value
-        input))))
 
 
 ;;; Utilities
