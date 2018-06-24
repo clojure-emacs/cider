@@ -99,7 +99,6 @@ ns forms manually themselves."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
-(define-obsolete-variable-alias 'cider-prompt-save-file-on-load 'cider-save-file-on-load "0.15.0")
 (defcustom cider-save-file-on-load 'prompt
   "Controls whether to prompt to save the file when loading a buffer.
 If nil, files are not saved.
