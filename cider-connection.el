@@ -29,6 +29,8 @@
 ;;
 ;;; Code:
 
+(require 'cider-repl)
+
 (require 'nrepl-client)
 (require 'cl-lib)
 (require 'sesman)
@@ -191,6 +193,8 @@ message in the REPL area."
                                  "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
                                  cider-version middleware-version))))
 
+(declare-function cider-interactive-eval-handler "cider-interaction")
+;; TODO: Use some null handler here
 (defun cider--subscribe-repl-to-server-out ()
   "Subscribe to the nREPL server's *out*."
   (cider-nrepl-send-request '("op" "out-subscribe")
