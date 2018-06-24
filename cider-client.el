@@ -584,17 +584,13 @@ The result entries are relative to the classpath."
     (nrepl-dict-get response "formatted-edn")))
 
 ;;; Dealing with input
-(defun cider-stdin-handler (&optional buffer)
-  "Make a stdin response handler for BUFFER."
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (let (after-first-result-chunk)
-                                 (lambda (buffer value)
-                                   (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
-                                   (setq after-first-result-chunk t)))
-                               (lambda (buffer out)
-                                 (cider-repl-emit-stdout buffer out))
-                               (lambda (buffer err)
-                                 (cider-repl-emit-stderr buffer err))
+;; TODO: Replace this with some nil handler.
+(defun cider-stdin-handler (&optional _buffer)
+  "Make a stdin response handler for _BUFFER."
+  (nrepl-make-response-handler (current-buffer)
+                               (lambda (_buffer _value))
+                               (lambda (_buffer _out))
+                               (lambda (_buffer _err))
                                nil))
 
 (defun cider-need-input (buffer)
