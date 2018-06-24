@@ -150,15 +150,6 @@ If t, save the file without confirmation."
   :group 'cider
   :package-version '(cider . "0.16.0"))
 
-(defconst cider-clojure-artifact-id "org.clojure/clojure"
-  "Artifact identifier for Clojure.")
-
-(defconst cider-minimum-clojure-version "1.8.0"
-  "Minimum supported version of Clojure.")
-
-(defconst cider-latest-clojure-version "1.10.0"
-  "Latest supported version of Clojure.")
-
 
 ;;; Utilities
 

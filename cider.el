@@ -379,6 +379,15 @@ Elements of the list are artifact name and list of exclusions to apply for the a
 (cider-add-to-alist 'cider-jack-in-dependencies-exclusions
                     "org.clojure/tools.nrepl" '("org.clojure/clojure"))
 
+(defconst cider-clojure-artifact-id "org.clojure/clojure"
+  "Artifact identifier for Clojure.")
+
+(defconst cider-minimum-clojure-version "1.8.0"
+  "Minimum supported version of Clojure.")
+
+(defconst cider-latest-clojure-version "1.10.0"
+  "Latest supported version of Clojure.")
+
 (defcustom cider-jack-in-auto-inject-clojure nil
   "Version of clojure to auto-inject into REPL.
 If nil, do not inject Clojure into the REPL.  If `latest', inject
