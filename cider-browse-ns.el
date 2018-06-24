@@ -35,12 +35,13 @@
 
 ;;; Code:
 
-(require 'cider-interaction)
 (require 'cider-client)
-(require 'subr-x)
+(require 'cider-popup)
 (require 'cider-compat)
 (require 'cider-util)
 (require 'nrepl-dict)
+
+(require 'subr-x)
 (require 'easymenu)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
@@ -207,6 +208,7 @@ be displayed."
         (cider-browse-ns value)
       (cider-doc-lookup value))))
 
+(declare-function cider-find-ns "cider-find")
 (defun cider-browse-ns-find-at-point ()
   "Find the definition of the thing at point."
   (interactive)
