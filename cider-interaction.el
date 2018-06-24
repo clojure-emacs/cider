@@ -155,10 +155,10 @@ If t, save the file without confirmation."
 (defconst cider-clojure-artifact-id "org.clojure/clojure"
   "Artifact identifier for Clojure.")
 
-(defconst cider-minimum-clojure-version "1.7.0"
+(defconst cider-minimum-clojure-version "1.8.0"
   "Minimum supported version of Clojure.")
 
-(defconst cider-latest-clojure-version "1.8.0"
+(defconst cider-latest-clojure-version "1.10.0"
   "Latest supported version of Clojure.")
 
 (defvar-local cider-connection-created-with 'jack-in
