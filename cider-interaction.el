@@ -161,10 +161,6 @@ If t, save the file without confirmation."
 (defconst cider-latest-clojure-version "1.10.0"
   "Latest supported version of Clojure.")
 
-(defvar-local cider-connection-created-with 'jack-in
-  "Save how the connection was created.
-Its value can be either 'jack-in or 'connect.")
-
 
 ;;; Utilities
 
