@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(require 'cider)
+(require 'cider-eval)
 (require 'buttercup)
 
 (describe "cider-extract-error-info"
