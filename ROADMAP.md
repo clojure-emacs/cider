@@ -1,4 +1,4 @@
-# CIDER Roadmap (as of May, 2018)
+# CIDER Roadmap (as of June, 2018)
 
 That's a very high-level roadmap for CIDER. It focuses on the most
 important challenges we need to tackle.
@@ -16,21 +16,22 @@ high-impact tasks to tackle.
 
 ## Internal improvements
 
-* replace usages of Elisp's `read` with `parseedn`
-* break down `cider-interaction.el` and remove this file completely
-* improve the connection management (https://github.com/clojure-emacs/cider/pull/2069)
-* improve nREPL callback handling (https://github.com/clojure-emacs/cider/issues/1099)
-* better handling for huge output/results (we can warn users about it, truncate it in the REPL and store the whole result internally, etc)
+* Replace usages of Elisp's `read` with `parseedn`.
+* ~~Break down `cider-interaction.el` and remove this file completely.~~ (**DONE/0.18**)
+* ~~Improve the connection management (https://github.com/clojure-emacs/cider/pull/2069)~~ (**DONE/0.18**)
+* Improve nREPL callback handling (https://github.com/clojure-emacs/cider/issues/1099)
+* Better handling for huge output/results (we can warn users about it,
+  truncate it in the REPL and store the whole result internally, etc).
 
 ## Better ClojureScript support
 
 ### Make it easier to start ClojureScript REPLs
 
 * Implement some deps injection for ClojureScript REPLs
-* Providing meaningful errors when starting ClojureScript REPLs
-* Make it possible to have a project with only a ClojureScript REPL
+* ~~Providing meaningful errors when starting ClojureScript REPLs.~~ (**DONE/0.17**)
+* ~~Make it possible to have a project with only a ClojureScript REPL.~~(**DONE/0.18**)
 * Merge cljs-tooling into orchard and evolve it a bit (under
-  consideration, might be better to keep it a separate library)
+  consideration, might be better to keep it a separate library).
 * Add ability to restart a ClojureScript REPL (https://github.com/clojure-emacs/cider/issues/1874)
 
 ### Add ClojureScript support for more commands
@@ -84,4 +85,4 @@ used to "encode/decode" EDN data.
 
 ### Transition everything non-nREPL specific to Orchard
 
-Already in progress, a lot of functionality already lives is orchard as of version 0.1.
+Already in progress, a lot of functionality already lives is orchard as of version 0.3.
