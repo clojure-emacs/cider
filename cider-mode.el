@@ -33,7 +33,6 @@
 
 (require 'clojure-mode)
 (require 'cider-interaction)
-(require 'cider-profile)
 (require 'cider-test)
 (require 'cider-eldoc)
 (require 'cider-resolve)
@@ -470,7 +469,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-d") #'cider-describe-current-connection)
-    (define-key map (kbd "C-c C-=") #'cider-profile-map)
+    (define-key map (kbd "C-c C-=") 'cider-profile-map)
     (define-key map (kbd "C-c C-x") #'cider-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (dolist (variable '(cider-mode-interactions-menu
