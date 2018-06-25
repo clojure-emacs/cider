@@ -161,7 +161,243 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   (when-let* ((error-win (get-buffer-window cider-error-buffer)))
     (quit-window nil error-win)))
 
-;;; Eval
+
+;;; Dealing with complilation (evaluation) errors and warnings
+(defun cider-visit-error-buffer ()
+  "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
+  (interactive)
+  (if-let* ((buffer (get-buffer cider-error-buffer)))
+      (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
+    (user-error "No %s buffer" cider-error-buffer)))
+
+(defun cider-find-property (property &optional backward)
+  "Find the next text region which has the specified PROPERTY.
+If BACKWARD is t, then search backward.
+Returns the position at which PROPERTY was found, or nil if not found."
+  (let ((p (if backward
+               (previous-single-char-property-change (point) property)
+             (next-single-char-property-change (point) property))))
+    (when (and (not (= p (point-min))) (not (= p (point-max))))
+      p)))
+
+(defun cider-jump-to-compilation-error (&optional _arg _reset)
+  "Jump to the line causing the current compilation error.
+_ARG and _RESET are ignored, as there is only ever one compilation error.
+They exist for compatibility with `next-error'."
+  (interactive)
+  (cl-labels ((goto-next-note-boundary
+               ()
+               (let ((p (or (cider-find-property 'cider-note-p)
+                            (cider-find-property 'cider-note-p t))))
+                 (when p
+                   (goto-char p)
+                   (message "%s" (get-char-property p 'cider-note))))))
+    ;; if we're already on a compilation error, first jump to the end of
+    ;; it, so that we find the next error.
+    (when (get-char-property (point) 'cider-note-p)
+      (goto-next-note-boundary))
+    (goto-next-note-boundary)))
+
+(defun cider--show-error-buffer-p ()
+  "Return non-nil if the error buffer must be shown on error.
+Takes into account both the value of `cider-show-error-buffer' and the
+currently selected buffer."
+  (let* ((selected-buffer (window-buffer (selected-window)))
+         (replp (with-current-buffer selected-buffer (derived-mode-p 'cider-repl-mode))))
+    (memq cider-show-error-buffer
+          (if replp
+              '(t always only-in-repl)
+            '(t always except-in-repl)))))
+
+(defun cider-new-error-buffer (&optional mode error-types)
+  "Return an empty error buffer using MODE.
+
+When deciding whether to display the buffer, takes into account not only
+the value of `cider-show-error-buffer' and the currently selected buffer
+but also the ERROR-TYPES of the error, which is checked against the
+`cider-stacktrace-suppressed-errors' set.
+
+When deciding whether to select the buffer, takes into account the value of
+`cider-auto-select-error-buffer'."
+  (if (and (cider--show-error-buffer-p)
+           (not (cider-stacktrace-some-suppressed-errors-p error-types)))
+      (cider-popup-buffer cider-error-buffer cider-auto-select-error-buffer mode 'ancillary)
+    (cider-make-popup-buffer cider-error-buffer mode 'ancillary)))
+
+(defun cider-emit-into-color-buffer (buffer value)
+  "Emit into color BUFFER the provided VALUE."
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t)
+          (buffer-undo-list t))
+      (goto-char (point-max))
+      (insert (format "%s" value))
+      (ansi-color-apply-on-region (point-min) (point-max)))
+    (goto-char (point-min))))
+
+(defun cider--handle-err-eval-response (response)
+  "Render eval RESPONSE into a new error buffer.
+
+Uses the value of the `out' slot in RESPONSE."
+  (nrepl-dbind-response response (out)
+    (when out
+      (let ((error-buffer (cider-new-error-buffer)))
+        (cider-emit-into-color-buffer error-buffer out)
+        (with-current-buffer error-buffer
+          (compilation-minor-mode +1))))))
+
+(defun cider-default-err-eval-handler ()
+  "Display the last exception without middleware support."
+  (cider--handle-err-eval-response
+   (cider-nrepl-sync-request:eval
+    "(clojure.stacktrace/print-cause-trace *e)")))
+
+(defun cider--render-stacktrace-causes (causes &optional error-types)
+  "If CAUSES is non-nil, render its contents into a new error buffer.
+Optional argument ERROR-TYPES contains a list which should determine the
+op/situation that originated this error."
+  (when causes
+    (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode error-types)))
+      (cider-stacktrace-render error-buffer (reverse causes) error-types))))
+
+(defun cider--handle-stacktrace-response (response causes)
+  "Handle stacktrace op RESPONSE, aggregating the result into CAUSES.
+If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
+RESPONSE is the final message (i.e. it contains a status), render CAUSES
+into a new error buffer."
+  (nrepl-dbind-response response (class status)
+    (cond (class (cons response causes))
+          (status (cider--render-stacktrace-causes causes)))))
+
+(defun cider-default-err-op-handler ()
+  "Display the last exception, with middleware support."
+  ;; Causes are returned as a series of messages, which we aggregate in `causes'
+  (let (causes)
+    (cider-nrepl-send-request
+     (nconc '("op" "stacktrace")
+            (when (cider--pprint-fn)
+              `("pprint-fn" ,(cider--pprint-fn)))
+            (when cider-stacktrace-print-length
+              `("print-length" ,cider-stacktrace-print-length))
+            (when cider-stacktrace-print-level
+              `("print-level" ,cider-stacktrace-print-level)))
+     (lambda (response)
+       ;; While the return value of `cider--handle-stacktrace-response' is not
+       ;; meaningful for the last message, we do not need the value of `causes'
+       ;; after it has been handled, so it's fine to set it unconditionally here
+       (setq causes (cider--handle-stacktrace-response response causes))))))
+
+(defun cider-default-err-handler ()
+  "This function determines how the error buffer is shown.
+It delegates the actual error content to the eval or op handler."
+  (if (cider-nrepl-op-supported-p "stacktrace")
+      (cider-default-err-op-handler)
+    (cider-default-err-eval-handler)))
+
+(defvar cider-compilation-regexp
+  '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\(.*?\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
+  "Specifications for matching errors and warnings in Clojure stacktraces.
+See `compilation-error-regexp-alist' for help on their format.")
+
+(add-to-list 'compilation-error-regexp-alist-alist
+             (cons 'cider cider-compilation-regexp))
+(add-to-list 'compilation-error-regexp-alist 'cider)
+
+(defun cider-extract-error-info (regexp message)
+  "Extract error information with REGEXP against MESSAGE."
+  (let ((file (nth 1 regexp))
+        (line (nth 2 regexp))
+        (col (nth 3 regexp))
+        (type (nth 4 regexp))
+        (pat (car regexp)))
+    (when (string-match pat message)
+      ;; special processing for type (1.2) style
+      (setq type (if (consp type)
+                     (or (and (car type) (match-end (car type)) 1)
+                         (and (cdr type) (match-end (cdr type)) 0)
+                         2)))
+      (list
+       (when file
+         (let ((val (match-string-no-properties file message)))
+           (unless (string= val "NO_SOURCE_PATH") val)))
+       (when line (string-to-number (match-string-no-properties line message)))
+       (when col
+         (let ((val (match-string-no-properties col message)))
+           (when val (string-to-number val))))
+       (aref [cider-warning-highlight-face
+              cider-warning-highlight-face
+              cider-error-highlight-face]
+             (or type 2))
+       message))))
+
+(defun cider--goto-expression-start ()
+  "Go to the beginning a list, vector, map or set outside of a string.
+We do so by starting and the current position and proceeding backwards
+until we find a delimiters that's not inside a string."
+  (if (and (looking-back "[])}]" (line-beginning-position))
+           (null (nth 3 (syntax-ppss))))
+      (backward-sexp)
+    (while (or (not (looking-at-p "[({[]"))
+               (nth 3 (syntax-ppss)))
+      (backward-char))))
+
+(defun cider--find-last-error-location (message)
+  "Return the location (begin end buffer) from the Clojure error MESSAGE.
+If location could not be found, return nil."
+  (save-excursion
+    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
+      (when info
+        (let ((file (nth 0 info))
+              (line (nth 1 info))
+              (col (nth 2 info)))
+          (unless (or (not (stringp file))
+                      (cider--tooling-file-p file))
+            (when-let* ((buffer (cider-find-file file)))
+              (with-current-buffer buffer
+                (save-excursion
+                  (save-restriction
+                    (widen)
+                    (goto-char (point-min))
+                    (forward-line (1- line))
+                    (move-to-column (or col 0))
+                    (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
+                                        (point)))
+                          (end (progn (if col (forward-list) (move-end-of-line nil))
+                                      (point))))
+                      (list begin end buffer))))))))))))
+
+(defun cider-handle-compilation-errors (message eval-buffer)
+  "Highlight and jump to compilation error extracted from MESSAGE.
+EVAL-BUFFER is the buffer that was current during user's interactive
+evaluation command.  Honor `cider-auto-jump-to-error'."
+  (when-let* ((loc (cider--find-last-error-location message))
+              (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
+              (info (cider-extract-error-info cider-compilation-regexp message)))
+    (let* ((face (nth 3 info))
+           (note (nth 4 info))
+           (auto-jump (if (eq cider-auto-jump-to-error 'errors-only)
+                          (not (eq face 'cider-warning-highlight-face))
+                        cider-auto-jump-to-error)))
+      (overlay-put overlay 'cider-note-p t)
+      (overlay-put overlay 'font-lock-face face)
+      (overlay-put overlay 'cider-note note)
+      (overlay-put overlay 'help-echo note)
+      (overlay-put overlay 'modification-hooks
+                   (list (lambda (o &rest _args) (delete-overlay o))))
+      (when auto-jump
+        (with-current-buffer eval-buffer
+          (push-mark)
+          ;; At this stage selected window commonly is *cider-error* and we need to
+          ;; re-select the original user window. If eval-buffer is not
+          ;; visible it was probably covered as a result of a small screen or user
+          ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
+          ;; that case we don't jump at all in order to avoid covering *cider-error*
+          ;; buffer.
+          (when-let* ((win (get-buffer-window eval-buffer)))
+            (with-selected-window win
+              (cider-jump-to (nth 2 loc) (car loc)))))))))
+
+
+;;; Interactive evaluation handlers
 (defun cider-insert-eval-handler (&optional buffer)
   "Make an nREPL evaluation handler for the BUFFER.
 The handler simply inserts the result value in BUFFER."
@@ -336,241 +572,8 @@ This is used by pretty-printing commands and intentionally discards their result
                                  #'popup-output-handler
                                  '())))
 
-(defun cider-visit-error-buffer ()
-  "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
-  (interactive)
-  (if-let* ((buffer (get-buffer cider-error-buffer)))
-      (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
-    (user-error "No %s buffer" cider-error-buffer)))
-
-(defun cider-find-property (property &optional backward)
-  "Find the next text region which has the specified PROPERTY.
-If BACKWARD is t, then search backward.
-Returns the position at which PROPERTY was found, or nil if not found."
-  (let ((p (if backward
-               (previous-single-char-property-change (point) property)
-             (next-single-char-property-change (point) property))))
-    (when (and (not (= p (point-min))) (not (= p (point-max))))
-      p)))
-
-(defun cider-jump-to-compilation-error (&optional _arg _reset)
-  "Jump to the line causing the current compilation error.
-_ARG and _RESET are ignored, as there is only ever one compilation error.
-They exist for compatibility with `next-error'."
-  (interactive)
-  (cl-labels ((goto-next-note-boundary
-               ()
-               (let ((p (or (cider-find-property 'cider-note-p)
-                            (cider-find-property 'cider-note-p t))))
-                 (when p
-                   (goto-char p)
-                   (message "%s" (get-char-property p 'cider-note))))))
-    ;; if we're already on a compilation error, first jump to the end of
-    ;; it, so that we find the next error.
-    (when (get-char-property (point) 'cider-note-p)
-      (goto-next-note-boundary))
-    (goto-next-note-boundary)))
-
-(defun cider--show-error-buffer-p ()
-  "Return non-nil if the error buffer must be shown on error.
-Takes into account both the value of `cider-show-error-buffer' and the
-currently selected buffer."
-  (let* ((selected-buffer (window-buffer (selected-window)))
-         (replp (with-current-buffer selected-buffer (derived-mode-p 'cider-repl-mode))))
-    (memq cider-show-error-buffer
-          (if replp
-              '(t always only-in-repl)
-            '(t always except-in-repl)))))
-
-(defun cider-new-error-buffer (&optional mode error-types)
-  "Return an empty error buffer using MODE.
-
-When deciding whether to display the buffer, takes into account not only
-the value of `cider-show-error-buffer' and the currently selected buffer
-but also the ERROR-TYPES of the error, which is checked against the
-`cider-stacktrace-suppressed-errors' set.
-
-When deciding whether to select the buffer, takes into account the value of
-`cider-auto-select-error-buffer'."
-  (if (and (cider--show-error-buffer-p)
-           (not (cider-stacktrace-some-suppressed-errors-p error-types)))
-      (cider-popup-buffer cider-error-buffer cider-auto-select-error-buffer mode)
-    (cider-make-popup-buffer cider-error-buffer mode)))
-
-(defun cider--handle-err-eval-response (response)
-  "Render eval RESPONSE into a new error buffer.
-
-Uses the value of the `out' slot in RESPONSE."
-  (nrepl-dbind-response response (out)
-    (when out
-      (let ((error-buffer (cider-new-error-buffer)))
-        (cider-emit-into-color-buffer error-buffer out)
-        (with-current-buffer error-buffer
-          (compilation-minor-mode +1))))))
-
-(defun cider-default-err-eval-handler ()
-  "Display the last exception without middleware support."
-  (cider--handle-err-eval-response
-   (cider-nrepl-sync-request:eval
-    "(clojure.stacktrace/print-cause-trace *e)")))
-
-(defun cider--render-stacktrace-causes (causes &optional error-types)
-  "If CAUSES is non-nil, render its contents into a new error buffer.
-Optional argument ERROR-TYPES contains a list which should determine the
-op/situation that originated this error."
-  (when causes
-    (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode error-types)))
-      (cider-stacktrace-render error-buffer (reverse causes) error-types))))
-
-(defun cider--handle-stacktrace-response (response causes)
-  "Handle stacktrace op RESPONSE, aggregating the result into CAUSES.
-If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
-RESPONSE is the final message (i.e. it contains a status), render CAUSES
-into a new error buffer."
-  (nrepl-dbind-response response (class status)
-    (cond (class (cons response causes))
-          (status (cider--render-stacktrace-causes causes)))))
-
-(defun cider-default-err-op-handler ()
-  "Display the last exception, with middleware support."
-  ;; Causes are returned as a series of messages, which we aggregate in `causes'
-  (let (causes)
-    (cider-nrepl-send-request
-     (nconc '("op" "stacktrace")
-            (when (cider--pprint-fn)
-              `("pprint-fn" ,(cider--pprint-fn)))
-            (when cider-stacktrace-print-length
-              `("print-length" ,cider-stacktrace-print-length))
-            (when cider-stacktrace-print-level
-              `("print-level" ,cider-stacktrace-print-level)))
-     (lambda (response)
-       ;; While the return value of `cider--handle-stacktrace-response' is not
-       ;; meaningful for the last message, we do not need the value of `causes'
-       ;; after it has been handled, so it's fine to set it unconditionally here
-       (setq causes (cider--handle-stacktrace-response response causes))))))
-
-(defun cider-default-err-handler ()
-  "This function determines how the error buffer is shown.
-It delegates the actual error content to the eval or op handler."
-  (if (cider-nrepl-op-supported-p "stacktrace")
-      (cider-default-err-op-handler)
-    (cider-default-err-eval-handler)))
-
-(defvar cider-compilation-regexp
-  '("\\(?:.*\\(warning, \\)\\|.*?\\(, compiling\\):(\\)\\(.*?\\):\\([[:digit:]]+\\)\\(?::\\([[:digit:]]+\\)\\)?\\(\\(?: - \\(.*\\)\\)\\|)\\)" 3 4 5 (1))
-  "Specifications for matching errors and warnings in Clojure stacktraces.
-See `compilation-error-regexp-alist' for help on their format.")
-
-(add-to-list 'compilation-error-regexp-alist-alist
-             (cons 'cider cider-compilation-regexp))
-(add-to-list 'compilation-error-regexp-alist 'cider)
-
-(defun cider-extract-error-info (regexp message)
-  "Extract error information with REGEXP against MESSAGE."
-  (let ((file (nth 1 regexp))
-        (line (nth 2 regexp))
-        (col (nth 3 regexp))
-        (type (nth 4 regexp))
-        (pat (car regexp)))
-    (when (string-match pat message)
-      ;; special processing for type (1.2) style
-      (setq type (if (consp type)
-                     (or (and (car type) (match-end (car type)) 1)
-                         (and (cdr type) (match-end (cdr type)) 0)
-                         2)))
-      (list
-       (when file
-         (let ((val (match-string-no-properties file message)))
-           (unless (string= val "NO_SOURCE_PATH") val)))
-       (when line (string-to-number (match-string-no-properties line message)))
-       (when col
-         (let ((val (match-string-no-properties col message)))
-           (when val (string-to-number val))))
-       (aref [cider-warning-highlight-face
-              cider-warning-highlight-face
-              cider-error-highlight-face]
-             (or type 2))
-       message))))
-
-(defun cider--goto-expression-start ()
-  "Go to the beginning a list, vector, map or set outside of a string.
-We do so by starting and the current position and proceeding backwards
-until we find a delimiters that's not inside a string."
-  (if (and (looking-back "[])}]" (line-beginning-position))
-           (null (nth 3 (syntax-ppss))))
-      (backward-sexp)
-    (while (or (not (looking-at-p "[({[]"))
-               (nth 3 (syntax-ppss)))
-      (backward-char))))
-
-(defun cider--find-last-error-location (message)
-  "Return the location (begin end buffer) from the Clojure error MESSAGE.
-If location could not be found, return nil."
-  (save-excursion
-    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
-      (when info
-        (let ((file (nth 0 info))
-              (line (nth 1 info))
-              (col (nth 2 info)))
-          (unless (or (not (stringp file))
-                      (cider--tooling-file-p file))
-            (when-let* ((buffer (cider-find-file file)))
-              (with-current-buffer buffer
-                (save-excursion
-                  (save-restriction
-                    (widen)
-                    (goto-char (point-min))
-                    (forward-line (1- line))
-                    (move-to-column (or col 0))
-                    (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
-                                        (point)))
-                          (end (progn (if col (forward-list) (move-end-of-line nil))
-                                      (point))))
-                      (list begin end buffer))))))))))))
-
-(defun cider-handle-compilation-errors (message eval-buffer)
-  "Highlight and jump to compilation error extracted from MESSAGE.
-EVAL-BUFFER is the buffer that was current during user's interactive
-evaluation command.  Honor `cider-auto-jump-to-error'."
-  (when-let* ((loc (cider--find-last-error-location message))
-              (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
-              (info (cider-extract-error-info cider-compilation-regexp message)))
-    (let* ((face (nth 3 info))
-           (note (nth 4 info))
-           (auto-jump (if (eq cider-auto-jump-to-error 'errors-only)
-                          (not (eq face 'cider-warning-highlight-face))
-                        cider-auto-jump-to-error)))
-      (overlay-put overlay 'cider-note-p t)
-      (overlay-put overlay 'font-lock-face face)
-      (overlay-put overlay 'cider-note note)
-      (overlay-put overlay 'help-echo note)
-      (overlay-put overlay 'modification-hooks
-                   (list (lambda (o &rest _args) (delete-overlay o))))
-      (when auto-jump
-        (with-current-buffer eval-buffer
-          (push-mark)
-          ;; At this stage selected window commonly is *cider-error* and we need to
-          ;; re-select the original user window. If eval-buffer is not
-          ;; visible it was probably covered as a result of a small screen or user
-          ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
-          ;; that case we don't jump at all in order to avoid covering *cider-error*
-          ;; buffer.
-          (when-let* ((win (get-buffer-window eval-buffer)))
-            (with-selected-window win
-              (cider-jump-to (nth 2 loc) (car loc)))))))))
-
-(defun cider-emit-into-color-buffer (buffer value)
-  "Emit into color BUFFER the provided VALUE."
-  (with-current-buffer buffer
-    (let ((inhibit-read-only t)
-          (buffer-undo-list t))
-      (goto-char (point-max))
-      (insert (format "%s" value))
-      (ansi-color-apply-on-region (point-min) (point-max)))
-    (goto-char (point-min))))
-
 
-;;; Evaluation
+;;; Interactive valuation commands
 
 (defvar cider-to-nrepl-filename-function
   (with-no-warnings
@@ -812,7 +815,7 @@ Print its value into the current buffer."
 
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
-  (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode))
+  (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary))
          (handler (cider-popup-eval-out-handler result-buffer)))
     (cider-interactive-eval (when (stringp form) form)
                             handler
