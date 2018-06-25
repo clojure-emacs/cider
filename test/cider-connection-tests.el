@@ -29,7 +29,6 @@
 
 (require 'buttercup)
 (require 'sesman)
-(require 'cider)
 (require 'cider-connection)
 (require 'cider-connection-test-utils)
 

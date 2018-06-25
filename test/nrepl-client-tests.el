@@ -28,7 +28,7 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'cider)
+(require 'nrepl-client)
 
 (describe "nrepl-repl-buffer-name"
   :var (nrepl-hide-special-buffers nrepl-endpoint)
@@ -163,4 +163,3 @@
           (expect (nrepl-make-buffer-name "*buff-name%s*")
                   :to-match "buff-name proj:4009\\*<1\\|2>")
           (kill-buffer cider-new-buffer))))))
-

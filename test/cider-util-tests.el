@@ -28,7 +28,6 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'cider)
 (require 'cider-util)
 
 ;;; cider-util tests

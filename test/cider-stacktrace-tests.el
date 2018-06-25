@@ -28,7 +28,6 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'cider)
 (require 'cider-stacktrace)
 
 ;;; cider-stacktrace tests

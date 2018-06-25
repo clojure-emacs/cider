@@ -19,7 +19,6 @@
 
 (require 'buttercup)
 (require 'cider-mode)
-(require 'cider)
 
 (defmacro cider--test-with-content (content expected &rest body)
   (declare (indent 2)

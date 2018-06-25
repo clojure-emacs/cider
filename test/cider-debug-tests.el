@@ -28,7 +28,8 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'cider)
+(require 'clojure-mode)
+(require 'cider-debug)
 
 (describe "cider--debug-prompt"
   (it "changes the font face to `cider-debug-prompt-face' for the first char"

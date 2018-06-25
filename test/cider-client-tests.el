@@ -29,7 +29,6 @@
 
 
 (require 'buttercup)
-(require 'cider)
 (require 'cider-client)
 (require 'cider-connection)
 

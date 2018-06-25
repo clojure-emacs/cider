@@ -28,7 +28,6 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'cider)
 (require 'cider-selector)
 (require 'cider-connection-test-utils)
 
@@ -66,7 +65,7 @@
 ;; (describe "cider-selector-method-m"
 ;;   (it "switches to current connection's *nrepl-messages* buffer"
 ;;     (let ((buf (get-buffer-create "*nrepl-messages some-id*")))
-;;       (with-repl-buffer "a-session" "clj" _ 
+;;       (with-repl-buffer "a-session" "clj" _
 ;;         (setq-local nrepl-messages-buffer buf)
 ;;         (message "%S" (nrepl-messages-buffer (cider-current-repl)))
 ;;         (cider--test-selector-method ?m nil "*nrepl-messages some-id*")))))
