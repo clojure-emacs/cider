@@ -1,4 +1,4 @@
-;;; cider-interaction-tests.el
+;;; cider-eval-tests.el
 
 ;; Copyright © 2012-2018 Tim King, Bozhidar Batsov
 
@@ -28,7 +28,7 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'cider-interaction)
+(require 'cider-eval)
 (require 'cider-connection-test-utils)
 
 (describe "cider--var-namespace"

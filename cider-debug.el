@@ -27,7 +27,7 @@
 
 (require 'nrepl-dict)
 (require 'nrepl-client) ; `nrepl--mark-id-completed'
-(require 'cider-interaction)
+(require 'cider-eval)
 (require 'cider-client)
 (require 'cider-util)
 (require 'cider-inspector)

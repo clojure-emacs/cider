@@ -616,8 +616,8 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 
 ;;; Test execution
 
-(declare-function cider-emit-interactive-eval-output "cider-interaction")
-(declare-function cider-emit-interactive-eval-err-output "cider-interaction")
+(declare-function cider-emit-interactive-eval-output "cider-eval")
+(declare-function cider-emit-interactive-eval-err-output "cider-eval")
 
 (defun cider-test-execute (ns &optional tests silent prompt-for-filters)
   "Run tests for NS, which may be a keyword, optionally specifying TESTS.

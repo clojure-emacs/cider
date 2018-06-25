@@ -384,7 +384,7 @@ thing at point."
 
 ;;; Requests
 
-(declare-function cider-load-file-handler "cider-interaction")
+(declare-function cider-load-file-handler "cider-eval")
 (defun cider-request:load-file (file-contents file-path file-name &optional connection callback)
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be

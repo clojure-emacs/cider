@@ -32,7 +32,7 @@
 ;;; Code:
 
 (require 'clojure-mode)
-(require 'cider-interaction)
+(require 'cider-eval)
 (require 'cider-test) ; required only for the menu
 (require 'cider-eldoc)
 (require 'cider-resolve)
@@ -122,7 +122,7 @@ the buffer should appear."
           (cider--switch-to-repl-buffer repl set-namespace)))
     (user-error "No linked REPL")))
 
-(declare-function cider-load-buffer "cider-interaction")
+(declare-function cider-load-buffer "cider-eval")
 
 (defun cider-load-buffer-and-switch-to-repl-buffer (&optional set-namespace)
   "Load the current buffer into the matching REPL buffer and switch to it.

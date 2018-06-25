@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(require 'cider-interaction)
+(require 'cider-eval)
 (require 'clojure-mode)
 (require 'easymenu)
 

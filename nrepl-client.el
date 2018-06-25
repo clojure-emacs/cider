@@ -864,7 +864,7 @@ Optional argument TOOLING Set to t if desiring the tooling session rather than t
   "Dynamically bound to t while a sync request is ongoing.")
 
 (declare-function cider-repl-emit-interactive-stderr "cider-repl")
-(declare-function cider--render-stacktrace-causes "cider-interaction")
+(declare-function cider--render-stacktrace-causes "cider-eval")
 
 (defun nrepl-send-sync-request (request connection &optional abort-on-input tooling)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.

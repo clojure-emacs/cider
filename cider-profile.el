@@ -27,7 +27,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
-(require 'cider-interaction)
+(require 'cider-eval)
 
 (defconst cider-profile-buffer "*cider-profile*")
 

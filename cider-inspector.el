@@ -29,7 +29,7 @@
 
 (require 'cl-lib)
 (require 'seq)
-(require 'cider-interaction)
+(require 'cider-eval)
 
 ;; ===================================
 ;; Inspector Key Map and Derived Mode

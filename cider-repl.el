@@ -1561,7 +1561,7 @@ constructs."
 (defvar cider-repl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
-(declare-function cider-eval-last-sexp "cider-interaction")
+(declare-function cider-eval-last-sexp "cider-eval")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
 (declare-function cider-find-resource "cider-find")

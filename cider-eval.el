@@ -1,4 +1,4 @@
-;;; cider-interaction.el --- IDE for Clojure -*- lexical-binding: t -*-
+;;; cider-eval.el --- Interactive evaluation (compilation) functionality -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
 ;; Copyright © 2013-2018 Bozhidar Batsov, Artur Malabarba and CIDER contributors
@@ -27,7 +27,16 @@
 
 ;;; Commentary:
 
-;; Provides an Emacs Lisp client to connect to Clojure nREPL servers.
+;; This file contains CIDER's interactive evaluation (compilation) functionality.
+;; Although Clojure doesn't really have the concept of evaluation (only
+;; compilation), we're using everywhere in the code the term evaluation for
+;; brevity (and to be in line with the naming employed by other similar modes).
+;;
+;; This files also contains all the logic related to displaying errors and
+;; evaluation warnings.
+;;
+;; Pretty much all of the commands here are meant to be used mostly from
+;; `cider-mode', but some of them might make sense in other contexts as well.
 
 ;;; Code:
 
@@ -162,7 +171,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
     (quit-window nil error-win)))
 
 
-;;; Dealing with complilation (evaluation) errors and warnings
+;;; Dealing with compilation (evaluation) errors and warnings
 (defun cider-visit-error-buffer ()
   "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
   (interactive)
@@ -1090,6 +1099,6 @@ Useful when the running nREPL on remote host."
     (let ((loaded-ns-count (length (cider-sync-request:ns-load-all))))
       (message "Loaded %d namespaces" loaded-ns-count))))
 
-(provide 'cider-interaction)
+(provide 'cider-eval)
 
-;;; cider-interaction.el ends here
+;;; cider-eval.el ends here

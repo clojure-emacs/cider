@@ -32,7 +32,7 @@
 ;;; Code:
 
 (require 'cider-client)
-(require 'cider-interaction)
+(require 'cider-eval)
 (require 'cider-scratch)
 
 (defconst cider-selector-help-buffer "*CIDER Selector Help*"
