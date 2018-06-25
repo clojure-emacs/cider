@@ -33,10 +33,11 @@
 
 (require 'clojure-mode)
 (require 'cider-interaction)
-(require 'cider-test)
+(require 'cider-test) ; required only for the menu
 (require 'cider-eldoc)
 (require 'cider-resolve)
-(require 'cider-doc)
+(require 'cider-doc) ; required only for the menu
+(require 'cider-profile) ; required only for the menu
 (require 'cider-completion)
 (require 'subr-x)
 (require 'cider-compat)
