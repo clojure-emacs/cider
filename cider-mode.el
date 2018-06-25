@@ -421,6 +421,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Flush completion cache" cider-completion-flush-caches]))
   "Menu for CIDER interactions.")
 
+;; Those declares are needed, because we autoload all those commands when first
+;; used. That optimizes CIDER's initial load time.
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
 (declare-function cider-macroexpand-all "cider-macroexpansion")
 (declare-function cider-selector "cider-selector")
