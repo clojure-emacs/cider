@@ -29,6 +29,8 @@
 (require 'cider-client)
 (require 'cider-common)
 
+(require 'thingatpt)
+
 (defun cider--find-dwim (symbol-file callback &optional other-window)
   "Find the SYMBOL-FILE at point.
 CALLBACK upon failure to invoke prompt if not prompted previously.

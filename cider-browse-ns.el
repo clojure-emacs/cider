@@ -43,6 +43,7 @@
 
 (require 'subr-x)
 (require 'easymenu)
+(require 'thingatpt)
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
 

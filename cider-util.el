@@ -36,6 +36,7 @@
 (require 'color)
 (require 'seq)
 (require 'subr-x)
+(require 'thingatpt)
 
 ;; clojure-mode and CIDER
 (require 'cider-compat)

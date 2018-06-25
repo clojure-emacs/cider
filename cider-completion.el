@@ -27,6 +27,7 @@
 ;;; Code:
 
 (require 'subr-x)
+(require 'thingatpt)
 
 (require 'cider-client)
 (require 'cider-common)

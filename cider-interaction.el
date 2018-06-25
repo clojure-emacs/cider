@@ -37,22 +37,14 @@
 (require 'cider-common)
 (require 'cider-util)
 (require 'cider-stacktrace)
-(require 'cider-test)
-(require 'cider-doc)
-(require 'cider-eldoc)
-(require 'cider-completion)
 (require 'cider-overlays)
-(require 'subr-x)
 (require 'cider-compat)
 
 (require 'clojure-mode)
-(require 'thingatpt)
-(require 'arc-mode)
 (require 'ansi-color)
 (require 'cl-lib)
+(require 'subr-x)
 (require 'compile)
-(require 'etags) ; for find-tags-marker-ring
-(require 'tramp)
 
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-result-buffer "*cider-result*")
