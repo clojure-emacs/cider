@@ -1567,6 +1567,7 @@ constructs."
 (declare-function cider-find-resource "cider-find")
 (declare-function cider-find-ns "cider-find")
 (declare-function cider-find-keyword "cider-find")
+(declare-function cider-find-var "cider-find")
 (declare-function cider-switch-to-last-clojure-buffer "cider-mode")
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
 (declare-function cider-macroexpand-all "cider-macroexpansion")

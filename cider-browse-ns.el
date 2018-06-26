@@ -209,6 +209,8 @@ be displayed."
       (cider-doc-lookup value))))
 
 (declare-function cider-find-ns "cider-find")
+(declare-function cider-find-var "cider-find")
+
 (defun cider-browse-ns-find-at-point ()
   "Find the definition of the thing at point."
   (interactive)

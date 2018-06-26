@@ -255,6 +255,8 @@ Add to this list to have CIDER recognize additional test defining macros."
         (when-let* ((pos (next-single-property-change pos 'type)))
           (goto-char pos))))))
 
+(declare-function cider-find-var "cider-find")
+
 (defun cider-test-jump (&optional arg)
   "Find definition for test at point, if available.
 The prefix ARG and `cider-prompt-for-symbol' decide whether to

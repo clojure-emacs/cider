@@ -167,6 +167,8 @@ and point is placed after the expanded form."
     (cider-macroexpansion-mode 1)
     (current-buffer)))
 
+(declare-function cider-find-var "cider-find")
+
 (defvar cider-macroexpansion-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "g") #'cider-macroexpand-again)

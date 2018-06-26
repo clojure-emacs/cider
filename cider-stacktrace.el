@@ -584,6 +584,8 @@ Achieved by destructively manipulating the `cider-stacktrace-suppressed-errors' 
     (forward-line line-shift)
     (back-to-indentation)))
 
+(declare-function cider-find-var "cider-find")
+
 (defun cider-stacktrace-jump (&optional arg)
   "Find definition for stack frame at point, if available.
 The prefix ARG and `cider-prompt-for-symbol' decide whether to

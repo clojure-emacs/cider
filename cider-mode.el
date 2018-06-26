@@ -433,6 +433,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-find-resource "cider-find")
 (declare-function cider-find-ns "cider-find")
 (declare-function cider-find-keyword "cider-find")
+(declare-function cider-find-var "cider-find")
+
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
