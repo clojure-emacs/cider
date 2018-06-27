@@ -199,6 +199,7 @@ message in the REPL area."
   (cider-nrepl-send-request '("op" "out-subscribe")
                             (cider-interactive-eval-handler (current-buffer))))
 
+(declare-function cider-mode "cider-mode")
 (defun cider-enable-on-existing-clojure-buffers ()
   "Enable CIDER's minor mode on existing Clojure buffers.
 See command `cider-mode'."

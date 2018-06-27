@@ -1572,6 +1572,12 @@ constructs."
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
 (declare-function cider-macroexpand-all "cider-macroexpansion")
 (declare-function cider-selector "cider-selector")
+(declare-function cider-jack-in-clj "cider")
+(declare-function cider-jack-in-cljs "cider")
+(declare-function cider-connect-clj "cider")
+(declare-function cider-connect-cljs "cider")
+(declare-function cider-connect-sibling-clj "cider")
+(declare-function cider-connect-sibling-cljs "cider")
 
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1618,12 +1624,12 @@ constructs."
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
     (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
-    (define-key map (kbd "C-c M-j") #'cider-jack-in-clojure)
-    (define-key map (kbd "C-c M-J") #'cider-jack-in-clojurescript)
-    (define-key map (kbd "C-c M-c") #'cider-connect-clojure)
-    (define-key map (kbd "C-c M-C") #'cider-connect-clojurescript)
-    (define-key map (kbd "C-c M-s") #'cider-connect-sibling-clojure)
-    (define-key map (kbd "C-c M-S") #'cider-connect-sibling-clojurescript)
+    (define-key map (kbd "C-c M-j") #'cider-jack-in-clj)
+    (define-key map (kbd "C-c M-J") #'cider-jack-in-cljs)
+    (define-key map (kbd "C-c M-c") #'cider-connect-clj)
+    (define-key map (kbd "C-c M-C") #'cider-connect-cljs)
+    (define-key map (kbd "C-c M-s") #'cider-connect-sibling-clj)
+    (define-key map (kbd "C-c M-S") #'cider-connect-sibling-cljs)
 
     (define-key map (string cider-repl-shortcut-dispatch-char) #'cider-repl-handle-shortcut)
     (easy-menu-define cider-repl-mode-menu map
