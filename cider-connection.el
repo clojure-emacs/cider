@@ -534,6 +534,10 @@ current buffer."
 
 (define-obsolete-function-alias 'cider-current-repl-buffer 'cider-current-repl "0.18")
 
+;; REPLs double as connections in CIDER, so it's useful to be able to refer to
+;; them as connections in certain contexts.
+(defalias 'cider-current-connection #'cider-current-repl)
+
 (defun cider-repls (&optional type)
   "Return cider REPLs of TYPE from the current session.
 If TYPE is nil, return all repls."
