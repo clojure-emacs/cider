@@ -99,28 +99,14 @@ that of the namespace in the Clojure source buffer."
     (goto-char (point-max))))
 
 (defun cider-switch-to-repl-buffer (&optional set-namespace)
-  "Select the REPL buffer, when possible in an existing window.
-The buffer chosen is based on the file open in the current buffer.  If
-multiple cider sessions are associated with current connection the most
-recent is used.  With a prefix arg SET-NAMESPACE sets the namespace in the
-REPL buffer to that of the namespace in the Clojure source buffer
-
-Hint: You can use `display-buffer-reuse-frames' and
-`special-display-buffer-names' to customize the frame in which
-the buffer should appear."
+  "Switch to current REPL buffer, when possible in an existing window.
+The type of the REPL is inferred from the mode of current buffer.  With a
+prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that of
+the namespace in the Clojure source buffer"
   (interactive "P")
-  (if-let* ((repls (cider-repls)))
-      (let* ((type (cider-repl-type-for-buffer))
-             (a-repl)
-             (the-repl (seq-find (lambda (buf)
-                                   (when (member buf repls)
-                                     (unless a-repl
-                                       (setq a-repl buf))
-                                     (equal type (cider-repl-type-for-buffer buf))))
-                                 (buffer-list))))
-        (let ((repl (or the-repl a-repl)))
-          (cider--switch-to-repl-buffer repl set-namespace)))
-    (user-error "No linked REPL")))
+  (cider--switch-to-repl-buffer
+   (cider-current-repl nil 'ensure)
+   set-namespace))
 
 (declare-function cider-load-buffer "cider-eval")
 

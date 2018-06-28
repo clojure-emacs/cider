@@ -1027,10 +1027,12 @@ text property `cider-old-input'."
   "Switch between the Clojure and ClojureScript REPLs for the current project."
   (interactive)
   ;; FIXME: implement cycling as session can hold more than two REPLs
-  (if-let* ((this-repl (cider-current-repl))
-            (other-repls (seq-remove (lambda (r) (eq r this-repl)) (cider-repls))))
-      (switch-to-buffer (car other-repls))
-    (message "There's no other REPL for the current project")))
+  (let* ((this-repl (cider-current-repl nil 'ensure))
+         (other-repl (car (seq-remove (lambda (r) (eq r this-repl)) (cider-repls nil t)))))
+    (if other-repl
+        (switch-to-buffer other-repl)
+      (user-error "No other REPL in current session (%s)"
+                  (car (sesman-current-session 'CIDER))))))
 
 (defvar cider-repl-clear-buffer-hook)
 
