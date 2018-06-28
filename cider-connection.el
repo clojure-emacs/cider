@@ -81,8 +81,7 @@ PARAMS is a plist containing :host, :port, :server and other parameters for
 
 (defun cider-ensure-connected ()
   "Ensure there is a linked CIDER session."
-  (let ((sesman-disambiguate-by-relevance t))
-    (sesman-ensure-linked-session 'CIDER)))
+  (sesman-ensure-session 'CIDER))
 
 (defun cider--gather-connect-params (proc-buffer)
   "Gather all relevant for connection parameters in a plist.
@@ -337,7 +336,7 @@ Don't restart the server or other connections within the same session.  Use
 (defun cider-describe-current-connection ()
   "Display information about the current connection."
   (interactive)
-  (message "%s" (cider--connection-info (cider-current-repl))))
+  (message "%s" (cider--connection-info (cider-current-repl nil 'ensure))))
 (define-obsolete-function-alias 'cider-display-connection-info 'cider-describe-current-connection "0.18.0")
 
 (defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
@@ -346,7 +345,7 @@ Don't restart the server or other connections within the same session.  Use
   "Describe an nREPL session."
   (interactive)
   (cider-ensure-connected)
-  (let* ((repl (cider-current-repl))
+  (let* ((repl (cider-current-repl nil 'ensure))
          (selected-session (completing-read "Describe nREPL session: " (nrepl-sessions repl))))
     (when (and selected-session (not (equal selected-session "")))
       (let* ((session-info (nrepl-sync-request:describe repl))
@@ -517,32 +516,42 @@ function with the repl buffer set as current."
 
 ;;; Current/other REPLs
 
-(defun cider-current-repl (&optional type)
+(defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
-TYPE is either \"clj\" or \"cljs\".  When nil, infer the REPL from the
-current buffer."
+TYPE is either \"clj\", \"cljs\" or \"multi\".  When nil, infer the type
+from the current buffer.  If ENSURE is non-nil, throw an error if either
+there is no linked session or there is no REPL of TYPE within the current
+session."
   (if (and (derived-mode-p 'cider-repl-mode)
            (or (null type)
                (string= cider-repl-type type)))
       ;; shortcut when in REPL buffer
       (current-buffer)
     (let* ((type (or type (cider-repl-type-for-buffer)))
-           (repls (cider-repls type)))
-      ;; pick the most recent one
-      (seq-find (lambda (b)
-                  (member b repls))
-                (buffer-list)))))
-
-(define-obsolete-function-alias 'cider-current-repl-buffer 'cider-current-repl "0.18")
+           (repls (cider-repls type ensure))
+           (repl (if (<= (length repls) 1)
+                     (car repls)
+                   ;; pick the most recent one
+                   (seq-find (lambda (b)
+                               (member b repls))
+                             (buffer-list)))))
+      (if (and ensure (null repl))
+          (user-error "No %s REPL in current session (%s)"
+                      type (car (sesman-current-session 'CIDER)))
+        repl))))
 
 ;; REPLs double as connections in CIDER, so it's useful to be able to refer to
 ;; them as connections in certain contexts.
 (defalias 'cider-current-connection #'cider-current-repl)
+(define-obsolete-function-alias 'cider-current-repl-buffer 'cider-current-repl "0.18")
 
-(defun cider-repls (&optional type)
+(defun cider-repls (&optional type ensure)
   "Return cider REPLs of TYPE from the current session.
-If TYPE is nil, return all repls."
-  (let ((repls (cdr (sesman-current-session 'CIDER))))
+If TYPE is nil or \"multi\", return all repls.  If ENSURE is non-nil, throw
+an error if no linked session exists."
+  (let ((repls (cdr (if ensure
+                        (sesman-ensure-session 'CIDER)
+                      (sesman-current-session 'CIDER)))))
     (if (or (null type) (equal type "multi"))
         repls
       (seq-filter (lambda (b)
@@ -577,18 +586,6 @@ Error is signaled if no REPL buffer of specified type exists."
         ;; cannot happen with "multi"
         (user-error "No %s REPLs found.  Have you linked a session?" type))
       (mapcar function repls))))
-
-
-;; tmp
-(defun cider-connections (&optional type)
-  "Return cider REPLs of TYPE from the current session.
-+If TYPE is nil, return all repls."
-  (let ((repls (cdr (sesman-current-session 'CIDER))))
-    (if (or (null type) (equal type "multi"))
-        repls
-      (seq-filter (lambda (b)
-                    (string= type (cider-repl-type b)))
-                  repls))))
 
 (provide 'cider-connection)
 
