@@ -1177,8 +1177,9 @@ choose."
 
 ;; TODO: Implement a check for command presence over tramp
 (defun cider--resolve-command (command)
-  "Find COMMAND on `exec-path' if possible, or return nil.
-In case `default-directory' is non-local we assume the command is available."
+  "Find COMMAND in exec path (see variable `exec-path').
+Return nil if not found.  In case `default-directory' is non-local we
+assume the command is available."
   (when-let* ((command (or (and (file-remote-p default-directory) command)
                            (executable-find command)
                            (executable-find (concat command ".bat")))))
