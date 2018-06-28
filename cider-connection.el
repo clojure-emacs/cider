@@ -532,6 +532,8 @@ current buffer."
                   (member b repls))
                 (buffer-list)))))
 
+(define-obsolete-function-alias 'cider-current-repl-buffer 'cider-current-repl "0.18")
+
 (defun cider-repls (&optional type)
   "Return cider REPLs of TYPE from the current session.
 If TYPE is nil, return all repls."
