@@ -14,6 +14,7 @@
 
 ### Bugs fixed
 
+* [#2317](https://github.com/clojure-emacs/cider/issues/2317): The stdin prompt can now be cancelled.
 * [#2328](https://github.com/clojure-emacs/cider/issues/2328): Added `cider-eval-sexp-to-point`.
 * [#2310](https://github.com/clojure-emacs/cider/issues/2310): `cider-format-edn-last-sexp` will format the last sexp.
 * [#2294](https://github.com/clojure-emacs/cider/issues/2294): Fix setting default stacktrace filters.
