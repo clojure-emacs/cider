@@ -561,9 +561,15 @@ The result entries are relative to the classpath."
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
   (with-current-buffer buffer
-    (nrepl-request:stdin (concat (read-from-minibuffer "Stdin: ") "\n")
-                         (cider-stdin-handler buffer)
-                         (cider-current-repl))))
+    (let ((map (make-sparse-keymap)))
+      (set-keymap-parent map minibuffer-local-map)
+      (define-key map (kbd "C-c C-c") 'abort-recursive-edit)
+      (let ((stdin (condition-case nil
+                       (concat (read-from-minibuffer "Stdin: " nil map) "\n")
+                     (quit nil))))
+        (nrepl-request:stdin stdin
+                             (cider-stdin-handler buffer)
+                             (cider-current-repl))))))
 
 (provide 'cider-client)
 
