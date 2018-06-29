@@ -273,9 +273,10 @@ clobber *1/2/3)."
   "Return a list of all libs on the classpath."
   (let ((libs (seq-filter (lambda (cp-entry)
                             (string-suffix-p ".jar" cp-entry))
-                          (cider-sync-request:classpath))))
+                          (cider-sync-request:classpath)))
+        (dir-sep (if (string-equal system-type "windows-nt") "\\\\" "/")))
     (thread-last libs
-      (seq-map (lambda (s) (split-string s "/")))
+      (seq-map (lambda (s) (split-string s dir-sep)))
       (seq-map #'reverse)
       (seq-map (lambda (l) (reverse (seq-take l 4)))))))
 
