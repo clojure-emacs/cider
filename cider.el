@@ -1190,6 +1190,7 @@ In case `default-directory' is non-local we assume the command is available."
      (define-key clojure-mode-map (kbd "C-c M-x") #'cider)
      (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
      (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
+     (define-key clojure-mode-map (kbd "C-C M-J") #'cider-jack-in-clj&cljs)
      (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect-clj)
      (define-key clojure-mode-map (kbd "C-c M-C") #'cider-connect-cljs)
      (define-key clojure-mode-map (kbd "C-c M-s") #'cider-connect-sibling-clj)
