@@ -327,7 +327,9 @@ Throws an error if PROJECT-TYPE is unknown.  Known types are
     ("clojure-cli" (cider--resolve-command cider-clojure-cli-command))
     ;; here we have to account for the possibility that the command is either
     ;; "npx shadow-cljs" or just "shadow-cljs"
-    ("shadow-cljs" (cider--resolve-command (car (split-string cider-shadow-cljs-command))))
+    ("shadow-cljs" (let ((parts (split-string cider-shadow-cljs-command)))
+                     (when-let* ((command (cider--resolve-command (car parts))))
+                       (mapconcat #'identity (cons command (cdr parts)) " "))))
     ("gradle" (cider--resolve-command cider-gradle-command))
     (_ (user-error "Unsupported project type `%s'" project-type))))
 
