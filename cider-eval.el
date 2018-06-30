@@ -1024,45 +1024,47 @@ passing arguments."
 
 (defun cider-load-buffer (&optional buffer)
   "Load (eval) BUFFER's file in nREPL.
-If no buffer is provided the command acts on the current buffer.
-
-If the buffer is for a cljc file, and both a Clojure and
-ClojureScript REPL exists for the project, it is evaluated in both REPLs."
+If no buffer is provided the command acts on the current buffer.  If the
+buffer is for a cljc file, and both a Clojure and ClojureScript REPL exists
+for the project, it is evaluated in both REPLs."
   (interactive)
-  (check-parens)
-  (cider-ensure-connected)
   (setq buffer (or buffer (current-buffer)))
-  (with-current-buffer buffer
-    (unless buffer-file-name
-      (user-error "Buffer `%s' is not associated with a file" (current-buffer)))
-    (when (and cider-save-file-on-load
-               (buffer-modified-p)
-               (or (eq cider-save-file-on-load t)
-                   (y-or-n-p (format "Save file %s? " buffer-file-name))))
-      (save-buffer))
-    (remove-overlays nil nil 'cider-temporary t)
-    (cider--clear-compilation-highlights)
-    (cider--quit-error-window)
-    (let ((filename (buffer-file-name buffer))
-          (ns-form  (cider-ns-form)))
-      (cider-map-repls :auto
-        (lambda (connection)
-          (when ns-form
-            (cider-repl--cache-ns-form ns-form connection))
-          (cider-request:load-file (cider--file-string filename)
-                                   (funcall cider-to-nrepl-filename-function
-                                            (cider--server-filename filename))
-                                   (file-name-nondirectory filename)
-                                   connection)))
-      (message "Loading %s..." filename))))
+  ;; When cider-load-buffer or cider-load-file are called in programs the
+  ;; current context might not match the buffer's context. We use the caller
+  ;; context instead of the buffer's context because that's the common use
+  ;; case. For the other use case just let-bind the default-directory.
+  (let ((orig-default-directory default-directory))
+    (with-current-buffer buffer
+      (check-parens)
+      (let ((default-directory orig-default-directory))
+        (unless buffer-file-name
+          (user-error "Buffer `%s' is not associated with a file" (current-buffer)))
+        (when (and cider-save-file-on-load
+                   (buffer-modified-p)
+                   (or (eq cider-save-file-on-load t)
+                       (y-or-n-p (format "Save file %s? " buffer-file-name))))
+          (save-buffer))
+        (remove-overlays nil nil 'cider-temporary t)
+        (cider--clear-compilation-highlights)
+        (cider--quit-error-window)
+        (let ((filename (buffer-file-name buffer))
+              (ns-form  (cider-ns-form)))
+          (cider-map-repls :auto
+            (lambda (repl)
+              (when ns-form
+                (cider-repl--cache-ns-form ns-form repl))
+              (cider-request:load-file (cider--file-string filename)
+                                       (funcall cider-to-nrepl-filename-function
+                                                (cider--server-filename filename))
+                                       (file-name-nondirectory filename)
+                                       repl)))
+          (message "Loading %s..." filename))))))
 
 (defun cider-load-file (filename)
   "Load (eval) the Clojure file FILENAME in nREPL.
-
-If the file is a cljc file, and both a Clojure and ClojureScript
-REPL exists for the project, it is evaluated in both REPLs.
-
-The heavy lifting is done by `cider-load-buffer'."
+If the file is a cljc file, and both a Clojure and ClojureScript REPL
+exists for the project, it is evaluated in both REPLs.  The heavy lifting
+is done by `cider-load-buffer'."
   (interactive (list
                 (read-file-name "Load file: " nil nil nil
                                 (when (buffer-file-name)
@@ -1070,8 +1072,7 @@ The heavy lifting is done by `cider-load-buffer'."
                                    (buffer-file-name))))))
   (if-let* ((buffer (find-buffer-visiting filename)))
       (cider-load-buffer buffer)
-    (find-file filename)
-    (cider-load-buffer (current-buffer))))
+    (cider-load-buffer (find-file-noselect filename))))
 
 (defun cider-load-all-files (directory)
   "Load all files in DIRECTORY (recursively).
