@@ -88,7 +88,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * [Scratchpad](miscellaneous_features.md#using-a-scratchpad)
 * [Minibuffer code evaluation](miscellaneous_features.md#evaluating-clojure-code-in-the-minibuffer)
 * Integration with [company-mode][]
-* [Support for working with multiple simultaneous nREPL connections](managing_connections.md)
+* [Support for working with multiple REPLs](managing_connections.md)
 
 ![CIDER Screenshot](images/cider-overview.png)
 
