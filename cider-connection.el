@@ -575,10 +575,7 @@ Error is signaled if no REPL buffer of specified type exists."
                    ((:clj :clj-strict) "clj")
                    ((:cljs :cljs-strict) "cljs")
                    (:auto cur-type)))
-           (repls (cider-repls type)))
-      (unless repls
-        ;; cannot happen with "multi"
-        (user-error "No %s REPLs found.  Have you linked a session?" type))
+           (repls (cider-repls type 'ensure)))
       (mapcar function repls))))
 
 ;; REPLs double as connections in CIDER, so it's useful to be able to refer to
