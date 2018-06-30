@@ -568,13 +568,13 @@ Error is signaled if no REPL buffer of specified type exists."
   (let ((cur-type (cider-repl-type-for-buffer)))
     (cl-case which
       (:clj-strict (when (equal cur-type "cljs")
-                     (user-error "Clojure-only operation requested in ClojureScript buffer")))
+                     (user-error "Clojure-only operation requested in a ClojureScript buffer")))
       (:cljs-strict (when (equal cur-type "clj")
-                      (user-error "ClojureScript-only operation requested in Clojure buffer"))))
+                      (user-error "ClojureScript-only operation requested in a Clojure buffer"))))
     (let* ((type (cl-case which
                    ((:clj :clj-strict) "clj")
                    ((:cljs :cljs-strict) "cljs")
-                   (:auto cur-type cur-type)))
+                   (:auto cur-type)))
            (repls (cider-repls type)))
       (unless repls
         ;; cannot happen with "multi"
