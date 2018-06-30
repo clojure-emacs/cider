@@ -10,11 +10,11 @@ pages:
 - ClojureScript: clojurescript.md
 - Interactive Programming: interactive_programming.md
 - Using the REPL: using_the_repl.md
+- Managing Connections: managing_connections.md
 - Code Completion: code_completion.md
 - Navigating Stacktraces: navigating_stacktraces.md
 - Running Tests: running_tests.md
 - Debugging: debugging.md
-- Managing Connections: managing_connections.md
 - Miscellaneous Features: miscellaneous_features.md
 - Configuration: configuration.md
 - Indentation Specification: indent_spec.md
