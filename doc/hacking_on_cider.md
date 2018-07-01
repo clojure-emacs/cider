@@ -12,16 +12,20 @@ simply clone the code from GitHub and use it. In general - avoid editing the
 code of an installed package.
 
 Alternatively you can simply load CIDER in your Emacs straight from its source
-repo:
+repo (you'll have to manually install all the packages CIDER depends on
+in advance).
+
+Additionally you will have to generate and require the autoloads: this can be
+done interactively within Emacs with `update-directory-autoloads`. The function
+will prompt for saving a file, let's call it `cider-autoloads.el` that you will
+then need to require.
 
 ```el
 ;; load CIDER from its source code
 (add-to-list 'load-path "~/projects/cider")
 (require 'cider)
+(require 'cider-loaddefs)
 ```
-
-Just keep in mind that you'll have to manually install all the packages CIDER
-depends on in advance.
 
 ### Changing the code
 
