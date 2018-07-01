@@ -1618,6 +1618,7 @@ constructs."
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-d") #'cider-describe-current-connection)
     (define-key map (kbd "C-c C-q") #'cider-quit)
+    (define-key map (kbd "C-c M-r") #'cider-restart)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
     (define-key map (kbd "C-c M-p") #'cider-repl-history)
     (define-key map (kbd "C-c M-t v") #'cider-toggle-trace-var)

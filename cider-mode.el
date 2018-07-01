@@ -463,6 +463,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "C-c C-=") 'cider-profile-map)
     (define-key map (kbd "C-c C-x") #'cider-ns-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
+    (define-key map (kbd "C-c M-r") #'cider-restart)
     (dolist (variable '(cider-mode-interactions-menu
                         cider-mode-eval-menu
                         cider-mode-menu))
