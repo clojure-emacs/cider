@@ -79,6 +79,7 @@
 (require 'cider-common)
 (require 'cider-compat)
 (require 'cider-debug)
+(require 'cider-find)
 
 (require 'tramp-sh)
 (require 'subr-x)
