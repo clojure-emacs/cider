@@ -49,6 +49,7 @@ Display the results in a different window."
         (cider--jump-to-loc-from-info info))
     (user-error "Symbol `%s' not resolved" var)))
 
+;;;###autoload
 (defun cider-find-var (&optional arg var line)
   "Find definition for VAR at LINE.
 Prompt according to prefix ARG and `cider-prompt-for-symbol'.
