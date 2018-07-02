@@ -67,6 +67,17 @@ thing at point."
                  #'cider--find-var-other-window
                #'cider--find-var))))
 
+;;;###autoload
+(defun cider-find-var-at-mouse (event)
+  "Find the definition of variable using mouse EVENT."
+  (interactive "e")
+  (cider-ensure-op-supported "info")
+  (if-let* ((symbol-file (save-excursion
+                           (mouse-set-point event)
+                           (cider-symbol-at-point 'look-back))))
+      (cider-find-dwim symbol-file)
+    (user-error "No variable or resource here")))
+
 (defun cider--find-dwim (symbol-file callback &optional other-window)
   "Find the SYMBOL-FILE at point.
 CALLBACK upon failure to invoke prompt if not prompted previously.
