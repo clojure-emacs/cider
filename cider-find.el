@@ -68,8 +68,8 @@ thing at point."
                #'cider--find-var))))
 
 ;;;###autoload
-(defun cider-find-var-at-mouse (event)
-  "Find the definition of variable using mouse EVENT."
+(defun cider-find-dwim-at-mouse (event)
+  "Find and display variable or resource at mouse EVENT."
   (interactive "e")
   (cider-ensure-op-supported "info")
   (if-let* ((symbol-file (save-excursion
