@@ -648,16 +648,21 @@ The include/exclude selectors will be used to filter the tests before
               ;; we generate a different message when running individual tests
               (cider-test-echo-running ns (car tests))
             (cider-test-echo-running ns)))
-        (let* ((request `("op" ,(cond ((stringp ns)         "test")
-                                      ((eq :project ns)     "test-all")
-                                      ((eq :loaded ns)      "test-all")
-                                      ((eq :non-passing ns) "retest"))))
-               ;; we add optional parts of the request only when relevant
-               (request (when (and (listp include-selectors) include-selectors) (append request `("include" ,include-selectors))))
-               (request (when (and (listp exclude-selectors) exclude-selectors) (append request `("exclude" ,exclude-selectors))))
-               (request (when (stringp ns) (append request `("ns" ,ns))))
-               (request (when (stringp ns) (append request `("tests" ,tests))))
-               (request (when (or (stringp ns) (eq :project ns)) (append request `("load?" ,"true")))))
+        (let ((request `("op" ,(cond ((stringp ns)         "test")
+                                     ((eq :project ns)     "test-all")
+                                     ((eq :loaded ns)      "test-all")
+                                     ((eq :non-passing ns) "retest")))))
+          ;; we add optional parts of the request only when relevant
+          (when (and (listp include-selectors) include-selectors)
+            (setq request (append request `("include" ,include-selectors))))
+          (when (and (listp exclude-selectors) exclude-selectors)
+            (setq request (append request `("exclude" ,exclude-selectors))))
+          (when (stringp ns)
+            (setq request (append request `("ns" ,ns))))
+          (when (stringp ns)
+            (setq request (append request `("tests" ,tests))))
+          (when (or (stringp ns) (eq :project ns))
+            (setq request (append request `("load?" ,"true"))))
           (cider-nrepl-send-request
            request
            (lambda (response)
