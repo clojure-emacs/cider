@@ -24,7 +24,7 @@ then need to require.
 ;; load CIDER from its source code
 (add-to-list 'load-path "~/projects/cider")
 (require 'cider)
-(require 'cider-loaddefs)
+(require 'cider-autoloads)
 ```
 
 ### Changing the code
