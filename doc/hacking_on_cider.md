@@ -134,14 +134,14 @@ And then switch to Emacs 26.1 and test again:
 
 ```
 (emacs-25.3-travis) ~/cider$ evm use Emacs-26-pretest-travis
-(emacs-26-pretest-travis) ~/cider$ cask install
-(emacs-26-pretest-travis) ~/cider$ make test
+(emacs-26.1-travis) ~/cider$ cask install
+(emacs-26.1-travis) ~/cider$ make test
 ```
 
 You can test byte compilation too
 
 ```
-(emacs-26-pretest-travis) ~/cider$ make test-bytecomp
+(emacs-26.1-travis) ~/cider$ make test-bytecomp
 ```
 
 When you are done working in docker, just `exit` the bash prompt, and the docker
