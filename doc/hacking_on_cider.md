@@ -15,10 +15,13 @@ Alternatively you can simply load CIDER in your Emacs straight from its source
 repo (you'll have to manually install all the packages CIDER depends on
 in advance).
 
-Additionally you will have to generate and require the autoloads: this can be
-done interactively within Emacs with `update-directory-autoloads`. The function
-will prompt for saving a file, let's call it `cider-autoloads.el` that you will
-then need to require.
+Additionally you will have to generate and require the
+[autoloads](https://www.gnu.org/software/emacs/manual/html_node/elisp/Autoload.html),
+otherwise you'll keep getting errors about missing commands.
+That's done automatically when installing via `package.el`, but you'll
+have to do manually with `M-x update-directory-autoloads`. The
+function will prompt for saving a file, let's call it
+`cider-autoloads.el` that you will then need to require.
 
 ```el
 ;; load CIDER from its source code
