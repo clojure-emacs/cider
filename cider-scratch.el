@@ -34,6 +34,14 @@
 (require 'clojure-mode)
 (require 'easymenu)
 
+(defcustom cider-scratch-initial-message
+  ";; This buffer is for Clojure experiments and evaluation.\n
+;; Press C-j to evaluate the last expression.\n\n"
+  "The initial message displayed in new scratch buffers."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
+
 (defvar cider-clojure-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
@@ -69,8 +77,7 @@ before point, and prints its value into the buffer, advancing point.
 
 (defun cider--scratch-insert-welcome-message ()
   "Insert the welcome message for the scratch buffer."
-  (insert ";; This buffer is for Clojure experiments and evaluation.\n"
-          ";; Press C-j to evaluate the last expression.\n\n"))
+  (insert cider-scratch-initial-message))
 
 (defun cider-create-scratch-buffer ()
   "Create a new scratch buffer."

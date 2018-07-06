@@ -11,6 +11,7 @@
 * Inject piggieback automatically on `cider-jack-in-clojurescript`.
 * Introduce a new command named `cider` (`C-c M-x`) that acts as a simple wrapper around all commands for starting/connecting to REPLs.
 * [#2305](https://github.com/clojure-emacs/cider/issues/2305): Make it possible to disable the REPL type auto-detection by customizing `cider-repl-auto-detect-type`.
+* [#2373](https://github.com/clojure-emacs/cider/issues/2373): Make it possible to configure the welcome message displayed in scratch buffers via `cider-scratch-initial-message`.
 
 ### Bugs fixed
 
