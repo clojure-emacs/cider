@@ -47,8 +47,9 @@ more permanent, you can do so by customizing the
 provide a direct link to the bug reporting page to help facilitate its
 diagnosis and repair.
 
-Independently of the value of `cider-show-error-buffer` or `cider-stacktrace-suppressed-errors`,
-the error buffer is always generated in the background. Use `cider-visit-error-buffer` to visit
+Independently of the value of `cider-show-error-buffer` or
+`cider-stacktrace-suppressed-errors`, the error buffer is always
+generated in the background. Use `cider-selector` (`C-c M-s`) to visit
 this buffer.
 
 There are two more selective strategies for the error buffer:

@@ -94,6 +94,8 @@ cyclical data structures."
 
 (defconst cider-error-buffer "*cider-error*")
 
+(make-obsolete 'cider-visit-error-buffer 'cider-selector "0.18")
+
 (defcustom cider-stacktrace-suppressed-errors '()
   "Errors that won't make the stacktrace buffer 'pop-over' your active window.
 The error types are represented as strings."

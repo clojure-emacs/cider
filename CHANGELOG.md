@@ -30,6 +30,7 @@
 * Rename `cider-eval-defun-to-point` to `cider-eval-defun-up-to-point`.
 * Add support for printing to the current buffer to `cider-eval-defun-up-to-point`.
 * Remove `cider-ping` command.
+* Remove `cider-visit-error-buffer` in favour of using `cider-selector`.
 
 ## 0.17.0 (2018-05-07)
 

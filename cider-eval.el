@@ -65,7 +65,7 @@ The following values are possible t or 'always, 'except-in-repl,
 not to be automatically shown.
 
 Irespective of the value of this variable, the `cider-error-buffer' is
-always generated in the background.  Use `cider-visit-error-buffer' to
+always generated in the background.  Use `cider-selector' to
 navigate to this buffer."
   :type '(choice (const :tag "always" t)
                  (const except-in-repl)
@@ -172,13 +172,6 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 
 ;;; Dealing with compilation (evaluation) errors and warnings
-(defun cider-visit-error-buffer ()
-  "Visit the `cider-error-buffer' (usually *cider-error*) if it exists."
-  (interactive)
-  (if-let* ((buffer (get-buffer cider-error-buffer)))
-      (cider-popup-buffer-display buffer cider-auto-select-error-buffer)
-    (user-error "No %s buffer" cider-error-buffer)))
-
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.
 If BACKWARD is t, then search backward.
