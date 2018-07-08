@@ -150,10 +150,10 @@ is chosen.  The returned buffer is selected with
   "*cider-doc* buffer."
   cider-doc-buffer)
 
-(declare-function cider-find-or-create-scratch-buffer "cider-scratch")
+(declare-function cider-scratch-find-or-create-buffer "cider-scratch")
 (def-cider-selector-method ?s
   "*cider-scratch* buffer."
-  (cider-find-or-create-scratch-buffer))
+  (cider-scratch-find-or-create-buffer))
 
 (provide 'cider-selector)
 

@@ -61,9 +61,9 @@
 (defun cider-scratch ()
   "Go to the scratch buffer named `cider-scratch-buffer-name'."
   (interactive)
-  (pop-to-buffer (cider-find-or-create-scratch-buffer)))
+  (pop-to-buffer (cider-scratch-find-or-create-buffer)))
 
-(defun cider-find-or-create-scratch-buffer ()
+(defun cider-scratch-find-or-create-buffer ()
   "Find or create the scratch buffer."
   (or (get-buffer cider-scratch-buffer-name)
       (cider-create-scratch-buffer)))

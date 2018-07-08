@@ -79,7 +79,7 @@
     (cider--test-selector-method ?d 'cider-stacktrace-mode "*cider-doc*")))
 
 (describe "cider-seletor-method-s"
-  :var (cider-find-or-create-scratch-buffer)
+  :var (cider-scratch-find-or-create-buffer)
   (it "switches to *cider-scratch* buffer"
-    (spy-on 'cider-find-or-create-scratch-buffer :and-return-value "*cider-scratch*")
+    (spy-on 'cider-scratch-find-or-create-buffer :and-return-value "*cider-scratch*")
     (cider--test-selector-method ?s 'cider-docview-mode "*cider-scratch*")))
