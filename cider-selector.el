@@ -146,6 +146,10 @@ is chosen.  The returned buffer is selected with
   "*cider-error* buffer."
   cider-error-buffer)
 
+(def-cider-selector-method ?p
+  "CIDER profiler buffer."
+  cider-profile-buffer)
+
 (def-cider-selector-method ?d
   "*cider-doc* buffer."
   cider-doc-buffer)
