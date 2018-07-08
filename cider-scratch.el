@@ -66,7 +66,7 @@
 (defun cider-scratch-find-or-create-buffer ()
   "Find or create the scratch buffer."
   (or (get-buffer cider-scratch-buffer-name)
-      (cider-create-scratch-buffer)))
+      (cider-scratch--create-buffer)))
 
 (define-derived-mode cider-clojure-interaction-mode clojure-mode "Clojure Interaction"
   "Major mode for typing and evaluating Clojure forms.
@@ -79,7 +79,7 @@ before point, and prints its value into the buffer, advancing point.
   "Insert the welcome message for the scratch buffer."
   (insert cider-scratch-initial-message))
 
-(defun cider-create-scratch-buffer ()
+(defun cider-scratch--create-buffer ()
   "Create a new scratch buffer."
   (with-current-buffer (get-buffer-create cider-scratch-buffer-name)
     (cider-clojure-interaction-mode)
