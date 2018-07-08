@@ -75,7 +75,7 @@ before point, and prints its value into the buffer, advancing point.
 
 \\{cider-clojure-interaction-mode-map}")
 
-(defun cider--scratch-insert-welcome-message ()
+(defun cider-scratch--insert-welcome-message ()
   "Insert the welcome message for the scratch buffer."
   (insert cider-scratch-initial-message))
 
@@ -83,14 +83,14 @@ before point, and prints its value into the buffer, advancing point.
   "Create a new scratch buffer."
   (with-current-buffer (get-buffer-create cider-scratch-buffer-name)
     (cider-clojure-interaction-mode)
-    (cider--scratch-insert-welcome-message)
+    (cider-scratch--insert-welcome-message)
     (current-buffer)))
 
 (defun cider-scratch-reset ()
   "Reset the current scratch buffer."
   (interactive)
   (erase-buffer)
-  (cider--scratch-insert-welcome-message))
+  (cider-scratch--insert-welcome-message))
 
 (provide 'cider-scratch)
 
