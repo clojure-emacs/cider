@@ -44,7 +44,9 @@ Each element is a list (KEY DESCRIPTION FUNCTION).
 DESCRIPTION is a one-line description of what the key selects.")
 
 (defvar cider-selector-other-window nil
-  "If non-nil use `switch-to-buffer-other-window'.")
+  "If non-nil use `switch-to-buffer-other-window'.
+Not meant to be set by users.  It's used internally
+by `cider-selector'.")
 
 (defun cider-selector--recently-visited-buffer (mode)
   "Return the most recently visited buffer, deriving its `major-mode' from MODE.
