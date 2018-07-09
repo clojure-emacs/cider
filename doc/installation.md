@@ -114,25 +114,19 @@ following command:
 
 ## Manual installation
 
-Alternatively you can simply load CIDER in your Emacs straight from its source
-repo. Assuming you've already obtained the code you should add something like
-this to your Emacs configuration:
-
-```el
-;; load CIDER from its source code
-(add-to-list 'load-path "~/projects/cider")
-(require 'cider)
-```
-
-Just keep in mind that you'll have to manually install all the packages CIDER
-depends on in advance.
+Installing CIDER manually is discouraged unless you plan to work with
+CIDER's codebase. The manual installation is relatively involved as it
+requires manual installation of the dependencies and manual generation
+of the package autoloads. Check out the section [Hacking on
+CIDER](hacking_on_cider.md) for more details.
 
 ## CIDER's nREPL middleware
 
-Much of CIDER's functionality depends on the presence of CIDER's
-own [nREPL middleware](https://github.com/clojure-emacs/cider-nrepl). Starting
-with version 0.11, When `cider-jack-in` (<kbd>C-c M-j</kbd>) is used, CIDER
-takes care of injecting it and its other dependencies.
+Much of CIDER's functionality depends on the presence of CIDER's own
+[nREPL
+middleware](https://github.com/clojure-emacs/cider-nrepl). Starting
+with version 0.11, When `cider-jack-in` (<kbd>C-c M-j</kbd>) is used,
+CIDER takes care of injecting it and its other dependencies.
 
 **`profiles.clj` or `profile.boot` don't need to be modified anymore for the above use case!**
 
