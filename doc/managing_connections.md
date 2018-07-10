@@ -1,5 +1,7 @@
-Because connections map one-to-one to REPL buffers, for the purpose of this
-section we use "REPL" and "connection" interchangeably.
+!!! Note
+
+    Because connections map one-to-one to REPL buffers, for the purpose of this
+    section we use "REPL" and "connection" interchangeably.
 
 ## Sessions
 
@@ -48,7 +50,7 @@ Sessions can be linked to contexts (projects, directories and buffers)
 ## Current Session
 
 All CIDER commands (evaluation, completion, switching to REPL etc.) operate on
-the relevant REPL within the current session. Current session is the most
+the relevant REPL within the current session. The current session is the most
 relevant session among all linked session. Session relevance is decided by the
 specificity of the linked contexts and recency of the REPL buffers.
 
@@ -70,12 +72,11 @@ Retrieve info on the current session with <kbd>C-c C-s i</kbd>
 on all linked sessions, and with double prefix <kbd>C-u C-u</kbd> on all CIDER
 sessions. Display active links with <kbd>C-c C-s l</kbd> (`sesman-show-links`).
 
-
 ## Current REPL
 
-Current REPL is the most relevant REPL from the current session. REPL relevance
+The current REPL is the most relevant REPL from the current session. REPL relevance
 is determined by the type of the current buffer. For example if the current
-buffer is a `clj` buffer a `clj` REPL is selected. Ambiguous situations could
+buffer is a `clj` buffer then a `clj` REPL is selected. Ambiguous situations could
 arise when, for instance, there are multiple `clj` REPLs within a session, or
 the current buffer is a `cljc` buffer and both `clj` and `cljs` REPLs exist in
 the session. In such cases the current REPL is the most recently viewed REPL of
