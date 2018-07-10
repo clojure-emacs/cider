@@ -1,4 +1,4 @@
-;;; cider-refresh.el --- Namespace refresh functionality -*- lexical-binding: t -*-
+;;; cider-ns.el --- Namespace manipulation functionality -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2018 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
@@ -33,8 +33,8 @@
 (require 'cider-popup)
 (require 'cider-stacktrace)
 
-(defcustom cider-save-files-on-cider-refresh 'prompt
-  "Controls whether to prompt to save Clojure files on `cider-refresh'.
+(defcustom cider-ns-save-files-on-refresh 'prompt
+  "Controls whether to prompt to save Clojure files on `cider-ns-refresh'.
 If nil, files are not saved.
 If 'prompt, the user is prompted to save files if they have been modified.
 If t, save the files without confirmation."
@@ -44,11 +44,13 @@ If t, save the files without confirmation."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
-(defconst cider-refresh-log-buffer "*cider-refresh-log*")
+(define-obsolete-variable-alias 'cider-save-files-on-cider-ns-refresh 'cider-ns-save-files-on-refresh)
 
-(defcustom cider-refresh-show-log-buffer nil
+(defconst cider-ns-refresh-log-buffer "*cider-ns-refresh-log*")
+
+(defcustom cider-ns-refresh-show-log-buffer nil
   "Controls when to display the refresh log buffer.
-If non-nil, the log buffer will be displayed every time `cider-refresh' is
+If non-nil, the log buffer will be displayed every time `cider-ns-refresh' is
 called.  If nil, the log buffer will still be written to, but will never be
 displayed automatically.  Instead, the most relevant information will be
 displayed in the echo area."
@@ -57,8 +59,10 @@ displayed in the echo area."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-refresh-before-fn nil
-  "Clojure function for `cider-refresh' to call before reloading.
+(define-obsolete-variable-alias 'cider-refresh-show-log-buffer 'cider-ns-refresh-show-log-buffer "0.18")
+
+(defcustom cider-ns-refresh-before-fn nil
+  "Clojure function for `cider-ns-refresh' to call before reloading.
 If nil, nothing will be invoked before reloading.  Must be a
 namespace-qualified function of zero arity.  Any thrown exception will
 prevent reloading from occurring."
@@ -66,15 +70,19 @@ prevent reloading from occurring."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-refresh-after-fn nil
-  "Clojure function for `cider-refresh' to call after reloading.
+(define-obsolete-variable-alias 'cider-refresh-before-fn 'cider-ns-refresh-before-fn)
+
+(defcustom cider-ns-refresh-after-fn nil
+  "Clojure function for `cider-ns-refresh' to call after reloading.
 If nil, nothing will be invoked after reloading.  Must be a
 namespace-qualified function of zero arity."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defun cider-refresh--handle-response (response log-buffer)
+(define-obsolete-variable-alias 'cider-refresh-after-fn 'cider-ns-refresh-after-fn)
+
+(defun cider-ns-refresh--handle-response (response log-buffer)
   "Refresh LOG-BUFFER with RESPONSE."
   (nrepl-dbind-response response (out err reloading status error error-ns after before)
     (cl-flet* ((log (message &optional face)
@@ -82,9 +90,9 @@ namespace-qualified function of zero arity."
 
                (log-echo (message &optional face)
                          (log message face)
-                         (unless cider-refresh-show-log-buffer
+                         (unless cider-ns-refresh-show-log-buffer
                            (let ((message-truncate-lines t))
-                             (message "cider-refresh: %s" message)))))
+                             (message "cider-ns-refresh: %s" message)))))
       (cond
        (out
         (log out))
@@ -119,21 +127,21 @@ namespace-qualified function of zero arity."
        ((member "invoked-after" status)
         (log-echo (format "Successfully called %s\n" after) 'font-lock-string-face))))
 
-    (with-selected-window (or (get-buffer-window cider-refresh-log-buffer)
+    (with-selected-window (or (get-buffer-window cider-ns-refresh-log-buffer)
                               (selected-window))
-      (with-current-buffer cider-refresh-log-buffer
+      (with-current-buffer cider-ns-refresh-log-buffer
         (goto-char (point-max))))
 
     (when (member "error" status)
       (cider--render-stacktrace-causes error))))
 
-(defun cider-refresh--save-project-buffers ()
+(defun cider-ns-refresh--save-project-buffers ()
   "Ensure modified project buffers are saved before certain operations.
-Its behavior is controlled by `cider-save-files-on-cider-refresh'."
+Its behavior is controlled by `cider-save-files-on-cider-ns-refresh'."
   (when-let* ((project-root (clojure-project-dir)))
-    (when cider-save-files-on-cider-refresh
+    (when cider-save-files-on-cider-ns-refresh
       (save-some-buffers
-       (eq cider-save-files-on-cider-refresh t)
+       (eq cider-save-files-on-cider-ns-refresh t)
        (lambda ()
          (and
           (derived-mode-p 'clojure-mode)
@@ -142,7 +150,7 @@ Its behavior is controlled by `cider-save-files-on-cider-refresh'."
                            (eq system-type 'windows-nt))))))))
 
 ;;;###autoload
-(defun cider-refresh (&optional mode)
+(defun cider-ns-refresh (&optional mode)
   "Reload modified and unloaded namespaces on the classpath.
 
 With a single prefix argument, or if MODE is `refresh-all', reload all
@@ -156,21 +164,21 @@ clearing is that stale code from any deleted files may not be completely
 unloaded.
 
 With a negative prefix argument, or if MODE is `inhibit-fns', prevent any
-refresh functions (defined in `cider-refresh-before-fn' and
-`cider-refresh-after-fn') from being invoked."
+refresh functions (defined in `cider-ns-refresh-before-fn' and
+`cider-ns-refresh-after-fn') from being invoked."
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
-  (cider-refresh--save-project-buffers)
+  (cider-ns-refresh--save-project-buffers)
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
     (cider-map-repls :clj
       (lambda (conn)
         ;; Inside the lambda, so the buffer is not created if we error out.
-        (let ((log-buffer (or (get-buffer cider-refresh-log-buffer)
-                              (cider-make-popup-buffer cider-refresh-log-buffer))))
-          (when cider-refresh-show-log-buffer
+        (let ((log-buffer (or (get-buffer cider-ns-refresh-log-buffer)
+                              (cider-make-popup-buffer cider-ns-refresh-log-buffer))))
+          (when cider-ns-refresh-show-log-buffer
             (cider-popup-buffer-display log-buffer))
           (when inhibit-refresh-fns
             (cider-emit-into-popup-buffer log-buffer
@@ -185,13 +193,13 @@ refresh functions (defined in `cider-refresh-before-fn' and
                     "print-level" ,cider-stacktrace-print-level)
                   (when (cider--pprint-fn)
                     `("pprint-fn" ,(cider--pprint-fn)))
-                  (when (and (not inhibit-refresh-fns) cider-refresh-before-fn)
-                    `("before" ,cider-refresh-before-fn))
-                  (when (and (not inhibit-refresh-fns) cider-refresh-after-fn)
-                    `("after" ,cider-refresh-after-fn)))
+                  (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
+                    `("before" ,cider-ns-refresh-before-fn))
+                  (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
+                    `("after" ,cider-ns-refresh-after-fn)))
            (lambda (response)
-             (cider-refresh--handle-response response log-buffer))
+             (cider-ns-refresh--handle-response response log-buffer))
            conn))))))
 
-(provide 'cider-refresh)
-;;; cider-refresh.el ends here
+(provide 'cider-ns)
+;;; cider-ns.el ends here

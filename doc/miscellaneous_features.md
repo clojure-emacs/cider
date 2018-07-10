@@ -97,7 +97,7 @@ minor mode) by writing `#light` before the `(def` and reevaluating it.
 
 ## Code reloading
 
-`cider-refresh` wraps
+`cider-ns-refresh` wraps
 [clojure.tools.namespace](https://github.com/clojure/tools.namespace), and as
 such the same
 [benefits](https://github.com/clojure/tools.namespace#reloading-code-motivation)
@@ -105,7 +105,7 @@ and
 [caveats](https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application)
 regarding writing reloadable code also apply.
 
-Calling `cider-refresh` will cause all modified Clojure files on the classpath
+Calling `cider-ns-refresh` will cause all modified Clojure files on the classpath
 to be reloaded. You can also provide a single prefix argument to reload all
 Clojure files on the classpath unconditionally, or a double prefix argument to
 first clear the state of the namespace tracker before reloading.
@@ -118,11 +118,11 @@ and
 (followed by a normal refresh), respectively.
 
 * You can define Clojure functions to be called before reloading, and after a
-  successful reload, when using `cider-refresh`:
+  successful reload, when using `cider-ns-refresh`:
 
 ```el
-(setq cider-refresh-before-fn "user/stop-system!"
-      cider-refresh-after-fn "user/start-system!")
+(setq cider-ns-refresh-before-fn "user/stop-system!"
+      cider-ns-refresh-after-fn "user/start-system!")
 ```
 
 * These must be set to the namespace-qualified names of vars bound to functions
@@ -131,22 +131,22 @@ and
   retries.
 
 * By default, messages regarding the status of the in-progress reload will be
-  displayed in the echo area after you call `cider-refresh`. The same
-  information will also be recorded in the `*cider-refresh-log*` buffer, along
-  with anything printed to `*out*` or `*err*` by `cider-refresh-before-fn` and
-  `cider-refresh-start-fn`.
+  displayed in the echo area after you call `cider-ns-refresh`. The same
+  information will also be recorded in the `*cider-ns-refresh-log*` buffer, along
+  with anything printed to `*out*` or `*err*` by `cider-ns-refresh-before-fn` and
+  `cider-ns-refresh-start-fn`.
 
-* You can make the `*cider-refresh-log*` buffer display automatically after you
-  call `cider-refresh` by setting the `cider-refresh-show-log-buffer` variable
+* You can make the `*cider-ns-refresh-log*` buffer display automatically after you
+  call `cider-ns-refresh` by setting the `cider-ns-refresh-show-log-buffer` variable
   to a non-nil value (this will also prevent any related messages from also
   being displayed in the echo area):
 
 ```el
-(setq cider-refresh-show-log-buffer t)
+(setq cider-ns-refresh-show-log-buffer t)
 ```
 
 * By default, all modified Clojure buffers are prompted to be saved. This
-  behaviour can be customized using `cider-save-files-on-cider-refresh`.
+  behaviour can be customized using `cider-ns-save-files-on-refresh`.
 
 ## Tracing function execution
 
@@ -203,8 +203,8 @@ at the spec browser.
 
 ![Spec Browser](images/spec_browser.png)
 
-You can also type the command <kbd>M-x</kbd> `cider-browse-spec-all`. This command will prompt you for 
-a regex you can use to filter out the specs you are interested in, and will also take you to the spec browser. 
+You can also type the command <kbd>M-x</kbd> `cider-browse-spec-all`. This command will prompt you for
+a regex you can use to filter out the specs you are interested in, and will also take you to the spec browser.
 
 ![Spec Browser](images/spec_browser_all.png)
 
@@ -218,7 +218,7 @@ Keyboard shortcut               | Description
 <kbd>p</kbd>                    | Go to previous spec.
 <kbd>e</kbd>                    | Generate an example for the current browser spec.
 
-If your project contains a version of `org.clojure/test.check`, you can type <kbd>e</kbd> when browsing 
+If your project contains a version of `org.clojure/test.check`, you can type <kbd>e</kbd> when browsing
 a spec to generate and print an example of it.
 
 ![Spec Browser Example](images/spec_browser_gen_example.png)

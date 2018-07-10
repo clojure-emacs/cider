@@ -1486,7 +1486,7 @@ constructs."
 (declare-function cider-classpath "cider-classpath")
 (declare-function cider-repl-history "cider-repl-history")
 (declare-function cider-run "cider-mode")
-(declare-function cider-refresh "cider-refresh")
+(declare-function cider-ns-refresh "cider-ns")
 (declare-function cider-version "cider")
 (declare-function cider-test-run-loaded-tests "cider-test")
 (declare-function cider-test-run-project-tests "cider-test")
@@ -1501,7 +1501,7 @@ constructs."
 (cider-repl-add-shortcut "history" #'cider-repl-history)
 (cider-repl-add-shortcut "trace-ns" #'cider-toggle-trace-ns)
 (cider-repl-add-shortcut "undef" #'cider-undef)
-(cider-repl-add-shortcut "refresh" #'cider-refresh)
+(cider-repl-add-shortcut "refresh" #'cider-ns-refresh)
 (cider-repl-add-shortcut "help" #'cider-repl-shortcuts-help)
 (cider-repl-add-shortcut "test-ns" #'cider-test-run-ns-tests)
 (cider-repl-add-shortcut "test-all" #'cider-test-run-loaded-tests)
@@ -1622,7 +1622,7 @@ constructs."
     (define-key map (kbd "C-c M-p") #'cider-repl-history)
     (define-key map (kbd "C-c M-t v") #'cider-toggle-trace-var)
     (define-key map (kbd "C-c M-t n") #'cider-toggle-trace-ns)
-    (define-key map (kbd "C-c C-x") #'cider-refresh)
+    (define-key map (kbd "C-c C-x") #'cider-ns-refresh)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
     (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
@@ -1661,7 +1661,7 @@ constructs."
         ["Inspect" cider-inspect]
         ["Toggle var tracing" cider-toggle-trace-var]
         ["Toggle ns tracing" cider-toggle-trace-ns]
-        ["Refresh loaded code" cider-refresh]
+        ["Refresh loaded code" cider-ns-refresh]
         "--"
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]

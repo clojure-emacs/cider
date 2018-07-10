@@ -351,7 +351,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Load another file" cider-load-file]
     ["Recursively load all files in directory" cider-load-all-files]
     ["Load all project files" cider-load-all-project-ns]
-    ["Refresh loaded code" cider-refresh]
+    ["Refresh loaded code" cider-ns-refresh]
     ["Run project (-main function)" cider-run])
   "Menu for CIDER mode eval commands.")
 
@@ -415,7 +415,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-selector "cider-selector")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
-(declare-function cider-refresh "cider-refresh")
+(declare-function cider-ns-refresh "cider-ns-refresh")
 (declare-function cider-find-resource "cider-find")
 (declare-function cider-find-ns "cider-find")
 (declare-function cider-find-keyword "cider-find")
@@ -461,7 +461,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-d") #'cider-describe-current-connection)
     (define-key map (kbd "C-c C-=") 'cider-profile-map)
-    (define-key map (kbd "C-c C-x") #'cider-refresh)
+    (define-key map (kbd "C-c C-x") #'cider-ns-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (dolist (variable '(cider-mode-interactions-menu
                         cider-mode-eval-menu

@@ -42,7 +42,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-load-buffer`                           |<kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 `cider-load-file`                             |<kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
 `cider-load-all-files`                        |<kbd>C-c C-M-l</kbd>                 | Load (eval) all Clojure files below a directory.
-`cider-refresh`                               |<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
+`cider-ns-refresh`                            |<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
 `cider-doc`                                   |<kbd>C-c C-d d</kbd> <br/> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 `cider-javadoc`                               |<kbd>C-c C-d j</kbd> <br/> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 `cider-grimoire`                              |<kbd>C-c C-d r</kbd> <br/> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.

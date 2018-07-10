@@ -1,4 +1,4 @@
-;;; cider-refresh-tests.el
+;;; cider-ns-tests.el
 
 ;; Copyright © 2018 Bozhidar Batsov
 
@@ -26,9 +26,9 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'cider-refresh)
+(require 'cider-ns)
 
-(describe "cider-refresh"
+(describe "cider-ns-refresh"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (cider-refresh) :to-throw 'user-error)))
+    (expect (cider-ns-refresh) :to-throw 'user-error)))
