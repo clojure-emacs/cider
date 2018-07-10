@@ -415,7 +415,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-selector "cider-selector")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
-(declare-function cider-ns-refresh "cider-ns-refresh")
+(declare-function cider-ns-refresh "cider-ns")
 (declare-function cider-find-resource "cider-find")
 (declare-function cider-find-ns "cider-find")
 (declare-function cider-find-keyword "cider-find")
