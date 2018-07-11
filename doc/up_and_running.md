@@ -81,15 +81,13 @@ running nREPL server.
 
     In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
 
-!!! Tip
+You can configure known endpoints used by the `cider-connect` command offered
+via a completing read. This is useful if you have a list of common host/ports
+you want to establish remote nREPL connections to. Using an optional label is
+helpful for identifying each host.
 
-    You can configure known endpoints used by the `cider-connect` command offered
-    via a completing read. This is useful if you have a list of common host/ports
-    you want to establish remote nREPL connections to. Using an optional label is
-    helpful for identifying each host.
-
-    ```
-    (setq cider-known-endpoints
-      '(("host-a" "10.10.10.1" "7888")
-        ("host-b" "7888")))
-    ```
+```
+(setq cider-known-endpoints
+  '(("host-a" "10.10.10.1" "7888")
+    ("host-b" "7888")))
+```
