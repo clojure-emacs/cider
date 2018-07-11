@@ -26,13 +26,15 @@
 
 ### Changes
 
-* Bump the minimum required Emacs version to 25.1.
-* Drop support for Java 7 and Clojure(Script) 1.7.
+* **Breaking** Bump the minimum required Emacs version to 25.1.
+* **Breaking** Drop support for Java 7 and Clojure(Script) 1.7.
 * Rename `cider-eval-defun-to-point` to `cider-eval-defun-up-to-point`.
 * Add support for printing to the current buffer to `cider-eval-defun-up-to-point`.
 * Remove `cider-ping` command.
 * Remove `cider-visit-error-buffer` in favour of using `cider-selector`.
 * Rename `cider-refresh` to `cider-ns-refresh` (and all the related defcustoms).
+* **Breaking** Rewrote connection management (see http://docs.cider.mx/en/latest/managing_connections/ for details).
+* **Breaking** `cider-jack-in-clojurescript` now creates only a ClojureScript REPL (use `cider-jack-in-clj&cljs` to create both REPLs).
 
 ## 0.17.0 (2018-05-07)
 
