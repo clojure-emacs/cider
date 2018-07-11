@@ -56,13 +56,20 @@ awesome article](https://lambdaisland.com/guides/clojure-repls/clojurescript-rep
 before proceeding with the rest of the instructions listed here.
 
 Open a file in your project and issue <kbd>M-x</kbd>
-`cider-jack-in-clojurescript` <kbd>RET</kbd>. This will start up the nREPL
-server, and then create two REPL buffers for you, one in Clojure and one in
-ClojureScript. All usual CIDER commands will be automatically directed to the
-appropriate REPL, depending on whether you're visiting a `.clj` or a `.cljs`
-file.
+`cider-jack-in-cljs` <kbd>RET</kbd>. This will start up the nREPL
+server, and then create a ClojureScript REPL buffer for you, one.
 
-`cider-jack-in-clojurescript` will prompt you about the type of
+!!! Note
+
+    Prior to CIDER 0.18, `cider-jack-in-cljs` would create both a Clojure and
+    a ClojureScript REPL. In CIDER 0.18+ if you want to create both REPLs
+    you'll have to use `cider-jack-in-clj&cljs` instead.
+
+When you have a combination of Clojure and ClojureScript REPLs all
+usual CIDER commands will be automatically directed to the appropriate
+REPL, depending on whether you're visiting a `.clj` or a `.cljs` file.
+
+`cider-jack-in-cljs` will prompt you about the type of
 ClojureScript to start. Keep in mind that some of the REPLs will
 require some additional setup, before you can make use of them (e.g. you'll
 need to have Node.js installed to be able to start a node REPL).
@@ -112,7 +119,7 @@ Using Weasel, you can also have a browser-connected REPL.
 
 1. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
 
-2. Issue <kbd>M-x</kbd> `cider-jack-in-clojurescript` <kbd>RET</kbd> and choose
+2. Issue <kbd>M-x</kbd> `cider-jack-in-cljs` <kbd>RET</kbd> and choose
    the `Weasel` option when prompted about the ClojureScript REPL type you want
    to use.
 
@@ -124,7 +131,7 @@ Using Weasel, you can also have a browser-connected REPL.
 (repl/connect "ws://localhost:9001")
 ```
 
-4. Open a file in your project and issue <kbd>M-x</kbd> `cider-jack-in-clojurescript`.
+4. Open a file in your project and issue <kbd>M-x</kbd> `cider-jack-in-cljs`.
 
 Provided that a Piggieback-enabled ClojureScript environment is active in your
 REPL session, code loading and evaluation will work seamlessly regardless of the
@@ -162,7 +169,7 @@ and this at the end of `build.boot`:
 2. Issue <kbd>M-x</kbd> `customize-variable` <kbd>RET</kbd> `cider-boot-parameters`
    and insert `dev`.
 
-3. Open a file in your project and issue <kbd>M-x</kbd> `cider-jack-in-clojurescript`.
+3. Open a file in your project and issue <kbd>M-x</kbd> `cider-jack-in-cljs`.
 
 5. Connect to the running server with your browser. The address is printed on the terminal, but it's probably `http://localhost:3000`.
 
@@ -192,7 +199,7 @@ Keep in mind that figwheel 0.5.16 is the first to support piggieback
 :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
 ```
 
-4. Start the REPL with `cider-jack-in-clojurescript` (<kbd>C-c M-J</kbd>)
+4. Start the REPL with `cider-jack-in-cljs` (<kbd>C-c M-J</kbd>)
 
 5. Open a browser to the Figwheel URL so that it can connect to your application.
 
@@ -205,7 +212,7 @@ You should also check out
 ### Using shadow-cljs
 
 Provided you've configured your project correctly you can simply use
-`cider-jack-in-clojurescript` to use `shadow-cljs`.
+`cider-jack-in-cljs` to use `shadow-cljs`.
 
 This will automatically start the shadow-cljs server and connect to it. You'll also
 be prompted for the build to use.

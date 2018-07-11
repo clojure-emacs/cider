@@ -288,7 +288,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Connect to a Clojure REPL" cider-connect
       :help "Connects to a REPL that's already running."])
     ("ClojureScript"
-     ["Start a ClojureScript REPL" cider-jack-in-clojurescript
+     ["Start a ClojureScript REPL" cider-jack-in-cljs
       :help "Starts an nREPL server and connects a ClojureScript REPL to it."]
      ["Connect to a ClojureScript REPL" cider-connect-clojurescript
       :help "Connects to a ClojureScript REPL that's already running."]
@@ -487,7 +487,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
         :help "Connects to a REPL that's already running."]
        ["Connect to a ClojureScript REPL" cider-connect-clojurescript
         :help "Connects to a ClojureScript REPL that's already running."]
-       ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clojurescript
+       ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-cljs
         :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
        "--"
        ["View manual online" cider-view-manual])))

@@ -760,7 +760,7 @@ It's intended to be used in your Emacs config."
 
 (defcustom cider-default-cljs-repl nil
   "The default ClojureScript REPL to start.
-This affects commands like `cider-jack-in-clojurescript'.  Generally it's
+This affects commands like `cider-jack-in-cljs'.  Generally it's
 intended to be set via .dir-locals.el for individual projects, as its
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
@@ -780,7 +780,7 @@ you're working on."
 (make-obsolete-variable 'cider-cljs-gradle-repl 'cider-default-cljs-repl "0.17")
 
 (defun cider-select-cljs-repl ()
-  "Select the ClojureScript REPL to use with `cider-jack-in-clojurescript'."
+  "Select the ClojureScript REPL to use with `cider-jack-in-cljs'."
   (let ((repl-types (mapcar #'car cider-cljs-repl-types)))
     (intern (completing-read "Select ClojureScript REPL type: " repl-types))))
 
