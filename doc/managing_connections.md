@@ -22,6 +22,11 @@ Add new REPLs to the current session with
    - <kbd>C-c M-s</kbd> `cider-connect-sibling-clj`
    - <kbd>C-c M-S</kbd> `cider-connect-sibling-cljs`
 
+!!! Tip
+
+    There's also the `cider` command, which is a wrapper around all the
+    aforementioned commands. You can invoke it with <kbd>C-C M-x</kbd>.
+
 Session life-cycle management commands live in the [Sesman] map (<kbd>C-c
 C-s</kbd>)
 
