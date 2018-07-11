@@ -59,7 +59,7 @@ and serious regressions there are usually fixed pretty quickly.
 
 Generally, users of the non-adventurous kind are advised to stick
 with the stable releases, available from MELPA Stable.
-In Emacs 24.4+, you can pin CIDER to always use MELPA
+You can pin CIDER to always use MELPA
 Stable by adding this to your Emacs initialization:
 
 ```el
