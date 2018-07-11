@@ -28,6 +28,7 @@
 (require 'cider-compat)
 (require 'nrepl-dict)
 (require 'cider-util)
+(require 'etags) ; for find-tags-marker-ring
 (require 'tramp)
 
 (defcustom cider-prompt-for-symbol t
