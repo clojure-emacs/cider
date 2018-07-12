@@ -890,6 +890,39 @@ nil."
 
 ;;; User Level Connectors
 
+(defvar cider-start-map
+  (let ((map (define-prefix-command 'cider-start-map)))
+
+    (define-key map (kbd "j j") #'cider-jack-in-clj)
+    (define-key map (kbd "j s") #'cider-jack-in-cljs)
+    (define-key map (kbd "j m") #'cider-jack-in-clj&cljs)
+    (define-key map (kbd "C-j j") #'cider-jack-in-clj)
+    (define-key map (kbd "C-j s") #'cider-jack-in-cljs)
+    (define-key map (kbd "C-j m") #'cider-jack-in-clj&cljs)
+    (define-key map (kbd "C-j C-j") #'cider-jack-in-clj)
+    (define-key map (kbd "C-j C-s") #'cider-jack-in-cljs)
+    (define-key map (kbd "C-j C-m") #'cider-jack-in-clj&cljs)
+
+    (define-key map (kbd "c j") #'cider-connect-clj)
+    (define-key map (kbd "c s") #'cider-connect-cljs)
+    (define-key map (kbd "c m") #'cider-connect-clj&cljs)
+    (define-key map (kbd "C-c j") #'cider-connect-clj)
+    (define-key map (kbd "C-c s") #'cider-connect-cljs)
+    (define-key map (kbd "C-c m") #'cider-connect-clj&cljs)
+    (define-key map (kbd "C-c C-j") #'cider-connect-clj)
+    (define-key map (kbd "C-c C-s") #'cider-connect-cljs)
+    (define-key map (kbd "C-c C-m") #'cider-connect-clj&cljs)
+
+    (define-key map (kbd "s j") #'cider-connect-sibling-clj)
+    (define-key map (kbd "s s") #'cider-connect-sibling-cljs)
+    (define-key map (kbd "C-s j") #'cider-connect-sibling-clj)
+    (define-key map (kbd "C-s s") #'cider-connect-sibling-cljs)
+    (define-key map (kbd "C-s C-j") #'cider-connect-sibling-clj)
+    (define-key map (kbd "C-s C-s") #'cider-connect-sibling-cljs)
+
+    map)
+  "CIDER jack-in and connect keymap.")
+
 ;;;###autoload
 (defun cider-jack-in-clj (&optional do-prompt)
   "Start an nREPL server for the current project and connect to it.
@@ -1197,8 +1230,7 @@ assume the command is available."
      (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
      (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect-clj)
      (define-key clojure-mode-map (kbd "C-c M-C") #'cider-connect-cljs)
-     (define-key clojure-mode-map (kbd "C-c M-s") #'cider-connect-sibling-clj)
-     (define-key clojure-mode-map (kbd "C-c M-S") #'cider-connect-sibling-cljs)
+     (define-key clojure-mode-map (kbd "C-c C-x") 'cider-start-map)
      (define-key clojure-mode-map (kbd "C-c C-s") 'sesman-map)
      (require 'sesman)
      (sesman-install-menu clojure-mode-map)))
