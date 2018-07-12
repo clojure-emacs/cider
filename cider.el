@@ -138,7 +138,9 @@ version from the CIDER package or library.")
 
 (defcustom cider-clojure-cli-command
   "clojure"
-  "The command used to execute clojure with tools.deps (requires Clojure 1.9+)."
+  "The command used to execute clojure with tools.deps (requires Clojure 1.9+).
+Don't use clj here, as it doesn't work when spawned from Emacs due to
+it using rlwrap."
   :type 'string
   :group 'cider
   :safe #'stringp
