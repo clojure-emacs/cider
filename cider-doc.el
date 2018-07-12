@@ -184,6 +184,7 @@
 
 \\{cider-docview-mode-map}"
   (setq buffer-read-only t)
+  (setq-local sesman-system 'CIDER)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t))
   (setq-local electric-indent-chars nil)

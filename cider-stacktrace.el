@@ -235,6 +235,7 @@ The error types are represented as strings."
 \\{cider-stacktrace-mode-map}"
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t))
+  (setq-local sesman-system 'CIDER)
   (setq-local electric-indent-chars nil)
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters)

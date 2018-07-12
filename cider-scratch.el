@@ -73,7 +73,8 @@
 Like clojure-mode except that \\[cider-eval-print-last-sexp] evals the Lisp expression
 before point, and prints its value into the buffer, advancing point.
 
-\\{cider-clojure-interaction-mode-map}")
+\\{cider-clojure-interaction-mode-map}"
+  (setq-local sesman-system 'CIDER))
 
 (defun cider-scratch--insert-welcome-message ()
   "Insert the welcome message for the scratch buffer."

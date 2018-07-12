@@ -1233,7 +1233,8 @@ assume the command is available."
      (define-key clojure-mode-map (kbd "C-c C-x") 'cider-start-map)
      (define-key clojure-mode-map (kbd "C-c C-s") 'sesman-map)
      (require 'sesman)
-     (sesman-install-menu clojure-mode-map)))
+     (sesman-install-menu clojure-mode-map)
+     (add-hook 'clojure-mode-hook (lambda () (setq-local sesman-system 'CIDER)))))
 
 (provide 'cider)
 

@@ -1136,6 +1136,7 @@ operations.")
 \\{nrepl-messages-mode-map}"
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t))
+  (setq-local sesman-system 'CIDER)
   (setq-local electric-indent-chars nil)
   (setq-local comment-start ";")
   (setq-local comment-end "")

@@ -224,6 +224,7 @@ Add to this list to have CIDER recognize additional test defining macros."
   (setq buffer-read-only t)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t))
+  (setq-local sesman-system 'CIDER)
   (setq-local electric-indent-chars nil))
 
 ;; Report navigation
