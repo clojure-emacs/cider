@@ -4,6 +4,9 @@
 
 ### New features
 
+* Bind `C-c M-r` to `cider-restart`.
+* Add new `cider-start-map` keymap (`C-c C-x`) for jack-in and connection commands.
+* Add new `cider-ns-map` keymap (`C-c M-n`) for namespace related functionality.
 * Allow evaling top level forms in a comment form rather than the entire comment form with `cider-eval-toplevel-inside-comment-form`.
 * Create keymap for inserting forms into the repl at `C-c C-j`.
 * Add new defcustom `cider-invert-insert-eval-p`: Set to cause insert-to-repl commands to eval the forms by default when inserted.
@@ -26,6 +29,7 @@
 
 ### Changes
 
+* **(Breaking)** Move `cider-repl-set-ns`, previously on `C-c M-n`, on `C-c M-n M-n` in the `cider-ns-map`.
 * **(Breaking)** Bump the minimum required Emacs version to 25.1.
 * **(Breaking)** Drop support for Java 7 and Clojure(Script) 1.7.
 * Rename `cider-eval-defun-to-point` to `cider-eval-defun-up-to-point`.
