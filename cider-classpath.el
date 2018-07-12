@@ -48,6 +48,7 @@
 
 \\{cider-classpath-mode-map}"
   (setq-local electric-indent-chars nil)
+  (setq-local sesman-system 'CIDER)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t)))
 

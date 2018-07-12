@@ -64,6 +64,7 @@
 
 \\{cider-browse-spec-mode-map}"
   (setq-local electric-indent-chars nil)
+  (setq-local sesman-system 'CIDER)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t)))
 
@@ -86,6 +87,7 @@
 \\{cider-browse-spec-view-mode-map}"
   (setq-local cider-browse-spec--current-spec nil)
   (setq-local electric-indent-chars nil)
+  (setq-local sesman-system 'CIDER)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t)))
 
@@ -104,6 +106,7 @@
 \\{cider-browse-spec-example-mode-map}"
   (setq-local electric-indent-chars nil)
   (setq-local revert-buffer-function #'cider-browse-spec--example-revert-buffer-function)
+  (setq-local sesman-system 'CIDER)
   (when cider-special-mode-truncate-lines
     (setq-local truncate-lines t)))
 
