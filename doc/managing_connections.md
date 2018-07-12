@@ -11,16 +11,18 @@ server.
 
 Start new sessions with
 
-   - <kbd>C-c M-j</kbd> `cider-jack-in-clj`
-   - <kbd>C-c M-J</kbd> `cider-jack-in-cljs`
-   - <kbd>C-c M-c</kbd> `cider-connect-clj`
-   - <kbd>C-c M-C</kbd> `cider-connect-cljs`
-   - <kbd>M-x</kbd> `cider-jack-in-clj&cljs`
+   - <kbd>C-c C-x j j</kbd> `cider-jack-in-clj`
+   - <kbd>C-c C-x j s</kbd> `cider-jack-in-cljs`
+   - <kbd>C-c C-x j m</kbd> `cider-jack-in-clj&cljs`
+
+   - <kbd>C-c C-x c j</kbd> `cider-connect-clj`
+   - <kbd>C-c C-x c s</kbd> `cider-connect-cljs`
+   - <kbd>C-c C-x c m</kbd> `cider-connect-clj&cljs`
 
 Add new REPLs to the current session with
 
-   - <kbd>C-c M-s</kbd> `cider-connect-sibling-clj`
-   - <kbd>C-c M-S</kbd> `cider-connect-sibling-cljs`
+   - <kbd>C-c C-x s j</kbd> `cider-connect-sibling-clj`
+   - <kbd>C-c C-x s s</kbd> `cider-connect-sibling-cljs`
 
 !!! Tip
 
