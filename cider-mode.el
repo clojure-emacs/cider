@@ -408,6 +408,28 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Flush completion cache" cider-completion-flush-caches]))
   "Menu for CIDER interactions.")
 
+
+(declare-function cider-ns-refresh "cider-ns")
+(declare-function cider-browse-ns "cider-browse-ns")
+(declare-function cider-eval-ns-form "cider-eval")
+(declare-function cider-repl-set-ns "cider-repl")
+(declare-function cider-find-ns "cider-find")
+
+(defvar cider-ns-map
+  (let ((map (define-prefix-command 'cider-ns-map)))
+    (define-key map (kbd "b") #'cider-browse-ns)
+    (define-key map (kbd "M-b") #'cider-browse-ns)
+    (define-key map (kbd "e") #'cider-eval-ns-form)
+    (define-key map (kbd "M-e") #'cider-eval-ns-form)
+    (define-key map (kbd "f") #'cider-find-ns)
+    (define-key map (kbd "M-f") #'cider-find-ns)
+    (define-key map (kbd "n") #'cider-repl-set-ns)
+    (define-key map (kbd "M-n") #'cider-repl-set-ns)
+    (define-key map (kbd "r") #'cider-ns-refresh)
+    (define-key map (kbd "M-r") #'cider-ns-refresh)
+    map)
+  "CIDER NS keymap.")
+
 ;; Those declares are needed, because we autoload all those commands when first
 ;; used. That optimizes CIDER's initial load time.
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
@@ -415,9 +437,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-selector "cider-selector")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
-(declare-function cider-ns-refresh "cider-ns")
 (declare-function cider-find-resource "cider-find")
-(declare-function cider-find-ns "cider-find")
 (declare-function cider-find-keyword "cider-find")
 (declare-function cider-find-var "cider-find")
 
@@ -445,7 +465,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "C-c C-u") #'cider-undef)
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)
     (define-key map (kbd "C-c M-m") #'cider-macroexpand-all)
-    (define-key map (kbd "C-c M-n") #'cider-repl-set-ns)
+    (define-key map (kbd "C-c M-n") 'cider-ns-map)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
     (define-key map (kbd "C-c M-t v") #'cider-toggle-trace-var)
     (define-key map (kbd "C-c M-t n") #'cider-toggle-trace-ns)
@@ -461,7 +481,6 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-d") #'cider-describe-current-connection)
     (define-key map (kbd "C-c C-=") 'cider-profile-map)
-    (define-key map (kbd "C-c C-x") #'cider-ns-refresh)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
     (dolist (variable '(cider-mode-interactions-menu
