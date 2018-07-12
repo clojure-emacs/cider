@@ -24,11 +24,6 @@ Add new REPLs to the current session with
    - <kbd>C-c C-x s j</kbd> `cider-connect-sibling-clj`
    - <kbd>C-c C-x s s</kbd> `cider-connect-sibling-cljs`
 
-!!! Tip
-
-    There's also the `cider` command, which is a wrapper around all the
-    aforementioned commands. You can invoke it with <kbd>C-C M-x</kbd>.
-
 Session life-cycle management commands live in the [Sesman] map (<kbd>C-c
 C-s</kbd>)
 
@@ -36,8 +31,9 @@ C-s</kbd>)
    - <kbd>C-c C-s r</kbd> `sesman-restart`
    - <kbd>C-c C-s q</kbd> `sesman-quit`
 
-The command `sesman-start` is similar to `cider-jack-in-clj&cljs` except that
-the `cljs` REPL is started only if ClojureScript requirements have been met.
+The command `sesman-start` wraps around all of the aforementioned `jack-in` and
+`connect` commands. You can also invoke same functionality with <kbd>M-x</kbd>
+`cider` or <kbd>C-c M-x</kbd>.
 
 To quit or restart individual connections use cider commands
 
