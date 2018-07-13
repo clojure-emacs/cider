@@ -33,7 +33,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-macroexpand-1`                         |<kbd>C-c C-m</kbd>                   | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 `cider-macroexpand-all`                       |<kbd>C-c M-m</kbd>                   | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
 `cider-eval-ns-form`                          |<kbd>C-c C-v n</kbd>                 | Eval the ns form.
-`cider-repl-set-ns`                           |<kbd>C-c M-n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
+`cider-repl-set-ns`                           |<kbd>C-c M-n (M-)n</kbd>                   | Switch the namespace of the REPL buffer to the namespace of the current buffer.
 `cider-switch-to-repl-buffer`                 |<kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
 `cider-switch-to-repl-buffer`                 |<kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
 `cider-load-buffer-and-switch-to-repl-buffer` |<kbd>C-c M-z</kbd>                   | Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
@@ -42,7 +42,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-load-buffer`                           |<kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 `cider-load-file`                             |<kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
 `cider-load-all-files`                        |<kbd>C-c C-M-l</kbd>                 | Load (eval) all Clojure files below a directory.
-`cider-ns-refresh`                            |<kbd>C-c C-x</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
+`cider-ns-refresh`                            |<kbd>C-c M-n (M-)r</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
 `cider-doc`                                   |<kbd>C-c C-d d</kbd> <br/> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 `cider-javadoc`                               |<kbd>C-c C-d j</kbd> <br/> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 `cider-grimoire`                              |<kbd>C-c C-d r</kbd> <br/> <kbd>C-c C-d C-r</kbd> | Lookup symbol in Grimoire.
