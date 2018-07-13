@@ -811,6 +811,22 @@ Return REPL-TYPE if requirements are met."
       (funcall fun))
     repl-type))
 
+(defun cider--check-cljs (&optional cljs-type no-error)
+  "Verify that all cljs requirements are met for CLJS-TYPE connection.
+Return REPL-TYPE of requirement are met, and throw an ‘user-error’ otherwise.
+When NO-ERROR is non-nil, don't throw an error, issue a message and return
+nil."
+  (if no-error
+      (condition-case ex
+          (progn
+            (cider-verify-clojurescript-is-present)
+            (cider-verify-cljs-repl-requirements cljs-type))
+        (error
+         (message "Invalid CLJS dependency: %S" ex)
+         nil))
+    (cider-verify-clojurescript-is-present)
+    (cider-verify-cljs-repl-requirements cljs-type)))
+
 (defun cider--offer-to-open-app-in-browser (server-buffer)
   "Look for a server address in SERVER-BUFFER and offer to open it."
   (when (buffer-live-p server-buffer)
@@ -823,76 +839,10 @@ Return REPL-TYPE if requirements are met."
             (browse-url url)))))))
 
 
-;;; Barefoot Connectors
-
-(defun cider--jack-in (do-prompt on-port-callback)
-  "Core of all cider-jack-in-xyz functions.
-Prompt for the project and nREPL server command when DO-PROMPT is non-nil.
-ON-PORT-CALLBACK is passed to `nrepl-start-server-process'."
-  (declare (indent 1))
-  (let* ((project-type (cider-project-type))
-         (command (cider-jack-in-command project-type))
-         (command-resolved (cider-jack-in-resolve-command project-type))
-         (command-global-opts (cider-jack-in-global-options project-type))
-         (command-params (cider-jack-in-params project-type)))
-    (if command-resolved
-        (let* ((project (when do-prompt
-                          (read-directory-name "Project: ")))
-               (project-dir (clojure-project-dir
-                             (or project (cider-current-dir))))
-               (params (if do-prompt
-                           (read-string (format "nREPL server command: %s " command-params)
-                                        command-params)
-                         command-params))
-               (params (if cider-inject-dependencies-at-jack-in
-                           (cider-inject-jack-in-dependencies command-global-opts params project-type)
-                         params)))
-          (if (or project-dir cider-allow-jack-in-without-project)
-              (when (or project-dir
-                        (eq cider-allow-jack-in-without-project t)
-                        (and (null project-dir)
-                             (eq cider-allow-jack-in-without-project 'warn)
-                             (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
-                (let* ((cmd (format "%s %s" command-resolved params)))
-                  (nrepl-start-server-process project-dir cmd on-port-callback)))
-            (user-error "`cider-jack-in' is not allowed without a Clojure project")))
-      (user-error "The %s executable isn't on your `exec-path'" command))))
-
-(defun cider--check-cljs (&optional repl-type no-error)
-  "Verify that all cljs requirements are met for cljs REPL-TYPE.
-Return REPL-TYPE of requirement are met, and throw an ‘user-error’ otherwise.
-When NO-ERROR is non-nil, don't throw an error, issue a message and return
-nil."
-  (if no-error
-      (condition-case ex
-          (progn
-            (cider-verify-clojurescript-is-present)
-            (cider-verify-cljs-repl-requirements repl-type))
-        (error
-         (message "Invalid CLJS dependency: %S" ex)
-         nil))
-    (cider-verify-clojurescript-is-present)
-    (cider-verify-cljs-repl-requirements repl-type)))
-
-(defun cider--cljs-init-hook-builder (cljs-repl-type)
-  "Create an cljs repl initializer for CLJS-REPL-TYPE."
-  (lambda ()
-    (cider--check-cljs cljs-repl-type)
-    (cider-nrepl-send-request
-     (list "op" "eval"
-           "ns" (cider-current-ns)
-           "code" (cider-cljs-repl-form cljs-repl-type))
-     (cider-repl-handler (current-buffer)))
-    (when (and (buffer-live-p nrepl-server-buffer)
-               cider-offer-to-open-cljs-app-in-browser)
-      (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
-
-
 ;;; User Level Connectors
 
 (defvar cider-start-map
   (let ((map (define-prefix-command 'cider-start-map)))
-
     (define-key map (kbd "j j") #'cider-jack-in-clj)
     (define-key map (kbd "j s") #'cider-jack-in-cljs)
     (define-key map (kbd "j m") #'cider-jack-in-clj&cljs)
@@ -902,7 +852,6 @@ nil."
     (define-key map (kbd "C-j C-j") #'cider-jack-in-clj)
     (define-key map (kbd "C-j C-s") #'cider-jack-in-cljs)
     (define-key map (kbd "C-j C-m") #'cider-jack-in-clj&cljs)
-
     (define-key map (kbd "c j") #'cider-connect-clj)
     (define-key map (kbd "c s") #'cider-connect-cljs)
     (define-key map (kbd "c m") #'cider-connect-clj&cljs)
@@ -912,128 +861,160 @@ nil."
     (define-key map (kbd "C-c C-j") #'cider-connect-clj)
     (define-key map (kbd "C-c C-s") #'cider-connect-cljs)
     (define-key map (kbd "C-c C-m") #'cider-connect-clj&cljs)
-
     (define-key map (kbd "s j") #'cider-connect-sibling-clj)
     (define-key map (kbd "s s") #'cider-connect-sibling-cljs)
     (define-key map (kbd "C-s j") #'cider-connect-sibling-clj)
     (define-key map (kbd "C-s s") #'cider-connect-sibling-cljs)
     (define-key map (kbd "C-s C-j") #'cider-connect-sibling-clj)
     (define-key map (kbd "C-s C-s") #'cider-connect-sibling-cljs)
-
     map)
   "CIDER jack-in and connect keymap.")
 
 ;;;###autoload
-(defun cider-jack-in-clj (&optional do-prompt)
+(defun cider-jack-in-clj (params)
   "Start an nREPL server for the current project and connect to it.
-Prompt for the project and nREPL server command when DO-PROMPT is non-nil."
+PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
+With the prefix argument, prompt for all these parameters."
   (interactive "P")
-  (cider--jack-in do-prompt
-    (lambda (server-buffer)
-      (cider-connect-sibling-clj server-buffer))))
+  (let ((params (thread-first params
+                  (cider--update-project-dir)
+                  (cider--update-jack-in-cmd))))
+    (nrepl-start-server-process
+     (plist-get params :project-dir)
+     (plist-get params :jack-in-cmd)
+     (lambda (server-buffer)
+       (cider-connect-sibling-clj params server-buffer)))))
 
 ;;;###autoload
-(defun cider-jack-in-cljs (&optional do-prompt)
+(defun cider-jack-in-cljs (params)
   "Start an nREPL server for the current project and connect to it.
-Prompt for the project and nREPL server command when DO-PROMPT is non-nil."
+PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
+:cljs-repl-type (e.g. Node, Figwheel, etc).  With the prefix argument,
+prompt for all these parameters."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
-        (cljs-repl-type cider-default-cljs-repl))
-    (cider--jack-in do-prompt
-      (lambda (server-buffer)
-        (let ((cider-default-cljs-repl cljs-repl-type))
-          (cider-connect-sibling-cljs server-buffer))))))
+        (params (thread-first params
+                  (cider--update-project-dir)
+                  (cider--update-jack-in-cmd))))
+    (nrepl-start-server-process
+     (plist-get params :project-dir)
+     (plist-get params :jack-in-cmd)
+     (lambda (server-buffer)
+       (cider-connect-sibling-cljs params server-buffer)))))
 
 ;;;###autoload
-(defun cider-jack-in-clj&cljs (&optional do-prompt soft-cljs-start)
+(defun cider-jack-in-clj&cljs (&optional params soft-cljs-start)
   "Start an nREPL server and connect with clj and cljs REPLs.
-Prompt for the project and nREPL server command when DO-PROMPT is non-nil.
-When SOFT-CLJS-START is non-nil, start cljs REPL only when the
-ClojureScript dependencies are met."
+PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
+:cljs-repl-type (e.g. Node, Figwheel, etc).  With the prefix argument,
+prompt for all these parameters.  When SOFT-CLJS-START is non-nil, start
+cljs REPL only when the ClojureScript dependencies are met."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
-        (cljs-repl-type cider-default-cljs-repl))
-    (cider--jack-in do-prompt
-      (lambda (server-buffer)
-        (let ((clj-repl (cider-connect-sibling-clj server-buffer)))
-          (if soft-cljs-start
-              (when-let* ((cider-default-cljs-repl (cider--check-cljs cljs-repl-type 'no-error)))
-                (cider-connect-sibling-cljs clj-repl))
-            (let ((cider-default-cljs-repl cljs-repl-type))
-              (cider-connect-sibling-cljs clj-repl))))))))
+        (params (thread-first params
+                  (cider--update-project-dir)
+                  (cider--update-jack-in-cmd)
+                  (cider--update-cljs-type)
+                  (plist-put :do-prompt nil))))
+    (nrepl-start-server-process
+     (plist-get params :project-dir)
+     (plist-get params :jack-in-cmd)
+     (lambda (server-buffer)
+       (let ((clj-repl (cider-connect-sibling-clj params server-buffer)))
+         (if soft-cljs-start
+             (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
+               (cider-connect-sibling-cljs params clj-repl))
+           (cider-connect-sibling-cljs params clj-repl)))))))
 
 ;;;###autoload
-(defun cider-connect-sibling-clj (other-repl)
+(defun cider-connect-sibling-clj (params &optional other-repl)
   "Create a Clojure REPL with the same server as OTHER-REPL.
-OTHER-REPL can also be a server buffer, in which case a new session with a
-REPL for that server is created."
-  (interactive (list (cider-current-repl)))
+PARAMS is for consistency with other connection commands and is currently
+ignored.  OTHER-REPL defaults to `cider-current-repl' and in programs can
+also be a server buffer, in which case a new session with a REPL for that
+server is created."
+  (interactive "P")
   (cider-nrepl-connect
-   (let ((ses-name (unless (nrepl-server-p other-repl)
-                     (sesman-session-name-for-object 'CIDER other-repl))))
-     (thread-first (cider--gather-connect-params other-repl)
+   (let* ((other-repl (or other-repl (cider-current-repl nil 'ensure)))
+          (ses-name (unless (nrepl-server-p other-repl)
+                      (sesman-session-name-for-object 'CIDER other-repl))))
+     (thread-first params
+       (cider--update-do-prompt)
+       (cider--gather-connect-params other-repl)
+       (plist-put :repl-init-function nil)
        (plist-put :repl-type "clj")
-       (plist-put :session-name ses-name)
-       (plist-put :repl-init-function nil)))))
+       (plist-put :session-name ses-name)))))
 
 ;;;###autoload
-(defun cider-connect-sibling-cljs (other-repl)
+(defun cider-connect-sibling-cljs (params &optional other-repl)
   "Create a ClojureScript REPL with the same server as OTHER-REPL.
-Normally this would prompt for the ClojureScript REPL to start (e.g. Node,
-Figwheel, etc), unless you've set `cider-default-cljs-repl'.  OTHER-REPL
-can also be a server buffer, in which case a new session with a REPL for
-that server is created."
-  (interactive (list (cider-current-repl)))
-  (let ((cljs-repl-type (or cider-default-cljs-repl (cider-select-cljs-repl)))
-        (ses-name (unless (nrepl-server-p other-repl)
-                    (sesman-session-name-for-object 'CIDER other-repl))))
+PARAMS is a plist optionally containing :cljs-repl-type (e.g. Node,
+Figwheel, etc).  All other parameters are inferred from the OTHER-REPL.
+OTHER-REPL defaults to `cider-current-repl' but in programs can also be a
+server buffer, in which case a new session for that server is created."
+  (interactive "P")
+  (let* ((other-repl (or other-repl (cider-current-repl nil 'ensure)))
+         (ses-name (unless (nrepl-server-p other-repl)
+                     (sesman-session-name-for-object 'CIDER other-repl))))
     (cider-nrepl-connect
-     (thread-first (cider--gather-connect-params other-repl)
-       (plist-put :repl-type "cljs")
+     (thread-first params
+       (cider--update-do-prompt)
+       (cider--gather-connect-params other-repl)
+       (cider--update-cljs-type)
+       (cider--update-cljs-init-function)
        (plist-put :session-name ses-name)
-       (plist-put :repl-init-function (cider--cljs-init-hook-builder cljs-repl-type))))))
+       (plist-put :repl-type "cljs")))))
 
 ;;;###autoload
-(defun cider-connect-clj (host port)
-  "Initialize a CLJ connection to an nREPL server at HOST and PORT."
-  (interactive (cider-select-endpoint))
+(defun cider-connect-clj (&optional params)
+  "Initialize a CLJ connection to an nREPL server.
+PARAMS is a plist optionally containing :host, :port and :project-dir.  On
+prefix argument, prompt for all the parameters."
+  (interactive "P")
   (cider-nrepl-connect
-   (list :host host :port port
-         :repl-type "clj"
-         :repl-init-function nil
-         :session-name nil
-         :project-dir (or (clojure-project-dir (cider-current-dir))
-                          default-directory))))
+   (thread-first params
+     (cider--update-project-dir)
+     (cider--update-host-port)
+     (plist-put :repl-init-function nil)
+     (plist-put :session-name nil)
+     (plist-put :repl-type "clj"))))
 
 ;;;###autoload
-(defun cider-connect-cljs (host port)
-  "Initialize a CLJS connection to an nREPL server at HOST and PORT."
-  (interactive (cider-select-endpoint))
-  (let ((cljs-repl-type (or cider-default-cljs-repl
-                            (cider-select-cljs-repl))))
-    (cider-nrepl-connect
-     (list :host host :port port
-           :repl-type "cljs"
-           :repl-init-function (cider--cljs-init-hook-builder cljs-repl-type)
-           :session-name nil
-           :project-dir (or (clojure-project-dir (cider-current-dir))
-                            default-directory)))))
+(defun cider-connect-cljs (&optional params)
+  "Initialize a CLJS connection to an nREPL server.
+PARAMS is a plist optionally containing :host, :port, :project-dir and
+:cljs-repl-type (e.g. Node, Figwheel, etc).  On prefix, prompt for all the
+parameters regardless of their supplied or default values."
+  (interactive "P")
+  (cider-nrepl-connect
+   (thread-first params
+     (cider--update-project-dir)
+     (cider--update-host-port)
+     (cider--update-cljs-type)
+     (cider--update-cljs-init-function)
+     (plist-put :session-name nil)
+     (plist-put :repl-type "cljs"))))
 
 ;;;###autoload
-(defun cider-connect-clj&cljs (host port &optional soft-cljs-start)
-  "Initialize a CLJ and CLJS connection to an nREPL server at HOST and PORT.
-When SOFT-CLJS-START is non-nil, don't start if ClojureScript requirements
-are not met."
-  (interactive (cider-select-endpoint))
-  (let ((clj-repl (cider-connect-clj host port)))
+(defun cider-connect-clj&cljs (params &optional soft-cljs-start)
+  "Initialize a CLJ and CLJS connection to an nREPL server..
+PARAMS is a plist optionally containing :host, :port, :project-dir and
+:cljs-repl-type (e.g. Node, Figwheel, etc).  When SOFT-CLJS-START is
+non-nil, don't start if ClojureScript requirements are not met."
+  (interactive "P")
+  (let* ((params (thread-first params
+                   (cider--update-project-dir)
+                   (cider--update-host-port)
+                   (cider--update-cljs-type)))
+         (clj-repl (cider-connect-clj params)))
     (if soft-cljs-start
-        (when-let* ((cider-default-cljs-repl (cider--check-cljs nil 'no-error)))
-          (cider-connect-sibling-cljs clj-repl))
-      (cider-connect-sibling-cljs clj-repl))))
+        (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
+          (cider-connect-sibling-cljs params clj-repl))
+      (cider-connect-sibling-cljs params clj-repl))))
 
 (defvar cider-connection-init-commands
   '(cider-jack-in-clj
@@ -1052,6 +1033,92 @@ are not met."
   (interactive)
   (when-let* ((command (intern (completing-read "Select command: " cider-connection-init-commands))))
     (call-interactively command)))
+
+
+;;; PARAMS updating
+
+(defun cider--update-do-prompt (params)
+  "Update :do-prompt in PARAMS."
+  (if (equal params '(4))
+      (list :do-prompt t)
+    params))
+
+(defun cider--update-project-dir (params)
+  "Update :project-dir in PARAMS."
+  (let ((params (cider--update-do-prompt params)))
+    (plist-put params :project-dir
+               (if (plist-get params :do-prompt)
+                   (read-directory-name "Project: "
+                                        (clojure-project-dir (cider-current-dir)))
+                 (or (plist-get params :project-dir)
+                     (clojure-project-dir (cider-current-dir)))))))
+
+(defun cider--update-cljs-type (params)
+  "Update :cljs-repl-type in PARAMS."
+  (let ((params (cider--update-do-prompt params)))
+    (plist-put params :cljs-repl-type
+               (if (plist-get params :do-prompt)
+                   (cider-select-cljs-repl)
+                 (or (plist-get params :cljs-repl-type)
+                     cider-default-cljs-repl
+                     (cider-select-cljs-repl))))))
+
+(defun cider--update-jack-in-cmd (params)
+  "Update :jack-in-cmd key in PARAMS."
+  (let* ((params (cider--update-do-prompt params))
+         (project-dir (plist-get params :project-dir))
+         (project-type (cider-project-type project-dir))
+         (command (cider-jack-in-command project-type))
+         (command-resolved (cider-jack-in-resolve-command project-type))
+         (command-global-opts (cider-jack-in-global-options project-type))
+         (command-params (cider-jack-in-params project-type)))
+    (if command-resolved
+        (let* ((command-params (if (plist-get params :do-prompt)
+                                   (read-string (format "nREPL server command: %s " command-params)
+                                                command-params)
+                                 command-params))
+               (cmd-params (if cider-inject-dependencies-at-jack-in
+                               (cider-inject-jack-in-dependencies command-global-opts command-params project-type)
+                             command-params)))
+          (if (or project-dir cider-allow-jack-in-without-project)
+              (when (or project-dir
+                        (eq cider-allow-jack-in-without-project t)
+                        (and (null project-dir)
+                             (eq cider-allow-jack-in-without-project 'warn)
+                             (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
+                (let* ((cmd (format "%s %s" command-resolved cmd-params)))
+                  (plist-put params :jack-in-cmd cmd)))
+            (user-error "`cider-jack-in' is not allowed without a Clojure project")))
+      (user-error "The %s executable isn't on your `exec-path'" command))))
+
+(defun cider--update-host-port (params)
+  "Update :host and :port in PARAMS."
+  (let* ((params (cider--update-do-prompt params))
+         (host (plist-get params :host))
+         (port (plist-get params :port))
+         (endpoint (if (plist-get params :do-prompt)
+                       (cider-select-endpoint)
+                     (if (and host port)
+                         (cons host port)
+                       (cider-select-endpoint)))))
+    (thread-first params
+      (plist-put :host (car endpoint))
+      (plist-put :port (cdr endpoint)))))
+
+(defun cider--update-cljs-init-function (params)
+  "Update PARAMS :repl-init-function for cljs connections."
+  (let ((cljs-type (plist-get params :cljs-repl-type)))
+    (plist-put params :repl-init-function
+               (lambda ()
+                 (cider--check-cljs cljs-type)
+                 (cider-nrepl-send-request
+                  (list "op" "eval"
+                        "ns" (cider-current-ns)
+                        "code" (cider-cljs-repl-form cljs-type))
+                  (cider-repl-handler (current-buffer)))
+                 (when (and (buffer-live-p nrepl-server-buffer)
+                            cider-offer-to-open-cljs-app-in-browser)
+                   (cider--offer-to-open-app-in-browser nrepl-server-buffer))))))
 
 
 ;;; Aliases
@@ -1105,7 +1172,7 @@ are not met."
          (host (car sel-host))
          (port (or (cadr sel-host)
                    (cider--completing-read-port host (cider--infer-ports host ssh-hosts)))))
-    (list host port)))
+    (cons host port)))
 
 (defun cider--ssh-hosts ()
   "Retrieve all ssh host from local configuration files."
@@ -1179,9 +1246,10 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
           (setq paths (cons (match-string 1) paths)))))
     (seq-uniq paths)))
 
-(defun cider--identify-buildtools-present ()
-  "Identify build systems present by their build files."
-  (let* ((default-directory (clojure-project-dir (cider-current-dir)))
+(defun cider--identify-buildtools-present (&optional project-dir)
+  "Identify build systems present by their build files in PROJECT-DIR.
+PROJECT-DIR defaults to current project."
+  (let* ((default-directory (or project-dir (clojure-project-dir (cider-current-dir))))
          (build-files '(("lein" . "project.clj")
                         ("boot" . "build.boot")
                         ("clojure-cli" . "deps.edn")
@@ -1193,12 +1261,12 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
                       (car candidate)))
                   build-files))))
 
-(defun cider-project-type ()
-  "Determine the type of the current project.
-When multiple project file markers are present, check for a preferred
-build tool in `cider-preferred-build-tool', otherwise prompt the user to
-choose."
-  (let* ((choices (cider--identify-buildtools-present))
+(defun cider-project-type (&optional project-dir)
+  "Determine the type of the project in PROJECT-DIR.
+When multiple project file markers are present, check for a preferred build
+tool in `cider-preferred-build-tool', otherwise prompt the user to choose.
+PROJECT-DIR defaults to the current project."
+  (let* ((choices (cider--identify-buildtools-present project-dir))
          (multiple-project-choices (> (length choices) 1))
          (default (car choices)))
     (cond ((and multiple-project-choices
