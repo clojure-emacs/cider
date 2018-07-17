@@ -4,7 +4,7 @@
 ;;
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
-;;         Vitalie Spinu <spinuvit@gmamil.com>
+;;         Vitalie Spinu <spinuvit@gmail.com>
 ;;
 ;; Keywords: languages, clojure, cider
 ;;
