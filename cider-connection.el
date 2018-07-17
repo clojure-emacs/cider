@@ -359,7 +359,7 @@ Don't restart the server or other connections within the same session.  Use
                             ((equal session-id (cider-nrepl-eval-session)) "Active eval")
                             ((equal session-id (cider-nrepl-tooling-session)) "Active tooling")
                             (t "Unknown"))))
-        (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer nil 'ancillary)
+        (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer 'select nil 'ancillary)
           (read-only-mode -1)
           (insert (format "Session: %s\n" session-id)
                   (format "Type: %s session\n" session-type)
