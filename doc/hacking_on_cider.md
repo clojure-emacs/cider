@@ -17,11 +17,15 @@ in advance).
 
 Additionally you will have to generate and require the
 [autoloads](https://www.gnu.org/software/emacs/manual/html_node/elisp/Autoload.html),
-otherwise you'll keep getting errors about missing commands.
-That's done automatically when installing via `package.el`, but you'll
-have to do manually with `M-x update-directory-autoloads`. The
-function will prompt for saving a file, let's call it
-`cider-autoloads.el` that you will then need to require.
+otherwise you'll keep getting errors about missing commands.  That's done
+automatically when installing via `package.el` but you'll have to do it
+manually in this case:
+
+```shell
+make autoloads   # generates cider-autoloads.el
+```
+
+Then:
 
 ```el
 ;; load CIDER from its source code
