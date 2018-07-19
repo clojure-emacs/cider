@@ -1063,7 +1063,7 @@ been determined."
               (set-window-point win (point)))))
         ;; detect the port the server is listening on from its output
         (when (and (null nrepl-endpoint)
-                   (string-match "[nREPL] Server started on port \\([0-9]+\\)" output))
+                   (string-match "nREPL server started on port \\([0-9]+\\)" output))
           (let ((port (string-to-number (match-string 1 output))))
             (setq nrepl-endpoint (list :host nil :port port))
             (message "[nREPL] server started on %s" port)
