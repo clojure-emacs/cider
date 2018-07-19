@@ -40,6 +40,7 @@
 * Rename `cider-refresh` to `cider-ns-refresh` (and all the related defcustoms).
 * **(Breaking)** Rewrote connection management (see http://docs.cider.mx/en/latest/managing_connections/ for details).
 * **(Breaking)** `cider-jack-in-clojurescript` now creates only a ClojureScript REPL (use `cider-jack-in-clj&cljs` to create both REPLs).
+* [#2357](https://github.com/clojure-emacs/cider/issues/2357): Support both keywords and strings as test selectors (previously it was only strings).
 
 ## 0.17.0 (2018-05-07)
 
