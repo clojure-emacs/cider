@@ -60,3 +60,6 @@ elpaclean: clean
 
 run-cider: elpa
 	cask exec $(EMACS) -Q -L . --eval "(require 'cider)"
+
+html:
+	mkdocs build
