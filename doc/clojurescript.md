@@ -199,7 +199,7 @@ Keep in mind that figwheel 0.5.16 is the first to support piggieback
 :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
 ```
 
-4. Start the REPL with `cider-jack-in-cljs` (<kbd>C-c M-J</kbd>)
+4. Start the REPL with `cider-jack-in-cljs` (<kbd>C-c C-x (C-)s</kbd>)
 
 5. Open a browser to the Figwheel URL so that it can connect to your application.
 

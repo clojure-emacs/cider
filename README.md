@@ -57,8 +57,8 @@ connect to it.
 Alternatively you can use <kbd>C-u M-x</kbd> `cider-jack-in` to specify the name
 of a `lein` or `boot` project, without having to visit any file in it.
 
-In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c
-M-j</kbd>.
+In Clojure(Script) buffers the command `cider-jack-in` is bound to
+<kbd>C-c C-x (C-)j</kbd>.
 
 ### Connect to a running nREPL server
 
