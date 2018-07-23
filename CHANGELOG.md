@@ -26,6 +26,7 @@
 * [#2286](https://github.com/clojure-emacs/cider/issues/2286): Fix eldoc issue with images in the REPL.
 * [#2307](https://github.com/clojure-emacs/cider/pull/2307): Use a better error when a cljs repl form cannot be found.
 * Fix the broken test selector functionality.
+* [#2291](https://github.com/clojure-emacs/cider/issues/2291): `cider-use-tooltips` custom variable works as expected.
 
 ### Changes
 
