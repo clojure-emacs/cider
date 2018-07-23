@@ -841,6 +841,8 @@ nil."
 
 (defvar cider-start-map
   (let ((map (define-prefix-command 'cider-start-map)))
+    (define-key map (kbd "x") #'cider)
+    (define-key map (kbd "C-x") #'cider)
     (define-key map (kbd "j j") #'cider-jack-in-clj)
     (define-key map (kbd "j s") #'cider-jack-in-cljs)
     (define-key map (kbd "j m") #'cider-jack-in-clj&cljs)
