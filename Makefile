@@ -35,6 +35,12 @@ version:
 test: version build
 	$(CASK) exec buttercup -L . -L ./test/utils/
 
+autoloads:
+	$(CASK) exec $(EMACS) -Q --batch \
+		-l autoload.el \
+		--eval "(let ((generated-autoload-file (expand-file-name \"cider-autoloads.el\"))) \
+                  (update-directory-autoloads (expand-file-name \".\")))"
+
 lint: version elpa
 	$(CASK) exec $(EMACS) -Q --batch \
 		--eval "(setq enable-local-variables :safe)" \
@@ -46,7 +52,7 @@ lint: version elpa
 test-all: lint test
 
 clean:
-	rm -f .depend $(OBJECTS)
+	rm -f .depend $(OBJECTS) cider-autoloads.el
 
 elpaclean: clean
 	rm -f elpa*
