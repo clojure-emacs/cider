@@ -22,8 +22,8 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-eval-last-sexp-and-replace`            |<kbd>C-c C-v w</kbd>                 | Evaluate the form preceding point and replace it with its result.
 `cider-eval-last-sexp-to-repl`                |<kbd>C-c M-e</kbd>                   | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 `cider-insert-last-sexp-in-repl`              |<kbd>C-c M-p</kbd>                   | Load the form preceding point in the REPL buffer.
-`cider-pprint-eval-last-sexp`                 |<kbd>C-c C-p</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
-`cider-pprint-eval-defun-at-point`            |<kbd>C-c C-f</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+`cider-pprint-eval-last-sexp`                 |<kbd>C-c C-v C-f e</kbd>                   | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+`cider-pprint-eval-defun-at-point`            |<kbd>C-c C-v C-f d</kbd>                   | Evaluate the top level form under point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
 `cider-eval-defun-at-point`                   |<kbd>C-M-x</kbd> <br/> <kbd>C-c C-c</kbd>  | Evaluate the top level form under point and display the result in the echo area.
 `cider-eval-sexp-at-point`                    |<kbd>C-c C-v v</kbd>                 | Evaluate the form around point.
 `cider-eval-defun-at-point`                   |<kbd>C-u C-M-x</kbd> <br/> <kbd>C-u C-c C-c</kbd>  | Debug the top level form under point and walk through its evaluation

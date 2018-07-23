@@ -980,7 +980,22 @@ passing arguments."
          (form (format "(%s)" fn-name)))
     (cider-read-and-eval (cons form (length form)))))
 
-;; Eval keymap
+;; Eval keymaps
+(defvar cider-eval-pprint-commands-map
+  (let ((map (define-prefix-command 'cider-eval-pprint-commands-map)))
+    ;; single key bindings defined last for display in menu
+    (define-key map (kbd "e") #'cider-pprint-eval-last-sexp)
+    (define-key map (kbd "d") #'cider-pprint-eval-defun-at-point)
+    (define-key map (kbd "c e") #'cider-pprint-eval-last-sexp-to-comment)
+    (define-key map (kbd "c d") #'cider-pprint-eval-defun-to-comment)
+
+    ;; duplicates with C- for convenience
+    (define-key map (kbd "C-e") #'cider-pprint-eval-last-sexp)
+    (define-key map (kbd "C-d") #'cider-pprint-eval-defun-at-point)
+    (define-key map (kbd "C-c e") #'cider-pprint-eval-last-sexp-to-comment)
+    (define-key map (kbd "C-c C-e") #'cider-pprint-eval-last-sexp-to-comment)
+    (define-key map (kbd "C-c d") #'cider-pprint-eval-defun-to-comment)
+    (define-key map (kbd "C-c C-d") #'cider-pprint-eval-defun-to-comment)))
 
 (defvar cider-eval-commands-map
   (let ((map (define-prefix-command 'cider-eval-commands-map)))
@@ -989,13 +1004,14 @@ passing arguments."
     (define-key map (kbd "r") #'cider-eval-region)
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "d") #'cider-eval-defun-at-point)
-    (define-key map (kbd "f") #'cider-eval-last-sexp)
+    (define-key map (kbd "e") #'cider-eval-last-sexp)
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
     (define-key map (kbd "o") #'cider-eval-sexp-up-to-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "f") 'cider-eval-pprint-commands-map)
 
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
@@ -1008,7 +1024,8 @@ passing arguments."
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
-    (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)))
+    (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)))
 
 (defun cider--file-string (file)
   "Read the contents of a FILE and return as a string."

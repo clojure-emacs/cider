@@ -646,9 +646,7 @@ Generally you should not disable this unless you run into some faulty check."
 
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
-  (cider-verify-piggieback-is-present)
-  (when (string-prefix-p "1.7" (cider--java-version))
-    (user-error "Nashorn is supported only on Java 8 or newer")))
+  (cider-verify-piggieback-is-present))
 
 (defun cider-check-node-requirements ()
   "Check whether we can start a Node ClojureScript REPL."
@@ -690,7 +688,7 @@ Generally you should not disable this unless you run into some faulty check."
 We have to prompt the user to select a build, that's why
 this is a command, not just a string."
   (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :%s) (shadow/nrepl-select :%s))")
-        (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build: "))))
+        (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build (e.g. dev): "))))
     (format form build build)))
 
 (defcustom cider-figwheel-main-default-options nil
@@ -706,7 +704,7 @@ Figwheel for details."
   "Produce the figwheel-main ClojureScript init form."
   (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
         (options (or cider-figwheel-main-default-options
-                     (read-from-minibuffer "Select figwheel-main build: "))))
+                     (read-from-minibuffer "Select figwheel-main build (e.g. :dev): "))))
     (format form options)))
 
 (defun cider-custom-cljs-repl-init-form ()
@@ -843,6 +841,8 @@ nil."
 
 (defvar cider-start-map
   (let ((map (define-prefix-command 'cider-start-map)))
+    (define-key map (kbd "x") #'cider)
+    (define-key map (kbd "C-x") #'cider)
     (define-key map (kbd "j j") #'cider-jack-in-clj)
     (define-key map (kbd "j s") #'cider-jack-in-cljs)
     (define-key map (kbd "j m") #'cider-jack-in-clj&cljs)
