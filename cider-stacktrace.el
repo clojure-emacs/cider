@@ -602,6 +602,10 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
 
 ;; Rendering
 
+(defun cider-stacktrace-tooltip (tooltip)
+  "Return TOOLTIP if `cider-use-tooltips' is set to true, nil otherwise."
+  (when cider-use-tooltips tooltip))
+
 (defun cider-stacktrace-emit-indented (text &optional indent fill fontify)
   "Insert TEXT, and optionally FILL and FONTIFY as clojure the entire block.
 INDENT is a string to insert before each line.  When INDENT is nil, first
@@ -638,8 +642,9 @@ others."
                           'filter (cadr filter)
                           'follow-link t
                           'action 'cider-stacktrace-filter
-                          'help-echo (format "Toggle %s stack frames"
-                                             (car filter)))
+                          'help-echo (cider-stacktrace-tooltip
+                                       (format "Toggle %s stack frames"
+                                               (car filter))))
       (insert " "))
     (insert "\n")
     (insert "  Hide: ")
@@ -648,8 +653,9 @@ others."
                           'filter (cadr filter)
                           'follow-link t
                           'action 'cider-stacktrace-filter
-                          'help-echo (format "Toggle %s stack frames"
-                                             (car filter)))
+                          'help-echo (cider-stacktrace-tooltip
+                                       (format "Toggle %s stack frames"
+                                               (car filter))))
       (insert " "))
 
     (let ((hidden "(0 frames hidden)"))
@@ -664,7 +670,8 @@ others."
       (insert-text-button "M-x cider-report-bug"
                           'follow-link t
                           'action (lambda (_button) (cider-report-bug))
-                          'help-echo "Report bug to the CIDER team.")
+                          'help-echo (cider-stacktrace-tooltip
+                                       "Report bug to the CIDER team."))
       (insert "`.\n\n")
       (insert "\
   If these stacktraces are occuring frequently, consider using the
@@ -682,8 +689,9 @@ others."
                               'face (if suppressed
                                         'cider-stacktrace-suppressed-button-face
                                       'cider-stacktrace-promoted-button-face)
-                              'help-echo (format "Click to %s these stacktraces."
-                                                 (if suppressed "promote" "suppress"))))
+                              'help-echo (cider-stacktrace-tooltip
+                                           (format "Click to %s these stacktraces."
+                                                   (if suppressed "promote" "suppress")))))
         (insert " ")))))
 
 (defun cider-stacktrace-render-frame (buffer frame)
@@ -700,7 +708,8 @@ This associates text properties to enable filtering and source navigation."
                             'name name 'file file 'line line
                             'flags flags 'follow-link t
                             'action 'cider-stacktrace-navigate
-                            'help-echo "View source at this location"
+                            'help-echo (cider-stacktrace-tooltip
+                                         "View source at this location")
                             'font-lock-face 'cider-stacktrace-face
                             'type 'cider-plain-button)
         (save-excursion
@@ -726,7 +735,9 @@ This associates text properties to enable filtering and source navigation."
                             'file file 'line line 'column column 'follow-link t
                             'action (lambda (_button)
                                       (cider-jump-to (cider-find-file file)
-                                                     (cons line column))))
+                                                     (cons line column)))
+                            'help-echo (cider-stacktrace-tooltip
+                                        "Jump to the line that caused the error"))
         (insert (propertize (format " at (%d:%d)" line column)
                             'font-lock-face message-face))))))
 
