@@ -189,10 +189,10 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 
 2. Add these to your dev `:dependencies`:
 
-```clojure
-[cider/piggieback "0.3.6"] ; not needed for cider-jack-in-cljs
-[figwheel-sidecar "0.5.16"] ; use here whatever the current version of figwheel is
-```
+    ```clojure
+    [cider/piggieback "0.3.6"] ; not needed for cider-jack-in-cljs
+    [figwheel-sidecar "0.5.16"] ; use here whatever the current version of figwheel is
+    ```
 
 Keep in mind that figwheel 0.5.16 is the first to support piggieback
 0.3. If you're using an older figwheel you should stick to piggieback
@@ -200,9 +200,9 @@ Keep in mind that figwheel 0.5.16 is the first to support piggieback
 
 3. Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
 
-```clojure
-:nrepl-middleware [cider.piggieback/wrap-cljs-repl]
-```
+    ```clojure
+    :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
+    ```
 
 4. Start the REPL with `cider-jack-in-cljs` (<kbd>C-c C-x (C-)j (C-)s</kbd>). Select
 `figwheel` when prompted about the ClojureScript REPL type.
@@ -223,20 +223,20 @@ You can also use [Figwheel-main](https://github.com/bhauman/figwheel-main) with 
 
 1. Add this to your dev `:dependencies`:
 
-```clojure
-[cider/piggieback "0.3.6"] ; not needed for cider-jack-in-cljs
-```
+    ```clojure
+    [cider/piggieback "0.3.6"] ; not needed for cider-jack-in-cljs
+    ```
 
 2. Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
 
-```clojure
-:nrepl-middleware [cider.piggieback/wrap-cljs-repl]
-```
+    ```clojure
+    :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
+    ```
 
 3. Start the REPL with `cider-jack-in-cljs` (<kbd>C-c C-x (C-)j (C-)s</kbd>). Select
 `figwheel-main` when prompted about the ClojureScript REPL type.
 
-4. Open a browser to the Figwheel URL so that it can connect to your application.
+4. Select the Figwheel build to run when prompted for it. (e.g. `:dev`).
 
 ### Using shadow-cljs
 
