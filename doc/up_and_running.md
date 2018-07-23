@@ -42,7 +42,7 @@ a repl for one or the other.
 
 !!! Tip
 
-    In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c C-x C-(j)</kbd>.
+    In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c C-x (C-)j (C-)j</kbd>.
 
 For further customizing the command line used for `cider-jack-in`, you can
 change the following (all string options):
