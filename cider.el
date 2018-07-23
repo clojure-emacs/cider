@@ -646,9 +646,7 @@ Generally you should not disable this unless you run into some faulty check."
 
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
-  (cider-verify-piggieback-is-present)
-  (when (string-prefix-p "1.7" (cider--java-version))
-    (user-error "Nashorn is supported only on Java 8 or newer")))
+  (cider-verify-piggieback-is-present))
 
 (defun cider-check-node-requirements ()
   "Check whether we can start a Node ClojureScript REPL."
