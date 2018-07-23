@@ -688,7 +688,7 @@ Generally you should not disable this unless you run into some faulty check."
 We have to prompt the user to select a build, that's why
 this is a command, not just a string."
   (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :%s) (shadow/nrepl-select :%s))")
-        (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build: "))))
+        (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build (e.g. dev): "))))
     (format form build build)))
 
 (defcustom cider-figwheel-main-default-options nil
@@ -704,7 +704,7 @@ Figwheel for details."
   "Produce the figwheel-main ClojureScript init form."
   (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
         (options (or cider-figwheel-main-default-options
-                     (read-from-minibuffer "Select figwheel-main build: "))))
+                     (read-from-minibuffer "Select figwheel-main build (e.g. :dev): "))))
     (format form options)))
 
 (defun cider-custom-cljs-repl-init-form ()
