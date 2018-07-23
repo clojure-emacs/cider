@@ -459,8 +459,6 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
-    (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
-    (define-key map (kbd "C-c C-f") #'cider-pprint-eval-defun-at-point)
     (define-key map (kbd "C-c M-:") #'cider-read-and-eval)
     (define-key map (kbd "C-c C-u") #'cider-undef)
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)

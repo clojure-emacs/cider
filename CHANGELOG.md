@@ -41,6 +41,8 @@
 * **(Breaking)** Rewrote connection management (see http://docs.cider.mx/en/latest/managing_connections/ for details).
 * **(Breaking)** `cider-jack-in-clojurescript` now creates only a ClojureScript REPL (use `cider-jack-in-clj&cljs` to create both REPLs).
 * [#2357](https://github.com/clojure-emacs/cider/issues/2357): Support both keywords and strings as test selectors (previously it was only strings).
+* **(Breaking)** Move `cider-pprint-eval-last-sexp`, previously on `C-c C-p`, to `C-c C-v (C-)f (C-)e` in the `cider-eval-commands-map`.
+* **(Breaking)** Move `cider-pprint-eval-defun-at-point`, previously on `C-c C-f`, to `C-c C-v (C-)f (C-)d` in the `cider-eval-commands-map`.
 
 ## 0.17.0 (2018-05-07)
 
