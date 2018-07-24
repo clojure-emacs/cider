@@ -704,8 +704,11 @@ Figwheel for details."
   "Produce the figwheel-main ClojureScript init form."
   (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
         (options (or cider-figwheel-main-default-options
-                     (read-from-minibuffer "Select figwheel-main build (e.g. :dev): "))))
-    (format form options)))
+                     (read-from-minibuffer "Select figwheel-main build (e.g. :dev): ")))
+        (normalized-options (if (or (string-match-p "{" options) (string-prefix-p ":" options))
+                                options
+                              (concat ":" options))))
+    (format form normalized-options)))
 
 (defun cider-custom-cljs-repl-init-form ()
   "Prompt for a form that would start a ClojureScript REPL.
