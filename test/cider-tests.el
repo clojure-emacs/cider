@@ -210,32 +210,32 @@
 (describe "cider-figwheel-main-init-form"
   ;; whitespace checks sprinkled amongst other tests
   (describe "from options"
-    (it "leaves keywords from options alone"
+    (it "leaves keywords alone"
         (setq-local cider-figwheel-main-default-options ":dev ")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :dev))"))
-    (it "leaves maps from options alone"
+    (it "leaves maps alone"
         (setq-local cider-figwheel-main-default-options " {:a 1 :b 2}")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:a 1 :b 2}))"))
-    (it "leaves s-expr from options alone"
+    (it "leaves s-exprs alone"
         (setq-local cider-figwheel-main-default-options " (hashmap :a 1 :b 2)")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (hashmap :a 1 :b 2)))"))
-    (it "adds colon when necessary from options"
+    (it "prepends colon to plain names"
         (setq-local cider-figwheel-main-default-options " dev")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :dev))")))
 
   (describe "from minibuffer"
     (before-each
      (setq-local cider-figwheel-main-default-options nil))
-    (it "leaves keywords entered in minibuffer alone"
+    (it "leaves keywords alone"
         (spy-on 'read-from-minibuffer :and-return-value " :prod ")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))
-    (it "leaves keywords entered in minibuffer alone"
+    (it "leaves maps alone"
         (spy-on 'read-from-minibuffer :and-return-value " {:c 3 :d 4}")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:c 3 :d 4}))"))
-    (it "leaves keywords entered in minibuffer alone"
+    (it "leaves s-exprs alone"
         (spy-on 'read-from-minibuffer :and-return-value "(keyword \"dev\") ")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (keyword \"dev\")))"))
-    (it "adds colon when necessary in minibuffer"
+    (it "prepends colon to plain names"
         (spy-on 'read-from-minibuffer :and-return-value "prod ")
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))))
 
