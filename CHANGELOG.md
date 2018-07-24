@@ -45,6 +45,7 @@
 * [#2378](https://github.com/clojure-emacs/cider/pull/2378): Add autoloads target to Makefile.
 * **(Breaking)** Move `cider-pprint-eval-last-sexp`, previously on `C-c C-p`, to `C-c C-v (C-)f (C-)e` in the `cider-eval-commands-map`.
 * **(Breaking)** Move `cider-pprint-eval-defun-at-point`, previously on `C-c C-f`, to `C-c C-v (C-)f (C-)d` in the `cider-eval-commands-map`.
+* Accept bare figwheel-main build names (e.g., `dev`). Previously, a keyword (e.g., `:dev`) was required.
 
 ## 0.17.0 (2018-05-07)
 
