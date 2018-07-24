@@ -643,8 +643,8 @@ others."
                           'follow-link t
                           'action 'cider-stacktrace-filter
                           'help-echo (cider-stacktrace-tooltip
-                                       (format "Toggle %s stack frames"
-                                               (car filter))))
+                                      (format "Toggle %s stack frames"
+                                              (car filter))))
       (insert " "))
     (insert "\n")
     (insert "  Hide: ")
@@ -654,8 +654,8 @@ others."
                           'follow-link t
                           'action 'cider-stacktrace-filter
                           'help-echo (cider-stacktrace-tooltip
-                                       (format "Toggle %s stack frames"
-                                               (car filter))))
+                                      (format "Toggle %s stack frames"
+                                              (car filter))))
       (insert " "))
 
     (let ((hidden "(0 frames hidden)"))
@@ -671,7 +671,7 @@ others."
                           'follow-link t
                           'action (lambda (_button) (cider-report-bug))
                           'help-echo (cider-stacktrace-tooltip
-                                       "Report bug to the CIDER team."))
+                                      "Report bug to the CIDER team."))
       (insert "`.\n\n")
       (insert "\
   If these stacktraces are occuring frequently, consider using the
@@ -690,8 +690,8 @@ others."
                                         'cider-stacktrace-suppressed-button-face
                                       'cider-stacktrace-promoted-button-face)
                               'help-echo (cider-stacktrace-tooltip
-                                           (format "Click to %s these stacktraces."
-                                                   (if suppressed "promote" "suppress")))))
+                                          (format "Click to %s these stacktraces."
+                                                  (if suppressed "promote" "suppress")))))
         (insert " ")))))
 
 (defun cider-stacktrace-render-frame (buffer frame)
@@ -709,7 +709,7 @@ This associates text properties to enable filtering and source navigation."
                             'flags flags 'follow-link t
                             'action 'cider-stacktrace-navigate
                             'help-echo (cider-stacktrace-tooltip
-                                         "View source at this location")
+                                        "View source at this location")
                             'font-lock-face 'cider-stacktrace-face
                             'type 'cider-plain-button)
         (save-excursion
