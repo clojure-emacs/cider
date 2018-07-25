@@ -440,11 +440,20 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-find-resource "cider-find")
 (declare-function cider-find-keyword "cider-find")
 (declare-function cider-find-var "cider-find")
+(declare-function cider-find-dwim-at-mouse "cider-find")
+
+(defconst cider--has-many-mouse-buttons (not (memq window-system '(mac ns)))
+  "Non-nil if system binds forward and back buttons to <mouse-8> and <mouse-9>.
+
+As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
+'w32'systems while on macOS it presents them on <mouse-4> and <mouse-5>.")
 
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
     (define-key map (kbd "M-.") #'cider-find-var)
+    (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-8>" "<mouse-4>")) #'xref-pop-marker-stack)
+    (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-9>" "<mouse-5>")) #'cider-find-dwim-at-mouse)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
     (define-key map (kbd "C-c C-:") #'cider-find-keyword)
     (define-key map (kbd "M-,") #'cider-pop-back)

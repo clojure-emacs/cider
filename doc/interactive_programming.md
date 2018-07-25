@@ -62,6 +62,8 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-test-rerun-failed-tests`               |<kbd>C-c C-t r</kbd> <br/> <kbd>C-c C-t C-r</kbd> | Re-run test failures/errors.
 `cider-test-show-report`                      |<kbd>C-c C-t b</kbd> <br/> <kbd>C-c C-t C-b</kbd> | Show the test report buffer.
 `cider-find-var`                              |<kbd>M-.</kbd>                       | Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+`cider-find-dwim-at-mouse`                    |<kbd>mouse-5</kbd> or <kbd>mouse-9</kbd>   | Jump to the definition of a symbol using mouse.
+`xref-pop-marker-stack`                       |<kbd>mouse-4</kbd> or <kbd>mouse-8</kbd>   | Jump back to where `cider-find-dwim-at-mouse` was invoked.
 `cider-find-resource`                         |<kbd>C-c M-.</kbd>                   | Jump to the resource referenced by the string at point.
 `cider-find-ns`                               |<kbd>C-c C-.</kbd>                   | Jump to some namespace on the classpath.
 `cider-pop-back`                              |<kbd>M-,</kbd>                       | Return to your pre-jump location.
