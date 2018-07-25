@@ -20,7 +20,6 @@
 
 ### Bugs fixed
 
-* [#2387](https://github.com/clojure-emacs/cider/issues/2387): `localhost` as first host returned when connecting to local nREPL
 * [#2317](https://github.com/clojure-emacs/cider/issues/2317): The stdin prompt can now be cancelled.
 * [#2328](https://github.com/clojure-emacs/cider/issues/2328): Added `cider-eval-sexp-to-point`.
 * [#2310](https://github.com/clojure-emacs/cider/issues/2310): `cider-format-edn-last-sexp` will format the last sexp.
