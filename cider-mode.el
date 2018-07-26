@@ -525,7 +525,8 @@ re-visited."
 
 (defun cider--get-symbol-indent (symbol-name)
   "Return the indent metadata for SYMBOL-NAME in the current namespace."
-  (let* ((ns (cider-current-ns)))
+  (let* ((ns (let ((clojure-cache-ns t)) ; we force ns caching here for performance reasons
+               (cider-current-ns))))
     (if-let* ((meta (cider-resolve-var ns symbol-name))
               (indent (or (nrepl-dict-get meta "style/indent")
                           (nrepl-dict-get meta "indent"))))
