@@ -1200,6 +1200,12 @@ Return a list of the form (HOST PORT), where PORT can be nil."
     ;; remove the label
     (if (= 3 (length host)) (cdr host) host)))
 
+(defun ->tramp-file-name (vec)
+  "Tramp version starting 26.1 is using a cl-defstruct rather than vanilla vec"
+  (if (version< emacs-version "26.1") vec
+    (make-tramp-file-name :method (elt vec 0)
+                          :host   (elt vec 2))))
+
 (defun cider--infer-ports (host ssh-hosts)
   "Infer nREPL ports on HOST.
 Return a list of elements of the form (directory port).  SSH-HOSTS is a list
@@ -1216,8 +1222,8 @@ of remote SSH hosts."
             (dir (when (file-remote-p default-directory)
                    (with-parsed-tramp-file-name default-directory cur
                      (when (string= cur-host host) default-directory)))))
-        (tramp-maybe-open-connection vec)
-        (with-current-buffer (tramp-get-connection-buffer vec)
+        (tramp-maybe-open-connection (->tramp-file-name vec))
+        (with-current-buffer (tramp-get-connection-buffer (->tramp-file-name vec))
           (cider-locate-running-nrepl-ports dir))))))
 
 (defun cider--completing-read-port (host ports)
