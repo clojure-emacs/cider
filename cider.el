@@ -1203,8 +1203,9 @@ Return a list of the form (HOST PORT), where PORT can be nil."
 (defun ->tramp-file-name (vec)
   "Tramp version starting 26.1 is using a 'cl-defstruct' rather than vanilla VEC."
   (if (version< emacs-version "26.1") vec
-    (make-tramp-file-name :method (elt vec 0)
-                          :host   (elt vec 2))))
+    (with-no-warnings
+      (make-tramp-file-name :method (elt vec 0)
+                            :host   (elt vec 2)))))
 
 (defun cider--infer-ports (host ssh-hosts)
   "Infer nREPL ports on HOST.
