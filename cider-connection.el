@@ -370,6 +370,9 @@ Don't restart the server or other connections within the same session.  Use
 
 ;;; Sesman's Session-Wise Management UI
 
+(cl-defmethod sesman-project ((_system (eql CIDER)))
+  (clojure-project-dir (cider-current-dir)))
+
 (cl-defmethod sesman-more-relevant-p ((_system (eql CIDER)) session1 session2)
   (sesman-more-recent-p (cdr session1) (cdr session2)))
 
