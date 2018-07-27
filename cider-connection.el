@@ -500,6 +500,7 @@ function with the repl buffer set as current."
   (let ((buffer (or (plist-get params :repl-buffer)
                     (get-buffer-create (generate-new-buffer-name "*cider-uninitialized-repl*")))))
     (with-current-buffer buffer
+      (setq-local sesman-system 'CIDER)
       (let ((ses-name (or (plist-get params :session-name)
                           (cider-new-session-name params))))
         (sesman-add-object 'CIDER ses-name buffer t))
