@@ -1153,9 +1153,9 @@ non-nil, don't start if ClojureScript requirements are not met."
 
 (defun cider-current-host ()
   "Retrieve the current host."
-  (if (stringp buffer-file-name)
-      (file-remote-p buffer-file-name 'host)
-    "localhost"))
+  (or (when (stringp buffer-file-name)
+        (file-remote-p buffer-file-name 'host))
+      "localhost"))
 
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
@@ -1171,9 +1171,8 @@ non-nil, don't start if ClojureScript requirements are not met."
                                   (list (list (cider-current-host)))
                                   cider-known-endpoints
                                   ssh-hosts
-                                  (when (file-remote-p default-directory)
-                                    ;; add localhost even in remote buffers
-                                    '(("localhost"))))))
+                                  ;; always add localhost
+                                  '(("localhost")))))
          (sel-host (cider--completing-read-host hosts))
          (host (car sel-host))
          (port (or (cadr sel-host)
