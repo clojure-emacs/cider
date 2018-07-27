@@ -1153,7 +1153,8 @@ non-nil, don't start if ClojureScript requirements are not met."
 
 (defun cider-current-host ()
   "Retrieve the current host."
-  (if (stringp buffer-file-name)
+  (if (and (stringp buffer-file-name)
+           (file-remote-p buffer-file-name))
       (file-remote-p buffer-file-name 'host)
     "localhost"))
 
