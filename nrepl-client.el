@@ -85,16 +85,18 @@
   :prefix "nrepl-"
   :group 'applications)
 
-(defcustom nrepl-buffer-name-separator " "
-  "Used in constructing the REPL buffer name.
-The `nrepl-buffer-name-separator' separates cider-repl from the project name."
-  :type '(string)
-  :group 'nrepl)
+;; (defcustom nrepl-buffer-name-separator " "
+;;   "Used in constructing the REPL buffer name.
+;; The `nrepl-buffer-name-separator' separates cider-repl from the project name."
+;;   :type '(string)
+;;   :group 'nrepl)
+(make-obsolete-variable 'nrepl-buffer-name-separator 'cider-session-name-template "0.18")
 
-(defcustom nrepl-buffer-name-show-port nil
-  "Show the connection port in the nrepl REPL buffer name, if set to t."
-  :type 'boolean
-  :group 'nrepl)
+;; (defcustom nrepl-buffer-name-show-port nil
+;;   "Show the connection port in the nrepl REPL buffer name, if set to t."
+;;   :type 'boolean
+;;   :group 'nrepl)
+(make-obsolete-variable 'nrepl-buffer-name-show-port 'cider-session-name-template "0.18")
 
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
@@ -178,38 +180,18 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 
 ;;; nREPL Buffer Names
 
-(defconst nrepl-message-buffer-name-template "*nrepl-messages %s*")
+(defconst nrepl-message-buffer-name-template "*nrepl-messages %s(%r:%S)*")
 (defconst nrepl-error-buffer-name "*nrepl-error*")
-(defconst nrepl-repl-buffer-name-template "*cider-repl%s*")
-(defconst nrepl-server-buffer-name-template "*nrepl-server%s*")
-(defconst nrepl-tunnel-buffer-name-template "*nrepl-tunnel%s*")
+(defconst nrepl-repl-buffer-name-template "*cider-repl %s(%r:%S)*")
+(defconst nrepl-server-buffer-name-template "*nrepl-server %s*")
+(defconst nrepl-tunnel-buffer-name-template "*nrepl-tunnel %s*")
 
-(defun nrepl-format-buffer-name-template (buffer-name-template designation)
-  "Apply the DESIGNATION to the corresponding BUFFER-NAME-TEMPLATE."
-  (format buffer-name-template
-          (if (> (length designation) 0)
-              (concat nrepl-buffer-name-separator designation)
-            "")))
-
-(defun nrepl-make-buffer-name (buffer-name-template &optional project-dir host port extras dup-ok)
-  "Generate a buffer name using BUFFER-NAME-TEMPLATE.
-If not supplied PROJECT-DIR, HOST and PORT default to the buffer local
-value of the `nrepl-project-dir' and `nrepl-endpoint'.  The name will
-include the project name if available or the endpoint host if it is
-not.  The name will also include the connection port if
-`nrepl-buffer-name-show-port' is true.  EXTRAS is appended towards the end
-of the name.  If optional DUP-OK is non-nil, the returned buffer is not
-\"uniquified\" by a call to `generate-new-buffer-name'."
-  (let* ((project-dir (or project-dir nrepl-project-dir))
-         (project-name (when project-dir (file-name-nondirectory (directory-file-name project-dir))))
-         (nrepl-proj-port (or port (plist-get nrepl-endpoint :port)))
-         (name (nrepl-format-buffer-name-template
-                buffer-name-template
-                (concat (if project-name project-name (or host (plist-get nrepl-endpoint :host)))
-                        (if (and nrepl-proj-port
-                                 nrepl-buffer-name-show-port)
-                            (format ":%s" nrepl-proj-port) "")
-                        (if extras (format "(%s)" extras) "")))))
+(defun nrepl-make-buffer-name (template params &optional dup-ok)
+  "Generate a buffer name using TEMPLATE and PARAMS.
+TEMPLATE and PARAMS are as in `cider-format-connection-params'.  If
+optional DUP-OK is non-nil, the returned buffer is not \"uniquified\" by a
+call to `generate-new-buffer-name'."
+  (let ((name (cider-format-connection-params template params)))
     (if dup-ok
         name
       (generate-new-buffer-name name))))
@@ -218,32 +200,26 @@ of the name.  If optional DUP-OK is non-nil, the returned buffer is not
   "Apply a prefix to BUFFER-NAME that will hide the buffer."
   (concat (if nrepl-hide-special-buffers " " "") buffer-name))
 
-(defun nrepl-repl-buffer-name (&optional project-dir host port dup-ok)
+(defun nrepl-repl-buffer-name (params &optional dup-ok)
   "Return the name of the repl buffer.
-PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'.  DUP-OK is
-as in `nrepl-make-buffer-name'."
-  (nrepl-make-buffer-name nrepl-repl-buffer-name-template
-                          project-dir host port cider-repl-type dup-ok))
+PARAMS and DUP-OK are as in `nrepl-make-buffer-name'."
+  (nrepl-make-buffer-name nrepl-repl-buffer-name-template params dup-ok))
 
-(defun nrepl-connection-identifier (conn)
-  "Return the string which identifies a connection CONN."
-  (thread-last (buffer-name conn)
-    (replace-regexp-in-string "\\`*cider-repl " "")
-    (replace-regexp-in-string "*\\'" "" )))
-
-(defun nrepl-server-buffer-name (&optional project-dir host port)
+(defun nrepl-server-buffer-name (params)
   "Return the name of the server buffer.
-PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
+PARAMS is as in `nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
-   (nrepl-make-buffer-name nrepl-server-buffer-name-template
-                           project-dir host port)))
+   (nrepl-make-buffer-name nrepl-server-buffer-name-template params)))
 
-(defun nrepl-tunnel-buffer-name (&optional project-dir host port)
+(defun nrepl-tunnel-buffer-name (params)
   "Return the name of the tunnel buffer.
-PROJECT-DIR, HOST and PORT are as in `nrepl-make-buffer-name'."
+PARAMS is as in `nrepl-make-buffer-name'."
   (nrepl--make-hidden-name
-   (nrepl-make-buffer-name nrepl-tunnel-buffer-name-template
-                           project-dir host port)))
+   (nrepl-make-buffer-name nrepl-tunnel-buffer-name-template params)))
+
+(defun nrepl-messages-buffer-name (params)
+  "Return the name for the message buffer given connection PARAMS."
+  (nrepl-make-buffer-name nrepl-message-buffer-name-template params))
 
 
 ;;; Utilities
@@ -556,7 +532,8 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
          (ssh (or (executable-find "ssh")
                   (error "[nREPL] Cannot locate 'ssh' executable")))
          (cmd (nrepl--ssh-tunnel-command ssh remote-dir port))
-         (tunnel-buf (nrepl-tunnel-buffer-name))
+         (tunnel-buf (nrepl-tunnel-buffer-name
+                      `((:host ,host) (:port ,port))))
          (tunnel (start-process-shell-command "nrepl-tunnel" tunnel-buf cmd)))
     (process-put tunnel :waiting-for-port t)
     (set-process-filter tunnel (nrepl--ssh-tunnel-filter port))
@@ -640,12 +617,11 @@ Do not kill the server if there is a REPL connected to that server."
 In remote buffers, HOST and PORT are taken from the current tramp
 connection.  SERVER-PROC must be a running nREPL server process within
 Emacs.  BUFFER-BUILDER is a function of one argument (endpoint returned by
-`nrepl-connect') which returns a client buffer (defaults to
-`nrepl-default-client-buffer-builder').  Return the newly created client
-process."
+`nrepl-connect') which returns a client buffer.  Return the newly created
+client process."
   (let* ((endpoint (nrepl-connect host port))
          (client-proc (plist-get endpoint :proc))
-         (builder (or buffer-builder #'nrepl-default-client-buffer-builder))
+         (builder (or buffer-builder (error "`buffer-builder' must be provided")))
          (client-buf (funcall builder endpoint)))
 
     (set-process-buffer client-proc client-buf)
@@ -1031,8 +1007,8 @@ which is called by the process filter once the port of the connection has
 been determined."
   (let* ((default-directory (or directory default-directory))
          (serv-buf (get-buffer-create
-                    (generate-new-buffer-name
-                     (nrepl-server-buffer-name default-directory)))))
+                    (nrepl-server-buffer-name
+                     `(:project-dir ,default-directory)))))
     (with-current-buffer serv-buf
       (setq nrepl-is-server t
             nrepl-project-dir default-directory
@@ -1319,10 +1295,6 @@ it into the buffer."
         (pp object (current-buffer))
         (insert "\n")))))
 
-(defun nrepl-messages-buffer-name (conn)
-  "Return the name for the message buffer matching CONN."
-  (format nrepl-message-buffer-name-template (nrepl-connection-identifier conn)))
-
 (defun nrepl-messages-buffer (conn)
   "Return or create the buffer for CONN.
 The default buffer name is *nrepl-messages connection*."
@@ -1330,7 +1302,9 @@ The default buffer name is *nrepl-messages connection*."
     (or (and (buffer-live-p nrepl-messages-buffer)
              nrepl-messages-buffer)
         (setq nrepl-messages-buffer
-              (let ((buffer (get-buffer-create (nrepl-messages-buffer-name conn))))
+              (let ((buffer (get-buffer-create
+                             (nrepl-messages-buffer-name
+                              (cider--gather-connect-params)))))
                 (with-current-buffer buffer
                   (buffer-disable-undo)
                   (nrepl-messages-mode)
@@ -1356,18 +1330,7 @@ The default buffer name is *nrepl-error*."
       (set-window-point win (point-max)))
     (setq buffer-read-only t)))
 
-(defun nrepl-default-client-buffer-builder (endpoint)
-  "Create an nREPL client process buffer.
-ENDPOINT is a plist returned by `nrepl-connect'."
-  (let ((buffer (generate-new-buffer
-                 (nrepl-repl-buffer-name
-                  default-directory
-                  (plist-get endpoint :host)
-                  (plist-get endpoint :port)))))
-    (with-current-buffer buffer
-      (buffer-disable-undo)
-      (setq-local kill-buffer-query-functions nil))
-    buffer))
+(make-obsolete 'nrepl-default-client-buffer-builder nil "0.18")
 
 (provide 'nrepl-client)
 

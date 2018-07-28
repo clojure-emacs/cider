@@ -36,6 +36,7 @@
 * **(Breaking)** Move `cider-ns-refresh`, previously on `C-c C-x`, on `C-c M-n (M-)r` in the `cider-ns-map`.
 * **(Breaking)** Bump the minimum required Emacs version to 25.1.
 * **(Breaking)** Drop support for Java 7 and Clojure(Script) 1.7.
+* **(Breaking)** Use session name as part of CIDER buffers names (REPL, server, messages), and obsolete `nrepl-buffer-name-separator` and `nrepl-buffer-name-show-port`. See `cider-session-name-template` and `cider-format-connection-params` for how to customize CIDER buffer names. 
 * Rename `cider-eval-defun-to-point` to `cider-eval-defun-up-to-point`.
 * Add support for printing to the current buffer to `cider-eval-defun-up-to-point`.
 * Remove `cider-ping` command.
