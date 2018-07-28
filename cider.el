@@ -1200,8 +1200,10 @@ Return a list of the form (HOST PORT), where PORT can be nil."
     (if (= 3 (length host)) (cdr host) host)))
 
 (defun cider--tramp-file-name (vec)
-  "Tramp version starting 26.1 is using a 'cl-defstruct' rather than vanilla VEC."
-  (if (version< emacs-version "26.1") vec
+  "A simple compatibility wrapper around `make-tramp-file-name'.
+Tramp version starting 26.1 is using a `cl-defstruct' rather than vanilla VEC."
+  (if (version< emacs-version "26.1")
+      vec
     (with-no-warnings
       (make-tramp-file-name :method (elt vec 0)
                             :host   (elt vec 2)))))
