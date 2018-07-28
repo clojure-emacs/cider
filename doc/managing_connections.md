@@ -93,5 +93,16 @@ The single prefix <kbd>C-u C-c C-z</kbd>, will switch to the current REPL buffer
 and set the namespace in that buffer based on namespace in the current
 Clojure(Script) buffer.
 
+## Customizing Session and REPL Names
+
+By default session names consist of abbreviated project name, host and port
+(e.g. `project/dir:localhost:1234`). REPL buffer name consist of the session
+name and the REPL type specification post-fix
+(e.g. `*project/dir:localhost:1234(cljs:node)*`).
+
+You can customize session names with `cider-session-name-template` and REPL
+names with `nrepl-repl-buffer-name-template`. See also
+`cider-format-connection-params` for available formats.
+
 
 [Sesman]: https://github.com/vspinu/sesman
