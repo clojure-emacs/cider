@@ -4,6 +4,7 @@
 
 ### New features
 
+* Add new `cider-session-name-template` variable for flexible customization of cider session and REPL buffer names.
 * Bind `C-c M-r` to `cider-restart`.
 * Add new `cider-start-map` keymap (`C-c C-x`) for jack-in and connection commands.
 * Add new `cider-ns-map` keymap (`C-c M-n`) for namespace related functionality.

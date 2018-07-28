@@ -1117,6 +1117,8 @@ non-nil, don't start if ClojureScript requirements are not met."
     (plist-put params :repl-init-function
                (lambda ()
                  (cider--check-cljs cljs-type)
+                 ;; FIXME: ideally this should be done in the state handler
+                 (setq-local cider-cljs-repl-type cljs-type)
                  (cider-nrepl-send-request
                   (list "op" "eval"
                         "ns" (cider-current-ns)

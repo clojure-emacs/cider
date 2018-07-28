@@ -31,7 +31,15 @@
 
 (require 'nrepl-client)
 (require 'cl-lib)
+(require 'format-spec)
 (require 'sesman)
+
+(defcustom cider-session-name-template "%J:%h:%p"
+  "Format string to use for session names.
+See `cider-format-connection-params' for available format characters."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
 
 (defcustom cider-connection-message-fn #'cider-random-words-of-inspiration
   "The function to use to generate the message displayed on connect.
@@ -426,21 +434,58 @@ Fallback on `cider' command."
             (plist-put :repl-buffer r))))
        (message "Restarted CIDER %s session" ses-name)))))
 
-(defun cider-new-session-name (params)
-  "Create new session name given plist of connection PARAMS."
+(defun cider-format-connection-params (template params)
+  "Format PARAMS with TEMPLATE string.
+The following formats can be used in TEMPLATE string:
+
+  %h - host
+  %H - remote host, empty for local hosts
+  %p - port
+  %j - short project name, or directory name if no project
+  %J - long project name including parent dir name
+  %r - REPL type (clj or cljs)
+  %S - type of the ClojureScript runtime (Nashorn, Node, Figwheel etc.)
+  %s - session name as defined by `cider-session-name-template'.
+
+In case some values are empty, extra separators (: and -) are automatically
+removed."
   (let* ((dir (or (plist-get params :project-dir)
                   (clojure-project-dir (cider-current-dir))
                   default-directory))
-         (host (plist-get params :host))
-         ;; showing host:port on remotes only
-         (host-port (if (not (or (null host)
-                                 (equal host "localhost")
-                                 (equal host "127.0.0.1")))
-                        (format ":%s:%s" host (plist-get params :port))
-                      ""))
-         (root-name (file-name-nondirectory (directory-file-name dir)))
-         (name (format "%s%s" root-name host-port))
+         (short-proj (file-name-nondirectory (directory-file-name dir)))
+         (parent-dir (ignore-errors
+                       (thread-first dir directory-file-name file-name-directory
+                                     directory-file-name file-name-nondirectory
+                                     file-name-as-directory)))
+         (long-proj (format "%s%s" (or parent-dir "") short-proj))
+         (port (or (plist-get params :port) ""))
+         (host (or (plist-get params :host) "localhost"))
+         (remote-host (if (member host '("localhost" "127.0.0.1"))
+                          ""
+                        host))
+         (repl-type (or (plist-get params :repl-type) "unknown"))
+         (cljs-repl-type (or (plist-get params :cljs-repl-type) ""))
+         (specs `((?h . ,host)
+                  (?H . ,remote-host)
+                  (?p . ,port)
+                  (?j . ,short-proj)
+                  (?J . ,long-proj)
+                  (?r . ,repl-type)
+                  (?S . ,cljs-repl-type)))
+         (ses-name (format-spec cider-session-name-template specs))
+         (specs (append `((?s . ,ses-name)) specs)))
+    (thread-last (format-spec template specs)
+      ;; remove extraneous separators
+      (replace-regexp-in-string "\\([:-]\\)[:-]+" "\\1")
+      (replace-regexp-in-string "\\(^[:-]\\)\\|\\([:-]$\\)" "")
+      (replace-regexp-in-string "[:-]\\([])*]\\)" "\\1"))))
+
+(defun cider-make-session-name (params)
+  "Create new session name given plist of connection PARAMS.
+Session name can be customized with `cider-session-name-template'."
+  (let* ((root-name (cider-format-connection-params cider-session-name-template params))
          (other-names (mapcar #'car (sesman-sessions 'CIDER)))
+         (name root-name)
          (i 2))
     (while (member name other-names)
       (setq name (concat root-name "#" (number-to-string i))
@@ -449,6 +494,9 @@ Fallback on `cider' command."
 
 
 ;;; REPL Buffer Init
+
+(defvar-local cider-cljs-repl-type nil
+  "The type of the CLJS runtime (Nashorn, Node etc.)")
 
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
@@ -505,7 +553,7 @@ function with the repl buffer set as current."
     (with-current-buffer buffer
       (setq-local sesman-system 'CIDER)
       (let ((ses-name (or (plist-get params :session-name)
-                          (cider-new-session-name params))))
+                          (cider-make-session-name params))))
         (sesman-add-object 'CIDER ses-name buffer t))
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
