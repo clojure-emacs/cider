@@ -91,29 +91,31 @@ PARAMS is a plist containing :host, :port, :server and other parameters for
   "Ensure there is a linked CIDER session."
   (sesman-ensure-session 'CIDER))
 
-(defun cider--gather-connect-params (params proc-buffer)
+(defun cider--gather-connect-params (&optional params proc-buffer)
   "Gather all relevant connection parameters into PARAMS plist.
-PROC-BUFFER is either server or client buffer."
-  (with-current-buffer proc-buffer
-    (unless nrepl-endpoint
-      (error "This is not a REPL or SERVER buffer; is there an active REPL?"))
-    (let ((server-buf (if (nrepl-server-p proc-buffer)
-                          proc-buffer
-                        nrepl-server-buffer)))
-      (cl-loop for l on nrepl-endpoint by #'cddr
-               do (setq params (plist-put params (car l) (cadr l))))
-      (setq params (thread-first params
-                     (plist-put :project-dir nrepl-project-dir)))
-      (when (buffer-live-p server-buf)
+PROC-BUFFER is either server or client buffer, defaults to current buffer."
+  (let ((proc-buffer (or proc-buffer (current-buffer))))
+    (with-current-buffer proc-buffer
+      (unless nrepl-endpoint
+        (error "This is not a REPL or SERVER buffer; is there an active REPL?"))
+      (let ((server-buf (if (nrepl-server-p proc-buffer)
+                            proc-buffer
+                          nrepl-server-buffer)))
+        (cl-loop for l on nrepl-endpoint by #'cddr
+                 do (setq params (plist-put params (car l) (cadr l))))
         (setq params (thread-first params
-                       (plist-put :server (get-buffer-process server-buf))
-                       (plist-put :server-command nrepl-server-command))))
-      ;; repl-specific parameters (do not pollute server params!)
-      (when (nrepl-server-p proc-buffer)
-        (setq params (thread-first params
-                       (plist-put :repl-type cider-repl-type)
-                       (plist-put :repl-init-function cider-repl-init-function))))
-      params)))
+                       (plist-put :project-dir nrepl-project-dir)))
+        (when (buffer-live-p server-buf)
+          (setq params (thread-first params
+                         (plist-put :server (get-buffer-process server-buf))
+                         (plist-put :server-command nrepl-server-command))))
+        ;; repl-specific parameters (do not pollute server params!)
+        (unless (nrepl-server-p proc-buffer)
+          (setq params (thread-first params
+                         (plist-put :repl-type cider-repl-type)
+                         (plist-put :cljs-repl-type cider-cljs-repl-type)
+                         (plist-put :repl-init-function cider-repl-init-function))))
+        params))))
 
 (defun cider--close-buffer (buffer)
   "Close the BUFFER and kill its associated process (if any)."
@@ -529,11 +531,11 @@ Assume that the current buffer is a REPL."
               (null mode-name))
       (setq cider-repl-type type)
       (setq mode-name (format "REPL[%s]" type))
-      (rename-buffer (nrepl-repl-buffer-name))
-      (when (and nrepl-log-messages nrepl-messages-buffer)
-        (let ((mbuf-name (nrepl-messages-buffer-name (current-buffer))))
+      (let ((params (cider--gather-connect-params)))
+        (rename-buffer (nrepl-repl-buffer-name params))
+        (when (and nrepl-log-messages nrepl-messages-buffer)
           (with-current-buffer nrepl-messages-buffer
-            (rename-buffer mbuf-name)))))))
+            (rename-buffer (nrepl-messages-buffer-name params))))))))
 
 (declare-function cider-default-err-handler "cider-eval")
 (declare-function cider-repl-mode "cider-repl")
