@@ -601,7 +601,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
 
 
 ;; Rendering
-
+(defvar cider-use-tooltips)
 (defun cider-stacktrace-tooltip (tooltip)
   "Return TOOLTIP if `cider-use-tooltips' is set to true, nil otherwise."
   (when cider-use-tooltips tooltip))
