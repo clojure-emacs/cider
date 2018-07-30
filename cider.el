@@ -1055,23 +1055,45 @@ non-nil, don't start if ClojureScript requirements are not met."
 
 (defun cider--update-project-dir (params)
   "Update :project-dir in PARAMS."
-  (let ((params (cider--update-do-prompt params)))
-    (plist-put params :project-dir
-               (if (plist-get params :do-prompt)
-                   (read-directory-name "Project: "
-                                        (clojure-project-dir (cider-current-dir)))
-                 (or (plist-get params :project-dir)
-                     (clojure-project-dir (cider-current-dir)))))))
+  (let* ((params (cider--update-do-prompt params))
+         (proj-dir (if (plist-get params :do-prompt)
+                       (read-directory-name "Project: "
+                                            (clojure-project-dir (cider-current-dir)))
+                     (plist-get params :project-dir)))
+         (orig-buffer (current-buffer)))
+    (if (or (null proj-dir)
+            (file-in-directory-p default-directory proj-dir))
+        (plist-put params :project-dir
+                   (or proj-dir
+                       (clojure-project-dir (cider-current-dir))))
+      ;; If proj-dir is not a parent of default-directory, transfer all local
+      ;; variables and hack dir-local variables into a temporary buffer and keep
+      ;; that buffer within `params` for the later use by other --update-
+      ;; functions.
+      (with-current-buffer (get-buffer-create " *cider-context-buffer*")
+        (kill-all-local-variables)
+        (dolist (pair (buffer-local-variables orig-buffer))
+          (pcase pair
+            (`(,name . ,value)          ;ignore unbound variables
+             (ignore-errors (set (make-local-variable name) value))))
+          (setq-local buffer-file-name nil))
+        (let ((default-directory proj-dir))
+          (hack-dir-local-variables-non-file-buffer)
+          (thread-first params
+            (plist-put :project-dir proj-dir)
+            (plist-put :--context-buffer (current-buffer))))))))
 
 (defun cider--update-cljs-type (params)
   "Update :cljs-repl-type in PARAMS."
-  (let ((params (cider--update-do-prompt params)))
-    (plist-put params :cljs-repl-type
-               (if (plist-get params :do-prompt)
-                   (cider-select-cljs-repl)
-                 (or (plist-get params :cljs-repl-type)
-                     cider-default-cljs-repl
-                     (cider-select-cljs-repl))))))
+  (with-current-buffer (or (plist-get params :--context-buffer)
+                           (current-buffer))
+    (let ((params (cider--update-do-prompt params)))
+      (plist-put params :cljs-repl-type
+                 (if (plist-get params :do-prompt)
+                     (cider-select-cljs-repl)
+                   (or (plist-get params :cljs-repl-type)
+                       cider-default-cljs-repl
+                       (cider-select-cljs-repl)))))))
 
 (defun cider--update-jack-in-cmd (params)
   "Update :jack-in-cmd key in PARAMS."
@@ -1083,54 +1105,60 @@ non-nil, don't start if ClojureScript requirements are not met."
          (command-global-opts (cider-jack-in-global-options project-type))
          (command-params (cider-jack-in-params project-type)))
     (if command-resolved
-        (let* ((command-params (if (plist-get params :do-prompt)
-                                   (read-string (format "nREPL server command: %s " command-params)
-                                                command-params)
-                                 command-params))
-               (cmd-params (if cider-inject-dependencies-at-jack-in
-                               (cider-inject-jack-in-dependencies command-global-opts command-params project-type)
-                             command-params)))
-          (if (or project-dir cider-allow-jack-in-without-project)
-              (when (or project-dir
-                        (eq cider-allow-jack-in-without-project t)
-                        (and (null project-dir)
-                             (eq cider-allow-jack-in-without-project 'warn)
-                             (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
-                (let* ((cmd (format "%s %s" command-resolved cmd-params)))
-                  (plist-put params :jack-in-cmd cmd)))
-            (user-error "`cider-jack-in' is not allowed without a Clojure project")))
+        (with-current-buffer (or (plist-get params :--context-buffer)
+                                 (current-buffer))
+          (let* ((command-params (if (plist-get params :do-prompt)
+                                     (read-string (format "nREPL server command: %s " command-params)
+                                                  command-params)
+                                   command-params))
+                 (cmd-params (if cider-inject-dependencies-at-jack-in
+                                 (cider-inject-jack-in-dependencies command-global-opts command-params project-type)
+                               command-params)))
+            (if (or project-dir cider-allow-jack-in-without-project)
+                (when (or project-dir
+                          (eq cider-allow-jack-in-without-project t)
+                          (and (null project-dir)
+                               (eq cider-allow-jack-in-without-project 'warn)
+                               (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
+                  (let* ((cmd (format "%s %s" command-resolved cmd-params)))
+                    (plist-put params :jack-in-cmd cmd)))
+              (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
       (user-error "The %s executable isn't on your `exec-path'" command))))
 
 (defun cider--update-host-port (params)
   "Update :host and :port in PARAMS."
-  (let* ((params (cider--update-do-prompt params))
-         (host (plist-get params :host))
-         (port (plist-get params :port))
-         (endpoint (if (plist-get params :do-prompt)
-                       (cider-select-endpoint)
-                     (if (and host port)
-                         (cons host port)
-                       (cider-select-endpoint)))))
-    (thread-first params
-      (plist-put :host (car endpoint))
-      (plist-put :port (cdr endpoint)))))
+  (with-current-buffer (or (plist-get params :--context-buffer)
+                           (current-buffer))
+    (let* ((params (cider--update-do-prompt params))
+           (host (plist-get params :host))
+           (port (plist-get params :port))
+           (endpoint (if (plist-get params :do-prompt)
+                         (cider-select-endpoint)
+                       (if (and host port)
+                           (cons host port)
+                         (cider-select-endpoint)))))
+      (thread-first params
+        (plist-put :host (car endpoint))
+        (plist-put :port (cdr endpoint))))))
 
 (defun cider--update-cljs-init-function (params)
   "Update PARAMS :repl-init-function for cljs connections."
-  (let ((cljs-type (plist-get params :cljs-repl-type)))
-    (plist-put params :repl-init-function
-               (lambda ()
-                 (cider--check-cljs cljs-type)
-                 ;; FIXME: ideally this should be done in the state handler
-                 (setq-local cider-cljs-repl-type cljs-type)
-                 (cider-nrepl-send-request
-                  (list "op" "eval"
-                        "ns" (cider-current-ns)
-                        "code" (cider-cljs-repl-form cljs-type))
-                  (cider-repl-handler (current-buffer)))
-                 (when (and (buffer-live-p nrepl-server-buffer)
-                            cider-offer-to-open-cljs-app-in-browser)
-                   (cider--offer-to-open-app-in-browser nrepl-server-buffer))))))
+  (with-current-buffer (or (plist-get params :--context-buffer)
+                           (current-buffer))
+    (let ((cljs-type (plist-get params :cljs-repl-type)))
+      (plist-put params :repl-init-function
+                 (lambda ()
+                   (cider--check-cljs cljs-type)
+                   ;; FIXME: ideally this should be done in the state handler
+                   (setq-local cider-cljs-repl-type cljs-type)
+                   (cider-nrepl-send-request
+                    (list "op" "eval"
+                          "ns" (cider-current-ns)
+                          "code" (cider-cljs-repl-form cljs-type))
+                    (cider-repl-handler (current-buffer)))
+                   (when (and (buffer-live-p nrepl-server-buffer)
+                              cider-offer-to-open-cljs-app-in-browser)
+                     (cider--offer-to-open-app-in-browser nrepl-server-buffer)))))))
 
 
 ;;; Aliases
