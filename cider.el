@@ -785,10 +785,14 @@ you're working on."
 (make-obsolete-variable 'cider-cljs-boot-repl 'cider-default-cljs-repl "0.17")
 (make-obsolete-variable 'cider-cljs-gradle-repl 'cider-default-cljs-repl "0.17")
 
-(defun cider-select-cljs-repl ()
-  "Select the ClojureScript REPL to use with `cider-jack-in-cljs'."
+(defvar cider--select-cljs-repl-history nil)
+(defun cider-select-cljs-repl (&optional default)
+  "Select the ClojureScript REPL to use with `cider-jack-in-cljs'.
+DEFAULT is the default CLJS REPL to offer in completion."
   (let ((repl-types (mapcar #'car cider-cljs-repl-types)))
-    (intern (completing-read "Select ClojureScript REPL type: " repl-types))))
+    (intern (completing-read "Select ClojureScript REPL type: " repl-types
+                             nil nil nil 'cider--select-cljs-repl-history
+                             (or default (car cider--select-cljs-repl-history))))))
 
 (defun cider-cljs-repl-form (repl-type)
   "Get the cljs REPL form for REPL-TYPE."
@@ -1087,12 +1091,13 @@ non-nil, don't start if ClojureScript requirements are not met."
   "Update :cljs-repl-type in PARAMS."
   (with-current-buffer (or (plist-get params :--context-buffer)
                            (current-buffer))
-    (let ((params (cider--update-do-prompt params)))
+    (let ((params (cider--update-do-prompt params))
+          (inferred-type (or (plist-get params :cljs-repl-type)
+                             cider-default-cljs-repl)))
       (plist-put params :cljs-repl-type
                  (if (plist-get params :do-prompt)
-                     (cider-select-cljs-repl)
-                   (or (plist-get params :cljs-repl-type)
-                       cider-default-cljs-repl
+                     (cider-select-cljs-repl inferred-type)
+                   (or inferred-type
                        (cider-select-cljs-repl)))))))
 
 (defun cider--update-jack-in-cmd (params)
