@@ -451,15 +451,24 @@ The following formats can be used in TEMPLATE string:
 
 In case some values are empty, extra separators (: and -) are automatically
 removed."
-  (let* ((dir (or (plist-get params :project-dir)
-                  (clojure-project-dir (cider-current-dir))
-                  default-directory))
+  (let* ((dir (directory-file-name
+               (abbreviate-file-name
+                (or (plist-get params :project-dir)
+                    (clojure-project-dir (cider-current-dir))
+                    default-directory))))
          (short-proj (file-name-nondirectory (directory-file-name dir)))
          (parent-dir (ignore-errors
-                       (thread-first dir directory-file-name file-name-directory
+                       (thread-first dir file-name-directory
                                      directory-file-name file-name-nondirectory
                                      file-name-as-directory)))
          (long-proj (format "%s%s" (or parent-dir "") short-proj))
+         ;; use `dir` if it is shorter than `long-proj` or `short-proj`
+         (short-proj (if (>= (length short-proj) (length dir))
+                         dir
+                       short-proj))
+         (long-proj (if (>= (length long-proj) (length dir))
+                        dir
+                      long-proj))
          (port (or (plist-get params :port) ""))
          (host (or (plist-get params :host) "localhost"))
          (remote-host (if (member host '("localhost" "127.0.0.1"))
@@ -562,6 +571,7 @@ function with the repl buffer set as current."
       (setq nrepl-err-handler #'cider-default-err-handler
             ;; used as a new-repl marker in cider-set-repl-type
             mode-name nil
+            nrepl-project-dir (plist-get params :project-dir)
             ;; REPLs start with clj and then "upgrade" to a different type
             cider-repl-type "clj"
             ;; ran at the end of cider--connected-handler
