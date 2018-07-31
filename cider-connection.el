@@ -563,9 +563,11 @@ function with the repl buffer set as current."
                     (get-buffer-create (generate-new-buffer-name "*cider-uninitialized-repl*")))))
     (with-current-buffer buffer
       (setq-local sesman-system 'CIDER)
+      (setq-local default-directory (or (plist-get params :project-dir) default-directory))
       (let ((ses-name (or (plist-get params :session-name)
                           (cider-make-session-name params))))
-        (sesman-add-object 'CIDER ses-name buffer t))
+        ;; creates a new session if session with ses-name doesn't already exist
+        (sesman-add-object 'CIDER ses-name buffer 'allow-new))
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
       (setq nrepl-err-handler #'cider-default-err-handler
