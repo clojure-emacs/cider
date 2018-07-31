@@ -1073,19 +1073,23 @@ non-nil, don't start if ClojureScript requirements are not met."
       ;; If proj-dir is not a parent of default-directory, transfer all local
       ;; variables and hack dir-local variables into a temporary buffer and keep
       ;; that buffer within `params` for the later use by other --update-
-      ;; functions.
-      (with-current-buffer (get-buffer-create " *cider-context-buffer*")
-        (kill-all-local-variables)
-        (dolist (pair (buffer-local-variables orig-buffer))
-          (pcase pair
-            (`(,name . ,value)          ;ignore unbound variables
-             (ignore-errors (set (make-local-variable name) value))))
-          (setq-local buffer-file-name nil))
-        (let ((default-directory proj-dir))
-          (hack-dir-local-variables-non-file-buffer)
-          (thread-first params
-            (plist-put :project-dir proj-dir)
-            (plist-put :--context-buffer (current-buffer))))))))
+      ;; functions. The context buffer should not be used outside of the param
+      ;; initialization pipeline. Therefore, we don't bother with making it
+      ;; unique or killing it anywhere.
+      (let ((context-buf-name " *cider-context-buffer*"))
+        (when (get-buffer context-buf-name)
+          (kill-buffer context-buf-name))
+        (with-current-buffer (get-buffer-create context-buf-name)
+          (dolist (pair (buffer-local-variables orig-buffer))
+            (pcase pair
+              (`(,name . ,value)        ;ignore unbound variables
+               (ignore-errors (set (make-local-variable name) value))))
+            (setq-local buffer-file-name nil))
+          (let ((default-directory proj-dir))
+            (hack-dir-local-variables-non-file-buffer)
+            (thread-first params
+              (plist-put :project-dir proj-dir)
+              (plist-put :--context-buffer (current-buffer)))))))))
 
 (defun cider--update-cljs-type (params)
   "Update :cljs-repl-type in PARAMS."

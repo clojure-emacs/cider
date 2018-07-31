@@ -307,3 +307,17 @@
          (expect (buffer-live-p b) :not :to-be-truthy)
          (expect (cider-repls) :to-equal (list a))
          (sesman-unregister 'CIDER session))))))
+
+(describe "cider-format-connection-params"
+  (describe "correctly abbreviates short directory names"
+    (expect (cider-format-connection-params "%J" '(:project-dir "~"))
+            :to-equal "~")
+    (expect (cider-format-connection-params "%j" '(:project-dir "~"))
+            :to-equal "~")
+    (expect (cider-format-connection-params "%J" '(:project-dir "~/"))
+            :to-equal "~")
+    (expect (cider-format-connection-params "%J" '(:project-dir "/"))
+            :to-equal "/")
+    (expect (cider-format-connection-params "%J" '(:project-dir "/etc/"))
+            :to-equal "/etc")))
+
