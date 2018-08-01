@@ -352,6 +352,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Recursively load all files in directory" cider-load-all-files]
     ["Load all project files" cider-load-all-project-ns]
     ["Refresh loaded code" cider-ns-refresh]
+    ["Require and reload" cider-ns-reload]
+    ["Require and reload all" cider-ns-reload-all]
     ["Run project (-main function)" cider-run])
   "Menu for CIDER mode eval commands.")
 
@@ -410,6 +412,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 
 (declare-function cider-ns-refresh "cider-ns")
+(declare-function cider-ns-reload "cider-ns")
+(declare-function cider-ns-reload-all "cider-ns")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-eval-ns-form "cider-eval")
 (declare-function cider-repl-set-ns "cider-repl")
@@ -427,6 +431,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "M-n") #'cider-repl-set-ns)
     (define-key map (kbd "r") #'cider-ns-refresh)
     (define-key map (kbd "M-r") #'cider-ns-refresh)
+    (define-key map (kbd "l") #'cider-ns-reload)
+    (define-key map (kbd "M-l") #'cider-ns-reload-all)
     map)
   "CIDER NS keymap.")
 
