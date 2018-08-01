@@ -553,6 +553,9 @@ Assume that the current buffer is a REPL."
       (setq cider-repl-type type)
       (setq mode-name (format "REPL[%s]" type))
       (let ((params (cider--gather-connect-params)))
+        ;; We need to set current name to something else temporarily to avoid
+        ;; false name duplication in `nrepl-repl-buffer-name`.
+        (rename-buffer (generate-new-buffer-name "*dummy-cider-repl-buffer*"))
         (rename-buffer (nrepl-repl-buffer-name params))
         (when (and nrepl-log-messages nrepl-messages-buffer)
           (with-current-buffer nrepl-messages-buffer
