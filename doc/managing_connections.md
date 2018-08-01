@@ -50,6 +50,16 @@ Sessions can be linked to contexts (projects, directories and buffers)
   - <kbd>C-c C-s p</kbd> `sesman-link-with-project`
   - <kbd>C-c C-s u</kbd> `sesman-unlink`
 
+## Displaying Session Info
+
+Retrieve info on all linked with the current context sessions with <kbd>C-c C-s
+i</kbd> (`sesman-info`). On <kbd>C-u</kbd>, display info for all CIDER
+sessions. For the connection specific information use CIDER's built-in
+`cider-describe-connection` (<kbd>C-c M-d</kbd>).
+
+An interactive view of all CIDER sessions is available through the
+`sesman-browser` (<kbd>C-c C-s w</kbd>).
+
 ## Current Session
 
 All CIDER commands (evaluation, completion, switching to REPL etc.) operate on
@@ -69,11 +79,6 @@ again, there is no ambiguity.
 By default [Sesman] allows multiple simultaneous links to projects and
 directories, but only one link per buffer. See `sesman-single-link-contexts` if
 you would like to change that.
-
-Retrieve info on the current session with <kbd>C-c C-s i</kbd>
-(`sesman-show-session-info`). With a single prefix <kbd>C-u</kbd> it shows info
-on all linked sessions, and with double prefix <kbd>C-u C-u</kbd> on all CIDER
-sessions. Display active links with <kbd>C-c C-s l</kbd> (`sesman-show-links`).
 
 ## Current REPL
 
