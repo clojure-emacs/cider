@@ -33,6 +33,7 @@
 (require 'cl-lib)
 (require 'format-spec)
 (require 'sesman)
+(require 'sesman-browser)
 
 (defcustom cider-session-name-template "%J:%h:%p"
   "Format string to use for session names.
@@ -318,28 +319,36 @@ about this buffer (like variable `cider-repl-type')."
 
 ;;; Cider's Connection Management UI
 
-(defun cider-quit ()
-  "Quit the currently active CIDER connection."
+(defun cider-quit (&optional repl)
+  "Quit the CIDER connection associated with REPL.
+REPL defaults to the current REPL."
   (interactive)
-  (cider-ensure-connected)
-  (let ((connection (cider-current-repl)))
-    (cider--close-connection connection))
+  (let ((repl (or repl
+                  (sesman-browser-get 'object)
+                  (cider-current-repl nil 'ensure))))
+    (cider--close-connection repl))
   ;; if there are no more connections we can kill all ancillary buffers
   (unless (cider-connected-p)
-    (cider-close-ancillary-buffers)))
+    (cider-close-ancillary-buffers))
+  ;; need this to refresh sesman browser
+  (run-hooks 'sesman-post-command-hook))
 
-(defun cider-restart ()
-  "Restart the currently active CIDER connection.
-Don't restart the server or other connections within the same session.  Use
-`sesman-restart' to restart the entire session."
+(defun cider-restart (&optional repl)
+  "Restart CIDER connection associated with REPL.
+REPL defaults to the current REPL. Don't restart the server or other
+connections within the same session.  Use `sesman-restart' to restart the
+entire session."
   (interactive)
-  (let* ((repl (or (cider-current-repl)
-                   (user-error "No linked REPL")))
+  (let* ((repl (or repl
+                   (sesman-browser-get 'object)
+                   (cider-current-repl nil 'ensure)))
          (params (thread-first (cider--gather-connect-params nil repl)
                    (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
                    (plist-put :repl-buffer repl))))
     (cider--close-connection repl 'no-kill)
-    (cider-nrepl-connect params)))
+    (cider-nrepl-connect params)
+    ;; need this to refresh sesman browser
+    (run-hooks 'sesman-post-command-hook)))
 
 (defun cider-close-ancillary-buffers ()
   "Close buffers that are shared across connections."
@@ -348,11 +357,15 @@ Don't restart the server or other connections within the same session.  Use
     (when (get-buffer buf-name)
       (kill-buffer buf-name))))
 
-(defun cider-describe-current-connection ()
-  "Display information about the current connection."
+(defun cider-describe-connection (&optional repl)
+  "Display information about the connection associated with REPL.
+REPL defaults to the current REPL."
   (interactive)
-  (message "%s" (cider--connection-info (cider-current-repl nil 'ensure))))
-(define-obsolete-function-alias 'cider-display-connection-info 'cider-describe-current-connection "0.18.0")
+  (let ((repl (or repl
+                  (sesman-browser-get 'object)
+                  (cider-current-repl nil 'ensure))))
+    (message "%s" (cider--connection-info repl))))
+(define-obsolete-function-alias 'cider-display-connection-info 'cider-describe-connection "0.18.0")
 
 (defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
 
@@ -387,13 +400,27 @@ Don't restart the server or other connections within the same session.  Use
 (cl-defmethod sesman-more-relevant-p ((_system (eql CIDER)) session1 session2)
   (sesman-more-recent-p (cdr session1) (cdr session2)))
 
+(defvar cider-sesman-browser-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "j q") #'cider-quit)
+    (define-key map (kbd "j k") #'cider-quit)
+    (define-key map (kbd "j r") #'cider-restart)
+    (define-key map (kbd "j d") #'cider-describe-connection)
+    (define-key map (kbd "j i") #'cider-describe-connection)
+    (define-key map (kbd "C-c C-q") #'cider-quit)
+    (define-key map (kbd "C-c C-q") #'cider-quit)
+    (define-key map (kbd "C-c C-r") #'cider-restart)
+    (define-key map (kbd "C-c M-r") #'cider-restart)
+    (define-key map (kbd "C-c C-d") #'cider-describe-connection)
+    (define-key map (kbd "C-c M-d") #'cider-describe-connection)
+    (define-key map (kbd "C-c C-i") #'cider-describe-connection)
+    map)
+  "Map active on REPL objects in sesman browser.")
+
 (cl-defmethod sesman-session-info ((_system (eql CIDER)) session)
   (interactive "P")
-  (let ((repl (cadr session)))
-    (format "\t%s: %s\n\tREPLS: %s"
-            (if (buffer-local-value 'nrepl-server-buffer repl) "SERVER" "CONNECTION")
-            (cider--connection-info repl t)
-            (mapconcat #'buffer-name (cdr session) ", "))))
+  (list :objects (cdr session)
+        :map cider-sesman-browser-map))
 
 (declare-function cider "cider")
 (cl-defmethod sesman-start-session ((_system (eql CIDER)))
@@ -486,7 +513,9 @@ removed."
                           ""
                         host))
          (repl-type (or (plist-get params :repl-type) "unknown"))
-         (cljs-repl-type (or (plist-get params :cljs-repl-type) ""))
+         (cljs-repl-type (or (and (equal repl-type "cljs")
+                                  (plist-get params :cljs-repl-type))
+                             ""))
          (specs `((?h . ,host)
                   (?H . ,remote-host)
                   (?p . ,port)
