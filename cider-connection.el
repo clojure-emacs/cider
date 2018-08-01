@@ -112,6 +112,7 @@ PROC-BUFFER is either server or client buffer, defaults to current buffer."
         ;; repl-specific parameters (do not pollute server params!)
         (unless (nrepl-server-p proc-buffer)
           (setq params (thread-first params
+                         (plist-put :session-name cider-session-name)
                          (plist-put :repl-type cider-repl-type)
                          (plist-put :cljs-repl-type cider-cljs-repl-type)
                          (plist-put :repl-init-function cider-repl-init-function))))
@@ -483,7 +484,8 @@ removed."
                   (?J . ,long-proj)
                   (?r . ,repl-type)
                   (?S . ,cljs-repl-type)))
-         (ses-name (format-spec cider-session-name-template specs))
+         (ses-name (or (plist-get params :session-name)
+                       (format-spec cider-session-name-template specs)))
          (specs (append `((?s . ,ses-name)) specs)))
     (thread-last (format-spec template specs)
       ;; remove extraneous separators
@@ -560,7 +562,9 @@ function with the repl buffer set as current."
   ;; Connection might not have been set as yet. Please don't send requests in
   ;; this function, but use cider--connected-handler instead.
   (let ((buffer (or (plist-get params :repl-buffer)
-                    (get-buffer-create (generate-new-buffer-name "*cider-uninitialized-repl*")))))
+                    (get-buffer-create (generate-new-buffer-name "*cider-uninitialized-repl*"))))
+        (ses-name (or (plist-get params :session-name)
+                      (cider-make-session-name params))))
     (with-current-buffer buffer
       (setq-local sesman-system 'CIDER)
       (setq-local default-directory (or (plist-get params :project-dir) default-directory))
@@ -573,6 +577,7 @@ function with the repl buffer set as current."
       (setq nrepl-err-handler #'cider-default-err-handler
             ;; used as a new-repl marker in cider-set-repl-type
             mode-name nil
+            cider-session-name ses-name
             nrepl-project-dir (plist-get params :project-dir)
             ;; REPLs start with clj and then "upgrade" to a different type
             cider-repl-type "clj"
