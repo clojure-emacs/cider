@@ -408,34 +408,44 @@ Fallback on `cider' command."
     (cider-close-ancillary-buffers)))
 
 (cl-defmethod sesman-restart-session ((_system (eql CIDER)) session)
-  (let* ((repls (cdr session))
-         (s-buf (seq-some (lambda (r)
-                            (buffer-local-value 'nrepl-server-buffer r))
-                          repls))
-         (s-params (cider--gather-connect-params nil s-buf))
-         (ses-name (car session)))
-    ;; 1) kill all connections, but keep the buffers
-    (mapc (lambda (conn)
-            (cider--close-connection conn 'no-kill))
-          repls)
-    ;; 2) kill the server
-    (message "Waiting for CIDER server to quit...")
-    (nrepl-kill-server-buffer s-buf)
-    ;; 3) start server
-    (nrepl-start-server-process
-     (plist-get s-params :project-dir)
-     (plist-get s-params :server-command)
-     (lambda (server-buf)
-       ;; 4) restart the repls reusing the buffer
-       (dolist (r repls)
-         (cider-nrepl-connect
-          (thread-first ()
-            (cider--gather-connect-params r)
-            ;; server params (:port, :project-dir etc) have precedence
-            (cider--gather-connect-params server-buf)
-            (plist-put :session-name ses-name)
-            (plist-put :repl-buffer r))))
-       (message "Restarted CIDER %s session" ses-name)))))
+  (let* ((ses-name (car session))
+         (repls (cdr session))
+         (srv-buf (seq-some (lambda (r)
+                              (buffer-local-value 'nrepl-server-buffer r))
+                            repls)))
+    (if srv-buf
+        ;; session with a server
+        (let ((s-params (cider--gather-connect-params nil srv-buf)))
+          ;; 1) kill all connections, but keep the buffers
+          (mapc (lambda (conn)
+                  (cider--close-connection conn 'no-kill))
+                repls)
+          ;; 2) kill the server
+          (nrepl-kill-server-buffer srv-buf)
+          ;; 3) start server
+          (nrepl-start-server-process
+           (plist-get s-params :project-dir)
+           (plist-get s-params :server-command)
+           (lambda (server-buf)
+             ;; 4) restart the repls reusing the buffer
+             (dolist (r repls)
+               (cider-nrepl-connect
+                (thread-first ()
+                  (cider--gather-connect-params r)
+                  ;; server params (:port, :project-dir etc) have precedence
+                  (cider--gather-connect-params server-buf)
+                  (plist-put :session-name ses-name)
+                  (plist-put :repl-buffer r))))
+             (sesman-browser-revert-all 'CIDER)
+             (message "Restarted CIDER %s session" ses-name))))
+      ;; server-less session
+      (dolist (r repls)
+        (cider--close-connection r 'no-kill)
+        (cider-nrepl-connect
+         (thread-first ()
+           (cider--gather-connect-params r)
+           (plist-put :session-name ses-name)
+           (plist-put :repl-buffer r)))))))
 
 (defun cider-format-connection-params (template params)
   "Format PARAMS with TEMPLATE string.
@@ -552,6 +562,7 @@ Assume that the current buffer is a REPL."
 (declare-function cider-repl-mode "cider-repl")
 (declare-function cider-repl--state-handler "cider-repl")
 (declare-function cider-repl-reset-markers "cider-repl")
+(defvar-local cider-session-name nil)
 (defvar-local cider-repl-init-function nil)
 (defun cider-repl-create (params)
   "Create new repl buffer.
@@ -568,10 +579,8 @@ function with the repl buffer set as current."
     (with-current-buffer buffer
       (setq-local sesman-system 'CIDER)
       (setq-local default-directory (or (plist-get params :project-dir) default-directory))
-      (let ((ses-name (or (plist-get params :session-name)
-                          (cider-make-session-name params))))
-        ;; creates a new session if session with ses-name doesn't already exist
-        (sesman-add-object 'CIDER ses-name buffer 'allow-new))
+      ;; creates a new session if session with ses-name doesn't already exist
+      (sesman-add-object 'CIDER ses-name buffer 'allow-new)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
       (setq nrepl-err-handler #'cider-default-err-handler
