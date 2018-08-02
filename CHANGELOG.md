@@ -18,6 +18,7 @@
 * [#2373](https://github.com/clojure-emacs/cider/issues/2373): Make it possible to configure the welcome message displayed in scratch buffers via `cider-scratch-initial-message`.
 * Add the ability to jump to the profiler buffer using `cider-selector`.
 * [#1980](https://github.com/clojure-emacs/cider/issues/1980): Echo back missing namespace name on interactive eval (requires nREPL 0.4.3+).
+* [#2397](https://github.com/clojure-emacs/cider/pull/2397): Add shadow-select CLJS REPL type.
 * [#2314](https://github.com/clojure-emacs/cider/pull/2314): Add `cider-ns-reload` and `cider-ns-reload-all` interactive commands.
 
 ### Bugs fixed

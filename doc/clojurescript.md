@@ -254,6 +254,10 @@ npx shadow-cljs server
 
 And connect to it with `cider-connect`.
 
+Lastly, if you already have a running server watching a build, for instance you
+have already run `npx shadow-cljs watch :dev`, you can use the `shadow-select`
+CLJS REPL and specify `:dev` when prompted.
+
 [leiningen]: http://leiningen.org/
 [boot]: http://boot-clj.com/
 [piggieback]: https://github.com/nrepl/piggieback
