@@ -321,8 +321,7 @@ Sub-match 1 must be the project path.")
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
-Throws an error if PROJECT-TYPE is unknown.  Known types are
-\"lein\", \"boot\", and \"gradle\"."
+Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
     ("lein" (cider--resolve-command cider-lein-command))
     ("boot" (cider--resolve-command cider-boot-command))
