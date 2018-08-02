@@ -207,6 +207,19 @@
               :and-return-value '())
       (expect (cider-project-type) :to-equal cider-default-repl-command))))
 
+(describe "cider-normalize-cljs-init-options"
+  (describe "from options"
+    (it "leaves keywords alone"
+        (expect (cider-normalize-cljs-init-options ":dev") :to-equal ":dev"))
+    (it "leaves maps alone"
+        (expect (cider-normalize-cljs-init-options "{:a 1 :b 2}") :to-equal "{:a 1 :b 2}"))
+    (it "leaves s-exprs alone"
+        (expect (cider-normalize-cljs-init-options "(hashmap :a 1 :b 2)") :to-equal "(hashmap :a 1 :b 2)"))
+    (it "leaves vectors alone"
+        (expect (cider-normalize-cljs-init-options "[1 2 3]") :to-equal "[1 2 3]"))
+    (it "prepends colon to plain names"
+        (expect (cider-normalize-cljs-init-options "dev") :to-equal ":dev"))))
+
 (describe "cider-figwheel-main-init-form"
   ;; whitespace checks sprinkled amongst other tests
   (describe "from options"

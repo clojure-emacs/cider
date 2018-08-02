@@ -682,12 +682,38 @@ Generally you should not disable this unless you run into some faulty check."
   (unless (cider-library-present-p "thheller/shadow-cljs")
     (user-error "The shadow-cljs ClojureScript REPL is not available")))
 
+(defun cider-normalize-cljs-init-options (options)
+  "Normalize the OPTIONS string used for initializing a CLJS REPL."
+  (if (or (string-prefix-p "{" options)
+          (string-prefix-p "(" options)
+          (string-prefix-p "[" options)
+          (string-prefix-p ":" options))
+      options
+    (concat ":" options)))
+
+(defcustom cider-shadow-default-options nil
+  "Defines default `shadow-cljs' options."
+  :type 'string
+  :safe (lambda (s) (or (null s) (stringp s)))
+  :package-version '(cider . "0.18.0"))
+
+(defun cider-shadow-select-cljs-init-form ()
+  "Generate the init form for a shadow-cljs select-only REPL.
+We have to prompt the user to select a build, that's why this is a command,
+not just a string."
+  (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/nrepl-select %s))")
+        (options (or cider-shadow-default-options
+                     (read-from-minibuffer "Select shadow-cljs build (e.g. dev): "))))
+    (format form (cider-normalize-cljs-init-options options))))
+
 (defun cider-shadow-cljs-init-form ()
   "Generate the init form for a shadow-cljs REPL.
 We have to prompt the user to select a build, that's why
 this is a command, not just a string."
-  (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :%s) (shadow/nrepl-select :%s))")
-        (build (string-remove-prefix ":" (read-from-minibuffer "Select shadow-cljs build (e.g. dev): "))))
+  (let* ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch %s) (shadow/nrepl-select %s))")
+         (options (or cider-shadow-default-options
+                      (read-from-minibuffer "Select shadow-cljs build (e.g. dev): ")))
+         (build (cider-normalize-cljs-init-options options)))
     (format form build build)))
 
 (defcustom cider-figwheel-main-default-options nil
@@ -701,16 +727,11 @@ Figwheel for details."
 
 (defun cider-figwheel-main-init-form ()
   "Produce the figwheel-main ClojureScript init form."
-  (let* ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
-         (options (string-trim
-                   (or cider-figwheel-main-default-options
-                       (read-from-minibuffer "Select figwheel-main build (e.g. :dev): "))))
-         (normalized-options (if (or (string-prefix-p "{" options)
-                                     (string-prefix-p "(" options)
-                                     (string-prefix-p ":" options))
-                                 options
-                               (concat ":" options))))
-    (format form normalized-options)))
+  (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
+        (options (string-trim
+                  (or cider-figwheel-main-default-options
+                      (read-from-minibuffer "Select figwheel-main build (e.g. :dev): ")))))
+    (format form (cider-normalize-cljs-init-options options))))
 
 (defun cider-custom-cljs-repl-init-form ()
   "Prompt for a form that would start a ClojureScript REPL.
@@ -735,6 +756,7 @@ The supplied string will be wrapped in a do form if needed."
     (boot "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
           cider-check-boot-requirements)
     (shadow cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements)
+    (shadow-select cider-shadow-select-cljs-init-form cider-check-shadow-cljs-requirements)
     (custom cider-custom-cljs-repl-init-form nil))
   "A list of supported ClojureScript REPLs.
 
