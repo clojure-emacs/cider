@@ -22,8 +22,38 @@
 
 ;;; Commentary:
 
-;; Smart code refresh functionality based on ideas
-;; fromhttp://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded
+;; Smart code refresh functionality based on ideas from:
+;; http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded
+;;
+;; Note that refresh with clojure.tools.namespace.repl is a smarter way to
+;; reload code: the traditional way to reload Clojure code without restarting
+;; the JVM is (require ... :reload) or an editor/IDE feature that does the same
+;; thing.
+;;
+;; This has several problems:
+;;
+;; If you modify two namespaces which depend on each other, you must remember to
+;; reload them in the correct order to avoid compilation errors.
+;;
+;; If you remove definitions from a source file and then reload it, those
+;; definitions are still available in memory.  If other code depends on those
+;; definitions, it will continue to work but will break the next time you
+;; restart the JVM.
+;;
+;; If the reloaded namespace contains defmulti, you must also reload all of the
+;; associated defmethod expressions.
+;;
+;; If the reloaded namespace contains defprotocol, you must also reload any
+;; records or types implementing that protocol and replace any existing
+;; instances of those records/types with new instances.
+;;
+;; If the reloaded namespace contains macros, you must also reload any
+;; namespaces which use those macros.
+;;
+;; If the running program contains functions which close over values in the
+;; reloaded namespace, those closed-over values are not updated (This is common
+;; in web applications which construct the "handler stack" as a composition of
+;; functions.)
 
 ;;; Code:
 
@@ -144,6 +174,37 @@ Its behavior is controlled by `cider-save-files-on-cider-ns-refresh'."
           (string-prefix-p project-root
                            (file-truename default-directory)
                            (eq system-type 'windows-nt))))))))
+
+;;;###autoload
+(defun cider-ns-reload (&optional prompt)
+  "Send a (require 'ns :reload) to the REPL.
+
+With an argument PROMPT, it prompts for a namespace name.  This is the
+Clojure out of the box reloading experience and does not rely on
+org.clojure/tools.namespace.  See Commentary of this file for a longer list
+of differences.  From the Clojure doc: \":reload forces loading of all the
+identified libs even if they are already loaded\"."
+  (interactive "P")
+  (let ((ns (if prompt
+                (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (clojure-find-ns)))
+              (clojure-find-ns))))
+    (cider-interactive-eval (format "(require '%s :reload)" ns))))
+
+;;;###autoload
+(defun cider-ns-reload-all (&optional prompt)
+  "Send a (require 'ns :reload-all) to the REPL.
+
+With an argument PROMPT, it prompts for a namespace name.  This is the
+Clojure out of the box reloading experience and does not rely on
+org.clojure/tools.namespace.  See Commentary of this file for a longer list
+of differences.  From the Clojure doc: \":reload-all implies :reload and
+also forces loading of all libs that the identified libs directly or
+indirectly load via require\"."
+  (interactive "P")
+  (let ((ns (if prompt
+                (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (clojure-find-ns)))
+              (clojure-find-ns))))
+    (cider-interactive-eval (format "(require '%s :reload-all)" ns))))
 
 ;;;###autoload
 (defun cider-ns-refresh (&optional mode)

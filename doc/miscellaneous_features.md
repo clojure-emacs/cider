@@ -148,6 +148,11 @@ and
 * By default, all modified Clojure buffers are prompted to be saved. This
   behaviour can be customized using `cider-ns-save-files-on-refresh`.
 
+In case `cider-ns-refresh` does not work for you the
+`cider-ns-reload`|`cider-ns-reload-all` commands can be used instead: they will
+evaluate the Clojure's out of the box `(require ... :reload|:reload-all)` at
+the REPL.
+
 ## Tracing function execution
 
 You can trace the results produced by functions using <kbd>C-c M-t v</kbd>.  The
