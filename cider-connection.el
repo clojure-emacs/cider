@@ -335,7 +335,7 @@ REPL defaults to the current REPL."
 
 (defun cider-restart (&optional repl)
   "Restart CIDER connection associated with REPL.
-REPL defaults to the current REPL. Don't restart the server or other
+REPL defaults to the current REPL.  Don't restart the server or other
 connections within the same session.  Use `sesman-restart' to restart the
 entire session."
   (interactive)
@@ -710,7 +710,7 @@ Error is signaled if no REPL buffer of specified type exists."
 (define-obsolete-function-alias 'cider-repl-buffers 'cider-repls "0.18")
 (define-obsolete-function-alias 'cider-current-session 'cider-nrepl-eval-session "0.18")
 (define-obsolete-function-alias 'cider-current-tooling-session 'cider-nrepl-tooling-session "0.18")
-(define-obsolete-function-alias 'cider-display-connection-info 'cider-describe-current-connection "0.18")
+(define-obsolete-function-alias 'cider-display-connection-info 'cider-describe-connection "0.18")
 (define-obsolete-function-alias 'nrepl-connection-buffer-name 'nrepl-repl-buffer-name "0.18")
 (define-obsolete-function-alias 'cider-repl-set-type 'cider-set-repl-type "0.18")
 

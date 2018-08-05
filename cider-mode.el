@@ -297,7 +297,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Quit" cider-quit :active (cider-connected-p)]
     ["Restart" cider-restart :active (cider-connected-p)]
     "--"
-    ["Connection info" cider-describe-current-connection
+    ["Connection info" cider-describe-connection
      :active (cider-connected-p)]
     ["Select any CIDER buffer" cider-selector]
     "--"
@@ -492,7 +492,7 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
     (define-key map (kbd "C-c ,")   'cider-test-commands-map)
     (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
     (define-key map (kbd "C-c M-s") #'cider-selector)
-    (define-key map (kbd "C-c M-d") #'cider-describe-current-connection)
+    (define-key map (kbd "C-c M-d") #'cider-describe-connection)
     (define-key map (kbd "C-c C-=") 'cider-profile-map)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)

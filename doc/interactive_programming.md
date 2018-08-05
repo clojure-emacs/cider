@@ -37,7 +37,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-switch-to-repl-buffer`                 |<kbd>C-c C-z</kbd>                   | Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
 `cider-switch-to-repl-buffer`                 |<kbd>C-u C-u C-c C-z</kbd>           | Switch to the REPL buffer based on a user prompt for a directory.
 `cider-load-buffer-and-switch-to-repl-buffer` |<kbd>C-c M-z</kbd>                   | Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
-`cider-describe-current-connection`            |<kbd>C-c M-d</kbd>                   | Display default REPL connection details, including project directory name, buffer namespace, host and port.
+`cider-describe-connection`            |<kbd>C-c M-d</kbd>                   | Display default REPL connection details, including project directory name, buffer namespace, host and port.
 `cider-find-and-clear-repl-output`            |<kbd>C-c C-o</kbd>                   | Clear the last output in the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 `cider-load-buffer`                           |<kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 `cider-load-file`                             |<kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
