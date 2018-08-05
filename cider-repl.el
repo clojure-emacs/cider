@@ -1511,7 +1511,7 @@ constructs."
 (cider-repl-add-shortcut "test-project-with-filters" (lambda () (interactive) (cider-test-run-project-tests 'prompt-for-filters)))
 (cider-repl-add-shortcut "test-report" #'cider-test-show-report)
 (cider-repl-add-shortcut "run" #'cider-run)
-(cider-repl-add-shortcut "conn-info" #'cider-describe-current-connection)
+(cider-repl-add-shortcut "conn-info" #'cider-describe-connection)
 (cider-repl-add-shortcut "hasta la vista" #'cider-quit)
 (cider-repl-add-shortcut "adios" #'cider-quit)
 (cider-repl-add-shortcut "sayonara" #'cider-quit)
@@ -1614,7 +1614,7 @@ constructs."
     (define-key map (kbd "C-c C-z") #'cider-switch-to-last-clojure-buffer)
     (define-key map (kbd "C-c M-o") #'cider-repl-switch-to-other)
     (define-key map (kbd "C-c M-s") #'cider-selector)
-    (define-key map (kbd "C-c M-d") #'cider-describe-current-connection)
+    (define-key map (kbd "C-c M-d") #'cider-describe-connection)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
@@ -1681,7 +1681,7 @@ constructs."
         "--"
         ["Interrupt evaluation" cider-interrupt]
         "--"
-        ["Connection info" cider-describe-current-connection]
+        ["Connection info" cider-describe-connection]
         "--"
         ["Close ancillary buffers" cider-close-ancillary-buffers]
         ["Quit" cider-quit]

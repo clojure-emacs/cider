@@ -34,6 +34,7 @@
 (require 'cider-client)
 (require 'cider-eval)
 (require 'cider-scratch)
+(require 'cider-profile)
 
 (defconst cider-selector-help-buffer "*CIDER Selector Help*"
   "The name of the selector's help buffer.")
