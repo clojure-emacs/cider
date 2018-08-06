@@ -143,9 +143,9 @@ effect of changes you have to restart Emacs.
 
 This is a warning displayed on the REPL buffer when it starts, and usually looks like this:
 
-> **WARNING:** CIDER's version (0.12.0) does not match cider-nrepl's version (...). Things will break!
+> **WARNING:** CIDER 0.18.0 requires cider-nrepl x.y.z+, but you're currently using cider-nrepl a.b.c. Things will break!
 
-where `...` might be an actual version, like `0.10.0`, or it might be `not installed` or `nil`.
+where `a.b.c` might be an actual version, like `0.17.0`, or it might be `not installed` or `nil`.
 The solution to this depends on what you see and on what you're doing.
 
 #### You see a number like `X.X.X`, and you're starting the REPL with `cider-connect`

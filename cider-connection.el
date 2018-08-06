@@ -195,6 +195,7 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
                                "Can't determine Clojure's version. CIDER requires Clojure %s (or newer)."
                                cider-minimum-clojure-version)))
 
+(defvar cider-required-middleware-version)
 (defun cider--check-middleware-compatibility ()
   "CIDER frontend/backend compatibility check.
 Retrieve the underlying connection's CIDER-nREPL version and checks if the
@@ -202,10 +203,10 @@ middleware used is compatible with CIDER.  If not, will display a warning
 message in the REPL area."
   (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-repl)))
          (middleware-version  (nrepl-dict-get version-dict "version-string" "not installed")))
-    (unless (equal cider-version middleware-version)
+    (unless (version<= cider-required-middleware-version middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
-                                 "CIDER's version (%s) does not match cider-nrepl's version (%s). Things will break!"
-                                 cider-version middleware-version))))
+                                 "CIDER %s requires cider-nrepl %s+, but you're currently using cider-nrepl %s. Things will break!"
+                                 cider-version cider-required-middleware-version middleware-version))))
 
 (declare-function cider-interactive-eval-handler "cider-eval")
 ;; TODO: Use some null handler here
