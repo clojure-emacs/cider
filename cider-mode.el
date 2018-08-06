@@ -348,6 +348,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Insert ns form in REPL" cider-insert-ns-form-in-repl]
     "--"
     ["Load this buffer" cider-load-buffer]
+    ["Load this buffer and switch to REPL" cider-load-buffer-and-switch-to-repl-buffer]
     ["Load another file" cider-load-file]
     ["Recursively load all files in directory" cider-load-all-files]
     ["Load all project files" cider-load-all-project-ns]
