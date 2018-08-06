@@ -773,7 +773,8 @@ through a stack of help buffers.  Variables `help-back-label' and
     "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!"
     "Tweak `cider-repl-prompt-function' to customize your REPL prompt."
     "Tweak `cider-eldoc-ns-function' to customize the way namespaces are displayed by eldoc."
-    "For no middleware, low-tech and reliable namespace reloading use <\\[cider-ns-reload]>.")
+    "For no middleware, low-tech and reliable namespace reloading use <\\[cider-ns-reload]>."
+    "Press <\\[cider-load-buffer-and-switch-to-repl-buffer]> to load the current buffer and switch to the REPL buffer afterwards.")
   "Some handy CIDER tips."
   )
 
