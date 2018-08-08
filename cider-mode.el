@@ -470,6 +470,8 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
     (define-key map (kbd "C-c C-c") #'cider-eval-defun-at-point)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
+    (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
+    (define-key map (kbd "C-c C-f") #'cider-pprint-eval-defun-at-point)
     (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
     (define-key map (kbd "C-c C-j") 'cider-insert-commands-map)
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)

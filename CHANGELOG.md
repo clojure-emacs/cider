@@ -48,8 +48,8 @@
 * **(Breaking)** `cider-jack-in-clojurescript` now creates only a ClojureScript REPL (use `cider-jack-in-clj&cljs` to create both REPLs).
 * [#2357](https://github.com/clojure-emacs/cider/issues/2357): Support both keywords and strings as test selectors (previously it was only strings).
 * [#2378](https://github.com/clojure-emacs/cider/pull/2378): Add autoloads target to Makefile.
-* **(Breaking)** Move `cider-pprint-eval-last-sexp`, previously on `C-c C-p`, to `C-c C-v (C-)f (C-)e` in the `cider-eval-commands-map`.
-* **(Breaking)** Move `cider-pprint-eval-defun-at-point`, previously on `C-c C-f`, to `C-c C-v (C-)f (C-)d` in the `cider-eval-commands-map`.
+* Map `cider-pprint-eval-last-sexp` to `C-c C-v (C-)f (C-)e` in the `cider-eval-commands-map`.
+* Map `cider-pprint-eval-defun-at-point` to `C-c C-v (C-)f (C-)d` in the `cider-eval-commands-map`.
 * Accept bare figwheel-main build names (e.g., `dev`). Previously, a keyword (e.g., `:dev`) was required.
 * Stop releasing CIDER and cider-nrepl together. cider-nrepl now has its own release cycle and CIDER introduces `cider-required-middleware-version` to track it.
 
