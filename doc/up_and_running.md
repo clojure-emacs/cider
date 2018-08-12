@@ -3,20 +3,20 @@ connect. Many Clojurians favour the use of tools like Leiningen, Boot or Gradle
 to start an nREPL server, but the use of one of them is not a prerequisite to
 use CIDER.
 
-## Setting up a Leiningen or Boot project (optional)
-
-[Leiningen](https://leiningen.org) is the de-facto standard build/project
-management tool for Clojure. [Boot](http://boot-clj.com) is a newer build tool
-offering abstractions and libraries to construct more complex build
-scenarios. Both have a similar scope to the Maven build tool favoured by Java
-developers (and they actually reuse many things from the Maven ecosystem).
+## Setting up a Clojure project (optional)
 
 CIDER features a command called `cider-jack-in` that will start an nREPL server
-for a particular Leiningen or Boot project and connect to it automatically.
-This functionality depends on Leiningen 2.5.2+ or Boot
-2.7.0+. Older versions are not supported. For Leiningen, follow the installation
-instructions on its web site to get it up and running and afterwards create a
-project like this:
+for a particular Clojure project and connect to it automatically. Most
+popular Clojure project management tools are supported by default - namely
+Leiningen, Boot, `clj` (`tools.deps`) and Gradle.
+
+!!! Note
+
+    This functionality depends on Leiningen 2.5.2+ or Boot
+    2.7.0+. Older versions are not supported.
+
+Let's create a simple Clojure project using Leiningen now. Provided you've installed
+it already, all you need to do is:
 
 ```
 $ lein new demo
@@ -30,15 +30,17 @@ Simply open in Emacs a file belonging to your project (like `foo.clj`) and type
 <kbd>M-x</kbd> `cider-jack-in` <kbd>RET</kbd>. This will start an nREPL server
 and CIDER will automatically connect to it.
 
-If it is a `lein`, `boot` or `tools.deps (deps.edn)` project nREPL will be
-started with all dependencies loaded.
+!!! Note
+
+    If it is a `lein`, `boot` or `tools.deps (deps.edn)` project nREPL will be
+    started with all dependencies loaded. Dependency auto-injection is currently
+    not support for Gradle projects.
 
 Alternatively you can use <kbd>C-u M-x</kbd> `cider-jack-in` <kbd>RET</kbd> to
 specify the name of a `lein`, `boot` or `tools.deps` project, without having to
 visit any file in it. This option is also useful if your project contains some
 combination of `project.clj`, `build.boot` and `deps.edn` and you want to launch
-a repl for one or the other.
-
+a REPL for one or the other.
 
 !!! Tip
 
@@ -47,8 +49,27 @@ a repl for one or the other.
 For further customizing the command line used for `cider-jack-in`, you can
 change the following (all string options):
 
- * `cider-lein-global-options`, `cider-boot-global-options`, `cider-gradle-global-options`: these are passed to the command directly, in first position (e.g. `-o` to `lein` enables offline mode).
- * `cider-lein-parameters`, `cider-boot-parameters`, `cider-gradle-parameters`: these are usually tasks names and their parameters (e.g.: `dev` for launching boot's dev task instead of the standard `repl -s  wait`).
+ * `cider-lein-global-options`, `cider-boot-global-options`,
+   `cider-clojure-cli-global-options`, `cider-gradle-global-options`:
+   these are passed to the command directly, in first position
+   (e.g. `-o` to `lein` enables offline mode).
+ * `cider-lein-parameters`, `cider-boot-parameters`,
+   `cider-clojure-cli-parameters`, `cider-gradle-parameters`: these
+   are usually tasks names and their parameters (e.g.: `dev` for
+   launching boot's dev task instead of the standard `repl -s wait`).
+
+Note that if you try to run `cider-jack-in` outside a project
+directory normally you'd get a warning to confirm you really want to
+do this, as more often than not you'd probably do this
+accidentally. If you decide to proceed, CIDER will invoke the command
+configured in `cider-default-repl-command`. This used to be `lein
+repl` prior to CIDER 0.17 and it was switched to Clojure's CLI (`clj`)
+afterwards.
+
+!!! Tip
+
+    You can set `cider-allow-jack-in-without-project` to `t` if you'd like to
+    disable the warning displayed when jacking-in outside a project.
 
 ## Connect to a running nREPL server
 
