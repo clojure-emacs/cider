@@ -190,7 +190,7 @@ server with CIDER's own nREPL handler.
 
 ```clojure
 (ns my-app
-  (:require [clojure.tools.nrepl.server :as nrepl-server]
+  (:require [nrepl.server :as nrepl-server]
             [cider.nrepl :refer (cider-nrepl-handler)]))
 
 (defn -main

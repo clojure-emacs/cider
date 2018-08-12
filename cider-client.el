@@ -368,7 +368,7 @@ is nil, use `cider-load-file-handler'."
 ;;; Sync Requests
 
 (defcustom cider-filtered-namespaces-regexps
-  '("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl")
+  '("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl" "^nrepl")
   "List of regexps used to filter out some vars/symbols/namespaces.
 When nil, nothing is filtered out.  Otherwise, all namespaces matching any
 regexp from this list are dropped out of the \"ns-list\" op.  Also,

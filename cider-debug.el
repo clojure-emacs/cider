@@ -602,7 +602,7 @@ is a coordinate measure in sexps."
                  code ns original-id
                  (if (and line column)
                      "you edited the code"
-                   "your tools.nrepl version is older than 0.2.11"))
+                   "your nREPL version is older than 0.2.11"))
                 (save-excursion
                   (cider--debug-move-point coor)
                   (point-marker)))))))))

@@ -809,7 +809,7 @@ the corresponding type of response."
 ;; Requests can be asynchronous (sent with `nrepl-send-request') or
 ;; synchronous (send with `nrepl-send-sync-request'). The request is a pair list
 ;; of operation name and operation parameters. The core operations are described
-;; at https://github.com/clojure/tools.nrepl/blob/master/doc/ops.md. CIDER adds
+;; at https://github.com/nrepl/nrepl/blob/master/doc/ops.md. CIDER adds
 ;; many more operations through nREPL middleware. See
 ;; https://github.com/clojure-emacs/cider-nrepl#supplied-nrepl-middleware for
 ;; the up-to-date list.

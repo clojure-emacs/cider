@@ -60,7 +60,7 @@
 ;;                                              (("m" "f")))
 ;;                       "wrap-tracker"   (dict "arglists"
 ;;                                              (("handler"))))
-;;       "refers" (dict "set-descriptor!" "#'clojure.tools.nrepl.middleware/set-descriptor!"))
+;;       "refers" (dict "set-descriptor!" "#'nrepl.middleware/set-descriptor!"))
 
 ;;; Code:
 
