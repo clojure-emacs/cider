@@ -932,16 +932,17 @@ prompt for all these parameters."
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
-        (orig-buffer (current-buffer))
-        (params (thread-first params
-                  (cider--update-project-dir)
-                  (cider--update-jack-in-cmd))))
-    (nrepl-start-server-process
-     (plist-get params :project-dir)
-     (plist-get params :jack-in-cmd)
-     (lambda (server-buffer)
-       (with-current-buffer orig-buffer
-         (cider-connect-sibling-cljs params server-buffer))))))
+        (orig-buffer (current-buffer)))
+    ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
+    (let ((params (thread-first params
+                    (cider--update-project-dir)
+                    (cider--update-jack-in-cmd))))
+      (nrepl-start-server-process
+       (plist-get params :project-dir)
+       (plist-get params :jack-in-cmd)
+       (lambda (server-buffer)
+         (with-current-buffer orig-buffer
+           (cider-connect-sibling-cljs params server-buffer)))))))
 
 ;;;###autoload
 (defun cider-jack-in-clj&cljs (&optional params soft-cljs-start)
@@ -954,22 +955,23 @@ cljs REPL only when the ClojureScript dependencies are met."
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
-        (orig-buffer (current-buffer))
-        (params (thread-first params
-                  (cider--update-project-dir)
-                  (cider--update-jack-in-cmd)
-                  (cider--update-cljs-type)
-                  (plist-put :do-prompt nil))))
-    (nrepl-start-server-process
-     (plist-get params :project-dir)
-     (plist-get params :jack-in-cmd)
-     (lambda (server-buffer)
-       (with-current-buffer orig-buffer
-         (let ((clj-repl (cider-connect-sibling-clj params server-buffer)))
-           (if soft-cljs-start
-               (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
-                 (cider-connect-sibling-cljs params clj-repl))
-             (cider-connect-sibling-cljs params clj-repl))))))))
+        (orig-buffer (current-buffer)))
+    ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
+    (let ((params (thread-first params
+                    (cider--update-project-dir)
+                    (cider--update-jack-in-cmd)
+                    (cider--update-cljs-type)
+                    (plist-put :do-prompt nil))))
+      (nrepl-start-server-process
+       (plist-get params :project-dir)
+       (plist-get params :jack-in-cmd)
+       (lambda (server-buffer)
+         (with-current-buffer orig-buffer
+           (let ((clj-repl (cider-connect-sibling-clj params server-buffer)))
+             (if soft-cljs-start
+                 (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
+                   (cider-connect-sibling-cljs params clj-repl))
+               (cider-connect-sibling-cljs params clj-repl)))))))))
 
 ;;;###autoload
 (defun cider-connect-sibling-clj (params &optional other-repl)
