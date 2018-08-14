@@ -271,7 +271,23 @@
                       (with-temp-buffer
                         (setq major-mode 'clojurescript-mode)
                         (expect (cider-repls) :to-equal (list bb2 bb1))
-                        (expect (cider-repls "cljs") :to-equal (list bb2))))))))))))))
+                        (expect (cider-repls "cljs") :to-equal (list bb2)))))))))))))
+
+  (describe "killed buffers"
+    (it "do not show up in it"
+      (let ((default-directory "/tmp/some-dir"))
+        (cider-test-with-buffers
+         (a b)
+         (let ((session (list "some-session" a b)))
+           (with-current-buffer a
+             (setq cider-repl-type "clj"))
+           (with-current-buffer b
+             (setq cider-repl-type "clj"))
+           (sesman-register 'CIDER session)
+           (expect (cider-repls) :to-equal (list a b))
+           (kill-buffer b)
+           (expect (cider-repls) :to-equal (list a))
+           (sesman-unregister 'CIDER session)))))))
 
 (describe "cider--connection-info"
   (spy-on 'cider--java-version :and-return-value "1.7")
