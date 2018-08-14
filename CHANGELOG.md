@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#2375](https://github.com/clojure-emacs/cider/issues/2375): Move `cider-eval-toplevel-inside-comment-form` into clojure-mode as `clojure-toplevel-inside-comment-form` so `beginning-of-defun` is aware of comment forms.
 * Add new `cider-session-name-template` variable for flexible customization of cider session and REPL buffer names.
 * Bind `C-c M-r` to `cider-restart`.
 * Add new `cider-start-map` keymap (`C-c C-x`) for jack-in and connection commands.
