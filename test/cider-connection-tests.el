@@ -301,7 +301,12 @@
       (cider-test-with-buffers
        (a b)
        (let ((session (list "some-session" a b)))
+         (with-current-buffer a
+           (setq cider-repl-type "clj"))
+         (with-current-buffer b
+           (setq cider-repl-type "clj"))
          (sesman-register 'CIDER session)
+         (expect (cider-repls) :to-equal (list a b))
          (cider--close-connection b)
          (message "%S" sesman-links-alist)
          (expect (buffer-live-p b) :not :to-be-truthy)
