@@ -658,6 +658,13 @@ session."
                       type (car (sesman-current-session 'CIDER)))
         repl))))
 
+(defun cider--match-repl-type (type buffer)
+  "Return non-nil if TYPE matches BUFFER's REPL type."
+  (let ((buffer-repl-type (cider-repl-type buffer)))
+    (cond ((null buffer-repl-type) nil)
+          ((or (null type) (equal type "multi")) t)
+          (t (string= type buffer-repl-type)))))
+
 (defun cider-repls (&optional type ensure)
   "Return cider REPLs of TYPE from the current session.
 If TYPE is nil or \"multi\", return all repls.  If ENSURE is non-nil, throw
@@ -665,11 +672,8 @@ an error if no linked session exists."
   (let ((repls (cdr (if ensure
                         (sesman-ensure-session 'CIDER)
                       (sesman-current-session 'CIDER)))))
-    (if (or (null type) (equal type "multi"))
-        repls
-      (seq-filter (lambda (b)
-                    (string= type (cider-repl-type b)))
-                  repls))))
+    (seq-filter (lambda (b)
+                  (cider--match-repl-type type b)) repls)))
 
 (defun cider-map-repls (which function)
   "Call FUNCTION once for each appropriate REPL as indicated by WHICH.
