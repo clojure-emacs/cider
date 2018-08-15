@@ -203,10 +203,15 @@ middleware used is compatible with CIDER.  If not, will display a warning
 message in the REPL area."
   (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-repl)))
          (middleware-version  (nrepl-dict-get version-dict "version-string" "not installed")))
-    (unless (version<= cider-required-middleware-version middleware-version)
+    (cond
+     ((null middlewar-version)
+      (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
+                                 "CIDER %s requires cider-nrepl to work normally. Please, install it!"
+                                 cider-version cider-required-middleware-version middleware-version))
+     ((version<= cider-required-middleware-version middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
                                  "CIDER %s requires cider-nrepl %s+, but you're currently using cider-nrepl %s. Things will break!"
-                                 cider-version cider-required-middleware-version middleware-version))))
+                                 cider-version cider-required-middleware-version middleware-version)))))
 
 (declare-function cider-interactive-eval-handler "cider-eval")
 ;; TODO: Use some null handler here
