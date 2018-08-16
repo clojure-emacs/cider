@@ -2,10 +2,6 @@
 you're running the latest stable CIDER and that the problem you're reporting
 hasn't been reported (and potentially fixed) already.*
 
-*When requesting new features or improvements to existing features you can
-discard the template completely. Just make sure to make a good case for your
-request.*
-
 **Remove all of the placeholder text in your final report!**
 
 ## Expected behavior
