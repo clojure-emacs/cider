@@ -204,7 +204,7 @@ message in the REPL area."
   (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-repl)))
          (middleware-version  (nrepl-dict-get version-dict "version-string" "not installed")))
     (cond
-     ((null middlewar-version)
+     ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
                                  "CIDER %s requires cider-nrepl to work normally. Please, install it!"
                                  cider-version cider-required-middleware-version middleware-version))
