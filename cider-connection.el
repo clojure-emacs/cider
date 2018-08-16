@@ -206,8 +206,7 @@ message in the REPL area."
     (cond
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
-                                 "CIDER %s requires cider-nrepl to work normally. Please, install it!"
-                                 cider-version cider-required-middleware-version middleware-version))
+                                 "CIDER requires cider-nrepl to be fully functional. Many things will not work without it!"))
      ((version<= middleware-version cider-required-middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
                                  "CIDER %s requires cider-nrepl %s+, but you're currently using cider-nrepl %s. Things will break!"
