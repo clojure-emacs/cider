@@ -202,7 +202,7 @@ Retrieve the underlying connection's CIDER-nREPL version and checks if the
 middleware used is compatible with CIDER.  If not, will display a warning
 message in the REPL area."
   (let* ((version-dict        (nrepl-aux-info "cider-version" (cider-current-repl)))
-         (middleware-version  (nrepl-dict-get version-dict "version-string" "not installed")))
+         (middleware-version  (nrepl-dict-get version-dict "version-string")))
     (cond
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
