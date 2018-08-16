@@ -1,3 +1,8 @@
+---
+name: Bug Report
+about: Report an issue with CIDER you've discovered.
+---
+
 *Use the template below when reporting bugs. Please, make sure that
 you're running the latest stable CIDER and that the problem you're reporting
 hasn't been reported (and potentially fixed) already.*
