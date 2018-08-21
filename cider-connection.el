@@ -625,8 +625,7 @@ function with the repl buffer set as current."
             mode-name nil
             cider-session-name ses-name
             nrepl-project-dir (plist-get params :project-dir)
-            ;; REPLs start with clj and then "upgrade" to a different type
-            cider-repl-type "clj"
+            cider-repl-type (or (plist-get params :repl-type) "clj")
             ;; ran at the end of cider--connected-handler
             cider-repl-init-function (plist-get params :repl-init-function))
       (cider-repl-reset-markers)
