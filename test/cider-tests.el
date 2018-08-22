@@ -34,8 +34,73 @@
   (it "opens without error"
     (customize-group 'cider)))
 
-;;; connection browser
+(describe "cider-figwheel-main-init-form"
+  ;; whitespace checks sprinkled amongst other tests
+  (describe "from options"
+    (it "leaves keywords alone"
+      (let ((cider-figwheel-main-default-options ":dev "))
+        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :dev))")))
+    (it "leaves maps alone"
+      (let ((cider-figwheel-main-default-options " {:a 1 :b 2}"))
+        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:a 1 :b 2}))")))
+    (it "leaves s-exprs alone"
+      (let ((cider-figwheel-main-default-options " (hashmap :a 1 :b 2)"))
+        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (hashmap :a 1 :b 2)))")))
+    (it "prepends colon to plain names"
+      (let ((cider-figwheel-main-default-options " dev"))
+        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :dev))"))))
 
+  (describe "from minibuffer"
+    (before-each
+      ;; not necessary as of this writing, but it can't hurt
+      (setq-local cider-figwheel-main-default-options nil))
+    (it "leaves keywords alone"
+      (spy-on 'read-from-minibuffer :and-return-value " :prod ")
+      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))
+    (it "leaves maps alone"
+      (spy-on 'read-from-minibuffer :and-return-value " {:c 3 :d 4}")
+      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:c 3 :d 4}))"))
+    (it "leaves s-exprs alone"
+      (spy-on 'read-from-minibuffer :and-return-value "(keyword \"dev\") ")
+      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (keyword \"dev\")))"))
+    (it "prepends colon to plain names"
+      (spy-on 'read-from-minibuffer :and-return-value "prod ")
+      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))))
+
+(describe "cider-project-type"
+  (describe "when there is a single project"
+    (it "returns that type"
+      (spy-on 'cider--identify-buildtools-present
+              :and-return-value '(lein))
+      (expect (cider-project-type) :to-equal 'lein)))
+
+  (describe "when there are multiple possible project types"
+    (before-all
+      (spy-on 'cider--identify-buildtools-present
+              :and-return-value '("build1" "build2"))
+      ;; user choice build2
+      (spy-on 'completing-read :and-return-value "build2"))
+
+    (it "returns the choice entered by user"
+      (expect (cider-project-type) :to-equal "build2"))
+
+    (it "respects the value of `cider-preferred-build-tool'"
+      (let ((cider-preferred-build-tool "build1"))
+        (expect (cider-project-type) :to-equal "build1"))
+
+      (let ((cider-preferred-build-tool "invalid choice"))
+        (expect (cider-project-type) :to-equal "build2"))
+
+      (let ((cider-preferred-build-tool "build3"))
+        (expect (cider-project-type) :to-equal "build2"))))
+
+  (describe "when there are no choices available"
+    (it "returns the value of `cider-jack-in-default'"
+      (spy-on 'cider--identify-buildtools-present
+              :and-return-value '())
+      (expect (cider-project-type) :to-equal cider-jack-in-default))))
+
+;;; cider-jack-in tests
 
 (describe "cider-inject-jack-in-dependencies"
   :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares cider-jack-in-lein-plugins cider-jack-in-dependencies-exclusions)
@@ -174,84 +239,20 @@
       (expect (cider-add-clojure-dependencies-maybe nil)
               :to-equal '(("Hello, I love you" "won't you tell me your name"))))))
 
-(describe "cider-project-type"
-  (describe "when there is a single project"
-    (it "returns that type"
-      (spy-on 'cider--identify-buildtools-present
-              :and-return-value '(lein))
-      (expect (cider-project-type) :to-equal 'lein)))
 
-  (describe "when there are multiple possible project types"
-    (before-all
-      (spy-on 'cider--identify-buildtools-present
-              :and-return-value '("build1" "build2"))
-      ;; user choice build2
-      (spy-on 'completing-read :and-return-value "build2"))
-
-    (it "returns the choice entered by user"
-      (expect (cider-project-type) :to-equal "build2"))
-
-    (it "respects the value of `cider-preferred-build-tool'"
-      (let ((cider-preferred-build-tool "build1"))
-        (expect (cider-project-type) :to-equal "build1"))
-
-      (let ((cider-preferred-build-tool "invalid choice"))
-        (expect (cider-project-type) :to-equal "build2"))
-
-      (let ((cider-preferred-build-tool "build3"))
-        (expect (cider-project-type) :to-equal "build2"))))
-
-  (describe "when there are no choices available"
-    (it "returns the value of `cider-jack-in-default'"
-      (spy-on 'cider--identify-buildtools-present
-              :and-return-value '())
-      (expect (cider-project-type) :to-equal cider-jack-in-default))))
 
 (describe "cider-normalize-cljs-init-options"
   (describe "from options"
     (it "leaves keywords alone"
-        (expect (cider-normalize-cljs-init-options ":dev") :to-equal ":dev"))
+      (expect (cider-normalize-cljs-init-options ":dev") :to-equal ":dev"))
     (it "leaves maps alone"
-        (expect (cider-normalize-cljs-init-options "{:a 1 :b 2}") :to-equal "{:a 1 :b 2}"))
+      (expect (cider-normalize-cljs-init-options "{:a 1 :b 2}") :to-equal "{:a 1 :b 2}"))
     (it "leaves s-exprs alone"
-        (expect (cider-normalize-cljs-init-options "(hashmap :a 1 :b 2)") :to-equal "(hashmap :a 1 :b 2)"))
+      (expect (cider-normalize-cljs-init-options "(hashmap :a 1 :b 2)") :to-equal "(hashmap :a 1 :b 2)"))
     (it "leaves vectors alone"
-        (expect (cider-normalize-cljs-init-options "[1 2 3]") :to-equal "[1 2 3]"))
+      (expect (cider-normalize-cljs-init-options "[1 2 3]") :to-equal "[1 2 3]"))
     (it "prepends colon to plain names"
-        (expect (cider-normalize-cljs-init-options "dev") :to-equal ":dev"))))
-
-(describe "cider-figwheel-main-init-form"
-  ;; whitespace checks sprinkled amongst other tests
-  (describe "from options"
-    (it "leaves keywords alone"
-      (let ((cider-figwheel-main-default-options ":dev "))
-        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :dev))")))
-    (it "leaves maps alone"
-      (let ((cider-figwheel-main-default-options " {:a 1 :b 2}"))
-        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:a 1 :b 2}))")))
-    (it "leaves s-exprs alone"
-      (let ((cider-figwheel-main-default-options " (hashmap :a 1 :b 2)"))
-        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (hashmap :a 1 :b 2)))")))
-    (it "prepends colon to plain names"
-      (let ((cider-figwheel-main-default-options " dev"))
-        (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :dev))"))))
-
-  (describe "from minibuffer"
-    (before-each
-      ;; not necessary as of this writing, but it can't hurt
-      (setq-local cider-figwheel-main-default-options nil))
-    (it "leaves keywords alone"
-      (spy-on 'read-from-minibuffer :and-return-value " :prod ")
-      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))
-    (it "leaves maps alone"
-      (spy-on 'read-from-minibuffer :and-return-value " {:c 3 :d 4}")
-      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:c 3 :d 4}))"))
-    (it "leaves s-exprs alone"
-      (spy-on 'read-from-minibuffer :and-return-value "(keyword \"dev\") ")
-      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (keyword \"dev\")))"))
-    (it "prepends colon to plain names"
-      (spy-on 'read-from-minibuffer :and-return-value "prod ")
-      (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))))
+      (expect (cider-normalize-cljs-init-options "dev") :to-equal ":dev"))))
 
 (provide 'cider-tests)
 
