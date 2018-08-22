@@ -1371,6 +1371,7 @@ PROJECT-DIR defaults to the current project."
                             choices nil t nil nil default))
           (choices
            (car choices))
+          ;; TODO: Move this fallback outside the project-type check
           ;; if we're outside a project we fallback to whatever tool
           ;; is specified in `cider-jack-in-default' (normally clojure-cli)
           (t cider-jack-in-default))))
