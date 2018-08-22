@@ -62,11 +62,11 @@
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\ foo.bar/baz\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a boot project"
-      (expect (cider-inject-jack-in-dependencies "" "repl -s wait" "boot")
+      (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
               :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.10.0-SNAPSHOT cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
 
     (it "can inject dependencies in a gradle project"
-      (expect (cider-inject-jack-in-dependencies "" "--no-daemon clojureRepl" "gradle")
+      (expect (cider-inject-jack-in-dependencies "" "--no-daemon clojureRepl" 'gradle)
               :to-equal "--no-daemon clojureRepl")))
 
   (describe "when there are multiple dependencies"
@@ -79,7 +79,7 @@
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a boot project"
-      (expect (cider-inject-jack-in-dependencies "" "repl -s wait" "boot")
+      (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
               :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait")))
 
   (describe "when there are global options"
@@ -92,10 +92,10 @@
       (expect (cider-inject-jack-in-dependencies "-o -U" "repl :headless" 'lein)
               :to-equal "-o -U update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "can concat in a boot project"
-      (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" "boot")
+      (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" 'boot)
               :to-equal "-C -o -i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
     (it "can concat in a gradle project"
-      (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" "gradle")
+      (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" 'gradle)
               :to-equal "-m --no-daemon clojureRepl")))
 
   (describe "when there are predicates"
@@ -150,7 +150,7 @@
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "uses them in a boot project"
-      (expect (cider-inject-jack-in-dependencies "" "repl -s wait" "boot")
+      (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
               :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait"))))
 
 (describe "cider-jack-in-auto-inject-clojure"
