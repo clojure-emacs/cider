@@ -338,8 +338,8 @@ Throws an error if PROJECT-TYPE is unknown."
     ;; here we have to account for the possibility that the command is either
     ;; "npx shadow-cljs" or just "shadow-cljs"
     ('shadow-cljs (let ((parts (split-string cider-shadow-cljs-command)))
-                     (when-let* ((command (cider--resolve-command (car parts))))
-                       (mapconcat #'identity (cons command (cdr parts)) " "))))
+                    (when-let* ((command (cider--resolve-command (car parts))))
+                      (mapconcat #'identity (cons command (cdr parts)) " "))))
     ('gradle (cider--resolve-command cider-gradle-command))
     (_ (user-error "Unsupported project type `%S'" project-type))))
 
@@ -359,13 +359,13 @@ Throws an error if PROJECT-TYPE is unknown."
     ('lein        cider-lein-parameters)
     ('boot        cider-boot-parameters)
     ('clojure-cli (format cider-clojure-cli-parameters
-                           (concat
-                            "["
-                            (mapconcat
-                             (apply-partially #'format "\"%s\"")
-                             (cider-jack-in-normalized-nrepl-middlewares)
-                             ", ")
-                            "]")))
+                          (concat
+                           "["
+                           (mapconcat
+                            (apply-partially #'format "\"%s\"")
+                            (cider-jack-in-normalized-nrepl-middlewares)
+                            ", ")
+                           "]")))
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
     (_            (user-error "Unsupported project type `%S'" project-type))))
