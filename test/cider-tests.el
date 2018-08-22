@@ -77,22 +77,22 @@
   (describe "when there are multiple possible project types"
     (before-all
       (spy-on 'cider--identify-buildtools-present
-              :and-return-value '("build1" "build2"))
-      ;; user choice build2
-      (spy-on 'completing-read :and-return-value "build2"))
+              :and-return-value '('build-tool1 'build-tool2))
+      ;; user choice build-tool2
+      (spy-on 'completing-read :and-return-value 'build-tool2))
 
     (it "returns the choice entered by user"
-      (expect (cider-project-type) :to-equal "build2"))
+      (expect (cider-project-type) :to-equal 'build-tool2))
 
     (it "respects the value of `cider-preferred-build-tool'"
-      (let ((cider-preferred-build-tool "build1"))
-        (expect (cider-project-type) :to-equal "build1"))
+      (let ((cider-preferred-build-tool 'build-tool1))
+        (expect (cider-project-type) :to-equal 'build-tool1))
 
       (let ((cider-preferred-build-tool "invalid choice"))
-        (expect (cider-project-type) :to-equal "build2"))
+        (expect (cider-project-type) :to-equal 'build-tool2))
 
-      (let ((cider-preferred-build-tool "build3"))
-        (expect (cider-project-type) :to-equal "build2"))))
+      (let ((cider-preferred-build-tool 'build-tool3))
+        (expect (cider-project-type) :to-equal 'build-tool2))))
 
   (describe "when there are no choices available"
     (it "returns the value of `cider-jack-in-default'"
