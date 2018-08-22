@@ -77,7 +77,7 @@
   (describe "when there are multiple possible project types"
     (before-all
       (spy-on 'cider--identify-buildtools-present
-              :and-return-value '('build-tool1 'build-tool2))
+              :and-return-value '(build-tool1 build-tool2))
       ;; user choice build-tool2
       (spy-on 'completing-read :and-return-value 'build-tool2))
 
