@@ -1345,11 +1345,11 @@ Use `cider-ps-running-nrepls-command' and `cider-ps-running-nrepl-path-regexp-li
   "Identify build systems present by their build files in PROJECT-DIR.
 PROJECT-DIR defaults to current project."
   (let* ((default-directory (or project-dir (clojure-project-dir (cider-current-dir))))
-         (build-files '(("lein" . "project.clj")
-                        ("boot" . "build.boot")
-                        ("clojure-cli" . "deps.edn")
-                        ("shadow-cljs" . "shadow-cljs.edn")
-                        ("gradle" . "build.gradle"))))
+         (build-files '((lein        . "project.clj")
+                        (boot        . "build.boot")
+                        (clojure-cli . "deps.edn")
+                        (shadow-cljs . "shadow-cljs.edn")
+                        (gradle      . "build.gradle"))))
     (delq nil
           (mapcar (lambda (candidate)
                     (when (file-exists-p (cdr candidate))

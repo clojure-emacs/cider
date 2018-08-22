@@ -48,17 +48,17 @@
       (setq-local cider-jack-in-dependencies-exclusions '()))
 
     (it "can inject dependencies in a lein project"
-      (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
+      (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a lein project with an exclusion"
       (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure"))))
-      (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
+      (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
       (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
-      (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
+      (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\ foo.bar/baz\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a boot project"
@@ -75,7 +75,7 @@
       (setq-local cider-jack-in-nrepl-middlewares '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can inject dependencies in a lein project"
-      (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
+      (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a boot project"
@@ -89,7 +89,7 @@
       (setq-local cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.11.0")))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can concat in a lein project"
-      (expect (cider-inject-jack-in-dependencies "-o -U" "repl :headless" "lein")
+      (expect (cider-inject-jack-in-dependencies "-o -U" "repl :headless" 'lein)
               :to-equal "-o -U update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "can concat in a boot project"
       (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" "boot")
@@ -147,7 +147,7 @@
               :and-return-value '(("refactor-nrepl" "2.0.0") ("cider/cider-nrepl" "0.11.0")))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "uses them in a lein project"
-      (expect (cider-inject-jack-in-dependencies "" "repl :headless" "lein")
+      (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "uses them in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" "boot")
@@ -178,8 +178,8 @@
   (describe "when there is a single project"
     (it "returns that type"
       (spy-on 'cider--identify-buildtools-present
-              :and-return-value '("lein"))
-      (expect (cider-project-type) :to-equal "lein")))
+              :and-return-value '(lein))
+      (expect (cider-project-type) :to-equal 'lein)))
 
   (describe "when there are multiple possible project types"
     (before-all
