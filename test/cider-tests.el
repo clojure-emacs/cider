@@ -202,10 +202,10 @@
         (expect (cider-project-type) :to-equal "build2"))))
 
   (describe "when there are no choices available"
-    (it "returns the value of `cider-default-repl-command'"
+    (it "returns the value of `cider-jack-in-default'"
       (spy-on 'cider--identify-buildtools-present
               :and-return-value '())
-      (expect (cider-project-type) :to-equal cider-default-repl-command))))
+      (expect (cider-project-type) :to-equal cider-jack-in-default))))
 
 (describe "cider-normalize-cljs-init-options"
   (describe "from options"

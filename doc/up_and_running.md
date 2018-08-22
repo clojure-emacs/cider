@@ -62,9 +62,8 @@ Note that if you try to run `cider-jack-in` outside a project
 directory normally you'd get a warning to confirm you really want to
 do this, as more often than not you'd probably do this
 accidentally. If you decide to proceed, CIDER will invoke the command
-configured in `cider-default-repl-command`. This used to be `lein
-repl` prior to CIDER 0.17 and it was switched to Clojure's CLI (`clj`)
-afterwards.
+configured in `cider-jack-in-default`. This used to be `lein` prior to
+CIDER 0.17 and it was switched to Clojure's CLI (`clj`) afterwards.
 
 !!! Tip
 

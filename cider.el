@@ -214,16 +214,22 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-default-repl-command "clojure-cli"
-  "The default command and parameters to use when connecting to nREPL.
+(defcustom cider-jack-in-default "clojure-cli"
+  "The default tool to use when doing `cider-jack-in' outside a project.
 This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found.
 
-As tools.deps is bundled with Clojure itself, it's the default REPL command."
-  :type 'string
+As the Clojure CLI is bundled with Clojure itself, it's the default."
+  :type '(choice (const "lein")
+                 (const "boot")
+                 (const "clojure-cli")
+                 (const "shadow-cljs")
+                 (const "gradle"))
   :group 'cider
   :safe #'stringp
   :package-version '(cider . "0.9.0"))
+
+(define-obsolete-variable-alias 'cider-default-repl-command 'cider-jack-in-default)
 
 (defcustom cider-preferred-build-tool
   nil
@@ -1363,7 +1369,7 @@ PROJECT-DIR defaults to the current project."
                             choices nil t nil nil default))
           (choices
            (car choices))
-          (t cider-default-repl-command))))
+          (t cider-jack-in-default))))
 
 
 ;; TODO: Implement a check for command presence over tramp
