@@ -214,12 +214,14 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-jack-in-default "clojure-cli"
+(defcustom cider-jack-in-default (if (executable-find "clojure") "clojure-cli" "lein")
   "The default tool to use when doing `cider-jack-in' outside a project.
 This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found.
 
-As the Clojure CLI is bundled with Clojure itself, it's the default."
+As the Clojure CLI is bundled with Clojure itself, it's the default.
+In the absence of the Clojure CLI (e.g. on Windows), we fallback
+to Leiningen."
   :type '(choice (const "lein")
                  (const "boot")
                  (const "clojure-cli")
@@ -1369,6 +1371,8 @@ PROJECT-DIR defaults to the current project."
                             choices nil t nil nil default))
           (choices
            (car choices))
+          ;; if we're outside a project we fallback to whatever tool
+          ;; is specified in `cider-jack-in-default' (normally clojure-cli)
           (t cider-jack-in-default))))
 
 
