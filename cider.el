@@ -79,6 +79,7 @@
 (require 'cider-common)
 (require 'cider-compat)
 (require 'cider-debug)
+(require 'cider-util)
 
 (require 'tramp-sh)
 (require 'subr-x)
@@ -214,7 +215,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-jack-in-default (if (executable-find "clojure") "clojure-cli" "lein")
+(defcustom cider-jack-in-default (if (executable-find "clojure") 'clojure-cli 'lein)
   "The default tool to use when doing `cider-jack-in' outside a project.
 This value will only be consulted when no identifying file types, i.e.
 project.clj for leiningen or build.boot for boot, could be found.
@@ -222,13 +223,13 @@ project.clj for leiningen or build.boot for boot, could be found.
 As the Clojure CLI is bundled with Clojure itself, it's the default.
 In the absence of the Clojure CLI (e.g. on Windows), we fallback
 to Leiningen."
-  :type '(choice (const "lein")
-                 (const "boot")
-                 (const "clojure-cli")
-                 (const "shadow-cljs")
-                 (const "gradle"))
+  :type '(choice (const 'lein)
+                 (const 'boot)
+                 (const 'clojure-cli)
+                 (const 'shadow-cljs)
+                 (const 'gradle))
   :group 'cider
-  :safe #'stringp
+  :safe #'symbolp
   :package-version '(cider . "0.9.0"))
 
 (define-obsolete-variable-alias 'cider-default-repl-command 'cider-jack-in-default)
@@ -236,20 +237,20 @@ to Leiningen."
 (defcustom cider-preferred-build-tool
   nil
   "Allow choosing a build system when there are many.
-When there are artifacts from multiple build systems (\"lein\", \"boot\",
-\"gradle\") the user is prompted to select one of them.  When non-nil, this
+When there are project markers from multiple build systems (e.g. lein and
+boot) the user is prompted to select one of them.  When non-nil, this
 variable will suppress this behavior and will select whatever build system
 is indicated by the variable if present.  Note, this is only when CIDER
 cannot decide which of many build systems to use and will never override a
 command when there is no ambiguity."
-  :type '(choice (const "lein")
-                 (const "boot")
-                 (const "clojure-cli")
-                 (const "shadow-cljs")
-                 (const "gradle")
+  :type '(choice (const 'lein)
+                 (const 'boot)
+                 (const 'clojure-cli)
+                 (const 'shadow-cljs)
+                 (const 'gradle)
                  (const :tag "Always ask" nil))
   :group 'cider
-  :safe #'stringp
+  :safe #'symbolp
   :package-version '(cider . "0.13.0"))
 
 (defcustom cider-allow-jack-in-without-project 'warn
@@ -320,44 +321,44 @@ Sub-match 1 must be the project path.")
 (defun cider-jack-in-command (project-type)
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
   (pcase project-type
-    ("lein" cider-lein-command)
-    ("boot" cider-boot-command)
-    ("clojure-cli" cider-clojure-cli-command)
-    ("shadow-cljs" cider-shadow-cljs-command)
-    ("gradle" cider-gradle-command)
-    (_ (user-error "Unsupported project type `%s'" project-type))))
+    ('lein        cider-lein-command)
+    ('boot        cider-boot-command)
+    ('clojure-cli cider-clojure-cli-command)
+    ('shadow-cljs cider-shadow-cljs-command)
+    ('gradle      cider-gradle-command)
+    (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
-    ("lein" (cider--resolve-command cider-lein-command))
-    ("boot" (cider--resolve-command cider-boot-command))
-    ("clojure-cli" (cider--resolve-command cider-clojure-cli-command))
+    ('lein (cider--resolve-command cider-lein-command))
+    ('boot (cider--resolve-command cider-boot-command))
+    ('clojure-cli (cider--resolve-command cider-clojure-cli-command))
     ;; here we have to account for the possibility that the command is either
     ;; "npx shadow-cljs" or just "shadow-cljs"
-    ("shadow-cljs" (let ((parts (split-string cider-shadow-cljs-command)))
+    ('shadow-cljs (let ((parts (split-string cider-shadow-cljs-command)))
                      (when-let* ((command (cider--resolve-command (car parts))))
                        (mapconcat #'identity (cons command (cdr parts)) " "))))
-    ("gradle" (cider--resolve-command cider-gradle-command))
-    (_ (user-error "Unsupported project type `%s'" project-type))))
+    ('gradle (cider--resolve-command cider-gradle-command))
+    (_ (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-global-options (project-type)
   "Determine the command line options for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
-    ("lein" cider-lein-global-options)
-    ("boot" cider-boot-global-options)
-    ("clojure-cli" cider-clojure-cli-global-options)
-    ("shadow-cljs" cider-shadow-cljs-global-options)
-    ("gradle" cider-gradle-global-options)
-    (_ (user-error "Unsupported project type `%s'" project-type))))
+    ('lein        cider-lein-global-options)
+    ('boot        cider-boot-global-options)
+    ('clojure-cli cider-clojure-cli-global-options)
+    ('shadow-cljs cider-shadow-cljs-global-options)
+    ('gradle      cider-gradle-global-options)
+    (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
-    ("lein" cider-lein-parameters)
-    ("boot" cider-boot-parameters)
-    ("clojure-cli" (format cider-clojure-cli-parameters
+    ('lein        cider-lein-parameters)
+    ('boot        cider-boot-parameters)
+    ('clojure-cli (format cider-clojure-cli-parameters
                            (concat
                             "["
                             (mapconcat
@@ -365,9 +366,9 @@ Throws an error if PROJECT-TYPE is unknown."
                              (cider-jack-in-normalized-nrepl-middlewares)
                              ", ")
                             "]")))
-    ("shadow-cljs" cider-shadow-cljs-parameters)
-    ("gradle" cider-gradle-parameters)
-    (_ (user-error "Unsupported project type `%s'" project-type))))
+    ('shadow-cljs cider-shadow-cljs-parameters)
+    ('gradle      cider-gradle-parameters)
+    (_            (user-error "Unsupported project type `%S'" project-type))))
 
 
 ;;; Jack-in dependencies injection
@@ -607,35 +608,35 @@ the used PROJECT-TYPE.  Eliminates the need for hacking profiles.clj or the
 boot script for supporting cider with its nREPL middleware and
 dependencies."
   (pcase project-type
-    ("lein" (cider-lein-jack-in-dependencies
-             global-opts
-             params
-             (cider-add-clojure-dependencies-maybe
-              cider-jack-in-dependencies)
-             cider-jack-in-dependencies-exclusions
-             (cider-jack-in-normalized-lein-plugins)))
-    ("boot" (cider-boot-jack-in-dependencies
-             global-opts
-             params
-             (cider-add-clojure-dependencies-maybe
-              cider-jack-in-dependencies)
-             (cider-jack-in-normalized-lein-plugins)
-             (cider-jack-in-normalized-nrepl-middlewares)))
-    ("clojure-cli" (cider-clojure-cli-jack-in-dependencies
-                    global-opts
-                    params
-                    (cider-add-clojure-dependencies-maybe
-                     cider-jack-in-dependencies)))
-    ("shadow-cljs" (cider-shadow-cljs-jack-in-dependencies
-                    global-opts
-                    params
-                    (cider-add-clojure-dependencies-maybe
-                     cider-jack-in-dependencies)))
-    ("gradle" (concat
-               global-opts
-               (unless (seq-empty-p global-opts) " ")
-               params))
-    (_ (error "Unsupported project type `%s'" project-type))))
+    ('lein (cider-lein-jack-in-dependencies
+            global-opts
+            params
+            (cider-add-clojure-dependencies-maybe
+             cider-jack-in-dependencies)
+            cider-jack-in-dependencies-exclusions
+            (cider-jack-in-normalized-lein-plugins)))
+    ('boot (cider-boot-jack-in-dependencies
+            global-opts
+            params
+            (cider-add-clojure-dependencies-maybe
+             cider-jack-in-dependencies)
+            (cider-jack-in-normalized-lein-plugins)
+            (cider-jack-in-normalized-nrepl-middlewares)))
+    ('clojure-cli (cider-clojure-cli-jack-in-dependencies
+                   global-opts
+                   params
+                   (cider-add-clojure-dependencies-maybe
+                    cider-jack-in-dependencies)))
+    ('shadow-cljs (cider-shadow-cljs-jack-in-dependencies
+                   global-opts
+                   params
+                   (cider-add-clojure-dependencies-maybe
+                    cider-jack-in-dependencies)))
+    ('gradle (concat
+              global-opts
+              (unless (seq-empty-p global-opts) " ")
+              params))
+    (_ (error "Unsupported project type `%S'" project-type))))
 
 
 ;;; ClojureScript REPL creation
@@ -1362,10 +1363,13 @@ tool in `cider-preferred-build-tool', otherwise prompt the user to choose.
 PROJECT-DIR defaults to the current project."
   (let* ((choices (cider--identify-buildtools-present project-dir))
          (multiple-project-choices (> (length choices) 1))
-         (default (car choices)))
+         (default (car choices))
+         ;; `cider-preferred-build-tool' used to be a string prior to CIDER
+         ;; 0.18, therefore the need for `cider-maybe-intern'
+         (preferred-build-tool (cider-maybe-intern cider-preferred-build-tool)))
     (cond ((and multiple-project-choices
-                (member cider-preferred-build-tool choices))
-           cider-preferred-build-tool)
+                (member preferred-build-tool choices))
+           preferred-build-tool)
           (multiple-project-choices
            (completing-read (format "Which command should be used (default %s): " default)
                             choices nil t nil nil default))
@@ -1374,7 +1378,9 @@ PROJECT-DIR defaults to the current project."
           ;; TODO: Move this fallback outside the project-type check
           ;; if we're outside a project we fallback to whatever tool
           ;; is specified in `cider-jack-in-default' (normally clojure-cli)
-          (t cider-jack-in-default))))
+          ;; `cider-jack-in-default' used to be a string prior to CIDER
+          ;; 0.18, therefore the need for `cider-maybe-intern'
+          (t (cider-maybe-intern cider-jack-in-default)))))
 
 
 ;; TODO: Implement a check for command presence over tramp
