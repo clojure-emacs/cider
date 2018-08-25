@@ -1363,7 +1363,8 @@ tool in `cider-preferred-build-tool', otherwise prompt the user to choose.
 PROJECT-DIR defaults to the current project."
   (let* ((choices (cider--identify-buildtools-present project-dir))
          (multiple-project-choices (> (length choices) 1))
-         (default (car choices))
+         ;; this needs to be a string to be used in `completing-read'
+         (default (symbol-name (car choices)))
          ;; `cider-preferred-build-tool' used to be a string prior to CIDER
          ;; 0.18, therefore the need for `cider-maybe-intern'
          (preferred-build-tool (cider-maybe-intern cider-preferred-build-tool)))
@@ -1371,8 +1372,10 @@ PROJECT-DIR defaults to the current project."
                 (member preferred-build-tool choices))
            preferred-build-tool)
           (multiple-project-choices
-           (completing-read (format "Which command should be used (default %s): " default)
-                            choices nil t nil nil default))
+           (intern
+            (completing-read
+             (format "Which command should be used (default %s): " default)
+             choices nil t nil nil default)))
           (choices
            (car choices))
           ;; TODO: Move this fallback outside the project-type check
