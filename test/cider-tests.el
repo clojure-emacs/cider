@@ -79,7 +79,7 @@
       (spy-on 'cider--identify-buildtools-present
               :and-return-value '(build-tool1 build-tool2))
       ;; user choice build-tool2
-      (spy-on 'completing-read :and-return-value 'build-tool2))
+      (spy-on 'completing-read :and-return-value "build-tool2"))
 
     (it "returns the choice entered by user"
       (expect (cider-project-type) :to-equal 'build-tool2))
