@@ -991,11 +991,12 @@ server is created."
   (interactive "P")
   (cider-nrepl-connect
    (let* ((other-repl (or other-repl (cider-current-repl nil 'ensure)))
+          (other-params (cider--gather-connect-params nil other-repl))
           (ses-name (unless (nrepl-server-p other-repl)
                       (sesman-session-name-for-object 'CIDER other-repl))))
      (thread-first params
        (cider--update-do-prompt)
-       (cider--gather-connect-params other-repl)
+       (append other-params)
        (plist-put :repl-init-function nil)
        (plist-put :repl-type "clj")
        (plist-put :session-name ses-name)))))
@@ -1009,12 +1010,13 @@ OTHER-REPL defaults to `cider-current-repl' but in programs can also be a
 server buffer, in which case a new session for that server is created."
   (interactive "P")
   (let* ((other-repl (or other-repl (cider-current-repl nil 'ensure)))
+         (other-params (cider--gather-connect-params nil other-repl))
          (ses-name (unless (nrepl-server-p other-repl)
                      (sesman-session-name-for-object 'CIDER other-repl))))
     (cider-nrepl-connect
      (thread-first params
        (cider--update-do-prompt)
-       (cider--gather-connect-params other-repl)
+       (append other-params)
        (cider--update-cljs-type)
        (cider--update-cljs-init-function)
        (plist-put :session-name ses-name)

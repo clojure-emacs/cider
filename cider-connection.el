@@ -347,7 +347,8 @@ entire session."
   (let* ((repl (or repl
                    (sesman-browser-get 'object)
                    (cider-current-repl nil 'ensure)))
-         (params (thread-first (cider--gather-connect-params nil repl)
+         (params (thread-first ()
+                   (cider--gather-connect-params repl)
                    (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
                    (plist-put :repl-buffer repl))))
     (cider--close-connection repl 'no-kill)
