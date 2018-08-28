@@ -258,6 +258,7 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
              (cider-ns-refresh--handle-response response log-buffer))
            conn))))))
 
+;;;###autoload
 (define-obsolete-function-alias 'cider-refresh 'cider-ns-refresh "0.18")
 
 (provide 'cider-ns)
