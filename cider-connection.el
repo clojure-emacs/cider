@@ -627,7 +627,7 @@ function with the repl buffer set as current."
             cider-session-name ses-name
             nrepl-project-dir (plist-get params :project-dir)
             ;; REPLs start with clj and then "upgrade" to a different type
-            cider-repl-type "clj"
+            cider-repl-type (plist-get params :repl-type)
             ;; ran at the end of cider--connected-handler
             cider-repl-init-function (plist-get params :repl-init-function))
       (cider-repl-reset-markers)
@@ -638,6 +638,17 @@ function with the repl buffer set as current."
 
 
 ;;; Current/other REPLs
+
+(defun cider--no-repls-user-error (type)
+  "Throw \"No REPL\" user error customized for TYPE."
+  (let ((type (cond
+               ((equal type "multi")
+                "clj or cljs")
+               ((listp type)
+                (mapconcat #'identity type " or "))
+               (type))))
+    (user-error "No %s REPLs in current session \"%s\""
+                type (car (sesman-current-session 'CIDER)))))
 
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
@@ -659,8 +670,7 @@ session."
                                (member b repls))
                              (buffer-list)))))
       (if (and ensure (null repl))
-          (user-error "No %s REPL in current session (%s)"
-                      type (car (sesman-current-session 'CIDER)))
+          (cider--no-repls-user-error type)
         repl))))
 
 (defun cider--match-repl-type (type buffer)
@@ -668,17 +678,22 @@ session."
   (let ((buffer-repl-type (cider-repl-type buffer)))
     (cond ((null buffer-repl-type) nil)
           ((or (null type) (equal type "multi")) t)
+          ((listp type) (member buffer-repl-type type))
           (t (string= type buffer-repl-type)))))
 
 (defun cider-repls (&optional type ensure)
   "Return cider REPLs of TYPE from the current session.
-If TYPE is nil or \"multi\", return all repls.  If ENSURE is non-nil, throw
-an error if no linked session exists."
+If TYPE is nil or \"multi\", return all repls.  If TYPE is a list of types,
+return only REPLs of type contained in the list.  If ENSURE is non-nil,
+throw an error if no linked session exists."
   (let ((repls (cdr (if ensure
                         (sesman-ensure-session 'CIDER)
                       (sesman-current-session 'CIDER)))))
-    (seq-filter (lambda (b)
-                  (cider--match-repl-type type b)) repls)))
+    (or (seq-filter (lambda (b)
+                      (cider--match-repl-type type b))
+                    repls)
+        (when ensure
+          (cider--no-repls-user-error type)))))
 
 (defun cider-map-repls (which function)
   "Call FUNCTION once for each appropriate REPL as indicated by WHICH.
@@ -691,7 +706,8 @@ the following keywords:
  :clj-strict (:cljs-strict) - Map over clj (cljs) REPLs but signal a
       `user-error' in `clojurescript-mode' (`clojure-mode').  Use this for
       commands only supported in Clojure (ClojureScript).
-Error is signaled if no REPL buffer of specified type exists."
+Error is signaled if no REPL buffers of specified type exist in current
+session."
   (declare (indent 1))
   (let ((cur-type (cider-repl-type-for-buffer)))
     (cl-case which
@@ -702,7 +718,9 @@ Error is signaled if no REPL buffer of specified type exists."
     (let* ((type (cl-case which
                    ((:clj :clj-strict) "clj")
                    ((:cljs :cljs-strict) "cljs")
-                   (:auto cur-type)))
+                   (:auto (if (equal cur-type "multi")
+                              '("clj" "cljs")
+                            cur-type))))
            (repls (cider-repls type 'ensure)))
       (mapcar function repls))))
 
