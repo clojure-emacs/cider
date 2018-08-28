@@ -215,6 +215,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
+(define-obsolete-variable-alias 'cider-default-repl-command 'cider-jack-in-default)
 (defcustom cider-jack-in-default (if (executable-find "clojure") 'clojure-cli 'lein)
   "The default tool to use when doing `cider-jack-in' outside a project.
 This value will only be consulted when no identifying file types, i.e.
@@ -231,8 +232,6 @@ to Leiningen."
   :group 'cider
   :safe #'symbolp
   :package-version '(cider . "0.9.0"))
-
-(define-obsolete-variable-alias 'cider-default-repl-command 'cider-jack-in-default)
 
 (defcustom cider-preferred-build-tool
   nil
