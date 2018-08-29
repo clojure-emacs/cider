@@ -221,8 +221,6 @@
                       (setq major-mode 'clojurescript-mode)
                       (expect (cider-current-repl) :to-equal b2))))))))))))
 
-
-
 (describe "cider-repls"
 
   :var (sesman-sessions-hashmap sesman-links-alist ses-name ses-name2)
@@ -341,4 +339,27 @@
             :to-equal "/")
     (expect (cider-format-connection-params "%J" '(:project-dir "/etc/"))
             :to-equal "/etc")))
+
+(describe "cider-jack-in-clj&cljs"
+  :var (sesman-sessions-hashmap sesman-links-alist cider-default-cljs-repl)
+  (before-each
+    (setq sesman-sessions-hashmap (make-hash-table :test #'equal)
+          sesman-links-alist nil
+          cider-default-cljs-repl 'node)
+    (spy-on 'cider--gather-session-params
+            :and-return-value '(:project-dir "some/project" :host "localhost" :port 1234))
+    (spy-on 'nrepl-start-server-process
+            :and-return-value nil)
+    (spy-on 'sesman-linked-sessions
+            :and-return-value '(("a-session")))
+    (spy-on 'y-or-n-p
+            :and-return-value t)
+    (cider-jack-in-clj&cljs '(:project-dir "some/project" :host "localhost" :port 1234))
+    (cider-jack-in-clj&cljs '(:project-dir "some/project" :host "localhost"))
+    (cider-jack-in-clj&cljs '(:project-dir "some/project"))
+    (cider-jack-in-clj&cljs '(:project-dir "some/project" :host "other-host"))
+    (cider-jack-in-clj&cljs '(:project-dir "some/other/project")))
+  (it "detects existing project"
+    (expect 'y-or-n-p :to-have-been-called-times 3)))
+
 

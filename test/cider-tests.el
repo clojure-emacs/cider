@@ -239,8 +239,6 @@
       (expect (cider-add-clojure-dependencies-maybe nil)
               :to-equal '(("Hello, I love you" "won't you tell me your name"))))))
 
-
-
 (describe "cider-normalize-cljs-init-options"
   (describe "from options"
     (it "leaves keywords alone"
