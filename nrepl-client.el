@@ -1044,7 +1044,7 @@ been determined."
         (when (and (null nrepl-endpoint)
                    (string-match "nREPL server started on port \\([0-9]+\\)" output))
           (let ((port (string-to-number (match-string 1 output))))
-            (setq nrepl-endpoint (list :host nil :port port))
+            (setq nrepl-endpoint (list :host "localhost" :port port))
             (message "[nREPL] server started on %s" port)
             (when nrepl-on-port-callback
               (funcall nrepl-on-port-callback (process-buffer process)))))))))

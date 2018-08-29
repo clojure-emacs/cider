@@ -92,6 +92,21 @@ PARAMS is a plist containing :host, :port, :server and other parameters for
   "Ensure there is a linked CIDER session."
   (sesman-ensure-session 'CIDER))
 
+(defun cider--session-server (session)
+  "Return server buffer for SESSION or nil if there is no server."
+  (seq-some (lambda (r)
+              (buffer-local-value 'nrepl-server-buffer r))
+            (cdr session)))
+
+(defun cider--gather-session-params (session)
+  "Gather all params for a SESSION."
+  (let (params)
+    (dolist (repl (cdr session))
+      (setq params (cider--gather-connect-params params repl)))
+    (when-let* ((server (cider--session-server session)))
+      (setq params (cider--gather-connect-params params server)))
+    params))
+
 (defun cider--gather-connect-params (&optional params proc-buffer)
   "Gather all relevant connection parameters into PARAMS plist.
 PROC-BUFFER is either server or client buffer, defaults to current buffer."
@@ -443,9 +458,7 @@ Fallback on `cider' command."
 (cl-defmethod sesman-restart-session ((_system (eql CIDER)) session)
   (let* ((ses-name (car session))
          (repls (cdr session))
-         (srv-buf (seq-some (lambda (r)
-                              (buffer-local-value 'nrepl-server-buffer r))
-                            repls)))
+         (srv-buf (cider--session-server session)))
     (if srv-buf
         ;; session with a server
         (let ((s-params (cider--gather-connect-params nil srv-buf)))

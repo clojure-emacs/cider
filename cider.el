@@ -923,6 +923,7 @@ With the prefix argument, prompt for all these parameters."
   (interactive "P")
   (let ((params (thread-first params
                   (cider--update-project-dir)
+                  (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
     (nrepl-start-server-process
      (plist-get params :project-dir)
@@ -944,6 +945,7 @@ prompt for all these parameters."
     ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
     (let ((params (thread-first params
                     (cider--update-project-dir)
+                    (cider--check-existing-session)
                     (cider--update-jack-in-cmd))))
       (nrepl-start-server-process
        (plist-get params :project-dir)
@@ -967,8 +969,10 @@ cljs REPL only when the ClojureScript dependencies are met."
     ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
     (let ((params (thread-first params
                     (cider--update-project-dir)
+                    (cider--check-existing-session)
                     (cider--update-jack-in-cmd)
                     (cider--update-cljs-type)
+                    ;; already asked, don't ask on sibling connect
                     (plist-put :do-prompt nil))))
       (nrepl-start-server-process
        (plist-get params :project-dir)
@@ -1032,6 +1036,7 @@ prefix argument, prompt for all the parameters."
    (thread-first params
      (cider--update-project-dir)
      (cider--update-host-port)
+     (cider--check-existing-session)
      (plist-put :repl-init-function nil)
      (plist-put :session-name nil)
      (plist-put :repl-type "clj"))))
@@ -1047,6 +1052,7 @@ parameters regardless of their supplied or default values."
    (thread-first params
      (cider--update-project-dir)
      (cider--update-host-port)
+     (cider--check-existing-session)
      (cider--update-cljs-type)
      (cider--update-cljs-init-function)
      (plist-put :session-name nil)
@@ -1062,6 +1068,7 @@ non-nil, don't start if ClojureScript requirements are not met."
   (let* ((params (thread-first params
                    (cider--update-project-dir)
                    (cider--update-host-port)
+                   (cider--check-existing-session)
                    (cider--update-cljs-type)))
          (clj-repl (cider-connect-clj params)))
     (if soft-cljs-start
@@ -1207,6 +1214,30 @@ non-nil, don't start if ClojureScript requirements are not met."
                    (when (and (buffer-live-p nrepl-server-buffer)
                               cider-offer-to-open-cljs-app-in-browser)
                      (cider--offer-to-open-app-in-browser nrepl-server-buffer)))))))
+
+(defun cider--check-existing-session (params)
+  "Ask for confirmation if a session with similar PARAMS already exists.
+If no session exists or user chose to proceed, return PARAMS.  If the user
+canceled the action, signal quit."
+  (let* ((proj-dir (plist-get params :project-dir))
+         (host (plist-get params :host))
+         (port (plist-get params :port))
+         (session (seq-find (lambda (ses)
+                              (let ((ses-params (cider--gather-session-params ses)))
+                                (and (equal proj-dir (plist-get ses-params :project-dir))
+                                     (or (null port)
+                                         (equal port (plist-get ses-params :port)))
+                                     (or (null host)
+                                         (equal host (plist-get ses-params :host))))))
+                            (sesman-linked-sessions 'CIDER '(project)))))
+    (when session
+      (unless (y-or-n-p
+               (concat
+                "A session with the same parameters exists (" (car session) ").  "
+                "You can connect a sibling instead.  Proceed? "))
+        (let ((debug-on-quit nil))
+          (signal 'quit nil)))))
+  params)
 
 
 ;;; Aliases
