@@ -90,4 +90,31 @@ Here's a list of `cider-mode`'s keybindings:
 
 ![CIDER which-key](images/cider-which-key.png)
 
+
+!!! Tip
+
+    `cider-find-var` has built-in support for [AVFS]().  AVFS is an a virtual
+    file system which allows seamless navigation within archives as if they were 
+    normal directories. When AVFS is mounted, `cider-find-var` automatically
+    opens `jar` and `zip` files inside AVFS folder instead of attempting to
+    uncompressed the archive.
+
+    On linux based systems AVFS comes through the distribution managers. For 
+    example on Debian derivatives:
+
+       `sudo apt-get install avfs`
+
+    Once installed mount with `mountavfs` in a place where it could be started
+    automatically during the startup (`.bash_profile` would do). Or initialize the
+    `avfsd` daemon directly like this
+
+      `/usr/bin/avfsd -o allow_root -o intr -o sync_read .avfs` 
+
+    [AVFS]() is not available on Windows but could be installed on MacOS with [some
+    effort](http://blog.breadncup.com/tag/sunrise-commander/). Some other uses of
+    [AVFS]() in Emacs include
+    [dired-avfs](https://github.com/Fuco1/dired-hacks#dired-avfs) and
+    [sunrise-commander](https://www.emacswiki.org/emacs/Sunrise_Commander_Tips#toc12).
+
 [which-key]: https://github.com/justbur/emacs-which-key
+[AVFS]: http://avf.sourceforge.net
