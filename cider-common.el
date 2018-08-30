@@ -286,10 +286,13 @@ If no local or remote file exists, return nil."
 (defun cider-find-file (url)
   "Return a buffer visiting the file URL if it exists, or nil otherwise.
 If URL has a scheme prefix, it must represent a fully-qualified file path
-or an entry within a zip/jar archive.  If URL doesn't contain a scheme
-prefix and is an absolute path, it is treated as such.  Finally, if URL is
-relative, it is expanded within each of the open Clojure buffers till an
-existing file ending with URL has been found."
+or an entry within a zip/jar archive.  If AVFS (archive virtual file
+system; see online docs) is mounted the archive entry is opened inside the
+AVFS directory, otherwise the entry is archived into a temporary read-only
+buffer.  If URL doesn't contain a scheme prefix and is an absolute path, it
+is treated as such. Finally, if URL is relative, it is expanded within each
+of the open Clojure buffers till an existing file ending with URL has been
+found."
   (require 'arc-mode)
   (cond ((string-match "^file:\\(.+\\)" url)
          (when-let* ((file (cider--url-to-file (match-string 1 url)))
@@ -297,42 +300,39 @@ existing file ending with URL has been found."
            (find-file-noselect path)))
         ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" url)
          (when-let* ((entry (match-string 3 url))
-                     (file  (cider--url-to-file (match-string 2 url)))
-                     (path  (cider--file-path file))
-                     ;; It is used for targeting useless intermediate buffer.
-                     ;; That buffer is made by (find-file path) below.
-                     ;; It has the name which is the last part of the path.
-                     (trash (replace-regexp-in-string "^/.+/" "" path))
-                     (name  (format "%s:%s" path entry)))
-           (or (find-buffer-visiting name)
-               (if (tramp-tramp-file-p path)
-                   (progn
-                     ;; Use emacs built in archiving.
-                     ;; This makes a list of files in archived Zip or Jar.
-                     ;; That list buffer is useless after jumping to the
-                     ;; buffer which has the real definition.
-                     ;; It'll be removed by (kill-buffer trash) below.
-                     (find-file path)
-                     (goto-char (point-min))
-                     ;; Make sure the file path is followed by a newline to
-                     ;; prevent eg. clj matching cljs.
-                     (search-forward (concat entry "\n"))
-                     ;; moves up to matching line
-                     (forward-line -1)
-                     (archive-extract)
-                     ;; Remove useless buffer made by (find-file path) above.
-                     (kill-buffer trash)
-                     (current-buffer))
-                 ;; Use external zip program to just extract the single file
-                 (with-current-buffer (generate-new-buffer
-                                       (file-name-nondirectory entry))
-                   (archive-zip-extract path entry)
-                   (set-visited-file-name name)
-                   (setq-local default-directory (file-name-directory path))
-                   (setq-local buffer-read-only t)
-                   (set-buffer-modified-p nil)
-                   (set-auto-mode)
-                   (current-buffer))))))
+                     (file (cider--url-to-file (match-string 2 url)))
+                     (path (cider--file-path file))
+                     (name (format "%s:%s" path entry))
+                     (avfs (format "%s%s#uzip/%s"
+                                   (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/"))
+                                   path entry)))
+           (cond
+            ;; 1) use avfs
+            ((file-exists-p avfs)
+             (find-file-noselect avfs))
+            ;; 2) already uncompressed
+            ((find-buffer-visiting name))
+            ;; 3) on remotes use Emacs built-in archiving
+            ((tramp-tramp-file-p path)
+             (find-file path)
+             (goto-char (point-min))
+             ;; anchor to eol to prevent eg. clj matching cljs.
+             (re-search-forward (concat entry "$"))
+             (let ((archive-buffer (current-buffer)))
+               (archive-extract)
+               (kill-buffer archive-buffer))
+             (current-buffer))
+            ;; 4) Use external zip program to extract a single file
+            (t
+             (with-current-buffer (generate-new-buffer
+                                   (file-name-nondirectory entry))
+               (archive-zip-extract path entry)
+               (set-visited-file-name name)
+               (setq-local default-directory (file-name-directory path))
+               (setq-local buffer-read-only t)
+               (set-buffer-modified-p nil)
+               (set-auto-mode)
+               (current-buffer))))))
         (t (if-let* ((path (cider--file-path url)))
                (find-file-noselect path)
              (unless (file-name-absolute-p url)
