@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.18.0 (2018-09-02)
+
 ### New features
 
 * [#2375](https://github.com/clojure-emacs/cider/issues/2375): Move `cider-eval-toplevel-inside-comment-form` into clojure-mode as `clojure-toplevel-inside-comment-form` so `beginning-of-defun` is aware of comment forms.

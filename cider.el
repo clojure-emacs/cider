@@ -11,8 +11,8 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 0.18.0-snapshot
-;; Package-Requires: ((emacs "25") (clojure-mode "5.9") (pkg-info "0.4") (queue "0.2") (spinner "1.7") (seq "2.16") (sesman "0.2"))
+;; Version: 0.18.0
+;; Package-Requires: ((emacs "25") (clojure-mode "5.9") (pkg-info "0.4") (queue "0.2") (spinner "1.7") (seq "2.16") (sesman "0.3"))
 ;; Keywords: languages, clojure, cider
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -86,7 +86,7 @@
 (require 'seq)
 (require 'sesman)
 
-(defconst cider-version "0.18.0-snapshot"
+(defconst cider-version "0.18.0"
   "Fallback version used when it cannot be extracted automatically.
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
@@ -645,7 +645,7 @@ dependencies."
 Generally you should not disable this unless you run into some faulty check."
   :type 'boolean
   :safe #'booleanp
-  :version '(cider . "0.17.0"))
+  :package-version '(cider . "0.17.0"))
 
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
