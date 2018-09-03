@@ -290,7 +290,7 @@ or an entry within a zip/jar archive.  If AVFS (archive virtual file
 system; see online docs) is mounted the archive entry is opened inside the
 AVFS directory, otherwise the entry is archived into a temporary read-only
 buffer.  If URL doesn't contain a scheme prefix and is an absolute path, it
-is treated as such. Finally, if URL is relative, it is expanded within each
+is treated as such.  Finally, if URL is relative, it is expanded within each
 of the open Clojure buffers till an existing file ending with URL has been
 found."
   (require 'arc-mode)

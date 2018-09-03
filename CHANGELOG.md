@@ -2,7 +2,14 @@
 
 ## master (unreleased)
 
+### New features
+
 * [#2430](https://github.com/clojure-emacs/cider/issues/2375) `cider-find-var` opens archive files inside [AVFS](http://avf.sourceforge.net) folders if AVFS is detected.
+
+### Bug fixes
+
+* Fix jack-in from inside of remote buffers
+
 
 ## 0.18.0 (2018-09-02)
 
