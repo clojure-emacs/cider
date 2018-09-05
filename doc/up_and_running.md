@@ -34,7 +34,7 @@ and CIDER will automatically connect to it.
 
     If it is a `lein`, `boot` or `tools.deps (deps.edn)` project nREPL will be
     started with all dependencies loaded. Dependency auto-injection is currently
-    not support for Gradle projects.
+    not supported for Gradle projects.
 
 Alternatively you can use <kbd>C-u M-x</kbd> `cider-jack-in` <kbd>RET</kbd> to
 specify the name of a `lein`, `boot` or `tools.deps` project, without having to
