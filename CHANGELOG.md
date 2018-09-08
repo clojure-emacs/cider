@@ -4,18 +4,17 @@
 
 ### New features
 
-* [#2430](https://github.com/clojure-emacs/cider/issues/2375) `cider-find-var` opens archive files inside [AVFS](http://avf.sourceforge.net) folders if AVFS is detected.
+* [#2430](https://github.com/clojure-emacs/cider/issues/2375): `cider-find-var` opens archive files inside [AVFS](http://avf.sourceforge.net) folders if AVFS is detected.
 
 ### Bug fixes
 
-* Fix jack-in from inside of remote buffers
-
+* Fix jack-in from inside of remote buffers.
+* [#2408](https://github.com/clojure-emacs/cider/issues/2408): Auto-link to sesman session on `cider-find-var`.
 
 ## 0.18.0 (2018-09-02)
 
 ### New features
 
-* Open archive files within AVFS direcotires if AVFS has been detected.
 * [#2375](https://github.com/clojure-emacs/cider/issues/2375): Move `cider-eval-toplevel-inside-comment-form` into clojure-mode as `clojure-toplevel-inside-comment-form` so `beginning-of-defun` is aware of comment forms.
 * Add new `cider-session-name-template` variable for flexible customization of cider session and REPL buffer names.
 * Bind `C-c M-r` to `cider-restart`.
