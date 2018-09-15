@@ -1429,18 +1429,17 @@ assume the command is available."
     (shell-quote-argument command)))
 
 ;;;###autoload
-(eval-after-load 'clojure-mode
-  '(progn
-     (define-key clojure-mode-map (kbd "C-c M-x") #'cider)
-     (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
-     (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
-     (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect-clj)
-     (define-key clojure-mode-map (kbd "C-c M-C") #'cider-connect-cljs)
-     (define-key clojure-mode-map (kbd "C-c C-x") 'cider-start-map)
-     (define-key clojure-mode-map (kbd "C-c C-s") 'sesman-map)
-     (require 'sesman)
-     (sesman-install-menu clojure-mode-map)
-     (add-hook 'clojure-mode-hook (lambda () (setq-local sesman-system 'CIDER)))))
+(with-eval-after-load 'clojure-mode
+  (define-key clojure-mode-map (kbd "C-c M-x") #'cider)
+  (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
+  (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
+  (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect-clj)
+  (define-key clojure-mode-map (kbd "C-c M-C") #'cider-connect-cljs)
+  (define-key clojure-mode-map (kbd "C-c C-x") 'cider-start-map)
+  (define-key clojure-mode-map (kbd "C-c C-s") 'sesman-map)
+  (require 'sesman)
+  (sesman-install-menu clojure-mode-map)
+  (add-hook 'clojure-mode-hook (lambda () (setq-local sesman-system 'CIDER))))
 
 (provide 'cider)
 

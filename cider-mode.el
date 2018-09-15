@@ -512,21 +512,21 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
 ;; loaded yet, this will be shown in Clojure buffers next to the "Clojure"
 ;; menu.
 ;;;###autoload
-(eval-after-load 'clojure-mode
-  '(easy-menu-define cider-clojure-mode-menu-open clojure-mode-map
-     "Menu for Clojure mode.
+(with-eval-after-load 'clojure-mode
+  (easy-menu-define cider-clojure-mode-menu-open clojure-mode-map
+    "Menu for Clojure mode.
   This is displayed in `clojure-mode' buffers, if `cider-mode' is not active."
-     `("CIDER" :visible (not cider-mode)
-       ["Start a Clojure REPL" cider-jack-in
-        :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
-       ["Connect to a Clojure REPL" cider-connect
-        :help "Connects to a REPL that's already running."]
-       ["Connect to a ClojureScript REPL" cider-connect-clojurescript
-        :help "Connects to a ClojureScript REPL that's already running."]
-       ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-cljs
-        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
-       "--"
-       ["View manual online" cider-view-manual])))
+    `("CIDER" :visible (not cider-mode)
+      ["Start a Clojure REPL" cider-jack-in
+       :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
+      ["Connect to a Clojure REPL" cider-connect
+       :help "Connects to a REPL that's already running."]
+      ["Connect to a ClojureScript REPL" cider-connect-clojurescript
+       :help "Connects to a ClojureScript REPL that's already running."]
+      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-cljs
+       :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
+      "--"
+      ["View manual online" cider-view-manual])))
 
 ;;; Dynamic indentation
 (defcustom cider-dynamic-indentation t
