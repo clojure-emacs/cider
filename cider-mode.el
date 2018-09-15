@@ -517,13 +517,15 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
     "Menu for Clojure mode.
   This is displayed in `clojure-mode' buffers, if `cider-mode' is not active."
     `("CIDER" :visible (not cider-mode)
-      ["Start a Clojure REPL" cider-jack-in
-       :help "Starts an nREPL server (with Leiningen, Boot, or Gradle) and connects a REPL to it."]
-      ["Connect to a Clojure REPL" cider-connect
+      ["Start a Clojure REPL" cider-jack-in-clj
+       :help "Starts an nREPL server and connects a Clojure REPL to it."]
+      ["Connect to a Clojure REPL" cider-connect-clj
        :help "Connects to a REPL that's already running."]
-      ["Connect to a ClojureScript REPL" cider-connect-clojurescript
+      ["Start a ClojureScript REPL" cider-jack-in-cljs
+       :help "Starts an nREPL server and connects a ClojureScript REPL to it."]
+      ["Connect to a ClojureScript REPL" cider-connect-cljs
        :help "Connects to a ClojureScript REPL that's already running."]
-      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-cljs
+      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clj&cljs
        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
       "--"
       ["View manual online" cider-view-manual])))
