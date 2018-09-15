@@ -374,8 +374,10 @@ Throws an error if PROJECT-TYPE is unknown."
 (defvar cider-jack-in-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.")
 (put 'cider-jack-in-dependencies 'risky-local-variable t)
+;; We inject the newest known version of nREPL just in case
+;; your version of Boot or Leiningen is bundling an older one.
 (cider-add-to-alist 'cider-jack-in-dependencies
-                    "org.clojure/tools.nrepl" "0.2.13")
+                    "nrepl" "0.4.5")
 
 (defvar cider-jack-in-cljs-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.
