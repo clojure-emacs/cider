@@ -134,6 +134,11 @@ This is used as an alternative to the built-in `last-command'.  Whenever we
 invoke any command through \\[execute-extended-command] and its variants,
 the value of `last-command' is not set to the command it invokes.")
 
+(defvar cider-inspector--current-repl nil
+  "Contains the reference to the REPL where inspector was last invoked from.
+This is needed for internal inspector buffer operations (push,
+pop) to execute against the correct REPL session.")
+
 ;; Operations
 ;;;###autoload
 (defun cider-inspect-expr (expr ns)
@@ -142,6 +147,7 @@ Interactively, EXPR is read from the minibuffer, and NS the
 current buffer's namespace."
   (interactive (list (cider-read-from-minibuffer "Inspect expression: " (cider-sexp-at-point))
                      (cider-current-ns)))
+  (setq cider-inspector--current-repl (cider-current-repl))
   (when-let* ((value (cider-sync-request:inspect-expr expr ns (or cider-inspector-page-size 32))))
     (cider-inspector--render-value value)))
 
@@ -197,39 +203,39 @@ Current page will be reset to zero."
 (defun cider-sync-request:inspect-pop ()
   "Move one level up in the inspector stack."
   (thread-first '("op" "inspect-pop")
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-push (idx)
   "Inspect the inside value specified by IDX."
   (thread-first `("op" "inspect-push"
                   "idx" ,idx)
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-refresh ()
   "Re-render the currently inspected value."
   (thread-first '("op" "inspect-refresh")
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-next-page ()
   "Jump to the next page in paginated collection view."
   (thread-first '("op" "inspect-next-page")
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-prev-page ()
   "Jump to the previous page in paginated collection view."
   (thread-first '("op" "inspect-prev-page")
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-set-page-size (page-size)
   "Set the page size in paginated view to PAGE-SIZE."
   (thread-first `("op" "inspect-set-page-size"
                   "page-size" ,page-size)
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-expr (expr ns page-size)
@@ -238,7 +244,7 @@ Set the page size in paginated view to PAGE-SIZE."
   (thread-first (append (nrepl--eval-request expr ns)
                         `("inspect" "true"
                           "page-size" ,page-size))
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
 ;; Render Inspector from Structured Values

@@ -10,6 +10,7 @@
 
 * Fix jack-in from inside of remote buffers.
 * [#2408](https://github.com/clojure-emacs/cider/issues/2408): Auto-link to sesman session on `cider-find-var`.
+* [#2454](https://github.com/clojure-emacs/cider/pull/2454): Fix erratic inspector behavior when multiple REPLs are connected
 
 ## 0.18.0 (2018-09-02)
 
