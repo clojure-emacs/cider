@@ -272,16 +272,8 @@ connection buffers, both `clj` and `cljs` (if present).
 
 Simply put - if you're evaluating the code `(+ 2 2)` in a `cljc` file and you
 have an active Clojure and and active ClojureScript REPL, then the code is going
-to be evaluated 2 times - once for each of them. This behavior might be a bit
-confusing, but that's what we came up with, when ruminating what was the most
-logical thing to do out-of-the-box.
+to be evaluated twice - once for each of the REPLs.  In fact, you can create
+multiple clj and cljs sibling connections (<kbd>C-c C-x C-s C-s/j</kbd>) within
+Cider session and evaluation will be directed into all REPLs simultaneously. See
+[Managing Connections](managing_connections.md) for more details.
 
-This can be modified with <kbd>M-x</kbd> `cider-toggle-connection-buffer`
-<kbd>RET</kbd>. Toggling this once will choose one of the connections as the
-primary, and successive calls to <kbd>M-x</kbd> `cider-toggle-connection-buffer`
-<kbd>RET</kbd> will alternate which connection to use. To restore evaluation to
-both connections, invoke `cider-toggle-connection-buffer` with a prefix argument
-(<kbd>C-u M-x</kbd> `cider-toggle-connection-buffer` <kbd>RET</kbd>).
-
-If there is only a Clojure connection, no toggling will happen and a message
-will inform you that there are no other connections to switch to.
