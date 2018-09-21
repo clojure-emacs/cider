@@ -887,6 +887,7 @@ nil."
 
 ;;; User Level Connectors
 
+;;;###autoload (autoload 'cider-start-map "cider" "CIDER jack-in and connect keymap." t 'keymap)
 (defvar cider-start-map
   (let ((map (define-prefix-command 'cider-start-map)))
     (define-key map (kbd "x") #'cider)
