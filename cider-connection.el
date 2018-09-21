@@ -156,7 +156,7 @@ buffer."
         ;; inform sentinel not to kill the server, if any
         (thread-first (get-buffer-process repl)
           (process-plist)
-          (plist-put :no-server-kill t))))
+          (plist-put :keep-server t))))
     (let ((proc (get-buffer-process repl)))
       (when (and (process-live-p proc)
                  (or (not nrepl-server-buffer)
@@ -645,8 +645,8 @@ function with the repl buffer set as current."
             cider-repl-init-function (plist-get params :repl-init-function))
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
-      (add-hook 'nrepl-connected-hook 'cider--connected-handler nil 'local)
-      (add-hook 'nrepl-disconnected-hook 'cider--disconnected-handler nil 'local)
+      (add-hook 'nrepl-connected-hook #'cider--connected-handler nil 'local)
+      (add-hook 'nrepl-disconnected-hook #'cider--disconnected-handler nil 'local)
       (current-buffer))))
 
 
