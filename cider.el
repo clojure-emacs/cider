@@ -849,11 +849,12 @@ Return REPL-TYPE if requirements are met."
   (let ((repl-type (or repl-type
                        cider-default-cljs-repl
                        (cider-select-cljs-repl))))
-    (when-let* ((fun (nth 2 (seq-find
-                             (lambda (entry)
-                               (eq (car entry) repl-type))
-                             cider-cljs-repl-types))))
-      (funcall fun))
+    (when cider-check-cljs-repl-requirements
+      (when-let* ((fun (nth 2 (seq-find
+                               (lambda (entry)
+                                 (eq (car entry) repl-type))
+                               cider-cljs-repl-types))))
+        (funcall fun)))
     repl-type))
 
 (defun cider--check-cljs (&optional cljs-type no-error)
