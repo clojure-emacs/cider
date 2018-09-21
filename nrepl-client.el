@@ -466,12 +466,15 @@ and kill the process buffer."
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
     (when-let* ((client-buffer (process-buffer process)))
+      (sesman-remove-object 'CIDER nil client-buffer
+                            (not (process-get process :keep-server))
+                            'no-error)
       (nrepl--clear-client-sessions client-buffer)
       (with-current-buffer client-buffer
         (run-hooks 'nrepl-disconnected-hook)
         (let ((server-buffer nrepl-server-buffer))
           (when (and (buffer-live-p server-buffer)
-                     (not (plist-get (process-plist process) :no-server-kill)))
+                     (not (process-get process :keep-server)))
             (setq nrepl-server-buffer nil)
             (nrepl--maybe-kill-server-buffer server-buffer)))))))
 
