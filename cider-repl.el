@@ -329,10 +329,9 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
 (defun cider-repl--insert-banner-and-prompt (buffer)
   "Insert REPL banner and REPL prompt in BUFFER."
   (with-current-buffer buffer
-    (when (zerop (buffer-size))
-      (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
-      (when cider-repl-display-help-banner
-        (insert (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face))))
+    (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
+    (when cider-repl-display-help-banner
+      (insert (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face)))
     (goto-char (point-max))
     (cider-repl--mark-output-start)
     (cider-repl--mark-input-start)
