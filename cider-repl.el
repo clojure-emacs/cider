@@ -322,6 +322,8 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (cider-repl-set-config)
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
+  (with-current-buffer buffer
+    (set-window-point (get-buffer-window) (point-max)))
   buffer)
 
 (defun cider-repl--insert-banner-and-prompt (buffer)
