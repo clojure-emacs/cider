@@ -167,11 +167,7 @@ buffer."
     (when-let* ((messages-buffer (and nrepl-log-messages
                                       (nrepl-messages-buffer repl))))
       (kill-buffer messages-buffer))
-    (if no-kill
-        (with-current-buffer repl
-          (goto-char (point-max))
-          (cider-repl-emit-interactive-stderr
-           (format "*** Closed on %s ***\n" (current-time-string))))
+    (unless no-kill
       (kill-buffer repl)))
   (when repl
     (sesman-remove-object 'CIDER nil repl (not no-kill) t)))
