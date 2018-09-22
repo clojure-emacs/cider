@@ -5,11 +5,17 @@
 ### New features
 
 * [#2430](https://github.com/clojure-emacs/cider/issues/2375): `cider-find-var` opens archive files inside [AVFS](http://avf.sourceforge.net) folders if AVFS is detected.
+* [#2408](https://github.com/clojure-emacs/cider/issues/2408): Auto-link to sesman session on `cider-find-var`.
 
 ### Bug fixes
 
+* [#2444](https://github.com/clojure-emacs/cider/issues/2444) Reuse dead REPL buffers on new connections.
+* [#2441](https://github.com/clojure-emacs/cider/issues/2441) Make it possible to use `C-c C-x` keys without loading cider first (autoload `cider-start-map`).
+* [#2440](https://github.com/clojure-emacs/cider/issues/2440) Make `cider-check-cljs-repl-requirements` take effect again.
+* [#2439](https://github.com/clojure-emacs/cider/issues/2439) Remove mentions of `cider-toggle-connection-buffer` from the docs.
+* [#2435](https://github.com/clojure-emacs/cider/issues/2435) Remove killed REPLs from sessions in client sentinel.
+
 * Fix jack-in from inside of remote buffers.
-* [#2408](https://github.com/clojure-emacs/cider/issues/2408): Auto-link to sesman session on `cider-find-var`.
 * [#2454](https://github.com/clojure-emacs/cider/pull/2454): Fix erratic inspector behavior when multiple REPLs are connected
 
 ## 0.18.0 (2018-09-02)
