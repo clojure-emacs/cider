@@ -151,13 +151,13 @@ The solution to this depends on what you see and on what you're doing.
 #### You see a number like `X.X.X`, and you're starting the REPL with `cider-connect`
 
 Your project specifies the wrong version for the cider-nrepl middleware. See the
-[instructions](http://docs.cider.mx/en/latest/installation/#ciders-nrepl-middleware)
+[instructions](https://docs.cider.mx/en/latest/installation/#ciders-nrepl-middleware)
 on the Installation section.
 
 #### You see `not installed` or `nil`, and you're starting the REPL with `cider-connect`
 
 To use `cider-connect` you need to add the cider-nrepl middleware to your project. See the
-[instructions](http://docs.cider.mx/en/latest/installation/#ciders-nrepl-middleware)
+[instructions](https://docs.cider.mx/en/latest/installation/#ciders-nrepl-middleware)
 on the Installation section.
 
 #### You see `not installed` or `nil`, and you're starting the REPL with `cider-jack-in`
@@ -169,7 +169,7 @@ on the Installation section.
 
 If the above doesn't work, you can try specifying the cider-nrepl middleware
 manually, as per the
-[instructions](http://docs.cider.mx/en/latest/installation/#ciders-nrepl-middleware)
+[instructions](https://docs.cider.mx/en/latest/installation/#ciders-nrepl-middleware)
 on the Installation section.
 
 #### You see a number like `X.X.X`, and you're starting the REPL with `cider-jack-in`
