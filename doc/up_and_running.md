@@ -75,7 +75,7 @@ CIDER 0.17 and it was switched to Clojure's CLI (`clj`) afterwards.
 Go to your project's directory in a terminal and type there:
 
 ```
-$ lein repl
+$ lein repl :headless
 ```
 
 Or for `boot`:
@@ -87,11 +87,11 @@ $ boot repl -s wait (or whatever task launches a repl)
 It is also possible for plain `clj`, although the command is somewhat longer:
 
 ```
-$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.18.0-SNAPSHOT"} }}' -e '(require (quote cider-nrepl.main)) (cider-nrepl.main/init ["cider.nrepl/cider-middleware"])'
+$ clj -Sdeps '{:deps {nrepl {:mvn/version "0.4.5"} cider-nrepl {:mnv/version "0.18.0}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
 ```
 
 Alternatively you can start nREPL either manually or by the facilities
-provided by your project's build tool (Maven, etc).
+provided by your project's build tool (Gradle, Maven, etc).
 
 After you get your nREPL server running, go back to Emacs.  Type there
 <kbd>M-x</kbd> `cider-connect` <kbd>RET</kbd> to connect to the
@@ -99,7 +99,7 @@ running nREPL server.
 
 !!! Tip
 
-    In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c M-c</kbd>.
+    In Clojure(Script) buffers the command `cider-connect` is bound to <kbd>C-c C-x c s</kbd>.
 
 You can configure known endpoints used by the `cider-connect` command offered
 via a completing read. This is useful if you have a list of common host/ports
