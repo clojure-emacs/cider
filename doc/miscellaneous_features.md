@@ -199,7 +199,7 @@ Keyboard shortcut               | Description
 
 ## Spec browser
 
-If you are using  Clojure 1.9.0-alpha16 or newer you can browse the Clojure specs registry.
+If you are using Clojure 1.9 or newer you can browse the Clojure specs registry.
 
 If you know what you are looking for, you can type <kbd>M-x</kbd> `cider-browse-spec`.
 It will prompt you for a spec name to browse to, hit <kbd>RET</kbd> and you will find yourself
