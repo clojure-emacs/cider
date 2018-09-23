@@ -84,10 +84,9 @@ editor.
 That's it! Once your code executes, the regular old buffer on the left will turn
 into the brilliant show of lights on the right.
 
-<p align="center">
-  <img src="images/enlighten_disabled.png" height="300" />
-  <img src="images/enlighten_enabled.png" height="300" />
-</p>
+Enlighten Disabled                         | Enlighten Enabled
+-------------------------------------------|---------------------------------------
+![Disabled](images/enlighten_disabled.png) | ![Enabled](images/enlighten_enabled.png)
 
 To stop displaying the locals you'll have to disable `cider-enlighten-mode`
 and reevaluate the definitions you had instrumented previously.
