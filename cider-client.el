@@ -145,7 +145,7 @@ to the file backing the current buffer.  The command falls back to
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
   (unless (cider-nrepl-op-supported-p op)
-    (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)" this-command)))
+    (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)" this-command op)))
 
 (defun cider-nrepl-send-request (request callback &optional connection)
   "Send REQUEST and register response handler CALLBACK.
