@@ -22,13 +22,6 @@ and interact with other CIDER users. The channel is very active!
 
 There's also another channel named `#emacs` for generic Emacs discussions.
 
-## Gitter
-
-Most internal discussions about the development of CIDER happen on its
-[gitter channel](https://gitter.im/clojure-emacs/cider).  You can often find
-CIDER's maintainers there and get some interesting news from the project's
-kitchen.
-
 ## Stackoverflow
 
 We're also encouraging users to ask CIDER-related questions on StackOverflow.
