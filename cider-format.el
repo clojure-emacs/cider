@@ -92,9 +92,8 @@ START and END represent the region's boundaries."
   "Format the code in the current defun."
   (interactive)
   (cider-ensure-connected)
-  (save-excursion
-    (mark-defun)
-    (cider-format-region (region-beginning) (region-end))))
+  (let ((defun-bounds (cider-defun-at-point 't)))
+    (cider-format-region (car defun-bounds) (cadr defun-bounds))))
 
 
 ;;; Format buffer
