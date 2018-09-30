@@ -153,7 +153,7 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
                                     \"par1\" ... ).
 If CONNECTION is provided dispatch to that connection instead of
 the current connection.  Return the id of the sent message."
-  (nrepl-send-request request callback (or connection (cider-current-repl))))
+  (nrepl-send-request request callback (or connection (cider-current-repl "any"))))
 
 (defun cider-nrepl-send-sync-request (request &optional connection abort-on-input)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
@@ -163,13 +163,13 @@ If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface."
   (nrepl-send-sync-request request
-                           (or connection (cider-current-repl))
+                           (or connection (cider-current-repl "any"))
                            abort-on-input))
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
 Immediately mark the REQUEST as done.  Return the id of the sent message."
-  (let* ((conn (or connection (cider-current-repl)))
+  (let* ((conn (or connection (cider-current-repl "any")))
          (id (nrepl-send-request request #'ignore conn)))
     (with-current-buffer conn
       (nrepl--mark-id-completed id))

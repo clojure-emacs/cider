@@ -696,16 +696,17 @@ function with the repl buffer set as current."
 
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
-TYPE is either \"clj\", \"cljs\" or \"multi\".  When nil, infer the type
-from the current buffer.  If ENSURE is non-nil, throw an error if either
-there is no linked session or there is no REPL of TYPE within the current
-session."
+TYPE is either \"clj\", \"cljs\", \"multi\" or \"any\".
+When nil, infer the type from the current buffer.  \"multi\" or \"any\"
+are synonyms.  If ENSURE is non-nil, throw an error if either there is
+no linked session or there is no REPL of TYPE within the current session."
   (if (and (derived-mode-p 'cider-repl-mode)
            (or (null type)
                (string= cider-repl-type type)))
       ;; shortcut when in REPL buffer
       (current-buffer)
-    (let* ((type (or type (cider-repl-type-for-buffer)))
+    (let* ((type (if (equal type "any") "multi" type))
+           (type (or type (cider-repl-type-for-buffer)))
            (repls (cider-repls type ensure))
            (repl (if (<= (length repls) 1)
                      (car repls)
