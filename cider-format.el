@@ -68,6 +68,7 @@ Uses the following heuristic to try to maintain point position:
              (endp (> (+ pos l) pos-max))
              (snippet (thread-last (buffer-substring-no-properties
                                     pos (min (+ pos l) pos-max))
+                        (regexp-quote)
                         (replace-regexp-in-string "[[:space:]\t\n\r]+" "[[:space:]\t\n\r]*"))))
         (delete-region start end)
         (insert indented)
