@@ -92,7 +92,7 @@ START and END represent the region's boundaries."
   "Format the code in the current defun."
   (interactive)
   (cider-ensure-connected)
-  (save-excursion
+  (save-mark-and-excursion
     (mark-defun)
     (cider-format-region (region-beginning) (region-end))))
 
