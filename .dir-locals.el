@@ -4,7 +4,7 @@
 ((emacs-lisp-mode
   (bug-reference-url-format . "https://github.com/clojure-emacs/cider/issues/%s")
   (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")
-  (indent-tabs-mode)
+  (indent-tabs-mode . nil)
   (fill-column . 80)
   (sentence-end-double-space . t)
   (emacs-lisp-docstring-fill-column . 75)
