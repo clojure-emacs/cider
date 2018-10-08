@@ -14,7 +14,6 @@
 * [#2440](https://github.com/clojure-emacs/cider/issues/2440) Make `cider-check-cljs-repl-requirements` take effect again.
 * [#2439](https://github.com/clojure-emacs/cider/issues/2439) Remove mentions of `cider-toggle-connection-buffer` from the docs.
 * [#2435](https://github.com/clojure-emacs/cider/issues/2435) Remove killed REPLs from sessions in client sentinel.
-
 * Fix jack-in from inside of remote buffers.
 * [#2454](https://github.com/clojure-emacs/cider/pull/2454): Fix erratic inspector behavior when multiple REPLs are connected
 * [#2467](https://github.com/clojure-emacs/cider/pull/2467): Make generic CIDER ops use any available nREPL connection.
