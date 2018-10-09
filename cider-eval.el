@@ -791,8 +791,9 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
   (cider-interactive-eval nil
-                          (cider-insert-eval-handler (cider-current-repl))
-                          (cider-last-sexp 'bounds))
+                          (cider-repl-handler (cider-current-repl))
+                          (cider-last-sexp 'bounds)
+                          (cider--repl-request-plist (cider--pretty-print-width)))
   (when prefix
     (cider-switch-to-repl-buffer)))
 
