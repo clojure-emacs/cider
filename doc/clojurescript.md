@@ -236,7 +236,8 @@ You can also use [Figwheel-main](https://github.com/bhauman/figwheel-main) with 
 3. Start the REPL with `cider-jack-in-cljs` (<kbd>C-c C-x (C-)j (C-)s</kbd>). Select
 `figwheel-main` when prompted about the ClojureScript REPL type.
 
-4. Select the Figwheel build to run when prompted for it. (e.g. `:dev`).
+4. Select the Figwheel build as string or specify [the option map](
+https://figwheel.org/docs/scripting_api.html) when prompted (e.g. `:dev`).
 
 ### Using shadow-cljs
 

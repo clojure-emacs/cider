@@ -746,7 +746,10 @@ Figwheel for details."
   (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
         (options (string-trim
                   (or cider-figwheel-main-default-options
-                      (read-from-minibuffer "Select figwheel-main build (e.g. :dev): ")))))
+                      (read-from-minibuffer "Select Figwheel build (e.g. dev): ")))))
+    ;; TODO check for a Clojure map using parseedn
+    (unless (not (string-empty-p options))
+      (user-error "Figwheel Main requires the build-id as string"))
     (format form (cider-normalize-cljs-init-options options))))
 
 (defun cider-custom-cljs-repl-init-form ()
