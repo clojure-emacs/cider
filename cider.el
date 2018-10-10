@@ -809,10 +809,12 @@ relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
   :type '(choice (const :tag "Nashorn"  nashorn)
                  (const :tag "Figwheel" figwheel)
+                 (const :tag "Figwheel Main" figwheel-main)
                  (const :tag "Node"     node)
                  (const :tag "Weasel"   weasel)
                  (const :tag "Boot"     boot)
                  (const :tag "Shadow"   shadow)
+                 (const :tag "Shadow w/o Server" shadow-select)
                  (const :tag "Custom"   custom))
   :group 'cider
   :safe #'symbolp
