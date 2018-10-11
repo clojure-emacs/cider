@@ -59,18 +59,13 @@ the results to be displayed in a different window.  The default value is
 thing at point."
   (interactive "P")
   (cider-ensure-op-supported "info")
-  (let ((orig-buff (current-buffer))
-        (session (sesman-current-session 'CIDER)))
-    (if var
-        (cider--find-var var line)
-      (funcall (cider-prompt-for-symbol-function arg)
-               "Symbol"
-               (if (cider--open-other-window-p arg)
-                   #'cider--find-var-other-window
-                 #'cider--find-var)))
-    (when (and (not (eq orig-buff (current-buffer)))
-               session)
-      (sesman-link-session 'CIDER session))))
+  (if var
+      (cider--find-var var line)
+    (funcall (cider-prompt-for-symbol-function arg)
+             "Symbol"
+             (if (cider--open-other-window-p arg)
+                 #'cider--find-var-other-window
+               #'cider--find-var))))
 
 ;;;###autoload
 (defun cider-find-dwim-at-mouse (event)
