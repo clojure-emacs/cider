@@ -1235,7 +1235,7 @@ canceled the action, signal quit."
                                          (equal port (plist-get ses-params :port)))
                                      (or (null host)
                                          (equal host (plist-get ses-params :host))))))
-                            (sesman-linked-sessions 'CIDER '(project)))))
+                            (sesman-current-sessions 'CIDER '(project)))))
     (when session
       (unless (y-or-n-p
                (concat
