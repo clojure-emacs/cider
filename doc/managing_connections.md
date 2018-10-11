@@ -24,7 +24,7 @@ Add new REPLs to the current session with
    - <kbd>C-c C-x s j</kbd> `cider-connect-sibling-clj`
    - <kbd>C-c C-x s s</kbd> `cider-connect-sibling-cljs`
 
-Session life-cycle management commands live in the [Sesman] map (<kbd>C-c
+Session life-cycle management commands live on the [Sesman] map (<kbd>C-c
 C-s</kbd>)
 
    - <kbd>C-c C-s s</kbd> `sesman-start`
@@ -50,11 +50,27 @@ Sessions can be linked to contexts (projects, directories and buffers)
   - <kbd>C-c C-s p</kbd> `sesman-link-with-project`
   - <kbd>C-c C-s u</kbd> `sesman-unlink`
 
+## Friendly Sessions
+
+[Sesman] defines "friendly" session to allow for on-the-fly operation on
+sessions from contexts where there are no explicit links. In CIDER friendly
+sessions are defined by the project dependencies. For example when you use
+`cider-find-var` (<kbd>M-.</kbd>) to navigate to a var definition in a
+dependency project the current project's session becomes a friendly session for
+the dependency.
+
+When you evaluate some code from a dependency project and there are no explicit
+links in that project, the most recent friendly session is used to evaluate the
+code. Explicitly linked sessions have precedence over the friendly sessions.
+
+You can disable friendly session inference by customizing
+`sesman-use-friendly-sessions`.
+
 ## Displaying Session Info
 
-Retrieve info on all linked with the current context sessions with <kbd>C-c C-s
-i</kbd> (`sesman-info`). On <kbd>C-u</kbd>, display info for all CIDER
-sessions. For the connection specific information use CIDER's built-in
+Get info on all linked and friendly sessions in the current context with
+<kbd>C-c C-s i</kbd> (`sesman-info`). On <kbd>C-u</kbd>, display info on all
+CIDER sessions. For the connection specific information use CIDER's built-in
 `cider-describe-connection` (<kbd>C-c M-d</kbd>).
 
 An interactive view of all CIDER sessions is available through the
@@ -64,8 +80,9 @@ An interactive view of all CIDER sessions is available through the
 
 All CIDER commands (evaluation, completion, switching to REPL etc.) operate on
 the relevant REPL within the current session. The current session is the most
-relevant session among all linked session. Session relevance is decided by the
-specificity of the linked contexts and recency of the REPL buffers.
+relevant session among all linked session (or friendly sessions when no links
+exist). Session relevance is decided by the specificity of the linked contexts
+and recency of the REPL buffers.
 
 If the current context is linked to a single session then that session is the
 current one. If multiple sessions are linked to a context (say, a project) then

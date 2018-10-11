@@ -350,7 +350,7 @@
             :and-return-value '(:project-dir "some/project" :host "localhost" :port 1234))
     (spy-on 'nrepl-start-server-process
             :and-return-value nil)
-    (spy-on 'sesman-linked-sessions
+    (spy-on 'sesman-current-sessions
             :and-return-value '(("a-session")))
     (spy-on 'y-or-n-p
             :and-return-value t)
