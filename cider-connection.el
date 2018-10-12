@@ -728,6 +728,7 @@ are synonyms.  If ENSURE is non-nil, throw an error if either there is
 no linked session or there is no REPL of TYPE within the current session."
   (if (and (derived-mode-p 'cider-repl-mode)
            (or (null type)
+               (string= "any" type)
                (string= cider-repl-type type)))
       ;; shortcut when in REPL buffer
       (current-buffer)
