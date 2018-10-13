@@ -152,6 +152,20 @@ following snippet:
 (setq cider-repl-tab-command #'indent-for-tab-command)
 ```
 
+#### Auto-scrolling the REPL on Output
+
+By default if the REPL buffer contains more lines than the size of the
+(Emacs) window, the buffer is automatically re-centered upon
+completion of evaluating an expression, so that the bottom line of
+output is on the bottom line of the window.
+
+If you don't like this re-centering you can disable it like this:
+
+```el
+(setq cider-repl-scroll-on-output nil)
+```
+
+
 #### Result Prefix
 
 Change the result prefix for REPL evaluation (by default there's no prefix):
