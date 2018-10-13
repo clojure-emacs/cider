@@ -159,12 +159,17 @@ By default if the REPL buffer contains more lines than the size of the
 completion of evaluating an expression, so that the bottom line of
 output is on the bottom line of the window.
 
+The default has the nice advantage that you always see as much as you
+can from your previous REPL interactions, but can be pretty annoying
+if you're a heavy user of `C-l` (`M-x recenter-top-bottom`), as even
+if you're at the top of the REPL buffer the next output will scroll it all
+the way down.
+
 If you don't like this re-centering you can disable it like this:
 
 ```el
 (setq cider-repl-scroll-on-output nil)
 ```
-
 
 #### Result Prefix
 
