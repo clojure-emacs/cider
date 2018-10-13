@@ -12,7 +12,7 @@
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
 ;; Version: 0.18.1-snapshot
-;; Package-Requires: ((emacs "25") (clojure-mode "5.9") (pkg-info "0.4") (queue "0.2") (spinner "1.7") (seq "2.16") (sesman "0.3"))
+;; Package-Requires: ((emacs "25") (clojure-mode "5.9") (pkg-info "0.4") (queue "0.2") (spinner "1.7") (seq "2.16") (sesman "0.3.2"))
 ;; Keywords: languages, clojure, cider
 
 ;; This program is free software: you can redistribute it and/or modify
