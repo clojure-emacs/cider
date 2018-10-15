@@ -731,10 +731,7 @@ to the REPL."
                   (propertize msg 'face face)
                 (format "%s: %s" (upcase type) msg))))
     (cider-repl--emit-interactive-output msg (or face 'font-lock-builtin-face))
-    (message msg)
-    ;; Interactive eval handler covers this message, but it won't be eval
-    ;; middleware using this functionality.
-    (sit-for 2)))
+    (message msg)))
 
 (defvar cider-buffer-ns)
 (defvar cider-special-mode-truncate-lines)
