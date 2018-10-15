@@ -292,7 +292,7 @@ of `cider-interactive-eval' in debug sessions."
 (defvar cider--debug-mode-tool-bar-map
   (let ((tool-bar-map (make-sparse-keymap)))
     (tool-bar-add-item "right-arrow" #'cider-debug-mode-send-reply :next :label "Next step")
-    (tool-bar-add-item "next-node" #'cider-debug-mode-send-reply :continue :label "Continue non-stop")
+    (tool-bar-add-item "next-node" #'cider-debug-mode-send-reply :continue :label "Continue")
     (tool-bar-add-item "jump-to" #'cider-debug-mode-send-reply :out :label "Out of sexp")
     (tool-bar-add-item "exit" #'cider-debug-mode-send-reply :quit :label "Quit")
     tool-bar-map))
@@ -377,7 +377,8 @@ In order to work properly, this mode must be activated by
   "Menu for CIDER debug mode"
   `("CIDER Debugger"
     ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
-    ["Continue non-stop" (cider-debug-mode-send-reply ":continue") :keys "c"]
+    ["Continue" (cider-debug-mode-send-reply ":continue") :keys "c"]
+    ["Continue non-stop" (cider-debug-mode-send-reply ":Continue") :keys "C"]
     ["Move out of sexp" (cider-debug-mode-send-reply ":out") :keys "o"]
     ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
     "--"
@@ -411,7 +412,7 @@ message."
                     (symbol-name last-command-event)
                   (ignore-errors
                     (concat ":" (nrepl-dict-get cider--debug-mode-commands-dict
-                                                (downcase (string last-command-event))))))
+                                                (string last-command-event)))))
                 nil
                 (cider--uppercase-command-p)))
   (when (and (string-prefix-p ":" command) force)
