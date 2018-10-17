@@ -106,23 +106,23 @@ a namespace name. For convenience, three functions are already provided:
 `cider-repl-prompt-default` and by default the last one is being used.
 Prompt for each of them for namespace `leiningen.core.ssl`:
 
-  * `cider-repl-prompt-lastname`:
+* `cider-repl-prompt-lastname`:
 
-  ```
-  ssl>
-  ```
+```
+ssl>
+```
 
-  * `cider-repl-prompt-abbreviated`:
+* `cider-repl-prompt-abbreviated`:
 
-  ```
-  l.c.ssl>
-  ```
+```
+l.c.ssl>
+```
 
-  * `cider-repl-prompt-default`:
+* `cider-repl-prompt-default`:
 
-  ```
-  leiningen.core.ssl>
-  ```
+```
+leiningen.core.ssl>
+```
 
 You may, of course, write your own function. For example, in `leiningen` there
 are two namespaces with similar names - `leiningen.classpath` and
