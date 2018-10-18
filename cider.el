@@ -156,7 +156,7 @@ it using rlwrap."
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-clojure-cli-parameters
-  "-m nrepl.cmdline --middleware %s"
+  "-m nrepl.cmdline --middleware '%s'"
   "Params passed to clojure to start an nREPL server via `cider-jack-in'.
 This is evaluated using `format', with the first argument being the Clojure
 vector of middleware variables as a string."
