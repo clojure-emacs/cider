@@ -657,7 +657,7 @@ Generally you should not disable this unless you run into some faulty check."
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
   (unless (cider-library-present-p "cider/piggieback")
-    (user-error "Piggieback is not available.  See https://docs.cider.mx/en/latest/clojurescript for details")))
+    (user-error "Piggieback 0.3.x (aka cider/piggieback) is not available.  See https://docs.cider.mx/en/latest/clojurescript for details")))
 
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
