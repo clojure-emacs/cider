@@ -699,7 +699,7 @@ Generally you should not disable this unless you run into some faulty check."
     (user-error "The shadow-cljs ClojureScript REPL is not available")))
 
 (defun cider-normalize-cljs-init-options (options)
-  "Normalize the OPTIONS string used for initializing a CLJS REPL."
+  "Normalize the OPTIONS string used for initializing a ClojureScript REPL."
   (if (or (string-prefix-p "{" options)
           (string-prefix-p "(" options)
           (string-prefix-p "[" options)
@@ -827,7 +827,7 @@ you're working on."
 (defvar cider--select-cljs-repl-history nil)
 (defun cider-select-cljs-repl (&optional default)
   "Select the ClojureScript REPL to use with `cider-jack-in-cljs'.
-DEFAULT is the default CLJS REPL to offer in completion."
+DEFAULT is the default ClojureScript REPL to offer in completion."
   (let ((repl-types (mapcar #'car cider-cljs-repl-types)))
     (intern (completing-read "Select ClojureScript REPL type: " repl-types
                              nil nil nil 'cider--select-cljs-repl-history
@@ -870,7 +870,7 @@ nil."
             (cider-verify-clojurescript-is-present)
             (cider-verify-cljs-repl-requirements cljs-type))
         (error
-         (message "Invalid CLJS dependency: %S" ex)
+         (message "Invalid ClojureScript dependency: %S" ex)
          nil))
     (cider-verify-clojurescript-is-present)
     (cider-verify-cljs-repl-requirements cljs-type)))
@@ -1034,7 +1034,7 @@ server buffer, in which case a new session for that server is created."
 
 ;;;###autoload
 (defun cider-connect-clj (&optional params)
-  "Initialize a CLJ connection to an nREPL server.
+  "Initialize a Clojure connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port and :project-dir.  On
 prefix argument, prompt for all the parameters."
   (interactive "P")
@@ -1049,7 +1049,7 @@ prefix argument, prompt for all the parameters."
 
 ;;;###autoload
 (defun cider-connect-cljs (&optional params)
-  "Initialize a CLJS connection to an nREPL server.
+  "Initialize a ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
 :cljs-repl-type (e.g. Node, Figwheel, etc).  On prefix, prompt for all the
 parameters regardless of their supplied or default values."
@@ -1066,7 +1066,7 @@ parameters regardless of their supplied or default values."
 
 ;;;###autoload
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)
-  "Initialize a CLJ and CLJS connection to an nREPL server..
+  "Initialize a Clojure and ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
 :cljs-repl-type (e.g. Node, Figwheel, etc).  When SOFT-CLJS-START is
 non-nil, don't start if ClojureScript requirements are not met."

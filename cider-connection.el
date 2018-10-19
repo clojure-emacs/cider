@@ -577,7 +577,7 @@ Session name can be customized with `cider-session-name-template'."
 ;;; REPL Buffer Init
 
 (defvar-local cider-cljs-repl-type nil
-  "The type of the CLJS runtime (Nashorn, Node etc.)")
+  "The type of the ClojureScript runtime (Nashorn, Node etc.)")
 
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
