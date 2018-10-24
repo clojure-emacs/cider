@@ -421,7 +421,8 @@ REPL defaults to the current REPL."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let* ((repl (cadr session))
               (proc (get-buffer-process repl))
-              (file (buffer-file-name)))
+              (file (file-truename (or (buffer-file-name)
+                                       default-directory))))
     (when (process-live-p proc)
       (let* ((classpath (or (process-get proc :cached-classpath)
                             (let ((cp (with-current-buffer repl
