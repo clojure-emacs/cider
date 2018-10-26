@@ -130,9 +130,11 @@ CIDER takes care of injecting it and its other dependencies.
 
 **`profiles.clj` or `profile.boot` don't need to be modified anymore for the above use case!**
 
-If you don't want `cider-jack-in` to inject dependencies automatically, set
-`cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
-the dependencies yourself (see the section below), just as in CIDER 0.10 and older.
+!!! Tip
+
+    If you don't want `cider-jack-in` to inject dependencies automatically, set
+    `cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
+    the dependencies yourself (see the section below), just as in CIDER 0.10 and older.
 
 CIDER can also inject a Clojure dependency into your project, which is useful,
 for example, if your project defaults to an older version of Clojure than that
@@ -167,6 +169,11 @@ A minimal `profiles.clj` for CIDER would be:
     need it just for `lein repl` and this is what the `:repl` profile is for.
 
 #### Using Boot
+
+!!! Note
+
+    It's highly recommended to use Boot 2.8.2 or newer, as 2.8.2 is the first
+    release to ship with nREPL 0.4.
 
 Boot users can configure the tool to include the middleware automatically in
 all of their projects using a `~/.boot/profile.boot` file like so:
