@@ -17,6 +17,9 @@
 * Fix jack-in from inside of remote buffers.
 * [#2454](https://github.com/clojure-emacs/cider/pull/2454): Fix erratic inspector behavior when multiple REPLs are connected
 * [#2467](https://github.com/clojure-emacs/cider/pull/2467): Make generic CIDER ops use any available nREPL connection.
+
+### Changes
+
 * [#2482](https://github.com/clojure-emacs/cider/issues/2482): Don't bind nREPL server started by `cider-jack-in` to `::` (use `localhost` instead).
 
 ## 0.18.0 (2018-09-02)
