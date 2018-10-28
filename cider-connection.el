@@ -324,7 +324,7 @@ Clojure version.  When GENERICP is non-nil, don't provide specific info
 about this buffer (like variable `cider-repl-type')."
   (with-current-buffer connection-buffer
     (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
-            (if genericp "" (upcase (concat cider-repl-type " ")))
+            (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
             (or (cider--project-name nrepl-project-dir) "<no project>")
             (plist-get nrepl-endpoint :host)
             (plist-get nrepl-endpoint :port)
@@ -554,7 +554,7 @@ removed."
                           ""
                         host))
          (repl-type (or (plist-get params :repl-type) "unknown"))
-         (cljs-repl-type (or (and (equal repl-type "cljs")
+         (cljs-repl-type (or (and (eq repl-type 'cljs)
                                   (plist-get params :cljs-repl-type))
                              ""))
          (specs `((?h . ,host)
@@ -592,7 +592,7 @@ Session name can be customized with `cider-session-name-template'."
   "The type of the ClojureScript runtime (Nashorn, Node etc.)")
 
 (defvar-local cider-repl-type nil
-  "The type of this REPL buffer, usually either \"clj\" or \"cljs\".")
+  "The type of this REPL buffer, usually either clj or cljs.")
 
 (defun cider-repl-type (repl-buffer)
   "Get REPL-BUFFER's type."
@@ -601,23 +601,23 @@ Session name can be customized with `cider-session-name-template'."
 (defun cider-repl-type-for-buffer (&optional buffer)
   "Return the matching connection type (clj or cljs) for BUFFER.
 BUFFER defaults to the `current-buffer'.  In cljc buffers return
-\"multi\". This function infers connection type based on the major mode.
+multi.  This function infers connection type based on the major mode.
 For the REPL type use the function `cider-repl-type'."
   (with-current-buffer (or buffer (current-buffer))
     (cond
-     ((derived-mode-p 'clojurescript-mode) "cljs")
-     ((derived-mode-p 'clojurec-mode) "multi")
-     ((derived-mode-p 'clojure-mode) "clj")
+     ((derived-mode-p 'clojurescript-mode) 'cljs)
+     ((derived-mode-p 'clojurec-mode) 'multi)
+     ((derived-mode-p 'clojure-mode) 'clj)
      (cider-repl-type))))
 
 (defun cider-set-repl-type (&optional type)
-  "Set REPL TYPE to \"clj\" or \"cljs\".
+  "Set REPL TYPE to clj or cljs.
 Assume that the current buffer is a REPL."
   (interactive)
-  (let ((type (or type (completing-read
-                        (format "Set REPL type (currently `%s') to: "
-                                cider-repl-type)
-                        '("clj" "cljs")))))
+  (let ((type (cider-maybe-intern (or type (completing-read
+                                            (format "Set REPL type (currently `%s') to: "
+                                                    cider-repl-type)
+                                            '(clj cljs))))))
     (when (or (not (equal cider-repl-type type))
               (null mode-name))
       (setq cider-repl-type type)
@@ -644,12 +644,13 @@ PARAMS is a plist as received by `cider-repl-create'."
     (let* ((proj-dir (plist-get params :project-dir))
            (host (plist-get params :host))
            (port (plist-get params :port))
-           (cljsp (string-match-p "cljs" (plist-get params :repl-type)))
+           (cljsp (string-match-p "cljs" (symbol-name (plist-get params :repl-type))))
            (scored-repls
             (delq nil
                   (mapcar (lambda (b)
                             (let ((bparams (cider--gather-connect-params nil b)))
-                              (when (eq cljsp (string-match-p "cljs" (plist-get bparams :repl-type)))
+                              (when (eq cljsp (string-match-p "cljs"
+                                                              (symbol-name (plist-get bparams :repl-type))))
                                 (cons (buffer-name b)
                                       (+
                                        (if (equal proj-dir (plist-get bparams :project-dir)) 8 0)
@@ -712,7 +713,7 @@ function with the repl buffer set as current."
 (defun cider--no-repls-user-error (type)
   "Throw \"No REPL\" user error customized for TYPE."
   (let ((type (cond
-               ((or (equal type "multi") (equal type "any"))
+               ((or (eq type 'multi) (eq type 'any))
                 "clj or cljs")
                ((listp type)
                 (mapconcat #'identity type " or "))
@@ -722,42 +723,47 @@ function with the repl buffer set as current."
 
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
-TYPE is either \"clj\", \"cljs\", \"multi\" or \"any\".
+TYPE is either clj, cljs, multi or any.
 When nil, infer the type from the current buffer.
 If ENSURE is non-nil, throw an error if either there is
 no linked session or there is no REPL of TYPE within the current session."
-  (if (and (derived-mode-p 'cider-repl-mode)
-           (or (null type)
-               (string= "any" type)
-               (string= cider-repl-type type)))
-      ;; shortcut when in REPL buffer
-      (current-buffer)
-    (let* ((type (or type (cider-repl-type-for-buffer)))
-           (repls (cider-repls type ensure))
-           (repl (if (<= (length repls) 1)
-                     (car repls)
-                   ;; pick the most recent one
-                   (seq-find (lambda (b)
-                               (member b repls))
-                             (buffer-list)))))
-      (if (and ensure (null repl))
-          (cider--no-repls-user-error type)
-        repl))))
+  (let ((type (cider-maybe-intern type)))
+    (if (and (derived-mode-p 'cider-repl-mode)
+             (or (null type)
+                 (eq 'any type)
+                 (eq cider-repl-type type)))
+        ;; shortcut when in REPL buffer
+        (current-buffer)
+      (let* ((type (or type (cider-repl-type-for-buffer)))
+             (repls (cider-repls type ensure))
+             (repl (if (<= (length repls) 1)
+                       (car repls)
+                     ;; pick the most recent one
+                     (seq-find (lambda (b)
+                                 (member b repls))
+                               (buffer-list)))))
+        (if (and ensure (null repl))
+            (cider--no-repls-user-error type)
+          repl)))))
 
 (defun cider--match-repl-type (type buffer)
   "Return non-nil if TYPE matches BUFFER's REPL type."
   (let ((buffer-repl-type (cider-repl-type buffer)))
     (cond ((null buffer-repl-type) nil)
-          ((or (null type) (equal type "multi") (equal type "any")) t)
+          ((or (null type) (eq type 'multi) (eq type 'any)) t)
           ((listp type) (member buffer-repl-type type))
           (t (string= type buffer-repl-type)))))
 
 (defun cider-repls (&optional type ensure)
   "Return cider REPLs of TYPE from the current session.
-If TYPE is nil or \"multi\", return all repls.  If TYPE is a list of types,
+If TYPE is nil or multi, return all repls.  If TYPE is a list of types,
 return only REPLs of type contained in the list.  If ENSURE is non-nil,
 throw an error if no linked session exists."
-  (let ((repls (cdr (if ensure
+  (let ((type (cond
+               ((listp type)
+                (mapcar #'cider-maybe-intern type))
+               ((cider-maybe-intern type))))
+        (repls (cdr (if ensure
                         (sesman-ensure-session 'CIDER)
                       (sesman-current-session 'CIDER)))))
     (or (seq-filter (lambda (b)
@@ -782,15 +788,15 @@ session."
   (declare (indent 1))
   (let ((cur-type (cider-repl-type-for-buffer)))
     (cl-case which
-      (:clj-strict (when (equal cur-type "cljs")
+      (:clj-strict (when (eq cur-type 'cljs)
                      (user-error "Clojure-only operation requested in a ClojureScript buffer")))
-      (:cljs-strict (when (equal cur-type "clj")
+      (:cljs-strict (when (eq cur-type 'clj)
                       (user-error "ClojureScript-only operation requested in a Clojure buffer"))))
     (let* ((type (cl-case which
-                   ((:clj :clj-strict) "clj")
-                   ((:cljs :cljs-strict) "cljs")
-                   (:auto (if (equal cur-type "multi")
-                              '("clj" "cljs")
+                   ((:clj :clj-strict) 'clj)
+                   ((:cljs :cljs-strict) 'cljs)
+                   (:auto (if (eq cur-type 'multi)
+                              '(clj cljs)
                             cur-type))))
            (repls (cider-repls type 'ensure)))
       (mapcar function repls))))

@@ -107,7 +107,7 @@ This will be clojure.core or cljs.core depending on the return value of the
 function `cider-repl-type'."
   (when-let* ((repl (cider-current-repl)))
     (with-current-buffer repl
-      (cider-resolve--get-in (if (equal cider-repl-type "cljs")
+      (cider-resolve--get-in (if (eq cider-repl-type 'cljs)
                                  "cljs.core"
                                "clojure.core")))))
 

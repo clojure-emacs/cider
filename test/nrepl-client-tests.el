@@ -78,14 +78,14 @@
   (it "understands all formats"
     (with-temp-buffer
       (let ((params '(:project-dir "path/to/dirB" :host "localhost" :port 100
-                                   :repl-type "cljs" :cljs-repl-type "node")))
+                                   :repl-type cljs :cljs-repl-type "node")))
         (expect (nrepl-make-buffer-name "*buff-name %j:%J:%h:%H:%p:%r:%S*" params)
                 :to-equal "*buff-name dirB:to/dirB:localhost:100:cljs:node*"))))
 
   (it "strips trailing separators"
     (with-temp-buffer
       (let ((params '(:project-dir "path/to/dirB" :host "localhost" :port 100
-                                   :repl-type "cljs" :cljs-repl-type nil)))
+                                   :repl-type cljs :cljs-repl-type nil)))
         (expect (nrepl-make-buffer-name "*buff-name [%r:%S]*" params)
                 :to-equal "*buff-name [cljs]*")
         (expect (nrepl-make-buffer-name "*buff-name (%r:%S)*" params)

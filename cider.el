@@ -1008,7 +1008,7 @@ server is created."
        (cider--update-do-prompt)
        (append other-params)
        (plist-put :repl-init-function nil)
-       (plist-put :repl-type "clj")
+       (plist-put :repl-type 'clj)
        (plist-put :session-name ses-name)))))
 
 ;;;###autoload
@@ -1030,7 +1030,7 @@ server buffer, in which case a new session for that server is created."
        (cider--update-cljs-type)
        (cider--update-cljs-init-function)
        (plist-put :session-name ses-name)
-       (plist-put :repl-type "pending-cljs")))))
+       (plist-put :repl-type 'pending-cljs)))))
 
 ;;;###autoload
 (defun cider-connect-clj (&optional params)
@@ -1045,7 +1045,7 @@ prefix argument, prompt for all the parameters."
      (cider--check-existing-session)
      (plist-put :repl-init-function nil)
      (plist-put :session-name nil)
-     (plist-put :repl-type "clj"))))
+     (plist-put :repl-type 'clj))))
 
 ;;;###autoload
 (defun cider-connect-cljs (&optional params)
@@ -1062,7 +1062,7 @@ parameters regardless of their supplied or default values."
      (cider--update-cljs-type)
      (cider--update-cljs-init-function)
      (plist-put :session-name nil)
-     (plist-put :repl-type "pending-cljs"))))
+     (plist-put :repl-type 'pending-cljs))))
 
 ;;;###autoload
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)

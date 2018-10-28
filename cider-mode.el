@@ -54,7 +54,7 @@ Info contains the connection type, project name and host:port endpoint."
   (if-let* ((current-connection (ignore-errors (cider-current-repl))))
       (with-current-buffer current-connection
         (concat
-         cider-repl-type
+         (symbol-name cider-repl-type)
          (when cider-mode-line-show-connection
            (format ":%s@%s:%s"
                    (or (cider--project-name nrepl-project-dir) "<no project>")
@@ -133,8 +133,8 @@ Clojure buffer and the REPL buffer."
                                       (when-let* ((type (cider-repl-type-for-buffer b)))
                                         (unless a-buf
                                           (setq a-buf b))
-                                        (or (equal type "multi")
-                                            (equal type repl-type)))))
+                                        (or (eq type 'multi)
+                                            (eq type repl-type)))))
                                   (buffer-list)))))
         (if-let* ((buf (or the-buf a-buf)))
             (if cider-repl-display-in-current-window
@@ -674,7 +674,10 @@ the LIMIT in `cider--anchored-search-suppressed-forms`"
 An unused reader conditional expression is an expression for a platform
 that does not match the CIDER connection for the buffer.  Search is done
 with the given LIMIT."
-  (let ((repl-types (seq-uniq (seq-map #'cider-repl-type (cider-repls))))
+  (let ((repl-types (seq-uniq (seq-map
+                               (lambda (repl)
+                                 (symbol-name (cider-repl-type repl)))
+                               (cider-repls))))
         (result 'retry))
     (while (and (eq result 'retry) (<= (point) limit))
       (condition-case condition

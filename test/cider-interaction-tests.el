@@ -77,7 +77,7 @@
   (it "works as expected in empty Clojure buffers"
     (spy-on 'cider-request:load-file :and-return-value nil)
     (let ((default-directory "/tmp/a-dir"))
-      (with-repl-buffer "load-file-session" "clj" b
+      (with-repl-buffer "load-file-session" 'clj b
         (with-temp-buffer
           (clojure-mode)
           (setq buffer-file-name (make-temp-name "tmp.clj"))
@@ -87,7 +87,7 @@
   (it "works as expected in empty Clojure buffers"
     (spy-on 'cider-nrepl-request:eval :and-return-value nil)
     (let ((default-directory "/tmp/a-dir"))
-      (with-repl-buffer "interaction-session" "clj" b
+      (with-repl-buffer "interaction-session" 'clj b
         (with-temp-buffer
           (clojure-mode)
           (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))

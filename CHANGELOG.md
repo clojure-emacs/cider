@@ -25,6 +25,11 @@
 ### Changes
 
 * [#2482](https://github.com/clojure-emacs/cider/issues/2482): Don't bind nREPL server started by `cider-jack-in` to `::` (use `localhost` instead).
+* [#2484](https://github.com/clojure-emacs/cider/pull/2484): Fix issues where some functionality in REPL buffers (like eldoc) was broken.
+
+### Changes
+
+* [#2484](https://github.com/clojure-emacs/cider/pull/2484): REPL types are now symbols instead of strings.
 
 ## 0.18.0 (2018-09-02)
 
