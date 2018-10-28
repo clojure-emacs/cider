@@ -712,7 +712,7 @@ function with the repl buffer set as current."
 (defun cider--no-repls-user-error (type)
   "Throw \"No REPL\" user error customized for TYPE."
   (let ((type (cond
-               ((equal type "multi")
+               ((or (equal type "multi") (equal type "any"))
                 "clj or cljs")
                ((listp type)
                 (mapconcat #'identity type " or "))
@@ -723,8 +723,8 @@ function with the repl buffer set as current."
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
 TYPE is either \"clj\", \"cljs\", \"multi\" or \"any\".
-When nil, infer the type from the current buffer.  \"multi\" or \"any\"
-are synonyms.  If ENSURE is non-nil, throw an error if either there is
+When nil, infer the type from the current buffer.
+If ENSURE is non-nil, throw an error if either there is
 no linked session or there is no REPL of TYPE within the current session."
   (if (and (derived-mode-p 'cider-repl-mode)
            (or (null type)
@@ -732,8 +732,7 @@ no linked session or there is no REPL of TYPE within the current session."
                (string= cider-repl-type type)))
       ;; shortcut when in REPL buffer
       (current-buffer)
-    (let* ((type (if (equal type "any") "multi" type))
-           (type (or type (cider-repl-type-for-buffer)))
+    (let* ((type (or type (cider-repl-type-for-buffer)))
            (repls (cider-repls type ensure))
            (repl (if (<= (length repls) 1)
                      (car repls)
@@ -749,7 +748,7 @@ no linked session or there is no REPL of TYPE within the current session."
   "Return non-nil if TYPE matches BUFFER's REPL type."
   (let ((buffer-repl-type (cider-repl-type buffer)))
     (cond ((null buffer-repl-type) nil)
-          ((or (null type) (equal type "multi")) t)
+          ((or (null type) (equal type "multi") (equal type "any")) t)
           ((listp type) (member buffer-repl-type type))
           (t (string= type buffer-repl-type)))))
 
