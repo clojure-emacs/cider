@@ -573,9 +573,9 @@ variable to nil you'll still see basic syntax highlighting.
 
 The value is a list of symbols, each one indicates a different type of var
 that should be font-locked:
-   `macro' (default): Any defined macro gets the `font-lock-builtin-face'.
+   `macro' (default): Any defined macro gets the `font-lock-keyword-face'.
    `function': Any defined function gets the `font-lock-function-face'.
-   `var': Any non-local var gets the `font-lock-variable-face'.
+   `var': Any non-local var gets the `font-lock-variable-name-face'.
    `deprecated' (default): Any deprecated var gets the `cider-deprecated-face'
    face.
    `core' (default): Any symbol from clojure.core (face depends on type).
