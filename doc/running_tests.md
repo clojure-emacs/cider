@@ -103,5 +103,9 @@ The `test.check` library is a good example here. It was also designed completely
 independently of `clojure.test`. It just adds compatibility in this
 [namespace](https://github.com/clojure/test.check/blob/24f74b83f1c7a032f98efdcc1db9d74b3a6a794d/src/main/clojure/clojure/test/check/clojure_test.cljc).
 
-[clojure-expectations](https://github.com/clojure-expectations/expectations) added
+#### Supported Libraries
+
+* `test.check`
+* [clojure-expectations](https://github.com/clojure-expectations/expectations) added
 support for `clojure.test` in version 2.2 and should also work with CIDER.
+* [fudge](https://github.com/jimpil/fudje)
