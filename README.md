@@ -1,17 +1,12 @@
+<p align="center">
+  <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
+</p>
+
+-----------
 [![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![MELPA](http://melpa.org/packages/cider-badge.svg)](http://melpa.org/#/cider)
 [![MELPA Stable](http://stable.melpa.org/packages/cider-badge.svg)](http://stable.melpa.org/#/cider)
 [![Build Status](https://travis-ci.org/clojure-emacs/cider.png?branch=master)](https://travis-ci.org/clojure-emacs/cider)
-
-[![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/bbatsov/donate)
-[![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
-[![OpenCollective](https://opencollective.com/cider/sponsors/badge.svg)](#open-collective-sponsors)
-[![Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://www.patreon.com/bbatsov)
-[![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
-
-<p align="center">
-  <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
-</p>
 
 CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
 that **R**ocks!
@@ -22,6 +17,13 @@ features are centered around `cider-mode`, an Emacs minor-mode that complements
 `cider-mode` adds support for interacting with a running Clojure process for
 compilation, debugging, definition and documentation lookup, running tests and
 so on.
+
+----------
+[![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/bbatsov/donate)
+[![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
+[![OpenCollective](https://opencollective.com/cider/sponsors/badge.svg)](#open-collective-sponsors)
+[![Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://www.patreon.com/bbatsov)
+[![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
 **Please consider [supporting financially its ongoing development](#funding).**
 
