@@ -1,5 +1,10 @@
 ## Running tests
 
+!!! WARNING
+
+    CIDER supports only clojure.test and libraries,
+    providing integration with clojure.test.
+
 You can run `clojure.test` tests pretty quickly in CIDER. Pressing <kbd>C-c C-t
 n</kbd> or <kbd>C-c C-t C-n</kbd> in a source buffer or a REPL buffer will run
 the tests for the namespace you're currently in. CIDER is smart enough to figure
@@ -36,6 +41,8 @@ This feature in CIDER helps you to run these test subsets in your development en
 All test commands are available in REPL buffers as well. There you can also use
 <kbd>,</kbd> to invoke some of the testing commands.
 
+## Interacting with result reports
+
 In the buffer displaying the test execution results (`*cider-test-results*`)
 you'll have a bit of additional functionality at your disposal.
 
@@ -52,6 +59,8 @@ Keyboard shortcut               | Description
 <kbd>t</kbd> or <kbd>M-.</kbd>  | Jump to test definition.
 <kbd>d</kbd>                    | Display diff of actual vs expected.
 <kbd>e</kbd>                    | Display test error cause and stacktrace info.
+
+## Configuration
 
 Certain aspects of the test execution behavior are configurable:
 
@@ -72,7 +81,7 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ```
 
-### Running tests automatically (test-driven development)
+## Running tests automatically (test-driven development)
 
 CIDER provides a minor-mode that automatically runs all tests for a namespace
 whenever you load a file (with <kbd>C-c C-k</kbd>). You can toggle it
@@ -86,7 +95,7 @@ This is completely equivalent to manually typing <kbd>C-c C-t C-n</kbd> every
 time you load a Clojure buffer. Also, as described above before, CIDER is smart
 enough to figure out the namespace containing the tests.
 
-### Using cider-test with alternative test libraries
+## Using cider-test with alternative test libraries
 
 The `clojure.test` machinery is designed to be pluggable. Any test library
 can implement it if so desired, and therefore leverage `cider-test`. For
@@ -103,7 +112,7 @@ The `test.check` library is a good example here. It was also designed completely
 independently of `clojure.test`. It just adds compatibility in this
 [namespace](https://github.com/clojure/test.check/blob/24f74b83f1c7a032f98efdcc1db9d74b3a6a794d/src/main/clojure/clojure/test/check/clojure_test.cljc).
 
-#### Supported Libraries
+### Supported Libraries
 
 * `test.check`
 * [clojure-expectations](https://github.com/clojure-expectations/expectations) added
