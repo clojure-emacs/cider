@@ -31,6 +31,7 @@
 ### Changes
 
 * [#2484](https://github.com/clojure-emacs/cider/pull/2484): REPL types are now symbols instead of strings.
+* [#1544](https://github.com/clojure-emacs/cider/issues/1544): Add a new defcustom `cider-infer-remote-nrepl-ports` to control whether we use tramp/ssh to infer remote ports.  Now defaulting to `nil` (previously it always tried to infer).
 
 ## 0.18.0 (2018-09-02)
 

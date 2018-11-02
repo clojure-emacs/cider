@@ -111,3 +111,22 @@ helpful for identifying each host.
   '(("host-a" "10.10.10.1" "7888")
     ("host-b" "7888")))
 ```
+
+## SSH
+
+In some circumstances, cider can try to use SSH to either:
+
+* Tunnel a connection over SSH.
+* Infer the remote nREPL port for a direct connection.
+
+This behavior is controlled by two options (both default `nil`):
+
+* `nrepl-use-ssh-fallback-for-remote-hosts`: When true, attempt to connect via ssh
+  to remote hosts when unable to connect directly.
+* `cider-infer-remote-nrepl-ports`: When true, cider will use ssh to try to infer
+  nREPL ports on remote hosts (for a direct connection).
+
+Note that enabling either of these causes cider to use
+[tramp](https://www.gnu.org/software/tramp/) for some SSH operations, which parses
+config files such as `~/.ssh/config` and `~/.ssh/known_hosts`. This is known to
+cause problems with complex or nonstandard ssh configs.
