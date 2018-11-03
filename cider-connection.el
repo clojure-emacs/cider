@@ -644,13 +644,13 @@ PARAMS is a plist as received by `cider-repl-create'."
     (let* ((proj-dir (plist-get params :project-dir))
            (host (plist-get params :host))
            (port (plist-get params :port))
-           (cljsp (string-match-p "cljs" (symbol-name (plist-get params :repl-type))))
+           (cljsp (member (plist-get params :repl-type) '(cljs pending-cljs)))
            (scored-repls
             (delq nil
                   (mapcar (lambda (b)
                             (let ((bparams (cider--gather-connect-params nil b)))
-                              (when (eq cljsp (string-match-p "cljs"
-                                                              (symbol-name (plist-get bparams :repl-type))))
+                              (when (eq cljsp (member (plist-get bparams :repl-type)
+                                                      '(cljs pending-cljs)))
                                 (cons (buffer-name b)
                                       (+
                                        (if (equal proj-dir (plist-get bparams :project-dir)) 8 0)
