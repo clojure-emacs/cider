@@ -6,6 +6,7 @@
 
 * [#2430](https://github.com/clojure-emacs/cider/issues/2375): `cider-find-var` opens archive files inside [AVFS](http://avf.sourceforge.net) folders if AVFS is detected.
 * [#2446](https://github.com/clojure-emacs/cider/issues/2446): Implement Sesman friendly sessions to allow for on-the-fly association with sessions from dependency projects and jars.
+* [#2510](https://github.com/clojure-emacs/cider/pull/2510): Include keyword and namespace jump in `cider-find-dwim`.
 
 ### Bug fixes
 

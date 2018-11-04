@@ -84,22 +84,28 @@ CALLBACK upon failure to invoke prompt if not prompted previously.
 Show results in a different window if OTHER-WINDOW is true."
   (if-let* ((info (cider-var-info symbol-file)))
       (cider--jump-to-loc-from-info info other-window)
-    (progn
-      (cider-ensure-op-supported "resource")
-      (if-let* ((resource (cider-sync-request:resource symbol-file))
-                (buffer (cider-find-file resource)))
-          (cider-jump-to buffer 0 other-window)
-        (if (cider--prompt-for-symbol-p current-prefix-arg)
-            (error "Resource or var %s not resolved" symbol-file)
-          (let ((current-prefix-arg (if current-prefix-arg nil '(4))))
-            (call-interactively callback)))))))
+    ;; jumps and returns point or does not jump and returns nil
+    (unless (cider--find-keyword symbol-file other-window 'noerror)
+      ;; jumps and returns point or does not jump and returns nil
+      (unless (cider--find-ns symbol-file other-window 'noerror)
+        (progn
+          (cider-ensure-op-supported "resource")
+          (if-let* ((resource (cider-sync-request:resource symbol-file))
+                    (buffer (cider-find-file resource)))
+              (cider-jump-to buffer 0 other-window)
+            (if (cider--prompt-for-symbol-p current-prefix-arg)
+                (error "Resource or var %s not resolved" symbol-file)
+              (let ((current-prefix-arg (if current-prefix-arg nil '(4))))
+                (call-interactively callback)))))))))
 
 (defun cider--find-dwim-interactive (prompt)
   "Get interactive arguments for jump-to functions using PROMPT as needed."
-  (if (cider--prompt-for-symbol-p current-prefix-arg)
-      (list
-       (cider-read-from-minibuffer prompt (thing-at-point 'filename)))
-    (list (or (thing-at-point 'filename) ""))))  ; No prompt.
+  (let ((things (or (thing-at-point 'filename 'noproperties)
+                    (thing-at-point 'symbol 'noproperties))))
+    (if (cider--prompt-for-symbol-p current-prefix-arg)
+        (list
+         (cider-read-from-minibuffer prompt things))
+      (list (or things "")))))  ; No prompt.
 
 (defun cider-find-dwim-other-window (symbol-file)
   "Jump to SYMBOL-FILE at point, place results in other window."
@@ -172,12 +178,14 @@ Invert meaning of `cider-prompt-for-symbol' if PREFIX indicates it should be."
   (if (cider--prefix-invert-prompt-p prefix)
       (not cider-prompt-for-symbol) cider-prompt-for-symbol))
 
-(defun cider--find-ns (ns &optional other-window)
+(defun cider--find-ns (ns &optional other-window no-error)
   "Find the file containing NS's definition.
-Optionally open it in a different window if OTHER-WINDOW is truthy."
+Optionally open it in a different window if OTHER-WINDOW is truthy.
+When NO-ERROR is non-nil, don't throw an error return nil."
   (if-let* ((path (cider-sync-request:ns-path ns)))
       (cider-jump-to (cider-find-file path) nil other-window)
-    (user-error "Can't find namespace `%s'" ns)))
+    (unless no-error
+      (user-error "Can't find namespace `%s'" ns))))
 
 ;;;###autoload
 (defun cider-find-ns (&optional arg ns)
@@ -192,6 +200,26 @@ the results to be displayed in a different window."
     (let* ((namespaces (cider-sync-request:ns-list))
            (ns (completing-read "Find namespace: " namespaces)))
       (cider--find-ns ns (cider--open-other-window-p arg)))))
+
+(defun cider--find-keyword (kw &optional other-window no-error)
+  "Find the (possibly aliased) namespace of the KW.
+Optionally open it in a different window if OTHER-WINDOW is truthy.
+When NO-ERROR is non-nil, don't throw an error and return nil."
+  (let* ((ns-qualifier (and
+                        (string-match "^:+\\(.+\\)/.+$" kw)
+                        (match-string 1 kw)))
+         (kw-ns (if ns-qualifier
+                    (cider-resolve-alias (cider-current-ns) ns-qualifier)
+                  (cider-current-ns)))
+         (kw-to-find (concat "::" (replace-regexp-in-string "^:+\\(.+/\\)?" "" kw))))
+    ;; no qualifier is an inline keyword so no search
+    (when ns-qualifier
+      (progn
+        (when (string= kw-ns (cider-current-ns))
+          (unless no-error
+            (error "Could not resolve alias `%s' in `%s'" ns-qualifier (cider-current-ns))))
+        (cider--find-ns kw-ns other-window no-error)
+        (search-forward-regexp kw-to-find nil t)))))
 
 ;;;###autoload
 (defun cider-find-keyword (&optional arg)
@@ -208,24 +236,13 @@ the results to be displayed in a different window.  The default value is
 thing at point."
   (interactive "P")
   (cider-ensure-connected)
-  (let* ((kw (let ((kw-at-point (cider-symbol-at-point 'look-back)))
-               (if (or cider-prompt-for-symbol arg)
-                   (read-string
-                    (format "Keyword (default %s): " kw-at-point)
-                    nil nil kw-at-point)
-                 kw-at-point)))
-         (ns-qualifier (and
-                        (string-match "^:+\\(.+\\)/.+$" kw)
-                        (match-string 1 kw)))
-         (kw-ns (if ns-qualifier
-                    (cider-resolve-alias (cider-current-ns) ns-qualifier)
-                  (cider-current-ns)))
-         (kw-to-find (concat "::" (replace-regexp-in-string "^:+\\(.+/\\)?" "" kw))))
-
-    (when (and ns-qualifier (string= kw-ns (cider-current-ns)))
-      (error "Could not resolve alias `%s' in `%s'" ns-qualifier (cider-current-ns)))
-    (cider--find-ns kw-ns arg)
-    (search-forward-regexp kw-to-find nil 'noerror)))
+  (let ((kw (let ((kw-at-point (cider-symbol-at-point 'look-back)))
+              (if (or cider-prompt-for-symbol arg)
+                  (read-string
+                   (format "Keyword (default %s): " kw-at-point)
+                   nil nil kw-at-point)
+                kw-at-point))))
+    (cider--find-keyword kw (cider--open-other-window-p arg))))
 
 (provide 'cider-find)
 ;;; cider-find.el ends here
