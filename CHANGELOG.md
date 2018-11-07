@@ -6,9 +6,12 @@
 
 * [#2430](https://github.com/clojure-emacs/cider/issues/2375): `cider-find-var` opens archive files inside [AVFS](http://avf.sourceforge.net) folders if AVFS is detected.
 * [#2446](https://github.com/clojure-emacs/cider/issues/2446): Implement Sesman friendly sessions to allow for on-the-fly association with sessions from dependency projects and jars.
+* [#2253](https://github.com/clojure-emacs/cider/issues/2253): Split `continue` debug command into "continue till next breakpoint" (`c`) and "continue non stop" (`C`) commands.
 
 ### Bug fixes
 
+* [#2453](https://github.com/clojure-emacs/cider/issues/2453) Make it possible to debug deftype methods by direct insertion of #dbg and #break readers into the deftype methods.
+* [#1869](https://github.com/clojure-emacs/cider/issues/1869),[cider-nrepl#460](https://github.com/clojure-emacs/cider-nrepl/issues/460): Fix `continue` debugger command which was stopping entering debugger on repeated invocations.
 * [#2444](https://github.com/clojure-emacs/cider/issues/2444) Reuse dead REPL buffers on new connections.
 * [#2441](https://github.com/clojure-emacs/cider/issues/2441) Make it possible to use `C-c C-x` keys without loading cider first (autoload `cider-start-map`).
 * [#2440](https://github.com/clojure-emacs/cider/issues/2440) Make `cider-check-cljs-repl-requirements` take effect again.
