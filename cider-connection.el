@@ -421,16 +421,27 @@ REPL defaults to the current REPL."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let* ((repl (cadr session))
               (proc (get-buffer-process repl))
-              (file (file-truename (or (buffer-file-name)
-                                       default-directory))))
+              (file (file-truename (or (buffer-file-name) default-directory))))
+    ;; With avfs paths look like /path/to/.avfs/path/to/some.jar#uzip/path/to/file.clj
+    (when (string-match-p "#uzip" file)
+      (let ((avfs-path (directory-file-name (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/")))))
+        (setq file (replace-regexp-in-string avfs-path "" file t t))))
     (when (process-live-p proc)
       (let* ((classpath (or (process-get proc :cached-classpath)
                             (let ((cp (with-current-buffer repl
                                         (cider-sync-request:classpath))))
                               (process-put proc :cached-classpath cp)
-                              cp))))
-        (seq-find (lambda (path) (string-prefix-p path file))
-                  classpath)))))
+                              cp)))
+             (classpath-roots (or (process-get proc :cached-classpath-roots)
+                                  (let ((cp (thread-last classpath
+                                              (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
+                                              (mapcar #'file-name-directory))))
+                                    (process-put proc :cached-classpath-roots cp)
+                                    cp))))
+        (or (seq-find (lambda (path) (string-prefix-p path file))
+                      classpath)
+            (seq-find (lambda (path) (string-prefix-p path file))
+                      classpath-roots))))))
 
 (defvar cider-sesman-browser-map
   (let ((map (make-sparse-keymap)))
