@@ -10,13 +10,14 @@
 
 ### Bug fixes
 
-* [#2453](https://github.com/clojure-emacs/cider/issues/2453) Make it possible to debug deftype methods by direct insertion of #dbg and #break readers into the deftype methods.
+* [#2514](https://github.com/clojure-emacs/cider/issues/2514): Don't auto-jump to warnings when `cider-auto-jump-to-error` is set to 'errors-only.
+* [#2453](https://github.com/clojure-emacs/cider/issues/2453): Make it possible to debug deftype methods by direct insertion of #dbg and #break readers into the deftype methods.
 * [#1869](https://github.com/clojure-emacs/cider/issues/1869),[cider-nrepl#460](https://github.com/clojure-emacs/cider-nrepl/issues/460): Fix `continue` debugger command which was stopping entering debugger on repeated invocations.
-* [#2444](https://github.com/clojure-emacs/cider/issues/2444) Reuse dead REPL buffers on new connections.
-* [#2441](https://github.com/clojure-emacs/cider/issues/2441) Make it possible to use `C-c C-x` keys without loading cider first (autoload `cider-start-map`).
-* [#2440](https://github.com/clojure-emacs/cider/issues/2440) Make `cider-check-cljs-repl-requirements` take effect again.
-* [#2439](https://github.com/clojure-emacs/cider/issues/2439) Remove mentions of `cider-toggle-connection-buffer` from the docs.
-* [#2435](https://github.com/clojure-emacs/cider/issues/2435) Remove killed REPLs from sessions in client sentinel.
+* [#2444](https://github.com/clojure-emacs/cider/issues/2444): Reuse dead REPL buffers on new connections.
+* [#2441](https://github.com/clojure-emacs/cider/issues/2441): Make it possible to use `C-c C-x` keys without loading cider first (autoload `cider-start-map`).
+* [#2440](https://github.com/clojure-emacs/cider/issues/2440): Make `cider-check-cljs-repl-requirements` take effect again.
+* [#2439](https://github.com/clojure-emacs/cider/issues/2439): Remove mentions of `cider-toggle-connection-buffer` from the docs.
+* [#2435](https://github.com/clojure-emacs/cider/issues/2435): Remove killed REPLs from sessions in client sentinel.
 * Fix jack-in from inside of remote buffers.
 * [#2454](https://github.com/clojure-emacs/cider/pull/2454): Fix erratic inspector behavior when multiple REPLs are connected
 * [#2467](https://github.com/clojure-emacs/cider/pull/2467): Make generic CIDER ops use any available nREPL connection.
