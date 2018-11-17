@@ -114,11 +114,10 @@ following command:
 
 ## Manual installation
 
-Installing CIDER manually is discouraged unless you plan to work with
-CIDER's codebase. The manual installation is relatively involved as it
-requires manual installation of the dependencies and manual generation
-of the package autoloads. Check out the section [Hacking on
-CIDER](hacking_on_cider.md) for more details.
+Installing CIDER manually is discouraged unless you plan to work with CIDER's
+codebase. The manual installation is relatively involved as it requires manual
+installation of the dependencies. Check out the section
+[Hacking on CIDER](hacking_on_cider.md) for more details.
 
 ## CIDER's nREPL middleware
 
