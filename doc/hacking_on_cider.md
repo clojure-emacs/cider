@@ -30,9 +30,10 @@ Then:
 ```el
 ;; load CIDER from its source code
 (add-to-list 'load-path "~/projects/cider")
-(require 'cider)
-(require 'cider-autoloads)
+(load "cider-autoloads" t t)
 ```
+
+If you want to compile **and** generate autoloads, just run `make`.
 
 ### Changing the code
 
