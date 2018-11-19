@@ -315,7 +315,15 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
   (when cider-repl-display-in-current-window
     (add-to-list 'same-window-buffer-names (buffer-name buffer)))
   (pcase cider-repl-pop-to-buffer-on-connect
-    (`display-only (display-buffer buffer))
+    (`display-only
+     (let ((orig-buffer (current-buffer)))
+       (display-buffer buffer)
+       ;; User popup-rules (specifically `:select nil') can cause the call to
+       ;; `display-buffer' to reset the current Emacs buffer to the clj/cljs
+       ;; buffer that the user ran `jack-in' from - we need the current-buffer
+       ;; to be the repl to initialize, so reset it back here to be resilient
+       ;; against user config
+       (set-buffer orig-buffer)))
     ((pred identity) (pop-to-buffer buffer)))
   (cider-repl-set-initial-ns buffer)
   (cider-repl-require-repl-utils)
