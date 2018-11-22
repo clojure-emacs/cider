@@ -677,8 +677,7 @@ If BOL is non-nil insert at the beginning of line.  Run
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
   (with-current-buffer (cider-current-repl)
-    (let ((pos (cider-repl--end-of-line-before-input-start))
-          (string (replace-regexp-in-string "\n\\'" "" string)))
+    (let ((pos (cider-repl--end-of-output)))
       (cider-repl--emit-output-at-pos (current-buffer) string face pos t))))
 
 (defun cider-repl-emit-interactive-stdout (string)
@@ -1055,10 +1054,15 @@ See also the related commands `cider-repl-clear-output' and
     (recenter t))
   (run-hooks 'cider-repl-clear-buffer-hook))
 
-(defun cider-repl--end-of-line-before-input-start ()
-  "Return the position of the end of the line preceding the beginning of input."
-  (1- (previous-single-property-change cider-repl-input-start-mark 'field nil
-                                       (1+ (point-min)))))
+(defun cider-repl--end-of-output ()
+  "Return the position at the end of the previous REPL output."
+  (if (eq (get-text-property (1- cider-repl-input-start-mark) 'field)
+          'cider-repl-prompt)
+      ;; if after prompt, return eol before prompt
+      (previous-single-property-change cider-repl-input-start-mark
+                                       'field nil (point-min))
+    ;; else, input mark because there is no prompt (yet)
+    cider-repl-input-start-mark))
 
 (defun cider-repl-clear-output (&optional clear-repl)
   "Delete the output inserted since the last input.
@@ -1071,7 +1075,7 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
                    (ignore-errors (forward-sexp))
                    (forward-line)
                    (point)))
-          (end (cider-repl--end-of-line-before-input-start)))
+          (end (cider-repl--end-of-output)))
       (when (< start end)
         (let ((inhibit-read-only t))
           (cider-repl--clear-region start end)
