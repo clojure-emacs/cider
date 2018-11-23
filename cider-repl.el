@@ -1145,6 +1145,27 @@ command will prompt for the name of the namespace to switch to."
       (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
                                 (cider-repl-switch-ns-handler connection)))))
 
+(defun cider-repl-set-ns-as (ns as)
+  "Load the namespace in the REPL buffer with an alias.
+If called from a cljc buffer act on both the Clojure and ClojureScript REPL
+if there are more than one REPL present.  If invoked in a REPL buffer the
+command will prompt for the name of the namespace to switch to."
+  (interactive (list (if (or (derived-mode-p 'cider-repl-mode)
+                             (null (cider-ns-form)))
+                         (completing-read "Switch to namespace: "
+                                          (cider-sync-request:ns-list))
+                       (cider-current-ns))
+		     (read-string "Set as: ")))
+  (when (or (not ns) (equal ns ""))
+    (user-error "No namespace selected"))
+  (when (or (not as) (equal as ""))
+    (user-error "No alias provided"))
+  (cider-map-repls :auto
+    (lambda (connection)
+      (cider-nrepl-request:eval (format "(require '[%s :as %s])" ns as)
+                                (cider-repl-switch-ns-handler connection)))))
+
+
 
 ;;; Location References
 
