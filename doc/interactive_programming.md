@@ -1,16 +1,36 @@
-The idea of interactive programming is at the very heart of CIDER.
+Traditional programming languages and development environments often
+use a [Edit, Compile, Run
+Cycle](http://wiki.c2.com/?EditCompileLinkRun). In this environment,
+the programmer modifies the code, compiles it, and then runs it to see
+if it does what she wants. The program is then terminated, and the
+programmer goes back to editing the program further. This cycle is
+repeated over and over until the program behavior conforms to what the
+programmer desires. While modern IDEs have optimized this process to
+be quick and relatively painless, it's still a slow way to work.
 
-Programmers are expected to program in a very dynamic and incremental manner,
-constantly re-evaluating existing Clojure definitions and adding new ones to
-their running applications. You never stop/start a Clojure application while
-using CIDER - you're constantly interacting with it and changing it.
+Clojure and CIDER offer a better way to work called *interactive
+programming*. Indeed, this idea is at the very heart of CIDER.
 
-CIDER comes with a handy minor mode called `cider-mode` (complementing
-`clojure-mode`) that allows you to evaluate code in your Clojure source
-files and load it directly in the REPL. `cider-mode` is the primary
-way you're supposed to be interacting with your REPL process. If you
-want to get productive with CIDER, you'll have to get intimately familiar
-with it.
+Using CIDER's interactive programming environment, a programmer works
+in a very dynamic and incremental manner. Instead of repeatedly
+editing, compiling, and restarting an application, the programmer
+starts the application once and then adds and updates individual
+Clojure defintions as the program continues to run. Using the CIDER
+REPL, the programmer can access the value of different definitions and
+invoke program functions with test data, immediately seeing the
+result. This methodology is far more efficient than the typical Edit,
+Compile, and Run Cycle because the program continues to run and keeps
+its state intact while the programmer interacts with it. Indeed, some
+Clojure programmers have been known to keep a CIDER session running
+for weeks or even months as they continue to write code.
+
+CIDER's interactive programming environment is partially implemented
+using an Emacs minor mode called `cider-mode`. `cider-mode`
+complements `clojure-mode` and allows you to evaluate Clojure code
+from your source file buffers and send it directly to your running
+program through the CIDER REPL. Using the functions offered by
+`cider-mode` will improve your productivity and make you a more
+efficient Clojure programmer.
 
 ## Using cider-mode
 
@@ -72,8 +92,8 @@ Here's a list of `cider-mode`'s keybindings:
 
 !!! Tip
 
-    There's no need to memorize this list. In any Clojure buffer with `cider-mode`
-    active you'll have a CIDER menu available, which lists all the most important
+    There's no need to memorize this list. If you're in a Clojure buffer with `cider-mode`
+    active you'll have a CIDER menu available. The menu lists all the most important
     commands and their keybindings. You can also invoke `C-h f RET cider-mode` to
     get a list of the keybindings for `cider-mode`.
 
@@ -84,8 +104,9 @@ Here's a list of `cider-mode`'s keybindings:
 
     An even better solution would be to install [which-key][], which will
     automatically show you a list of available keybindings as you start typing some
-    keys. This will simplify your interactions with CIDER quite a lot (especially in
-    the beginning). Here's what you'd see if you typed <kbd>C-c C-d</kbd> in a
+    keys. This will simplify your interactions with CIDER quite a lot,
+    especially in
+    the beginning. Here's what you'd see if you typed <kbd>C-c C-d</kbd> in a
     Clojure buffer:
 
 ![CIDER which-key](images/cider-which-key.png)
@@ -93,26 +114,28 @@ Here's a list of `cider-mode`'s keybindings:
 
 !!! Tip
 
-    `cider-find-var` has built-in support for [AVFS]().  AVFS is an a virtual
+    `cider-find-var` has built-in support for [AVFS][].  AVFS is an a virtual
     file system which allows seamless navigation within archives as if they were 
     normal directories. When AVFS is mounted, `cider-find-var` automatically
     opens `jar` and `zip` files inside AVFS folder instead of attempting to
-    uncompressed the archive.
+    uncompress the archive.
 
-    On linux based systems AVFS comes through the distribution managers. For 
-    example on Debian derivatives:
+    On Linux-based systems, AVFS is available through the standard
+    package managers. For example, on Debian derivatives:
 
        `sudo apt-get install avfs`
 
-    Once installed mount with `mountavfs` in a place where it could be started
-    automatically during the startup (`.bash_profile` would do). Or initialize the
-    `avfsd` daemon directly like this
+    Once installed, you can put `mountavfs` in a place where it will
+    be invoked
+    automatically during the startup (`.bash_profile`, for
+    instance). You can also initialize the
+    `avfsd` daemon directly like this:
 
       `/usr/bin/avfsd -o allow_root -o intr -o sync_read .avfs` 
 
-    [AVFS]() is not available on Windows but could be installed on MacOS with [some
+    [AVFS][] is not available on Windows but can be installed on MacOS with [some
     effort](http://blog.breadncup.com/tag/sunrise-commander/). Some other uses of
-    [AVFS]() in Emacs include
+    [AVFS][] in Emacs include
     [dired-avfs](https://github.com/Fuco1/dired-hacks#dired-avfs) and
     [sunrise-commander](https://www.emacswiki.org/emacs/Sunrise_Commander_Tips#toc12).
 

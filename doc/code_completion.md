@@ -18,29 +18,31 @@ dedicated buffer.
 
 ## Auto-completion
 
-CIDER users are advised to use [`company-mode`](http://company-mode.github.io/)
-to enable auto-completion inside of source code and REPL buffers.  To install
-`company-mode` do:
+While the standard Emacs tooling works just fine, we suggest that
+CIDER users consider using
+[`company-mode`](http://company-mode.github.io/) instead. Company mode
+can be used for auto-completion for both source code and REPL buffers.
+To install `company-mode`:
 
 <kbd>M-x</kbd> `package-install` <kbd>RET</kbd> `company` <kbd>RET</kbd>
 
-After installation, company can be turned on  globally, like so --
+After installation, you can turn on `company-mode` globally:
 
 ```el
 (global-company-mode)
 ```
 
--- or through mode-specific hooks:
+or through mode-specific hooks:
 
 ```el
 (add-hook 'cider-repl-mode-hook #'company-mode)
 (add-hook 'cider-mode-hook #'company-mode)
 ```
 
-When `company-mode` is thus enabled, it will receive completion information
-from `cider-complete-at-point`, and requires no additional setup or plugins.
+When `company-mode` is enabled, it will receive completion information
+from `cider-complete-at-point` and requires no additional setup or plugins.
 
-If you'd prefer to trigger completions manually you can add this to you config:
+If you'd prefer to trigger completions manually you can add this to your config:
 
 ```el
 (setq company-idle-delay nil) ; never start completions automatically
@@ -56,22 +58,25 @@ you can add this to your config:
 
 ### Fuzzy candidate matching
 
-By default `company-mode` will provide completion candidates with the assumption
-that whatever you've typed so far (e.g. `map-`) is a completion prefix (meaning
-you'd get only candidates that have `map-` in the beginnings of their names).
-You can get enhanced fuzzy completion with the CIDER-specific completion style
-by adding:
+By default `company-mode` will provide completion candidates with the
+assumption that whatever you've typed so far is a prefix of what
+you're really trying to type. For example, if you type `map-` then
+you'll only get completion candidates that have `map-` as the
+beginning of their names.  Sometimes, you don't know the exact prefix
+for the item you want to type. In this case, you can get
+CIDER-specific "fuzzy completion" by adding:
 
 ```el
 (add-hook 'cider-repl-mode-hook #'cider-company-enable-fuzzy-completion)
 (add-hook 'cider-mode-hook #'cider-company-enable-fuzzy-completion)
 ```
 
-Now `company-mode` will accept certain fuzziness when matching candidates
-against the prefix. For example, typing `mp` will show you `map-indexed` as one
-of the possible completion candidates, `cji` will complete to `clojure.java.io`,
-etc. Different completion examples are
-listed [here](https://github.com/alexander-yakushev/compliment/wiki/Examples).
+Now, `company-mode` will accept certain fuzziness when matching
+candidates against the prefix. For example, typing `mp` will show you
+`map-indexed` as one of the possible completion candidates and `cji`
+will complete to `clojure.java.io`. Different completion examples are
+shown
+[here](https://github.com/alexander-yakushev/compliment/wiki/Examples).
 
 ### Completion annotations
 

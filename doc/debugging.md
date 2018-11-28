@@ -1,4 +1,4 @@
-CIDER ships with a powerful interactive Clojure debugger inspired by Emacs's own
+CIDER ships with a **powerful** interactive Clojure debugger inspired by Emacs's own
 [Edebug][]. You're going to love it!
 
 ![CIDER Debugger](images/cider_debugger.gif)
@@ -11,18 +11,24 @@ CIDER ships with a powerful interactive Clojure debugger inspired by Emacs's own
 
 ## Debugging
 
-The debugger can be invoked in several ways, the simplest one is to type
-<kbd>C-u C-M-x</kbd>. This will take the current top-level form, place as many
-breakpoints inside it as possible (instrument it), and then evaluate it as
-normal. Whenever a breakpoint is reached, you'll be shown the value and asked
-for input (see below). Note that if the current form is a `defn`, it will stay
-instrumented, so the debugger will be triggered every time the function is
-called. To uninstrument `defn` (or similar forms), you just have to evaluate it
-again as you'd normally do (e.g. with <kbd>C-M-x</kbd>).
+During normal CIDER development, it's common for a programmer to
+evaluate a form, often a function definition, by typing
+<kbd>C-M-x</kbd> (`cider-eval-defun-at-point`). CIDER can also
+instrument a form for debugging when you add a prefix to the
+evaluation command: <kbd>C-u C-M-x</kbd>. During the instrumentation
+process, CIDER will insert as many breakpoints as possible into the
+form. Whenever execution reaches a breakpoint, CIDER will drop into
+debugging mode and will prompt you for what to do next. You can remove
+the instrumentation by evaluating the form again normally, using
+<kbd>C-M-x</kbd>.
 
-Another way to trigger the debugger is by placing breakpoints yourself. Just
-write `#break` before a form, and the debugger will popup every time that form is
-evaluated. For instance, if you hit <kbd>C-M-x</kbd> on the following, a
+You can also trigger insert a breakpoint manually into any code
+manually by placing `#break` in front of the form where you want the
+breakpoint to trigger and then evaluating the form with
+<kbd>C-M-x</kbd>. When execution reaches the form after the `#break`,
+you'll be dropped into the debugger.
+
+For instance, if you hit <kbd>C-M-x</kbd> on the following, a
 breakpoint is triggered every time `(inspector msg)` is evaluated.
 
 ```clojure
@@ -32,22 +38,40 @@ breakpoint is triggered every time `(inspector msg)` is evaluated.
     msg))
 ```
 
-Instead of `#break` you can also write `#dbg` before a form, this will not only
-breakpoint the form but also everything inside it. In the example above, this
-places a breakpoint around `(inspector msg)` and another around `msg`. If you've
-been paying attention, you may have noticed that the first option (<kbd>C-u
-C-M-x</kbd>) is a quick way of evaluating the current top-level form with `#dbg`
-in front.
+Instead of `#break`, you can also write `#dbg` before a form. This
+will place a breakpoint both in front of the form, as with `#break`,
+and also everything inside it. In the example above, this places one
+breakpoint around `(inspector msg)` and another around `msg`. In fact,
+typing <kbd>C-u C-M-x</kbd> to instrument a top-level form is just a
+convenient way to evaluate the form with an implicit `#dbg` in front
+of it; the behavior is the same.
 
 At any point, you can bring up a list of all currently instrumented `def`s with
 the command <kbd>M-x</kbd> `cider-browse-instrumented-defs`. Protocols and types
-can be instrumented as well, but they will not be listed by this command.
+can be instrumented as well, but they will not be listed by this
+command.
+
+## Understanding Breakpoints
+
+In the CIDER debugger, the term "breakpoint" refers to a place where
+the debugger can halt execution and display the value of an
+expression. You can set a single breakpoint with `#break`, or set
+breakpoints throughout a form with `#dbg` (or by evaluating with <kbd>C-u
+C-M-x</kbd>), as described previously.
+
+When using `#dbg` or <kbd>C-u C-M-x</kbd>, not every form is wrapped
+in a breakpoint. The debugger tries to avoid setting breakpoints on
+expressions that are not interesting. For example, there is little
+point in stopping execution at a literal number 23 in your code and
+showing you that its value is 23 - you already know that.
 
 ## Keys
 
-`cider-debug` tries to be consistent with [Edebug][], although there are some
-differences. It makes available the following bindings while stepping through
-code.
+Once you drop into the CIDER debugger, you have a number of commands
+available to you to step through your code, evaluate other forms,
+inspect values, inject new values, or view the current
+stack. `cider-debug` tries to be consistent with [Edebug] command
+keys, although there are some differences.
 
 Keyboard shortcut               | Description
 --------------------------------|-------------------------------
@@ -66,32 +90,20 @@ Keyboard shortcut               | Description
 <kbd>t</kbd> | Trace. Continue, printing expressions and their values.
 <kbd>q</kbd> | Quit execution
 
-In addition, all the usual evaluation commands (such as <kbd>C-x C-e</kbd> or
-<kbd>C-c M-:</kbd>) will use the current lexical context (local variables) while
-the debugger is active.
+Additionally, all the usual evaluation commands such as <kbd>C-x
+C-e</kbd> or <kbd>C-c M-:</kbd> will be scoped to the current lexical
+context while the debugger is active, allowing you to access local
+variables.
 
-## Command Details
-
-Here are some more details about what each of the above commands does.
-
-### Stepping Commands
+## Stepping Command Details
 
 These commands continue execution until reaching a breakpoint.
-
-In the cider debugger, the term "breakpoint" refers to a place where the
-debugger can halt execution and display the value of an expression. You can set
-a single breakpoint with `#break`, or set breakpoints throughout a form with
-`#dbg` (or by evaluating with `C-u C-M-x`). Not every form is wrapped in a
-breakpoint; the debugger tries to avoid setting breakpoints on expressions that
-would not be interesting to stop at, such as constants. For example, there would
-not be much point in stopping execution at a literal number 23 in your code and
-showing that its value is 23 - you already know that.
 
 - **next**: Steps to the next breakpoint
 - **in**: Steps in to the function about to be called. If the next breakpoint is
   not around a function call, does the same as `next`. Note that not all
   functions can be stepped in to - only normal functions stored in vars, for
-  which cider can find the source. You cannot currently step in to multimethods,
+  which CIDER can find the source. You cannot currently step in to multimethods,
   protocol functions, or functions in clojure.core (although multimethods and
   protocols can be instrumented manually).
 - **out**: Steps to the next breakpoint that is outside of the current sexp.
@@ -105,7 +117,7 @@ showing that its value is 23 - you already know that.
 - **Here**: Same as `h`, but skips breakpoints in other functions, as with `O`.
 - **continue**: Continues without stopping, skipping all breakpoints.
 
-### Other Commands
+## Other Command Details
 
 - **eval**: Prompts for a clojure expression, which can reference local
   variables that are in scope where the debugger is stopped. Displays the result
@@ -124,7 +136,7 @@ showing that its value is 23 - you already know that.
 - **quit**: Quits execution immediately. Unlike with `continue`, the rest of the
   code in the debugged function is not executed.
 
-### Conditional Breakpoints
+## Conditional Breakpoints
 
 Breakpoints can be conditional, such that the debugger will only stop when the
 condition is true.
@@ -137,47 +149,51 @@ Conditions are specified using `:break/when` metadata attached to a form.
   (prn i))
 ```
 
-Evaluating the above with `C-M-x`, the debugger will stop only once, when i
-is 7.
+Evaluating the above with `C-M-x`, the debugger will stop only once, when `i`
+equals 7.
 
-You can also have cider insert the break-condition into your code for you. Place
-the point where you want the condition to go and evaluate with `C-u C-u
-C-M-x` or `C-u C-u C-c C-c`.
+You can also have CIDER insert the break condition into your code for
+you. Place the point where you want the condition to go and evaluate
+with `C-u C-u C-M-x` or `C-u C-u C-c C-c`. CIDER will then prompt you
+for the condition in the minibuffer and insert the appropriate `#dbg`
+plus metadata annotation in your code. Note that you'll have to delete
+this annotation by hand; you cannot simply use <kbd>C-M-x</kbd> as you
+can to un-instrument <kbd>C-u C-M-x</kbd>.
 
-## Internal Details
+## Debugger Internals
 
 !!! Note
 
     This section explains a bit of the inner workings of the debugger. It is
-    intended mostly to help those who are interested in contributing, and doesn't
+    intended to help those who are interested in contributing, and doesn't
     teach anything about the debugger's usage.
 
-The CIDER debugger works in several steps:
+CIDER works in several steps as it instruments your code:
 
-1. First it walks through the user's code, adding metadata to forms and symbols
+1. First, CIDER walks through the code, adding metadata to forms and symbols
    that identify their position (coordinate) in the code.
-2. Then it macroexpands everything to get rid of macros.
-3. Then it walks through the code again, instrumenting it. That involves a few things.
-    - It understands all existing special forms, and takes care not to instrument
-      where it's not supposed to. For instance, the arglist of a `fn*` or the
-      left-side of a `let`-binding.
-    - Wherever it finds the previously-injected metadata (if that place is valid
-      for instrumentation) it wraps the form/symbol in a macro called
-      `breakpoint-if-interesting`.
+2. Then, it macroexpands everything to get rid of macros.
+3. Then, it walks through the code again, instrumenting it.
+    - CIDER understands all existing special forms and takes care not
+      to instrument where it's not supposed to. For instance, CIDER
+      does not instrument the arglist of `fn*` or the left-side of a
+      `let`-binding.
+    - Wherever it finds the previously-injected metadata, assuming
+      that location is valid for instrumentation, it wraps the
+      form or symbol in a macro called `breakpoint-if-interesting`.
+4. When the resulting code actually gets compiled, the Clojure
+   compiler will expand the `breakpoint-if-interesting` macros. This
+   macro decides whether the return value of the form or symbol is
+   actually something the user might want to see. If it is, the
+   form or symbol gets wrapped in a `breakpoint` macro, otherwise it's
+   returned as is.
+5. The `breakpoint` macro takes the coordinate information that was
+   provided in step `1.` and sends it over to Emacs (the
+   front-end). It also sends the return value of the form and a prompt
+   of available commands. Emacs then uses this information to show the
+   value of actual code forms and prompt for the next action.
 
-4. When the resulting code actually gets evaluated by the Clojure compiler, the
-   `breakpoint-if-interesting` macro will be expanded.  This macro decides
-   whether the return value of the form/symbol in question is actually something
-   the user wants to see (see below). If it is, the form/symbol gets wrapped in
-   the `breakpoint` macro, otherwise it's returned as is.
-5. The `breakpoint` macro takes that coordinate information that was provided in
-   step `1.` and sends it over to Emacs (the front-end). It also sends the return
-   value of the form and a prompt of available commands. Emacs then uses this
-   information to show the value of actual code forms and prompt for the next
-   action.
-
-
-A few example of forms that don't have interesting return values (and so are not
+A few example forms that don't have interesting return values (and so are not
 wrapped in a `breakpoint`):
 
 - In `(fn [x] (inc x))` the return value is a function object and carries no
@@ -185,8 +201,9 @@ wrapped in a `breakpoint`):
   **call** this function (which **is** interesting). Also, even those this form
   is not wrapped in a breakpoint, the forms inside it **are** (`(inc x)` and
   `x`).
-- Similarly, in a form like `(map inc (range 10))`, the symbol `inc` points to a
-  function in `clojure.core`. That's also irrelevant (unless it's being shadowed
-  by a local, but the debugger can identify that).
+- Similarly, in a form like `(map inc (range 10))`, the symbol `inc`
+  points to a function in `clojure.core`. That's also irrelevant
+  (unless it's being shadowed by a local, but the debugger can
+  identify that).
 
 [Edebug]: http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html

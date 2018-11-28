@@ -1,6 +1,7 @@
-CIDER comes with a powerful REPL, which is quite handy when you want to
-experiment with the code you're working on or just explore some stuff (e.g. a
-library you're playing with).  The REPL offers a number of advanced features:
+CIDER comes with a powerful REPL that complements the interactive
+development functionality in `cider-mode`. Using the CIDER REPL you
+can experiment with your running program, test functions, or just
+explore a new library you're interested in using. The CIDER REPL offers a number of advanced features:
 
 * auto-completion
 * font-locking (the same as in `clojure-mode`)
@@ -64,8 +65,9 @@ character used to trigger the shortcuts is configurable via
 
 #### Behavior on connect
 
-Normally, the REPL buffer is auto-displayed in a separate window after
-  a connection is established. You can suppress this behaviour like this:
+Normally, when you first establish a REPL connection, the REPL buffer is
+auto-displayed in a separate window. You can suppress this behaviour
+like this:
 
 ```el
 (setq cider-repl-pop-to-buffer-on-connect nil)
@@ -80,9 +82,9 @@ focused, use this:
 
 #### Behavior on switch
 
-By default <kbd>C-c C-z</kbd> will display the REPL buffer in a different window.
-You can make <kbd>C-c C-z</kbd> switch to the CIDER REPL buffer in the current
-window:
+By default <kbd>C-c C-z</kbd> will display the REPL buffer in a
+different window.  You can make <kbd>C-c C-z</kbd> switch to the CIDER
+REPL buffer in the current window:
 
 ```el
 (setq cider-repl-display-in-current-window t)
@@ -99,12 +101,10 @@ It's extremely useful! Enable `eldoc` in REPL buffers like this:
 
 #### Customizing the REPL prompt
 
-You can customize the prompt in REPL buffer. To do that you can customize
-`cider-repl-prompt-function` and set it to a function that takes one argument,
-a namespace name. For convenience, three functions are already provided:
-`cider-repl-prompt-lastname`, `cider-repl-prompt-abbreviated`,
-`cider-repl-prompt-default` and by default the last one is being used.
-Prompt for each of them for namespace `leiningen.core.ssl`:
+You can customize the REPL buffer prompt by setting
+`cider-repl-prompt-function` to a function that takes one
+argument, a namespace name. For convenience, CIDER provides three
+functions that implement common formats:
 
 * `cider-repl-prompt-lastname`:
 
@@ -124,6 +124,8 @@ l.c.ssl>
 leiningen.core.ssl>
 ```
 
+By default, CIDER uses `cider-repl-prompt-default`.
+
 You may, of course, write your own function. For example, in `leiningen` there
 are two namespaces with similar names - `leiningen.classpath` and
 `leiningen.core.classpath`. To make them easily recognizable you can either
@@ -140,13 +142,13 @@ namespace. Here is an example function that will do exactly that:
 
 #### TAB Completion
 
-You can control the <kbd>TAB</kbd> key behavior in the REPL via the
+You can control the <kbd>TAB</kbd> key behavior in the REPL using the
 `cider-repl-tab-command` variable.  While the default command
 `cider-repl-indent-and-complete-symbol` should be an adequate choice for
 most users, it's very easy to switch to another command if you wish
 to. For instance if you'd like <kbd>TAB</kbd> to only indent (maybe
 because you're used to completing with <kbd>M-TAB</kbd>) use the
-following snippet:
+following:
 
 ```el
 (setq cider-repl-tab-command #'indent-for-tab-command)
@@ -154,7 +156,7 @@ following snippet:
 
 #### Auto-scrolling the REPL on Output
 
-By default if the REPL buffer contains more lines than the size of the
+By default, if the REPL buffer contains more lines than the size of the
 (Emacs) window, the buffer is automatically re-centered upon
 completion of evaluating an expression, so that the bottom line of
 output is on the bottom line of the window.
@@ -173,30 +175,33 @@ If you don't like this re-centering you can disable it like this:
 
 #### Result Prefix
 
-Change the result prefix for REPL evaluation (by default there's no prefix):
+You can change the string used to prefix REPL results:
 
 ```el
 (setq cider-repl-result-prefix ";; => ")
 ```
 
-And here's the result of that change:
+Which then results in the following REPL output:
 
 ```
 user> (+ 1 2)
 ;; => 3
 ```
 
+By default, REPL results have no prefix.
+
 #### Customize the REPL Buffer's Name
 
-The REPL buffer name has the format `*cider-repl project-name*`.
-You can change the separator from space to something else by overriding `nrepl-buffer-name-separator`.
+The REPL buffer name has the format `*cider-repl project-name*`.  You
+can change the separator from a space character to something else by
+setting `nrepl-buffer-name-separator`.
 
 ```el
 (setq nrepl-buffer-name-separator "-")
 ```
 
 The REPL buffer name can also display the port on which the nREPL server is running.
-Buffer name will look like `*cider-repl project-name:port*`.
+The buffer name will look like `*cider-repl project-name:port*`.
 
 ```el
 (setq nrepl-buffer-name-show-port t)
@@ -204,10 +209,12 @@ Buffer name will look like `*cider-repl project-name:port*`.
 
 #### Font-locking
 
-Normally code in the REPL is font-locked the same way as in
-`clojure-mode`. Before CIDER 0.10 by default REPL input was font-locked with
-`cider-repl-input-face` (after you press `RET`) and results were font-locked with
-`cider-repl-result-face`. If you want to restore the old behaviour use:
+Normally, code in the REPL is font-locked the same way as in
+`clojure-mode`. Before CIDER 0.10, by default, REPL input was
+font-locked with `cider-repl-input-face` (after pressing
+<kbd>Return</kbd>) and results were font-locked with
+`cider-repl-result-face`. If you want to restore the old behaviour
+use:
 
 ```el
 (setq cider-repl-use-clojure-font-lock nil)
@@ -215,9 +222,8 @@ Normally code in the REPL is font-locked the same way as in
 
 #### Pretty printing in the REPL
 
-Make the REPL always pretty-print the results of your evaluations.
-
-<kbd>M-x cider-repl-toggle-pretty-printing</kbd>
+You can make the REPL always pretty-print the results of your
+evaluations using <kbd>M-x cider-repl-toggle-pretty-printing</kbd>.
 
 To make this behavior the default:
 
@@ -235,11 +241,11 @@ behavior if you don't like it.
 (setq cider-repl-use-content-types nil)
 ```
 
-Alternatively you can toggle this behaviour on and off using <kbd>M-x
+Alternatively, you can toggle this behaviour on and off using <kbd>M-x
 cider-repl-toggle-content-types</kbd>.
 
-Currently the feature doesn't work well with pretty-printing in the REPL,
-so you're advised not to enable both of them at the same time.
+Currently, the feature doesn't work well with pretty-printing in the REPL,
+so we don't advise you to enable both features at the same time.
 
 #### Limiting printed output in the REPL
 
@@ -253,17 +259,20 @@ section of your Leiningen project's configuration.
 :repl-options {:init (set! *print-length* 50)}
 ```
 
-or via `cider-repl-print-length` (set to 100 by default). In case both are
-present, CIDER's config will take precedence over what came from Lein.
+You can also set `cider-repl-print-length` to an appropriate value (it
+defaults to 100). If both `*print-length` and
+`cider-repl-print-length` are set, CIDER's setting will take precedence
+over the value set through Leiningen.
 
-All of this applies to `*print-level*` as well. CIDER's configuration
-variable for it is named `cider-repl-print-level` (set to `nil` by default).
+The preceeding discussion also applies to Clojure's `*print-level*`
+variable. The corresponding CIDER variable is
+`cider-repl-print-level`, set to `nil` by default.
 
 #### Customizing the initial REPL namespace
 
-Normally the CIDER REPL will start with the `user` namespace.
-You can supply a default value for REPL sessions via the `repl-options` section
-of your Leiningen project's configuration.
+Normally, the CIDER REPL will start in the `user` namespace.  You can
+supply an initial namespace for REPL sessions in the `repl-options`
+section of your Leiningen project configuration:
 
 ```clojure
 :repl-options {:init-ns 'my-ns}
@@ -271,23 +280,23 @@ of your Leiningen project's configuration.
 
 #### Customizing newline interaction
 
-Ordinarily <kbd>Return</kbd> sends a form for evaluation meaning entering a
-newline requires a special chord: <kbd>C-j</kbd>. When entering forms that span
-multiple lines, it may be desirable to make evaluation require the special
-invocation and have entering a new-line be the default.
-
-The following customization of the `cider-repl-mode-map` will change these
-keybindings so that <kbd>Return</kbd> will introduce a new-line and
-<kbd>C-<return></kbd> will send the form off for evaluation.
+Ordinarily, <kbd>Return</kbd> immediate sends a form for
+evaluation. If you want to insert a newline into the REPL buffer as
+you're editing, you can do so using <kbd>C-j</kbd>. If you are
+entering a lot of longer forms that span multiple lines, it may be
+more convenient to change the keybindings:
 
 ``` el
 (define-key cider-repl-mode-map (kbd "RET") #'cider-repl-newline-and-indent)
 (define-key cider-repl-mode-map (kbd "C-<return>") #'cider-repl-return)
 ```
 
+This will make <kbd>Return</kbd> insert a newline into the REPL buffer
+and <kbd>C-<Return></kbd> send the form off for evaluation.
+
 #### REPL history
 
-* To make the REPL history wrap around when its end is reached:
+* To make the REPL history wrap around when CIDER reaches the end:
 
 ```el
 (setq cider-repl-wrap-history t)
@@ -305,51 +314,66 @@ keybindings so that <kbd>Return</kbd> will introduce a new-line and
 (setq cider-repl-history-file "path/to/file")
 ```
 
-Note that the history is written to the file when you kill the REPL
-buffer (which includes invoking `cider-quit`) or you quit Emacs.
+Note that CIDER writes the history to the file when you kill the REPL
+buffer, which includes invoking `cider-quit`, or when you quit Emacs.
 
 ### REPL history browser
 
 You can browse your REPL input history with the command <kbd>M-x</kbd>
-`cider-repl-history`.  It is also bound in `cider-repl-mode` buffers to
-<kbd>C-c M-p</kbd>, and is also available via the `history` shortcut.
+`cider-repl-history`.  This command is bound to <kbd>C-c M-p</kbd> 
+in `cider-repl-mode` buffers and is also available via the
+`history` shortcut.
 
-The history is displayed in order, with the most recent input at the top of the
-buffer, and the oldest one at the bottom.  You can scroll through the history,
-and when you find the history item you were looking for, you can insert it from
-the history buffer into your REPL buffer.
+The history is displayed in reverse order, with the most recent input
+at the top of the buffer, and the oldest input at the bottom.  You can
+scroll through the history, and when you find the history item you
+were looking for, you can insert it from the history buffer into your
+REPL buffer.
 
 ![History Browser](images/history_browser.png)
 
 #### Mode
 
-The history buffer has its own major mode, `cider-repl-history-mode` which is derived
-from `clojure-mode`, so you get fontification in the history buffer. It supports
-the expected defcustom hook variable, `cider-repl-history-hook`.
+The history buffer has its own major mode,
+`cider-repl-history-mode`. This is derived from `clojure-mode`, so you
+get fontification in the history buffer. This mode supports the
+expected defcustom hook variable, `cider-repl-history-hook`.
 
 #### Insertion
 
-Typically your cursor will be at the bottom of the REPL buffer (`point-max`)
-when you use this feature; if that's the case, the text is inserted, and point
-is advanced to the end of the inserted text. In the unusual case where you
-invoke the history browser when your cursor is _not_ at the end of the buffer,
-the text is _still_ inserted at point-max, but point is not modified.
+Where you use the history buffer to insert text into the REPL buffer,
+the exact behavior depends on the location of the cursor in the buffer
+prior to the insertion.
 
-The text is inserted without a final newline, meaning you can edit the form
-if you wish, and you must explicitly hit <kbd>Enter</kbd> to have it evaluated
-by the REPL.
+Typically, when you're actively using the REPL, your cursor will be at
+the end of the REPL buffer (`point-max`). In this case, the text is
+inserted at the end of the buffer and the point advances to the end of
+the inserted text (as if point was pushed by along by the text as it
+was inserted).
+
+In the unusual case where you invoke the history browser when your
+cursor is _not_ at the end of the REPL buffer, the inserted text will
+still be inserted at the end of the buffer (`point-max`), but the
+point is not modified.
+
+CIDER inserts the text without a final newline, allowing you to edit
+it. When you are ready, hit <kbd>Return</kbd> to have it evaluated by
+the REPL.
 
 #### Quitting
 
-After text is inserted, the history buffer is automatically quit. If you decide
-you don't want to insert any text after all, you can explicitly quit by running
-`cider-repl-history-quit` (see keyboard shortcuts).  Due to the initialization and
-cleanup done, it is better to properly quit, rather than just switch away from
-the history buffer.
+If you select an input, the text will be inserted into the REPL buffer
+and the history buffer will automatically quit. If you decide you want
+to quit without inserting any text at all, you can explicitly quit by
+running `cider-repl-history-quit` (see keyboard shortcuts).  Because
+of the initialization and cleanup that is done when using the history
+buffer, it is better to quit properly rather than just switch away
+from the history buffer.
 
-When you quit the history buffer, there are several different ways for the
-buffers and windows to be restored. This is controlled by the custom variable
-`cider-repl-history-quit-action`, which can be assigned one of several values:
+When you quit the history buffer, CIDER can restore the buffer and
+window configuration in a few different ways. The behavior is
+controlled by `cider-repl-history-quit-action`, which can be assigned
+one of several values:
 
 - `quit-window` restores the window configuration to what it was before.
   This is the default.
@@ -359,39 +383,44 @@ buffers and windows to be restored. This is controlled by the custom variable
   deletes the window.
 - `bury-buffer` simply buries the `*cider-repl-history*` buffer, but keeps the
   window.
-- `bury-and-delete-window` buries the buffer, and (if there is more than one
-  window) deletes the window.
+- `bury-and-delete-window` buries the buffer, and deletes the window
+  if there is more than one window.
 - any other value is interpreted as the name of a function to call
 
 #### Filtering
 
-By invoking `cider-repl-history-occur` from the history buffer, you will be prompted
-for a regular expression, and the history buffer will be filtered to only those
-inputs that match the regexp.
+By invoking `cider-repl-history-occur` from the history buffer, you
+will be prompted for a regular expression. The history buffer will be
+filtered to only those inputs that match the regexp.
 
 #### Preview and Highlight
 
-When `cider-repl-history-show-preview` is non-nil, we display an [`overlay`]
+When `cider-repl-history-show-preview` is non-nil, CIDER displays an [`overlay`]
 (https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html)
 of the currently selected history entry, in the REPL buffer.
 
-This is a nice feature; the only thing to be careful of is that if you do not
-properly quit from browsing the history (i.e., if you just <kbd>C-x b</kbd>
-away from the buffer), you may be left with an unwanted overlay in your REPL
-buffer. It can be eliminated with <kbd>M-x</kbd> `cider-repl-history-clear-preview`.
+If you do not properly quit from browsing the history (i.e., if you
+just <kbd>C-x b</kbd> away from the buffer), you may be left with an
+unwanted overlay in your REPL buffer. If this happens, you can clean
+it up with <kbd>M-x</kbd> `cider-repl-history-clear-preview`.
 
-By default, the variable is nil and the feature is off.
+By default, `cider-repl-history-show-preview` is nil (disabled).
 
-A related feature is to highlight the entry once it is actually inserted into
-the REPL buffer. This is controlled by the variable
-`cider-repl-history-highlight-inserted-item`. The non-nil value selected controls how
-the inserted item is highlighted, possible values are `solid` (highlight the
-inserted text for a fixed period of time), or `pulse` (fade out the highlighting
-gradually).  Setting this variable to the value t will select the default
-highlighting style, which currently `pulse`. Default is nil.
+There is a related feature to highlight the entry once it is actually
+inserted into the REPL buffer, controlled by the variable
+`cider-repl-history-highlight-inserted-item`, which can be set to the
+following values:
 
-When "highlight-inserted" is turned on, you can customize the face of the
-inserted text with the variable `cider-repl-history-inserted-item-face`.
+- `solid` highlights the inserted text for a fixed period of time.
+- `pulse` causes the highlighting to fade out gradually.
+- `t` selects the default highlighting style, which is currently
+  `pulse`.
+- `nil` disables highlighting. This is the default value for
+  `cider-repl-history-highlight-inserted-item`.
+
+When `cider-repl-history-highlight-inserted-item` is non-nil, you
+can customize the face used for the inserted text with the variable
+`cider-repl-history-inserted-item-face`.
 
 #### Additional Customization
 
