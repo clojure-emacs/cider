@@ -210,13 +210,6 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
       (move-to-column 20)
       (expect (cider-locref-at-point)
               :to-equal
-              '(:type warning :highlight (22 . 61) :var nil :file "cider/nrepl/middleware/slurp.clj" :line 103))))
-  (it "works with warnings"
-    (with-temp-buffer
-      (insert "\nReflection warning, cider/nrepl/middleware/slurp.clj:103:16 - reference to field getInputStream can't be resolved.")
-      (move-to-column 20)
-      (expect (cider-locref-at-point)
-              :to-equal
               '(:type warning :highlight (22 . 61) :var nil :file "cider/nrepl/middleware/slurp.clj" :line 103)))
     (with-temp-buffer
       (insert "\nBoxed math warning, cider/inlined_deps/toolsreader/v1v2v2/clojure/tools/reader/impl/utils.clj:18:9 - call: public static boolean clojure.lang.Numbers.lt(java.lang.Object,long).")
