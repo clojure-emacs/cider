@@ -204,10 +204,29 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
       (expect (cider-locref-at-point)
               :to-equal
               '(:type cljs-message :highlight (54 . 86) :var nil :file "/path/to/aaa/bbb.cljc" :line 42))))
-  (it "works with reflection warnings"
+  (it "works with warnings"
     (with-temp-buffer
       (insert "\nReflection warning, cider/nrepl/middleware/slurp.clj:103:16 - reference to field getInputStream can't be resolved.")
       (move-to-column 20)
       (expect (cider-locref-at-point)
               :to-equal
-              '(:type reflection :highlight (22 . 61) :var nil :file "cider/nrepl/middleware/slurp.clj" :line 103)))))
+              '(:type warning :highlight (22 . 61) :var nil :file "cider/nrepl/middleware/slurp.clj" :line 103))))
+  (it "works with warnings"
+    (with-temp-buffer
+      (insert "\nReflection warning, cider/nrepl/middleware/slurp.clj:103:16 - reference to field getInputStream can't be resolved.")
+      (move-to-column 20)
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type warning :highlight (22 . 61) :var nil :file "cider/nrepl/middleware/slurp.clj" :line 103)))
+    (with-temp-buffer
+      (insert "\nBoxed math warning, cider/inlined_deps/toolsreader/v1v2v2/clojure/tools/reader/impl/utils.clj:18:9 - call: public static boolean clojure.lang.Numbers.lt(java.lang.Object,long).")
+      (move-to-column 20)
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type warning :highlight (22 . 100) :var nil :file "cider/inlined_deps/toolsreader/v1v2v2/clojure/tools/reader/impl/utils.clj" :line 18))))
+  (it "works with compilation exceptions"
+    (insert "\nCompilerException java.lang.RuntimeException: Unable to resolve symbol: pp in this context, compiling:(/path/to/a/file.clj:575:16)")
+    (move-to-column 20)
+    (expect (cider-locref-at-point)
+            :to-equal
+            '(:type compilation :highlight (2 . 132) :var nil :file "/path/to/a/file.clj" :line 575))))

@@ -1164,7 +1164,8 @@ command will prompt for the name of the namespace to switch to."
     (print-stacktrace  "\\[\\([^][$ \t]+\\).* +\\([^ \t]+\\) +\\([0-9]+\\)\\]" 0 1 2 3)
     (timbre-log        "\\(TRACE\\|INFO\\|DEBUG\\|WARN\\|ERROR\\) +\\(\\[\\([^:]+\\):\\([0-9]+\\)\\]\\)" 2 3 nil 4)
     (cljs-message      "at line \\([0-9]+\\) +\\(.*\\)$" 0 nil 2 1)
-    (reflection        "Reflection warning, +\\(\\([^\n:]+\\):\\([0-9]+\\):[0-9]+\\)" 1 nil 2 3))
+    (warning           "warning,? +\\(\\([^\n:]+\\):\\([0-9]+\\):[0-9]+\\)" 1 nil 2 3)
+    (compilation       ".*compiling:(\\([^\n:)]+\\):\\([0-9]+\\):[0-9]+)" 0 nil 1 2))
   "Alist holding regular expressions for inline location references.
 Each element in the alist has the form (NAME REGEXP HIGHLIGHT VAR FILE
 LINE), where NAME is the identifier of the regexp, REGEXP - regexp matching
