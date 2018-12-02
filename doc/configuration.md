@@ -1,98 +1,113 @@
-In the spirit of Emacs almost every aspect of CIDER's behaviour
-is configurable. We've tried to come up with some reasonable
-defaults, but we've also tried to account for different people's
-preferences, so everyone could make CIDER as comfortable as
-possible for them.
+Like Emacs itself, almost every part of CIDER is configurable. The
+CIDER developers have tried to implement some reasonable defaults that
+should work for a large portion of the Clojure community, but we know
+that there is nothing approaching a "one size fits all" development
+environment and we've tried to create points of customization that can
+account for many different peoples' preferences. In this way, you
+should be able to make CIDER as comfortable as possible for **you**.
 
 You can see every single customizable configuration option with the command
 <kbd>M-x customize-group RET cider</kbd>.
 
-You can certainly use CIDER without configuring it any further,
-but here are some ways other folks are adjusting their CIDER
-experience.
+This section doesn't describe every possible customization that CIDER
+offers, but here are some of the most popular.
 
-## Basic configuration
+## Basic Configuration
 
-### Auto-enabling cider-mode in clojure-mode buffers
+### Disable Automatic cider-mode in clojure-mode Buffers
 
-By default CIDER will enable `cider-mode` in all `clojure-mode` buffers when the
-first CIDER connection is established. It will also add a `clojure-mode` hook to
-enable it on newly created `clojure-mode` buffers. The configuration snippet
-bellow allows you to override this (somewhat non-standard) behavior.
+By default, CIDER enables `cider-mode` in all `clojure-mode` buffers
+after it establishes the first CIDER connection. It will also add a
+`clojure-mode` hook to enable `cider-mode` on newly-created `clojure-mode`
+buffers. You can override this behavior, however:
 
 ```el
-;; Suppress auto-enabling of `cider-mode` in `clojure-mode` buffers, when starting CIDER
 (setq cider-auto-mode nil)
 ```
 
-### Prompt for confirmation of the symbol at point
+### Disable Symbol Confirmation
 
-By default, interactive commands that require a symbol (e.g. `cider-doc`) will
-prompt for the symbol, with the prompt defaulting to the symbol at point. You
-can set `cider-prompt-for-symbol` to `nil` to instead try the command with the
-symbol at point first, and only prompt if that fails (this used to be the
-default behavior in older CIDER releases).
+By default, CIDER prompts you for a symbol when it executes
+interactive commands that require a symbol (e.g. `cider-doc`). The
+default symbol will be the one at point. If you set
+`cider-prompt-for-symbol` to `nil`, CIDER will try the symbol at point
+first, and only prompt if that fails (this was the behavior in older
+CIDER releases).
 
 ```el
 (setq cider-prompt-for-symbol nil)
 ```
 
-### Log communication with the nREPL server
+### Log nREPL Communications
+
+If you want to see all communications between CIDER and the nREPL
+server:
 
 ```el
 (setq nrepl-log-messages t)
 ```
 
-Basically, this will result in the creation of buffers like `*nrepl-messages
-conn-name*`. The communication log is invaluable for debugging CIDER issues, so
-you're generally advised to enable logging when you need to debug something
-nREPL related.
+CIDER will then create buffers named `*nrepl-messages conn-name*` for
+each connection.
 
-### Hide special nREPL buffers
+The communication log is tremendously valuable for
+debugging CIDER-to-nREPL problems and we recommend you enable it when
+you are facing such issues.
 
-You can hide the `*nrepl-connection*` and `*nrepl-server*` buffers
-from appearing in some buffer switching commands like
-`switch-to-buffer`(<kbd>C-x b</kbd>) like this:
+### Hide Special nREPL Buffers
+
+If you're finding that `*nrepl-connection*` and `*nrepl-server*`
+buffers are cluttering up your development environment, you can
+suppress them from appearing in some buffer switching commands like
+`switch-to-buffer`(<kbd>C-x b</kbd>):
 
 ```el
 (setq nrepl-hide-special-buffers t)
 ```
 
-When using `switch-to-buffer`, pressing <kbd>SPC</kbd> after the command will
-make the hidden buffers visible. They'll always be visible in
-`list-buffers` (<kbd>C-x C-b</kbd>).
+If you need to make the hidden buffers appear When using
+`switch-to-buffer`, type <kbd>SPC</kbd> after issing the command. The
+hidden buffers will always be visible in `list-buffers` (<kbd>C-x
+C-b</kbd>).
 
-### Prefer local resources over remote ones
+### Prefer Local Resources Over Remote Resources
 
-To prefer local resources to remote (tramp) ones when both are available:
+To prefer local resources to remote resources (tramp) when both are available:
 
 ```el
 (setq cider-prefer-local-resources t)
 ```
 
-### Auto-save Clojure buffers on load
+### Auto-Save Clojure Buffers on Load
 
-Normally CIDER would prompt you to save a modified Clojure buffer on <kbd>C-c C-k</kbd> (`cider-load-buffer`).
-You can change this behaviour by adjusting `cider-save-file-on-load`:
+Normally, CIDER prompts you to save a modified Clojure buffer when you
+type <kbd>C-c C-k</kbd> (`cider-load-buffer`).  You can change this
+behaviour by adjusting `cider-save-file-on-load`.
+
+Don't prompt and don't save:
 
 ```el
-;; Don't prompt and don't save
 (setq cider-save-file-on-load nil)
-;; Just save without prompting
+```
+
+Just save without prompting:
+
+```el
 (setq cider-save-file-on-load t)
 ```
 
-### Changing the result prefix for interactive evaluation
+### Change the Result Prefix for Interactive Evaluation
 
-Change the result prefix for interactive evaluation (by default it's `=> `):
+Change the result prefix for interactive evaluation (not the REPL
+prefix). By default the prefix is `=> `.
 
 ```el
 (setq cider-eval-result-prefix ";; => ")
 ```
 
-To remove the prefix altogether just set it to an empty string(`""`).
+To remove the prefix altogether, just set it to the empty string (`""`).
 
-### Use a local copy of the JDK API documentation
+### Use a Local Copy of the JDK API Documentation
 
 If you are targeting the JVM and prefer a local copy of the JDK API
 documentation over Oracle's official copy (e.g., for
@@ -105,19 +120,19 @@ you can arrange your project to include the **root** path of the local API doc
 path being `/usr/share/doc/java/api/`, put the following line in
 `project.clj`:
 
-```clj
+```clojure
 :dev {:resource-paths ["/usr/share/doc/java/api/"]}
 ```
 
 **or** the following line in `$HOME/.lein/profiles.clj`:
 
-```clj
+```clojure
 :user {:resource-paths ["/usr/share/doc/java/api/"]}
 ```
 
 More details can be found [here](https://github.com/clojure-emacs/cider/issues/930).
 
-### Use a local copy of the Java source code
+### Use a Local Copy of the Java Source Code
 
 When an exception is thrown, e.g. when eval-ing `(. clojure.lang.RT foo)`, a
 stack trace pops up. Some places of the stack trace link to Clojure files,
@@ -292,7 +307,7 @@ a macro should be indented.
 Here's a simple example of how someone would specify the indent spec for a macro
 they've written (using an example in core):
 
-```clj
+```clojure
 (defmacro with-in-str
   "[DOCSTRING]"
   {:style/indent 1}
@@ -302,7 +317,7 @@ they've written (using an example in core):
 
 And here's a more complex one:
 
-```clj
+```clojure
 (defmacro letfn
   "[DOCSTRING]"
   {:style/indent [1 [[:defn]] :form]}

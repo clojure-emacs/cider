@@ -4,7 +4,7 @@ An indent spec can be used to specify intricate indentation rules for the more
 complex macros (or functions). It is provided as a value in the var metadata,
 under the `:style/indent` key.
 
-```clj
+```clojure
 (defmacro with-in-str
   "[DOCSTRING]"
   {:style/indent 1}
@@ -43,7 +43,7 @@ One very simple example is the `do` form. All of its arguments get the same
 indentation, and none of them are special. So its indent spec is simply `[0]`,
 or `0` for short.
 
-```clj
+```clojure
 (do
   (something)
   (quick))
@@ -67,7 +67,7 @@ Let's see something more sophisticated. If the `defrecord` indent spec used by
 - All remaining arguments have an internal indent spec of `[1]` (which means
   only the arglist is indented specially and the rest is the body).
 
-```clj
+```clojure
 (defrecord Thing [a]
   FileNameMap
   (getContentTypeFor [_ file-name]
@@ -84,7 +84,7 @@ For something even more complicated: `letfn` is `[1 [[:defn]] :form]`. This mean
   _inside_ the first arg have an indent spec of `[:defn]`.
 - The second argument, and all other arguments, are regular forms.
 
-```clj
+```clojure
 (letfn [(twice [x]
           (* x 2))
         (six-times [y]
@@ -102,7 +102,7 @@ placed on a separate line with additional indentation.
 
 For instance, `defrecord` has two special arguments, and here's how it might be indented:
 
-```clj
+```clojure
 (defrecord TheNameOfTheRecord
     [a pretty long argument list]
   SomeType
@@ -112,7 +112,7 @@ For instance, `defrecord` has two special arguments, and here's how it might be 
 
 Here's another way one could do it:
 
-```clj
+```clojure
 (defrecord TheNameOfTheRecord
            [a pretty long argument list]
   SomeType
