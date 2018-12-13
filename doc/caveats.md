@@ -21,7 +21,7 @@ ClojureScript source code (file, line & column) is set only when evaluating the
 entire source buffer (<kbd>C-c C-k</kbd>). All other interactive code evaluation
 commands (e.g. <kbd>C-c C-e</kbd>) don't set this metadata and you won't be able
 to use commands like `find-var` on such vars.  This is a limitation of nREPL and
-piggieback, that's beyond CIDER. You can find some discussions on the subject
+Piggieback, that's beyond CIDER. You can find some discussions on the subject
 [here](http://dev.clojure.org/jira/browse/NREPL-59) and
 [here](https://github.com/clojure-emacs/cider/issues/830).
 

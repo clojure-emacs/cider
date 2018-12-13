@@ -96,7 +96,7 @@ Keyboard shortcut               | Description
 
 ## Configuration
 
-You can configure CIDER's test excution behavior in multiple ways.
+You can configure CIDER's test execution behavior in multiple ways.
 
 If your tests are not following the `some.ns-test` naming convention
 you can set the variable `cider-test-infer-test-ns` to a function that
