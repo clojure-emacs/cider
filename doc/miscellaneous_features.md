@@ -1,7 +1,7 @@
 As the infomercials always say, "But wait, there's more!" If
 simultaneous Clojure and ClojureScript REPLs, interactive programming,
 code completion, stacktrace navigation, test running, and debugging
-weren't enough for you, CIDER delievers several additional
+weren't enough for you, CIDER delivers several additional
 features. 
 
 ## Evaluating Clojure Code in the Minibuffer
@@ -108,7 +108,7 @@ modification status.
 
 Adding a double prefix argument, <kbd>C-u C-u M-n n</kbd>, will first
 clear the state of the namespace tracker before reloading. This is
-sueful for recovering from some classes of error that nomral reloads
+useful for recovering from some classes of error that normal reloads
 would otherwise not recover from. A good example is circular
 dependencies. The trade-off is that stale code from any deleted files
 may not be completely unloaded.

@@ -66,7 +66,7 @@ suppress them from appearing in some buffer switching commands like
 ```
 
 If you need to make the hidden buffers appear When using
-`switch-to-buffer`, type <kbd>SPC</kbd> after issing the command. The
+`switch-to-buffer`, type <kbd>SPC</kbd> after issuing the command. The
 hidden buffers will always be visible in `list-buffers` (<kbd>C-x
 C-b</kbd>).
 
