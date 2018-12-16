@@ -1055,9 +1055,10 @@ for the project, it is evaluated in both REPLs."
                    (or (eq cider-save-file-on-load t)
                        (y-or-n-p (format "Save file %s? " buffer-file-name))))
           (save-buffer))
-        (remove-overlays nil nil 'cider-temporary t)
-        (cider--clear-compilation-highlights)
-        (cider--quit-error-window)
+        (save-excursion
+          (remove-overlays nil nil 'cider-temporary t)
+          (cider--clear-compilation-highlights)
+          (cider--quit-error-window))
         (let ((filename (buffer-file-name buffer))
               (ns-form  (cider-ns-form)))
           (cider-map-repls :auto
