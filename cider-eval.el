@@ -168,7 +168,8 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 (defun cider--quit-error-window ()
   "Buries the `cider-error-buffer' and quits its containing window."
   (when-let* ((error-win (get-buffer-window cider-error-buffer)))
-    (quit-window nil error-win)))
+    (save-excursion
+      (quit-window nil error-win))))
 
 
 ;;; Dealing with compilation (evaluation) errors and warnings
@@ -1055,10 +1056,9 @@ for the project, it is evaluated in both REPLs."
                    (or (eq cider-save-file-on-load t)
                        (y-or-n-p (format "Save file %s? " buffer-file-name))))
           (save-buffer))
-        (save-excursion
-          (remove-overlays nil nil 'cider-temporary t)
-          (cider--clear-compilation-highlights)
-          (cider--quit-error-window))
+        (remove-overlays nil nil 'cider-temporary t)
+        (cider--clear-compilation-highlights)
+        (cider--quit-error-window)
         (let ((filename (buffer-file-name buffer))
               (ns-form  (cider-ns-form)))
           (cider-map-repls :auto
