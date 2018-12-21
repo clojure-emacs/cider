@@ -161,19 +161,19 @@ namespace-qualified function of zero arity."
     (when (member "error" status)
       (cider--render-stacktrace-causes error))))
 
-(defun cider-ns-refresh--save-project-buffers ()
-  "Ensure modified project buffers are saved before certain operations.
+(defun cider-ns-refresh--save-modified-buffers ()
+  "Ensure any relevant modified buffers are saved before refreshing.
 Its behavior is controlled by `cider-save-files-on-cider-ns-refresh'."
-  (when-let* ((project-root (clojure-project-dir)))
-    (when cider-save-files-on-cider-ns-refresh
+  (when cider-save-files-on-cider-ns-refresh
+    (let ((dirs (seq-filter #'file-directory-p
+                            (cider-sync-request:classpath))))
       (save-some-buffers
-       (eq cider-save-files-on-cider-ns-refresh t)
+       (not (eq cider-save-files-on-cider-ns-refresh 'prompt))
        (lambda ()
-         (and
-          (derived-mode-p 'clojure-mode)
-          (string-prefix-p project-root
-                           (file-truename default-directory)
-                           (eq system-type 'windows-nt))))))))
+         (and (derived-mode-p 'clojure-mode)
+              (seq-some (lambda (dir)
+                          (file-in-directory-p buffer-file-name dir))
+                        dirs)))))))
 
 ;;;###autoload
 (defun cider-ns-reload (&optional prompt)
@@ -226,7 +226,7 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
-  (cider-ns-refresh--save-project-buffers)
+  (cider-ns-refresh--save-modified-buffers)
   (let ((clear? (member mode '(clear 16)))
         (refresh-all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))

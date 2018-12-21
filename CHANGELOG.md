@@ -5,10 +5,11 @@
 ### New features
 
 ### Changes
-* Fix values for `cider-preferred-build-tool` variable.
-* Fix value and safe property for `cider-allow-jack-in-without-project` variable.
 
 ### Bug fixes
+* Fix values for `cider-preferred-build-tool` variable.
+* Fix value and safe property for `cider-allow-jack-in-without-project` variable.
+* `cider-ns-save-files-on-refresh` will now save any modified buffers visiting files on the classpath, rather than just in the current project.
 
 ## 0.20.0 (2019-01-14)
 
@@ -40,6 +41,7 @@
 
 ### Bug fixes
 
+* `cider-expected-ns` no longer requires an absolute path as its argument, and now internally handles paths canonically and consistently.
 * [#2474](https://github.com/clojure-emacs/cider/issues/2474): Fix incorrect detection of output and out-of-order printing.
 * [#2514](https://github.com/clojure-emacs/cider/issues/2514): Don't auto-jump to warnings when `cider-auto-jump-to-error` is set to 'errors-only.
 * [#2453](https://github.com/clojure-emacs/cider/issues/2453): Make it possible to debug deftype methods by direct insertion of #dbg and #break readers into the deftype methods.
