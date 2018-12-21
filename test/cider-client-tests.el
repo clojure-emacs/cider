@@ -109,10 +109,15 @@
             :to-throw 'user-error)))
 
 (describe "cider-expected-ns"
-  (before-all
+  (before-each
     (spy-on 'cider-connected-p :and-return-value t)
     (spy-on 'cider-sync-request:classpath :and-return-value
-            '("/a" "/b" "/c" "/c/inner" "/base/clj" "/base/clj-dev")))
+            '("/a" "/b" "/c" "/c/inner" "/base/clj" "/base/clj-dev"))
+    (spy-on 'file-directory-p :and-return-value t)
+    (spy-on 'file-in-directory-p :and-call-fake (lambda (file dir)
+                                                  (string-prefix-p dir file)))
+    (spy-on 'file-relative-name :and-call-fake (lambda (file dir)
+                                                 (substring file (+ 1 (length dir))))))
 
   (it "returns the namespace matching the given string path"
     (expect (cider-expected-ns "/a/foo/bar/baz_utils.clj") :to-equal
