@@ -114,21 +114,37 @@ reads for the host and port prompts when you invoke
     ("host-b" "7888")))
 ```
 
-## SSH
+## Working with Remote Hosts
 
-In some circumstances, cider can try to use SSH to either:
+While most of the time you'd be connecting to a locally running nREPL
+server, that was started manually or via `cider-jack-in-*`, there's
+also the option to connect to remote nREPL hosts. For the sake of security
+CIDER has the ability to tunnel a connection over SSH in such cases.
+This behavior is controlled by
+`nrepl-use-ssh-fallback-for-remote-hosts`: when true, CIDER will attempt to
+connect via ssh to remote hosts when unable to connect directly. It's
+`nil` by default.
 
-* Tunnel a connection over SSH.
-* Infer the remote nREPL port for a direct connection.
+There's also `nrepl-force-ssh-for-remote-hosts` which will force the use
+of ssh for remote connection unconditionally.
 
-This behavior is controlled by two options (both default `nil`):
+!!! Warning
 
-* `nrepl-use-ssh-fallback-for-remote-hosts`: When true, attempt to connect via ssh
-  to remote hosts when unable to connect directly.
-* `cider-infer-remote-nrepl-ports`: When true, cider will use ssh to try to infer
-  nREPL ports on remote hosts (for a direct connection).
+    As nREPL connections are insecure by default you're encouraged to use only SSH
+    tunneling when connecting to servers running outside of your network.
 
-Note that enabling either of these causes cider to use
-[tramp](https://www.gnu.org/software/tramp/) for some SSH operations, which parses
-config files such as `~/.ssh/config` and `~/.ssh/known_hosts`. This is known to
-cause problems with complex or nonstandard ssh configs.
+There's a another case in which CIDER may optionally leverage the `ssh` command - when
+trying to figure out potential target hosts and ports when you're doing `cider-connect-*`.
+If  `cider-infer-remote-nrepl-ports` is true, CIDER will use ssh to try to infer
+nREPL ports on remote hosts (for a direct connection). That option is also set to `nil`
+by default.
+
+!!! Note
+
+    Enabling either of these causes CIDER to use
+    [TRAMP](https://www.gnu.org/software/tramp/) for some SSH operations, which parses
+    config files such as `~/.ssh/config` and `~/.ssh/known_hosts`. This is known to
+    cause problems with complex or nonstandard ssh configs.
+
+You can safely run `cider-jack-in-*` while working with remote files over TRAMP. CIDER
+will handle this use-case transparently for you.
