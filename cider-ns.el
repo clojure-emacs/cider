@@ -163,12 +163,12 @@ namespace-qualified function of zero arity."
 
 (defun cider-ns-refresh--save-modified-buffers ()
   "Ensure any relevant modified buffers are saved before refreshing.
-Its behavior is controlled by `cider-save-files-on-cider-ns-refresh'."
-  (when cider-save-files-on-cider-ns-refresh
+Its behavior is controlled by `cider-ns-save-files-on-refresh'."
+  (when cider-ns-save-files-on-refresh
     (let ((dirs (seq-filter #'file-directory-p
                             (cider-sync-request:classpath))))
       (save-some-buffers
-       (not (eq cider-save-files-on-cider-ns-refresh 'prompt))
+       (not (eq cider-ns-save-files-on-refresh 'prompt))
        (lambda ()
          (and (derived-mode-p 'clojure-mode)
               (seq-some (lambda (dir)
