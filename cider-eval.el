@@ -168,7 +168,8 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 (defun cider--quit-error-window ()
   "Buries the `cider-error-buffer' and quits its containing window."
   (when-let* ((error-win (get-buffer-window cider-error-buffer)))
-    (quit-window nil error-win)))
+    (save-excursion
+      (quit-window nil error-win))))
 
 
 ;;; Dealing with compilation (evaluation) errors and warnings
