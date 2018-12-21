@@ -114,22 +114,22 @@ will return nil instead of \"user\"."
 
 (defun cider-expected-ns (&optional path)
   "Return the namespace string matching PATH, or nil if not found.
-PATH is expected to be an absolute file path.  If PATH is nil, use the path
-to the file backing the current buffer.  The command falls back to
-`clojure-expected-ns' in the absence of an active nREPL connection."
+If PATH is nil, use the path to the file backing the current buffer.  The
+command falls back to `clojure-expected-ns' in the absence of an active
+nREPL connection."
   (if (cider-connected-p)
-      (let* ((path (or path (file-truename (buffer-file-name))))
+      (let* ((path (file-truename (or path buffer-file-name)))
              (relpath (thread-last (cider-sync-request:classpath)
-                        (seq-map
-                         (lambda (cp)
-                           (when (string-prefix-p cp path)
-                             (substring path (length cp)))))
+                        (seq-filter #'file-directory-p)
+                        (seq-map (lambda (dir)
+                                   (when (file-in-directory-p path dir)
+                                     (file-relative-name path dir))))
                         (seq-filter #'identity)
                         (seq-sort (lambda (a b)
                                     (< (length a) (length b))))
                         (car))))
         (if relpath
-            (thread-last (substring relpath 1) ; remove leading /
+            (thread-last relpath
               (file-name-sans-extension)
               (replace-regexp-in-string "/" ".")
               (replace-regexp-in-string "_" "-"))
