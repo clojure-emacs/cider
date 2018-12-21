@@ -1327,6 +1327,12 @@ Tramp version starting 26.1 is using a `cl-defstruct' rather than vanilla VEC."
       (make-tramp-file-name :method (elt vec 0)
                             :host   (elt vec 2)))))
 
+(defcustom cider-infer-remote-nrepl-ports nil
+  "When true, cider will use ssh to try to infer nREPL ports on remote hosts."
+  :type 'boolean
+  :safe #'booleanp
+  :package-version '(cider . "0.19.0"))
+
 (defun cider--infer-ports (host ssh-hosts)
   "Infer nREPL ports on HOST.
 Return a list of elements of the form (directory port).  SSH-HOSTS is a list
@@ -1338,14 +1344,15 @@ of remote SSH hosts."
         (let* ((change-dir-p (file-remote-p default-directory))
                (default-directory (if change-dir-p "~/" default-directory)))
           (cider-locate-running-nrepl-ports (unless change-dir-p default-directory)))
-      (let ((vec (vector "sshx" nil host "" nil))
-            ;; change dir: user might want to connect to a different remote
-            (dir (when (file-remote-p default-directory)
-                   (with-parsed-tramp-file-name default-directory cur
-                     (when (string= cur-host host) default-directory)))))
-        (tramp-maybe-open-connection (cider--tramp-file-name vec))
-        (with-current-buffer (tramp-get-connection-buffer (cider--tramp-file-name vec))
-          (cider-locate-running-nrepl-ports dir))))))
+      (when cider-infer-remote-nrepl-ports
+        (let ((vec (vector "sshx" nil host "" nil))
+              ;; change dir: user might want to connect to a different remote
+              (dir (when (file-remote-p default-directory)
+                     (with-parsed-tramp-file-name default-directory cur
+                       (when (string= cur-host host) default-directory)))))
+          (tramp-maybe-open-connection (cider--tramp-file-name vec))
+          (with-current-buffer (tramp-get-connection-buffer (cider--tramp-file-name vec))
+            (cider-locate-running-nrepl-ports dir)))))))
 
 (defun cider--completing-read-port (host ports)
   "Interactively select port for HOST from PORTS."
