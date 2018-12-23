@@ -23,6 +23,7 @@
 * [#2454](https://github.com/clojure-emacs/cider/pull/2454): Fix erratic inspector behavior when multiple REPLs are connected
 * [#2467](https://github.com/clojure-emacs/cider/pull/2467): Make generic CIDER ops use any available nREPL connection.
 * [#2105](https://github.com/clojure-emacs/cider/issues/2105): Fix no comment syntax defined message when loading buffer after running a failing test.
+* [#2115](https://github.com/clojure-emacs/cider/issues/2515): Reset the current buffer after `display-buffer`.
 
 ### Changes
 
