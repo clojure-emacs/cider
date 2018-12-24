@@ -87,7 +87,7 @@ if they are both present.
 
 Finally, CIDER can wrap error messages when they are displayed in a
 buffer to help improve their readability. CIDER uses
-`cider-stack-trade-fill-column` for this, which can take on three
+`cider-stacktrace-fill-column` for this, which can take on three
 types of values:
 
 - `nil`: The error is not wrapped.
