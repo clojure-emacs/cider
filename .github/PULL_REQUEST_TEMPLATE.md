@@ -19,4 +19,4 @@ Thanks!
 *If you're just starting out to hack on CIDER you might find this [section of its
 manual][1] extremely useful.*
 
-[1]: https://cider.readthedocs.io/en/latest/hacking_on_cider/
+[1]: https://docs.cider.mx/en/latest/hacking_on_cider/
