@@ -51,13 +51,13 @@ CIDER's basic architecture looks something like this:
 
 Clojure code gets executed by an nREPL server. CIDER sends requests to the
 server and processes its responses. The server's functionality is augmented by
-additional nREPL middleware, designed specifically to address the needs of an
+additional [nREPL middleware][cider-nrepl], designed specifically to address the needs of an
 interactive development environment like CIDER.
 
 
 !!! Note
 
-    Much of the middleware we originally
+    Much of the nREPL middleware we originally
     developed for CIDER is editor-agnostic and is being used by other Clojure
     development environments as well (e.g. [vim-fireplace][] & [calva][]).
 
@@ -104,5 +104,4 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 [calva]: https://github.com/BetterThanTomorrow/calva
 [cider-nrepl]: https://github.com/clojure-emacs/cider-nrepl
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
-[inf-clojure]: https://github.com/clojure-emacs/inf-clojure
 [which-key]: https://github.com/justbur/emacs-which-key

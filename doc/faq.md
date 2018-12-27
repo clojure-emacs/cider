@@ -30,7 +30,7 @@ version before the time we started relying on nREPL middleware.
 
 ## What's the relationship between CIDER and inf-clojure?
 
-There's pretty much no relationship. `inf-clojure` provides a REPL based on the
+There's pretty much no relationship. [inf-clojure][] provides a REPL based on the
 `comint` Emacs package - you're basically running an external REPL process
 inside of Emacs (there's no network connectivity involved).  The advantage of
 this is that you have no external dependencies what-so-ever - you just need some
@@ -155,3 +155,5 @@ There are many ways in which you can help CIDER
 * File bug reports and suggestions for improvements
 * Promote CIDER via blog posts or at meetups and conferences
 * Invite members of the CIDER team to speak about CIDER at meetups and conferences
+
+[inf-clojure]: https://github.com/clojure-emacs/inf-clojure
