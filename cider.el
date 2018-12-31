@@ -91,7 +91,7 @@
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
 
-(defconst cider-codename "Saigon"
+(defconst cider-codename "Raleigh"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
