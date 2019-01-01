@@ -126,7 +126,7 @@ middleware](https://github.com/clojure-emacs/cider-nrepl). Starting
 with version 0.11, `cider-jack-in` (<kbd>C-c C-x (C-)j (C-)j</kbd>)
 automatically injects this middle and other dependencies as required.
 
-!!! Note 
+!!! Note
     In the past, if you were setting up CIDER, you might have had to
     modify `profiles.clj` or `profile.boot`. CIDER now handles
     everything automatically and you don't need to add anything
@@ -152,6 +152,11 @@ section).
 
 #### Using Leiningen
 
+!!! Note
+
+    It's highly recommended to use Leiningen 2.8.3 or newer, as 2.8.3 is the first
+    release to ship with nREPL 0.5.
+
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
 
@@ -162,7 +167,7 @@ Use the convenient plugin for defaults, either in your project's
 A minimal `profiles.clj` for CIDER would be:
 
 ```clojure
-{:repl {:plugins [[cider/cider-nrepl "0.18.0"]]}}
+{:repl {:plugins [[cider/cider-nrepl "0.19.0"]]}}
 ```
 
 !!! warning
@@ -185,7 +190,7 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 (require 'boot.repl)
 
 (swap! boot.repl/*default-dependencies*
-       concat '[[cider/cider-nrepl "0.18.0"]])
+       concat '[[cider/cider-nrepl "0.19.0"]])
 
 (swap! boot.repl/*default-middleware*
        conj 'cider.nrepl/cider-middleware)
@@ -220,4 +225,3 @@ It goes without saying that your project should depend on `cider-nrepl`.
     with a recent version of CIDER. You can check the required version
     of cider-nrepl for your version of CIDER by looking at
     `cider-required-middleware-version`.
-    

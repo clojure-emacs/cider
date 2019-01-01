@@ -11,7 +11,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 0.19.0-snapshot
+;; Version: 0.19.0
 ;; Package-Requires: ((emacs "25") (clojure-mode "5.9") (pkg-info "0.4") (queue "0.2") (spinner "1.7") (seq "2.16") (sesman "0.3.2"))
 ;; Keywords: languages, clojure, cider
 
@@ -86,7 +86,7 @@
 (require 'seq)
 (require 'sesman)
 
-(defconst cider-version "0.19.0-snapshot"
+(defconst cider-version "0.19.0"
   "Fallback version used when it cannot be extracted automatically.
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
@@ -404,7 +404,7 @@ Elements of the list are artifact name and list of exclusions to apply for the a
 (defconst cider-required-middleware-version "0.18.0"
   "The minimum CIDER nREPL version that's known to work properly with CIDER.")
 
-(defconst cider-latest-middleware-version "0.19.0-SNAPSHOT"
+(defconst cider-latest-middleware-version "0.19.0"
   "The latest CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-jack-in-auto-inject-clojure nil
