@@ -1,6 +1,6 @@
 ;;; cider-format.el --- Code and EDN formatting functionality -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2018 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2013-2019 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>

@@ -245,7 +245,7 @@ site. [[Become a sponsor](https://opencollective.com/cider#sponsor)]
 
 ## License
 
-Copyright © 2012-2018 Tim King, Phil Hagelberg, Bozhidar Batsov, Artur Malabarba and
+Copyright © 2012-2019 Tim King, Phil Hagelberg, Bozhidar Batsov, Artur Malabarba and
 [contributors](https://github.com/clojure-emacs/cider/contributors).
 
 Distributed under the GNU General Public License, version 3

@@ -1,6 +1,6 @@
  ;;; cider-connection-tests.el
 
-;; Copyright © 2012-2018 Tim King, Bozhidar Batsov, Vitalie Spinu
+;; Copyright © 2012-2019 Tim King, Bozhidar Batsov, Vitalie Spinu
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>
@@ -361,5 +361,3 @@
     (cider-jack-in-clj&cljs '(:project-dir "some/other/project")))
   (it "detects existing project"
     (expect 'y-or-n-p :to-have-been-called-times 3)))
-
-

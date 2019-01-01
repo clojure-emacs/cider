@@ -1,6 +1,6 @@
 ;;; cider-find-tests.el
 
-;; Copyright © 2012-2018 Bozhidar Batsov
+;; Copyright © 2012-2019 Bozhidar Batsov
 
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 

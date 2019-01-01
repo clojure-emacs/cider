@@ -1,6 +1,6 @@
 ;;; cider-profile.el --- CIDER support for profiling  -*- lexical-binding: t; -*-
 
-;; Copyright © 2014-2018 Edwin Watkeys and CIDER contributors
+;; Copyright © 2014-2019 Edwin Watkeys and CIDER contributors
 
 ;; Author: Edwin Watkeys <edw@poseur.com>
 ;;         Juan E. Maya <jmayaalv@gmail.com>

@@ -1,6 +1,6 @@
 ;;; cider-classpath.el --- Basic Java classpath browser
 
-;; Copyright © 2014-2018 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2019 Bozhidar Batsov and CIDER contributors
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
