@@ -77,9 +77,13 @@ If someone would like to tackle them, we'd be happy to provide assistance.
 
 ## Injecting dependencies and Leiningen pedantic: abort mode
 
-Because injection currently creates an override of the `nrepl` dependency that
+Because injection currently creates an override of the nREPL dependency that
 Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort`
-is set. Either remove the `:pedantic? :abort` setting or switch off injecting
-the dependencies with setting `cider-inject-dependencies-at-jack-in` to `nil` and
+is set. There are several ways to address this:
+
+* Remove the `:pedantic? :abort` setting.
+* Switch off injecting the dependencies with setting `cider-inject-dependencies-at-jack-in` to `nil` and
 provide the dependencies by editing your `~/.lein/profiles.clj` as described in
 the [standalone REPL](installation.md#setting-up-a-standalone-repl) section.
+* Adjust the value of `cider-jack-in-dependencies`, so it includes the same nREPL value as the
+one that's bundled with Leiningen.
