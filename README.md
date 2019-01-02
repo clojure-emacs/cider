@@ -251,7 +251,7 @@ Copyright © 2012-2019 Tim King, Phil Hagelberg, Bozhidar Batsov, Artur Malabarb
 Distributed under the GNU General Public License, version 3
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
-[nREPL]:https://github.com/cemerick/nREPL
+[nREPL]:https://github.com/nrepl/nrepl
 [Sly]: https://github.com/capitaomorte/sly
 [Geiser]: https://github.com/jaor/geiser
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
