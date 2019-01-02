@@ -77,7 +77,7 @@ If someone would like to tackle them, we'd be happy to provide assistance.
 
 ## Injecting dependencies and Leiningen pedantic: abort mode
 
-Because injection currently creates an override of `tools.nrepl` dependency that
+Because injection currently creates an override of the `nrepl` dependency that
 Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort`
 is set. Either remove the `:pedantic? :abort` setting or switch off injecting
 the dependencies with setting `cider-inject-dependencies-at-jack-in` to `nil` and

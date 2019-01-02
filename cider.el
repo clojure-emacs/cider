@@ -389,8 +389,6 @@ Added to `cider-jack-in-dependencies' when doing `cider-jack-in-cljs'.")
   "List of exclusions for jack in dependencies.
 Elements of the list are artifact name and list of exclusions to apply for the artifact.")
 (put 'cider-jack-in-dependencies-exclusions 'risky-local-variable t)
-(cider-add-to-alist 'cider-jack-in-dependencies-exclusions
-                    "org.clojure/tools.nrepl" '("org.clojure/clojure"))
 
 (defconst cider-clojure-artifact-id "org.clojure/clojure"
   "Artifact identifier for Clojure.")

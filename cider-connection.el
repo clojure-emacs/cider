@@ -66,7 +66,7 @@ available) and the matching REPL buffer."
   :safe #'booleanp
   :package-version '(cider . "0.9.0"))
 
-(defconst cider-required-nrepl-version "0.2.12"
+(defconst cider-required-nrepl-version "0.4.4"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
 
