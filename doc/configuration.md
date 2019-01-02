@@ -393,9 +393,34 @@ said argument to `*out*`.
 (setq cider-pprint-fn "user/my-pprint")
 ```
 
-This function must be resolvable by CIDER at the time it is called (i.e. its
-containing namespace must have already been required).
+This function must be resolvable by CIDER at the time it is called. CIDER will require
+its namespace itself if necessary.
 
-CIDER will bind `*print-length*`, `*print-level*`, `*print-meta*`, and
-`clojure.pprint/*print-right-margin*` when calling the pretty-printing
-function - the function you provide is expected to respect these options.
+The function should abide by those rules:
+
+* two params - object to print and a map of print options
+* the keys of the print options map can be strings, as bencode clients can't send keywords
+* functions return the printed object as a string"
+
+Here's one example:
+
+``` clojure
+(ns cider.pprint
+  (:require
+   [clojure.pprint :as pp]
+   [clojure.walk :as walk]))
+
+(defn pprint
+  "A simple wrapper around `clojure.pprint/write`.
+  It provides an API compatible with what nREPL's
+  pr-values middleware expects for printer functions."
+  [object opts]
+  (let [opts (assoc (walk/keywordize-keys opts) :stream nil)]
+    (apply pp/write object (vec (flatten (vec opts))))))
+```
+
+You can pass an options map to the print function by setting `cider-pprint-options`. Here's an example:
+
+``` el
+(setq cider-pprint-options '(dict "length" 50 "right-margin" 70))
+```

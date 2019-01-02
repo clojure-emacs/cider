@@ -209,8 +209,9 @@ faster than \\=`clojure.core/pprint\\=` (this is the default)
 top of fipp, but at a slight performance cost
 
 Alternatively, can be the namespace-qualified name of a Clojure function of
-one argument.  If the function cannot be resolved, an exception will be
-thrown.
+two arguments - an object to print and an options map.  The options map will
+have string keys.  If the function
+cannot be resolved, an exception will be thrown.
 
 The function is assumed to respect the contract of \\=`clojure.pprint/pprint\\=`
 with respect to the bound values of \\=`*print-length*\\=`, \\=`*print-level*\\=`,
@@ -222,12 +223,22 @@ with respect to the bound values of \\=`*print-length*\\=`, \\=`*print-level*\\=
   :group 'cider
   :package-version '(cider . "0.11.0"))
 
+(defcustom cider-pprint-options nil
+  "A list of options for the pretty-printer that will be converted to a map.
+Note that map can only have string keys, so the printer functions should be
+able to handle those.  Here's an example for `pprint':
+
+  '(dict \"length\" 50 \"right-margin\" 70)"
+  :type 'list
+  :group 'cider
+  :package-version '(cider . "0.20.0"))
+
 (defun cider--pprint-fn ()
   "Return the value to send in the pprint-fn slot of messages."
   (pcase cider-pprint-fn
-    (`pprint "clojure.pprint/pprint")
-    (`fipp "cider.nrepl.middleware.pprint/fipp-pprint")
-    (`puget "cider.nrepl.middleware.pprint/puget-pprint")
+    (`pprint "clojure.nrepl.pprint/pprint")
+    (`fipp "cider.nrepl.pprint/fipp-pprint")
+    (`puget "cider.nrepl.pprint/puget-pprint")
     (_ cider-pprint-fn)))
 
 (defun cider--nrepl-pprint-request-plist (right-margin &optional pprint-fn)
@@ -235,8 +246,10 @@ with respect to the bound values of \\=`*print-length*\\=`, \\=`*print-level*\\=
 PPRINT-FN is the name of the Clojure function to use.
 RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
 result, and is included in the request if non-nil."
-  (nconc `("pprint" "true"
-           "pprint-fn" ,(or pprint-fn (cider--pprint-fn)))
+  (nconc `("printer" ,(or pprint-fn (cider--pprint-fn)))
+         (and cider-pprint-options `("print-options" ,cider-pprint-options))
+         ;; TODO: figure out what to do with this margin
+         ;; probably it should be merged with the cider-pprint-options
          (and right-margin `("print-right-margin" ,right-margin))))
 
 (defun cider--nrepl-content-type-plist ()

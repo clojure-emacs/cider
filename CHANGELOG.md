@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+### New features
+
+* Make it possible to pass an options map to the currently selected pprint function via `cider-pprint-options`.
+
+### Changes
+
+* [#2496](https://github.com/clojure-emacs/cider/issues/2496): Replace CIDER's pprint implementation with nREPL 0.5's built-in pprint support.
+
 ## 0.19.0 (2019-01-01)
 
 ### New features
