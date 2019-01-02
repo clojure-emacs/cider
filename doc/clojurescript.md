@@ -203,9 +203,10 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 [figwheel-sidecar "0.5.16"] ; use here whatever the current version of figwheel is
 ```
 
-Keep in mind that figwheel 0.5.16 is the first to support piggieback
-0.3. If you're using an older figwheel, you should stick to piggieback
-0.2.2 (which uses the old `com.cemerick/piggieback` package coordinates).
+!!! Warning
+
+    Keep in mind that figwheel 0.5.16 is the first to support piggieback
+    0.3. CIDER does not support older versions of Piggieback.
 
 3. Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
 
