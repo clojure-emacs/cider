@@ -236,7 +236,7 @@ able to handle those.  Here's an example for `pprint':
 (defun cider--pprint-fn ()
   "Return the value to send in the pprint-fn slot of messages."
   (pcase cider-pprint-fn
-    (`pprint "clojure.nrepl.pprint/pprint")
+    (`pprint "cider.nrepl.pprint/pprint")
     (`fipp "cider.nrepl.pprint/fipp-pprint")
     (`puget "cider.nrepl.pprint/puget-pprint")
     (_ cider-pprint-fn)))
