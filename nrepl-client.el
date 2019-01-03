@@ -741,13 +741,12 @@ to the REPL."
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler
-                                           pprint-out-handler
                                            content-type-handler)
   "Make a response handler for connection BUFFER.
 A handler is a function that takes one argument - response received from
 the server process.  The response is an alist that contains at least 'id'
 and 'session' keys.  Other standard response keys are 'value', 'out', 'err',
-'pprint-out' and 'status'.
+and 'status'.
 
 The presence of a particular key determines the type of the response.  For
 example, if 'value' key is present, the response is of type 'value', if
@@ -755,7 +754,7 @@ example, if 'value' key is present, the response is of type 'value', if
 
 Depending on the type, the handler dispatches the appropriate value to one
 of the supplied handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
-DONE-HANDLER, EVAL-ERROR-HANDLER, PPRINT-OUT-HANDLER and
+DONE-HANDLER, EVAL-ERROR-HANDLER and
 CONTENT-TYPE-HANDLER.
 
 Handlers are functions of the buffer and the value they handle, except for
@@ -767,8 +766,7 @@ is used.  If any of the other supplied handlers are nil nothing happens for
 the corresponding type of response."
   (lambda (response)
     (nrepl-dbind-response response (content-type content-transfer-encoding body
-                                                 value ns out err status id
-                                                 pprint-out)
+                                                 value ns out err status id)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
           (when (and ns (not (derived-mode-p 'clojure-mode)))
@@ -785,9 +783,6 @@ the corresponding type of response."
             (out
              (when stdout-handler
                (funcall stdout-handler buffer out)))
-            (pprint-out
-             (cond (pprint-out-handler (funcall pprint-out-handler buffer pprint-out))
-                   (stdout-handler (funcall stdout-handler buffer pprint-out))))
             (err
              (when stderr-handler
                (funcall stderr-handler buffer err)))
