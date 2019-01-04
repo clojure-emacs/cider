@@ -39,7 +39,7 @@
 
 ;;; Customization
 (defgroup cider-inspector nil
-  "Presentation and behaviour of the cider value inspector."
+  "Presentation and behaviour of the CIDER value inspector."
   :prefix "cider-inspector-"
   :group 'cider
   :package-version '(cider . "0.10.0"))
@@ -52,7 +52,7 @@ The page size can be also changed interactively within the inspector."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-inspector-fill-frame nil
-  "Controls whether the cider inspector window fills its frame."
+  "Controls whether the CIDER inspector window fills its frame."
   :type 'boolean
   :group 'cider-inspector
   :package-version '(cider . "0.15.0"))
