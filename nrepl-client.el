@@ -795,10 +795,7 @@ the corresponding type of response."
              (when (member "eval-error" status)
                (funcall (or eval-error-handler nrepl-err-handler)))
              (when (member "namespace-not-found" status)
-               ;; nREPL 0.4.3 started echoing back the name of the missing ns
-               (if ns
-                   (message "Namespace `%s' not found." ns)
-                 (message "Namespace not found.")))
+               (message "Namespace `%s' not found." ns))
              (when (member "need-input" status)
                (cider-need-input buffer))
              (when (member "done" status)
