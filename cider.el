@@ -1392,7 +1392,8 @@ PROJECT-DIR defaults to current project."
                         (boot        . "build.boot")
                         (clojure-cli . "deps.edn")
                         (shadow-cljs . "shadow-cljs.edn")
-                        (gradle      . "build.gradle"))))
+                        (gradle      . "build.gradle")
+                        (gradle      . "build.gradle.kts"))))
     (delq nil
           (mapcar (lambda (candidate)
                     (when (file-exists-p (cdr candidate))
