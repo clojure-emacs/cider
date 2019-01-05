@@ -1087,11 +1087,11 @@ is done by `cider-load-buffer'."
     (cider-load-buffer (find-file-noselect filename))))
 
 (defun cider-load-all-files (directory)
-  "Load all files in DIRECTORY (recursively).
+  "Load all files (clj and cljc) in DIRECTORY (recursively).
 Useful when the running nREPL on remote host."
   (interactive "DLoad files beneath directory: ")
   (mapcar #'cider-load-file
-          (directory-files-recursively directory ".clj$")))
+          (directory-files-recursively directory "\\.cljc?$")))
 
 (defalias 'cider-eval-file 'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")

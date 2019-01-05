@@ -61,7 +61,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-find-and-clear-repl-output`            |<kbd>C-c C-o</kbd>                   | Clear the last output in the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
 `cider-load-buffer`                           |<kbd>C-c C-k</kbd>                   | Load (eval) the current buffer.
 `cider-load-file`                             |<kbd>C-c C-l</kbd>                   | Load (eval) a Clojure file.
-`cider-load-all-files`                        |<kbd>C-c C-M-l</kbd>                 | Load (eval) all Clojure files below a directory.
+`cider-load-all-files`                        |<kbd>C-c C-M-l</kbd>                 | Load (eval) all Clojure files (clj and cljc) below a directory.
 `cider-ns-refresh`                            |<kbd>C-c M-n (M-)r</kbd>                   | Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
 `cider-doc`                                   |<kbd>C-c C-d d</kbd> <br/> <kbd>C-c C-d C-d</kbd> | Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 `cider-javadoc`                               |<kbd>C-c C-d j</kbd> <br/> <kbd>C-c C-d C-j</kbd> | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
