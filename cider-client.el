@@ -213,9 +213,15 @@ two arguments - an object to print and an options map.  The options map will
 have string keys.  If the function
 cannot be resolved, an exception will be thrown.
 
-The function is assumed to respect the contract of \\=`clojure.pprint/pprint\\=`
-with respect to the bound values of \\=`*print-length*\\=`, \\=`*print-level*\\=`,
-\\=`*print-meta*\\=`, and \\=`clojure.pprint/*print-right-margin*\\=`."
+The function should ideally have a two-arity variant that accepts the
+object to print and a map of configuration options for the printer.  See
+`cider-pprint-options' for details.
+
+The function is also assumed to respect the contract of
+\\=`clojure.pprint/pprint\\=` with respect to the bound values of
+\\=`*print-length*\\=`, \\=`*print-level*\\=`, \\=`*print-meta*\\=`, and
+\\=`clojure.pprint/*print-right-margin*\\=`.  Those would normally serve as
+fallback values when a map of print options is not supplied explicitly."
   :type '(choice (const pprint)
                  (const fipp)
                  (const puget)
@@ -246,11 +252,13 @@ able to handle those.  Here's an example for `pprint':
 PPRINT-FN is the name of the Clojure function to use.
 RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
 result, and is included in the request if non-nil."
-  (nconc `("printer" ,(or pprint-fn (cider--pprint-fn)))
-         (and cider-pprint-options `("print-options" ,cider-pprint-options))
-         ;; TODO: figure out what to do with this margin
-         ;; probably it should be merged with the cider-pprint-options
-         (and right-margin `("print-right-margin" ,right-margin))))
+  (let* ((print-options (or cider-pprint-options (nrepl-dict))))
+    ;; TODO: Currently this will work only for pprint.  We have to add some function
+    ;; to translate the option names for the various pprint backends.
+    (when right-margin
+      (setq print-options (nrepl-dict-put print-options "right-margin" right-margin)))
+    (nconc `("printer" ,(or pprint-fn (cider--pprint-fn)))
+           (and (not (nrepl-dict-empty-p print-options)) `("print-options" ,print-options)))))
 
 (defun cider--nrepl-content-type-plist ()
   "Plist to be appended to an eval request to make it use content-types."
