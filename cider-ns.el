@@ -245,11 +245,11 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
           (when clear?
             (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
           (cider-nrepl-send-request
-           (nconc `("op" ,(if refresh-all? "refresh-all" "refresh")
-                    "print-length" ,cider-stacktrace-print-length
-                    "print-level" ,cider-stacktrace-print-level)
+           (nconc `("op" ,(if refresh-all? "refresh-all" "refresh"))
                   (when (cider--pprint-fn)
                     `("pprint-fn" ,(cider--pprint-fn)))
+                  (when cider-stacktrace-print-options
+                    `("print-options" ,cider-stacktrace-print-options))
                   (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
                     `("before" ,cider-ns-refresh-before-fn))
                   (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)

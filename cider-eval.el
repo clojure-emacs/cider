@@ -279,10 +279,8 @@ into a new error buffer."
      (nconc '("op" "stacktrace")
             (when (cider--pprint-fn)
               `("pprint-fn" ,(cider--pprint-fn)))
-            (when cider-stacktrace-print-length
-              `("print-length" ,cider-stacktrace-print-length))
-            (when cider-stacktrace-print-level
-              `("print-level" ,cider-stacktrace-print-level)))
+            (when cider-stacktrace-print-options
+              `("print-options" ,cider-stacktrace-print-options)))
      (lambda (response)
        ;; While the return value of `cider--handle-stacktrace-response' is not
        ;; meaningful for the last message, we do not need the value of `causes'
