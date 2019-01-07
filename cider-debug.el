@@ -101,21 +101,15 @@ configure `cider-debug-prompt' instead."
   :group 'cider-debug
   :package-version '(cider . "0.9.1"))
 
-(defcustom cider-debug-print-level 10
-  "The print level for values displayed by the debugger.
-This variable must be set before starting the repl connection."
-  :type '(choice (const :tag "No limit" nil)
-                 (integer :tag "Max depth" 10))
-  :group 'cider-debug
-  :package-version '(cider . "0.10.0"))
+(make-obsolete 'cider-debug-print-length 'cider-debug-print-options "0.20")
+(make-obsolete 'cider-debug-print-level 'cider-debug-print-options "0.20")
 
-(defcustom cider-debug-print-length 10
-  "The print length for values displayed by the debugger.
+(defcustom cider-debug-print-options '(dict "length" 10 "level" 10)
+  "The print options for values displayed by the debugger.
 This variable must be set before starting the repl connection."
-  :type '(choice (const :tag "No limit" nil)
-                 (integer :tag "Max depth" 10))
-  :group 'cider-debug
-  :package-version '(cider . "0.10.0"))
+  :type 'listp
+  :group 'cider-stacktrace
+  :package-version '(cider . "0.20.0"))
 
 
 ;;; Implementation
@@ -163,10 +157,8 @@ This variable must be set before starting the repl connection."
   "Initialize a connection with the cider.debug middleware."
   (cider-nrepl-send-request
    (nconc '("op" "init-debugger")
-          (when cider-debug-print-level
-            `("print-level" ,cider-debug-print-level))
-          (when cider-debug-print-length
-            `("print-length" ,cider-debug-print-length)))
+          (when cider-debug-print-options
+            `("print-options" ,cider-debug-print-options)))
    #'cider--debug-response-handler))
 
 
