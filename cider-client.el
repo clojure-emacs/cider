@@ -266,7 +266,7 @@ NAME can be a string or a symbol.  PRINTER has to be a symbol.
 The result will be a string."
   (let ((result (cdr (assoc printer (cadr (assoc (cider-maybe-intern name) cider--pprint-options-mapping))))))
     (or (and result (symbol-name result))
-       (symbol-name name))))
+        (symbol-name name))))
 
 (defun cider--nrepl-pprint-request-plist (right-margin &optional pprint-fn)
   "Plist to be appended to an eval request to make it use pprint.
