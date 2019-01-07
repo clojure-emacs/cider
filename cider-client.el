@@ -275,7 +275,7 @@ RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
 result, and is included in the request if non-nil."
   (let* ((print-options (or cider-pprint-options (nrepl-dict))))
     (when right-margin
-      (setq print-options (nrepl-dict-put print-options (cider--print-option "right-margin" cider-pprint-fn) right-margin)))
+      (setq print-options (nrepl-dict-put print-options (cider--pprint-option "right-margin" cider-pprint-fn) right-margin)))
     (nconc `("printer" ,(or pprint-fn (cider--pprint-fn)))
            (and (not (nrepl-dict-empty-p print-options)) `("print-options" ,print-options)))))
 
