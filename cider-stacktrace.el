@@ -68,9 +68,9 @@ This sets the value of Clojure's `*print-length*` when pretty printing the
 `ex-data` map for exception causes in the stacktrace that are instances of
 `IExceptionInfo`.
 
-Be advised that setting \"print-length\" to `nil` will cause the attempted printing of
-infinite data structures and that setting \"print-level\" to nil cause the attempted printing of
-cyclical data structures."
+Be advised that setting \"print-length\" to `nil` will cause the attempted
+printing of infinite data structures and that setting \"print-level\" to
+nil cause the attempted printing of cyclical data structures."
   :type 'listp
   :group 'cider-stacktrace
   :package-version '(cider . "0.20.0"))
