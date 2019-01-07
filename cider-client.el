@@ -247,16 +247,35 @@ able to handle those.  Here's an example for `pprint':
     (`puget "cider.nrepl.pprint/puget-pprint")
     (_ cider-pprint-fn)))
 
+(defvar cider--pprint-options-mapping
+  '((right-margin
+     ((fipp . width) (puget . width) (zprint . width)))
+    (length
+     ((fipp . print-length) (puget . print-length) (zprint . max-length)))
+    (level
+     ((fipp . print-level) (puget . print-level) (zprint . max-depth))))
+  "A mapping of print option for the various supported print engines.")
+
+(defun cider--pprint-option (name printer)
+  "Covert the generic NAME to its PRINTER specific variant.
+E.g. pprint's right-margin would become width for fipp.
+The function is useful when you want to generate dynamically
+print options.
+
+NAME can be a string or a symbol.  PRINTER has to be a symbol.
+The result will be a string."
+  (let ((result (cdr (assoc printer (cadr (assoc (cider-maybe-intern name) cider--pprint-options-mapping))))))
+    (or (and result (symbol-name result))
+       (symbol-name name))))
+
 (defun cider--nrepl-pprint-request-plist (right-margin &optional pprint-fn)
   "Plist to be appended to an eval request to make it use pprint.
 PPRINT-FN is the name of the Clojure function to use.
 RIGHT-MARGIN specifies the maximum column-width of the pretty-printed
 result, and is included in the request if non-nil."
   (let* ((print-options (or cider-pprint-options (nrepl-dict))))
-    ;; TODO: Currently this will work only for pprint.  We have to add some function
-    ;; to translate the option names for the various pprint backends.
     (when right-margin
-      (setq print-options (nrepl-dict-put print-options "right-margin" right-margin)))
+      (setq print-options (nrepl-dict-put print-options (cider--print-option "right-margin" cider-pprint-fn) right-margin)))
     (nconc `("printer" ,(or pprint-fn (cider--pprint-fn)))
            (and (not (nrepl-dict-empty-p print-options)) `("print-options" ,print-options)))))
 
