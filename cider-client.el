@@ -474,7 +474,7 @@ CONTEXT represents a completion context for compliment."
                                   ,@(when symbol `("symbol" ,symbol))
                                   ,@(when class `("class" ,class))
                                   ,@(when member `("member" ,member)))
-                    (cider-nrepl-send-sync-request))))
+                    (cider-nrepl-send-sync-request (cider-current-repl)))))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
       var-info)))
