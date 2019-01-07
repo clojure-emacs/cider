@@ -58,31 +58,22 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
-(defcustom cider-stacktrace-print-length 50
+(make-obsolete 'cider-stacktrace-print-length 'cider-stacktrace-print-options "0.20")
+(make-obsolete 'cider-stacktrace-print-level 'cider-stacktrace-print-options "0.20")
+
+(defcustom cider-stacktrace-print-options '(dict "length" 50 "level" 50)
   "Set the maximum length of sequences in displayed cause data.
 
 This sets the value of Clojure's `*print-length*` when pretty printing the
 `ex-data` map for exception causes in the stacktrace that are instances of
 `IExceptionInfo`.
 
-Be advised that setting this to `nil` will cause the attempted printing of
-infinite data structures."
-  :type '(choice integer (const nil))
-  :group 'cider-stacktrace
-  :package-version '(cider . "0.9.0"))
-
-(defcustom cider-stacktrace-print-level 50
-  "Set the maximum level of nesting in displayed cause data.
-
-This sets the value of Clojure's `*print-level*` when pretty printing the
-`ex-data` map for exception causes in the stacktrace that are instances of
-`IExceptionInfo`.
-
-Be advised that setting this to `nil` will cause the attempted printing of
+Be advised that setting \"print-length\" to `nil` will cause the attempted printing of
+infinite data structures and that setting \"print-level\" to nil cause the attempted printing of
 cyclical data structures."
-  :type '(choice integer (const nil))
+  :type 'listp
   :group 'cider-stacktrace
-  :package-version '(cider . "0.8.0"))
+  :package-version '(cider . "0.20.0"))
 
 (defvar cider-stacktrace-detail-max 2
   "The maximum detail level for causes.")
