@@ -385,6 +385,8 @@ This can be one of three values (defaults to `pprint`):
   [canonical serialization](https://github.com/greglook/puget#canonical-representation)
   of data, at a slight performance cost.
 
+- `zprint` to use [zprint](https://github.com/kkinnear/zprint)
+
 Alternatively, `cider-pprint-fn` can be set to the namespace-qualified name of a
 Clojure function that takes a single argument and will pretty-print the value of
 said argument to `*out*`.
