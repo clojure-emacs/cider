@@ -222,14 +222,33 @@ use:
 
 #### Pretty printing in the REPL
 
-You can make the REPL always pretty-print the results of your
-evaluations using <kbd>M-x cider-repl-toggle-pretty-printing</kbd>.
+By default the REPL always pretty-prints the results of your
+evaluations using whatever pretty-printer is specified in `cider-pprint-fn`.
 
-To make this behavior the default:
+!!! Note
+
+    This behaviour was changed in CIDER 0.20. In prior CIDER releases
+    pretty-printing was disabled by default.
+
+You can temporary disable this behaviour and revert to the default
+printer using <kbd>M-x cider-repl-toggle-pretty-printing</kbd>.
+
+If you want to disable pretty-printing of results completely use:
 
 ```el
-(setq cider-repl-use-pretty-printing t)
+(setq cider-repl-use-pretty-printing nil)
 ```
+
+The variable `cider-repl-pretty-print-width` (`fill-column` by default) controls
+the print width. You can adjust if you want:
+
+```el
+;; this will try to print data in 20 columns per line
+(setq cider-repl-print-width 20)
+```
+
+See [this](configuration/#pretty-printing) for more
+information on pretty printing.
 
 #### Displaying images in the REPL
 
@@ -320,7 +339,7 @@ buffer, which includes invoking `cider-quit`, or when you quit Emacs.
 ### REPL history browser
 
 You can browse your REPL input history with the command <kbd>M-x</kbd>
-`cider-repl-history`.  This command is bound to <kbd>C-c M-p</kbd> 
+`cider-repl-history`.  This command is bound to <kbd>C-c M-p</kbd>
 in `cider-repl-mode` buffers and is also available via the
 `history` shortcut.
 

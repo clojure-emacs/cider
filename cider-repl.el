@@ -114,8 +114,9 @@ If this is set to nil, no re-centering takes place."
   :group 'cider-repl
   :package-version '(cider . "0.11.0"))
 
-(defcustom cider-repl-use-pretty-printing nil
+(defcustom cider-repl-use-pretty-printing t
   "Control whether results in the REPL are pretty-printed or not.
+The REPL will use the printer specified in `cider-pprint-fn'.
 The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean
