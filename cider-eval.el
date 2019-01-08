@@ -558,21 +558,20 @@ COMMENT-POSTFIX is the text to output after the last line."
                                  #'multiline-comment-handler
                                  '())))
 
-(defun cider-popup-eval-out-handler (&optional buffer)
-  "Make a handler for evaluating and printing stdout/stderr in popup BUFFER.
-This is used by pretty-printing commands and intentionally discards their results."
-  (cl-flet ((popup-output-handler (buffer str)
-                                  (cider-emit-into-popup-buffer buffer
-                                                                (ansi-color-apply str)
-                                                                nil
-                                                                t)))
-    (nrepl-make-response-handler (or buffer (current-buffer))
-                                 '()
-                                 ;; stdout handler
-                                 #'popup-output-handler
-                                 ;; stderr handler
-                                 #'popup-output-handler
-                                 '())))
+(defun cider-popup-eval-handler (&optional buffer)
+  "Make a handler for printing evaluation results in popup BUFFER.
+This is used by pretty-printing commands."
+  (nrepl-make-response-handler (or buffer (current-buffer))
+                               (lambda (buffer value)
+                                 (cider-emit-into-popup-buffer buffer
+                                                               (ansi-color-apply value)
+                                                               nil
+                                                               t))
+                               (lambda (_buffer out)
+                                 (cider-emit-interactive-eval-output out))
+                               (lambda (_buffer err)
+                                 (cider-emit-interactive-eval-err-output err))
+                               '()))
 
 
 ;;; Interactive valuation commands
@@ -818,7 +817,7 @@ Print its value into the current buffer."
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
   (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary))
-         (handler (cider-popup-eval-out-handler result-buffer)))
+         (handler (cider-popup-eval-handler result-buffer)))
     (cider-interactive-eval (when (stringp form) form)
                             handler
                             (when (consp form) form)
