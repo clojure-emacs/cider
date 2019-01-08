@@ -806,13 +806,16 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
   (when prefix
     (cider-switch-to-repl-buffer)))
 
-(defun cider-eval-print-last-sexp ()
+(defun cider-eval-print-last-sexp (&optional pretty-print)
   "Evaluate the expression preceding point.
-Print its value into the current buffer."
-  (interactive)
+Print its value into the current buffer.
+With an optional PRETTY-PRINT prefix it pretty-prints the result."
+  (interactive "P")
   (cider-interactive-eval nil
                           (cider-eval-print-handler)
-                          (cider-last-sexp 'bounds)))
+                          (cider-last-sexp 'bounds)
+                          (when pretty-print
+                            (cider--nrepl-pprint-request-plist (cider--pretty-print-width)))))
 
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."

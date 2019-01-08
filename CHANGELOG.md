@@ -6,6 +6,7 @@
 
 * Make it possible to pass an options map to the currently selected pprint function via `cider-pprint-options`.
 * Add support for zprint.
+* Make it possible to eval and pprint in the scratch buffer using `C-u C-j`.
 
 ### Changes
 

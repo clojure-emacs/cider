@@ -36,7 +36,8 @@
 
 (defcustom cider-scratch-initial-message
   ";; This buffer is for Clojure experiments and evaluation.\n
-;; Press C-j to evaluate the last expression.\n\n"
+;; Press C-j to evaluate the last expression.\n
+;; You can also press C-u C-j to evaluate the expression and pretty-print its result.\n\n"
   "The initial message displayed in new scratch buffers."
   :type 'string
   :group 'cider
