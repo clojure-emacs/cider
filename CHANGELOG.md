@@ -5,6 +5,7 @@
 ### New features
 
 * Make it possible to pass an options map to the currently selected pprint function via `cider-pprint-options`.
+* Add support for zprint.
 
 ### Changes
 

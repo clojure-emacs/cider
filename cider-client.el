@@ -208,6 +208,9 @@ faster than \\=`clojure.core/pprint\\=` (this is the default)
 `puget' - to use Puget, which provides canonical serialization of data on
 top of fipp, but at a slight performance cost
 
+`zprint' - to use zprint, a fast and flexible alternative to the libraries
+mentioned above.
+
 Alternatively, can be the namespace-qualified name of a Clojure function of
 two arguments - an object to print and an options map.  The options map will
 have string keys.  If the function
@@ -225,6 +228,7 @@ fallback values when a map of print options is not supplied explicitly."
   :type '(choice (const pprint)
                  (const fipp)
                  (const puget)
+                 (const zprint)
                  string)
   :group 'cider
   :package-version '(cider . "0.11.0"))
@@ -245,6 +249,7 @@ able to handle those.  Here's an example for `pprint':
     (`pprint "cider.nrepl.pprint/pprint")
     (`fipp "cider.nrepl.pprint/fipp-pprint")
     (`puget "cider.nrepl.pprint/puget-pprint")
+    (`zprint "zprint.core/zprint-str")
     (_ cider-pprint-fn)))
 
 (defvar cider--pprint-options-mapping
