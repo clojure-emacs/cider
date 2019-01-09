@@ -13,11 +13,16 @@ pages:
 - Using the REPL: using_the_repl.md
 - Managing Connections: managing_connections.md
 - Code Completion: code_completion.md
+- Pretty Printing: pretty_printing.md
 - Navigating Stacktraces: navigating_stacktraces.md
 - Running Tests: running_tests.md
 - Debugging: debugging.md
 - Miscellaneous Features: miscellaneous_features.md
-- Configuration: configuration.md
+- Configuration:
+    - Basic Configuration: configuration/basic_configuration.md
+    - Syntax Highlighting: configuration/syntax_highlighting.md
+    - Indentation: configuration/indentation.md
+    - Misc: configuration/misc.md
 - Indentation Specification: indent_spec.md
 - Additional Packages: additional_packages.md
 - Caveats: caveats.md
