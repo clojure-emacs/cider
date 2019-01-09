@@ -1,3 +1,5 @@
+# Release Policy
+
 We're following [SemVer](http://semver.org/) (as much as one can be
 following it when the major version is 0). At this point bumps of the
 minor (second) version number are considered major releases and always
@@ -10,6 +12,13 @@ release starts immediately after the previous one has been
 shipped. Bugfix/point releases (if any) address only serious bugs and
 never contain new features.
 
-The versions of CIDER and `cider-nrepl` are always kept in sync. If you're
-tracking the `master` branch of CIDER, you should also be tracking the `master`
-branch of `cider-nrepl`.
+Here are a few examples:
+
+* 0.5.0 - Feature release
+* 0.5.1 - Bug-fix release
+* 0.5.2 - Bug-fix release
+* 0.6.0 - Feature release
+
+CIDER and cider-nrepl are released independently, but follow the same release policy overall.
+CIDER contains references to the cider-nrepl version it supports and would normally inject
+the newest cider-nrepl version possible.
