@@ -168,7 +168,7 @@ You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apr
 commands by customizing the variable `cider-filter-regexps`. It should be a list of
 regexps matching the pattern of namespaces you want to filter out.
 
-Its default value is `'("^cider.nrepl" "^refactor-nrepl" "^clojure.tools.nrepl" "^nrepl")`,
+Its default value is `'("^cider.nrepl" "^refactor-nrepl" "^nrepl")`,
 the most commonly used middleware collections/packages.
 
 An important thing to note is that this list of regexps is passed on to the middleware

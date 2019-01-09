@@ -107,28 +107,28 @@
 
   (describe "when there is a single dependency"
     (before-each
-      (setq-local cider-jack-in-dependencies '(("org.clojure/tools.nrepl" "0.2.12")))
+      (setq-local cider-jack-in-dependencies '(("nrepl/nrepl" "0.5.3")))
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.10.0-SNAPSHOT")))
       (setq-local cider-jack-in-dependencies-exclusions '()))
 
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a lein project with an exclusion"
-      (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure"))))
+      (setq-local cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure"))))
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
-      (setq-local cider-jack-in-dependencies-exclusions '(("org.clojure/tools.nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
+      (setq-local cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\ foo.bar/baz\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\ foo.bar/baz\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
-              :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.10.0-SNAPSHOT cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
+              :to-equal "-i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d cider/cider-nrepl\\:0.10.0-SNAPSHOT cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
 
     (it "can inject dependencies in a gradle project"
       (expect (cider-inject-jack-in-dependencies "" "--no-daemon clojureRepl" 'gradle)
@@ -141,24 +141,24 @@
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
+              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
 
     (it "can inject dependencies in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
-              :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait")))
+              :to-equal "-i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait")))
 
   (describe "when there are global options"
     (before-each
-      (setq-local cider-jack-in-dependencies '(("org.clojure/tools.nrepl" "0.2.12")))
+      (setq-local cider-jack-in-dependencies '(("nrepl/nrepl" "0.5.3")))
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.11.0")))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can concat in a lein project"
       (expect (cider-inject-jack-in-dependencies "-o -U" "repl :headless" 'lein)
-              :to-equal "-o -U update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
+              :to-equal "-o -U update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "can concat in a boot project"
       (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" 'boot)
-              :to-equal "-C -o -i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
+              :to-equal "-C -o -i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
     (it "can concat in a gradle project"
       (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" 'gradle)
               :to-equal "-m --no-daemon clojureRepl")))
@@ -213,10 +213,10 @@
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "uses them in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[org.clojure/tools.nrepl\\ \\\"0.2.12\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
+              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
     (it "uses them in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
-              :to-equal "-i \"(require 'cider.tasks)\" -d org.clojure/tools.nrepl\\:0.2.12 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait"))))
+              :to-equal "-i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait"))))
 
 (describe "cider-jack-in-auto-inject-clojure"
   (it "injects `cider-minimum-clojure-version' when `cider-jack-in-auto-inject-clojure' is set to minimal"

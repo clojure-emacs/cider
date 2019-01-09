@@ -35,7 +35,7 @@
   (before-all
     (spy-on 'cider--java-version :and-return-value "1.8.0_31")
     (spy-on 'cider--clojure-version :and-return-value "1.8.0")
-    (spy-on 'cider--nrepl-version :and-return-value "0.2.12")
+    (spy-on 'cider--nrepl-version :and-return-value "0.5.3")
     (setq nrepl-endpoint (list :host "localhost" :port "54018"))
     (setq cider-version "0.12.0")
     (setq cider-codename "Seattle"))
@@ -45,7 +45,7 @@
       (spy-on 'pkg-info-version-info :and-return-value "0.12.0")
       (expect (cider-repl--banner) :to-equal
               ";; Connected to nREPL server - nrepl://localhost:54018
-;; CIDER 0.12.0 (Seattle), nREPL 0.2.12
+;; CIDER 0.12.0 (Seattle), nREPL 0.5.3
 ;; Clojure 1.8.0, Java 1.8.0_31
 ;;     Docs: (doc function-name)
 ;;           (find-doc part-of-name)
@@ -59,7 +59,7 @@
       (spy-on 'pkg-info-version-info :and-throw-error '(error "No package version"))
       (expect (cider-repl--banner) :to-equal
               ";; Connected to nREPL server - nrepl://localhost:54018
-;; CIDER 0.12.0 (Seattle), nREPL 0.2.12
+;; CIDER 0.12.0 (Seattle), nREPL 0.5.3
 ;; Clojure 1.8.0, Java 1.8.0_31
 ;;     Docs: (doc function-name)
 ;;           (find-doc part-of-name)
@@ -178,10 +178,10 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
   (it "works with avis exceptions"
     (with-temp-buffer
       (insert "\n                        java.util.concurrent.ThreadPoolExecutor$Worker.run  ThreadPoolExecutor.java:  624
-             clojure.tools.nrepl.middleware.interruptible-eval/run-next/fn   interruptible_eval.clj:  190")
+             nrepl.middleware.interruptible-eval/run-next/fn   interruptible_eval.clj:  190")
       (expect (cider-locref-at-point)
               :to-equal
-              '(:type aviso-stacktrace :highlight (121 . 213) :var "clojure.tools.nrepl.middleware.interruptible-eval" :file "interruptible_eval.clj" :line 190))
+              '(:type aviso-stacktrace :highlight (121 . 199) :var "nrepl.middleware.interruptible-eval" :file "interruptible_eval.clj" :line 190))
       (line-move -1)
       (expect (cider-locref-at-point)
               :to-equal

@@ -96,15 +96,15 @@ This will bring up a backtrace with the entire function stack, including
 function arguments. So you should be able to figure out what's going on (or at
 least what's being required).
 
-### Warning saying you have to use nREPL 0.2.12+
+### Warning saying you have to use nREPL 0.4.4+
 
-CIDER currently requires at least nREPL 0.2.12 to work properly (there were some
+CIDER currently requires at least nREPL 0.4.4 to work properly (there were some
 nasty bugs in older version and no support for tracking where some var was
 defined in the source code). Leiningen users can add this to their
 `profiles.clj` to force the proper dependency:
 
 ```clojure
-{:repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}}
+{:repl {:dependencies [[nrepl/nrepl "x.y.z"]]}}
 ```
 
 Make sure you add the newer nREPL dependency to the `:dependencies` key instead
@@ -114,9 +114,9 @@ mistake.
 Generally you're advised to use the newest nREPL with CIDER, as bugs get fixed
 in pretty much every release.
 
-Note, that running `cider-jack-in` from outside the scope of a project will
-result in the **older (0.2.6) nREPL dependency being used** (at least on Leiningen
-2.5.1). This is likely a Leiningen bug.
+Note, that running `cider-jack-in` from outside the scope of a project
+will result in the **older nREPL dependency being used**. This is
+likely a Leiningen bug.
 
 ### Missing clojure-... function after CIDER update
 
@@ -164,8 +164,8 @@ on the Installation section.
 
 - Do `C-h v cider-inject-dependencies-at-jack-in`, and check that this variable is non-nil.
 - Make sure your project depends on at least Clojure `1.7.0`.
-- If you use leiningen, make sure your `lein --version` is at least `2.6.1`.
-- If you use boot and you've changed `cider-boot-parameters`, that's probably the cause.
+- If you use Leiningen, make sure your `lein --version` is at least `2.8.3`.
+- If you use Boot and you've changed `cider-boot-parameters`, that's probably the cause.
 
 If the above doesn't work, you can try specifying the cider-nrepl middleware
 manually, as per the
@@ -177,7 +177,7 @@ on the Installation section.
 This means you're manually adding the cider-nrepl middleware in your project,
 but you shouldn't do that because `cider-jack-in` already does that for
 you. Look into the following files, and ensure you've removed all references to
-`cider-nrepl` and `tools.nrepl`: `project.clj`, `build.boot`,
+`cider-nrepl` and `nrepl`: `project.clj`, `build.boot`,
 `~/.lein/profiles.clj` and `~/.boot/profile.boot`.
 
 ### I get some error related to refactor-nrepl on startup
