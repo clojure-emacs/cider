@@ -1,3 +1,5 @@
+# Installation
+
 The canonical way to install CIDER is via `package.el` (Emacs's built-in package
 manager), but it can be installed manually or via alternative package managers such
 as `el-get`.
