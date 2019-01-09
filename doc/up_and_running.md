@@ -7,8 +7,8 @@ nREPL server that is already started and is managed separately.
 
 !!! Note
 
-    CIDER will automatically work with Leiningen 2.5.2+ or Boot
-    2.7.0+. Older versions are not supported.
+    CIDER will automatically work with Leiningen 2.8.3+ or Boot
+    2.8.2+. Older versions are not supported.
 
 There are two ways to connect CIDER to an nREPL server:
 
