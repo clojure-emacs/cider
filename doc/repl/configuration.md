@@ -184,7 +184,7 @@ the print width. You can adjust if you want:
 (setq cider-repl-print-width 20)
 ```
 
-See [this](configuration/#pretty-printing) for more
+See [this](../pretty-printing) for more
 information on pretty printing.
 
 ## Displaying images in the REPL
