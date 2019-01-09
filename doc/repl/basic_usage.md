@@ -11,3 +11,45 @@ explore a new library you're interested in using. The CIDER REPL offers a number
 * (optional) pretty-printing of evaluation results
 * eldoc support
 * highly customizable REPL prompt
+
+## Interacting with the REPL
+
+Interacting with CIDER's REPL is pretty simple - most of the time
+you'd just write expressions there and press <kbd>RET</kbd> to
+evaluate them.
+
+But the REPL is a bit more powerful than that and it allows you to do some things that might not be available in
+other Clojure REPLs. Some examples of such things would be:
+
+* You can close an incomplete expression with <kbd>C-Ret</kbd>
+* You can enter a multi-line expression by pressing <kbd>C-j</kbd> at the end of each line
+* You can quickly jump to the definition of a symbol (<kbd>.</kbd>) or to its documentation (<kbd>C-c C-d d</kbd>)
+* You can clear the output of the last expression with <kbd>C-c C-o</kbd>
+* You can clear the REPL buffer with <kbd>C-u C-c C-o</kbd>
+* You can jump between your source buffers and the REPL with <kbd>C-c C-z</kbd>
+* You can jump between your Clojure and ClojureScript REPLs with <kbd>C-c M-o</kbd>
+
+On top of this the REPL is extremely configurable and you can tweak almost every aspect of it.
+
+## Interrupting Evaluations
+
+If you accidentally try to evaluate something that's going to take a lot of time (if it finishes at all), you
+can interrupt the rouge evaluation operation by pressing <kbd>C-c C-c</kbd>.
+
+!!! Tip
+
+    Note that this is different from the keybinding for interrupting evaluations in source buffers,
+    namely <kbd>C-c C-b</kbd>.
+
+## Quitting a REPL
+
+When you're done with a REPL you can dispose of it with <kbd>C-c C-q</kbd>.
+
+Please, avoid killing REPL buffers with <kbd>C-c C-k</kbd>
+
+## Known Limitations
+
+Unfortunately the REPL doesn't handle very well big output and they can cause slowdowns and even lockups.
+Make sure to clean your REPL buffers from time to time if you notice any slowdowns related to lots of
+content in the REPL. It's also prudent to configure result printing with some reasonable setting for
+`*print-length*` and `*print-level*` (or `cider-pprint-options` if you're making use of pretty-printing).
