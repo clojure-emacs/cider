@@ -10,7 +10,11 @@ pages:
 - Up and Running: up_and_running.md
 - ClojureScript: clojurescript.md
 - Interactive Programming: interactive_programming.md
-- Using the REPL: using_the_repl.md
+- Using the REPL:
+    - Basic Usage: repl/basic_usage.md
+    - Keybindinds: repl/keybindings.md
+    - Configuration: repl/configuration.md
+    - REPL History: repl/history_browser.md
 - Managing Connections: managing_connections.md
 - Code Completion: code_completion.md
 - Pretty Printing: pretty_printing.md
@@ -22,6 +26,7 @@ pages:
     - Basic Configuration: configuration/basic_configuration.md
     - Syntax Highlighting: configuration/syntax_highlighting.md
     - Indentation: configuration/indentation.md
+    - ElDoc: configuration/eldoc.md
     - Misc: configuration/misc.md
 - Indentation Specification: indent_spec.md
 - Additional Packages: additional_packages.md
