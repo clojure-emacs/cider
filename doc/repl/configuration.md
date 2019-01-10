@@ -181,7 +181,7 @@ the print width. You can adjust if you want:
 
 ```el
 ;; this will try to print data in 20 columns per line
-(setq cider-repl-print-width 20)
+(setq cider-repl-pretty-print-width 20)
 ```
 
 See [this](../pretty_printing) for more
