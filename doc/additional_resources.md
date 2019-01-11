@@ -1,3 +1,5 @@
+# Additional Resources
+
 ## Quick reference
 
 A single-page quick reference PDF for CIDER commands is available

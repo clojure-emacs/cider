@@ -1,3 +1,5 @@
+# Additional Packages
+
 There are many additional Emacs packages that can enhance your Clojure programming
 experience. The majority of the minor modes listed here should be enabled for both
 `cider-repl-mode` and `clojure-mode` for optimal effects.

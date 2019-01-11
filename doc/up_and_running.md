@@ -1,3 +1,5 @@
+# Up and Running
+
 To use CIDER, you'll need to connect it to a running nREPL server that
 is associated with your program. Most Clojure developers use standard
 build tooling such as Leiningen, Boot, or Gradle, and CIDER can

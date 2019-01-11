@@ -1,3 +1,5 @@
+# Managing Connections
+
 !!! Note
 
     Because connections map one-to-one to REPL buffers, for the purpose of this
@@ -5,7 +7,7 @@
 
 ## Sessions
 
-CIDER maintains a grouped view of opened connections through [Sesman]
+CIDER maintains a grouped view of opened nREPL connections through [Sesman]
 sessions. Each session is a collection of connections which share the same nREPL
 server.
 

@@ -1,3 +1,5 @@
+# Logo
+
 CIDER's logo was created by [@tapeinosyne](https://github.com/tapeinosyne). You can find
 the logo in various formats
 [here](https://github.com/clojure-emacs/cider/tree/master/logo).

@@ -1,3 +1,5 @@
+# Frequently Asked Questions
+
 ## What does CIDER stand for?
 
 CIDER stands for **C**lojure **I**nteractive **D**evelopment **E**nvironment that **R**ocks.

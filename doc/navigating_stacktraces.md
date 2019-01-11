@@ -1,3 +1,5 @@
+# Navigating Stacktraces
+
 CIDER comes with a powerful solution for dealing with Clojure
 stacktraces. CIDER presents stack traces in a special major mode,
 `cider-stacktrace-mode`, which gives you gives you some key features:
@@ -5,6 +7,8 @@ stacktraces. CIDER presents stack traces in a special major mode,
 - the ability to filter out certain stack frames to reduce clutter
 - some handy ways to navigate to the cause of the exception
 - the ability to jump straight to code with a single keystroke
+
+## Keybindings
 
 Command                                | Keyboard shortcut                   | Description
 ---------------------------------------|-------------------------------------|--------------
@@ -25,6 +29,8 @@ Command                                | Keyboard shortcut                   | D
 `cider-stacktrace-toggle-duplicates`   |<kbd>d</kbd>                         | Toggle display of duplicate frames
 `cider-stacktrace-show-only-project`   |<kbd>p</kbd>                         | Toggle display only project frames
 `cider-stacktrace-toggle-all`          |<kbd>a</kbd>                         | Toggle display of all frames
+
+## Working with Stacktraces
 
 By default, when an exception occurs, CIDER will display the exception
 in an error buffer using `cider-stacktrace-mode`. You can suppress
@@ -67,6 +73,8 @@ To disable auto-selection of the error buffer when it's displayed:
 (setq cider-auto-select-error-buffer nil)
 ```
 
+## Filtering Stack Frames
+
 CIDER helps you cut through the clutter of Clojure stacktraces by
 allowing you to apply a list of filters using the
 `cider-stacktrace-default-filters` variable. Valid filter types
@@ -84,6 +92,8 @@ if they are both present.
 ;; or
 (setq cider-stacktrace-default-filters '(project))
 ```
+
+## Wrapping Error Messages
 
 Finally, CIDER can wrap error messages when they are displayed in a
 buffer to help improve their readability. CIDER uses

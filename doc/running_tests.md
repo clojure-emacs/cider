@@ -1,3 +1,5 @@
+# Running Tests
+
 The Clojure ecosystem provides a lot of support for test-driven
 development (TDD) and other test-centric patterns. First, Clojure
 provides a standardized framework for developing tests called
@@ -13,7 +15,7 @@ code that is failing to pass a given test.
     CIDER only supports clojure.test and other libraries
     providing integration with clojure.test.
 
-## Running Tests
+## Basic Usage
 
 CIDER has several functions that help you run all your tests or a
 selected subset of them. All of the CIDER test commands are available
@@ -30,7 +32,7 @@ You can run all *loaded* tests with <kbd>C-c C-t l</kbd> or
 
 If you invoke either of these commands with a prefix CIDER, will
 prompt for test selector filters and only run those tests that match
-the selector inclusions/exclusions. 
+the selector inclusions/exclusions.
 
 Test developers use selectors to define subsets of the total test
 suite that are run together for different testing tasks. For example
@@ -70,7 +72,7 @@ prompt for the selectors in the minibuffer. If you call this
 command with a prefix (<kbd>C-u C-c C-t C-s</kbd>) you can suppress
 the namespace inference logic as for <kbd>C-u C-c C-t C-n</kbd>
 
-Finally, you can execute the specific test at the point using 
+Finally, you can execute the specific test at the point using
 <kbd>C-c C-t t</kbd> or <kbd>C-c C-t C-t</kbd>.
 
 ## Interacting with Test Result Reports

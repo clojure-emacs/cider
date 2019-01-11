@@ -1,3 +1,8 @@
+# Caveats
+
+CIDER is certainly not perfect and has some limitations that everyone
+should be aware of.
+
 ## ClojureScript limitations
 
 Currently, the following features are not supported for ClojureScript

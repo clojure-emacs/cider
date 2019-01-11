@@ -1,3 +1,7 @@
+# Interactive Programming
+
+## Overview
+
 Traditional programming languages and development environments often
 use a [Edit, Compile, Run
 Cycle](http://wiki.c2.com/?EditCompileLinkRun). In this environment,
@@ -115,7 +119,7 @@ Here's a list of `cider-mode`'s keybindings:
 !!! Tip
 
     `cider-find-var` has built-in support for [AVFS][].  AVFS is an a virtual
-    file system which allows seamless navigation within archives as if they were 
+    file system which allows seamless navigation within archives as if they were
     normal directories. When AVFS is mounted, `cider-find-var` automatically
     opens `jar` and `zip` files inside AVFS folder instead of attempting to
     uncompress the archive.
@@ -131,7 +135,7 @@ Here's a list of `cider-mode`'s keybindings:
     instance). You can also initialize the
     `avfsd` daemon directly like this:
 
-      `/usr/bin/avfsd -o allow_root -o intr -o sync_read .avfs` 
+      `/usr/bin/avfsd -o allow_root -o intr -o sync_read .avfs`
 
     [AVFS][] is not available on Windows but can be installed on MacOS with [some
     effort](http://blog.breadncup.com/tag/sunrise-commander/). Some other uses of

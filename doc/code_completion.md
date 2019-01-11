@@ -1,3 +1,5 @@
+# Code Completion
+
 CIDER provides intelligent code completion for both source buffers (powered by
 `cider-mode`) and REPL buffers.
 

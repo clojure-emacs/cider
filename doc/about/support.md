@@ -1,3 +1,5 @@
+# Support
+
 CIDER currently has several official & unofficial support channels.
 
 For questions, suggestions and support refer to one of them.  Please, don't

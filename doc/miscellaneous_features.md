@@ -1,8 +1,10 @@
+# Miscellaneous Features
+
 As the infomercials always say, "But wait, there's more!" If
 simultaneous Clojure and ClojureScript REPLs, interactive programming,
 code completion, stacktrace navigation, test running, and debugging
 weren't enough for you, CIDER delivers several additional
-features. 
+features.
 
 ## Evaluating Clojure Code in the Minibuffer
 
@@ -255,7 +257,7 @@ Sometimes in your documentation strings, you'd like to be able to
 point other programmers at different definitions. If you specify the
 name of a definition in backticks (`` ` ``), CIDER will convert these
 references into live links when it displays the documentation string
-in the documentation buffer. 
+in the documentation buffer.
 
 If the name is in another namespace, then you'll have to include the
 fully qualified name in the docstring.
@@ -285,4 +287,3 @@ example, if you want to want to use
 ```
 
 ![CIDER See Also](images/cider_see_also.gif)
-

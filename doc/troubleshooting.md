@@ -1,3 +1,5 @@
+# Troubleshooting
+
 In case you run into issues here are a few tips that can help you diagnose the
 problem.
 

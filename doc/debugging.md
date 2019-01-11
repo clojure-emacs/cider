@@ -1,3 +1,5 @@
+# Debugging
+
 CIDER ships with a **powerful** interactive Clojure debugger inspired by Emacs's own
 [Edebug][]. You're going to love it!
 
@@ -9,7 +11,7 @@ CIDER ships with a **powerful** interactive Clojure debugger inspired by Emacs's
     [this issue](https://github.com/clojure-emacs/cider/issues/1416)
     for more details.
 
-## Debugging
+## Using the Debugger
 
 During normal CIDER development, it's common for a programmer to
 evaluate a form, often a function definition, by typing
