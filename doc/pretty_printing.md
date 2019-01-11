@@ -1,5 +1,10 @@
 # Pretty-printing
 
+!!! Note
+
+    Pretty-printing was overhauled in CIDER 0.20 to leverage a new feature introduced in nREPL 0.5.
+    Refer to [nREPL's documentation](https://nrepl.org/nrepl/design/middleware.html#_pretty_printing) for details.
+
 You can configure the function used by CIDER for pretty-printing evaluation
 results and other data using the `cider-pprint-fn` option.
 
@@ -57,3 +62,22 @@ You can pass an options map to the print function by setting `cider-pprint-optio
 ``` el
 (setq cider-pprint-options '(dict "length" 50 "right-margin" 70))
 ```
+
+!!! Important
+
+    Note that each print engine has its own configuration options, so you'll have to make sure that whatever is
+    in `cider-pprint-options` is something that the engine would understand. If you change the default printer
+    you'll also have to update accordingly `cider-debug-print-options` and `cider-stacktrace-print-options`.
+
+Here's a table describing the differences in the names for the common print options, supported by every
+print engine.
+
+Dynamic Var            | pprint             | Fipp & Puget          | zprint
+-----------------------|--------------------|-----------------------|------------------
+`*print-length*`       | length             | print-length          | max-length
+`*print-level*`        | level              | print-level           | max-depth
+`*print-right-margin*` | right-margin       | width                 | width
+
+All printers understand the dynamic variables, so you can also set those in your REPL instead of setting
+`cider-pprint-options`. As the debugger and the stacktrace printer normally use a different config you
+can't easily avoid not providing configuration for them.
