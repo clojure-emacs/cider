@@ -11,7 +11,7 @@ scroll through the history, and when you find the history item you
 were looking for, you can insert it from the history buffer into your
 REPL buffer.
 
-![History Browser](images/history_browser.png)
+![History Browser](../images/history_browser.png)
 
 ## Mode
 
