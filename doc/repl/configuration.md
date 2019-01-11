@@ -27,15 +27,6 @@ REPL buffer in the current window:
 (setq cider-repl-display-in-current-window t)
 ```
 
-## Eldoc
-
-Eldoc displays function signatures in the minibuffer as you're typing.
-It's extremely useful! Enable `eldoc` in REPL buffers like this:
-
-```el
-(add-hook 'cider-repl-mode-hook #'eldoc-mode)
-```
-
 ## Customizing the REPL prompt
 
 You can customize the REPL buffer prompt by setting
