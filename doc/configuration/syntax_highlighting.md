@@ -13,18 +13,18 @@ and variables from any namespace, do:
 
 Here's how code looks without dynamic syntax highlighting.
 
-![Dynamic Font-lock Off](images/dynamic_font_lock_off.png)
+![Dynamic Font-lock Off](../images/dynamic_font_lock_off.png)
 
 And here's how to the code looks when it's turned on.
 
-![Dynamic Font-lock On](images/dynamic_font_lock_on.png)
+![Dynamic Font-lock On](../images/dynamic_font_lock_on.png)
 
 ## Syntax highlighting for reader conditionals
 
 By default CIDER will apply font-locking to unused reader conditional
 expressions depending on the buffer CIDER connection type.
 
-![Reader Conditionals](images/reader_conditionals.png)
+![Reader Conditionals](../images/reader_conditionals.png)
 
 You can disable this behavior by adjusting `cider-font-lock-reader-conditionals`:
 
