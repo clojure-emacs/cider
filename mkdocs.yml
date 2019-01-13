@@ -12,7 +12,7 @@ pages:
 - Interactive Programming: interactive_programming.md
 - Using the REPL:
     - Basic Usage: repl/basic_usage.md
-    - Keybindinds: repl/keybindings.md
+    - Keybindings: repl/keybindings.md
     - Configuration: repl/configuration.md
     - REPL History: repl/history_browser.md
 - Managing Connections: managing_connections.md
