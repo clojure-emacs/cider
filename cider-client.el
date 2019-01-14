@@ -458,7 +458,8 @@ CONTEXT represents a completion context for compliment."
                                     "ns" ,(cider-current-ns)
                                     "symbol" ,str
                                     "context" ,context)
-                      (cider-nrepl-send-sync-request nil 'abort-on-input))))
+                      (cider-nrepl-send-sync-request (cider-current-repl)
+                                                     'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:complete-flush-caches ()
@@ -486,7 +487,8 @@ CONTEXT represents a completion context for compliment."
                                      ,@(when symbol `("symbol" ,symbol))
                                      ,@(when class `("class" ,class))
                                      ,@(when member `("member" ,member)))
-                       (cider-nrepl-send-sync-request nil 'abort-on-input))))
+                       (cider-nrepl-send-sync-request (cider-current-repl)
+                                                      'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
