@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.20.0 (2019-01-14)
+
 ### New features
 
 * Make it possible to pass an options map to the currently selected pprint function via `cider-pprint-options`.
