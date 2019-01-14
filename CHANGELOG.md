@@ -16,7 +16,11 @@
 * [#2496](https://github.com/clojure-emacs/cider/issues/2496): Replace CIDER's pprint implementation with nREPL 0.5's built-in pprint support.
 * [#2558](https://github.com/clojure-emacs/cider/pull/2558): Load clj, cljc, & cljs (if cljs repl available) files on `cider-load-all-files` (`C-c C-M-l`). Previously, this only loaded clj files.
 * Enable pretty-printing in the REPL by default.
+
+### Bug fixes
+
 * [#2532](https://github.com/clojure-emacs/cider/pull/2532): Fix re-display hangs while dynamically recovering source locations under mouse pointer.
+* [#2560](https://github.com/clojure-emacs/cider/pull/2560): Detect REPL type for completion, eldoc and info ops.
 
 ## 0.19.0 (2019-01-01)
 
