@@ -9,12 +9,14 @@
 * Make it possible to pass an options map to the currently selected pprint function via `cider-pprint-options`.
 * Add support for zprint.
 * Make it possible to eval and pprint in the scratch buffer using `C-u C-j`.
+* [#2532](https://github.com/clojure-emacs/cider/pull/2532): Add support for `CompilationException` dynamic source location discovery.
 
 ### Changes
 
 * [#2496](https://github.com/clojure-emacs/cider/issues/2496): Replace CIDER's pprint implementation with nREPL 0.5's built-in pprint support.
 * [#2558](https://github.com/clojure-emacs/cider/pull/2558): Load clj, cljc, & cljs (if cljs repl available) files on `cider-load-all-files` (`C-c C-M-l`). Previously, this only loaded clj files.
 * Enable pretty-printing in the REPL by default.
+* [#2532](https://github.com/clojure-emacs/cider/pull/2532): Fix re-display hangs while dynamically recovering source locations under mouse pointer.
 
 ## 0.19.0 (2019-01-01)
 
@@ -23,11 +25,9 @@
 * [#2430](https://github.com/clojure-emacs/cider/issues/2375): `cider-find-var` opens archive files inside [AVFS](http://avf.sourceforge.net) folders if AVFS is detected.
 * [#2446](https://github.com/clojure-emacs/cider/issues/2446): Implement Sesman friendly sessions to allow for on-the-fly association with sessions from dependency projects and jars.
 * [#2253](https://github.com/clojure-emacs/cider/issues/2253): Split `continue` debug command into "continue till next breakpoint" (`c`) and "continue non stop" (`C`) commands.
-* Add support for CompilationException dynamic source location discovery.
 
 ### Bug fixes
 
-* Fix re-display hangs while dynamically recovering source locations under mouse pointer.
 * [#2474](https://github.com/clojure-emacs/cider/issues/2474): Fix incorrect detection of output and out-of-order printing.
 * [#2514](https://github.com/clojure-emacs/cider/issues/2514): Don't auto-jump to warnings when `cider-auto-jump-to-error` is set to 'errors-only.
 * [#2453](https://github.com/clojure-emacs/cider/issues/2453): Make it possible to debug deftype methods by direct insertion of #dbg and #break readers into the deftype methods.
