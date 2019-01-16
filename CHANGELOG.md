@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+### New features
+
+### Changes
+
+### Bug fixes
+
 ## 0.20.0 (2019-01-14)
 
 ### New features
