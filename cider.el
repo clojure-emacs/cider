@@ -11,7 +11,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 0.20.0
+;; Version: 0.21.0-snapshot
 ;; Package-Requires: ((emacs "25") (clojure-mode "5.9") (pkg-info "0.4") (queue "0.2") (spinner "1.7") (seq "2.16") (sesman "0.3.2"))
 ;; Keywords: languages, clojure, cider
 
@@ -86,12 +86,12 @@
 (require 'seq)
 (require 'sesman)
 
-(defconst cider-version "0.20.0"
+(defconst cider-version "0.21.0-snapshot"
   "Fallback version used when it cannot be extracted automatically.
 Normally it won't be used, unless `pkg-info' fails to extract the
 version from the CIDER package or library.")
 
-(defconst cider-codename "Oslo"
+(defconst cider-codename "New York"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
