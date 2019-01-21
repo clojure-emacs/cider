@@ -11,6 +11,7 @@ dist
 .vagrant/
 cider-autoloads.el
 .dir-locals?.el
+cider-pkg.el
 cider-refcard.aux
 cider-refcard.log
 doc/auto/
