@@ -5,6 +5,8 @@
 ### New features
 
 ### Changes
+* Fix values for `cider-preferred-build-tool` variable.
+* Fix value and safe property for `cider-allow-jack-in-without-project` variable.
 
 ### Bug fixes
 

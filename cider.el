@@ -224,11 +224,11 @@ project.clj for leiningen or build.boot for boot, could be found.
 As the Clojure CLI is bundled with Clojure itself, it's the default.
 In the absence of the Clojure CLI (e.g. on Windows), we fallback
 to Leiningen."
-  :type '(choice (const 'lein)
-                 (const 'boot)
-                 (const 'clojure-cli)
-                 (const 'shadow-cljs)
-                 (const 'gradle))
+  :type '(choice (const lein)
+                 (const boot)
+                 (const clojure-cli)
+                 (const shadow-cljs)
+                 (const gradle))
   :group 'cider
   :safe #'symbolp
   :package-version '(cider . "0.9.0"))
@@ -242,11 +242,11 @@ variable will suppress this behavior and will select whatever build system
 is indicated by the variable if present.  Note, this is only when CIDER
 cannot decide which of many build systems to use and will never override a
 command when there is no ambiguity."
-  :type '(choice (const 'lein)
-                 (const 'boot)
-                 (const 'clojure-cli)
-                 (const 'shadow-cljs)
-                 (const 'gradle)
+  :type '(choice (const lein)
+                 (const boot)
+                 (const clojure-cli)
+                 (const shadow-cljs)
+                 (const gradle)
                  (const :tag "Always ask" nil))
   :group 'cider
   :safe #'symbolp
@@ -258,10 +258,10 @@ When set to 'warn you'd prompted to confirm the command.
 When set to t `cider-jack-in' will quietly continue.
 When set to nil `cider-jack-in' will fail."
   :type '(choice (const :tag "always" t)
-                 (const 'warn)
+                 (const warn)
                  (const :tag "never" nil))
   :group 'cider
-  :safe #'stringp
+  :safe #'symbolp
   :package-version '(cider . "0.15.0"))
 
 (defcustom cider-known-endpoints nil
