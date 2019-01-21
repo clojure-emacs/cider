@@ -65,7 +65,7 @@
 
 (define-obsolete-variable-alias 'cider-save-files-on-cider-ns-refresh 'cider-ns-save-files-on-refresh "0.18")
 (defcustom cider-ns-save-files-on-refresh 'prompt
-  "Controls whether to prompt to save Clojure files on `cider-ns-refresh'.
+  "Controls whether to prompt to save files before refreshing.
 If nil, files are not saved.
 If 'prompt, the user is prompted to save files if they have been modified.
 If t, save the files without confirmation."
@@ -74,6 +74,16 @@ If t, save the files without confirmation."
                  (const t :tag "Save the files without confirmation"))
   :group 'cider
   :package-version '(cider . "0.15.0"))
+
+(defcustom cider-ns-save-files-on-refresh-modes '(clojure-mode)
+  "Controls which files might be saved before refreshing.
+If a list of modes, any buffers visiting files on the classpath whose major
+mode is derived from any of the modes might be saved.
+If t, all buffers visiting files on the classpath might be saved."
+  :type '(choice listp
+                 (const t))
+  :group 'cider
+  :package-version '(cider . "0.21.0"))
 
 (defconst cider-ns-refresh-log-buffer "*cider-ns-refresh-log*")
 
@@ -163,14 +173,15 @@ namespace-qualified function of zero arity."
 
 (defun cider-ns-refresh--save-modified-buffers ()
   "Ensure any relevant modified buffers are saved before refreshing.
-Its behavior is controlled by `cider-ns-save-files-on-refresh'."
+Its behavior is controlled by `cider-ns-save-files-on-refresh' and
+`cider-ns-save-files-on-refresh-modes'."
   (when cider-ns-save-files-on-refresh
     (let ((dirs (seq-filter #'file-directory-p
                             (cider-sync-request:classpath))))
       (save-some-buffers
        (not (eq cider-ns-save-files-on-refresh 'prompt))
        (lambda ()
-         (and (derived-mode-p 'clojure-mode)
+         (and (seq-some #'derived-mode-p cider-ns-save-files-on-refresh-modes)
               (seq-some (lambda (dir)
                           (file-in-directory-p buffer-file-name dir))
                         dirs)))))))

@@ -160,9 +160,9 @@ the echo area.
 (setq cider-ns-refresh-show-log-buffer t)
 ```
 
-By default, CIDER will prompt for whether to save all modified Clojure
-buffers. You can customize this behavior with
-`cider-ns-save-files-on-refresh`.
+By default, CIDER will prompt for whether to save all modified `clojure-mode`
+buffers visiting files on the classpath. You can customize this behavior with
+`cider-ns-save-files-on-refresh` and `cider-ns-save-files-on-refresh-modes`.
 
 Sometimes, `cider-ns-refresh` may not work for you. If you're looking
 for a bit more forceful reloading the `cider-ns-reload`

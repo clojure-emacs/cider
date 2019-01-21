@@ -5,6 +5,7 @@
 ### New features
 
 ### Changes
+* [#2546](https://github.com/clojure-emacs/cider/pull/2546): New defcustom `cider-ns-save-files-on-refresh-modes` to control for which buffers `cider-ns-refresh` should save before refreshing.
 
 ### Bug fixes
 * Fix values for `cider-preferred-build-tool` variable.
