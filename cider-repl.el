@@ -872,7 +872,7 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
     (nrepl-make-response-handler
      buffer
      (lambda (buffer value)
-       (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
+       (cider-repl-emit-result buffer value (not after-first-result-chunk))
        (setq after-first-result-chunk t))
      (lambda (buffer out)
        (cider-repl-emit-stdout buffer out))

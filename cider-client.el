@@ -281,8 +281,9 @@ result, and is included in the request if non-nil."
   (let* ((print-options (or cider-pprint-options (nrepl-dict))))
     (when right-margin
       (setq print-options (nrepl-dict-put print-options (cider--pprint-option "right-margin" cider-pprint-fn) right-margin)))
-    (nconc `("printer" ,(or pprint-fn (cider--pprint-fn)))
-           (and (not (nrepl-dict-empty-p print-options)) `("print-options" ,print-options)))))
+    (append `("nrepl.middleware.print/print" ,(or pprint-fn (cider--pprint-fn))
+              "nrepl.middleware.print/stream?" "1")
+            (and (not (nrepl-dict-empty-p print-options)) `("nrepl.middleware.print/options" ,print-options)))))
 
 (defun cider--nrepl-content-type-plist ()
   "Plist to be appended to an eval request to make it use content-types."

@@ -258,9 +258,9 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
           (cider-nrepl-send-request
            (nconc `("op" ,(if refresh-all? "refresh-all" "refresh"))
                   (when (cider--pprint-fn)
-                    `("pprint-fn" ,(cider--pprint-fn)))
+                    `("nrepl.middleware.print/print" ,(cider--pprint-fn)))
                   (when cider-stacktrace-print-options
-                    `("print-options" ,cider-stacktrace-print-options))
+                    `("nrepl.middleware.print/options" ,cider-stacktrace-print-options))
                   (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
                     `("before" ,cider-ns-refresh-before-fn))
                   (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)

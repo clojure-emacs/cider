@@ -4,10 +4,17 @@
 
 ### New features
 
+* The `cider-test-run-*` and `cider-ns-refresh-*` commands are now interruptible with the `cider-interrupt` command.
+
 ### Changes
+
 * [#2546](https://github.com/clojure-emacs/cider/pull/2546): New defcustom `cider-ns-save-files-on-refresh-modes` to control for which buffers `cider-ns-refresh` should save before refreshing.
+* **(Breaking)** Upgrade to nREPL 0.6.0. This is now the minimum required version.
+* **(Breaking)** Upgrade to piggieback 0.4.0. This is now the minimum required version.
+* **(Breaking)** Remove `cider.nrepl.middleware.pprint`. All functionality has been replaced by the built-in printing support in nREPL 0.6.
 
 ### Bug fixes
+
 * Fix values for `cider-preferred-build-tool` variable.
 * Fix value and safe property for `cider-allow-jack-in-without-project` variable.
 * `cider-ns-save-files-on-refresh` will now save any modified buffers visiting files on the classpath, rather than just in the current project.

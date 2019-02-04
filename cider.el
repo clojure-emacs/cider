@@ -377,7 +377,7 @@ Throws an error if PROJECT-TYPE is unknown."
 ;; We inject the newest known version of nREPL just in case
 ;; your version of Boot or Leiningen is bundling an older one.
 (cider-add-to-alist 'cider-jack-in-dependencies
-                    "nrepl" "0.5.3")
+                    "nrepl" "0.6.0")
 
 (defvar cider-jack-in-cljs-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.
@@ -399,10 +399,10 @@ Elements of the list are artifact name and list of exclusions to apply for the a
 (defconst cider-latest-clojure-version "1.10.0"
   "Latest supported version of Clojure.")
 
-(defconst cider-required-middleware-version "0.20.0"
+(defconst cider-required-middleware-version "0.21.0"
   "The minimum CIDER nREPL version that's known to work properly with CIDER.")
 
-(defconst cider-latest-middleware-version "0.20.0"
+(defconst cider-latest-middleware-version "0.21.0"
   "The latest CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-jack-in-auto-inject-clojure nil

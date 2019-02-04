@@ -283,9 +283,9 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
               "var" ,var
               "index" ,index)
             (when (cider--pprint-fn)
-              `("pprint-fn" ,(cider--pprint-fn)))
+              `("nrepl.middleware.print/print" ,(cider--pprint-fn)))
             (when cider-stacktrace-print-options
-              `("print-options" ,cider-stacktrace-print-options)))
+              `("nrepl.middleware.print/options" ,cider-stacktrace-print-options)))
      (lambda (response)
        (nrepl-dbind-response response (class status)
          (cond (class  (setq causes (cons response causes)))
