@@ -46,7 +46,7 @@
               :to-equal " *nrepl-server localhost:1*"))))
 
 
-(describe "nrepl-dbing-response"
+(describe "nrepl-dbind-response"
   (it "destructures a nREPL response dict and binds values to given vars"
     (expect (nrepl-dbind-response
                 '(dict
