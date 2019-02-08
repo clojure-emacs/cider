@@ -180,8 +180,7 @@
     (it "ignores plugins whose predicates return false"
       (spy-on 'plugins-predicate :and-return-value nil)
       (expect (cider-jack-in-normalized-lein-plugins)
-              :to-equal '(("cider/cider-nrepl" "0.11.0"))))
-    (it "ignores plugins whose predicates return false"
+              :to-equal '(("cider/cider-nrepl" "0.11.0")))
       (spy-on 'middlewares-predicate :and-return-value nil)
       (expect (cider-jack-in-normalized-nrepl-middlewares)
               :to-equal '("cider.nrepl/cider-middleware" "another/middleware")))
