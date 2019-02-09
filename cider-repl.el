@@ -46,6 +46,7 @@
 (require 'clojure-mode)
 (require 'easymenu)
 (require 'cl-lib)
+(require 'image)
 (require 'sesman)
 
 (eval-when-compile
@@ -796,15 +797,20 @@ SHOW-PREFIX and BOL."
     (save-excursion
       (cider-save-marker cider-repl-output-start
         (cider-save-marker cider-repl-output-end
-          (goto-char cider-repl-input-start-mark)
+          (goto-char (cider-repl--end-of-output))
           (when (and bol (not (bolp)))
             (insert-before-markers "\n"))
           (when show-prefix
             (insert-before-markers
              (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
-          (insert-image image string)
-          (set-marker cider-repl-input-start-mark (point) buffer)
-          (set-marker cider-repl-prompt-start-mark (point) buffer))))
+          ;; The below is inlined from `insert-image' and changed to use
+          ;; `insert-before-markers' rather than `insert'
+          (let ((start (point))
+                (props (nconc `(display ,image rear-nonsticky (display))
+                              (when (boundp 'image-map)
+                                `(keymap ,image-map)))))
+            (insert-before-markers string)
+            (add-text-properties start (point) props)))))
     (cider-repl--show-maximum-output))
   t)
 
@@ -880,12 +886,7 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
        (cider-repl-emit-stderr buffer err))
      (lambda (buffer)
        (when show-prompt
-         (cider-repl-emit-prompt buffer)
-         (let ((win (get-buffer-window (current-buffer) t)))
-           (when win
-             (with-selected-window win
-               (set-window-point win cider-repl-input-start-mark))
-             (cider-repl--show-maximum-output)))))
+         (cider-repl-emit-prompt buffer)))
      nrepl-err-handler
      (lambda (buffer value content-type)
        (if-let* ((content-attrs (cadr content-type))
