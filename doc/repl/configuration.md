@@ -143,33 +143,29 @@ use:
 
 ## Pretty printing in the REPL
 
-By default the REPL always pretty-prints the results of your
-evaluations using whatever pretty-printer is specified in `cider-pprint-fn`.
+By default the REPL always prints the results of your evaluations using the
+printing function specified by `cider-print-fn`.
 
 !!! Note
 
     This behaviour was changed in CIDER 0.20. In prior CIDER releases
     pretty-printing was disabled by default.
 
-You can temporary disable this behaviour and revert to the default
-printer using <kbd>M-x cider-repl-toggle-pretty-printing</kbd>.
+You can temporarily disable this behaviour and revert to the default behaviour
+(equivalent to `clojure.core/pr`) using <kbd>M-x cider-repl-toggle-pretty-printing</kbd>.
 
-If you want to disable pretty-printing of results completely use:
+If you want to disable using `cider-print-fn` entirely, use:
 
 ```el
 (setq cider-repl-use-pretty-printing nil)
 ```
 
-The variable `cider-repl-pretty-print-width` (`fill-column` by default) controls
-the print width. You can adjust if you want:
+Note well that disabling pretty-printing is not advised. Emacs does not handle
+well very long lines, so using a printing function that wraps lines beyond a
+certain width (i.e. any of them except for `pr`) will keep your REPL running
+smoothly.
 
-```el
-;; this will try to print data in 20 columns per line
-(setq cider-repl-pretty-print-width 20)
-```
-
-See [this](../pretty_printing) for more
-information on pretty printing.
+See [this](../pretty_printing) for more information on configuring printing.
 
 ## Displaying images in the REPL
 

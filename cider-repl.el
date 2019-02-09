@@ -33,21 +33,24 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+(require 'easymenu)
+(require 'image)
+(require 'map)
+(require 'seq)
+(require 'subr-x)
+
+(require 'clojure-mode)
+(require 'sesman)
+
 (require 'cider-client)
 (require 'cider-doc)
 (require 'cider-test)
 (require 'cider-eldoc) ; for cider-eldoc-setup
 (require 'cider-common)
-(require 'subr-x)
 (require 'cider-compat)
 (require 'cider-util)
 (require 'cider-resolve)
-
-(require 'clojure-mode)
-(require 'easymenu)
-(require 'cl-lib)
-(require 'image)
-(require 'sesman)
 
 (eval-when-compile
   (defvar paredit-version)
@@ -112,14 +115,7 @@ change the setting's value."
   :type 'boolean
   :group 'cider-repl)
 
-(defcustom cider-repl-pretty-print-width nil
-  "Control the width of pretty printing on the REPL.
-This sets the wrap point for pretty printing on the repl.  If nil, it
-defaults to the variable `fill-column'."
-  :type '(restricted-sexp  :match-alternatives
-                           (integerp 'nil))
-  :group 'cider-repl
-  :package-version '(cider . "0.15.0"))
+(make-obsolete-variable 'cider-repl-pretty-print-width 'cider-print-options "0.21")
 
 (defcustom cider-repl-use-content-types t
   "Control whether REPL results are presented using content-type information.
@@ -855,15 +851,19 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
                  (handler (cdr (assoc content-type*
                                       cider-repl-content-type-handler-alist))))
            (setq show-prompt (funcall handler content-type buffer value nil t))
-         (cider-repl-emit-result buffer value t t))))))
+         (cider-repl-emit-result buffer value t t)))
+     (lambda (buffer warning)
+       (cider-repl-emit-stderr buffer warning)))))
 
-(defun cider--repl-request-plist (right-margin &optional pprint-fn)
-  "Plist to be appended to generic eval requests, as for the REPL.
-PPRINT-FN and RIGHT-MARGIN are as in `cider--nrepl-pprint-request-plist'."
-  (nconc (when cider-repl-use-pretty-printing
-           (cider--nrepl-pprint-request-plist right-margin pprint-fn))
-         (when cider-repl-use-content-types
-           (cider--nrepl-content-type-plist))))
+(defun cider--repl-request-map (right-margin)
+  "Map to be merged into REPL eval requests.
+RIGHT-MARGIN is as in `cider--nrepl-print-request-map'."
+  (map-merge 'hash-table
+             (cider--nrepl-print-request-map right-margin)
+             (unless cider-repl-use-pretty-printing
+               '(("nrepl.middleware.print/print" "cider.nrepl.pprint/pr")))
+             (when cider-repl-use-content-types
+               (cider--nrepl-content-type-map))))
 
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
@@ -904,7 +904,10 @@ If NEWLINE is true then add a newline at the end of the input."
          (cider-current-ns)
          (line-number-at-pos input-start)
          (cider-column-number-at-pos input-start)
-         (cider--repl-request-plist (cider--pretty-print-width)))))))
+         (thread-last
+             (cider--repl-request-map fill-column)
+           (map-pairs)
+           (seq-mapcat #'identity)))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -965,12 +968,6 @@ text property `cider-old-input'."
   (setq cider-repl-use-pretty-printing (not cider-repl-use-pretty-printing))
   (message "Pretty printing in REPL %s."
            (if cider-repl-use-pretty-printing "enabled" "disabled")))
-
-(defun cider--pretty-print-width ()
-  "Return the width to use for pretty-printing."
-  (or cider-repl-pretty-print-width
-      fill-column
-      80))
 
 (defun cider-repl-toggle-content-types ()
   "Toggle content-type rendering in the REPL."

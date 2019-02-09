@@ -25,18 +25,21 @@
 
 ;;; Code:
 
-(require 'nrepl-dict)
-(require 'nrepl-client) ; `nrepl--mark-id-completed'
-(require 'cider-eval)
-(require 'cider-client)
-(require 'cider-util)
-(require 'cider-inspector)
-(require 'cider-browse-ns)
-(require 'cider-common)
-(require 'subr-x)
-(require 'cider-compat)
+(require 'map)
 (require 'seq)
+(require 'subr-x)
+
 (require 'spinner)
+
+(require 'cider-browse-ns)
+(require 'cider-client)
+(require 'cider-eval)
+(require 'cider-inspector)
+(require 'cider-util)
+(require 'cider-common)
+(require 'cider-compat)
+(require 'nrepl-client) ; `nrepl--mark-id-completed'
+(require 'nrepl-dict)
 
 
 ;;; Customization
@@ -103,13 +106,7 @@ configure `cider-debug-prompt' instead."
 
 (make-obsolete 'cider-debug-print-length 'cider-debug-print-options "0.20")
 (make-obsolete 'cider-debug-print-level 'cider-debug-print-options "0.20")
-
-(defcustom cider-debug-print-options '(dict "length" 10 "level" 10)
-  "The print options for values displayed by the debugger.
-This variable must be set before starting the repl connection."
-  :type 'listp
-  :group 'cider-stacktrace
-  :package-version '(cider . "0.20.0"))
+(make-obsolete-variable 'cider-debug-print-options 'cider-print-options "0.21")
 
 
 ;;; Implementation
@@ -156,9 +153,11 @@ This variable must be set before starting the repl connection."
 (defun cider--debug-init-connection ()
   "Initialize a connection with the cider.debug middleware."
   (cider-nrepl-send-request
-   (nconc '("op" "init-debugger")
-          (when cider-debug-print-options
-            `("print-options" ,cider-debug-print-options)))
+   (thread-last
+       (map-merge 'list
+                  '(("op" "init-debugger"))
+                  (cider--nrepl-print-request-map fill-column))
+     (seq-mapcat #'identity))
    #'cider--debug-response-handler))
 
 

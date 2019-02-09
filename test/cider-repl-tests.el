@@ -131,17 +131,6 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
       (let ((context (simulate-cider-output "[30ma[0mb[31mcd" 'ansi-context)))
         (expect context :to-equal '((31) nil))))))
 
-(describe "cider--pretty-print-width"
-  (it "prefers cider-repl-pretty-print-width"
-    (let ((cider-repl-pretty-print-width 40))
-      (expect (cider--pretty-print-width)
-              :to-equal cider-repl-pretty-print-width)))
-  (it "falls back to fill-column"
-    (let ((cider-repl-pretty-print-width nil)
-          (fill-column 80))
-      (expect (cider--pretty-print-width)
-              :to-equal fill-column))))
-
 (describe "cider-locref-at-point"
   (it "works with stdout-stacktrace refs"
     (with-temp-buffer

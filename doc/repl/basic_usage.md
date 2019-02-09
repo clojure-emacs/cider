@@ -8,7 +8,7 @@ explore a new library you're interested in using. The CIDER REPL offers a number
 * auto-completion
 * font-locking (the same as in `clojure-mode`)
 * quick access to many CIDER commands (e.g. definition and documentation lookup, tracing, etc)
-* (optional) pretty-printing of evaluation results
+* pretty-printing of evaluation results
 * eldoc support
 * highly customizable REPL prompt
 
@@ -53,3 +53,7 @@ Performance can degrade when the REPL buffer grows very large. This is
 especially true if `cider-repl-use-clojure-font-lock` is enabled. You can use
 `cider-repl-clear-output` to either clear the result of the previous evaluation,
 or with a prefix argument clear the entire REPL buffer.
+
+Very long lines are guaranteed to bring Emacs to a crawl, so using a value of
+`cider-print-fn` that wraps lines beyond a certain width (i.e. any of the
+built-in options except for `pr`) is advised.

@@ -741,7 +741,8 @@ to the REPL."
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler
-                                           content-type-handler)
+                                           content-type-handler
+                                           truncated-handler)
   "Make a response handler for connection BUFFER.
 A handler is a function that takes one argument - response received from
 the server process.  The response is an alist that contains at least 'id'
@@ -754,8 +755,8 @@ example, if 'value' key is present, the response is of type 'value', if
 
 Depending on the type, the handler dispatches the appropriate value to one
 of the supplied handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
-DONE-HANDLER, EVAL-ERROR-HANDLER and
-CONTENT-TYPE-HANDLER.
+DONE-HANDLER, EVAL-ERROR-HANDLER, CONTENT-TYPE-HANDLER, and
+TRUNCATED-HANDLER.
 
 Handlers are functions of the buffer and the value they handle, except for
 the optional CONTENT-TYPE-HANDLER which should be a function of the buffer,
@@ -787,10 +788,10 @@ the corresponding type of response."
              (when stderr-handler
                (funcall stderr-handler buffer err)))
             (status
-             (when (and stderr-handler (member "nrepl.middleware.print/truncated" status))
+             (when (and truncated-handler (member "nrepl.middleware.print/truncated" status))
                (let ((warning (format "\n... output truncated to %sB ..."
                                       (file-size-human-readable cider-print-quota))))
-                 (funcall stderr-handler buffer warning)))
+                 (funcall truncated-handler buffer warning)))
              (when (member "notification" status)
                (nrepl-dbind-response response (msg type)
                  (nrepl-notify msg type)))

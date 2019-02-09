@@ -1,83 +1,104 @@
 # Pretty-printing
 
+## Configuring a printing function
+
 !!! Note
 
-    Pretty-printing was overhauled in CIDER 0.20 to leverage a new feature introduced in nREPL 0.5.
-    Refer to [nREPL's documentation](https://nrepl.org/nrepl/design/middleware.html#_pretty_printing) for details.
+    Pretty-printing was overhauled in CIDER 0.21 to leverage new features introduced in nREPL 0.6.
+    Refer to [nREPL's documentation](https://nrepl.org/nrepl/usage/misc.html#_pretty_printing) for details.
 
 You can configure the function used by CIDER for pretty-printing evaluation
-results and other data using the `cider-pprint-fn` option.
+results and other data using the option `cider-print-fn`, which can take the
+following possible values:
 
-This can be one of three values (defaults to `pprint`):
+- `nil` to defer to nREPL to choose the printing function. This will use the
+  bound value of `nrepl.middleware.print/*print-fn*`, which defaults to the
+  equivalent of `clojure.core/pr`.
 
-- `pprint` to use the built-in `clojure.pprint/pprint`.
+- `pr` to use the equivalent of \\=`clojure.core/pr\\=`.
 
-- `fipp` to use the
-  [Fast Idiomatic Pretty-Printer](https://github.com/brandonbloom/fipp). This is
-  approximately 5-10x faster than `clojure.core/pprint`.
+- `pprint` to use the built-in `clojure.pprint/pprint` (this is the default).
 
-- `puget` to use [Puget](https://github.com/greglook/puget), which builds on
-  Fipp to provide a
+- `fipp` to use the [Fast Idiomatic
+  Pretty-Printer](https://github.com/brandonbloom/fipp). This is approximately
+  5-10x faster than `clojure.core/pprint`.
+
+- `puget` to use [Puget](https://github.com/greglook/puget), which provides
   [canonical serialization](https://github.com/greglook/puget#canonical-representation)
-  of data, at a slight performance cost.
+  of data on top of fipp, but at a slight performance cost.
 
-- `zprint` to use [zprint](https://github.com/kkinnear/zprint)
+- `zprint` to use [zprint](https://github.com/kkinnear/zprint), a fast and
+  flexible alternative to the libraries mentioned above.
 
-Alternatively, `cider-pprint-fn` can be set to the namespace-qualified name of a
-Clojure function that takes a single argument and will pretty-print the value of
-said argument to `*out*`.
+Alternatively, `cider-print-fn` can be set to the namespace-qualified name of a
+Clojure var whose function takes three arguments: the object to print, the
+`java.io.PrintWriter` to print on, and a (possibly nil) map of options.
 
 ``` el
-(setq cider-pprint-fn "user/my-pprint")
+(setq cider-print-fn "user/my-pprint")
 ```
-
-This function must be resolvable by CIDER at the time it is called. CIDER will require
-its namespace itself if necessary.
-
-The function should abide by those rules:
-
-* two params - object to print and a map of print options
-* the keys of the print options map can be strings, as bencode clients can't send keywords
-* functions return the printed object as a string"
 
 Here's one example:
 
 ``` clojure
 (ns cider.pprint
   (:require
-   [clojure.pprint :as pp]
-   [clojure.walk :as walk]))
+   [clojure.pprint :as pp]))
 
 (defn pprint
   "A simple wrapper around `clojure.pprint/write`.
-  It provides an API compatible with what nREPL's
-  pr-values middleware expects for printer functions."
-  [object opts]
-  (let [opts (assoc (walk/keywordize-keys opts) :stream nil)]
-    (apply pp/write object (vec (flatten (vec opts))))))
+
+  Its signature is compatible with the expectations of nREPL's wrap-print
+  middleware."
+  [value writer options]
+  (apply pp/write value (mapcat identity (assoc options :stream writer))))
 ```
 
-You can pass an options map to the print function by setting `cider-pprint-options`. Here's an example:
+## Limiting printed output
+
+You can set `cider-print-quota` to limit the number of bytes that will be
+returned by any printing operation. This defaults to one megabyte, and can be
+set to `nil` if no limit is desired. Note well that if no quota is set some
+printing operations may never terminate – you can still use `cider-interrupt` to
+halt them.
+
+Your configured printing function might also support limiting the length and
+depth of printed objects – either using `clojure.core/*print-length*` and
+`clojure.core/*print-level*` or in the provided [options map](#print-options).
+
+## Print options
+
+You can pass an options map to the print function by setting `cider-print-options`. Here's an example:
 
 ``` el
-(setq cider-pprint-options '(dict "length" 50 "right-margin" 70))
+(setq cider-print-options '(dict "length" 50 "right-margin" 70))
 ```
 
 !!! Important
 
-    Note that each print engine has its own configuration options, so you'll have to make sure that whatever is
-    in `cider-pprint-options` is something that the engine would understand. If you change the default printer
-    you'll also have to update accordingly `cider-debug-print-options` and `cider-stacktrace-print-options`.
+    Note that each print engine has its own configuration options, so you'll have to be sure to set `cider-print-options` accordingly.
 
-Here's a table describing the differences in the names for the common print options, supported by every
-print engine.
+Here's a table describing the differences in the names for the most common print
+options supported by every print engine.
 
-Dynamic Var            | pprint             | Fipp & Puget          | zprint
------------------------|--------------------|-----------------------|------------------
-`*print-length*`       | length             | print-length          | max-length
-`*print-level*`        | level              | print-level           | max-depth
-`*print-right-margin*` | right-margin       | width                 | width
+| Dynamic Var                           | `clojure.pprint` | Fipp & Puget   | zprint       |
+|---------------------------------------|------------------|----------------|--------------|
+| `clojure.core/*print-length*`         | `length`         | `print-length` | `max-length` |
+| `clojure.core/*print-level*`          | `level`          | `print-level`  | `max-depth`  |
+| `clojure.pprint/*print-right-margin*` | `right-margin`   | `width`        | `width`      |
 
-All printers understand the dynamic variables, so you can also set those in your REPL instead of setting
-`cider-pprint-options`. As the debugger and the stacktrace printer normally use a different config you
-can't easily avoid not providing configuration for them.
+Not all printing engines use (or default to) the dynamic variables in all cases,
+so setting them at the REPL may or may not have the intended effect. See the
+respective documentation of each engine:
+
+- `clojure.pprint`: https://clojuredocs.org/clojure.pprint/write
+- Fipp: https://github.com/brandonbloom/fipp/#printer-usage
+- Puget: https://github.com/greglook/puget#usage
+- zprint: https://github.com/kkinnear/zprint/#what-is-configurable
+
+## Width of printed output
+
+If you're using one of the printing engines provided with CIDER, the value of
+`fill-column` will be used for the relevant width option in the [options
+map](#print-options). You can override this by hardcoding the relevant option in
+`cider-print-options`.

@@ -26,6 +26,8 @@
 
 ;;; Code:
 
+(require 'map)
+(require 'seq)
 (require 'subr-x)
 
 (require 'cider-client)
@@ -117,8 +119,6 @@ of the buffer into a formatted string."
 
 ;;; Format EDN
 
-(declare-function cider--pretty-print-width "cider-repl")
-
 ;;;###autoload
 (defun cider-format-edn-buffer ()
   "Format the EDN data in the current buffer."
@@ -126,7 +126,7 @@ of the buffer into a formatted string."
   (check-parens)
   (cider-ensure-connected)
   (cider--format-buffer (lambda (edn)
-                          (cider-sync-request:format-edn edn (cider--pretty-print-width)))))
+                          (cider-sync-request:format-edn edn fill-column))))
 
 ;;;###autoload
 (defun cider-format-edn-region (start end)
@@ -135,7 +135,7 @@ START and END represent the region's boundaries."
   (interactive "r")
   (cider-ensure-connected)
   (let* ((start-column (save-excursion (goto-char start) (current-column)))
-         (right-margin (- (cider--pretty-print-width) start-column)))
+         (right-margin (- fill-column start-column)))
     (cider--format-region start end
                           (lambda (edn)
                             (cider-sync-request:format-edn edn right-margin)))))
