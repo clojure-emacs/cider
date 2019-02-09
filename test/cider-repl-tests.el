@@ -142,18 +142,6 @@ PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
       (expect (cider--pretty-print-width)
               :to-equal fill-column))))
 
-(describe "cider-repl--build-config-expression"
-  (it "returns nil when all the config values are nil"
-    (let ((cider-repl-print-length nil)
-          (cider-repl-print-level nil))
-      (expect (cider-repl--build-config-expression) :to-equal nil)))
-  (it "returns an when any the config values are non-nil"
-    (let ((cider-repl-print-length 10)
-          (cider-repl-print-level 10))
-      (expect (cider-repl--build-config-expression)
-              :to-equal
-              "(do (set! *print-length* 10) (set! *print-level* 10))"))))
-
 (describe "cider-locref-at-point"
   (it "works with stdout-stacktrace refs"
     (with-temp-buffer

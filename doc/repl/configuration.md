@@ -184,30 +184,6 @@ behavior if you don't like it.
 Alternatively, you can toggle this behaviour on and off using <kbd>M-x
 cider-repl-toggle-content-types</kbd>.
 
-Currently, the feature doesn't work well with pretty-printing in the REPL,
-so we don't advise you to enable both features at the same time.
-
-## Limiting printed output in the REPL
-
-Accidentally printing large objects can be detrimental to your
-productivity. Clojure provides the `*print-length*` var which, if set,
-controls how many items of each collection the printer will print. You
-can supply a default value for REPL sessions via the `repl-options`
-section of your Leiningen project's configuration.
-
-```clojure
-:repl-options {:init (set! *print-length* 50)}
-```
-
-You can also set `cider-repl-print-length` to an appropriate value (it
-defaults to 100). If both `*print-length` and
-`cider-repl-print-length` are set, CIDER's setting will take precedence
-over the value set through Leiningen.
-
-The preceeding discussion also applies to Clojure's `*print-level*`
-variable. The corresponding CIDER variable is
-`cider-repl-print-level`, set to `nil` by default.
-
 ## Customizing the initial REPL namespace
 
 Normally, the CIDER REPL will start in the `user` namespace.  You can

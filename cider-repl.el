@@ -163,17 +163,18 @@ you'd like to use the default Emacs behavior use
   :type 'symbol
   :group 'cider-repl)
 
-(defcustom cider-repl-print-length 100
-  "Initial value for *print-length* set during REPL start."
-  :type 'integer
-  :group 'cider
-  :package-version '(cider . "0.17.0"))
+(make-obsolete-variable 'cider-repl-print-length 'cider-print-options "0.21")
+(make-obsolete-variable 'cider-repl-print-level 'cider-print-options "0.21")
 
-(defcustom cider-repl-print-level nil
-  "Initial value for *print-level* set during REPL start."
-  :type 'integer
-  :group 'cider
-  :package-version '(cider . "0.17.0"))
+(defvar cider-repl-require-repl-utils-code
+  "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
+
+(defcustom cider-repl-init-code (list cider-repl-require-repl-utils-code)
+  "Clojure code to evaluate when starting a REPL.
+Will be evaluated with bindings for set!-able vars in place."
+  :type '(list string)
+  :group 'cider-repl
+  :package-version '(cider . "0.21.0"))
 
 (defcustom cider-repl-display-help-banner t
   "When non-nil a bit of help text will be displayed on REPL start."
@@ -252,22 +253,17 @@ This cache is stored in the connection buffer.")
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
-(defun cider-repl-set-initial-ns (buffer)
-  "Require standard REPL util functions and set the ns of the REPL's BUFFER.
-Namespace is \"user\" by default, but can be overridden in apps like
-lein (:init-ns).  Both of these operations need to be done as a sync
-request at the beginning of the session.  Bundling them together for
-efficiency."
-  ;; we don't want to get a timeout during init
-  (let ((nrepl-sync-request-timeout nil))
+(defun cider-repl--set-initial-ns (buffer)
+  "Set the initial namespace of the REPL's BUFFER.
+This is \"user\" by default, but can be overridden (e.g. the Leiningen
+:init-ns option)."
+  (let* ((response (nrepl-send-sync-request
+                    (thread-first (nrepl--eval-request "")
+                      (lax-plist-put "inhibit-cider-middleware" "true"))
+                    (cider-current-repl)))
+         (ns (nrepl-dict-get response "ns" "user")))
     (with-current-buffer buffer
-      (let* ((response (nrepl-send-sync-request
-                        (lax-plist-put (nrepl--eval-request "(str *ns*)")
-                                       "inhibit-cider-middleware" "true")
-                        (cider-current-repl)))
-             (initial-ns (or (read (nrepl-dict-get response "value"))
-                             "user")))
-        (cider-set-buffer-ns initial-ns)))))
+      (cider-set-buffer-ns ns))))
 
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
@@ -275,28 +271,19 @@ efficiency."
   (nrepl-send-sync-request
    (lax-plist-put
     (nrepl--eval-request
-     "(when (clojure.core/resolve 'clojure.main/repl-requires)
-       (clojure.core/map clojure.core/require clojure.main/repl-requires))")
+     cider-repl-require-repl-utils-code)
     "inhibit-cider-middleware" "true")
    (cider-current-repl)))
 
-(defun cider-repl--build-config-expression ()
-  "Build the initial config expression."
-  (when (or cider-repl-print-length cider-repl-print-level)
-    (concat
-     "(do"
-     (when cider-repl-print-length (format " (set! *print-length* %d)" cider-repl-print-length))
-     (when cider-repl-print-level (format " (set! *print-level* %d)" cider-repl-print-level))
-     ")")))
-
-(defun cider-repl-set-config ()
-  "Set an inititial REPL configuration."
+(defun cider-repl-eval-init-code ()
+  "Evaluate `cider-repl-init-code' in the current REPL."
   (interactive)
-  (when-let* ((config-expression (cider-repl--build-config-expression)))
+  (when cider-repl-init-code
     (nrepl-send-sync-request
-     (lax-plist-put
-      (nrepl--eval-request config-expression)
-      "inhibit-cider-middleware" "true")
+     (thread-first cider-repl-init-code
+       (string-join "\n")
+       (nrepl--eval-request)
+       (lax-plist-put "inhibit-cider-middleware" "true"))
      (cider-current-repl))))
 
 (defun cider-repl-init (buffer &optional no-banner)
@@ -316,9 +303,8 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
        ;; against user config
        (set-buffer orig-buffer)))
     ((pred identity) (pop-to-buffer buffer)))
-  (cider-repl-set-initial-ns buffer)
-  (cider-repl-require-repl-utils)
-  (cider-repl-set-config)
+  (cider-repl--set-initial-ns buffer)
+  (cider-repl-eval-init-code)
   (unless no-banner
     (cider-repl--insert-banner-and-prompt buffer))
   (with-current-buffer buffer

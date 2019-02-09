@@ -49,7 +49,7 @@ Please, avoid killing REPL buffers with <kbd>C-c C-k</kbd>
 
 ## Known Limitations
 
-Unfortunately the REPL doesn't handle very well big output and they can cause slowdowns and even lockups.
-Make sure to clean your REPL buffers from time to time if you notice any slowdowns related to lots of
-content in the REPL. It's also prudent to configure result printing with some reasonable setting for
-`*print-length*` and `*print-level*` (or `cider-pprint-options` if you're making use of pretty-printing).
+Performance can degrade when the REPL buffer grows very large. This is
+especially true if `cider-repl-use-clojure-font-lock` is enabled. You can use
+`cider-repl-clear-output` to either clear the result of the previous evaluation,
+or with a prefix argument clear the entire REPL buffer.
