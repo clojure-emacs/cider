@@ -50,9 +50,10 @@ Please, avoid killing REPL buffers with <kbd>C-c C-k</kbd>
 ## Known Limitations
 
 Performance can degrade when the REPL buffer grows very large. This is
-especially true if `cider-repl-use-clojure-font-lock` is enabled. You can use
-`cider-repl-clear-output` to either clear the result of the previous evaluation,
-or with a prefix argument clear the entire REPL buffer.
+especially true if either `cider-repl-use-clojure-font-lock` or
+`nrepl-log-messages` are enabled. You can use `cider-repl-clear-output` to
+either clear the result of the previous evaluation, or with a prefix argument
+clear the entire REPL buffer.
 
 Very long lines are guaranteed to bring Emacs to a crawl, so using a value of
 `cider-print-fn` that wraps lines beyond a certain width (i.e. any of the

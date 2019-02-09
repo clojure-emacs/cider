@@ -141,6 +141,8 @@ use:
 (setq cider-repl-use-clojure-font-lock nil)
 ```
 
+Note that enabling font-locking in the REPL can negatively impact performance.
+
 ## Pretty printing in the REPL
 
 By default the REPL always prints the results of your evaluations using the

@@ -68,9 +68,11 @@ you can step forward until you find the problem.
 
 ### Missing `*nrepl-messages*` buffer
 
-nREPL message logging is not enabled by default.  Set `nrepl-log-messages` to
-`t` to activate it. Alternatively you can use <kbd>M-x</kbd> `nrepl-toggle-message-logging`
-to enable/disable logging temporary within your current Emacs session.
+nREPL message logging is not enabled by default. Set `nrepl-log-messages` to `t`
+to activate it. Alternatively you can use <kbd>M-x</kbd>
+`nrepl-toggle-message-logging` to enable/disable logging temporary within your
+current Emacs session. Note that enabling message logging can impact
+performance.
 
 ### `cider-debug` complains that it “failed to instrument ...”
 
