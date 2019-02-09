@@ -4,14 +4,20 @@
 
 ### New features
 
-* The `cider-test-run-*` and `cider-ns-refresh-*` commands are now interruptible with the `cider-interrupt` command.
+* The `cider-test-run-*` and `cider-ns-refresh-*` commands are now interruptible by the `cider-interrupt` command.
+* Many commands now stream printed results back to the client incrementally – meaning it's now possible to, for example, interrupt evaluations while their result is being rendered.
+* New option: `cider-repl-init-code`. This is a list of strings containing Clojure code to evaluate when the REPL starts (with bindings for any `set!`-able vars in place). Replaces `cider-print-length` and `cider-print-level`, which are now obsolete.
+* New option: `cider-print-quota`. This is a hard limit on the number of bytes that will be returned by any printing operation. This defaults to one megabyte and can be set to `nil` if no limit is desired.
 
 ### Changes
 
-* [#2546](https://github.com/clojure-emacs/cider/pull/2546): New defcustom `cider-ns-save-files-on-refresh-modes` to control for which buffers `cider-ns-refresh` should save before refreshing.
 * **(Breaking)** Upgrade to nREPL 0.6.0. This is now the minimum required version.
 * **(Breaking)** Upgrade to piggieback 0.4.0. This is now the minimum required version.
 * **(Breaking)** Remove `cider.nrepl.middleware.pprint`. All functionality has been replaced by the built-in printing support in nREPL 0.6.
+* Option `cider-repl-scroll-on-output` is now obsolete, and the default REPL behaviour has changed to _not_ recenter the window. The built-in variable `scroll-conservatively` can be set to 101 (either globally or locally in the REPL buffer) to restore the old behaviour. This change has a dramatic positive effect on REPL performance.
+* `cider-pprint-fn` and `cider-pprint-options` are now obsolete, replaced by `cider-print-fn` and `cider-print-options`.
+* `cider-debug-print-options`, `cider-stacktrace-print-options`, and `cider-repl-pretty-print-width` are now all obsolete, replaced by `cider-print-options`.
+* [#2546](https://github.com/clojure-emacs/cider/pull/2546): New defcustom `cider-ns-save-files-on-refresh-modes` to control for which buffers `cider-ns-refresh` should save before refreshing.
 
 ### Bug fixes
 
