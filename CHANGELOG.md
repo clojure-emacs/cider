@@ -19,6 +19,7 @@
 * Fix value and safe property for `cider-allow-jack-in-without-project` variable.
 * `cider-ns-save-files-on-refresh` will now save any modified buffers visiting files on the classpath, rather than just in the current project.
 * `cider-expected-ns` no longer requires an absolute path as its argument, and now internally handles paths canonically and consistently.
+* Fixed a bug causing REPL output to be inserted after the prompt.
 
 ## 0.20.0 (2019-01-14)
 

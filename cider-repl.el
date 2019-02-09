@@ -681,7 +681,8 @@ If BOL is non-nil insert at the beginning of line.  Run
   "Using BUFFER, emit STRING font-locked with FACE.
 If BOL is non-nil, emit at the beginning of the line."
   (with-current-buffer buffer
-    (cider-repl--emit-output-at-pos buffer string face cider-repl-input-start-mark bol)))
+    (let ((pos (cider-repl--end-of-output)))
+      (cider-repl--emit-output-at-pos buffer string face pos bol))))
 
 (defun cider-repl-emit-stdout (buffer string)
   "Using BUFFER, emit STRING as standard output."
