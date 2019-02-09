@@ -788,7 +788,7 @@ the symbol."
                t)))
           (t t))))
 
-(defun cider-repl--display-image (buffer image &optional show-prefix bol string)
+(defun cider-repl--display-image (buffer image &optional show-prefix bol)
   "Insert IMAGE into BUFFER at the current point.
 
 For compatibility with the rest of CIDER's REPL machinery, supports
@@ -809,7 +809,7 @@ SHOW-PREFIX and BOL."
                 (props (nconc `(display ,image rear-nonsticky (display))
                               (when (boundp 'image-map)
                                 `(keymap ,image-map)))))
-            (insert-before-markers string)
+            (insert-before-markers " ")
             (add-text-properties start (point) props)))))
     (cider-repl--show-maximum-output))
   t)
@@ -836,14 +836,14 @@ raw image data or a filename.  Returns an image instance with a margin per
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'jpeg t)
-                             show-prefix bol " "))
+                             show-prefix bol))
 
 (defun cider-repl-handle-png (_type buffer image &optional show-prefix bol)
   "A handler for inserting a png IMAGE into a repl BUFFER.
 Part of the default `cider-repl-content-type-handler-alist'."
   (cider-repl--display-image buffer
                              (cider-repl--image image 'png t)
-                             show-prefix bol " "))
+                             show-prefix bol))
 
 (defun cider-repl-handle-external-body (type buffer _ &optional _show-prefix _bol)
   "Handler for slurping external content into BUFFER.
