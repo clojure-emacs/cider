@@ -84,21 +84,14 @@ following:
 
 ## Auto-scrolling the REPL on Output
 
-By default, if the REPL buffer contains more lines than the size of the
-(Emacs) window, the buffer is automatically re-centered upon
-completion of evaluating an expression, so that the bottom line of
-output is on the bottom line of the window.
-
-The default has the nice advantage that you always see as much as you
-can from your previous REPL interactions, but can be pretty annoying
-if you're a heavy user of `C-l` (`M-x recenter-top-bottom`), as even
-if you're at the top of the REPL buffer the next output will scroll it all
-the way down.
-
-If you don't like this re-centering you can disable it like this:
+Prior to version 0.21.0, the REPL buffer would be automatically re-centered
+whenever any output was printed, so that the prompt was on the bottom line of
+the window, displaying the maximum possible amount of output above it. This is
+no longer the default behaviour – you can now replicate it by setting the
+built-in option `scroll-conservatively`, for example:
 
 ```el
-(setq cider-repl-scroll-on-output nil)
+(add-hook 'cider-repl-mode-hook '(lambda () (setq scroll-conservatively 101)))
 ```
 
 ## Result Prefix

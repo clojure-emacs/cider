@@ -102,18 +102,7 @@ focused.  Otherwise the buffer is displayed and focused."
   :type 'boolean
   :group 'cider-repl)
 
-(defcustom cider-repl-scroll-on-output t
-  "Controls whether the REPL buffer auto-scrolls on new output.
-
-When set to t (the default), if the REPL buffer contains more lines than the
-size of the window, the buffer is automatically re-centered upon completion
-of evaluating an expression, so that the bottom line of output is on the
-bottom line of the window.
-
-If this is set to nil, no re-centering takes place."
-  :type 'boolean
-  :group 'cider-repl
-  :package-version '(cider . "0.11.0"))
+(make-obsolete-variable 'cider-repl-scroll-on-output 'scroll-conservatively "0.21")
 
 (defcustom cider-repl-use-pretty-printing t
   "Control whether results in the REPL are pretty-printed or not.
@@ -512,15 +501,6 @@ If given a negative value of ARG, move to the beginning of defun."
 This will not work on non-current prompts."
   (= (point) cider-repl-input-start-mark))
 
-(defun cider-repl--show-maximum-output ()
-  "Put the end of the buffer at the bottom of the window."
-  (when (and cider-repl-scroll-on-output (eobp))
-    (let ((win (get-buffer-window (current-buffer) t)))
-      (when win
-        (with-selected-window win
-          (set-window-point win (point-max))
-          (recenter -1))))))
-
 (defmacro cider-save-marker (marker &rest body)
   "Save MARKER and execute BODY."
   (declare (debug t))
@@ -681,8 +661,7 @@ If BOL is non-nil insert at the beginning of line.  Run
           (when (and (= (point) cider-repl-prompt-start-mark)
                      (not (bolp)))
             (insert-before-markers "\n")
-            (set-marker cider-repl-output-end (1- (point)))))))
-    (cider-repl--show-maximum-output)))
+            (set-marker cider-repl-output-end (1- (point)))))))))
 
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
@@ -718,8 +697,7 @@ If BOL is non-nil, emit at the beginning of the line."
     (save-excursion
       (cider-save-marker cider-repl-output-start
         (cider-save-marker cider-repl-output-end
-          (cider-repl--insert-prompt cider-buffer-ns))))
-    (cider-repl--show-maximum-output)))
+          (cider-repl--insert-prompt cider-buffer-ns))))))
 
 (defun cider-repl-emit-result (buffer string show-prefix &optional bol)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
@@ -738,8 +716,7 @@ of the line.  If BOL is non-nil insert at the beginning of the line."
               (insert-before-markers (cider-font-lock-as-clojure string))
             (cider-propertize-region
                 '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
-              (insert-before-markers string))))))
-    (cider-repl--show-maximum-output)))
+              (insert-before-markers string))))))))
 
 (defun cider-repl-newline-and-indent ()
   "Insert a newline, then indent the next line.
@@ -810,8 +787,7 @@ SHOW-PREFIX and BOL."
                               (when (boundp 'image-map)
                                 `(keymap ,image-map)))))
             (insert-before-markers " ")
-            (add-text-properties start (point) props)))))
-    (cider-repl--show-maximum-output))
+            (add-text-properties start (point) props))))))
   t)
 
 (defcustom cider-repl-image-margin 10
@@ -919,8 +895,7 @@ If NEWLINE is true then add a newline at the end of the input."
       (let ((end (point)))              ; end of input, without the newline
         (cider-repl--add-to-input-history input)
         (when newline
-          (insert "\n")
-          (cider-repl--show-maximum-output))
+          (insert "\n"))
         (let ((inhibit-modification-hooks t))
           (add-text-properties cider-repl-input-start-mark
                                (point)
@@ -956,20 +931,12 @@ are not balanced."
     (cider-repl--send-input))
    ((and (get-text-property (point) 'cider-old-input)
          (< (point) cider-repl-input-start-mark))
-    (cider-repl--grab-old-input end-of-input)
-    (cider-repl--recenter-if-needed))
+    (cider-repl--grab-old-input end-of-input))
    ((cider-repl--input-complete-p cider-repl-input-start-mark (point-max))
     (cider-repl--send-input t))
    (t
     (cider-repl-newline-and-indent)
     (message "[input not complete]"))))
-
-(defun cider-repl--recenter-if-needed ()
-  "Make sure that the point is visible."
-  (unless (pos-visible-in-window-p (point-max))
-    (save-excursion
-      (goto-char (point-max))
-      (recenter -1))))
 
 (defun cider-repl--grab-old-input (replace)
   "Resend the old REPL input at point.
