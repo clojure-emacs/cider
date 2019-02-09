@@ -873,13 +873,11 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
 
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
-  (let (after-first-result-chunk
-        (show-prompt t))
+  (let ((show-prompt t))
     (nrepl-make-response-handler
      buffer
      (lambda (buffer value)
-       (cider-repl-emit-result buffer value (not after-first-result-chunk))
-       (setq after-first-result-chunk t))
+       (cider-repl-emit-result buffer value t))
      (lambda (buffer out)
        (cider-repl-emit-stdout buffer out))
      (lambda (buffer err)
@@ -893,11 +891,8 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
                  (content-type* (car content-type))
                  (handler (cdr (assoc content-type*
                                       cider-repl-content-type-handler-alist))))
-           (setq after-first-result-chunk t
-                 show-prompt (funcall handler content-type buffer value
-                                      (not after-first-result-chunk) t))
-         (progn (cider-repl-emit-result buffer value (not after-first-result-chunk) t)
-                (setq after-first-result-chunk t)))))))
+           (setq show-prompt (funcall handler content-type buffer value nil t))
+         (cider-repl-emit-result buffer value t t))))))
 
 (defun cider--repl-request-plist (right-margin &optional pprint-fn)
   "Plist to be appended to generic eval requests, as for the REPL.
