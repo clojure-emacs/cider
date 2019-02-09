@@ -246,6 +246,13 @@ able to handle those.  Here's an example for `pprint':
 (defun cider--pprint-fn ()
   "Return the value to send in the pprint-fn slot of messages."
   (pcase cider-pprint-fn
+(defcustom cider-print-quota (* 1024 1024)
+  "A hard limit on the number of bytes to return from any printing operation.
+Set to nil for no limit."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "0.21.0"))
+
     (`pprint "cider.nrepl.pprint/pprint")
     (`fipp "cider.nrepl.pprint/fipp-pprint")
     (`puget "cider.nrepl.pprint/puget-pprint")
@@ -283,6 +290,8 @@ result, and is included in the request if non-nil."
       (setq print-options (nrepl-dict-put print-options (cider--pprint-option "right-margin" cider-pprint-fn) right-margin)))
     (append `("nrepl.middleware.print/print" ,(or pprint-fn (cider--pprint-fn))
               "nrepl.middleware.print/stream?" "1")
+            (when cider-print-quota
+              `("nrepl.middleware.print/quota" ,cider-print-quota))
             (and (not (nrepl-dict-empty-p print-options)) `("nrepl.middleware.print/options" ,print-options)))))
 
 (defun cider--nrepl-content-type-plist ()

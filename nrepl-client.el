@@ -787,6 +787,10 @@ the corresponding type of response."
              (when stderr-handler
                (funcall stderr-handler buffer err)))
             (status
+             (when (and stderr-handler (member "nrepl.middleware.print/truncated" status))
+               (let ((warning (format "\n... output truncated to %sB ..."
+                                      (file-size-human-readable cider-print-quota))))
+                 (funcall stderr-handler buffer warning)))
              (when (member "notification" status)
                (nrepl-dbind-response response (msg type)
                  (nrepl-notify msg type)))
