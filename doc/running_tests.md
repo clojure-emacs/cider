@@ -78,7 +78,7 @@ Finally, you can execute the specific test at the point using
 ## Interacting with Test Result Reports
 
 After running your tests, CIDER displays a test result report in the
-`*cider-test-report*` buffer. This buffer uses `test-report-mode`,
+`*cider-test-report*` buffer. This buffer uses `cider-test-report-mode`,
 which makes it easy to review any failures that might have occurred
 and jump directly to the definition of failing tests.
 
