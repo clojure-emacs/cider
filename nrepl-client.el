@@ -379,7 +379,9 @@ containing the remainder of the input strings which could not be
 decoded.  RESPONSE-Q is the original queue with successfully decoded messages
 enqueued and with slot STUB containing a nested stack of an incompletely
 decoded message or nil if the strings were completely decoded."
-  (with-temp-buffer
+  (with-current-buffer (get-buffer-create " *nrepl-decoding*")
+    (fundamental-mode)
+    (erase-buffer)
     (if (queue-p string-q)
         (while (queue-head string-q)
           (insert (queue-dequeue string-q)))
@@ -400,6 +402,7 @@ decoded message or nil if the strings were completely decoded."
           (setf (nrepl-response-queue-stub response-q) (cdr istack))
         (queue-enqueue response-q (cadr istack))
         (setf (nrepl-response-queue-stub response-q) nil))
+      (erase-buffer)
       (cons string-q response-q))))
 
 (defun nrepl-bencode (object)
