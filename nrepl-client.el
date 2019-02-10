@@ -326,10 +326,7 @@ object is a root list or dict."
         (goto-char end)
         ;; normalise any platform-specific newlines
         (let* ((original (buffer-substring-no-properties beg end))
-               ;; handle both \n\r and \r\n
-               (result (replace-regexp-in-string "\r\n\\|\n\r" "\n" original))
-               ;; we don't handle single carriage returns, insert newline
-               (result (replace-regexp-in-string "\r" "\n" result)))
+               (result (replace-regexp-in-string "\r\n\\|\n\r\\|\r" "\n" original)))
           (cons nil (nrepl--push result stack))))))
    ;; integer
    ((looking-at "i\\(-?[0-9]+\\)e")
