@@ -4,6 +4,7 @@
 
 ### Bug fixes
 
+* Allow editing of jack in command with prefix or when `cider-edit-jack-in-command` is truthy.
 * Stop cursor moving when initialising the CIDER REPL, when `cider-repl-pop-to-buffer-on-connect` is nil. This fixes a bug introduced by [commit e0aca78b](https://github.com/clojure-emacs/cider/commit/e0aca78ba56425e50ea895c5adc7c0331cee0b19).
 
 * [#2593](https://github.com/clojure-emacs/cider/issues/2593): The REPL's initial namespace is now set correctly if configured in another tool (e.g. Leiningen's `:init-ns`).
