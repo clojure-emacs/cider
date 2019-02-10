@@ -926,7 +926,8 @@ nil."
 (defun cider-jack-in-clj (params)
   "Start an nREPL server for the current project and connect to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
-With the prefix argument, prompt for all these parameters."
+With the prefix argument, allow editing of the jack in command; with a
+double prefix prompt for all these parameters."
   (interactive "P")
   (let ((params (thread-first params
                   (cider--update-project-dir)
@@ -943,7 +944,8 @@ With the prefix argument, prompt for all these parameters."
   "Start an nREPL server for the current project and connect to it.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
 :cljs-repl-type (e.g. Node, Figwheel, etc).  With the prefix argument,
-prompt for all these parameters."
+allow editing of the jack in command; with a double prefix prompt for all
+these parameters."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
@@ -966,8 +968,9 @@ prompt for all these parameters."
   "Start an nREPL server and connect with clj and cljs REPLs.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
 :cljs-repl-type (e.g. Node, Figwheel, etc).  With the prefix argument,
-prompt for all these parameters.  When SOFT-CLJS-START is non-nil, start
-cljs REPL only when the ClojureScript dependencies are met."
+allow for editing of the jack in command; with a double prefix prompt for
+all these parameters.  When SOFT-CLJS-START is non-nil, start cljs REPL
+only when the ClojureScript dependencies are met."
   (interactive "P")
   (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
@@ -1106,9 +1109,9 @@ non-nil, don't start if ClojureScript requirements are not met."
 
 (defun cider--update-do-prompt (params)
   "Update :do-prompt in PARAMS."
-  (if (equal params '(4))
-      (list :do-prompt t)
-    params))
+  (cond ((equal params '(4)) (list :edit-jack-in-command t))
+        ((equal params '(16)) (list :do-prompt t))
+        (t params)))
 
 (defun cider--update-project-dir (params)
   "Update :project-dir in PARAMS."
@@ -1157,6 +1160,12 @@ non-nil, don't start if ClojureScript requirements are not met."
                    (or inferred-type
                        (cider-select-cljs-repl)))))))
 
+(defcustom cider-edit-jack-in-command nil
+  "When truthy allow the user to edit the command."
+  :type 'boolean
+  :safe #'booleanp
+  :version '(cider . "0.22.0"))
+
 (defun cider--update-jack-in-cmd (params)
   "Update :jack-in-cmd key in PARAMS."
   (let* ((params (cider--update-do-prompt params))
@@ -1182,8 +1191,11 @@ non-nil, don't start if ClojureScript requirements are not met."
                           (and (null project-dir)
                                (eq cider-allow-jack-in-without-project 'warn)
                                (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
-                  (let* ((cmd (format "%s %s" command-resolved cmd-params)))
-                    (plist-put params :jack-in-cmd cmd)))
+                  (let ((cmd (format "%s %s" command-resolved cmd-params)))
+                    (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command
+                                                           (plist-get params :edit-jack-in-command))
+                                                       (read-string "jack-in command: " cmd t)
+                                                     cmd))))
               (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
       (user-error "The %s executable isn't on your `exec-path'" command))))
 

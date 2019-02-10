@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+* Allow editing of jack in command with prefix or when `cider-edit-jack-in-command` is truthy.
+
 ### Changes
 
 * `cider-print-options` is now supported by the `pr` option for `cider-print-fn`. The options will now be also used by interactive eval commands that do not use pretty-printing.
