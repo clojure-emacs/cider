@@ -33,7 +33,7 @@ project):
 
 ```clojure
 ;; use whatever are the most recent versions here
-[cider/piggieback "0.3.10"]
+[cider/piggieback "0.4.0"]
 [org.clojure/clojure "1.9.0"]
 ```
 
@@ -157,7 +157,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[cider/piggieback "0.3.10"  :scope "test"] ; not needed for cider-jack-in-cljs
+[cider/piggieback "0.4.0"  :scope "test"] ; not needed for cider-jack-in-cljs
 ```
 
 and this at the end of `build.boot`:
@@ -199,14 +199,13 @@ You can also use [Figwheel](https://github.com/bhauman/lein-figwheel) with CIDER
 2. Add these to your dev `:dependencies`:
 
 ```clojure
-[cider/piggieback "0.3.10"] ; not needed for cider-jack-in-cljs
-[figwheel-sidecar "0.5.16"] ; use here whatever the current version of figwheel is
+[cider/piggieback "0.4.0"] ; not needed for cider-jack-in-cljs
+[figwheel-sidecar "0.5.19"] ; use here whatever the current version of figwheel is
 ```
 
 !!! Warning
 
-    Keep in mind that figwheel 0.5.16 is the first to support piggieback
-    0.3. CIDER does not support older versions of Piggieback.
+    Keep in mind that CIDER does not support versions versions of Piggieback older than 0.4. Make sure that you use a compatible version of Figwheel.
 
 3. Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
 
@@ -234,7 +233,7 @@ You can also use [Figwheel-main](https://github.com/bhauman/figwheel-main) with 
 1. Add this to your dev `:dependencies` (not needed for `cider-jack-in-cljs`):
 
 ```clojure
-[cider/piggieback "0.3.10"]
+[cider/piggieback "0.4.0"]
 ```
 
 2. Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):

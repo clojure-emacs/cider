@@ -383,7 +383,7 @@ Throws an error if PROJECT-TYPE is unknown."
   "List of dependencies where elements are lists of artifact name and version.
 Added to `cider-jack-in-dependencies' when doing `cider-jack-in-cljs'.")
 (put 'cider-jack-in-cljs-dependencies 'risky-local-variable t)
-(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.3.10")
+(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.4.0")
 
 (defvar cider-jack-in-dependencies-exclusions nil
   "List of exclusions for jack in dependencies.
@@ -655,7 +655,7 @@ Generally you should not disable this unless you run into some faulty check."
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
   (unless (cider-library-present-p "cider/piggieback")
-    (user-error "Piggieback 0.3.x (aka cider/piggieback) is not available.  See https://docs.cider.mx/en/latest/clojurescript for details")))
+    (user-error "Piggieback 0.4.x (aka cider/piggieback) is not available.  See https://docs.cider.mx/en/latest/clojurescript for details")))
 
 (defun cider-check-nashorn-requirements ()
   "Check whether we can start a Nashorn ClojureScript REPL."
