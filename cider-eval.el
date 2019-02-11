@@ -544,22 +544,28 @@ LOCATION is the location at which to insert.
 COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
-  (cl-flet ((multiline-comment-handler (buffer value)
-              (with-current-buffer buffer
-                (save-excursion
-                  (goto-char location)
-                  (let ((lines (split-string value "[\n]+" t)))
-                    ;; only the first line gets the normal comment-prefix
-                    (insert (concat comment-prefix (pop lines)))
-                    (dolist (elem lines)
-                      (insert (concat "\n" continued-prefix elem)))
-                    (unless (string= comment-postfix "")
-                      (insert comment-postfix)))))))
-    (nrepl-make-response-handler buffer
-                                 '()
-                                 #'multiline-comment-handler
-                                 #'multiline-comment-handler
-                                 '())))
+  (let ((res ""))
+    (nrepl-make-response-handler
+     buffer
+     (lambda (_buffer value)
+       (setq res (concat res value)))
+     nil
+     nil
+     (lambda (buffer)
+       (with-current-buffer buffer
+         (save-excursion
+           (goto-char location)
+           (let ((lines (split-string res "[\n]+" t)))
+             ;; only the first line gets the normal comment-prefix
+             (insert (concat comment-prefix (pop lines)))
+             (dolist (elem lines)
+               (insert (concat "\n" continued-prefix elem)))
+             (unless (string= comment-postfix "")
+               (insert comment-postfix))))))
+     nil
+     nil
+     (lambda (_buffer warning)
+       (setq res (concat res warning))))))
 
 (defun cider-popup-eval-handler (&optional buffer)
   "Make a handler for printing evaluation results in popup BUFFER.

@@ -22,7 +22,6 @@
                               (cider--jack-in . 1)
                               (cider--make-result-overlay . 1)
                               ;; need better solution for indenting cl-flet bindings
-                              (multiline-comment-handler . defun) ;; cl-flet
                               (insert-label . defun)              ;; cl-flet
                               (insert-align-label . defun)        ;; cl-flet
                               (insert-rect . defun)               ;; cl-flet
