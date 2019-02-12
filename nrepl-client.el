@@ -326,10 +326,7 @@ object is a root list or dict."
         (goto-char end)
         ;; normalise any platform-specific newlines
         (let* ((original (buffer-substring-no-properties beg end))
-               ;; handle both \n\r and \r\n
-               (result (replace-regexp-in-string "\r\n\\|\n\r" "\n" original))
-               ;; we don't handle single carriage returns, insert newline
-               (result (replace-regexp-in-string "\r" "\n" result)))
+               (result (replace-regexp-in-string "\r\n\\|\n\r\\|\r" "\n" original)))
           (cons nil (nrepl--push result stack))))))
    ;; integer
    ((looking-at "i\\(-?[0-9]+\\)e")
@@ -379,7 +376,9 @@ containing the remainder of the input strings which could not be
 decoded.  RESPONSE-Q is the original queue with successfully decoded messages
 enqueued and with slot STUB containing a nested stack of an incompletely
 decoded message or nil if the strings were completely decoded."
-  (with-temp-buffer
+  (with-current-buffer (get-buffer-create " *nrepl-decoding*")
+    (fundamental-mode)
+    (erase-buffer)
     (if (queue-p string-q)
         (while (queue-head string-q)
           (insert (queue-dequeue string-q)))
@@ -400,6 +399,7 @@ decoded message or nil if the strings were completely decoded."
           (setf (nrepl-response-queue-stub response-q) (cdr istack))
         (queue-enqueue response-q (cadr istack))
         (setf (nrepl-response-queue-stub response-q) nil))
+      (erase-buffer)
       (cons string-q response-q))))
 
 (defun nrepl-bencode (object)
@@ -741,7 +741,8 @@ to the REPL."
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
                                            &optional eval-error-handler
-                                           content-type-handler)
+                                           content-type-handler
+                                           truncated-handler)
   "Make a response handler for connection BUFFER.
 A handler is a function that takes one argument - response received from
 the server process.  The response is an alist that contains at least 'id'
@@ -754,8 +755,8 @@ example, if 'value' key is present, the response is of type 'value', if
 
 Depending on the type, the handler dispatches the appropriate value to one
 of the supplied handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
-DONE-HANDLER, EVAL-ERROR-HANDLER and
-CONTENT-TYPE-HANDLER.
+DONE-HANDLER, EVAL-ERROR-HANDLER, CONTENT-TYPE-HANDLER, and
+TRUNCATED-HANDLER.
 
 Handlers are functions of the buffer and the value they handle, except for
 the optional CONTENT-TYPE-HANDLER which should be a function of the buffer,
@@ -787,6 +788,10 @@ the corresponding type of response."
              (when stderr-handler
                (funcall stderr-handler buffer err)))
             (status
+             (when (and truncated-handler (member "nrepl.middleware.print/truncated" status))
+               (let ((warning (format "\n... output truncated to %sB ..."
+                                      (file-size-human-readable cider-print-quota))))
+                 (funcall truncated-handler buffer warning)))
              (when (member "notification" status)
                (nrepl-dbind-response response (msg type)
                  (nrepl-notify msg type)))

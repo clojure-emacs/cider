@@ -84,21 +84,14 @@ following:
 
 ## Auto-scrolling the REPL on Output
 
-By default, if the REPL buffer contains more lines than the size of the
-(Emacs) window, the buffer is automatically re-centered upon
-completion of evaluating an expression, so that the bottom line of
-output is on the bottom line of the window.
-
-The default has the nice advantage that you always see as much as you
-can from your previous REPL interactions, but can be pretty annoying
-if you're a heavy user of `C-l` (`M-x recenter-top-bottom`), as even
-if you're at the top of the REPL buffer the next output will scroll it all
-the way down.
-
-If you don't like this re-centering you can disable it like this:
+Prior to version 0.21.0, the REPL buffer would be automatically re-centered
+whenever any output was printed, so that the prompt was on the bottom line of
+the window, displaying the maximum possible amount of output above it. This is
+no longer the default behaviour – you can now replicate it by setting the
+built-in option `scroll-conservatively`, for example:
 
 ```el
-(setq cider-repl-scroll-on-output nil)
+(add-hook 'cider-repl-mode-hook '(lambda () (setq scroll-conservatively 101)))
 ```
 
 ## Result Prefix
@@ -148,35 +141,33 @@ use:
 (setq cider-repl-use-clojure-font-lock nil)
 ```
 
+Note that enabling font-locking in the REPL can negatively impact performance.
+
 ## Pretty printing in the REPL
 
-By default the REPL always pretty-prints the results of your
-evaluations using whatever pretty-printer is specified in `cider-pprint-fn`.
+By default the REPL always prints the results of your evaluations using the
+printing function specified by `cider-print-fn`.
 
 !!! Note
 
     This behaviour was changed in CIDER 0.20. In prior CIDER releases
     pretty-printing was disabled by default.
 
-You can temporary disable this behaviour and revert to the default
-printer using <kbd>M-x cider-repl-toggle-pretty-printing</kbd>.
+You can temporarily disable this behaviour and revert to the default behaviour
+(equivalent to `clojure.core/pr`) using <kbd>M-x cider-repl-toggle-pretty-printing</kbd>.
 
-If you want to disable pretty-printing of results completely use:
+If you want to disable using `cider-print-fn` entirely, use:
 
 ```el
 (setq cider-repl-use-pretty-printing nil)
 ```
 
-The variable `cider-repl-pretty-print-width` (`fill-column` by default) controls
-the print width. You can adjust if you want:
+Note well that disabling pretty-printing is not advised. Emacs does not handle
+well very long lines, so using a printing function that wraps lines beyond a
+certain width (i.e. any of them except for `pr`) will keep your REPL running
+smoothly.
 
-```el
-;; this will try to print data in 20 columns per line
-(setq cider-repl-pretty-print-width 20)
-```
-
-See [this](../pretty_printing) for more
-information on pretty printing.
+See [this](../pretty_printing) for more information on configuring printing.
 
 ## Displaying images in the REPL
 
@@ -190,30 +181,6 @@ behavior if you don't like it.
 
 Alternatively, you can toggle this behaviour on and off using <kbd>M-x
 cider-repl-toggle-content-types</kbd>.
-
-Currently, the feature doesn't work well with pretty-printing in the REPL,
-so we don't advise you to enable both features at the same time.
-
-## Limiting printed output in the REPL
-
-Accidentally printing large objects can be detrimental to your
-productivity. Clojure provides the `*print-length*` var which, if set,
-controls how many items of each collection the printer will print. You
-can supply a default value for REPL sessions via the `repl-options`
-section of your Leiningen project's configuration.
-
-```clojure
-:repl-options {:init (set! *print-length* 50)}
-```
-
-You can also set `cider-repl-print-length` to an appropriate value (it
-defaults to 100). If both `*print-length` and
-`cider-repl-print-length` are set, CIDER's setting will take precedence
-over the value set through Leiningen.
-
-The preceeding discussion also applies to Clojure's `*print-level*`
-variable. The corresponding CIDER variable is
-`cider-repl-print-level`, set to `nil` by default.
 
 ## Customizing the initial REPL namespace
 
