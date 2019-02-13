@@ -295,8 +295,9 @@ is included in the request if non-nil."
                           (seq-mapcat #'identity)
                           (apply #'nrepl-dict))))
     (map-merge 'list
-               `(("nrepl.middleware.print/print" ,(cider--print-fn))
-                 ("nrepl.middleware.print/stream?" "1"))
+               `(("nrepl.middleware.print/stream?" "1"))
+               (when cider-print-fn
+                 `(("nrepl.middleware.print/print" ,(cider--print-fn))))
                (when cider-print-quota
                  `(("nrepl.middleware.print/quota" ,cider-print-quota)))
                (unless (nrepl-dict-empty-p print-options)
