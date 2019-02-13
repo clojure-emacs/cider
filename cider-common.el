@@ -138,7 +138,7 @@ If OTHER-WINDOW is non-nil don't reuse current window."
   (with-no-warnings
     (ring-insert find-tag-marker-ring (point-marker)))
   (if other-window
-      (pop-to-buffer buffer)
+      (pop-to-buffer buffer 'display-buffer-pop-up-window)
     ;; like switch-to-buffer, but reuse existing window if BUFFER is visible
     (pop-to-buffer buffer '((display-buffer-reuse-window display-buffer-same-window))))
   (with-current-buffer buffer
