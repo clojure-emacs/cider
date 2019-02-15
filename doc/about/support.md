@@ -20,7 +20,8 @@ from other CIDER users there.
 
 We've got an official [Clojurians Slack](https://clojurians.slack.com/) -
 `#cider`. This is usually be best way to get a handle on some of the maintainers
-and interact with other CIDER users. The channel is very active!
+and interact with other CIDER users. The channel is very active! If you need an invite
+you can go [here](http://clojurians.net/).
 
 There's also another channel named `#emacs` for generic Emacs discussions.
 
