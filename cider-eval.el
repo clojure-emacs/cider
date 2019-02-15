@@ -843,12 +843,14 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
 
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
-  (let* ((result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary))
+  (let* ((buffer (current-buffer))
+         (result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary))
          (handler (cider-popup-eval-handler result-buffer)))
-    (cider-interactive-eval (when (stringp form) form)
-                            handler
-                            (when (consp form) form)
-                            (cider--nrepl-print-request-map fill-column))))
+    (with-current-buffer buffer
+      (cider-interactive-eval (when (stringp form) form)
+                              handler
+                              (when (consp form) form)
+                              (cider--nrepl-print-request-map fill-column)))))
 
 (defun cider-pprint-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the sexp preceding point and pprint its value.
