@@ -258,7 +258,7 @@ Set to nil for no limit."
     (`pprint "cider.nrepl.pprint/pprint")
     (`fipp   "cider.nrepl.pprint/fipp-pprint")
     (`puget  "cider.nrepl.pprint/puget-pprint")
-    (`zprint "zprint.core/zprint-str")
+    (`zprint "cider.nrepl.pprint/zprint-pprint")
     (_ cider-print-fn)))
 
 (defvar cider--print-options-mapping
