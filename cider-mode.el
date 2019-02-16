@@ -121,7 +121,7 @@ Clojure buffer."
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
 The default keybinding for this command is
-the same as `cider-switch-to-repl-buffer',
+the same as variable `cider-switch-to-repl-buffer',
 so that it is very convenient to jump between a
 Clojure buffer and the REPL buffer."
   (interactive)
@@ -234,18 +234,23 @@ and eval and the prefix is required to prevent evaluation."
 
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
-If EVAL is non-nil the form will also be evaluated."
+If EVAL is non-nil the form will also be evaluated.  Use
+`cider-invert-insert-eval-p' to invert this behavior."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
-  (with-current-buffer (cider-current-repl)
-    (goto-char (point-max))
-    (let ((beg (point)))
-      (insert form)
-      (indent-region beg (point)))
-    (when (if cider-invert-insert-eval-p
-              (not eval)
-            eval)
-      (cider-repl-return)))
+  (let ((repl (cider-current-repl)))
+    (with-selected-window (or (get-buffer-window repl)
+                              (selected-window))
+      (with-current-buffer repl
+        (goto-char (point-max))
+        (let ((beg (point)))
+          (insert form)
+          (indent-region beg (point)))
+        (when (if cider-invert-insert-eval-p
+                  (not eval)
+                eval)
+          (cider-repl-return))
+        (goto-char (point-max)))))
   (when cider-switch-to-repl-after-insert-p
     (cider-switch-to-repl-buffer)))
 
