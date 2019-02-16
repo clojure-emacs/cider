@@ -6,7 +6,7 @@ The more detailed you are, the better.**
 Before submitting the PR make sure the following things have been done (and denote this
 by checking the relevant checkboxes):
 
-- [ ] The commits are consistent with our [contribution guidelines](../blob/master/CONTRIBUTING.md)
+- [ ] The commits are consistent with our [contribution guidelines](../.github/CONTRIBUTING.md)
 - [ ] You've added tests (if possible) to cover your change(s)
 - [ ] All tests are passing (`make test`)
 - [ ] All code passes the linter (`make lint`) which is based on [`elisp-lint`](https://github.com/gonewest818/elisp-lint) and includes
