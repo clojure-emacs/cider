@@ -37,6 +37,7 @@
 * Fixed a bug causing REPL output to be inserted after the prompt.
 * Fixed a bug causing `cider-pprint-eval-last-sexp-to-comment` and `cider-pprint-eval-defun-to-comment` to not insert anything.
 * `cider-find-var` now correctly uses a new window when passed a prefix of `-` or a double prefix argument.
+* [#2577](https://github.com/clojure-emacs/cider/issues/2577): Ensure user friendly error messages if a repl connection is expected but none was found in certain situations. 
 
 ## 0.20.0 (2019-01-14)
 

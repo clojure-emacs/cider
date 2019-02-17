@@ -140,7 +140,7 @@ nREPL connection."
 
 (defun cider-nrepl-op-supported-p (op &optional connection)
   "Check whether the CONNECTION supports the nREPL middleware OP."
-  (nrepl-op-supported-p op (or connection (cider-current-repl))))
+  (nrepl-op-supported-p op (or connection (cider-current-repl nil 'ensure))))
 
 (defvar cider-version)
 (defun cider-ensure-op-supported (op)
@@ -155,7 +155,7 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
                                     \"par1\" ... ).
 If CONNECTION is provided dispatch to that connection instead of
 the current connection.  Return the id of the sent message."
-  (nrepl-send-request request callback (or connection (cider-current-repl 'any))))
+  (nrepl-send-request request callback (or connection (cider-current-repl 'any 'ensure))))
 
 (defun cider-nrepl-send-sync-request (request &optional connection abort-on-input)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
@@ -165,13 +165,13 @@ If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface."
   (nrepl-send-sync-request request
-                           (or connection (cider-current-repl 'any))
+                           (or connection (cider-current-repl 'any 'ensure))
                            abort-on-input))
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
 Immediately mark the REQUEST as done.  Return the id of the sent message."
-  (let* ((conn (or connection (cider-current-repl 'any)))
+  (let* ((conn (or connection (cider-current-repl 'any 'ensure)))
          (id (nrepl-send-request request #'ignore conn)))
     (with-current-buffer conn
       (nrepl--mark-id-completed id))
@@ -183,7 +183,7 @@ If NS is non-nil, include it in the request.  LINE and COLUMN, if non-nil,
 define the position of INPUT in its buffer.  ADDITIONAL-PARAMS is a plist
 to be appended to the request message.  CONNECTION is the connection
 buffer, defaults to (cider-current-repl)."
-  (let ((connection (or connection (cider-current-repl))))
+  (let ((connection (or connection (cider-current-repl nil 'ensure))))
     (nrepl-request:eval input
                         (if cider-show-eval-spinner
                             (cider-eval-spinner-handler connection callback)
@@ -195,7 +195,7 @@ buffer, defaults to (cider-current-repl)."
 (defun cider-nrepl-sync-request:eval (input &optional connection ns)
   "Send the INPUT to the nREPL CONNECTION synchronously.
 If NS is non-nil, include it in the eval request."
-  (nrepl-sync-request:eval input (or connection (cider-current-repl)) ns))
+  (nrepl-sync-request:eval input (or connection (cider-current-repl nil 'ensure)) ns))
 
 (defcustom cider-print-fn 'pprint
   "Sets the function to use for printing.
@@ -324,7 +324,7 @@ clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-request:eval input
                       callback
-                      (or connection (cider-current-repl))
+                      (or connection (cider-current-repl nil 'ensure))
                       ns nil nil nil 'tooling))
 
 (defun cider-sync-tooling-eval (input &optional ns connection)
@@ -335,7 +335,7 @@ bindings of the primary eval nREPL session (e.g. this is not going to
 clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-sync-request:eval input
-                           (or connection (cider-current-repl))
+                           (or connection (cider-current-repl nil 'ensure))
                            ns
                            'tooling))
 
