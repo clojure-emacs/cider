@@ -258,7 +258,8 @@ If EVAL is non-nil the form will also be evaluated.  Use
         (goto-char (point-max))
         (let ((beg (point)))
           (insert form)
-          (indent-region beg (point)))
+          (indent-region beg (point))
+          (cider--font-lock-ensure beg (point)))
         (when (if cider-invert-insert-eval-p
                   (not eval)
                 eval)
