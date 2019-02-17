@@ -11,6 +11,7 @@
 
 ### Changes
 
+* * Add new defcustom `cider-switch-to-repl-on-insert-p`: Set to prevent cursor from going to the repl when inserting a form in the repl with the insert-to-repl commands. Replaces obsoleted `cider-switch-to-repl-after-insert-p`
 * **(Breaking)** Upgrade to nREPL 0.6.0. This is now the minimum required version.
 * **(Breaking)** Upgrade to piggieback 0.4.0. This is now the minimum required version.
 * **(Breaking)** Remove `cider.nrepl.middleware.pprint`. All functionality has been replaced by the built-in printing support in nREPL 0.6.

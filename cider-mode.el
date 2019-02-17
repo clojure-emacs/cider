@@ -223,6 +223,17 @@ With a prefix argument, prompt for function to run instead of -main."
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
+(defcustom cider-switch-to-repl-on-insert-p t
+  "Whether to switch to the repl when inserting a form into the repl."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.21.0"))
+
+(define-obsolete-variable-alias
+  'cider-switch-to-repl-after-insert-p
+  'cider-switch-to-repl-on-insert-p
+  "0.21.0")
+
 (defcustom cider-invert-insert-eval-p nil
   "Whether to invert the behavior of evaling.
 Default behavior when inserting is to NOT eval the form and only eval with
@@ -238,7 +249,7 @@ If EVAL is non-nil the form will also be evaluated.  Use
 `cider-invert-insert-eval-p' to invert this behavior."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
-  (when cider-switch-to-repl-after-insert-p
+  (when cider-switch-to-repl-on-insert-p
     (cider-switch-to-repl-buffer))
   (let ((repl (cider-current-repl)))
     (with-selected-window (or (get-buffer-window repl)
