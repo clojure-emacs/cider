@@ -151,7 +151,7 @@ the related commands `cider-repl-clear-buffer' and
 `cider-repl-clear-output'."
   (interactive "P")
   (let ((origin-buffer (current-buffer)))
-    (switch-to-buffer (cider-current-repl))
+    (switch-to-buffer (cider-current-repl nil 'ensure))
     (if clear-repl
         (cider-repl-clear-buffer)
       (cider-repl-clear-output))
