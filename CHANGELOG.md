@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.21.0 (2019-02-19)
+
 ### New features
 
 * The `cider-test-run-*` and `cider-ns-refresh-*` commands are now interruptible by the `cider-interrupt` command.

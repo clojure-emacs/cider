@@ -89,7 +89,7 @@ $ boot repl -s wait (or whatever task launches a repl)
 It is also possible for plain `clj`, although the command is somewhat longer:
 
 ```sh
-$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.20.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
+$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.21.1"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
 ```
 
 Alternatively, you can start nREPL either manually or using the facilities
