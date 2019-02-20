@@ -254,7 +254,7 @@ This cache is stored in the connection buffer.")
 This is \"user\" by default, but can be overridden (e.g. the Leiningen
 :init-ns option)."
   (let* ((response (nrepl-send-sync-request
-                    (thread-first (nrepl--eval-request "")
+                    (thread-first (nrepl--eval-request "nil")
                       (lax-plist-put "inhibit-cider-middleware" "true"))
                     (cider-current-repl)))
          (ns (nrepl-dict-get response "ns" "user")))
