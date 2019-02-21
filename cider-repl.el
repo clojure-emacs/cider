@@ -639,7 +639,15 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
       (when (and (= (point) cider-repl-prompt-start-mark)
                  (not (bolp)))
         (insert-before-markers "\n")
-        (set-marker cider-repl-output-end (1- (point)))))))
+        (set-marker cider-repl-output-end (1- (point))))))
+  (when-let* ((window (get-buffer-window buffer t)))
+    ;; If the prompt is on the first line of the window, then scroll the window
+    ;; down by a single line to make the emitted output visible.
+    (when (and (pos-visible-in-window-p cider-repl-prompt-start-mark window)
+               (< 0 cider-repl-prompt-start-mark)
+               (not (pos-visible-in-window-p (1- cider-repl-prompt-start-mark) window)))
+      (with-selected-window window
+        (scroll-down 1)))))
 
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
