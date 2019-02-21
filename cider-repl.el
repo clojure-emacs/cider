@@ -301,21 +301,20 @@ client process connection."
     ((pred identity) (pop-to-buffer buffer)))
   (cider-repl--set-initial-ns buffer)
   (cider-repl-eval-init-code)
-  (cider-repl--insert-banner-and-prompt buffer)
   (with-current-buffer buffer
+    (cider-repl--insert-banner)
+    (cider-repl--insert-prompt cider-buffer-ns)
     (set-window-point (get-buffer-window) (point-max)))
   buffer)
 
-(defun cider-repl--insert-banner-and-prompt (buffer)
-  "Insert REPL banner and REPL prompt in BUFFER."
-  (with-current-buffer buffer
-    (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
-    (when cider-repl-display-help-banner
-      (insert (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face)))
-    (goto-char (point-max))
-    (cider-repl--mark-output-start)
-    (cider-repl--mark-input-start)
-    (cider-repl--insert-prompt cider-buffer-ns)))
+(defun cider-repl--insert-banner ()
+  "Insert the banner in the current REPL buffer."
+  (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
+  (when cider-repl-display-help-banner
+    (insert (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face)))
+  (goto-char (point-max))
+  (cider-repl--mark-output-start)
+  (cider-repl--mark-input-start))
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
