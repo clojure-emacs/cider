@@ -309,12 +309,11 @@ client process connection."
 
 (defun cider-repl--insert-banner ()
   "Insert the banner in the current REPL buffer."
-  (insert (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
+  (insert-before-markers
+   (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
   (when cider-repl-display-help-banner
-    (insert (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face)))
-  (goto-char (point-max))
-  (cider-repl--mark-output-start)
-  (cider-repl--mark-input-start))
+    (insert-before-markers
+     (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face))))
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
