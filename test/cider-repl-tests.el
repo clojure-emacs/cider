@@ -79,16 +79,16 @@
           (ansi-color-map (ansi-color-make-color-map)))
      ,@body))
 
-(describe "multiple calls to cider-repl--emit-output-at-pos"
+(describe "multiple calls to cider-repl--emit-output"
   (it "Multiple emit output calls set properties and emit text"
     (with-temp-buffer
       (with-testing-ansi-table cider-testing-ansi-colors-vector
         (cider-repl-reset-markers)
 
-        (cider-repl--emit-output-at-pos (current-buffer) "[30ma[0m" 'cider-repl-stdout-face (point))
-        (cider-repl--emit-output-at-pos (current-buffer) "b" 'cider-repl-stdout-face (point))
-        (cider-repl--emit-output-at-pos (current-buffer) "[31mc" 'cider-repl-stdout-face (point))
-        (cider-repl--emit-output-at-pos (current-buffer) "d[0m" 'cider-repl-stdout-face (point))
+        (cider-repl--emit-output (current-buffer) "[30ma[0m\n" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "b\n" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "[31mc\n" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "d[0m\n" 'cider-repl-stdout-face)
 
         (expect (buffer-string) :to-equal "a\nb\nc\nd\n")
         (expect (get-text-property 1 'font-lock-face)
@@ -101,19 +101,19 @@
                 :to-equal '(foreground-color . "red3"))))))
 
 (defun simulate-cider-output (s property)
-  "Return properties from `cider-repl--emit-output-at-pos'.
-PROPERTY shoudl be a symbol of either 'text, 'ansi-context or
+  "Return properties from `cider-repl--emit-output'.
+PROPERTY should be a symbol of either 'text, 'ansi-context or
 'properties."
   (with-temp-buffer
     (with-testing-ansi-table cider-testing-ansi-colors-vector
       (cider-repl-reset-markers)
-      (cider-repl--emit-output-at-pos (current-buffer) s nil (point-min) nil))
+      (cider-repl--emit-output (current-buffer) s nil))
     (pcase property
       (`text (substring-no-properties (buffer-string)))
       (`ansi-context ansi-color-context)
       (`properties (substring (buffer-string))))))
 
-(describe "cider-repl--emit-output-at-pos"
+(describe "cider-repl--emit-output"
   (it "prints simple strings"
     (expect (simulate-cider-output "hi" 'text)
             :to-equal "hi\n"))

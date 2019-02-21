@@ -623,33 +623,27 @@ namespaces.  STRING is REPL's output."
 Each functions takes a string and must return a modified string.  Also see
 `cider-run-chained-hook'.")
 
-(defun cider-repl--emit-output-at-pos (buffer string output-face position &optional bol)
-  "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
-If BOL is non-nil insert at the beginning of line.  Run
-`cider-repl-preoutput-hook' on STRING."
+(defun cider-repl--emit-output (buffer string face)
+  "Using BUFFER, emit STRING as output font-locked using FACE.
+Before inserting, run `cider-repl-preoutput-hook' on STRING."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
-        (cider-save-marker cider-repl-output-end
-          (goto-char position)
-          ;; TODO: Review the need for bol
-          (when (and bol (not (bolp))) (insert-before-markers "\n"))
-          (setq string (propertize string
-                                   'font-lock-face output-face
-                                   'rear-nonsticky '(font-lock-face)))
-          (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
-          (insert-before-markers string)
-          (cider-repl--flush-ansi-color-context)
-          (when (and (= (point) cider-repl-prompt-start-mark)
-                     (not (bolp)))
-            (insert-before-markers "\n")
-            (set-marker cider-repl-output-end (1- (point)))))))))
+        (goto-char cider-repl-output-end)
+        (setq string (propertize string
+                                 'font-lock-face face
+                                 'rear-nonsticky '(font-lock-face)))
+        (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
+        (insert-before-markers string)
+        (cider-repl--flush-ansi-color-context))
+      (when (and (= (point) cider-repl-prompt-start-mark)
+                 (not (bolp)))
+        (insert-before-markers "\n")
+        (set-marker cider-repl-output-end (1- (point)))))))
 
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
-  (with-current-buffer (cider-current-repl)
-    (let ((pos (cider-repl--end-of-output)))
-      (cider-repl--emit-output-at-pos (current-buffer) string face pos t))))
+  (cider-repl--emit-output (cider-current-repl) string face))
 
 (defun cider-repl-emit-interactive-stdout (string)
   "Emit STRING as interactive output."
@@ -658,13 +652,6 @@ If BOL is non-nil insert at the beginning of line.  Run
 (defun cider-repl-emit-interactive-stderr (string)
   "Emit STRING as interactive err output."
   (cider-repl--emit-interactive-output string 'cider-repl-stderr-face))
-
-(defun cider-repl--emit-output (buffer string face &optional bol)
-  "Using BUFFER, emit STRING font-locked with FACE.
-If BOL is non-nil, emit at the beginning of the line."
-  (with-current-buffer buffer
-    (let ((pos (cider-repl--end-of-output)))
-      (cider-repl--emit-output-at-pos buffer string face pos bol))))
 
 (defun cider-repl-emit-stdout (buffer string)
   "Using BUFFER, emit STRING as standard output."
@@ -678,9 +665,7 @@ If BOL is non-nil, emit at the beginning of the line."
   "Emit the REPL prompt into BUFFER."
   (with-current-buffer buffer
     (save-excursion
-      (cider-save-marker cider-repl-output-start
-        (cider-save-marker cider-repl-output-end
-          (cider-repl--insert-prompt cider-buffer-ns))))))
+      (cider-repl--insert-prompt cider-buffer-ns))))
 
 (defun cider-repl-emit-result (buffer string show-prefix &optional bol)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
@@ -689,17 +674,16 @@ of the line.  If BOL is non-nil insert at the beginning of the line."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
-        (cider-save-marker cider-repl-output-end
-          (goto-char cider-repl-input-start-mark)
-          (when (and bol (not (bolp)))
-            (insert-before-markers "\n"))
-          (when show-prefix
-            (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
-          (if cider-repl-use-clojure-font-lock
-              (insert-before-markers (cider-font-lock-as-clojure string))
-            (cider-propertize-region
-                '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
-              (insert-before-markers string))))))))
+        (goto-char cider-repl-output-end)
+        (when (and bol (not (bolp)))
+          (insert-before-markers "\n"))
+        (when show-prefix
+          (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+        (if cider-repl-use-clojure-font-lock
+            (insert-before-markers (cider-font-lock-as-clojure string))
+          (cider-propertize-region
+              '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
+            (insert-before-markers string)))))))
 
 (defun cider-repl-newline-and-indent ()
   "Insert a newline, then indent the next line.
@@ -756,21 +740,20 @@ SHOW-PREFIX and BOL."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
-        (cider-save-marker cider-repl-output-end
-          (goto-char (cider-repl--end-of-output))
-          (when (and bol (not (bolp)))
-            (insert-before-markers "\n"))
-          (when show-prefix
-            (insert-before-markers
-             (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
-          ;; The below is inlined from `insert-image' and changed to use
-          ;; `insert-before-markers' rather than `insert'
-          (let ((start (point))
-                (props (nconc `(display ,image rear-nonsticky (display))
-                              (when (boundp 'image-map)
-                                `(keymap ,image-map)))))
-            (insert-before-markers " ")
-            (add-text-properties start (point) props))))))
+        (goto-char cider-repl-output-end)
+        (when (and bol (not (bolp)))
+          (insert-before-markers "\n"))
+        (when show-prefix
+          (insert-before-markers
+           (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+        ;; The below is inlined from `insert-image' and changed to use
+        ;; `insert-before-markers' rather than `insert'
+        (let ((start (point))
+              (props (nconc `(display ,image rear-nonsticky (display))
+                            (when (boundp 'image-map)
+                              `(keymap ,image-map)))))
+          (insert-before-markers " ")
+          (add-text-properties start (point) props)))))
   t)
 
 (defcustom cider-repl-image-margin 10
@@ -1009,35 +992,18 @@ See also the related commands `cider-repl-clear-output' and
     (recenter t))
   (run-hooks 'cider-repl-clear-buffer-hook))
 
-(defun cider-repl--end-of-output ()
-  "Return the position at the end of the previous REPL output."
-  (if (eq (get-text-property (1- cider-repl-input-start-mark) 'field)
-          'cider-repl-prompt)
-      ;; if after prompt, return eol before prompt
-      (previous-single-property-change cider-repl-input-start-mark
-                                       'field nil (point-min))
-    ;; else, input mark because there is no prompt (yet)
-    cider-repl-input-start-mark))
-
 (defun cider-repl-clear-output (&optional clear-repl)
   "Delete the output inserted since the last input.
 With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
   (interactive "P")
   (if clear-repl
       (cider-repl-clear-buffer)
-    (let ((start (save-excursion
-                   (cider-repl-previous-prompt)
-                   (ignore-errors (forward-sexp))
-                   (forward-line)
-                   (point)))
-          (end (cider-repl--end-of-output)))
-      (when (< start end)
-        (let ((inhibit-read-only t))
-          (cider-repl--clear-region start end)
-          (save-excursion
-            (goto-char start)
-            (insert
-             (propertize ";; output cleared" 'font-lock-face 'font-lock-comment-face))))))))
+    (let ((inhibit-read-only t))
+      (cider-repl--clear-region cider-repl-output-start cider-repl-output-end)
+      (save-excursion
+        (goto-char cider-repl-output-end)
+        (insert-before-markers
+         (propertize ";; output cleared\n" 'font-lock-face 'font-lock-comment-face))))))
 
 (defun cider-repl-clear-banners ()
   "Delete the REPL banners."
