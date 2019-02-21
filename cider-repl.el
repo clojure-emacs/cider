@@ -282,10 +282,10 @@ This is \"user\" by default, but can be overridden (e.g. the Leiningen
        (lax-plist-put "inhibit-cider-middleware" "true"))
      (cider-current-repl))))
 
-(defun cider-repl-init (buffer &optional no-banner)
+(defun cider-repl-init (buffer)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
-client process connection.  Unless NO-BANNER is non-nil, insert a banner."
+client process connection."
   (when cider-repl-display-in-current-window
     (add-to-list 'same-window-buffer-names (buffer-name buffer)))
   (pcase cider-repl-pop-to-buffer-on-connect
@@ -301,8 +301,7 @@ client process connection.  Unless NO-BANNER is non-nil, insert a banner."
     ((pred identity) (pop-to-buffer buffer)))
   (cider-repl--set-initial-ns buffer)
   (cider-repl-eval-init-code)
-  (unless no-banner
-    (cider-repl--insert-banner-and-prompt buffer))
+  (cider-repl--insert-banner-and-prompt buffer)
   (with-current-buffer buffer
     (set-window-point (get-buffer-window) (point-max)))
   buffer)
