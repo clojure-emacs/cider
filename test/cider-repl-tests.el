@@ -52,7 +52,8 @@
 ;;   Source: (source function-name)
 ;;  Javadoc: (javadoc java-object-or-class)
 ;;     Exit: <C-c C-q>
-;;  Results: Stored in vars *1, *2, *3, an exception in *e;")))
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;
+")))
 
   (describe "when the cider package version information is not available"
     (it "returns the repl banner string"
@@ -66,7 +67,8 @@
 ;;   Source: (source function-name)
 ;;  Javadoc: (javadoc java-object-or-class)
 ;;     Exit: <C-c C-q>
-;;  Results: Stored in vars *1, *2, *3, an exception in *e;"))))
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;
+"))))
 
 (defvar cider-testing-ansi-colors-vector
   ["black" "red3" "green3" "yellow3" "blue2"

@@ -326,7 +326,8 @@ client process connection."
 ;;   Source: (source function-name)
 ;;  Javadoc: (javadoc java-object-or-class)
 ;;     Exit: <C-c C-q>
-;;  Results: Stored in vars *1, *2, *3, an exception in *e;"
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;
+"
           (plist-get nrepl-endpoint :host)
           (plist-get nrepl-endpoint :port)
           (cider--version)
@@ -337,7 +338,7 @@ client process connection."
 (defun cider-repl--help-banner ()
   "Generate the help banner."
   (substitute-command-keys
-   "\n;; ======================================================================
+   ";; ======================================================================
 ;; If you're new to CIDER it is highly recommended to go through its
 ;; manual first. Type <M-x cider-view-manual> to view it.
 ;; In case you're seeing any warnings you should consult the manual's
