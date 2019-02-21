@@ -763,7 +763,7 @@ The supplied string will be wrapped in a do form if needed."
     (figwheel "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))"
               cider-check-figwheel-requirements)
     (figwheel-main cider-figwheel-main-init-form cider-check-figwheel-main-requirements)
-    (figwheel-sidecar "(figwheel-sidecar.repl-api/cljs-repl)"
+    (figwheel-running "(figwheel-sidecar.repl-api/cljs-repl)"
                       cider-check-figwheel-requirements)
     (node "(do (require 'cljs.repl.node) (cider.piggieback/cljs-repl (cljs.repl.node/repl-env)))"
           cider-check-node-requirements)
