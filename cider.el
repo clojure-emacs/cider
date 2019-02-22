@@ -701,7 +701,8 @@ Generally you should not disable this unless you run into some faulty check."
   (if (or (string-prefix-p "{" options)
           (string-prefix-p "(" options)
           (string-prefix-p "[" options)
-          (string-prefix-p ":" options))
+          (string-prefix-p ":" options)
+          (string-prefix-p "\"" options))
       options
     (concat ":" options)))
 
