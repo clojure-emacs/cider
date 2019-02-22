@@ -642,7 +642,7 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
     ;; If the prompt is on the first line of the window, then scroll the window
     ;; down by a single line to make the emitted output visible.
     (when (and (pos-visible-in-window-p cider-repl-prompt-start-mark window)
-               (< 0 cider-repl-prompt-start-mark)
+               (< 1 cider-repl-prompt-start-mark)
                (not (pos-visible-in-window-p (1- cider-repl-prompt-start-mark) window)))
       (with-selected-window window
         (scroll-down 1)))))
