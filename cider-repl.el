@@ -304,7 +304,8 @@ client process connection."
   (with-current-buffer buffer
     (cider-repl--insert-banner)
     (cider-repl--insert-prompt cider-buffer-ns)
-    (set-window-point (get-buffer-window) (point-max)))
+    (when (eql cider-repl-pop-to-buffer-on-connect 'display-only)
+      (set-window-point (get-buffer-window) (point-max))))
   buffer)
 
 (defun cider-repl--insert-banner ()
