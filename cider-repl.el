@@ -248,19 +248,6 @@ This cache is stored in the connection buffer.")
                                              ns-dict)))))
                   (cider-refresh-dynamic-font-lock ns-dict))))))))))
 
-(declare-function cider-set-buffer-ns "cider-mode")
-(defun cider-repl--set-initial-ns (buffer)
-  "Set the initial namespace of the REPL's BUFFER.
-This is \"user\" by default, but can be overridden (e.g. the Leiningen
-:init-ns option)."
-  (let* ((response (nrepl-send-sync-request
-                    (thread-first (nrepl--eval-request "nil")
-                      (lax-plist-put "inhibit-cider-middleware" "true"))
-                    (cider-current-repl)))
-         (ns (nrepl-dict-get response "ns" "user")))
-    (with-current-buffer buffer
-      (cider-set-buffer-ns ns))))
-
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
   (interactive)
@@ -271,16 +258,34 @@ This is \"user\" by default, but can be overridden (e.g. the Leiningen
     "inhibit-cider-middleware" "true")
    (cider-current-repl)))
 
+(defun cider-repl-init-eval-handler ()
+  "Make an nREPL evaluation handler for use during REPL init."
+  (nrepl-make-response-handler (current-buffer)
+                               (lambda (_buffer _value))
+                               (lambda (buffer out)
+                                 (cider-repl-emit-stdout buffer out))
+                               (lambda (buffer err)
+                                 (cider-repl-emit-stderr buffer err))
+                               (lambda (buffer)
+                                 (cider-repl-emit-prompt buffer))))
+
 (defun cider-repl-eval-init-code ()
   "Evaluate `cider-repl-init-code' in the current REPL."
   (interactive)
-  (when cider-repl-init-code
-    (nrepl-send-sync-request
-     (thread-first cider-repl-init-code
-       (string-join "\n")
-       (nrepl--eval-request)
-       (lax-plist-put "inhibit-cider-middleware" "true"))
-     (cider-current-repl))))
+  (let* ((request (map-merge 'hash-table
+                             (cider--repl-request-map fill-column)
+                             '(("inhibit-cider-middleware" "true")))))
+    (cider-nrepl-request:eval
+     ;; Ensure we evaluate _something_ so the initial namespace is correctly set
+     (thread-first (or cider-repl-init-code '("nil"))
+       (string-join "\n"))
+     (cider-repl-init-eval-handler)
+     nil
+     (line-number-at-pos (point))
+     (cider-column-number-at-pos (point))
+     (thread-last request
+       (map-pairs)
+       (seq-mapcat #'identity)))))
 
 (defun cider-repl-init (buffer)
   "Initialize the REPL in BUFFER.
@@ -299,13 +304,9 @@ client process connection."
        ;; against user config
        (set-buffer orig-buffer)))
     ((pred identity) (pop-to-buffer buffer)))
-  (cider-repl--set-initial-ns buffer)
-  (cider-repl-eval-init-code)
   (with-current-buffer buffer
     (cider-repl--insert-banner)
-    (cider-repl--insert-prompt cider-buffer-ns)
-    (when-let ((window (get-buffer-window)))
-      (set-window-point window (point-max))))
+    (cider-repl-eval-init-code))
   buffer)
 
 (defun cider-repl--insert-banner ()
