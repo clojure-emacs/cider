@@ -121,7 +121,7 @@ Clojure buffer."
 (defun cider-switch-to-last-clojure-buffer ()
   "Switch to the last Clojure buffer.
 The default keybinding for this command is
-the same as `cider-switch-to-repl-buffer',
+the same as variable `cider-switch-to-repl-buffer',
 so that it is very convenient to jump between a
 Clojure buffer and the REPL buffer."
   (interactive)
@@ -223,6 +223,17 @@ With a prefix argument, prompt for function to run instead of -main."
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
+(defcustom cider-switch-to-repl-on-insert t
+  "Whether to switch to the repl when inserting a form into the repl."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.21.0"))
+
+(define-obsolete-variable-alias
+  'cider-switch-to-repl-after-insert-p
+  'cider-switch-to-repl-on-insert
+  "0.21.0")
+
 (defcustom cider-invert-insert-eval-p nil
   "Whether to invert the behavior of evaling.
 Default behavior when inserting is to NOT eval the form and only eval with
@@ -234,20 +245,26 @@ and eval and the prefix is required to prevent evaluation."
 
 (defun cider-insert-in-repl (form eval)
   "Insert FORM in the REPL buffer and switch to it.
-If EVAL is non-nil the form will also be evaluated."
+If EVAL is non-nil the form will also be evaluated.  Use
+`cider-invert-insert-eval-p' to invert this behavior."
   (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" form)
     (setq form (replace-match "" t t form)))
-  (with-current-buffer (cider-current-repl)
-    (goto-char (point-max))
-    (let ((beg (point)))
-      (insert form)
-      (indent-region beg (point)))
-    (when (if cider-invert-insert-eval-p
-              (not eval)
-            eval)
-      (cider-repl-return)))
-  (when cider-switch-to-repl-after-insert-p
-    (cider-switch-to-repl-buffer)))
+  (when cider-switch-to-repl-on-insert
+    (cider-switch-to-repl-buffer))
+  (let ((repl (cider-current-repl)))
+    (with-selected-window (or (get-buffer-window repl)
+                              (selected-window))
+      (with-current-buffer repl
+        (goto-char (point-max))
+        (let ((beg (point)))
+          (insert form)
+          (indent-region beg (point))
+          (cider--font-lock-ensure beg (point)))
+        (when (if cider-invert-insert-eval-p
+                  (not eval)
+                eval)
+          (cider-repl-return))
+        (goto-char (point-max))))))
 
 (defun cider-insert-last-sexp-in-repl (&optional arg)
   "Insert the expression preceding point in the REPL buffer.
