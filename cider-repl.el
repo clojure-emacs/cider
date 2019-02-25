@@ -306,6 +306,9 @@ client process connection."
     ((pred identity) (pop-to-buffer buffer)))
   (with-current-buffer buffer
     (cider-repl--insert-banner)
+    (when-let ((window (get-buffer-window buffer t)))
+      (with-selected-window window
+        (recenter (- -1 scroll-margin))))
     (cider-repl-eval-init-code))
   buffer)
 
