@@ -258,8 +258,9 @@ This cache is stored in the connection buffer.")
     "inhibit-cider-middleware" "true")
    (cider-current-repl)))
 
-(defun cider-repl-init-eval-handler ()
-  "Make an nREPL evaluation handler for use during REPL init."
+(defun cider-repl-init-eval-handler (&optional callback)
+  "Make an nREPL evaluation handler for use during REPL init.
+Run CALLBACK once the evaluation is complete."
   (nrepl-make-response-handler (current-buffer)
                                (lambda (_buffer _value))
                                (lambda (buffer out)
@@ -267,10 +268,13 @@ This cache is stored in the connection buffer.")
                                (lambda (buffer err)
                                  (cider-repl-emit-stderr buffer err))
                                (lambda (buffer)
-                                 (cider-repl-emit-prompt buffer))))
+                                 (cider-repl-emit-prompt buffer)
+                                 (when callback
+                                   (funcall callback)))))
 
-(defun cider-repl-eval-init-code ()
-  "Evaluate `cider-repl-init-code' in the current REPL."
+(defun cider-repl-eval-init-code (&optional callback)
+  "Evaluate `cider-repl-init-code' in the current REPL.
+Run CALLBACK once the evaluation is complete."
   (interactive)
   (let* ((request (map-merge 'hash-table
                              (cider--repl-request-map fill-column)
@@ -279,7 +283,7 @@ This cache is stored in the connection buffer.")
      ;; Ensure we evaluate _something_ so the initial namespace is correctly set
      (thread-first (or cider-repl-init-code '("nil"))
        (string-join "\n"))
-     (cider-repl-init-eval-handler)
+     (cider-repl-init-eval-handler callback)
      nil
      (line-number-at-pos (point))
      (cider-column-number-at-pos (point))
@@ -287,10 +291,11 @@ This cache is stored in the connection buffer.")
        (map-pairs)
        (seq-mapcat #'identity)))))
 
-(defun cider-repl-init (buffer)
+(defun cider-repl-init (buffer &optional callback)
   "Initialize the REPL in BUFFER.
 BUFFER must be a REPL buffer with `cider-repl-mode' and a running
-client process connection."
+client process connection.  CALLBACK will be run once the REPL is
+fully initialized."
   (when cider-repl-display-in-current-window
     (add-to-list 'same-window-buffer-names (buffer-name buffer)))
   (pcase cider-repl-pop-to-buffer-on-connect
@@ -309,7 +314,7 @@ client process connection."
     (when-let ((window (get-buffer-window buffer t)))
       (with-selected-window window
         (recenter (- -1 scroll-margin))))
-    (cider-repl-eval-init-code))
+    (cider-repl-eval-init-code callback))
   buffer)
 
 (defun cider-repl--insert-banner ()

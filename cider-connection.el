@@ -264,23 +264,25 @@ buffer."
   (let ((cider-enlighten-mode nil))
     ;; after initialization, set mode-line and buffer name.
     (cider-set-repl-type cider-repl-type)
-    (cider-repl-init (current-buffer))
-    (cider--check-required-nrepl-version)
-    (cider--check-clojure-version-supported)
-    (cider--check-middleware-compatibility)
-    (when cider-redirect-server-output-to-repl
-      (cider--subscribe-repl-to-server-out))
-    (when cider-auto-mode
-      (cider-enable-on-existing-clojure-buffers))
-    ;; Middleware on cider-nrepl's side is deferred until first usage, but
-    ;; loading middleware concurrently can lead to occasional "require" issues
-    ;; (likely a Clojure bug). Thus, we load the heavy debug middleware towards
-    ;; the end, allowing for the faster "server-out" middleware to load
-    ;; first.
-    (cider--debug-init-connection)
-    (when cider-repl-init-function
-      (funcall cider-repl-init-function))
-    (run-hooks 'cider-connected-hook)))
+    (cider-repl-init
+     (current-buffer)
+     (lambda ()
+       (cider--check-required-nrepl-version)
+       (cider--check-clojure-version-supported)
+       (cider--check-middleware-compatibility)
+       (when cider-redirect-server-output-to-repl
+         (cider--subscribe-repl-to-server-out))
+       (when cider-auto-mode
+         (cider-enable-on-existing-clojure-buffers))
+       ;; Middleware on cider-nrepl's side is deferred until first usage, but
+       ;; loading middleware concurrently can lead to occasional "require" issues
+       ;; (likely a Clojure bug). Thus, we load the heavy debug middleware towards
+       ;; the end, allowing for the faster "server-out" middleware to load
+       ;; first.
+       (cider--debug-init-connection)
+       (when cider-repl-init-function
+         (funcall cider-repl-init-function))
+       (run-hooks 'cider-connected-hook)))))
 
 (defun cider--disconnected-handler ()
   "Cleanup after nREPL connection has been lost or closed.
