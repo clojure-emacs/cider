@@ -375,7 +375,7 @@ The library is a string of the format \"group-id/artifact-id\"."
   "Interrupt any pending evaluations."
   (interactive)
   ;; FIXME: does this work correctly in cljc files?
-  (with-current-buffer (cider-current-repl)
+  (with-current-buffer (cider-current-repl nil 'ensure)
     (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
       (dolist (request-id pending-request-ids)
         (nrepl-request:interrupt

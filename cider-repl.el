@@ -256,7 +256,7 @@ This cache is stored in the connection buffer.")
     (nrepl--eval-request
      cider-repl-require-repl-utils-code)
     "inhibit-cider-middleware" "true")
-   (cider-current-repl)))
+   (cider-current-repl nil 'ensure)))
 
 (defun cider-repl-init-eval-handler (&optional callback)
   "Make an nREPL evaluation handler for use during REPL init.
