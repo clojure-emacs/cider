@@ -223,16 +223,16 @@ With a prefix argument, prompt for function to run instead of -main."
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
+(define-obsolete-variable-alias
+  'cider-switch-to-repl-after-insert-p
+  'cider-switch-to-repl-on-insert
+  "0.21.0")
+
 (defcustom cider-switch-to-repl-on-insert t
   "Whether to switch to the repl when inserting a form into the repl."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "0.21.0"))
-
-(define-obsolete-variable-alias
-  'cider-switch-to-repl-after-insert-p
-  'cider-switch-to-repl-on-insert
-  "0.21.0")
 
 (defcustom cider-invert-insert-eval-p nil
   "Whether to invert the behavior of evaling.
@@ -563,6 +563,8 @@ re-visited."
 (defun cider--get-symbol-indent (symbol-name)
   "Return the indent metadata for SYMBOL-NAME in the current namespace."
   (let* ((ns (let ((clojure-cache-ns t)) ; we force ns caching here for performance reasons
+               ;; silence bytecode warning of unused lexical var
+               (ignore clojure-cache-ns)
                (cider-current-ns))))
     (if-let* ((meta (cider-resolve-var ns symbol-name))
               (indent (or (nrepl-dict-get meta "style/indent")
