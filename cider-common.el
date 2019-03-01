@@ -255,6 +255,29 @@ otherwise, nil."
         localname)
     name))
 
+(defcustom cider-path-translations nil
+  "Alist of path prefixes to path prefixes.
+Useful to intercept the location of a path in a docker image and translate
+to the oringal location.  If your project is located at \"~/projects/foo\"
+and the src directory of foo is mounted at \"/src\" in the docker
+container, the alist would be `((\"/src\" \"~/projects/foo/src\"))"
+  :type '(alist :key-type string :value-type string)
+  :group 'cider
+  :package-version '(cider . "0.23.0"))
+
+(defun cider--translate-path (path)
+  "Attempt to translate the PATH.
+Looks at `cider-path-translations' for (docker . host) alist of path
+prefixes."
+  (seq-some (lambda (translation)
+              (let ((prefix (file-name-as-directory (expand-file-name (car translation)))))
+                (when (string-prefix-p prefix path)
+                  (replace-regexp-in-string (format "^%s" (regexp-quote prefix))
+                                            (file-name-as-directory
+                                             (expand-file-name (cdr translation)))
+                                            path))))
+            cider-path-translations))
+
 (defvar cider-from-nrepl-filename-function
   (with-no-warnings
     (if (eq system-type 'cygwin)
@@ -271,14 +294,16 @@ otherwise, nil."
   "Return PATH's local or tramp path using `cider-prefer-local-resources'.
 If no local or remote file exists, return nil."
   (let* ((local-path (funcall cider-from-nrepl-filename-function path))
-         (tramp-path (and local-path (cider--client-tramp-filename local-path))))
+         (tramp-path (and local-path (cider--client-tramp-filename local-path)))
+         (translated-path (cider--translate-path local-path)))
     (cond ((equal local-path "") "")
           ((and cider-prefer-local-resources (file-exists-p local-path))
            local-path)
           ((and tramp-path (file-exists-p tramp-path))
            tramp-path)
           ((and local-path (file-exists-p local-path))
-           local-path))))
+           local-path)
+          ((and translated-path (file-exists-p translated-path)) translated-path))))
 
 (declare-function archive-extract "arc-mode")
 (declare-function archive-zip-extract "arc-mode")
