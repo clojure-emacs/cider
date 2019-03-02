@@ -402,7 +402,7 @@ Elements of the list are artifact name and list of exclusions to apply for the a
 (defconst cider-required-middleware-version "0.21.0"
   "The minimum CIDER nREPL version that's known to work properly with CIDER.")
 
-(defconst cider-latest-middleware-version "0.21.1"
+(defconst cider-latest-middleware-version "0.21.2-SNAPSHOT"
   "The latest CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-jack-in-auto-inject-clojure nil
