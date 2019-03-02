@@ -305,11 +305,17 @@ is included in the request if non-nil."
 
 (defun cider--nrepl-pr-request-map ()
   "Map to merge into requests that do not require pretty printing."
-  (map-merge 'list
-             `(("nrepl.middleware.print/print" "cider.nrepl.pprint/pr"
-                "nrepl.middleware.print/stream?" nil))
-             (when cider-print-quota
-               `(("nrepl.middleware.print/quota" ,cider-print-quota)))))
+  (let ((print-options (thread-last cider-print-options
+                         (map-pairs)
+                         (seq-mapcat #'identity)
+                         (apply #'nrepl-dict))))
+    (map-merge 'list
+               `(("nrepl.middleware.print/print" "cider.nrepl.pprint/pr"
+                  "nrepl.middleware.print/stream?" nil))
+               (unless (nrepl-dict-empty-p print-options)
+                 `(("nrepl.middleware.print/options" ,print-options)))
+               (when cider-print-quota
+                 `(("nrepl.middleware.print/quota" ,cider-print-quota))))))
 
 (defun cider--nrepl-content-type-map ()
   "Map to be merged into an eval request to make it use content-types."

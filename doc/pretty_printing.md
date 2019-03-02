@@ -81,7 +81,7 @@ You can pass an options map to the print function by setting `cider-print-option
 Here's a table describing the differences in the names for the most common print
 options supported by every print engine.
 
-| Dynamic Var                           | `clojure.pprint` | Fipp & Puget   | zprint       |
+| `clojure.core/pr`                     | `clojure.pprint` | Fipp & Puget   | zprint       |
 |---------------------------------------|------------------|----------------|--------------|
 | `clojure.core/*print-length*`         | `length`         | `print-length` | `max-length` |
 | `clojure.core/*print-level*`          | `level`          | `print-level`  | `max-depth`  |
@@ -91,6 +91,7 @@ Not all printing engines use (or default to) the dynamic variables in all cases,
 so setting them at the REPL may or may not have the intended effect. See the
 respective documentation of each engine:
 
+- `clojure.core/pr`: https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/*print-dup*
 - `clojure.pprint`: https://clojuredocs.org/clojure.pprint/write
 - Fipp: https://github.com/brandonbloom/fipp/#printer-usage
 - Puget: https://github.com/greglook/puget#usage
