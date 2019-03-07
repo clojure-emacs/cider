@@ -91,76 +91,70 @@ You can also check for compliance with a variety of coding standards in batch mo
 $ make lint
 ```
 
-#### Running the tests in Travis CI
+#### Running the tests in CircleCI
 
-If you prefer to see the full Travis CI test suite run successfully, the easiest
+If you prefer to see the full CircleCI CI test suite run successfully, the easiest
 way to achieve that is to create your own personal account on
-https://travis-ci.org. View your profile details on the Travis CI site, and
-toggle the switch to enable builds on your fork of the cider project.
+https://circleci.com. Fork CIDER on GitHub, and then add your fork on CircleCI to
+start building. Every time you push code to a branch, CircleCI will build it.
 
-Subsequent pushes to your fork will generate a Travis CI build you can monitor
+Subsequent pushes to your fork will generate a CircleCI build you can monitor
 for success or failure.
 
-#### Simulating the Travis CI tests locally in Docker
+#### Simulating the Circle CI tests locally in Docker
 
-If you prefer not to wait for Travis CI all the time, or if you need to debug
-something that fails in Travis CI but does not fail for you on your own machine,
-then you can also run the Travis CI tests manually in Docker.
+If you prefer not to wait for CircleCI all the time, or if you need to debug
+something that fails in CircleCI but does not fail for you on your own machine,
+then you can also run the CircleCI tests locally with the CircleCI CLI (that's
+a mouthful!).
 
-You will need to run some scripts to build and launch the Docker image.
+To do this, first [install](https://circleci.com/docs/2.0/local-cli/#installation)
+the CircleCI CLI, and [Docker](https://docs.docker.com/install/).
 
-To build:
+Currently the CircleCI CLI [doesn't support local builds with version 2.1](https://github.com/CircleCI-Public/circleci-cli/issues/79)
+of the CircleCI config, so for now we need to convert it to the 2.0 format.
+Make sure not to commit these changes to the `config.yml` file.
 
-```
-$ docker/build.sh
-```
-
-The build script uses a base image provided by the engineers at Travis CI.
-
-*Note: The Travis docker image is currently more than 8GB, so be prepared with a
-good internet connection and time to spare.*
-
-The resulting docker image is tagged simply `cider-travis`. You can run this
-image by hand, but there is a convenience script available:
-
-```
-$ docker/run.sh
+```shell
+$ circleci config process .circleci/config.yml > .circleci/config.yml.tmp && \
+    mv .circleci/config.yml.tmp .circleci/config.yml
 ```
 
-This script launches a docker container and bind-mounts your cider project
-directory as `/home/travis/cider` such that you can instantly see any code
-changes reflected inside the docker environment.
+Now, we're finally ready to 
+[run a CircleCI container on our machine](https://circleci.com/docs/2.0/local-cli/#run-a-job-in-a-container-on-your-machine).
+Run `circleci local execute --job=<job>` where `<job>` is one of those listed
+in `.circleci/config.yml`, e.g. `test-emacs-26`.
 
-For instance, first you can run tests on Emacs 25.3:
-
+```shell
+$ circleci local execute --job=test-emacs-26
+Docker image digest: sha256:65b2102646d5658f892e0ad8253b7912c676126c857c87c8c12460f0aa4f5aa1
+====>> Spin up Environment
+Build-agent version 1.0.8563-43047892 (2019-03-06T15:11:54+0000)
+Starting container silex/emacs:26-dev
+  image cache not found on this host, downloading silex/emacs:26-dev
+26-dev: Pulling from silex/emacs
+6cf436f81810: Already exists
+987088a85b96: Already exists
+e58f362a948a: Waiting
+...
+====>> make elpa
+  #!/bin/bash -eo pipefail
+make elpa
+Compute dependencies
+cask install
+Loading package information... done
+Package operations: 10 installs, 0 removals
+...
+Indenting region...
+Indenting region...done
+* Run indent-character
+* Run trailing-whitespace
+** ELISP-LINT: cider-overlays.el OK
+Success!
 ```
-(emacs-25.3-travis) ~/cider$ make test
-```
 
-And then switch to Emacs 26.1 and test again:
-
-```
-(emacs-25.3-travis) ~/cider$ evm use Emacs-26-pretest-travis
-(emacs-26.1-travis) ~/cider$ cask install
-(emacs-26.1-travis) ~/cider$ make test
-```
-
-You can test byte compilation too
-
-```
-(emacs-26.1-travis) ~/cider$ make test-bytecomp
-```
-
-When you are done working in docker, just `exit` the bash prompt, and the docker
-container will also exit. Note that `docker/run.sh` runs the container with
-`--rm`, meaning any changes to the docker container are discarded when the
-container exits.
-
-So for example, by default, the docker image pre-installs only the most recent
-releases of Emacs 25, Emacs 26, and a recent snapshot of the Emacs git
-repository. The `evm` tool is available should you need to install some other
-specific build. However additional versions of Emacs will be discarded when
-you exit the docker container.
+This may take a while to download the CircleCI build agent and the build containers
+the first time you run the tests locally.
 
 ## Hacking on cider-nrepl (Clojure)
 
