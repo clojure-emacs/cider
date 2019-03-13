@@ -13,7 +13,7 @@ Yes.
 CIDER officially supports Emacs 25.1+, Java 8+ and Clojure(Script) 1.8+.
 
 
-!!! note
+!!! Note
 
     CIDER 0.17 was the final release which supported Java 7 and Clojure(Script) 1.7.
 

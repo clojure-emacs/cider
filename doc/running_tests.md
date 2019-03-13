@@ -10,7 +10,7 @@ idiomatic naming for test code. Finally, CIDER provides several easy
 ways to run these tests, view the test results, and quickly jump to
 code that is failing to pass a given test.
 
-!!! NOTE
+!!! Note
 
     CIDER only supports clojure.test and other libraries
     providing integration with clojure.test.
