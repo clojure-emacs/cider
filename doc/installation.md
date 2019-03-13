@@ -156,8 +156,8 @@ section).
 
 !!! Note
 
-    It's highly recommended to use Leiningen 2.8.3 or newer, as 2.8.3 is the first
-    release to ship with nREPL 0.5.
+    Make sure you're using Leiningen 2.9.0 or newer, as 2.9.0 is the first
+    release to ship with nREPL 0.6.
 
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.

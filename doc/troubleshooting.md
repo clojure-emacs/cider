@@ -168,7 +168,7 @@ on the Installation section.
 
 - Do `C-h v cider-inject-dependencies-at-jack-in`, and check that this variable is non-nil.
 - Make sure your project depends on at least Clojure `1.7.0`.
-- If you use Leiningen, make sure your `lein --version` is at least `2.8.3`.
+- If you use Leiningen, make sure your `lein --version` is at least `2.9.0`.
 - If you use Boot and you've changed `cider-boot-parameters`, that's probably the cause.
 
 If the above doesn't work, you can try specifying the cider-nrepl middleware
