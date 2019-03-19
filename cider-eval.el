@@ -522,13 +522,13 @@ or it can be a list with (START END) of the evaluated region."
 
 (defun cider-eval-print-with-comment-handler (buffer location comment-prefix)
   "Make a handler for evaluating and printing commented results in BUFFER.
-LOCATION is the location at which to insert.  COMMENT-PREFIX is the comment
-prefix to use."
+LOCATION is the location marker at which to insert.  COMMENT-PREFIX is the
+comment prefix to use."
   (nrepl-make-response-handler buffer
                                (lambda (buffer value)
                                  (with-current-buffer buffer
                                    (save-excursion
-                                     (goto-char location)
+                                     (goto-char (marker-position location))
                                      (insert (concat comment-prefix
                                                      value "\n")))))
                                (lambda (_buffer out)
@@ -540,7 +540,7 @@ prefix to use."
 (defun cider-eval-pprint-with-multiline-comment-handler (buffer location comment-prefix continued-prefix comment-postfix)
   "Make a handler for evaluating and inserting results in BUFFER.
 The inserted text is pretty-printed and region will be commented.
-LOCATION is the location at which to insert.
+LOCATION is the location marker at which to insert.
 COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
@@ -554,7 +554,7 @@ COMMENT-POSTFIX is the text to output after the last line."
      (lambda (buffer)
        (with-current-buffer buffer
          (save-excursion
-           (goto-char location)
+           (goto-char (marker-position location))
            (let ((lines (split-string res "[\n]+" t)))
              ;; only the first line gets the normal comment-prefix
              (insert (concat comment-prefix (pop lines)))
@@ -738,7 +738,7 @@ With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards.
     (cider-interactive-eval nil
                             (cider-eval-print-with-comment-handler
                              (current-buffer)
-                             insertion-point
+                             (set-marker (make-marker) insertion-point)
                              cider-comment-prefix)
                             bounds
                             (cider--nrepl-pr-request-map))))
@@ -766,7 +766,7 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
     (cider-interactive-eval nil
                             (cider-eval-pprint-with-multiline-comment-handler
                              (current-buffer)
-                             insertion-point
+                             (set-marker (make-marker) insertion-point)
                              cider-comment-prefix
                              cider-comment-continued-prefix
                              comment-postfix)
