@@ -542,14 +542,16 @@ Optional argument FILTER-REGEX filters specs.  By default, all specs are
 returned."
   (setq filter-regex (or filter-regex ""))
   (thread-first `("op" "spec-list"
-                  "filter-regex" ,filter-regex)
+                  "filter-regex" ,filter-regex
+                  "ns" ,(cider-current-ns))
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "spec-list")))
 
 (defun cider-sync-request:spec-form (spec)
   "Get SPEC's form from registry."
   (thread-first `("op" "spec-form"
-                  "spec-name" ,spec)
+                  "spec-name" ,spec
+                  "ns" ,(cider-current-ns))
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "spec-form")))
 
