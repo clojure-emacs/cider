@@ -431,7 +431,7 @@ REPL defaults to the current REPL."
     (when (process-live-p proc)
       (let* ((classpath (or (process-get proc :cached-classpath)
                             (let ((cp (with-current-buffer repl
-                                        (cider-sync-request:classpath))))
+                                        (cider-classpath-entries))))
                               (process-put proc :cached-classpath cp)
                               cp)))
              (classpath-roots (or (process-get proc :cached-classpath-roots)

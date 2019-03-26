@@ -121,7 +121,7 @@ command falls back to `clojure-expected-ns' in the absence of an active
 nREPL connection."
   (if (cider-connected-p)
       (let* ((path (file-truename (or path buffer-file-name)))
-             (relpath (thread-last (cider-sync-request:classpath)
+             (relpath (thread-last (cider-classpath-entries)
                         (seq-filter #'file-directory-p)
                         (seq-map (lambda (dir)
                                    (when (file-in-directory-p path dir)
@@ -351,7 +351,7 @@ clobber *1/2/3)."
   "Return a list of all libs on the classpath."
   (let ((libs (seq-filter (lambda (cp-entry)
                             (string-suffix-p ".jar" cp-entry))
-                          (cider-sync-request:classpath)))
+                          (cider-classpath-entries)))
         (dir-sep (if (string-equal system-type "windows-nt") "\\\\" "/")))
     (thread-last libs
       (seq-map (lambda (s) (split-string s dir-sep)))
@@ -483,6 +483,16 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
   (thread-first '("op" "classpath")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "classpath")))
+
+(defun cider-fallback-eval:classpath ()
+  "Return a list of classpath entries using eval."
+  (read (nrepl-dict-get (cider-sync-tooling-eval "(seq (.split (System/getProperty \"java.class.path\") \":\"))") "value")))
+
+(defun cider-classpath-entries ()
+  "Return a list of classpath entries."
+  (if (cider-nrepl-op-supported-p "classpath")
+      (cider-sync-request:classpath)
+    (cider-fallback-eval:classpath)))
 
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op.

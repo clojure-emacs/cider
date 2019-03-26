@@ -111,7 +111,7 @@
 (describe "cider-expected-ns"
   (before-each
     (spy-on 'cider-connected-p :and-return-value t)
-    (spy-on 'cider-sync-request:classpath :and-return-value
+    (spy-on 'cider-classpath-entries :and-return-value
             '("/a" "/b" "/c" "/c/inner" "/base/clj" "/base/clj-dev"))
     (spy-on 'file-directory-p :and-return-value t)
     (spy-on 'file-in-directory-p :and-call-fake (lambda (file dir)

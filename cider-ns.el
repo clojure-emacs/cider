@@ -179,7 +179,7 @@ Its behavior is controlled by `cider-ns-save-files-on-refresh' and
 `cider-ns-save-files-on-refresh-modes'."
   (when cider-ns-save-files-on-refresh
     (let ((dirs (seq-filter #'file-directory-p
-                            (cider-sync-request:classpath))))
+                            (cider-classpath-entries))))
       (save-some-buffers
        (not (eq cider-ns-save-files-on-refresh 'prompt))
        (lambda ()
