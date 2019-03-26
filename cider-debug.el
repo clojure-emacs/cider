@@ -630,6 +630,7 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
              (setq cider--debug-mode-response response)
              (cider--debug-mode 1)))
           (when inspect
+            (setq cider-inspector--current-repl (cider-current-repl))
             (cider-inspector--render-value inspect)))
       ;; If something goes wrong, we send a "quit" or the session hangs.
       (error (cider-debug-mode-send-reply ":quit" key)
