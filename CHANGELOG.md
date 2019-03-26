@@ -9,12 +9,12 @@
 ### Changes
 
 * `cider-print-options` is now supported by the `pr` option for `cider-print-fn`. The options will now be also used by interactive eval commands that do not use pretty-printing.
-* `spec-list` and `spec-form` requests send the current namespace for alias resolution
+* `spec-list` and `spec-form` requests send the current namespace for alias resolution.
 
 ### Bug fixes
 
 * Stop cursor moving when initialising the CIDER REPL, when `cider-repl-pop-to-buffer-on-connect` is nil. This fixes a bug introduced by [commit e0aca78b](https://github.com/clojure-emacs/cider/commit/e0aca78ba56425e50ea895c5adc7c0331cee0b19).
-* [#2577](https://github.com/clojure-emacs/cider/issues/2577): Ensure user friendly error messages if a repl connection is expected but none was found in certain situations. 
+* [#2577](https://github.com/clojure-emacs/cider/issues/2577): Ensure user friendly error messages if a repl connection is expected but none was found in certain situations.
 * [#2593](https://github.com/clojure-emacs/cider/issues/2593): The REPL's initial namespace is now set correctly if configured in another tool (e.g. Leiningen's `:init-ns`).
 * [#2607](https://github.com/clojure-emacs/cider/pull/2607): Use markers for specifying insertion point for `cider-eval-*-to-comment`commands. This fixes a bug where editing the buffer during a pending evaluation resulted in comments appearing in unintended locations.
 
