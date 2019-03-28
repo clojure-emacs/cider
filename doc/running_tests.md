@@ -13,7 +13,8 @@ code that is failing to pass a given test.
 !!! Note
 
     CIDER only supports clojure.test and other libraries
-    providing integration with clojure.test.
+    providing integration with clojure.test. Native support
+    for other libraries might be available via CIDER plugins.
 
 ## Basic Usage
 
@@ -158,6 +159,21 @@ but integrates with it. Because of this, `cider-test` handles
 * [clojure-expectations](https://github.com/clojure-expectations/expectations) added
 support for `clojure.test` in version 2.2 and should also work with CIDER.
 * [fudge](https://github.com/jimpil/fudje)
+
+### Midje Support
+
+!!! Important
+
+    Emidje is a third-party extension that's not bundled with CIDER.
+
+[Emidje](https://github.com/nubank/emidje) is a test runner, report
+viewer and formatting tool for
+[Midje](https://github.com/marick/Midje) within Emacs.
+
+Emidje extends CIDER to provide support for Midje tests in a similar
+fashion as `cider-test.el` does for clojure.test tests. In fact, most of
+Emidje functionalities were strongly inspired on `cider-test.el`
+features.
 
 [clojure.test]: https://clojure.github.io/clojure/clojure.test-api.html "`clojure.test`"
 [test.check]: https://github.com/clojure/test.check "`test.check`"

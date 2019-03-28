@@ -20,6 +20,17 @@ down the road.
 **Make sure that the version of `clj-refactor` you've installed is compatible with
 your CIDER version.**
 
+## emidje
+
+[Emidje](https://github.com/nubank/emidje) is a test runner, report
+viewer and formatting tool for
+[Midje](https://github.com/marick/Midje) within Emacs.
+
+Emidje extends CIDER to provide support for Midje tests in a similar
+fashion as `cider-test.el` does for clojure.test tests. In fact, most of
+Emidje functionalities were strongly inspired on `cider-test.el`
+features.
+
 ## helm-cider
 
 [helm-cider](https://github.com/clojure-emacs/helm-cider) provides Helm
