@@ -79,7 +79,7 @@ Here's a list of `cider-mode`'s keybindings:
 `cider-toggle-trace-ns`                       |<kbd>C-c M-t n</kbd>                 | Toggle namespace tracing.
 `cider-undef`                                 |<kbd>C-c C-u</kbd>                   | Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 `cider-test-run-test`                         |<kbd>C-c C-t t</kbd> <br/> <kbd>C-c C-t C-t</kbd> | Run test at point.
-`cider-test-rerun-test`                       |<kbd>C-c C-t g</kbd> <br/> <kbd>C-c C-t C-g</kbd> | Re-run the last test you ran.
+`cider-test-rerun-test`                       |<kbd>C-c C-t a</kbd> <br/> <kbd>C-c C-t C-a</kbd> | Re-run the last test you ran.
 `cider-test-run-ns-tests`                     |<kbd>C-c C-t n</kbd> <br/> <kbd>C-c C-t C-n</kbd> | Run tests for current namespace.
 `cider-test-run-loaded-tests`                 |<kbd>C-c C-t l</kbd> <br/> <kbd>C-c C-t C-l</kbd> | Run tests for all loaded namespaces.
 `cider-test-run-project-tests`                |<kbd>C-c C-t p</kbd> <br/> <kbd>C-c C-t C-p</kbd> | Run tests for all project namespaces. This loads the additional namespaces.
