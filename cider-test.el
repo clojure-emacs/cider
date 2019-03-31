@@ -138,7 +138,7 @@ Add to this list to have CIDER recognize additional test defining macros."
     ;; Duplicates of keys below with C- for convenience
     (define-key map (kbd "C-r") #'cider-test-rerun-failed-tests)
     (define-key map (kbd "C-t") #'cider-test-run-test)
-    (define-key map (kbd "C-g") #'cider-test-rerun-test)
+    (define-key map (kbd "C-a") #'cider-test-rerun-test)
     (define-key map (kbd "C-n") #'cider-test-run-ns-tests)
     (define-key map (kbd "C-s") #'cider-test-run-ns-tests-with-filters)
     (define-key map (kbd "C-l") #'cider-test-run-loaded-tests)
@@ -147,7 +147,7 @@ Add to this list to have CIDER recognize additional test defining macros."
     ;; Single-key bindings defined last for display in menu
     (define-key map (kbd "r")   #'cider-test-rerun-failed-tests)
     (define-key map (kbd "t")   #'cider-test-run-test)
-    (define-key map (kbd "g")   #'cider-test-rerun-test)
+    (define-key map (kbd "a")   #'cider-test-rerun-test)
     (define-key map (kbd "n")   #'cider-test-run-ns-tests)
     (define-key map (kbd "s")   #'cider-test-run-ns-tests-with-filters)
     (define-key map (kbd "l")   #'cider-test-run-loaded-tests)
