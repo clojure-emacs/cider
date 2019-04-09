@@ -143,6 +143,12 @@ will be used."
   :group 'cider-repl
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-repl-require-ns-on-set nil
+  "Controls wether to require the ns before setting it in the repl."
+  :type 'boolean
+  :group 'cider-repl
+  :package-version '(cider . "0.21.0"))
+
 (defcustom cider-repl-result-prefix ""
   "The prefix displayed in the REPL before a result value.
 By default there's no prefix, but you can specify something
@@ -1083,7 +1089,9 @@ command will prompt for the name of the namespace to switch to."
     (user-error "No namespace selected"))
   (cider-map-repls :auto
     (lambda (connection)
-      (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
+      (cider-nrepl-request:eval (if cider-repl-require-ns-on-set
+                                    (format "(require '%s) (in-ns '%s)" ns ns)
+                                  (format "(in-ns '%s)" ns))
                                 (cider-repl-switch-ns-handler connection)))))
 
 
