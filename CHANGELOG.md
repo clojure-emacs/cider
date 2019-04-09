@@ -5,6 +5,7 @@
 ### New features
 
 * Allow editing of jack in command with prefix or when `cider-edit-jack-in-command` is truthy.
+* New defcustom `cider-repl-require-ns-on-set`: Set it to make cider require the namespace before setting it, when calling `cider-repl-set-ns`.
 
 ### Changes
 
