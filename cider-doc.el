@@ -33,7 +33,6 @@
 (require 'cider-client)
 (require 'cider-clojuredocs)
 (require 'nrepl-dict)
-(require 'org-table)
 (require 'button)
 (require 'easymenu)
 (require 'cider-browse-spec)
@@ -346,6 +345,7 @@ Preformatted code text blocks are ignored."
   "Align BUFFER tables and dim borders.
 This processes the GFM table markdown extension using `org-table'.
 Tables are marked to be ignored by line wrap."
+  (require 'org-table)
   (with-current-buffer buffer
     (save-excursion
       (let ((border 'cider-docview-table-border-face))
