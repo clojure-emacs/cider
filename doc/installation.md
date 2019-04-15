@@ -183,8 +183,8 @@ A minimal `profiles.clj` for CIDER would be:
 
 !!! Note
 
-    It's highly recommended to use Boot 2.8.2 or newer, as 2.8.2 is the first
-    release to ship with nREPL 0.4.
+    Make sure you're using Boot 2.8.3 or newer, as 2.8.3 is the first
+    release to ship with nREPL 0.6.
 
 Boot users can configure the tool to include the middleware automatically in
 all of their projects using a `~/.boot/profile.boot` file like so:
