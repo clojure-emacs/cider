@@ -6,6 +6,8 @@
 
 * Allow editing of jack in command with prefix or when `cider-edit-jack-in-command` is truthy.
 * New defcustom `cider-repl-require-ns-on-set`: Set it to make cider require the namespace before setting it, when calling `cider-repl-set-ns`.
+* [#2611](https://github.com/clojure-emacs/cider/issues/2611): Add `eval`-based classpath lookup fallback. It's used when cider-nrepl is not present.
+* [#2611](https://github.com/clojure-emacs/cider/issues/2611): Add `eval`-based var info lookup fallback. It's used when cider-nrepl is not present.
 
 ### Changes
 

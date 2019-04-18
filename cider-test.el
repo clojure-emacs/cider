@@ -559,7 +559,6 @@ The optional arg TEST denotes an individual test name."
 (defun cider-find-var-file (ns var)
   "Return the buffer visiting the file in which the NS VAR is defined.
 Or nil if not found."
-  (cider-ensure-op-supported "info")
   (when-let* ((info (cider-var-info (concat ns "/" var)))
               (file (nrepl-dict-get info "file")))
     (cider-find-file file)))

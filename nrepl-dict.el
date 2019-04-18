@@ -38,6 +38,12 @@
   "Create nREPL dict from KEY-VALS."
   (cons 'dict key-vals))
 
+(defun nrepl-dict-from-hash (hash)
+  "Create nREPL dict from HASH."
+  (let ((dict (nrepl-dict)))
+    (maphash (lambda (k v) (nrepl-dict-put dict k v)) hash)
+    dict))
+
 (defun nrepl-dict-p (object)
   "Return t if OBJECT is an nREPL dict."
   (and (listp object)

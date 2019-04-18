@@ -58,7 +58,6 @@ A single or double prefix argument inverts the meaning of
 the results to be displayed in a different window.  The default value is
 thing at point."
   (interactive "P")
-  (cider-ensure-op-supported "info")
   (if var
       (cider--find-var var line)
     (funcall (cider-prompt-for-symbol-function arg)
@@ -71,7 +70,6 @@ thing at point."
 (defun cider-find-dwim-at-mouse (event)
   "Find and display variable or resource at mouse EVENT."
   (interactive "e")
-  (cider-ensure-op-supported "info")
   (if-let* ((symbol-file (save-excursion
                            (mouse-set-point event)
                            (cider-symbol-at-point 'look-back))))
