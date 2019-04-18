@@ -144,10 +144,10 @@ will be used."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-repl-require-ns-on-set nil
-  "Controls wether to require the ns before setting it in the repl."
+  "Controls whether to require the ns before setting it in the REPL."
   :type 'boolean
   :group 'cider-repl
-  :package-version '(cider . "0.21.0"))
+  :package-version '(cider . "0.22.0"))
 
 (defcustom cider-repl-result-prefix ""
   "The prefix displayed in the REPL before a result value.
