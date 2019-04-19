@@ -346,30 +346,11 @@ clobber *1/2/3)."
                            ns
                            'tooling))
 
-;; TODO: Add some unit tests and pretty those two functions up.
-;; FIXME: Currently that's broken for group-id with multiple segments (e.g. org.clojure/clojure)
-(defun cider-classpath-libs ()
-  "Return a list of all libs on the classpath."
-  (let ((libs (seq-filter (lambda (cp-entry)
-                            (string-suffix-p ".jar" cp-entry))
-                          (cider-classpath-entries)))
-        (dir-sep (if (string-equal system-type "windows-nt") "\\\\" "/")))
-    (thread-last libs
-      (seq-map (lambda (s) (split-string s dir-sep)))
-      (seq-map #'reverse)
-      (seq-map (lambda (l) (reverse (seq-take l 4)))))))
-
-(defun cider-library-present-p (lib)
-  "Check whether LIB is present on the classpath.
-The library is a string of the format \"group-id/artifact-id\"."
-  (let* ((lib (split-string lib "/"))
-         (group-id (car lib))
-         (artifact-id (cadr lib)))
-    (seq-find (lambda (lib)
-                (let ((g (car lib))
-                      (a (cadr lib)))
-                  (and (equal group-id g) (equal artifact-id a))))
-              (cider-classpath-libs))))
+(defun cider-library-present-p (lib-ns)
+  "Check whether LIB-NS is present.
+If a certain well-known ns in a library is present we assume that library
+itself is present."
+  (nrepl-dict-get (cider-sync-tooling-eval (format "(require '%s)" lib-ns)) "value"))
 
 
 ;;; Interrupt evaluation
