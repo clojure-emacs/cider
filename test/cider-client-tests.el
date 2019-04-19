@@ -49,7 +49,7 @@
               "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
               "tag" "class java.lang.String"
               "status" ("done")))
-    (spy-on 'cider-ensure-op-supported :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
     (spy-on 'cider-nrepl-eval-session :and-return-value nil)
     (spy-on 'cider-current-ns :and-return-value "user")
     (expect (nrepl-dict-get (cider-var-info "str") "doc")
