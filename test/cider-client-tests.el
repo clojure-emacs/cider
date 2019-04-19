@@ -35,7 +35,11 @@
 ;;; cider-client tests
 
 (describe "cider-var-info"
-  (it "returns vars info as an alist"
+  (it "handles gracefully empty input"
+    (expect (cider-var-info nil) :to-equal nil)
+    (expect (cider-var-info "") :to-equal nil))
+
+  (it "returns vars info as an nREPL dict"
     (spy-on 'cider-sync-request:info :and-return-value
             '(dict
               "arglists" "([] [x] [x & ys])"
@@ -53,8 +57,25 @@
     (spy-on 'cider-nrepl-eval-session :and-return-value nil)
     (spy-on 'cider-current-ns :and-return-value "user")
     (expect (nrepl-dict-get (cider-var-info "str") "doc")
-            :to-equal "stub")
-    (expect (cider-var-info "") :to-equal nil)))
+            :to-equal "stub"))
+
+  (it "fallbacks to eval in the absence of the info middleware"
+    (spy-on 'cider-fallback-eval:info :and-return-value
+            '(dict
+              "arglists" "([] [x] [x & ys])"
+              "ns" "clojure.core"
+              "name" "str"
+              "column" 1
+              "added" "1.0"
+              "static" "true"
+              "doc" "stub"
+              "line" 504
+              "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
+              "tag" "class java.lang.String"
+              "status" ("done")))
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (expect (nrepl-dict-get (cider-var-info "str") "doc")
+            :to-equal "stub")))
 
 
 (describe "cider-repl-type-for-buffer"
