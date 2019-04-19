@@ -421,7 +421,7 @@ Used only when the info nREPL middleware is not available."
 When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
   (when (and var (not (string= var "")))
-    (let ((var-info (if (nrepl-op-supported-p "info")
+    (let ((var-info (if (cider-nrepl-op-supported-p "info")
                         (cider-sync-request:info var)
                       (cider-fallback-eval:info var))))
       (if all var-info (cider--var-choice var-info)))))
