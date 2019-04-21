@@ -13,6 +13,7 @@
 
 * `cider-print-options` is now supported by the `pr` option for `cider-print-fn`. The options will now be also used by interactive eval commands that do not use pretty-printing.
 * `spec-list` and `spec-form` requests send the current namespace for alias resolution.
+* `cider-repl-switch-to-other` can now switch to other REPL in the absence of a REPL of its own type.
 
 ### Bug fixes
 
