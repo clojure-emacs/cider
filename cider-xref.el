@@ -1,8 +1,8 @@
 ;;; cider-xref.el --- Xref functionality for Clojure -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2019 Jeff Valk, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2019 Bozhidar Batsov and CIDER contributors
 ;;
-;; Author: Jeff Valk <jv@jeffvalk.com>
+;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -21,7 +21,10 @@
 
 ;;; Commentary:
 
-;; Xref functionality for Clojure.
+;; Xref (find usages) functionality for Clojure.  The implementation is based on
+;; ideas from this article https://metaredux.com/posts/2019/05/04/discovering-runtime-function-references-in-clojure.html.
+;;
+;; Keep in mind that you won't get references in namespaces that haven't been loaded yet.
 
 ;;; Code:
 
