@@ -627,6 +627,24 @@ The result entries are relative to the classpath."
                            (nrepl-dict-get "resources-list"))))
     (seq-map (lambda (resource) (nrepl-dict-get resource "relpath")) resources)))
 
+(defun cider-sync-request:fn-refs (ns sym)
+  "Return a list of functions that reference the function identified by NS and SYM."
+  (cider-ensure-op-supported "fn-refs")
+  (thread-first `("op" "fn-refs"
+                  "ns" ,ns
+                  "symbol" ,sym)
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "fn-refs")))
+
+(defun cider-sync-request:fn-deps (ns sym)
+  "Return a list of function deps for the function identified by NS and SYM."
+  (cider-ensure-op-supported "fn-deps")
+  (thread-first `("op" "fn-deps"
+                  "ns" ,ns
+                  "symbol" ,sym)
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "fn-deps")))
+
 (defun cider-sync-request:format-code (code)
   "Perform nREPL \"format-code\" op with CODE."
   (thread-first `("op" "format-code"
