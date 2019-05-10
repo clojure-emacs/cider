@@ -396,6 +396,11 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Find resource" cider-find-resource]
      ["Find keyword" cider-find-keyword]
      ["Go back" cider-pop-back])
+    ("Xref"
+     ["Find fn references" cider-xref-fn-refs]
+     ["Find fn references and select" cider-xref-fn-refs-select]
+     ["Find fn dependencies" cider-xref-fn-defs]
+     ["Find fn dependencies and select" cider-xref-fn-defs-select])
     ("Browse"
      ["Browse namespace" cider-browse-ns]
      ["Browse all namespaces" cider-browse-ns-all]
