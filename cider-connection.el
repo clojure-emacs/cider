@@ -217,10 +217,10 @@ message in the REPL area."
     (cond
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
-                                 "CIDER requires cider-nrepl to be fully functional. Many things will not work without it!"))
+                                 "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
      ((version< middleware-version cider-required-middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
-                                 "CIDER %s requires cider-nrepl %s+, but you're currently using cider-nrepl %s. Things will break!"
+                                 "CIDER %s requires cider-nrepl %s+, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))
 
 (declare-function cider-interactive-eval-handler "cider-eval")
