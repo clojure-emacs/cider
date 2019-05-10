@@ -44,8 +44,8 @@
 (defconst cider-xref-buffer "*cider-xref*")
 
 (defcustom cider-xref-actions '(("display-doc" . cider-doc-lookup)
-                                   ("find-def" . cider--find-var)
-                                   ("lookup-on-grimoire" . cider-grimoire-lookup))
+                                ("find-def" . cider--find-var)
+                                ("lookup-on-grimoire" . cider-grimoire-lookup))
   "Controls the actions to be applied on the symbol found by an xref search.
 The first action key in the list will be selected as default.  If the list
 contains only one action key, the associated action function will be
@@ -63,29 +63,29 @@ the symbol found by the xref search as argument."
   "Emit a RESULT into current buffer."
   (let ((var-name (nrepl-dict-get result "name")))
     (cider-propertize-region (list 'apropos-symbol var-name
-                                  'action 'cider-xref-doc
-                                  'help-echo "Display doc")
-     (insert-text-button var-name 'type 'apropos-symbol)
-     (insert "\n  ")
-     (insert-text-button "Function" 'type 'apropos-function)
-     (insert ": ")
-     (let ((beg (point)))
-       (insert (nrepl-dict-get result "doc"))
-       (fill-region beg (point)))
-     (insert "\n")
-     (if-let* ((file (nrepl-dict-get result "file"))
-               (line (nrepl-dict-get result "line")))
-         (progn
-           (insert (propertize var-name
-                               'font-lock-face 'font-lock-function-name-face)
-                   " is defined in ")
-           (insert-text-button (cider--abbreviate-file-protocol file)
-                               'follow-link t
-                               'action (lambda (_x)
-                                         (cider-xref-source file line var-name)))
-           (insert "."))
-       (insert "Definition location unavailable."))
-     (insert "\n"))))
+                                   'action 'cider-xref-doc
+                                   'help-echo "Display doc")
+      (insert-text-button var-name 'type 'apropos-symbol)
+      (insert "\n  ")
+      (insert-text-button "Function" 'type 'apropos-function)
+      (insert ": ")
+      (let ((beg (point)))
+        (insert (nrepl-dict-get result "doc"))
+        (fill-region beg (point)))
+      (insert "\n")
+      (if-let* ((file (nrepl-dict-get result "file"))
+                (line (nrepl-dict-get result "line")))
+          (progn
+            (insert (propertize var-name
+                                'font-lock-face 'font-lock-function-name-face)
+                    " is defined in ")
+            (insert-text-button (cider--abbreviate-file-protocol file)
+                                'follow-link t
+                                'action (lambda (_x)
+                                          (cider-xref-source file line var-name)))
+            (insert "."))
+        (insert "Definition location unavailable."))
+      (insert "\n"))))
 
 (defun cider-xref-source (file line name)
   "Find source for FILE, LINE and NAME."
