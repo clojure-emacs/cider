@@ -147,7 +147,7 @@ effect of changes you have to restart Emacs.
 
 This is a warning displayed on the REPL buffer when it starts, and usually looks like this:
 
-> **WARNING:** CIDER 0.18.0 requires cider-nrepl x.y.z+, but you're currently using cider-nrepl a.b.c. Things will break!
+> **WARNING:** CIDER 0.18.0 requires cider-nrepl x.y.z, but you're currently using cider-nrepl a.b.c. Some functionality may not work properly!
 
 where `a.b.c` might be an actual version, like `0.17.0`, or it might be `not installed` or `nil`.
 The solution to this depends on what you see and on what you're doing.
