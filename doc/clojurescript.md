@@ -54,14 +54,6 @@ or in `build.boot`:
 
 ### Starting a ClojureScript REPL
 
-!!! Tip
-
-    There are many ClojureScript REPLs available, each offering a
-    different set of capabilities and features. As background for this
-    section, you might want to read [this awesome
-    article](https://lambdaisland.com/guides/clojure-repls/clojurescript-repls)
-    before proceeding.
-
 Open a file in your project and type <kbd>M-x</kbd>
 `cider-jack-in-cljs` <kbd>RET</kbd>. This will start up the nREPL
 server and create a ClojureScript REPL buffer.
