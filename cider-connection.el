@@ -218,7 +218,7 @@ message in the REPL area."
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
-     ((not (= middleware-version cider-required-middleware-version))
+     ((not (string= middleware-version cider-required-middleware-version))
       (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))
