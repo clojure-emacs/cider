@@ -1676,9 +1676,6 @@ constructs."
               (cider-repl-wrap-fontify-function font-lock-fontify-region-function))
   (setq-local font-lock-unfontify-region-function
               (cider-repl-wrap-fontify-function font-lock-unfontify-region-function))
-  (make-local-variable 'completion-at-point-functions)
-  (add-to-list 'completion-at-point-functions
-               #'cider-complete-at-point)
   (set-syntax-table cider-repl-mode-syntax-table)
   (cider-eldoc-setup)
   ;; At the REPL, we define beginning-of-defun and end-of-defun to be
@@ -1693,6 +1690,7 @@ constructs."
     (cider-repl-history-load cider-repl-history-file)
     (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
     (add-hook 'kill-emacs-hook #'cider-repl-history-just-save))
+  (add-hook 'completion-at-point-functions #'cider-complete-at-point nil t)
   (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map))))
 
 (provide 'cider-repl)

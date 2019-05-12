@@ -23,6 +23,7 @@
 * [#2593](https://github.com/clojure-emacs/cider/issues/2593): The REPL's initial namespace is now set correctly if configured in another tool (e.g. Leiningen's `:init-ns`).
 * [#2607](https://github.com/clojure-emacs/cider/pull/2607): Use markers for specifying insertion point for `cider-eval-*-to-comment`commands. This fixes a bug where editing the buffer during a pending evaluation resulted in comments appearing in unintended locations.
 * [#2308](https://github.com/clojure-emacs/cider/issues/2308): Don't rely on the classpath in `cider-library-present-p`. Now it does a `require` instead to check if some library is present or not.
+* [#2541](https://github.com/clojure-emacs/cider/issues/2541): Hook properly CIDER's code completion machinery.
 
 ## 0.21.0 (2019-02-19)
 
