@@ -1165,17 +1165,18 @@ regexes from `cider-locref-regexp-alist' to infer locations at point."
                           (nrepl-dict-get (cider-sync-request:info var) "file")))
                     (when-let* ((file (plist-get loc :file)))
                       ;; 2) file detected by the regexp
-                      (if (file-name-absolute-p file)
-                          file
-                        ;; when not absolute, expand within the current project
-                        (when-let* ((proj (clojure-project-dir)))
-                          (let ((path (expand-file-name file proj)))
-                            (when (file-exists-p path)
-                              path))))
-                      ;; 3) infer ns from the abbreviated path (common in
-                      ;; reflection warnings)
-                      (let ((ns (cider-path-to-ns file)))
-                        (cider-sync-request:ns-path ns))))))
+                      (or
+                       (if (file-name-absolute-p file)
+                           file
+                         ;; when not absolute, expand within the current project
+                         (when-let* ((proj (clojure-project-dir)))
+                           (let ((path (expand-file-name file proj)))
+                             (when (file-exists-p path)
+                               path))))
+                       ;; 3) infer ns from the abbreviated path (common in
+                       ;; reflection warnings)
+                       (let ((ns (cider-path-to-ns file)))
+                         (cider-sync-request:ns-path ns)))))))
         (if file
             (cider--jump-to-loc-from-info (nrepl-dict "file" file "line" line) t)
           (error "No source location for %s" var)))
