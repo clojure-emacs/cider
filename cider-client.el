@@ -115,6 +115,14 @@ will return nil instead of \"user\"."
         (buffer-local-value 'cider-buffer-ns repl))
       (if no-default nil "user")))
 
+(defun cider-path-to-ns (relpath)
+  "Transform RELPATH to Clojure namespace.
+Remove extension and substitute \"/\" with \".\", \"_\" with \"-\"."
+  (thread-last relpath
+    (file-name-sans-extension)
+    (replace-regexp-in-string "/" ".")
+    (replace-regexp-in-string "_" "-")))
+
 (defun cider-expected-ns (&optional path)
   "Return the namespace string matching PATH, or nil if not found.
 If PATH is nil, use the path to the file backing the current buffer.  The
@@ -132,10 +140,7 @@ nREPL connection."
                                     (< (length a) (length b))))
                         (car))))
         (if relpath
-            (thread-last relpath
-              (file-name-sans-extension)
-              (replace-regexp-in-string "/" ".")
-              (replace-regexp-in-string "_" "-"))
+            (cider-path-to-ns relpath)
           (clojure-expected-ns path)))
     (clojure-expected-ns path)))
 
