@@ -1202,7 +1202,7 @@ One for all REPLs.")
 WIN, BUFFER and POS are the window, buffer and point under mouse position."
   (with-current-buffer buffer
     (if-let* ((hl (plist-get (cider-locref-at-point pos) :highlight)))
-        (move-overlay cider-locref-hoover-overlay (car hl) (cdr hl))
+        (move-overlay cider-locref-hoover-overlay (car hl) (cdr hl) buffer)
       (delete-overlay cider-locref-hoover-overlay))
     nil))
 
