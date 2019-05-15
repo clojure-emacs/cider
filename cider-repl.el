@@ -1472,13 +1472,13 @@ constructs."
 (cider-repl-add-shortcut "test-report" #'cider-test-show-report)
 (cider-repl-add-shortcut "run" #'cider-run)
 (cider-repl-add-shortcut "conn-info" #'cider-describe-connection)
-(cider-repl-add-shortcut "hasta la vista" #'cider-quit)
+(cider-repl-add-shortcut "version" #'cider-version)
+(cider-repl-add-shortcut "require-repl-utils" #'cider-repl-require-repl-utils)
+;; So many ways to quit :-)
 (cider-repl-add-shortcut "adios" #'cider-quit)
 (cider-repl-add-shortcut "sayonara" #'cider-quit)
 (cider-repl-add-shortcut "quit" #'cider-quit)
 (cider-repl-add-shortcut "restart" #'cider-restart)
-(cider-repl-add-shortcut "version" #'cider-version)
-(cider-repl-add-shortcut "require-repl-utils" #'cider-repl-require-repl-utils)
 
 (defconst cider-repl-shortcuts-help-buffer "*CIDER REPL Shortcuts Help*")
 
