@@ -74,7 +74,7 @@ CIDER-specific "fuzzy completion" by adding:
 ```
 
 Now, `company-mode` will accept certain fuzziness when matching
-candidates against the prefix. For example, typing `mp` will show you
+candidates against the prefix. For example, typing `mi` will show you
 `map-indexed` as one of the possible completion candidates and `cji`
 will complete to `clojure.java.io`. Different completion examples are
 shown
