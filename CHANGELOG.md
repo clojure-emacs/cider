@@ -925,7 +925,7 @@ cider-nrepl's info middleware for jump-to-definition.
 * New interactive command `cider-insert-defun-in-repl`.
 * New interactive command `cider-insert-ns-form-in-repl`.
 * New inspector inspired by SLIME's inspector
-* STDERR ouput is now font-locked with `cider-repl-err-output-face` to make it
+* STDERR output is now font-locked with `cider-repl-err-output-face` to make it
 visually distinctive from `cider-repl-output-face` (used for STDOUT output).
 * New interactive command `cider-scratch`.
 * [#521](https://github.com/clojure-emacs/cider/pull/521): New interactive

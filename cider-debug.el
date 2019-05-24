@@ -721,7 +721,7 @@ The boolean value of FORCE will be sent in the reply."
                   (forward-sexp 1)
                   (> here (point))))
         (user-error "Point is outside the sexp being debugged"))
-      ;; Move forward untill start of sexp.
+      ;; Move forward until start of sexp.
       (comment-normalize-vars)
       (comment-forward (point-max))
       ;; Find the coordinate and send it.

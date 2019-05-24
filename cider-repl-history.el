@@ -411,14 +411,14 @@ text is still inserted at the end."
          (pt (cdr data)))
     (cider-repl-history-do-insert buf pt)))
 
-(defun cider-repl-history-clear-highlighed-entry ()
+(defun cider-repl-history-clear-highlighted-entry ()
   "Clear the highlighted entry, when one exists."
   (when cider-repl-history-previous-overlay
     (cl-assert (overlayp cider-repl-history-previous-overlay)
                nil "not an overlay")
     (overlay-put cider-repl-history-previous-overlay 'face nil)))
 
-(defun cider-repl-history-update-highlighed-entry ()
+(defun cider-repl-history-update-highlighted-entry ()
   "Update highlighted entry, when feature is turned on."
   (when cider-repl-history-highlight-current-entry
     (if-let* ((current-overlay (cider-repl-history-target-overlay-at (point) t)))
@@ -426,12 +426,12 @@ text is still inserted at the end."
           ;; We've changed overlay.  Clear current highlighting,
           ;; and highlight the new overlay.
           (cl-assert (overlay-get current-overlay 'cider-repl-history-target) t)
-          (cider-repl-history-clear-highlighed-entry)
+          (cider-repl-history-clear-highlighted-entry)
           (setq cider-repl-history-previous-overlay current-overlay)
           (overlay-put current-overlay 'face
                        cider-repl-history-current-entry-face))
       ;; No overlay at point.  Just clear all current highlighting.
-      (cider-repl-history-clear-highlighed-entry))))
+      (cider-repl-history-clear-highlighted-entry))))
 
 (defun cider-repl-history-forward (&optional arg)
   "Move forward by ARG command history entries."
@@ -571,7 +571,7 @@ spacing when it's actually inserted into the REPL buffer."
 
 This function is called whenever the selection in the *cider-repl-history*
 buffer is adjusted, the `cider-repl-history-preview-overlay'
-is udpated to preview the text of the selection at PT (or the
+is updated to preview the text of the selection at PT (or the
 current point if not specified)."
   (let ((new-text (cider-repl-history-current-string
                    (or pt (point)) t)))
@@ -641,7 +641,7 @@ text from the *cider-repl-history* buffer."
                         nil t))
             (when cider-repl-history-highlight-current-entry
               (add-hook 'post-command-hook
-                        'cider-repl-history-update-highlighed-entry
+                        'cider-repl-history-update-highlighted-entry
                         nil t))
             (message
              (let ((entry (if (= 1 (length cider-command-history))

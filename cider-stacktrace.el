@@ -653,7 +653,7 @@ others."
                                       "Report bug to the CIDER team."))
       (insert "`.\n\n")
       (insert "\
-  If these stacktraces are occuring frequently, consider using the
+  If these stacktraces are occurring frequently, consider using the
   button(s) below to suppress these types of errors for the duration of
   your current CIDER session. The stacktrace buffer will still be
   generated, but it will \"pop under\" your current buffer instead of

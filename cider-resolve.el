@@ -95,8 +95,8 @@ Return nil only if VAR cannot be resolved."
      (cider-resolve--get-in (or var-ns ns) "interns" name)
      (unless var-ns
        ;; If the var had no prefix, it might be referred.
-       (if-let* ((referal (cider-resolve--get-in ns "refers" name)))
-           (cider-resolve-var ns referal)
+       (if-let* ((referral (cider-resolve--get-in ns "refers" name)))
+           (cider-resolve-var ns referral)
          ;; Or it might be from core.
          (unless (equal ns "clojure.core")
            (cider-resolve-var "clojure.core" name)))))))
