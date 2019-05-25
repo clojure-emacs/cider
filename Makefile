@@ -62,7 +62,7 @@ lint: version elpa
 test-all: lint test
 
 clean:
-	rm -f .depend $(OBJECTS) $(PKG)-autoloads.el
+	rm -f .depend elpa-$(EMACS) $(OBJECTS) $(PKG)-autoloads.el
 
 elpaclean: clean
 	rm -f elpa*
