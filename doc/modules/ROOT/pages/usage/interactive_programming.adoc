@@ -1,0 +1,38 @@
+= Interactive Programming
+:experimental:
+
+== Overview
+
+Traditional programming languages and development environments often
+use a http://wiki.c2.com/?EditCompileLinkRun[Edit, Compile, Run
+Cycle]. In this environment,
+the programmer modifies the code, compiles it, and then runs it to see
+if it does what she wants. The program is then terminated, and the
+programmer goes back to editing the program further. This cycle is
+repeated over and over until the program behavior conforms to what the
+programmer desires. While modern IDEs have optimized this process to
+be quick and relatively painless, it's still a slow way to work.
+
+Clojure and CIDER offer a better way to work called _interactive
+programming_. Indeed, this idea is at the very heart of CIDER.
+
+Using CIDER's interactive programming environment, a programmer works
+in a very dynamic and incremental manner. Instead of repeatedly
+editing, compiling, and restarting an application, the programmer
+starts the application once and then adds and updates individual
+Clojure defintions as the program continues to run. Using the CIDER
+REPL, the programmer can access the value of different definitions and
+invoke program functions with test data, immediately seeing the
+result. This methodology is far more efficient than the typical Edit,
+Compile, and Run Cycle because the program continues to run and keeps
+its state intact while the programmer interacts with it. Indeed, some
+Clojure programmers have been known to keep a CIDER session running
+for weeks or even months as they continue to write code.
+
+CIDER's interactive programming environment is partially implemented
+using an Emacs minor mode called `cider-mode`. `cider-mode`
+complements `clojure-mode` and allows you to evaluate Clojure code
+from your source file buffers and send it directly to your running
+program through the CIDER REPL. Using the functions offered by
+`cider-mode` will improve your productivity and make you a more
+efficient Clojure programmer.

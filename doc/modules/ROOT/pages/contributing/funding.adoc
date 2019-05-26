@@ -1,0 +1,28 @@
+= Funding
+
+While CIDER is free software and will always be, the project would benefit immensely from some funding.
+Raising a monthly budget of a couple of thousand dollars would make it possible to pay people to work on
+certain complex features, fund other development related stuff (e.g. hardware, conference trips) and so on.
+Raising a monthly budget of over $5000 would open the possibility of someone working full-time on the project
+which would speed up the pace of development significantly.
+
+== Funding Channels
+
+We welcome both individual and corporate sponsors! We also offer a wide array of funding channels to account
+for your preferences (although currently https://opencollective.com/cider[Open Collective] is our preferred funding platform).
+
+If you're working in a company that's making significant use of CIDER we'd appreciate it if you suggest to your company
+to become a CIDER sponsor.
+
+You can support the development of CIDER, https://github.com/clojure-emacs/clojure-mode[clojure-mode] and https://github.com/clojure-emacs/inf-clojure[inf-clojure] via
+https://opencollective.com/cider[Open Collective],
+https://salt.bountysource.com/teams/cider[Salt],
+https://www.patreon.com/bbatsov[Patreon],
+https://liberapay.com/bbatsov/donate[Liberapay] and PayPal.
+
+image::https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif[Paypal,link=https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ]
+
+=== Open Collective
+
+* https://opencollective.com/cider#backer[Become a backer] (for individuals)
+* https://opencollective.com/cider#sponsor[Become a sponsor] (for companies)

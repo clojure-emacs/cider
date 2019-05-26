@@ -1,0 +1,287 @@
+= Using cider-mode
+:experimental:
+
+`cider-mode` is a pretty standard Emacs minor mode, which exists mostly to provide a
+common keymap for all of CIDER's REPL-powered commands that are meant to be used
+from Clojure(Script) source buffers.
+
+There you'll find commands for evaluation, code and documentation lookup, debugging and
+other related functionality. This mode is the very heart of CIDER and it's important to master
+it, so you can be productive.
+
+== Enabling cider-mode
+
+`cider-mode` is normally enabled automatically when you start CIDER, but you can also enable it explicitly for Clojure(Script) buffers like this:
+
+[source,el]
+----
+(add-hook 'clojure-mode-hook #'cider-mode)
+----
+
+NOTE: There's no need to enable it explicitly for modes derived from `clojure-mode` like `clojurescript-mode`.
+
+== Disabling cider-mode
+
+`cider-mode` is normally disabled automatically when you quit CIDER, but you can also disable it in any buffer explicitly by typing `M-x cider-mode` (provided it's already enabled in that buffer).
+
+== Basic Workflow
+
+Typically you'd begin your interaction with any source buffer by evaluating it with kbd:[C-c C-k].
+Afterwards you'd normally evaluate just individual forms with kbd:[C-c C-e] or kbd:[C-c C-c].
+
+From time to time some evaluation would take forever and you'd interrupt it with kbd:[C-c C-b].
+
+It's also highly likely that you'd look up some definition with kbd:[M-.] or some documentation with kbd:[C-c C-d C-d].
+
+`cider-mode` also provides you with code completion that works out-of-the-box and requires no extra setup and `eldoc` integration.
+
+Those few essential commands can get you really far in your day to day work. Keep on reading for a lot more information!
+
+== Key Reference
+
+Here's a list of `cider-mode`'s keybindings:
+
+|===
+| Command | Keyboard shortcut | Description
+
+| `cider-eval-last-sexp`
+| kbd:[C-x C-e] +
+kbd:[C-c C-e]
+| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
+
+| `cider-eval-last-sexp-and-replace`
+| kbd:[C-c C-v w]
+| Evaluate the form preceding point and replace it with its result.
+
+| `cider-eval-last-sexp-to-repl`
+| kbd:[C-c M-e]
+| Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
+
+| `cider-insert-last-sexp-in-repl`
+| kbd:[C-c M-p]
+| Load the form preceding point in the REPL buffer.
+
+| `cider-pprint-eval-last-sexp`
+| kbd:[C-c C-v C-f e]
+| Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+
+| `cider-pprint-eval-defun-at-point`
+| kbd:[C-c C-v C-f d]
+| Evaluate the top level form under point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+
+| `cider-eval-defun-at-point`
+| kbd:[C-M-x] +
+kbd:[C-c C-c]
+| Evaluate the top level form under point and display the result in the echo area.
+
+| `cider-eval-sexp-at-point`
+| kbd:[C-c C-v v]
+| Evaluate the form around point.
+
+| `cider-eval-defun-at-point`
+| kbd:[C-u C-M-x] +
+kbd:[C-u C-c C-c]
+| Debug the top level form under point and walk through its evaluation
+
+| `cider-eval-defun-up-to-point`
+| kbd:[C-c C-v z]
+| Evaluate the preceding top-level form up to the point.
+
+| `cider-eval-region`
+| kbd:[C-c C-v r]
+| Evaluate the region and display the result in the echo area.
+
+| `cider-interrupt`
+| kbd:[C-c C-b]
+| Interrupt any pending evaluations.
+
+| `cider-macroexpand-1`
+| kbd:[C-c C-m]
+| Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
+
+| `cider-macroexpand-all`
+| kbd:[C-c M-m]
+| Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
+
+| `cider-eval-ns-form`
+| kbd:[C-c C-v n]
+| Eval the ns form.
+
+| `cider-repl-set-ns`
+| kbd:[C-c M-n (M-)n]
+| Switch the namespace of the REPL buffer to the namespace of the current buffer.
+
+| `cider-switch-to-repl-buffer`
+| kbd:[C-c C-z]
+| Switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
+
+| `cider-switch-to-repl-buffer`
+| kbd:[C-u C-u C-c C-z]
+| Switch to the REPL buffer based on a user prompt for a directory.
+
+| `cider-load-buffer-and-switch-to-repl-buffer`
+| kbd:[C-c M-z]
+| Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
+
+| `cider-describe-connection`
+| kbd:[C-c M-d]
+| Display default REPL connection details, including project directory name, buffer namespace, host and port.
+
+| `cider-find-and-clear-repl-output`
+| kbd:[C-c C-o]
+| Clear the last output in the REPL buffer. With a prefix argument it will clear the entire REPL buffer, leaving only a prompt. Useful if you're running the REPL buffer in a side by side buffer.
+
+| `cider-load-buffer`
+| kbd:[C-c C-k]
+| Load (eval) the current buffer.
+
+| `cider-load-file`
+| kbd:[C-c C-l]
+| Load (eval) a Clojure file.
+
+| `cider-load-all-files`
+| kbd:[C-c C-M-l]
+| Load (eval) all Clojure files below a directory.
+
+| `cider-ns-refresh`
+| kbd:[C-c M-n (M-)r]
+| Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
+
+| `cider-doc`
+| kbd:[C-c C-d d] +
+kbd:[C-c C-d C-d]
+| Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+
+| `cider-javadoc`
+| kbd:[C-c C-d j] +
+kbd:[C-c C-d C-j]
+| Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+
+| `cider-grimoire`
+| kbd:[C-c C-d r] +
+kbd:[C-c C-d C-r]
+| Lookup symbol in Grimoire.
+
+| `cider-grimoire-web`
+| kbd:[C-c C-d w] +
+kbd:[C-c C-d C-w]
+| Open the grimoire documentation for symbol in a web browser.
+
+| `cider-apropos`
+| kbd:[C-c C-d a] +
+kbd:[C-c C-d C-a]
+| Apropos search for functions/vars.
+
+| `cider-apropos-documentation`
+| kbd:[C-c C-d f] +
+kbd:[C-c C-d C-f]
+| Apropos search for documentation.
+
+| `cider-apropos-documentation-select`
+| kbd:[C-c C-d e] +
+kbd:[C-c C-d C-e]
+| Apropos search for documentation & select.
+
+| `cider-inspect`
+| kbd:[C-c M-i]
+| Inspect expression. Will act on expression at point if present.
+
+| `cider-toggle-trace-var`
+| kbd:[C-c M-t v]
+| Toggle var tracing.
+
+| `cider-toggle-trace-ns`
+| kbd:[C-c M-t n]
+| Toggle namespace tracing.
+
+| `cider-undef`
+| kbd:[C-c C-u]
+| Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+
+| `cider-test-run-test`
+| kbd:[C-c C-t t] +
+kbd:[C-c C-t C-t]
+| Run test at point.
+
+| `cider-test-rerun-test`
+| kbd:[C-c C-t a] +
+kbd:[C-c C-t C-a]
+| Re-run the last test you ran.
+
+| `cider-test-run-ns-tests`
+| kbd:[C-c C-t n] +
+kbd:[C-c C-t C-n]
+| Run tests for current namespace.
+
+| `cider-test-run-loaded-tests`
+| kbd:[C-c C-t l] +
+kbd:[C-c C-t C-l]
+| Run tests for all loaded namespaces.
+
+| `cider-test-run-project-tests`
+| kbd:[C-c C-t p] +
+kbd:[C-c C-t C-p]
+| Run tests for all project namespaces. This loads the additional namespaces.
+
+| `cider-test-rerun-failed-tests`
+| kbd:[C-c C-t r] +
+kbd:[C-c C-t C-r]
+| Re-run test failures/errors.
+
+| `cider-test-show-report`
+| kbd:[C-c C-t b] +
+kbd:[C-c C-t C-b]
+| Show the test report buffer.
+
+| `cider-find-var`
+| kbd:[M-.]
+| Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+
+| `cider-find-dwim-at-mouse`
+| kbd:[mouse-5] or kbd:[mouse-9]
+| Jump to the definition of a symbol using mouse.
+
+| `xref-pop-marker-stack`
+| kbd:[mouse-4] or kbd:[mouse-8]
+| Jump back to where `cider-find-dwim-at-mouse` was invoked.
+
+| `cider-find-resource`
+| kbd:[C-c M-.]
+| Jump to the resource referenced by the string at point.
+
+| `cider-find-ns`
+| kbd:[C-c C-.]
+| Jump to some namespace on the classpath.
+
+| `cider-pop-back`
+| kbd:[M-,]
+| Return to your pre-jump location.
+
+| `complete-symbol`
+| kbd:[M-TAB]
+| Complete the symbol at point.
+
+| `cider-quit`
+| kbd:[C-c C-q]
+| Quit the current nREPL connection.
+|===
+
+
+[TIP]
+====
+There's no need to memorize this list. If you're in a Clojure buffer with `cider-mode`
+active you'll have a CIDER menu available. The menu lists all the most important
+commands and their keybindings. You can also invoke kbd:[C-h f RET cider-mode] to
+get a list of the keybindings for `cider-mode`.
+
+image::menu_example.png[CIDER interactions menu]
+
+An even better solution would be to install https://github.com/justbur/emacs-which-key[which-key], which will
+automatically show you a list of available keybindings as you start typing some
+keys. This will simplify your interactions with CIDER quite a lot,
+especially in
+the beginning. Here's what you'd see if you typed kbd:[C-c C-d] in a
+Clojure buffer:
+
+image::cider-which-key.png[CIDER which-key]
+====

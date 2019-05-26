@@ -1,0 +1,115 @@
+= Running Tests
+:exprimental:
+
+The Clojure ecosystem provides a lot of support for test-driven
+development (TDD) and other test-centric patterns. First, Clojure
+provides a standardized framework for developing tests called
+https://clojure.github.io/clojure/clojure.test-api.html[clojure.test]. Many other testing libraries plug into this
+framework. Second, tools like Leiningen create standardized
+application and library project structures that provide locations and
+idiomatic naming for test code. Finally, CIDER provides several easy
+ways to run these tests, view the test results, and quickly jump to
+code that is failing to pass a given test.
+
+NOTE: CIDER only supports clojure.test and other libraries
+providing integration with clojure.test. Native support
+for other libraries might be available via CIDER plugins.
+
+== Basic Usage
+
+CIDER has several functions that help you run all your tests or a
+selected subset of them. All of the CIDER test commands are available
+in both source code and REPL buffers. In REPL buffers you can also use
+kbd:[,] to invoke some of the testing commands.
+
+First, you can run all the tests in your project with kbd:[C-c C-t p]
+or kbd:[C-c C-t C-p]. It's important to realize that this will
+load *all* the namespaces in your project, which might be more than
+you're expecting.
+
+You can run all _loaded_ tests with kbd:[C-c C-t l] or
+kbd:[C-c C-t C-l].
+
+If you invoke either of these commands with a prefix CIDER, will
+prompt for test selector filters and only run those tests that match
+the selector inclusions/exclusions.
+
+Test developers use selectors to define subsets of the total test
+suite that are run together for different testing tasks. For example
+you can mark some of your tests with the `+^:smoke+` metadata marker
+and others with `+^:integration+`. This enables you to run these tests
+separately in your build pipeline.  CIDER helps you to run these same
+test subsets in your development environment.
+
+Test selectors were originally a `leiningen` feature and you can get
+more information by executing:
+
+[source,sh]
+----
+$ lein help test
+----
+
+You can run all the tests in the current namespace, whether specified
+by a source file or by the REPL, using kbd:[C-c C-t n] or
+kbd:[C-c C-t C-n]. Note that it's idiomatic for Clojure projects
+to locate tests in a separate namespace than the code that is being
+tested. CIDER uses a simple algorithm to figure out where the tests
+are located. The algorithm works as follows.  If you're in an
+implementation namespace (e.g. `some.ns`), CIDER will try to find a
+matching test namespace (by default `some.ns-test`) and run the tests
+there. But if you're in something that already looks like a test
+namespace (e.g. `some.ns-test`), CIDER will simply run the tests in
+that namespace. If you have put some of your tests into your
+implementation namespace, using `clojure.test/with-test`, for
+instance, you might want to suppress the namespace inference logic and
+force CIDER to run tests in the current namespace unconditionally.
+You can do this by adding a prefix to the namespace commands: kbd:[C-u C-c C-t C-n]. This will simply run whatever tests are present in
+the currently visited or active namespace.
+
+You can also run a subset of the tests defined in the namespace,
+filtered by test selectors, using kbd:[C-c C-t C-s]. CIDER will
+prompt for the selectors in the minibuffer. If you call this
+command with a prefix (kbd:[C-u C-c C-t C-s]) you can suppress
+the namespace inference logic as for kbd:[C-u C-c C-t C-n]
+
+Finally, you can execute the specific test at the point using
+kbd:[C-c C-t t] or kbd:[C-c C-t C-t].
+
+== Configuration
+
+You can configure CIDER's test execution behavior in multiple ways.
+
+If your tests are not following the `some.ns-test` naming convention
+you can set the variable `cider-test-infer-test-ns` to a function that
+takes the current namespace and returns the matching test namespace
+(which may be the same as the current namespace). This provides
+complete flexibility to structure your test suite using whatever
+conventions you might want.
+
+If your individual tests are not defined by `deftest` or `defspec`, CIDER will
+not recognize them when searching for a test at point in `cider-test-run-test`.
+You can customize the variable `cider-test-defining-forms` to add additional
+forms for CIDER to recognize as individual test definitions.
+
+If you want to view the test report regardless of whether the tests have
+passed or failed:
+
+[source,el]
+----
+(setq cider-test-show-report-on-success t)
+----
+
+== Running Tests Automatically (Test-Driven Development)
+
+CIDER provides a minor-mode that automatically runs all tests for a namespace
+whenever you load a file (with kbd:[C-c C-k]). You can toggle it
+manually with kbd:[M-x] `cider-auto-test-mode`, or you can use:
+
+[source,el]
+----
+(cider-auto-test-mode 1)
+----
+
+This is identical to manually typing kbd:[C-c C-t C-n] every time
+you load a Clojure buffer. As described previously, CIDER will try to
+automatically determine the namespace containing the tests.

@@ -1,0 +1,30 @@
+= Additional Resources
+
+== Quick reference
+
+A single-page quick reference PDF for CIDER commands is available
+link:cider-refcard.pdf[here]. This PDF can be created manually by running
+`pdflatex` on link:cider-refcard.tex[the CIDER refcard LaTeX file].
+
+== Demos
+
+* https://www.youtube.com/watch?v=aYA4AAjLfT0[Deep Dive into CIDER] - an overview of CIDER's essential features
+* https://www.youtube.com/watch?v=O6g5C4jUCUc[Emacs & Clojure, A Lispy Love Affair] - an overview of all popular Emacs packages for Clojure development (including CIDER)
+
+== Presentations
+
+* https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6[The Evolution of the Emacs tooling for Clojure] -
+presented at Clojure/conj 2014; dedicated to the origin and the architecture
+of CIDER and related tooling
+* https://skillsmatter.com/skillscasts/7225-cider-the-journey-so-far-and-the-road-ahead[CIDER: The Journey so Far and the Road Ahead] -
+presented at ClojureX 2015; dedicated to CIDER 0.9 and 0.10 and the future of
+the project.
+* https://www.youtube.com/watch?v=3Q7APa2Htns&list=PLPgnbBCmP6ZMfHPJ4yMwuoLEZvEe5LVe8[A Few Pints of CIDER] - presented at Clojure Remote 2016; dedicated
+to CIDER 0.11; features a 10-minute live demo of some cool CIDER features.
+* https://www.youtube.com/watch?v=8wLwbpCxRf0&list=PLZdCLR02grLq4e8-1P2JNHBKUOLFTX3kb[CIDER: Inside the Brewery] - presented at Clojure/West 2016;
+dedicated to CIDER 0.12.
+
+== Podcasts
+
+* http://blog.cognitect.com/cognicast/080[Cognicast's episode on CIDER]
+* https://soundcloud.com/defn-771544745/36-a-long-glass-of-cider-with-bozhidar-batsov-aka-bbatsov[defn's episode on CIDER]

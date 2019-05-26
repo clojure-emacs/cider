@@ -1,0 +1,38 @@
+= Using cider-test with Alternative Test Libraries
+
+The `clojure.test` machinery is designed to be pluggable. Any test
+library can integrate with it and leverage the `cider-test`
+ecosystem.
+
+As a test framework author, supporting the built-in `clojure.test` machinery
+(and hence `cider-test`) is pretty straightforward:
+
+. Add `:test` metadata to the vars corresponding to the test
+functions. The `clojure-test` machinery uses this metadata to
+find tests.
+. Implement the `clojure.test/report` multimethod to capture the test results.
+
+For example, https://github.com/clojure/test.check[test.check] was designed independently of `clojure.test`
+but integrates with it. Because of this, `cider-test` handles
+`defspec` just like `deftest`. `test.check` just adds compatibility in this
+https://github.com/clojure/test.check/blob/24f74b83f1c7a032f98efdcc1db9d74b3a6a794d/src/main/clojure/clojure/test/check/clojure_test.cljc[namespace].
+
+== Supported Libraries
+
+* [test-check]
+* https://github.com/clojure-expectations/expectations[clojure-expectations] added
+support for `clojure.test` in version 2.2 and should also work with CIDER.
+* https://github.com/jimpil/fudje[fudge]
+
+== Midje Support
+
+NOTE: Emidje is a third-party extension that's not bundled with CIDER.
+
+https://github.com/nubank/emidje[Emidje] is a test runner, report
+viewer and formatting tool for
+https://github.com/marick/Midje[Midje] within Emacs.
+
+Emidje extends CIDER to provide support for Midje tests in a similar
+fashion as `cider-test.el` does for clojure.test tests. In fact, most of
+Emidje functionalities were strongly inspired on `cider-test.el`
+features.

@@ -1,0 +1,24 @@
+= Team
+
+== The Core Team
+
+The direction of the project is being stewarded by the CIDER core team. This
+group of long-term contributors manage releases, evaluate pull-requests, and
+does a lot of the groundwork on major new features.
+
+* https://github.com/bbatsov[Bozhidar Batsov] (author & head maintainer)
+* https://github.com/vspinu[Vitalie Spinu]
+* https://github.com/cichli[Michael Griffiths]
+* https://github.com/expez[Lars Andersen]
+
+== CIDER Alumni
+
+In addition, we'd like to extend a special thanks the following retired CIDER
+core team members. Lovingly known as The Alumni:
+
+* https://github.com/kingtim[Tim King] (original author)
+* https://github.com/technomancy[Phil Hagelberg]
+* https://github.com/hugoduncan[Hugo Duncan]
+* https://github.com/purcell[Steve Purcell]
+* https://github.com/malabarba[Artur Malabarba]
+* https://github.com/jeffvalk[Jeff Valk]

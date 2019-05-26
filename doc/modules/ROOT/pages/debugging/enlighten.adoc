@@ -1,0 +1,27 @@
+= Enlighten
+:experimental:
+
+Enlighten Mode displays the value of locals in realtime, as your code
+runs. This feature is somewhat similar to a feature in the Light Table
+editor.
+
+To turn it on, issue kbd:[M-x] `cider-enlighten-mode`. Then,
+evaluate your functions one at a time using kbd:[C-M-x] or
+kbd:[C-x C-e]. Note that kbd:[C-c C-k] won't work.
+
+That's it! Once your code executes, the regular old buffer on the left will turn
+into the brilliant show of lights on the right.
+
+|===
+| Enlighten Mode Disabled | Enlighten Mode Enabled
+
+| image:enlighten_disabled.png[Disabled]
+| image:enlighten_enabled.png[Enabled]
+|===
+
+To stop displaying the locals you'll have to disable `cider-enlighten-mode`
+and reevaluate the definitions you had instrumented previously.
+
+You can also trigger this on specific functions (without having to turn on the
+minor mode) by writing `#light` before the `(def` and re-evaluating
+it.

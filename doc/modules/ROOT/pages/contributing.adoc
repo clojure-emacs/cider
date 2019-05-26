@@ -1,0 +1,25 @@
+= Contributing
+
+== Issues
+
+Report issues and suggest features and improvements on the
+https://github.com/clojure-emacs/cider/issues[GitHub issue tracker]. Don't ask
+questions on the issue tracker - use the xref:support.adoc[support channels] instead.
+
+If you want to file a bug, please provide all the necessary info listed in
+our issue reporting template (it's loaded automatically when you create a
+new GitHub issue).
+
+It's usually a good idea to try to reproduce (obscure) bugs in isolation. You
+can do this by cloning CIDER's GitHub repo and running `make run-cider` inside
+it.  This will bring up Emacs with only the latest version of CIDER loaded. By
+starting fresh, with the latest code, we can ensure that the problem at hand
+isn't already fixed or caused by interactions with other packages.
+
+== Patches
+
+Patches in any form are always welcome! GitHub pull requests are even better! :-)
+
+Before submitting a patch or a pull request make sure all tests are
+passing and that your patch is in line with the https://github.com/clojure-emacs/cider/blob/master/.github/CONTRIBUTING.md[contribution
+guidelines].

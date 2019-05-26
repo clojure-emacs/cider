@@ -1,0 +1,53 @@
+= Miscellaneous Configuration
+:experimental:
+
+== Overlays
+
+When you evaluate code in Clojure files, the result is displayed in the buffer
+itself, in an overlay right after the evaluated code.  If you want this overlay
+to be font-locked (syntax-highlighted) like Clojure code, set the following
+variable.
+
+[source,el]
+----
+(setq cider-overlays-use-font-lock t)
+----
+
+You can disable overlays entirely (and display results in the echo-area at the
+bottom) with the `cider-use-overlays` variable.
+
+[source,el]
+----
+(setq cider-use-overlays nil)
+----
+
+== Minibuffer completion
+
+Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While
+it's not fancy it certainly gets the job done (just press kbd:[TAB]). There
+are, however, ways to improve upon the standard completion if you wish to.
+
+=== icomplete
+
+`icomplete` is bundled with Emacs and enhances the default minibuffer completion:
+
+[source,el]
+----
+(require 'icomplete)
+----
+
+You can learn more about `icomplete`
+https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html[here].
+
+=== ido
+
+`ido` is also bundled with Emacs and offers more features than `icomplete`.
+If you are using `ido`, be sure to use both `ido-everywhere`
+and https://github.com/DarwinAwardWinner/ido-completing-read-plus[`ido-completing-read+`].
+You might also want to install https://github.com/lewang/flx[`ido-flex`].
+
+=== ivy (recommended)
+
+If you're fine with installing a third-party package for enhanced minibuffer
+completion you can't go wrong with the modern and versatile
+http://oremacs.com/2015/04/16/ivy-mode/[ivy].

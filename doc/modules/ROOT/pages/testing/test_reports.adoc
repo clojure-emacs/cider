@@ -1,0 +1,44 @@
+= Interacting with Test Result Reports
+:experimental:
+
+After running your tests, CIDER displays a test result report in the
+`*cider-test-report*` buffer. This buffer uses `cider-test-report-mode`,
+which makes it easy to review any failures that might have occurred
+and jump directly to the definition of failing tests.
+
+|===
+| Keyboard shortcut | Description
+
+| kbd:[g]
+| Run test at point.
+
+| kbd:[n]
+| Run tests for current namespace.
+
+| kbd:[s]
+| Run tests for current namespace with selector filter.
+
+| kbd:[l]
+| Run tests for all loaded namespaces.
+
+| kbd:[p]
+| Run tests for all project namespaces. This loads the additional namespaces.
+
+| kbd:[f]
+| Re-run test failures/errors.
+
+| kbd:[M-p]
+| Move point to previous test.
+
+| kbd:[M-n]
+| Move point to next test.
+
+| kbd:[t] or kbd:[M-.]
+| Jump to test definition.
+
+| kbd:[d]
+| Display diff of actual vs expected.
+
+| kbd:[e]
+| Display test error cause and stacktrace info.
+|===
