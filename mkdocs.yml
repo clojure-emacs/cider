@@ -3,7 +3,7 @@ repo_url: https://github.com/clojure-emacs/cider
 edit_uri: edit/master/doc/
 site_favicon: favicon.ico
 copyright: "Copyright &copy; 2016-2019 Bozhidar Batsov, Artur Malabarba and CIDER contributors"
-docs_dir: doc
+docs_dir: legacy-manual
 pages:
 - Home: index.md
 - Installation: installation.md
