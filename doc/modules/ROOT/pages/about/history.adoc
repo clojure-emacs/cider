@@ -1,1 +1,39 @@
 = History
+
+[quote]
+You don't know where you're going until you know where you've been.
+
+CIDER started its life as an effort to replace a hacked version of SLIME with
+a proper environment for Clojure development on Emacs. The work on it was
+fueled mostly by the advent of nREPL which was the first project that aimed to
+provide a common tool-agnostic foundation for Clojure development tools.
+
+The project was started in 2012 by Phil Hagelberg (of Leiningen fame),
+who hacked a prototype of an nREPL client in Emacs Lisp on a flight to
+San Francisco.  He got a bit stuck on the socket-based bencode
+functionality and dropped it after the flight, but not before pushing
+the code out and mentioning it on the http://groups.google.com/group/clojure/browse_thread/thread/2bd91de7dca55ca4[Clojure mailing list].footnote:[https://technomancy.us/163]
+
+Fortunately Tim King picked it back up, and it quickly became a respectable competitor to SLIME.
+The project evolved at rapid pace and eventually superseded SLIME in August 2012. Unfortunately in early 2013
+Tim ran out of time for `nrepl.el` and after a period of stagnation, eventually handed it over to Bozhidar, who has been the steward
+ever since. Bozhidar renamed `nrepl.el` to CIDER in version 0.3 to avoid the common case of confusion between
+the nREPL server and the nrepl package for Emacs.footnote:[https://github.com/clojure-emacs/cider/issues/375]
+
+Eventually CIDER became one of the most popular development environments in the Clojure community and it spawned many
+important projects like `cider-nrepl`, `cljs-tooling` and `orchard`, that were widely used by other development tools.
+Over the years a big ecosystem of packages grew around CIDER and nREPL. Today CIDER faces a lot of competition, but
+it's still evolving at a steady pace and it's still one of the more innovative Clojure development environments,
+that serves as inspiration for many others.
+
+== Notable Milestones
+
+* 14 Apr 2012 - Initial commit by Phil Hagelberg.
+* 24 Apr 2012 - Tim King picks up Phil's prototype.
+* 10 Jul 2012 - Tim releases version 0.1.0.
+* 21 Aug 2012 - Phil announces that `swank-clojure` is officially deprecated in favour of `nrepl.el`.
+* Summer 2013 - Bozhidar takes over the maintenance of `nrepl.el`.
+* 08 Aug 2013 - First release (0.1.8) under Bozhidar's stewardship.
+* 28 Oct 2013 - Bozhidar renames nrepl.el to CIDER and releases version 0.3.
+
+To be continued...
