@@ -111,7 +111,7 @@ That's extremely unlikely. Even if we eventually add support for the new socket 
 we'll continue supporting nREPL as well.
 
 NOTE: Recently nREPL was migrated out of `clojure-contrib` and its development
-has once again picked up. Check out nREPL's new home [here](https://github.com/nrepl/nrepl).
+has once again picked up. Check out nREPL's new home https://github.com/nrepl/nrepl[here].
 
 == Is CIDER's nREPL middleware Emacs specific?
 

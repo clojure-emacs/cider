@@ -117,7 +117,7 @@ kbd:[M-x el-get-install [RET] cider [RET]]
 Installing CIDER manually is discouraged unless you plan to work with CIDER's
 codebase. The manual installation is relatively involved as it requires manual
 installation of the dependencies. Check out the section
-xref:hacking_on_cider.adoc[Hacking on CIDER] for more details.
+xref:contributing/hacking.adoc[Hacking on CIDER] for more details.
 
 == CIDER's nREPL Middleware
 

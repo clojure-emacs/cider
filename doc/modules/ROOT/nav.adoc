@@ -6,9 +6,9 @@
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]
 ** xref:usage/cider_mode.adoc[cider-mode]
-** xref:usage/managing_connections[Managing Connections]
-** xref:usage/code_completion[Code Completion]
-** xref:usage/pretty_printing[Pretty Printing]
+** xref:usage/managing_connections.adoc[Managing Connections]
+** xref:usage/code_completion.adoc[Code Completion]
+** xref:usage/pretty_printing.adoc[Pretty Printing]
 ** xref:usage/navigating_stacktraces.adoc[Navigating Stacktraces]
 ** xref:usage/misc_features.adoc[Misc Features]
 * Testing
