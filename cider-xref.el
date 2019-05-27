@@ -94,13 +94,13 @@ the symbol found by the xref search as argument."
       (if-let* ((buffer (and (not (cider--tooling-file-p file))
                              (cider-find-file file))))
           (cider-jump-to buffer (if line
-                                    (cons cider nil)
+                                    (cons line nil)
                                   name)
                          nil)
         (user-error
          (substitute-command-keys
           "Can't find the source because it wasn't defined with `cider-eval-buffer'")))
-    (error "No source location for %s" namel)))
+    (error "No source location for %s" name)))
 
 (declare-function cider-mode "cider-mode")
 
