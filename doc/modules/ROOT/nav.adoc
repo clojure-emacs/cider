@@ -38,8 +38,8 @@
 * xref:additional_packages.adoc[Additional Packages]
 * xref:additional_resources.adoc[Additional Resources]
 * xref:contributing.adoc[Contributing]
-** xref:contributing/hacking.adoc[Hacking on CIDER]
 ** xref:contributing/docs.adoc[Documentation]
+** xref:contributing/hacking.adoc[Hacking on CIDER]
 ** xref:contributing/funding.adoc[Funding]
 * About
 ** xref:about/history.adoc[History]
