@@ -19,7 +19,7 @@ You can build the documentation locally from the link:https://github.com/clojure
 ----
 $ cd cider-site
 $ npm install
-$ ./antora site.yml
+$ antora site.yml
 ----
 
 TIP: If `npm install` fails, see link:https://docs.antora.org/antora/2.0/install/troubleshoot-nodegit/[Antora's troubleshooting documentation].
