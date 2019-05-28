@@ -10,6 +10,7 @@
 * [#2611](https://github.com/clojure-emacs/cider/issues/2611): Add `eval`-based var info lookup fallback. It's used when cider-nrepl is not present.
 * [#1840](https://github.com/clojure-emacs/cider/issues/1840): Add a command to find runtime function references (`cider-xref-fn-refs`).
 * Add a command to find runtime function dependencies (`cider-xref-fn-deps`).
+* Add a menu to the inspector.
 
 ### Changes
 

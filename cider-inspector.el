@@ -28,6 +28,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'easymenu)
 (require 'seq)
 (require 'cider-eval)
 
@@ -76,6 +77,22 @@ The page size can be also changed interactively within the inspector."
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
     ;; Emacs translates S-TAB to BACKTAB on X.
     (define-key map [backtab] #'cider-inspector-previous-inspectable-object)
+    (easy-menu-define cider-inspector-mode-menu map
+      "Menu for CIDER's inspector."
+      `("CIDER Inspector"
+        ["Inspect" cider-inspector-operate-on-point]
+        ["Pop" cider-inspector-pop]
+        ["Refresh" cider-inspector-refresh]
+        "--"
+        ["Next Inspectable Object" cider-inspector-next-inspectable-object]
+        ["Previous Inspectable Object" cider-inspector-previous-inspectable-object]
+        "--"
+        ["Next Page" cider-inspector-next-page]
+        ["Previous Page" cider-inspector-prev-page]
+        ["Set Page Size" cider-inspector-set-page-size]
+        "--"
+        ["Quit" cider-popup-buffer-quit-function]
+        ))
     map))
 
 (define-derived-mode cider-inspector-mode special-mode "Inspector"
