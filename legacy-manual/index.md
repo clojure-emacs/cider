@@ -2,6 +2,10 @@
   <img src="https://raw.github.com/clojure-emacs/cider/master/logo/cider-logo-w640.png" alt="CIDER Logo"/>
 </p>
 
+!!! Warning
+
+    This manual is now deprecated. Please visit the [new manual](https://docs.cider.mx).
+
 CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
 that **R**ocks!
 
