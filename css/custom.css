@@ -1,0 +1,27 @@
+body {
+  padding-top: 56px;
+}
+
+section {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.lnr {
+  display: inline-block;
+  fill: currentColor;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.05em;
+  stroke-width: 1;
+}
+
+.services-icon {
+  margin-bottom: 20px;
+  font-size: 30px;
+}
+
+.quote-icon {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
