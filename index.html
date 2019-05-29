@@ -23,9 +23,9 @@
       <button type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"><span class="navbar-toggler-icon"></span></button>
       <div id="navbarSupportedContent" class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a href="#" class="nav-link">Overview</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Features</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Testimonials</a></li>
+          <li class="nav-item"><a href="#overview" class="nav-link">Overview</a></li>
+          <li class="nav-item"><a href="#features" class="nav-link">Features</a></li>
+          <li class="nav-item"><a href="#testimonials" class="nav-link">Testimonials</a></li>
         </ul>
         <div class="navbar-text ml-lg-3">
           <a href="https://docs.cider.mx" class="btn btn-primary text-white shadow">Get Started</a>
@@ -46,18 +46,20 @@
       </div>
     </section>
     <!-- Overview -->
-    <section>
+    <section id="overview">
       <div class="container">
         <h2>Overview</h2>
-        <p> CIDER extends Emacs with support for interactive programming in Clojure. The features are centered around cider-mode, an Emacs minor-mode that complements clojure-mode. While clojure-mode supports editing Clojure source files, cider-mode adds support for interacting with a running Clojure process for compilation, debugging, definition and documentation lookup, running tests and so on.</p>
+        <p> CIDER extends Emacs with support for interactive programming in Clojure. The features are centered around <code>cider-mode</code>, an Emacs minor-mode that complements <code>clojure-mode</code>. While <code>clojure-mode</code> supports editing Clojure source files, <code>cider-mode</code> adds support for interacting with a running Clojure process for compilation, debugging, definition and documentation lookup, running tests and so on.</p>
+        <p>CIDER aims to provide an interactive development experience similar to the one you’d get when programming in Emacs Lisp, Common Lisp (with SLIME or Sly), Scheme (with Geiser) and Smalltalk.</p>
+        <p>Programmers are expected to program in a very dynamic and incremental manner, constantly re-evaluating existing Clojure definitions and adding new ones to their running applications. You never stop/start a Clojure application while using CIDER - you’re constantly interacting with it and changing it.</>
       </div>
     </section>
     <!-- Installation -->
     <section class="bg-light">
       <div class="container">
         <h2>Installation</h2>
-        <p>The canonical way to install CIDER via Emacs's build-in package manager. Assuming you've setup the required repository (e.g. MELPA), all you need to do is <kbd>M-x package-install RET cider RET</kbd></p>
-        <p>Refer to the user manual for more details on the installation process.</p>
+        <p>The canonical way to install CIDER via Emacs's build-in package manager (a.k.a. <code>package.el</code>). Assuming you've setup the required repository (e.g. MELPA), all you need to do is <kbd>M-x package-install RET cider RET</kbd></p>
+        <p><a href="https://docs.cider.mx/cider/basics/installation.html" class="btn btn-primary shadow mr-2">Learn More</a></p>
       </div>
     </section>
     <!-- Quick Start -->
@@ -65,11 +67,11 @@
       <div class="container">
         <h2>Quick Start</h2>
         <p>The simplest way to start CIDER is via <kbd>C-c C-x j j</kbd>. This command will spin an nREPL server and connect CIDER to it.</p>
-        <p>Refer to the user manual for more details on starting and using CIDER.</p>
+        <p><a href="https://docs.cider.mx/cider/basics/up_and_running.html" class="btn btn-primary shadow mr-2">Learn More</a></p>
       </div>
     </section>
     <!-- Features-->
-    <section class="bg-light">
+    <section id="features" class="bg-light">
       <div class="container">
         <h2>Features</h2>
         <p class="text-muted mb-5">CIDER packs a lot of features. Here we'll highlight a few of them.</p>
@@ -119,7 +121,7 @@
         </div>
       </div>
     </section>
-    <section>
+    <section id="testimonials">
       <div class="container">
         <blockquote class="blockquote text-center mb-0">
           <svg class="lnr text-muted quote-icon pull-left">
