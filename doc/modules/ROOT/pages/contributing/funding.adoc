@@ -17,10 +17,8 @@ to become a CIDER sponsor.
 You can support the development of CIDER, https://github.com/clojure-emacs/clojure-mode[clojure-mode] and https://github.com/clojure-emacs/inf-clojure[inf-clojure] via
 https://opencollective.com/cider[Open Collective],
 https://salt.bountysource.com/teams/cider[Salt],
-https://www.patreon.com/bbatsov[Patreon],
-https://liberapay.com/bbatsov/donate[Liberapay] and PayPal.
-
-image::https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif[Paypal,link=https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ]
+https://www.patreon.com/bbatsov[Patreon] and
+https://www.paypal.me/bbatsov[PayPal].
 
 === Open Collective
 
