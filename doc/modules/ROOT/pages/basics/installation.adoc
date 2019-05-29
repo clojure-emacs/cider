@@ -31,7 +31,7 @@ and http://melpa.org[MELPA].
 
 You can install CIDER with the following command:
 
-kbd:[M-x package-install [RET] cider [RET]]
+kbd:[M-x package-install <RET> cider <RET>]
 
 or by adding this bit of Emacs Lisp code to your Emacs initialization file
 (`.emacs` or `init.el`):
@@ -44,7 +44,7 @@ or by adding this bit of Emacs Lisp code to your Emacs initialization file
 
 If the installation doesn't work try refreshing the package list:
 
-kbd:[M-x package-refresh-contents [RET]]
+kbd:[M-x package-refresh-contents <RET>]
 
 It's important to note that MELPA packages are built automatically
 from the `master` branch, and that means you'll be right on the
@@ -110,7 +110,7 @@ the https://github.com/dimitri/el-get[el-get] package manager.
 Provided you've already installed `el-get` you can install CIDER with the
 following command:
 
-kbd:[M-x el-get-install [RET] cider [RET]]
+kbd:[M-x el-get-install <RET> cider <RET>]
 
 == Manual Installation
 

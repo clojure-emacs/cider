@@ -46,7 +46,7 @@ and [MELPA](http://melpa.org).
 
 You can install CIDER with the following command:
 
-<kbd>M-x</kbd> `package-install` <kbd>[RET]</kbd> `cider` <kbd>[RET]</kbd>
+<kbd>M-x</kbd> `package-install` <kbd>RET</kbd> `cider` <kbd>RET</kbd>
 
 ### Launch an nREPL server and client from Emacs
 
