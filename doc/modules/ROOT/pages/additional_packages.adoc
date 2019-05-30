@@ -4,7 +4,12 @@ There are many additional Emacs packages that can enhance your Clojure programmi
 experience. The majority of the minor modes listed here should be enabled for both
 `cider-repl-mode` and `clojure-mode` for optimal effects.
 
-== clj-refactor
+== CIDER Extensions
+
+IMPORTANT: Make sure that the version of any extension you've installed is compatible with
+your CIDER version.
+
+=== clj-refactor
 
 https://github.com/clojure-emacs/clj-refactor.el[clj-refactor] builds on top
 of clojure-mode and CIDER and adds a ton of extra functionality (e.g. the
@@ -17,10 +22,7 @@ https://github.com/clojure-emacs/clj-refactor.el/wiki[here].
 We hope to incorporate some of its features into clojure-mode and CIDER themselves
 down the road.
 
-*Make sure that the version of `clj-refactor` you've installed is compatible with
-your CIDER version.*
-
-== emidje
+=== emidje
 
 https://github.com/nubank/emidje[Emidje] is a test runner, report
 viewer and formatting tool for
@@ -31,19 +33,19 @@ fashion as `cider-test.el` does for clojure.test tests. In fact, most of
 Emidje functionalities were strongly inspired on `cider-test.el`
 features.
 
-== helm-cider
+=== helm-cider
 
 https://github.com/clojure-emacs/helm-cider[helm-cider] provides Helm
 interface for certain CIDER commands (e.g. `cider-apropos`).
 
-== cider-hydra
+=== cider-hydra
 
 https://github.com/clojure-emacs/cider-hydra[cider-hydra] provides a nice way
 to navigate groups of related CIDER commands.
 
 You can think of it as a fancier https://github.com/justbur/emacs-which-key[which-key].
 
-== squiggly-clojure
+=== squiggly-clojure
 
 https://github.com/clojure-emacs/squiggly-clojure[squiggly-clojure] is a
 Flycheck checker for Clojure, using tools like
@@ -51,25 +53,14 @@ https://github.com/jonase/eastwood[eastwood],
 http://typedclojure.org/[core.typed] and
 https://github.com/jonase/kibit[kibit].
 
-== sayid
+=== sayid
 
 http://bpiel.github.io/sayid/[sayid] is a powerful alternative of CIDER's
 built-in basic tracing functionality.
 
-== Inf-clojure
+== Generic Emacs Extensions
 
-This package provides basic interaction with a Clojure subprocess (REPL). It's
-based on ideas from the popular inferior-lisp package.
-
-https://github.com/clojure-emacs/inf-clojure[inf-clojure] has two components -
-a nice Clojure REPL with auto-completion and a minor mode
-(`inf-clojure-minor-mode`), which extends clojure-mode with commands to evaluate
-forms directly in the REPL.
-
-It's basically a simple alternative of CIDER, which provides a subset of CIDER's
-functionality.
-
-== subword-mode
+=== subword-mode
 
 Enabling `CamelCase` support for editing commands(like
 `forward-word`, `backward-word`, etc) in the REPL is quite useful since
@@ -81,7 +72,7 @@ Emacs minor mode `subword-mode` provides such functionality:
 (add-hook 'cider-repl-mode-hook #'subword-mode)
 ----
 
-== Paredit
+=== Paredit
 
 The use of http://mumble.net/~campbell/emacs/paredit.html[paredit]
 when editing Clojure (or any other Lisp) code is highly
@@ -94,7 +85,7 @@ enable `paredit` in the REPL buffer as well:
 (add-hook 'cider-repl-mode-hook #'paredit-mode)
 ----
 
-== Smartparens
+=== Smartparens
 
 https://github.com/Fuco1/smartparens[smartparens] is an excellent alternative
   to paredit. Many Clojure hackers have adopted it recently and you might want
@@ -106,7 +97,7 @@ https://github.com/Fuco1/smartparens[smartparens] is an excellent alternative
 (add-hook 'cider-repl-mode-hook #'smartparens-strict-mode)
 ----
 
-== rainbow-delimiters
+=== rainbow-delimiters
 
 https://github.com/Fanael/rainbow-delimiters[RainbowDelimiters] is a minor
 mode which highlights parentheses, brackets, and braces according to their
@@ -120,7 +111,7 @@ RainbowDelimiters you can enable it in the REPL like this:
 (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
 ----
 
-== eval-sexp-fu
+=== eval-sexp-fu
 
 https://github.com/hchbaw/eval-sexp-fu.el[eval-sexp-fu] provides some visual
 feedback when evaluating expressions. https://github.com/clojure-emacs/cider-eval-sexp-fu[cider-eval-sexp-fu] provides
@@ -130,3 +121,18 @@ CIDER integration for `eval-sexp-fu`.
 ----
 (require 'cider-eval-sexp-fu)
 ----
+
+== Alternatives
+
+=== Inf-clojure
+
+This package provides basic interaction with a Clojure subprocess (REPL). It's
+based on ideas from the popular inferior-lisp package.
+
+https://github.com/clojure-emacs/inf-clojure[inf-clojure] has two components -
+a nice Clojure REPL with auto-completion and a minor mode
+(`inf-clojure-minor-mode`), which extends clojure-mode with commands to evaluate
+forms directly in the REPL.
+
+It's basically a simple alternative of CIDER, which provides a subset of CIDER's
+functionality.
