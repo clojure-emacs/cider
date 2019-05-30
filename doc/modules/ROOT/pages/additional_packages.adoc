@@ -4,10 +4,25 @@ There are many additional Emacs packages that can enhance your Clojure programmi
 experience. The majority of the minor modes listed here should be enabled for both
 `cider-repl-mode` and `clojure-mode` for optimal effects.
 
+The listed here belong to three categories:
+
+* CIDER extensions
+* Generic Emacs packages useful for Clojure programming
+* CIDER alternatives
+
 == CIDER Extensions
 
 IMPORTANT: Make sure that the version of any extension you've installed is compatible with
 your CIDER version.
+
+CIDER extensions typically are Emacs packages that built on top of CIDER's Emacs Lisp API.
+Some of them ship with extra nREPL middleware as well (e.g. `clj-refactor`). Typically
+packages that rely on middleware would hook into CIDER's middleware injection
+functionality and inject their automatically as well.
+
+NOTE: Keep in mind that currently there are no "official" CIDER extensions and the packages
+on the list are not maintained by CIDER's Core Team. Their quality and level
+of maintenance may vary significantly.
 
 === clj-refactor
 
@@ -59,6 +74,9 @@ http://clojure-emacs.github.io/sayid/[sayid] is a powerful alternative of CIDER'
 built-in basic tracing functionality.
 
 == Generic Emacs Extensions
+
+Most packages here are standard Emacs minor modes that work with most major modes,
+but are especially handy for Lisp-like languages like Clojure.
 
 === subword-mode
 
@@ -123,6 +141,13 @@ CIDER integration for `eval-sexp-fu`.
 ----
 
 == Alternatives
+
+IMPORTANT: It's generally a bad idea to mix Clojure programming environments, as all of those
+tend to modify `clojure-mode`'s keymap while active. Run only one environment at a time unless
+you really know what you're doing.
+
+This section enumerates other Emacs packages that provide a Clojure programming environment
+for Emacs.
 
 === Inf-clojure
 
