@@ -28,3 +28,9 @@ dedicated to CIDER 0.12.
 
 * http://blog.cognitect.com/cognicast/080[Cognicast's episode on CIDER]
 * https://soundcloud.com/defn-771544745/36-a-long-glass-of-cider-with-bozhidar-batsov-aka-bbatsov[defn's episode on CIDER]
+
+== Tutorials
+
+IMPORTANT: Keep in mind that third-party tutorials might be outdated by time you get to read them.
+
+* https://practicalli.github.io/spacemacs/[Clojure Development with Spacemacs]
