@@ -151,6 +151,13 @@ the logo in various formats
 The logo is licensed under a
 [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_GB).
 
+## Homepage
+
+CIDER's homepage <https://cider.mx> is in the `gh-pages` branch of this repository and is deployed
+automatically when changes are made to it.
+
+It's just a single `index.html` file and a bit of Bootstrap 4. Contributions to it are very welcome!
+
 ## Funding
 
 While CIDER is free software and will always be, the project would benefit immensely from some funding.
