@@ -55,7 +55,7 @@ https://github.com/jonase/kibit[kibit].
 
 === sayid
 
-http://bpiel.github.io/sayid/[sayid] is a powerful alternative of CIDER's
+http://clojure-emacs.github.io/sayid/[sayid] is a powerful alternative of CIDER's
 built-in basic tracing functionality.
 
 == Generic Emacs Extensions
