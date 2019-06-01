@@ -11,6 +11,7 @@
 * [#1840](https://github.com/clojure-emacs/cider/issues/1840): Add a command to find runtime function references (`cider-xref-fn-refs`).
 * Add a command to find runtime function dependencies (`cider-xref-fn-deps`).
 * Add a menu to the inspector.
+* Add completion of shadow-cljs build names in the minibuffer when connecting or jacking in.
 
 ### Changes
 
