@@ -130,7 +130,7 @@ version from the CIDER package or library.")
   :package-version '(cider . "0.14.0"))
 
 (defcustom cider-boot-parameters
-  "cider.tasks/nrepl-server -b localhost wait"
+  "repl -s -b localhost wait"
   "Params passed to boot to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
