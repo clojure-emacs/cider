@@ -1,28 +1,54 @@
 = Documentation
 
-Good documentation is just as important as good code.
+Good documentation is just as important as good code.footnote:[If not even more important.]
+CIDER is a pretty complex project with numerous features and the user manual is one
+of the primary ways to discover those. Please, consider improving and extending it.
 
-Consider improving and extending this manual.
+== Overview
 
-== Working on the Manual
-
-The manual is generated from the asciidoc files in the link:https://github.com/clojure-emacs/cider/tree/master/doc[doc] folder of CIDER's GitHub repo and is published to https://cider.mx.
+The manual is generated from the asciidoc files in the link:https://github.com/clojure-emacs/cider/tree/master/doc[doc] folder of CIDER's GitHub repo and is published to https://docs.cider.mx.
 link:https://antora.org[Antora] is used to convert the manual into HTML.
 The filesystem layout is described at https://docs.antora.org/antora/2.0/component-structure/
 
+== Installing Antora
+
+NOTE: The instructions here assume you already have (the right version of) node.js installed.
+
+Installing the Antora is super simple:
+
+[source]
+----
+$ npm i -g @antora/cli@2.0 @antora/site-generator-default@2.0
+----
+
+Check out https://docs.antora.org/antora/2.0/install/install-antora/[the detailed installation instructions]
+if you run into any problems.
+
+== Editing the Docs
+
+If you want to make changes to the manual's page structure you'll have to edit
+link:https://github.com/clojure-emacs/cider/blob/master/doc/modules/ROOT/nav.adoc[nav.adoc].
+
+== Building the Site
+
 To make changes to the manual you simply have to change the files under `doc`.
-The manual will be regenerated manually periodically.
 
 You can build the documentation locally from the link:https://github.com/clojure-emacs/cider-site[cider-site] repo.
 
 [source,shell]
 ----
 $ cd cider-site
-$ npm install
 $ antora site.yml
 ----
 
-TIP: If `npm install` fails, see link:https://docs.antora.org/antora/2.0/install/troubleshoot-nodegit/[Antora's troubleshooting documentation].
+== Deploying the Site
 
-If you want to make changes to the manual's page structure you'll have to edit
-link:https://github.com/clojure-emacs/cider/blob/master/doc/modules/ROOT/nav.adoc[nav.adoc].
+NOTE: The manual will be regenerated manually periodically by CIDER's Core Team.
+
+The deployment process is simply pushing the generated HTML to GitHub. Simple as that.
+
+IMPORTANT: Don't forget to update the manual's version metadata when cutting CIDER releases.
+It lives in `docs/antora.yml`.
+
+Down the road we plan to automate the process and deploy automatically changes to the manual.
+Ideally this should be done by our CI.
