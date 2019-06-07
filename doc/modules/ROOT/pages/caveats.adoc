@@ -53,7 +53,7 @@ In order for source lookup commands to work with `.jar` files you'll need to
 install either http://www.7-zip.org/[7zip] or `pkunzip` and add its
 installation folder to Emacs's `exec-path`. Here's an example:
 
-[source,el]
+[source,lisp]
 ----
 (add-to-list 'exec-path "C:/Program Files/7-Zip")
 ----
@@ -63,7 +63,7 @@ installation folder to Emacs's `exec-path`. Here's an example:
 The powershell inferior shell mode truncates CIDER's REPL output when
 loaded. As a workaround remove
 
-[source,el]
+[source,lisp]
 ----
 (require 'powershell)
 ----

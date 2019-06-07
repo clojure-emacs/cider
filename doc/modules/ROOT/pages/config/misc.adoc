@@ -8,7 +8,7 @@ itself, in an overlay right after the evaluated code.  If you want this overlay
 to be font-locked (syntax-highlighted) like Clojure code, set the following
 variable.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-overlays-use-font-lock t)
 ----
@@ -16,7 +16,7 @@ variable.
 You can disable overlays entirely (and display results in the echo-area at the
 bottom) with the `cider-use-overlays` variable.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-use-overlays nil)
 ----
@@ -31,7 +31,7 @@ are, however, ways to improve upon the standard completion if you wish to.
 
 `icomplete` is bundled with Emacs and enhances the default minibuffer completion:
 
-[source,el]
+[source,lisp]
 ----
 (require 'icomplete)
 ----

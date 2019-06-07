@@ -7,7 +7,7 @@ Normally, when you first establish a REPL connection, the REPL buffer is
 auto-displayed in a separate window. You can suppress this behaviour
 like this:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-pop-to-buffer-on-connect nil)
 ----
@@ -15,7 +15,7 @@ like this:
 If you want the REPL buffer to be auto-displayed, but don't want it to be
 focused, use this:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-pop-to-buffer-on-connect 'display-only)
 ----
@@ -26,7 +26,7 @@ By default kbd:[C-c C-z] will display the REPL buffer in a
 different window.  You can make kbd:[C-c C-z] switch to the CIDER
 REPL buffer in the current window:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-display-in-current-window t)
 ----
@@ -65,7 +65,7 @@ use the default value or you can opt to show only two segments of the
 namespace and still be able to know which is the REPL's current
 namespace. Here is an example function that will do exactly that:
 
-[source,el]
+[source,lisp]
 ----
 (defun cider-repl-prompt-show-two (namespace)
   "Return a prompt string with the last 2 segments of NAMESPACE."
@@ -83,7 +83,7 @@ to. For instance if you'd like kbd:[TAB] to only indent (maybe
 because you're used to completing with kbd:[M-TAB]) use the
 following:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-tab-command #'indent-for-tab-command)
 ----
@@ -96,7 +96,7 @@ the window, displaying the maximum possible amount of output above it. This is
 no longer the default behaviour -- you can now replicate it by setting the
 built-in option `scroll-conservatively`, for example:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'cider-repl-mode-hook '(lambda () (setq scroll-conservatively 101)))
 ----
@@ -105,7 +105,7 @@ built-in option `scroll-conservatively`, for example:
 
 You can change the string used to prefix REPL results:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-result-prefix ";; => ")
 ----
@@ -125,7 +125,7 @@ The REPL buffer name has the format `*cider-repl project-name*`.  You
 can change the separator from a space character to something else by
 setting `nrepl-buffer-name-separator`.
 
-[source,el]
+[source,lisp]
 ----
 (setq nrepl-buffer-name-separator "-")
 ----
@@ -133,7 +133,7 @@ setting `nrepl-buffer-name-separator`.
 The REPL buffer name can also display the port on which the nREPL server is running.
 The buffer name will look like `*cider-repl project-name:port*`.
 
-[source,el]
+[source,lisp]
 ----
 (setq nrepl-buffer-name-show-port t)
 ----
@@ -147,7 +147,7 @@ kbd:[Return]) and results were font-locked with
 `cider-repl-result-face`. If you want to restore the old behaviour
 use:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-use-clojure-font-lock nil)
 ----
@@ -169,7 +169,7 @@ You can temporarily disable this behaviour and revert to the default behaviour
 
 If you want to disable using `cider-print-fn` entirely, use:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-use-pretty-printing nil)
 ----
@@ -187,7 +187,7 @@ Starting with CIDER 0.17 (Andalucía) expressions that evaluate to
 images will be rendered as images in the REPL. You can disable this
 behavior if you don't like it.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-use-content-types nil)
 ----
@@ -213,7 +213,7 @@ you're editing, you can do so using kbd:[C-j]. If you are
 entering a lot of longer forms that span multiple lines, it may be
 more convenient to change the keybindings:
 
-[source,el]
+[source,lisp]
 ----
 (define-key cider-repl-mode-map (kbd "RET") #'cider-repl-newline-and-indent)
 (define-key cider-repl-mode-map (kbd "C-<return>") #'cider-repl-return)
@@ -226,21 +226,21 @@ and kbd:[C-Return] send the form off for evaluation.
 
 * To make the REPL history wrap around when CIDER reaches the end:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-wrap-history t)
 ----
 
 * To adjust the maximum number of items kept in the REPL history:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-history-size 1000) ; the default is 500
 ----
 
 * To store the REPL history in a file:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-history-file "path/to/file")
 ----
@@ -257,7 +257,7 @@ in its source file). If you want to change this behaviour (to avoid
 calling `cider-repl-set-ns` and then `(require 'my-ns)` manually), you
 can set:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-require-ns-on-set t)
 ----

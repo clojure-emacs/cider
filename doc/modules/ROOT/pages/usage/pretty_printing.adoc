@@ -27,7 +27,7 @@ Alternatively, `cider-print-fn` can be set to the namespace-qualified name of a
 Clojure var whose function takes three arguments: the object to print, the
 `java.io.PrintWriter` to print on, and a (possibly nil) map of options.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-print-fn "user/my-pprint")
 ----
@@ -65,7 +65,7 @@ depth of printed objects -- either using `clojure.core/*print-length*` and
 
 You can pass an options map to the print function by setting `cider-print-options`. Here's an example:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-print-options '(dict "length" 50 "right-margin" 70))
 ----

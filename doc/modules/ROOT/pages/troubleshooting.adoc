@@ -195,7 +195,7 @@ the case. You've got two options to solve this:
 snapshots or most recent stable releases)
 * Disable the `clj-refactor` middleware injection:
 
-[source,el]
+[source,lisp]
 ----
 (setq cljr-inject-dependencies-at-jack-in nil)
 ----

@@ -24,7 +24,7 @@ It will in both source and REPL buffers.
 when the cursor is over `inc` its eldoc would be displayed. You can turn off this
 behaviour by:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-eldoc-display-for-symbol-at-point nil)
 ----
@@ -51,7 +51,7 @@ its behaviour.
 inputs of the query at point), if the variable `cider-eldoc-display-context-dependent-info`
 is non-nil:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-eldoc-display-context-dependent-info t)
 ----

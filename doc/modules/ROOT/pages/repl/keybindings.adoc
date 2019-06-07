@@ -130,7 +130,7 @@ quickly run (like quitting, displaying some info, clearing the REPL, etc). The
 character used to trigger the shortcuts is configurable via
 `cider-repl-shortcut-dispatch-char`. Here's how you can change it to `;`:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-repl-shortcut-dispatch-char ?\;)
 ----

@@ -29,14 +29,14 @@ kbd:[M-x] `package-install` kbd:[RET] `company` kbd:[RET]
 
 After installation, you can turn on `company-mode` globally:
 
-[source,el]
+[source,lisp]
 ----
 (global-company-mode)
 ----
 
 or through mode-specific hooks:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'cider-repl-mode-hook #'company-mode)
 (add-hook 'cider-mode-hook #'company-mode)
@@ -47,7 +47,7 @@ from `cider-complete-at-point` and requires no additional setup or plugins.
 
 If you'd prefer to trigger completions manually you can add this to your config:
 
-[source,el]
+[source,lisp]
 ----
 (setq company-idle-delay nil) ; never start completions automatically
 (global-set-key (kbd "M-TAB") #'company-complete) ; use M-TAB, a.k.a. C-M-i, as manual trigger
@@ -56,7 +56,7 @@ If you'd prefer to trigger completions manually you can add this to your config:
 To make kbd:[TAB] complete, without losing the ability to manually indent,
 you can add this to your config:
 
-[source,el]
+[source,lisp]
 ----
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 ----
@@ -71,7 +71,7 @@ beginning of their names.  Sometimes, you don't know the exact prefix
 for the item you want to type. In this case, you can get
 CIDER-specific "fuzzy completion" by adding:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'cider-repl-mode-hook #'cider-company-enable-fuzzy-completion)
 (add-hook 'cider-mode-hook #'cider-company-enable-fuzzy-completion)

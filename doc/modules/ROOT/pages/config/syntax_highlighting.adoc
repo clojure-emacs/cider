@@ -7,7 +7,7 @@ this is done on symbols from the `clojure.core` namespace, as well as macros
 from any namespace. If you'd like CIDER to also colorize usages of functions
 and variables from any namespace, do:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-font-lock-dynamically '(macro core function var))
 ----
@@ -29,7 +29,7 @@ image::reader_conditionals.png[Reader Conditionals]
 
 You can disable this behavior by adjusting `cider-font-lock-reader-conditionals`:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-font-lock-reader-conditionals nil)
 ----

@@ -30,7 +30,7 @@ make autoloads   # generates cider-autoloads.el
 
 Then:
 
-[source,el]
+[source,lisp]
 ----
 ;; load CIDER from its source code
 (add-to-list 'load-path "~/projects/cider")

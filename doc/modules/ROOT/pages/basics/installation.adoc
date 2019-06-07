@@ -36,7 +36,7 @@ kbd:[M-x package-install <RET> cider <RET>]
 or by adding this bit of Emacs Lisp code to your Emacs initialization file
 (`.emacs` or `init.el`):
 
-[source,el]
+[source,lisp]
 ----
 (unless (package-installed-p 'cider)
   (package-install 'cider))
@@ -57,7 +57,7 @@ and serious regressions there are usually fixed quickly.
 If you have concerns about living on the leading edge of CIDER
 deveopment, you can always pin CIDER to use MELPA Stable like this:
 
-[source,el]
+[source,lisp]
 ----
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 ----
@@ -80,7 +80,7 @@ If you wanted to install the version of CIDER which is what is to be found in
 the `master` branch, declare the following in your Emacs initialization file
 (`.emacs` or `init.el`):
 
-[source,el]
+[source,lisp]
 ----
 (use-package cider
   :ensure t)
@@ -89,7 +89,7 @@ the `master` branch, declare the following in your Emacs initialization file
 However, if you wanted to be a bit more conservative and only use the stable
 releases of CIDER, you'd declare the following:
 
-[source,el]
+[source,lisp]
 ----
 (use-package cider
   :ensure t

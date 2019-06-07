@@ -104,7 +104,7 @@ CIDER about them and it will use the information to do completing
 reads for the host and port prompts when you invoke
 `cider-connect`. You can identify each host with an optional label.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-known-endpoints
   '(("host-a" "10.10.10.1" "7888")

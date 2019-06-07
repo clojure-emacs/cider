@@ -94,7 +94,7 @@ forms for CIDER to recognize as individual test definitions.
 If you want to view the test report regardless of whether the tests have
 passed or failed:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-test-show-report-on-success t)
 ----
@@ -105,7 +105,7 @@ CIDER provides a minor-mode that automatically runs all tests for a namespace
 whenever you load a file (with kbd:[C-c C-k]). You can toggle it
 manually with kbd:[M-x] `cider-auto-test-mode`, or you can use:
 
-[source,el]
+[source,lisp]
 ----
 (cider-auto-test-mode 1)
 ----

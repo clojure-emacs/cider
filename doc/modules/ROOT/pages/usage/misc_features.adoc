@@ -22,7 +22,7 @@ You can also enable other convenient modes in the minibuffer. For
 instance, you might want to have both `eldoc-mode` and `paredit-mode`
 available to you:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
 (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
@@ -76,7 +76,7 @@ http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear[`cl
 You can define Clojure functions to be called before reloading, and after a
 successful reload, when using `cider-ns-refresh`:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-ns-refresh-before-fn "user/stop-system!"
       cider-ns-refresh-after-fn "user/start-system!")
@@ -100,7 +100,7 @@ after you call `cider-ns-refresh` by setting the
 will also prevent any related messages from also being displayed in
 the echo area.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-ns-refresh-show-log-buffer t)
 ----

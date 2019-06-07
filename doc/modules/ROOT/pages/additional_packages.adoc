@@ -85,7 +85,7 @@ Enabling `CamelCase` support for editing commands(like
 we often have to deal with Java class and method names. The built-in
 Emacs minor mode `subword-mode` provides such functionality:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'cider-repl-mode-hook #'subword-mode)
 ----
@@ -98,7 +98,7 @@ recommended.  You're probably using it already in your `clojure-mode`
 buffers (if you're not you probably should). You might also want to
 enable `paredit` in the REPL buffer as well:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'cider-repl-mode-hook #'paredit-mode)
 ----
@@ -110,7 +110,7 @@ https://github.com/Fuco1/smartparens[smartparens] is an excellent alternative
   to give it a try as well. To enable `smartparens` in the REPL buffer use the
   following code:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'cider-repl-mode-hook #'smartparens-strict-mode)
 ----
@@ -124,7 +124,7 @@ easy to spot matching delimiters, orient yourself in the code, and tell which
 statements are at a given depth. Assuming you've already installed
 RainbowDelimiters you can enable it in the REPL like this:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
 ----
@@ -135,7 +135,7 @@ https://github.com/hchbaw/eval-sexp-fu.el[eval-sexp-fu] provides some visual
 feedback when evaluating expressions. https://github.com/clojure-emacs/cider-eval-sexp-fu[cider-eval-sexp-fu] provides
 CIDER integration for `eval-sexp-fu`.
 
-[source,el]
+[source,lisp]
 ----
 (require 'cider-eval-sexp-fu)
 ----

@@ -13,7 +13,7 @@ it, so you can be productive.
 
 `cider-mode` is normally enabled automatically when you start CIDER, but you can also enable it explicitly for Clojure(Script) buffers like this:
 
-[source,el]
+[source,lisp]
 ----
 (add-hook 'clojure-mode-hook #'cider-mode)
 ----

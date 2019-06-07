@@ -22,7 +22,7 @@ after it establishes the first CIDER connection. It will also add a
 `clojure-mode` hook to enable `cider-mode` on newly-created `clojure-mode`
 buffers. You can override this behavior, however:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-auto-mode nil)
 ----
@@ -36,7 +36,7 @@ default symbol will be the one at point. If you set
 first, and only prompt if that fails (this was the behavior in older
 CIDER releases).
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-prompt-for-symbol nil)
 ----
@@ -46,7 +46,7 @@ CIDER releases).
 If you want to see all communications between CIDER and the nREPL
 server:
 
-[source,el]
+[source,lisp]
 ----
 (setq nrepl-log-messages t)
 ----
@@ -65,7 +65,7 @@ buffers are cluttering up your development environment, you can
 suppress them from appearing in some buffer switching commands like
 `switch-to-buffer`(kbd:[C-x b]):
 
-[source,el]
+[source,lisp]
 ----
 (setq nrepl-hide-special-buffers t)
 ----
@@ -78,7 +78,7 @@ hidden buffers will always be visible in `list-buffers` (kbd:[C-x C-b]).
 
 To prefer local resources to remote resources (tramp) when both are available:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-prefer-local-resources t)
 ----
@@ -91,14 +91,14 @@ behaviour by adjusting `cider-save-file-on-load`.
 
 Don't prompt and don't save:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-save-file-on-load nil)
 ----
 
 Just save without prompting:
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-save-file-on-load t)
 ----
@@ -108,7 +108,7 @@ Just save without prompting:
 Change the result prefix for interactive evaluation (not the REPL
 prefix). By default the prefix is `+=> +`.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-eval-result-prefix ";; => ")
 ----
@@ -190,7 +190,7 @@ with kbd:[M-x] `customize-variable` kbd:[RET] `cider-filter-regexps`.
 
 Or by including a similar snippet along with the other CIDER configuration.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-filter-regexps '(".*nrepl"))
 ----
@@ -205,7 +205,7 @@ wrapping instead of line truncating.
 *This variable should be set before loading CIDER* (which means before
 `require`-ing it or autoloading it).
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-special-mode-truncate-lines nil)
 ----

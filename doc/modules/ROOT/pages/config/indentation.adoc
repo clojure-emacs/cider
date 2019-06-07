@@ -38,7 +38,7 @@ xref:indent_spec.adoc[indent spec section of the manual].
 If you _don't_ want to use this feature, you can disable it by setting
 `cider-dynamic-indentation` to `nil` in your Emacs init file.
 
-[source,el]
+[source,lisp]
 ----
 (setq cider-dynamic-indentation nil)
 ----
