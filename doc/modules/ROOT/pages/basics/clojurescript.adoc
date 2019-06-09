@@ -271,5 +271,5 @@ Thus, if you're evaluating the code `(+ 2 2)` in a `cljc` file and you
 have both an active Clojure and ClojureScript REPL then the code is
 going to be evaluated twice, once in each of the REPLs.  In fact, you
 can create multiple clj and cljs sibling connections (kbd:[C-c C-x C-s C-s/j]) within a CIDER session and evaluation will be directed
-into all REPLs simultaneously. See xref:managing_connections.adoc[Managing
+into all REPLs simultaneously. See xref:usage/managing_connections.adoc[Managing
 Connections] for more details.
