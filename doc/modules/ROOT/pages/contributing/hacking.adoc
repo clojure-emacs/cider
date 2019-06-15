@@ -176,7 +176,7 @@ The code you've wrote should ideally be covered by test. We use the
 `clojure.test` library for ``cider-nrepl``'s tests.
 
 You can run the tests you authored/changed straight from Emacs. Consult the
-xref:running_tests.adoc[CIDER documentation] for all the details.
+xref:testing/running_tests.adoc[CIDER documentation] for all the details.
 
 ==== Running the tests in batch mode
 
