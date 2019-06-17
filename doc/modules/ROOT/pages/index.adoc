@@ -39,7 +39,7 @@ using CIDER - you're constantly interacting with it and changing it.
 You can find more details about the typical CIDER workflow in the
 xref:usage/interactive_programming.adoc[Interactive Programming] section. While we're a bit
 short on video tutorials, you can check out this
-https://www.youtube.com/watch?v=aYA4AAjLfT0[into to CIDER] to get a
+https://www.youtube.com/watch?v=aYA4AAjLfT0[introduction to CIDER] to get a
 feel about what do we mean by an "Interactive Development Environment".
 
 CIDER's built on top of https://github.com/nrepl/nrepl[nREPL], the Clojure networked REPL server.
