@@ -108,16 +108,12 @@ defined in the source code). Leiningen users can add this to their
 {:repl {:dependencies [[nrepl/nrepl "x.y.z"]]}}
 ----
 
-Make sure you add the newer nREPL dependency to the `:dependencies` key instead
+IMPORTANT: Make sure you add the newer nREPL dependency to the `:dependencies` key instead
 of `:plugins` (where `cider-nrepl` Lein plugin resides). That's a pretty common
 mistake.
 
 Generally you're advised to use the newest nREPL with CIDER, as bugs get fixed
 in pretty much every release.
-
-Note, that running `cider-jack-in` from outside the scope of a project
-will result in the *older nREPL dependency being used*. This is
-likely a Leiningen bug.
 
 === Missing clojure-... function after CIDER update
 
