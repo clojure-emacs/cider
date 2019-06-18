@@ -51,7 +51,7 @@ server:
 (setq nrepl-log-messages t)
 ----
 
-CIDER will then create buffers named `*nrepl-messages conn-name*` for
+CIDER will then create buffers named `+*nrepl-messages conn-name*+` for
 each connection.
 
 The communication log is tremendously valuable for
@@ -60,7 +60,7 @@ you are facing such issues.
 
 == Hide Special nREPL Buffers
 
-If you're finding that `*nrepl-connection*` and `*nrepl-server*`
+If you're finding that `+*nrepl-connection*+` and `+*nrepl-server*+`
 buffers are cluttering up your development environment, you can
 suppress them from appearing in some buffer switching commands like
 `switch-to-buffer`(kbd:[C-x b]):
@@ -197,8 +197,8 @@ Or by including a similar snippet along with the other CIDER configuration.
 
 == Truncate long lines in special buffers
 
-By default contents of CIDER's special buffers such as `*cider-test-report*`
-or `*cider-doc*` are line truncated. You can set
+By default contents of CIDER's special buffers such as `+*cider-test-report*+`
+or `+*cider-doc*+` are line truncated. You can set
 `cider-special-mode-truncate-lines` to `nil` to make those buffers use word
 wrapping instead of line truncating.
 

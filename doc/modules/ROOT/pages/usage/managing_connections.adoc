@@ -118,7 +118,7 @@ Clojure(Script) buffer.
 By default session names consist of abbreviated project name, host and port
 (e.g. `project/dir:localhost:1234`). REPL buffer name consist of the session
 name and the REPL type specification post-fix
-(e.g. `*project/dir:localhost:1234(cljs:node)*`).
+(e.g. `+*project/dir:localhost:1234(cljs:node)*+`).
 
 You can customize session names with `cider-session-name-template` and REPL
 names with `nrepl-repl-buffer-name-template`. See also

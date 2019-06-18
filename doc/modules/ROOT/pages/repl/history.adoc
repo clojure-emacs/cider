@@ -60,10 +60,10 @@ one of several values:
 * `quit-window` restores the window configuration to what it was before.
 This is the default.
 * `delete-and-restore` restores the window configuration to what it was before,
-and kills the `*cider-repl-history*` buffer.
-* `kill-and-delete-window` kills the `*cider-repl-history*` buffer, and
+and kills the `+*cider-repl-history*+` buffer.
+* `kill-and-delete-window` kills the `+*cider-repl-history*+` buffer, and
 deletes the window.
-* `bury-buffer` simply buries the `*cider-repl-history*` buffer, but keeps the
+* `bury-buffer` simply buries the `+*cider-repl-history*+` buffer, but keeps the
 window.
 * `bury-and-delete-window` buries the buffer, and deletes the window
 if there is more than one window.

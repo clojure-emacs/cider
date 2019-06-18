@@ -33,7 +33,7 @@ available to you:
 CIDER provides a simple way to create a Clojure scratchpad via the
 kbd:[M-x] `cider-scratch` command. This is a great way to play
 around with some code without having to create source files or pollute
-the REPL buffer and is very similar to Emacs's own `*scratch*` buffer.
+the REPL buffer and is very similar to Emacs's own `+*scratch*+` buffer.
 
 == Reloading Code
 
@@ -90,11 +90,11 @@ be executed serially, without retries.
 By default, messages regarding the status of the in-progress reload
 will be displayed in the echo area after you call
 `cider-ns-refresh`. The same information will also be recorded in the
-`*cider-ns-refresh-log*` buffer, along with anything printed to
-`*out*` or `*err*` by `cider-ns-refresh-before-fn` and
+`+*cider-ns-refresh-log*+` buffer, along with anything printed to
+`+*out*+` or `+*err*+` by `cider-ns-refresh-before-fn` and
 `cider-ns-refresh-start-fn`.
 
-You can make the `*cider-ns-refresh-log*` buffer display automatically
+You can make the `+*cider-ns-refresh-log*+` buffer display automatically
 after you call `cider-ns-refresh` by setting the
 `cider-ns-refresh-show-log-buffer` variable to a non-nil value. This
 will also prevent any related messages from also being displayed in
