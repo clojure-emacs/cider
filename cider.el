@@ -67,7 +67,8 @@
   :prefix "cider-"
   :group 'applications
   :link '(url-link :tag "GitHub" "https://github.com/clojure-emacs/cider")
-  :link '(url-link :tag "Online Manual" "https://docs.cider.mx")
+  :link '(url-link :tag "Homepage" "https://cider.mx")
+  :link '(url-link :tag "Documentation" "https://docs.cider.mx")
   :link '(emacs-commentary-link :tag "Commentary" "cider"))
 
 (require 'cider-client)
