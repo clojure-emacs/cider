@@ -44,7 +44,7 @@ CIDER's built on top of https://github.com/nrepl/nrepl[nREPL], the Clojure netwo
 
 CIDER's basic architecture looks something like this:
 
-image:cider_architecture.png[,600]
+image::cider_architecture.png[,600]
 
 Clojure code gets executed by an nREPL server. CIDER sends requests to the
 server and processes its responses. The server's functionality is augmented by
