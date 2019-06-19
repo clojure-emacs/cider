@@ -404,14 +404,14 @@ plugin or dependency with:
 
 (defvar cider-version)
 
-(defconst cider-manual-url "https://docs.cider.mx/en/%s/"
+(defconst cider-manual-url "https://docs.cider.mx/cider/%s"
   "The URL to CIDER's manual.")
 
 (defun cider--manual-version ()
   "Convert the version to a ReadTheDocs-friendly version."
   (if (string-match-p "-snapshot" cider-version)
-      "latest"
-    "stable"))
+      ""
+    (concat cider-version "/")))
 
 (defun cider-manual-url ()
   "The CIDER manual's url."
