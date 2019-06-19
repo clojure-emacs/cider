@@ -20,17 +20,6 @@ There is currently no support for both Clojure and ClojureScript evaluation in
 the same nREPL session. If Piggieback is active, code evaluation and all
 features will assume ClojureScript.
 
-=== Var Metadata
-
-Currently var metadata about the location of the var's definition within the
-ClojureScript source code (file, line & column) is set only when evaluating the
-entire source buffer (kbd:[C-c C-k]). All other interactive code evaluation
-commands (e.g. kbd:[C-c C-e]) don't set this metadata and you won't be able
-to use commands like `find-var` on such vars.  This is a limitation of nREPL and
-Piggieback, that's beyond CIDER. You can find some discussions on the subject
-http://dev.clojure.org/jira/browse/NREPL-59[here] and
-https://github.com/clojure-emacs/cider/issues/830[here].
-
 == Microsoft Windows
 
 === Line separators
