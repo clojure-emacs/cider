@@ -157,7 +157,7 @@
 * Remove `cider-ping` command.
 * Remove `cider-visit-error-buffer` in favour of using `cider-selector`.
 * Rename `cider-refresh` to `cider-ns-refresh` (and all the related defcustoms).
-* **(Breaking)** Rewrote connection management (see https://docs.cider.mx/en/latest/managing_connections/ for details).
+* **(Breaking)** Rewrote connection management (see https://docs.cider.mx/cider/usage/managing_connections.html for details).
 * **(Breaking)** `cider-jack-in-clojurescript` now creates only a ClojureScript REPL (use `cider-jack-in-clj&cljs` to create both REPLs).
 * [#2357](https://github.com/clojure-emacs/cider/issues/2357): Support both keywords and strings as test selectors (previously it was only strings).
 * [#2378](https://github.com/clojure-emacs/cider/pull/2378): Add autoloads target to Makefile.
