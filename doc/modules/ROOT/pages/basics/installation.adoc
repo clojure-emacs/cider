@@ -124,7 +124,7 @@ xref:contributing/hacking.adoc[Hacking on CIDER] for more details.
 Much of CIDER's functionality depends on its own https://github.com/clojure-emacs/cider-nrepl[nREPL
 middleware]. Starting
 with version 0.11, `cider-jack-in` (kbd:[C-c C-x (C-)j (C-)j])
-automatically injects this middle and other dependencies as required.
+automatically injects this middleware and other dependencies as required.
 
 NOTE: In the past, if you were setting up CIDER, you might have had to
 modify `profiles.clj` or `profile.boot`. CIDER now handles
