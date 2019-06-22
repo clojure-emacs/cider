@@ -1,4 +1,4 @@
-== ClojureScript
+= ClojureScript
 :experimental:
 
 CIDER works well with ClojureScript, but not all CIDER features are
@@ -10,7 +10,7 @@ decide which one you want to run and how you want CIDER to interact
 with it. This chapter describes some of the more common choices
 and the configurations required to get them working.
 
-=== Piggieback
+== Piggieback
 
 ClojureScript support relies on the https://github.com/nrepl/piggieback[piggieback] nREPL middleware
 being present in your REPL session. There's one exception to this,
@@ -25,7 +25,7 @@ If `cider-inject-dependencies-at-jack-in` is disabled or you're going
 to connect to an already running nREPL server using
 `cider-connect-cljs`, use the configuration in the following section.
 
-==== Manual Piggieback Setup
+=== Manual Piggieback Setup
 
 To setup piggieback, add the following dependencies to your project
 (`project.clj` in a Leiningen based project or `build.boot` in a Boot
@@ -55,7 +55,7 @@ or in `build.boot`:
   repl {:middleware '[cider.piggieback/wrap-cljs-repl]})
 ----
 
-=== Starting a ClojureScript REPL
+== Starting a ClojureScript REPL
 
 Open a file in your project and type kbd:[M-x]
 `cider-jack-in-cljs` kbd:[RET]. This will start up the nREPL
@@ -115,6 +115,8 @@ You can also modify the known ClojureScript REPLs on a per-project basis using
 If you already have a Clojure REPL running and want to add a
 ClojureScript REPL, you can invoke
 `cider-jack-in-sibling-clojurescript` to add it.
+
+== Setting up a ClojureScript REPL
 
 The following sections describe the configurations for several common
 CloudScript REPL use cases.
