@@ -43,6 +43,9 @@ To quit or restart individual connections use cider commands
 
 Sessions can be linked to contexts (projects, directories and buffers)
 
+Run these commands from within a buffer that's inside the buffer/directory/project
+you wish to link.
+
 * kbd:[C-c C-s b] `sesman-link-with-buffer`
 * kbd:[C-c C-s d] `sesman-link-with-directory`
 * kbd:[C-c C-s p] `sesman-link-with-project`
