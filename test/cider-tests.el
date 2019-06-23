@@ -251,6 +251,17 @@
     (it "prepends colon to plain names"
       (expect (cider-normalize-cljs-init-options "dev") :to-equal ":dev"))))
 
+(describe "cider--shadow-parse-builds"
+  (it "parses valid input"
+    (expect (cider--shadow-parse-builds
+             (parseedn-read-str "{:builds {:app {} :release {}}}"))
+            :to-equal '(:release :app browser-repl node-repl)))
+  (it "returns default options on empty / invalid input"
+    (expect (cider--shadow-parse-builds (parseedn-read-str "{}"))
+            :to-equal '(browser-repl node-repl))
+    (expect (cider--shadow-parse-builds (parseedn-read-str "[oops]"))
+            :to-equal '(browser-repl node-repl))))
+
 (provide 'cider-tests)
 
 ;;; cider-tests.el ends here

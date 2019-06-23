@@ -710,13 +710,32 @@ Generally you should not disable this unless you run into some faulty check."
   :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.18.0"))
 
+(defun cider--shadow-parse-builds (hash)
+  "Parses the build names of a shadow-cljs.edn hash map.
+The default options of `browser-repl' and `node-repl' are also included."
+  (let* ((builds (when (hash-table-p hash)
+                   (gethash :builds hash)))
+         (build-keys (when (hash-table-p builds)
+                       (hash-table-keys builds))))
+    (append build-keys '(browser-repl node-repl))))
+
+(defun cider--shadow-get-builds ()
+  "Extract build names from the shadow-cljs.edn config file in the project root."
+  (let ((shadow-edn (concat (clojure-project-dir) "shadow-cljs.edn")))
+    (when (file-exists-p shadow-edn)
+      (with-temp-buffer
+        (insert-file-contents shadow-edn)
+        (let ((hash (car (parseedn-read))))
+          (cider--shadow-parse-builds hash))))))
+
 (defun cider-shadow-select-cljs-init-form ()
   "Generate the init form for a shadow-cljs select-only REPL.
 We have to prompt the user to select a build, that's why this is a command,
 not just a string."
   (let ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/nrepl-select %s))")
         (options (or cider-shadow-default-options
-                     (read-from-minibuffer "Select shadow-cljs build (e.g. dev): "))))
+                     (completing-read "Select shadow-cljs build: "
+                                      (cider--shadow-get-builds)))))
     (format form (cider-normalize-cljs-init-options options))))
 
 (defun cider-shadow-cljs-init-form ()
@@ -725,7 +744,8 @@ We have to prompt the user to select a build, that's why
 this is a command, not just a string."
   (let* ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch %s) (shadow/nrepl-select %s))")
          (options (or cider-shadow-default-options
-                      (read-from-minibuffer "Select shadow-cljs build (e.g. dev): ")))
+                      (completing-read "Select shadow-cljs build: "
+                                       (cider--shadow-get-builds))))
          (build (cider-normalize-cljs-init-options options)))
     (format form build build)))
 
