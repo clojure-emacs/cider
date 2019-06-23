@@ -483,7 +483,7 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
                       ,@(when docs-p '("docs?" "t"))
                       ,@(when privates-p '("privates?" "t"))
                       ,@(when case-sensitive-p '("case-sensitive?" "t"))
-                      "filter-regexps" ,cider-filtered-namespaces-regexps))))
+                      "exclude-regexps" ,cider-filtered-namespaces-regexps))))
     (if (member "apropos-regexp-error" (nrepl-dict-get response "status"))
         (user-error "Invalid regexp: %s" (nrepl-dict-get response "error-msg"))
       (nrepl-dict-get response "apropos-matches"))))
@@ -586,7 +586,7 @@ returned."
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (thread-first `("op" "ns-list"
-                  "filter-regexps" ,cider-filtered-namespaces-regexps)
+                  "exclude-regexps" ,cider-filtered-namespaces-regexps)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "ns-list")))
 
