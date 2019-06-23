@@ -2,6 +2,7 @@
 * Getting Started
 ** xref:basics/installation.adoc[Installation]
 ** xref:basics/up_and_running.adoc[Up and Running]
+** xref:basics/middleware_setup.adoc[nREPL Middleware Setup]
 ** xref:basics/clojurescript.adoc[ClojureScript]
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]

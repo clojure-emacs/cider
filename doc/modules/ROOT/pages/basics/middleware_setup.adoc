@@ -1,0 +1,103 @@
+= nREPL Middleware Setup
+:experimental:
+
+NOTE: You can skip this section if you don't plan to use `cider-connect` or don't care
+about the advanced functionality that requires `cider-nrepl`.
+
+Much of CIDER's functionality depends on its own https://github.com/clojure-emacs/cider-nrepl[nREPL
+middleware]. Starting
+with version 0.11, `cider-jack-in` (kbd:[C-c C-x (C-)j (C-)j])
+automatically injects this middleware and other dependencies as required.
+
+NOTE: In the past, if you were setting up CIDER, you might have had to
+modify `profiles.clj` or `profile.boot`. CIDER now handles
+everything automatically and you don't need to add anything
+special to these files.
+
+TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
+`cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
+the dependencies yourself (see the section below), just as in CIDER 0.10 and older.
+
+CIDER can also inject a Clojure dependency into your project, which is useful,
+for example, if your project defaults to an older version of Clojure than that
+supported by the CIDER middleware. Set `cider-jack-in-auto-inject-clojure`
+appropriately to enable this.
+
+If you prefer a standalone REPL, you will need to invoke
+`cider-connect` instead of `cider-jack-in` and manually add the
+dependencies to your Clojure project (explained in the following
+section).
+
+== Setting Up a Standalone REPL
+
+=== Using Leiningen
+
+NOTE: Make sure you're using Leiningen 2.9.0 or newer, as 2.9.0 is the first
+release to ship with nREPL 0.6.
+
+Use the convenient plugin for defaults, either in your project's
+`project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
+
+[source,clojure]
+----
+:plugins [[cider/cider-nrepl "x.y.z"]]
+----
+
+A minimal `profiles.clj` for CIDER would be:
+
+[source,clojure]
+----
+{:repl {:plugins [[cider/cider-nrepl "0.21.1"]]}}
+----
+
+WARNING: Be careful not to place this in the `:user` profile, as this way CIDER's
+middleware will always get loaded, causing `lein` to start slower.  You really
+need it just for `lein repl` and this is what the `:repl` profile is for.
+
+=== Using Boot
+
+NOTE: Make sure you're using Boot 2.8.3 or newer, as 2.8.3 is the first
+release to ship with nREPL 0.6.
+
+Boot users can configure the tool to include the middleware automatically in
+all of their projects using a `~/.boot/profile.boot` file like so:
+
+[source,clojure]
+----
+(require 'boot.repl)
+
+(swap! boot.repl/*default-dependencies*
+       concat '[[cider/cider-nrepl "0.21.1"]])
+
+(swap! boot.repl/*default-middleware*
+       conj 'cider.nrepl/cider-middleware)
+----
+
+For more information visit https://github.com/boot-clj/boot/wiki/Cider-REPL[boot-clj wiki].
+
+== Using Embedded nREPL Server
+
+If you're embedding nREPL in your application, you'll have to start the
+server with CIDER's own nREPL handler.
+
+[source,clojure]
+----
+(ns my-app
+  (:require [nrepl.server :as nrepl-server]
+            [cider.nrepl :refer (cider-nrepl-handler)]))
+
+(defn -main
+  []
+  (nrepl-server/start-server :port 7888 :handler cider-nrepl-handler))
+----
+
+It goes without saying that your project should depend on `cider-nrepl`.
+
+NOTE: Prior to CIDER 0.18, CIDER and cider-nrepl were always released
+together and their versions had to match for things to work. But as
+the prominence of cider-nrepl grew and many other tools started using
+it, the two projects evolved separately and are no longer in tight
+lock-step. Any recent version of cider-nrepl should be compatible
+with a recent version of CIDER. You can check the required version of
+cider-nrepl for your version of CIDER by looking at
+`cider-required-middleware-version`.
