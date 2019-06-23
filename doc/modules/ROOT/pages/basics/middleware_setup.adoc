@@ -14,15 +14,6 @@ modify `profiles.clj` or `profile.boot`. CIDER now handles
 everything automatically and you don't need to add anything
 special to these files.
 
-TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
-`cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
-the dependencies yourself (see the section below), just as in CIDER 0.10 and older.
-
-CIDER can also inject a Clojure dependency into your project, which is useful,
-for example, if your project defaults to an older version of Clojure than that
-supported by the CIDER middleware. Set `cider-jack-in-auto-inject-clojure`
-appropriately to enable this.
-
 If you prefer a standalone REPL, you will need to invoke
 `cider-connect` instead of `cider-jack-in` and manually add the
 dependencies to your Clojure project (explained in the following
@@ -74,6 +65,18 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 ----
 
 For more information visit https://github.com/boot-clj/boot/wiki/Cider-REPL[boot-clj wiki].
+
+=== Using tools.deps
+
+TODO
+
+=== Using Gradle
+
+TODO
+
+=== Using Maven
+
+TODO
 
 == Using Embedded nREPL Server
 

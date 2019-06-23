@@ -37,12 +37,53 @@ CIDER figures out this by parsing the output from the command and waiting for a 
 * CIDER extracts the port of the nREPL from the preceding message.
 * It connects to the running nREPL server.
 
-NOTE: If your project uses `lein`, `boot` or `tools.deps (deps.edn)`,
-CIDER will automatically inject all the necessary nREPL
-dependencies when it starts the server. CIDER does not currently support
-dependency auto-injection for Gradle projects.
+TIP: You can see the exact command that `cider-jack-in` invoked in your minibuffer, while
+waiting for nREPL to start. You can also find this command in Emacs's `+*Messages*+` buffer.
 
-Note that if you try to run `cider-jack-in` outside a project
+=== Auto-Injecting Dependencies
+
+While CIDER's core functionality requires nothing more than an nREPL server,
+there are many advanced features that depend on the presence of additional
+nREPL middleware. In the early versions of CIDER (up to CIDER 0.11) users had
+to add those dependencies themselves, which was a painful and error-prone process.
+Fortunately today that's handled auto-magically when you're using `cider-jack-in`.
+
+If your project uses `lein`, `boot` or `tools.deps` (`deps.edn`), CIDER will
+automatically inject all the necessary nREPL dependencies (e.g. `cider-nrepl` or
+`piggieback`) when it starts the server.  The injection process is extremely
+simple - CIDER simply passes the extra dependencies and nREPL configuration to
+your build tool in the command in runs to start the nREPL server. Here's how
+this looks for `tools.deps`:
+
+  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.22.0-SNAPSHOT"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
+
+TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
+`cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
+the dependencies yourself (see xref:basics/middleware_setup.adoc[nREPL Middleware Setup]),
+just as in CIDER 0.10 and older.
+
+Normally `cider-jack-in` would inject only `cider-nrepl` and `cider-jack-in-cljs` would
+add `piggieback` as well. The injection mechanism is configurable and
+you can easily add more libraries there. Some CIDER extensions would use
+this mechanism to auto-inject their own dependencies.
+
+CIDER would also inject the most recent version of nREPL that it supports. This is a simple
+trick to override the version of nREPL bundled with your build tool, so you can gain
+access to the newest nREPL features. Generally that's one aspect of CIDER's inner workings
+that end-users will rarely have to think about.
+
+CIDER can also inject a Clojure dependency into your project, which is useful,
+for example, if your project defaults to an older version of Clojure than that
+supported by the CIDER middleware. Set `cider-jack-in-auto-inject-clojure`
+appropriately to enable this.
+
+NOTE: CIDER does not currently support
+dependency auto-injection for Gradle projects. Unfortunately there's no
+way to pass extra dependencies to Gradle via its command-line interface.
+
+=== Jacking-in without a Project
+
+If you try to run `cider-jack-in` outside a project
 directory, CIDER will warn you and ask you to confirm whether you
 really want to do this; more often than not, this is an accident.  If
 you decide to proceed, CIDER will invoke the command configured in
