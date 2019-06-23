@@ -23,21 +23,51 @@ The following sections describe each of these methods.
 If you have a Clojure project in your file system and want CIDER to
 launch an nREPL session for it, simply visit a file that belongs to
 the project, and type kbd:[M-x] `cider-jack-in`
-kbd:[RET]. CIDER will start an nREPL server and automatically
-connect to it.
+kbd:[RET].footnote:[Yeah, that's a "Neuromancer" reference.]
+CIDER will start an nREPL server and automatically connect to it.
+
+TIP: In Clojure(Script) buffers the command `cider-jack-in` is bound to kbd:[C-c C-x (C-)j (C-)j].
+
+The process of jacking-in is pretty simple:
+
+* CIDER shells out and runs a command like `lein repl :headless`.
+* CIDER waits for the nREPL server to start.
+CIDER figures out this by parsing the output from the command and waiting for a line like
+`nREPL server started on port 53005 on host localhost - nrepl://localhost:53005` to appear there.
+* CIDER extracts the port of the nREPL from the preceding message.
+* It connects to the running nREPL server.
 
 NOTE: If your project uses `lein`, `boot` or `tools.deps (deps.edn)`,
 CIDER will automatically inject all the necessary nREPL
 dependencies when it starts the server. CIDER does not currently support
 dependency auto-injection for Gradle projects.
 
-Alternatively, you can use kbd:[C-u M-x] `cider-jack-in` kbd:[RET] to
-specify the name of a `lein`, `boot` or `tools.deps` project, without having to
-visit any file in it. This option is also useful if your project contains some
-combination of `project.clj`, `build.boot` and `deps.edn` and you want to launch
-a REPL for one or the other.
+Note that if you try to run `cider-jack-in` outside a project
+directory, CIDER will warn you and ask you to confirm whether you
+really want to do this; more often than not, this is an accident.  If
+you decide to proceed, CIDER will invoke the command configured in
+`cider-jack-in-default`. Prior to CIDER 0.17, this defaulted to `lein`
+but was subsequently switched to `clj`, Clojure's basic startup command.
 
-TIP: In Clojure(Script) buffers the command `cider-jack-in` is bound to kbd:[C-c C-x (C-)j (C-)j].
+TIP: You can set `cider-allow-jack-in-without-project` to `t` if you'd like to
+disable the warning displayed when jacking-in outside a project.
+
+=== Customizing the Jack-in Command Behaviour
+
+You can use kbd:[C-u M-x] `cider-jack-in` kbd:[RET] to
+specify the exact command that `cider-jack-in` would run.
+This option is very useful is you want to specify a something like a `lein`
+or `deps.edn` profile.
+
+Alternatively you can kbd:[C-u C-u M-x] `cider-jack-in` kbd:[RET], which is a
+variation of the previous command. This command will first prompt you for the
+project you want to launch `cider-jack-in` in, which is pretty handy if you're
+in some other directory currently. This option is also useful if your project
+contains some combination of project.clj, build.boot and deps.edn and you want
+to launch a REPL for one or the other.
+
+NOTE: The examples use only `cider-jack-in`, but this behaviour is consistent
+for all `cider-jack-in-*` commands.
 
 You can further customize the command line CIDER uses for `cider-jack-in` by
 modifying the following string options:
@@ -50,16 +80,6 @@ these are passed to the command directly, in first position
 `cider-clojure-cli-parameters`, `cider-gradle-parameters`: these are
 usually task names and their parameters (e.g., `dev` for launching
 boot's dev task instead of the standard `repl -s wait`).
-
-Note that if you try to run `cider-jack-in` outside a project
-directory, CIDER will warn you and ask you to confirm whether you
-really want to do this; more often than not, this is an accident.  If
-you decide to proceed, CIDER will invoke the command configured in
-`cider-jack-in-default`. Prior to CIDER 0.17, this defaulted to `lein`
-but was subsequently switched to `clj`, Clojure's basic startup command.
-
-TIP: You can set `cider-allow-jack-in-without-project` to `t` if you'd like to
-disable the warning displayed when jacking-in outside a project.
 
 == Connect to a Running nREPL Server
 
