@@ -157,7 +157,7 @@ it using rlwrap."
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-clojure-cli-parameters
-  "-m nrepl.cmdline --middleware '%s'"
+  "-m nrepl.cmdline --middleware \"%s\""
   "Params passed to clojure to start an nREPL server via `cider-jack-in'.
 This is evaluated using `format', with the first argument being the Clojure
 vector of middleware variables as a string."
@@ -362,7 +362,7 @@ Throws an error if PROJECT-TYPE is unknown."
                           (concat
                            "["
                            (mapconcat
-                            (apply-partially #'format "\"%s\"")
+                            (apply-partially #'format "\\\"%s\\\"")
                             (cider-jack-in-normalized-nrepl-middlewares)
                             ", ")
                            "]")))
@@ -560,11 +560,11 @@ Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
     (concat
      global-opts
      (unless (seq-empty-p global-opts) " ")
-     "-Sdeps '{:deps {"
+     "-Sdeps \"{:deps {"
      (mapconcat #'identity
-                (seq-map (lambda (dep) (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep))) dependencies)
+                (seq-map (lambda (dep) (format "%s {:mvn/version \\\"%s\\\"}" (car dep) (cadr dep))) dependencies)
                 " ")
-     "}}' "
+     "}}\" "
      params)))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
