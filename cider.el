@@ -711,7 +711,7 @@ Generally you should not disable this unless you run into some faulty check."
   :package-version '(cider . "0.18.0"))
 
 (defun cider--shadow-parse-builds (hash)
-  "Parses the build names of a shadow-cljs.edn hash map.
+  "Parses the build names of a shadow-cljs.edn HASH map.
 The default options of `browser-repl' and `node-repl' are also included."
   (let* ((builds (when (hash-table-p hash)
                    (gethash :builds hash)))
