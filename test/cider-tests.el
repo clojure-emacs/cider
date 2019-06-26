@@ -255,7 +255,7 @@
   (it "parses valid input"
     (expect (cider--shadow-parse-builds
              (parseedn-read-str "{:builds {:app {} :release {}}}"))
-            :to-equal '(:release :app browser-repl node-repl)))
+            :to-have-same-items-as '(:release :app browser-repl node-repl)))
   (it "returns default options on empty / invalid input"
     (expect (cider--shadow-parse-builds (parseedn-read-str "{}"))
             :to-equal '(browser-repl node-repl))
