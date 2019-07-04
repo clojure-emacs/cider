@@ -43,7 +43,6 @@ jobs:
   test-lint:
     docker:
       - image: silex/emacs:26-dev
-      - entrypoint: bash
     steps:
       - setup
       - lint
