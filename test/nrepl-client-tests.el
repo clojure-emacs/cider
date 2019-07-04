@@ -34,7 +34,7 @@
   :var (nrepl-hide-special-buffers params default-directory
                                    cider-session-name-template)
   (before-all
-    (setq default-directory "path/to/dirA/")
+    (setq default-directory "/path/to/dirA/")
     (setq params '(:host "localhost" :port 1))
     (setq cider-session-name-template "%J:%h:%p"))
 
@@ -62,7 +62,7 @@
 (describe "nrepl-make-buffer-name"
   :var (default-directory cider-session-name-template)
   (before-all
-    (setq default-directory "path/to/dirA/")
+    (setq default-directory "/path/to/dirA/")
     (setq cider-session-name-template "%J:%h:%p"))
   (it "generates a buffer name from the given template"
     (let ((params '(:host "localhost" :port 1)))
