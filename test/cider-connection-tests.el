@@ -348,6 +348,7 @@
           cider-default-cljs-repl 'node)
     (spy-on 'cider--gather-session-params
             :and-return-value '(:project-dir "/some/project" :host "localhost" :port 1234))
+    (spy-on 'cider-jack-in-resolve-command :and-return-value "lein")
     (spy-on 'nrepl-start-server-process
             :and-return-value nil)
     (spy-on 'sesman-current-sessions
