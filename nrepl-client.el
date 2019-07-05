@@ -1025,7 +1025,7 @@ been determined."
       (set-process-filter serv-proc 'nrepl-server-filter)
       (set-process-sentinel serv-proc 'nrepl-server-sentinel)
       (set-process-coding-system serv-proc 'utf-8-unix 'utf-8-unix)
-      (message "[nREPL] Starting server via %s..."
+      (message "[nREPL] Starting server via %s"
                (propertize cmd 'face 'font-lock-keyword-face))
       serv-proc)))
 
