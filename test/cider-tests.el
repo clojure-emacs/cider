@@ -262,6 +262,35 @@
     (expect (cider--shadow-parse-builds (parseedn-read-str "[oops]"))
             :to-equal '(browser-repl node-repl))))
 
+(defmacro with-temp-shadow-config (contents &rest body)
+  "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."
+  `(let* ((edn-file "shadow-cljs.edn")
+          (temp-dir (temporary-file-directory))
+          (file-path (concat temp-dir edn-file)))
+     (with-temp-file file-path
+       (insert ,contents))
+     (spy-on 'clojure-project-dir :and-return-value temp-dir)
+     ,@body
+     (delete-file file-path)))
+
+(describe "cider--shadow-get-builds"
+  (it "handles EDN reader tags"
+    (with-temp-shadow-config
+     "{:builds {:app {} :release {}} :key #shadow/env \"foo\"}"
+     (expect (cider--shadow-get-builds)
+             :to-have-same-items-as '(:release :app browser-repl node-repl))))
+
+  (it "returns default options on empty / invalid input"
+    (with-temp-shadow-config
+     "{}"
+     (expect (cider--shadow-get-builds)
+             :to-have-same-items-as '(browser-repl node-repl)))
+
+    (with-temp-shadow-config
+     "[oops]"
+     (expect (cider--shadow-get-builds)
+             :to-have-same-items-as '(browser-repl node-repl)))))
+
 (provide 'cider-tests)
 
 ;;; cider-tests.el ends here

@@ -725,7 +725,7 @@ The default options of `browser-repl' and `node-repl' are also included."
     (when (file-exists-p shadow-edn)
       (with-temp-buffer
         (insert-file-contents shadow-edn)
-        (let ((hash (car (parseedn-read))))
+        (let ((hash (car (parseedn-read '((shadow/env . identity))))))
           (cider--shadow-parse-builds hash))))))
 
 (defun cider-shadow-select-cljs-init-form ()
