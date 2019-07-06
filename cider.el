@@ -1282,21 +1282,21 @@ canceled the action, signal quit."
  ;;;###autoload
 (defalias 'cider-jack-in #'cider-jack-in-clj)
  ;;;###autoload
-(defalias 'cider-jack-in-clojure #'cider-jack-in-clj)
+(define-obsolete-function-alias 'cider-jack-in-clojure 'cider-jack-in-clj "0.22")
 ;;;###autoload
-(defalias 'cider-jack-in-clojurescript #'cider-jack-in-cljs)
+(define-obsolete-function-alias 'cider-jack-in-clojurescript 'cider-jack-in-cljs "0.22")
 
 ;;;###autoload
 (defalias 'cider-connect #'cider-connect-clj)
 ;;;###autoload
-(defalias 'cider-connect-clojure #'cider-connect-clj)
+(define-obsolete-function-alias 'cider-connect-clojure 'cider-connect-clj "0.22")
 ;;;###autoload
-(defalias 'cider-connect-clojurescript #'cider-connect-cljs)
+(define-obsolete-function-alias 'cider-connect-clojurescript 'cider-connect-cljs "0.22")
 
 ;;;###autoload
-(defalias 'cider-connect-sibling-clojure #'cider-connect-sibling-clj)
+(define-obsolete-function-alias 'cider-connect-sibling-clojure 'cider-connect-sibling-clj "0.22")
 ;;;###autoload
-(defalias 'cider-connect-sibling-clojurescript #'cider-connect-sibling-cljs)
+(define-obsolete-function-alias 'cider-connect-sibling-clojurescript 'cider-connect-sibling-cljs "0.22")
 
 
 ;;; Helpers
