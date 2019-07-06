@@ -265,11 +265,10 @@
 (defmacro with-temp-shadow-config (contents &rest body)
   "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."
   `(let* ((edn-file "shadow-cljs.edn")
-          (temp-dir (temporary-file-directory))
-          (file-path (concat temp-dir edn-file)))
+          (file-path (concat temporary-file-directory edn-file)))
      (with-temp-file file-path
        (insert ,contents))
-     (spy-on 'clojure-project-dir :and-return-value temp-dir)
+     (spy-on 'clojure-project-dir :and-return-value temporary-file-directory)
      ,@body
      (delete-file file-path)))
 
