@@ -17,15 +17,15 @@ under the `:style/indent` key.
 
 It can take one of 3 forms:
 
-* Absent, meaning _"`indent like a regular function call`"_.
+* Absent, meaning _"indent like a regular function call"_.
 * An integer or a keyword `x`, which is shorthand for the list `[x]`.
 * A list, meaning that this function/macro takes a number of special arguments,
 and then all other arguments are non-special.
  ** *The first element* describes how the arguments are indented relative to the sexp. It can be:
   *** An integer `n`, which indicates this function/macro takes `n` special
 arguments (see below for the meaning of this).
-  *** The keyword `:form`, meaning _"`every arg indents like a function form`"_.
-  *** The keyword `:defn`, which means _"`every arg not on the first line is non-special`"_.
+  *** The keyword `:form`, meaning _"every arg indents like a function form"_.
+  *** The keyword `:defn`, which means _"every arg not on the first line is non-special"_.
  ** *Each following element* is an indent spec on its own, and it details the
 internal structure of the argument on the same position as this element. So,
 when that argument is a form, this element specifies how to indent that form
@@ -100,8 +100,8 @@ _inside_ the first arg have an indent spec of `[:defn]`.
 
 == Special Arguments
 
-Many macros have a number of "`special`" arguments, followed by an arbitrary
-number of "`non-special`" arguments (sometimes called the body). The "`non-special`"
+Many macros have a number of "special" arguments, followed by an arbitrary
+number of "non-special" arguments (sometimes called the body). The "non-special"
 arguments have a small indentation (usually 2 spaces). The special arguments
 are usually on the same line as the macro name, but, when necessary, they are
 placed on a separate line with additional indentation.
@@ -130,7 +130,7 @@ Here's another way one could do it:
 
 _The point of the indent spec is *not* to specify how many spaces to use._
 
-The point is just to say "`a defrecord has *2* special arguments`", and then let
+The point is just to say "a defrecord has *2* special arguments", and then let
 the editor and the user come to an agreement on how many spaces they like to use
 for special and non-special arguments.
 
