@@ -20,7 +20,12 @@ It will in both source and REPL buffers.
 
 == Configuring ElDoc
 
-* CIDER also would show the eldoc for the symbol at point. So in `+(map inc ...)+`
+=== Displaying ElDoc for the Symbol at Point
+
+Typically you'd see the eldoc for the containing function/macro/special form (with
+respect to your cursor's position).
+
+CIDER also would show the eldoc for the symbol at point. So in `+(map inc ...)+`
 when the cursor is over `inc` its eldoc would be displayed. You can turn off this
 behaviour by:
 
@@ -29,7 +34,9 @@ behaviour by:
 (setq cider-eldoc-display-for-symbol-at-point nil)
 ----
 
-* CIDER respects the value of `eldoc-echo-area-use-multiline-p` when
+=== Dealing with Long ElDoc
+
+CIDER respects the value of `eldoc-echo-area-use-multiline-p` when
 displaying documentation in the minibuffer. You can customize this variable to change
 its behaviour.
 
@@ -46,7 +53,9 @@ its behaviour.
 | Symbol name may be truncated if it will enable the function arglist or documentation string to fit on a single line. Otherwise, behavior is just like `t` case.
 |===
 
-* CIDER will try to add expected function arguments based on the current context
+=== Context-dependent ElDoc
+
+CIDER will try to add expected function arguments based on the current context
 (for example for the `datomic.api/q` function where it will show the expected
 inputs of the query at point), if the variable `cider-eldoc-display-context-dependent-info`
 is non-nil:
