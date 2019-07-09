@@ -92,11 +92,26 @@ TIP: Inviting Bozhidar or any other core CIDER developers to present at Clojure
 conferences is likely going to results in more CIDER releases,
 so you should totally do this!
 
-== How unstable is the MELPA build of CIDER?
+== How unstable is the MELPA (snapshot) build of CIDER?
 
 It's pretty stable. Serious regression are introduced rather rarely and are
 usually fixed within a few hours. Using the MELPA build gives you early access to
 new features and you're also helping the maintainers with the testing process.
+
+== Can I downgrade CIDER from a snapshot build to the latest stable version?
+
+Yes, you can. You just need to remove the `cider` package, pin `cider` to MELPA Stable
+and reinstall it. Basically you need to do the following:
+
+* `M-x package-remove cider`
+* Add `(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)` to your Emacs config
+* Restart Emacs (or reload your config)
+* `M-x package-install cider`
+
+== Can I downgrade CIDER to a specific stable version?
+
+No, you can't. Unfortunately `package.el` doesn't support the concept of historical versions of a package -
+there's always only one version that's available - the latest one.
 
 == Will CIDER eventually support the Clojure 1.8 socket REPL?
 
