@@ -231,7 +231,7 @@ You can also use https://github.com/bhauman/figwheel-main[Figwheel-main] with CI
 ----
 +
 . Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
-
++
 [source,clojure]
 ----
 :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
