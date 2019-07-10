@@ -202,3 +202,17 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
     (expect (cider-locref-at-point)
             :to-equal
             '(:type compilation :highlight (2 . 132) :var nil :file "/path/to/a/file.clj" :line 575))))
+
+(describe "cider-repl-require-repl-utils"
+  (before-each
+    (spy-on 'cider-current-repl :and-return-value nil)
+    (spy-on 'nrepl--eval-request)
+    (spy-on 'nrepl-send-sync-request :and-return-value nil))
+  (it "requires clj utils in a clj buffer"
+    (spy-on 'cider-repl-type :and-return-value 'clj)
+    (cider-repl-require-repl-utils)
+    (expect 'nrepl--eval-request :to-have-been-called-with (cdr (assoc 'clj cider-repl-require-repl-utils-code))))
+  (it "requires cljs utils in a cljs buffer"
+    (spy-on 'cider-repl-type :and-return-value 'cljs)
+    (cider-repl-require-repl-utils)
+    (expect 'nrepl--eval-request :to-have-been-called-with (cdr (assoc 'cljs cider-repl-require-repl-utils-code)))))

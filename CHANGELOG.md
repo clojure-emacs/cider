@@ -19,6 +19,7 @@
 * `spec-list` and `spec-form` requests send the current namespace for alias resolution.
 * `C-c , C-g` and `C-c C-t C-g` cancel the key chord instead of rerunning the last test. The respective command has been moved to `C-c , C-a`, `C-c , a`, `C-c C-t C-a` and `C-c C-t a`.
 * [#2643](https://github.com/clojure-emacs/cider/issues/2643): **(Breaking)** Stop using the `cider.tasks/nrepl-server` custom task for `cider-jack-in` with Boot.
+* [#2647](https://github.com/clojure-emacs/cider/issues/2647) `cider-repl-require-repl-utils` now loads cljs specific repl utils in cljs buffers.
 
 ### Bug fixes
 
