@@ -169,9 +169,10 @@ you'd like to use the default Emacs behavior use
 (make-obsolete-variable 'cider-repl-print-level 'cider-print-options "0.21")
 
 (defvar cider-repl-require-repl-utils-code
-  "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
+  '((clj . "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
+    (cljs . "(use '[cljs.repl :only [apropos dir doc find-doc print-doc pst source]])")))
 
-(defcustom cider-repl-init-code (list cider-repl-require-repl-utils-code)
+(defcustom cider-repl-init-code (list (cdr (assoc 'clj cider-repl-require-repl-utils-code)))
   "Clojure code to evaluate when starting a REPL.
 Will be evaluated with bindings for set!-able vars in place."
   :type '(list string)
@@ -257,12 +258,13 @@ This cache is stored in the connection buffer.")
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
   (interactive)
-  (nrepl-send-sync-request
-   (lax-plist-put
-    (nrepl--eval-request
-     cider-repl-require-repl-utils-code)
-    "inhibit-cider-middleware" "true")
-   (cider-current-repl nil 'ensure)))
+  (let* ((current-repl (cider-current-repl nil 'ensure))
+         (require-code (cdr (assoc (cider-repl-type current-repl) cider-repl-require-repl-utils-code))))
+    (nrepl-send-sync-request
+     (lax-plist-put
+      (nrepl--eval-request require-code)
+      "inhibit-cider-middleware" "true")
+     current-repl)))
 
 (defun cider-repl-init-eval-handler (&optional callback)
   "Make an nREPL evaluation handler for use during REPL init.
