@@ -10,9 +10,9 @@ results and other data using the option `cider-print-fn`, which can take the
 following possible values:
 
 * `nil` to defer to nREPL to choose the printing function. This will use the
-bound value of `nrepl.middleware.print/*print-fn*`, which defaults to the
+bound value of `+nrepl.middleware.print/*print-fn*+`, which defaults to the
 equivalent of `clojure.core/pr`.
-* `pr` to use the equivalent of \=`clojure.core/pr\\=`.
+* `pr` to use the equivalent of `clojure.core/pr`.
 * `pprint` to use the built-in `clojure.pprint/pprint` (this is the default).
 * `fipp` to use the https://github.com/brandonbloom/fipp[Fast Idiomatic
 Pretty-Printer]. This is approximately
@@ -58,8 +58,8 @@ printing operations may never terminate -- you can still use `cider-interrupt` t
 halt them.
 
 Your configured printing function might also support limiting the length and
-depth of printed objects -- either using `clojure.core/*print-length*` and
-`clojure.core/*print-level*` or in the provided <<print-options,options map>>.
+depth of printed objects -- either using `+clojure.core/*print-length*+` and
+`+clojure.core/*print-level*+` or in the provided <<print-options,options map>>.
 
 == Print options
 
@@ -98,7 +98,7 @@ Not all printing engines use (or default to) the dynamic variables in all cases,
 so setting them at the REPL may or may not have the intended effect. See the
 respective documentation of each engine:
 
-* `clojure.core/pr`: https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/_print-dup_
+* `clojure.core/pr`: https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/+*print-dup*+
 * `clojure.pprint`: https://clojuredocs.org/clojure.pprint/write
 * Fipp: https://github.com/brandonbloom/fipp/#printer-usage
 * Puget: https://github.com/greglook/puget#usage
