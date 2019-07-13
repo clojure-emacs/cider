@@ -6,7 +6,7 @@
 ** xref:basics/clojurescript.adoc[ClojureScript]
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]
-** xref:usage/cider_mode.adoc[cider-mode]
+** xref:usage/cider_mode.adoc[Using cider-mode]
 ** xref:usage/managing_connections.adoc[Managing Connections]
 ** xref:usage/code_completion.adoc[Code Completion]
 ** xref:usage/pretty_printing.adoc[Pretty Printing]
