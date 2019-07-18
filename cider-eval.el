@@ -1068,7 +1068,9 @@ passing arguments."
 (defun cider--file-string (file)
   "Read the contents of a FILE and return as a string."
   (with-current-buffer (find-file-noselect file)
-    (substring-no-properties (buffer-string))))
+    (save-restriction
+      (widen)
+      (substring-no-properties (buffer-string)))))
 
 (defun cider-load-buffer (&optional buffer)
   "Load (eval) BUFFER's file in nREPL.
