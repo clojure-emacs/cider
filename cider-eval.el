@@ -1033,7 +1033,8 @@ passing arguments."
     (define-key map (kbd "C-c e") #'cider-pprint-eval-last-sexp-to-comment)
     (define-key map (kbd "C-c C-e") #'cider-pprint-eval-last-sexp-to-comment)
     (define-key map (kbd "C-c d") #'cider-pprint-eval-defun-to-comment)
-    (define-key map (kbd "C-c C-d") #'cider-pprint-eval-defun-to-comment)))
+    (define-key map (kbd "C-c C-d") #'cider-pprint-eval-defun-to-comment)
+    map))
 
 (defvar cider-eval-commands-map
   (let ((map (define-prefix-command 'cider-eval-commands-map)))
@@ -1063,7 +1064,8 @@ passing arguments."
     (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)
-    (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)))
+    (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)
+    map))
 
 (defun cider--file-string (file)
   "Read the contents of a FILE and return as a string."
