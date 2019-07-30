@@ -132,7 +132,11 @@ form, with symbol at point replaced by __prefix__."
                           ;; `ending-of-defun' work incorrectly in the REPL
                           ;; buffer, so context extraction fails there.
                           (derived-mode-p 'clojure-mode))
-                     (or (cider-completion-get-context-at-point)
+                     ;; We use ignore-errors here since grabbing the context
+                     ;; might fail because of unbalanced parens, or other
+                     ;; technical reasons, yet we don't want to lose all
+                     ;; completions and throw error to user because of that.
+                     (or (ignore-errors (cider-completion-get-context-at-point))
                          "nil")
                    "nil")))
     (if (string= cider-completion-last-context context)
