@@ -122,6 +122,12 @@ these are passed to the command directly, in first position
 usually task names and their parameters (e.g., `dev` for launching
 boot's dev task instead of the standard `repl -s wait`).
 
+To use `cider-jack-in` with `tools.deps` on Windows set the
+`cider-clojure-cli-command` to `"powershell"`. This happens by default
+if you are on Windows and no `clojure` executable is found. Using
+`"powershell"` will Base64 encode the clojure launch command before
+passing it to PowerShell and avoids shell-escaping issues.
+
 == Connect to a Running nREPL Server
 
 If you have an nREPL server already running, CIDER can connect to
