@@ -31,7 +31,7 @@
 * [#2308](https://github.com/clojure-emacs/cider/issues/2308): Don't rely on the classpath in `cider-library-present-p`. Now it does a `require` instead to check if some library is present or not.
 * [#2541](https://github.com/clojure-emacs/cider/issues/2541): Hook properly CIDER's code completion machinery.
 * [#2659](https://github.com/clojure-emacs/cider/issues/2659): Handle `#shadow/env` reader tags in `cider--shadow-get-builds`.
-* [#2676](https://github.com/clojure-emacs/cider/issues/2676): Widen before cider--file-string, to allow cider-load-buffer to work on narrowed buffers
+* [#2676](https://github.com/clojure-emacs/cider/issues/2676): Widen before `cider--file-string`, to allow `cider-load-buffer` to work on narrowed buffers.
 
 ## 0.21.0 (2019-02-19)
 
