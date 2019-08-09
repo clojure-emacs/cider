@@ -29,6 +29,7 @@
 (require 'cider-util)
 (require 'subr-x)
 (require 'cider-compat)
+(require 'cider-mode)
 
 (require 'cider-client)
 (require 'cider-popup)
@@ -96,10 +97,13 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
   "Emit a RESULT matching QUERY into current buffer, formatted for DOCS-P."
   (nrepl-dbind-response result (name type doc)
     (let* ((label (capitalize (if (string= type "variable") "var" type)))
-           (help (concat "Display doc for this " (downcase label))))
-      (cider-propertize-region (list 'apropos-symbol name
-                                     'action 'cider-apropos-doc
-                                     'help-echo help)
+           (help (concat "Display doc for this " (downcase label)))
+           (props (list 'apropos-symbol name
+                        'action 'cider-apropos-doc))
+           (props (if cider-use-tooltips
+                      (append props (list 'help-echo help))
+                    props)))
+      (cider-propertize-region props
         (insert-text-button name 'type 'apropos-symbol)
         (insert "\n  ")
         (insert-text-button label 'type (intern (concat "apropos-" type)))

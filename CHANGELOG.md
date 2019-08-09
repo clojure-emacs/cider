@@ -15,6 +15,7 @@
 
 ### Changes
 
+* `cider-use-tooltips` now also controls whether `help-echo` is used.
 * `cider-print-options` is now supported by the `pr` option for `cider-print-fn`. The options will now be also used by interactive eval commands that do not use pretty-printing.
 * `spec-list` and `spec-form` requests send the current namespace for alias resolution.
 * `C-c , C-g` and `C-c C-t C-g` cancel the key chord instead of rerunning the last test. The respective command has been moved to `C-c , C-a`, `C-c , a`, `C-c C-t C-a` and `C-c C-t a`.
