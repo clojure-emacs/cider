@@ -969,7 +969,7 @@ SYM and INFO is passed to `cider-docview-render'"
      (buffer-substring-no-properties (point-min) (1- (point))))))
 
 (defcustom cider-use-tooltips t
-  "If non-nil, CIDER displays mouse-over tooltips."
+  "If non-nil, CIDER displays mouse-over tooltips, as well as the `help-echo' mechanism."
   :group 'cider
   :type 'boolean
   :package-version '(cider "0.12.0"))
@@ -1011,7 +1011,8 @@ property."
   (lambda (beg end &rest rest)
     (with-silent-modifications
       (remove-text-properties beg end '(cider-locals nil cider-block-dynamic-font-lock nil))
-      (add-text-properties beg end '(help-echo cider--help-echo))
+      (when cider-use-tooltips
+        (add-text-properties beg end '(help-echo cider--help-echo)))
       (when cider-font-lock-dynamically
         (cider--update-locals-for-region beg end)))
     (apply func beg end rest)))
