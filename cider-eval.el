@@ -112,6 +112,11 @@ If t, save the file without confirmation."
   :group 'cider
   :package-version '(cider . "0.6.0"))
 
+(defcustom cider-file-loaded-hook nil
+  "List of functions to call when a load file has completed."
+  :type 'hook
+  :group 'cider
+  :package-version '(cider . "0.1.7"))
 
 (defconst cider-output-buffer "*cider-out*")
 

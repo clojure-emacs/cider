@@ -108,11 +108,6 @@
   :type 'hook
   :group 'nrepl)
 
-(defcustom nrepl-file-loaded-hook nil
-  "List of functions to call when a load file has completed."
-  :type 'hook
-  :group 'nrepl)
-
 (defcustom nrepl-force-ssh-for-remote-hosts nil
   "If non-nil, do not attempt a direct connection for remote hosts."
   :type 'boolean
