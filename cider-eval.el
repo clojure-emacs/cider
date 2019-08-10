@@ -492,7 +492,8 @@ or it can be a list with (START END) of the evaluated region."
                                  '())))
 
 (defun cider-load-file-handler (&optional buffer done-handler)
-  "Make a load file handler for BUFFER."
+  "Make a load file handler for BUFFER.
+Optional argument DONE-HANDLER lambda will be run once load is complete."
   (let ((eval-buffer (current-buffer)))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (buffer value)
@@ -1083,7 +1084,8 @@ passing arguments."
   "Load (eval) BUFFER's file in nREPL.
 If no buffer is provided the command acts on the current buffer.  If the
 buffer is for a cljc file, and both a Clojure and ClojureScript REPL exists
-for the project, it is evaluated in both REPLs."
+for the project, it is evaluated in both REPLs.
+Optional argument CALLBACK will override the default ‘cider-load-file-handler’."
   (interactive)
   (setq buffer (or buffer (current-buffer)))
   ;; When cider-load-buffer or cider-load-file are called in programs the
