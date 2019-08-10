@@ -491,7 +491,7 @@ or it can be a list with (START END) of the evaluated region."
                                    (cider-handle-compilation-errors err eval-buffer))
                                  '())))
 
-(defun cider-load-file-handler (&optional buffer)
+(defun cider-load-file-handler (&optional buffer done-handler)
   "Make a load file handler for BUFFER."
   (let ((eval-buffer (current-buffer)))
     (nrepl-make-response-handler (or buffer eval-buffer)
@@ -506,7 +506,7 @@ or it can be a list with (START END) of the evaluated region."
                                  (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
-                                 '()
+                                 (or done-handler '())
                                  (lambda ()
                                    (funcall nrepl-err-handler)))))
 
