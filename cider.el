@@ -139,7 +139,7 @@ version from the CIDER package or library.")
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-clojure-cli-command
-  (if (and (= system-type 'windows-nt)
+  (if (and (eq system-type 'windows-nt)
            (null (executable-find "clojure")))
       "powershell"
     "clojure")
