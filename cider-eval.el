@@ -1079,7 +1079,7 @@ passing arguments."
       (widen)
       (substring-no-properties (buffer-string)))))
 
-(defun cider-load-buffer (&optional buffer)
+(defun cider-load-buffer (&optional buffer callback)
   "Load (eval) BUFFER's file in nREPL.
 If no buffer is provided the command acts on the current buffer.  If the
 buffer is for a cljc file, and both a Clojure and ClojureScript REPL exists
@@ -1114,7 +1114,8 @@ for the project, it is evaluated in both REPLs."
                                        (funcall cider-to-nrepl-filename-function
                                                 (cider--server-filename filename))
                                        (file-name-nondirectory filename)
-                                       repl)))
+                                       repl
+                                       callback)))
           (message "Loading %s..." filename))))))
 
 (defun cider-load-file (filename)
