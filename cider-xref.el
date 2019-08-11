@@ -45,7 +45,7 @@
 
 (defcustom cider-xref-actions '(("display-doc" . cider-doc-lookup)
                                 ("find-def" . cider--find-var)
-                                ("lookup-on-grimoire" . cider-grimoire-lookup))
+                                ("lookup-on-clojuredocs" . cider-clojuredocs-lookup))
   "Controls the actions to be applied on the symbol found by an xref search.
 The first action key in the list will be selected as default.  If the list
 contains only one action key, the associated action function will be
