@@ -57,7 +57,7 @@ kbd:[C-c C-d C-j]
 
 | kbd:[C-c C-d r] +
 kbd:[C-c C-d C-r]
-| Lookup symbol in Grimoire.
+| Lookup symbol in ClojureDocs.
 
 | kbd:[C-c C-d a] +
 kbd:[C-c C-d C-a]

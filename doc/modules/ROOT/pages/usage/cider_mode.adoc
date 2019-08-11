@@ -157,15 +157,15 @@ kbd:[C-c C-d C-d]
 kbd:[C-c C-d C-j]
 | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 
-| `cider-grimoire`
+| `cider-clojuredocs`
 | kbd:[C-c C-d r] +
 kbd:[C-c C-d C-r]
-| Lookup symbol in Grimoire.
+| Lookup symbol in ClojureDocs.
 
-| `cider-grimoire-web`
+| `cider-clojuredocs-web`
 | kbd:[C-c C-d w] +
 kbd:[C-c C-d C-w]
-| Open the grimoire documentation for symbol in a web browser.
+| Open the ClojureDocs documentation for symbol in a web browser.
 
 | `cider-apropos`
 | kbd:[C-c C-d a] +

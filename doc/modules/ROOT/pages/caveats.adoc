@@ -9,7 +9,6 @@ should be aware of.
 Currently, the following features are not supported for ClojureScript
 development:
 
-* Grimoire lookup
 * Reloading
 * Running tests
 * Tracing
