@@ -139,10 +139,14 @@ version from the CIDER package or library.")
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-clojure-cli-command
-  "clojure"
+  (if (and (eq system-type 'windows-nt)
+           (null (executable-find "clojure")))
+      "powershell"
+    "clojure")
   "The command used to execute clojure with tools.deps (requires Clojure 1.9+).
-Don't use clj here, as it doesn't work when spawned from Emacs due to
-it using rlwrap."
+Don't use clj here, as it doesn't work when spawned from Emacs due to it
+using rlwrap.  If on Windows and no \"clojure\" executable is found we
+default to \"powershell\"."
   :type 'string
   :group 'cider
   :safe #'stringp
@@ -1184,6 +1188,13 @@ non-nil, don't start if ClojureScript requirements are not met."
   :safe #'booleanp
   :version '(cider . "0.22.0"))
 
+(defun cider--powershell-encode-command (cmd-params)
+  "Base64 encode the powershell command and jack-in CMD-PARAMS for clojure-cli."
+  (let* ((quoted-params (replace-regexp-in-string "\"" "\"\"" cmd-params))
+         (command (format "clojure %s" quoted-params))
+         (utf-16le-command (encode-coding-string command 'utf-16le)))
+    (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
+
 (defun cider--update-jack-in-cmd (params)
   "Update :jack-in-cmd key in PARAMS."
   (let* ((params (cider--update-do-prompt params))
@@ -1209,7 +1220,9 @@ non-nil, don't start if ClojureScript requirements are not met."
                           (and (null project-dir)
                                (eq cider-allow-jack-in-without-project 'warn)
                                (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
-                  (let ((cmd (format "%s %s" command-resolved cmd-params)))
+                  (let ((cmd (format "%s %s" command-resolved (if (string-equal command "powershell")
+                                                                  (cider--powershell-encode-command cmd-params)
+                                                                cmd-params))))
                     (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command
                                                            (plist-get params :edit-jack-in-command))
                                                        (read-string "jack-in command: " cmd t)
