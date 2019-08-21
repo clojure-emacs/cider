@@ -36,6 +36,7 @@
 * [#2541](https://github.com/clojure-emacs/cider/issues/2541): Hook properly CIDER's code completion machinery.
 * [#2659](https://github.com/clojure-emacs/cider/issues/2659): Handle `#shadow/env` reader tags in `cider--shadow-get-builds`.
 * [#2676](https://github.com/clojure-emacs/cider/issues/2676): Widen before `cider--file-string`, to allow `cider-load-buffer` to work on narrowed buffers.
+* Don't disable `cider-mode` until all CIDER sessions have been closed.
 
 ## 0.21.0 (2019-02-19)
 

@@ -84,6 +84,10 @@ PARAMS is a plist containing :host, :port, :server and other parameters for
     (lambda (_)
       (cider-repl-create params)))))
 
+(defun cider-sessions ()
+  "Return a list of all active CIDER sessions."
+  (sesman-sessions 'CIDER))
+
 (defun cider-connected-p ()
   "Return t if CIDER is currently connected, nil otherwise."
   (process-live-p (get-buffer-process (cider-current-repl))))
@@ -248,8 +252,8 @@ See command `cider-mode'."
       (cider-mode -1))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
-  "If not connected, disable command `cider-mode' on existing Clojure buffers."
-  (unless (cider-connected-p)
+  "Disable command `cider-mode' on existing Clojure buffers when all CIDER sessions are closed."
+  (unless (cider-sessions)
     (cider-disable-on-existing-clojure-buffers)))
 
 (declare-function cider--debug-init-connection "cider-debug")
@@ -345,8 +349,8 @@ REPL defaults to the current REPL."
                   (sesman-browser-get 'object)
                   (cider-current-repl nil 'ensure))))
     (cider--close-connection repl))
-  ;; if there are no more connections we can kill all ancillary buffers
-  (unless (cider-connected-p)
+  ;; if there are no more sessions we can kill all ancillary buffers
+  (unless (cider-sessions)
     (cider-close-ancillary-buffers))
   ;; need this to refresh sesman browser
   (run-hooks 'sesman-post-command-hook))
@@ -475,8 +479,8 @@ Fallback on `cider' command."
 
 (cl-defmethod sesman-quit-session ((_system (eql CIDER)) session)
   (mapc #'cider--close-connection (cdr session))
-  ;; if there are no more connections we can kill all ancillary buffers
-  (unless (cider-connected-p)
+  ;; if there are no more session we can kill all ancillary buffers
+  (unless (cider-sessions)
     (cider-close-ancillary-buffers)))
 
 (cl-defmethod sesman-restart-session ((_system (eql CIDER)) session)
