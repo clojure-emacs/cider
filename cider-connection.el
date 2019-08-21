@@ -191,10 +191,10 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
   "Check whether we're using a compatible nREPL version."
   (if-let* ((nrepl-version (cider--nrepl-version)))
       (when (version< nrepl-version cider-required-nrepl-version)
-        (cider-emit-manual-warning "troubleshooting/#warning-saying-you-have-to-use-nrepl-0212"
+        (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_nrepl_0_4_4"
                                    "CIDER requires nREPL %s (or newer) to work properly"
                                    cider-required-nrepl-version))
-    (cider-emit-manual-warning "troubleshooting/#warning-saying-you-have-to-use-nrepl-0212"
+    (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_nrepl_0_4_4"
                                "Can't determine nREPL's version.\nPlease, update nREPL to %s."
                                cider-required-nrepl-version)))
 
@@ -203,10 +203,10 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
   "Ensure that we are meeting the minimum supported version of Clojure."
   (if-let* ((clojure-version (cider--clojure-version)))
       (when (version< clojure-version cider-minimum-clojure-version)
-        (cider-emit-manual-warning "installation/#prerequisites"
+        (cider-emit-manual-warning "installation.html#_prerequisites"
                                    "Clojure version (%s) is not supported (minimum %s). CIDER will not work."
                                    clojure-version cider-minimum-clojure-version))
-    (cider-emit-manual-warning "installation/#prerequisites"
+    (cider-emit-manual-warning "installation.html#_prerequisites"
                                "Can't determine Clojure's version. CIDER requires Clojure %s (or newer)."
                                cider-minimum-clojure-version)))
 
@@ -220,10 +220,10 @@ message in the REPL area."
          (middleware-version  (nrepl-dict-get version-dict "version-string")))
     (cond
      ((null middleware-version)
-      (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
+      (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
      ((not (string= middleware-version cider-required-middleware-version))
-      (cider-emit-manual-warning "troubleshooting/#cider-complains-of-the-cider-nrepl-version"
+      (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))
 
