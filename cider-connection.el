@@ -66,7 +66,7 @@ available) and the matching REPL buffer."
   :safe #'booleanp
   :package-version '(cider . "0.9.0"))
 
-(defconst cider-required-nrepl-version "0.4.4"
+(defconst cider-required-nrepl-version "0.6.0"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
 
@@ -191,11 +191,11 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
   "Check whether we're using a compatible nREPL version."
   (if-let* ((nrepl-version (cider--nrepl-version)))
       (when (version< nrepl-version cider-required-nrepl-version)
-        (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_nrepl_0_4_4"
+        (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_newer_nrepl"
                                    "CIDER requires nREPL %s (or newer) to work properly"
                                    cider-required-nrepl-version))
-    (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_nrepl_0_4_4"
-                               "Can't determine nREPL's version.\nPlease, update nREPL to %s."
+    (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_newer_nrepl"
+                               "Can't determine nREPL's version.\nPlease, update nREPL to %s (or newer)."
                                cider-required-nrepl-version)))
 
 (defvar cider-minimum-clojure-version)

@@ -96,17 +96,20 @@ This will bring up a backtrace with the entire function stack, including
 function arguments. So you should be able to figure out what's going on (or at
 least what's being required).
 
-=== Warning saying you have to use nREPL 0.4.4+
+=== Warning saying you have to use newer nREPL
 
-CIDER currently requires at least nREPL 0.4.4 to work properly (there were some
-nasty bugs in older version and no support for tracking where some var was
-defined in the source code). Leiningen users can add this to their
-`profiles.clj` to force the proper dependency:
+CIDER currently requires at least nREPL 0.6 to work properly. As nREPL comes
+bundled with Leiningen and Boot, from time to time you might have to override the
+version supplied by them (e.g. if you're forced to use an older version of
+Leiningen or there's no release bundling the required nREPL version yet). Leiningen
+users can add this to their `profiles.clj` to force the proper dependency:
 
 [source,clojure]
 ----
 {:repl {:dependencies [[nrepl/nrepl "x.y.z"]]}}
 ----
+
+The procedure is pretty similar for Boot.
 
 IMPORTANT: Make sure you add the newer nREPL dependency to the `:dependencies` key instead
 of `:plugins` (where `cider-nrepl` Lein plugin resides). That's a pretty common
