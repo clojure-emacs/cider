@@ -18,7 +18,7 @@ Fortunately Tim King picked it back up, and it quickly became a respectable comp
 The project evolved at rapid pace and eventually superseded SLIME in August 2012.footnote:[https://technomancy.us/163]
 Unfortunately in early 2013 Tim ran out of time for `nrepl.el` and after a period of stagnation, eventually handed it over to Bozhidar, who has been the steward
 ever since. Bozhidar renamed `nrepl.el` to CIDER in version 0.3 to avoid the common case of confusion between
-the nREPL server and the nrepl package for Emacs.footnote:[https://github.com/clojure-emacs/cider/issues/375]
+the nREPL server and the `nrepl` package for Emacs.footnote:[https://github.com/clojure-emacs/cider/issues/375]
 
 Eventually CIDER became one of the most popular development environments in the Clojure community and it spawned many
 important projects like `cider-nrepl`, `cljs-tooling` and `orchard`, that were widely used by other development tools.
@@ -35,5 +35,12 @@ that serves as inspiration for many others.
 * Summer 2013 - Bozhidar takes over the maintenance of `nrepl.el`.
 * 08 Aug 2013 - First release (0.1.8) under Bozhidar's stewardship.
 * 28 Oct 2013 - Bozhidar renames nrepl.el to CIDER and releases version 0.3.
+* 05 Aug 2014 - CIDER 0.7 leverages `cider-nrepl` for most of its functionality.
+* 16 Jun 2015 - CIDER 0.9 introduces its interactive debugger.
+* 03 Mar 2016 - CIDER 0.11 starts auto-injecting its dependencies on `cider-jack-in`.
+* 02 Sep 2018 - CIDER 0.18 introduces new connection management based on `sesman`.
+* Spring 2018 - Bozhidar assumes the maintenance of nREPL.
+* 04 May 2018 - Orchard 0.1 is released.
+* 19 Feb 2019 - CIDER 0.21 becomes the first editor to support nREPL 0.6 streamed values and improved pretty-printing.
 
 To be continued...
