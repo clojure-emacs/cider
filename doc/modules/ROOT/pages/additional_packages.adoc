@@ -48,6 +48,11 @@ fashion as `cider-test.el` does for clojure.test tests. In fact, most of
 Emidje functionalities were strongly inspired on `cider-test.el`
 features.
 
+=== kaocha-runner
+
+https://github.com/magnars/kaocha-runner.el[kaocha-runner] provides
+https://github.com/lambdaisland/kaocha[Kaocha] integration for Emacs.
+
 === helm-cider
 
 https://github.com/clojure-emacs/helm-cider[helm-cider] provides Helm
