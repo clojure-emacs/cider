@@ -32,9 +32,11 @@ that serves as inspiration for many others.
 * 24 Apr 2012 - Tim King picks up Phil's prototype.
 * 10 Jul 2012 - Tim releases version 0.1.0.
 * 21 Aug 2012 - Phil announces that `swank-clojure` is officially deprecated in favour of `nrepl.el`.
+* Autumn 2012 - Bozhidar starts contributing to `nrepl.el`.
 * Summer 2013 - Bozhidar takes over the maintenance of `nrepl.el`.
 * 08 Aug 2013 - First release (0.1.8) under Bozhidar's stewardship.
-* 28 Oct 2013 - Bozhidar renames nrepl.el to CIDER and releases version 0.3.
+* 28 Oct 2013 - Bozhidar renames `nrepl.el` to CIDER and releases version 0.3.
+* Winter 2013 - Work starts on `cider-nrepl` and ClojureScript support for CIDER.
 * 05 Aug 2014 - CIDER 0.7 leverages `cider-nrepl` for most of its functionality.
 * 16 Jun 2015 - CIDER 0.9 introduces its interactive debugger.
 * 03 Mar 2016 - CIDER 0.11 starts auto-injecting its dependencies on `cider-jack-in`.
