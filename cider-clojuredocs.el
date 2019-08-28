@@ -127,7 +127,7 @@ opposite of what that option dictates."
              (ns (nrepl-dict-get var-info "ns" (cider-current-ns)))
              (docs (cider-sync-request:clojuredocs-lookup ns name)))
         (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs))))
-    (error "Symbol %s not resolved" symbol)))
+    (error "Symbol %s not resolved" sym)))
 
 ;;;###autoload
 (defun cider-clojuredocs (&optional arg)
