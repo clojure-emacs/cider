@@ -122,12 +122,9 @@ opposite of what that option dictates."
 
 (defun cider-clojuredocs-lookup (sym)
   "Look up the ClojureDocs documentation for SYM."
-  (if-let* ((var-info (cider-var-info sym)))
-      (let* ((name (nrepl-dict-get var-info "name"))
-             (ns (nrepl-dict-get var-info "ns" (cider-current-ns)))
-             (docs (cider-sync-request:clojuredocs-lookup ns name)))
-        (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs))))
-    (error "Symbol %s not resolved" sym)))
+  (let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
+    (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs))))
+  (error "Symbol %s not resolved" sym))
 
 ;;;###autoload
 (defun cider-clojuredocs (&optional arg)
