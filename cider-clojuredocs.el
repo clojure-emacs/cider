@@ -120,14 +120,11 @@ opposite of what that option dictates."
       (insert "Not available\n"))
     (buffer-string)))
 
-(defun cider-clojuredocs-lookup (symbol)
-  "Look up the ClojureDocs documentation for SYMBOL.
-
-If SYMBOL is a special form, the clojure.core ns is used, as is
-ClojureDocs's convention."
-  (if-let* ((var-info (cider-var-info symbol)))
+(defun cider-clojuredocs-lookup (sym)
+  "Look up the ClojureDocs documentation for SYM."
+  (if-let* ((var-info (cider-var-info sym)))
       (let* ((name (nrepl-dict-get var-info "name"))
-             (ns (nrepl-dict-get var-info "ns" "clojure.core"))
+             (ns (nrepl-dict-get var-info "ns" (cider-current-ns)))
              (docs (cider-sync-request:clojuredocs-lookup ns name)))
         (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs))))
     (error "Symbol %s not resolved" symbol)))
