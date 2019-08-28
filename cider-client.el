@@ -637,7 +637,7 @@ The result entries are relative to the classpath."
   (cider-ensure-op-supported "fn-refs")
   (thread-first `("op" "fn-refs"
                   "ns" ,ns
-                  "symbol" ,sym)
+                  "sym" ,sym)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "fn-refs")))
 
@@ -646,7 +646,7 @@ The result entries are relative to the classpath."
   (cider-ensure-op-supported "fn-deps")
   (thread-first `("op" "fn-deps"
                   "ns" ,ns
-                  "symbol" ,sym)
+                  "sym" ,sym)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "fn-deps")))
 

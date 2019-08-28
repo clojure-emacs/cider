@@ -43,7 +43,7 @@
   "Perform nREPL \"resource\" op with NS and SYM."
   (thread-first `("op" "clojuredocs-lookup"
                   "ns" ,ns
-                  "symbol" ,sym)
+                  "sym" ,sym)
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "clojuredocs")))
 
