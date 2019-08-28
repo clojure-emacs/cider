@@ -61,13 +61,13 @@ We need to handle \"?\", \".\", \"..\" and \"/\"."
     (when (and name ns)
       (concat base-url ns "/" (cider-clojuredocs-replace-special name)))))
 
-(defun cider-clojuredocs-web-lookup (symbol)
-  "Open the ClojureDocs documentation for SYMBOL in a web browser."
-  (if-let* ((var-info (cider-var-info symbol)))
+(defun cider-clojuredocs-web-lookup (sym)
+  "Open the ClojureDocs documentation for SYM in a web browser."
+  (if-let* ((var-info (cider-var-info sym)))
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns")))
         (browse-url (cider-clojuredocs-url name ns)))
-    (error "Symbol %s not resolved" symbol)))
+    (error "Symbol %s not resolved" sym)))
 
 ;;;###autoload
 (defun cider-clojuredocs-web (&optional arg)
