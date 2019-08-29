@@ -65,27 +65,27 @@ the symbol found by the xref search as argument."
     (cider-propertize-region (list 'apropos-symbol var-name
                                    'action 'cider-xref-doc
                                    'help-echo "Display doc")
-      (insert-text-button var-name 'type 'apropos-symbol)
-      (insert "\n  ")
-      (insert-text-button "Function" 'type 'apropos-function)
-      (insert ": ")
-      (let ((beg (point)))
-        (insert (nrepl-dict-get result "doc"))
-        (fill-region beg (point)))
-      (insert "\n")
-      (if-let* ((file (nrepl-dict-get result "file"))
-                (line (nrepl-dict-get result "line")))
-          (progn
-            (insert (propertize var-name
-                                'font-lock-face 'font-lock-function-name-face)
-                    " is defined in ")
-            (insert-text-button (cider--abbreviate-file-protocol file)
-                                'follow-link t
-                                'action (lambda (_x)
-                                          (cider-xref-source file line var-name)))
-            (insert "."))
-        (insert "Definition location unavailable."))
-      (insert "\n"))))
+      (insert-text-button var-name 'type 'apropos-symbol))
+    (insert "\n  ")
+    (insert-text-button "Function" 'type 'apropos-function)
+    (insert ": ")
+    (let ((beg (point)))
+      (insert (nrepl-dict-get result "doc"))
+      (fill-region beg (point)))
+    (insert "\n")
+    (if-let* ((file (nrepl-dict-get result "file"))
+              (line (nrepl-dict-get result "line")))
+        (progn
+          (insert (propertize var-name
+                              'font-lock-face 'font-lock-function-name-face)
+                  " is defined in ")
+          (insert-text-button (cider--abbreviate-file-protocol file)
+                              'follow-link t
+                              'action (lambda (_x)
+                                        (cider-xref-source file line var-name)))
+          (insert "."))
+      (insert "Definition location unavailable."))
+    (insert "\n")))
 
 (defun cider-xref-source (file line name)
   "Find source for FILE, LINE and NAME."
