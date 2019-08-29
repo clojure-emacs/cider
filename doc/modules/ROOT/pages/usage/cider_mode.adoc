@@ -253,6 +253,22 @@ kbd:[C-c C-t C-b]
 | kbd:[C-c C-.]
 | Jump to some namespace on the classpath.
 
+| `cider-xref-fn-refs`
+| kbd:[C-c C-? r]
+| Display function usages across loaded namespaces in a dedicated buffer.
+
+| `cider-xref-fn-refs-select`
+| kbd:[C-c C-? C-r]
+| Display function usages across loaded namespaces in a minibuffer selector.
+
+| `cider-xref-fn-deps`
+| kbd:[C-c C-? d]
+| Display function deps (other functions used by it) in a dedicated buffer.
+
+| `cider-xref-fn-deps-select`
+| kbd:[C-c C-? C-d]
+| Display function deps (other functions used by it) in a minibuffer selector.
+
 | `cider-pop-back`
 | kbd:[M-,]
 | Return to your pre-jump location.

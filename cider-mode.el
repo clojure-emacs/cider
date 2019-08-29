@@ -470,6 +470,10 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-find-keyword "cider-find")
 (declare-function cider-find-var "cider-find")
 (declare-function cider-find-dwim-at-mouse "cider-find")
+(declare-function cider-xref-fn-refs "cider-xref")
+(declare-function cider-xref-fn-refs-select "cider-xref")
+(declare-function cider-xref-fn-deps "cider-xref")
+(declare-function cider-xref-fn-deps-select "cider-xref")
 
 (defconst cider--has-many-mouse-buttons (not (memq window-system '(mac ns)))
   "Non-nil if system binds forward and back buttons to <mouse-8> and <mouse-9>.
@@ -519,6 +523,10 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-d") #'cider-describe-connection)
     (define-key map (kbd "C-c C-=") 'cider-profile-map)
+    (define-key map (kbd "C-c C-? r") #'cider-xref-fn-refs)
+    (define-key map (kbd "C-c C-? C-r") #'cider-xref-fn-refs-select)
+    (define-key map (kbd "C-c C-? d") #'cider-xref-fn-deps)
+    (define-key map (kbd "C-c C-? C-d") #'cider-xref-fn-deps-select)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
     (dolist (variable '(cider-mode-interactions-menu
