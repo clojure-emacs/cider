@@ -330,8 +330,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
      :active (seq-remove #'null cider-ancillary-buffers)]
     ("nREPL" :active (cider-connected-p)
      ["Describe nrepl session" cider-describe-nrepl-session]
-     ["Toggle message logging" nrepl-toggle-message-logging])
-    "Menu for CIDER mode."))
+     ["Toggle message logging" nrepl-toggle-message-logging]))
+  "Menu for CIDER mode.")
 
 (defconst cider-mode-eval-menu
   '("CIDER Eval" :visible (cider-connected-p)
