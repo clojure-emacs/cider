@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.22.0 (2019-09-01)
+
 ### New features
 
 * [#2656](https://github.com/clojure-emacs/cider/issues/2656): Base64 encode clojure command and arguments on jack-in when `cider-clojure-cli-command` is `"powershell"` to avoid escaping issues. If no `clojure` command is found on Windows `cider-clojure-cli-command` defaults to `"powershell"`.
