@@ -767,7 +767,8 @@ Figwheel for details."
   (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
         (options (string-trim
                   (or cider-figwheel-main-default-options
-                      (read-from-minibuffer "Select figwheel-main build (e.g. :dev): ")))))
+                      (read-from-minibuffer "Enter figwheel-main build-id (must match file named <build-id>.cljs.edn. Default is 'dev'): "
+                                            nil nil nil nil ":dev")))))
     (format form (cider-normalize-cljs-init-options options))))
 
 (defcustom cider-custom-cljs-repl-init-form nil
