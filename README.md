@@ -30,7 +30,7 @@ so on.
 
 The instructions that follow are meant to get you from zero to a running CIDER
 REPL in under 5 minutes.  See the
-[official manual](https://docs.cider.mx) for (way) more
+[user manual](https://docs.cider.mx) for (way) more
 details.
 
 ### Installation
