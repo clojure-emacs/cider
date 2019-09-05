@@ -764,14 +764,15 @@ Figwheel for details."
 
 (defun cider-figwheel-main-init-form ()
   "Produce the figwheel-main ClojureScript init form."
-  (let* ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
-        (options (string-trim
-                  (or cider-figwheel-main-default-options
-                      (read-from-minibuffer "Enter figwheel-main build-id (Default 'dev'): "))))
-        (options (if (equal options "")
-                     ":dev"
-                   options)))
-    (format form (cider-normalize-cljs-init-options options))))
+  (let* ((form "(do (require 'figwheel.main) (figwheel.main/start %s))"))
+    (if cider-figwheel-main-default-options
+        (format form (cider-normalize-cljs-init-options (string-trim cider-figwheel-main-default-options)))
+      (let* ((build (read-from-minibuffer "Enter figwheel-main build-id (Default 'dev'): "))
+             (build (if (equal build "") "dev" (string-trim build)))
+             (build-file (concat (string-remove-prefix ":" build) ".cljs.edn")))
+        (if (file-exists-p build-file)
+            (format form (cider-normalize-cljs-init-options build))
+          (user-error "Build file %s does not exist." build-file))))))
 
 (defcustom cider-custom-cljs-repl-init-form nil
   "The form used to start a custom ClojureScript REPL.
