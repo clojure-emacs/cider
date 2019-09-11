@@ -15,6 +15,7 @@
 * Add a command to find runtime function dependencies (`cider-xref-fn-deps`).
 * Add a menu to the inspector.
 * Add completion of shadow-cljs build names in the minibuffer when connecting or jacking in.
+* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Only major and minor version coordinates are compared for middleware check.
 
 ### Changes
 

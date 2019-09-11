@@ -210,6 +210,10 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
                                "Can't determine Clojure's version. CIDER requires Clojure %s (or newer)."
                                cider-minimum-clojure-version)))
 
+(defun cider--strip-version-patch (v)
+  "Strips everything but major.minor from the version, returning a version list."
+  (seq-take (version-to-list v) 2))
+
 (defvar cider-required-middleware-version)
 (defun cider--check-middleware-compatibility ()
   "CIDER frontend/backend compatibility check.
@@ -222,7 +226,8 @@ message in the REPL area."
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
-     ((not (string= middleware-version cider-required-middleware-version))
+     ((not (version-list-= (cider--strip-version-patch middleware-version)
+                          (cider--strip-version-patch cider-required-middleware-version)))
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))
