@@ -211,7 +211,8 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
                                cider-minimum-clojure-version)))
 
 (defun cider--strip-version-patch (v)
-  "Strips everything but major.minor from the version, returning a version list."
+  "Strips everything but major.minor from the version, returning a version list.
+V is the version string to strip the patch from."
   (seq-take (version-to-list v) 2))
 
 (defvar cider-required-middleware-version)
@@ -227,7 +228,7 @@ message in the REPL area."
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
      ((not (version-list-= (cider--strip-version-patch middleware-version)
-                          (cider--strip-version-patch cider-required-middleware-version)))
+                           (cider--strip-version-patch cider-required-middleware-version)))
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))

@@ -15,7 +15,6 @@
 * Add a command to find runtime function dependencies (`cider-xref-fn-deps`).
 * Add a menu to the inspector.
 * Add completion of shadow-cljs build names in the minibuffer when connecting or jacking in.
-* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Only major and minor version coordinates are compared for middleware check.
 
 ### Changes
 
@@ -40,6 +39,7 @@
 * [#2659](https://github.com/clojure-emacs/cider/issues/2659): Handle `#shadow/env` reader tags in `cider--shadow-get-builds`.
 * [#2676](https://github.com/clojure-emacs/cider/issues/2676): Widen before `cider--file-string`, to allow `cider-load-buffer` to work on narrowed buffers.
 * Don't disable `cider-mode` until all CIDER sessions have been closed.
+* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Only major and minor version coordinates are compared for middleware check.
 
 ## 0.21.0 (2019-02-19)
 
