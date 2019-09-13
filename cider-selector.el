@@ -97,6 +97,11 @@ is chosen.  The returned buffer is selected with
 `switch-to-buffer'."
   (let ((method `(lambda ()
                    (let ((buffer (progn ,@body)))
+                     ;; Need a guard here, for when buffer evals to NIL
+                     ;; This is possible if nothing is selected that is 'CIDER' based.
+                     ;; An appropriate fix would be to then just pull the 'last' buffer of a given type.
+                     ;; The buffer list tends to be sorted by last visit, so we can leverage that perhaps.
+                     (when (not buffer) (message "Darn!"))
                      (cond ((not (get-buffer buffer))
                             (message "No such buffer: %S" buffer)
                             (ding))
