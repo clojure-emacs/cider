@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* `cider-selector` has more robust handling for edge cases.
+
 ## 0.22.0 (2019-09-01)
 
 ### New features
