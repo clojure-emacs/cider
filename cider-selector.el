@@ -57,7 +57,10 @@ Only considers buffers that are not already visible."
                        (derived-mode-p mode))
                      ;; names starting with space are considered hidden by Emacs
                      (not (string-match-p "^ " (buffer-name buffer)))
-                     (null (get-buffer-window buffer 'visible)))
+                     ;; Why not? If we have a window split and want to use cider-selector
+                     ;; to jump between the latest clojure / REPL?
+                     ;; (null (get-buffer-window buffer 'visible))
+                     )
            return buffer
            finally (error "Can't find unshown buffer in %S" mode)))
 
@@ -97,12 +100,8 @@ is chosen.  The returned buffer is selected with
 `switch-to-buffer'."
   (let ((method `(lambda ()
                    (let ((buffer (progn ,@body)))
-                     ;; Need a guard here, for when buffer evals to NIL
-                     ;; This is possible if nothing is selected that is 'CIDER' based.
-                     ;; An appropriate fix would be to then just pull the 'last' buffer of a given type.
-                     ;; The buffer list tends to be sorted by last visit, so we can leverage that perhaps.
-                     (when (not buffer) (message "Darn!"))
-                     (cond ((not (get-buffer buffer))
+                     (cond ((or (not buffer)
+                                (not (get-buffer buffer)))
                             (message "No such buffer: %S" buffer)
                             (ding))
                            ((get-buffer-window buffer)
@@ -144,7 +143,8 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?r
   "Current REPL buffer."
-  (cider-current-repl))
+  (or (cider-current-repl)
+      (cider-selector--recently-visited-buffer 'cider-repl-mode)))
 
 (def-cider-selector-method ?m
   "Current connection's *nrepl-messages* buffer."
