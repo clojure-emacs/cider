@@ -144,7 +144,8 @@ is chosen.  The returned buffer is selected with
   (top-level))
 
 (def-cider-selector-method ?r
-  "Current REPL buffer."
+  "Current REPL buffer or as a fallback, the most recently
+visited cider-repl-mode buffer."
   (or (cider-current-repl)
       (cider-selector--recently-visited-buffer 'cider-repl-mode)))
 
