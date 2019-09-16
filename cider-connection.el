@@ -215,6 +215,11 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
 V is the version string to strip the patch from."
   (seq-take (version-to-list v) 2))
 
+(defun cider--version-pre-release-p (v)
+  "Checks to see if the passed in version has a pre-release component.
+V the version string to check."
+  (seq-filter (lambda (x) (< x 0)) (version-to-list v)))
+
 (defvar cider-required-middleware-version)
 (defun cider--check-middleware-compatibility ()
   "CIDER frontend/backend compatibility check.
@@ -227,6 +232,11 @@ message in the REPL area."
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
+     ((cider--version-pre-release-p cider-required-middleware-version)
+      (when (not (version= middleware-version cider-required-middleware-version))
+        (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
+                                   "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch will likely break some functionality!"
+                                 cider-version cider-required-middleware-version middleware-version)))
      ((not (version-list-= (cider--strip-version-patch middleware-version)
                            (cider--strip-version-patch cider-required-middleware-version)))
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
