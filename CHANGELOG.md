@@ -39,7 +39,7 @@
 * [#2659](https://github.com/clojure-emacs/cider/issues/2659): Handle `#shadow/env` reader tags in `cider--shadow-get-builds`.
 * [#2676](https://github.com/clojure-emacs/cider/issues/2676): Widen before `cider--file-string`, to allow `cider-load-buffer` to work on narrowed buffers.
 * Don't disable `cider-mode` until all CIDER sessions have been closed.
-* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Only major and minor version coordinates are compared for middleware check.
+* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Only major and minor version coordinates are compared for middleware check. Except in the case when the required-middleware-version is a pre-release. In that case strict version checking is enabled.
 
 ## 0.21.0 (2019-02-19)
 
