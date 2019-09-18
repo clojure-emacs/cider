@@ -215,7 +215,7 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
 V is the version string to strip the patch from."
   (seq-take (version-to-list v) 2))
 
-(defun cider--acceptable-middleware-version-p (required-ver ver)
+(defun cider--compatible-middleware-version-p (required-ver ver)
   "Checks that the available middleware version is compatible with the required.
 We look only at the major and minor components.  When the major
 version is 0, only check that the minor versions match.  When the major version
@@ -243,7 +243,7 @@ message in the REPL area."
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
-     ((not (cider--acceptable-middleware-version-p cider-required-middleware-version middleware-version))
+     ((not (cider--compatible-middleware-version-p cider-required-middleware-version middleware-version))
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))

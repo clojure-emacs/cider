@@ -363,19 +363,19 @@
   (it "detects existing project"
     (expect 'y-or-n-p :to-have-been-called-times 3)))
 
-(describe "cider-acceptable-middleware-version-p"
+(describe "cider-compatible-middleware-version-p"
   (describe "correctly check compatible required and middleware versions"
-    (expect (cider--acceptable-middleware-version-p "0.24" "0.24")
+    (expect (cider--compatible-middleware-version-p "0.24.0" "0.24.1")
             :to-be t)
-    (expect (cider--acceptable-middleware-version-p "0.24" "0.23")
+    (expect (cider--compatible-middleware-version-p "0.24.1" "0.23.2")
             :to-be nil)
-    (expect (cider--acceptable-middleware-version-p "0.24" "0.24-alpha2")
+    (expect (cider--compatible-middleware-version-p "0.24.1" "0.24.1-alpha2")
             :to-be t)
-    (expect (cider--acceptable-middleware-version-p "1.24" "0.24-alpha2")
+    (expect (cider--compatible-middleware-version-p "1.24.1" "0.24.1-alpha2")
             :to-be nil)
-    (expect (cider--acceptable-middleware-version-p "1.24" "1.24-alpha2")
+    (expect (cider--compatible-middleware-version-p "1.24.1" "1.24.1-alpha2")
             :to-be t)
-    (expect (cider--acceptable-middleware-version-p "1.24.3" "1.25.2-alpha2")
+    (expect (cider--compatible-middleware-version-p "1.24.3" "1.25.2-alpha2")
             :to-be t)
-    (expect (cider--acceptable-middleware-version-p "1.25.3" "1.25.2-alpha2")
+    (expect (cider--compatible-middleware-version-p "1.25.3" "1.25.2-alpha2")
             :to-be t)))
