@@ -210,6 +210,27 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
                                "Can't determine Clojure's version. CIDER requires Clojure %s (or newer)."
                                cider-minimum-clojure-version)))
 
+(defun cider--strip-version-patch (v)
+  "Strips everything but major.minor from the version, returning a version list.
+V is the version string to strip the patch from."
+  (seq-take (version-to-list v) 2))
+
+(defun cider--compatible-middleware-version-p (required-ver ver)
+  "Checks that the available middleware version is compatible with the required.
+We look only at the major and minor components.  When the major
+version is 0, only check that the minor versions match.  When the major version
+is > 0, first check that the major version matches, then that the minor
+version is >= the required minor version.
+VER the 'installed' version,
+REQUIRED-VER the version required by cider."
+  (let ((ver* (cider--strip-version-patch ver))
+        (required-ver* (cider--strip-version-patch required-ver)))
+    (cond ((= 0 (car required-ver*))  (= (cadr required-ver*)
+                                         (cadr ver*)))
+          (t (and (= (car required-ver*)
+                     (car ver*))
+                  (version-list-<= required-ver* ver*))))))
+
 (defvar cider-required-middleware-version)
 (defun cider--check-middleware-compatibility ()
   "CIDER frontend/backend compatibility check.
@@ -222,7 +243,7 @@ message in the REPL area."
      ((null middleware-version)
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
-     ((not (string= middleware-version cider-required-middleware-version))
+     ((not (cider--compatible-middleware-version-p cider-required-middleware-version middleware-version))
       (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))
