@@ -762,17 +762,20 @@ Figwheel for details."
   :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.18.0"))
 
+(defun cider--figwheel-main-get-builds ()
+  "Extract build names from the <build-id>.cljs.edn config files in the project root."
+  (let ((builds (directory-files (clojure-project-dir) nil ".*\\.cljs\\.edn")))
+    (mapcar (lambda (f) (string-match "^\\(.*\\)\\.cljs\\.edn" f)
+              (match-string 1 f)) builds)))
+
 (defun cider-figwheel-main-init-form ()
   "Produce the figwheel-main ClojureScript init form."
-  (let* ((form "(do (require 'figwheel.main) (figwheel.main/start %s))"))
-    (if cider-figwheel-main-default-options
-        (format form (cider-normalize-cljs-init-options (string-trim cider-figwheel-main-default-options)))
-      (let* ((build (read-from-minibuffer "Enter figwheel-main build-id (Default 'dev'): "))
-             (build (if (equal build "") "dev" (string-trim build)))
-             (build-file (concat (string-remove-prefix ":" build) ".cljs.edn")))
-        (if (file-exists-p build-file)
-            (format form (cider-normalize-cljs-init-options build))
-          (user-error "Build file %s does not exist." build-file))))))
+  (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
+        (options (string-trim
+                  (or cider-figwheel-main-default-options
+                      (completing-read "Select figwheel-main build: "
+                                       (cider--figwheel-main-get-builds))))))
+    (format form (cider-normalize-cljs-init-options options))))
 
 (defcustom cider-custom-cljs-repl-init-form nil
   "The form used to start a custom ClojureScript REPL.
