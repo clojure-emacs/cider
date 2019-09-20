@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Middleware version check looks at only at the minor version for comparison (when the major version is 0) and ensures a matching major and a minor >= required otherwise.
+
 ## 0.22.0 (2019-09-01)
 
 ### New features
@@ -39,7 +43,6 @@
 * [#2659](https://github.com/clojure-emacs/cider/issues/2659): Handle `#shadow/env` reader tags in `cider--shadow-get-builds`.
 * [#2676](https://github.com/clojure-emacs/cider/issues/2676): Widen before `cider--file-string`, to allow `cider-load-buffer` to work on narrowed buffers.
 * Don't disable `cider-mode` until all CIDER sessions have been closed.
-* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Middleware version check looks at only at the minor version for comparison (when the major version is 0) and ensures a matching major and a minor >= required otherwise.
 
 ## 0.21.0 (2019-02-19)
 
