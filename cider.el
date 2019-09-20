@@ -695,7 +695,7 @@ Generally you should not disable this unless you run into some faulty check."
 
 (defun cider-check-shadow-cljs-requirements ()
   "Check whether we can start a shadow-cljs REPL."
-  (unless (cider-library-present-p "shadow.repl")
+  (unless (cider-library-present-p "shadow.cljs.devtools.api")
     (user-error "The shadow-cljs ClojureScript REPL is not available")))
 
 (defun cider-normalize-cljs-init-options (options)
