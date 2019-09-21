@@ -62,6 +62,14 @@ Value is a symbol.  The possible values are the symbols in the
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-enhanced-cljs-completion-p t
+  "This setting enables dynamic cljs completions.
+That is, expressions at point are evaluated and the properties of the
+resulting value are used to compute completions."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.24.0"))
+
 (defun cider-spinner-start (buffer)
   "Start the evaluation spinner in BUFFER.
 Do nothing if `cider-show-eval-spinner' is nil."
@@ -511,7 +519,8 @@ CONTEXT represents a completion context for compliment."
   (when-let* ((dict (thread-first `("op" "complete"
                                     "ns" ,(cider-current-ns)
                                     "symbol" ,str
-                                    "context" ,context)
+                                    "context" ,context
+                                    ,@(when cider-enhanced-cljs-completion-p '("enhanced-cljs-completion?" "t")))
                       (cider-nrepl-send-sync-request (cider-current-repl)
                                                      'abort-on-input))))
     (nrepl-dict-get dict "completions")))
