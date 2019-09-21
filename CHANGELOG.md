@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* `cider-selector` has more robust handling for edge cases.
+
 ### Bugs fixed
 
 * [#2715](https://github.com/clojure-emacs/cider/issues/2715): Fix the `shadow-cljs` presence check.

@@ -49,17 +49,23 @@ DESCRIPTION is a one-line description of what the key selects.")
 Not meant to be set by users.  It's used internally
 by `cider-selector'.")
 
-(defun cider-selector--recently-visited-buffer (mode)
+(defun cider-selector--recently-visited-buffer (mode &optional consider-visible-p)
   "Return the most recently visited buffer, deriving its `major-mode' from MODE.
-Only considers buffers that are not already visible."
+CONSIDER-VISIBLE-P will allow handling of visible windows as well.
+First pass only considers buffers that are not already visible.
+Second pass will attempt one of visible ones for scenarios where the window
+is visible, but not focused."
   (cl-loop for buffer in (buffer-list)
            when (and (with-current-buffer buffer
                        (derived-mode-p mode))
                      ;; names starting with space are considered hidden by Emacs
                      (not (string-match-p "^ " (buffer-name buffer)))
-                     (null (get-buffer-window buffer 'visible)))
+                     (or consider-visible-p
+                         (null (get-buffer-window buffer 'visible))))
            return buffer
-           finally (error "Can't find unshown buffer in %S" mode)))
+           finally (if consider-visible-p
+                       (error "Can't find unshown buffer in %S" mode)
+                     (cider-selector--recently-visited-buffer mode t))))
 
 ;;;###autoload
 (defun cider-selector (&optional other-window)
@@ -97,7 +103,7 @@ is chosen.  The returned buffer is selected with
 `switch-to-buffer'."
   (let ((method `(lambda ()
                    (let ((buffer (progn ,@body)))
-                     (cond ((not (get-buffer buffer))
+                     (cond ((not (and buffer (get-buffer buffer)))
                             (message "No such buffer: %S" buffer)
                             (ding))
                            ((get-buffer-window buffer)
@@ -138,8 +144,10 @@ is chosen.  The returned buffer is selected with
   (top-level))
 
 (def-cider-selector-method ?r
-  "Current REPL buffer."
-  (cider-current-repl))
+  "Current REPL buffer or as a fallback, the most recently
+visited cider-repl-mode buffer."
+  (or (cider-current-repl)
+      (cider-selector--recently-visited-buffer 'cider-repl-mode)))
 
 (def-cider-selector-method ?m
   "Current connection's *nrepl-messages* buffer."
