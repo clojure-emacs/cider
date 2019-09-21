@@ -673,30 +673,30 @@ Generally you should not disable this unless you run into some faulty check."
   "Check whether we can start a Figwheel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel-sidecar.repl")
-    (user-error "Figwheel-sidecar is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript")))
+    (user-error "Figwheel-sidecar is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
 
 (defun cider-check-figwheel-main-requirements ()
   "Check whether we can start a Figwheel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel.main")
-    (user-error "Figwheel-main is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript")))
+    (user-error "Figwheel-main is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "weasel.repl.server")
-    (user-error "Weasel in not available.  Please check https://docs.cider.mx/cider/basics/clojurescript/#browser-connected-clojurescript-repl")))
+    (user-error "Weasel in not available.  Please check https://docs.cider.mx/cider/basics/clojurescript/#browser-connected-clojurescript-repl for details")))
 
 (defun cider-check-boot-requirements ()
   "Check whether we can start a Boot ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "adzerk.boot-cljs-repl")
-    (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md")))
+    (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md for details")))
 
 (defun cider-check-shadow-cljs-requirements ()
   "Check whether we can start a shadow-cljs REPL."
-  (unless (cider-library-present-p "shadow.repl")
-    (user-error "The shadow-cljs ClojureScript REPL is not available")))
+  (unless (cider-library-present-p "shadow.cljs.devtools.api")
+    (user-error "The shadow-cljs ClojureScript REPL is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
 
 (defun cider-normalize-cljs-init-options (options)
   "Normalize the OPTIONS string used for initializing a ClojureScript REPL."

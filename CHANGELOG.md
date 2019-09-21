@@ -6,6 +6,11 @@
 
 * `cider-selector` has more robust handling for edge cases.
 
+### Bugs fixed
+
+* [#2715](https://github.com/clojure-emacs/cider/issues/2715): Fix the `shadow-cljs` presence check.
+* [#2705](https://github.com/clojure-emacs/cider/issues/2705): Middleware version check looks at only at the minor version for comparison (when the major version is 0) and ensures a matching major and a minor >= required otherwise.
+
 ## 0.22.0 (2019-09-01)
 
 ### New features
