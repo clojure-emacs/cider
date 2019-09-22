@@ -771,11 +771,15 @@ Figwheel for details."
 (defun cider-figwheel-main-init-form ()
   "Produce the figwheel-main ClojureScript init form."
   (let ((form "(do (require 'figwheel.main) (figwheel.main/start %s))")
-        (options (string-trim
-                  (or cider-figwheel-main-default-options
-                      (completing-read "Select figwheel-main build: "
-                                       (cider--figwheel-main-get-builds))))))
-    (format form (cider-normalize-cljs-init-options options))))
+        (builds (cider--figwheel-main-get-builds)))
+    (cond
+     (cider-figwheel-main-default-options
+      (format form (cider-normalize-cljs-init-options (string-trim cider-figwheel-main-default-options))))
+
+     (builds
+      (format form (cider-normalize-cljs-init-options (completing-read "Select figwheel-main build: " builds))))
+
+     (t (user-error "No figwheel-main build files (<build-id>.cljs.edn) were found")))))
 
 (defcustom cider-custom-cljs-repl-init-form nil
   "The form used to start a custom ClojureScript REPL.
