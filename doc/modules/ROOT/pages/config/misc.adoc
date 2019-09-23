@@ -21,6 +21,17 @@ bottom) with the `cider-use-overlays` variable.
 (setq cider-use-overlays nil)
 ----
 
+By default, result overlays are displayed at the end of the line. You can set
+the variable `cider-result-overlay-position` to display results at the end of
+their respective forms instead.
+Note that this also affects the position of debugger overlays.
+
+[source,lisp]
+----
+(setq cider-result-overlay-position 'at-point)
+----
+
+
 == Minibuffer completion
 
 Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While
