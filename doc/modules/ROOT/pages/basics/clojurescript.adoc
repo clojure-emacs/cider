@@ -113,6 +113,16 @@ You can also modify the known ClojureScript REPLs on a per-project basis using
   (cider-default-cljs-repl . super-cljs)))
 ----
 
+For one-off REPLs you can also use the custom REPL init form like this:
+
+[source,lisp]
+----
+;; modify the list of known REPLs and set some default
+((nil
+  (cider-custom-cljs-repl-init-form . "(do (foo) (bar))"
+  (cider-default-cljs-repl . custom)))
+----
+
 If you already have a Clojure REPL running and want to add a
 ClojureScript REPL, you can invoke
 `cider-jack-in-sibling-clojurescript` to add it.

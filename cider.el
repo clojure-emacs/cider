@@ -770,15 +770,30 @@ Figwheel for details."
                       (read-from-minibuffer "Select figwheel-main build (e.g. :dev): ")))))
     (format form (cider-normalize-cljs-init-options options))))
 
+(defcustom cider-custom-cljs-repl-init-form nil
+  "The form used to start a custom ClojureScript REPL.
+When set it becomes the return value of the `cider-custom-cljs-repl-init-form'
+function, which normally prompts for the init form.
+
+This defcustom is mostly intended for use with .dir-locals.el for
+cases where it doesn't make sense to register a new ClojureScript REPL type."
+  :type 'string
+  :safe (lambda (s) (or (null s) (stringp s)))
+  :package-version '(cider . "0.23.0"))
+
 (defun cider-custom-cljs-repl-init-form ()
-  "Prompt for a form that would start a ClojureScript REPL.
+  "The form used to start a custom ClojureScript REPL.
+Defaults to the value of `cider-custom-cljs-repl-init-form'.
+If it's nil the function will prompt for a form.
 The supplied string will be wrapped in a do form if needed."
-  (let ((form (read-from-minibuffer "Please, provide a form to start a ClojureScript REPL: ")))
-    ;; TODO: We should probably make this more robust (e.g. by using a regexp or
-    ;; parsing the form).
-    (if (string-prefix-p "(do" form)
-        form
-      (format "(do %s)" form))))
+  (or
+   cider-custom-cljs-repl-init-form
+   (let ((form (read-from-minibuffer "Please, provide a form to start a ClojureScript REPL: ")))
+     ;; TODO: We should probably make this more robust (e.g. by using a regexp or
+     ;; parsing the form).
+     (if (string-prefix-p "(do" form)
+         form
+       (format "(do %s)" form)))))
 
 (defvar cider-cljs-repl-types
   '((nashorn "(do (require 'cljs.repl.nashorn) (cider.piggieback/cljs-repl (cljs.repl.nashorn/repl-env)))"

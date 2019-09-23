@@ -5,6 +5,7 @@
 ### Changes
 
 * [#2711](https://github.com/clojure-emacs/cider/pull/2711): `cider-selector` has more robust handling for edge cases.
+* [#2572](https://github.com/clojure-emacs/cider/issues/2572): Make it possible to a start a one off ClojureScript REPL without defining a new REPL type.
 
 ### Bugs fixed
 
