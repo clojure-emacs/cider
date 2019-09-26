@@ -98,6 +98,13 @@
       (spy-on 'thing-at-point :and-return-value nil)
       (expect (cider-symbol-at-point) :not :to-be-truthy)))
 
+  (describe "when on an opening paren"
+    (it "returns the following symbol"
+      (with-temp-buffer
+        (insert "(some function call)")
+        (goto-char (point-min))
+        (expect (cider-symbol-at-point 'look-back) :to-equal "some"))))
+
   (it "can identify symbols in a repl, ignoring the repl prompt"
     ;; ignores repl prompts
     (spy-on 'thing-at-point :and-return-value (propertize "user>" 'field 'cider-repl-prompt))

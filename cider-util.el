@@ -134,6 +134,8 @@ find a symbol if there isn't one at point."
       (when look-back
         (save-excursion
           (ignore-errors
+            (when (looking-at "(")
+              (forward-char 1))
             (while (not (looking-at "\\sw\\|\\s_\\|\\`"))
               (forward-sexp -1)))
           (cider-symbol-at-point)))))
