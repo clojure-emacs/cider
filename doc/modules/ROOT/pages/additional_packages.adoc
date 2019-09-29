@@ -65,6 +65,14 @@ to navigate groups of related CIDER commands.
 
 You can think of it as a fancier https://github.com/justbur/emacs-which-key[which-key].
 
+=== flycheck-clj-kondo
+
+https://github.com/borkdude/flycheck-clj-kondo/[flycheck-clj-kondo] is a
+Flycheck checker for Clojure that provides instant linting of clojure code as you type, via
+https://github.com/borkdude/clj-kondo[clj-kondo].
+
+https://github.com/borkdude/clj-kondo[clj-kondo] is a great way of preventing you writing bugs in your code :)
+
 === squiggly-clojure
 
 https://github.com/clojure-emacs/squiggly-clojure[squiggly-clojure] is a
