@@ -68,7 +68,7 @@ That is, expressions at point are evaluated and the properties of the
 resulting value are used to compute completions."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "0.24.0"))
+  :package-version '(cider . "0.23.0"))
 
 (defun cider-spinner-start (buffer)
   "Start the evaluation spinner in BUFFER.
