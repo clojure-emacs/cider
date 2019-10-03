@@ -21,6 +21,22 @@ all: build
 
 -include .depend
 
+.PHONY: elpa-key
+elpa-key:
+	-mkdir -p $(HOME)/.emacs.d/elpa/gnupg
+	chmod 700 $(HOME)/.emacs.d/elpa/gnupg
+	( for i in 1 2 3 ; do \
+	    gpg --keyserver hkp://pool.sks-keyservers.net --homedir $(HOME)/.emacs.d/elpa/gnupg --recv-keys 066DAFCB81E42C40 ; \
+	    if gpg -q --homedir $(HOME)/.emacs.d/elpa/gnupg -k | grep 81E42C40 ; then \
+	      exit 0 ; \
+	    fi ; \
+	    sleep 5 ; \
+	  done ; \
+	  exit 1 ; \
+	)
+	-mkdir -p $(shell $(CASK) package-directory)
+	rsync -azSH $(HOME)/.emacs.d/elpa/gnupg $(shell $(CASK) package-directory)
+
 elpa-$(EMACS):
 	$(CASK) install
 	$(CASK) update

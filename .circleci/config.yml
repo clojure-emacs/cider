@@ -5,6 +5,7 @@ commands:
   setup:
     steps:
       - checkout
+      - run: make elpa-key
       - run: make elpa
       - run: emacs --version
   test:
