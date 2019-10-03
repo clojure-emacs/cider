@@ -35,7 +35,7 @@ elpa-key:
 	  exit 1 ; \
 	)
 	-mkdir -p $(shell $(CASK) package-directory)
-	rsync -azSH $(HOME)/.emacs.d/elpa/gnupg $(shell $(CASK) package-directory)
+	cp -pr $(HOME)/.emacs.d/elpa/gnupg $(shell $(CASK) package-directory)
 
 elpa-$(EMACS):
 	$(CASK) install
