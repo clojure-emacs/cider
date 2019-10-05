@@ -3,8 +3,8 @@
 == Quick reference
 
 A single-page quick reference PDF for CIDER commands is available
-link:cider-refcard.pdf[here]. This PDF can be created manually by running
-`pdflatex` on link:cider-refcard.tex[the CIDER refcard LaTeX file].
+https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.pdf[here]. This PDF can be created manually by running
+`pdflatex` on https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.tex[the CIDER refcard LaTeX file].
 
 == Demos
 
