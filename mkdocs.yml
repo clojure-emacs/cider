@@ -35,16 +35,4 @@ pages:
 - FAQ: faq.md
 - Additional Resources: additional_resources.md
 - Hacking on CIDER: hacking_on_cider.md
-- About:
-    - Team: about/team.md
-    - Support: about/support.md
-    - Contributing: about/contributing.md
-    - Release Policy: about/release_policy.md
-    - Changelog: about/changelog.md
-    - Logo: about/logo.md
-    - License: about/license.md
-extra_css:
-  - css/extra.css
-markdown_extensions:
-  - admonition
 theme: readthedocs
