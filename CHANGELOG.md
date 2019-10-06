@@ -5,7 +5,8 @@
 ### New features
 
 * New configuration variable `cider-result-overlay-position` determining where debugger and inline eval result overlays should be displayed. Current options are 'at-eol and 'at-point.
-* [#2606](https://github.com/clojure-emacs/cider/pull/2606): Defcustom `cider-path-translations` for translating paths from nrepl messages
+* [#2606](https://github.com/clojure-emacs/cider/pull/2606): Defcustom `cider-path-translations` for translating paths from nREPL messages (useful where a file appears to be somewhere, but it's actually somewhere else).
+* [#2698](https://github.com/clojure-emacs/cider/pull/2689): Infer figwheel builds automatically.
 
 ### Changes
 
