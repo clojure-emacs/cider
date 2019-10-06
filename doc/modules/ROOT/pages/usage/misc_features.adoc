@@ -155,7 +155,7 @@ Here's a list of all of `cider-selectors`'s keybindings:
 | kbd:[q]
 | Abort.
 
-| kbd:[h]
+| kbd:[?]
 | Show help.
 |===
 
