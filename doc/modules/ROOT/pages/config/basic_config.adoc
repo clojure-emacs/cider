@@ -83,6 +83,32 @@ To prefer local resources to remote resources (tramp) when both are available:
 (setq cider-prefer-local-resources t)
 ----
 
+== Translate paths
+
+If you wish to translate paths from your running instance you may use
+the `cider-path-translations` defcustom to do so. For instance,
+suppose your app is running in a docker container with your source
+directories mounted. The navigation paths will be relative to the
+source in the docker container rather than the correct path on your
+host machine. You can add translations easily by setting the
+following, most likely in dir locals:
+
+[source,lisp]
+----
+((nil
+  (cider-path-translations . (("/root" . "/Users/foo")
+                              ("/src/" . "/Users/foo/projects")))))
+---
+
+Each entry will be interpreted as a directory entry so trailing slash
+is optional. Navigation will attempt to translate these locations, and
+if they exist, navigate there rather than report the file does not
+exist. In the example above, the m2 directory is mounted at /root/.m2
+and the source at /src. These translations would map these locations
+back to the users computer so that navigation would work.
+
+
+
 == Auto-Save Clojure Buffers on Load
 
 Normally, CIDER prompts you to save a modified Clojure buffer when you
