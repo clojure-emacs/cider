@@ -764,9 +764,10 @@ Figwheel for details."
 
 (defun cider--figwheel-main-get-builds ()
   "Extract build names from the <build-id>.cljs.edn config files in the project root."
-  (let ((builds (directory-files (clojure-project-dir) nil ".*\\.cljs\\.edn")))
-    (mapcar (lambda (f) (string-match "^\\(.*\\)\\.cljs\\.edn" f)
-              (match-string 1 f)) builds)))
+  (when-let ((project-dir (clojure-project-dir)))
+    (let ((builds (directory-files project-dir nil ".*\\.cljs\\.edn")))
+      (mapcar (lambda (f) (string-match "^\\(.*\\)\\.cljs\\.edn" f)
+                (match-string 1 f)) builds))))
 
 (defun cider-figwheel-main-init-form ()
   "Produce the figwheel-main ClojureScript init form."
