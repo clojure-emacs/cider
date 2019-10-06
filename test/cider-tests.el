@@ -38,13 +38,13 @@
   ;; whitespace checks sprinkled amongst other tests
   (describe "from options"
     (it "leaves keywords alone"
-      (let ((cider-figwheel-main-default-options ":dev "))
+      (let ((cider-figwheel-main-default-options ":dev"))
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :dev))")))
     (it "leaves maps alone"
-      (let ((cider-figwheel-main-default-options " {:a 1 :b 2}"))
+      (let ((cider-figwheel-main-default-options "{:a 1 :b 2}"))
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:a 1 :b 2}))")))
     (it "leaves s-exprs alone"
-      (let ((cider-figwheel-main-default-options " (hashmap :a 1 :b 2)"))
+      (let ((cider-figwheel-main-default-options "(hashmap :a 1 :b 2)"))
         (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (hashmap :a 1 :b 2)))")))
     (it "prepends colon to plain names"
       (let ((cider-figwheel-main-default-options " dev"))
@@ -55,16 +55,20 @@
       ;; not necessary as of this writing, but it can't hurt
       (setq-local cider-figwheel-main-default-options nil))
     (it "leaves keywords alone"
-      (spy-on 'completing-read :and-return-value " :prod ")
+      (spy-on 'completing-read :and-return-value ":prod")
+      (spy-on 'cider--figwheel-main-get-builds :and-return-value '("dev" "prod"))
       (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))
     (it "leaves maps alone"
-      (spy-on 'completing-read :and-return-value " {:c 3 :d 4}")
+      (spy-on 'completing-read :and-return-value "{:c 3 :d 4}")
+      (spy-on 'cider--figwheel-main-get-builds :and-return-value '("dev" "prod"))
       (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start {:c 3 :d 4}))"))
     (it "leaves s-exprs alone"
-      (spy-on 'completing-read :and-return-value "(keyword \"dev\") ")
+      (spy-on 'completing-read :and-return-value "(keyword \"dev\")")
+      (spy-on 'cider--figwheel-main-get-builds :and-return-value '("dev" "prod"))
       (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start (keyword \"dev\")))"))
     (it "prepends colon to plain names"
-      (spy-on 'completing-read :and-return-value "prod ")
+      (spy-on 'completing-read :and-return-value "prod")
+      (spy-on 'cider--figwheel-main-get-builds :and-return-value '("dev" "prod"))
       (expect (cider-figwheel-main-init-form) :to-equal "(do (require 'figwheel.main) (figwheel.main/start :prod))"))))
 
 (describe "cider-project-type"
