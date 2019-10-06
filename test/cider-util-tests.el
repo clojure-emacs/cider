@@ -85,6 +85,13 @@
         (expect (cider-symbol-at-point) :not :to-be-truthy)
         (expect (cider-symbol-at-point 'look-back) :to-equal "some-symbol"))))
 
+  (describe "when the symbol at point has a trailing ."
+    (it "returns the symbol without the ."
+      (with-temp-buffer
+        (insert "SomeRecord.")
+        (expect (cider-symbol-at-point) :not :to-be-truthy)
+        (expect (cider-symbol-at-point 'look-back) :to-equal "SomeRecord"))))
+
   (describe "when there's nothing at point"
     (it "returns nil"
       (spy-on 'thing-at-point :and-return-value nil)

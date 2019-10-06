@@ -17,6 +17,7 @@
 * [#2705](https://github.com/clojure-emacs/cider/issues/2705): Middleware version check looks at only at the minor version for comparison (when the major version is 0) and ensures a matching major and a minor >= required otherwise.
 * Fixed some bugs related to the new suitable-powered ClojureScript code completion (this was fixed by upgrading the `suitable` used by `cider-nrepl`).
 * Remove a misplaced error message when doing `clojuredocs-lookup`.
+* [#2721](https://github.com/clojure-emacs/cider/issues/2721): Handle properly symbols ending in `.` (e.g. `SomeRecord.`).
 
 ## 0.22.0 (2019-09-01)
 
