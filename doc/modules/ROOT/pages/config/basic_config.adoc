@@ -83,15 +83,14 @@ To prefer local resources to remote resources (tramp) when both are available:
 (setq cider-prefer-local-resources t)
 ----
 
-== Translate paths
+== Translate File Paths
 
-If you wish to translate paths from your running instance you may use
-the `cider-path-translations` defcustom to do so. For instance,
-suppose your app is running in a docker container with your source
-directories mounted. The navigation paths will be relative to the
-source in the docker container rather than the correct path on your
-host machine. You can add translations easily by setting the
-following, most likely in dir locals:
+If you wish to translate file paths from your running instance you may use the
+`cider-path-translations` defcustom to do so. For instance, suppose your app is
+running in a docker container with your source directories mounted there. The
+navigation paths you'd get from nREPL will be relative to the source in the
+docker container rather than the correct path on your host machine. You can add
+translation mappings easily by setting the following (typically in `.dir-locals.el`):
 
 [source,lisp]
 ----
@@ -101,13 +100,11 @@ following, most likely in dir locals:
 ---
 
 Each entry will be interpreted as a directory entry so trailing slash
-is optional. Navigation will attempt to translate these locations, and
+is optional. Navigation to definition will attempt to translate these locations, and
 if they exist, navigate there rather than report the file does not
-exist. In the example above, the m2 directory is mounted at /root/.m2
-and the source at /src. These translations would map these locations
-back to the users computer so that navigation would work.
-
-
+exist. In the example above, the `.m2` directory is mounted at `/root/.m2`
+and the source at `/src`. These translations would map these locations
+back to the user's computer so that navigation to definition would work.
 
 == Auto-Save Clojure Buffers on Load
 
