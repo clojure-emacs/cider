@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 ### New features
+
 * New configuration variable `cider-result-overlay-position` determining where debugger and inline eval result overlays should be displayed. Current options are 'at-eol and 'at-point.
 
 ### Changes
