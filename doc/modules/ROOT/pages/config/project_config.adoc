@@ -1,0 +1,116 @@
+= Project-specific Configuration
+:experimental:
+
+A pretty common question about CIDER is how to handle project-specific configuration.
+There are many reasons for wanting to do something like this, but probably the first
+that comes to mind is running Leiningen with some specific profile or adding "-A:fig"
+to the jack-in command when using the Clojure CLI (a.k.a. `tools.deps`).
+
+TIP: If you simply need to edit a jack-in command on the fly you're probably better off
+prefixing the command with kbd:[C-u] (e.g. kbd:[C-u C-c C-x j j]), which will
+allow you to edit the entire command string in the minibuffer.
+
+CIDER doesn't have any special provisions for project-specific configuration, as this
+is something well supported in Emacs itself. Unfortunately the functionality in Emacs has the
+slight weird name "dir-local variables", which is probably not the thing people would
+start googling for. On the bright side - the Emacs functionality is much more generic
+than dealing with project-specific configuration.
+
+Very simply put, all you need to do is to create in the root of your project a file named
+`.dir-locals.el` which should look something like:
+
+[source,emacs-lisp]
+----
+((clojurescript-mode
+  (cider-clojure-cli-global-options . "-A:fig")
+  (eval . (cider-register-cljs-repl-type 'super-cljs "(do (foo) (bar))"))
+  (cider-default-cljs-repl . super-cljs)))
+----
+
+The structure of the file is a mapping of major modes and some variables
+that need to be set in them. As CIDER is not a major mode most of the time you'll
+probably be setting variables in `clojure-mode` or `clojurescript-mode`. Note that
+`clojurescript-mode` derives from `clojure-mode`, so whatever applies to `clojure-mode`
+will apply to `clojurescript-mode` as well. You can also evaluate code by using
+`eval` as the variable name in the variable to value mapping, but that's something
+you'll rarely need in practice.
+
+Normally, you'd simply create the `.dir-locals.el` manually and edit it like any other
+Emacs Lisp code. If you, however, feel
+overwhelmed by its syntax you can simply do `M-x add-dir-local-variable` and
+you'll be able to select the major-mode, the variable and its value
+interactively.  One small problem with this approach is that the resulting
+`.dir-local.el` will be created in the current directory, which may be a problem
+depending on what you're trying to do. Users of
+https://github.com/bbatsov/projectile[Projectile] may leverage the
+project-aware `projectile-edit-dir-locals` command instead.
+
+Here's one slightly more complex `.dir-locals.el`:
+
+[source,emacs-lisp]
+----
+((emacs-lisp-mode
+  (bug-reference-url-format . "https://github.com/clojure-emacs/cider/issues/%s")
+  (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")
+  (indent-tabs-mode . nil)
+  (fill-column . 80)
+  (sentence-end-double-space . t)
+  (emacs-lisp-docstring-fill-column . 75)
+  (checkdoc-symbol-words . ("top-level" "major-mode" "macroexpand-all" "print-level" "print-length"))
+  (checkdoc-package-keywords-flag)
+  (checkdoc-arguments-in-order-flag)
+  (checkdoc-verb-check-experimental-flag)
+  (elisp-lint-indent-specs . ((if-let* . 2)
+                              (when-let* . 1)
+                              (let* . defun)
+                              (nrepl-dbind-response . 2)
+                              (cider-save-marker . 1)
+                              (cider-propertize-region . 1)
+                              (cider-map-repls . 1)
+                              (cider--jack-in . 1)
+                              (cider--make-result-overlay . 1)
+                              ;; need better solution for indenting cl-flet bindings
+                              (insert-label . defun)              ;; cl-flet
+                              (insert-align-label . defun)        ;; cl-flet
+                              (insert-rect . defun)               ;; cl-flet
+                              (cl-defun . 2)
+                              (with-parsed-tramp-file-name . 2)
+                              (thread-first . 1)
+                              (thread-last . 1)))))
+----
+
+Did you manage to guess what it is? That's CIDER's own `.dir-locals.el`, which
+ensures that all people hacking on the Elisp codebase are going to be using some
+common code style settings. That's why everything's scoped to `emacs-lisp-mode`.
+
+For a Clojure-centric example let's take a look at  ``cider-nrepl``'s `.dir-locals.el`:
+
+[source,emacs-lisp]
+----
+((clojure-mode
+  (clojure-indent-style . :always-align)
+  (indent-tabs-mode . nil)
+  (fill-column . 80)))
+----
+
+Here the point is to ensure everyone working on the Clojure codebase using Emacs would
+be sharing the same code style settings.
+
+Often in the wild you'll see dir-local entries with `nil` as the major mode there.
+This odd looking notation simply means that the configuration specified there will
+be applied to every buffer regardless of its major mode. Use this approach sparingly, as there's
+rarely a good reason to do this.
+
+Another thing to keep in mind is that you can have multiple `.dir-locals.el` files in your project.
+Their overall effect will be cumulative with the innermost file taking precedence for any files
+in the directories beneath it. I've never needed this in practice, but I can imagine it being
+useful for people who have multiple projects in a mono repo, or people who apply different conventions
+to "real" code and its tests.
+
+You might be wondering when do changes to `.dir-locals.el` get reflected in the Emacs buffers
+affected by them. The answer is to this question is "when the buffers get created". If you change
+something in `.dir-locals.el` you'll normally have to re-create the related buffers.
+Or you can do in the hacker way and apply https://emacs.stackexchange.com/questions/13080/reloading-directory-local-variables[a bit of Elisp magic].
+
+TIP: There are more aspects to dir-locals, but they are beyond the scope of this article.
+If you're curious for all the gory details you should check out https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html[the official Emacs documentation on dir-locals].
