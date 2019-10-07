@@ -120,10 +120,10 @@ invoke Clojure's `+(require ... :reload)+` and `+(require
 The `cider-selector` (kbd:[C-c M-s]) command allows you to quickly navigate to
 important buffers in the context of a Clojure project - e.g. the REPL, the
 stacktrace buffer, the doc buffer, the most recently visited Clojure file, etc.
-The usage of the command is extremely simple - after invoking you need to type a
+The usage of the command is extremely simple - after invoking it you need to type a
 single key identifying the target buffer (e.g. `r` for the REPL).
 
-Here's a list of all of `cider-selectors`'s keybindings:
+Here's a list of all of `cider-selector`'s keybindings:
 
 |===
 | Keyboard shortcut | Description
