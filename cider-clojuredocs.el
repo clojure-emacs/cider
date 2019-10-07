@@ -47,6 +47,12 @@
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "clojuredocs")))
 
+(defun cider-sync-request:clojuredocs-refresh ()
+  "Refresh the ClojureDocs cache."
+  (thread-first '("op" "clojuredocs-refresh-cache")
+    (cider-nrepl-send-sync-request)
+    (nrepl-dict-get "status")))
+
 (defun cider-clojuredocs-replace-special (name)
   "Convert the dashes in NAME to a ClojureDocs friendly format.
 We need to handle \"?\", \".\", \"..\" and \"/\"."
@@ -80,6 +86,15 @@ opposite of what that option dictates."
   (funcall (cider-prompt-for-symbol-function arg)
            "ClojureDocs doc for"
            #'cider-clojuredocs-web-lookup))
+
+;;;###autoload
+(defun cider-clojuredocs-refresh-cache ()
+  "Refresh the ClojureDocs cache."
+  (interactive)
+  (let ((result (cider-sync-request:clojuredocs-refresh)))
+    (if (member "ok" result)
+        (message "ClojureDocs cache refreshed successfully")
+      (message "An error occurred while trying to refresh the ClojureDocs cache"))))
 
 (defun cider-create-clojuredocs-buffer (content)
   "Create a new ClojureDocs buffer with CONTENT."

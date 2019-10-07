@@ -83,8 +83,11 @@
   '("Documentation"
     ["CiderDoc" cider-doc]
     ["JavaDoc in browser" cider-javadoc]
+    "--"
     ["Clojuredocs" cider-clojuredocs]
     ["Clojuredocs in browser" cider-clojuredocs-web]
+    ["Refresh ClojureDocs cache" cider-clojuredocs-refresh-cache]
+    "--"
     ["Search symbols" cider-apropos]
     ["Search symbols & select" cider-apropos-select]
     ["Search documentation" cider-apropos-documentation]
