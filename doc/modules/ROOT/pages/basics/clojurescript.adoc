@@ -35,7 +35,7 @@ project or `deps.edn`):
 [source,clojure]
 ----
 ;; use whatever are the most recent versions here
-[cider/piggieback "0.4.1"]
+[cider/piggieback "0.4.2"]
 [org.clojure/clojure "1.9.0"]
 ----
 
@@ -177,7 +177,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[cider/piggieback "0.4.1"  :scope "test"] ; not needed for cider-jack-in-cljs
+[cider/piggieback "0.4.2"  :scope "test"] ; not needed for cider-jack-in-cljs
 ----
 +
 and this at the end of `build.boot`:
@@ -216,7 +216,7 @@ in the root of your Leiningen project definition.
 +
 [source,clojure]
 ----
-[cider/piggieback "0.4.1"] ; not needed for cider-jack-in-cljs
+[cider/piggieback "0.4.2"] ; not needed for cider-jack-in-cljs
 [figwheel-sidecar "0.5.19"] ; use here whatever the current version of figwheel is
 ----
 +
@@ -252,7 +252,7 @@ been changed from its default setting of `enabled`, as described more fully abov
 +
 [source,clojure]
 ----
-[cider/piggieback "0.4.1"]
+[cider/piggieback "0.4.2"]
 ----
 +
 . Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
