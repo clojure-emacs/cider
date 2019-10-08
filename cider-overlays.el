@@ -78,7 +78,7 @@ If 'at-point, display at the end of the respective sexp."
   :group 'cider
   :type ''(choice (const :tag "End of line" at-eol)
                   (const :tag "End of sexp" at-point))
-  :package-version '(cider . "0.22.1"))
+  :package-version '(cider . "0.23.0"))
 
 (defcustom cider-eval-result-prefix "=> "
   "The prefix displayed in the minibuffer before a result value."
