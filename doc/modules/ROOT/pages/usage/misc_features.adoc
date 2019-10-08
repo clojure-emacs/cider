@@ -123,6 +123,19 @@ stacktrace buffer, the doc buffer, the most recently visited Clojure file, etc.
 The usage of the command is extremely simple - after invoking it you need to type a
 single key identifying the target buffer (e.g. `r` for the REPL).
 
+[TIP]
+====
+One thing to keep in mind about the default keybinding kbd:[C-c M-s] is that it's available only
+in buffers where `cider-mode` is enabled (e.g. Clojure source buffers) and in the CIDER REPL.
+If you want to have it available everywhere it might be a good idea to add a global
+binding in your Emacs config:
+
+[source,lisp]
+----
+(global-set-key (kbd "C-c s") #'cider-selector)
+----
+====
+
 Here's a list of all of `cider-selector`'s keybindings:
 
 |===
