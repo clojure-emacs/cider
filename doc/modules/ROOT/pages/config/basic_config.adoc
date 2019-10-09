@@ -97,7 +97,7 @@ translation mappings easily by setting the following (typically in `.dir-locals.
 ((nil
   (cider-path-translations . (("/root" . "/Users/foo")
                               ("/src/" . "/Users/foo/projects")))))
----
+----
 
 Each entry will be interpreted as a directory entry so trailing slash
 is optional. Navigation to definition will attempt to translate these locations, and
