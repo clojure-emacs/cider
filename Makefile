@@ -29,8 +29,8 @@ elpa-key:
 	    if gpg -q --homedir $(HOME)/.emacs.d/elpa/gnupg -k | grep 81E42C40 ; then \
 	      exit 0 ; \
 	    fi ; \
-	    gpg --keyserver hkp://ipv4.pool.sks-keyservers.net --homedir $(HOME)/.emacs.d/elpa/gnupg --recv-keys 066DAFCB81E42C40 ; \
 	    if [ $i -gt 1 ] ; then sleep 5 ; fi ; \
+	    gpg --keyserver hkp://ipv4.pool.sks-keyservers.net --homedir $(HOME)/.emacs.d/elpa/gnupg --recv-keys 066DAFCB81E42C40 ; \
 	  done ; \
 	  exit 1 ; \
 	)
