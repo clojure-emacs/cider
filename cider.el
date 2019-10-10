@@ -833,7 +833,7 @@ The supplied string will be wrapped in a do form if needed."
   "A list of supported ClojureScript REPLs.
 
 For each one we have its name, the form we need to evaluate in a Clojure
-REPL to start the ClojureScript REPL and functions to very their requirements.
+REPL to start the ClojureScript REPL and functions to verify their requirements.
 
 The form should be either a string or a function producing a string.")
 
