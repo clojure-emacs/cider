@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+* [#2730](https://github.com/clojure-emacs/cider/pull/2730) Require repl utilities into current namespace not just user ns
+
 ## 0.23.0 (2019-10-08)
 
 ### New features
