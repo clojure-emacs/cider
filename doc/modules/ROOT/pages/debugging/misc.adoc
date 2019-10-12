@@ -59,4 +59,7 @@ internally using `cider-inspector-mode`):
 
 | kbd:[s]
 | Set a new page size in paginated view
+
+| kbd:[d]
+| Defines a var with current inspector value
 |===
