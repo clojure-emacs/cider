@@ -262,7 +262,7 @@ This cache is stored in the connection buffer.")
          (require-code (cdr (assoc (cider-repl-type current-repl) cider-repl-require-repl-utils-code))))
     (nrepl-send-sync-request
      (lax-plist-put
-      (nrepl--eval-request require-code)
+      (nrepl--eval-request require-code (cider-current-ns))
       "inhibit-cider-middleware" "true")
      current-repl)))
 

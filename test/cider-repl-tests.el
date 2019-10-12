@@ -211,8 +211,10 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
   (it "requires clj utils in a clj buffer"
     (spy-on 'cider-repl-type :and-return-value 'clj)
     (cider-repl-require-repl-utils)
-    (expect 'nrepl--eval-request :to-have-been-called-with (cdr (assoc 'clj cider-repl-require-repl-utils-code))))
+    (expect 'nrepl--eval-request :to-have-been-called-with
+            (cdr (assoc 'clj cider-repl-require-repl-utils-code)) "user"))
   (it "requires cljs utils in a cljs buffer"
     (spy-on 'cider-repl-type :and-return-value 'cljs)
     (cider-repl-require-repl-utils)
-    (expect 'nrepl--eval-request :to-have-been-called-with (cdr (assoc 'cljs cider-repl-require-repl-utils-code)))))
+    (expect 'nrepl--eval-request :to-have-been-called-with
+            (cdr (assoc 'cljs cider-repl-require-repl-utils-code)) "user")))
