@@ -210,7 +210,9 @@ overlay."
                       (pcase cider-result-overlay-position
                         ('at-eol (line-end-position))
                         ('at-point (point)))))
-               (display-string (format format value))
+               ;; Specify `default' face, otherwise unformatted text will
+               ;; inherit the face of the following text.
+               (display-string (format (propertize format 'face 'default) value))
                (o nil))
           (remove-overlays beg end 'category type)
           (funcall (if cider-overlays-use-font-lock
