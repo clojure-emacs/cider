@@ -2,9 +2,13 @@
 
 ## master (unreleased)
 
+### New features
+
+* [#2729](https://github.com/clojure-emacs/cider/pull/2729): New cider inspector command `cider-inspector-def-current-val` lets you define a var with the current inspector value.
+
 ### Bugs fixed
-* [#2730](https://github.com/clojure-emacs/cider/pull/2730) Require repl utilities into current namespace not just user ns
-* New cider inspector command `cider-inspector-def-current-val` lets you define a var with the current inspector value.
+
+* [#2730](https://github.com/clojure-emacs/cider/pull/2730): Require repl utilities into current namespace not just `user` ns.
 
 ## 0.23.0 (2019-10-08)
 
