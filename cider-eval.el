@@ -302,47 +302,47 @@ It delegates the actual error content to the eval or op handler."
       (cider-default-err-op-handler)
     (cider-default-err-eval-handler)))
 
-(setq clojure-1.10-error `(sequence
-                           "Syntax error "
-                           (minimal-match (zero-or-more anything))
-                           "compiling "
-                           (minimal-match (zero-or-more anything))
-                           "at ("
-                           (group-n 2 (minimal-match (zero-or-more anything)))
-                           ":"
-                           (group-n 3 (one-or-more digit))
-                           ":"
-                           (group-n 4 (one-or-more digit))
-                           ")."))
+(defconst cider-clojure-1.10-error `(sequence
+                                     "Syntax error "
+                                     (minimal-match (zero-or-more anything))
+                                     "compiling "
+                                     (minimal-match (zero-or-more anything))
+                                     "at ("
+                                     (group-n 2 (minimal-match (zero-or-more anything)))
+                                     ":"
+                                     (group-n 3 (one-or-more digit))
+                                     ":"
+                                     (group-n 4 (one-or-more digit))
+                                     ")."))
 
-(setq clojure-1.9-error `(sequence
-                          (zero-or-more anything)
-                          ", compiling:("
-                          (group-n 2 (minimal-match (zero-or-more anything)))
-                          ":"
-                          (group-n 3 (one-or-more digit))
-                          ":"
-                          (group-n 4 (one-or-more digit))
-                          ")"))
+(defconst cider-clojure-1.9-error `(sequence
+                                    (zero-or-more anything)
+                                    ", compiling:("
+                                    (group-n 2 (minimal-match (zero-or-more anything)))
+                                    ":"
+                                    (group-n 3 (one-or-more digit))
+                                    ":"
+                                    (group-n 4 (one-or-more digit))
+                                    ")"))
 
-(setq clojure-1.9-warning `(sequence
-                            (minimal-match (zero-or-more anything))
-                            (group-n 1 "warning")
-                            ", "
-                            (group-n 2 (minimal-match (zero-or-more anything)))
-                            ":"
-                            (group-n 3 (one-or-more digit))
-                            ":"
-                            (group-n 4 (one-or-more digit))
-                            " - "))
+(defconst cider-clojure-warning `(sequence
+                                  (minimal-match (zero-or-more anything))
+                                  (group-n 1 "warning")
+                                  ", "
+                                  (group-n 2 (minimal-match (zero-or-more anything)))
+                                  ":"
+                                  (group-n 3 (one-or-more digit))
+                                  ":"
+                                  (group-n 4 (one-or-more digit))
+                                  " - "))
 
-(setq clojure-compilation-regexp (rx bol (or (eval clojure-1.9-error)
-                                             (eval clojure-1.9-warning)
-                                             (eval clojure-1.10-error))))
+(defconst cider-clojure-compilation-regexp (rx bol (or (eval cider-clojure-1.9-error)
+                                                       (eval cider-clojure-warning)
+                                                       (eval cider-clojure-1.10-error))))
 
 
 (defvar cider-compilation-regexp
-  (list clojure-compilation-regexp  2 3 4 '(1))
+  (list cider-clojure-compilation-regexp  2 3 4 '(1))
   "Specifications for matching errors and warnings in Clojure stacktraces.
 See `compilation-error-regexp-alist' for help on their format.")
 
