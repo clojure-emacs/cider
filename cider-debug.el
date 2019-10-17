@@ -238,6 +238,14 @@ Each element of LOCALS should be a list of at least two elements."
                    locals ""))
     ""))
 
+(defun cider--debug-propertize-prompt-commands ()
+  "In-place formatting of the command display names for the cider-debug-prompt overlay"
+  (mapc (lambda (spec)
+          (cl-destructuring-bind (char cmd disp-name) spec
+            (when-let* ((pos (cl-position char disp-name)))
+              (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face disp-name))))
+        cider-debug-prompt-commands))
+
 (defun cider--debug-prompt (commands)
   "Return prompt to display for COMMANDS"
   ;; Force `default' face, otherwise the overlay "inherits" the face of the text
@@ -247,9 +255,7 @@ Each element of LOCALS should be a list of at least two elements."
            (lambda (prompt spec)
              (cl-destructuring-bind (char cmd disp) spec
                (if (and disp (cl-find cmd commands :test 'string=))
-                   (progn (when-let* ((pos (cl-position char disp-name)))
-                            (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face disp-name))
-                          (concat prompt " " disp))
+                   (concat prompt " " disp)
                  prompt)))
            cider-debug-prompt-commands
            :initial-value "")))
@@ -348,6 +354,7 @@ In order to work properly, this mode must be activated by
                  (when (= char ?o)
                    (define-key cider--debug-mode-map (string (upcase ?o)) #'cider-debug-mode-send-reply))))
              cider-debug-prompt-commands)
+            (cider--debug-propertize-prompt-commands)
             ;; Show the prompt.
             (cider--debug-mode-redisplay)
             ;; If a sync request is ongoing, the user can't act normally to
