@@ -197,23 +197,31 @@ Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-debug-prompt-commands
-  '((?c . "continue")
-    ;; (?C . "Continue")
-    (?n . "next")
-    (?i . "in")
-    (?o . "out")
-    (?h . "here")
-    (?e . "eval")
-    (?p . "inspect")
-    ;; (?P . "insPect")
-    (?l . "locals")
-    (?j . "inject")
-    (?s . "stacktrace")
-    (?t . "trace")
-    (?q . "quit"))
-  "An alist representing the mapping of key characters to command names
-  accepted by the CIDER debugger middleware."
-  :type '(alist :key-type character :value-type string)
+  '((?c "continue" "continue")
+    (?C "continue-all" nil)
+    (?n "next" "next")
+    (?i "in" "in")
+    (?o "out" "out")
+    (?h "here" "here")
+    (?e "eval" "eval")
+    (?p "inspect" "inspect")
+    (?l "locals" "locals")
+    (?j "inject" "inject")
+    (?s "stacktrace" "stacktrace")
+    (?t "trace" "trace")
+    (?q "quit" "quit"))
+  "A list of debugger command specs in the format
+  (KEY COMMAND-NAME DISPLAY-NAME?)
+  where KEY is a character which is mapped to the command
+  COMMAND-NAME is a valid debug command to be passed to the cider-nrepl middleware
+  DISPLAY-NAME is the string displayed in the debugger overlay
+
+  If DISPLAY-NAME is nil, that command is hidden from the overlay but still callable.
+  The rest of the commands are displayed in the same order as this list."
+  :type '(alist :key-type character
+                :value-type (list
+                             (string :tag "command name")
+                             (choice (string :tag "display name") nil)))
   :group 'cider-debug)
 
 (defun cider--debug-format-locals-list (locals)
@@ -235,15 +243,16 @@ Each element of LOCALS should be a list of at least two elements."
   ;; Force `default' face, otherwise the overlay "inherits" the face of the text
   ;; after it.
   (format (propertize "%s\n" 'face 'default)
-          (mapconcat
-           (lambda (p)
-             (let ((char (car p)) (cmd (cdr p)))
-               (when (cl-find cmd commands) ;; Only display if it's contained in the commands list
-                 (when-let* ((pos (cl-position char cmd)))
-                   (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face cmd)))
-               cmd))
+          (cl-reduce
+           (lambda (prompt spec)
+             (cl-destructuring-bind (char cmd disp) spec
+               (if (and disp (cl-find cmd commands :test 'string=))
+                   (progn (when-let* ((pos (cl-position char disp-name)))
+                            (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face disp-name))
+                          (concat prompt " " disp))
+                 prompt)))
            cider-debug-prompt-commands
-           " ")))
+           :initial-value "")))
 
 (defvar-local cider--debug-prompt-overlay nil)
 
@@ -422,7 +431,7 @@ message."
                 (if (symbolp last-command-event)
                     (symbol-name last-command-event)
                   (ignore-errors
-                    (concat ":" (cdr (assoc last-command-event cider-debug-prompt-commands)))))
+                    (concat ":" (cadr (assoc last-command-event cider-debug-prompt-commands)))))
                 nil
                 (cider--uppercase-command-p)))
   (when (and (string-prefix-p ":" command) force)
