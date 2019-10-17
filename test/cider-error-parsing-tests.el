@@ -113,29 +113,25 @@
       (expect (col-num info) :to-equal 43)
       (expect (face info) :to-equal 'cider-warning-highlight-face))))
 
-
-(setq clojure-compiler-warning "Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - call to java.lang.Integer ctor can't be resolved.")
-
-(setq clojure-1.9-compiler-error "CompilerException java.lang.RuntimeException: Unable to resolve symbol: lol in this context, compiling:(/tmp/foo/src/foo/core.clj:10:1)")
-
-(setq clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3).")
-
 (describe "The cider compilation regex"
   (it "Recognizes a clojure warning message"
-    (expect (s-matches-p cider-clojure-compilation-regexp clojure-compiler-warning)
-            :to-equal t)
-    (expect (progn (string-match cider-clojure-compilation-regexp clojure-compiler-warning)
-                   (match-string 1 clojure-compiler-warning))
-            :to-equal "warning"))
+    (let ((clojure-compiler-warning "Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - call to java.lang.Integer ctor can't be resolved."))
+      (expect (s-matches-p cider-clojure-compilation-regexp clojure-compiler-warning)
+              :to-equal t)
+      (expect (progn (string-match cider-clojure-compilation-regexp clojure-compiler-warning)
+                     (match-string 1 clojure-compiler-warning))
+              :to-equal "warning")))
   (it "Recognizes a clojure-1.9 error message"
-    (expect (s-matches-p cider-clojure-compilation-regexp clojure-1.9-compiler-error)
-            :to-equal t)
-    (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.9-compiler-error)
-                   (match-string 2 clojure-1.9-compiler-error))
-            :to-equal "/tmp/foo/src/foo/core.clj"))
+    (let ((clojure-1.9-compiler-error "CompilerException java.lang.RuntimeException: Unable to resolve symbol: lol in this context, compiling:(/tmp/foo/src/foo/core.clj:10:1)"))
+      (expect (s-matches-p cider-clojure-compilation-regexp clojure-1.9-compiler-error)
+              :to-equal t)
+      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.9-compiler-error)
+                     (match-string 2 clojure-1.9-compiler-error))
+              :to-equal "/tmp/foo/src/foo/core.clj")))
   (it "Recognizes a clojure-1.10 error message"
-    (expect (s-matches-p cider-clojure-compilation-regexp clojure-1.10-compiler-error)
-            :to-equal t)
-    (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
-                   (match-string 2 clojure-1.10-compiler-error))
-            :to-equal "src/ardoq/service/workspace_service.clj")))
+    (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
+      (expect (s-matches-p cider-clojure-compilation-regexp clojure-1.10-compiler-error)
+              :to-equal t)
+      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
+                     (match-string 2 clojure-1.10-compiler-error))
+              :to-equal "src/ardoq/service/workspace_service.clj"))))
