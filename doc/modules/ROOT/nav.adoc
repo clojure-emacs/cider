@@ -49,5 +49,6 @@
 ** xref:about/support.adoc[Support]
 ** xref:about/changelog.adoc[Changelog]
 ** xref:about/release_policy.adoc[Release Policy]
+** xref:about/compatibility.adoc[Compatibility]
 ** xref:about/logo.adoc[Logo]
 ** xref:about/license.adoc[License]

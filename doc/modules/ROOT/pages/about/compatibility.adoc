@@ -1,0 +1,69 @@
+= Compatibility
+
+== Emacs
+
+CIDER supports Emacs 25.1+. More generally we try to support the last 3 major Emacs releases
+when that's feasible and doesn't add a lot of maintenance overhead.
+
+NOTE: We pay special attention to supporting whatever Emacs is bundled with the current stable Debian
+and RHEL GNU/Linux distributions.
+
+== nREPL
+
+CIDER supports nREPL 0.6+.
+
+NOTE: We pay special attention to supporting whatever nREPL is bundled with the current stable Leiningen
+and Boot releases.
+
+== Java
+
+CIDER officially targets Java 8, Java 11 and the most recent rapid
+release version (e.g. Java 13).  More generally speaking - we aim
+to support all Java releases that are currently officially supported
+by Oracle.
+
+NOTE: The requirements for Java are pretty much `cider-nrepl`'s requirements.
+
+== Clojure
+
+CIDER targets Clojure 1.8+. As Clojure doesn't have the concept of supported releases
+we have to get a bit creative to determine the minimum version to target.
+
+The minimum required Clojure version is currently derived using data
+from the
+https://clojure.org/news/2019/02/04/state-of-clojure-2019[State of
+Clojure] survey. In general we consider a Clojure release eligible for
+dropping once its usage drops bellow 5%, but we'd not drop support for
+any release just for the sake of doing it. We'd do it only if
+this would lessen the maintenance burden or open up the possibility for
+big CIDER improvements.
+
+== ClojureScript
+
+Currently we apply the same policy for Clojure and ClojureScript support.
+
+== Compatibility Matrix
+
+NOTE: For a very long time CIDER and cider-nrepl were released in lock-step, but
+this changed in CIDER 0.18. The actual releases diverged for the first time in
+CIDER 0.23.
+
+Below you can find the official compatibility matrix for CIDER.
+
+.Compatibility Matrix
+|===
+| CIDER | Emacs | nREPL | cider-nrepl | Required JDK | Required Clojure
+
+| 0.22
+| 25.1
+| 0.6
+| 0.22
+| 1.8
+
+| 0.23
+| 25.1
+| 0.6
+| 0.22
+| 1.8
+
+|===
