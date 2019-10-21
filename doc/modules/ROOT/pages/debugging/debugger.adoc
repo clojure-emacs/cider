@@ -95,13 +95,19 @@ keys, although there are some differences.
 | Force-step to "`here`"
 
 | kbd:[c]
-| Continue without stopping
+| Continue without stopping in current breakpoint
+
+| kbd:[C]
+| Continue without stopping for all breakpoints
 
 | kbd:[e]
 | Eval code in current context
 
 | kbd:[p]
-| Inspect a value
+| Inspect the current value
+
+| kbd:[P]
+| Inspect an arbitrary expression
 
 | kbd:[l]
 | Inspect local variables
@@ -143,14 +149,16 @@ you step out with `O`.
 at the point where you want to stop next. Then press `h`, and the debugger
 will skip all breakpoints up until that spot.
 * *Here*: Same as `h`, but skips breakpoints in other functions, as with `O`.
-* *continue*: Continues without stopping, skipping all breakpoints.
+* *continue*: Continues without stopping for the current breakpoint.
+* *continue-all*: Continues without stopping, skipping all breakpoints.
 
 == Other Command Details
 
 * *eval*: Prompts for a clojure expression, which can reference local
 variables that are in scope where the debugger is stopped. Displays the result
 in an overlay.
-* *inspect*: Like eval, but displays the value in a `cider-inspector` buffer.
+* *inspect*: Inspects the currently evaluated value in a `cider-inspector` buffer.
+* *inspect-prompt*: Like eval, but displays the value in a `cider-inspector` buffer.
 * *locals*: Opens a `cider-inspector` buffer displaying all local variables
 defined in the context where the debugger is stopped.
 * *inject*: Replaces the currently-displayed value with the value of an
