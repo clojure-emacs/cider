@@ -205,6 +205,7 @@ Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
     (?h "here" "here")
     (?e "eval" "eval")
     (?p "inspect" "inspect")
+    (?P "inspect-prompt" nil)
     (?l "locals" "locals")
     (?j "inject" "inject")
     (?s "stacktrace" "stacktrace")
@@ -405,13 +406,14 @@ In order to work properly, this mode must be activated by
   `("CIDER Debugger"
     ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
     ["Continue" (cider-debug-mode-send-reply ":continue") :keys "c"]
-    ["Continue non-stop" (cider-debug-mode-send-reply ":Continue") :keys "C"]
+    ["Continue non-stop" (cider-debug-mode-send-reply ":continue-all") :keys "C"]
     ["Move out of sexp" (cider-debug-mode-send-reply ":out") :keys "o"]
     ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
     "--"
     ["Evaluate in current scope" (cider-debug-mode-send-reply ":eval") :keys "e"]
     ["Inject value" (cider-debug-mode-send-reply ":inject") :keys "i"]
-    ["Inspect value" (cider-debug-mode-send-reply ":inspect")]
+    ["Inspect current value" (cider-debug-mode-send-reply ":inspect") :keys "p"]
+    ["Inspect expression" (cider-debug-mode-send-reply ":inspect-prompt") :keys "P"]
     ["Inspect local variables" (cider-debug-mode-send-reply ":locals") :keys "l"]
     "--"
     ("Configure keys prompt"
