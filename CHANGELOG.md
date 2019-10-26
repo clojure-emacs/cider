@@ -14,6 +14,7 @@
 
 ### Bugs fixed
 
+* [#2739](https://github.com/clojure-emacs/cider/pull/2739): Start built-in shadow-cljs build profiles correctly (node-repl, browser-repl)
 * [#2730](https://github.com/clojure-emacs/cider/pull/2730): Require repl utilities into current namespace not just `user` ns.
 * [#2614](https://github.com/clojure-emacs/cider/issues/2614): Fix error highlighting in source buffers for Clojure 1.10.
 * [#2733](https://github.com/clojure-emacs/cider/issues/2733): Restore compatibility with Emacs 25.3.
