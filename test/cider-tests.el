@@ -322,6 +322,24 @@
      (expect (cider--shadow-get-builds)
              :to-have-same-items-as '(browser-repl node-repl)))))
 
+(describe "cider-shadow-cljs-init-form"
+  (it "watches and selects user-defined builds"
+    (spy-on 'completing-read :and-return-value ":client-build")
+    (expect (cider-shadow-cljs-init-form)
+            :to-equal
+            "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :client-build) (shadow/nrepl-select :client-build))"))
+  (describe "starts the built-in build profiles correctly"
+    (it "starts a node-repl"
+      (spy-on 'completing-read :and-return-value ":node-repl")
+      (expect (cider-shadow-cljs-init-form)
+              :to-equal
+              "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/node-repl))"))
+    (it "starts a browser-repl"
+      (spy-on 'completing-read :and-return-value ":browser-repl")
+      (expect (cider-shadow-cljs-init-form)
+              :to-equal
+              "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/browser-repl))"))))
+
 (provide 'cider-tests)
 
 ;;; cider-tests.el ends here

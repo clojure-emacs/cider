@@ -746,12 +746,16 @@ not just a string."
   "Generate the init form for a shadow-cljs REPL.
 We have to prompt the user to select a build, that's why
 this is a command, not just a string."
-  (let* ((form "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch %s) (shadow/nrepl-select %s))")
+  (let* ((shadow-require "(require '[shadow.cljs.devtools.api :as shadow])")
+         (build-form "(do %s (shadow/watch %s) (shadow/nrepl-select %s))")
+         (default-form "(do %s (shadow/%s))")
          (options (or cider-shadow-default-options
                       (completing-read "Select shadow-cljs build: "
                                        (cider--shadow-get-builds))))
          (build (cider-normalize-cljs-init-options options)))
-    (format form build build)))
+    (if (member build '(":browser-repl" ":node-repl"))
+        (format default-form shadow-require (string-remove-prefix ":" build))
+      (format build-form shadow-require build build))))
 
 (defcustom cider-figwheel-main-default-options nil
   "Defines the `figwheel.main/start' options.
