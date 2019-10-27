@@ -224,7 +224,8 @@ this list."
                 :value-type (list
                              (string :tag "command name")
                              (choice (string :tag "display name") nil)))
-  :group 'cider-debug)
+  :group 'cider-debug
+  :package-version '(cider . "0.24.0"))
 
 (defun cider--debug-format-locals-list (locals)
   "Return a string description of list LOCALS.
