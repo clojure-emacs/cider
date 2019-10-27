@@ -81,6 +81,7 @@
   (describe "when there is a symbol at point"
     (it "returns the symbol"
       (with-temp-buffer
+        (clojure-mode)
         (insert "some-symbol    ")
         (expect (cider-symbol-at-point) :not :to-be-truthy)
         (expect (cider-symbol-at-point 'look-back) :to-equal "some-symbol"))))
@@ -88,9 +89,9 @@
   (describe "when the symbol at point has a trailing ."
     (it "returns the symbol without the ."
       (with-temp-buffer
+        (clojure-mode)
         (insert "SomeRecord.")
-        (expect (cider-symbol-at-point) :not :to-be-truthy)
-        (expect (cider-symbol-at-point 'look-back) :to-equal "SomeRecord"))))
+        (expect (cider-symbol-at-point) :to-equal "SomeRecord"))))
 
   (describe "when there's nothing at point"
     (it "returns nil"

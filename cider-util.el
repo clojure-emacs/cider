@@ -130,7 +130,7 @@ find a symbol if there isn't one at point."
   (or (when-let* ((str (thing-at-point 'symbol)))
         (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
           ;; Remove font-locking and trailing . from constructors like Record.
-          (string-trim-right (substring-no-properties str) "\\.")))
+          (string-remove-suffix "." (substring-no-properties str))))
       (when look-back
         (save-excursion
           (ignore-errors
