@@ -414,6 +414,7 @@ In order to work properly, this mode must be activated by
     ["Continue non-stop" (cider-debug-mode-send-reply ":continue-all") :keys "C"]
     ["Move out of sexp" (cider-debug-mode-send-reply ":out") :keys "o"]
     ["Forced move out of sexp" (cider-debug-mode-send-reply ":out" nil true) :keys "O"]
+    ["Move to current position" (cider-debug-mode-send-reply ":here") :keys "h"]
     ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
     "--"
     ["Evaluate in current scope" (cider-debug-mode-send-reply ":eval") :keys "e"]
