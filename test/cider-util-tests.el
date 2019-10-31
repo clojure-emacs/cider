@@ -30,6 +30,21 @@
 (require 'buttercup)
 (require 'cider-util)
 
+(defmacro with-clojure-buffer (contents &rest body)
+  "Execute BODY in a clojure-mode buffer with CONTENTS
+
+CONTENTS is a string containing an optional character `|' indicating the
+cursor position. If not present, the cursor is placed at the end of the
+buffer."
+  (declare (indent 1))
+  `(with-temp-buffer
+     (delay-mode-hooks (clojure-mode))
+     (insert ,contents)
+     (goto-char (point-min))
+     (when (search-forward "|" nil 'noerror)
+       (delete-backward-char 1))
+     ,@body))
+
 ;;; cider-util tests
 
 (describe "cider--version"
@@ -71,26 +86,20 @@
 
 (describe "cider-symbol-at-point"
   (it "doesn't move the cursor"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "something else\n")
+    (with-clojure-buffer "something else\n"
       (expect (cider-symbol-at-point) :not :to-be-truthy)
       (expect (cider-symbol-at-point 'lookback) :to-equal "else")
       (expect (point) :to-equal (point-max))))
 
   (describe "when there is a symbol at point"
     (it "returns the symbol"
-      (with-temp-buffer
-        (clojure-mode)
-        (insert "some-symbol    ")
+      (with-clojure-buffer "some-symbol    "
         (expect (cider-symbol-at-point) :not :to-be-truthy)
         (expect (cider-symbol-at-point 'look-back) :to-equal "some-symbol"))))
 
   (describe "when the symbol at point has a trailing ."
     (it "returns the symbol without the ."
-      (with-temp-buffer
-        (clojure-mode)
-        (insert "SomeRecord.")
+      (with-clojure-buffer "SomeRecord."
         (expect (cider-symbol-at-point) :to-equal "SomeRecord"))))
 
   (describe "when there's nothing at point"
@@ -100,8 +109,7 @@
 
   (describe "when on an opening paren"
     (it "returns the following symbol"
-      (with-temp-buffer
-        (insert "(some function call)")
+      (with-clojure-buffer "(some function call)"
         (goto-char (point-min))
         (expect (cider-symbol-at-point 'look-back) :to-equal "some"))))
 
@@ -119,10 +127,7 @@
 (describe "cider-sexp-at-point"
   (describe "when the param 'bounds is not given"
     (it "returns the sexp at point"
-      (with-temp-buffer
-        (clojure-mode)
-        (insert "a\n\n,")
-        (save-excursion (insert "(defn ...)\n\nb"))
+      (with-clojure-buffer "a\n\n,|(defn ...)\n\nb"
         (expect (cider-sexp-at-point) :to-equal "(defn ...)")
         (insert "@")
         (expect (cider-sexp-at-point) :to-equal "(defn ...)")
@@ -132,10 +137,7 @@
 
   (describe "when the param 'bounds is given"
     (it "returns the bounds of starting and ending positions of the sexp"
-      (with-temp-buffer
-        (clojure-mode)
-        (insert "a\n\n,")
-        (save-excursion (insert "(defn ...)\n\nb"))
+      (with-clojure-buffer "a\n\n,|(defn ...)\n\nb"
         (delete-char -1)
         (insert "'")
         (expect (cider-sexp-at-point 'bounds) :to-equal '(5 15))))))
@@ -143,20 +145,14 @@
 (describe "cider-defun-at-point"
   (describe "when the param 'bounds is not given"
     (it "returns the defun at point"
-      (with-temp-buffer
-        (clojure-mode)
-        (insert "a\n\n(defn ...)")
-        (save-excursion (insert "\n\nb"))
+      (with-clojure-buffer "a\n\n(defn ...)|\n\nb"
         (expect (cider-defun-at-point) :to-equal "(defn ...)\n")
         (forward-sexp -1)
         (expect (cider-defun-at-point) :to-equal "(defn ...)\n"))))
 
   (describe "when the param 'bounds is given"
     (it "returns the bounds of starting and ending positions of the defun"
-      (with-temp-buffer
-        (clojure-mode)
-        (insert "a\n\n(defn ...)")
-        (save-excursion (insert "\n\nb"))
+      (with-clojure-buffer "a\n\n(defn ...)|\n\nb"
         (expect (cider-defun-at-point 'bounds) :to-equal '(4 15))))))
 
 (describe "cider-repl-prompt-function"
@@ -216,10 +212,7 @@
 
 (describe "cider-second-sexp-in-list"
   (it "returns the second sexp in the list"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "(test-function arg1 arg2 arg3)")
-      (backward-char 2)
+    (with-clojure-buffer "(test-function arg1 arg2 arg|3)"
       (expect (cider-second-sexp-in-list) :to-equal "arg1"))))
 
 (describe "cider-ansi-color-string-detect"
@@ -260,9 +253,7 @@
 
   (describe "works in buffers"
     (it "fontifies with correct face"
-      (with-temp-buffer
-        (insert "aaa bbb\n cccc\n ddddd")
-        (goto-char 1)
+      (with-clojure-buffer "|aaa bbb\n cccc\n ddddd"
         (cider-add-face "c+" 'font-lock-comment-face)
         (expect (get-pos-property 11 'face)
                 :to-be 'font-lock-comment-face)))))
