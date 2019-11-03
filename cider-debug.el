@@ -212,16 +212,13 @@ Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
     (?t "trace" "trace")
     (?q "quit" "quit"))
   "A list of debugger command specs.
-They are in the format (KEY COMMAND-NAME DISPLAY-NAME?), where:
+Specs are in the format (KEY COMMAND-NAME DISPLAY-NAME?)
+where KEY is a character which is mapped to the command
+COMMAND-NAME is a valid debug command to be passed to the cider-nrepl middleware
+DISPLAY-NAME is the string displayed in the debugger overlay
 
-* KEY is a character which is mapped to the command
-* COMMAND-NAME is a valid debug command to be passed to the cider-nrepl
-middleware
-* DISPLAY-NAME is the string displayed in the debugger overlay
-
-If DISPLAY-NAME is nil, that command is hidden from the overlay but still
-callable.  The rest of the commands are displayed in their order of appearance
-on this list."
+If DISPLAY-NAME is nil, that command is hidden from the overlay but still callable.
+The rest of the commands are displayed in the same order as this list."
   :type '(alist :key-type character
                 :value-type (list
                              (string :tag "command name")
@@ -244,9 +241,9 @@ Each element of LOCALS should be a list of at least two elements."
     ""))
 
 (defun cider--debug-propertize-prompt-commands ()
-  "In-place formatting of the command display names for the cider-debug-prompt overlay."
+  "In-place formatting of the command display names for the `cider-debug-prompt' overlay."
   (mapc (lambda (spec)
-          (cl-destructuring-bind (char cmd disp-name) spec
+          (cl-destructuring-bind (char _cmd disp-name) spec
             (when-let* ((pos (cl-position char disp-name)))
               (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face disp-name))))
         cider-debug-prompt-commands))
@@ -258,7 +255,7 @@ Each element of LOCALS should be a list of at least two elements."
   (format (propertize "%s\n" 'face 'default)
           (cl-reduce
            (lambda (prompt spec)
-             (cl-destructuring-bind (char cmd disp) spec
+             (cl-destructuring-bind (_char cmd disp) spec
                (if (and disp (cl-find cmd commands :test 'string=))
                    (concat prompt " " disp)
                  prompt)))
@@ -353,7 +350,7 @@ In order to work properly, this mode must be activated by
             ;; Map over the key->command alist and set the keymap
             (mapc
              (lambda (p)
-               (let ((char (car p)) (cmd (cdr p)))
+               (let ((char (car p)))
                  (unless (= char ?h)   ; `here' needs a special command.
                    (define-key cider--debug-mode-map (string char) #'cider-debug-mode-send-reply))
                  (when (= char ?o)

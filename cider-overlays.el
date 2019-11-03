@@ -177,7 +177,7 @@ Return the overlay if it was placed successfully, and nil if it failed.
 This function takes some optional keyword arguments:
 
   If WHERE is a number or a marker, apply the overlay as determined by
-  `cider-result-overlay-position'. If it is a cons cell, the car and cdr
+  `cider-result-overlay-position'.  If it is a cons cell, the car and cdr
   determine the start and end of the overlay.
   DURATION takes the same possible values as the
   `cider-eval-result-duration' variable.

@@ -220,7 +220,8 @@ Current page will be reset to zero."
 (defun cider-inspector-def-current-val (var-name ns)
   "Defines a var with VAR-NAME in current namespace.
 
-Doesn't modify current page."
+Doesn't modify current page.  When called interactively NS defaults to
+current-namespace."
   (interactive (list (cider-read-from-minibuffer "Var name: ")
                      (cider-current-ns)))
   (setq cider-inspector--current-repl (cider-current-repl))
