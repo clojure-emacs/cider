@@ -1283,20 +1283,23 @@ non-nil, don't start if ClojureScript requirements are not met."
   "Update PARAMS :repl-init-function for cljs connections."
   (with-current-buffer (or (plist-get params :--context-buffer)
                            (current-buffer))
-    (let ((cljs-type (plist-get params :cljs-repl-type)))
-      (plist-put params :repl-init-function
-                 (lambda ()
-                   (cider--check-cljs cljs-type)
-                   ;; FIXME: ideally this should be done in the state handler
-                   (setq-local cider-cljs-repl-type cljs-type)
-                   (cider-nrepl-send-request
-                    (list "op" "eval"
-                          "ns" (cider-current-ns)
-                          "code" (cider-cljs-repl-form cljs-type))
-                    (cider-repl-handler (current-buffer)))
-                   (when (and (buffer-live-p nrepl-server-buffer)
-                              cider-offer-to-open-cljs-app-in-browser)
-                     (cider--offer-to-open-app-in-browser nrepl-server-buffer)))))))
+    (let* ((cljs-type (plist-get params :cljs-repl-type))
+           (repl-init-form (cider-cljs-repl-form cljs-type)))
+      (thread-first params
+        (plist-put :repl-init-function
+                   (lambda ()
+                     (cider--check-cljs cljs-type)
+                     ;; FIXME: ideally this should be done in the state handler
+                     (setq-local cider-cljs-repl-type cljs-type)
+                     (cider-nrepl-send-request
+                      (list "op" "eval"
+                            "ns" (cider-current-ns)
+                            "code" repl-init-form)
+                      (cider-repl-handler (current-buffer)))
+                     (when (and (buffer-live-p nrepl-server-buffer)
+                                cider-offer-to-open-cljs-app-in-browser)
+                       (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
+        (plist-put :repl-init-form repl-init-form)))))
 
 (defun cider--check-existing-session (params)
   "Ask for confirmation if a session with similar PARAMS already exists.

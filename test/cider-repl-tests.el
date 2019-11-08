@@ -30,6 +30,38 @@
 (require 'buttercup)
 (require 'cider-repl)
 
+(describe "cider-repl--insert-param-values"
+  (it "doesn't output anything when the params aren't present"
+    (let ((output "")
+          (cider-launch-params '()))
+      (spy-on 'insert-before-markers
+              :and-call-fake (lambda (arg)
+                               (setq output (format "%s%s" output (substring-no-properties arg)))))
+      (cider-repl--insert-startup-commands)
+      (expect output :to-be "")))
+  (it "puts jack-in-command in same style as banner"
+    (let ((output "")
+          (cider-launch-params '(:jack-in-cmd "lein command")))
+      (spy-on 'insert-before-markers
+              :and-call-fake (lambda (arg)
+                               (setq output (format "%s%s" output (substring-no-properties arg)))))
+      (cider-repl--insert-startup-commands)
+      (expect output :to-equal
+              ";;  Startup: lein command\n")))
+  (it "formats output if present"
+    (let ((output "")
+          (cider-launch-params '(:cljs-repl-type shadow :repl-init-form "(do)")))
+      (spy-on 'insert-before-markers
+              :and-call-fake (lambda (arg)
+                               (setq output (format "%s%s" output (substring-no-properties arg)))))
+      (cider-repl--insert-startup-commands)
+      (expect output :to-equal
+              ";;
+;; ClojureScript REPL type: shadow
+;; ClojureScript REPL init form: (do)
+;;
+"))))
+
 (describe "cider-repl--banner"
   :var (cider-version cider-codename)
   (before-all
