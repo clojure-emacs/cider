@@ -699,6 +699,7 @@ PARAMS is a plist as received by `cider-repl-create'."
 (declare-function cider-repl-reset-markers "cider-repl")
 (defvar-local cider-session-name nil)
 (defvar-local cider-repl-init-function nil)
+(defvar-local cider-launch-params nil)
 (defun cider-repl-create (params)
   "Create new repl buffer.
 PARAMS is a plist which contains :repl-type, :host, :port, :project-dir,
@@ -727,7 +728,8 @@ function with the repl buffer set as current."
             ;; REPLs start with clj and then "upgrade" to a different type
             cider-repl-type (plist-get params :repl-type)
             ;; ran at the end of cider--connected-handler
-            cider-repl-init-function (plist-get params :repl-init-function))
+            cider-repl-init-function (plist-get params :repl-init-function)
+            cider-launch-params params)
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
       (add-hook 'nrepl-connected-hook #'cider--connected-handler nil 'local)

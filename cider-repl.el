@@ -319,6 +319,7 @@ fully initialized."
     ((pred identity) (pop-to-buffer buffer)))
   (with-current-buffer buffer
     (cider-repl--insert-banner)
+    (cider-repl--insert-startup-commands)
     (when-let* ((window (get-buffer-window buffer t)))
       (with-selected-window window
         (recenter (- -1 scroll-margin))))
@@ -332,6 +333,32 @@ fully initialized."
   (when cider-repl-display-help-banner
     (insert-before-markers
      (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face))))
+
+(defun cider-repl--insert-startup-commands ()
+  "Insert the values from params specified in PARAM-TUPLES.
+PARAM-TUPLES are tuples of (param-key description) or (param-key
+description transform) where transform is called with the param-value if
+present."
+  (cl-labels
+      ((emit-comment
+        (contents)
+        (insert-before-markers
+         (propertize
+          (if (string-blank-p contents) ";;\n" (concat ";; " contents "\n"))
+          'font-lock-face 'font-lock-comment-face))))
+    (let ((jack-in-command (plist-get cider-launch-params :jack-in-cmd))
+          (cljs-repl-type (plist-get cider-launch-params :cljs-repl-type))
+          (cljs-init-form (plist-get cider-launch-params :repl-init-form)))
+      (when jack-in-command
+        ;; spaces to align with the banner
+        (emit-comment (concat " Startup: " jack-in-command)))
+      (when (or cljs-repl-type cljs-init-form)
+        (emit-comment "")
+        (when cljs-repl-type
+          (emit-comment (concat "ClojureScript REPL type: " (symbol-name cljs-repl-type))))
+        (when cljs-init-form
+          (emit-comment (concat "ClojureScript REPL init form: " cljs-init-form)))
+        (emit-comment "")))))
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
