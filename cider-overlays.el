@@ -130,8 +130,8 @@ This function also removes itself from `post-command-hook'."
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
 (defface cider-fringe-good-face
-  '((((class color) (background light)) :foreground "lightgreen")
-    (((class color) (background dark)) :foreground "darkgreen"))
+  '((((class color) (background light)) :foreground "DarkGreen")
+    (((class color) (background dark)) :foreground "LimeGreen"))
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
 
