@@ -29,6 +29,7 @@
 (require 'subr-x)
 (require 'cider-compat)
 (require 'cl-lib)
+(require 'diff-mode)
 
 
 ;;; Customization
@@ -130,8 +131,12 @@ This function also removes itself from `post-command-hook'."
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
 (defface cider-fringe-good-face
-  '((((class color) (background light)) :foreground "lightgreen")
-    (((class color) (background dark)) :foreground "darkgreen"))
+  '((((class color) (background light))
+     :foreground (:inherit diff-added)
+     :distant-foreground "DarkGreen")
+    (((class color) (background dark))
+     :foreground (:inherit diff-added)
+     :distant-foreground "LimeGreen"))
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
 
