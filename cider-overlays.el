@@ -140,7 +140,7 @@ This function also removes itself from `post-command-hook'."
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
 
-(defcustom cider-fringe-bitmap 'empty-line
+(defcustom cider-fringe-bitmap 'filled-rectangle
   "Bitmap used on the fringe to indicate evaluation of an expression.
 
 The default choices are all quite aesthetically pleasing, and have no role
