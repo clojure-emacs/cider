@@ -20,7 +20,7 @@ Using CIDER's interactive programming environment, a programmer works
 in a very dynamic and incremental manner. Instead of repeatedly
 editing, compiling, and restarting an application, the programmer
 starts the application once and then adds and updates individual
-Clojure defintions as the program continues to run. Using the CIDER
+Clojure definitions as the program continues to run. Using the CIDER
 REPL, the programmer can access the value of different definitions and
 invoke program functions with test data, immediately seeing the
 result. This methodology is far more efficient than the typical Edit,

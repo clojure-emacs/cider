@@ -16,7 +16,7 @@ Here's how code looks without dynamic syntax highlighting.
 
 image::dynamic_font_lock_off.png[Dynamic Font-lock Off]
 
-And here's how to the code looks when it's turned on.
+And here's how the code looks when it's turned on.
 
 image::dynamic_font_lock_on.png[Dynamic Font-lock On]
 

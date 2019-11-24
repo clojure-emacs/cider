@@ -8,7 +8,7 @@ image::cider_debugger.gif[CIDER Debugger]
 
 WARNING: The debugger currently **does not** support ClojureScript. See
 https://github.com/clojure-emacs/cider/issues/1416[this issue]
-or more details.
+for more details.
 
 == Using the Debugger
 
