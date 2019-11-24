@@ -175,7 +175,7 @@ Java file links to navigate there.
 
 On Windows and macOS the JDK source code is bundled with the JDK. On Windows its
 typical location is `+C:\Program Files\Java\{jdk-version}\src.zip+`
-and on macOS its `+/Library/Java/JavaVirtualMachines/{jdk-version}/Contents/Home/src.zip+`.
+and on macOS it's `+/Library/Java/JavaVirtualMachines/{jdk-version}/Contents/Home/src.zip+`.
 
 On Linux distributions usually the source code is distributed as a separate package.
 Here's how do get the JDK 8 source on Ubuntu:

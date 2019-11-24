@@ -25,7 +25,7 @@ you're using the right connection. This problem was further compounded by the cr
 * Eventually we introduced the concept of dynamic dispatch, where we'd use a combination of the filename extension and the project directory to figure out where to send operations. This approach worked reasonably well, but was problematic when you had multiple connections of the same type for the same project. There was also no logical grouping of related connections.
 * This brings us to the present - today's approach to managing multiple connections is an evolution of the dynamic dispatch.
 Related connections are grouped together in sessions, which are tied to some context (typically a project directory). If some
-operation dispatch is ambigous it will fail with an error message. You can manually link buffers, files and directories
+operation dispatch is ambiguous it will fail with an error message. You can manually link buffers, files and directories
 to sessions in such situations.
 
 In the following sections we'll go over the basic terminology with respect to connection management, and we'll cover

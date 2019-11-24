@@ -15,7 +15,7 @@ NOTE: Everything is this section will work as described even if CIDER is not pre
 doesn't require a REPL to work.
 
 `clojure-mode` is smart enough to indent most Clojure code correctly out-of-the-box, but it can't know
-if something is a macro and its body should be indented different.
+if something is a macro and its body should be indented differently.
 
 `clojure-mode` is very flexible when it comes to indentation configuration and here we are going to go over the basics.
 

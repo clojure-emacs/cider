@@ -78,7 +78,7 @@ you'll have to use `cider-jack-in-clj&cljs` instead.
 
 When you have a combination of Clojure and ClojureScript REPLs, CIDER
 will automatically direct all the usual CIDER commands to the
-appropriate REPL based on whether you're currently visitng a `.clj` or
+appropriate REPL based on whether you're currently visiting a `.clj` or
 `.cljs` file.
 
 `cider-jack-in-cljs` will prompt you for the type of ClojureScript

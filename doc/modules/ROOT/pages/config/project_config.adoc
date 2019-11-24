@@ -12,7 +12,7 @@ allow you to edit the entire command string in the minibuffer.
 
 CIDER doesn't have any special provisions for project-specific configuration, as this
 is something well supported in Emacs itself. Unfortunately the functionality in Emacs has the
-slight weird name "dir-local variables", which is probably not the thing people would
+slightly weird name "dir-local variables", which is probably not the thing people would
 start googling for. On the bright side - the Emacs functionality is much more generic
 than dealing with project-specific configuration.
 
