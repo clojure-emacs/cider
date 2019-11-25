@@ -44,8 +44,8 @@ viewer and formatting tool for
 https://github.com/marick/Midje[Midje] within Emacs.
 
 Emidje extends CIDER to provide support for Midje tests in a similar
-fashion as `cider-test.el` does for clojure.test tests. In fact, most of
-Emidje functionalities were strongly inspired on `cider-test.el`
+fashion as `cider-test.el` does for `clojure.test` tests. In fact, most of
+Emidje's functionalities were strongly inspired by `cider-test.el`
 features.
 
 === kaocha-runner
@@ -71,7 +71,8 @@ https://github.com/borkdude/flycheck-clj-kondo/[flycheck-clj-kondo] is a
 Flycheck checker for Clojure that provides instant linting of clojure code as you type, via
 https://github.com/borkdude/clj-kondo[clj-kondo].
 
-https://github.com/borkdude/clj-kondo[clj-kondo] is a great way of preventing you writing bugs in your code :)
+https://github.com/borkdude/clj-kondo[clj-kondo] is a great way of preventing
+yourself from writing buggy code.
 
 === squiggly-clojure
 
@@ -88,8 +89,9 @@ built-in basic tracing functionality.
 
 == Generic Emacs Extensions
 
-Most packages here are standard Emacs minor modes that work with most major modes,
-but are especially handy for Lisp-like languages like Clojure.
+Most packages in the following list are standard Emacs minor modes that work
+with most major modes, but are especially handy for Lisp-like languages like
+Clojure.
 
 === subword-mode
 

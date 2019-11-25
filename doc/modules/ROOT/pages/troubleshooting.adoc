@@ -112,7 +112,7 @@ users can add this to their `profiles.clj` to force the proper dependency:
 The procedure is pretty similar for Boot.
 
 IMPORTANT: Make sure you add the newer nREPL dependency to the `:dependencies` key instead
-of `:plugins` (where `cider-nrepl` Lein plugin resides). That's a pretty common
+of `:plugins` (where the `cider-nrepl` Lein plugin resides). That's a pretty common
 mistake.
 
 Generally you're advised to use the newest nREPL with CIDER, as bugs get fixed

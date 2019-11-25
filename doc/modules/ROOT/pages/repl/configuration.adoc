@@ -174,10 +174,9 @@ If you want to disable using `cider-print-fn` entirely, use:
 (setq cider-repl-use-pretty-printing nil)
 ----
 
-Note well that disabling pretty-printing is not advised. Emacs does not handle
-well very long lines, so using a printing function that wraps lines beyond a
-certain width (i.e. any of them except for `pr`) will keep your REPL running
-smoothly.
+Note that disabling pretty-printing is not advised. Emacs does not handle well
+very long lines, so using a printing function that wraps lines beyond a certain
+width (i.e. any of them except for `pr`) will keep your REPL running smoothly.
 
 See link:../pretty_printing[this] for more information on configuring printing.
 
