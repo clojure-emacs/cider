@@ -22,7 +22,7 @@ debugging mode and will prompt you for what to do next. You can remove
 the instrumentation by evaluating the form again normally, using
 kbd:[C-M-x].
 
-You can also trigger insert a breakpoint manually into any code
+You can also insert a breakpoint manually into any code
 manually by placing `#break` in front of the form where you want the
 breakpoint to trigger and then evaluating the form with
 kbd:[C-M-x]. When execution reaches the form after the `#break`,

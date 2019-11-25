@@ -23,7 +23,7 @@ image::dynamic_font_lock_on.png[Dynamic Font-lock On]
 == Syntax highlighting for reader conditionals
 
 By default CIDER will apply font-locking to unused reader conditional
-expressions depending on the buffer CIDER connection type.
+expressions depending on the buffer's CIDER connection type.
 
 image::reader_conditionals.png[Reader Conditionals]
 

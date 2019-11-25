@@ -192,14 +192,15 @@ Extract both and configure e.g. like so:
  (setq cider-jdk-src-paths '("~/java/clojure-1.8.0-sources"
                              "~/java/openjvm-8-src"))
 
-It's possible to use `jar` or `zip` files `cider-jdk-src-paths`, but extracting
-them is better since you get features like `ag` or `dired-jump`.
+It's possible to point `cider-jdk-src-paths` to `jar` or `zip` files, but extracting
+them is better since you can use features like `ag` or `dired-jump`.
 
 == Filter out namespaces in certain namespace-related commands
 
 You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apropos*`
-commands by customizing the variable `cider-filter-regexps`. It should be a list of
-regexps matching the pattern of namespaces you want to filter out.
+commands by customizing the variable `cider-filter-regexps`. The value of this
+variable should be a list of regexps matching the pattern of namespaces you want
+to filter out.
 
 Its default value is `+'("^cider.nrepl" "^refactor-nrepl" "^nrepl")+`,
 the most commonly used middleware collections/packages.
@@ -211,7 +212,7 @@ and not Emacs Lisp. For example, to achieve the above effect, you could also set
 To customize `cider-filter-regexps`, you could use the Emacs customize UI,
 with kbd:[M-x] `customize-variable` kbd:[RET] `cider-filter-regexps`.
 
-Or by including a similar snippet along with the other CIDER configuration.
+An alternative is to set the variable along with the other CIDER configuration.
 
 [source,lisp]
 ----
