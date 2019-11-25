@@ -101,7 +101,7 @@ translation mappings easily by setting the following (typically in `.dir-locals.
 
 Each entry will be interpreted as a directory entry so trailing slash
 is optional. Navigation to definition will attempt to translate these locations, and
-if they exist, navigate there rather than report the file does not
+if they exist, navigate there rather than report that the file does not
 exist. In the example above, the `.m2` directory is mounted at `/root/.m2`
 and the source at `/src`. These translations would map these locations
 back to the user's computer so that navigation to definition would work.

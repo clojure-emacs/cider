@@ -8,7 +8,7 @@ Life's easy when you're working only on a single project with a single Clojure c
 enough to be one of those people then you can safely skip reading this section. Its target audience are
 people who have to work simultaneously on multiple projects or have multiple connections opened for the same project.
 
-Turns out that it's really hard to map reliably operations originating in source buffers (e.g. code evaluation) to the right
+It turns out that it's really hard to map reliably operations originating in source buffers (e.g. code evaluation) to the right
 connection buffer, as there are many things you have to take into account:
 
 * Is the connection mapped to some project or not?

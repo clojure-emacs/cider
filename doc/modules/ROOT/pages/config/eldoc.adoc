@@ -16,7 +16,7 @@ image::eldoc.png[Eldoc]
 `global-eldoc-mode` is enabled by default in Emacs 25.1, so you don't really have
 to do anything to enable it.
 
-It will in both source and REPL buffers.
+It will work in both source and REPL buffers.
 
 == Configuring ElDoc
 
