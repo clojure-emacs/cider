@@ -4,7 +4,7 @@ There are many additional Emacs packages that can enhance your Clojure programmi
 experience. The majority of the minor modes listed here should be enabled for both
 `cider-repl-mode` and `clojure-mode` for optimal effects.
 
-The listed here belong to three categories:
+The packages listed here belong to three categories:
 
 * CIDER extensions
 * Generic Emacs packages useful for Clojure programming
@@ -18,7 +18,7 @@ your CIDER version.
 CIDER extensions typically are Emacs packages that built on top of CIDER's Emacs Lisp API.
 Some of them ship with extra nREPL middleware as well (e.g. `clj-refactor`). Typically
 packages that rely on middleware would hook into CIDER's middleware injection
-functionality and inject their automatically as well.
+functionality and inject their own functionality automatically as well.
 
 NOTE: Keep in mind that currently there are no "official" CIDER extensions and the packages
 on the list are not maintained by CIDER's Core Team. Their quality and level
@@ -55,7 +55,7 @@ https://github.com/lambdaisland/kaocha[Kaocha] integration for Emacs.
 
 === helm-cider
 
-https://github.com/clojure-emacs/helm-cider[helm-cider] provides Helm
+https://github.com/clojure-emacs/helm-cider[helm-cider] provides a Helm
 interface for certain CIDER commands (e.g. `cider-apropos`).
 
 === cider-hydra
