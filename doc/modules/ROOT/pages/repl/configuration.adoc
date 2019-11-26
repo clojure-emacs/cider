@@ -261,3 +261,47 @@ can set:
 ----
 (setq cider-repl-require-ns-on-set t)
 ----
+
+== Control what window to use when jumping to a definition
+
+By default kbd:[M-.] and other commands that jump to a definition use the current
+window to show the definition.
+
+Other behaviour is possible, and is controlled with
+`cider-jump-to-pop-to-buffer-actions`; the value of this is passed as the
+`action` argument to `pop-to-buffer`.
+
+The default value is `\((display-buffer-same-window))`; this means to always use
+the current window.
+
+An alternative is to use an existing window in the current frame when there is
+one that is showing the target buffer. If you want this behaviour, set:
+
+[source,lisp]
+----
+(setq cider-jump-to-pop-to-buffer-actions
+      '((display-buffer-reuse-window display-buffer-same-window)))
+----
+
+For other possibilities, see the documentation for `display-buffer`.
+
+=== Example 1
+
+You jump to `map` in core.clj when core.clj *_is not_* being displayed in another
+window in the current frame.
+
+With both the default behaviour and the alternative behaviour defined above, the
+definition of `map` will be shown in the current window.
+
+=== Example 2
+
+You jump to `map` in core.clj when core.clj *_is_* being displayed in another window
+in the current frame.
+
+With the default behaviour, the definition of `map` will be shown in the current
+window; you will now have two windows showing core.clj, and the existing
+core.clj window will be unchanged.
+
+With the alternative behaviour defined above, the definition of `map` will be
+shown in the existing core.clj window; all windows will show the same buffer as
+before the jump, and the current window will now be the one showing core.clj.
