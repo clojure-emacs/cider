@@ -127,6 +127,18 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
 
 (declare-function cider-mode "cider-mode")
 
+(defcustom cider-jump-to-pop-to-buffer-actions
+  '((display-buffer-same-window))
+  "Determines what window `cider-jump-to` uses.
+The value is passed as the `action` argument to `pop-to-buffer`.
+
+The default value means always use the current window.
+
+For further details, see https://docs.cider.mx/cider/repl/configuration.html#_control_what_window_to_use_when_jumping_to_a_definition"
+  :type 'sexp
+  :group 'cider
+  :package-version '(cider . "0.24.0"))
+
 (defun cider-jump-to (buffer &optional pos other-window)
   "Push current point onto marker ring, and jump to BUFFER and POS.
 POS can be either a number, a cons, or a symbol.
@@ -139,8 +151,7 @@ If OTHER-WINDOW is non-nil don't reuse current window."
     (ring-insert find-tag-marker-ring (point-marker)))
   (if other-window
       (pop-to-buffer buffer 'display-buffer-pop-up-window)
-    ;; like switch-to-buffer, but reuse existing window if BUFFER is visible
-    (pop-to-buffer buffer '((display-buffer-reuse-window display-buffer-same-window))))
+    (pop-to-buffer buffer cider-jump-to-pop-to-buffer-actions))
   (with-current-buffer buffer
     (widen)
     (goto-char (point-min))
