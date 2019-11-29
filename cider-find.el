@@ -41,12 +41,12 @@ Display the results in a different window."
         (cider--jump-to-loc-from-info info t))
     (user-error "Symbol `%s' not resolved" var)))
 
-(defun cider--find-var (var &optional line)
-  "Find the definition of VAR, optionally at a specific LINE."
+(defun cider--find-var (var &optional line other-window)
+  "Find the definition of VAR, optionally at a specific LINE and in OTHER-WINDOW."
   (if-let* ((info (cider-var-info var)))
       (progn
         (if line (setq info (nrepl-dict-put info "line" line)))
-        (cider--jump-to-loc-from-info info))
+        (cider--jump-to-loc-from-info info other-window))
     (user-error "Symbol `%s' not resolved" var)))
 
 ;;;###autoload
@@ -59,7 +59,7 @@ the results to be displayed in a different window.  The default value is
 thing at point."
   (interactive "P")
   (if var
-      (cider--find-var var line)
+      (cider--find-var var line (cider--open-other-window-p arg))
     (funcall (cider-prompt-for-symbol-function arg)
              "Symbol"
              (if (cider--open-other-window-p arg)
