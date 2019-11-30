@@ -121,22 +121,10 @@ By default, REPL results have no prefix.
 
 == Customize the REPL Buffer's Name
 
-The REPL buffer name has the format `+*cider-repl project-name*+`.  You
-can change the separator from a space character to something else by
-setting `nrepl-buffer-name-separator`.
+You can customize the buffer name using the variable
+`cider-session-name-template`. See the documentation for this variable for
+details.
 
-[source,lisp]
-----
-(setq nrepl-buffer-name-separator "-")
-----
-
-The REPL buffer name can also display the port on which the nREPL server is running.
-The buffer name will look like `+*cider-repl project-name:port*+`.
-
-[source,lisp]
-----
-(setq nrepl-buffer-name-show-port t)
-----
 
 == Font-locking
 
