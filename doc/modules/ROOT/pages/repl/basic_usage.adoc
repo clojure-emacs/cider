@@ -44,7 +44,7 @@ namely kbd:[C-c C-b].
 
 When you're done with a REPL you can dispose of it with kbd:[C-c C-q].
 
-Please, avoid killing REPL buffers with kbd:[C-c C-k]
+Please, avoid killing REPL buffers with kbd:[C-c C-k].
 
 == Known Limitations
 

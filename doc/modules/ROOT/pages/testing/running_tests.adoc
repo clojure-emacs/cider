@@ -30,7 +30,7 @@ you're expecting.
 You can run all _loaded_ tests with kbd:[C-c C-t l] or
 kbd:[C-c C-t C-l].
 
-If you invoke either of these commands with a prefix CIDER, will
+If you invoke either of these commands with a prefix, CIDER will
 prompt for test selector filters and only run those tests that match
 the selector inclusions/exclusions.
 

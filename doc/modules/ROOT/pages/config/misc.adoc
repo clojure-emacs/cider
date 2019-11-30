@@ -34,7 +34,7 @@ Note that this also affects the position of debugger overlays.
 
 == Minibuffer completion
 
-Out-of-the box CIDER uses the standard `completing-read` Emacs mechanism. While
+Out-of-the box, CIDER uses the standard `completing-read` Emacs mechanism. While
 it's not fancy it certainly gets the job done (just press kbd:[TAB]). There
 are, however, ways to improve upon the standard completion if you wish to.
 
