@@ -55,7 +55,7 @@ kbd:[C-c C-d C-d]
 kbd:[C-c C-d C-j]
 | Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
 
-| kbd:[C-c C-d r] +
+| kbd:[C-c C-d c] +
 kbd:[C-c C-d C-c]
 | Lookup symbol in ClojureDocs.
 
