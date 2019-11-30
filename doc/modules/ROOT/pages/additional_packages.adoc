@@ -27,14 +27,14 @@ of maintenance may vary significantly.
 === clj-refactor
 
 https://github.com/clojure-emacs/clj-refactor.el[clj-refactor] builds on top
-of clojure-mode and CIDER and adds a ton of extra functionality (e.g. the
+of `clojure-mode` and CIDER and adds a ton of extra functionality (e.g. the
 ability to thread/unthread expression, find and replace usages, introduce let
 bindings, extract function and so on).
 
 A full list of features is available
 https://github.com/clojure-emacs/clj-refactor.el/wiki[here].
 
-We hope to incorporate some of its features into clojure-mode and CIDER themselves
+We hope to incorporate some of its features into `clojure-mode` and CIDER themselves
 down the road.
 
 === emidje
@@ -158,7 +158,7 @@ CIDER integration for `eval-sexp-fu`.
 == Alternatives
 
 IMPORTANT: It's generally a bad idea to mix Clojure programming environments, as all of those
-tend to modify `clojure-mode`'s keymap while active. Run only one environment at a time unless
+tend to modify `clojure-mode` 's keymap while active. Run only one environment at a time unless
 you really know what you're doing.
 
 This section enumerates other Emacs packages that provide a Clojure programming environment
