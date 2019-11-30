@@ -68,7 +68,7 @@ kbd:[C-c C-d C-f]
 | Apropos search for documentation.
 
 | kbd:[C-c C-z]
-| Switch to the previous Clojure buffer. This complements kbd:[C-c C-z] used in cider-mode.
+| Switch to the previous Clojure buffer. This complements kbd:[C-c C-z] used in `cider-mode`.
 
 | kbd:[C-c M-i]
 | Inspect expression. Will act on expression at point if present.

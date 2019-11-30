@@ -39,7 +39,7 @@ Those few essential commands can get you really far in your day to day work. Kee
 
 == Key Reference
 
-Here's a list of `cider-mode`'s keybindings:
+Here's a list of the key bindings of `cider-mode`:
 
 |===
 | Command | Keyboard shortcut | Description
