@@ -129,7 +129,7 @@ Just save without prompting:
 == Change the Result Prefix for Interactive Evaluation
 
 Change the result prefix for interactive evaluation (not the REPL
-prefix). By default the prefix is `+=> +`.
+prefix). By default the prefix is `=> `.
 
 [source,lisp]
 ----
