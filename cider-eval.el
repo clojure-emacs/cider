@@ -682,19 +682,19 @@ arguments and only proceed with evaluation if it returns nil."
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))
-      (cider-map-repls :auto
-        (lambda (connection)
-          (cider--prep-interactive-eval form connection)
-          (cider-nrepl-request:eval
-           form
-           (or callback (cider-interactive-eval-handler nil bounds))
-           ;; always eval ns forms in the user namespace
-           ;; otherwise trying to eval ns form for the first time will produce an error
-           (if (cider-ns-form-p form) "user" (cider-current-ns))
-           (when start (line-number-at-pos start))
-           (when start (cider-column-number-at-pos start))
-           (seq-mapcat #'identity additional-params)
-           connection))))))
+      (let ((fun (lambda (connection)
+                   (cider--prep-interactive-eval form connection)
+                   (cider-nrepl-request:eval
+                    form
+                    (or callback (cider-interactive-eval-handler nil bounds))
+                    ;; always eval ns forms in the user namespace
+                    ;; otherwise trying to eval ns form for the first time will produce an error
+                    (if (cider-ns-form-p form) "user" (cider-current-ns))
+                    (when start (line-number-at-pos start))
+                    (when start (cider-column-number-at-pos start))
+                    (seq-mapcat #'identity additional-params)
+                    connection))))
+        (cider-map-repls :auto fun cider-eval-forms-in-all-sessions t)))))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
@@ -1142,18 +1142,18 @@ Optional argument CALLBACK will override the default â€˜cider-load-file-handlerâ
         (remove-overlays nil nil 'cider-temporary t)
         (cider--clear-compilation-highlights)
         (cider--quit-error-window)
-        (let ((filename (buffer-file-name buffer))
-              (ns-form  (cider-ns-form)))
-          (cider-map-repls :auto
-            (lambda (repl)
-              (when ns-form
-                (cider-repl--cache-ns-form ns-form repl))
-              (cider-request:load-file (cider--file-string filename)
-                                       (funcall cider-to-nrepl-filename-function
-                                                (cider--server-filename filename))
-                                       (file-name-nondirectory filename)
-                                       repl
-                                       callback)))
+        (let* ((filename (buffer-file-name buffer))
+               (ns-form  (cider-ns-form))
+               (fun (lambda (repl)
+                      (when ns-form
+                        (cider-repl--cache-ns-form ns-form repl))
+                      (cider-request:load-file (cider--file-string filename)
+                                               (funcall cider-to-nrepl-filename-function
+                                                        (cider--server-filename filename))
+                                               (file-name-nondirectory filename)
+                                               repl
+                                               callback))))
+          (cider-map-repls :auto fun cider-eval-forms-in-all-sessions t)
           (message "Loading %s..." filename))))))
 
 (defun cider-load-file (filename)

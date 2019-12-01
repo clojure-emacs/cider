@@ -1120,12 +1120,12 @@ command will prompt for the name of the namespace to switch to."
                        (cider-current-ns))))
   (when (or (not ns) (equal ns ""))
     (user-error "No namespace selected"))
-  (cider-map-repls :auto
-    (lambda (connection)
-      (cider-nrepl-request:eval (if cider-repl-require-ns-on-set
-                                    (format "(do (require '%s) (in-ns '%s))" ns ns)
-                                  (format "(in-ns '%s)" ns))
-                                (cider-repl-switch-ns-handler connection)))))
+  (let ((fun (lambda (connection)
+               (cider-nrepl-request:eval (if cider-repl-require-ns-on-set
+                                             (format "(do (require '%s) (in-ns '%s))" ns ns)
+                                           (format "(in-ns '%s)" ns))
+                                         (cider-repl-switch-ns-handler connection)))))
+    (cider-map-repls :auto fun cider-eval-forms-in-all-sessions)))
 
 
 ;;; Location References

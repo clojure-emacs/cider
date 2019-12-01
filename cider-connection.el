@@ -66,6 +66,15 @@ available) and the matching REPL buffer."
   :safe #'booleanp
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-eval-forms-in-all-sessions t
+  "When non-nil, evaluate forms in all sessions.
+This affects commands such as `cider-eval-defun-at-point` and
+`cider-load-file`."
+  :type 'boolean
+  :group 'cider
+  :safe #'booleanp
+  :package-version '(cider . "0.24.0"))
+
 (defconst cider-required-nrepl-version "0.6.0"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
@@ -783,25 +792,40 @@ no linked session or there is no REPL of TYPE within the current session."
           ((listp type) (member buffer-repl-type type))
           (t (string= type buffer-repl-type)))))
 
-(defun cider-repls (&optional type ensure)
-  "Return cider REPLs of TYPE from the current session.
-If TYPE is nil or multi, return all repls.  If TYPE is a list of types,
-return only REPLs of type contained in the list.  If ENSURE is non-nil,
-throw an error if no linked session exists."
+(defun cider-repls (&optional type ensure all-sessions max-one-per-type-per-session)
+  "Return cider REPLs of type TYPE.
+If TYPE is nil or multi, return repls of all types.  If TYPE is a list of
+types, return only REPLs of type contained in the list.  If ENSURE is
+non-nil, throw an error if no linked session exists.  If ALL-SESSIONS is
+non-nil return REPLS from all sessions, otherwise return REPLs only from
+the current session.  If MAX-ONE-PER-TYPE-PER-SESSION is non-nil, return
+only one REPL per type per session, otherwise return multiple REPLs per
+type per session if they exist; note that when evaluating forms, the value
+should be nil."
   (let ((type (cond
                ((listp type)
                 (mapcar #'cider-maybe-intern type))
                ((cider-maybe-intern type))))
-        (repls (cdr (if ensure
-                        (sesman-ensure-session 'CIDER)
-                      (sesman-current-session 'CIDER)))))
+        (repls (apply
+                #'append
+                (mapcar (lambda (sesman-session)
+                          (let ((repls (cdr sesman-session)))
+                            (if max-one-per-type-per-session
+                                (seq-uniq repls
+                                          (lambda (x y)
+                                            (eq (cider-repl-type x)
+                                                (cider-repl-type y))))
+                              repls)))
+                        (if all-sessions
+                            (sesman-current-sessions 'CIDER)
+                          (list (sesman-current-session 'CIDER)))))))
     (or (seq-filter (lambda (b)
                       (cider--match-repl-type type b))
                     repls)
         (when ensure
           (cider--no-repls-user-error type)))))
 
-(defun cider-map-repls (which function)
+(defun cider-map-repls (which function &optional all-sessions max-one-per-type-per-session)
   "Call FUNCTION once for each appropriate REPL as indicated by WHICH.
 The function is called with one argument, the REPL buffer.  The appropriate
 connections are found by inspecting the current buffer.  WHICH is one of
@@ -812,6 +836,8 @@ the following keywords:
  :clj-strict (:cljs-strict) - Map over clj (cljs) REPLs but signal a
       `user-error' in `clojurescript-mode' (`clojure-mode').  Use this for
       commands only supported in Clojure (ClojureScript).
+The ALL-SESSIONS and MAX-ONE-PER-TYPE-PER-SESSION arguments are passed to
+`cider-repls`.
 Error is signaled if no REPL buffers of specified type exist in current
 session."
   (declare (indent 1))
@@ -830,7 +856,7 @@ session."
            (ensure (cl-case which
                      (:auto nil)
                      (t 'ensure)))
-           (repls (cider-repls type ensure)))
+           (repls (cider-repls type ensure all-sessions max-one-per-type-per-session)))
       (mapcar function repls))))
 
 ;; REPLs double as connections in CIDER, so it's useful to be able to refer to
