@@ -503,9 +503,23 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "classpath")))
 
+(defun cider-sync-tooling-eval-get-value (expr)
+  (thread-first expr
+    cider-sync-tooling-eval
+    (nrepl-dict-get "value")
+    read))
+
+(defun cider-get-abs-path (path project)
+  (if (not (string= (substring path 0 1) "/"))
+      (format "%s/%s" project path)
+    path))
+
 (defun cider-fallback-eval:classpath ()
   "Return a list of classpath entries using eval."
-  (read (nrepl-dict-get (cider-sync-tooling-eval "(seq (.split (System/getProperty \"java.class.path\") \":\"))") "value")))
+  (lexical-let ((classpath (cider-sync-tooling-eval-get-value "(seq (.split (System/getProperty \"java.class.path\") \":\"))"))
+                ;; Sometimes the classpath contains entries like "src/main" and we need to resolve those to absolute paths.
+                (project (cider-sync-tooling-eval-get-value "(-> (java.io.File. \"\") (.getAbsolutePath))")))
+    (seq-map (lambda (path) (cider-get-abs-path path project)) classpath)))
 
 (defun cider-classpath-entries ()
   "Return a list of classpath entries."
