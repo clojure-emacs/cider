@@ -415,10 +415,6 @@ present."
 ;; You can disable it from appearing on start by setting
 ;; `cider-repl-display-help-banner' to nil.
 ;; ======================================================================
-;; Please, consider taking part in the State of CIDER survey
-;; https://forms.gle/Cp6DW2zGUQkh42u38
-;; Your feedback means a lot to us!
-;; ======================================================================
 "))
 
 
