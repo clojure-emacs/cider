@@ -515,11 +515,11 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
     path))
 
 (defun cider-fallback-eval:classpath ()
-  "Return a list of classpath entries using eval."
-  (lexical-let ((classpath (cider-sync-tooling-eval-get-value "(seq (.split (System/getProperty \"java.class.path\") \":\"))"))
-                ;; Sometimes the classpath contains entries like "src/main" and we need to resolve those to absolute paths.
-                (project (cider-sync-tooling-eval-get-value "(-> (java.io.File. \"\") (.getAbsolutePath))")))
-    (seq-map (lambda (path) (cider-get-abs-path path project)) classpath)))
+  "Return a list of classpath entries using eval. Sometimes the
+  classpath contains entries like src/main and we need to resolve
+  those to absolute paths."
+  (let ((classpath (cider-sync-tooling-eval-get-value "(seq (.split (System/getProperty \"java.class.path\") \":\"))")))
+    (mapcar (lambda (path) (cider-get-abs-path path default-directory)) classpath)))
 
 (defun cider-classpath-entries ()
   "Return a list of classpath entries."
