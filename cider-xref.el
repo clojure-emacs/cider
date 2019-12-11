@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'cider-doc)
+(require 'cider-find)
 (require 'cider-util)
 (require 'subr-x)
 (require 'cider-compat)
