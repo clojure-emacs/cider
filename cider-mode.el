@@ -58,10 +58,10 @@ Info contains the connection type, project name and host:port endpoint."
          (when cider-mode-line-show-connection
            (format ":%s@%s:%s"
                    (or (cider--project-name nrepl-project-dir) "<no project>")
-                   (pcase (car nrepl-endpoint)
+                   (pcase (plist-get nrepl-endpoint :host)
                      ("localhost" "")
                      (x x))
-                   (cadr nrepl-endpoint)))))
+                   (plist-get nrepl-endpoint :port)))))
     "not connected"))
 
 ;;;###autoload
