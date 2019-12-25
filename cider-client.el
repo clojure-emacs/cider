@@ -503,18 +503,11 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "classpath")))
 
-(defun cider-sync-tooling-eval-get-value (expression)
-  "Send the EXPRESSION to the repl and get the returned value."
-  (thread-first expression
-    cider-sync-tooling-eval
-    (nrepl-dict-get "value")
-    read))
-
 (defun cider--get-abs-path (path project)
   "Resolve PATH to an absolute path relative to PROJECT.
 Do nothing if PATH is already absolute."
-  (if (not (string= (substring path 0 1) "/"))
-      (format "%s/%s" project path)
+  (if (not (file-name-absolute-p path))
+      (expand-file-name path project)
     path))
 
 (defun cider-fallback-eval:classpath ()
@@ -522,8 +515,12 @@ Do nothing if PATH is already absolute."
 
 Sometimes the classpath contains entries like src/main and we need to
 resolve those to absolute paths."
-  (let ((classpath (cider-sync-tooling-eval-get-value "(seq (.split (System/getProperty \"java.class.path\") \":\"))")))
-    (mapcar (lambda (path) (cider--get-abs-path path default-directory)) classpath)))
+  (let ((classpath (thread-first "(seq (.split (System/getProperty \"java.class.path\") \":\"))"
+                     (cider-sync-tooling-eval)
+                     (nrepl-dict-get "value")
+                     read))
+        (project (clojure-project-dir)))
+    (mapcar (lambda (path) (cider--get-abs-path path project)) classpath)))
 
 (defun cider-classpath-entries ()
   "Return a list of classpath entries."
