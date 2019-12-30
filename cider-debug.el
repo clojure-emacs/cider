@@ -505,6 +505,17 @@ REASON is a keyword describing why this buffer was necessary."
     (search-forward-regexp (concat "\\_<" (regexp-quote key) "\\_>")
                            limit 'noerror)))
 
+(defun cider--debug-skip-ignored-forms ()
+  "Skip past all forms ignored with #_ reader macro."
+  ;; Logic taken from `clojure--search-comment-macro-internal'
+  (while (looking-at (concat "[ ,\r\t\n]*" clojure--comment-macro-regexp))
+    (let ((md (match-data))
+          (start (match-beginning 1)))
+      (goto-char start)
+      ;; Count how many #_ we got and step by that many sexps
+      (clojure-forward-logical-sexp
+       (count-matches (rx "#_") (elt md 0) (elt md 1))))))
+
 (defun cider--debug-move-point (coordinates)
   "Place point on after the sexp specified by COORDINATES.
 COORDINATES is a list of integers that specify how to navigate into the
@@ -579,7 +590,9 @@ key of a map, and it means \"go to the value associated with this key\"."
                           (pop coordinates))))))
               ;; If that extra pop was the last coordinate, this represents the
               ;; entire #(...), so we should move back out.
-              (backward-up-list))))
+              (backward-up-list)))
+          ;; Finally skip past all #_ forms
+          (cider--debug-skip-ignored-forms))
         ;; Place point at the end of instrumented sexp.
         (clojure-forward-logical-sexp 1))
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
