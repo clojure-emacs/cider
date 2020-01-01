@@ -408,7 +408,7 @@ If ARG is negative, move forwards."
                      when value
                      return (list property value)))))
     (or (funcall find-property (point))
-        (funcall find-property (1- (point))))))
+        (funcall find-property (max (point-min) (1- (point)))))))
 
 (defun cider-inspector-operate-on-point ()
   "Invoke the command for the text at point.
