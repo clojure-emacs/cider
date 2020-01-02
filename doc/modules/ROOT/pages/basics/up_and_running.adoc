@@ -52,7 +52,7 @@ If your project uses `lein`, `boot` or `tools.deps` (`deps.edn`), CIDER will
 automatically inject all the necessary nREPL dependencies (e.g. `cider-nrepl` or
 `piggieback`) when it starts the server.  The injection process is extremely
 simple - CIDER simply passes the extra dependencies and nREPL configuration to
-your build tool in the command in runs to start the nREPL server. Here's how
+your build tool in the command it runs to start the nREPL server. Here's how
 this looks for `tools.deps`:
 
   $ clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.22.4"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
