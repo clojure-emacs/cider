@@ -151,13 +151,21 @@ This function also removes itself from `post-command-hook'."
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
 
-(defcustom cider-fringe-bitmap 'filled-rectangle
+;; Fringe bitmaps don't scale with the text, so we define a bitmap that's
+;; tall. This will appear to scale vertically when the text size is increased,
+;; but it's actually just showing more of the bitmap.
+(define-fringe-bitmap 'cider-filled-rectangle
+  (make-vector 100 #b01111110)
+  nil nil 'top)
+
+(defcustom cider-fringe-bitmap 'cider-filled-rectangle
   "Bitmap used on the fringe to indicate evaluation of an expression.
 
 The default choices are all quite aesthetically pleasing, and have no role
 in the fringe by default. See `fringe-bitmaps' in the Emacs manual for a
 full list of available bitmaps."
-  :type '(choice (const empty-line)
+  :type '(choice (const cider-filled-rectangle)
+                 (const empty-line)
                  (const filled-rectangle)
                  (const filled-square)
                  (const hollow-square)
