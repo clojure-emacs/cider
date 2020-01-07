@@ -131,12 +131,23 @@ This function also removes itself from `post-command-hook'."
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
 (defface cider-fringe-good-face
-  '((((class color) (background light))
+  '(
+    ;; Some versions of `spacemacs-dark' error out when inheriting from
+    ;; `diff-added'. No idea why. Adding cases with simple string colors first
+    ;; acts as a fallback and prevents it.
+    (((class color) (background light))
+     :foreground "DarkGreen")
+    (((class color) (background dark))
+     :foreground "LimeGreen")
+
+    ;; This is the definition we want to use, if possible.
+    (((class color) (background light))
      :foreground (:inherit diff-added)
      :distant-foreground "DarkGreen")
     (((class color) (background dark))
      :foreground (:inherit diff-added)
-     :distant-foreground "LimeGreen"))
+     :distant-foreground "LimeGreen")
+    )
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
 
