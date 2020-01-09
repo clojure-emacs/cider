@@ -251,24 +251,28 @@ can set:
 
 == Control what window to use when jumping to a definition
 
-By default kbd:[M-.] and other commands that jump to a definition use the current
-window to show the definition.
+By default kbd:[M-.] and other commands that jump to a definition have the following behaviour:
+
+* If the definition buffer is visible simply switch to it.
+* Otherwise, use the current window to show the definition.
 
 Other behaviour is possible, and is controlled with
 `cider-jump-to-pop-to-buffer-actions`; the value of this is passed as the
 `action` argument to `pop-to-buffer`.
 
-The default value is `\((display-buffer-same-window))`; this means to always use
-the current window.
+The default value is `\((display-buffer-reuse-window display-buffer-same-window))`.
 
-An alternative is to use an existing window in the current frame when there is
-one that is showing the target buffer. If you want this behaviour, set:
+Some people might prefer to always display the definition in the current
+window. Here's how you can achieve this:
 
 [source,lisp]
 ----
 (setq cider-jump-to-pop-to-buffer-actions
-      '((display-buffer-reuse-window display-buffer-same-window)))
+      '((display-buffer-same-window)))
 ----
+
+WARNING: Keep in mind this might cause problems with some special buffers (e.g. test report buffers),
+as when you try to navigate to a definition this will clobber the special buffer.
 
 For other possibilities, see the documentation for `display-buffer`.
 

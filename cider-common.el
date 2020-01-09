@@ -128,11 +128,14 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
 (declare-function cider-mode "cider-mode")
 
 (defcustom cider-jump-to-pop-to-buffer-actions
-  '((display-buffer-same-window))
+  '((display-buffer-reuse-window display-buffer-same-window))
   "Determines what window `cider-jump-to` uses.
 The value is passed as the `action` argument to `pop-to-buffer`.
 
-The default value means always use the current window.
+The default value means:
+
+- If the target file is already visible in a window, reuse it (switch to it).
+- Otherwise, open the target buffer in the current window.
 
 For further details, see https://docs.cider.mx/cider/repl/configuration.html#_control_what_window_to_use_when_jumping_to_a_definition"
   :type 'sexp
