@@ -10,7 +10,7 @@
 ** xref:usage/managing_connections.adoc[Managing Connections]
 ** xref:usage/code_completion.adoc[Code Completion]
 ** xref:usage/pretty_printing.adoc[Pretty Printing]
-** xref:usage/navigating_stacktraces.adoc[Navigating Stacktraces]
+** xref:usage/dealing_with_errors.adoc[Dealing with Errors]
 ** xref:usage/misc_features.adoc[Misc Features]
 * Testing
 ** xref:testing/running_tests.adoc[Running Tests]

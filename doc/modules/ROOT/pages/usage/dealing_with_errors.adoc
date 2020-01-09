@@ -1,5 +1,63 @@
-= Navigating Stacktraces
+= Dealing with Errors
 :experimental:
+
+Every now and then you'll make some mistake in your code which is
+going to result in an evaluation error. Clojure's errors are
+notorious for their complexity and CIDER takes a lot of effort
+to make it easier to decipher those.
+
+Most of the time CIDER will display the errors in a dedicated buffer
+alongside the buffer you're currently evaluating code in.
+
+TIP: Use kbd:[q] to quickly close an error buffer.
+
+== Configuration
+
+By default, when an exception occurs, CIDER will display the exception
+in an error buffer using `cider-stacktrace-mode`. You can suppress
+this behavior, however:
+
+[source,lisp]
+----
+(setq cider-show-error-buffer nil)
+----
+
+At times, the error being displayed will originate from a bug in CIDER
+itself. These internal errors might frequently occur and interrupt
+your workflow, but you might not want to suppress *all* stacktrace
+buffers by using `cider-show-error-buffer`. Instead, you might only
+want to suppress _this specific type_ of internal error. The
+stacktrace buffers provide such an option when displaying an internal
+error. A toggle button will be displayed with the error type's name,
+and you can toggle whether this particular type of error will cause
+the stacktrace buffer to automatically show itself.  The toggle button
+controls this behavior only during the current Emacs session, but if
+you would like to make the suppression more permanent, you can do so
+by customizing the `cider-stacktrace-suppressed-errors` variable.  The
+buffer will also provide a direct link to the bug reporting page to
+help facilitate its diagnosis and repair.
+
+Independently of the value of `cider-show-error-buffer` or
+`cider-stacktrace-suppressed-errors`, CIDER always generates the error
+buffer in the background. You can use `cider-selector` (kbd:[C-c M-s]) to
+visit this buffer if you decide that you need to.
+
+There are two more selective strategies for the error buffer:
+
+[source,lisp]
+----
+(setq cider-show-error-buffer 'except-in-repl) ; or
+(setq cider-show-error-buffer 'only-in-repl)
+----
+
+To disable auto-selection of the error buffer when it's displayed:
+
+[source,lisp]
+----
+(setq cider-auto-select-error-buffer nil)
+----
+
+== Navigating Stacktraces
 
 CIDER comes with a powerful solution for dealing with Clojure
 stacktraces. CIDER presents stack traces in a special major mode,
@@ -9,7 +67,7 @@ stacktraces. CIDER presents stack traces in a special major mode,
 * some handy ways to navigate to the cause of the exception
 * the ability to jump straight to code with a single keystroke
 
-== Keybindings
+=== Keybindings
 
 |===
 | Command | Keyboard shortcut | Description
@@ -83,53 +141,7 @@ stacktraces. CIDER presents stack traces in a special major mode,
 | Toggle display of all frames
 |===
 
-== Working with Stacktraces
-
-By default, when an exception occurs, CIDER will display the exception
-in an error buffer using `cider-stacktrace-mode`. You can suppress
-this behavior, however:
-
-[source,lisp]
-----
-(setq cider-show-error-buffer nil)
-----
-
-At times, the error being displayed will originate from a bug in CIDER
-itself. These internal errors might frequently occur and interrupt
-your workflow, but you might not want to suppress *all* stacktrace
-buffers by using `cider-show-error-buffer`. Instead, you might only
-want to suppress _this specific type_ of internal error. The
-stacktrace buffers provide such an option when displaying an internal
-error. A toggle button will be displayed with the error type's name,
-and you can toggle whether this particular type of error will cause
-the stacktrace buffer to automatically show itself.  The toggle button
-controls this behavior only during the current Emacs session, but if
-you would like to make the suppression more permanent, you can do so
-by customizing the `cider-stacktrace-suppressed-errors` variable.  The
-buffer will also provide a direct link to the bug reporting page to
-help facilitate its diagnosis and repair.
-
-Independently of the value of `cider-show-error-buffer` or
-`cider-stacktrace-suppressed-errors`, CIDER always generates the error
-buffer in the background. You can use `cider-selector` (kbd:[C-c M-s]) to
-visit this buffer if you decide that you need to.
-
-There are two more selective strategies for the error buffer:
-
-[source,lisp]
-----
-(setq cider-show-error-buffer 'except-in-repl) ; or
-(setq cider-show-error-buffer 'only-in-repl)
-----
-
-To disable auto-selection of the error buffer when it's displayed:
-
-[source,lisp]
-----
-(setq cider-auto-select-error-buffer nil)
-----
-
-== Filtering Stack Frames
+=== Filtering Stack Frames
 
 CIDER helps you cut through the clutter of Clojure stacktraces by
 allowing you to apply a list of filters using the
@@ -150,7 +162,7 @@ if they are both present.
 (setq cider-stacktrace-default-filters '(project))
 ----
 
-== Wrapping Error Messages
+=== Wrapping Error Messages
 
 Finally, CIDER can wrap error messages when they are displayed in a
 buffer to help improve their readability. CIDER uses
