@@ -7,11 +7,16 @@
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]
 ** xref:usage/cider_mode.adoc[Using cider-mode]
-** xref:usage/managing_connections.adoc[Managing Connections]
 ** xref:usage/code_completion.adoc[Code Completion]
 ** xref:usage/pretty_printing.adoc[Pretty Printing]
 ** xref:usage/dealing_with_errors.adoc[Dealing with Errors]
+** xref:usage/managing_connections.adoc[Managing Connections]
 ** xref:usage/misc_features.adoc[Misc Features]
+* Using the REPL
+** xref:repl/basic_usage.adoc[Basic Usage]
+** xref:repl/keybindings.adoc[Keybindings]
+** xref:repl/configuration.adoc[Configuration]
+** xref:repl/history.adoc[REPL History]
 * Testing
 ** xref:testing/running_tests.adoc[Running Tests]
 ** xref:testing/test_reports.adoc[Test Reports]
@@ -29,11 +34,6 @@
 ** xref:config/misc.adoc[Misc]
 ** xref:config/project_config.adoc[Project-specific Configuration]
 * xref:indent_spec.adoc[Indentation Specification]
-* Using the REPL
-** xref:repl/basic_usage.adoc[Basic Usage]
-** xref:repl/keybindings.adoc[Keybindings]
-** xref:repl/configuration.adoc[Configuration]
-** xref:repl/history.adoc[REPL History]
 * xref:caveats.adoc[Caveats]
 * xref:troubleshooting.adoc[Troubleshooting]
 * xref:faq.adoc[FAQ]
