@@ -238,14 +238,11 @@ https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRe
 
 === Using Figwheel-main
 
-NOTE: The instructions here assume you're using Leiningen. Adapting
-them to your favourite build tool is up to you.
-
 You can also use https://github.com/bhauman/figwheel-main[Figwheel-main] with CIDER.
 
 ==== Leiningen figwheel-main setup
 
-NOTE: This setup is only necessary if `cider-inject-dependencies-at-jack-in` has
+NOTE: This part of the setup is only necessary if `cider-inject-dependencies-at-jack-in` has
 been changed from its default setting of `enabled`, as described more fully above.
 
 . Add this to your dev `:dependencies` (not needed for `cider-jack-in-cljs`):
