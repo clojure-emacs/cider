@@ -10,10 +10,16 @@ strongly advised to use `figwheel-main`.
 
 == Using Figwheel-main
 
+The setup instructions that follow focus on the bare minimum you need to do
+to get Figwheel to work with CIDER. For more details you should check out
+Figwheel's https://figwheel.org/docs/installation.html[excellent documentation].
+
 === Leiningen Setup
 
 NOTE: This part of the setup is only necessary if `cider-inject-dependencies-at-jack-in` has
-been changed from its default setting of `enabled`, as described more fully above.
+been changed from its default setting of `t` (enabled), as described earlier.
+You'll also have to configure Piggieback manually if you're planning to use
+`cider-connect-cljs`.
 
 . Add this to your dev `:dependencies` (not needed for `cider-jack-in-cljs`):
 +
@@ -29,6 +35,26 @@ been changed from its default setting of `enabled`, as described more fully abov
 :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
 ----
 
+Now it's time to add `figwheel-main` to your dependencies as well and you're good to go. Here's
+an example minimal `project.clj` (sans the optional Piggieback setup):
+
+[source,clojure]
+----
+(defproject example-project "0.1.0-SNAPSHOT"
+  :dependencies [[org.clojure/clojure "1.10.1"]]
+  :profiles
+    {:dev
+      {:dependencies [[org.clojure/clojurescript "1.10.339"]
+                      [com.bhauman/figwheel-main "0.2.3"]]}})
+----
+
+You can now verify that everything's properly setup by running:
+
+  $ lein run -m figwheel.main
+
+A browser window should pop open and back in the terminal you should see a REPL
+with a `cljs.user=>` prompt waiting to evaluate ClojureScript code.
+
 === Clojure CLI Setup
 
 . Ensure your `deps.edn` contains these dependencies available from an
@@ -39,7 +65,7 @@ deps.edn.
 +
 [source,clojure]
 ----
-{ :aliases {:fig {:extra-deps
+{:aliases {:fig {:extra-deps
                  {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
                   com.bhauman/figwheel-main {:mvn/version "0.2.3"}}}}}
 ----
@@ -82,6 +108,8 @@ by `figwheel.main/start` at either the prompt for the build name or
 using the `cider-figwheel-main-default-options`.
 See https://github.com/bhauman/figwheel-main/blob/master/src/figwheel/main/api.clj[figwheel.main.api/start]
 for details.
+
+TIP: Figwheel's own documentation has a nice https://figwheel.org/docs/emacs.html[section, dedicated to CIDER].
 
 == Using legacy Figwheel (Leiningen-only)
 
