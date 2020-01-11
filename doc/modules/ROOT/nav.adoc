@@ -3,7 +3,12 @@
 ** xref:basics/installation.adoc[Installation]
 ** xref:basics/up_and_running.adoc[Up and Running]
 ** xref:basics/middleware_setup.adoc[nREPL Middleware Setup]
-** xref:basics/clojurescript.adoc[ClojureScript]
+* ClojureScript Setup
+** xref:cljs/overview.adoc[Overview]
+** xref:cljs/up_and_running.adoc[Up and Running]
+** xref:cljs/figwheel.adoc[Using Figwheel]
+** xref:cljs/shadow-cljs.adoc[Using shadow-cljs]
+** xref:cljs/other_repls.adoc[Using Other REPLs]
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]
 ** xref:usage/cider_mode.adoc[Using cider-mode]

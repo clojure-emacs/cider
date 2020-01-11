@@ -1,0 +1,148 @@
+= Up and Running
+
+== Piggieback Setup
+
+ClojureScript support relies on the https://github.com/nrepl/piggieback[piggieback] nREPL middleware
+being present in your REPL session. There's one exception to this,
+though: https://github.com/thheller/shadow-cljs[shadow-cljs]. It has its own nREPL middleware and doesn't rely
+on piggieback at all.
+
+If `cider-inject-dependencies-at-jack-in` is enabled, which it is by
+default, then piggieback will be automatically added and configured
+for your project when doing `cider-jack-in-cljs`.
+
+If `cider-inject-dependencies-at-jack-in` is disabled or you're going
+to connect to an already running nREPL server using
+`cider-connect-cljs`, use the configuration in the following section.
+
+=== Manual Piggieback Setup
+
+To setup piggieback, add the following dependencies to your project
+(`project.clj` in a Leiningen based project or `build.boot` in a Boot
+project or `deps.edn`):
+
+[source,clojure]
+----
+;; use whatever are the most recent versions here
+[cider/piggieback "0.4.2"]
+[org.clojure/clojure "1.9.0"]
+----
+
+as well as `piggieback` nREPL middleware:
+
+in `project.clj`:
+
+[source,clojure]
+----
+:repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
+----
+
+or in `build.boot`:
+
+[source,clojure]
+----
+(task-options!
+  repl {:middleware '[cider.piggieback/wrap-cljs-repl]})
+----
+
+or in `deps.edn`:
+
+[source,clojure]
+----
+{:aliases { :cider-cljs { :main-opts
+  ["-m" "nrepl.cmdline" "--middleware"
+   "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}}}
+----
+
+== Starting a ClojureScript REPL
+
+Open a ClojureScript file in your project and type kbd:[M-x]
+`cider-jack-in-cljs` kbd:[RET]. With the correct configuration
+and after answering a few prompts this will start up the
+nREPL server and create a ClojureScript REPL buffer.
+
+NOTE: Prior to CIDER 0.18, `cider-jack-in-cljs` would create both a Clojure and
+a ClojureScript REPL. In CIDER 0.18+ if you want to create both REPLs
+you'll have to use `cider-jack-in-clj&cljs` instead.
+
+When you have a combination of Clojure and ClojureScript REPLs, CIDER
+will automatically direct all the usual CIDER commands to the
+appropriate REPL based on whether you're currently visiting a `.clj` or
+`.cljs` file.
+
+`cider-jack-in-cljs` will prompt you for the type of ClojureScript
+REPL you want to start. Keep in mind that some of the REPLs will
+require you to configure additional setup. For example, you'll need to
+have Node.js installed to be able to start a Node REPL.
+
+TIP: The only ClojureScript REPL type that doesn't require any additional
+setup is the Nashorn REPL. Unfortunately it's going to be removed in
+future versions of the JDK.
+
+== Customization
+
+If you frequently use the same ClojureScript REPL, you can set
+`cider-default-cljs-repl` and CIDER will skip the prompt and use this
+instead. For example, the following will make Nashorn the default:
+
+[source,lisp]
+----
+(setq cider-default-cljs-repl 'nashorn)
+----
+
+All supported ClojureScript REPLs are stored in
+`cider-cljs-repl-types`. If you need to extend it, you should use
+`cider-register-cljs-repl-type` in your Emacs configuration.
+
+[source,lisp]
+----
+(cider-register-cljs-repl-type 'super-cljs "(do (...))" optional-requirements-function)
+----
+
+You can also modify the known ClojureScript REPLs on a per-project basis using
+`.dir-locals.el`:
+
+[source,lisp]
+----
+;; replace the list of REPL types and set some default
+((nil
+  (cider-default-cljs-repl . super-cljs)
+  (cider-cljs-repl-types . ((super-cljs "(do (foo) (bar))")))))
+----
+
+[source,lisp]
+----
+;; modify the list of known REPLs and set some default
+((nil
+  (eval . (cider-register-cljs-repl-type 'super-cljs "(do (foo) (bar))"))
+  (cider-default-cljs-repl . super-cljs)))
+----
+
+For one-off REPLs you can also use the custom REPL init form like this:
+
+[source,lisp]
+----
+;; modify the list of known REPLs and set some default
+((nil
+  (cider-custom-cljs-repl-init-form . "(do (foo) (bar))"
+  (cider-default-cljs-repl . custom)))
+----
+
+If you already have a Clojure REPL running and want to add a
+ClojureScript REPL, you can invoke
+`cider-jack-in-sibling-clojurescript` to add it.
+
+== Working with `.cljc` files
+
+Ordinarily, CIDER dispatches code from `clj` files to Clojure REPLs
+and `cljs` files to ClojureScript REPLs. But``cljc`` files have two
+possible connection targets, both of which are valid. So, by default,
+CIDER tries to evaluate `cljc` files in all matching connection
+buffers, both `clj` and `cljs`, if present.
+
+Thus, if you're evaluating the code `(+ 2 2)` in a `cljc` file and you
+have both an active Clojure and ClojureScript REPL then the code is
+going to be evaluated twice, once in each of the REPLs.  In fact, you
+can create multiple clj and cljs sibling connections (kbd:[C-c C-x C-s C-s/j]) within a CIDER session and evaluation will be directed
+into all REPLs simultaneously. See xref:usage/managing_connections.adoc[Managing
+Connections] for more details.

@@ -1,0 +1,44 @@
+= ClojureScript
+:experimental:
+
+NOTE: CIDER works well with ClojureScript, but not all CIDER features are
+available in ClojureScript (yet). For instance, the test runner and
+debugger are currently Clojure-only features.
+
+Unlike the Clojure ecosystem that is dominated by a single REPL, the
+ClojureScript ecosystem has a number of different choices for REPLs. You'll have
+to decide which one you want to run and how you want CIDER to interact
+with it.
+
+== nREPL and ClojureScript
+
+nREPL doesn't natively support ClojureScript evaluation, that why an additional
+middleware is needed. CIDER relies on the popular Piggieback middleware for its
+ClojureScript support.
+
+Piggieback works in the following manner:
+
+* You start a regular Clojure REPL
+* You run some Clojure in it that converts to a ClojureScript REPL
+
+This means that jacking-in a two-fold process for ClojureScript, compared to Clojure,
+as now we have the extra REPL "upgrade" step.
+
+== Dealing with Dependencies
+
+CIDER doesn't handle automatically ClojureScript REPL dependencies when you're doing
+`cider-jack-in-clojurescript`. You'll have to configure those manually yourselves
+as documented in the subsequent sections of this manual.
+
+== Limitations
+
+CIDER currently doesn't support self-hosted ClojureScript implementations (e.g. Lumo).
+The reason for this is that there's no self-hosted version of nREPL (implemented in ClojureScript)
+available today.
+
+Additionally, as noted earlier on this page - many of CIDER's advanced features are
+currently not available for ClojureScript.
+
+== Next
+
+In the next article we'll show you how to start a ClojureScript REPL with CIDER.

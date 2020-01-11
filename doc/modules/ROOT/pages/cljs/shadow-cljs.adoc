@@ -1,0 +1,20 @@
+= Using shadow-cljs
+
+Provided you've configured your project correctly, you can simply use
+`cider-jack-in-cljs` for `shadow-cljs`.
+
+This will automatically start the shadow-cljs server and connect to
+it. You'll also be prompted for the build to use.
+
+Alternatively you can start the server manually with something like:
+
+[source,sh]
+----
+$ npx shadow-cljs server
+----
+
+And connect to it with `cider-connect`.
+
+If you already have a running server watching a build (for instance
+you have already run `npx shadow-cljs watch :dev`), you can use the
+`shadow-select` CLJS REPL and specify `:dev` when prompted.
