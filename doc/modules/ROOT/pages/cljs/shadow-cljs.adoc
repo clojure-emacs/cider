@@ -1,4 +1,5 @@
 = Using shadow-cljs
+:experimental:
 
 Provided you've configured your project correctly, you can simply use
 `cider-jack-in-cljs` for `shadow-cljs`.
