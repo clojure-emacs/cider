@@ -1,11 +1,53 @@
 = Using shadow-cljs
 :experimental:
 
+`shadow-cljs` is one of the most popular toolchain for doing ClojureScript
+development these days. In this section we'll discuss how to set it up and
+use it together with CIDER.
+
+== Setting up shadow-cljs
+
+NOTE: This section assumes you've already installed node.js.
+
+Installing `shadow-cljs` is pretty straight-forward. You can do it via `npm` or `yarn`:
+
+  $ npm install -g shadow-cljs
+  $ yarn global add shadow-cljs
+
+While it's not necessary to do a global installation that's generally the recommended approach.
+
+== Starting a shadow-cljs REPL
+
+=== Using cider-jack-in-cljs
+
 Provided you've configured your project correctly, you can simply use
-`cider-jack-in-cljs` for `shadow-cljs`.
+`cider-jack-in-cljs`:
+
+* Press kbd:[C-c C-x j s] (or do `M-x cider-jack-in-cljs`)
+* When prompted for the ClojureScript REPL type to start, select `shadow`
 
 This will automatically start the shadow-cljs server and connect to
-it. You'll also be prompted for the build to use.
+it. You'll also be prompted for the shadow-cljs build to use. Select
+your desired build (e.g. `app`) and you should see something like:
+
+  shadow.user> To quit, type: :cljs/quit
+  [:selected :app]
+  cljs.repl>
+
+NOTE: CIDER will extract the list of available builds automatically
+from the `shadow-cljs.edn` file in the root of the current project.
+
+You can get rid of the prompts for the REPL type and the target build
+by creating a `.dir-locals.el` file with the following contents in the
+root of your project.
+
+[source,clojure]
+----
+((nil . ((cider-default-cljs-repl . shadow)
+         (cider-shadow-default-options . "<your-build-name-here>"))))
+----
+
+=== Using cider-connect-cljs
 
 Alternatively you can start the server manually with something like:
 
@@ -19,3 +61,34 @@ And connect to it with `cider-connect`.
 If you already have a running server watching a build (for instance
 you have already run `npx shadow-cljs watch :dev`), you can use the
 `shadow-select` CLJS REPL and specify `:dev` when prompted.
+
+== Configuration
+
+You can tweak the command used by `cider-jack-in-cljs` to start the `shadow-cljs` server
+via the following configuration variables:
+
+* `cider-shadow-cljs-command` (its default value is `npx shadow-cljs`)
+* `cider-shadow-cljs-global-options` (its default value is blank)
+* `cider-shadow-cljs-parameters` (its default value is `server`)
+
+All of this results in the following default command to start the shadow-cljs server:
+
+  $ npx shadow-cljs server
+
+The command is visible in the minibuffer when you're doing `cider-jack-in-cljs`.
+
+As noted earlier you can also set a default build via `cider-shadow-default-options`:
+
+  (setq cider-shadow-default-options "app")
+
+== Additional Resources
+
+Here are a few useful sections from `shadow-cljs`'s own documentation:
+
+* https://shadow-cljs.github.io/docs/UsersGuide.html#_installation[Installation]
+* https://shadow-cljs.github.io/docs/UsersGuide.html#nREPL[nREPL Setup]
+* https://shadow-cljs.github.io/docs/UsersGuide.html#cider[Integration with CIDER]
+
+=== Tutorials
+
+* https://cestlaz.github.io/post/using-emacs-63-clojurescript/[Using shadow-cljs with CIDER]
