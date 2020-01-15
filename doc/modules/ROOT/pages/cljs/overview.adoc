@@ -21,7 +21,7 @@ Piggieback works in the following manner:
 * You start a regular Clojure REPL
 * You run some Clojure in it that converts to a ClojureScript REPL
 
-This means that jacking-in a two-fold process for ClojureScript, compared to Clojure,
+This means that jacking-in is a two-fold process for ClojureScript, compared to Clojure,
 as now we have the extra REPL "upgrade" step.
 
 == Dealing with Dependencies
