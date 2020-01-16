@@ -113,4 +113,4 @@ currently not available for ClojureScript.
 
 == Next
 
-In the next article we'll show you how to start a ClojureScript REPL with CIDER.
+In the next section we'll show you how to start a ClojureScript REPL with CIDER.
