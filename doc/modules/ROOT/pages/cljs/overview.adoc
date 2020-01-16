@@ -42,35 +42,40 @@ differences everyone has to be aware of.
 
 Here's how the standard ClojureScript behaves with multiple input forms:
 
-  cljs.user>
-  (declare is-odd?)
-  (defn is-even? [n] (if (= n 0) true (is-odd? (dec n))))
-  (defn is-odd? [n] (if (= n 0) false (is-even? (dec n))))
-  #'cljs.user/is-odd?
-  #'cljs.user/is-even?
-  #'cljs.user/is-odd?
-  cljs.user> (is-even? 4)
-  true
-
+[source,clojure]
+----
+cljs.user>
+(declare is-odd?)
+(defn is-even? [n] (if (= n 0) true (is-odd? (dec n))))
+(defn is-odd? [n] (if (= n 0) false (is-even? (dec n))))
+#'cljs.user/is-odd?
+#'cljs.user/is-even?
+#'cljs.user/is-odd?
+cljs.user> (is-even? 4)
+true
+----
 
 And here's how a Piggieback-powered REPL behaves:
 
-  cljs.user>
-  (declare is-odd?)
-  (defn is-even? [n] (if (= n 0) true (is-odd? (dec n))))
-  (defn is-odd? [n] (if (= n 0) false (is-even? (dec n))))
-  #'cljs.user/is-odd?
-  cljs.user> (is-even? 4)
-  Compile Warning   <cljs repl>   line:1  column:2
+[source,clojure]
+----
+cljs.user>
+(declare is-odd?)
+(defn is-even? [n] (if (= n 0) true (is-odd? (dec n))))
+(defn is-odd? [n] (if (= n 0) false (is-even? (dec n))))
+#'cljs.user/is-odd?
+cljs.user> (is-even? 4)
+Compile Warning   <cljs repl>   line:1  column:2
 
-    Use of undeclared Var cljs.user/is-even?
+  Use of undeclared Var cljs.user/is-even?
 
-    1  (is-even? 4)
-        ^---
+  1  (is-even? 4)
+      ^---
 
-  #object[TypeError TypeError: Cannot read property 'call' of undefined]
-  	 (<NO_SOURCE_FILE>)
-  cljs.user>
+#object[TypeError TypeError: Cannot read property 'call' of undefined]
+	 (<NO_SOURCE_FILE>)
+cljs.user>
+----
 
 This difference comes from a performance optimization in Piggieback, which avoids
 creating an different REPLs for each ClojureScript form it evaluates.
