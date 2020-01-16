@@ -5,11 +5,24 @@ While these days most people are using `figwheel` and `shadow-cljs`,
 CIDER supports other ClojureScript REPLs as well.
 This section of the user manual is dedicated to them.
 
-== Browser-Connected ClojureScript REPL
+== Node.js REPL
 
-Using Weasel, you can also have a browser-connected REPL.
+IMPORTANT: Make sure `node.js` is installed and that the `node` binary
+is on Emacs's `exec-path`.
 
-. Add `[weasel "0.7.0"]` to your project's `:dependencies`.
+ClojureScript's Node.js REPL is really simple to setup, as it doesn't
+require you to fiddle with your project's dependencies. All you need to do is:
+
+. Open some file in your project.
+. Type kbd:[M-x] `cider-jack-in-cljs` kbd:[RET].
+. Choose the `node` option when prompted about the ClojureScript REPL type you want
+to use.
+
+== Weasel
+
+Using https://github.com/nrepl/weasel[Weasel], you can have a browser-connected REPL.
+
+. Add `[weasel "0.7.1"]` to your project's `:dependencies`.
 . Type kbd:[M-x] `cider-jack-in-cljs` kbd:[RET] and choose
 the `Weasel` option when prompted about the ClojureScript REPL type you want
 to use.
@@ -22,7 +35,10 @@ to use.
 (repl/connect "ws://localhost:9001")
 ----
 +
-. Open a file in your project and type kbd:[M-x] `cider-jack-in-cljs`.
+. Once connected you can start evaluating code in the REPL and you'll see the results in your
+browser.
++
+  cljs.user> (js/alert "Hello world!")
 
 Provided that a Piggieback-enabled ClojureScript environment is active in your
 REPL session, code loading and evaluation will work seamlessly regardless of the
@@ -30,7 +46,12 @@ presence of the `cider-nrepl` middleware. If the middleware is present then most
 other features of CIDER will also be enabled (including code completion,
 documentation lookup, the namespace browser, and macroexpansion).
 
-== Browser-Connected ClojureScript REPL in Boot Projects
+TIP: For more information on Weasel you should consult its https://github.com/nrepl/weasel/blob/master/README.md[documentation].
+
+== Boot ClojureScript REPL
+
+`boot-cljs` is another browser-connected ClojureScript REPL, that's targeting the Boot build tool.
+Internally, it's powered by Weasel. Let's go over the steps required to use it.
 
 . Add this to your dependencies in `build.boot`:
 +
@@ -39,7 +60,7 @@ documentation lookup, the namespace browser, and macroexpansion).
 [adzerk/boot-cljs        "X.Y.Z"  :scope "test"]
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
-[weasel                  "0.7.0"  :scope "test"]
+[weasel                  "0.7.1"  :scope "test"]
 [cider/piggieback "0.4.2"  :scope "test"] ; not needed for cider-jack-in-cljs
 ----
 +
