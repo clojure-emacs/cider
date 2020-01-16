@@ -53,7 +53,7 @@ Here's how the standard ClojureScript behaves with multiple input forms:
   true
 
 
-And here's how a Piggieback-powerd REPL behaves:
+And here's how a Piggieback-powered REPL behaves:
 
   cljs.user>
   (declare is-odd?)
