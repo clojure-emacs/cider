@@ -6,9 +6,13 @@ available in ClojureScript (yet). For instance, the test runner and
 debugger are currently Clojure-only features.
 
 Unlike the Clojure ecosystem that is dominated by a single REPL, the
-ClojureScript ecosystem has a number of different choices for REPLs. You'll have
-to decide which one you want to run and how you want CIDER to interact
-with it.
+ClojureScript ecosystem has a number of different choices for REPLs
+(e.g. `nashorn`, `node`, `weasel`, `figwheel` and `shadow-cljs`). You'll have to
+decide which one you want to run and how you want CIDER to interact with it.
+
+In this section we'll take a look at how ClojureScript support is implemented in CIDER,
+and in the subsequent sections we'll discuss how to launch a ClojureScript REPL
+and how to setup the most popular ClojureScript REPLs.
 
 == nREPL and ClojureScript
 
@@ -19,10 +23,59 @@ ClojureScript support.
 Piggieback works in the following manner:
 
 * You start a regular Clojure REPL
-* You run some Clojure in it that converts to a ClojureScript REPL
+* You run some Clojure code in it, that converts it to a ClojureScript REPL
 
 This means that jacking-in is a two-fold process for ClojureScript, compared to Clojure,
 as now we have the extra REPL "upgrade" step.
+
+On the bright side - this also means that you can host side by side Clojure and ClojureScript
+REPLs in a single nREPL connection! This opens up all sorts of interesting possibilities
+that we'll discuss later on.
+
+== Differences with the Standard ClojureScript REPL
+
+While the Piggieback-powered ClojureScript REPLs behave more or less
+the same as the standard ClojureScript REPL, there are few subtle
+differences everyone has to be aware of.
+
+=== Handling of Multiple Forms
+
+Here's how the standard ClojureScript behaves with multiple input forms:
+
+  cljs.user>
+  (declare is-odd?)
+  (defn is-even? [n] (if (= n 0) true (is-odd? (dec n))))
+  (defn is-odd? [n] (if (= n 0) false (is-even? (dec n))))
+  #'cljs.user/is-odd?
+  #'cljs.user/is-even?
+  #'cljs.user/is-odd?
+  cljs.user> (is-even? 4)
+  true
+
+
+And here's how a Piggieback-powerd REPL behaves:
+
+  cljs.user>
+  (declare is-odd?)
+  (defn is-even? [n] (if (= n 0) true (is-odd? (dec n))))
+  (defn is-odd? [n] (if (= n 0) false (is-even? (dec n))))
+  #'cljs.user/is-odd?
+  cljs.user> (is-even? 4)
+  Compile Warning   <cljs repl>   line:1  column:2
+
+    Use of undeclared Var cljs.user/is-even?
+
+    1  (is-even? 4)
+        ^---
+
+  #object[TypeError TypeError: Cannot read property 'call' of undefined]
+  	 (<NO_SOURCE_FILE>)
+  cljs.user>
+
+This difference comes from a performance optimization in Piggieback, which avoids
+creating an different REPLs for each ClojureScript form it evaluates.
+
+TIP: You can learn more about this difference https://github.com/nrepl/piggieback/pull/98[here].
 
 == Dealing with Dependencies
 
@@ -30,11 +83,30 @@ CIDER doesn't handle automatically ClojureScript REPL dependencies when you're d
 `cider-jack-in-clojurescript`. You'll have to configure those manually yourselves
 as documented in the subsequent sections of this manual.
 
+Actually, CIDER will handle automatically the most important dependency - namely Piggieback.
+The problem with the other dependencies, however, is that you might need to install
+some external tools (e.g. `node`, `shadow-cljs`) and that ClojureScript development
+tools like Figwheel and shadow-cljs also require some setup to be useful.
+
+CIDER will try to help you identify missing requirements by running a check, right before
+attempting to upgrade a Clojure REPL to a ClojureScript REPL. The nature of this check
+differs for the different REPL types:
+
+* For a `node` REPL we check whether the `node` binary is on your `exec-path` (Emacs's version of `PATH`)
+* For tools like `figwheel` we check whether they are available on the classpath (by trying to require
+some of their namespaces)
+
+We'll discuss those checks further in the upcoming sections.
+
 == Limitations
 
 CIDER currently doesn't support self-hosted ClojureScript implementations (e.g. Lumo).
 The reason for this is that there's no self-hosted version of nREPL (implemented in ClojureScript)
 available today.
+
+Another unsupported REPL is Rhino. Supporting in it Piggieback required a lot of ugly hacks
+and eventually it was decided we were better off without Rhino. Given the abundance
+of better solutions today, I doubt anyone's going to miss Rhino anyways.
 
 Additionally, as noted earlier on this page - many of CIDER's advanced features are
 currently not available for ClojureScript.
