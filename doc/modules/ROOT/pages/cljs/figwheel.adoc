@@ -109,8 +109,6 @@ using the `cider-figwheel-main-default-options`.
 See https://github.com/bhauman/figwheel-main/blob/master/src/figwheel/main/api.clj[figwheel.main.api/start]
 for details.
 
-TIP: Figwheel's own documentation has a nice https://figwheel.org/docs/emacs.html[section, dedicated to CIDER].
-
 == Using legacy Figwheel (Leiningen-only)
 
 WARNING: This has been deprecated in favour of using `figwheel-main`. Check out
@@ -143,3 +141,14 @@ WARNING: Keep in mind that CIDER does not support versions versions of Piggiebac
 
 You should also check out
 https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl[Figwheel's wiki].
+
+== Additional Resources
+
+=== Official Figwheel Documentation
+
+* https://figwheel.org/docs/installation.html[Installation]
+* https://figwheel.org/docs/emacs.html[Using Figwheel with CIDER].
+
+=== Tutorials
+
+* https://cjohansen.no/tools-deps-figwheel-main-devcards-emacs/[tools.deps, figwheel-main, Devcards, and Emacs]
