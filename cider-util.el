@@ -510,7 +510,10 @@ restore it properly when going back."
         (if tail (setcdr tail nil))))
     (setq help-xref-stack-item item)))
 
-(defcustom cider-doc-xref-regexp "`\\(.*?\\)`"
+(defcustom cider-doc-xref-regexp
+  (rx (or (: "`" (group-n 1 (+ (not space))) "`")   ; `var`
+          (: "[[" (group-n 1 (+ (not space))) "]]") ; [[var]]
+          (group-n 1 (+ (not space)) "/" (+ (not space))))) ; Fully qualified
   "The regexp used to search Clojure vars in doc buffers."
   :type 'regexp
   :safe #'stringp
