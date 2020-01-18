@@ -1,6 +1,6 @@
  ;;; cider-connection-tests.el
 
-;; Copyright © 2012-2019 Tim King, Bozhidar Batsov, Vitalie Spinu
+;; Copyright © 2012-2020 Tim King, Bozhidar Batsov, Vitalie Spinu
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>

@@ -1,6 +1,6 @@
 ;;; cider-browse-ns-tests.el
 
-;; Copyright © 2012-2019 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2020 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.com>

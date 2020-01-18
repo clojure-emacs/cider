@@ -1,6 +1,6 @@
 ;;; cider-client.el --- A layer of abstraction above low-level nREPL client code. -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2019 Bozhidar Batsov
+;; Copyright © 2013-2020 Bozhidar Batsov
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 
