@@ -147,10 +147,8 @@ Note that enabling font-locking in the REPL can negatively impact performance.
 By default the REPL always prints the results of your evaluations using the
 printing function specified by `cider-print-fn`.
 
-!!! Note
-
- This behaviour was changed in CIDER 0.20. In prior CIDER releases
- pretty-printing was disabled by default.
+NOTE: This behaviour was changed in CIDER 0.20. In prior CIDER releases
+pretty-printing was disabled by default.
 
 You can temporarily disable this behaviour and revert to the default behaviour
 (equivalent to `clojure.core/pr`) using kbd:[M-x cider-repl-toggle-pretty-printing].
