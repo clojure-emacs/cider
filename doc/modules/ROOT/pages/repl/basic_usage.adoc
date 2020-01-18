@@ -6,10 +6,13 @@ development functionality in `cider-mode`. Using the CIDER REPL you
 can experiment with your running program, test functions, or just
 explore a new library you're interested in using. The CIDER REPL offers a number of advanced features:
 
-* auto-completion
+* code completion
 * font-locking (the same as in `clojure-mode`)
 * quick access to many CIDER commands (e.g. definition and documentation lookup, tracing, etc)
 * pretty-printing of evaluation results
+* inline display of images
+* persistent REPL history
+* powerful REPL history browser
 * eldoc support
 * highly customizable REPL prompt
 
@@ -22,7 +25,7 @@ evaluate them.
 But the REPL is a bit more powerful than that and it allows you to do some things that might not be available in
 other Clojure REPLs. Some examples of such things would be:
 
-* You can close an incomplete expression with kbd:[C-Ret]
+* You can close an incomplete expression with kbd:[C-RET]
 * You can enter a multi-line expression by pressing kbd:[C-j] at the end of each line
 * You can quickly jump to the definition of a symbol (kbd:[.]) or to its documentation (kbd:[C-c C-d d])
 * You can clear the output of the last expression with kbd:[C-c C-o]
@@ -44,7 +47,8 @@ namely kbd:[C-c C-b].
 
 When you're done with a REPL you can dispose of it with kbd:[C-c C-q].
 
-Please, avoid killing REPL buffers with kbd:[C-c C-k].
+TIP: Avoid killing REPL buffers with kbd:[C-c C-k]. This will forgo
+some of the operations needed to properly dispose of a REPL buffer.
 
 == Known Limitations
 
