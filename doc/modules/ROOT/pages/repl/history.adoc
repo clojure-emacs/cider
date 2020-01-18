@@ -77,8 +77,8 @@ filtered to only those inputs that match the regexp.
 
 == Preview and Highlight
 
-When `cider-repl-history-show-preview` is non-nil, CIDER displays an [`overlay`]
-(https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html)
+When `cider-repl-history-show-preview` is non-nil, CIDER displays an
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html[overlay]
 of the currently selected history entry, in the REPL buffer.
 
 If you do not properly quit from browsing the history (i.e., if you
