@@ -254,6 +254,20 @@ buffer."
   (describe "works in buffers"
     (it "fontifies with correct face"
       (with-clojure-buffer "|aaa bbb\n cccc\n ddddd"
-        (cider-add-face "c+" 'font-lock-comment-face)
-        (expect (get-pos-property 11 'face)
-                :to-be 'font-lock-comment-face)))))
+                           (cider-add-face "c+" 'font-lock-comment-face)
+                           (expect (get-pos-property 11 'face)
+                                   :to-be 'font-lock-comment-face)))))
+
+(describe "cider--find-symbol-xref"
+  (it "identifies all types of xref syntax"
+    (with-temp-buffer
+      (insert "(defn temp-fn []
+  \"This is a docstring with `cross` [[references]] to clojure.core/map,
+and some other vars (like clojure.core/filter).
+  [])")
+      (goto-char (point-min))
+      (expect (cider--find-symbol-xref) :to-equal "cross")
+      (expect (cider--find-symbol-xref) :to-equal "references")
+      (expect (cider--find-symbol-xref) :to-equal "clojure.core/map")
+      (expect (cider--find-symbol-xref) :to-equal "clojure.core/filter")
+      (expect (cider--find-symbol-xref) :to-equal nil))))
