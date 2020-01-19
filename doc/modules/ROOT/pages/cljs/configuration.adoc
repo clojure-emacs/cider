@@ -1,0 +1,67 @@
+= Configuration
+
+== Setting a Default ClojureScript REPL Type
+
+If you frequently use the same ClojureScript REPL, you can set
+`cider-default-cljs-repl` and CIDER will skip the prompt and use this
+instead. For example, the following will make Nashorn the default:
+
+[source,lisp]
+----
+(setq cider-default-cljs-repl 'nashorn)
+----
+
+== Defining Custom ClojureScript REPL Types
+
+All supported ClojureScript REPLs are stored in
+`cider-cljs-repl-types`. If you need to extend it, you should use
+`cider-register-cljs-repl-type` in your Emacs configuration.
+
+[source,lisp]
+----
+(cider-register-cljs-repl-type 'super-cljs "(do (...))" optional-requirements-function)
+----
+
+You can also modify the known ClojureScript REPLs on a per-project basis using
+`.dir-locals.el`:
+
+[source,lisp]
+----
+;; replace the list of REPL types and set some default
+((nil
+  (cider-default-cljs-repl . super-cljs)
+  (cider-cljs-repl-types . ((super-cljs "(do (foo) (bar))")))))
+----
+
+[source,lisp]
+----
+;; modify the list of known REPLs and set some default
+((nil
+  (eval . (cider-register-cljs-repl-type 'super-cljs "(do (foo) (bar))"))
+  (cider-default-cljs-repl . super-cljs)))
+----
+
+For one-off REPLs you can also use the custom REPL init form like this:
+
+[source,lisp]
+----
+;; modify the list of known REPLs and set some default
+((nil
+  (cider-custom-cljs-repl-init-form . "(do (foo) (bar))"
+  (cider-default-cljs-repl . custom)))
+----
+
+If you already have a Clojure REPL running and want to add a
+ClojureScript REPL, you can invoke
+`cider-jack-in-sibling-clojurescript` to add it.
+
+== Enhanced Completion
+
+By default CIDER will enrich the ClojureScript completion results using
+the https://github.com/rksm/clj-suitable[suitable] library. If case you run
+into any `suitable`-related issues you can disable the enhanced completion like this:
+
+[source,lisp]
+----
+(setq cider-enhanced-cljs-completion-p nil)
+----

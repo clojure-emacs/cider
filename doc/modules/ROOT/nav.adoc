@@ -6,6 +6,7 @@
 * ClojureScript Setup
 ** xref:cljs/overview.adoc[Overview]
 ** xref:cljs/up_and_running.adoc[Up and Running]
+** xref:cljs/configuration.adoc[Configuration]
 ** xref:cljs/figwheel.adoc[Using Figwheel]
 ** xref:cljs/shadow-cljs.adoc[Using shadow-cljs]
 ** xref:cljs/other_repls.adoc[Using Other REPLs]
