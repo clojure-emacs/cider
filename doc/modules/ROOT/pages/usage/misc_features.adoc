@@ -281,9 +281,10 @@ image::spec_browser_gen_example.png[Spec Browser Example]
 
 Sometimes in your documentation strings, you'd like to be able to
 point other programmers at different definitions. If you specify the
-name of a definition in backticks (```), CIDER will convert these
-references into live links when it displays the documentation string
-in the documentation buffer.
+name of a definition as a fully qualified symbol, or surround it in
+backticks (`++`...`++`) or Codox-style delimiters (`+[[...]]+`), CIDER
+will convert these references into live links when it displays the
+documentation string in the documentation buffer.
 
 If the name is in another namespace, then you'll have to include the
 fully qualified name in the docstring.
@@ -293,23 +294,22 @@ Example function with a docstring containing references:
 ----
 (defn test-fn
   "Test function.
-  Also see: `clojure.core/map`, `clojure.core/reduce`, `defn`.
-  You can reference variables like `thor`, `kubaru.data.zookeeper/yoda`.
+  Also see: clojure.core/map, clojure.core/reduce, `defn`.
+  You can reference variables like `thor`, [[kubaru.data.zookeeper/yoda]].
   Also works with references to java interop forms, `java.lang.String/.length`."
   []
   (+ 1 1))
 ----
 
 You can change the delimiters that CIDER uses to find references if
-you don't like using backticks.  Simply update the regexp in
+you want to support other reference formats.  Simply update the regexp in
 `cider-doc-xref-regexp` to match your preferred format. The first
 group of the regexp should always match the cross-reference name. For
-example, if you want to want to use
-https://github.com/weavejester/codox[Codox's] delimiter style
-(`+[[...]]+`) instead of backticks, the regexp would be:
+example, if you want to want to use Latex-style references
+(`+\ref{...}+`) instead, the regexp would be:
 
 ----
-(setq cider-doc-xref-regexp "\\[\\[\\(.*?\\)\\]\\]")
+(setq cider-doc-xref-regexp "\\\\ref{\\(?1:[^}]+\\)}")
 ----
 
 image::cider_see_also.gif[CIDER See Also]
