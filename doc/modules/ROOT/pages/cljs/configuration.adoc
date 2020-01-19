@@ -5,6 +5,23 @@ options related to ClojureScript. Configuration that is specific
 to a particular REPL (e.g. `shadow-cljs`) is covered separately
 in the individual REPL setup sections.
 
+== Modifying the ClojureScript jack-in dependencies
+
+Out-of-the-box, CIDER injects a single dependency into ClojureScript REPLs - namely `piggieback`.
+If you'd like to inject more deps you'll have to modify the `cider-jack-in-cljs-dependencies`
+variable. Here's an example:
+
+[source,lisp]
+----
+;; let's add Weasel on jack-in
+(cider-add-to-alist 'cider-jack-in-cljs-dependencies "weasel/weasel" "0.7.1")
+----
+
+Typically, modifying this variable is not needed, as ClojureScript dependencies are declared
+explicitly in your project configuration most of the time.
+
+NOTE: Modifying this variable will affect all ClojureScript REPL types.
+
 == Setting a Default ClojureScript REPL Type
 
 If you frequently use the same ClojureScript REPL, you can set
