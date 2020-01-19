@@ -1,5 +1,10 @@
 = Configuration
 
+In this section we'll briefly examine some common configuration
+options related to ClojureScript. Configuration that is specific
+to a particular REPL (e.g. `shadow-cljs`) is covered separately
+in the individual REPL setup sections.
+
 == Setting a Default ClojureScript REPL Type
 
 If you frequently use the same ClojureScript REPL, you can set
