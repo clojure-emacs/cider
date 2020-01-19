@@ -82,11 +82,11 @@ only the arglist is indented specially and the rest is the body).
     "My very own thing!!"))
 ----
 
-For something even more complicated: `letfn` is `[1 [[:defn]] :form]`. This means
+For something even more complicated: `letfn` is `+[1 [[:defn]] :form]+`. This means
 
 * `letfn` has one special argument (the bindings list).
-* The first arg has an indent spec of `[[:defn]]`, which means all forms
-_inside_ the first arg have an indent spec of `[:defn]`.
+* The first arg has an indent spec of `+[[:defn]]+`, which means all forms
+_inside_ the first arg have an indent spec of `+[:defn]+`.
 * The second argument, and all other arguments, are regular forms.
 
 [source,clojure]
