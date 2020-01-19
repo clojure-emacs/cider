@@ -156,7 +156,6 @@ nREPL connection."
   "Check whether the CONNECTION supports the nREPL middleware OP."
   (nrepl-op-supported-p op (or connection (cider-current-repl nil 'ensure))))
 
-(defvar cider-version)
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
 Signal an error if it is not supported."
