@@ -12,7 +12,8 @@
 
 ### Changes
 
-* [#2731](https://github.com/clojure-emacs/cider/pull/2781): Extend `cider-doc-xref-regexp` to recognize `[[var]]` syntax  and fully qualified symbols as xref links in cider-doc buffers. [#2731](https://github.com/clojure-emacs/cider/pull/2731): Make the in-buffer debugging menu customizable via `cider-debug-prompt-commands`.
+* [#2781](https://github.com/clojure-emacs/cider/pull/2781): Extend `cider-doc-xref-regexp` to recognize `[[var]]` syntax  and fully qualified symbols as xref links in cider-doc buffers.
+* [#2731](https://github.com/clojure-emacs/cider/pull/2731): Make the in-buffer debugging menu customizable via `cider-debug-prompt-commands`.
 
 ### Bugs fixed
 
