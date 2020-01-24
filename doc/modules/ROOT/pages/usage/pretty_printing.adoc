@@ -67,7 +67,7 @@ You can pass an options map to the print function by setting `cider-print-option
 
 [source,lisp]
 ----
-(setq cider-print-options '(dict "length" 50 "right-margin" 70))
+(setq cider-print-options '(("length" 50) ("right-margin" 70)))
 ----
 
 NOTE: Each print engine has its own configuration options, so you'll have to be sure to set `cider-print-options` accordingly.
