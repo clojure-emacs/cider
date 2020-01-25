@@ -203,14 +203,14 @@ PARAMS and DUP-OK are as in `nrepl-make-buffer-name'."
 (defun nrepl-server-buffer-name (params)
   "Return the name of the server buffer.
 PARAMS is as in `nrepl-make-buffer-name'."
-  (nrepl--make-hidden-name
-   (nrepl-make-buffer-name nrepl-server-buffer-name-template params)))
+  (nrepl-make-buffer-name (nrepl--make-hidden-name nrepl-server-buffer-name-template)
+                          params))
 
 (defun nrepl-tunnel-buffer-name (params)
   "Return the name of the tunnel buffer.
 PARAMS is as in `nrepl-make-buffer-name'."
-  (nrepl--make-hidden-name
-   (nrepl-make-buffer-name nrepl-tunnel-buffer-name-template params)))
+  (nrepl-make-buffer-name (nrepl--make-hidden-name nrepl-tunnel-buffer-name-template)
+                          params))
 
 (defun nrepl-messages-buffer-name (params)
   "Return the name for the message buffer given connection PARAMS."

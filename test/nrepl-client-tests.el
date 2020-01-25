@@ -43,7 +43,15 @@
       (setq nrepl-hide-special-buffers t
             nrepl-server-buffer-name-template "*nrepl-server %h:%p*")
       (expect (nrepl-server-buffer-name params)
-              :to-equal " *nrepl-server localhost:1*"))))
+              :to-equal " *nrepl-server localhost:1*"))
+    (it "creates two separate server processes if needed"
+      (setq nrepl-hide-special-buffers t
+            nrepl-server-buffer-name-template "*cider-test-buffer-names*")
+      (let ((first-buffer (nrepl-server-buffer-name params)))
+        (expect first-buffer :to-equal " *cider-test-buffer-names*")
+        (get-buffer-create first-buffer)
+        (expect (nrepl-server-buffer-name params)
+                :not :to-equal first-buffer)))))
 
 
 (describe "nrepl-dbind-response"
