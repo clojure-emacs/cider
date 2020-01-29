@@ -822,7 +822,7 @@ the NAME.  The whole group is prefixed by string INDENT."
           (cider-propertize-region '(detail 2)
             (insert "\n")
             (let ((beg (point))
-                  (bg `(:background ,cider-stacktrace-frames-background-color)))
+                  (bg `(:background ,cider-stacktrace-frames-background-color :extend t)))
               (dolist (frame stacktrace)
                 (cider-stacktrace-render-frame buffer frame))
               (overlay-put (make-overlay beg (point)) 'font-lock-face bg)))
