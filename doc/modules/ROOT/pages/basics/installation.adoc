@@ -73,7 +73,7 @@ enabled by default in Emacs and you should not disable it!
 
 == Installation via use-package
 
-`use-package` can be used to install CIDER via the `package.el`'s repositories
+`use-package` can be used to install CIDER via the ``package.el``'s repositories
 http://stable.melpa.org[MELPA Stable] and http://melpa.org[MELPA].
 
 If you wanted to install the version of CIDER which is what is to be found in

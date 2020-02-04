@@ -136,7 +136,7 @@ binding in your Emacs config:
 ----
 ====
 
-Here's a list of all of `cider-selector`'s keybindings:
+Here's a list of all of ``cider-selector``'s keybindings:
 
 |===
 | Keyboard shortcut | Description

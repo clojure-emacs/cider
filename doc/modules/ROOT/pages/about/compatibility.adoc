@@ -22,7 +22,7 @@ release version (e.g. Java 13).  More generally speaking - we aim
 to support all Java releases that are currently officially supported
 by Oracle.
 
-NOTE: The requirements for Java are pretty much `cider-nrepl`'s requirements.
+NOTE: The requirements for Java are pretty much ``cider-nrepl``'s requirements.
 
 == Clojure
 

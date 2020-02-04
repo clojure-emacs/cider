@@ -85,7 +85,7 @@ As noted earlier you can also set a default build via `cider-shadow-default-opti
 
 === Official shadow-cljs Documentation
 
-Here are a few useful sections from `shadow-cljs`'s own documentation:
+Here are a few useful sections from ``shadow-cljs``'s own documentation:
 
 * https://shadow-cljs.github.io/docs/UsersGuide.html#_installation[Installation]
 * https://shadow-cljs.github.io/docs/UsersGuide.html#nREPL[nREPL Setup]
