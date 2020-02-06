@@ -202,7 +202,7 @@ can to un-instrument kbd:[C-u C-M-x].
 
 Due to the way the debugger is currently implemented there are some
 limitations when it comes to certain forms. Set literals are currently
-not instrumented at all. Map literals are currently are instrumented
+not instrumented at all. Map literals are currently only instrumented
 if they are small or the keys have some natural order. For example the
 following expression won't be instrumented.
 
