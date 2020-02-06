@@ -198,6 +198,41 @@ plus metadata annotation in your code. Note that you'll have to delete
 this annotation by hand; you cannot simply use kbd:[C-M-x] as you
 can to un-instrument kbd:[C-u C-M-x].
 
+== Caveats
+
+Due to the way the debugger is currently implemented there are some
+limitations when it comes to certain forms. Set literals are currently
+not instrumented at all. Map literals are currently are instrumented
+if they are small or the keys have some natural order. For example the
+following expression won't be instrumented.
+
+[source,clojure]
+----
+#dbg (count {:foo 2 :bar (inc 4) "foo" 6 "bar" 8 9
+             10 11 12 13 14 15 (inc 16) 17 (inc 18)})
+----
+
+Another construct where the debugger is currently limited is `loop`/`recur`.
+As `recur` always has to appear in a tail-position inside a `loop` or a `fn`
+and the debugger uses macros to interleave breakpoints in the forms it
+*might* happen that a `recur` no longer appears in a tail position. In that
+case we have to avoid setting up the breakpoint. An example of such a case
+is:
+
+[source,clojure]
+----
+(loop [i 0]
+  #break
+  (when (< i 10)
+    (println i)
+    (recur (inc i))))
+----
+
+Here the breakpoint is exactly in front of a form that contains as last expression
+a `recur` which is not wrapped in a loop. Currently this breakpoint has no
+effect. This does not mean you can not use the debugger with `loop`, it just means
+you have to set your debug statements more carefully.
+
 == Debugger Internals
 
 NOTE: This section explains a bit of the inner workings of the debugger. It is
