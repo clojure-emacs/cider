@@ -233,7 +233,7 @@ overlay."
             (setq display-string
                   (concat (substring display-string 0 (* 3 (window-width)))
                           (substitute-command-keys
-                           "...\nResult truncated. Type `\\[cider-inspect-last-result]' to inspect it."))))
+                           "...\nResult truncated. Type `p' to inspect it."))))
           ;; Create the result overlay.
           (setq o (apply #'cider--make-overlay
                          beg end type
