@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.24.0 (2020-02-15)
+
 ### New features
 
 * [#2787](https://github.com/clojure-emacs/cider/issues/2787): Fix nrepl process naming collision when using `nrepl-hide-special-buffers`
