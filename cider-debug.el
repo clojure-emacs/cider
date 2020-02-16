@@ -173,9 +173,9 @@ configure `cider-debug-prompt' instead."
     (ignore-errors
       ;; Result
       (cider--make-result-overlay (cider-font-lock-as-clojure value)
-        :where (point-marker)
-        :type 'debug-result
-        'before-string cider--fringe-arrow-string)
+                                  :where (point-marker)
+                                  :type 'debug-result
+                                  'before-string cider--fringe-arrow-string)
       ;; Code
       (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
                            (point) 'debug-code
@@ -202,6 +202,7 @@ Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
     (?n "next" "next")
     (?i "in" "in")
     (?o "out" "out")
+    (?O "out" nil)
     (?h "here" "here")
     (?e "eval" "eval")
     (?p "inspect" "inspect")
@@ -409,6 +410,7 @@ In order to work properly, this mode must be activated by
     ["Continue" (cider-debug-mode-send-reply ":continue") :keys "c"]
     ["Continue non-stop" (cider-debug-mode-send-reply ":continue-all") :keys "C"]
     ["Move out of sexp" (cider-debug-mode-send-reply ":out") :keys "o"]
+    ["Forced move out of sexp" (cider-debug-mode-send-reply ":out" nil true) :keys "O"]
     ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
     "--"
     ["Evaluate in current scope" (cider-debug-mode-send-reply ":eval") :keys "e"]
