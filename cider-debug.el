@@ -173,9 +173,9 @@ configure `cider-debug-prompt' instead."
     (ignore-errors
       ;; Result
       (cider--make-result-overlay (cider-font-lock-as-clojure value)
-                                  :where (point-marker)
-                                  :type 'debug-result
-                                  'before-string cider--fringe-arrow-string)
+        :where (point-marker)
+        :type 'debug-result
+        'before-string cider--fringe-arrow-string)
       ;; Code
       (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
                            (point) 'debug-code
