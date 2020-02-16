@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+### New features
+
+* [#2800](https://github.com/clojure-emacs/cider/pull/2800): Add support for force-out debugger command.
+
+### Changes
+
+### Bugs fixed
+
 ## 0.24.0 (2020-02-15)
 
 ### New features
