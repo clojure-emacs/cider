@@ -224,8 +224,8 @@ With a prefix argument, prompt for function to run instead of -main."
   :package-version '(cider . "0.18.0"))
 
 (define-obsolete-variable-alias
-  'cider-switch-to-repl-after-insert-p
   'cider-switch-to-repl-on-insert
+  'cider-switch-to-repl-after-insert-p
   "0.21.0")
 
 (defcustom cider-switch-to-repl-on-insert t
