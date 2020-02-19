@@ -360,6 +360,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Interrupt evaluation" cider-interrupt]
     "--"
     ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
+    ["Insert last sexp in REPL and eval" (cider-insert-last-sexp-in-repl t)
+     :keys "\\[universal-argument] \\[cider-insert-last-sexp-in-repl]"]
     ["Insert top-level sexp in REPL" cider-insert-defun-in-repl]
     ["Insert region in REPL" cider-insert-region-in-repl]
     ["Insert ns form in REPL" cider-insert-ns-form-in-repl]

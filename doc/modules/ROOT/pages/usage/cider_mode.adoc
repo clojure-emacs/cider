@@ -61,6 +61,10 @@ kbd:[C-c C-e]
 | kbd:[C-c M-p]
 | Load the form preceding point in the REPL buffer.
 
+| `cider-insert-last-sexp-in-repl`
+| kbd:[C-u C-c M-p]
+| Load the form preceding point in the REPL buffer and eval.
+
 | `cider-pprint-eval-last-sexp`
 | kbd:[C-c C-v C-f e]
 | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.

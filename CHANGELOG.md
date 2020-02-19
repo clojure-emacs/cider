@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL and eval` under `CIDER Eval`.
+
 ## 0.24.0 (2020-02-15)
 
 ### New features
