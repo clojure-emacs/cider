@@ -7,6 +7,7 @@
 [![MELPA](http://melpa.org/packages/cider-badge.svg)](http://melpa.org/#/cider)
 [![MELPA Stable](http://stable.melpa.org/packages/cider-badge.svg)](http://stable.melpa.org/#/cider)
 [![CircleCI](https://circleci.com/gh/clojure-emacs/cider.svg?style=svg)](https://circleci.com/gh/clojure-emacs/cider)
+[![Slack](https://img.shields.io/badge/chat-%23cider-green.svg?style=flat)](http://clojurians.net)
 
 CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
 that **R**ocks!
