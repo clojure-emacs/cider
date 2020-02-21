@@ -202,7 +202,7 @@ Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
     (?n "next" "next")
     (?i "in" "in")
     (?o "out" "out")
-    (?O "out" nil)
+    (?O "force-out" nil)
     (?h "here" "here")
     (?e "eval" "eval")
     (?p "inspect" "inspect")
