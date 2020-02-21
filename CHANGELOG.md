@@ -24,6 +24,7 @@
 * [#2730](https://github.com/clojure-emacs/cider/pull/2730): Require repl utilities into current namespace not just `user` ns.
 * [#2614](https://github.com/clojure-emacs/cider/issues/2614): Fix error highlighting in source buffers for Clojure 1.10.
 * [#2733](https://github.com/clojure-emacs/cider/issues/2733): Restore compatibility with Emacs 25.3.
+* [#2799](https://github.com/clojure-emacs/cider/issues/2799): Fix buttercup issue with tests.
 
 ## 0.23.0 (2019-10-08)
 
