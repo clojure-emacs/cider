@@ -288,26 +288,27 @@
            (sesman-unregister 'CIDER session)))))))
 
 (describe "cider--connection-info"
-  (spy-on 'cider--java-version :and-return-value "1.7")
-  (spy-on 'cider--clojure-version :and-return-value "1.7.0")
-  (spy-on 'cider--nrepl-version :and-return-value "0.2.1")
+  (it "setting up version utilities"
+    (spy-on 'cider--java-version :and-return-value "1.7")
+    (spy-on 'cider--clojure-version :and-return-value "1.7.0")
+    (spy-on 'cider--nrepl-version :and-return-value "0.2.1")
 
-  (describe "when current project is known"
-    (it "returns information about the given connection buffer"
-      (with-temp-buffer
-        (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
-        (setq-local nrepl-project-dir "proj")
-        (setq-local cider-repl-type 'clj)
-        (expect (cider--connection-info (current-buffer))
-                :to-equal "CLJ proj@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)"))))
+    (describe "when current project is known"
+      (it "returns information about the given connection buffer"
+        (with-temp-buffer
+          (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
+          (setq-local nrepl-project-dir "proj")
+          (setq-local cider-repl-type 'clj)
+          (expect (cider--connection-info (current-buffer))
+                  :to-equal "CLJ proj@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)"))))
 
-  (describe "when current project is not known"
-    (it "returns information about the connection buffer without project name"
-      (with-temp-buffer
-        (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
-        (setq-local cider-repl-type 'clj)
-        (expect (cider--connection-info (current-buffer))
-                :to-equal "CLJ <no project>@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)")))))
+    (describe "when current project is not known"
+      (it "returns information about the connection buffer without project name"
+        (with-temp-buffer
+          (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
+          (setq-local cider-repl-type 'clj)
+          (expect (cider--connection-info (current-buffer))
+                  :to-equal "CLJ <no project>@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)"))))))
 
 (describe "cider--close-connection"
   (it "removes the REPL from sesman session"
