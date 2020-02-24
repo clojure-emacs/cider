@@ -288,9 +288,10 @@
            (sesman-unregister 'CIDER session)))))))
 
 (describe "cider--connection-info"
-  (spy-on 'cider--java-version :and-return-value "1.7")
-  (spy-on 'cider--clojure-version :and-return-value "1.7.0")
-  (spy-on 'cider--nrepl-version :and-return-value "0.2.1")
+  (before-each
+    (spy-on 'cider--java-version :and-return-value "1.7")
+    (spy-on 'cider--clojure-version :and-return-value "1.7.0")
+    (spy-on 'cider--nrepl-version :and-return-value "0.2.1"))
 
   (describe "when current project is known"
     (it "returns information about the given connection buffer"

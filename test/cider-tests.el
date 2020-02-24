@@ -79,7 +79,7 @@
       (expect (cider-project-type) :to-equal 'lein)))
 
   (describe "when there are multiple possible project types"
-    (before-all
+    (before-each
       (spy-on 'cider--identify-buildtools-present
               :and-return-value '(build-tool1 build-tool2))
       ;; user choice build-tool2

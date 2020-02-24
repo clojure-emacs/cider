@@ -64,7 +64,7 @@
 
 (describe "cider-repl--banner"
   :var (cider-version cider-codename)
-  (before-all
+  (before-each
     (spy-on 'cider--java-version :and-return-value "1.8.0_31")
     (spy-on 'cider--clojure-version :and-return-value "1.8.0")
     (spy-on 'cider--nrepl-version :and-return-value "0.5.3")
