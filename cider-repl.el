@@ -170,7 +170,7 @@ you'd like to use the default Emacs behavior use
 
 (defvar cider-repl-require-repl-utils-code
   '((clj . "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
-    (cljs . "(use '[cljs.repl :only [apropos dir doc find-doc print-doc pst source]])")))
+    (cljs . "(require '[cljs.repl :refer [apropos dir doc find-doc print-doc pst source]])")))
 
 (defcustom cider-repl-init-code (list (cdr (assoc 'clj cider-repl-require-repl-utils-code)))
   "Clojure code to evaluate when starting a REPL.
