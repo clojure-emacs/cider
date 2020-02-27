@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL and eval` under `CIDER Eval`.
+
 ### Bugs fixed
 
 * [#2807](https://github.com/clojure-emacs/cider/pull/2807): Fix require-repl-utils for shadow-cljs repls
