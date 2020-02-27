@@ -439,7 +439,7 @@ to."
                                    section-id))))
     (buffer-string)))
 
-(defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/doc/cider-refcard.pdf"
+(defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/refcard/cider-refcard.pdf"
   "The URL to CIDER's refcard.")
 
 (defun cider--github-version ()
