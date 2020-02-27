@@ -439,7 +439,7 @@ to."
                                    section-id))))
     (buffer-string)))
 
-(defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/%s/cider-refcard.pdf"
+(defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/refcard/cider-refcard.pdf"
   "The URL to CIDER's refcard.")
 
 (defun cider--github-version ()
@@ -448,15 +448,9 @@ to."
       "master"
     (concat "v" cider-version)))
 
-(defun cider--refcard-path ()
-  "The path to the refcard file."
-  (if (> (string-to-number cider-version) 0.22)
-      "refcard"
-    "doc"))
-
 (defun cider-refcard-url ()
   "The CIDER manual's url."
-  (format cider-refcard-url (cider--github-version) (cider--refcard-path)))
+  (format cider-refcard-url (cider--github-version)))
 
 (defun cider-view-refcard ()
   "View the refcard in your default browser."
