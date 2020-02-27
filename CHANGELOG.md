@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+* [#2800](https://github.com/clojure-emacs/cider/pull/2800): Add support for force-out debugger command.
+
 ### Changes
 
 * [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL and eval` under `CIDER Eval`.
