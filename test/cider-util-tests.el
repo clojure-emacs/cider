@@ -208,7 +208,11 @@ buffer."
 
   (it "returns the refcard correct url for snapshot cider versions"
     (setq cider-version "0.11.0-snapshot")
-    (expect (cider-refcard-url) :to-equal "https://github.com/clojure-emacs/cider/raw/master/doc/cider-refcard.pdf")))
+    (expect (cider-refcard-url) :to-equal "https://github.com/clojure-emacs/cider/raw/master/doc/cider-refcard.pdf"))
+
+  (it "returns the refcard correct url for versions later than 0.22"
+    (setq cider-version "0.24.0")
+    (expect (cider-refcard-url) :to-equal "https://github.com/clojure-emacs/cider/raw/v0.24.0/refcard/cider-refcard.pdf")))
 
 (describe "cider-second-sexp-in-list"
   (it "returns the second sexp in the list"
