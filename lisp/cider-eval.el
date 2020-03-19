@@ -412,28 +412,65 @@ result."
                     (insert (concat comment-prefix res (or comment-postfix "") "\n"))))
                 (cider--maybe-set-eval-register res)))))
 
+(defun cider-maybe-delete-multiline-comment (comment-prefix continued-prefix comment-postfix)
+  "Delete the region after the point in the form of a multiline comment.
+The region must begin with COMMENT-PREFIX, followed by multiple lines
+beginning with CONTINUED-PREFIX at the same indentation,
+and optionally end with COMMENT-POSTFIX."
+  (let ((pre-rgx (rx (group-n 1 (* (any " \t"))) ;; may be indented
+                     (literal comment-prefix))))
+    (when (looking-at pre-rgx)
+      (let* ((cont-rgx (rx (literal (match-string 1)) ;; match indentation rigidly
+                           (literal continued-prefix)))
+             (post-rgx (rx (literal (match-string 1))
+                           ;; trim the leading newline, NOTE string-trim messes with match data
+                           (literal (if (string-prefix-p "\n" comment-postfix)
+                                        (substring comment-postfix 1)
+                                      comment-postfix))))
+             (start (point))
+             (end (save-excursion
+                    (goto-char (match-end 0))
+                    (if (string-prefix-p ";" comment-prefix)
+                        ;; line comment - skip past any similarly indented comments
+                        (progn
+                          (forward-line 1)
+                          (while (and (not (eobp))
+                                      (looking-at-p cont-rgx))
+                            (forward-line 1)))
+                      ;; otherwise it's probably some sort of discarded form like #_
+                      (clojure-forward-logical-sexp 1))
+                    (if (looking-at post-rgx) ;; skip past postfix
+                        (match-end 0)
+                      (point)))))
+        (delete-region start end)))))
+
 (defun cider-maybe-insert-multiline-comment (result comment-prefix continued-prefix comment-postfix)
   "Insert eval RESULT at current location if RESULT is not empty.
+Returns bounds of the inserted text, or nil if nothing was inserted.
 RESULT will be preceded by COMMENT-PREFIX.
 CONTINUED-PREFIX is inserted for each additional line of output.
 COMMENT-POSTFIX is inserted after final text output."
   (unless (string= result "")
+    ;; Make sure inserted comments are indented properly
     (indent-according-to-mode)
-    (let ((lines (split-string result "[\n]+" t))
+    (let ((lines (split-string result "[\n]" nil))
           (beg (point))
           (col (current-indentation)))
       ;; only the first line gets the normal comment-prefix
       (insert (concat comment-prefix (pop lines)))
       (dolist (elem lines)
         (insert (concat "\n" continued-prefix elem)))
-      (indent-rigidly beg (point) col)
-      (unless (string= comment-postfix "")
-        (insert comment-postfix)))))
+      (insert comment-postfix)
+      (indent-rigidly beg (line-end-position) col)
+      (list beg (point)))))
 
-(defun cider-eval-pprint-with-multiline-comment-handler (buffer location comment-prefix continued-prefix comment-postfix)
+(defun cider-eval-pprint-with-multiline-comment-handler (buffer location comment-prefix continued-prefix comment-postfix
+                                                                &optional replace)
   "Make a handler for evaluating and inserting results in BUFFER.
 The inserted text is pretty-printed and region will be commented.
 LOCATION is the location marker at which to insert.
+If REPLACE is non-nil, delete any following region which matches the form of a
+previously inserted result.
 COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
@@ -451,6 +488,10 @@ COMMENT-POSTFIX is the text to output after the last line."
                 (with-current-buffer buffer
                   (save-excursion
                     (goto-char (marker-position location))
+                    ;; Replace an existing eval comment on the following line
+                    (when replace
+                      (when (eolp) (forward-line 1))
+                      (cider-maybe-delete-multiline-comment comment-prefix continued-prefix comment-postfix))
                     ;; edge case: defun at eob
                     (unless (bolp) (insert "\n"))
                     (cider-maybe-insert-multiline-comment
@@ -723,7 +764,7 @@ With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards.
                             bounds
                             (cider--nrepl-pr-request-plist))))
 
-(defun cider-pprint-form-to-comment (form-fn insert-before)
+(defun cider-pprint-form-to-comment (form-fn insert-before &optional replace)
   "Evaluate the form selected by FORM-FN and insert result as comment.
 FORM-FN can be either `cider-last-sexp' or `cider-defun-at-point'.
 
@@ -731,21 +772,22 @@ The comment style is controlled by `cider-comment-style'.  For the default
 `line' style the formatting is further controlled via the `cider-comment-prefix',
 `cider-comment-continued-prefix' and `cider-comment-postfix' options.
 
-If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
+If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards.
+If REPLACE is non-nil, attempts to replace a previous eval comment."
   (pcase-let* ((bounds (funcall form-fn 'bounds))
                (insertion-point (nth (if insert-before 0 1) bounds))
                (`(,prefix ,continued ,postfix) (cider--comment-format))
                ;; when insert-before, we need a newline after the output to
                ;; avoid commenting the first line of the form
-               (comment-postfix (concat postfix
-                                        (if insert-before "\n" ""))))
+               (comment-postfix (concat postfix (if insert-before "\n" ""))))
     (cider-interactive-eval nil
                             (cider-eval-pprint-with-multiline-comment-handler
                              (current-buffer)
                              insertion-point
                              prefix
                              continued
-                             comment-postfix)
+                             comment-postfix
+                             replace)
                             bounds
                             (cider--nrepl-print-request-plist fill-column))))
 
