@@ -1209,7 +1209,7 @@ buffer.  It constructs an expression to eval in the following manner:
     (cider-interactive-eval code
                             (when output-to-current-buffer
                               (cider-eval-print-handler))
-                            nil
+                            (list beg-of-defun (point))
                             (cider--nrepl-pr-request-map))))
 
 (defun cider--matching-delimiter (delimiter)
@@ -1240,7 +1240,7 @@ buffer.  It constructs an expression to eval in the following manner:
     (cider-interactive-eval code
                             (when output-to-current-buffer
                               (cider-eval-print-handler))
-                            nil
+                            (list beg-of-sexp (point))
                             (cider--nrepl-pr-request-map))))
 
 (defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
