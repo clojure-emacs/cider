@@ -1013,33 +1013,61 @@ If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   "The previous evaluation context if any.
 That's set by commands like `cider-eval-last-sexp-in-context'.")
 
-(defun cider--eval-in-context (code)
+
+(defun cider--guess-eval-context ()
+  "Return the context suitable for input to `cider--eval-in-context'
+by extracting all parent let bindings."
+  (save-excursion
+    (let ((res ""))
+      (condition-case er
+          (while t
+            (backward-up-list)
+            (when (looking-at (rx "(" (or "when-let" "if-let" "let") (opt "*")
+                                  symbol-end (* space)
+                                  (group "["))) ;; binding vector
+              (let ((beg (match-end 1))
+                    (end (save-excursion
+                           (goto-char (match-beginning 1))
+                           (forward-sexp 1)
+                           (1- (point)))))
+                (setq res (concat (buffer-substring-no-properties beg end) ", " res)))))
+        (scan-error res)))))
+
+(defun cider--eval-in-context (code &optional guess)
   "Evaluate CODE in user-provided evaluation context."
   (let* ((code (string-trim-right code))
-         (eval-context (read-string
-                        (format "Evaluation context (let-style) for `%s': " code)
-                        cider-previous-eval-context))
+         (eval-context
+          (minibuffer-with-setup-hook (when guess #'beginning-of-buffer)
+            (read-string "Evaluation context (let-style): "
+                         (if guess (cider--guess-eval-context)
+                           cider-previous-eval-context))))
          (code (concat "(let [" eval-context "]\n  " code ")")))
+    (setq-local cider-previous-eval-context eval-context)
     (cider-interactive-eval code
                             nil
                             nil
-                            (cider--nrepl-pr-request-map))
-    (setq-local cider-previous-eval-context eval-context)))
+                            (cider--nrepl-pr-request-map))))
 
-(defun cider-eval-last-sexp-in-context ()
+(defun cider-eval-last-sexp-in-context (guess)
   "Evaluate the preceding sexp in user-supplied context.
 The context is just a let binding vector (without the brackets).
-The context is remembered between command invocations."
-  (interactive)
-  (cider--eval-in-context (cider-last-sexp)))
+The context is remembered between command invocations.
 
-(defun cider-eval-sexp-at-point-in-context ()
-  "Evaluate the preceding sexp in user-supplied context.
+When GUESS is non-nil, or called interactively with \\[universal-argument],
+attempt to guess the context from parent let bindings."
+  (interactive "P")
+  (cider--eval-in-context (cider-last-sexp) guess))
+
+(defun cider-eval-sexp-at-point-in-context (guess)
+  "Evaluate the sexp around point in user-supplied context.
 
 The context is just a let binding vector (without the brackets).
-The context is remembered between command invocations."
-  (interactive)
-  (cider--eval-in-context (cider-sexp-at-point)))
+The context is remembered between command invocations.
+
+When GUESS is non-nil, or called interactively with \\[universal-argument],
+attempt to guess the context from parent let bindings."
+  (interactive "P")
+  (cider--eval-in-context (cider-sexp-at-point) guess))
 
 (defun cider-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
