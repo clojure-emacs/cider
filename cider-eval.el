@@ -727,7 +727,11 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
                                  (lambda (_buffer err)
-                                   (cider-emit-interactive-eval-err-output err)
+                                   (unless cider-show-error-buffer
+                                     ;; Display errors as temporary overlays
+                                     (let ((cider-result-use-clojure-font-lock nil))
+                                       (cider--display-interactive-eval-result
+                                        err end 'cider-error-overlay-face)))
                                    (cider-handle-compilation-errors err eval-buffer))
                                  (when (and cider-auto-inspect-after-eval
                                             (boundp 'cider-inspector-buffer)

@@ -42,6 +42,15 @@ applied with lower priority than the syntax highlighting."
   :group 'cider
   :package-version '(cider "0.9.1"))
 
+(defface cider-error-overlay-face
+  '((((class color) (background light))
+     :background "orange red")
+    (((class color) (background dark))
+     :background "firebrick"))
+  "Like `cider-result-overlay-face', but for evaluation errors."
+  :group 'cider
+  :package-version '(cider "0.25.0"))
+
 (defcustom cider-result-use-clojure-font-lock t
   "If non-nil, interactive eval results are font-locked as Clojure code."
   :group 'cider
