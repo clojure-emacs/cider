@@ -302,6 +302,10 @@ It delegates the actual error content to the eval or op handler."
       (cider-default-err-op-handler)
     (cider-default-err-eval-handler)))
 
+;; The format of the error messages emitted by Clojure's compiler changed in
+;; Clojure 1.10.  That's why we're trying to match error messages to both the
+;; old and the new format, by utilizing a combination of two different regular
+;; expressions.
 (defconst cider-clojure-1.10-error `(sequence
                                      "Syntax error "
                                      (minimal-match (zero-or-more anything))
