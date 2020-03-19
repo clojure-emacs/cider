@@ -262,9 +262,11 @@ overlay."
 
 
 ;;; Displaying eval result
-(defun cider--display-interactive-eval-result (value &optional point)
+(defun cider--display-interactive-eval-result (value &optional point overlay-face)
   "Display the result VALUE of an interactive eval operation.
 VALUE is syntax-highlighted and displayed in the echo area.
+OVERLAY-FACE is the face applied to the overlay, which defaults to
+`cider-result-overlay-face' if nil.
 If POINT and `cider-use-overlays' are non-nil, it is also displayed in an
 overlay at the end of the line containing POINT.
 Note that, while POINT can be a number, it's preferable to be a marker, as
@@ -276,7 +278,8 @@ focused."
          (used-overlay (when (and point cider-use-overlays)
                          (cider--make-result-overlay font-value
                            :where point
-                           :duration cider-eval-result-duration))))
+                           :duration cider-eval-result-duration
+                           :prepend-face (or overlay-face 'cider-result-overlay-face)))))
     (message
      "%s"
      (propertize (format "%s%s" cider-eval-result-prefix font-value)
