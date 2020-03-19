@@ -188,6 +188,8 @@ Return a list of the type ('ns or 'var) and the value."
                          cider-browse-ns-current-ns)
                      line)))))
 
+(declare-function cider-doc-lookup "cider-doc")
+
 (defun cider-browse-ns-doc-at-point ()
   "Show the documentation for the thing at current point."
   (interactive)
