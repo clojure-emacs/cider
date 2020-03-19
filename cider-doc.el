@@ -37,6 +37,11 @@
 (require 'easymenu)
 (require 'cider-browse-spec)
 
+(declare-function org-table-map-tables 'org-table)
+(declare-function org-table-align 'org-table)
+(declare-function org-table-begin 'org-table)
+(declare-function org-table-end 'org-table)
+
 
 ;;; Variables
 
