@@ -120,6 +120,14 @@ unfortunately it will require both significant changes to CIDER and the developm
 of some alternative to essential nREPL functionality (like multiple evaluation sessions)
 for the socket REPL.
 
+TIP: There's more information about the work that needs to be done in our
+https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap] document.
+
+== Will CIDER eventually support the Clojure 1.10 prepl?
+
+Same answer as above. One thing is certain - prepl is much more convenient for the purposes of CIDER than
+the plain socket REPL.
+
 == Will CIDER ever drop support for nREPL?
 
 That's extremely unlikely. Even if we eventually add support for the new socket REPL,
