@@ -295,7 +295,11 @@ buffer."
        (cider--check-required-nrepl-version)
        (cider--check-clojure-version-supported)
        (cider--check-middleware-compatibility)
-       (when cider-redirect-server-output-to-repl
+       ;; Redirect the nREPL's terminal output to a REPL buffer.
+       ;; If we don't do this the server's output will end up
+       ;; in the *nrepl-server* buffer.
+       (when (and cider-redirect-server-output-to-repl
+                  (cider-nrepl-op-supported-p "out-subscribe"))
          (cider--subscribe-repl-to-server-out))
        (when cider-auto-mode
          (cider-enable-on-existing-clojure-buffers))
