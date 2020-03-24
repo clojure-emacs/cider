@@ -42,6 +42,7 @@
 (require 'cider-compat)
 (require 'clojure-mode)
 (require 'nrepl-dict)
+(declare-function cider-sync-request:macroexpand "cider-macroexpansion")
 
 (defalias 'cider-pop-back 'pop-tag-mark)
 
@@ -128,6 +129,9 @@ instead."
 Ignores the REPL prompt.  If LOOK-BACK is non-nil, move backwards trying to
 find a symbol if there isn't one at point."
   (or (when-let* ((str (thing-at-point 'symbol)))
+        ;; resolve ns-aliased keywords
+        (when (string-match-p "^::.+" str)
+          (setq str (or (ignore-errors (cider-sync-request:macroexpand "macroexpand-1" str)) "")))
         (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
           ;; Remove font-locking, prefix quotes, and trailing . from constructors like Record.
           (string-remove-prefix "'" (string-remove-suffix "." (substring-no-properties str)))))
