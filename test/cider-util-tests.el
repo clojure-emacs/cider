@@ -102,6 +102,26 @@ buffer."
       (with-clojure-buffer "SomeRecord."
         (expect (cider-symbol-at-point) :to-equal "SomeRecord"))))
 
+  (describe "when the symbol at point is quoted"
+    (it "returns the symbol without the preceding '"
+      (with-clojure-buffer "'foo'bar"
+        (expect (cider-symbol-at-point) :to-equal "foo'bar"))))
+
+  (describe "when point is on a keyword"
+    (it "returns the keyword along with beginning : character"
+      (with-clojure-buffer ":abc"
+        (expect (cider-symbol-at-point) :to-equal ":abc"))
+      (with-clojure-buffer ":abc/foo"
+        (expect (cider-symbol-at-point) :to-equal ":abc/foo")))
+
+    (it "attempts to resolve namespaced keywords"
+      (spy-on 'cider-sync-request:macroexpand :and-return-value ":foo.bar/abc")
+      (with-clojure-buffer "(ns foo.bar) ::abc"
+        (expect (cider-symbol-at-point) :to-equal ":foo.bar/abc"))
+      (spy-on 'cider-sync-request:macroexpand :and-return-value ":clojure.string/abc")
+      (with-clojure-buffer "(ns foo.bar (:require [clojure.string :as str])) ::str/abc"
+        (expect (cider-symbol-at-point) :to-equal ":clojure.string/abc"))))
+
   (describe "when there's nothing at point"
     (it "returns nil"
       (spy-on 'thing-at-point :and-return-value nil)
