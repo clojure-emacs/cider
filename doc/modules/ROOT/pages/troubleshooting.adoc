@@ -8,10 +8,6 @@ Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
 (instead of just logging the error in the `+*Messages*+` buffer). You can toggle
 this behavior by using kbd:[M-x] `toggle-debug-on-error`.
 
-Another good idea is to check the exchange of requests and responses between
-CIDER and the nREPL server. You can find them in the `+*nrepl-messages*+` buffer,
-provided you've enabled nREPL message logging.
-
 == Debugging CIDER commands
 
 Emacs features a super powerful built-in
@@ -45,6 +41,44 @@ it is pretty simple:
 
 TIP: If you intend to share the profiling results with someone it's a good idea to
 save the report buffer to a file with kbd:[C-x C-w].
+
+== Debugging the communication with nREPL
+
+From time to time it might be a good idea to inspect the messages exchanged
+between CIDER and nREPL. CIDER has a simple message log that looks like this:
+
+  (-->
+    id         "16"
+    op         "eval"
+    session    "eb3ef563-86ec-4d9e-9fa8-a56ce0e0f0b0"
+    time-stamp "2020-03-15 16:01:42.963936000"
+    code       "(in-ns 'nrepl.completion)"
+  )
+  (<--
+    id         "16"
+    session    "eb3ef563-86ec-4d9e-9fa8-a56ce0e0f0b0"
+    time-stamp "2020-03-15 16:01:43.027347000"
+    ns         "nrepl.completion"
+    value      "#namespace[nrepl.completion]"
+  )
+  (<--
+    id         "16"
+    session    "eb3ef563-86ec-4d9e-9fa8-a56ce0e0f0b0"
+    time-stamp "2020-03-15 16:01:43.195358000"
+    status     ("done")
+  )
+
+That's CIDER's way of representing the request (marked with `-->`) and response maps (marked with `<--`).
+
+nREPL message logging is not enabled by default. Set `nrepl-log-messages` to `t`
+to activate it. Alternatively you can use kbd:[M-x]
+`nrepl-toggle-message-logging` to enable/disable logging temporary within your
+current Emacs session. Note that enabling message logging can impact
+performance.
+
+You can find the message log in the `+*nrepl-messages repl-info*+` buffer,
+provided you've enabled nREPL message logging. There's going to be one buffer
+per each active REPL.
 
 == Commonly encountered problems (and how to solve them)
 
