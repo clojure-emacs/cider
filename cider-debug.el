@@ -332,6 +332,7 @@ of `cider-interactive-eval' in debug sessions."
     ;; if invoked with an uppercase letter.
     (define-key map "h" #'cider-debug-move-here)
     (define-key map "H" #'cider-debug-move-here)
+    (define-key map "L" #'cider-debug-toggle-locals)
     map)
   "The active keymap during a debugging session.")
 
