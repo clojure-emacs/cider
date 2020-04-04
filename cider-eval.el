@@ -819,7 +819,8 @@ COMMENT-POSTFIX is the text to output after the last line."
      (lambda (_buffer value)
        (setq res (concat res value)))
      nil
-     nil
+     (lambda (_buffer err)
+       (setq res (concat res err)))
      (lambda (buffer)
        (with-current-buffer buffer
          (save-excursion
