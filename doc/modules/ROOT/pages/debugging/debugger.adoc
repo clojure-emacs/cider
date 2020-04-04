@@ -112,6 +112,9 @@ keys, although there are some differences.
 | kbd:[l]
 | Inspect local variables
 
+| kbd:[L]
+| Toggle display of local variables
+
 | kbd:[j]
 | Inject a value into running code
 

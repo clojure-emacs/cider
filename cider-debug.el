@@ -326,7 +326,15 @@ of `cider-interactive-eval' in debug sessions."
     (tool-bar-add-item "exit" #'cider-debug-mode-send-reply :quit :label "Quit")
     tool-bar-map))
 
-(defvar cider--debug-mode-map)
+(defvar cider--debug-mode-map
+  (let ((map (make-sparse-keymap)))
+    ;; Bind the `:here` command to both h and H, because it behaves differently
+    ;; if invoked with an uppercase letter.
+    (define-key map "h" #'cider-debug-move-here)
+    (define-key map "H" #'cider-debug-move-here)
+    (define-key map "L" #'cider-debug-toggle-locals)
+    map)
+  "The active keymap during a debugging session.")
 
 (define-minor-mode cider--debug-mode
   "Mode active during debug sessions.
@@ -381,11 +389,6 @@ In order to work properly, this mode must be activated by
       (cider--debug-remove-overlays (current-buffer)))
     (when nrepl-ongoing-sync-request
       (ignore-errors (exit-recursive-edit)))))
-
-;;; Bind the `:here` command to both h and H, because it behaves differently if
-;;; invoked with an uppercase letter.
-(define-key cider--debug-mode-map "h" #'cider-debug-move-here)
-(define-key cider--debug-mode-map "H" #'cider-debug-move-here)
 
 (defun cider--debug-remove-overlays (&optional buffer)
   "Remove CIDER debug overlays from BUFFER if variable `cider--debug-mode' is nil."
