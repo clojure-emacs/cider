@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#2828](https://github.com/clojure-emacs/cider/pull/2828): Bind "L" to toggle display of locals during a debug session.
 * [#2800](https://github.com/clojure-emacs/cider/pull/2800): Add support for force-out debugger command.
 
 ### Changes
