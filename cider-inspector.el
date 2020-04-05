@@ -58,6 +58,21 @@ The page size can be also changed interactively within the inspector."
   :group 'cider-inspector
   :package-version '(cider . "0.15.0"))
 
+(defcustom cider-inspector-skip-uninteresting t
+  "Controls whether to skip over uninteresting values in the inspector.
+Only applies to navigation with `cider-inspector-prev-inspectable-object'
+and `cider-inspector-next-inspectable-object', values are still inspectable
+by clicking or navigating to them by other means."
+  :type 'boolean
+  :group 'cider-inspector
+  :package-version '(cider . "0.25.0"))
+
+(defvar cider-inspector-uninteresting-regexp
+  (concat "nil"                      ; nils are not interesting
+          "\\|:" clojure--sym-regexp ; nor keywords
+          "\\|[+-.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
+  "Regexp matching values which are not interesting to inspect and can be skipped over.")
+
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
@@ -374,8 +389,11 @@ If ARG is negative, move backwards."
     (while (> arg 0)
       (seq-let (pos foundp) (cider-find-inspectable-object 'next maxpos)
         (if foundp
-            (progn (goto-char pos) (setq arg (1- arg))
-                   (setq previously-wrapped-p nil))
+            (progn (goto-char pos)
+                   (unless (and cider-inspector-skip-uninteresting
+                                (looking-at-p cider-inspector-uninteresting-regexp))
+                     (setq arg (1- arg))
+                     (setq previously-wrapped-p nil)))
           (if (not previously-wrapped-p) ; cycle detection
               (progn (goto-char minpos) (setq previously-wrapped-p t))
             (error "No inspectable objects")))))
@@ -386,8 +404,11 @@ If ARG is negative, move backwards."
         ;; as a presentation at the beginning of the buffer; skip
         ;; that.  (Notice how this problem can not arise in ``Forward.'')
         (if (and foundp (/= pos minpos))
-            (progn (goto-char pos) (setq arg (1+ arg))
-                   (setq previously-wrapped-p nil))
+            (progn (goto-char pos)
+                   (unless (and cider-inspector-skip-uninteresting
+                                (looking-at-p cider-inspector-uninteresting-regexp))
+                     (setq arg (1+ arg))
+                     (setq previously-wrapped-p nil)))
           (if (not previously-wrapped-p) ; cycle detection
               (progn (goto-char maxpos) (setq previously-wrapped-p t))
             (error "No inspectable objects")))))))
