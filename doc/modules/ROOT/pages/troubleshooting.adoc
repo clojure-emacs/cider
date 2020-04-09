@@ -80,6 +80,9 @@ You can find the message log in the `+*nrepl-messages repl-info*+` buffer,
 provided you've enabled nREPL message logging. There's going to be one buffer
 per each active REPL.
 
+TIP: You can jump quickly to the relevant messages buffer by pressing
+kbd:[C-c M-s m].
+
 == Commonly encountered problems (and how to solve them)
 
 === REPL not starting
