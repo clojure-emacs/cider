@@ -29,19 +29,19 @@ if you run into any problems.
 If you want to make changes to the manual's page structure you'll have to edit
 link:https://github.com/clojure-emacs/cider/blob/master/doc/modules/ROOT/nav.adoc[nav.adoc].
 
-== Building the Site
+== Building the Docs Site
 
 To make changes to the manual you simply have to change the files under `doc`.
 
-You can build the documentation locally from the link:https://github.com/clojure-emacs/cider-site[cider-site] repo.
+You can build the documentation locally from the link:https://github.com/clojure-emacs/docs.cider.mx[docs.cider.mx] repo.
 
 [source,shell]
 ----
 $ cd cider-site
-$ antora site.yml
+$ antora antora-playbook.yml
 ----
 
-== Deploying the Site
+== Deploying the Docs Site
 
 NOTE: The manual will be regenerated manually periodically by CIDER's Core Team.
 
