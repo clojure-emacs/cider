@@ -6,9 +6,9 @@ of the primary ways to discover those. Please, consider improving and extending 
 
 == Overview
 
-The manual is generated from the asciidoc files in the link:https://github.com/clojure-emacs/cider/tree/master/doc[doc] folder of CIDER's GitHub repo and is published to https://docs.cider.mx.
-link:https://antora.org[Antora] is used to convert the manual into HTML.
-The filesystem layout is described at https://docs.antora.org/antora/2.0/component-structure/
+The manual is generated from the AsciiDoc files in the link:https://github.com/clojure-emacs/cider/tree/master/doc[doc] folder of CIDER's GitHub repo and is published to https://docs.cider.mx.
+link:https://antora.org[Antora] is used to convert the AsciiDoc source into HTML.
+Antora's filesystem layout is described https://docs.antora.org/antora/2.0/component-structure/[here].
 
 == Installing Antora
 
@@ -37,7 +37,7 @@ You can build the documentation locally from the link:https://github.com/clojure
 
 [source,shell]
 ----
-$ cd cider-site
+$ cd docs.cider.mx
 $ antora antora-playbook.yml
 ----
 
@@ -45,7 +45,16 @@ $ antora antora-playbook.yml
 
 NOTE: The manual will be regenerated manually periodically by CIDER's Core Team.
 
+We're currently publishing the user manual to GitHub Pages.
 The deployment process is simply pushing the generated HTML to GitHub. Simple as that.
+There's a simple script in the documentation repository that automates the process of
+fetching the latest updates and publishing them:
+
+[source,shell]
+----
+$ cd docs.cider.mx
+$ ./deploy
+----
 
 IMPORTANT: Don't forget to update the manual's version metadata when cutting CIDER releases.
 It lives in `docs/antora.yml`.
