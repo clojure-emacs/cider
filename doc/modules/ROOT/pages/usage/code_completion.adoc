@@ -6,7 +6,7 @@ CIDER provides intelligent code completion for both source buffers (powered by
 
 NOTE: Internally CIDER leverages
 https://github.com/alexander-yakushev/compliment[compliment] for Clojure and
-https://github.com/clojure-emacs/cljs-tooling[cljs-tooling] for ClojureScript.
+https://github.com/rkms/clj-suitable[clj-suitable] for ClojureScript.
 Improvements to the two libraries automatically translate to improvements in CIDER.
 
 == Standard completion
@@ -21,8 +21,8 @@ image::code_completion.png[Code Completion]
 
 While the standard Emacs tooling works just fine, we suggest that
 CIDER users consider using
-http://company-mode.github.io/[`company-mode`] instead. Company mode
-can be used for auto-completion for both source code and REPL buffers.
+http://company-mode.github.io/[`company-mode`] instead. Company
+can be used for auto-completion in both source code and REPL buffers.
 To install `company-mode`:
 
 kbd:[M-x] `package-install` kbd:[RET] `company` kbd:[RET]
