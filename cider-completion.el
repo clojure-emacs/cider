@@ -154,11 +154,22 @@ Put type and ns properties on the candidate"
     (put-text-property 0 1 'ns ns candidate)
     candidate))
 
-(defun cider-complete (str)
-  "Complete STR with context at point."
-  (let* ((context (cider-completion-get-context))
-         (candidates (cider-sync-request:complete str context)))
-    (mapcar #'cider-completion--parse-candidate-map candidates)))
+(defun cider-complete (prefix)
+  "Complete PREFIX with context at point.
+Completion relies on nREPL middleware.  First
+we check if cider-nrepl's complete op is available
+and afterward we fallback on nREPL's built-in
+completion functionality."
+  (cond
+   ;; First we try if cider-nrepl's completion is available
+   ((cider-nrepl-op-supported-p "complete")
+    (let* ((context (cider-completion-get-context))
+           (candidates (cider-sync-request:complete prefix context)))
+      (mapcar #'cider-completion--parse-candidate-map candidates)))
+   ;; then we fallback to nREPL's built-in op (available in nREPL 0.8+)
+   ((cider-nrepl-op-supported-p "completions")
+    (mapcar #'cider-completion--parse-candidate-map (cider-sync-request:completion prefix)))
+   (t nil)))
 
 (defun cider-completion--get-candidate-type (symbol)
   "Get candidate type for SYMBOL."

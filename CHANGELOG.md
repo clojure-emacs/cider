@@ -6,16 +6,16 @@
 
 * [#2828](https://github.com/clojure-emacs/cider/pull/2828): Bind "L" to toggle display of locals during a debug session.
 * [#2800](https://github.com/clojure-emacs/cider/pull/2800): Add support for force-out debugger command.
+* Add support for nREPL 0.8 completion op. It's used if `cider-nrepl` is not available.
 
 ### Changes
 
 * [#2826](https://github.com/clojure-emacs/cider/pull/2826): Add support for symbols with quotes and resolving of ns-aliased keywords in `cider-symbol-at-point`.
-
-* [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL 
+* [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL
 
 ### Bugs fixed
 
-* [#2807](https://github.com/clojure-emacs/cider/pull/2807): Fix require-repl-utils for shadow-cljs repls
+* [#2807](https://github.com/clojure-emacs/cider/pull/2807): Fix require-repl-utils for shadow-cljs repls.
 
 ## 0.24.0 (2020-02-15)
 

@@ -527,6 +527,15 @@ resolve those to absolute paths."
       (cider-sync-request:classpath)
     (cider-fallback-eval:classpath)))
 
+(defun cider-sync-request:completion (prefix)
+  "Return a list of completions for PREFIX using nREPL's \"completion\" op."
+  (when-let* ((dict (thread-first `("op" "completions"
+                                    "ns" ,(cider-current-ns)
+                                    "prefix" ,prefix)
+                      (cider-nrepl-send-sync-request (cider-current-repl)
+                                                     'abort-on-input))))
+    (nrepl-dict-get dict "completions")))
+
 (defun cider-sync-request:complete (str context)
   "Return a list of completions for STR using nREPL's \"complete\" op.
 CONTEXT represents a completion context for compliment."
