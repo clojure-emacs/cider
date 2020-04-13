@@ -117,7 +117,7 @@ change the setting's value."
 
 (make-obsolete-variable 'cider-repl-pretty-print-width 'cider-print-options "0.21")
 
-(defcustom cider-repl-use-content-types t
+(defcustom cider-repl-use-content-types nil
   "Control whether REPL results are presented using content-type information.
 The `cider-repl-toggle-content-types' command can be used to interactively
 change the setting's value."

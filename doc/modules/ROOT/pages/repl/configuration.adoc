@@ -169,13 +169,18 @@ See link:../pretty_printing[this] for more information on configuring printing.
 == Displaying images in the REPL
 
 Starting with CIDER 0.17 (Andalucía) expressions that evaluate to
-images will be rendered as images in the REPL. You can disable this
-behavior if you don't like it.
+images can be rendered as images in the REPL. You can enable this
+behavior like this:
 
 [source,lisp]
 ----
-(setq cider-repl-use-content-types nil)
+(setq cider-repl-use-content-types t)
 ----
+
+NOTE: This setting used to be enabled by default until CIDER 0.25 when it was
+disabled due to some rough edges with the feature that were
+never properly addressed. See this https://github.com/clojure-emacs/cider/issues/2825[bug report]
+for details.
 
 Alternatively, you can toggle this behaviour on and off using kbd:[M-x cider-repl-toggle-content-types].
 
