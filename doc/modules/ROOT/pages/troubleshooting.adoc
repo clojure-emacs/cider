@@ -119,6 +119,32 @@ This will cause CIDER to print extensive information to the REPL buffer when you
 try to debug an expression (e.g., with kbd:[C-u C-M-x]). https://github.com/clojure-emacs/cider-nrepl/issues/new[File an issue]
 and copy this information.
 
+=== The REPL blows up when some function returns an URL
+
+Most likely you've encountered some issue with the `content-type` middleware. Generally, that's
+easy to confirm by inspecting the stracktrace:
+
+[source,clojure]
+----
+user> (java.net.URI. "mailto:foo@bar.com")
+#object[java.net.URI 0x36966ca2 "mailto:foo@bar.com"]ERROR: Unhandled REPL handler exception processing message {:op slurp, :url mailto:foo@bar.com, :session 69c4d8e1-7bb4-45ad-8075-d21995fd50ab, :id 1579}
+java.net.UnknownServiceException: protocol doesn't support input
+	at java.base/java.net.URLConnection.getInputStream(URLConnection.java:840)
+	at cider.nrepl.middleware.slurp$slurp_url_to_content_PLUS_body.invokeStatic(slurp.clj:100)
+	at cider.nrepl.middleware.slurp$slurp_url_to_content_PLUS_body.invoke(slurp.clj:82)
+	at cider.nrepl.middleware.slurp$handle_slurp.invokeStatic(slurp.clj:117)
+	at cider.nrepl.middleware.slurp$handle_slurp.invoke(slurp.clj:109)
+----
+
+You can disable the middleware like this:
+
+[source,lisp]
+----
+(setq cider-repl-use-content-types t)
+----
+
+It's disabled by default starting with CIDER 0.25.
+
 === Debugging freezes & lock-ups
 
 Sometimes a CIDER command might hang for a while (e.g. due to a bug or a
