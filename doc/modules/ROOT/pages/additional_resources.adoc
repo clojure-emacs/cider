@@ -28,6 +28,7 @@ dedicated to CIDER 0.12.
 
 * http://blog.cognitect.com/cognicast/080[Cognicast's episode on CIDER]
 * https://soundcloud.com/defn-771544745/36-a-long-glass-of-cider-with-bozhidar-batsov-aka-bbatsov[defn's episode on CIDER]
+* https://www.therepl.net/episodes/34/[The REPL's episode on CIDER and its Orchard]
 
 == Tutorials
 
