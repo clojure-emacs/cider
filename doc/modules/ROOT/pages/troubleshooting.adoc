@@ -20,11 +20,11 @@ TIP: Here's a https://www.youtube.com/watch?v=odkYXXYOxpo[great crash
 To debug some command you need to do the following:
 
 * Figure out the name of the command you want to debug (e.g. by using kbd:[C-h k]
-to see which command is associated with some keybinding)
+to see which command is associated with some keybinding).
 * Find the source of the command (e.g. by using kbd:[M-x] `find-function`
-kbd:[RET] `function-name`)
+kbd:[RET] `function-name`).
 * Press kbd:[C-u C-M-x] while in the body of the function
-* Run the command again
+* Run the command again.
 
 At this point you'll be dropped in the debugger and you can step forward until
 you find the problem.
