@@ -1221,6 +1221,12 @@ non-nil, don't start if ClojureScript requirements are not met."
   :safe #'booleanp
   :version '(cider . "0.22.0"))
 
+(defvar cider--jack-in-nrepl-params-history nil
+  "History list for user-specified jack-in nrepl command params.")
+
+(defvar cider--jack-in-cmd-history nil
+  "History list for user-specified jack-in commands.")
+
 (defun cider--powershell-encode-command (cmd-params)
   "Base64 encode the powershell command and jack-in CMD-PARAMS for clojure-cli."
   (let* ((quoted-params (replace-regexp-in-string "\"" "\"\"" cmd-params))
@@ -1241,8 +1247,9 @@ non-nil, don't start if ClojureScript requirements are not met."
         (with-current-buffer (or (plist-get params :--context-buffer)
                                  (current-buffer))
           (let* ((command-params (if (plist-get params :do-prompt)
-                                     (read-string (format "nREPL server command: %s " command-params)
-                                                  command-params)
+                                     (read-string "nREPL server command: "
+                                                  command-params
+                                                  'cider--jack-in-nrepl-params-history)
                                    command-params))
                  (cmd-params (if cider-inject-dependencies-at-jack-in
                                  (cider-inject-jack-in-dependencies command-global-opts command-params project-type)
@@ -1258,7 +1265,7 @@ non-nil, don't start if ClojureScript requirements are not met."
                                                                 cmd-params))))
                     (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command
                                                            (plist-get params :edit-jack-in-command))
-                                                       (read-string "jack-in command: " cmd t)
+                                                       (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
                                                      cmd))))
               (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
       (user-error "The %s executable isn't on your `exec-path'" command))))
