@@ -32,11 +32,11 @@
 (require 'cider-connection) ; for `cider-map-repls'
 (require 'nrepl-dict)
 
-(defun cider-sync-request:toggle-trace-var (symbol)
-  "Toggle var tracing for SYMBOL."
+(defun cider-sync-request:toggle-trace-var (sym)
+  "Toggle var tracing for SYM."
   (thread-first `("op" "toggle-trace-var"
                   "ns" ,(cider-current-ns)
-                  "sym" ,symbol)
+                  "sym" ,sym)
     (cider-nrepl-send-sync-request)))
 
 (defun cider--toggle-trace-var (sym)
