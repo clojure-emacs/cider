@@ -167,7 +167,7 @@ the related commands `cider-repl-clear-buffer' and
      (cider-nrepl-send-request
       `("op" "undef"
         "ns" ,(cider-current-ns)
-        "symbol" ,sym)
+        "sym" ,sym)
       (cider-interactive-eval-handler (current-buffer))))))
 
 ;;; cider-run

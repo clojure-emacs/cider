@@ -536,12 +536,12 @@ resolve those to absolute paths."
                                                      'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
-(defun cider-sync-request:complete (str context)
-  "Return a list of completions for STR using nREPL's \"complete\" op.
+(defun cider-sync-request:complete (prefix context)
+  "Return a list of completions for PREFIX using nREPL's \"complete\" op.
 CONTEXT represents a completion context for compliment."
   (when-let* ((dict (thread-first `("op" "complete"
                                     "ns" ,(cider-current-ns)
-                                    "symbol" ,str
+                                    "prefix" ,prefix
                                     "context" ,context
                                     ,@(when cider-enhanced-cljs-completion-p '("enhanced-cljs-completion?" "t")))
                       (cider-nrepl-send-sync-request (cider-current-repl)
@@ -558,7 +558,7 @@ CONTEXT represents a completion context for compliment."
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
   (let ((var-info (thread-first `("op" "info"
                                   "ns" ,(cider-current-ns)
-                                  ,@(when symbol `("symbol" ,symbol))
+                                  ,@(when symbol `("sym" ,symbol))
                                   ,@(when class `("class" ,class))
                                   ,@(when member `("member" ,member)))
                     (cider-nrepl-send-sync-request (cider-current-repl)))))
@@ -570,7 +570,7 @@ CONTEXT represents a completion context for compliment."
   "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER."
   (when-let* ((eldoc (thread-first `("op" "eldoc"
                                      "ns" ,(cider-current-ns)
-                                     ,@(when symbol `("symbol" ,symbol))
+                                     ,@(when symbol `("sym" ,symbol))
                                      ,@(when class `("class" ,class))
                                      ,@(when member `("member" ,member)))
                        (cider-nrepl-send-sync-request (cider-current-repl)
@@ -583,7 +583,7 @@ CONTEXT represents a completion context for compliment."
   "Send \"eldoc-datomic-query\" op with parameter SYMBOL."
   (when-let* ((eldoc (thread-first `("op" "eldoc-datomic-query"
                                      "ns" ,(cider-current-ns)
-                                     ,@(when symbol `("symbol" ,symbol)))
+                                     ,@(when symbol `("sym" ,symbol)))
                        (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
