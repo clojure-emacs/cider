@@ -107,6 +107,11 @@ buffer."
       (with-clojure-buffer "'foo'bar"
         (expect (cider-symbol-at-point) :to-equal "foo'bar"))))
 
+  (describe "when the symbol at point is var-quoted"
+    (it "returns the symbol without the preceding #'"
+      (with-clojure-buffer "#'inc"
+        (expect (cider-symbol-at-point) :to-equal "inc"))))
+
   (describe "when point is on a keyword"
     (it "returns the keyword along with beginning : character"
       (with-clojure-buffer ":abc"
