@@ -222,11 +222,13 @@ Current page will be reset to zero."
 
 Doesn't modify current page.  When called interactively NS defaults to
 current-namespace."
-  (interactive (list (cider-read-from-minibuffer "Var name: ")
-                     (cider-current-ns)))
+  (interactive (let ((ns (cider-current-ns)))
+                 (list (read-from-minibuffer (concat "Var name: " ns "/"))
+                       ns)))
   (setq cider-inspector--current-repl (cider-current-repl))
   (when-let* ((value (cider-sync-request:inspect-def-current-val ns var-name)))
-    (cider-inspector--render-value value)))
+    (cider-inspector--render-value value)
+    (message "%s#'%s/%s = %s" cider-eval-result-prefix ns var-name value)))
 
 ;; nREPL interactions
 (defun cider-sync-request:inspect-pop ()
