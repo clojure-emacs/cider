@@ -197,7 +197,8 @@ See `cider-sync-request:inspect-pop' and `cider-inspector--render-value'."
 See `cider-sync-request:insepect-push' and `cider-inspector--render-value'"
   (push (point) cider-inspector-location-stack)
   (when-let* ((value (cider-sync-request:inspect-push idx)))
-    (cider-inspector--render-value value)))
+    (cider-inspector--render-value value)
+    (cider-inspector-next-inspectable-object 1)))
 
 (defun cider-inspector-refresh ()
   "Re-render the currently inspected value.
