@@ -16,7 +16,7 @@
 
 ### Bugs fixed
 
-* [#2839](https://github.com/clojure-emacs/cider/pull/2839): Fix symbol-at-point on var-quoted symbols
+* [#2839](https://github.com/clojure-emacs/cider/pull/2839): Fix symbol-at-point on var-quoted symbols.
 * [#2807](https://github.com/clojure-emacs/cider/pull/2807): Fix require-repl-utils for shadow-cljs repls.
 
 ## 0.24.0 (2020-02-15)
