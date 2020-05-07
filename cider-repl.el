@@ -1229,9 +1229,9 @@ command will prompt for the name of the namespace to switch to."
       ;; NOTE: `require' and `in-ns' are special forms in ClojureScript.
       ;; That's why we eval them separately instead of combining them with `do'.
       (when cider-repl-require-ns-on-set
-        (cider-nrepl-sync-request:eval (format "(require '%s)" ns) connection))
-      (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
-                                (cider-repl-switch-ns-handler connection)))))
+        (cider-sync-tooling-eval (format "(require '%s)" ns) nil connection))
+      (cider-tooling-eval (format "(in-ns '%s)" ns)
+                          (cider-repl-switch-ns-handler connection)))))
 
 
 ;;; Location References
