@@ -12,7 +12,7 @@
 ### Changes
 
 * [#2826](https://github.com/clojure-emacs/cider/pull/2826): Add support for symbols with quotes and resolving of ns-aliased keywords in `cider-symbol-at-point`.
-* [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL
+* [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL`.
 
 ### Bugs fixed
 
