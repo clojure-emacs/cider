@@ -101,6 +101,13 @@ ns forms manually themselves."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
+(defcustom cider-auto-inspect-after-eval t
+  "Controls whether to auto-update the inspector buffer with last evaluated form.
+Only applies when the *cider-inspect* buffer is currently visible."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.25.0"))
+
 (defcustom cider-save-file-on-load 'prompt
   "Controls whether to prompt to save the file when loading a buffer.
 If nil, files are not saved.
@@ -509,7 +516,10 @@ REPL buffer.  This is controlled via
   "Make an interactive eval handler for BUFFER.
 PLACE is used to display the evaluation result.
 If non-nil, it can be the position where the evaluated sexp ends,
-or it can be a list with (START END) of the evaluated region."
+or it can be a list with (START END) of the evaluated region.
+Update the cider-inspector buffer with the evaluation result
+when `cider-auto-inspect-after-eval' is non-nil."
+
   (let* ((eval-buffer (current-buffer))
          (beg (car-safe place))
          (end (or (car-safe (cdr-safe place)) place))
@@ -529,7 +539,12 @@ or it can be a list with (START END) of the evaluated region."
                                  (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
                                    (cider-handle-compilation-errors err eval-buffer))
-                                 '())))
+                                 (when (and cider-auto-inspect-after-eval
+                                            (boundp 'cider-inspector-buffer)
+                                            (windowp (get-buffer-window cider-inspector-buffer 'visible)))
+                                   (lambda (buffer)
+                                     (cider-inspect-last-result)
+                                     (select-window (get-buffer-window buffer)))))))
 
 (defun cider-load-file-handler (&optional buffer done-handler)
   "Make a load file handler for BUFFER.
