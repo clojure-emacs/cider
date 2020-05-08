@@ -87,11 +87,11 @@ run `cider-connect` or `cider-connect-cljs`.
 
 === Using Gradle
 
-TODO
+NOTE: This section is currently a stub. Contributions welcome!
 
 === Using Maven
 
-TODO
+NOTE: This section is currently a stub. Contributions welcome!
 
 == Using Embedded nREPL Server
 
@@ -111,11 +111,11 @@ server with CIDER's own nREPL handler.
 
 It goes without saying that your project should depend on `cider-nrepl`.
 
-NOTE: Prior to CIDER 0.18, CIDER and cider-nrepl were always released
-together and their versions had to match for things to work. But as
-the prominence of cider-nrepl grew and many other tools started using
-it, the two projects evolved separately and are no longer in tight
-lock-step. Any recent version of cider-nrepl should be compatible
-with a recent version of CIDER. You can check the required version of
+NOTE: Prior to CIDER 0.18, CIDER and cider-nrepl were always released together
+and their versions had to match for things to work (e.g. CIDER 0.15 required
+cider-nrepl 0.15). But as the prominence of cider-nrepl grew and many other
+tools started using it, the two projects evolved separately and are no longer in
+tight lock-step. Usually, any recent version of cider-nrepl should be (mostly)
+compatible with a recent version of CIDER. You can check the required version of
 cider-nrepl for your version of CIDER by looking at
 `cider-required-middleware-version`.
