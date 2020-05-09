@@ -194,7 +194,7 @@ See `cider-sync-request:inspect-pop' and `cider-inspector--render-value'."
 
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it.
-See `cider-sync-request:insepect-push' and `cider-inspector--render-value'"
+See `cider-sync-request:inspect-push' and `cider-inspector--render-value'"
   (push (point) cider-inspector-location-stack)
   (when-let* ((value (cider-sync-request:inspect-push idx)))
     (cider-inspector--render-value value)
@@ -202,7 +202,7 @@ See `cider-sync-request:insepect-push' and `cider-inspector--render-value'"
 
 (defun cider-inspector-refresh ()
   "Re-render the currently inspected value.
-See `cider-sync-request:insepect-refresh' and `cider-inspector--render-value'"
+See `cider-sync-request:inspect-refresh' and `cider-inspector--render-value'"
   (interactive)
   (when-let* ((value (cider-sync-request:inspect-refresh)))
     (cider-inspector--render-value value)))
