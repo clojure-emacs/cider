@@ -31,7 +31,8 @@
 ** xref:debugging/tracing.adoc[Tracing]
 ** xref:debugging/enlighten.adoc[Enlighten]
 ** xref:debugging/debugger.adoc[Debugger]
-** xref:debugging/misc.adoc[Misc]
+** xref:debugging/inspector.adoc[Inspector]
+** xref:debugging/macroexpansion.adoc[Macroexpansion]
 * Configuration
 ** xref:config/basic_config.adoc[Basic Configuration]
 ** xref:config/syntax_highlighting.adoc[Syntax Highlighting]
