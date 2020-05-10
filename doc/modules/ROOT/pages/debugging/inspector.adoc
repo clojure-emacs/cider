@@ -1,18 +1,28 @@
 = Inspector
 :experimental:
 
-Typing kbd:[C-c M-i] after some form in a source buffer or the
-REPL will show you the structure for the result of the form in a new
-buffer.  You can also use kbd:[C-u C-c M-i] to inspect the result
-of the current top-level form and kbd:[C-u C-u C-c M-i] to read
-an expression from the minibuffer and inspect its result. You'll have
-access to additional keybindings in the inspector buffer (which is
-internally using `cider-inspector-mode`):
+Typing kbd:[C-c M-i] (`cider-inspect`) after some form in a source
+buffer or the REPL will show you the structure for the result of the
+form in a new buffer. You can also use kbd:[C-u C-c M-i] to inspect
+the result of the current top-level form and kbd:[C-u C-u C-c M-i] to
+read an expression from the minibuffer and inspect its result.
+
+Alternatively, after a regular eval command, you can inspect the last
+evaluated value using `cider-inspect-last-result`. When a inspector
+buffer is visible in the background, it is automatically updated with
+the last result. This behavior can be controlled with the variable
+`cider-auto-inspect-after-eval`.
+
+The inspector can also be invoked in the middle of a debugging
+session, see xref:debugger.adoc[here] for more details.
+
+You'll have access to additional keybindings in the inspector buffer
+(which is internally using `cider-inspector-mode`):
 
 |===
 | Keyboard shortcut | Description
 
-| kbd:[Tab] or kbd:[Shift-Tab]
+| kbd:[Tab] and kbd:[Shift-Tab]
 | Navigate inspectable sub-objects
 
 | kbd:[Return]
@@ -34,5 +44,10 @@ internally using `cider-inspector-mode`):
 | Set a new page size in paginated view
 
 | kbd:[d]
-| Defines a var with current inspector value
+| Defines a var in the REPL namespace with current inspector value
 |===
+
+
+By default, navigation skips over values like nils, numbers and
+keywords, which are not interesting to inspect. You can control this
+behavior using the variable `cider-inspector-skip-uninteresting`.
