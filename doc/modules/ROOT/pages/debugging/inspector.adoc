@@ -1,0 +1,38 @@
+= Inspector
+:experimental:
+
+Typing kbd:[C-c M-i] after some form in a source buffer or the
+REPL will show you the structure for the result of the form in a new
+buffer.  You can also use kbd:[C-u C-c M-i] to inspect the result
+of the current top-level form and kbd:[C-u C-u C-c M-i] to read
+an expression from the minibuffer and inspect its result. You'll have
+access to additional keybindings in the inspector buffer (which is
+internally using `cider-inspector-mode`):
+
+|===
+| Keyboard shortcut | Description
+
+| kbd:[Tab] or kbd:[Shift-Tab]
+| Navigate inspectable sub-objects
+
+| kbd:[Return]
+| Inspect sub-objects
+
+| kbd:[l]
+| Pop to the parent object
+
+| kbd:[g]
+| Refresh the inspector (e.g. if viewing an atom/ref/agent)
+
+| kbd:[SPC]
+| Jump to next page in paginated view
+
+| kbd:[M-SPC]
+| Jump to previous page in paginated view
+
+| kbd:[s]
+| Set a new page size in paginated view
+
+| kbd:[d]
+| Defines a var with current inspector value
+|===

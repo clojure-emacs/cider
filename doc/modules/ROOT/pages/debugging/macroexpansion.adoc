@@ -1,0 +1,25 @@
+= Macroexpansion
+:experimental:
+
+Typing kbd:[C-c C-m] after some form in a source buffer or the
+REPL will show you the macro expansion of the form in a new
+buffer. You'll have access to additional keybindings in the macro
+expansion buffer (which is internally using
+`cider-macroexpansion-mode`):
+
+|===
+| Keyboard shortcut | Description
+
+| kbd:[m]
+| Invoke `macroexpand-1` on the form at point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
+
+| kbd:[a]
+| Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
+
+| kbd:[g]
+| The prior macro expansion is performed again and the current contents of the macro expansion buffer are replaced with the new expansion.
+
+| kbd:[C-/] +
+kbd:[u]
+| Undo the last in-place expansion performed in the macroexpansion buffer.
+|===
