@@ -25,7 +25,7 @@ You'll also have to configure Piggieback manually if you're planning to use
 +
 [source,clojure]
 ----
-[cider/piggieback "0.4.2"]
+[cider/piggieback "0.5.0"]
 ----
 +
 . Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
@@ -122,7 +122,7 @@ in the root of your Leiningen project definition.
 +
 [source,clojure]
 ----
-[cider/piggieback "0.4.2"] ; not needed for cider-jack-in-cljs
+[cider/piggieback "0.5.0"] ; not needed for cider-jack-in-cljs
 [figwheel-sidecar "0.5.19"] ; use here whatever the current version of figwheel is
 ----
 +
