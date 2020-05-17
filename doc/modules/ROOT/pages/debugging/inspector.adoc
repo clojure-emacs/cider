@@ -1,6 +1,12 @@
 = Inspector
 :experimental:
 
+The value inspector allows you inspect and navigate the structure of data. While you can use
+it for pretty much anything (e.g. primitive data types, var, ref types) it's most
+useful when you're dealing with (deeply) nested collection-like data types (e.g. a vector of maps).
+
+== Usage
+
 Typing kbd:[C-c M-i] (`cider-inspect`) after some form in a source
 buffer or the REPL will show you the structure for the result of the
 form in a new buffer. You can also use kbd:[C-u C-c M-i] to inspect
@@ -13,7 +19,7 @@ buffer is visible in the background, it is automatically updated with
 the last result. This behavior can be controlled with the variable
 `cider-auto-inspect-after-eval`.
 
-The inspector can also be invoked in the middle of a debugging
+TIP: The inspector can also be invoked in the middle of a debugging
 session, see xref:debugger.adoc[here] for more details.
 
 You'll have access to additional keybindings in the inspector buffer
@@ -51,3 +57,7 @@ You'll have access to additional keybindings in the inspector buffer
 By default, navigation skips over values like nils, numbers and
 keywords, which are not interesting to inspect. You can control this
 behavior using the variable `cider-inspector-skip-uninteresting`.
+
+== Additional Resources
+
+* https://practicalli.github.io/spacemacs/evaluating-clojure/inspect.html[Using CIDER's Inspector in Spacemacs]
