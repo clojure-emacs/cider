@@ -22,6 +22,7 @@
 
 * [#2839](https://github.com/clojure-emacs/cider/pull/2839): Fix symbol-at-point on var-quoted symbols.
 * [#2807](https://github.com/clojure-emacs/cider/pull/2807): Fix require-repl-utils for shadow-cljs repls.
+* [#1971](https://github.com/clojure-emacs/cider/issues/1971), [#2628](https://github.com/clojure-emacs/cider/issues/2628): Don't try to font-lock multi-chunk results in the REPL.
 
 ## 0.24.0 (2020-02-15)
 
