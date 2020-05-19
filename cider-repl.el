@@ -1495,6 +1495,7 @@ constructs."
 (cider-repl-add-shortcut "ns" #'cider-repl-set-ns)
 (cider-repl-add-shortcut "toggle-pprint" #'cider-repl-toggle-pretty-printing)
 (cider-repl-add-shortcut "toggle-font-lock" #'cider-repl-toggle-clojure-font-lock)
+(cider-repl-add-shortcut "toggle-content-types" #'cider-repl-toggle-content-types)
 (cider-repl-add-shortcut "browse-ns" (lambda () (interactive) (cider-browse-ns (cider-current-ns))))
 (cider-repl-add-shortcut "classpath" #'cider-classpath)
 (cider-repl-add-shortcut "history" #'cider-repl-history)
@@ -1665,6 +1666,7 @@ constructs."
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
         ["Toggle Clojure font-lock" cider-repl-toggle-clojure-font-lock]
+        ["Toggle rich content types" cider-repl-toggle-content-types]
         ["Require REPL utils" cider-repl-require-repl-utils]
         "--"
         ["Browse classpath" cider-classpath]
