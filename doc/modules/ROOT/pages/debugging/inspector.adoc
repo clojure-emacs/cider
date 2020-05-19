@@ -20,7 +20,7 @@ the last result. This behavior can be controlled with the variable
 `cider-auto-inspect-after-eval`.
 
 TIP: The inspector can also be invoked in the middle of a debugging
-session, see xref:debugger.adoc[here] for more details.
+session, see xref:debugging/debugger.adoc[here] for more details.
 
 You'll have access to additional keybindings in the inspector buffer
 (which is internally using `cider-inspector-mode`):
