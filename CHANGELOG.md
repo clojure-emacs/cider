@@ -4,7 +4,7 @@
 
 ### New features
 
-* [#2482] https://github.com/clojure-emacs/cider/pull/2842 : Improvements to CIDER Inspector.
+* [#2482](https://github.com/clojure-emacs/cider/pull/2842): Improvements to CIDER Inspector.
   * New defcustom `cider-inspector-skip-uninteresting` to control whether to skip over nils, numbers and keywords when navigating between values in the inspector buffer.
   * New defcustom `cider-auto-inspect-after-eval` to control whether a visible inspector buffer is updated with the last evaluated result.
 * [#2833](https://github.com/clojure-emacs/cider/pull/2833): Save command history for jack-in with universal arg.
