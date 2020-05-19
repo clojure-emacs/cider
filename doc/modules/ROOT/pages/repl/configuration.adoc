@@ -88,6 +88,23 @@ following:
 (setq cider-repl-tab-command #'indent-for-tab-command)
 ----
 
+== Customizing the `Return` key's behavior
+
+Ordinarily, kbd:[Return] immediate sends a form for
+evaluation. If you want to insert a newline into the REPL buffer as
+you're editing, you can do so using kbd:[C-j]. If you are
+entering a lot of longer forms that span multiple lines, it may be
+more convenient to change the keybindings:
+
+[source,lisp]
+----
+(define-key cider-repl-mode-map (kbd "RET") #'cider-repl-newline-and-indent)
+(define-key cider-repl-mode-map (kbd "C-<return>") #'cider-repl-return)
+----
+
+This will make kbd:[Return] insert a newline into the REPL buffer
+and kbd:[C-Return] send the form off for evaluation.
+
 == Auto-scrolling the REPL on Output
 
 Prior to version 0.21.0, the REPL buffer would be automatically re-centered
@@ -118,6 +135,31 @@ user> (+ 1 2)
 ----
 
 By default, REPL results have no prefix.
+
+== Set ns in REPL
+
+By default `cider-repl-set-ns` won't require the target ns, just set
+it. That's done with the assumption that you've probably evaluated the
+ns in question already before switching to it (e.g. by doing `C-c C-k`
+in its source file). If you want to change this behaviour (to avoid
+calling `cider-repl-set-ns` and then `(require 'my-ns)` manually), you
+can set:
+
+[source,lisp]
+----
+(setq cider-repl-require-ns-on-set t)
+----
+
+== Customizing the initial REPL namespace
+
+Normally, the CIDER REPL will start in the `user` namespace.  You can
+supply an initial namespace for REPL sessions in the `repl-options`
+section of your Leiningen project configuration:
+
+[source,clojure]
+----
+:repl-options {:init-ns 'my-ns}
+----
 
 == Customize the REPL Buffer's Name
 
@@ -212,34 +254,6 @@ for details.
 Alternatively, you can toggle this behaviour on and off using kbd:[M-x cider-repl-toggle-content-types]
 or the REPL shortcut `toggle-content-types`.
 
-== Customizing the initial REPL namespace
-
-Normally, the CIDER REPL will start in the `user` namespace.  You can
-supply an initial namespace for REPL sessions in the `repl-options`
-section of your Leiningen project configuration:
-
-[source,clojure]
-----
-:repl-options {:init-ns 'my-ns}
-----
-
-== Customizing the `Return` key's behavior
-
-Ordinarily, kbd:[Return] immediate sends a form for
-evaluation. If you want to insert a newline into the REPL buffer as
-you're editing, you can do so using kbd:[C-j]. If you are
-entering a lot of longer forms that span multiple lines, it may be
-more convenient to change the keybindings:
-
-[source,lisp]
-----
-(define-key cider-repl-mode-map (kbd "RET") #'cider-repl-newline-and-indent)
-(define-key cider-repl-mode-map (kbd "C-<return>") #'cider-repl-return)
-----
-
-This will make kbd:[Return] insert a newline into the REPL buffer
-and kbd:[C-Return] send the form off for evaluation.
-
 == REPL history
 
 * To make the REPL history wrap around when CIDER reaches the end:
@@ -265,17 +279,3 @@ and kbd:[C-Return] send the form off for evaluation.
 
 Note that CIDER writes the history to the file when you kill the REPL
 buffer, which includes invoking `cider-quit`, or when you quit Emacs.
-
-== Set ns in REPL
-
-By default `cider-repl-set-ns` won't require the target ns, just set
-it. That's done with the assumption that you've probably evaluated the
-ns in question already before switching to it (e.g. by doing `C-c C-k`
-in its source file). If you want to change this behaviour (to avoid
-calling `cider-repl-set-ns` and then `(require 'my-ns)` manually), you
-can set:
-
-[source,lisp]
-----
-(setq cider-repl-require-ns-on-set t)
-----
