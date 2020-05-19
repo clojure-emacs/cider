@@ -13,6 +13,7 @@
 * Add support for nREPL 0.8 `completions` op. It's used if `cider-nrepl` is not available.
 * Add `browser` to the list of supported ClojureScript REPL types.
 * Add an interactive command to toggle Clojure font-locking in the REPL (`cider-repl-toggle-clojure-font-lock`).
+* Add a defcustom controlling nREPL's print buffer size (`cider-print-buffer-size`). It's set to 4K by default, nREPL own default is 1k.
 
 ### Changes
 

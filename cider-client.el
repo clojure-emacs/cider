@@ -264,6 +264,17 @@ Set to nil for no limit."
   :group 'cider
   :package-version '(cider . "0.21.0"))
 
+(defcustom cider-print-buffer-size (* 4 1024)
+  "The size in bytes of each value/output chunk when using print streaming.
+Smaller values mean smaller data chunks and faster feedback, but they also mean
+smaller results that can be font-locked as Clojure in the REPL buffers, as only
+a single chunk result can be font-locked.
+
+The default value in nREPL is 1024."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "0.25.0"))
+
 (defun cider--print-fn ()
   "Return the value to send in the nrepl.middleware.print/print slot."
   (pcase cider-print-fn
@@ -313,6 +324,8 @@ is included in the request if non-nil."
                  `(("nrepl.middleware.print/print" ,(cider--print-fn))))
                (when cider-print-quota
                  `(("nrepl.middleware.print/quota" ,cider-print-quota)))
+               (when cider-print-buffer-size
+                 `(("nrepl.middleware.print/buffer-size" ,cider-print-buffer-size)))
                (unless (nrepl-dict-empty-p print-options)
                  `(("nrepl.middleware.print/options" ,print-options))))))
 

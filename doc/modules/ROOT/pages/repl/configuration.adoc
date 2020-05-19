@@ -152,6 +152,18 @@ each chunk is font-locked by itself and the results can't really be combined
 * The font-locking of results is an expensive operation which involves copying the value
 to a temporary buffer, where we check its integrity and do the actual font-locking.
 
+By default CIDER instructs nREPL to stream data in 4K chunks, but you can easily modify this:
+
+[source,lisp]
+----
+;; let's stream data in 8K chunks
+(setq cider-print-buffer-size (8 * 1024))
+----
+
+Setting this to `nil` will result in using nREPL's default `buffer-size` of 1024 bytes.
+The smaller the print buffer size the faster you'll get feedback/updates in the REPL, so generally
+it's a good idea to stick to some relatively small size.
+
 TIP: If you'd like to learn more about the font-locking of results you can check
 out the definition of `clojure-font-lock-as` and `clojure-font-lock-as-clojure`
 in `cider-util.el`.
