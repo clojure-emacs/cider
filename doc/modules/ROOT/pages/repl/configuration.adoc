@@ -209,7 +209,8 @@ disabled due to some rough edges with the feature that were
 never properly addressed. See this https://github.com/clojure-emacs/cider/issues/2825[bug report]
 for details.
 
-Alternatively, you can toggle this behaviour on and off using kbd:[M-x cider-repl-toggle-content-types].
+Alternatively, you can toggle this behaviour on and off using kbd:[M-x cider-repl-toggle-content-types]
+or the REPL shortcut `toggle-content-types`.
 
 == Customizing the initial REPL namespace
 
@@ -222,7 +223,7 @@ section of your Leiningen project configuration:
 :repl-options {:init-ns 'my-ns}
 ----
 
-== Customizing newline interaction
+== Customizing the `Return` key's behavior
 
 Ordinarily, kbd:[Return] immediate sends a form for
 evaluation. If you want to insert a newline into the REPL buffer as
