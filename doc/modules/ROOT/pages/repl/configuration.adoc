@@ -190,7 +190,7 @@ Note that disabling pretty-printing is not advised. Emacs does not handle well
 very long lines, so using a printing function that wraps lines beyond a certain
 width (i.e. any of them except for `pr`) will keep your REPL running smoothly.
 
-See link:../pretty_printing[this] for more information on configuring printing.
+TIP: See xref:usage/pretty_printing.adoc[this] for more information on configuring printing.
 
 == Displaying images in the REPL
 
