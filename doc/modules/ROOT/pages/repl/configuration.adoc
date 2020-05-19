@@ -125,7 +125,6 @@ You can customize the buffer name using the variable
 `cider-session-name-template`. See the documentation for this variable for
 details.
 
-
 == Font-locking
 
 Normally, code in the REPL is font-locked the same way as in
@@ -140,7 +139,22 @@ use:
 (setq cider-repl-use-clojure-font-lock nil)
 ----
 
-Note that enabling font-locking in the REPL can negatively impact performance.
+NOTE: Using Clojure font-locking in the REPL can impact performance negatively, especially
+when it comes to font-locking huge results. That, however, is mitigated to a big extent
+by result streaming.
+
+=== Font-locking of Results
+
+There are a few things you need to keep in mind about Clojure font-locking of results:
+
+* When streaming is enabled only single-chunk results will be font-locked as Clojure, as
+each chunk is font-locked by itself and the results can't really be combined
+* The font-locking of results is an expensive operation which involves copying the value
+to a temporary buffer, where we check its integrity and do the actual font-locking.
+
+TIP: If you'd like to learn more about the font-locking of results you can check
+out the definition of `clojure-font-lock-as` and `clojure-font-lock-as-clojure`
+in `cider-util.el`.
 
 == Pretty printing in the REPL
 
