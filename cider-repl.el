@@ -1012,6 +1012,13 @@ text property `cider-old-input'."
   (message "Content-type support in REPL %s."
            (if cider-repl-use-content-types "enabled" "disabled")))
 
+(defun cider-repl-toggle-clojure-font-lock ()
+  "Toggle pretty-printing in the REPL."
+  (interactive)
+  (setq cider-repl-use-clojure-font-lock (not cider-repl-use-clojure-font-lock))
+  (message "Clojure font-locking in REPL %s."
+           (if cider-repl-use-clojure-font-lock "enabled" "disabled")))
+
 (defun cider-repl-switch-to-other ()
   "Switch between the Clojure and ClojureScript REPLs for the current project."
   (interactive)
@@ -1487,6 +1494,7 @@ constructs."
 (cider-repl-add-shortcut "clear-help-banner" #'cider-repl-clear-help-banner)
 (cider-repl-add-shortcut "ns" #'cider-repl-set-ns)
 (cider-repl-add-shortcut "toggle-pretty" #'cider-repl-toggle-pretty-printing)
+(cider-repl-add-shortcut "toggle-font-lock" #'cider-repl-toggle-clojure-font-lock)
 (cider-repl-add-shortcut "browse-ns" (lambda () (interactive) (cider-browse-ns (cider-current-ns))))
 (cider-repl-add-shortcut "classpath" #'cider-classpath)
 (cider-repl-add-shortcut "history" #'cider-repl-history)
@@ -1656,6 +1664,7 @@ constructs."
         "--"
         ["Set REPL ns" cider-repl-set-ns]
         ["Toggle pretty printing" cider-repl-toggle-pretty-printing]
+        ["Toggle Clojure font-lock" cider-repl-toggle-clojure-font-lock]
         ["Require REPL utils" cider-repl-require-repl-utils]
         "--"
         ["Browse classpath" cider-classpath]
