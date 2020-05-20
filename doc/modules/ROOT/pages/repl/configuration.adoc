@@ -185,6 +185,12 @@ You can temporarily disable the Clojure font-locking by using
 kbd:[M-x cider-repl-toggle-clojure-font-lock]
 or the REPL shortcut `toggle-font-lock`.
 
+Keep in mind that by default `cider-repl-input-face` simply makes the input bold
+and `cider-repl-result-face` is blank (meaning it doesn't really apply any
+font-locking to results), so you might want to adjust those faces to your
+preferences. Some Emacs color themes might be providing different defaults for
+them.
+
 NOTE: Using Clojure font-locking in the REPL can impact performance negatively, especially
 when it comes to font-locking huge results. That, however, is mitigated to a big extent
 by result streaming.
