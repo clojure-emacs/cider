@@ -265,6 +265,26 @@ for details.
 Alternatively, you can toggle this behaviour on and off using kbd:[M-x cider-repl-toggle-content-types]
 or the REPL shortcut `toggle-content-types`.
 
+== REPL type detection
+
+Normally CIDER would detect automatically the type of a REPL (Clojure or ClojureScript), based
+on information it receives from the `track-state` middleware, that's part of `cider-nrepl`.
+
+In some rare cases (e.g. a bug in `cider-nrepl` or `shadow-cljs`) this
+auto-detection might fail and return the wrong type (e.g. Clojure instead of
+ClojureScript).  You can disable the auto-detection logic like this:
+
+[source,lisp]
+----
+(setq cider-repl-auto-detect-type nil)
+----
+
+Afterwards you can use `cider-repl-set-type` to set the right type manually.
+
+IMPORTANT: Using `cider-repl-set-type` without disabling
+`cider-repl-auto-detect-type` won't do much, as the REPL type will constantly be
+reset automatically by the `track-state` middleware.
+
 == REPL history
 
 * To make the REPL history wrap around when CIDER reaches the end:
