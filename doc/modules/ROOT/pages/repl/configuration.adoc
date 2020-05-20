@@ -181,6 +181,10 @@ use:
 (setq cider-repl-use-clojure-font-lock nil)
 ----
 
+You can temporarily disable the Clojure font-locking by using
+kbd:[M-x cider-repl-toggle-clojure-font-lock]
+or the REPL shortcut `toggle-font-lock`.
+
 NOTE: Using Clojure font-locking in the REPL can impact performance negatively, especially
 when it comes to font-locking huge results. That, however, is mitigated to a big extent
 by result streaming.
@@ -219,7 +223,8 @@ NOTE: This behaviour was changed in CIDER 0.20. In prior CIDER releases
 pretty-printing was disabled by default.
 
 You can temporarily disable this behaviour and revert to the default behaviour
-(equivalent to `clojure.core/pr`) using kbd:[M-x cider-repl-toggle-pretty-printing].
+(equivalent to `clojure.core/pr`) using kbd:[M-x cider-repl-toggle-pretty-printing]
+or the REPL shortcut `toggle-pprint`.
 
 If you want to disable using `cider-print-fn` entirely, use:
 
