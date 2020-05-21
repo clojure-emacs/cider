@@ -556,7 +556,7 @@ The following formats can be used in TEMPLATE string:
   %j - short project name, or directory name if no project
   %J - long project name including parent dir name
   %r - REPL type (clj or cljs)
-  %S - type of the ClojureScript runtime (Nashorn, Node, Figwheel etc.)
+  %S - type of the ClojureScript runtime (Browser, Node, Figwheel etc.)
   %s - session name as defined by `cider-session-name-template'.
 
 In case some values are empty, extra separators (: and -) are automatically
@@ -620,7 +620,7 @@ Session name can be customized with `cider-session-name-template'."
 ;;; REPL Buffer Init
 
 (defvar-local cider-cljs-repl-type nil
-  "The type of the ClojureScript runtime (Nashorn, Node etc.)")
+  "The type of the ClojureScript runtime (Browser, Node, Figwheel, etc.)")
 
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either clj or cljs.")

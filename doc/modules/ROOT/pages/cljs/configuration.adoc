@@ -26,11 +26,11 @@ NOTE: Modifying this variable will affect all ClojureScript REPL types.
 
 If you frequently use the same ClojureScript REPL, you can set
 `cider-default-cljs-repl` and CIDER will skip the prompt and use this
-instead. For example, the following will make Nashorn the default:
+instead. For example, the following will make Node.js the default:
 
 [source,lisp]
 ----
-(setq cider-default-cljs-repl 'nashorn)
+(setq cider-default-cljs-repl 'node)
 ----
 
 == Defining Custom ClojureScript REPL Types

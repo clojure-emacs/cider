@@ -7,7 +7,7 @@ debugger are currently Clojure-only features.
 
 Unlike the Clojure ecosystem that is dominated by a single REPL, the
 ClojureScript ecosystem has a number of different choices for REPLs
-(e.g. `nashorn`, `node`, `weasel`, `figwheel` and `shadow-cljs`). You'll have to
+(e.g. `browser`, `node`, `weasel`, `figwheel` and `shadow-cljs`). You'll have to
 decide which one you want to run and how you want CIDER to interact with it.
 
 In this section we'll take a look at how ClojureScript support is implemented in CIDER,

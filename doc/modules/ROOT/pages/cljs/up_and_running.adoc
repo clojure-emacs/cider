@@ -77,8 +77,8 @@ require you to configure additional setup. For example, you'll need to
 have Node.js installed to be able to start a Node REPL.
 
 TIP: The only ClojureScript REPL type that doesn't require any additional
-setup is the Nashorn REPL. Unfortunately it's going to be removed in
-future versions of the JDK.
+setup is the browser REPL. To use the Node.js REPL you'll need to install
+Node.js.
 
 == Working with `.cljc` files
 
