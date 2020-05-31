@@ -175,7 +175,7 @@ to become a CIDER sponsor.
 
 You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
 [Open Collective](https://opencollective.com/cider),
-[Salt](https://salt.bountysource.com/teams/cider),
+[GitHub Sponsors](https://github.com/sponsors/bbatsov),
 [Patreon](https://www.patreon.com/bbatsov) and
 [PayPal](https://www.paypal.me/bbatsov).
 

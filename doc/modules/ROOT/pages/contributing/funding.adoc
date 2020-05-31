@@ -14,11 +14,12 @@ for your preferences (although currently https://opencollective.com/cider[Open C
 If you're working in a company that's making significant use of CIDER we'd appreciate it if you suggest to your company
 to become a CIDER sponsor.
 
-You can support the development of CIDER, https://github.com/clojure-emacs/clojure-mode[clojure-mode] and https://github.com/clojure-emacs/inf-clojure[inf-clojure] via
-https://opencollective.com/cider[Open Collective],
-https://salt.bountysource.com/teams/cider[Salt],
-https://www.patreon.com/bbatsov[Patreon] and
-https://www.paypal.me/bbatsov[PayPal].
+You can support the development of CIDER, https://github.com/clojure-emacs/clojure-mode[clojure-mode] and https://github.com/clojure-emacs/inf-clojure[inf-clojure] via:
+
+* https://opencollective.com/cider[Open Collective]
+* https://github.com/sponsors/bbatsov[GitHub Sponsors]
+* https://www.patreon.com/bbatsov[Patreon]
+* https://www.paypal.me/bbatsov[PayPal]
 
 === Open Collective
 
