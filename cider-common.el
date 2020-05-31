@@ -159,33 +159,38 @@ If OTHER-WINDOW is non-nil don't reuse current window."
     (widen)
     (goto-char (point-min))
     (cider-mode +1)
-    (cond
-     ;; Line-column specification.
-     ((consp pos)
-      (forward-line (1- (or (car pos) 1)))
-      (if (cdr pos)
-          (move-to-column (cdr pos))
-        (back-to-indentation)))
-     ;; Point specification.
-     ((numberp pos)
-      (goto-char pos))
-     ;; Symbol or string.
-     (pos
-      ;; Try to find (def full-name ...).
-      (if (or (save-excursion
-                (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote pos))
-                                       nil 'noerror))
-              (let ((name (replace-regexp-in-string ".*/" "" pos)))
-                ;; Try to find (def name ...).
-                (or (save-excursion
-                      (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
-                                             nil 'noerror))
-                    ;; Last resort, just find the first occurrence of `name'.
-                    (save-excursion
-                      (search-forward name nil 'noerror)))))
-          (goto-char (match-beginning 0))
-        (message "Can't find %s in %s" pos (buffer-file-name))))
-     (t nil))))
+    (let ((status
+           (cond
+            ;; Line-column specification.
+            ((consp pos)
+             (forward-line (1- (or (car pos) 1)))
+             (if (cdr pos)
+                 (move-to-column (cdr pos))
+               (back-to-indentation)))
+            ;; Point specification.
+            ((numberp pos)
+             (goto-char pos))
+            ;; Symbol or string.
+            (pos
+             ;; Try to find (def full-name ...).
+             (if (or (save-excursion
+                       (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote pos))
+                                              nil 'noerror))
+                     (let ((name (replace-regexp-in-string ".*/" "" pos)))
+                       ;; Try to find (def name ...).
+                       (or (save-excursion
+                             (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
+                                                    nil 'noerror))
+                           ;; Last resort, just find the first occurrence of `name'.
+                           (save-excursion
+                             (search-forward name nil 'noerror)))))
+                 (goto-char (match-beginning 0))
+               (message "Can't find %s in %s" pos (buffer-file-name))
+               'not-found))
+            (t 'not-found))))
+      (unless (eq status 'not-found)
+        ;; Make sure the location we jump to is centered within the target window
+        (recenter)))))
 
 (defun cider--find-buffer-for-file (file)
   "Return a buffer visiting FILE.

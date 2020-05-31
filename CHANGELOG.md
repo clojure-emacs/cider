@@ -21,6 +21,7 @@
 * [#2617](https://github.com/clojure-emacs/cider/pull/2617): Add menu bar entry for `Insert last sexp in REPL`.
 * Removed support for the Nashorn ClojureScript REPL. (it was removed upstream in ClojureScript)
 * [#2825](https://github.com/clojure-emacs/cider/issues/2825): Disable support for displaying images in the REPL. (set `cider-repl-use-content-types` to re-enable it)
+* [#2850](https://github.com/clojure-emacs/cider/issues/2850): Ensure you're in the middle of a window after commands like `cider-find-var`.
 
 ### Bugs fixed
 
