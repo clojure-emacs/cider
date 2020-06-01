@@ -88,7 +88,22 @@ you can set the variable `cider-test-infer-test-ns` to a function that
 takes the current namespace and returns the matching test namespace
 (which may be the same as the current namespace). This provides
 complete flexibility to structure your test suite using whatever
-conventions you might want.
+conventions you might want. Here's how you can configure the test running
+to look for `some.test-ns` instead of `some.ns-test`:
+
+[source,lisp]
+----
+(defun cider-custom-test-ns-fn (ns)
+  "For a NS, return the test namespace, which may be the argument itself.
+This uses the convention of prepending 'test-' to the namespace name."
+  (when ns
+    (let ((prefix "test-"))
+      (if (string-prefix-p prefix ns)
+          ns
+        (concat prefix ns)))))
+
+(setq cider-test-infer-test-ns #'cider-custom-test-ns-fn)
+----
 
 If your individual tests are not defined by `deftest` or `defspec`, CIDER will
 not recognize them when searching for a test at point in `cider-test-run-test`.
