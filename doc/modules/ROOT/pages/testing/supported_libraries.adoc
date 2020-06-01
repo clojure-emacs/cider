@@ -19,7 +19,7 @@ https://github.com/clojure/test.check/blob/24f74b83f1c7a032f98efdcc1db9d74b3a6a7
 
 == Supported Libraries
 
-* [test-check]
+* https://github.com/clojure/test.check[test.check]
 * https://github.com/clojure-expectations/expectations[clojure-expectations] added
 support for `clojure.test` in version 2.2 and should also work with CIDER.
 * https://github.com/jimpil/fudje[fudje]
