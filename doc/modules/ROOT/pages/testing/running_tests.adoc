@@ -54,17 +54,21 @@ by a source file or by the REPL, using kbd:[C-c C-t n] or
 kbd:[C-c C-t C-n]. Note that it's idiomatic for Clojure projects
 to locate tests in a separate namespace than the code that is being
 tested. CIDER uses a simple algorithm to figure out where the tests
-are located. The algorithm works as follows.  If you're in an
-implementation namespace (e.g. `some.ns`), CIDER will try to find a
+are located. The algorithm works as follows:
+
+* If you're in an implementation namespace (e.g. `some.ns`), CIDER will try to find a
 matching test namespace (by default `some.ns-test`) and run the tests
-there. But if you're in something that already looks like a test
+there.
+* If you're in something that already looks like a test
 namespace (e.g. `some.ns-test`), CIDER will simply run the tests in
-that namespace. If you have put some of your tests into your
-implementation namespace, using `clojure.test/with-test`, for
-instance, you might want to suppress the namespace inference logic and
-force CIDER to run tests in the current namespace unconditionally.
-You can do this by adding a prefix to the namespace commands: kbd:[C-u C-c C-t C-n]. This will simply run whatever tests are present in
-the currently visited or active namespace.
+that namespace.
+
+TIP: If you have put some of your tests into your implementation namespace, using
+`clojure.test/with-test`, for instance, you might want to suppress the namespace
+inference logic and force CIDER to run tests in the current namespace
+unconditionally.  You can do this by adding a prefix to the namespace commands:
+kbd:[C-u C-c C-t C-n]. This will simply run whatever tests are present in the
+currently visited or active namespace.
 
 You can also run a subset of the tests defined in the namespace,
 filtered by test selectors, using kbd:[C-c C-t C-s]. CIDER will
