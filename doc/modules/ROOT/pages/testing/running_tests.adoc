@@ -83,6 +83,8 @@ kbd:[C-c C-t t] or kbd:[C-c C-t C-t].
 
 You can configure CIDER's test execution behavior in multiple ways.
 
+=== Test Namespace Naming Convention
+
 If your tests are not following the `some.ns-test` naming convention
 you can set the variable `cider-test-infer-test-ns` to a function that
 takes the current namespace and returns the matching test namespace
@@ -105,12 +107,17 @@ This uses the convention of prepending 'test-' to the namespace name."
 (setq cider-test-infer-test-ns #'cider-custom-test-ns-fn)
 ----
 
+=== Macros Used to Define Tests
+
 If your individual tests are not defined by `deftest` or `defspec`, CIDER will
 not recognize them when searching for a test at point in `cider-test-run-test`.
 You can customize the variable `cider-test-defining-forms` to add additional
 forms for CIDER to recognize as individual test definitions.
 
-If you want to view the test report regardless of whether the tests have
+=== Display Test Report on Success
+
+By default the test report is displayed only when there are test failures or
+errors. If you want to view the test report regardless of whether the tests have
 passed or failed:
 
 [source,lisp]
