@@ -473,7 +473,11 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
 (defun cider-eldoc-setup ()
   "Setup eldoc in the current buffer.
 eldoc mode has to be enabled for this to have any effect."
-  (setq-local eldoc-documentation-function #'cider-eldoc)
+  ;; Emacs 28.1 changes the way eldoc is setup.
+  ;; There you can have multiple eldoc functions.
+  (if (boundp 'eldoc-documentation-functions)
+      (add-hook 'eldoc-documentation-functions #'cider-eldoc nil t)
+    (setq-local eldoc-documentation-function #'cider-eldoc))
   (apply #'eldoc-add-command cider-extra-eldoc-commands))
 
 (provide 'cider-eldoc)
