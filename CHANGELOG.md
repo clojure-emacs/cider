@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.25.0 (2020-06-04)
+
 ### New features
 
 * [#2482](https://github.com/clojure-emacs/cider/pull/2842): Improvements to CIDER Inspector.
