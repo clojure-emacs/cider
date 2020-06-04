@@ -102,7 +102,7 @@ ns forms manually themselves."
   :package-version '(cider . "0.15.0"))
 
 (defcustom cider-auto-inspect-after-eval t
-  "Controls whether to auto-update the inspector buffer with last evaluated form.
+  "Controls whether to auto-update the inspector buffer after eval.
 Only applies when the *cider-inspect* buffer is currently visible."
   :type 'boolean
   :group 'cider
