@@ -1,6 +1,6 @@
 ;;; cider-browse-spec.el --- CIDER spec browser
 
-;; Copyright © 2017 Juan Monetta, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2017-2020 Juan Monetta, Bozhidar Batsov and CIDER contributors
 
 ;; Author: Juan Monetta <jpmonettas@gmail.com>
 

@@ -1,6 +1,6 @@
 ;;; cider-ns-tests.el
 
-;; Copyright © 2019 Bozhidar Batsov
+;; Copyright © 2019-2020 Bozhidar Batsov
 
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 
