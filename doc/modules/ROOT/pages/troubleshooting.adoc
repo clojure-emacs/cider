@@ -261,3 +261,10 @@ snapshots or most recent stable releases)
 ----
 (setq cljr-inject-dependencies-at-jack-in nil)
 ----
+
+=== Off-by-one column numbers
+
+Emacs and Clojure differ in their indexing of column numbers -- Emacs starts
+counting from 0 while Clojure starts from 1. Accordingly, the `cider-nrepl`
+middleware uses 1-based indexing and all conversions to 0-based indexing should
+be handled client-side. See https://github.com/clojure-emacs/cider/issues/2852.
