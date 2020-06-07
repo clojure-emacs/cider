@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* [#2852](https://github.com/clojure-emacs/cider/issues/2852): Convert 1-based column numbers in response map to Emacs' 0-based system.
+
 ## 0.25.0 (2020-06-04)
 
 ### New features
