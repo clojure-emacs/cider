@@ -57,7 +57,7 @@ $ ./deploy
 ----
 
 IMPORTANT: Don't forget to update the manual's version metadata when cutting CIDER releases.
-It lives in `docs/antora.yml`.
+It lives in `doc/antora.yml`.
 
 Down the road we plan to automate the process and deploy automatically changes to the manual.
 Ideally this should be done by our CI.
