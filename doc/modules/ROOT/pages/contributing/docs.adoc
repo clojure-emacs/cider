@@ -6,8 +6,8 @@ of the primary ways to discover those. Please, consider improving and extending 
 
 == Overview
 
-The manual is generated from the AsciiDoc files in the link:https://github.com/clojure-emacs/cider/tree/master/doc[doc] folder of CIDER's GitHub repo and is published to https://docs.cider.mx.
-link:https://antora.org[Antora] is used to convert the AsciiDoc source into HTML.
+The manual is generated from the AsciiDoc files in the https://github.com/clojure-emacs/cider/tree/master/doc[doc] folder of CIDER's GitHub repo and is published to https://docs.cider.mx.
+https://antora.org[Antora] is used to convert the AsciiDoc source into HTML.
 Antora's filesystem layout is described https://docs.antora.org/antora/2.0/component-structure/[here].
 
 == Installing Antora
@@ -27,13 +27,13 @@ if you run into any problems.
 == Editing the Docs
 
 If you want to make changes to the manual's page structure you'll have to edit
-link:https://github.com/clojure-emacs/cider/blob/master/doc/modules/ROOT/nav.adoc[nav.adoc].
+https://github.com/clojure-emacs/cider/blob/master/doc/modules/ROOT/nav.adoc[nav.adoc].
 
 == Building the Docs Site
 
 To make changes to the manual you simply have to change the files under `doc`.
 
-You can build the documentation locally from the link:https://github.com/clojure-emacs/docs.cider.mx[docs.cider.mx] repo.
+You can build the documentation locally from the https://github.com/clojure-emacs/docs.cider.mx[docs.cider.mx] repo.
 
 [source,shell]
 ----
