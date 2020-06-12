@@ -191,11 +191,11 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
   "Check whether we're using a compatible nREPL version."
   (if-let* ((nrepl-version (cider--nrepl-version)))
       (when (version< nrepl-version cider-required-nrepl-version)
-        (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_newer_nrepl"
+        (cider-emit-manual-warning "troubleshooting.html#warning_saying_you_have_to_use_newer_nrepl"
                                    "CIDER requires nREPL %s (or newer) to work properly"
                                    cider-required-nrepl-version))
-    (cider-emit-manual-warning "troubleshooting.html#_warning_saying_you_have_to_use_newer_nrepl"
-                               "Can't determine nREPL's version.\nPlease, update nREPL to %s (or newer)."
+    (cider-emit-manual-warning "troubleshooting.html#warning_saying_you_have_to_use_newer_nrepl"
+                               "Can't determine nREPL's version. Please, update nREPL to %s (or newer)."
                                cider-required-nrepl-version)))
 
 (defvar cider-minimum-clojure-version)
@@ -203,10 +203,10 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
   "Ensure that we are meeting the minimum supported version of Clojure."
   (if-let* ((clojure-version (cider--clojure-version)))
       (when (version< clojure-version cider-minimum-clojure-version)
-        (cider-emit-manual-warning "installation.html#_prerequisites"
+        (cider-emit-manual-warning "basics/installation.html#prerequisites"
                                    "Clojure version (%s) is not supported (minimum %s). CIDER will not work."
                                    clojure-version cider-minimum-clojure-version))
-    (cider-emit-manual-warning "installation.html#_prerequisites"
+    (cider-emit-manual-warning "basics/installation.html#prerequisites"
                                "Can't determine Clojure's version. CIDER requires Clojure %s (or newer)."
                                cider-minimum-clojure-version)))
 
