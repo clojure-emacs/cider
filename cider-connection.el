@@ -182,9 +182,9 @@ SECTION-ID is the section to link to.  The link is added on the last line.
 FORMAT is a format string to compile with ARGS and display on the REPL."
   (let ((message (apply #'format format args)))
     (cider-repl-emit-interactive-stderr
-     (concat "WARNING: " message "\n         "
+     (concat "WARNING: " message " ("
              (cider--manual-button "More information" section-id)
-             "."))))
+             ")\n"))))
 
 (defvar cider-version)
 (defun cider--check-required-nrepl-version ()
