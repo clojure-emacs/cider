@@ -553,7 +553,7 @@ This will not work on non-current prompts."
 Takes one argument, a namespace name.
 For convenience, three functions are already provided for this purpose:
 `cider-repl-prompt-lastname', `cider-repl-prompt-abbreviated', and
-`cider-repl-prompt-default'"
+`cider-repl-prompt-default'."
   :type '(choice (const :tag "Full namespace" cider-repl-prompt-default)
                  (const :tag "Abbreviated namespace" cider-repl-prompt-abbreviated)
                  (const :tag "Last name in namespace" cider-repl-prompt-lastname)
