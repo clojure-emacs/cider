@@ -348,6 +348,18 @@ process buffer."
         (nrepl-dict-get "nrepl")
         (nrepl-dict-get "version-string")))))
 
+(defun cider--babashka-version ()
+  "Retrieve the underlying connection's Babashka version."
+  (with-current-buffer (cider-current-repl)
+    (when nrepl-versions
+      (nrepl-dict-get nrepl-versions "babashka"))))
+
+(defun cider--babashka-nrepl-version ()
+  "Retrieve the underlying connection's babashka.nrepl version."
+  (with-current-buffer (cider-current-repl)
+    (when nrepl-versions
+      (nrepl-dict-get nrepl-versions "babashka.nrepl"))))
+
 (defun cider--connection-info (connection-buffer &optional genericp)
   "Return info about CONNECTION-BUFFER.
 Info contains project name, current REPL namespace, host:port endpoint and

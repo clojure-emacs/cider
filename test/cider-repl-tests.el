@@ -62,7 +62,7 @@
 ;;
 "))))
 
-(describe "cider-repl--banner"
+(describe "cider-repl--clojure-banner"
   :var (cider-version cider-codename)
   (before-each
     (spy-on 'cider--java-version :and-return-value "1.8.0_31")
@@ -75,7 +75,7 @@
   (describe "when the cider package version information is available"
     (it "returns the repl banner string"
       (spy-on 'pkg-info-version-info :and-return-value "0.12.0")
-      (expect (cider-repl--banner) :to-equal
+      (expect (cider-repl--clojure-banner) :to-equal
               ";; Connected to nREPL server - nrepl://localhost:54018
 ;; CIDER 0.12.0 (Seattle), nREPL 0.5.3
 ;; Clojure 1.8.0, Java 1.8.0_31
@@ -90,7 +90,7 @@
   (describe "when the cider package version information is not available"
     (it "returns the repl banner string"
       (spy-on 'pkg-info-version-info :and-throw-error '(error "No package version"))
-      (expect (cider-repl--banner) :to-equal
+      (expect (cider-repl--clojure-banner) :to-equal
               ";; Connected to nREPL server - nrepl://localhost:54018
 ;; CIDER 0.12.0 (Seattle), nREPL 0.5.3
 ;; Clojure 1.8.0, Java 1.8.0_31

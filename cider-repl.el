@@ -362,6 +362,13 @@ present."
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
+  (cond
+   ((cider--clojure-version) (cider-repl--clojure-banner))
+   ((cider--babashka-version) (cider-repl--babashka-banner))
+   (t (cider-repl--basic-banner))))
+
+(defun cider-repl--clojure-banner ()
+  "Generate the welcome REPL buffer banner for Clojure(Script)."
   (format ";; Connected to nREPL server - nrepl://%s:%s
 ;; CIDER %s, nREPL %s
 ;; Clojure %s, Java %s
@@ -378,6 +385,33 @@ present."
           (cider--nrepl-version)
           (cider--clojure-version)
           (cider--java-version)))
+
+(defun cider-repl--babashka-banner ()
+  "Generate the welcome REPL buffer banner for Babashka."
+  (format ";; Connected to nREPL server - nrepl://%s:%s
+;; CIDER %s, babashka.nrepl %s
+;; Babashka %s
+;;     Docs: (doc function-name)
+;;           (find-doc part-of-name)
+;;   Source: (source function-name)
+;;  Javadoc: (javadoc java-object-or-class)
+;;     Exit: <C-c C-q>
+;;  Results: Stored in vars *1, *2, *3, an exception in *e;
+"
+          (plist-get nrepl-endpoint :host)
+          (plist-get nrepl-endpoint :port)
+          (cider--version)
+          (cider--babashka-nrepl-version)
+          (cider--babashka-version)))
+
+(defun cider-repl--basic-banner ()
+  "Generate a basic banner with minimal info."
+  (format ";; Connected to nREPL server - nrepl://%s:%s
+;; CIDER %s
+"
+          (plist-get nrepl-endpoint :host)
+          (plist-get nrepl-endpoint :port)
+          (cider--version)))
 
 (defun cider-repl--help-banner ()
   "Generate the help banner."
