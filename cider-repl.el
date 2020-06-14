@@ -666,6 +666,28 @@ namespaces.  STRING is REPL's output."
 Each functions takes a string and must return a modified string.  Also see
 `cider-run-chained-hook'.")
 
+(defcustom cider-repl-buffer-size-limit nil
+  "The max size of the REPL buffer.
+Setting this to nil removes the limit."
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider . "0.25.0"))
+
+(defun cider-clear-old-repl-output-if-limit-exceeded ()
+  "Clears printed output to meet `cider-repl-buffer-size-limit'.
+If limit exceeded, clears any partial input or results until under the limit.
+Clears partial input or results that remain."
+  (let ((size (buffer-size)))
+    (when (> size cider-repl-buffer-size-limit)
+      (let* ((over-limit (- size cider-repl-buffer-size-limit))
+             (next-prompt-or-input (next-single-char-property-change over-limit 'field))
+             (next-prompt-after-limit (if (eq (get-char-property next-prompt-or-input 'field) 'cider-repl-prompt)
+                                          next-prompt-or-input
+                                        (next-single-char-property-change next-prompt-or-input 'field)))
+             (inhibit-read-only t))
+        (cider-repl--clear-region (point-min) next-prompt-after-limit)
+        (cider-repl--clear-region cider-repl-output-start cider-repl-output-end)))))
+
 (defun cider-repl--emit-output (buffer string face)
   "Using BUFFER, emit STRING as output font-locked using FACE.
 Before inserting, run `cider-repl-preoutput-hook' on STRING."
@@ -682,7 +704,9 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
       (when (and (= (point) cider-repl-prompt-start-mark)
                  (not (bolp)))
         (insert-before-markers "\n")
-        (set-marker cider-repl-output-end (1- (point))))))
+        (set-marker cider-repl-output-end (1- (point))))
+      (when cider-repl-buffer-size-limit
+        (cider-clear-old-repl-output-if-limit-exceeded))))
   (when-let* ((window (get-buffer-window buffer t)))
     ;; If the prompt is on the first line of the window, then scroll the window
     ;; down by a single line to make the emitted output visible.
@@ -734,7 +758,9 @@ of the line.  If BOL is non-nil insert at the beginning of the line."
             (insert-before-markers (cider-font-lock-as-clojure string))
           (cider-propertize-region
               '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
-            (insert-before-markers string)))))))
+            (insert-before-markers string)))
+        (when cider-repl-buffer-size-limit
+          (cider-clear-old-repl-output-if-limit-exceeded))))))
 
 (defun cider-repl-newline-and-indent ()
   "Insert a newline, then indent the next line.

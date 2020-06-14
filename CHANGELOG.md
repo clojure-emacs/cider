@@ -4,6 +4,7 @@
 
 ### Changes
 
+* [#2527](https://github.com/clojure-emacs/cider/issues/2527): Enable auto-clear of REPL buffer by setting a limit to the max buffer size.
 * [#2852](https://github.com/clojure-emacs/cider/issues/2852): Convert 1-based column numbers in response map to Emacs' 0-based system.
 
 ## 0.25.0 (2020-06-04)
