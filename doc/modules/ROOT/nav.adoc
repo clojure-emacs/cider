@@ -10,6 +10,9 @@
 ** xref:cljs/figwheel.adoc[Using Figwheel]
 ** xref:cljs/shadow-cljs.adoc[Using shadow-cljs]
 ** xref:cljs/other_repls.adoc[Using Other REPLs]
+* Alternative Platforms
+** xref:platforms/overview.adoc[Overview]
+** xref:platforms/babashka.adoc[Babashka]
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]
 ** xref:usage/cider_mode.adoc[Using cider-mode]

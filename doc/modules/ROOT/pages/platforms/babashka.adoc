@@ -1,0 +1,21 @@
+= Babashka
+
+Babashka is highly compatible with Clojure, so it works with CIDER out of the box. All you need to do
+is start its bundled nREPL server:
+
+  $ bb --nrepl-server
+
+And connect to it afterwards using kbd:[C-c C-x c j] (`cider-connect-clj`).
+
+Babashka's nREPL server supports all core nREPL operations, plus code completion, so you'll get all of
+CIDER's basic functionality with it.
+
+NOTE: Depending on your CIDER version you might get some warnings about missing Clojure/nREPL versions. You can safely
+ignore those.
+
+Currently you can't use `cider-jack-in` with Babashka, but this may change down the road.
+
+== Additional Resources
+
+* https://github.com/borkdude/babashka/blob/master/doc/repl.md#nrepl[Babashka's nREPL Documentation]
+* https://github.com/babashka/babashka.nrepl[babashka.nrepl]

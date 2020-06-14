@@ -1,0 +1,40 @@
+= Overview
+
+NOTE: This section is work in progress.
+
+While CIDER was created to serve as a Clojure(Script) programming environment, due to the flexibility of the nREPL
+protocol it can actually be used with other programming languages/platforms as well.
+
+== Challenges
+
+The biggest problem with supporting multiple programming languages are the assumptions that CIDER has that it's being
+used together with Clojure. In practice this translates to CIDER evaluating Clojure code in some cases to power its
+functionality. One simple example here would be switching the REPL's namespace - CIDER simply evals `in-ns` behind the curtains to achieve this.
+
+You also have to keep in mind that much of the advanced functionality (e.g. everything related to debugging) is not part
+of the core nREPL protocol and is provided by the `cider-nrepl` middleware. Other platforms will need to provide
+compatible implementation of that functionality, so that CIDER would work with.
+
+Another problem is that some of the functionality is specific to Clojure and doesn't make much sense in other languages, but that's
+something that functionality can be simply ignored when non-applicable. There's also some coupling with `clojure-mode`, but that's
+not that hard to overcome. Some examples here would be the REPL (which uses `clojure-mode` syntax table and indentation rules),
+the logic for finding the current namespace (which uses `clojure-find-ns`), and so on. All such instances will need to be replaced
+eventually with more generic versions that dispatch on the type of the nREPL connection (e.g. Clojure, Racket, Fennel, etc).
+
+== Current Status
+
+Right now CIDER the supports to some extent the following:
+
+* Babashka
+* ClojureCLR (via Arcadia's nREPL server)
+* Lumo (via https://github.com/djblue/nrepl-cljs)
+
+All of them are derived from Clojure, so supporting them didn't really require much work.
+
+== Future Plans
+
+While not a very high priority, making CIDER usable with any nREPL server is certainly on the project's roadmap.
+https://github.com/clojure-emacs/cider/issues/2848[Here] you can find a discussion about the changes needed to
+get CIDER to work with Fennel, plus a couple of commits that illustrate them.
+
+Any help on that front would greatly appreciated!
