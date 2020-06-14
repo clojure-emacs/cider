@@ -191,10 +191,10 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
   "Check whether we're using a compatible nREPL version."
   (if-let* ((nrepl-version (cider--nrepl-version)))
       (when (version< nrepl-version cider-required-nrepl-version)
-        (cider-emit-manual-warning "troubleshooting.html#warning_saying_you_have_to_use_newer_nrepl"
+        (cider-emit-manual-warning "troubleshooting.html#warning-saying-you-have-to-use-newer-nrepl"
                                    "CIDER requires nREPL %s (or newer) to work properly"
                                    cider-required-nrepl-version))
-    (cider-emit-manual-warning "troubleshooting.html#warning_saying_you_have_to_use_newer_nrepl"
+    (cider-emit-manual-warning "troubleshooting.html#warning-saying-you-have-to-use-newer-nrepl"
                                "Can't determine nREPL's version. Please, update nREPL to %s (or newer)."
                                cider-required-nrepl-version)))
 
@@ -241,10 +241,10 @@ message in the REPL area."
          (middleware-version  (nrepl-dict-get version-dict "version-string")))
     (cond
      ((null middleware-version)
-      (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
+      (cider-emit-manual-warning "troubleshooting.html#cider-complains-of-the-cider-nrepl-version"
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
      ((not (cider--compatible-middleware-version-p cider-required-middleware-version middleware-version))
-      (cider-emit-manual-warning "troubleshooting.html#_cider_complains_of_the_cider_nrepl_version"
+      (cider-emit-manual-warning "troubleshooting.html#cider-complains-of-the-cider-nrepl-version"
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))
 
