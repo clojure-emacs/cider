@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+* Add first class support for Babashka (more warnings when you connect to `babashka.nrepl`).
+
 ### Changes
 
 * [#2852](https://github.com/clojure-emacs/cider/issues/2852): Convert 1-based column numbers in response map to Emacs' 0-based system.
