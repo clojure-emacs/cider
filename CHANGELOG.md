@@ -10,6 +10,10 @@
 
 * [#2852](https://github.com/clojure-emacs/cider/issues/2852): Convert 1-based column numbers in response map to Emacs' 0-based system.
 
+### Bugs fixed
+
+* Handle properly missing file metadata in `cider-doc` buffers, when you eval fallback to obtain var metadata.
+
 ## 0.25.0 (2020-06-04)
 
 ### New features

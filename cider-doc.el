@@ -406,6 +406,7 @@ Tables are marked to be ignored by line wrap."
          (depr    (nrepl-dict-get info "deprecated"))
          (macro   (nrepl-dict-get info "macro"))
          (special (nrepl-dict-get info "special-form"))
+         (builtin (nrepl-dict-get info "built-in")) ;; babashka specific
          (forms   (when-let* ((str (nrepl-dict-get info "forms-str")))
                     (split-string str "\n")))
          (args    (when-let* ((str (nrepl-dict-get info "arglists-str")))
@@ -446,6 +447,8 @@ Tables are marked to be ignored by line wrap."
           (emit "Special Form" 'font-lock-keyword-face))
         (when macro
           (emit "Macro" 'font-lock-variable-name-face))
+        (when builtin
+          (emit "Built-in" 'font-lock-keyword-face))
         (when added
           (emit (concat "Added in " added) 'font-lock-comment-face))
         (when depr
@@ -479,7 +482,7 @@ Tables are marked to be ignored by line wrap."
                               'action (lambda (_)
                                         (cider-browse-spec (format "%s/%s" ns name))))
           (insert "\n\n"))
-        (if cider-docview-file
+        (if (and cider-docview-file (not (string= cider-docview-file "")))
             (progn
               (insert (propertize (if class java-name clj-name)
                                   'font-lock-face 'font-lock-function-name-face)
