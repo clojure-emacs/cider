@@ -15,6 +15,13 @@ ignore those.
 
 Currently you can't use `cider-jack-in` with Babashka, but this may change down the road.
 
+== Differences with Clojure
+
+There are a few differences between Babashka and Clojure that you should keep in mind:
+
+* Built-in vars (e.g. `clojure.core/map`) don't have definition location metadata. In practice this means you can't
+navigate to their definitions in CIDER.
+
 == Additional Resources
 
 * https://github.com/borkdude/babashka/blob/master/doc/repl.md#nrepl[Babashka's nREPL Documentation]
