@@ -21,6 +21,7 @@ There are a few differences between Babashka and Clojure that you should keep in
 
 * Built-in vars (e.g. `clojure.core/map`) don't have definition location metadata. In practice this means you can't
 navigate to their definitions in CIDER.
+* The `javadoc` (`clojure.java.javadoc/javadoc`) REPL utility function is not currently available in Babashka.
 
 == Additional Resources
 
