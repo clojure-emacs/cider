@@ -87,8 +87,8 @@
 (defun cider-browse-ns--text-face (var-meta)
   "Return font-lock-face for a var.
 VAR-META contains the metadata information used to decide a face.
-Presence of \"arglists-str\" and \"macro\" indicates a macro form.
-Only \"arglists-str\" indicates a function. Otherwise, its a variable.
+Presence of \"arglists\" and \"macro\" indicates a macro form.
+Only \"arglists\" indicates a function. Otherwise, its a variable.
 If the NAMESPACE is not loaded in the REPL, assume TEXT is a fn."
   (cond
    ((not var-meta) 'font-lock-function-name-face)
