@@ -466,7 +466,7 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
            (pos (lax-plist-get sexp-eldoc-info "pos"))
            (thing (lax-plist-get sexp-eldoc-info "thing")))
       (when eldoc-info
-        (if (equal (cider-eldoc-thing-type eldoc-info) 'fn)
+        (if (eq (cider-eldoc-thing-type eldoc-info) 'fn)
             (cider-eldoc-format-function thing pos eldoc-info)
           (cider-eldoc-format-variable thing eldoc-info))))))
 
