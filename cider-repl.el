@@ -671,12 +671,11 @@ Each functions takes a string and must return a modified string.  Also see
 Setting this to nil removes the limit."
   :group 'cider
   :type 'boolean
-  :package-version '(cider . "0.25.0"))
+  :package-version '(cider . "0.26.0"))
 
 (defun cider-clear-old-repl-output-if-limit-exceeded ()
   "Clears printed output to meet `cider-repl-buffer-size-limit'.
-If limit exceeded, clears any partial input or results until under the limit.
-Clears partial input or results that remain."
+Also clears remaining partial input or results."
   (let ((size (buffer-size)))
     (when (> size cider-repl-buffer-size-limit)
       (let* ((over-limit (- size cider-repl-buffer-size-limit))
