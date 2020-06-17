@@ -97,6 +97,16 @@ buffer."
         (expect (cider-symbol-at-point) :not :to-be-truthy)
         (expect (cider-symbol-at-point 'look-back) :to-equal "some-symbol"))))
 
+  (describe "when the symbol at point is ."
+    (it "returns the symbol"
+      (with-clojure-buffer "."
+        (expect (cider-symbol-at-point) :to-equal "."))))
+
+  (describe "when the symbol at point is .."
+    (it "returns the symbol"
+      (with-clojure-buffer ".."
+        (expect (cider-symbol-at-point) :to-equal ".."))))
+
   (describe "when the symbol at point has a trailing ."
     (it "returns the symbol without the ."
       (with-clojure-buffer "SomeRecord."

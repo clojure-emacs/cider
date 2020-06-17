@@ -15,6 +15,7 @@ macros, special forms and methods.
 ### Bugs fixed
 
 * Handle properly missing file metadata in `cider-doc` buffers, when you eval fallback to obtain var metadata.
+* Show eldoc for `.` and `..`.
 
 ## 0.25.0 (2020-06-04)
 

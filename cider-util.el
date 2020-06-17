@@ -133,14 +133,18 @@ find a symbol if there isn't one at point."
         (when (string-match-p "^::.+" str)
           (setq str (or (ignore-errors (cider-sync-request:macroexpand "macroexpand-1" str)) "")))
         (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
-          ;; Remove font-locking, prefix quotes, and trailing . from constructors like Record.
-          (thread-last (substring-no-properties str)
-            ;; constructors (Foo.)
-            (string-remove-suffix ".")
-            ;; quoted symbols ('sym)
-            (string-remove-prefix "'")
-            ;; var references (#'inc 2)
-            (string-remove-prefix "#'"))))
+          ;; remove font-locking
+          (setq str (substring-no-properties str))
+          (if (member str '("." ".."))
+              str
+            ;; Remove prefix quotes, and trailing . from constructors like Record.
+            (thread-last str
+              ;; constructors (Foo.)
+              (string-remove-suffix ".")
+              ;; quoted symbols ('sym)
+              (string-remove-prefix "'")
+              ;; var references (#'inc 2)
+              (string-remove-prefix "#'")))))
       (when look-back
         (save-excursion
           (ignore-errors
