@@ -768,6 +768,9 @@ Return buffer column number at position POS."
 KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
   (propertize text 'face (pcase kind
                            (`fn 'font-lock-function-name-face)
+                           (`method 'font-lock-function-name-face)
+                           (`special-form 'font-lock-keyword-face)
+                           (`macro 'font-lock-keyword-face)
                            (`var 'font-lock-variable-name-face)
                            (`ns 'font-lock-type-face)
                            (`emph 'font-lock-keyword-face)

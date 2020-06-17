@@ -308,6 +308,9 @@ if the maximum number of sexps to skip is exceeded."
 It can be a function or var now."
   (pcase (lax-plist-get eldoc-info "type")
     ("function" 'fn)
+    ("special-form" 'special-form)
+    ("macro" 'macro)
+    ("method" 'method)
     ("variable" 'var)))
 
 (defun cider-eldoc-info-at-point ()
@@ -466,9 +469,9 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
            (pos (lax-plist-get sexp-eldoc-info "pos"))
            (thing (lax-plist-get sexp-eldoc-info "thing")))
       (when eldoc-info
-        (if (eq (cider-eldoc-thing-type eldoc-info) 'fn)
-            (cider-eldoc-format-function thing pos eldoc-info)
-          (cider-eldoc-format-variable thing eldoc-info))))))
+        (if (eq (cider-eldoc-thing-type eldoc-info) 'var)
+            (cider-eldoc-format-variable thing eldoc-info)
+          (cider-eldoc-format-function thing pos eldoc-info))))))
 
 (defun cider-eldoc-setup ()
   "Setup eldoc in the current buffer.
