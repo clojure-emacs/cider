@@ -109,7 +109,7 @@ focused.  Otherwise the buffer is displayed and focused."
 
 (defcustom cider-repl-use-pretty-printing t
   "Control whether results in the REPL are pretty-printed or not.
-The REPL will use the printer specified in `cider-pprint-fn'.
+The REPL will use the printer specified in `cider-print-fn'.
 The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean
