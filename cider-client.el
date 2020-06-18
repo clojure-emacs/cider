@@ -446,9 +446,10 @@ Used only when the info nREPL middleware is not available."
 When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
   (when (and var (not (string= var "")))
-    (let ((var-info (if (cider-nrepl-op-supported-p "info")
-                        (cider-sync-request:info var)
-                      (cider-fallback-eval:info var))))
+    (let ((var-info (cond
+                     ((cider-nrepl-op-supported-p "info") (cider-sync-request:info var))
+                     ((cider-nrepl-op-supported-p "lookup") (cider-sync-request:lookup var))
+                     (t (cider-fallback-eval:info var)))))
       (if all var-info (cider--var-choice var-info)))))
 
 (defun cider-member-info (class member)
@@ -567,15 +568,14 @@ CONTEXT represents a completion context for compliment."
                                        "session" (cider-nrepl-eval-session))
                                  'abort-on-input))
 
-(defun cider-sync-request:info (symbol &optional class member)
-  "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
-  (let ((var-info (thread-first `("op" "info"
+(defun cider-sync-request:lookup (symbol &optional lookup-fn)
+  "Send \"lookup\" op request with parameters SYMBOL and LOOKUP-FN."
+  (let ((var-info (thread-first `("op" "lookup"
                                   "ns" ,(cider-current-ns)
                                   ,@(when symbol `("sym" ,symbol))
-                                  ,@(when class `("class" ,class))
-                                  ,@(when member `("member" ,member)))
+                                  ,@(when lookup-fn `("lookup-fn" ,lookup-fn)))
                     (cider-nrepl-send-sync-request (cider-current-repl)))))
-    (if (member "no-info" (nrepl-dict-get var-info "status"))
+    (if (member "lookup-error" (nrepl-dict-get var-info "status"))
         nil
       var-info)))
 
