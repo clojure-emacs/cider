@@ -16,6 +16,7 @@ macros, special forms and methods.
 
 * Handle properly missing file metadata in `cider-doc` buffers, when you eval fallback to obtain var metadata.
 * Show eldoc for `.` and `..`.
+* [#2860](https://github.com/clojure-emacs/cider/issues/2860): Don't send blank strings in `eldoc` requests.
 
 ## 0.25.0 (2020-06-04)
 

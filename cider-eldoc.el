@@ -369,9 +369,9 @@ This includes the arglist and ns and symbol name (if available)."
   (let ((thing (cider-eldoc--convert-ns-keywords thing)))
     (when (and (cider-nrepl-op-supported-p "eldoc")
                thing
-               ;; ignore empty strings
-               (not (string= thing ""))
-               ;; ignore strings
+               ;; ignore blank things
+               (not (string-blank-p thing))
+               ;; ignore string literals
                (not (string-prefix-p "\"" thing))
                ;; ignore regular expressions
                (not (string-prefix-p "#" thing))
