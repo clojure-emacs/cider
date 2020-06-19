@@ -673,19 +673,32 @@ Setting this to nil removes the limit."
   :type 'boolean
   :package-version '(cider . "0.26.0"))
 
-(defun cider-clear-old-repl-output-if-limit-exceeded ()
-  "Clears printed output to meet `cider-repl-buffer-size-limit'.
+(defun cider-start-of-next-prompt (point)
+  "Return the position of the first char of the next prompt from POINT."
+  (let ((next-prompt-or-input (next-single-char-property-change point 'field)))
+    (if (eq (get-char-property next-prompt-or-input 'field) 'cider-repl-prompt)
+        next-prompt-or-input
+      (next-single-char-property-change next-prompt-or-input 'field))))
+
+(defun cider-repl-trim-buffer-to-below-limit (buffer)
+  "Trims REPL output from beginning of BUFFER.
 Also clears remaining partial input or results."
-  (let ((size (buffer-size)))
-    (when (> size cider-repl-buffer-size-limit)
-      (let* ((over-limit (- size cider-repl-buffer-size-limit))
-             (next-prompt-or-input (next-single-char-property-change over-limit 'field))
-             (next-prompt-after-limit (if (eq (get-char-property next-prompt-or-input 'field) 'cider-repl-prompt)
-                                          next-prompt-or-input
-                                        (next-single-char-property-change next-prompt-or-input 'field)))
-             (inhibit-read-only t))
-        (cider-repl--clear-region (point-min) next-prompt-after-limit)
-        (cider-repl--clear-region cider-repl-output-start cider-repl-output-end)))))
+  (with-current-buffer buffer
+    (let* ((to-trim (ceiling (* cider-repl-buffer-size-limit 0.2)))
+           (start-of-next-prompt (cider-start-of-next-prompt to-trim))
+           (inhibit-read-only t))
+      (cider-repl--clear-region (point-min) start-of-next-prompt))))
+
+(defun cider-repl-trim-buffer ()
+  "Trim the currently visited REPL buffer partially from the top.
+See also `cider-repl-clear-buffer'."
+  (interactive)
+  (cider-repl-trim-buffer-to-below-limit (current-buffer)))
+
+(defun cider-repl-trim-buffer-if-limit-exceeded (buffer)
+  "Clears portion of printed output in BUFFER when `cider-repl-buffer-size-limit' is exceeded."
+  (when (> (buffer-size) cider-repl-buffer-size-limit)
+    (cider-repl-trim-buffer-to-below-limit buffer)))
 
 (defun cider-repl--emit-output (buffer string face)
   "Using BUFFER, emit STRING as output font-locked using FACE.
@@ -703,9 +716,7 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
       (when (and (= (point) cider-repl-prompt-start-mark)
                  (not (bolp)))
         (insert-before-markers "\n")
-        (set-marker cider-repl-output-end (1- (point))))
-      (when cider-repl-buffer-size-limit
-        (cider-clear-old-repl-output-if-limit-exceeded))))
+        (set-marker cider-repl-output-end (1- (point))))))
   (when-let* ((window (get-buffer-window buffer t)))
     ;; If the prompt is on the first line of the window, then scroll the window
     ;; down by a single line to make the emitted output visible.
@@ -757,9 +768,7 @@ of the line.  If BOL is non-nil insert at the beginning of the line."
             (insert-before-markers (cider-font-lock-as-clojure string))
           (cider-propertize-region
               '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
-            (insert-before-markers string)))
-        (when cider-repl-buffer-size-limit
-          (cider-clear-old-repl-output-if-limit-exceeded))))))
+            (insert-before-markers string)))))))
 
 (defun cider-repl-newline-and-indent ()
   "Insert a newline, then indent the next line.
@@ -902,7 +911,9 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
        (cider-repl-emit-stderr buffer err))
      (lambda (buffer)
        (when show-prompt
-         (cider-repl-emit-prompt buffer)))
+         (cider-repl-emit-prompt buffer))
+       (when cider-repl-buffer-size-limit
+         (cider-repl-trim-buffer-if-limit-exceeded buffer)))
      nrepl-err-handler
      (lambda (buffer value content-type)
        (if-let* ((content-attrs (cadr content-type))
