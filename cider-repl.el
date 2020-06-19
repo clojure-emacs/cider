@@ -670,7 +670,7 @@ Each functions takes a string and must return a modified string.  Also see
   "The max size of the REPL buffer.
 Setting this to nil removes the limit."
   :group 'cider
-  :type 'boolean
+  :type 'integer
   :package-version '(cider . "0.26.0"))
 
 (defun cider-start-of-next-prompt (point)
