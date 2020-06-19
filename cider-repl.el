@@ -681,14 +681,15 @@ Setting this to nil removes the limit."
       (next-single-char-property-change next-prompt-or-input 'field))))
 
 (defun cider-repl-trim-top-of-buffer (buffer)
-  "Trims REPL output from beginning of BUFFER by one fifth of `cider-repl-buffer-size-limit'.
+  "Trims REPL output from beginning of BUFFER.
+Trims by one fifth of `cider-repl-buffer-size-limit'.
 Also clears remaining partial input or results."
   (if cider-repl-buffer-size-limit
       (with-current-buffer buffer
-    (let* ((to-trim (ceiling (* cider-repl-buffer-size-limit 0.2)))
-           (start-of-next-prompt (cider-start-of-next-prompt to-trim))
-           (inhibit-read-only t))
-      (cider-repl--clear-region (point-min) start-of-next-prompt)))
+        (let* ((to-trim (ceiling (* cider-repl-buffer-size-limit 0.2)))
+               (start-of-next-prompt (cider-start-of-next-prompt to-trim))
+               (inhibit-read-only t))
+          (cider-repl--clear-region (point-min) start-of-next-prompt)))
     (message "cider-repl-buffer-size-limit is not set.")))
 
 (defun cider-repl-trim-buffer ()
@@ -700,7 +701,7 @@ See also `cider-repl-clear-buffer'."
 (defun cider-repl-trim-buffer-if-limit-exceeded (buffer)
   "Clears portion of printed output in BUFFER when `cider-repl-buffer-size-limit' is exceeded."
   (when (> (buffer-size) cider-repl-buffer-size-limit)
-    (cider-repl-trim-buffer-to-below-limit buffer)))
+    (cider-repl-trim-top-of-buffer buffer)))
 
 (defun cider-repl--emit-output (buffer string face)
   "Using BUFFER, emit STRING as output font-locked using FACE.
