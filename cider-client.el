@@ -568,6 +568,18 @@ CONTEXT represents a completion context for compliment."
                                        "session" (cider-nrepl-eval-session))
                                  'abort-on-input))
 
+(defun cider-sync-request:info (symbol &optional class member)
+  "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
+  (let ((var-info (thread-first `("op" "info"
+                                  "ns" ,(cider-current-ns)
+                                  ,@(when symbol `("sym" ,symbol))
+                                  ,@(when class `("class" ,class))
+                                  ,@(when member `("member" ,member)))
+                    (cider-nrepl-send-sync-request (cider-current-repl)))))
+    (if (member "no-info" (nrepl-dict-get var-info "status"))
+        nil
+      var-info)))
+
 (defun cider-sync-request:lookup (symbol &optional lookup-fn)
   "Send \"lookup\" op request with parameters SYMBOL and LOOKUP-FN."
   (let ((var-info (thread-first `("op" "lookup"
