@@ -680,20 +680,22 @@ Setting this to nil removes the limit."
         next-prompt-or-input
       (next-single-char-property-change next-prompt-or-input 'field))))
 
-(defun cider-repl-trim-buffer-to-below-limit (buffer)
-  "Trims REPL output from beginning of BUFFER.
+(defun cider-repl-trim-top-of-buffer (buffer)
+  "Trims REPL output from beginning of BUFFER by one fifth of `cider-repl-buffer-size-limit'.
 Also clears remaining partial input or results."
-  (with-current-buffer buffer
+  (if cider-repl-buffer-size-limit
+      (with-current-buffer buffer
     (let* ((to-trim (ceiling (* cider-repl-buffer-size-limit 0.2)))
            (start-of-next-prompt (cider-start-of-next-prompt to-trim))
            (inhibit-read-only t))
-      (cider-repl--clear-region (point-min) start-of-next-prompt))))
+      (cider-repl--clear-region (point-min) start-of-next-prompt)))
+    (message "cider-repl-buffer-size-limit is not set.")))
 
 (defun cider-repl-trim-buffer ()
   "Trim the currently visited REPL buffer partially from the top.
 See also `cider-repl-clear-buffer'."
   (interactive)
-  (cider-repl-trim-buffer-to-below-limit (current-buffer)))
+  (cider-repl-trim-top-of-buffer (current-buffer)))
 
 (defun cider-repl-trim-buffer-if-limit-exceeded (buffer)
   "Clears portion of printed output in BUFFER when `cider-repl-buffer-size-limit' is exceeded."
@@ -1528,6 +1530,7 @@ constructs."
 (cider-repl-add-shortcut "clear" #'cider-repl-clear-buffer)
 (cider-repl-add-shortcut "clear-banners" #'cider-repl-clear-banners)
 (cider-repl-add-shortcut "clear-help-banner" #'cider-repl-clear-help-banner)
+(cider-repl-add-shortcut "trim" #'cider-repl-trim-buffer)
 (cider-repl-add-shortcut "ns" #'cider-repl-set-ns)
 (cider-repl-add-shortcut "toggle-pprint" #'cider-repl-toggle-pretty-printing)
 (cider-repl-add-shortcut "toggle-font-lock" #'cider-repl-toggle-clojure-font-lock)
@@ -1716,6 +1719,7 @@ constructs."
         ["Previous prompt" cider-repl-previous-prompt]
         ["Clear output" cider-repl-clear-output]
         ["Clear buffer" cider-repl-clear-buffer]
+        ["Trim buffer" cider-repl-trim-buffer]
         ["Clear banners" cider-repl-clear-banners]
         ["Clear help banner" cider-repl-clear-help-banner]
         ["Kill input" cider-repl-kill-input]
