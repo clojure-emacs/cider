@@ -118,6 +118,13 @@ built-in option `scroll-conservatively`, for example:
 (add-hook 'cider-repl-mode-hook '(lambda () (setq scroll-conservatively 101)))
 ----
 
+== Auto-trimming the buffer
+Disabled by default (`nil`).
+
+This can be enabled by setting `cider-repl-buffer-size-limit` to an integer. By setting
+a limit to the number of characters in the buffer, the buffer can be trimmed after
+each evaluation if the set limit has been exceeded.
+
 == Result Prefix
 
 You can change the string used to prefix REPL results:
