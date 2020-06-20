@@ -313,42 +313,43 @@ It delegates the actual error content to the eval or op handler."
 ;; Clojure 1.10.  That's why we're trying to match error messages to both the
 ;; old and the new format, by utilizing a combination of two different regular
 ;; expressions.
-(eval-when-compile
-  (defconst cider-clojure-1.10-error `(sequence
-                                       "Syntax error "
-                                       (minimal-match (zero-or-more anything))
-                                       "compiling "
-                                       (minimal-match (zero-or-more anything))
-                                       "at ("
-                                       (group-n 2 (minimal-match (zero-or-more anything)))
-                                       ":"
-                                       (group-n 3 (one-or-more digit))
-                                       (optional ":" (group-n 4 (one-or-more digit)))
-                                       ")."))
 
-  (defconst cider-clojure-1.9-error `(sequence
-                                      (zero-or-more anything)
-                                      ", compiling:("
-                                      (group-n 2 (minimal-match (zero-or-more anything)))
-                                      ":"
-                                      (group-n 3 (one-or-more digit))
-                                      (optional ":" (group-n 4 (one-or-more digit)))
-                                      ")"))
+(defconst cider-clojure-1.10-error `(sequence
+                                     "Syntax error "
+                                     (minimal-match (zero-or-more anything))
+                                     "compiling "
+                                     (minimal-match (zero-or-more anything))
+                                     "at ("
+                                     (group-n 2 (minimal-match (zero-or-more anything)))
+                                     ":"
+                                     (group-n 3 (one-or-more digit))
+                                     (optional ":" (group-n 4 (one-or-more digit)))
+                                     ")."))
 
-  (defconst cider-clojure-warning `(sequence
-                                    (minimal-match (zero-or-more anything))
-                                    (group-n 1 "warning")
-                                    ", "
+(defconst cider-clojure-1.9-error `(sequence
+                                    (zero-or-more anything)
+                                    ", compiling:("
                                     (group-n 2 (minimal-match (zero-or-more anything)))
                                     ":"
                                     (group-n 3 (one-or-more digit))
                                     (optional ":" (group-n 4 (one-or-more digit)))
-                                    " - "))
-  )
+                                    ")"))
 
-(defconst cider-clojure-compilation-regexp (rx bol (or (eval cider-clojure-1.9-error)
-                                                       (eval cider-clojure-warning)
-                                                       (eval cider-clojure-1.10-error))))
+(defconst cider-clojure-warning `(sequence
+                                  (minimal-match (zero-or-more anything))
+                                  (group-n 1 "warning")
+                                  ", "
+                                  (group-n 2 (minimal-match (zero-or-more anything)))
+                                  ":"
+                                  (group-n 3 (one-or-more digit))
+                                  (optional ":" (group-n 4 (one-or-more digit)))
+                                  " - "))
+
+
+(defconst cider-clojure-compilation-regexp (eval
+                                            `(rx bol (or ,cider-clojure-1.9-error
+                                                         ,cider-clojure-warning
+                                                         ,cider-clojure-1.10-error))))
 
 
 (defvar cider-compilation-regexp
