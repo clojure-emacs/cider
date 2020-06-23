@@ -67,7 +67,7 @@ The following values are possible t or 'always, 'except-in-repl,
 'only-in-repl.  Any other value, including nil, will cause the stacktrace
 not to be automatically shown.
 
-Irespective of the value of this variable, the `cider-error-buffer' is
+Irrespective of the value of this variable, the `cider-error-buffer' is
 always generated in the background.  Use `cider-selector' to
 navigate to this buffer."
   :type '(choice (const :tag "always" t)
