@@ -187,6 +187,55 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
       (quit-window nil error-win))))
 
 
+;;; Sideloader
+
+(defvar cider-sideloader-dir (file-name-directory buffer-file-name))
+
+(defun cider-provide-file (file)
+  "Provide FILE in a format suitable for sideloading."
+  (let ((file (expand-file-name file cider-sideloader-dir)))
+    (if (file-exists-p file)
+        (with-current-buffer (find-file-noselect file)
+          (base64-encode-string (substring-no-properties (buffer-string))))
+      ;; if we can't find the file we should return an empty string
+      (base64-encode-string ""))))
+
+(defun cider-sideloader-lookup-handler (&optional buffer)
+  "Make a sideloader-lookup handler for BUFFER, NAME and TYPE."
+  (let ((buffer (or buffer (current-buffer))))
+    (lambda (response)
+    (nrepl-dbind-response response (id status type name)
+      (if status
+       (when (member "sideloader-lookup" status)
+         (cider-request:sideloader-provide id type name)))))))
+
+(defun cider-request:sideloader-start (&optional connection)
+  "Perform the nREPL \"sideloader-start\" op.
+If CONNECTION is nil, use `cider-current-repl'."
+  (cider-ensure-op-supported "sideloader-start")
+  (cider-nrepl-send-request `("op" "sideloader-start")
+                            (cider-sideloader-lookup-handler)
+                            connection))
+
+(defun cider-request:sideloader-provide (id type file &optional connection)
+  "Perform the nREPL \"sideloader-provide\" op for ID, TYPE and FILE.
+If CONNECTION is nil, use `cider-current-repl'."
+  (cider-nrepl-send-request `("id" id
+                              "op" "sideloader-provide"
+                              "type" ,type
+                              "name" ,file
+                              "content" ,(cider-provide-file file))
+                            (cider-sideloader-lookup-handler)
+                            connection))
+
+(defun cider-sideloader-start (&optional connection)
+  "Start nREPL's sideloader.
+If CONNECTION is nil, use `cider-current-repl'."
+  (interactive)
+  (message "Starting nREPL's sideloader")
+  (cider-request:sideloader-start connection))
+
+
 ;;; Dealing with compilation (evaluation) errors and warnings
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.

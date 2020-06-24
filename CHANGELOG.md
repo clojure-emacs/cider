@@ -6,6 +6,7 @@
 
 * Add first class support for Babashka (more warnings when you connect to `babashka.nrepl`).
 * Add support for nREPL 0.8's `lookup` op.
+* Add support for nREPL 0.7's sideloading functionality.
 
 ### Changes
 
