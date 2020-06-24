@@ -8,8 +8,7 @@ and jump directly to the definition of failing tests.
 
 Calling test commands again will update the test report.
 
-Customise the `cider-test-show-report-on-success` and set to true 
-and a test report is also shown when tests pass.
+link:running_tests.html#display-test-report-on-success[Configure test reports on success]
 
 |===
 | Keyboard shortcut | Description
