@@ -200,14 +200,13 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
       ;; if we can't find the file we should return an empty string
       (base64-encode-string ""))))
 
-(defun cider-sideloader-lookup-handler (&optional buffer)
-  "Make a sideloader-lookup handler for BUFFER, NAME and TYPE."
-  (let ((buffer (or buffer (current-buffer))))
-    (lambda (response)
-      (nrepl-dbind-response response (id status type name)
-        (if status
-            (when (member "sideloader-lookup" status)
-              (cider-request:sideloader-provide id type name)))))))
+(defun cider-sideloader-lookup-handler ()
+  "Make a sideloader-lookup handler."
+  (lambda (response)
+    (nrepl-dbind-response response (id status type name)
+      (if status
+          (when (member "sideloader-lookup" status)
+            (cider-request:sideloader-provide id type name))))))
 
 (defun cider-request:sideloader-start (&optional connection)
   "Perform the nREPL \"sideloader-start\" op.
