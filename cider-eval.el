@@ -219,7 +219,7 @@ If CONNECTION is nil, use `cider-current-repl'."
 (defun cider-request:sideloader-provide (id type file &optional connection)
   "Perform the nREPL \"sideloader-provide\" op for ID, TYPE and FILE.
 If CONNECTION is nil, use `cider-current-repl'."
-  (cider-nrepl-send-request `("id" id
+  (cider-nrepl-send-request `("id" ,id
                               "op" "sideloader-provide"
                               "type" ,type
                               "name" ,file
