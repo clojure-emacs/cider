@@ -28,6 +28,7 @@
 
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-resolve)
 
 (require 'thingatpt)
 

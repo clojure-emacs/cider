@@ -41,7 +41,7 @@
 ;; clojure-mode and CIDER
 (require 'cider-compat)
 (require 'clojure-mode)
-(require 'nrepl-dict)
+
 (declare-function cider-sync-request:macroexpand "cider-macroexpansion")
 
 (defalias 'cider-pop-back 'pop-tag-mark)

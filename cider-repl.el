@@ -52,6 +52,8 @@
 (require 'cider-util)
 (require 'cider-resolve)
 
+(declare-function cider-inspect "cider-inspector")
+
 (eval-when-compile
   (defvar paredit-version)
   (defvar paredit-space-for-delimiter-predicates))

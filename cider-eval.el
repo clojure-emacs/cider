@@ -563,6 +563,7 @@ REPL buffer.  This is controlled via
             (cider--make-fringe-overlay (point)))
         (scan-error nil)))))
 
+(declare-function cider-inspect-last-result "cider-inspector")
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
 PLACE is used to display the evaluation result.

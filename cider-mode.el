@@ -39,6 +39,7 @@
 (require 'cider-doc) ; required only for the menu
 (require 'cider-profile) ; required only for the menu
 (require 'cider-completion)
+(require 'cider-inspector)
 (require 'subr-x)
 (require 'cider-compat)
 

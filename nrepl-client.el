@@ -75,6 +75,7 @@
 (require 'cl-lib)
 (require 'nrepl-dict)
 (require 'queue)
+(require 'sesman)
 (require 'tramp)
 
 
@@ -181,6 +182,7 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defconst nrepl-server-buffer-name-template "*nrepl-server %s*")
 (defconst nrepl-tunnel-buffer-name-template "*nrepl-tunnel %s*")
 
+(declare-function cider-format-connection-params "cider-connection")
 (defun nrepl-make-buffer-name (template params &optional dup-ok)
   "Generate a buffer name using TEMPLATE and PARAMS.
 TEMPLATE and PARAMS are as in `cider-format-connection-params'.  If
@@ -729,6 +731,7 @@ to the REPL."
     (message msg)))
 
 (defvar cider-buffer-ns)
+(defvar cider-print-quota)
 (defvar cider-special-mode-truncate-lines)
 (declare-function cider-need-input "cider-client")
 (declare-function cider-set-buffer-ns "cider-mode")
@@ -1298,6 +1301,7 @@ it into the buffer."
         (pp object (current-buffer))
         (insert "\n")))))
 
+(declare-function cider--gather-connect-params "cider-connection")
 (defun nrepl-messages-buffer (conn)
   "Return or create the buffer for CONN.
 The default buffer name is *nrepl-messages connection*."

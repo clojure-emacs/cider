@@ -31,6 +31,7 @@
 
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-doc)
 (require 'cider-eldoc)
 (require 'nrepl-dict)
 
