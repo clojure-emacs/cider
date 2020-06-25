@@ -204,10 +204,10 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   "Make a sideloader-lookup handler for BUFFER, NAME and TYPE."
   (let ((buffer (or buffer (current-buffer))))
     (lambda (response)
-    (nrepl-dbind-response response (id status type name)
-      (if status
-       (when (member "sideloader-lookup" status)
-         (cider-request:sideloader-provide id type name)))))))
+      (nrepl-dbind-response response (id status type name)
+        (if status
+            (when (member "sideloader-lookup" status)
+              (cider-request:sideloader-provide id type name)))))))
 
 (defun cider-request:sideloader-start (&optional connection)
   "Perform the nREPL \"sideloader-start\" op.
