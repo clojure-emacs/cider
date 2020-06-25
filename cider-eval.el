@@ -189,7 +189,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 ;;; Sideloader
 
-(defvar cider-sideloader-dir (file-name-directory buffer-file-name))
+(defvar cider-sideloader-dir (file-name-directory load-file-name))
 
 (defun cider-provide-file (file)
   "Provide FILE in a format suitable for sideloading."
