@@ -62,6 +62,7 @@
 (require 'subr-x)
 
 (require 'cider-client)
+(require 'cider-eval)
 (require 'cider-popup)
 (require 'cider-stacktrace)
 

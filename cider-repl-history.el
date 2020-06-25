@@ -35,6 +35,7 @@
 (require 'clojure-mode)
 (require 'derived)
 (require 'pulse)
+(require 'sesman)
 
 (defconst cider-repl-history-buffer "*cider-repl-history*")
 

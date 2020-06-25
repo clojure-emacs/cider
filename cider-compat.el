@@ -26,6 +26,8 @@
 
 ;;; Code:
 
+(require 'subr-x)
+
 (eval-and-compile
 
   (unless (fboundp 'if-let*)
