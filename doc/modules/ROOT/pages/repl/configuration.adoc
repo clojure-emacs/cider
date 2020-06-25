@@ -130,11 +130,11 @@ the process for you.
 Auto-trimming can be enabled by setting `cider-repl-buffer-size-limit` to an integer. By
 setting a limit to the number of characters in the buffer, the buffer can be
 trimmed (from its beginning) after each evaluation if the set limit has been
-exceeded.
+exceeded. Here's how you can set the size limit in your Emacs config:
 
 [source,lisp]
 ----
-(setq cider-repl-buffer-size-limit 10000)
+(setq cider-repl-buffer-size-limit 100000)
 ----
 
 TIP: You can also trigger auto-trimming manually by invoking the command `cider-repl-trim-buffer`

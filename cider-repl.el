@@ -718,21 +718,21 @@ Setting this to nil removes the limit."
   "Trims REPL output from beginning of BUFFER.
 Trims by one fifth of `cider-repl-buffer-size-limit'.
 Also clears remaining partial input or results."
-  (if cider-repl-buffer-size-limit
-      (with-current-buffer buffer
-        (let* ((to-trim (ceiling (* cider-repl-buffer-size-limit 0.2)))
-               (start-of-next-prompt (cider-start-of-next-prompt to-trim))
-               (inhibit-read-only t))
-          (cider-repl--clear-region (point-min) start-of-next-prompt)))
-    (message "cider-repl-buffer-size-limit is not set.")))
+  (with-current-buffer buffer
+    (let* ((to-trim (ceiling (* cider-repl-buffer-size-limit 0.2)))
+           (start-of-next-prompt (cider-start-of-next-prompt to-trim))
+           (inhibit-read-only t))
+      (cider-repl--clear-region (point-min) start-of-next-prompt))))
 
 (defun cider-repl-trim-buffer ()
   "Trim the currently visited REPL buffer partially from the top.
 See also `cider-repl-clear-buffer'."
   (interactive)
-  (cider-repl-trim-top-of-buffer (current-buffer)))
+  (if cider-repl-buffer-size-limit
+      (cider-repl-trim-top-of-buffer (current-buffer))
+    (user-error "The variable `cider-repl-buffer-size-limit' is not set")))
 
-(defun cider-repl-trim-buffer-if-limit-exceeded (buffer)
+(defun cider-repl-maybe-trim-buffer (buffer)
   "Clears portion of printed output in BUFFER when `cider-repl-buffer-size-limit' is exceeded."
   (when (> (buffer-size) cider-repl-buffer-size-limit)
     (cider-repl-trim-top-of-buffer buffer)))
@@ -950,7 +950,7 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
        (when show-prompt
          (cider-repl-emit-prompt buffer))
        (when cider-repl-buffer-size-limit
-         (cider-repl-trim-buffer-if-limit-exceeded buffer)))
+         (cider-repl-maybe-trim-buffer buffer)))
      nrepl-err-handler
      (lambda (buffer value content-type)
        (if-let* ((content-attrs (cadr content-type))
