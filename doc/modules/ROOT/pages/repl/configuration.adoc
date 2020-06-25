@@ -118,12 +118,27 @@ built-in option `scroll-conservatively`, for example:
 (add-hook 'cider-repl-mode-hook '(lambda () (setq scroll-conservatively 101)))
 ----
 
-== Auto-trimming the buffer
-Disabled by default (`nil`).
+== Auto-trimming the REPL buffer
 
-This can be enabled by setting `cider-repl-buffer-size-limit` to an integer. By setting
-a limit to the number of characters in the buffer, the buffer can be trimmed after
-each evaluation if the set limit has been exceeded.
+NOTE: This functionality is disabled by default.
+
+As noted xref:repl/basic_usage.adoc#known-limitations[previously], the REPL buffer's performance will degrade if its size
+is allowed to grow infinitely. You can obviously clear the REPL manually from time to
+time, but CIDER also has some auto-trimming functionality that can simplify
+the process for you.
+
+Auto-trimming can be enabled by setting `cider-repl-buffer-size-limit` to an integer. By
+setting a limit to the number of characters in the buffer, the buffer can be
+trimmed (from its beginning) after each evaluation if the set limit has been
+exceeded.
+
+[source,lisp]
+----
+(setq cider-repl-buffer-size-limit 10000)
+----
+
+TIP: You can also trigger auto-trimming manually by invoking the command `cider-repl-trim-buffer`
+or the REPL shortcut `trim`.
 
 == Result Prefix
 
