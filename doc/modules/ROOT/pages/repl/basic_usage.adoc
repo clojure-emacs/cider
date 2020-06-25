@@ -54,12 +54,14 @@ some of the operations needed to properly dispose of a REPL buffer.
 
 Performance can degrade when the REPL buffer grows very large. This is
 especially true if either `cider-repl-use-clojure-font-lock` or
-`nrepl-log-messages` are enabled. You can use `cider-repl-clear-output` to
-either clear the result of the previous evaluation, or with a prefix argument
-clear the entire REPL buffer. You can also set `cider-repl-buffer-size-limit`
-which will enable trimming the buffer automatically after each evaluation. This
-trimming can also be invoked manually with `cider-repl-trim-buffer`.
+`nrepl-log-messages` are enabled.
 
 Very long lines are guaranteed to bring Emacs to a crawl, so using a value of
 `cider-print-fn` that wraps lines beyond a certain width (i.e. any of the
 built-in options except for `pr`) is advised.
+
+TIP: You can use `cider-repl-clear-output` to
+either clear the result of the previous evaluation, or with a prefix argument
+clear the entire REPL buffer. You can also set `cider-repl-buffer-size-limit`
+which will enable trimming the buffer automatically after each evaluation. This
+trimming can also be invoked manually with `cider-repl-trim-buffer`.
