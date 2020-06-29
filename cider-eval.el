@@ -650,6 +650,20 @@ comment prefix to use."
                                  (cider-emit-interactive-eval-err-output err))
                                '()))
 
+(defun cider-maybe-insert-multiline-comment (result comment-prefix continued-prefix comment-postfix)
+  "Insert eval RESULT at current location if RESULT is not empty.
+RESULT will be preceded by COMMENT-PREFIX.
+CONTINUED-PREFIX is inserted for each additional line of output.
+COMMENT-POSTFIX is inserted after final text output."
+  (unless (string= result "")
+    (let ((lines (split-string result "[\n]+" t)))
+      ;; only the first line gets the normal comment-prefix
+      (insert (concat comment-prefix (pop lines)))
+      (dolist (elem lines)
+        (insert (concat "\n" continued-prefix elem)))
+      (unless (string= comment-postfix "")
+        (insert comment-postfix)))))
+
 (defun cider-eval-pprint-with-multiline-comment-handler (buffer location comment-prefix continued-prefix comment-postfix)
   "Make a handler for evaluating and inserting results in BUFFER.
 The inserted text is pretty-printed and region will be commented.
@@ -668,13 +682,7 @@ COMMENT-POSTFIX is the text to output after the last line."
        (with-current-buffer buffer
          (save-excursion
            (goto-char (marker-position location))
-           (let ((lines (split-string res "[\n]+" t)))
-             ;; only the first line gets the normal comment-prefix
-             (insert (concat comment-prefix (pop lines)))
-             (dolist (elem lines)
-               (insert (concat "\n" continued-prefix elem)))
-             (unless (string= comment-postfix "")
-               (insert comment-postfix))))))
+           (cider-maybe-insert-multiline-comment res comment-prefix continued-prefix comment-postfix))))
      nil
      nil
      (lambda (_buffer warning)
