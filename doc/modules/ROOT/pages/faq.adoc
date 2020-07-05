@@ -115,10 +115,9 @@ there's always only one version that's available - the latest one.
 
 == Will CIDER eventually support the Clojure 1.8 socket REPL?
 
-Hopefully yes. Adding support for the socket REPL is definitely on our radar, but
-unfortunately it will require both significant changes to CIDER and the development
-of some alternative to essential nREPL functionality (like multiple evaluation sessions)
-for the socket REPL.
+Maybe. Our focus remains making the most out of nREPL, but down the road
+we might explore investing some time in adding support for additional
+REPL servers.
 
 TIP: There's more information about the work that needs to be done in our
 https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap] document.
@@ -127,14 +126,6 @@ https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap] document.
 
 Same answer as above. One thing is certain - prepl is much more convenient for the purposes of CIDER than
 the plain socket REPL.
-
-== Will CIDER ever drop support for nREPL?
-
-That's extremely unlikely. Even if we eventually add support for the new socket REPL,
-we'll continue supporting nREPL as well.
-
-NOTE: Recently nREPL was migrated out of `clojure-contrib` and its development
-has once again picked up. Check out nREPL's new home https://github.com/nrepl/nrepl[here].
 
 == Is CIDER's nREPL middleware Emacs specific?
 
