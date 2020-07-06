@@ -21,6 +21,7 @@ macros, special forms and methods.
 * Show eldoc for `.` and `..`.
 * [#2860](https://github.com/clojure-emacs/cider/issues/2860): Don't send blank strings in `eldoc` requests.
 * [#2718](https://github.com/clojure-emacs/cider/issues/2718): When calling `cider-pprint-eval-last-sexp-to-comment`, avoid printing empty comment if eval throws error.
+* [#2796](https://github.com/clojure-emacs/cider/issues/2796): Closing CIDER connection will disable the debug minor mode on clojure buffers.
 
 ## 0.25.0 (2020-06-04)
 
