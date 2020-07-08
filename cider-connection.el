@@ -263,11 +263,13 @@ See command `cider-mode'."
     (with-current-buffer buffer
       (cider-mode +1))))
 
+(declare-function cider--debug-mode "cider-debug")
 (defun cider-disable-on-existing-clojure-buffers ()
-  "Disable command `cider-mode' on existing Clojure buffers."
+  "Disable command `cider-mode' and related commands on existing Clojure buffers."
   (interactive)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
+      (cider--debug-mode -1)
       (cider-mode -1))))
 
 (defun cider-possibly-disable-on-existing-clojure-buffers ()
