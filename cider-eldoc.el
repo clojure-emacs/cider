@@ -457,7 +457,7 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
           arglists))
     arglists))
 
-(defun cider-eldoc ()
+(defun cider-eldoc (&rest _ignored)
   "Backend function for eldoc to show argument list in the echo area."
   (when (and (cider-connected-p)
              ;; don't clobber an error message in the minibuffer
