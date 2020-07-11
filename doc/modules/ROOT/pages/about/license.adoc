@@ -6,3 +6,13 @@ CIDER is distributed under the GNU General Public License, version 3, the same a
 TIP: Type kbd:[C-h C-c] in Emacs to view it.
 
 `cider-nrepl` is distributed under the Eclipse Public License, the same as Clojure.
+
+== Documentation
+
+All the original text is available under the Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+
+All the original Emacs Lisp code is available under the terms of the GNU General Public License Version 3 or any later version.
+
+All the original Clojure code is available under the terms of the Eclipse Public License 1 or any later version.
+
+NOTE: Reach out to Bozhidar if you have any questions about licensing.
