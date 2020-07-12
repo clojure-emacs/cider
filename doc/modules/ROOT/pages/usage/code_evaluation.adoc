@@ -1,0 +1,174 @@
+= Code Evaluation
+
+Code evaluation is at the heart of interactive programming.
+CIDER provides a ton of evaluation-related commands that can cover
+just about any use-case one can possibly imagine.
+
+TIP: All evaluation commands are defined in `cider-eval.el`.
+
+== Terminology
+
+CIDER's evaluation commands use a terminology that's popular within Emacs, but somewhat
+confusing to people not familiar with it. Let's take a look at it:
+
+* `defun` - top-level expression
+* `sexp` - s-expression, form
+* `last-sexp` - the form preceding the cursor (`point` in Emacs lingo)
+* `sexp-at-point` - the form under/around the cursor
+* `buffer` - the abstraction used by Emacs to represent any content; most often backed by a file.
+* `region` - the selected part of a buffer
+* `load` - a synonym for "evalute"; most often used in the context of buffers/files
+
+== Basic Evaluation
+
+As CIDER derives almost all of its functionality by inspecting the runtime (REPL) state
+of your application, you need to evaluate something before functionality like code completion,
+`eldoc` or definition lookup would work.
+
+Typically the first think you'd do when visiting a Clojure buffer would be to load (evaluate) the buffer with `cider-load-buffer` (kbd:[C-c C-k]).
+
+Afterwards most of the time you'd be evaluating expressions one at a time either using
+`cider-eval-last-sexp` (kbd:[C-c C-e] or kbd:[C-x C-e]) or `cider-eval-defun-at-point`
+(kbd:[C-c C-c] or kbd:[C-M-x]).
+
+Typically this type of evaluation commands would provide you with dual feedback -
+you'd see the results in both the Emacs minibuffer and in an inline overlay in
+the source buffer.
+
+== Exotic Evaluation Commands
+
+NOTE: WIP
+
+== Evaluation Hooks
+
+NOTE: WIP
+
+== Configuration
+
+=== Auto-Save Clojure Buffers on Load
+
+Normally, CIDER prompts you to save a modified Clojure buffer when you
+type kbd:[C-c C-k] (`cider-load-buffer`).  You can change this
+behaviour by adjusting `cider-save-file-on-load`.
+
+Don't prompt and don't save:
+
+[source,lisp]
+----
+(setq cider-save-file-on-load nil)
+----
+
+Just save without prompting:
+
+[source,lisp]
+----
+(setq cider-save-file-on-load t)
+----
+
+=== Change the Result Prefix for Interactive Evaluation
+
+Change the result prefix for interactive evaluation (not the REPL
+prefix). By default the prefix is `=> `.
+
+[source,lisp]
+----
+(setq cider-eval-result-prefix ";; => ")
+----
+
+To remove the prefix altogether, just set it to the empty string (`""`).
+
+== Keybindings
+
+You might have noticed that CIDER typically has 2-3 different keybindings for
+many evaluation commands. In case you've been wondering "Why?" the answer is
+pretty simple - legacy. The principle sources of inspiration for CIDER, Emacs and SLIME,
+provide more or less the same functionality, but use different keybindings. CIDER
+tried to find a common ground by adopting them both.
+
+On top of this, at some when it became clear that CIDER has set the world record
+for evaluation command, we've introduced a dedicated keymap for all eval commands
+(that's everything with the prefix kbd:[C-c C-v]). This leads to funny situations
+like `cider-eval-defun-at-point` having 3 keybindings:
+
+* kbd:[C-M-x] (Emacs style)
+* kbd:[C-c C-c] (SLIME style)
+* kbd:[C-c C-v (C-)d] (CIDER style)
+
+Okay, those are technically 4 keybindings, but who's counting!
+
+Below is a listing of most keybindings for evaluation commands:
+
+|===
+| Command | Keyboard shortcut | Description
+
+| `cider-eval-last-sexp`
+| kbd:[C-x C-e] +
+kbd:[C-c C-e]
+| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
+
+| `cider-eval-last-sexp-and-replace`
+| kbd:[C-c C-v w]
+| Evaluate the form preceding point and replace it with its result.
+
+| `cider-eval-last-sexp-to-repl`
+| kbd:[C-c M-e]
+| Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
+
+| `cider-insert-last-sexp-in-repl`
+| kbd:[C-u C-c M-p]
+| Load the form preceding point in the REPL buffer and eval.
+
+| `cider-pprint-eval-last-sexp`
+| kbd:[C-c C-v C-f e]
+| Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+
+| `cider-pprint-eval-defun-at-point`
+| kbd:[C-c C-v C-f d]
+| Evaluate the top level form under point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+
+| `cider-eval-defun-at-point`
+| kbd:[C-M-x] +
+kbd:[C-c C-c]
+| Evaluate the top level form under point and display the result in the echo area.
+
+| `cider-eval-sexp-at-point`
+| kbd:[C-c C-v v]
+| Evaluate the form around point.
+
+| `cider-eval-defun-at-point`
+| kbd:[C-u C-M-x] +
+kbd:[C-u C-c C-c]
+| Debug the top level form under point and walk through its evaluation
+
+| `cider-eval-defun-up-to-point`
+| kbd:[C-c C-v z]
+| Evaluate the preceding top-level form up to the point.
+
+| `cider-eval-region`
+| kbd:[C-c C-v r]
+| Evaluate the region and display the result in the echo area.
+
+| `cider-interrupt`
+| kbd:[C-c C-b]
+| Interrupt any pending evaluations.
+
+| `cider-eval-ns-form`
+| kbd:[C-c C-v n]
+| Eval the ns form.
+
+| `cider-load-buffer-and-switch-to-repl-buffer`
+| kbd:[C-c M-z]
+| Load (eval) the current buffer and switch to the relevant REPL buffer. Use a prefix argument to change the namespace of the REPL buffer to match the currently visited source file.
+
+| `cider-load-buffer`
+| kbd:[C-c C-k]
+| Load (eval) the current buffer.
+
+| `cider-load-file`
+| kbd:[C-c C-l]
+| Load (eval) a Clojure file.
+
+| `cider-load-all-files`
+| kbd:[C-c C-M-l]
+| Load (eval) all Clojure files below a directory.
+|===

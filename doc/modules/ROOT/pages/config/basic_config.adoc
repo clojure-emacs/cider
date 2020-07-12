@@ -154,38 +154,6 @@ exist. In the example above, the `.m2` directory is mounted at `/root/.m2`
 and the source at `/src`. These translations would map these locations
 back to the user's computer so that navigation to definition would work.
 
-== Auto-Save Clojure Buffers on Load
-
-Normally, CIDER prompts you to save a modified Clojure buffer when you
-type kbd:[C-c C-k] (`cider-load-buffer`).  You can change this
-behaviour by adjusting `cider-save-file-on-load`.
-
-Don't prompt and don't save:
-
-[source,lisp]
-----
-(setq cider-save-file-on-load nil)
-----
-
-Just save without prompting:
-
-[source,lisp]
-----
-(setq cider-save-file-on-load t)
-----
-
-== Change the Result Prefix for Interactive Evaluation
-
-Change the result prefix for interactive evaluation (not the REPL
-prefix). By default the prefix is `=> `.
-
-[source,lisp]
-----
-(setq cider-eval-result-prefix ";; => ")
-----
-
-To remove the prefix altogether, just set it to the empty string (`""`).
-
 == Use a Local Copy of the JDK API Documentation
 
 If you are targeting the JVM and prefer a local copy of the JDK API

@@ -1,0 +1,109 @@
+= Working with Documentation
+
+Quick access to documentation is very important for productive
+development. That's why CIDER puts a heavy emphasis on this
+and provides lot of documentation-related functionality.
+
+== Looking up Documentation
+
+The most basic thing that you can do is go to some symbol and
+press kbd:[C-c C-d C-d] then. This open a documentation buffer
+containing all the relevant information about the thing referenced
+by the symbol (special form, var, Java method, etc).
+
+== JavaDoc
+
+CIDER provides a quick access to the online Javadoc documentation
+via the command `cider-javadoc`.
+
+== ClojureDocs
+
+CIDER provides integration with the popular https://clojuredocs.org/[ClojureDocs service].
+You've got two main ways of interacting with ClojureDocs:
+
+* displaying the documentation in a dedicated buffer in Emacs via `cider-clojuredocs` (kbd:[C-c C-d C-c])
+* opening the documentation in your default browser via `cider-clojuredocs-web` (kbd:[C-c C-d C-w])
+
+Keep in mind that the documentation in ClojureDocs is limited only to Clojure and a few
+Clojure Contrib libraries (e.g. `core.async`). ClojureScript is currently not supported
+there.
+
+TIP: Check out https://metaredux.com/posts/2019/12/14/exporting-clojuredocs-as-edn.html[this article] if you're curious about the internals of how CIDER interacts with ClojureDocs.
+
+== Generating Documentation Cross References
+
+Sometimes in your documentation strings, you'd like to be able to
+point other programmers at different definitions. If you specify the
+name of a definition as a fully qualified symbol, or surround it in
+backticks (`++`...`++`) or Codox-style delimiters (`+[[...]]+`), CIDER
+will convert these references into live links when it displays the
+documentation string in the documentation buffer.
+
+If the name is in another namespace, then you'll have to include the
+fully qualified name in the docstring.
+
+Example function with a docstring containing references:
+
+----
+(defn test-fn
+  "Test function.
+  Also see: clojure.core/map, clojure.core/reduce, `defn`.
+  You can reference variables like `thor`, [[kubaru.data.zookeeper/yoda]].
+  Also works with references to java interop forms, `java.lang.String/.length`."
+  []
+  (+ 1 1))
+----
+
+You can change the delimiters that CIDER uses to find references if
+you want to support other reference formats.  Simply update the regexp in
+`cider-doc-xref-regexp` to match your preferred format. The first
+group of the regexp should always match the cross-reference name. For
+example, if you want to want to use Latex-style references
+(`+\ref{...}+`) instead, the regexp would be:
+
+----
+(setq cider-doc-xref-regexp "\\\\ref{\\(?1:[^}]+\\)}")
+----
+
+image::cider_see_also.gif[CIDER See Also]
+
+== Keybindings
+
+|===
+| Command | Keyboard shortcut | Description
+
+| `cider-doc`
+| kbd:[C-c C-d d] +
+kbd:[C-c C-d C-d]
+| Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+
+| `cider-javadoc`
+| kbd:[C-c C-d j] +
+kbd:[C-c C-d C-j]
+| Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+
+| `cider-clojuredocs`
+| kbd:[C-c C-d c] +
+kbd:[C-c C-d C-c]
+| Lookup symbol in ClojureDocs.
+
+| `cider-clojuredocs-web`
+| kbd:[C-c C-d w] +
+kbd:[C-c C-d C-w]
+| Open the ClojureDocs documentation for symbol in a web browser.
+
+| `cider-apropos`
+| kbd:[C-c C-d a] +
+kbd:[C-c C-d C-a]
+| Apropos search for functions/vars.
+
+| `cider-apropos-documentation`
+| kbd:[C-c C-d f] +
+kbd:[C-c C-d C-f]
+| Apropos search for documentation.
+
+| `cider-apropos-documentation-select`
+| kbd:[C-c C-d e] +
+kbd:[C-c C-d C-e]
+| Apropos search for documentation & select.
+|===
