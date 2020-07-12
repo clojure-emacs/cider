@@ -31,6 +31,26 @@ Afterwards most of the time you'd be evaluating expressions one at a time either
 `cider-eval-last-sexp` (kbd:[C-c C-e] or kbd:[C-x C-e]) or `cider-eval-defun-at-point`
 (kbd:[C-c C-c] or kbd:[C-M-x]).
 
+.What happens if I don't evaluate the entire buffer first?
+****
+You might be wondering why do you need to evaluate the entire source buffer. After all,
+won't be it be nice if you could just start evaluating only the forms you're interested in?
+
+Technically speaking you're not required to evaluate the entire source buffer first, but not
+doing so introduces some subtleties and a bit of complexity. In general the only
+part that's really essential for subsequent code evaluations is the `ns` declaration. As expressions within the buffer
+are evaluated in the context of its namespace and you have to create that namespace first.
+
+In the early days of CIDER, when a namespace didn't exist CIDER would just throw
+an error. A lot of people were confused by this behavior and unhappy
+about it. Eventually CIDER became smarter and now it always knows whether the `ns`
+form in some source buffer has been evaluated or changed after it was originally
+evaluated.  With that knowledge in hand CIDER will auto-eval `ns` forms that
+were changed prior to evaluating code in that namespace, if you don't evaluate
+them yourselves. That behavior is controlled via the variable
+`cider-auto-track-ns-form-changes`.
+****
+
 Typically this type of evaluation commands would provide you with dual feedback -
 you'd see the results in both the Emacs minibuffer and in an inline overlay in
 the source buffer.
