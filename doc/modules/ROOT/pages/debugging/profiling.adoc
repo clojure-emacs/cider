@@ -25,12 +25,12 @@ You can display a report of the collected profiling data with `M-x cider-profile
 
 A typical profiling report looks something like this:
 
-```
+....
 |          :name | :n | :sum | :q1 | :med | :q3 | :sd | :mad |
 |----------------+----+------+-----+------+-----+-----+------|
 |  #'user/my-add |  1 |  2µs | 2µs |  2µs | 2µs | 0µs |  0µs |
 | #'user/my-mult |  2 | 11µs | 3µs |  8µs | 3µs | 3µs |  5µs |
-```
+....
 
 Let's demystify all the column names:
 
@@ -76,3 +76,4 @@ Let's demystify all the column names:
 | `cider-profile-clear`
 | kbd:[C-c C-= c]
 | Clear profiling data.
+|===
