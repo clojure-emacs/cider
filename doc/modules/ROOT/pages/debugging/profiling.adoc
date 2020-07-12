@@ -1,0 +1,78 @@
+= Profiling
+
+CIDER has a built-in profiler that can help you identify hot-spots in your
+application code. It's built on top of the https://github.com/thunknyc/profile[thunknyc/profile] library.
+
+NOTE: The profiler doesn't support ClojureScript.
+
+== Usage
+
+Using CIDER's profiler is super easy. You'd just identify
+the vars you'd want to profile and invoke
+`M-x cider-profile-toggle` (kbd:[C-c C-= t]). By defaults it operates on the symbol
+at point, but will prompt for a var if there's nothing under the point.
+
+TIP: There's also `cider-profile-ns-toggle` (kbd:[C-c C-= n]) that will profiles all vars in a
+namespace.
+
+Afterwards you can evaluate some code making use of those vars and their
+invocations will be automatically profiled.
+
+You can display a report of the collected profiling data with `M-x cider-profile-display-stats` (kbd:[C-c C-= S]). If you'd like to limit the displayed data to a particular var you should try
+`M-x cider-profile-var-summary` (kbd:[C-c C-= s]).
+
+== Understanding the Report Format
+
+A typical profiling report looks something like this:
+
+```
+|          :name | :n | :sum | :q1 | :med | :q3 | :sd | :mad |
+|----------------+----+------+-----+------+-----+-----+------|
+|  #'user/my-add |  1 |  2µs | 2µs |  2µs | 2µs | 0µs |  0µs |
+| #'user/my-mult |  2 | 11µs | 3µs |  8µs | 3µs | 3µs |  5µs |
+```
+
+Let's demystify all the column names:
+
+* `:n` Number of samples.
+* `:sum` Aggregate time spent in fn.
+* `:q1` First quartile i.e. twenty-fifth percentile.
+* `:med` Median i.e. fiftieth percentile.
+* `:q3` Third quartile i.e. seventy-fifth percentile.
+* `:sd` Standard deviation i.e. the square root of the sum of squares
+  of differences from the mean.
+* `:mad` Mean average deviation, I don't feel like looking up the
+  definition just now.
+
+== Keybindings
+
+|===
+| Command | Keyboard shortcut | Description
+
+| `cider-profile-toggle`
+| kbd:[C-c C-= t]
+| Toggle profiling for var. Defaults to the var at point.
+
+| `cider-profile-ns-toggle`
+| kbd:[C-c C-= n]
+| Toggle profiling for the current ns.
+
+| `cider-profile-var-profiled-p`
+| kbd:[C-c C-= v]
+| Show whether some var has profiling enabled or not.
+
+| `cider-profile-var-summary`
+| kbd:[C-c C-= s]
+| Display the profiling summary for some var.
+
+| `cider-profile-summary`
+| kbd:[C-c C-= S]
+| Display the profiling summary for all vars.
+
+| `cider-profile-samples`
+| kbd:[C-c C-= +]
+| Display or update `max-sample-count`.
+
+| `cider-profile-clear`
+| kbd:[C-c C-= c]
+| Clear profiling data.
