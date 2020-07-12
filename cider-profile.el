@@ -57,6 +57,7 @@
     "--"
     ["Display var profiling status" cider-profile-var-profiled-p]
     ["Display max sample count" cider-profile-samples]
+    ["Display var summary" cider-profile-var-summary]
     ["Display summary" cider-profile-summary]
     ["Clear data" cider-profile-clear])
   "CIDER profiling submenu.")
