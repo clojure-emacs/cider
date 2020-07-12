@@ -17,7 +17,7 @@ confusing to people not familiar with it. Let's take a look at it:
 * `sexp-at-point` - the form under/around the cursor
 * `buffer` - the abstraction used by Emacs to represent any content; most often backed by a file.
 * `region` - the selected part of a buffer
-* `load` - a synonym for "evalute"; most often used in the context of buffers/files
+* `load` - a synonym for "evaluate"; most often used in the context of buffers/files
 
 == Basic Evaluation
 
