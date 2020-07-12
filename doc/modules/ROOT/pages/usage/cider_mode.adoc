@@ -27,11 +27,19 @@ NOTE: There's no need to enable it explicitly for modes derived from `clojure-mo
 == Basic Workflow
 
 Typically you'd begin your interaction with any source buffer by evaluating it with kbd:[C-c C-k].
-Afterwards you'd normally evaluate just individual forms with kbd:[C-c C-e] or kbd:[C-c C-c].
+Afterwards you'd normally evaluate just individual forms with kbd:[C-c C-e] (evaluate preceding form) or kbd:[C-c C-c] (evaluate current top-level form).
 
 From time to time some evaluation would take forever and you'd interrupt it with kbd:[C-c C-b].
 
+Jumping between source files and the REPL is as easy as pressing kbd:[C-c C-z]. If you invoke the command with a kbd:[C-u]
+prefix, while in a source buffer, it will also change the namespace of the REPL buffer to match that of the source buffer.
+
 It's also highly likely that you'd look up some definition with kbd:[M-.] or some documentation with kbd:[C-c C-d C-d].
+
+TIP: Definition and documentation lookup commands work with both Java and Clojure.
+
+If you're struggling to remember the name of some var you need, `cider-apropos` (kbd:[C-c C-d a] or kbd:[C-c C-d C-a])
+and `cider-apropos-documentation` (kbd:[C-c C-d f] or kbd:[C-c C-d C-f]) will help you find vars matching some string.
 
 `cider-mode` also provides you with code completion that works out-of-the-box and requires no extra setup and `eldoc` integration.
 
