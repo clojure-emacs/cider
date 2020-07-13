@@ -9,11 +9,11 @@ environment and we've tried to create points of customization that can
 account for many different peoples' preferences. In this way, you
 should be able to make CIDER as comfortable as possible for *you*.
 
-You can see every single customizable configuration option with the command
-kbd:[M-x customize-group RET cider].
-
 This section doesn't describe every possible customization that CIDER
 offers, but here are some of the most popular.
+
+TIP: You can see every single customizable configuration option with the command
+kbd:[M-x customize-group RET cider].
 
 == Disable Automatic cider-mode in clojure-mode Buffers
 
@@ -273,10 +273,10 @@ or `+*cider-doc*+` are line truncated. You can set
 `cider-special-mode-truncate-lines` to `nil` to make those buffers use word
 wrapping instead of line truncating.
 
-*This variable should be set before loading CIDER* (which means before
-`require`-ing it or autoloading it).
-
 [source,lisp]
 ----
 (setq cider-special-mode-truncate-lines nil)
 ----
+
+IMPORTANT: This variable should be set *before* loading CIDER (which means before
+`require`-ing it or autoloading it).
