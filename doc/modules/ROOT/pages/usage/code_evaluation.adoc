@@ -59,6 +59,27 @@ the source buffer.
 
 NOTE: WIP
 
+== Evaluating Clojure Code in the Minibuffer
+
+You can evaluate Clojure code in the minibuffer at almost any time
+using kbd:[M-x] `cider-read-and-eval` (bound in `cider-mode` buffers to
+kbd:[C-c M-:]).  kbd:[TAB] completion will work in the minibuffer,
+just as in REPL and source buffers.
+
+TIP: Typing kbd:[C-c C-v .] in a Clojure buffer will insert the defun
+at point into the minibuffer for evaluation. This way you can pass arguments
+to the function and evaluate it and see the result in the minibuffer.
+
+You can also enable other convenient modes in the minibuffer. For
+instance, you might want to have both `eldoc-mode` and `paredit-mode`
+available to you:
+
+[source,lisp]
+----
+(add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
+(add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode)
+----
+
 == Evaluation Hooks
 
 NOTE: WIP
