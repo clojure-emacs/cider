@@ -44,7 +44,6 @@
 ** xref:config/syntax_highlighting.adoc[Syntax Highlighting]
 ** xref:config/indentation.adoc[Indentation]
 ** xref:config/eldoc.adoc[Eldoc]
-** xref:config/misc.adoc[Misc]
 ** xref:config/project_config.adoc[Project-specific Configuration]
 * xref:indent_spec.adoc[Indentation Specification]
 * xref:caveats.adoc[Caveats]
