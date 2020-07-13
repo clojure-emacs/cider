@@ -208,3 +208,11 @@ cause problems with complex or nonstandard ssh configs.
 
 You can safely run `cider-jack-in-*` while working with remote files over TRAMP. CIDER
 will handle this use-case transparently for you.
+
+== What's Next?
+
+So, what to do next now that CIDER's ready for action? Here are a few ideas:
+
+* Get familiar with xref:usage/interactive_programming.adoc[interactive programming] and xref:usage/cider_mode.adoc[cider-mode]
+* xref:config/basic_config.adoc[Configure] CIDER to your liking
+* Explore the xref:additional_packages.adoc[additional packages] that can make you more productive

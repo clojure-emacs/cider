@@ -85,3 +85,12 @@ image::cider-overview.png[CIDER Screenshot]
 
 Here the user checked the documentation for `clojure.core/merge` straight from the source buffer
 and then jumped to a REPL buffer to try out something there.
+
+== What's Next?
+
+So, what to do next? While you can peruse the documentation in whatever way you’d like, here are a few recommendations:
+
+* xref:basics/installation.adoc[Install] CIDER and get it xref:basics/up_and_running.adoc[up and running]
+* Get familiar with xref:usage/interactive_programming.adoc[interactive programming] and xref:usage/cider_mode.adoc[cider-mode]
+* xref:config/basic_config.adoc[Configure] CIDER to your liking
+* Explore the xref:additional_packages.adoc[additional packages] that can make you more productive
