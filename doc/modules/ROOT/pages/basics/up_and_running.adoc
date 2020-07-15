@@ -30,7 +30,8 @@ TIP: In Clojure(Script) buffers the command `cider-jack-in` is bound to kbd:[C-c
 
 The process of jacking-in is pretty simple:
 
-* CIDER shells out and runs a command like `lein repl :headless`.
+* CIDER determines the build system for your project (e.g. Leiningen) and picks the necessary command to start an nREPL server.
+* CIDER shells out and runs a command like `lein repl :headless` to start an nREPL server.
 * CIDER waits for the nREPL server to start.
 CIDER figures out this by parsing the output from the command and waiting for a line like
 `nREPL server started on port 53005 on host localhost - nrepl://localhost:53005` to appear there.
@@ -39,6 +40,17 @@ CIDER figures out this by parsing the output from the command and waiting for a 
 
 TIP: You can see the exact command that `cider-jack-in` invoked in your minibuffer, while
 waiting for nREPL to start. You can also find this command in Emacs's `+*Messages*+` buffer.
+
+In some cases one project might have multiple project markers in it - e.g. `project.clj` and `deps.edn`.
+When this happens CIDER will prompt you to select the build tool to use. You can override this behavior
+by setting the variable `cider-preferred-build-tool`. While you can set it globally in your Emacs config,
+most of the time you'd probably want to have a project-specific setting for it in your `.dir-locals.el`:
+
+[source,emacs-lisp]
+----
+((clojure-mode
+  (cider-preferred-build-tool . lein)))
+----
 
 === Auto-Injecting Dependencies
 
