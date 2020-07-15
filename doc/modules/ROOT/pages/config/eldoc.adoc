@@ -27,7 +27,7 @@ respect to your cursor's position).
 
 CIDER also would show the eldoc for the symbol at point. So in `+(map inc ...)+`
 when the cursor is over `inc` its eldoc would be displayed. You can turn off this
-behaviour by:
+behavior by:
 
 [source,lisp]
 ----
@@ -38,10 +38,10 @@ behaviour by:
 
 CIDER respects the value of `eldoc-echo-area-use-multiline-p` when
 displaying documentation in the minibuffer. You can customize this variable to change
-its behaviour.
+its behavior.
 
 |===
-| eldoc-echo-area-use-multiline-p | Behaviour
+| eldoc-echo-area-use-multiline-p | Behavior
 
 | `t`
 | Never attempt to truncate messages. Complete symbol name and function arglist or variable documentation will be displayed even if echo area must be resized to fit.

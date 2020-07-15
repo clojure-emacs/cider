@@ -43,12 +43,12 @@ CIDER releases).
 
 == Control what window to use when jumping to a definition
 
-By default kbd:[M-.] and other commands that jump to a definition have the following behaviour:
+By default kbd:[M-.] and other commands that jump to a definition have the following behavior:
 
 * If the definition buffer is visible simply switch to it.
 * Otherwise, use the current window to show the definition.
 
-Other behaviour is possible, and is controlled with
+Other behavior is possible, and is controlled with
 `cider-jump-to-pop-to-buffer-actions`; the value of this is passed as the
 `action` argument to `pop-to-buffer`.
 
@@ -73,7 +73,7 @@ For other possibilities, see the documentation for `display-buffer`.
 You jump to `map` in `core.clj` when `core.clj` *_is not_* being displayed in another
 window in the current frame.
 
-With both the default behaviour and the alternative behaviour defined above, the
+With both the default behavior and the alternative behavior defined above, the
 definition of `map` will be shown in the current window.
 
 === Example 2
@@ -81,11 +81,11 @@ definition of `map` will be shown in the current window.
 You jump to `map` in `core.clj` when `core.clj` *_is_* being displayed in another window
 in the current frame.
 
-With the default behaviour, the definition of `map` will be shown in the current
+With the default behavior, the definition of `map` will be shown in the current
 window; you will now have two windows showing `core.clj`, and the existing
 `core.clj` window will be unchanged.
 
-With the alternative behaviour defined above, the definition of `map` will be
+With the alternative behavior defined above, the definition of `map` will be
 shown in the existing `core.clj` window; all windows will show the same buffer as
 before the jump, and the current window will now be the one showing `core.clj`.
 

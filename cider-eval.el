@@ -77,7 +77,7 @@ navigate to this buffer."
   :group 'cider)
 
 (defcustom cider-auto-jump-to-error t
-  "Control the cursor jump behaviour in compilation error buffer.
+  "Control the cursor jump behavior in compilation error buffer.
 When non-nil automatically jump to error location during interactive
 compilation.  When set to 'errors-only, don't jump to warnings.
 When set to nil, don't jump at all."

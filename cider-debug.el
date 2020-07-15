@@ -44,7 +44,7 @@
 
 ;;; Customization
 (defgroup cider-debug nil
-  "Presentation and behaviour of the cider debugger."
+  "Presentation and behavior of the cider debugger."
   :prefix "cider-debug-"
   :group 'cider
   :package-version '(cider . "0.10.0"))

@@ -105,7 +105,7 @@ but was subsequently switched to `clj`, Clojure's basic startup command.
 TIP: You can set `cider-allow-jack-in-without-project` to `t` if you'd like to
 disable the warning displayed when jacking-in outside a project.
 
-=== Customizing the Jack-in Command Behaviour
+=== Customizing the Jack-in Command Behavior
 
 You can use kbd:[C-u M-x] `cider-jack-in` kbd:[RET] to
 specify the exact command that `cider-jack-in` would run.
@@ -119,7 +119,7 @@ in some other directory currently. This option is also useful if your project
 contains some combination of project.clj, build.boot and deps.edn and you want
 to launch a REPL for one or the other.
 
-NOTE: The examples use only `cider-jack-in`, but this behaviour is consistent
+NOTE: The examples use only `cider-jack-in`, but this behavior is consistent
 for all `cider-jack-in-*` commands.
 
 You can further customize the command line CIDER uses for `cider-jack-in` by

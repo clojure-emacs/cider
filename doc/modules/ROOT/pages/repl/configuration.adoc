@@ -4,7 +4,7 @@
 == Behavior on connect
 
 Normally, when you first establish a REPL connection, the REPL buffer is
-auto-displayed in a separate window. You can suppress this behaviour
+auto-displayed in a separate window. You can suppress this behavior
 like this:
 
 [source,lisp]
@@ -110,7 +110,7 @@ and kbd:[C-Return] send the form off for evaluation.
 Prior to version 0.21.0, the REPL buffer would be automatically re-centered
 whenever any output was printed, so that the prompt was on the bottom line of
 the window, displaying the maximum possible amount of output above it. This is
-no longer the default behaviour -- you can now replicate it by setting the
+no longer the default behavior -- you can now replicate it by setting the
 built-in option `scroll-conservatively`, for example:
 
 [source,lisp]
@@ -163,7 +163,7 @@ By default, REPL results have no prefix.
 By default `cider-repl-set-ns` won't require the target ns, just set
 it. That's done with the assumption that you've probably evaluated the ns in
 question already before switching to it (e.g. by doing kbd:[C-c C-k]
-(`cider-load-buffer`) in its source buffer). If you want to change this behaviour
+(`cider-load-buffer`) in its source buffer). If you want to change this behavior
 (to avoid calling `cider-repl-set-ns` and then `(require 'my-ns)` manually), you
 can set:
 
@@ -195,7 +195,7 @@ Normally, code in the REPL is font-locked the same way as in
 `clojure-mode`. Before CIDER 0.10, by default, REPL input was
 font-locked with `cider-repl-input-face` (after pressing
 kbd:[Return]) and results were font-locked with
-`cider-repl-result-face`. If you want to restore the old behaviour
+`cider-repl-result-face`. If you want to restore the old behavior
 use:
 
 [source,lisp]
@@ -247,10 +247,10 @@ in `cider-util.el`.
 By default the REPL always prints the results of your evaluations using the
 printing function specified by `cider-print-fn`.
 
-NOTE: This behaviour was changed in CIDER 0.20. In prior CIDER releases
+NOTE: This behavior was changed in CIDER 0.20. In prior CIDER releases
 pretty-printing was disabled by default.
 
-You can temporarily disable this behaviour and revert to the default behaviour
+You can temporarily disable this behavior and revert to the default behavior
 (equivalent to `clojure.core/pr`) using kbd:[M-x cider-repl-toggle-pretty-printing]
 or the REPL shortcut `toggle-pprint`.
 
@@ -284,7 +284,7 @@ disabled due to some rough edges with the feature that were
 never properly addressed. See this https://github.com/clojure-emacs/cider/issues/2825[bug report]
 for details.
 
-Alternatively, you can toggle this behaviour on and off using kbd:[M-x cider-repl-toggle-content-types]
+Alternatively, you can toggle this behavior on and off using kbd:[M-x cider-repl-toggle-content-types]
 or the REPL shortcut `toggle-content-types`.
 
 == REPL type detection

@@ -120,7 +120,7 @@ Note that this also affects the position of debugger overlays.
 
 Normally, CIDER prompts you to save a modified Clojure buffer when you
 type kbd:[C-c C-k] (`cider-load-buffer`).  You can change this
-behaviour by adjusting `cider-save-file-on-load`.
+behavior by adjusting `cider-save-file-on-load`.
 
 Don't prompt and don't save:
 

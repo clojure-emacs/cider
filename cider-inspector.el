@@ -40,7 +40,7 @@
 
 ;;; Customization
 (defgroup cider-inspector nil
-  "Presentation and behaviour of the CIDER value inspector."
+  "Presentation and behavior of the CIDER value inspector."
   :prefix "cider-inspector-"
   :group 'cider
   :package-version '(cider . "0.10.0"))
