@@ -536,7 +536,6 @@ REPL defaults to the current REPL."
   "Map active on REPL objects in sesman browser.")
 
 (cl-defmethod sesman-session-info ((_system (eql CIDER)) session)
-  (interactive "P")
   (list :objects (cdr session)
         :map cider-sesman-browser-map))
 

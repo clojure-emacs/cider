@@ -5,15 +5,22 @@ commands:
   setup:
     steps:
       - checkout
-      - run: make elpa-key
-      - run: make elpa
-      - run: emacs --version
+      - run:
+          name: Install Eldev
+          command: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev > x.sh && source ./x.sh
   test:
     steps:
-      - run: make test
+      - run:
+          name: Run regression tests
+          command: eldev -dtT -p test
   lint:
     steps:
-      - run: make lint
+      - run:
+          name: Run Elisp-lint
+          command: eldev lint
+      - run:
+          name: Byte-compile `.el' files
+          command: eldev -dtT compile --warnings-as-errors
 
 jobs:
   test-emacs-25:

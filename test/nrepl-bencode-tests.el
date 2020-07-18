@@ -278,6 +278,9 @@ If object is incomplete, return a decoded path."
     :var (nrepl--toString-dicts nrepl--toString-strings)
 
     (it "decodes the structures"
+      (unless (byte-code-function-p (symbol-function 'nrepl--bdecode-message))
+        (buttercup-skip "[this test fails if source code is not byte-compiled]"))
+
       (setq nrepl--toString-dicts '((dict "id" "29" "session" "9bde8b1f-aefc-4883-aa7c-9c3fa4692ac2" "value"
                                           (dict "candidates"
                                                 (dict "clojure.lang.Compiler" (dict "arglists-str" "([this])" "argtypes" nil "class" "clojure.lang.Compiler" "file" nil "javadoc" "clojure/lang/Compiler.html#toString()" "member" "toString" "modifiers" "#{:public}" "returns" "java.lang.String" "throws" nil)

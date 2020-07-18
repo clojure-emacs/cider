@@ -1,0 +1,27 @@
+; -*- mode: emacs-lisp; lexical-binding: t; no-byte-compile: t -*-
+
+(eldev-require-version "0.6")
+
+(eldev-use-package-archive 'gnu)
+;; For compatibility; e.g. with MELPA Stable one test fails.
+(eldev-use-package-archive 'melpa-unstable)
+
+(eldev-use-plugin 'autoloads)
+
+(eldev-add-loading-roots 'test "test/utils")
+
+;; Otherwise `cider-test.el' will be considered a test file.
+(setf eldev-test-fileset "./test/")
+;; This file is _supposed_ to be excluded from automated testing.  Since Eldev
+;; uses everything inside `test/' subdirectory, tell it to leave this file alone
+;; explicitly.
+(setf eldev-standard-excludes `(:or ,eldev-standard-excludes "test/cider-tests--no-auto.el"))
+
+;; CIDER cannot be compiled otherwise.
+(setf eldev-build-load-before-byte-compiling t)
+
+(setf eldev-lint-default '(elisp))
+(with-eval-after-load 'elisp-lint
+  ;; We will byte-compile with Eldev.
+  (setf elisp-lint-ignored-validators '("package-lint" "fill-column" "byte-compile")
+        enable-local-variables        :safe))

@@ -17,27 +17,41 @@ Alternatively you can simply load CIDER in your Emacs straight from its source
 repo (you'll have to manually install all the packages CIDER depends on
 in advance).
 
-Additionally you will have to generate and require the
-https://www.gnu.org/software/emacs/manual/html_node/elisp/Autoload.html[autoloads],
-otherwise you'll keep getting errors about missing commands.  That's done
-automatically when installing via `package.el` but you'll have to do it
-manually in this case:
+CIDER uses https://github.com/doublep/eldev[Eldev] for development, so
+you should install the tool first.
+
+The easiest and "purest" way to run CIDER is to execute:
 
 [source,shell]
 ----
-make autoloads   # generates cider-autoloads.el
+eldev emacs
 ----
 
-Then:
+This will start a separate Emacs process with CIDER and its
+dependencies available, but _without_ your normal packages installed.
+However, you can use `Eldev-local` to add some packages with
+`(eldev-add-extra-dependencies 'emacs ...)` forms.  See Eldev
+documentation for details.
 
+Alternatively, if you want to load CIDER from source code in the Emacs
+you use for editing:
+
+. Generate autoloads file (that's done automatically when installing
+via `package.el` but you'll have to do it manually in this case):
++
+[source,shell]
+----
+eldev build :autoloads
+----
+
+. Add to your `.emacs`:
++
 [source,lisp]
 ----
 ;; load CIDER from its source code
 (add-to-list 'load-path "~/projects/cider")
 (load "cider-autoloads" t t)
 ----
-
-If you want to compile *and* generate autoloads, just run `make`.
 
 === Changing the code
 
@@ -70,22 +84,20 @@ all the details.
 
 If you prefer running all tests outside Emacs that's also an option.
 
-Install https://github.com/cask/cask[cask] if you haven't
-already, then:
-
- $ cd /path/to/cider
- $ cask
-
 Run all tests with:
 
- $ make test
+ $ eldev test
 
 NOTE: Tests may not run correctly inside Emacs' `shell-mode` buffers. Running
 them in a terminal is recommended.
 
-You can also check for compliance with a variety of coding standards in batch mode (including docstrings and byte-compilation warnings):
+You can also check for compliance with a variety of coding standards in batch mode (including docstrings):
 
- $ make lint
+ $ eldev lint
+
+To check for byte-compilation warnings you can just compile the project with Eldev:
+
+ $ eldev compile
 
 ==== Running the tests in CircleCI
 

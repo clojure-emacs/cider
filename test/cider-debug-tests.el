@@ -94,7 +94,7 @@
       (expect (looking-back (rx "[]")) :to-be-truthy)
       (goto-char (point-min))
       (cider--debug-move-point '(4 ":b"))
-      (message "%S" (point))
+      ;(message "%S" (point))
       (expect (thing-at-point 'symbol) :to-equal "2")))
 
   (it "handles the syntax quote"

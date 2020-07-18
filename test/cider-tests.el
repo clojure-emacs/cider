@@ -32,7 +32,7 @@
 
 (describe "customize-menu"
   (it "opens without error"
-    (customize-group 'cider)))
+    (let ((inhibit-message t)) (customize-group 'cider))))
 
 (describe "cider-figwheel-main-init-form"
   ;; whitespace checks sprinkled amongst other tests
