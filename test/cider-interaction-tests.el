@@ -81,7 +81,7 @@
         (with-temp-buffer
           (clojure-mode)
           (setq buffer-file-name (make-temp-name "tmp.clj"))
-          (expect (cider-load-buffer) :not :to-throw))))))
+          (expect (let ((inhibit-message t)) (cider-load-buffer)) :not :to-throw))))))
 
 (describe "cider-interactive-eval"
   (it "works as expected in empty Clojure buffers"

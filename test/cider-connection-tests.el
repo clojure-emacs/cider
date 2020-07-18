@@ -102,7 +102,7 @@
 
                 ;; follows type arguments
                 (expect (cider-current-repl 'clj) :to-equal bb1)
-                (message "%S" (seq-take (buffer-list) 10))
+                ;(message "%S" (seq-take (buffer-list) 10))
                 (expect (cider-current-repl 'cljs) :to-equal bb2)
 
                 ;; follows file type
@@ -211,7 +211,7 @@
                       (expect (cider-current-repl) :to-equal bb2))
 
                     (switch-to-buffer b2)
-                    (message "%S" (sesman-sessions 'CIDER))
+                    ;(message "%S" (sesman-sessions 'CIDER))
                     (with-temp-buffer
                       (expect (cider-current-repl) :to-equal b2))
                     (with-temp-buffer
@@ -323,7 +323,7 @@
          (sesman-register 'CIDER session)
          (expect (cider-repls) :to-equal (list a b))
          (cider--close-connection b)
-         (message "%S" sesman-links-alist)
+         ;(message "%S" sesman-links-alist)
          (expect (buffer-live-p b) :not :to-be-truthy)
          (expect (cider-repls) :to-equal (list a))
          (sesman-unregister 'CIDER session))))))
