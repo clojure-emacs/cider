@@ -469,6 +469,18 @@ REPL defaults to the current REPL."
           (mapc (lambda (op) (insert (format "  * %s\n" op))) ops)))
       (display-buffer cider-nrepl-session-buffer))))
 
+(defun cider-list-nrepl-middleware ()
+  "List the loaded nREPL middleware."
+  (interactive)
+  (cider-ensure-connected)
+  (let* ((repl (cider-current-repl nil 'ensure))
+         (middleware (nrepl-middleware repl)))
+    (with-current-buffer (cider-popup-buffer "*cider-nrepl-middleware*" 'select nil 'ancillary)
+      (read-only-mode -1)
+      (insert (format "Currently loaded middleware:\n"))
+      (mapc (lambda (mw) (insert (format "  * %s\n" mw))) middleware))
+    (display-buffer "*cider-nrepl-middleware*")))
+
 
 ;;; Sesman's Session-Wise Management UI
 
