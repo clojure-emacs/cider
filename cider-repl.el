@@ -745,11 +745,24 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
     (save-excursion
       (cider-save-marker cider-repl-output-start
         (goto-char cider-repl-output-end)
-        (setq string (propertize string
-                                 'font-lock-face face
-                                 'rear-nonsticky '(font-lock-face)))
-        (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
-        (insert-before-markers string)
+        (seq-map
+         (lambda (char)
+           (cond
+            ((= 13 char)
+             (beginning-of-line))
+            ((= 10 char)
+             (end-of-line)
+             (insert-before-markers "\n"))
+            (t
+             (when (< (point) (line-end-position))
+               (delete-char 1))
+             (setq char (char-to-string char))
+             (setq char (propertize char
+                                    'font-lock-face face
+                                    'rear-nonsticky '(font-lock-face)))
+             (setq char (cider-run-chained-hook 'cider-repl-preoutput-hook char))
+             (insert-before-markers char))))
+         string)
         (cider-repl--flush-ansi-color-context))
       (when (and (= (point) cider-repl-prompt-start-mark)
                  (not (bolp)))
