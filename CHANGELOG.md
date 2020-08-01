@@ -15,6 +15,8 @@
 * [#2852](https://github.com/clojure-emacs/cider/issues/2852): Convert 1-based column numbers in response map to Emacs' 0-based system.
 * Differentiate between more types in `cider-eldoc`. They used to be just `var` and `fn` and now we have additional handling for
 macros, special forms and methods.
+* No longer fetches ClojureDocs data on first run (it's now bundled with `cider-nrepl`).
+* No longer updates the ClojureDocs data automatically on startup (it has to be updated explicitly using `M-x cider-clojuredocs-refresh-cache`).
 
 ### Bugs fixed
 
