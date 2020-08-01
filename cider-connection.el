@@ -382,17 +382,27 @@ process buffer."
 (defun cider--connection-info (connection-buffer &optional genericp)
   "Return info about CONNECTION-BUFFER.
 Info contains project name, current REPL namespace, host:port endpoint and
-Clojure version.  When GENERICP is non-nil, don't provide specific info
+runtime details.  When GENERICP is non-nil, don't provide specific info
 about this buffer (like variable `cider-repl-type')."
   (with-current-buffer connection-buffer
-    (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
-            (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-            (or (cider--project-name nrepl-project-dir) "<no project>")
-            (plist-get nrepl-endpoint :host)
-            (plist-get nrepl-endpoint :port)
-            (cider--java-version)
-            (cider--clojure-version)
-            (cider--nrepl-version))))
+    (cond
+     ((cider--clojure-version)
+      (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
+              (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+              (or (cider--project-name nrepl-project-dir) "<no project>")
+              (plist-get nrepl-endpoint :host)
+              (plist-get nrepl-endpoint :port)
+              (cider--java-version)
+              (cider--clojure-version)
+              (cider--nrepl-version)))
+     ((cider--babashka-version)
+      (format "%s%s@%s:%s (Babashka %s, babashka.nrepl %s)"
+              (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+              (or (cider--project-name nrepl-project-dir) "<no project>")
+              (plist-get nrepl-endpoint :host)
+              (plist-get nrepl-endpoint :port)
+              (cider--babashka-version)
+              (cider--babashka-nrepl-version))))))
 
 
 ;;; Cider's Connection Management UI
