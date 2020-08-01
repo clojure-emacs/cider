@@ -293,6 +293,7 @@ buffer."
     (cider-repl-init
      (current-buffer)
      (lambda ()
+       ;; Init logic that's specific to Clojure's nREPL and cider-nrepl
        (when (cider-runtime-clojure-p)
          (cider--check-required-nrepl-version)
          (cider--check-clojure-version-supported)
