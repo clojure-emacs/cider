@@ -171,8 +171,7 @@ instead."
              (car b) (cdr b))))
 
 (defun cider-list-at-point (&optional bounds)
-  "Return the list (compound form) and any immediate symobls, such as defer's @ at
-point as a string, otherwise nil.
+  "Return the list (compound form) at point as a string, otherwise nil.
 If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
   (when-let* ((b (or (and (equal (char-after) ?\()

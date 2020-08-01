@@ -8,6 +8,7 @@
 * Add support for nREPL 0.8's `lookup` op.
 * Add support for nREPL 0.7's sideloading functionality.
 * Add support for nREPL 0.8's `ls-middleware` op.
+* Add feature to evaluate list around point
 
 ### Changes
 

@@ -807,9 +807,10 @@ buffer."
                             (cider--nrepl-pr-request-map))))
 
 (defun cider-eval-list-at-point (&optional output-to-current-buffer)
-  "Evaluate the list (such as a function call, surrounded by parens) around point.
+  "Evaluate the list (eg. a function call, surrounded by parens) around point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer.
-Special cases such as deref-ing a function call's results is also executed, like in @(fn-that-returns-an-atom x)"
+Special cases such as deref-ing a function call's results is also executed,
+like in @(fn-that-returns-an-atom x)"
   (interactive "P")
   (save-excursion
     (goto-char (cadr (cider-list-at-point 'bounds)))
