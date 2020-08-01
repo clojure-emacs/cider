@@ -305,17 +305,19 @@ buffer."
                     (cider-nrepl-op-supported-p "out-subscribe"))
            (cider--subscribe-repl-to-server-out))
 
-         (when cider-auto-mode
-           (cider-enable-on-existing-clojure-buffers))
-
          ;; Middleware on cider-nrepl's side is deferred until first usage, but
          ;; loading middleware concurrently can lead to occasional "require" issues
          ;; (likely a Clojure bug). Thus, we load the heavy debug middleware towards
          ;; the end, allowing for the faster "server-out" middleware to load
          ;; first.
          (cider--debug-init-connection))
+
        (when cider-repl-init-function
          (funcall cider-repl-init-function))
+
+       (when cider-auto-mode
+         (cider-enable-on-existing-clojure-buffers))
+
        (run-hooks 'cider-connected-hook)))))
 
 (defun cider--disconnected-handler ()
