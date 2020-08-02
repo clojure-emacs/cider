@@ -165,9 +165,25 @@ buffer."
       (with-clojure-buffer "(1 2 3|)"
         (expect (cider-list-at-point) :to-equal "(1 2 3)")))
 
-    (it "handle leading @ reader macro properly"
+    (it "handles leading @ reader macro properly"
       (with-clojure-buffer "@(1 2 3|)"
-        (expect (cider-list-at-point) :to-equal "@(1 2 3)"))))
+        (expect (cider-list-at-point) :to-equal "@(1 2 3)")))
+
+    (it "handles leading ' reader macro properly"
+      (with-clojure-buffer "'(1 2 3|)"
+        (expect (cider-list-at-point) :to-equal "'(1 2 3)")))
+
+    (it "handles vectors"
+      (with-clojure-buffer "[1 2 3|]"
+        (expect (cider-list-at-point) :to-equal "[1 2 3]")))
+
+    (xit "handles sets"
+      (with-clojure-buffer "#{1 2 3|}"
+        (expect (cider-list-at-point) :to-equal "{1 2 3}")))
+
+    (it "handles maps"
+      (with-clojure-buffer "{1 2 3 4|}"
+        (expect (cider-list-at-point) :to-equal "{1 2 3 4}"))))
 
   (describe "when the param 'bounds is given"
     (it "returns the bounds of starting and ending positions of the sexp"
