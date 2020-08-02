@@ -37,7 +37,8 @@ reliably would also make a huge difference.
 * Use a topic branch to easily amend a pull request later, if necessary.
 * Use the same coding conventions as the rest of the project.
 * Verify your Emacs Lisp code with `checkdoc` (<kbd>C-c ? d</kbd>).
-* Make sure that the unit tests are passing (`make test`).
+* Make sure that the unit tests are passing (`eldev test`).
+* Make sure that there are no lint warnings (`eldev lint`).
 * Write [good commit messages][3].
 * Mention related tickets in the commit messages (e.g. `[Fix #N] Add command ...`).
 * Update the [changelog][6].
