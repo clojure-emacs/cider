@@ -58,6 +58,11 @@ $ npx shadow-cljs server
 
 And connect to it with `cider-connect`.
 
+If https://docs.cider.mx/cider-nrepl/[cider-nrepl] isn't in your
+classpath you should make sure it's there. You can do this by adding
+it to `:dependencies` in the `shadow-cljs.edn` configuration file
+residing in the root of your project.
+
 If you already have a running server watching a build (for instance
 you have already run `npx shadow-cljs watch :dev`), you can use the
 `shadow-select` CLJS REPL and specify `:dev` when prompted.
