@@ -402,7 +402,13 @@ about this buffer (like variable `cider-repl-type')."
               (plist-get nrepl-endpoint :host)
               (plist-get nrepl-endpoint :port)
               (cider--babashka-version)
-              (cider--babashka-nrepl-version))))))
+              (cider--babashka-nrepl-version)))
+     (t
+      (format "%s%s@%s:%s"
+              (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+              (or (cider--project-name nrepl-project-dir) "<no project>")
+              (plist-get nrepl-endpoint :host)
+              (plist-get nrepl-endpoint :port))))))
 
 
 ;;; Cider's Connection Management UI
