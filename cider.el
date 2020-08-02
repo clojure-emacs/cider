@@ -689,6 +689,12 @@ Generally you should not disable this unless you run into some faulty check."
   (unless (cider-library-present-p "adzerk.boot-cljs-repl")
     (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md for details")))
 
+(defun cider-check-krell-requirements ()
+  "Check whether we can start a Krell ClojureScript REPL."
+  (cider-verify-piggieback-is-present)
+  (unless (cider-library-present-p "krell.repl")
+    (user-error "The Krell ClojureScript REPL is not available.  Please check https://github.com/vouch-opensource/krell for details")))
+
 (defun cider-check-shadow-cljs-requirements ()
   "Check whether we can start a shadow-cljs REPL."
   (unless (cider-library-present-p "shadow.cljs.devtools.api")
@@ -825,6 +831,15 @@ The supplied string will be wrapped in a do form if needed."
           cider-check-boot-requirements)
     (shadow cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements)
     (shadow-select cider-shadow-select-cljs-init-form cider-check-shadow-cljs-requirements)
+    (krell "(require '[clojure.edn :as edn]
+         '[clojure.java.io :as io]
+         '[cider.piggieback]
+         '[krell.api :as krell]
+         '[krell.repl])
+(def config (edn/read-string (slurp (io/file \"build.edn\"))))
+(krell/build config)
+(apply cider.piggieback/cljs-repl (krell.repl/repl-env) (mapcat identity config))"
+           cider-check-krell-requirements)
     (custom cider-custom-cljs-repl-init-form nil))
   "A list of supported ClojureScript REPLs.
 
@@ -867,6 +882,7 @@ you're working on."
                  (const :tag "Boot"     boot)
                  (const :tag "Shadow"   shadow)
                  (const :tag "Shadow w/o Server" shadow-select)
+                 (const :tag "Krell"    krell)
                  (const :tag "Custom"   custom))
   :group 'cider
   :safe #'symbolp
