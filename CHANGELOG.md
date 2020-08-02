@@ -8,8 +8,8 @@
 * Add support for nREPL 0.8's `lookup` op.
 * Add support for nREPL 0.7's sideloading functionality (experimental).
 * Add support for nREPL 0.8's `ls-middleware` op.
-* Add feature to evaluate list around point.
 * [#2861](https://github.com/clojure-emacs/cider/pull/2861): Add support for the Krell REPL.
+* [#2881](https://github.com/clojure-emacs/cider/pull/2881): Add command to evaluate list around point (`cider-eval-list-at-point`).
 
 ### Changes
 

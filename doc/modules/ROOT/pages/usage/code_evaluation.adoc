@@ -202,8 +202,14 @@ kbd:[C-c C-e]
 kbd:[C-c C-c]
 | Evaluate the top level form under point and display the result in the echo area.
 
+| `cider-eval-list-at-point`
+| kbd:[C-c C-v l] +
+kbd:[C-c C-v C-l]
+| Evaluate the list around point.
+
 | `cider-eval-sexp-at-point`
-| kbd:[C-c C-v v]
+| kbd:[C-c C-v v] +
+kbd:[C-c C-v C-v]
 | Evaluate the form around point.
 
 | `cider-eval-defun-at-point`

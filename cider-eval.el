@@ -808,9 +808,7 @@ buffer."
 
 (defun cider-eval-list-at-point (&optional output-to-current-buffer)
   "Evaluate the list (eg. a function call, surrounded by parens) around point.
-If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer.
-Special cases such as deref-ing a function call's results is also executed,
-like in @(fn-that-returns-an-atom x)"
+If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
     (goto-char (cadr (cider-list-at-point 'bounds)))
@@ -1175,6 +1173,7 @@ passing arguments."
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "d") #'cider-eval-defun-at-point)
     (define-key map (kbd "e") #'cider-eval-last-sexp)
+    (define-key map (kbd "l") #'cider-eval-list-at-point)
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
     (define-key map (kbd "o") #'cider-eval-sexp-up-to-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
@@ -1189,6 +1188,7 @@ passing arguments."
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-d") #'cider-eval-defun-at-point)
     (define-key map (kbd "C-f") #'cider-eval-last-sexp)
+    (define-key map (kbd "C-l") #'cider-eval-list-at-point)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
     (define-key map (kbd "C-o") #'cider-eval-sexp-up-to-point)
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
