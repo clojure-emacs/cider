@@ -159,6 +159,23 @@ buffer."
     (spy-on 'thing-at-point :and-return-value "boogie>")
     (expect (cider-symbol-at-point) :to-equal "boogie>")))
 
+(describe "cider-list-at-point"
+  (describe "when the param 'bounds is not given"
+    (it "returns the list at point"
+      (with-clojure-buffer "(1 2 3|)"
+        (expect (cider-list-at-point) :to-equal "(1 2 3)")))
+
+    (it "handle leading @ reader macro properly"
+      (with-clojure-buffer "@(1 2 3|)"
+        (expect (cider-list-at-point) :to-equal "@(1 2 3)"))))
+
+  (describe "when the param 'bounds is given"
+    (it "returns the bounds of starting and ending positions of the sexp"
+      (with-clojure-buffer "(1 2 3|)"
+        (delete-char -1)
+        (insert "'")
+        (expect (cider-list-at-point 'bounds) :to-equal '(1 8))))))
+
 (describe "cider-sexp-at-point"
   (describe "when the param 'bounds is not given"
     (it "returns the sexp at point"
