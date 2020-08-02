@@ -24,6 +24,11 @@ You've got two main ways of interacting with ClojureDocs:
 * displaying the documentation in a dedicated buffer in Emacs via `cider-clojuredocs` (kbd:[C-c C-d C-c])
 * opening the documentation in your default browser via `cider-clojuredocs-web` (kbd:[C-c C-d C-w])
 
+The documentation is bundled with `cider-nrepl` as an EDN resource (or more
+precisely - with `orchard`, which is dependency of `cider-nrepl`) and it's a
+snapshot of the ClojureDocs data. You can update it manually to the most recent
+version with `M-x cider-clojuredocs-refresh-cache`.
+
 Keep in mind that the documentation in ClojureDocs is limited only to Clojure and a few
 Clojure Contrib libraries (e.g. `core.async`). ClojureScript is currently not supported
 there.

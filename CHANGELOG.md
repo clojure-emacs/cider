@@ -6,9 +6,10 @@
 
 * Add first class support for Babashka (more warnings when you connect to `babashka.nrepl`).
 * Add support for nREPL 0.8's `lookup` op.
-* Add support for nREPL 0.7's sideloading functionality.
+* Add support for nREPL 0.7's sideloading functionality (experimental).
 * Add support for nREPL 0.8's `ls-middleware` op.
-* Add feature to evaluate list around point
+* Add feature to evaluate list around point.
+* [#2861](https://github.com/clojure-emacs/cider/pull/2861): Add support for the Krell REPL.
 
 ### Changes
 
@@ -16,6 +17,9 @@
 * [#2852](https://github.com/clojure-emacs/cider/issues/2852): Convert 1-based column numbers in response map to Emacs' 0-based system.
 * Differentiate between more types in `cider-eldoc`. They used to be just `var` and `fn` and now we have additional handling for
 macros, special forms and methods.
+* No longer fetches ClojureDocs data on first run (it's now bundled with `cider-nrepl`).
+* No longer updates the ClojureDocs data automatically on startup (it has to be updated explicitly using `M-x cider-clojuredocs-refresh-cache`).
+* Use nREPL 0.8 by default (when doing `cider-jack-in`).
 
 ### Bugs fixed
 
