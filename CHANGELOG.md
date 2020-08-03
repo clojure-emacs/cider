@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.26.0 (2020-08-03)
+
 ### New features
 
 * Add first class support for Babashka (more warnings when you connect to `babashka.nrepl`).
