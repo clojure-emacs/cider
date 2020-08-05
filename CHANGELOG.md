@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+[#2886](https://github.com/clojure-emacs/cider/pull/2886): Don't check for `node`'s presence before starting a browser REPL.
+
 ## 0.26.0 (2020-08-03)
 
 ### New features
