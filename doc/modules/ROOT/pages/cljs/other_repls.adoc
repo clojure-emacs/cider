@@ -61,7 +61,7 @@ Internally, it's powered by Weasel. Let's go over the steps required to use it.
 [adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
 [pandeiro/boot-http      "X.Y.Z"  :scope "test"]
 [weasel                  "0.7.1"  :scope "test"]
-[cider/piggieback "0.5.0"  :scope "test"] ; not needed for cider-jack-in-cljs
+[cider/piggieback "0.5.1"  :scope "test"] ; not needed for cider-jack-in-cljs
 ----
 +
 and this at the end of `build.boot`:
