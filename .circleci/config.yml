@@ -39,6 +39,14 @@ jobs:
       - setup
       - test
 
+  test-emacs-27:
+    docker:
+      - image: silex/emacs:27-dev
+        entrypoint: bash
+    steps:
+      - setup
+      - test
+
   test-emacs-master:
     docker:
       - image: silex/emacs:master-dev
@@ -49,7 +57,7 @@ jobs:
 
   test-lint:
     docker:
-      - image: silex/emacs:26-dev
+      - image: silex/emacs:27-dev
     steps:
       - setup
       - lint
@@ -60,5 +68,6 @@ workflows:
     jobs:
       - test-emacs-25
       - test-emacs-26
+      - test-emacs-27
       - test-emacs-master
       - test-lint
