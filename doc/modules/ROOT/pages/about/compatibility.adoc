@@ -83,3 +83,7 @@ Below you can find the official compatibility matrix for CIDER.
 | 1.8
 
 |===
+
+TIP: You can also check the requirements of a particular CIDER version by inspecting
+the values of some CIDER variables. For instance, the required `cider-nrepl`
+version is in `cider-required-middleware-version`, and so on.
