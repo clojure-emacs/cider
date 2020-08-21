@@ -58,24 +58,28 @@ Below you can find the official compatibility matrix for CIDER.
 | 25.1
 | 0.6
 | 0.22
+| 8
 | 1.8
 
 | 0.23
 | 25.1
 | 0.6
 | 0.22
+| 8
 | 1.8
 
 | 0.24
 | 25.1
 | 0.6
 | 0.24
+| 8
 | 1.8
 
 | 0.25
 | 25.1
 | 0.6
 | 0.25
+| 8
 | 1.8
 
 |===
