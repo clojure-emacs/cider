@@ -82,6 +82,13 @@ Below you can find the official compatibility matrix for CIDER.
 | 8
 | 1.8
 
+| 0.26
+| 25.1
+| 0.6
+| 0.25
+| 8
+| 1.8
+
 |===
 
 TIP: You can also check the requirements of a particular CIDER version by inspecting
