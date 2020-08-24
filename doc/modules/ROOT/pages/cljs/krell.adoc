@@ -1,0 +1,32 @@
+= Using Krell
+:experimental:
+
+https://github.com/vouch-opensource/krell[Krell] is the newest
+ClojureScript React Native REPL. In this section we'll discuss how to
+set it up and use it together with CIDER.
+
+== Installing Krell
+
+To use Krell, specify it as a dependency in your `deps.edn` as per
+https://github.com/vouch-opensource/krell/wiki/Reagent-Tutorial[Krell's own wiki].
+
+== Starting a Krell REPL
+
+=== Using cider-jack-in-cljs
+
+Provided you've configured your project correctly, you can simply use
+`cider-jack-in-cljs`:
+
+* Press kbd:[C-c C-x j s] (or do `M-x cider-jack-in-cljs`)
+* When prompted for the ClojureScript REPL type to start, select `krell`
+
+This will automatically start the REPL server and connect to it.
+
+You can get rid of the prompts for the REPL type and the target build
+by creating a `.dir-locals.el` file with the following contents in the
+root of your project.
+
+[source,clojure]
+----
+((nil . ((cider-default-cljs-repl . krell))))
+----
