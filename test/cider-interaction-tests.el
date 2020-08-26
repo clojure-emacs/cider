@@ -42,18 +42,26 @@
             :to-equal "a.two-three.b")))
 
 (describe "cider-to-nrepl-filename-function"
-  (let ((windows-file-name "C:/foo/bar")
-        (unix-file-name "/cygdrive/c/foo/bar"))
-    (if (eq system-type 'cygwin)
-        (and (expect (funcall cider-from-nrepl-filename-function windows-file-name)
-                     :to-equal unix-file-name)
-             (expect (funcall cider-to-nrepl-filename-function unix-file-name)
-                     :to-equal windows-file-name))
-
-      (and (expect (funcall cider-from-nrepl-filename-function unix-file-name)
-                   :to-equal unix-file-name)
-           (expect (funcall cider-to-nrepl-filename-function unix-file-name)
-                   :to-equal unix-file-name)))))
+  (it "translates file paths when running on cygwin systems"
+    (let ((windows-file-name "C:/foo/bar")
+          (unix-file-name "/cygdrive/c/foo/bar"))
+      (if (eq system-type 'cygwin)
+          (progn
+            (expect (funcall cider-from-nrepl-filename-function windows-file-name)
+                    :to-equal unix-file-name)
+            (expect (funcall cider-to-nrepl-filename-function unix-file-name)
+                    :to-equal windows-file-name))
+        (progn
+          (expect (funcall cider-from-nrepl-filename-function unix-file-name)
+                  :to-equal unix-file-name)
+          (expect (funcall cider-to-nrepl-filename-function unix-file-name)
+                  :to-equal unix-file-name)))))
+  (it "translates file paths from container/vm location to host location"
+    (let ((cider-path-translations '(("/docker/src" . "/cygdrive/c/project/src"))))
+      (expect (funcall cider-from-nrepl-filename-function "/docker/src/ns.clj")
+              :to-equal "/cygdrive/c/project/src/ns.clj")
+      (expect (funcall cider-to-nrepl-filename-function "/cygdrive/c/project/src/ns.clj")
+              :to-equal "/docker/src/ns.clj"))))
 
 (describe "cider-quit"
   (it "raises a user error if cider is not connected"
