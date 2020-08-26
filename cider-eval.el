@@ -710,9 +710,11 @@ This is used by pretty-printing commands."
 
 (defvar cider-to-nrepl-filename-function
   (with-no-warnings
-    (if (eq system-type 'cygwin)
-        #'cygwin-convert-file-name-to-windows
-      #'identity))
+    (lambda (path)
+      (let ((path* (if (eq system-type 'cygwin)
+                       (cygwin-convert-file-name-to-windows path)
+                     path)))
+        (or (cider--translate-path-to-nrepl path*) path*))))
   "Function to translate Emacs filenames to nREPL namestrings.")
 
 (defun cider--prep-interactive-eval (form connection)

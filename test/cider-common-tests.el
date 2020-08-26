@@ -75,28 +75,84 @@
       (expect (cider-make-tramp-prefix "ssh" nil "test.local")
               :to-equal "/ssh:test.local:")))
 
-(defun cider--translate-path-test (translations file)
+(defun cider--translate-path-test (translations file direction)
   (let ((cider-path-translations translations))
-    (cider--translate-path file)))
+    (cider--translate-path file direction)))
 
-(describe "cider--translate-docker"
-  (it "translates filepaths from docker location to host location"
-    (expect (cider--translate-path-test '(("/docker/src" . "/home/host/project/src"))  "/docker/src/namespace.clj")
-            :to-equal "/home/host/project/src/namespace.clj"))
-  (it "returns nil if no prefixes match"
-    (expect (cider--translate-path-test '(("/docker/src" . "/home/host/project/src")) "/home/host/random/file.clj")
-            :to-equal nil))
-  (it "won't replace a prefix in the middle of the path"
-    (expect (cider--translate-path-test '(("/src" . "/host")) "/src/project/src/ns.clj")
-            :to-equal "/host/project/src/ns.clj"))
-  (it "handles slashes or no slashes in translations"
-    (expect (cider--translate-path-test '(("/src" . "/host/")) "/src/project/src/ns.clj")
-            :to-equal "/host/project/src/ns.clj")
-    (expect (cider--translate-path-test '(("/src/" . "/host")) "/src/project/src/ns.clj")
-            :to-equal "/host/project/src/ns.clj"))
-  (it "expands the destination filepaths"
-    (expect (cider--translate-path-test '(("/src/" . "~/host")) "/src/project/src/ns.clj")
-            :to-equal (expand-file-name "~/host/project/src/ns.clj")))
-  (it "ensures the prefix has a slash"
-    (expect (cider--translate-path-test '(("/docker" . "/host")) "/docker/ns.clj")
-            :to-equal "/host/ns.clj")))
+(defun cider--translate-path-from-nrepl-test (translations file)
+  (let ((cider-path-translations translations))
+    (cider--translate-path-from-nrepl file)))
+
+(defun cider--translate-path-to-nrepl-test (translations file)
+  (let ((cider-path-translations translations))
+    (cider--translate-path-to-nrepl file)))
+
+(describe "cider--translate-container-vm"
+  (it "translates file paths from container/vm location to host location"
+      (expect (cider--translate-path-test '(("/docker/src" . "/home/host/project/src")) "/docker/src/namespace.clj" 'from-nrepl)
+              :to-equal "/home/host/project/src/namespace.clj")
+      (expect (cider--translate-path-from-nrepl-test '(("/docker/src" . "/home/host/project/src")) "/docker/src/namespace.clj")
+              :to-equal "/home/host/project/src/namespace.clj"))
+  (it "returns nil if no prefixes match ('from-nrepl)"
+      (expect (cider--translate-path-test '(("/docker/src" . "/home/host/project/src")) "/home/host/random/file.clj" 'from-nrepl)
+              :to-equal nil)
+      (expect (cider--translate-path-from-nrepl-test '(("/docker/src" . "/home/host/project/src")) "/home/host/random/file.clj")
+              :to-equal nil))
+  (it "won't replace a prefix in the middle of the path ('from-nrepl)"
+      (expect (cider--translate-path-test '(("/src" . "/host")) "/src/project/src/ns.clj" 'from-nrepl)
+              :to-equal "/host/project/src/ns.clj")
+      (expect (cider--translate-path-from-nrepl-test '(("/src" . "/host")) "/src/project/src/ns.clj")
+              :to-equal "/host/project/src/ns.clj"))
+  (it "handles slashes or no slashes in translations ('from-nrepl)"
+      (expect (cider--translate-path-test '(("/src" . "/host/")) "/src/project/src/ns.clj" 'from-nrepl)
+              :to-equal "/host/project/src/ns.clj")
+      (expect (cider--translate-path-test '(("/src/" . "/host")) "/src/project/src/ns.clj" 'from-nrepl)
+              :to-equal "/host/project/src/ns.clj")
+      (expect (cider--translate-path-from-nrepl-test '(("/src" . "/host/")) "/src/project/src/ns.clj")
+              :to-equal "/host/project/src/ns.clj")
+      (expect (cider--translate-path-from-nrepl-test '(("/src/" . "/host")) "/src/project/src/ns.clj")
+              :to-equal "/host/project/src/ns.clj"))
+  (it "expands the destination file paths"
+      (expect (cider--translate-path-test '(("/src/" . "~/host")) "/src/project/src/ns.clj" 'from-nrepl)
+              :to-equal (expand-file-name "~/host/project/src/ns.clj"))
+      (expect (cider--translate-path-from-nrepl-test '(("/src/" . "~/host")) "/src/project/src/ns.clj")
+              :to-equal (expand-file-name "~/host/project/src/ns.clj")))
+  (it "ensures the prefix has a slash ('from-nrepl)"
+      (expect (cider--translate-path-test '(("/docker" . "/host")) "/docker/ns.clj" 'from-nrepl)
+              :to-equal "/host/ns.clj")
+      (expect (cider--translate-path-from-nrepl-test '(("/docker" . "/host")) "/docker/ns.clj")
+              :to-equal "/host/ns.clj"))
+  (it "translates file paths from host location to container/vm location"
+      (expect (cider--translate-path-test '(("/docker/src" . "/home/host/project/src")) "/home/host/project/src/namespace.clj" 'to-nrepl)
+              :to-equal "/docker/src/namespace.clj")
+      (expect (cider--translate-path-to-nrepl-test '(("/docker/src" . "/home/host/project/src")) "/home/host/project/src/namespace.clj")
+              :to-equal "/docker/src/namespace.clj"))
+  (it "returns nil if no prefixes match ('to-nrepl)"
+      (expect (cider--translate-path-test '(("/docker/src" . "/home/host/project/src")) "/home/host/random/file.clj" 'to-nrepl)
+              :to-equal nil)
+      (expect (cider--translate-path-to-nrepl-test '(("/docker/src" . "/home/host/project/src")) "/home/host/random/file.clj")
+              :to-equal nil))
+  (it "won't replace a prefix in the middle of the path ('to-nrepl)"
+      (expect (cider--translate-path-test '(("/src" . "/host")) "/host/project/host/ns.clj" 'to-nrepl)
+              :to-equal "/src/project/host/ns.clj")
+      (expect (cider--translate-path-to-nrepl-test '(("/src" . "/host")) "/host/project/host/ns.clj")
+              :to-equal "/src/project/host/ns.clj"))
+  (it "handles slashes or no slashes in translations ('to-nrepl)"
+      (expect (cider--translate-path-test '(("/src" . "/host/")) "/host/project/src/ns.clj" 'to-nrepl)
+              :to-equal  "/src/project/src/ns.clj")
+      (expect (cider--translate-path-test '(("/src/" . "/host")) "/host/project/src/ns.clj" 'to-nrepl)
+              :to-equal "/src/project/src/ns.clj")
+      (expect (cider--translate-path-to-nrepl-test '(("/src" . "/host/")) "/host/project/src/ns.clj")
+              :to-equal  "/src/project/src/ns.clj")
+      (expect (cider--translate-path-to-nrepl-test '(("/src/" . "/host")) "/host/project/src/ns.clj")
+              :to-equal "/src/project/src/ns.clj"))
+  (it "expands the source file paths"
+      (expect (cider--translate-path-test '(("/src/" . "~/host")) "~/host/project/src/ns.clj" 'to-nrepl)
+              :to-equal "/src/project/src/ns.clj")
+      (expect (cider--translate-path-to-nrepl-test '(("/src/" . "~/host")) "~/host/project/src/ns.clj")
+              :to-equal "/src/project/src/ns.clj"))
+  (it "ensures the prefix has a slash ('to-nrepl)"
+      (expect (cider--translate-path-test '(("/docker" . "/host")) "/host/ns.clj" 'to-nrepl)
+              :to-equal "/docker/ns.clj")
+      (expect (cider--translate-path-to-nrepl-test '(("/docker" . "/host")) "/host/ns.clj")
+              :to-equal "/docker/ns.clj")))

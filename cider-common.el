@@ -276,32 +276,46 @@ otherwise, nil."
 
 (defcustom cider-path-translations nil
   "Alist of path prefixes to path prefixes.
-Useful to intercept the location of a path in a docker image and translate
-to the oringal location.  If your project is located at \"~/projects/foo\"
-and the src directory of foo is mounted at \"/src\" in the docker
-container, the alist would be `((\"/src\" \"~/projects/foo/src\"))"
+Useful to intercept the location of a path in a container (or virtual
+machine) and translate to the oringal location.  If your project is located
+at \"~/projects/foo\" and the src directory of foo is mounted at \"/src\"
+in the container, the alist would be `((\"/src\" \"~/projects/foo/src\"))."
   :type '(alist :key-type string :value-type string)
   :group 'cider
   :package-version '(cider . "0.23.0"))
 
-(defun cider--translate-path (path)
-  "Attempt to translate the PATH.
-Looks at `cider-path-translations' for (docker . host) alist of path
-prefixes."
-  (seq-some (lambda (translation)
-              (let ((prefix (file-name-as-directory (expand-file-name (car translation)))))
-                (when (string-prefix-p prefix path)
-                  (replace-regexp-in-string (format "^%s" (regexp-quote prefix))
-                                            (file-name-as-directory
-                                             (expand-file-name (cdr translation)))
-                                            path))))
-            cider-path-translations))
+(defun cider--translate-path (path direction)
+  "Attempt to translate the PATH in the given DIRECTION.
+Looks at `cider-path-translations' for (container . host) alist of path
+prefixes and translates PATH from container to host or viceversa depending on
+whether DIRECTION is 'from-nrepl or 'to-nrepl."
+  (seq-let [from-fn to-fn path-fn] (cond ((eq direction 'from-nrepl) '(car cdr identity))
+                                         ((eq direction 'to-nrepl) '(cdr car expand-file-name)))
+    (let ((path (funcall path-fn path)))
+      (seq-some (lambda (translation)
+                  (let ((prefix (file-name-as-directory (expand-file-name (funcall from-fn translation)))))
+                    (when (string-prefix-p prefix path)
+                      (replace-regexp-in-string (format "^%s" (regexp-quote prefix))
+                                                (file-name-as-directory
+                                                 (expand-file-name (funcall to-fn translation)))
+                                                path))))
+                cider-path-translations))))
+
+(defun cider--translate-path-from-nrepl (path)
+  "Attempt to translate the nREPL PATH to a local path."
+  (cider--translate-path path 'from-nrepl))
+
+(defun cider--translate-path-to-nrepl (path)
+  "Attempt to translate the local PATH to an nREPL path."
+  (cider--translate-path (expand-file-name path) 'to-nrepl))
 
 (defvar cider-from-nrepl-filename-function
   (with-no-warnings
-    (if (eq system-type 'cygwin)
-        #'cygwin-convert-file-name-from-windows
-      #'identity))
+    (lambda (path)
+      (let ((path* (if (eq system-type 'cygwin)
+                       (cygwin-convert-file-name-from-windows path)
+                     path)))
+        (or (cider--translate-path-from-nrepl path*) path*))))
   "Function to translate nREPL namestrings to Emacs filenames.")
 
 (defcustom cider-prefer-local-resources nil
@@ -313,16 +327,14 @@ prefixes."
   "Return PATH's local or tramp path using `cider-prefer-local-resources'.
 If no local or remote file exists, return nil."
   (let* ((local-path (funcall cider-from-nrepl-filename-function path))
-         (tramp-path (and local-path (cider--client-tramp-filename local-path)))
-         (translated-path (cider--translate-path local-path)))
+         (tramp-path (and local-path (cider--client-tramp-filename local-path))))
     (cond ((equal local-path "") "")
           ((and cider-prefer-local-resources (file-exists-p local-path))
            local-path)
           ((and tramp-path (file-exists-p tramp-path))
            tramp-path)
           ((and local-path (file-exists-p local-path))
-           local-path)
-          ((and translated-path (file-exists-p translated-path)) translated-path))))
+           local-path))))
 
 (declare-function archive-extract "arc-mode")
 (declare-function archive-zip-extract "arc-mode")
