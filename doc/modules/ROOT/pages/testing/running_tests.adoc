@@ -22,6 +22,11 @@ selected subset of them. All of the CIDER test commands are available
 in both source code and REPL buffers. In REPL buffers you can also use
 kbd:[,] to invoke some of the testing commands.
 
+NOTE: CIDER will only run tests that have been loaded (evaluated). This means
+that prior to running some tests you always have to evaluate them first.
+As a corollary - if you make some changes to a test, you'll have to re-evaluate it,
+so that CIDER will pick up the updated version.
+
 First, you can run all the tests in your project with kbd:[C-c C-t p]
 or kbd:[C-c C-t C-p]. It's important to realize that this will
 load *all* the namespaces in your project, which might be more than
