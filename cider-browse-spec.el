@@ -277,6 +277,10 @@ a more user friendly representation of SPEC-FORM."
   "Browse SPEC."
   (cider-ensure-connected)
   (cider-ensure-op-supported "spec-form")
+  ;; Expand auto-resolved keywords
+  (when-let* ((val (and (string-match-p "^::.+" spec)
+                        (nrepl-dict-get (cider-sync-tooling-eval spec (cider-current-ns)) "value"))))
+    (setq spec val))
   (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select #'cider-browse-spec-view-mode 'ancillary)
     (setq-local cider-browse-spec--current-spec spec)
     (cider-browse-spec--draw-spec-buffer (current-buffer)
