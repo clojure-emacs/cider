@@ -432,7 +432,9 @@ contain a `candidates' key, it is returned as is."
           (update :file (comp str clojure.java.io/resource))
           (cond-> (:macro info) (update :macro str))
           (cond-> (:special-form info) (update :special-form str))
-          (assoc :arglists-str (str (:arglists info)))
+          (cond-> (:protocol info) (update :protocol str))
+          (cond-> (:arglists info) (update :arglists str))
+          (assoc :arglists-str (:arglists info))
           (clojure.walk/stringify-keys)))))
 ")
 
