@@ -102,7 +102,7 @@ generic API on top of them dispatching based on the connection type.
 ### Implement a socket REPL client
 
 That should be relatively straightforward, as the communication
-protocol for the socket REPL is pretty simple.  `parseclj` should be
+protocol for the socket REPL is pretty simple.  `parseedn` should be
 used to "encode/decode" EDN data.
 
 ### Transition everything non-nREPL specific to Orchard
