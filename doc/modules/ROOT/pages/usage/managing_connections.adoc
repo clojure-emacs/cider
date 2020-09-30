@@ -1,12 +1,13 @@
 = Managing Connections
 :experimental:
 
-NOTE: Because nREPL connections map one-to-one to REPL buffers, for the purpose of this
-section we use "REPL" and "connection" interchangeably.
+NOTE: Because nREPL connections map one-to-one to REPL buffers in
+CIDER, for the purpose of this section we use "REPL" and "connection"
+interchangeably.
 
-Life's easy when you're working only on a single project with a single Clojure connection. If you're lucky
+Life's easy when you're always working only on a single project with a single Clojure connection. If you're lucky
 enough to be one of those people then you can safely skip reading this section. Its target audience are
-people who have to work simultaneously on multiple projects or have multiple connections opened for the same project.
+people who have to work simultaneously on multiple projects or have multiple connections opened for the same project (e.g. a Clojure and a ClojureScript one).
 
 It turns out that it's really hard to map reliably operations originating in source buffers (e.g. code evaluation) to the right
 connection buffer, as there are many things you have to take into account:
@@ -44,32 +45,32 @@ ever need this).
 
 Start new sessions with
 
-* kbd:[C-c C-x j j] `cider-jack-in-clj`
-* kbd:[C-c C-x j s] `cider-jack-in-cljs`
-* kbd:[C-c C-x j m] `cider-jack-in-clj&cljs`
-* kbd:[C-c C-x c j] `cider-connect-clj`
-* kbd:[C-c C-x c s] `cider-connect-cljs`
-* kbd:[C-c C-x c m] `cider-connect-clj&cljs`
+* kbd:[C-c C-x j j] (`cider-jack-in-clj`)
+* kbd:[C-c C-x j s] (`cider-jack-in-cljs`)
+* kbd:[C-c C-x j m] (`cider-jack-in-clj&cljs`)
+* kbd:[C-c C-x c j] (`cider-connect-clj`)
+* kbd:[C-c C-x c s] (`cider-connect-cljs`)
+* kbd:[C-c C-x c m] (`cider-connect-clj&cljs`)
 
 Add new REPLs to the current session with
 
-* kbd:[C-c C-x s j] `cider-connect-sibling-clj`
-* kbd:[C-c C-x s s] `cider-connect-sibling-cljs`
+* kbd:[C-c C-x s j] (`cider-connect-sibling-clj`)
+* kbd:[C-c C-x s s] (`cider-connect-sibling-cljs`)
 
-Session life-cycle management commands live on the https://github.com/vspinu/sesman[Sesman] map (kbd:[C-c C-s])
+Session life-cycle management commands live on the https://github.com/vspinu/sesman[Sesman] keymap (kbd:[C-c C-s])
 
-* kbd:[C-c C-s s] `sesman-start`
-* kbd:[C-c C-s r] `sesman-restart`
-* kbd:[C-c C-s q] `sesman-quit`
+* kbd:[C-c C-s s] (`sesman-start`)
+* kbd:[C-c C-s r] (`sesman-restart`)
+* kbd:[C-c C-s q] (`sesman-quit`)
 
 The command `sesman-start` wraps around all of the aforementioned `jack-in` and
 `connect` commands. You can also invoke same functionality with kbd:[M-x]
 `cider` or kbd:[C-c M-x].
 
-To quit or restart individual connections use cider commands
+To quit or restart individual connections use CIDER commands
 
-* kbd:[C-c C-q] `cider-quit`
-* kbd:[C-c M-r] `cider-restart`
+* kbd:[C-c C-q] (`cider-quit`)
+* kbd:[C-c M-r] (`cider-restart`)
 
 == Current Session
 
@@ -114,10 +115,10 @@ Clojure(Script) buffer.
 
 Sessions can be linked to contexts (projects, directories and buffers)
 
-* kbd:[C-c C-s b] `sesman-link-with-buffer`
-* kbd:[C-c C-s d] `sesman-link-with-directory`
-* kbd:[C-c C-s p] `sesman-link-with-project`
-* kbd:[C-c C-s u] `sesman-unlink`
+* kbd:[C-c C-s b] (`sesman-link-with-buffer`)
+* kbd:[C-c C-s d] (`sesman-link-with-directory`)
+* kbd:[C-c C-s p] (`sesman-link-with-project`)
+* kbd:[C-c C-s u] (`sesman-unlink`)
 
 NOTE: Typically you'll want to invoke those commands in file buffers and occasionally is some special buffers (e.g. a scratch buffer). You should never run
 them in a REPL buffer, as a REPL is an integral part of a session.
