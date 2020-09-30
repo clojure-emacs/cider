@@ -37,7 +37,8 @@
 
 ;;; Installation:
 
-;; Available as a package in melpa.org and stable.melpa.org
+;; CIDER is available as a package in melpa.org and stable.melpa.org.  First, make sure you've
+;; enabled one of the repositories in your Emacs config:
 
 ;; (add-to-list 'package-archives
 ;;              '("melpa" . "https://melpa.org/packages/"))
@@ -46,10 +47,14 @@
 ;;
 ;; (add-to-list 'package-archives
 ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-;;
+
+;; Afterwards, installing CIDER is as easy as:
+
 ;; M-x package-install cider
 
 ;;; Usage:
+
+;; You can start CIDER with one of the following commands:
 
 ;; M-x cider-jack-in-clj
 ;; M-x cider-jack-in-cljs
