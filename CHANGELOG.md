@@ -6,8 +6,8 @@
 
 ### Bugs fixed
 
-[#2886](https://github.com/clojure-emacs/cider/pull/2886): Don't check for `node`'s presence before starting a browser REPL.
-[#2889](https://github.com/clojure-emacs/cider/pull/2889): Fix a typo in `cider-info-form`.
+* [#2886](https://github.com/clojure-emacs/cider/pull/2886): Don't check for `node`'s presence before starting a browser REPL.
+* [#2889](https://github.com/clojure-emacs/cider/pull/2889): Fix a typo in `cider-info-form`.
 
 ### Changes
 
