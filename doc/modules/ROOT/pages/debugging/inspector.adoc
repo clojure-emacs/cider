@@ -53,10 +53,15 @@ You'll have access to additional keybindings in the inspector buffer
 | Defines a var in the REPL namespace with current inspector value
 |===
 
+== Configuration
 
 By default, navigation skips over values like nils, numbers and
 keywords, which are not interesting to inspect. You can control this
 behavior using the variable `cider-inspector-skip-uninteresting`.
+
+The inspector buffer is automatically selected by default. You
+can disable the auto selection with the variable
+`cider-inspector-auto-select-buffer`.
 
 == Additional Resources
 
