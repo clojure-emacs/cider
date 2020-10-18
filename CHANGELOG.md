@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+* [#2909](https://github.com/clojure-emacs/cider/issues/2909): Add new customization variable `cider-inspector-auto-select-buffer` to control the auto selection of the inspector buffer.
+
 ### Bugs fixed
 
 * Fix broken links to the docs in REPL warnings (the REPL links included the full CIDER version, but the docs URLs are without the patch version).

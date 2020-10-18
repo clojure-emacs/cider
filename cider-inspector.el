@@ -67,6 +67,12 @@ by clicking or navigating to them by other means."
   :group 'cider-inspector
   :package-version '(cider . "0.25.0"))
 
+(defcustom cider-inspector-auto-select-buffer t
+  "Determines if the inspector buffer should be auto selected."
+  :type 'boolean
+  :group 'cider-inspector
+  :package-version '(cider . "0.27.0"))
+
 (defvar cider-inspector-uninteresting-regexp
   (concat "nil"                      ; nils are not interesting
           "\\|:" clojure--sym-regexp ; nor keywords
@@ -307,7 +313,7 @@ Set the page size in paginated view to PAGE-SIZE."
   "Render VALUE."
   (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode 'ancillary)
   (cider-inspector-render cider-inspector-buffer value)
-  (cider-popup-buffer-display cider-inspector-buffer t)
+  (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
   (when cider-inspector-fill-frame (delete-other-windows))
   (with-current-buffer cider-inspector-buffer
     (when (eq cider-inspector-last-command 'cider-inspector-pop)
