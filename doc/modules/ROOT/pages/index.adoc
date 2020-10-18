@@ -26,7 +26,7 @@ xref:contributing/funding.adoc[supporting financially its ongoing development].*
 == Overview
 
 CIDER aims to provide an interactive development experience similar to the one
-you'd get when programming in Emacs Lisp, Common Lisp (with https://github.com/slime/slime[SLIME] or https://github.com/capitaomorte/sly[Sly]),
+you'd get when programming in Emacs Lisp, Common Lisp (with https://github.com/slime/slime[SLIME] or https://github.com/joaotavora/sly[Sly]),
 Scheme (with https://github.com/jaor/geiser[Geiser]) and Smalltalk.
 
 Programmers are expected to program in a very dynamic and incremental manner,
