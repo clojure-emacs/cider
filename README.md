@@ -12,12 +12,14 @@
 CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
 that **R**ocks!
 
-CIDER extends Emacs with support for interactive programming in Clojure. The
-features are centered around `cider-mode`, an Emacs minor-mode that complements
-[clojure-mode][]. While `clojure-mode` supports editing Clojure source files,
-`cider-mode` adds support for interacting with a running Clojure process for
-compilation, debugging, definition and documentation lookup, running tests and
-so on.
+CIDER extends Emacs with support for [interactive
+programming](https://docs.cider.mx/cider/usage/interactive_programming.html)
+in Clojure. The features are centered around `cider-mode`, an Emacs
+minor-mode that complements [clojure-mode][]. While `clojure-mode`
+supports editing Clojure source files, `cider-mode` adds support for
+interacting with a running Clojure process for compilation, code
+completion, debugging, definition and documentation lookup, running
+tests and so on.
 
 ----------
 [![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
@@ -47,7 +49,8 @@ maintained repos -
 [MELPA Stable](http://stable.melpa.org)
 and [MELPA](http://melpa.org).
 
-You can install CIDER with the following command:
+Provided you've enabled one of them in your Emacs setup, you can
+install CIDER with the following command:
 
 <kbd>M-x</kbd> `package-install` <kbd>RET</kbd> `cider` <kbd>RET</kbd>
 
