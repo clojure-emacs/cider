@@ -420,7 +420,7 @@ present."
   (substitute-command-keys
    ";; ======================================================================
 ;; If you're new to CIDER it is highly recommended to go through its
-;; manual first. Type <M-x cider-view-manual> to view it.
+;; user manual first. Type <M-x cider-view-manual> to view it.
 ;; In case you're seeing any warnings you should consult the manual's
 ;; \"Troubleshooting\" section.
 ;;
