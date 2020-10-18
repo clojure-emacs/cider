@@ -263,7 +263,7 @@ Distributed under the GNU General Public License, version 3
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
 [nREPL]:https://github.com/nrepl/nrepl
-[Sly]: https://github.com/capitaomorte/sly
+[Sly]: https://github.com/joaotavora/sly
 [Geiser]: https://github.com/jaor/geiser
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure
