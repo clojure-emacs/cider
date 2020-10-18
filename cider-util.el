@@ -445,11 +445,15 @@ plugin or dependency with:
 (defconst cider-manual-url "https://docs.cider.mx/cider/%s"
   "The URL to CIDER's manual.")
 
+(defun cider-version-sans-patch ()
+  "Return the version sans that patch."
+  (string-join (seq-take (split-string cider-version "\\.") 2) "."))
+
 (defun cider--manual-version ()
   "Convert the version to a ReadTheDocs-friendly version."
   (if (string-match-p "-snapshot" cider-version)
       ""
-    (concat cider-version "/")))
+    (concat (cider-version-sans-patch) "/")))
 
 (defun cider-manual-url ()
   "The CIDER manual's url."
