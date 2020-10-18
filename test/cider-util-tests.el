@@ -261,6 +261,16 @@ buffer."
     (expect (cider--deep-vector-to-list '[bug]) :to-equal '(bug))
     (expect (cider--deep-vector-to-list '(bug)) :to-equal '(bug))))
 
+(describe "cider-version-sans-patch"
+  :var (cider-version)
+  (it "returns the version sans the patch"
+    (setq cider-version "0.11.0")
+    (expect (cider-version-sans-patch) :to-equal "0.11"))
+
+  (it "handles snapshot versions"
+    (setq cider-version "0.11.0-snapshot")
+    (expect (cider-version-sans-patch) :to-equal "0.11")))
+
 (describe "cider-manual-url"
   :var (cider-version)
   (it "returns the manual correct url for stable cider versions"
