@@ -3,8 +3,9 @@
 == The Core Team
 
 The direction of the project is being stewarded by the CIDER core team. This
-group of long-term contributors manage releases, evaluate pull-requests, and
-does a lot of the groundwork on major new features.
+group of long-term contributors manages releases, evaluates pull-requests, and
+does a lot of the groundwork on major new features. Here are the current members
+of the CIDER core team, listed in the order of joining it:
 
 * https://github.com/bbatsov[Bozhidar Batsov] (author & head maintainer)
 * https://github.com/vspinu[Vitalie Spinu]
