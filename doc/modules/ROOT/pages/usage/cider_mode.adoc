@@ -168,22 +168,22 @@ kbd:[C-u C-c C-c]
 | `cider-doc`
 | kbd:[C-c C-d d] +
 kbd:[C-c C-d C-d]
-| Display doc string for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+| Display doc string for the symbol at point.  If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
 | `cider-javadoc`
 | kbd:[C-c C-d j] +
 kbd:[C-c C-d C-j]
-| Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+| Display JavaDoc (in your default browser) for the symbol at point.  If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
 | `cider-clojuredocs`
 | kbd:[C-c C-d c] +
 kbd:[C-c C-d C-c]
-| Lookup symbol in ClojureDocs.
+| Lookup symbol in ClojureDocs. If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
 | `cider-clojuredocs-web`
 | kbd:[C-c C-d w] +
 kbd:[C-c C-d C-w]
-| Open the ClojureDocs documentation for symbol in a web browser.
+| Open the ClojureDocs documentation for symbol in a web browser. If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
 | `cider-apropos`
 | kbd:[C-c C-d a] +
@@ -206,7 +206,7 @@ kbd:[C-c C-d C-e]
 
 | `cider-toggle-trace-var`
 | kbd:[C-c M-t v]
-| Toggle var tracing.
+| Toggle var tracing. If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
 | `cider-toggle-trace-ns`
 | kbd:[C-c M-t n]
@@ -214,7 +214,7 @@ kbd:[C-c C-d C-e]
 
 | `cider-undef`
 | kbd:[C-c C-u]
-| Undefine a symbol. If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+| Undefine a symbol. If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
 | `cider-test-run-test`
 | kbd:[C-c C-t t] +
@@ -253,7 +253,7 @@ kbd:[C-c C-t C-b]
 
 | `cider-find-var`
 | kbd:[M-.]
-| Jump to the definition of a symbol.  If invoked with a prefix argument, or no symbol is found at point, prompt for a symbol.
+| Jump to the definition of a symbol.  If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
 | `cider-find-dwim-at-mouse`
 | kbd:[mouse-5] or kbd:[mouse-9]

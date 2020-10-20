@@ -15,6 +15,7 @@
 * Bump the injected nREPL version to 0.8.1.
 * Bump the injected `cider-nrepl` version to `0.25.4`.
 * [#2897](https://github.com/clojure-emacs/cider/pull/2897): Translate paths from CIDER to nREPL and vice-versa.
+* Set `cider-prompt-for-symbol` to `nil` by default.
 
 ## 0.26.1 (2020-08-14)
 

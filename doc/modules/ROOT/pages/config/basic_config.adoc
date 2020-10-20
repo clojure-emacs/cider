@@ -27,19 +27,30 @@ buffers. You can override this behavior, however:
 (setq cider-auto-mode nil)
 ----
 
-== Disable Symbol Confirmation
+== Prompt for Symbol Confirmation
 
-By default, CIDER prompts you for a symbol when it executes
-interactive commands that require a symbol (e.g. `cider-doc`). The
-default symbol will be the one at point. If you set
-`cider-prompt-for-symbol` to `nil`, CIDER will try the symbol at point
-first, and only prompt if that fails (this was the behavior in older
-CIDER releases).
+NOTE: The default here was changed in CIDER 1.0.
+
+By default, CIDER won't prompt you for a symbol when it executes
+interactive commands that require a symbol (e.g. `cider-doc`). Such
+commands operate on the symbol at point and prompt you to provide
+a symbol if they can't obtain one automatically.
+
+If you set
+`cider-prompt-for-symbol` to `t`, this behavior will be inverted and
+CIDER will always prompt you to confirm the symbol on which a command
+will operate. This behavior is useful, as it allows you to edit the
+inferred symbol, before some operation is carried out with it (and you get to
+see what was inferred by `cider-symbol-at-point`).
 
 [source,lisp]
 ----
-(setq cider-prompt-for-symbol nil)
+(setq cider-prompt-for-symbol t)
 ----
+
+TIP: Many interactive commands that operate on the symbol at point,
+accept a prefix argument that flips the behavior configured via
+`cider-prompt-for-symbol` for the current command invocation.
 
 == Control what window to use when jumping to a definition
 

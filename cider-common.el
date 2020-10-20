@@ -31,7 +31,7 @@
 (require 'etags) ; for find-tags-marker-ring
 (require 'tramp)
 
-(defcustom cider-prompt-for-symbol t
+(defcustom cider-prompt-for-symbol nil
   "Controls when to prompt for symbol when a command requires one.
 
 When non-nil, always prompt, and use the symbol at point as the default
