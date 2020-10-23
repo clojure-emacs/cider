@@ -741,6 +741,9 @@ window."
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
 
+(defvar-local cider-eval-last-sexp-contents nil
+  "Local var used to store the last sexp evaled for reevaluation later.")
+
 (defun cider-interactive-eval (form &optional callback bounds additional-params)
   "Evaluate FORM and dispatch the response to CALLBACK.
 If the code to be evaluated comes from a buffer, it is preferred to use a
@@ -758,6 +761,7 @@ arguments and only proceed with evaluation if it returns nil."
   (let ((form  (or form (apply #'buffer-substring-no-properties bounds)))
         (start (car-safe bounds))
         (end   (car-safe (cdr-safe bounds))))
+    (setq-local cider-eval-last-sexp-contents form)
     (when (and start end)
       (remove-overlays start end 'cider-temporary t))
     (unless (and cider-interactive-eval-override
@@ -794,6 +798,27 @@ buffer."
                           (when output-to-current-buffer (cider-eval-print-handler))
                           (cider-last-sexp 'bounds)
                           (cider--nrepl-pr-request-map)))
+
+(defun cider-re-eval-previous-sexp (&optional output-to-current-buffer)
+  "Reevaluate the previously evaluated expression.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
+buffer."
+  (interactive "P")
+  (if cider-eval-last-sexp-contents
+      (cider-interactive-eval cider-eval-last-sexp-contents
+                              (when output-to-current-buffer (cider-eval-print-handler))
+                              nil
+                              (cider--nrepl-pr-request-map))
+    (user-error "No sexp has been run in this buffer")))
+
+(defun cider-eval-last-sexp-or-re-eval-previous-sexp (&optional re-run-previous-sexp)
+  "Evaluate the expected preceding the point or a cached sexp.
+If invoked with RE-RUN-PREVIOUS-SEXP `cider-eval-last-sexp` otherwise
+`cider-re-eval-previous-sexp'"
+  (interactive "P")
+  (if re-run-previous-sexp
+      (cider-re-eval-previous-sexp)
+    (cider-eval-last-sexp)))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
@@ -1182,6 +1207,7 @@ passing arguments."
     (define-key map (kbd "z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "a") #'cider-re-eval-previous-sexp)
     (define-key map (kbd "f") 'cider-eval-pprint-commands-map)
 
     ;; duplicates with C- for convenience
@@ -1197,6 +1223,7 @@ passing arguments."
     (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "C-a") #'cider-re-eval-previous-sexp)
     (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)
     map))
 
