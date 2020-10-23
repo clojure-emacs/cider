@@ -173,9 +173,17 @@ Below is a listing of most keybindings for evaluation commands:
 | Command | Keyboard shortcut | Description
 
 | `cider-eval-last-sexp`
-| kbd:[C-x C-e] +
-kbd:[C-c C-e]
+| kbd:[C-x C-e]
 | Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
+
+| `cider-eval-last-sexp-or-re-eval-previous-sexp`
+| kbd:[C-c C-e]
+| Evaluate the form preceding point like `cider-eval-last-sexp` unless invoked with a prefix argument, in which case it will evaluate the previously evaluated expression. This includes any context stored by commands like `cider-eval-last-sexp-in-context`.
+
+| `cider-eval-last-sexp-in-context`
+| kbd:[C-c C-v C-c] +
+kbd:[C-c C-v c]
+| Eval the form preceding point with a containing lexical scope. The context is defined interactively in the minibuffer and evaluated as if provided in as `let` bindings surrounding the form to be evaluated. Useful for debugging deeply nested forms.
 
 | `cider-eval-last-sexp-and-replace`
 | kbd:[C-c C-v w]
