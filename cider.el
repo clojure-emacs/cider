@@ -564,16 +564,16 @@ removed, LEIN-PLUGINS, and finally PARAMS."
 
 (defun cider-clojure-cli-jack-in-dependencies (global-opts params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
-Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
+Does so by concatenating DEPENDENCIES, GLOBAL-OPTS and PARAMS."
   (let ((dependencies (append dependencies cider-jack-in-lein-plugins)))
     (concat
-     global-opts
-     (unless (seq-empty-p global-opts) " ")
      "-Sdeps '{:deps {"
      (mapconcat #'identity
                 (seq-map (lambda (dep) (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep))) dependencies)
                 " ")
      "}}' "
+     global-opts
+     (unless (seq-empty-p global-opts) " ")
      params)))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
