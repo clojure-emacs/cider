@@ -434,7 +434,7 @@ contain a `candidates' key, it is returned as is."
           (cond-> (:special-form info) (update :special-form str))
           (cond-> (:protocol info) (update :protocol str))
           (cond-> (:arglists info) (update :arglists str))
-          (assoc :arglists-str (:arglists info))
+          (assoc :arglists-str (str (:arglists info)))
           (clojure.walk/stringify-keys)))))
 ")
 
