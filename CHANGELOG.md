@@ -9,6 +9,7 @@
 ### Bugs fixed
 
 * Fix broken links to the docs in REPL warnings (the REPL links included the full CIDER version, but the docs URLs are without the patch version).
+* Fix ordering of dependencies, global-opts and params for Clojure CLI projects when calling cider-jack-in. Thanks to @iarenaza  Resolves #2916
 
 ### Changes
 
