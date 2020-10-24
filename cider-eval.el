@@ -811,15 +811,6 @@ buffer."
                               (cider--nrepl-pr-request-map))
     (user-error "No sexp has been run in this buffer")))
 
-(defun cider-eval-last-sexp-or-re-eval-previous-sexp (&optional re-run-previous-sexp)
-  "Evaluate the expected preceding the point or a cached sexp.
-If invoked with RE-RUN-PREVIOUS-SEXP `cider-eval-last-sexp` otherwise
-`cider-re-eval-previous-sexp'"
-  (interactive "P")
-  (if re-run-previous-sexp
-      (cider-re-eval-previous-sexp)
-    (cider-eval-last-sexp)))
-
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
   (interactive)
