@@ -699,7 +699,8 @@ For the REPL type use the function `cider-repl-type'."
   (with-current-buffer (or buffer (current-buffer))
     (cond
      ((derived-mode-p 'clojurescript-mode) 'cljs)
-     ((derived-mode-p 'clojurec-mode) 'multi)
+     ((derived-mode-p 'clojurec-mode) (or (cider-repl-type (or buffer (current-buffer)))
+                                          'multi))
      ((derived-mode-p 'clojure-mode) 'clj)
      (cider-repl-type))))
 
@@ -858,9 +859,9 @@ throw an error if no linked session exists."
                ((listp type)
                 (mapcar #'cider-maybe-intern type))
                ((cider-maybe-intern type))))
-        (repls (cdr (if ensure
-                        (sesman-ensure-session 'CIDER)
-                      (sesman-current-session 'CIDER)))))
+        (repls (mapcar #'cadr (sesman-current-sessions 'CIDER))))
+    (when (and ensure (null repls))
+      (user-error "No linked CIDER sessions"))
     (or (seq-filter (lambda (b)
                       (cider--match-repl-type type b))
                     repls)
