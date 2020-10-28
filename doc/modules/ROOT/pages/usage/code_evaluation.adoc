@@ -226,7 +226,7 @@ Below is a listing of most keybindings for evaluation commands:
 
 | `cider-eval-last-sexp`
 | kbd:[C-x C-e] +
-[C-c C-e]
+kbd:[C-c C-e]
 | Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
 
 | `cider-eval-last-sexp-and-replace`
