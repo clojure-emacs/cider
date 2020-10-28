@@ -67,20 +67,20 @@ example:
 ----
 (defn long-and-complicated-function [x y]
   (let [r (range x)
-        l (map #(+ % y) r)] ;; <- form we want to eval independently of it's context
+        l (map #(+ % y) r)] ;; <- form we want to eval independently of its context
     (reduce + l)))
 ----
 
 If you position the point after the `map` form and evaluate it with
 kbd:[C-c C-e], you will get an error because you have undefined
 symbols `y` and `r`. You can provide a context in which to evaluate
-this expression by using kbd:[C-c C-v C-c], which is bound to
-`cider-eval-last-sexp-in-context`. This will prompt you at the
-minibuffer for a lexical context to evaluate the form in. This is like
-wrapping the form in a `let` binding before sending it for evaluation.
-In this case you could bind `y` to `1` and `r` to `[0 1 2 3 4]` by
-entering these binding when prompted to produce the result `=> (1 2 3
-4 5)`.
+this expression by using kbd:[C-c C-v C-c] or kbd:[C-c C-v c], which
+is bound to `cider-eval-last-sexp-in-context`. This will prompt you at
+the minibuffer for a lexical context to evaluate the form in. This is
+like wrapping the form in a `let` binding before sending it for
+evaluation. In this case you could bind `y` to `1` and `r` to `[0 1 2
+3 4]` by entering these binding when prompted to produce the result
+`=> (1 2 3 4 5)`.
 
 [source]
 ----
@@ -88,7 +88,7 @@ Evaluation context (let-style) for `(map #(+ % y) r)': y 1 r [0 1 2 3 4]
 ----
 
 After evaluating an expression, you can re-evaluate this expression in
-the same buffer with kbd:[C-c C-v C-a] or kbd:[C-c C-v ], both of
+the same buffer with kbd:[C-c C-v C-a] or kbd:[C-c C-v a], both of
 which are bound to `cider-re-eval-previous-sexp`. This is useful when
 working on a function with some test code nearby in the same buffer.
 For example:
