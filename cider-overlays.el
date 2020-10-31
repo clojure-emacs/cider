@@ -29,6 +29,7 @@
 (require 'subr-x)
 (require 'cider-compat)
 (require 'cl-lib)
+(require 'diff-mode) ;; for fringe bitmap
 
 
 ;;; Customization
@@ -130,14 +131,49 @@ This function also removes itself from `post-command-hook'."
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
 (defface cider-fringe-good-face
-  '((((class color) (background light)) :foreground "lightgreen")
-    (((class color) (background dark)) :foreground "darkgreen"))
+  '(
+    ;; Some versions of `spacemacs-dark' error out when inheriting from
+    ;; `diff-added'. No idea why. Adding cases with simple string colors first
+    ;; acts as a fallback and prevents it.
+    (((class color) (background light))
+     :foreground "DarkGreen")
+    (((class color) (background dark))
+     :foreground "LimeGreen")
+
+    ;; This is the definition we want to use, if possible.
+    (((class color) (background light))
+     :foreground (:inherit diff-added)
+     :distant-foreground "DarkGreen")
+    (((class color) (background dark))
+     :foreground (:inherit diff-added)
+     :distant-foreground "LimeGreen"))
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
 
-(defconst cider--fringe-overlay-good
-  (propertize " " 'display '(left-fringe empty-line cider-fringe-good-face))
-  "The before-string property that adds a green indicator on the fringe.")
+;; Fringe bitmaps don't scale with the text, so we define a bitmap that's
+;; tall. This will appear to scale vertically when the text size is increased,
+;; but it's actually just showing more of the bitmap.
+(define-fringe-bitmap 'cider-filled-rectangle
+  (make-vector 100 #b01111110)
+  nil nil 'top)
+
+(defcustom cider-fringe-bitmap 'cider-filled-rectangle
+  "Bitmap used on the fringe to indicate evaluation of an expression.
+The default choices are all quite aesthetically pleasing, and have no role
+in the fringe by default.  See `fringe-bitmaps' in the Emacs manual for a
+full list of available bitmaps."
+  :type '(choice (const cider-filled-rectangle)
+                 (const empty-line)
+                 (const filled-rectangle)
+                 (const filled-square)
+                 (const hollow-square)
+                 (const vertical-bar))
+  :group 'cider
+  :package-version '(cider . "0.27.0"))
+
+(defun cider--fringe-overlay-good ()
+  "Create the before-string property that add a green indicator on the fringe."
+  (propertize " " 'display `(left-fringe ,cider-fringe-bitmap cider-fringe-good-face)))
 
 (defcustom cider-use-fringe-indicators t
   "Whether to display evaluation indicators on the left fringe."
@@ -160,7 +196,7 @@ END is the position where the sexp ends, and defaults to point."
         (clojure-forward-logical-sexp -1)
         ;; Create the green-circle overlay.
         (cider--make-overlay (point) end 'cider-fringe-indicator
-                             'before-string cider--fringe-overlay-good)))))
+                             'before-string (cider--fringe-overlay-good))))))
 
 (cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result)
                                             (format (concat " " cider-eval-result-prefix "%s "))
