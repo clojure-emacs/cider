@@ -9,11 +9,11 @@
 ### Bugs fixed
 
 * Fix broken links to the docs in REPL warnings (the REPL links included the full CIDER version, but the docs URLs are without the patch version).
-* Fix ordering of dependencies, global-opts and params for Clojure CLI projects when calling cider-jack-in. Thanks to @iarenaza  Resolves #2916
+* [#2916](https://github.com/clojure-emacs/cider/issues/2916): Fix ordering of dependencies, global-opts and params for Clojure CLI projects when calling `cider-jack-in`.
 
 ### Changes
 
-* Bump the injected nREPL version to 0.8.1.
+* Bump the injected nREPL version to 0.8.2.
 * Bump the injected `cider-nrepl` version to `0.25.4`.
 * Bump the injected Piggieback version to 0.5.2. See [this issue](https://github.com/nrepl/piggieback/issues/118) for details.
 * [#2897](https://github.com/clojure-emacs/cider/pull/2897): Translate paths from CIDER to nREPL and vice-versa.
