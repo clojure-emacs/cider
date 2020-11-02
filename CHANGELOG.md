@@ -15,6 +15,7 @@
 
 * Bump the injected nREPL version to 0.8.1.
 * Bump the injected `cider-nrepl` version to `0.25.4`.
+* Bump the injected Piggieback version to 0.5.2. See [this issue](https://github.com/nrepl/piggieback/issues/118) for details.
 * [#2897](https://github.com/clojure-emacs/cider/pull/2897): Translate paths from CIDER to nREPL and vice-versa.
 * Set `cider-prompt-for-symbol` to `nil` by default.
 
