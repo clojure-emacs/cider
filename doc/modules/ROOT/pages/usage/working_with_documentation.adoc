@@ -11,6 +11,8 @@ press kbd:[C-c C-d C-d] then. This open a documentation buffer
 containing all the relevant information about the thing referenced
 by the symbol (special form, var, Java method, etc).
 
+TIP: Ensure the namespace of a var is evaluated before looking up the documentation. Cider relies on the runtime state to lookup documentation.
+
 == JavaDoc
 
 CIDER provides a quick access to the online Javadoc documentation
