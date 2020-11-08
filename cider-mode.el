@@ -230,7 +230,7 @@ With a prefix argument, prompt for function to run instead of -main."
   "0.21.0")
 
 (defcustom cider-switch-to-repl-on-insert t
-  "Whether to switch to the repl when inserting a form into the repl."
+  "Whether to switch to the REPL when inserting a form into the REPL."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "0.21.0"))
