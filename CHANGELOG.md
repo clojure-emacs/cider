@@ -93,7 +93,7 @@ macros, special forms and methods.
 
 ### New features
 
-* [#2744](https://github.com/clojure-emacs/cider/pull/2744): Add startup commands to repl banner.
+* [#2744](https://github.com/clojure-emacs/cider/pull/2744): Add startup commands to REPL banner.
 * [#2499](https://github.com/clojure-emacs/cider/issues/2499): Add `cider-jump-to-pop-to-buffer-actions`.
 * [#2738](https://github.com/clojure-emacs/cider/pull/2738): Add ability to lookup a function symbol when cursor is at the opening paren.
 * [#2735](https://github.com/clojure-emacs/cider/pull/2735): New debugger command `P` to inspect an arbitrary expression, it was previously bound to `p` which now inspects the current value.
@@ -108,7 +108,7 @@ macros, special forms and methods.
 
 * [#2787](https://github.com/clojure-emacs/cider/issues/2787): Fix nrepl process naming collision when using `nrepl-hide-special-buffers`.
 * [#2739](https://github.com/clojure-emacs/cider/pull/2739): Start built-in shadow-cljs build profiles correctly (node-repl, browser-repl).
-* [#2730](https://github.com/clojure-emacs/cider/pull/2730): Require repl utilities into current namespace not just `user` ns.
+* [#2730](https://github.com/clojure-emacs/cider/pull/2730): Require REPL utilities into current namespace not just `user` ns.
 * [#2614](https://github.com/clojure-emacs/cider/issues/2614): Fix error highlighting in source buffers for Clojure 1.10.
 * [#2733](https://github.com/clojure-emacs/cider/issues/2733): Restore compatibility with Emacs 25.3.
 
@@ -156,7 +156,7 @@ macros, special forms and methods.
 * `spec-list` and `spec-form` requests send the current namespace for alias resolution.
 * `C-c , C-g` and `C-c C-t C-g` cancel the key chord instead of rerunning the last test. The respective command has been moved to `C-c , C-a`, `C-c , a`, `C-c C-t C-a` and `C-c C-t a`.
 * [#2643](https://github.com/clojure-emacs/cider/issues/2643): **(Breaking)** Stop using the `cider.tasks/nrepl-server` custom task for `cider-jack-in` with Boot.
-* [#2647](https://github.com/clojure-emacs/cider/issues/2647): `cider-repl-require-repl-utils` now loads cljs specific repl utils in cljs buffers.
+* [#2647](https://github.com/clojure-emacs/cider/issues/2647): `cider-repl-require-repl-utils` now loads cljs specific REPL utils in cljs buffers.
 * [#2689](https://github.com/clojure-emacs/cider/issues/2689): `cider-load-buffer` now takes an optional `callback` that will override the default `cider-load-file-handler`.
 * [#2689](https://github.com/clojure-emacs/cider/issues/2689): `cider-load-file-handler` now takes an optional `done-handler` lambda that is run once load is complete.
 
@@ -164,7 +164,7 @@ macros, special forms and methods.
 
 * [#2685](https://github.com/clojure-emacs/cider/pull/2658): Send `exclude-regexps` in apropos under correct key
 * Stop cursor moving when initialising the CIDER REPL, when `cider-repl-pop-to-buffer-on-connect` is nil. This fixes a bug introduced by [commit e0aca78b](https://github.com/clojure-emacs/cider/commit/e0aca78ba56425e50ea895c5adc7c0331cee0b19).
-* [#2577](https://github.com/clojure-emacs/cider/issues/2577): Ensure user friendly error messages if a repl connection is expected but none was found in certain situations.
+* [#2577](https://github.com/clojure-emacs/cider/issues/2577): Ensure user friendly error messages if a REPL connection is expected but none was found in certain situations.
 * [#2593](https://github.com/clojure-emacs/cider/issues/2593): The REPL's initial namespace is now set correctly if configured in another tool (e.g. Leiningen's `:init-ns`).
 * [#2607](https://github.com/clojure-emacs/cider/pull/2607): Use markers for specifying insertion point for `cider-eval-*-to-comment`commands. This fixes a bug where editing the buffer during a pending evaluation resulted in comments appearing in unintended locations.
 * [#2308](https://github.com/clojure-emacs/cider/issues/2308): Don't rely on the classpath in `cider-library-present-p`. Now it does a `require` instead to check if some library is present or not.
@@ -184,7 +184,7 @@ macros, special forms and methods.
 
 ### Changes
 
-* * Add new defcustom `cider-switch-to-repl-on-insert`: Set to prevent cursor from going to the repl when inserting a form in the repl with the insert-to-repl commands. Replaces obsoleted `cider-switch-to-repl-after-insert-p`
+* * Add new defcustom `cider-switch-to-repl-on-insert`: Set to prevent cursor from going to the REPL when inserting a form in the REPL with the insert-to-repl commands. Replaces obsoleted `cider-switch-to-repl-after-insert-p`
 * **(Breaking)** Upgrade to nREPL 0.6.0. This is now the minimum required version.
 * **(Breaking)** Upgrade to piggieback 0.4.0. This is now the minimum required version.
 * **(Breaking)** Remove `cider.nrepl.middleware.pprint`. All functionality has been replaced by the built-in printing support in nREPL 0.6.
@@ -215,7 +215,7 @@ macros, special forms and methods.
 ### Changes
 
 * [#2496](https://github.com/clojure-emacs/cider/issues/2496): Replace CIDER's pprint implementation with nREPL 0.5's built-in pprint support.
-* [#2558](https://github.com/clojure-emacs/cider/pull/2558): Load clj, cljc, & cljs (if cljs repl available) files on `cider-load-all-files` (`C-c C-M-l`). Previously, this only loaded clj files.
+* [#2558](https://github.com/clojure-emacs/cider/pull/2558): Load clj, cljc, & cljs (if cljs REPL available) files on `cider-load-all-files` (`C-c C-M-l`). Previously, this only loaded clj files.
 * Enable pretty-printing in the REPL by default.
 
 ### Bug fixes
@@ -265,9 +265,9 @@ macros, special forms and methods.
 * Add new `cider-start-map` keymap (`C-c C-x`) for jack-in and connection commands.
 * Add new `cider-ns-map` keymap (`C-c M-n`) for namespace related functionality.
 * Allow evaling top level forms in a comment form rather than the entire comment form with `cider-eval-toplevel-inside-comment-form`.
-* Create keymap for inserting forms into the repl at `C-c C-j`.
+* Create keymap for inserting forms into the REPL at `C-c C-j`.
 * Add new defcustom `cider-invert-insert-eval-p`: Set to cause insert-to-repl commands to eval the forms by default when inserted.
-* Add new defcustom `cider-switch-to-repl-after-insert-p`: Set to prevent cursor from going to the repl when inserting a form in the repl with the insert-to-repl commands.
+* Add new defcustom `cider-switch-to-repl-after-insert-p`: Set to prevent cursor from going to the REPL when inserting a form in the REPL with the insert-to-repl commands.
 * Inject piggieback automatically on `cider-jack-in-clojurescript`.
 * Introduce a new command named `cider` (`C-c M-x`) that acts as a simple wrapper around all commands for starting/connecting to REPLs.
 * [#2305](https://github.com/clojure-emacs/cider/issues/2305): Make it possible to disable the REPL type auto-detection by customizing `cider-repl-auto-detect-type`.
@@ -284,7 +284,7 @@ macros, special forms and methods.
 * [#2310](https://github.com/clojure-emacs/cider/issues/2310): `cider-format-edn-last-sexp` will format the last sexp.
 * [#2294](https://github.com/clojure-emacs/cider/issues/2294): Fix setting default stacktrace filters.
 * [#2286](https://github.com/clojure-emacs/cider/issues/2286): Fix eldoc issue with images in the REPL.
-* [#2307](https://github.com/clojure-emacs/cider/pull/2307): Use a better error when a cljs repl form cannot be found.
+* [#2307](https://github.com/clojure-emacs/cider/pull/2307): Use a better error when a cljs REPL form cannot be found.
 * Fix the broken test selector functionality.
 * [#2291](https://github.com/clojure-emacs/cider/issues/2291): `cider-use-tooltips` custom variable works as expected.
 * [#2424](https://github.com/clojure-emacs/cider/issues/2424): Fallback to `lein` as the default jack-in command when `clojure` is not present.
@@ -444,7 +444,7 @@ macros, special forms and methods.
 * [#1991](https://github.com/clojure-emacs/cider/issues/1832): Make it possible to disable the prompt to open a ClojureScript in a browser on connect via `cider-offer-to-open-cljs-app-in-browser`.
 * [#1995](https://github.com/clojure-emacs/cider/pull/1995): Add new customization variable `cider-doc-auto-select-buffer` to control cider-doc popup buffer auto selection.
 * Ensure that `cider-current-connection` picks the most recently used connection in ambiguous cases.
-* Ensure that `cider-switch-to-repl-buffer` picks the most recent repl buffer if multiple connections are available.
+* Ensure that `cider-switch-to-repl-buffer` picks the most recent REPL buffer if multiple connections are available.
 * Add new function `cider-project-connections-types`.
 
 ### Changes
@@ -675,7 +675,7 @@ and try to associate the created connection with this project automatically.
 
 ### Bugs fixed
 
-* [#1521](https://github.com/clojure-emacs/cider/pull/1521): Don't assume the repl buffer is in the current frame in `cider-repl--show-maximum-output`.
+* [#1521](https://github.com/clojure-emacs/cider/pull/1521): Don't assume the REPL buffer is in the current frame in `cider-repl--show-maximum-output`.
 
 ## 0.10.1 (2016-01-05)
 
@@ -729,7 +729,7 @@ and try to associate the created connection with this project automatically.
 * [#1188](https://github.com/clojure-emacs/cider/pull/1188): New debugging tool-bar.
 * [#1187](https://github.com/clojure-emacs/cider/pull/1187): The list of keys displayed by the debugger can be configured with `cider-debug-prompt`.
 * [#1187](https://github.com/clojure-emacs/cider/pull/1187): While debugging, there is a menu on the menu-bar listing available commands.
-* [#1184](https://github.com/clojure-emacs/cider/pull/1184): When the user kills the repl buffer, CIDER will offer to kill the nrepl buffer and process too. Also, when the client (repl) process dies, the server (nrepl) process is killed too.
+* [#1184](https://github.com/clojure-emacs/cider/pull/1184): When the user kills the REPL buffer, CIDER will offer to kill the nrepl buffer and process too. Also, when the client (repl) process dies, the server (nrepl) process is killed too.
 * [#1182](https://github.com/clojure-emacs/cider/pull/1182): New command `cider-browse-instrumented-defs`, displays a buffer listing all defitions currently instrumented by the debugger.
 * [#1182](https://github.com/clojure-emacs/cider/pull/1182): Definitions currently instrumented by the debugger are marked with a red box in the source buffer.
 * [#1174](https://github.com/clojure-emacs/cider/pull/1174): New command `cider-run`, runs the project's `-main` function.
@@ -899,7 +899,7 @@ when in buffer that's not visiting a file (e.g. a REPL buffer).
 * Fix tab completion in `cider-read-from-minibuffer`.
 * [#894](https://github.com/clojure-emacs/cider/issues/894): Make it possible to enter any symbol with `cider-read-symbol-name`.
 * Report Clojure's version including its qualifier (e.g. `alpha4`) if present.
-* Use the `field` text property to make move-beginning-of-line respect the repl prompt instead of writing our own beginning-of-line commands.
+* Use the `field` text property to make move-beginning-of-line respect the REPL prompt instead of writing our own beginning-of-line commands.
 
 ## 0.8.1 (2014-11-20)
 
@@ -1226,7 +1226,7 @@ of the evaluated code to the REPL buffer, so you can easily play with the output
 ### New features
 
 * Add support for multiple nrepl sessions.  A single session is closed with
-  `M-x nrepl-close`.  A repl session is made default with
+  `M-x nrepl-close`.  A REPL session is made default with
   `M-x nrepl-make-repl-connection-default`.
 * Added support for pretty-printing in the REPL buffer.
 * Added a check for the presence of an existing `*nrepl*` buffer before
@@ -1243,11 +1243,11 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
   multiple connections.
 * Add macroexpand key bindings to `nrepl-mode-map`.
 * Don't suppress namespaces in macroexpansion.
-* Add explicit require of expected namespaces in the repl buffer.
+* Add explicit require of expected namespaces in the REPL buffer.
 
 * Add command `nrepl-pprint-eval-last-expression`.
 * Add an event buffer for debugging.
-* Allow connections without repl buffers.
+* Allow connections without REPL buffers.
 * Add hook `nrepl-file-loaded-hook` which runs on load-file
   completion.
 * Expand ido-completion to include "used" variables in addition to
@@ -1295,7 +1295,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Support for describe op to determine which server ops are available at startup
 * Support for the following server ops (if available): load-file, complete, and javadoc (available in ritz)
 * Added nrepl-host and nrepl-port custom variables M-x nrepl default hostname/port
-* Ported over the following repl buffer functions from slime:
+* Ported over the following REPL buffer functions from slime:
     History regexp filtering - M-s nrepl-next-matching-input, M-r nrepl-previous-matching-input
     C-c C-u nrepl-kill-input
     C-c C-n nrepl-next-prompt/C-c C-p nrepl-previous-prompt
@@ -1316,7 +1316,7 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 * Make completion back-end and error handler configurable (Hugo Duncan)
 * Accept host as well as port on connect (Ken Restivo)
 * Enable nrepl-interaction-mode in clojurescript-mode (Nelson Morris)
-* Emit stdout from interactive evaluations into the repl buffer
+* Emit stdout from interactive evaluations into the REPL buffer
 
 ### Bugs fixed
 
@@ -1332,9 +1332,9 @@ buffers like `*nrepl-server*` and `*nrepl-connection*`.
 ### New features
 
 * eldoc support for displaying arglists in the minibuffer (Stefan Kamphausen)
-* persistent repl history (Stefan Kamphausen)
+* persistent REPL history (Stefan Kamphausen)
 * fix for jumbled stacktraces (Ryan Fowler)
-* add a doc keybinding for the repl buffer (Ken Restivo)
+* add a doc keybinding for the REPL buffer (Ken Restivo)
 * plumbing to support ac-nrepl [https://github.com/purcell/ac-nrepl] (Steve Purcell)
 * stdin support (which also provides support for debug-repl
   [https://github.com/GeorgeJahad/debug-repl] and limit-break [https://github.com/technomancy/limit-break])
