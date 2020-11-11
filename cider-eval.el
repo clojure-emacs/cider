@@ -857,6 +857,8 @@ COMMENT-POSTFIX is the text to output after the last line."
        (with-current-buffer buffer
          (save-excursion
            (goto-char (marker-position location))
+           ;; edge case: defun at eob
+           (unless (bolp) (insert "\n"))
            (cider-maybe-insert-multiline-comment res comment-prefix continued-prefix comment-postfix)))
        (when cider-eval-register
          (set-register cider-eval-register res)))
