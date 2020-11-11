@@ -830,11 +830,15 @@ RESULT will be preceded by COMMENT-PREFIX.
 CONTINUED-PREFIX is inserted for each additional line of output.
 COMMENT-POSTFIX is inserted after final text output."
   (unless (string= result "")
-    (let ((lines (split-string result "[\n]+" t)))
+    (clojure-indent-line)
+    (let ((lines (split-string result "[\n]+" t))
+          (beg (point))
+          (col (current-indentation)))
       ;; only the first line gets the normal comment-prefix
       (insert (concat comment-prefix (pop lines)))
       (dolist (elem lines)
         (insert (concat "\n" continued-prefix elem)))
+      (indent-rigidly beg (point) col)
       (unless (string= comment-postfix "")
         (insert comment-postfix)))))
 
