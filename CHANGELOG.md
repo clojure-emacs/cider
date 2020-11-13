@@ -10,6 +10,7 @@
 
 * Fix broken links to the docs in REPL warnings (the REPL links included the full CIDER version, but the docs URLs are without the patch version).
 * [#2916](https://github.com/clojure-emacs/cider/issues/2916): Fix ordering of dependencies, global-opts and params for Clojure CLI projects when calling `cider-jack-in`.
+* [#2929](https://github.com/clojure-emacs/cider/issues/2929): Fix handling of reader tags or metadata when calling `cider-eval-last-sexp-and-replace`
 
 ### Changes
 

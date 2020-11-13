@@ -802,7 +802,9 @@ buffer."
     ;; we have to be sure the evaluation won't result in an error
     (cider-nrepl-sync-request:eval last-sexp)
     ;; seems like the sexp is valid, so we can safely kill it
-    (backward-kill-sexp)
+    (let ((opoint (point)))
+      (clojure-backward-logical-sexp)
+      (kill-region (point) opoint))
     (cider-interactive-eval last-sexp
                             (cider-eval-print-handler)
                             nil
