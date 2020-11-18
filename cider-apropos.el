@@ -30,13 +30,12 @@
 (require 'cider-util)
 (require 'subr-x)
 (require 'cider-compat)
-(require 'cider-mode)
+(require 'cider-connection) ; for cider-ensure-connected
 
 (require 'cider-client)
 (require 'cider-popup)
 (require 'nrepl-dict)
 
-(require 'clojure-mode)
 (require 'apropos)
 (require 'button)
 
@@ -115,8 +114,6 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
             (insert doc)
             (fill-region beg (point))))
         (insert "\n")))))
-
-(declare-function cider-mode "cider-mode")
 
 (defun cider-show-apropos (summary results query docs-p)
   "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
