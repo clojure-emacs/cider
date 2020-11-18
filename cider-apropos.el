@@ -25,7 +25,8 @@
 
 ;;; Code:
 
-(require 'cider-doc)
+(require 'cider-doc) ; for cider-doc-lookup
+(require 'cider-find) ; for cider--find-var
 (require 'cider-util)
 (require 'subr-x)
 (require 'cider-compat)
