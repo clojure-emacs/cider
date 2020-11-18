@@ -139,7 +139,7 @@ Here's a list of all of ``cider-selector``'s keybindings:
 | `+*cider-doc*+` buffer.
 
 | kbd:[p]
-| `+*cider-profiler*+` buffer.
+| `+*cider-profile*+` buffer.
 
 | kbd:[s]
 | `+*cider-scratch*+` buffer.

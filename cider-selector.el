@@ -158,7 +158,7 @@ visited cider-repl-mode buffer."
   cider-error-buffer)
 
 (def-cider-selector-method ?p
-  "CIDER profiler buffer."
+  "*cider-profile* buffer."
   cider-profile-buffer)
 
 (def-cider-selector-method ?d
