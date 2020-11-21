@@ -364,6 +364,10 @@ Throws an error if PROJECT-TYPE is unknown."
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
+  ;; The format of these command-line strings must consider different shells,
+  ;; different values of IFS, and the possibility that they'll be run remotely
+  ;; (e.g. with TRAMP). Using `", "` causes problems with TRAMP, for example.
+  ;; Please be careful when changing them.
   (pcase project-type
     ('lein        cider-lein-parameters)
     ('boot        cider-boot-parameters)
@@ -373,7 +377,7 @@ Throws an error if PROJECT-TYPE is unknown."
                            (mapconcat
                             (apply-partially #'format "\"%s\"")
                             (cider-jack-in-normalized-nrepl-middlewares)
-                            ", ")
+                            ",")
                            "]")))
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
