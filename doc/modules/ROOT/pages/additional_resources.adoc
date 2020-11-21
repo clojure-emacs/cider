@@ -10,6 +10,7 @@ https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.pdf[her
 
 * https://www.youtube.com/watch?v=aYA4AAjLfT0[Deep Dive into CIDER] - an overview of CIDER's essential features
 * https://www.youtube.com/watch?v=O6g5C4jUCUc[Emacs & Clojure, A Lispy Love Affair] - an overview of all popular Emacs packages for Clojure development (including CIDER)
+* https://www.youtube.com/watch?v=IvTDzKVL58Y[Dark CIDER] - a talk featuring a demo of some less known features in CIDER (fast-forward to the 30th minute for the demo part)
 
 == Presentations
 
