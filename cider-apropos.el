@@ -93,6 +93,7 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
                          'font-lock-face apropos-match-face doc)))
   doc)
 
+(defvar cider-use-tooltips)
 (defun cider-apropos-result (result query docs-p)
   "Emit a RESULT matching QUERY into current buffer, formatted for DOCS-P."
   (nrepl-dbind-response result (name type doc)
