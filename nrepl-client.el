@@ -1259,7 +1259,7 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
                (name-lengths (seq-map (lambda (pair) (length (car pair))) sorted-pairs))
                (longest-name (seq-max name-lengths))
                ;; Special entries are displayed first
-               (specialq (lambda (pair) (seq-contains '("id" "op" "session" "time-stamp") (car pair))))
+               (specialq (lambda (pair) (seq-contains-p '("id" "op" "session" "time-stamp") (car pair))))
                (special-pairs (seq-filter specialq sorted-pairs))
                (not-special-pairs (seq-remove specialq sorted-pairs))
                (all-pairs (seq-concatenate 'list special-pairs not-special-pairs))
