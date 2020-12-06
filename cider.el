@@ -719,6 +719,11 @@ Generally you should not disable this unless you run into some faulty check."
       options
     (concat ":" options)))
 
+(defcustom cider-shadow-watched-builds nil
+  "Defines the list of builds `shadow-cljs' should watch."
+  :type '(repeat string)
+  :package-version '(cider . "1.0"))
+
 (defcustom cider-shadow-default-options nil
   "Defines default `shadow-cljs' options."
   :type 'string
@@ -758,17 +763,26 @@ not just a string."
 We have to prompt the user to select a build, that's why
 this is a command, not just a string."
   (let* ((shadow-require "(require '[shadow.cljs.devtools.api :as shadow])")
+
+         (default-build (cider-normalize-cljs-init-options
+                         (or cider-shadow-default-options
+                             (car cider-shadow-watched-builds)
+                             (completing-read "Select shadow-cljs build: "
+                                              (cider--shadow-get-builds)))))
+
+         (watched-builds (or (mapcar #'cider-normalize-cljs-init-options cider-shadow-watched-builds)
+                             (list default-build)))
+
+         (watched-builds-form (mapconcat (lambda (build) (format "(shadow/watch %s)" build))
+                                         watched-builds
+                                         " "))
          ;; form used for user-defined builds
-         (user-build-form "(do %s (shadow/watch %s) (shadow/nrepl-select %s))")
+         (user-build-form "(do %s %s (shadow/nrepl-select %s))")
          ;; form used for built-in builds like :browser-repl and :node-repl
-         (default-build-form "(do %s (shadow/%s))")
-         (options (or cider-shadow-default-options
-                      (completing-read "Select shadow-cljs build: "
-                                       (cider--shadow-get-builds))))
-         (build (cider-normalize-cljs-init-options options)))
-    (if (member build '(":browser-repl" ":node-repl"))
-        (format default-build-form shadow-require (string-remove-prefix ":" build))
-      (format user-build-form shadow-require build build))))
+         (default-build-form "(do %s (shadow/%s))"))
+    (if (member default-build '(":browser-repl" ":node-repl"))
+        (format default-build-form shadow-require (string-remove-prefix ":" default-build))
+      (format user-build-form shadow-require watched-builds-form default-build))))
 
 (defcustom cider-figwheel-main-default-options nil
   "Defines the `figwheel.main/start' options.
