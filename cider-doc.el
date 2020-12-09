@@ -37,6 +37,7 @@
 (require 'easymenu)
 (require 'cider-browse-spec)
 
+;; we defer loading those, as org-table is a big library
 (declare-function org-table-map-tables "org-table")
 (declare-function org-table-align "org-table")
 (declare-function org-table-begin "org-table")
