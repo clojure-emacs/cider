@@ -504,13 +504,16 @@ REPL defaults to the current REPL."
 ;;; Sesman's Session-Wise Management UI
 
 (cl-defmethod sesman-project ((_system (eql CIDER)))
+  "Find project directory."
   (clojure-project-dir (cider-current-dir)))
 
 (cl-defmethod sesman-more-relevant-p ((_system (eql CIDER)) session1 session2)
+  "Figure out if SESSION1 or SESSION2 is more relevant."
   (sesman-more-recent-p (cdr session1) (cdr session2)))
 
 (declare-function cider-classpath-entries "cider-client")
 (cl-defmethod sesman-friendly-session-p ((_system (eql CIDER)) session)
+  "Check if SESSION is a friendly session."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let* ((repl (cadr session))
               (proc (get-buffer-process repl))
@@ -555,6 +558,7 @@ REPL defaults to the current REPL."
   "Map active on REPL objects in sesman browser.")
 
 (cl-defmethod sesman-session-info ((_system (eql CIDER)) session)
+  "Obtain info for a CIDER SESSION."
   (list :objects (cdr session)
         :map cider-sesman-browser-map))
 
@@ -565,12 +569,14 @@ Fallback on `cider' command."
   (call-interactively #'cider))
 
 (cl-defmethod sesman-quit-session ((_system (eql CIDER)) session)
+  "Quit a CIDER SESSION."
   (mapc #'cider--close-connection (cdr session))
   ;; if there are no more session we can kill all ancillary buffers
   (unless (cider-sessions)
     (cider-close-ancillary-buffers)))
 
 (cl-defmethod sesman-restart-session ((_system (eql CIDER)) session)
+  "Restart a CIDER SESSION."
   (let* ((ses-name (car session))
          (repls (cdr session))
          (srv-buf (cider--session-server session)))
