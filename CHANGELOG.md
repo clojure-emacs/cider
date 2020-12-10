@@ -5,6 +5,7 @@
 ### New features
 
 * [#2909](https://github.com/clojure-emacs/cider/issues/2909): Add new customization variable `cider-inspector-auto-select-buffer` to control the auto selection of the inspector buffer.
+* [#2940](https://github.com/clojure-emacs/cider/pull/2940): Add a new customization variable cider-shadow-watched-builds to allow watching several shadow-cljs builds at the same time.
 
 ### Bugs fixed
 

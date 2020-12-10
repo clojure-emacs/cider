@@ -44,7 +44,8 @@ root of your project.
 [source,clojure]
 ----
 ((nil . ((cider-default-cljs-repl . shadow)
-         (cider-shadow-default-options . "<your-build-name-here>"))))
+         (cider-shadow-default-options . "<your-build-name-here>")
+         (cider-shadow-watched-builds . ("<first-build>" "<other-build>")))))
 ----
 
 === Using cider-connect-cljs

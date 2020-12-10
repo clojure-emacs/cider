@@ -338,7 +338,14 @@
       (spy-on 'completing-read :and-return-value ":browser-repl")
       (expect (cider-shadow-cljs-init-form)
               :to-equal
-              "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/browser-repl))"))))
+              "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/browser-repl))")))
+  (describe "can watch multiple builds"
+    (it "watches 2 builds and selects user-defined builds"
+      (setq-local cider-shadow-default-options "client-build")
+      (setq-local cider-shadow-watched-builds '("client-build" "other-build"))
+      (expect (cider-shadow-cljs-init-form)
+              :to-equal
+              "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :client-build) (shadow/watch :other-build) (shadow/nrepl-select :client-build))"))))
 
 (provide 'cider-tests)
 
