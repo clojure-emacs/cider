@@ -14,6 +14,42 @@ kbd:[M-x] `cider-scratch` command. This is a great way to play
 around with some code without having to create source files or pollute
 the REPL buffer and is very similar to Emacs's own `+*scratch*+` buffer.
 
+== Find References
+
+NOTE: The functionality is based on https://metaredux.com/posts/2019/12/11/hard-cider-find-usages.html[ideas from this article] and was
+introduced in CIDER 0.22.
+
+There are two ways to use find references in CIDER:
+
+* `cider-xref-fn-refs` (kbd:[C-c C-? r]) shows the usages of the function at point in a dedicated buffer
+* `cider-xref-fn-refs-select` (kbd:[C-c C-? C-r]) shows the usages in the minibuffer
+
+Here's how they look in action:
+
+image::cider_find_usages.gif[CIDER Find References]
+
+Keep in mind the following limitations:
+
+- This works only for Clojure
+- It's powered by runtime state analysis, which means it will show only data for loaded namespaces (like most of CIDER's functionality)
+- It doesn't (currently) find usages in lambdas
+- It doesn't give us the precise locations where something is used, we only know that it's used
+
+On the bright side:
+
+- It's super fast
+- It doesn't require any static code analysis
+- It's still more reliable than `grep`
+
+The functionality is not perfect, but at least it's there if you need it. As a bonus you get a quick way to navigate to
+all of the functions used by some function using `cider-xref-fn-deps` (`C-c C-? d`) and `cider-xref-fn-deps-select` (`C-c C-? C-d`).
+Those are pretty handy if you don't want to jump to the source of some function to see what it refers to internally.
+
+Don't forget you also have a couple of third-party alternative:
+
+- The much more sophisticated AST-powered "find usages" provided by `clj-refactor.el`
+- https://github.com/bbatsov/projectile[Projectile's] "grep in project" (`projectile-grep`, typically bound to `C-c p g`)
+
 == Reloading Code
 
 While Clojure's and CIDER's interactive programming style means you'll
