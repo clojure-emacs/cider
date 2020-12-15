@@ -42,13 +42,13 @@ On the bright side:
 - It's still more reliable than `grep`
 
 The functionality is not perfect, but at least it's there if you need it. As a bonus you get a quick way to navigate to
-all of the functions used by some function using `cider-xref-fn-deps` (`C-c C-? d`) and `cider-xref-fn-deps-select` (`C-c C-? C-d`).
-Those are pretty handy if you don't want to jump to the source of some function to see what it refers to internally.
+all of the functions used by some function using `cider-xref-fn-deps` (kbd:[C-c C-? d]) and `cider-xref-fn-deps-select` (kbd:[C-c C-? C-d]).
+Those are pretty handy if you don't want to jump to the source of some function to see what functions it refers to (uses) internally.
 
 Don't forget you also have a couple of third-party alternative:
 
 - The much more sophisticated AST-powered "find usages" provided by `clj-refactor.el`
-- https://github.com/bbatsov/projectile[Projectile's] "grep in project" (`projectile-grep`, typically bound to `C-c p g`)
+- https://github.com/bbatsov/projectile[Projectile's] "grep in project" (`projectile-grep`, typically bound to kbd:[C-c p g])
 
 == Reloading Code
 
