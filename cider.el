@@ -1360,8 +1360,9 @@ canceled the action, signal quit."
     (when session
       (unless (y-or-n-p
                (concat
-                "A session with the same parameters exists (" (car session) ").  "
-                "You can connect a sibling instead.  Proceed? "))
+                "A session with the same parameters already exists (" (car session) ").  "
+                "You can connect a sibling REPL to it instead (recommended).  "
+                "Please, confirm the creation a new session (typing \"no\" will re-use the exising session)."))
         (let ((debug-on-quit nil))
           (signal 'quit nil)))))
   params)
