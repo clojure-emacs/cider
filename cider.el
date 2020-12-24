@@ -1369,24 +1369,10 @@ canceled the action, signal quit."
 
 ;;; Aliases
 
- ;;;###autoload
-(defalias 'cider-jack-in #'cider-jack-in-clj)
- ;;;###autoload
-(define-obsolete-function-alias 'cider-jack-in-clojure 'cider-jack-in-clj "0.22")
 ;;;###autoload
-(define-obsolete-function-alias 'cider-jack-in-clojurescript 'cider-jack-in-cljs "0.22")
-
+(defalias 'cider-jack-in #'cider-jack-in-clj)
 ;;;###autoload
 (defalias 'cider-connect #'cider-connect-clj)
-;;;###autoload
-(define-obsolete-function-alias 'cider-connect-clojure 'cider-connect-clj "0.22")
-;;;###autoload
-(define-obsolete-function-alias 'cider-connect-clojurescript 'cider-connect-cljs "0.22")
-
-;;;###autoload
-(define-obsolete-function-alias 'cider-connect-sibling-clojure 'cider-connect-sibling-clj "0.22")
-;;;###autoload
-(define-obsolete-function-alias 'cider-connect-sibling-clojurescript 'cider-connect-sibling-cljs "0.22")
 
 
 ;;; Helpers
