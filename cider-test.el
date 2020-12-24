@@ -617,6 +617,18 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 
 ;;; Test execution
 
+(defcustom cider-test-default-include-selectors '()
+  "List of include selector strings to use when executing tests if none provided."
+  :type '(repeat string)
+  :group 'cider-test
+  :package-version '(cider . "0.26.1"))
+
+(defcustom cider-test-default-exclude-selectors '()
+  "List of exclude selector strings to use when executing tests if none provided."
+  :type '(repeat string)
+  :group 'cider-test
+  :package-version '(cider . "0.26.1"))
+
 (declare-function cider-emit-interactive-eval-output "cider-eval")
 (declare-function cider-emit-interactive-eval-err-output "cider-eval")
 
@@ -636,16 +648,28 @@ namespace is specified.  Upon test completion, results are echoed and a test
 report is optionally displayed.  When test failures/errors occur, their sources
 are highlighted.
 If SILENT is non-nil, suppress all messages other then test results.
-If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selector filters.
+If PROMPT-FOR-FILTERS is the keyword `:selector-vars' then use the variables
+`cider-test-default-include-selectors' and
+`cider-test-default-exclude-selectors'
+for determining selectors otherwise if PROMPT-FOR-FILTERS is non-nil, prompt
+the user for a test selector filters.
 The include/exclude selectors will be used to filter the tests before
- running them."
+running them."
   (cider-test-clear-highlights)
   (let ((include-selectors
-         (when prompt-for-filters
-           (cider-test--prompt-for-selectors "Test selectors to include (space separated): ")))
+         (cond
+          ((eq prompt-for-filters :selector-vars)
+           cider-test-default-include-selectors)
+          (prompt-for-filters (cider-test--prompt-for-selectors
+                               "Test selectors to include (space separated): "))
+          (t nil)))
         (exclude-selectors
-         (when prompt-for-filters
-           (cider-test--prompt-for-selectors "Test selectors to exclude (space separated): "))))
+         (cond
+          ((eq prompt-for-filters :selector-vars)
+           cider-test-default-exclude-selectors)
+          (prompt-for-filters (cider-test--prompt-for-selectors
+                               "Test selectors to exclude (space separated): "))
+          (t nil))))
     (cider-map-repls :clj-strict
       (lambda (conn)
         (unless silent
@@ -715,14 +739,14 @@ The include/exclude selectors will be used to filter the tests before
 
 If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selectors to filter the tests with."
   (interactive "P")
-  (cider-test-execute :loaded nil nil prompt-for-filters))
+  (cider-test-execute :loaded nil nil (or prompt-for-filters :selector-vars)))
 
 (defun cider-test-run-project-tests (prompt-for-filters)
   "Run all tests defined in all project namespaces, loading these as needed.
 
 If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selectors to filter the tests with."
   (interactive "P")
-  (cider-test-execute :project nil nil prompt-for-filters))
+  (cider-test-execute :project nil nil (or prompt-for-filters :selector-vars)))
 
 (defun cider-test-run-ns-tests-with-filters (suppress-inference)
   "Run tests filtered by selectors for the current Clojure namespace context.
@@ -743,7 +767,7 @@ test selectors to filter the tests with."
   (if-let* ((ns (if suppress-inference
                     (cider-current-ns t)
                   (funcall cider-test-infer-test-ns (cider-current-ns t)))))
-      (cider-test-execute ns nil silent prompt-for-filters)
+      (cider-test-execute ns nil silent (or prompt-for-filters :selector-vars))
     (if (eq major-mode 'cider-test-report-mode)
         (when (y-or-n-p (concat "Test report does not define a namespace. "
                                 "Rerun failed/erring tests?"))

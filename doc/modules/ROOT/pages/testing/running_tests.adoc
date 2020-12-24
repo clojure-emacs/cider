@@ -37,7 +37,11 @@ kbd:[C-c C-t C-l].
 
 If you invoke either of these commands with a prefix, CIDER will
 prompt for test selector filters and only run those tests that match
-the selector inclusions/exclusions.
+the selector inclusions/exclusions. If you have selectors you want
+automatically applied, you can set the variables
+`cider-test-default-include-selectors` and `cider-test-default-exclude-selectors`
+to a list of stings to use. Note that selectors will ignored when running
+individual tests.
 
 Test developers use selectors to define subsets of the total test
 suite that are run together for different testing tasks. For example
