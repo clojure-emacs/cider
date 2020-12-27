@@ -1357,14 +1357,14 @@ canceled the action, signal quit."
                                      (or (null host)
                                          (equal host (plist-get ses-params :host))))))
                             (sesman-current-sessions 'CIDER '(project)))))
-    (when (and session
-               (y-or-n-p
-                (concat
-                 "A session with the same connection parameters already exists (" (car session) ").  "
-                 "Do you want to connect a sibling REPL to it instead of creating a new session?  ")))
+    (if (and session
+             (y-or-n-p
+              (concat
+               "A CIDER session with the same connection parameters already exists (" (car session) ").  "
+               "Are you sure you want to create a new session instead of using `cider-connect-sibling-clj(s)'?  ")))
+        params
       (let ((debug-on-quit nil))
-        (signal 'quit nil))))
-  params)
+        (signal 'quit nil)))))
 
 
 ;;; Aliases
