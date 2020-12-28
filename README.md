@@ -28,7 +28,7 @@ tests and so on.
 [![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GRQKNBM6P8VRQ)
 
 Bozhidar (a.k.a. Bug, CIDER's primary author/maintainer) has spent countless hours working on
-CIDER and the [numerous the related projects](https://metaredux.com/posts/2018/11/09/ciders-orchard-the-heart.html). That's a lot of work and not all of it is fun!
+CIDER and the [numerous related projects](https://metaredux.com/posts/2018/11/09/ciders-orchard-the-heart.html). That's a lot of work and not all of it is fun!
 
 **Please consider [supporting financially CIDER's ongoing development](#funding).**
 
