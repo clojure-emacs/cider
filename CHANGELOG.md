@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.0.0 (2020-28-12)
+
 ### New features
 
 * [#2909](https://github.com/clojure-emacs/cider/issues/2909): Add new customization variable `cider-inspector-auto-select-buffer` to control the auto selection of the inspector buffer.
@@ -11,12 +13,12 @@
 
 * Fix broken links to the docs in REPL warnings (the REPL links included the full CIDER version, but the docs URLs are without the patch version).
 * [#2916](https://github.com/clojure-emacs/cider/issues/2916): Fix ordering of dependencies, global-opts and params for Clojure CLI projects when calling `cider-jack-in`.
-* [#2929](https://github.com/clojure-emacs/cider/issues/2929): Fix handling of reader tags or metadata when calling `cider-eval-last-sexp-and-replace`
+* [#2929](https://github.com/clojure-emacs/cider/issues/2929): Fix handling of reader tags or metadata when calling `cider-eval-last-sexp-and-replace`.
 
 ### Changes
 
 * Bump the injected nREPL version to 0.8.3.
-* Bump the injected `cider-nrepl` version to `0.25.5`.
+* Bump the injected `cider-nrepl` version to 0.25.5.
 * Bump the injected Piggieback version to 0.5.2. See [this issue](https://github.com/nrepl/piggieback/issues/118) for details.
 * [#2897](https://github.com/clojure-emacs/cider/pull/2897): Translate paths from CIDER to nREPL and vice-versa.
 * Set `cider-prompt-for-symbol` to `nil` by default.
