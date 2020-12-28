@@ -44,5 +44,7 @@ that serves as inspiration for many others.
 * Spring 2018 - Bozhidar assumes the maintenance of nREPL.
 * 04 May 2018 - Orchard 0.1 is released.
 * 19 Feb 2019 - CIDER 0.21 becomes the first editor to support nREPL 0.6 streamed values and improved pretty-printing.
+* 03 Aug 2020 - CIDER 0.26 adds support for new nREPL 0.8 ops like `lookup` and `completions`.
+* 28 Dec 2020 - CIDER 1.0 is released.
 
 To be continued...
