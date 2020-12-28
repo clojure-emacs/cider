@@ -26,7 +26,7 @@ you're using the right connection. This problem was further compounded by the cr
 * Eventually we introduced the concept of dynamic dispatch, where we'd use a combination of the filename extension and the project directory to figure out where to send operations. This approach worked reasonably well, but was problematic when you had multiple connections of the same type for the same project. There was also no logical grouping of related connections.
 * This brings us to the present - today's approach to managing multiple connections is an evolution of the dynamic dispatch.
 Related connections are grouped together in sessions, which are tied to some context (typically a project directory). If some
-operation dispatch is ambiguous it will fail with an error message. You can manually link buffers, files and directories
+operation dispatch is ambiguous it will fail with an error message. You can manually link (attach) buffers, files and directories
 to sessions in such situations.
 
 In the following sections we'll go over the basic terminology with respect to connection management, and we'll cover
@@ -43,7 +43,9 @@ sessions. Each session is a collection of connections which share the same nREPL
 server. You can, however, have multiple sessions sharing the same nREPL server (although you're unlikely to
 ever need this).
 
-Start new sessions with
+=== Starting New Sessions
+
+You can start new sessions with the following commands:
 
 * kbd:[C-c C-x j j] (`cider-jack-in-clj`)
 * kbd:[C-c C-x j s] (`cider-jack-in-cljs`)
@@ -52,10 +54,29 @@ Start new sessions with
 * kbd:[C-c C-x c s] (`cider-connect-cljs`)
 * kbd:[C-c C-x c m] (`cider-connect-clj&cljs`)
 
-Add new REPLs to the current session with
+If a command creates multiple REPLs (e.g. `cider-jack-in-clj&cljs`) they are going to be added to the same session.
+
+You'll normally get a warning if you try to create a new session for
+some project if there's already an existing session for it (e.g. after
+running `cider-jack-in-cljs` after `cider-jack-in-clj` for the same
+project). Generally in such cases it's preferred to use commands that
+can add more REPLs to the existing session. We'll cover those in the next section.
+
+=== Adding REPLs to a Session
+
+You can add new REPLs to the current session with:
 
 * kbd:[C-c C-x s j] (`cider-connect-sibling-clj`)
 * kbd:[C-c C-x s s] (`cider-connect-sibling-cljs`)
+
+A very common use-case would be to run `cider-jack-in-clj` for some project and then follow up with `cider-connect-sibling-cljs`.
+
+NOTE: Unless there are both Clojure and ClojureScript REPLs in the same session smart-dispatch commands (e.g. evaluate the code
+in the right Clojure/ClojureScript REPL, toggle between Clojure and ClojureScript REPL) won't work. A very common problem
+newcomers experience is to create a Clojure REPL and a ClojureScript REPL in separate sessions and wonder why those are not
+interacting properly with one another.
+
+=== Session Life-Cycle Management
 
 Session life-cycle management commands live on the https://github.com/vspinu/sesman[Sesman] keymap (kbd:[C-c C-s])
 
