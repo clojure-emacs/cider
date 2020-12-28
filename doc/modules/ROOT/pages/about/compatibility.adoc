@@ -18,7 +18,7 @@ and Boot releases.
 == Java
 
 CIDER officially targets Java 8, Java 11 and the most recent rapid
-release version (e.g. Java 13).  More generally speaking - we aim
+release version (e.g. Java 15).  Generally speaking, we aim
 to support all Java releases that are currently officially supported
 by Oracle.
 
@@ -83,6 +83,13 @@ Below you can find the official compatibility matrix for CIDER.
 | 1.8
 
 | 0.26
+| 25.1
+| 0.6
+| 0.25
+| 8
+| 1.8
+
+| 1.0
 | 25.1
 | 0.6
 | 0.25
