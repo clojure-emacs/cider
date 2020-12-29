@@ -66,7 +66,6 @@
 (require 'cider-popup)
 (require 'cider-stacktrace)
 
-(define-obsolete-variable-alias 'cider-save-files-on-cider-ns-refresh 'cider-ns-save-files-on-refresh "0.18")
 (defcustom cider-ns-save-files-on-refresh 'prompt
   "Controls whether to prompt to save files before refreshing.
 If nil, files are not saved.
@@ -90,7 +89,6 @@ If t, all buffers visiting files on the classpath might be saved."
 
 (defconst cider-ns-refresh-log-buffer "*cider-ns-refresh-log*")
 
-(define-obsolete-variable-alias 'cider-refresh-show-log-buffer 'cider-ns-refresh-show-log-buffer "0.18")
 (defcustom cider-ns-refresh-show-log-buffer nil
   "Controls when to display the refresh log buffer.
 If non-nil, the log buffer will be displayed every time `cider-ns-refresh' is
@@ -102,7 +100,6 @@ displayed in the echo area."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(define-obsolete-variable-alias 'cider-refresh-before-fn 'cider-ns-refresh-before-fn "0.18")
 (defcustom cider-ns-refresh-before-fn nil
   "Clojure function for `cider-ns-refresh' to call before reloading.
 If nil, nothing will be invoked before reloading.  Must be a
@@ -112,7 +109,6 @@ prevent reloading from occurring."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(define-obsolete-variable-alias 'cider-refresh-after-fn 'cider-ns-refresh-after-fn "0.18")
 (defcustom cider-ns-refresh-after-fn nil
   "Clojure function for `cider-ns-refresh' to call after reloading.
 If nil, nothing will be invoked after reloading.  Must be a
@@ -271,9 +267,6 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
            (lambda (response)
              (cider-ns-refresh--handle-response response log-buffer))
            conn))))))
-
-;;;###autoload
-(define-obsolete-function-alias 'cider-refresh 'cider-ns-refresh "0.18")
 
 (provide 'cider-ns)
 ;;; cider-ns.el ends here

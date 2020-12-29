@@ -218,11 +218,6 @@ With a prefix argument, prompt for function to run instead of -main."
     (define-key map (kbd "C-r") #'cider-insert-region-in-repl)
     (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)))
 
-(define-obsolete-variable-alias
-  'cider-switch-to-repl-after-insert-p
-  'cider-switch-to-repl-on-insert
-  "0.21.0")
-
 (defcustom cider-switch-to-repl-on-insert t
   "Whether to switch to the REPL when inserting a form into the REPL."
   :type 'boolean
