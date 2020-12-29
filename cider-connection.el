@@ -856,7 +856,7 @@ no linked session or there is no REPL of TYPE within the current session."
 
 (defun cider-repls (&optional type ensure)
   "Return cider REPLs of TYPE from the current session.
-If TYPE is nil or multi, return all repls.  If TYPE is a list of types,
+If TYPE is nil or multi, return all REPLs.  If TYPE is a list of types,
 return only REPLs of type contained in the list.  If ENSURE is non-nil,
 throw an error if no linked session exists."
   (let ((type (cond
