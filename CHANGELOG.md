@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+### New features
+
+### Bugs fixed
+
+### Changes
+
 ## 1.0.0 (2020-28-12)
 
 ### New features
