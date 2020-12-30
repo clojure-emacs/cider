@@ -411,7 +411,7 @@ about this buffer (like variable `cider-repl-type')."
               (plist-get nrepl-endpoint :port))))))
 
 
-;;; Cider's Connection Management UI
+;;; Connection Management Commands
 
 (defun cider-quit (&optional repl)
   "Quit the CIDER connection associated with REPL.
