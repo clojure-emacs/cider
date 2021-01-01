@@ -6,6 +6,8 @@
 
 ### Bugs fixed
 
+* [#2953](https://github.com/clojure-emacs/cider/issues/2953): Don't font-lock function/macro vars as vars.
+
 ### Changes
 
 ## 1.0.0 (2020-28-12)
