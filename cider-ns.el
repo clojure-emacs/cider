@@ -1,6 +1,6 @@
 ;;; cider-ns.el --- Namespace manipulation functionality -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2020 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2013-2021 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>
