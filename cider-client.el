@@ -570,6 +570,7 @@ CONTEXT represents a completion context for compliment."
   "Send \"complete-flush-caches\" op to flush Compliment's caches."
   (cider-nrepl-send-sync-request (list "op" "complete-flush-caches"
                                        "session" (cider-nrepl-eval-session))
+                                 nil
                                  'abort-on-input))
 
 (defun cider-sync-request:info (symbol &optional class member)
