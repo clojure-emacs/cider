@@ -35,20 +35,9 @@ you're expecting.
 You can run all _loaded_ tests with kbd:[C-c C-t l] or
 kbd:[C-c C-t C-l].
 
-If you invoke either of these commands with a prefix, CIDER will
-prompt for test selector filters and only run those tests that match
-the selector inclusions/exclusions. If you have selectors you want
-automatically applied, you can set the variables
-`cider-test-default-include-selectors` and `cider-test-default-exclude-selectors`
-to a list of stings to use. The following is an example of setting the default exclude
-selectors so that tests tagged as "integration" or "flakey" don't run.
-
-[source,lisp]
-----
-(setq cider-test-default-exclude-selectors '("integration" "flakey"))
-----
-
-You'll generally want to place default selectors in xref:config/project_config.adoc[your project configuration], as opposed to your global configuration.
+If you invoke either of these commands with a prefix (e.g. kbd:[C-u
+C-c C-t l]), CIDER will prompt for test selector filters and only run
+those tests that match the selector inclusions/exclusions.
 
 .Test Selectors
 ****
@@ -125,6 +114,21 @@ This uses the convention of prepending 'test-' to the namespace name."
 
 (setq cider-test-infer-test-ns #'cider-custom-test-ns-fn)
 ----
+
+=== Default Test Selectors
+
+If you have selectors you want
+automatically applied, you can set the variables
+`cider-test-default-include-selectors` and `cider-test-default-exclude-selectors`
+to a list of stings to use. The following is an example of setting the default exclude
+selectors so that tests tagged as "integration" or "flakey" don't run.
+
+[source,lisp]
+----
+(setq cider-test-default-exclude-selectors '("integration" "flakey"))
+----
+
+TIP: You'll generally want to place default selectors in xref:config/project_config.adoc[your project configuration], as opposed to your global configuration.
 
 === Macros Used to Define Tests
 
