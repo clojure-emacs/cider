@@ -48,6 +48,8 @@ selectors so that tests tagged as "integration" or "flakey" don't run.
 (setq cider-test-default-exclude-selectors '("integration" "flakey"))
 ----
 
+.Test Selectors
+****
 Test developers use selectors to define subsets of the total test
 suite that are run together for different testing tasks. For example
 you can mark some of your tests with the `+^:smoke+` metadata marker
@@ -62,6 +64,7 @@ more information by executing:
 ----
 $ lein help test
 ----
+****
 
 You can run all the tests in the current namespace, whether specified
 by a source file or by the REPL, using kbd:[C-c C-t n] or
