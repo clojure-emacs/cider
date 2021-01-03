@@ -627,7 +627,7 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
   "List of exclude selector strings to use when executing tests if none provided."
   :type '(repeat string)
   :group 'cider-test
-  :package-version '(cider . "0.26.1"))
+  :package-version '(cider . "1.1.0"))
 
 (declare-function cider-emit-interactive-eval-output "cider-eval")
 (declare-function cider-emit-interactive-eval-err-output "cider-eval")
