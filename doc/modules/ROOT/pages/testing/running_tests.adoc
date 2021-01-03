@@ -48,6 +48,8 @@ selectors so that tests tagged as "integration" or "flakey" don't run.
 (setq cider-test-default-exclude-selectors '("integration" "flakey"))
 ----
 
+You'll generally want to place default selectors in xref:config/project_config.adoc[your project configuration], as opposed to your global configuration.
+
 .Test Selectors
 ****
 Test developers use selectors to define subsets of the total test
