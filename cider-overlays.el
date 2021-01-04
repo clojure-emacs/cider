@@ -142,10 +142,10 @@ This function also removes itself from `post-command-hook'."
 
     ;; This is the definition we want to use, if possible.
     (((class color) (background light))
-     :foreground (:inherit diff-added)
+     :foreground "green"
      :distant-foreground "DarkGreen")
     (((class color) (background dark))
-     :foreground (:inherit diff-added)
+     :foreground "green"
      :distant-foreground "LimeGreen"))
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
