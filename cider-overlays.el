@@ -29,7 +29,7 @@
 (require 'subr-x)
 (require 'cider-compat)
 (require 'cl-lib)
-(require 'diff-mode) ;; for fringe bitmap
+(require 'diff-mode) ;; for `define-fringe-bitmap'
 
 
 ;;; Customization
