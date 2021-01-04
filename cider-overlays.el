@@ -169,7 +169,7 @@ full list of available bitmaps."
                  (const hollow-square)
                  (const vertical-bar))
   :group 'cider
-  :package-version '(cider . "0.27.0"))
+  :package-version '(cider . "1.0"))
 
 (defun cider--fringe-overlay-good ()
   "Create the before-string property that add a green indicator on the fringe."
