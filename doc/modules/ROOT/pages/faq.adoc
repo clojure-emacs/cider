@@ -73,16 +73,17 @@ No. Stable releases are issued when the maintainers feel a new release is
 warranted. The maintainers generally aim to deliver at least 2-3 stable releases
 per year.
 
-== When is CIDER 1.0 going to be released?
+== Does CIDER have a roadmap?
 
-There's no exact roadmap for the 1.0 release. Roughly speaking the idea is to
-release 1.0 once our ClojureScript support is as good as the Clojure support and
-when the most important refactoring functionality from our sibling
-project https://github.com/clojure-emacs/clj-refactor.el[clj-refactor] lands
-into CIDER.
+There's no precise roadmap, but there are a few major goals for the (near) future:
 
-NOTE: While there's no exact roadmap for the 1.0 release, we do have *a*
-https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap].
+* improve session management (make it simpler and more predictable)
+* reach parity between the functionality for ClojureScript and Clojure (as it stands today a lot of functionality is Clojure-only)
+* integrate the most important refactoring functionality from our sibling project https://github.com/clojure-emacs/clj-refactor.el[clj-refactor] into CIDER.
+
+You can find more details in our https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap document].
+
+NOTE: If you'd like to tackle some item from the roadmap, Bozhidar will happy to help and guide you along the way.
 
 == Is it true that stable CIDER releases often happen around major Clojure conferences?
 
