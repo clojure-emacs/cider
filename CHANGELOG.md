@@ -12,6 +12,8 @@
 
 ### Changes
 
+* Bump the injected `cider-nrepl` to 0.25.6. This should fix a compatibility issue with Java 15 and fetching fresh ClojureDocs data.
+
 ## 1.0.0 (2020-28-12)
 
 ### New features
