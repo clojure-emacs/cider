@@ -102,6 +102,11 @@ available features is to go over the entire
 If you're into video lessons, you might also check out
 this [intro to CIDER demo](https://www.youtube.com/watch?v=aYA4AAjLfT0) as well.
 
+## Get Help
+
+Start with CIDER's [discussions board](https://github.com/clojure-emacs/cider/discussions). If it doesn't get the job done consider some of the other available
+[support channels](https://docs.cider.mx/cider/about/support.html).
+
 ## Changelog
 
 An extensive changelog is available [here](CHANGELOG.md).
