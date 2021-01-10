@@ -6,7 +6,8 @@ For questions, suggestions and support refer to one of them.
 IMPORTANT: Please, don't
 use the support channels to report issues, as this makes them harder to track.
 
-The various support channels are listed below in the order of their importance fromthe perspective of the maintainers.
+The various support channels are listed below in the order of their importance from
+the perspective of the maintainers.
 
 == GitHub Discussions
 
