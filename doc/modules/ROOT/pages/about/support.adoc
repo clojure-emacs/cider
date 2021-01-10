@@ -17,12 +17,20 @@ https://github.com/clojure-emacs/cider/discussions[here].
 It's a great place to share ideas, help other CIDER users and just be up-to-date
 with interesting developments.
 
+== Discord
+
+CIDER has its own Discord chat server, created by CIDER's
+author Bozhidar. You can join the Discord server
+https://discord.com/invite/nFPpynQPME[here].
+
+NOTE: As of 2021, Discord is Bozhidar's preferred chat for CIDER.
+
 == Slack
 
-We've got an official https://clojurians.slack.com/[Clojurians Slack] -
-`#cider`. This is usually be best way to get a handle on some of the maintainers
-and interact with other CIDER users. The channel is very active! If you need an invite
-you can go http://clojurians.net/[here].
+We've got an official https://clojurians.slack.com/[Clojurians
+Slack] - `#cider`. The channel is very active and is a great way to
+get a handle on some of the maintainers and interact with other CIDER
+users.! If you need an invite you can go http://clojurians.net/[here].
 
 There's also another channel named `#emacs` for generic Emacs discussions.
 
