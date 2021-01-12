@@ -84,6 +84,36 @@ available to you:
 
 NOTE: WIP
 
+== Synchronous vs Asynchronous Evaluation
+
+nREPL has an asynchronous evaluation model, where eval requests
+are enqueued and the responses are sent back to the clients when available.
+This model works great most of the time as doesn't require clients
+to block while waiting for responses, but it also requires the clients
+to able to handle comfortably response callbacks.
+
+Unfortunately, some of Emacs's internal APIs don't play well with asynchronous
+evaluation (e.g. completion, eldoc, etc) and in those cases CIDER simulates
+synchronous evaluation instead. It's important to understand several things:
+
+* CIDER's sync eval commands should be used sparingly
+* The most common use case for the sync eval API is evaluating some simple and fast to run tooling-related code
+* Sync eval may result in client lock-ups, as Emacs is (mostly) single-threaded by design
+
+CIDER tries to mitigate the latter by imposing a 10 second eval request timeout
+for sync eval. You can adjust this default if needed:
+
+[source,lisp]
+----
+;; increase the sync request timeout to 1 minute
+(setq nrepl-sync-request-timeout 60)
+
+;; disable sync request timeout
+(setq nrepl-sync-request-timeout nil)
+----
+
+NOTE: CIDER internally increases the timeout to 30 seconds for the first sync eval request it does, as it might require a lot of namespaces and take more time to complete. See `cider--prep-interactive-eval` for details.
+
 == Configuration
 
 === Overlays
