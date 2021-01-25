@@ -550,9 +550,12 @@ removed, LEIN-PLUGINS, and finally PARAMS."
    " -- "
    params))
 
-(defun cider-clojure-cli-jack-in-dependencies (global-opts params dependencies)
+(defun cider-clojure-cli-jack-in-dependencies (jack-in-aliases _params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
-Does so by concatenating DEPENDENCIES, GLOBAL-OPTS and PARAMS."
+Does so by concatenating DEPENDENCIES and JACK-IN-ALIASES into a suitable
+`clojure` invocation.  The main is placed in an inline alias :cider/nrepl
+so that if your aliases contain any mains, the cider/nrepl one will be the
+one used."
   (let* ((deps-string (string-join
                        (seq-map (lambda (dep)
                                   (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))
@@ -564,7 +567,7 @@ Does so by concatenating DEPENDENCIES, GLOBAL-OPTS and PARAMS."
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
     (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M:cider/nrepl"
-            (if global-opts (format "%s " global-opts) "")
+            (if jack-in-aliases (format "%s " jack-in-aliases) "")
             deps-string
             main-opts)))
 
