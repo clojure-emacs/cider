@@ -130,7 +130,7 @@ modifying the following string options:
 these are passed to the command directly, in first position
 (e.g., `-o` to `lein` enables offline mode).
 * `cider-lein-parameters`, `cider-boot-parameters`,
-`cider-clojure-cli-parameters`, `cider-gradle-parameters`: these are
+ `cider-gradle-parameters`: these are
 usually task names and their parameters (e.g., `dev` for launching
 boot's dev task instead of the standard `repl -s wait`).
 
