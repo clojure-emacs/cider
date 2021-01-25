@@ -292,7 +292,39 @@
       (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
               :to-equal (concat "resolved-powershell -encodedCommand "
                                 ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure \"\"cmd-params\"\"" 'utf-16le) t)
-                                "YwBsAG8AagB1AHIAZQAgACIAIgBjAG0AZAAtAHAAYQByAGEAbQBzACIAIgA=")))))
+                                "YwBsAG8AagB1AHIAZQAgACIAIgBjAG0AZAAtAHAAYQByAGEAbQBzACIAIgA="))))
+  (describe "when 'clojure-cli project type"
+    (it "uses main opts in an alias to prevent other mains from winning"
+      (setq-local cider-jack-in-dependencies '(("nrepl/nrepl" "0.8.3")))
+      (setq-local cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.25.7")))
+      (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
+      (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
+                                     "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:cider/nrepl")
+                                   "")))
+        (setq-local cider-allow-jack-in-without-project t)
+        (setq-local cider-clojure-cli-command "clojure")
+        (setq-local cider-inject-dependencies-at-jack-in t)
+        (setq-local cider-clojure-cli-aliases nil)
+        (spy-on 'cider-project-type :and-return-value 'clojure-cli)
+        (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
+        (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
+                :to-equal expected)))
+    (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
+      (let ((expected (string-join '("clojure -A:dev:test -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
+                                     "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:cider/nrepl")
+                                   "")))
+        (setq-local cider-clojure-cli-aliases "-A:dev:test")
+        (setq-local cider-allow-jack-in-without-project t)
+        (setq-local cider-clojure-cli-command "clojure")
+        (setq-local cider-inject-dependencies-at-jack-in t)
+        (spy-on 'cider-project-type :and-return-value 'clojure-cli)
+        (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
+        (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
+                :to-equal expected)))))
 
 (defmacro with-temp-shadow-config (contents &rest body)
   "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."

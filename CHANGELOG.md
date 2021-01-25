@@ -8,10 +8,12 @@
 
 ### Bugs fixed
 
+* [#2941](https://github.com/clojure-emacs/cider/issues/2941): Use main args in alias for clojure cli
 * [#2953](https://github.com/clojure-emacs/cider/issues/2953): Don't font-lock function/macro vars as vars.
 
 ### Changes
 
+* Removed `cider-clojure-cli-parameters` due to clojure-cli jack-in changes
 * Bump the injected `cider-nrepl` to 0.25.6. This should fix a compatibility issue with Java 15 and fetching fresh ClojureDocs data.
 
 ## 1.0.0 (2020-28-12)

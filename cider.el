@@ -157,23 +157,16 @@ default to \"powershell\"."
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
-(defcustom cider-clojure-cli-global-options
+(defcustom cider-clojure-cli-aliases
   nil
-  "Command line options used to execute clojure with tools.deps."
+  "A list of aliases to include when using the clojure cli.
+Should be of the form `-A:foo:bar`."
   :type 'string
   :group 'cider
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
-(defcustom cider-clojure-cli-parameters
-  "-m nrepl.cmdline --middleware '%s'"
-  "Params passed to clojure to start an nREPL server via `cider-jack-in'.
-This is evaluated using `format', with the first argument being the Clojure
-vector of middleware variables as a string."
-  :type 'string
-  :group 'cider
-  :safe #'stringp
-  :package-version '(cider . "0.17.0"))
+(make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-aliases "1.1")
 
 (defcustom cider-shadow-cljs-command
   "npx shadow-cljs"
@@ -356,7 +349,7 @@ Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
     ('lein        cider-lein-global-options)
     ('boot        cider-boot-global-options)
-    ('clojure-cli cider-clojure-cli-global-options)
+    ('clojure-cli cider-clojure-cli-aliases)
     ('shadow-cljs cider-shadow-cljs-global-options)
     ('gradle      cider-gradle-global-options)
     (_            (user-error "Unsupported project type `%S'" project-type))))
@@ -370,14 +363,7 @@ Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
     ('lein        cider-lein-parameters)
     ('boot        cider-boot-parameters)
-    ('clojure-cli (format cider-clojure-cli-parameters
-                          (concat
-                           "["
-                           (mapconcat
-                            (apply-partially #'format "\"%s\"")
-                            (cider-jack-in-normalized-nrepl-middlewares)
-                            ",")
-                           "]")))
+    ('clojure-cli nil)
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
     (_            (user-error "Unsupported project type `%S'" project-type))))
@@ -565,19 +551,26 @@ removed, LEIN-PLUGINS, and finally PARAMS."
    " -- "
    params))
 
-(defun cider-clojure-cli-jack-in-dependencies (global-opts params dependencies)
+(defun cider-clojure-cli-jack-in-dependencies (jack-in-aliases _params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
-Does so by concatenating DEPENDENCIES, GLOBAL-OPTS and PARAMS."
-  (let ((dependencies (append dependencies cider-jack-in-lein-plugins)))
-    (concat
-     "-Sdeps '{:deps {"
-     (mapconcat #'identity
-                (seq-map (lambda (dep) (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep))) dependencies)
-                " ")
-     "}}' "
-     global-opts
-     (unless (seq-empty-p global-opts) " ")
-     params)))
+Does so by concatenating DEPENDENCIES and JACK-IN-ALIASES into a suitable
+`clojure` invocation.  The main is placed in an inline alias :cider/nrepl
+so that if your aliases contain any mains, the cider/nrepl one will be the
+one used."
+  (let* ((deps-string (string-join
+                       (seq-map (lambda (dep)
+                                  (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))
+                                (append dependencies cider-jack-in-lein-plugins))
+                       " "))
+         (middleware (mapconcat
+                      (apply-partially #'format "\\\"%s\\\"")
+                      (cider-jack-in-normalized-nrepl-middlewares)
+                      ","))
+         (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
+    (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M:cider/nrepl"
+            (if jack-in-aliases (format "%s " jack-in-aliases) "")
+            deps-string
+            main-opts)))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
