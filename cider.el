@@ -159,7 +159,8 @@ default to \"powershell\"."
 
 (defcustom cider-clojure-cli-aliases
   nil
-  "Command line options used to execute clojure with tools.deps."
+  "A list of aliases to include when using the clojure cli.
+Should be of the form `-A:foo:bar`."
   :type 'string
   :group 'cider
   :safe #'stringp
