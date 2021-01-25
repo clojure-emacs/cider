@@ -165,16 +165,6 @@ default to \"powershell\"."
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
-(defcustom cider-clojure-cli-parameters
-  ""
-  "Params passed to clojure to start an nREPL server via `cider-jack-in'.
-This is evaluated using `format', with the first argument being the Clojure
-vector of middleware variables as a string."
-  :type 'string
-  :group 'cider
-  :safe #'stringp
-  :package-version '(cider . "0.17.0"))
-
 (defcustom cider-shadow-cljs-command
   "npx shadow-cljs"
   "The command used to execute shadow-cljs.
@@ -370,7 +360,7 @@ Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
     ('lein        cider-lein-parameters)
     ('boot        cider-boot-parameters)
-    ('clojure-cli cider-clojure-cli-parameters)
+    ('clojure-cli nil)
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
     (_            (user-error "Unsupported project type `%S'" project-type))))
