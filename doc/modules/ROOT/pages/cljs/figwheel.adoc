@@ -77,7 +77,7 @@ use `revert-buffer`.)
 +
 [source,lisp]
 ----
-((clojurescript-mode . ((cider-clojure-cli-global-options . "-A:fig"))))
+((clojurescript-mode . ((cider-clojure-cli-aliases . "-A:fig"))))
 ----
 
 TIP: If you didn't setup `.dir-locals.el` you can edit the command-line

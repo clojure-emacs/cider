@@ -157,13 +157,15 @@ default to \"powershell\"."
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
-(defcustom cider-clojure-cli-global-options
+(defcustom cider-clojure-cli-aliases
   nil
   "Command line options used to execute clojure with tools.deps."
   :type 'string
   :group 'cider
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
+
+(make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-aliases "1.1")
 
 (defcustom cider-shadow-cljs-command
   "npx shadow-cljs"
@@ -346,7 +348,7 @@ Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
     ('lein        cider-lein-global-options)
     ('boot        cider-boot-global-options)
-    ('clojure-cli cider-clojure-cli-global-options)
+    ('clojure-cli cider-clojure-cli-aliases)
     ('shadow-cljs cider-shadow-cljs-global-options)
     ('gradle      cider-gradle-global-options)
     (_            (user-error "Unsupported project type `%S'" project-type))))

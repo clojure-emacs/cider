@@ -126,7 +126,7 @@ You can further customize the command line CIDER uses for `cider-jack-in` by
 modifying the following string options:
 
 * `cider-lein-global-options`, `cider-boot-global-options`,
-`cider-clojure-cli-global-options`, `cider-gradle-global-options`:
+`cider-clojure-cli-aliases`, `cider-gradle-global-options`:
 these are passed to the command directly, in first position
 (e.g., `-o` to `lein` enables offline mode).
 * `cider-lein-parameters`, `cider-boot-parameters`,

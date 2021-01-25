@@ -306,18 +306,18 @@
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
         (setq-local cider-inject-dependencies-at-jack-in t)
-        (setq-local cider-clojure-cli-global-options nil)
+        (setq-local cider-clojure-cli-aliases nil)
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected)))
-    (it "allows specifying custom aliases with `cider-clojure-cli-global-options`"
+    (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
       (let ((expected (string-join '("clojure -A:dev:test -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
                                      " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:cider/nrepl")
                                    "")))
-        (setq-local cider-clojure-cli-global-options "-A:dev:test")
+        (setq-local cider-clojure-cli-aliases "-A:dev:test")
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
         (setq-local cider-inject-dependencies-at-jack-in t)
