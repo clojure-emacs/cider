@@ -160,7 +160,9 @@ default to \"powershell\"."
 (defcustom cider-clojure-cli-aliases
   nil
   "A list of aliases to include when using the clojure cli.
-Should be of the form `-A:foo:bar`."
+Should be of the form `foo:bar`.  Any leading \"-A\" or \"-M\" will be
+stripped as these are concatenated into the \"-M[your-deps]:cider/nrepl\"
+form."
   :type 'string
   :group 'cider
   :safe #'stringp
@@ -567,10 +569,14 @@ one used."
                       (cider-jack-in-normalized-nrepl-middlewares)
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
-    (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M:cider/nrepl"
-            (if jack-in-aliases (format "%s " jack-in-aliases) "")
+    (format "-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl"
             deps-string
-            main-opts)))
+            main-opts
+            (if jack-in-aliases
+                ;; replace -A or -M in the jack-in-aliases to be concatenated
+                ;; with cider/nrepl to ensure cider/nrepl comes last
+                (format ":%s" (replace-regexp-in-string "^-\\(A\\\|M\\):" "" jack-in-aliases))
+              ""))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
