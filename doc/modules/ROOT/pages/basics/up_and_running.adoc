@@ -123,22 +123,52 @@ NOTE: The examples use only `cider-jack-in`, but this behavior is consistent
 for all `cider-jack-in-*` commands.
 
 You can further customize the command line CIDER uses for `cider-jack-in` by
-modifying the following string options:
+modifying the some options. Those differ a bit between the various tools,
+so we'll examine them tool by tool.
 
-* `cider-lein-global-options`, `cider-boot-global-options`,
-`cider-clojure-cli-aliases`, `cider-gradle-global-options`:
-these are passed to the command directly, in first position
-(e.g., `-o` to `lein` enables offline mode).
-* `cider-lein-parameters`, `cider-boot-parameters`,
- `cider-gradle-parameters`: these are
-usually task names and their parameters (e.g., `dev` for launching
-boot's dev task instead of the standard `repl -s wait`).
+==== Leiningen Options
+
+* `cider-lein-command` - the name of the Leiningen executable (`lein` by default)
+* `cider-lein-parameters` - the command-line params to start a REPL (e.g. `repl :headless`)
+* `cider-lein-global-options` - these are passed to the command directly, in
+first position (e.g., `-o` to `lein` enables offline mode).
+
+NOTE: Originally CIDER supported jacking in only for Leiningen, so its configuration
+options became the archetype for everything else.
+
+==== Clojure CLI Options
+
+* `cider-clojure-cli-command` - the name of the `clojure` executable (`clojure` by default)
+* `cider-clojure-cli-aliases` - a list of aliases to be used at jack-in time
 
 To use `cider-jack-in` with `tools.deps` on Windows set the
 `cider-clojure-cli-command` to `"powershell"`. This happens by default
 if you are on Windows and no `clojure` executable is found. Using
 `"powershell"` will Base64 encode the clojure launch command before
 passing it to PowerShell and avoids shell-escaping issues.
+
+NOTE: Alternatively you can use WSL (e.g. to run nREPL and Emacs there), which
+will likely result in a better overall development experience.
+
+==== Boot Options
+
+* `cider-boot-command` - the name of the Boot executable (`boot` by default)
+* `cider-boot-parameters` - these are usually task names and their parameters
+(e.g., `dev` for launching boot's dev task instead of the standard `repl -s
+wait`)
+* `cider-boot-global-options`
+
+==== Gradle Options
+
+* `cider-gradle-command` - the name of the Gradle executable (`gradle` by default)
+* `cider-gradle-parameters`
+* `cider-gradle-global-options`
+
+==== shadow-cljs
+
+* `cider-shadow-cljs-command` - the command to run `shadow-cljs` (`npx shadow-cljs` by default). By default we favor the project-specific shadow-cljs over the system-wide.
+* `cider-shadow-cljs-parameters` - the task to start a REPL server (`server` by default)
+* `cider-shadow-cljs-global-options`
 
 == Connect to a Running nREPL Server
 
