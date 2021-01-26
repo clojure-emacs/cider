@@ -312,10 +312,10 @@
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected)))
     (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
-      (let ((expected (string-join '("clojure -A:dev:test -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
+      (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
-                                     " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:cider/nrepl")
+                                     " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:dev:test:cider/nrepl")
                                    "")))
         (setq-local cider-clojure-cli-aliases "-A:dev:test")
         (setq-local cider-allow-jack-in-without-project t)
@@ -324,7 +324,21 @@
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
-                :to-equal expected)))))
+                :to-equal expected)))
+    (it "handles aliases correctly"
+      (let ((expected (string-join '("-Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
+                                     "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:test:cider/nrepl")
+                                   ""))
+            (deps '(("nrepl/nrepl" "0.8.3"))))
+        (expect (cider-clojure-cli-jack-in-dependencies "test" nil deps)
+                :to-equal expected)
+        (describe "should strip out leading -A and -M's"
+          (expect (cider-clojure-cli-jack-in-dependencies "-A:test" nil deps)
+                  :to-equal expected)
+          (expect (cider-clojure-cli-jack-in-dependencies "-M:test" nil deps)
+                  :to-equal expected))))))
 
 (defmacro with-temp-shadow-config (contents &rest body)
   "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."
