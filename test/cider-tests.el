@@ -332,12 +332,25 @@
                                      " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.8.3"))))
-        (expect (cider-clojure-cli-jack-in-dependencies "test" nil deps)
-                :to-equal expected)
+        (let ((cider-clojure-cli-aliases "test"))
+          (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                  :to-equal expected))
         (describe "should strip out leading -A and -M's"
-          (expect (cider-clojure-cli-jack-in-dependencies "-A:test" nil deps)
-                  :to-equal expected)
-          (expect (cider-clojure-cli-jack-in-dependencies "-M:test" nil deps)
+          (let ((cider-clojure-cli-aliases "-A:test"))
+           (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                   :to-equal expected))
+          (let ((cider-clojure-cli-aliases "-M:test"))
+            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                    :to-equal expected)))))
+    (it "allows for global options"
+      (let ((expected (string-join '("-J-Djdk.attach.allowAttachSelf -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
+                                     "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[\\\"cider.nrepl/cider-middleware\\\"]\"]}}}' -M:test:cider/nrepl")
+                                   ""))
+            (deps '(("nrepl/nrepl" "0.8.3"))))
+        (let ((cider-clojure-cli-aliases "test"))
+          (expect (cider-clojure-cli-jack-in-dependencies "-J-Djdk.attach.allowAttachSelf" nil deps)
                   :to-equal expected))))))
 
 (defmacro with-temp-shadow-config (contents &rest body)
