@@ -163,7 +163,7 @@ and afterward we fallback on nREPL's built-in
 completion functionality."
   (cond
    ;; if we don't have a connection, end early
-   ((not (cider-current-repl nil)) nil)
+   ((not (cider-connected-p)) nil)
    ;; next we try if cider-nrepl's completion is available
    ((cider-nrepl-op-supported-p "complete")
     (let* ((context (cider-completion-get-context))
