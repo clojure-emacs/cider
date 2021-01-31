@@ -7,6 +7,7 @@
 ### Bugs fixed
 
 * [#2953](https://github.com/clojure-emacs/cider/issues/2953): Don't font-lock function/macro vars as vars.
+* [#2964](https://github.com/clojure-emacs/cider/issues/2964): Fixes issue with `cider-company-enable-fuzzy-completion` and Helm
 
 ### Changes
 
