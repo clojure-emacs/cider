@@ -193,8 +193,6 @@ instead."
            (clojure-backward-logical-sexp 1)
            (list (point)
                  (progn (clojure-forward-logical-sexp 1)
-                        (skip-chars-forward "[:blank:]")
-                        (when (looking-at-p "\n") (forward-char 1))
                         (point))))))
 
 (defun cider-start-of-next-sexp (&optional skip)

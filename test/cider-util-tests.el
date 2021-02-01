@@ -213,6 +213,23 @@ buffer."
         (insert "'")
         (expect (cider-sexp-at-point 'bounds) :to-equal '(5 15))))))
 
+(describe "cider-last-sexp"
+  (describe "when the param 'bounds is not given"
+    (it "returns the last sexp"
+      (with-clojure-buffer "a\n\n(defn ...)|\n\nb"
+        (expect (cider-last-sexp) :to-equal "(defn ...)")))
+    (it "returns the last sexp event when there are whitespaces"
+      (with-clojure-buffer "a\n\n(defn ...) ,\n|\nb"
+        (expect (cider-last-sexp) :to-equal "(defn ...)"))))
+
+  (describe "when the param 'bounds is given"
+    (it "returns the bounds of last sexp"
+      (with-clojure-buffer "a\n\n(defn ...)|\n\nb"
+        (expect (cider-last-sexp 'bounds) :to-equal '(4 14))))
+    (it "returns the bounds of last sexp event when there are whitespaces"
+      (with-clojure-buffer "a\n\n(defn ...) ,\n|\nb"
+        (expect (cider-last-sexp 'bounds) :to-equal '(4 14))))))
+
 (describe "cider-defun-at-point"
   (describe "when the param 'bounds is not given"
     (it "returns the defun at point"
