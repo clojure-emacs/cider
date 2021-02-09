@@ -571,7 +571,7 @@ one used."
                                 (append dependencies cider-jack-in-lein-plugins))
                        " "))
          (middleware (mapconcat
-                      (apply-partially #'format "\\\"%s\\\"")
+                      (apply-partially #'format "%s")
                       (cider-jack-in-normalized-nrepl-middlewares)
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
