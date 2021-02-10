@@ -368,6 +368,7 @@ MAX-COLL-SIZE if non nil."
   (cider-inspector-render cider-inspector-buffer value)
   (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
   (when cider-inspector-fill-frame (delete-other-windows))
+  (ignore-errors (cider-inspector-next-inspectable-object 1))
   (with-current-buffer cider-inspector-buffer
     (when (eq cider-inspector-last-command 'cider-inspector-pop)
       (setq cider-inspector-last-command nil)
