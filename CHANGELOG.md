@@ -5,6 +5,7 @@
 ### New features
 
 * [#2930](https://github.com/clojure-emacs/cider/issues/2930): Add new customization variable `cider-test-default-include-selectors` and `cider-test-default-exclude-selectors` for specifying default test selectors when running commands such as `cider-test-run-ns-tests`.
+* [#2907](https://github.com/clojure-emacs/cider/issues/2907): Add new customization variable `cider-format-code-options` to specify options used by `cljfmt' to format code when running commands `cider-format-buffer`, `cider-format-region`  and `cider-format-defun`.
 
 ### Bugs fixed
 
