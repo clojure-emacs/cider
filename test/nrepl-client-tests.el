@@ -29,14 +29,19 @@
 
 (require 'buttercup)
 (require 'nrepl-client)
+(require 'nrepl-tests-utils)
 
 (describe "nrepl-server-buffer-name"
-  :var (nrepl-hide-special-buffers params default-directory
+  :var (nrepl-hide-special-buffers params default-directory-backup
                                    cider-session-name-template)
   (before-all
+    (setq default-directory-backup default-directory)
     (setq default-directory "/path/to/dirA/")
     (setq params '(:host "localhost" :port 1))
     (setq cider-session-name-template "%J:%h:%p"))
+
+  (after-all
+   (setq default-directory default-directory-backup))
 
   (describe "when nrepl-hide-special-buffers is t"
     (it "returns the name of the server buffer, which hides it in buffer changing commands"
@@ -68,10 +73,15 @@
             '("2" "39f630b9-9545-4ea0-860e-9846681d0741" ("done")))))
 
 (describe "nrepl-make-buffer-name"
-  :var (default-directory cider-session-name-template)
+  :var (default-directory-backup cider-session-name-template)
   (before-all
+    (setq default-directory-backup default-directory)
     (setq default-directory "/path/to/dirA/")
     (setq cider-session-name-template "%J:%h:%p"))
+
+  (after-all
+   (setq default-directory default-directory-backup))
+
   (it "generates a buffer name from the given template"
     (let ((params '(:host "localhost" :port 1)))
       (expect (nrepl-make-buffer-name "*buff-name %s*" params)
@@ -100,3 +110,59 @@
                 :to-equal "*buff-name (cljs)*")
         (expect (nrepl-make-buffer-name "*buff-name %r:%S*" params)
                 :to-equal "*buff-name cljs*")))))
+
+(describe "nrepl-client-lifecycle"
+  (it "start and stop nrepl client process"
+
+      ;; start mock server
+      (let* ((server-buffer (get-buffer-create ":nrepl-lifecycle/server"))
+             (server-endpoint nil)
+             (server-process (nrepl-start-server-process
+                              default-directory
+                              (nrepl-server-mock-invocation-string)
+
+                              (lambda (endpoint)
+                                (setq server-endpoint nrepl-endpoint)
+                                server-buffer))))
+
+        ;; server up and running
+        (nrepl-tests-sleep-until 2 (eq (process-status server-process) 'run))
+        (expect (process-status server-process)
+                :to-equal 'run)
+
+        ;; server has reported its endpoint
+        (nrepl-tests-sleep-until 2 server-endpoint)
+        (expect server-endpoint :not :to-be nil)
+
+        (condition-case error-details
+            ;; start client process
+            (let* ((client-buffer (get-buffer-create ":nrepl-lifecycle/client"))
+                   (process-client (nrepl-start-client-process
+                                    (plist-get server-endpoint :host)
+                                    (plist-get server-endpoint :port)
+                                    server-process
+                                    (lambda (client-endpoint)
+                                      client-buffer))))
+
+              ;; client connection is open
+              (expect (process-status process-client)
+                      :to-equal 'open)
+
+              ;; provide some slack for server process to settle down
+              (sleep-for 0.2)
+
+              ;; exit client
+              (delete-process process-client)
+
+              ;; server process has been signalled
+              (nrepl-tests-sleep-until 4 (eq (process-status server-process)
+                                             'signal))
+              (expect (process-status server-process)
+                      :to-equal 'signal))
+          (error
+           ;; there may be some useful information in the nrepl buffer on error
+           (when-let ((nrepl-error-buffer (get-buffer "*nrepl-error*")))
+             (with-current-buffer nrepl-error-buffer
+               (message ":nrepl-lifecycle/error %s" (buffer-string))))
+           (error error-details))))))
+
