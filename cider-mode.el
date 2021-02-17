@@ -523,6 +523,7 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
     (define-key map (kbd "C-c C-? C-d") #'cider-xref-fn-deps-select)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
+    (define-key map (kbd "C-c C-#") #'cider-toggle-ignore-next-form)
     (dolist (variable '(cider-mode-interactions-menu
                         cider-mode-eval-menu
                         cider-mode-menu))

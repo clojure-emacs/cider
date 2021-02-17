@@ -836,6 +836,27 @@ file path otherwise."
                 (t (error "Unexpected archive: %s" d))))
         cider-jdk-src-paths)))))
 
+(defun cider-toggle-ignore-next-form ()
+  "Toggle \"Ignore next form\" reader macro.
+When on whitespace toggle on the next form. Otherwise toggle on the current form."
+  (interactive)
+  (cl-flet ((cursor-is-on-ignore-form ()
+                                      (equal "#_"
+                                             (buffer-substring-no-properties
+                                              (point) (+ (point) 2)))))
+    (save-excursion
+      (if (cursor-is-on-ignore-form)
+          (delete-char 2)
+        (progn
+          (if (string-match "[\s\n]" (char-to-string (char-after)))
+              (skip-chars-forward "[\s\n]")
+            (progn
+              (forward-char 1)
+              (thing-at-point--beginning-of-sexp)))
+          (if (cursor-is-on-ignore-form)
+              (delete-char 2)
+            (insert "#_")))))))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

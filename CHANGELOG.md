@@ -5,6 +5,7 @@
 ### New features
 
 * [#2930](https://github.com/clojure-emacs/cider/issues/2930): Add new customization variable `cider-test-default-include-selectors` and `cider-test-default-exclude-selectors` for specifying default test selectors when running commands such as `cider-test-run-ns-tests`.
+* New command `cider-toggle-ignore-next-form` for toggling Clojure "ignore next form" reader macro `#_`.
 
 ### Bugs fixed
 

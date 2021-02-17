@@ -295,6 +295,10 @@ kbd:[C-c C-t C-b]
 | kbd:[M-TAB]
 | Complete the symbol at point.
 
+| `cider-toggle-ignore-next-form`
+| kbd:[C-c C-#]
+| Toggling Clojure "ignore next form" reader macro `#_`.
+
 | `cider-quit`
 | kbd:[C-c C-q]
 | Quit the current nREPL connection.
