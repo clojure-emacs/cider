@@ -20,6 +20,8 @@ isn't already fixed or caused by interactions with other packages.
 
 Patches in any form are always welcome! GitHub pull requests are even better! :-)
 
+If your changes do not require a REPL, consider submitting to https://github.com/clojure-emacs/clojure-mode[clojure-mode] instead.
+
 Before submitting a patch or a pull request make sure all tests are
 passing and that your patch is in line with the https://github.com/clojure-emacs/cider/blob/master/.github/CONTRIBUTING.md[contribution
 guidelines].
