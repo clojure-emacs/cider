@@ -1004,7 +1004,8 @@ See \(info \"(elisp) Special Properties\")"
   (while-no-input
     (when (and (bufferp obj)
                (cider-connected-p)
-               cider-use-tooltips (not help-at-pt-display-when-idle))
+               cider-use-tooltips
+               (not (eq help-at-pt-display-when-idle t)))
       (with-current-buffer obj
         (ignore-errors
           (save-excursion
