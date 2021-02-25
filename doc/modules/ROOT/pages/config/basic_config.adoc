@@ -196,6 +196,21 @@ exist. In the example above, the `.m2` directory is mounted at `/root/.m2`
 and the source at `/src`. These translations would map these locations
 back to the user's computer so that navigation to definition would work.
 
+Using the `eval` pseudo-variable you can make the translation dynamic, enabling
+the possibility of sharing the `.dir-locals.el` across a team of developers with
+different configurations.
+
+[source,lisp]
+----
+((nil . ((eval . (customize-set-variable 'cider-path-translations
+                                         (list
+                                           (cons "/src" (clojure-project-dir))
+                                           (cons "/root/.m2" (concat (getenv "HOME") "/.m2"))))))))
+----
+
+In this example, the path `/src` will be translated to the correct path of your
+Clojure project on the host machine. And `/root/.m2` to the host's `~/.m2` folder.
+
 == Use a Local Copy of the JDK API Documentation
 
 If you are targeting the JVM and prefer a local copy of the JDK API
