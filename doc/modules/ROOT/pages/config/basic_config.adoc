@@ -185,7 +185,7 @@ translation mappings easily by setting the following (typically in `.dir-locals.
 [source,lisp]
 ----
 ((nil
-  (cider-path-translations . (("/root" . "/Users/foo")
+  (cider-path-translations . (("/root/.m2" . "/Users/foo/.m2")
                               ("/src/" . "/Users/foo/projects")))))
 ----
 
