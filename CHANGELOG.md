@@ -8,6 +8,7 @@
 
 ### Bugs fixed
 
+* [#2993](https://github.com/clojure-emacs/cider/issues/2993): Fix bug where calling `cider-repl-set-ns` for a cljs ns when `cider-repl-require-ns-on-set` is `t` would fail
 * [#2983](https://github.com/clojure-emacs/cider/issues/2983): update signal description in nrepl server sentinel as a workaround for emacs bug #46284 affecting v27.1 on windows
 * [#2941](https://github.com/clojure-emacs/cider/issues/2941): Use main args in alias for clojure cli
 * [#2953](https://github.com/clojure-emacs/cider/issues/2953): Don't font-lock function/macro vars as vars.

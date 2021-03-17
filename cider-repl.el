@@ -1182,6 +1182,16 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
       (let ((inhibit-read-only t))
         (cider-repl--clear-region start (1+ end))))))
 
+(defun cider-repl-require-ns-handler (buffer)
+  "Make an nREPL evaluation handler for the REPL BUFFER's ns require."
+  (nrepl-make-response-handler buffer
+                               (lambda (_buffer _value))
+                               (lambda (buffer out)
+                                 (cider-repl-emit-stdout buffer out))
+                               (lambda (buffer err)
+                                 (cider-repl-emit-stderr buffer err))
+                               (lambda (_buffer))))
+
 (defun cider-repl-switch-ns-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER's ns switching."
   (nrepl-make-response-handler buffer
@@ -1207,9 +1217,10 @@ command will prompt for the name of the namespace to switch to."
     (user-error "No namespace selected"))
   (cider-map-repls :auto
     (lambda (connection)
-      (cider-nrepl-request:eval (if cider-repl-require-ns-on-set
-                                    (format "(do (require '%s) (in-ns '%s))" ns ns)
-                                  (format "(in-ns '%s)" ns))
+      (when cider-repl-require-ns-on-set
+        (cider-nrepl-request:eval (format "(require '%s)" ns)
+                                  (cider-repl-require-ns-handler connection)))
+      (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
                                 (cider-repl-switch-ns-handler connection)))))
 
 
