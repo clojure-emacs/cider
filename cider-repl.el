@@ -1183,7 +1183,9 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
         (cider-repl--clear-region start (1+ end))))))
 
 (defun cider-repl-require-ns-handler (buffer)
-  "Make an nREPL evaluation handler for the REPL BUFFER's ns require."
+  "Make an nREPL evaluation handler for the REPL BUFFER's ns require.
+Ignores a `done' response, so as to avoid a double prompt when called
+alongside `cider-repl-switch-ns-handler'."
   (nrepl-make-response-handler buffer
                                (lambda (_buffer _value))
                                (lambda (buffer out)
