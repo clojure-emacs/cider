@@ -1208,7 +1208,7 @@ command will prompt for the name of the namespace to switch to."
   (cider-map-repls :auto
     (lambda (connection)
       (when cider-repl-require-ns-on-set
-        (cider-nrepl-sync-request:eval (format "(require '%s)" ns)))
+        (cider-nrepl-sync-request:eval (format "(require '%s)" ns) connection))
       (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
                                 (cider-repl-switch-ns-handler connection)))))
 
