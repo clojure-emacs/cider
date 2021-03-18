@@ -1207,6 +1207,8 @@ command will prompt for the name of the namespace to switch to."
     (user-error "No namespace selected"))
   (cider-map-repls :auto
     (lambda (connection)
+      ;; NOTE: `require' and `in-ns' are special forms in ClojureScript.
+      ;; That's why we eval them separately instead of combining them with `do'.
       (when cider-repl-require-ns-on-set
         (cider-nrepl-sync-request:eval (format "(require '%s)" ns) connection))
       (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
