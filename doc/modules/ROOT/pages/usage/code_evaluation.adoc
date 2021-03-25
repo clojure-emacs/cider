@@ -218,6 +218,13 @@ like `cider-eval-defun-at-point` having 3 keybindings:
 
 Okay, those are technically 4 keybindings, but who's counting!
 
+NOTE: Some of you are probably wonder why kbd:[C-c C-v] instead of
+kbd:[C-c C-e], right? Again - legacy. Historically kbd:[C-c C-e]
+was mapped to `cider-eval-last-sexp`, otherwise we would have picked
+this binding. It's still possible to recycle it down the road, as
+most people are probably using kbd:[C-x C-e] for `cider-eval-last-result`
+and good keybindings are too precious to be wasted like this.
+
 Below is a listing of most keybindings for evaluation commands:
 
 |===
@@ -300,3 +307,5 @@ kbd:[C-u C-c C-c]
 | kbd:[C-c C-M-l]
 | Load (eval) all Clojure files below a directory.
 |===
+
+TIP: You'll find all evaluation commands and their keybindings in the `CIDER Eval` menu.
