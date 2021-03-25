@@ -82,7 +82,11 @@ available to you:
 
 == Evaluation Hooks
 
-NOTE: WIP
+You can use `cider-file-loaded-hook` to trigger some action after a
+file has been evaluated.
+
+TIP: `cider-auto-test-mode` is implemented in terms of this hook -
+tests are re-run every time you evaluate a file.
 
 == Synchronous vs Asynchronous Evaluation
 
