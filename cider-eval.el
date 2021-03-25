@@ -1191,7 +1191,7 @@ passing arguments."
     (define-key map (kbd "C-r") #'cider-eval-region)
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-d") #'cider-eval-defun-at-point)
-    (define-key map (kbd "C-f") #'cider-eval-last-sexp)
+    (define-key map (kbd "C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-l") #'cider-eval-list-at-point)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
     (define-key map (kbd "C-o") #'cider-eval-sexp-up-to-point)
