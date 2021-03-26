@@ -44,9 +44,11 @@ applied with lower priority than the syntax highlighting."
 
 (defface cider-error-overlay-face
   '((((class color) (background light))
-     :background "orange red")
+     :background "orange red"
+     :extend t)
     (((class color) (background dark))
-     :background "firebrick"))
+     :background "firebrick"
+     :extend t))
   "Like `cider-result-overlay-face', but for evaluation errors."
   :group 'cider
   :package-version '(cider "0.25.0"))
