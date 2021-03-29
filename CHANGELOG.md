@@ -14,6 +14,7 @@
 * [#2953](https://github.com/clojure-emacs/cider/issues/2953): Don't font-lock function/macro vars as generic vars.
 * [#2964](https://github.com/clojure-emacs/cider/issues/2964): Fix issue with `cider-company-enable-fuzzy-completion` and Helm.
 * [#2937](https://github.com/clojure-emacs/cider/issues/2937): Green fringe produced for extra line in rich comment block.
+* [#2996]((https://github.com/clojure-emacs/cider/issues/2937)): Fix debugger incorrectly locating `#_` ignored forms.
 
 ### Changes
 
