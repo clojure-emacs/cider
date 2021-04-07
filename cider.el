@@ -727,6 +727,7 @@ Generally you should not disable this unless you run into some faulty check."
 (defcustom cider-shadow-watched-builds nil
   "Defines the list of builds `shadow-cljs' should watch."
   :type '(repeat string)
+  :safe #'listp
   :package-version '(cider . "1.0"))
 
 (defcustom cider-shadow-default-options nil
