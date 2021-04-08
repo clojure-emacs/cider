@@ -55,6 +55,11 @@ Typically this type of evaluation commands would provide you with dual feedback 
 you'd see the results in both the Emacs minibuffer and in an inline overlay in
 the source buffer.
 
+In case the result of the evaluation is big (e.g. a map with dozens of keys) it might be best
+to display it in a dedicated buffer. You can do this with
+`cider-pprint-eval-last-sexp` (kbd:[C-c C-p]). As a bonus -
+the result will be pretty-printed in the result buffer.
+
 == Exotic Evaluation Commands
 
 NOTE: WIP
@@ -67,10 +72,10 @@ This section will briefly go over some of them.
 Broadly speaking the exotic evaluation commands can be grouped in the following
 categories:
 
-- commands that pretty-print the result (e.g. `cider-pprint-eval-last-sexp`)
+- commands that are a variation of some basic commands (e.g. `cider-eval-list-at-point` and `cider-eval-sexp-at-point`)
 - commands that insert the result in the current buffer (e.g. `cider-eval-last-sexp-and-replace`)
 - commands that evaluate an expression in a different context (e.g. with user-supplied bindings)
-- commands that are a variation of some basic commands (e.g. `cider-eval-list-at-point` and `cider-eval-sexp-at-point`)
+- commands that evaluate some particular part of a buffer (e.g. `cider-eval-ns-form`)
 
 Most of the exotic evaluation commands don't have "top-level" keybindings
 and should be accessed via CIDER's evaluation commands keymap (`cider-eval-commands-map`), meaning that they share the standard prefix `C-c C-v`. On top of this - several
