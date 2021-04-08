@@ -49,6 +49,12 @@ You'll have access to additional keybindings in the inspector buffer
 | kbd:[s]
 | Set a new page size in paginated view
 
+| kbd:[c]
+| Set a new maximum size above which nested collections are truncated
+
+| kbd:[a]
+| Set a new maximum length above which nested atoms (non-collections) are truncated
+
 | kbd:[d]
 | Defines a var in the REPL namespace with current inspector value
 |===
@@ -62,6 +68,14 @@ behavior using the variable `cider-inspector-skip-uninteresting`.
 The inspector buffer is automatically selected by default. You
 can disable the auto selection with the variable
 `cider-inspector-auto-select-buffer`.
+
+You can set the amount of data shown by default with the variables
+`cider-inspector-page-size`, `cider-inspector-max-coll-size`, and
+`cider-inspector-max-atom-length`. The values can be adjusted for the current
+inspector buffer using the `s`, `c`, and `a` keybindings.
+
+If you enable `cider-inspector-fill-frame`, the inspector window fills its
+frame.
 
 == Additional Resources
 

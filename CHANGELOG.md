@@ -5,6 +5,7 @@
 ### New features
 
 * [#2930](https://github.com/clojure-emacs/cider/issues/2930): Add new customization variable `cider-test-default-include-selectors` and `cider-test-default-exclude-selectors` for specifying default test selectors when running commands such as `cider-test-run-ns-tests`.
+* [#3002](https://github.com/clojure-emacs/cider/pull/3002): [Inspector] Make collection member truncation limits configurable.
 
 ### Bugs fixed
 
