@@ -204,6 +204,24 @@ prefix). By default the prefix is `=> `.
 
 To remove the prefix altogether, just set it to the empty string (`""`).
 
+=== Change the Output Destination
+
+By default CIDER will display the output produced by some evaluation in the REPL buffer, but you can also funnel the output to a dedicated buffer. You can configure this behavior via `cider-interactive-eval-output-destination`.
+
+[source,lisp]
+----
+(setq cider-interactive-eval-output-destination 'output-buffer)
+----
+
+Additionally, there's the variable `cider-redirect-server-output-to-repl` that captures output that would normally end up in the `*nrepl-server*` buffer (provided it has been started via `cider-jack-in`) and redirects it to the REPL buffer. You can disable this redirection like this:
+
+[source,lisp]
+----
+(setq cider-redirect-server-output-to-repl nil)
+----
+
+NOTE: The redirection functionality is implemented in `cider-nrepl` as nREPL middleware. If you're using CIDER without `cider-nrepl` no output redirection is going to take place.
+
 == Keybindings
 
 You might have noticed that CIDER typically has 2-3 different keybindings for
