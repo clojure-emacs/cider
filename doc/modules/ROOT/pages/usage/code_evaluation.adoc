@@ -60,6 +60,19 @@ to display it in a dedicated buffer. You can do this with
 `cider-pprint-eval-last-sexp` (kbd:[C-c C-p]). As a bonus -
 the result will be pretty-printed in the result buffer.
 
+.Why aren't results always pretty-printed?
+****
+Many people might be wondering why doesn't CIDER pretty-print all of the results
+all of the time. After all - pretty-printed results are always easier to read, right?
+
+The reason for not doing this is pretty simple - multi-line results don't look
+very good in the minibuffer and overlays.  That's why there's little point in
+pretty-printing results there.
+
+As most of the time you'll know in advance what kind of result to expect, we feel it's
+best to leave it to you to decide which evaluation command to use depending on the situation.
+****
+
 == Exotic Evaluation Commands
 
 NOTE: WIP
