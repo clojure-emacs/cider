@@ -52,6 +52,21 @@ The page size can be also changed interactively within the inspector."
   :group 'cider-inspector
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-inspector-max-atom-length 150
+  "Default max length of nested atoms before they are truncated.
+'Atom' here means any collection member that satisfies (complement coll?).
+The max length can be also changed interactively within the inspector."
+  :type '(integer :tag "Max atom length" 150)
+  :group 'cider-inspector
+  :package-version '(cider . "1.1.0"))
+
+(defcustom cider-inspector-max-coll-size 5
+  "Default number of nested collection members to display before truncating.
+The max size can be also changed interactively within the inspector."
+  :type '(integer :tag "Max collection size" 5)
+  :group 'cider-inspector
+  :package-version '(cider . "1.1.0"))
+
 (defcustom cider-inspector-fill-frame nil
   "Controls whether the CIDER inspector window fills its frame."
   :type 'boolean
@@ -93,6 +108,8 @@ by clicking or navigating to them by other means."
     (define-key map (kbd "M-SPC") #'cider-inspector-prev-page)
     (define-key map (kbd "S-SPC") #'cider-inspector-prev-page)
     (define-key map "s" #'cider-inspector-set-page-size)
+    (define-key map "a" #'cider-inspector-set-max-atom-length)
+    (define-key map "c" #'cider-inspector-set-max-coll-size)
     (define-key map "d" #'cider-inspector-def-current-val)
     (define-key map [tab] #'cider-inspector-next-inspectable-object)
     (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
@@ -112,6 +129,8 @@ by clicking or navigating to them by other means."
         ["Next Page" cider-inspector-next-page]
         ["Previous Page" cider-inspector-prev-page]
         ["Set Page Size" cider-inspector-set-page-size]
+        ["Set Max Atom Length" cider-inspector-set-max-atom-length]
+        ["Set Max Collection Size" cider-inspector-set-max-coll-size]
         ["Define Var" cider-inspector-def-current-val]
         "--"
         ["Quit" cider-popup-buffer-quit-function]
@@ -187,7 +206,11 @@ current buffer's namespace."
   (interactive (list (cider-read-from-minibuffer "Inspect expression: " (cider-sexp-at-point))
                      (cider-current-ns)))
   (setq cider-inspector--current-repl (cider-current-repl))
-  (when-let* ((value (cider-sync-request:inspect-expr expr ns (or cider-inspector-page-size 32))))
+  (when-let* ((value (cider-sync-request:inspect-expr
+                      expr ns
+                      cider-inspector-page-size
+                      cider-inspector-max-atom-length
+                      cider-inspector-max-coll-size)))
     (cider-inspector--render-value value)))
 
 (defun cider-inspector-pop ()
@@ -235,8 +258,20 @@ Does nothing if already on the first page."
   "Set the page size in pagination mode to the specified PAGE-SIZE.
 
 Current page will be reset to zero."
-  (interactive "nPage size: ")
-  (when-let* ((value (cider-sync-request:inspect-set-page-size page-size)))
+  (interactive (list (read-number "Page size: " cider-inspector-page-size)))
+  (when-let ((value (cider-sync-request:inspect-set-page-size page-size)))
+    (cider-inspector--render-value value)))
+
+(defun cider-inspector-set-max-atom-length (max-length)
+  "Set the max length of nested atoms to MAX-LENGTH."
+  (interactive (list (read-number "Max atom length: " cider-inspector-max-atom-length)))
+  (when-let ((value (cider-sync-request:inspect-set-max-atom-length max-length)))
+    (cider-inspector--render-value value)))
+
+(defun cider-inspector-set-max-coll-size (max-size)
+  "Set the number of nested collection members to display before truncating to MAX-SIZE."
+  (interactive (list (read-number "Max collection size: " cider-inspector-max-coll-size)))
+  (when-let ((value (cider-sync-request:inspect-set-max-coll-size max-size)))
     (cider-inspector--render-value value)))
 
 (defun cider-inspector-def-current-val (var-name ns)
@@ -291,6 +326,20 @@ current-namespace."
     (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
+(defun cider-sync-request:inspect-set-max-atom-length (max-length)
+  "Set the max length of nested atoms to MAX-LENGTH."
+  (thread-first `("op" "inspect-set-max-atom-length"
+                  "max-atom-length" ,max-length)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
+    (nrepl-dict-get "value")))
+
+(defun cider-sync-request:inspect-set-max-coll-size (max-size)
+  "Set the number of nested collection members to display before truncating to MAX-SIZE."
+  (thread-first `("op" "inspect-set-max-coll-size"
+                  "max-coll-size" ,max-size)
+    (cider-nrepl-send-sync-request cider-inspector--current-repl)
+    (nrepl-dict-get "value")))
+
 (defun cider-sync-request:inspect-def-current-val (ns var-name)
   "Defines a var with VAR-NAME in NS with the current inspector value."
   (thread-first `("op" "inspect-def-current-value"
@@ -299,12 +348,19 @@ current-namespace."
     (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
-(defun cider-sync-request:inspect-expr (expr ns page-size)
+(defun cider-sync-request:inspect-expr (expr ns page-size max-atom-length max-coll-size)
   "Evaluate EXPR in context of NS and inspect its result.
-Set the page size in paginated view to PAGE-SIZE."
+Set the page size in paginated view to PAGE-SIZE, maximum length of atomic
+collection members to MAX-ATOM-LENGTH, and maximum size of nested collections to
+MAX-COLL-SIZE if non nil."
   (thread-first (append (nrepl--eval-request expr ns)
                         `("inspect" "true"
-                          "page-size" ,page-size))
+                          ,@(when page-size
+                              `("page-size" ,page-size))
+                          ,@(when max-atom-length
+                              `("max-atom-length" ,max-atom-length))
+                          ,@(when max-coll-size
+                              `("max-coll-size" ,max-coll-size))))
     (cider-nrepl-send-sync-request cider-inspector--current-repl)
     (nrepl-dict-get "value")))
 
