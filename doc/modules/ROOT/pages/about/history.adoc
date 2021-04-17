@@ -8,7 +8,7 @@ a proper environment for Clojure development on Emacs. The work on it was
 fueled mostly by the advent of nREPL which was the first project that aimed to
 provide a common tool-agnostic foundation for Clojure development tools.
 
-The project was started in 2012 by Phil Hagelberg (of Leiningen fame),
+The project was started in April 2012 by Phil Hagelberg (of Leiningen fame),
 who hacked a prototype of an nREPL client in Emacs Lisp on a flight to
 San Francisco.  He got a bit stuck on the socket-based bencode
 functionality and dropped it after the flight, but not before pushing
@@ -28,7 +28,7 @@ that serves as inspiration for many others.
 
 == Notable Milestones
 
-* 14 Apr 2012 - Initial commit by Phil Hagelberg.
+* 17 Apr 2012 - Initial commit by Phil Hagelberg.
 * 24 Apr 2012 - Tim King picks up Phil's prototype.
 * 10 Jul 2012 - Tim releases version 0.1.0.
 * 21 Aug 2012 - Phil announces that `swank-clojure` is officially deprecated in favour of `nrepl.el`.
