@@ -276,6 +276,7 @@ kbd:[C-c C-e]
 | Evaluate the form preceding point and replace it with its result.
 
 | `cider-eval-last-sexp-to-repl`
+
 | kbd:[C-c M-e]
 | Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 
@@ -284,7 +285,8 @@ kbd:[C-c C-e]
 | Load the form preceding point in the REPL buffer and eval.
 
 | `cider-pprint-eval-last-sexp`
-| kbd:[C-c C-v C-f e]
+| kbd:[C-c C-p] +
+kbd:[C-c C-v C-f e]
 | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
 
 | `cider-pprint-eval-defun-at-point`
