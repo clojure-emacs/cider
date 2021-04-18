@@ -17,6 +17,23 @@ dedicated buffer.
 
 image::code_completion.png[Code Completion]
 
+[NOTE]
+====
+There are two things to keep in mind about the standard completion:
+
+1. The default keybinding kbd:[M-TAB] is not usable in desktop environments that
+use it for switching between open applications.
+2. You have to configure kbd:[TAB] to do completion manually by adding this snippet your Emacs config:
+
+[source,lisp]
+----
+(setq tab-always-indent 'complete)
+----
+
+Normally kbd:[TAB] only indents, but now it will also do completion if the code
+is already properly indented.
+====
+
 == Auto-completion
 
 While the standard Emacs tooling works just fine, we suggest that
