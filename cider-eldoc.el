@@ -346,7 +346,7 @@ Then go back to the point and return its eldoc."
 
 (defun cider-eldoc-info-in-current-sexp ()
   "Return eldoc information from the sexp.
-If `cider-eldoc-display-for-symbol-at-poin' is non-nil and
+If `cider-eldoc-display-for-symbol-at-point' is non-nil and
 the symbol at point has a valid eldoc available, return that.
 Otherwise return the eldoc of the first symbol of the sexp."
   (or (when cider-eldoc-display-for-symbol-at-point
