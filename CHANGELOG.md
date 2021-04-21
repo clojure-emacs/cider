@@ -18,7 +18,8 @@
 * [#2937](https://github.com/clojure-emacs/cider/issues/2937): Green fringe produced for extra line in rich comment block.
 * [#2996](https://github.com/clojure-emacs/cider/issues/2937): Fix debugger incorrectly locating `#_` ignored forms.
 * Bump the injected `cider-nrepl` to 0.25.6. This should fix a compatibility issue with Java 15 and fetching fresh ClojureDocs data.
-* [#3004](https://github.com/clojure-emacs/cider/pull/3004): Use appropriate coding system when unzipping jars
+* [#3004](https://github.com/clojure-emacs/cider/pull/3004): Use appropriate coding system when unzipping jars.
+* [#2934](https://github.com/clojure-emacs/cider/issues/2934): Enable eldoc-mode in existing clojure buffers.
 
 ### Changes
 
