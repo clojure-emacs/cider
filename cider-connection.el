@@ -261,7 +261,18 @@ See command `cider-mode'."
   (add-hook 'clojure-mode-hook #'cider-mode)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
-      (cider-mode +1))))
+      (cider-mode +1)
+      ;; In global-eldoc-mode, a new file-visiting buffer calls
+      ;; `turn-on-eldoc-mode' which enables eldoc-mode if it's supported in that
+      ;; buffer as determined by `eldoc--supported-p'.  Cider's eldoc support
+      ;; allows new buffers in cider-mode to enable eldoc-mode.  As of 2021-04,
+      ;; however, clojure-mode itself has no eldoc support, so old clojure
+      ;; buffers opened before cider started aren't necessarily in eldoc-mode.
+      ;; Here, we've enabled cider-mode for this old clojure buffer, and now, if
+      ;; global-eldoc-mode is enabled, try to enable eldoc-mode as if the buffer
+      ;; had just been created with cider-mode.
+      (when global-eldoc-mode
+        (turn-on-eldoc-mode)))))
 
 (declare-function cider--debug-mode "cider-debug")
 (defun cider-disable-on-existing-clojure-buffers ()
