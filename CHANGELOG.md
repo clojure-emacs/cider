@@ -9,6 +9,7 @@
 
 ### Bugs fixed
 
+* [#2871](https://github.com/clojure-emacs/cider/issues/2871): Restore the dynamic code completion (the actual fixes are in `clj-suitable` and `cider-nrepl`).
 * [#2993](https://github.com/clojure-emacs/cider/issues/2993): Fix bug where calling `cider-repl-set-ns` for a cljs ns when `cider-repl-require-ns-on-set` is `t` would fail.
 * [#2983](https://github.com/clojure-emacs/cider/issues/2983): Update signal description in nrepl server sentinel as a workaround for Emacs bug #46284 affecting v27.1 on Windows.
 * [#2941](https://github.com/clojure-emacs/cider/issues/2941): Use main args in alias for clojure cli.
