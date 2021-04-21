@@ -412,7 +412,7 @@ This includes the arglist and ns and symbol name (if available)."
                                         "type" type)))
                 ;; add context dependent args if requested by defcustom
                 ;; do not cache this eldoc info to avoid showing info
-                                        ;: of the previous context
+                ;; of the previous context
                 (if cider-eldoc-display-context-dependent-info
                     (cond
                      ;; add inputs of datomic query
