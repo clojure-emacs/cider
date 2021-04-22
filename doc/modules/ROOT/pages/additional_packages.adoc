@@ -24,6 +24,10 @@ NOTE: Keep in mind that currently there are no "official" CIDER extensions and t
 on the list are not maintained by CIDER's Core Team. Their quality and level
 of maintenance may vary significantly.
 
+=== clj-decompiler
+
+https://github.com/bsless/clj-decompiler.el[clj-decompiler] allows you to quickly decompile Clojure code to Java bytecode. It's based on https://github.com/clojure-goes-fast/clj-java-decompiler[clj-java-decompiler].
+
 === clj-refactor
 
 https://github.com/clojure-emacs/clj-refactor.el[clj-refactor] builds on top
