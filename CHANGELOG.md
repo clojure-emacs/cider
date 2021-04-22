@@ -18,15 +18,15 @@
 * [#2964](https://github.com/clojure-emacs/cider/issues/2964): Fix issue with `cider-company-enable-fuzzy-completion` and Helm.
 * [#2937](https://github.com/clojure-emacs/cider/issues/2937): Green fringe produced for extra line in rich comment block.
 * [#2996](https://github.com/clojure-emacs/cider/issues/2937): Fix debugger incorrectly locating `#_` ignored forms.
-* Bump the injected `cider-nrepl` to 0.25.6. This should fix a compatibility issue with Java 15 and fetching fresh ClojureDocs data.
+* Fix a compatibility issue with Java 15 and fetching fresh ClojureDocs data. (fixed in `cider-nrepl` 0.25.6)
 * [#3004](https://github.com/clojure-emacs/cider/pull/3004): Use appropriate coding system when unzipping jars.
-* [#2934](https://github.com/clojure-emacs/cider/issues/2934): Enable eldoc-mode in existing clojure buffers.
+* [#2934](https://github.com/clojure-emacs/cider/issues/2934): Enable `eldoc-mode` in existing clojure buffers.
 
 ### Changes
 
 * Removed `cider-clojure-cli-parameters` due to clojure-cli jack-in changes.
 * Changed the behaviour of `cider-last-sexp` so it returns only the sexp, excluding all whitespace and/or the first newline after.
-* Restored the enhanced ClojureScript completion functionality on anything but `shadow-cljs`.
+* Restored the enhanced ClojureScript completion functionality. (the actual changes are in `cider-nrepl` and `clj-suitable`)
 
 ## 1.0.0 (2020-28-12)
 
