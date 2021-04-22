@@ -212,7 +212,7 @@ If NS is non-nil, include it in the eval request."
 
 (defcustom cider-format-code-options nil
   "A map of options that will be passed to `cljfmt' to format code.
-Assuming this is the Clojure map you want to use as `cljfmt options':
+Assuming this is the Clojure map you want to use as `cljfmt' options:
 
   {:indents {org.me/foo [[:inner 0]]}
    :alias-map {\"me\" \"org.me\"}}
@@ -222,7 +222,7 @@ you need to encode it as the following plist:
   '((\"indents\" ((\"org.me/foo\" ((\"inner\" 0))))) (\"alias-map\" ((\"me\" \"org.me\"))))"
   :type 'list
   :group 'cider
-  :package-version '(cider . "1.0.0"))
+  :package-version '(cider . "1.1.0"))
 
 (defun cider--nrepl-format-code-request-map (&optional format-options)
   "Map to merge into requests that require code formatting.
