@@ -334,3 +334,12 @@ You can supply additional configuration to `cljfmt` via the configuration variab
 NOTE: CIDER doesn't shell out to `cljfmt` - it interacts with it via nREPL
 (there's `format` middleware in `cider-nrepl`), which is faster that
 shelling out.
+
+== Formatting EDN
+
+Similarly to the `cljfmt` integration, CIDER also provides a convenient interface
+to format EDN using `clojure.tools.reader.edn`. The following commands are provided:
+
+* `cider-format-edn-defun`
+* `cider-format-edn-region`
+* `cider-format-edn-buffer`
