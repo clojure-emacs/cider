@@ -85,7 +85,9 @@ Uses the following heuristic to try to maintain point position:
 START and END represent the region's boundaries."
   (interactive "r")
   (cider-ensure-connected)
-  (cider--format-region start end #'cider-sync-request:format-code))
+  (cider--format-region start end
+                        (lambda (buf)
+                          (cider-sync-request:format-code buf cider-format-code-options))))
 
 
 ;;; Format defun
@@ -114,7 +116,8 @@ of the buffer into a formatted string."
   (interactive)
   (check-parens)
   (cider-ensure-connected)
-  (cider--format-buffer #'cider-sync-request:format-code))
+  (cider--format-buffer (lambda (buf)
+                          (cider-sync-request:format-code buf cider-format-code-options))))
 
 
 ;;; Format EDN
