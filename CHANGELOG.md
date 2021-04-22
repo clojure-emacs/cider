@@ -28,7 +28,6 @@
 
 * Removed `cider-clojure-cli-parameters` due to clojure-cli jack-in changes.
 * Changed the behaviour of `cider-last-sexp` so it returns only the sexp, excluding all whitespace and/or the first newline after.
-* Restored the enhanced ClojureScript completion functionality. (the actual changes are in `cider-nrepl` and `clj-suitable`)
 
 ## 1.0.0 (2020-28-12)
 
