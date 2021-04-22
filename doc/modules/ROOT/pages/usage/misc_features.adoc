@@ -291,3 +291,46 @@ type kbd:[e] when browsing a spec to generate an example that
 meets the spec.
 
 image::spec_browser_gen_example.png[Spec Browser Example]
+
+== Formatting Code with cljfmt
+
+While CIDER has it's own code formatting (identation) engine, you can also
+use it together with `cljfmt` - that's useful if you're working on a team
+that uses different editors and IDEs.
+
+CIDER exposes several commands to interacted with `cljfmt`:
+
+* `cider-format-defun`
+* `cider-format-region`
+* `cider-format-buffer`
+
+Generally it's a good idea to add some hook like this one to make sure
+on each save operation your buffers are properly formatted:
+
+[source,lisp]
+----
+(add-hook 'before-save-hook 'cider-format-buffer t t)
+----
+
+Notice that you want to apply `cljfmt` **prior** to saving the buffer in question.
+
+You can supply additional configuration to `cljfmt` via the configuration variable
+`cider-format-code-options`. Here's an example:
+
+[source,lisp]
+----
+;; Let's assume you want to pass the following config
+;;
+;;   {:indents {org.me/foo [[:inner 0]]}
+;;    :alias-map {\"me\" \"org.me\"}}
+;;
+;; You'll need to encode it as an Emacs Lisp plist:
+
+(setq cider-format-code-options
+      '(("indents" (("org.me/foo" (("inner" 0)))))
+        ("alias-map" (("me" "org.me")))))
+----
+
+NOTE: CIDER doesn't shell out to `cljfmt` - it interacts with it via nREPL
+(there's `format` middleware in `cider-nrepl`), which is faster that
+shelling out.
