@@ -39,7 +39,7 @@
 ;; The nREPL communication process can be broadly represented as follows:
 ;;
 ;;    1) The server process is started as an Emacs subprocess (usually by
-;;       `cider-jack-in', which in turn fires up leiningen or boot).  Note that
+;;       `cider-jack-in', which in turn fires up an nREPL server).  Note that
 ;;       if a connection was established using `cider-connect' there won't be
 ;;       a server process.
 ;;
@@ -1063,6 +1063,13 @@ been determined."
             (when nrepl-on-port-callback
               (funcall nrepl-on-port-callback (process-buffer process)))))))))
 
+(defmacro emacs-bug-46284/when-27.1-windows-nt (&rest body)
+  "Only evaluate BODY when Emacs bug #46284 has been detected."
+  (when (and (eq system-type 'windows-nt)
+             (string= emacs-version "27.1"))
+    (cons 'progn body)))
+
+
 (declare-function cider--close-connection "cider-connection")
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT."
@@ -1075,6 +1082,19 @@ been determined."
                       (with-current-buffer server-buffer
                         (buffer-substring (point-min) (point-max)))
                     "")))
+    (emacs-bug-46284/when-27.1-windows-nt
+     ;; There is a bug in emacs 27.1 (since fixed) that sets all EVENT
+     ;; descriptions for signals to "unknown signal". We correct this by
+     ;; reseting it back to its canonical value.
+     (when (eq (process-status process) 'signal)
+       (cl-case (process-exit-status process)
+         ;; SIGHUP==1 emacs nt/inc/ms-w32.h
+         (1 (setq event "Hangup"))
+         ;; SIGINT==2 x86_64-w64-mingw32/include/signal.h
+         (2 (setq event "Interrupt"))
+         ;; SIGKILL==9 emacs nt/inc/ms-w32.h
+         (9 (setq event "Killed")))))
+
     (when server-buffer
       (kill-buffer server-buffer))
     (cond
@@ -1259,7 +1279,7 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
                (name-lengths (seq-map (lambda (pair) (length (car pair))) sorted-pairs))
                (longest-name (seq-max name-lengths))
                ;; Special entries are displayed first
-               (specialq (lambda (pair) (seq-contains-p '("id" "op" "session" "time-stamp") (car pair))))
+               (specialq (lambda (pair) (member (car pair) '("id" "op" "session" "time-stamp"))))
                (special-pairs (seq-filter specialq sorted-pairs))
                (not-special-pairs (seq-remove specialq sorted-pairs))
                (all-pairs (seq-concatenate 'list special-pairs not-special-pairs))

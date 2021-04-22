@@ -5,20 +5,28 @@
 ### New features
 
 * [#2930](https://github.com/clojure-emacs/cider/issues/2930): Add new customization variable `cider-test-default-include-selectors` and `cider-test-default-exclude-selectors` for specifying default test selectors when running commands such as `cider-test-run-ns-tests`.
-* [#2907](https://github.com/clojure-emacs/cider/issues/2907): Add new customization variable `cider-format-code-options` to specify options used by `cljfmt' to format code when running commands `cider-format-buffer`, `cider-format-region`  and `cider-format-defun`.
+* [#2907](https://github.com/clojure-emacs/cider/issues/2907): Add new customization variable `cider-format-code-options` to specify options used by `cljfmt` to format code when running commands `cider-format-buffer`, `cider-format-region`  and `cider-format-defun`.
+* [#3002](https://github.com/clojure-emacs/cider/pull/3002): [Inspector] Make collection member truncation limits configurable.
 
 ### Bugs fixed
 
-* [#2941](https://github.com/clojure-emacs/cider/issues/2941): Use main args in alias for clojure cli
-* [#2953](https://github.com/clojure-emacs/cider/issues/2953): Don't font-lock function/macro vars as vars.
-* [#2964](https://github.com/clojure-emacs/cider/issues/2964): Fixes issue with `cider-company-enable-fuzzy-completion` and Helm
-* [#2937](https://github.com/clojure-emacs/cider/issues/2937): Green fringe produced for extra line in rich comment block
+* [#2871](https://github.com/clojure-emacs/cider/issues/2871): Restore the dynamic code completion (the actual fixes are in `clj-suitable` and `cider-nrepl`).
+* [#2993](https://github.com/clojure-emacs/cider/issues/2993): Fix bug where calling `cider-repl-set-ns` for a cljs ns when `cider-repl-require-ns-on-set` is `t` would fail.
+* [#2983](https://github.com/clojure-emacs/cider/issues/2983): Update signal description in nrepl server sentinel as a workaround for Emacs bug #46284 affecting v27.1 on Windows.
+* [#2941](https://github.com/clojure-emacs/cider/issues/2941): Use main args in alias for clojure cli.
+* [#2953](https://github.com/clojure-emacs/cider/issues/2953): Don't font-lock function/macro vars as generic vars.
+* [#2964](https://github.com/clojure-emacs/cider/issues/2964): Fix issue with `cider-company-enable-fuzzy-completion` and Helm.
+* [#2937](https://github.com/clojure-emacs/cider/issues/2937): Green fringe produced for extra line in rich comment block.
+* [#2996](https://github.com/clojure-emacs/cider/issues/2937): Fix debugger incorrectly locating `#_` ignored forms.
+* Bump the injected `cider-nrepl` to 0.25.6. This should fix a compatibility issue with Java 15 and fetching fresh ClojureDocs data.
+* [#3004](https://github.com/clojure-emacs/cider/pull/3004): Use appropriate coding system when unzipping jars.
+* [#2934](https://github.com/clojure-emacs/cider/issues/2934): Enable eldoc-mode in existing clojure buffers.
 
 ### Changes
 
-* Removed `cider-clojure-cli-parameters` due to clojure-cli jack-in changes
-* Bump the injected `cider-nrepl` to 0.25.6. This should fix a compatibility issue with Java 15 and fetching fresh ClojureDocs data.
+* Removed `cider-clojure-cli-parameters` due to clojure-cli jack-in changes.
 * Changed the behaviour of `cider-last-sexp` so it returns only the sexp, excluding all whitespace and/or the first newline after.
+* Restored the enhanced ClojureScript completion functionality on anything but `shadow-cljs`.
 
 ## 1.0.0 (2020-28-12)
 

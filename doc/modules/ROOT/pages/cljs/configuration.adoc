@@ -87,3 +87,8 @@ into any `suitable`-related issues you can disable the enhanced completion like 
 ----
 (setq cider-enhanced-cljs-completion-p nil)
 ----
+
+NOTE: Unfortunately, the enhanced completion has been broken on `shadow-cljs`
+for a while due to some internal changes in `shadow-cljs`. See this
+https://github.com/rksm/clj-suitable/issues/15[issue] for more details.
+If you're looking for an important problem to fix - that's a great option for you!

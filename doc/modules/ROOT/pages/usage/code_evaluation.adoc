@@ -55,9 +55,44 @@ Typically this type of evaluation commands would provide you with dual feedback 
 you'd see the results in both the Emacs minibuffer and in an inline overlay in
 the source buffer.
 
+In case the result of the evaluation is big (e.g. a map with dozens of keys) it might be best
+to display it in a dedicated buffer. You can do this with
+`cider-pprint-eval-last-sexp` (kbd:[C-c C-p]). As a bonus -
+the result will be pretty-printed in the result buffer.
+
+.Why aren't results always pretty-printed?
+****
+Many people might be wondering why doesn't CIDER pretty-print all of the results
+all of the time. After all - pretty-printed results are always easier to read, right?
+
+The reason for not doing this is pretty simple - multi-line results don't look
+very good in the minibuffer and overlays.  That's why there's little point in
+pretty-printing results there.
+
+As most of the time you'll know in advance what kind of result to expect, we feel it's
+best to leave it to you to decide which evaluation command to use depending on the situation.
+****
+
 == Exotic Evaluation Commands
 
 NOTE: WIP
+
+While the basic evaluation commands discussed earlier should be enough for
+most people, CIDER features a ton of additional evaluation commands.
+Some of them are so peculiar that one can easily label them "exotic".
+This section will briefly go over some of them.
+
+Broadly speaking the exotic evaluation commands can be grouped in the following
+categories:
+
+- commands that are a variation of some basic commands (e.g. `cider-eval-list-at-point` and `cider-eval-sexp-at-point`)
+- commands that insert the result in the current buffer (e.g. `cider-eval-last-sexp-and-replace`)
+- commands that evaluate an expression in a different context (e.g. with user-supplied bindings)
+- commands that evaluate some particular part of a buffer (e.g. `cider-eval-ns-form`)
+
+Most of the exotic evaluation commands don't have "top-level" keybindings
+and should be accessed via CIDER's evaluation commands keymap (`cider-eval-commands-map`), meaning that they share the standard prefix `C-c C-v`. On top of this - several
+related commands that pretty-print their result are grouped under `C-c C-v C-f`.
 
 == Evaluating Clojure Code in the Minibuffer
 
@@ -82,7 +117,11 @@ available to you:
 
 == Evaluation Hooks
 
-NOTE: WIP
+You can use `cider-file-loaded-hook` to trigger some action after a
+file has been evaluated.
+
+TIP: `cider-auto-test-mode` is implemented in terms of this hook -
+tests are re-run every time you evaluate a file.
 
 == Synchronous vs Asynchronous Evaluation
 
@@ -178,6 +217,24 @@ prefix). By default the prefix is `=> `.
 
 To remove the prefix altogether, just set it to the empty string (`""`).
 
+=== Change the Output Destination
+
+By default CIDER will display the output produced by some evaluation in the REPL buffer, but you can also funnel the output to a dedicated buffer. You can configure this behavior via `cider-interactive-eval-output-destination`.
+
+[source,lisp]
+----
+(setq cider-interactive-eval-output-destination 'output-buffer)
+----
+
+Additionally, there's the variable `cider-redirect-server-output-to-repl` that captures output that would normally end up in the `*nrepl-server*` buffer (provided it has been started via `cider-jack-in`) and redirects it to the REPL buffer. You can disable this redirection like this:
+
+[source,lisp]
+----
+(setq cider-redirect-server-output-to-repl nil)
+----
+
+NOTE: The redirection functionality is implemented in `cider-nrepl` as nREPL middleware. If you're using CIDER without `cider-nrepl` no output redirection is going to take place.
+
 == Keybindings
 
 You might have noticed that CIDER typically has 2-3 different keybindings for
@@ -196,6 +253,13 @@ like `cider-eval-defun-at-point` having 3 keybindings:
 * kbd:[C-c C-v (C-)d] (CIDER style)
 
 Okay, those are technically 4 keybindings, but who's counting!
+
+NOTE: Some of you are probably wonder why kbd:[C-c C-v] instead of
+kbd:[C-c C-e], right? Again - legacy. Historically kbd:[C-c C-e]
+was mapped to `cider-eval-last-sexp`, otherwise we would have picked
+this binding. It's still possible to recycle it down the road, as
+most people are probably using kbd:[C-x C-e] for `cider-eval-last-result`
+and good keybindings are too precious to be wasted like this.
 
 Below is a listing of most keybindings for evaluation commands:
 
@@ -220,7 +284,8 @@ kbd:[C-c C-e]
 | Load the form preceding point in the REPL buffer and eval.
 
 | `cider-pprint-eval-last-sexp`
-| kbd:[C-c C-v C-f e]
+| kbd:[C-c C-p] +
+kbd:[C-c C-v C-f e]
 | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
 
 | `cider-pprint-eval-defun-at-point`
@@ -279,3 +344,5 @@ kbd:[C-u C-c C-c]
 | kbd:[C-c C-M-l]
 | Load (eval) all Clojure files below a directory.
 |===
+
+TIP: You'll find all evaluation commands and their keybindings in the `CIDER Eval` menu.

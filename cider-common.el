@@ -382,7 +382,18 @@ found."
             (t
              (with-current-buffer (generate-new-buffer
                                    (file-name-nondirectory entry))
-               (archive-zip-extract path entry)
+               ;; Use appropriate coding system for bytes read from unzip cmd to
+               ;; display Emacs native newlines regardless of whether the file
+               ;; uses unix LF or dos CRLF line endings.
+               ;; It's important to avoid spurious CR characters, which may
+               ;; appear as `^M', because they can confuse clojure-mode's symbol
+               ;; detection, e.g. `clojure-find-ns', and break `cider-find-var'.
+               ;; `clojure-find-ns' uses Emacs' (thing-at-point 'symbol) as
+               ;; part of identifying a file's namespace, and when a file
+               ;; isn't decoded properly, namespaces can be reported as
+               ;; `my.lib^M' which `cider-find-var' won't know what to do with.
+               (let ((coding-system-for-read 'prefer-utf-8))
+                 (archive-zip-extract path entry))
                (set-visited-file-name name)
                (setq-local default-directory (file-name-directory path))
                (setq-local buffer-read-only t)

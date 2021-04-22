@@ -910,6 +910,13 @@ Part of the default `cider-repl-content-type-handler-alist'."
                              (cider-repl--image image 'png t)
                              show-prefix bol))
 
+(defun cider-repl-handle-svg (_type buffer image &optional show-prefix bol)
+  "A handler for inserting an svg IMAGE into a repl BUFFER.
+Part of the default `cider-repl-content-type-handler-alist'."
+  (cider-repl--display-image buffer
+                             (cider-repl--image image 'svg t)
+                             show-prefix bol))
+
 (defun cider-repl-handle-external-body (type buffer _ &optional _show-prefix _bol)
   "Handler for slurping external content into BUFFER.
 Handles an external-body TYPE by issuing a slurp request to fetch the content."
@@ -924,7 +931,8 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
 (defvar cider-repl-content-type-handler-alist
   `(("message/external-body" . ,#'cider-repl-handle-external-body)
     ("image/jpeg" . ,#'cider-repl-handle-jpeg)
-    ("image/png" . ,#'cider-repl-handle-png))
+    ("image/png" . ,#'cider-repl-handle-png)
+    ("image/svg+xml" . ,#'cider-repl-handle-svg))
   "Association list from content-types to handlers.
 Handlers must be functions of two required and two optional arguments - the
 REPL buffer to insert into, the value of the given content type as a raw
@@ -1199,9 +1207,11 @@ command will prompt for the name of the namespace to switch to."
     (user-error "No namespace selected"))
   (cider-map-repls :auto
     (lambda (connection)
-      (cider-nrepl-request:eval (if cider-repl-require-ns-on-set
-                                    (format "(do (require '%s) (in-ns '%s))" ns ns)
-                                  (format "(in-ns '%s)" ns))
+      ;; NOTE: `require' and `in-ns' are special forms in ClojureScript.
+      ;; That's why we eval them separately instead of combining them with `do'.
+      (when cider-repl-require-ns-on-set
+        (cider-nrepl-sync-request:eval (format "(require '%s)" ns) connection))
+      (cider-nrepl-request:eval (format "(in-ns '%s)" ns)
                                 (cider-repl-switch-ns-handler connection)))))
 
 

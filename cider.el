@@ -406,7 +406,7 @@ Elements of the list are artifact name and list of exclusions to apply for the a
 (defconst cider-latest-clojure-version "1.10.1"
   "Latest supported version of Clojure.")
 
-(defconst cider-required-middleware-version "0.25.9"
+(defconst cider-required-middleware-version "0.26.0-SNAPSHOT"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-jack-in-auto-inject-clojure nil
@@ -727,6 +727,7 @@ Generally you should not disable this unless you run into some faulty check."
 (defcustom cider-shadow-watched-builds nil
   "Defines the list of builds `shadow-cljs' should watch."
   :type '(repeat string)
+  :safe #'listp
   :package-version '(cider . "1.0"))
 
 (defcustom cider-shadow-default-options nil

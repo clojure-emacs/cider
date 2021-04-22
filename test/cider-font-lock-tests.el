@@ -46,7 +46,7 @@
     (seq-every-p (lambda (target-face)
                    (or (eq face target-face)
                        (when (consp target-face)
-                         (seq-contains target-face face))))
+                         (member face target-face))))
                  all-faces)))
 
 (defun cider--face-exists-in-range-p (start end face)
@@ -56,7 +56,7 @@
     (seq-some (lambda (target-face)
                 (or (eq face target-face)
                     (when (consp target-face)
-                      (seq-contains target-face face))))
+                      (member face target-face))))
               all-faces)))
 
 ;; Tests
