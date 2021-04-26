@@ -29,11 +29,12 @@ version before the time we started relying on nREPL middleware.
 
 == What's the relationship between CIDER and inf-clojure?
 
-There's pretty much no relationship. https://github.com/clojure-emacs/inf-clojure[inf-clojure] provides a REPL based on the
-`comint` Emacs package - you're basically running an external REPL process
-inside of Emacs (there's no network connectivity involved).  The advantage of
-this is that you have no external dependencies what-so-ever - you just need some
-command to start a REPL process for you.
+There's pretty much no relationship, other than the fact they have the same
+author. https://github.com/clojure-emacs/inf-clojure[inf-clojure] provides a
+REPL based on the `comint` Emacs package - you're basically running an external
+REPL process inside of Emacs (there's no network connectivity involved).  The
+advantage of this is that you have no external dependencies what-so-ever - you
+just need some command to start a REPL process for you (e.g. `lein repl`).
 
 == Isn't IntelliJ's Cursive the best Clojure IDE?
 
