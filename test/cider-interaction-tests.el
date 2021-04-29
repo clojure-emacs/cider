@@ -57,11 +57,15 @@
           (expect (funcall cider-to-nrepl-filename-function unix-file-name)
                   :to-equal unix-file-name)))))
   (it "translates file paths from container/vm location to host location"
-    (let ((cider-path-translations '(("/docker/src" . "/cygdrive/c/project/src"))))
-      (expect (funcall cider-from-nrepl-filename-function "/docker/src/ns.clj")
-              :to-equal "/cygdrive/c/project/src/ns.clj")
-      (expect (funcall cider-to-nrepl-filename-function "/cygdrive/c/project/src/ns.clj")
-              :to-equal "/docker/src/ns.clj"))))
+    (let* ((/docker/src (expand-file-name "/docker/src"))
+           (/cygdrive/c/project/src (expand-file-name "/cygdrive/c/project/src"))
+           (/docker/src/ns.clj (expand-file-name "/docker/src/ns.clj"))
+           (/cygdrive/c/project/src/ns.clj (expand-file-name "/cygdrive/c/project/src/ns.clj"))
+           (cider-path-translations `((,/docker/src . ,/cygdrive/c/project/src))))
+      (expect (funcall cider-from-nrepl-filename-function /docker/src/ns.clj)
+              :to-equal /cygdrive/c/project/src/ns.clj)
+      (expect (funcall cider-to-nrepl-filename-function /cygdrive/c/project/src/ns.clj)
+              :to-equal /docker/src/ns.clj))))
 
 (describe "cider-quit"
   (it "raises a user error if cider is not connected"

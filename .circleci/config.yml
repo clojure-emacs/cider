@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  win: circleci/windows@2.2.0
+
 # Default actions to perform on each Emacs version
 commands:
   setup:
@@ -8,6 +11,12 @@ commands:
       - run:
           name: Install Eldev
           command: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev > x.sh && source ./x.sh
+  setup-windows:
+    steps:
+      - checkout
+      - run:
+          name: Install Eldev
+          command: (iwr https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev.ps1).Content | powershell -command -
   test:
     steps:
       - run:
@@ -55,11 +64,29 @@ jobs:
       - setup
       - test
 
+  test-windows-emacs-latest:
+    executor: win/default
+    steps:
+      - run:
+          name: Install Emacs latest
+          command: choco install emacs
+      - setup-windows
+      - test
+
   test-lint:
     docker:
       - image: silex/emacs:27-dev
     steps:
       - setup
+      - lint
+
+  test-windows-lint:
+    executor: win/default
+    steps:
+      - run:
+          name: Install Emacs latest
+          command: choco install emacs
+      - setup-windows
       - lint
 
 workflows:
@@ -71,3 +98,5 @@ workflows:
       - test-emacs-27
       - test-emacs-master
       - test-lint
+      - test-windows-emacs-latest
+      - test-windows-lint

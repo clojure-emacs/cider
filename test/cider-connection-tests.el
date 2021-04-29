@@ -42,7 +42,7 @@
           ses-name2 "b-session"))
 
   (it "returns nil when a cider connection is available"
-    (let ((default-directory "/tmp/a-dir"))
+    (let ((default-directory (expand-file-name "/tmp/a-dir")))
       (with-repl-buffer "cider-ensure-session" 'clj b
         (expect (cider-ensure-connected) :to-equal
                 (list "cider-ensure-session" b)))))
@@ -69,7 +69,7 @@
   (describe "when active connections are available"
 
     (it "always returns the latest connection"
-      (let ((default-directory "/tmp/a-dir"))
+      (let ((default-directory (expand-file-name "/tmp/a-dir")))
         (with-repl-buffer ses-name 'clj bb1
           (with-repl-buffer ses-name 'cljs bb2
             (with-repl-buffer ses-name 'clj b1
@@ -90,7 +90,7 @@
                   (expect (cider-current-repl) :to-equal b2))))))))
 
     (it "always returns the most recently used connection"
-      (let ((default-directory "/tmp/a-dir"))
+      (let ((default-directory (expand-file-name "/tmp/a-dir")))
         (with-repl-buffer ses-name 'clj bb1
           (with-repl-buffer ses-name 'cljs bb2
             (with-repl-buffer ses-name 'clj b1
@@ -117,7 +117,7 @@
     (describe "when current buffer is a 'multi' buffer"
       (describe "when there is only one connection available"
         (it "returns the only connection"
-          (let ((default-directory "/tmp/a-dir"))
+          (let ((default-directory (expand-file-name "/tmp/a-dir")))
             (with-repl-buffer ses-name 'clj b
               (with-temp-buffer
                 (clojure-mode)
@@ -130,7 +130,7 @@
 
       (describe "when connection of that type exists"
         (it "returns that connection buffer"
-          (let ((default-directory "/tmp/a-dir"))
+          (let ((default-directory (expand-file-name "/tmp/a-dir")))
             ;; for clj
             (with-repl-buffer ses-name 'clj b1
               (with-repl-buffer ses-name 'cljs b2
@@ -154,7 +154,7 @@
 
         (describe "when a connection matching current file extension exists"
           (it "returns that connection buffer"
-            (let ((default-directory "/tmp/a-dir"))
+            (let ((default-directory (expand-file-name "/tmp/a-dir")))
               ;; for clj
               (with-repl-buffer ses-name 'clj b1
                 (with-repl-buffer ses-name 'cljs b2
@@ -185,8 +185,8 @@
 
   (describe "when multiple sessions exist"
     (it "always returns the most recently used connection"
-      (let ((a-dir "/tmp/a-dir")
-            (b-dir "/tmp/b-dir"))
+      (let ((a-dir (expand-file-name "/tmp/a-dir"))
+            (b-dir (expand-file-name "/tmp/b-dir")))
         (let ((default-directory a-dir))
           (with-repl-buffer ses-name 'clj bb1
             (with-repl-buffer ses-name 'cljs bb2
@@ -239,8 +239,8 @@
 
   (describe "when multiple sessions exist"
     (it "always returns the most recently used connection"
-      (let ((a-dir "/tmp/a-dir")
-            (b-dir "/tmp/b-dir"))
+      (let ((a-dir (expand-file-name "/tmp/a-dir"))
+            (b-dir (expand-file-name "/tmp/b-dir")))
         (let ((default-directory a-dir))
           (with-repl-buffer ses-name 'clj bb1
             (with-repl-buffer ses-name 'cljs bb2
@@ -273,7 +273,7 @@
 
   (describe "killed buffers"
     (it "do not show up in it"
-      (let ((default-directory "/tmp/some-dir"))
+      (let ((default-directory (expand-file-name "/tmp/some-dir")))
         (cider-test-with-buffers
          (a b)
          (let ((session (list "some-session" a b)))
@@ -312,7 +312,7 @@
 
 (describe "cider--close-connection"
   (it "removes the REPL from sesman session"
-    (let ((default-directory "/tmp/some-dir"))
+    (let ((default-directory (expand-file-name "/tmp/some-dir")))
       (cider-test-with-buffers
        (a b)
        (let ((session (list "some-session" a b)))
