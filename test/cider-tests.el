@@ -118,21 +118,43 @@
 
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+              :to-equal (concat "update-in :dependencies conj "
+                                (shell-quote-argument "[nrepl/nrepl \"0.5.3\"]")
+                                " -- update-in :plugins conj "
+                                (shell-quote-argument "[cider/cider-nrepl \"0.10.0-SNAPSHOT\"]")
+                                " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with an exclusion"
       (setq-local cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure"))))
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+              :to-equal (concat
+                         "update-in :dependencies conj "
+                         (shell-quote-argument "[nrepl/nrepl \"0.5.3\" :exclusions [org.clojure/clojure]]")
+                         " -- update-in :plugins conj "
+                         (shell-quote-argument "[cider/cider-nrepl \"0.10.0-SNAPSHOT\"]")
+                         " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
       (setq-local cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\ \\:exclusions\\ \\[org.clojure/clojure\\ foo.bar/baz\\]\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.10.0-SNAPSHOT\\\"\\] -- repl :headless"))
+              :to-equal (concat "update-in :dependencies conj "
+                                (shell-quote-argument "[nrepl/nrepl \"0.5.3\" :exclusions [org.clojure/clojure foo.bar/baz]]")
+                                " -- update-in :plugins conj "
+                                (shell-quote-argument "[cider/cider-nrepl \"0.10.0-SNAPSHOT\"]")
+                                " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
-              :to-equal "-i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d cider/cider-nrepl\\:0.10.0-SNAPSHOT cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
+              :to-equal (concat
+                         "-i \"(require 'cider.tasks)\""
+                         " -d "
+                         (shell-quote-argument "nrepl/nrepl:0.5.3")
+                         " -d "
+                         (shell-quote-argument "cider/cider-nrepl:0.10.0-SNAPSHOT")
+                         " cider.tasks/add-middleware"
+                         " -m "
+                         (shell-quote-argument "cider.nrepl/cider-middleware")
+                         " repl -s wait")))
 
     (it "can inject dependencies in a gradle project"
       (expect (cider-inject-jack-in-dependencies "" "--no-daemon clojureRepl" 'gradle)
@@ -145,11 +167,29 @@
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
+              :to-equal (concat "update-in :dependencies conj "
+                                (shell-quote-argument "[nrepl/nrepl \"0.5.3\"]")
+                                " -- update-in :plugins conj "
+                                (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
+                                " -- update-in :plugins conj "
+                                (shell-quote-argument "[cider/cider-nrepl \"0.11.0\"]")
+                                " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
-              :to-equal "-i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait")))
+              :to-equal (concat "-i \"(require 'cider.tasks)\""
+                                " -d "
+                                (shell-quote-argument "nrepl/nrepl:0.5.3")
+                                " -d "
+                                (shell-quote-argument "refactor-nrepl:2.0.0")
+                                " -d "
+                                (shell-quote-argument "cider/cider-nrepl:0.11.0")
+                                " cider.tasks/add-middleware"
+                                " -m "
+                                (shell-quote-argument "refactor-nrepl.middleware/wrap-refactor")
+                                " -m "
+                                (shell-quote-argument "cider.nrepl/cider-middleware")
+                                " repl -s wait"))))
 
   (describe "when there are global options"
     (before-each
@@ -159,10 +199,22 @@
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can concat in a lein project"
       (expect (cider-inject-jack-in-dependencies "-o -U" "repl :headless" 'lein)
-              :to-equal "-o -U update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
+              :to-equal (concat "-o -U update-in :dependencies conj "
+                                (shell-quote-argument "[nrepl/nrepl \"0.5.3\"]")
+                                " -- update-in :plugins conj "
+                                (shell-quote-argument "[cider/cider-nrepl \"0.11.0\"]")
+                                " -- repl :headless")))
     (it "can concat in a boot project"
       (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" 'boot)
-              :to-equal "-C -o -i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m cider.nrepl/cider-middleware repl -s wait"))
+              :to-equal (concat "-C -o -i \"(require 'cider.tasks)\""
+                                " -d "
+                                (shell-quote-argument "nrepl/nrepl:0.5.3")
+                                " -d "
+                                (shell-quote-argument "cider/cider-nrepl:0.11.0")
+                                " cider.tasks/add-middleware"
+                                " -m "
+                                (shell-quote-argument "cider.nrepl/cider-middleware")
+                                " repl -s wait")))
     (it "can concat in a gradle project"
       (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" 'gradle)
               :to-equal "-m --no-daemon clojureRepl")))
@@ -216,10 +268,28 @@
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "uses them in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
-              :to-equal "update-in :dependencies conj \\[nrepl/nrepl\\ \\\"0.5.3\\\"\\] -- update-in :plugins conj \\[refactor-nrepl\\ \\\"2.0.0\\\"\\] -- update-in :plugins conj \\[cider/cider-nrepl\\ \\\"0.11.0\\\"\\] -- repl :headless"))
+              :to-equal (concat "update-in :dependencies conj "
+                                (shell-quote-argument "[nrepl/nrepl \"0.5.3\"]")
+                                " -- update-in :plugins conj "
+                                (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
+                                " -- update-in :plugins conj "
+                                (shell-quote-argument "[cider/cider-nrepl \"0.11.0\"]")
+                                " -- repl :headless")))
     (it "uses them in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
-              :to-equal "-i \"(require 'cider.tasks)\" -d nrepl/nrepl\\:0.5.3 -d refactor-nrepl\\:2.0.0 -d cider/cider-nrepl\\:0.11.0 cider.tasks/add-middleware -m refactor-nrepl.middleware/wrap-refactor -m cider.nrepl/cider-middleware repl -s wait"))))
+              :to-equal (concat "-i \"(require 'cider.tasks)\""
+                                " -d "
+                                (shell-quote-argument "nrepl/nrepl:0.5.3")
+                                " -d "
+                                (shell-quote-argument "refactor-nrepl:2.0.0")
+                                " -d "
+                                (shell-quote-argument "cider/cider-nrepl:0.11.0")
+                                " cider.tasks/add-middleware"
+                                " -m "
+                                (shell-quote-argument "refactor-nrepl.middleware/wrap-refactor")
+                                " -m "
+                                (shell-quote-argument "cider.nrepl/cider-middleware")
+                                " repl -s wait")))))
 
 (describe "cider-jack-in-auto-inject-clojure"
   (it "injects `cider-minimum-clojure-version' when `cider-jack-in-auto-inject-clojure' is set to minimal"

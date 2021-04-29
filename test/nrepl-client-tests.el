@@ -36,7 +36,7 @@
                                    cider-session-name-template)
   (before-all
     (setq default-directory-backup default-directory)
-    (setq default-directory "/path/to/dirA/")
+    (setq default-directory (expand-file-name "/path/to/dirA/"))
     (setq params '(:host "localhost" :port 1))
     (setq cider-session-name-template "%J:%h:%p"))
 
@@ -76,7 +76,7 @@
   :var (default-directory-backup cider-session-name-template)
   (before-all
     (setq default-directory-backup default-directory)
-    (setq default-directory "/path/to/dirA/")
+    (setq default-directory (expand-file-name "/path/to/dirA/"))
     (setq cider-session-name-template "%J:%h:%p"))
 
   (after-all
