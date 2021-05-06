@@ -1099,7 +1099,7 @@ also be a server buffer, in which case a new session with a REPL for that
 server is created."
   (interactive "P")
   (cider-nrepl-connect
-   (let* ((other-repl (or other-repl (cider-current-repl nil 'ensure)))
+   (let* ((other-repl (or other-repl (cider-current-repl 'any 'ensure)))
           (other-params (cider--gather-connect-params nil other-repl))
           (ses-name (unless (nrepl-server-p other-repl)
                       (sesman-session-name-for-object 'CIDER other-repl))))
@@ -1118,7 +1118,7 @@ Figwheel, etc).  All other parameters are inferred from the OTHER-REPL.
 OTHER-REPL defaults to `cider-current-repl' but in programs can also be a
 server buffer, in which case a new session for that server is created."
   (interactive "P")
-  (let* ((other-repl (or other-repl (cider-current-repl nil 'ensure)))
+  (let* ((other-repl (or other-repl (cider-current-repl 'any 'ensure)))
          (other-params (cider--gather-connect-params nil other-repl))
          (ses-name (unless (nrepl-server-p other-repl)
                      (sesman-session-name-for-object 'CIDER other-repl))))
