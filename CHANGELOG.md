@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* [#3015](https://github.com/clojure-emacs/cider/pull/3015): Updated the Krell invocation, to match the latest stable.
+
 ### Bugs fixed
 
 * [#3012](https://github.com/clojure-emacs/cider/issues/3012): Allow connecting sibling repls from any buffer.
