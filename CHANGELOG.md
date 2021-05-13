@@ -4,6 +4,7 @@
 
 ### Bugs fixed
 
+* [#3014](https://github.com/clojure-emacs/cider/pull/3014): Update Krell repl initialization code to follow latest guidelines as found in Krell wiki.
 * [#3012](https://github.com/clojure-emacs/cider/issues/3012): Allow connecting sibling repls from any buffer.
 
 

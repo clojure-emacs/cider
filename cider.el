@@ -865,7 +865,6 @@ The supplied string will be wrapped in a do form if needed."
          '[krell.api :as krell]
          '[krell.repl])
 (def config (edn/read-string (slurp (io/file \"build.edn\"))))
-(krell/build config)
 (apply cider.piggieback/cljs-repl (krell.repl/repl-env) (mapcat identity config))"
            cider-check-krell-requirements)
     (custom cider-custom-cljs-repl-init-form nil))
