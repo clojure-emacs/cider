@@ -42,8 +42,6 @@
 (require 'cider-compat)
 (require 'clojure-mode)
 
-(declare-function cider-sync-request:macroexpand "cider-macroexpansion")
-
 (defalias 'cider-pop-back 'pop-tag-mark)
 
 (defcustom cider-font-lock-max-length 10000
@@ -127,11 +125,10 @@ instead."
 (defun cider-symbol-at-point (&optional look-back)
   "Return the name of the symbol at point, otherwise nil.
 Ignores the REPL prompt.  If LOOK-BACK is non-nil, move backwards trying to
-find a symbol if there isn't one at point."
+find a symbol if there isn't one at point.
+Does not strip the : from keywords, nor attempt to expand :: auto-resolved
+keywords."
   (or (when-let* ((str (thing-at-point 'symbol)))
-        ;; resolve ns-aliased keywords
-        (when (string-match-p "^::.+" str)
-          (setq str (or (ignore-errors (cider-sync-request:macroexpand "macroexpand-1" str)) "")))
         (unless (text-property-any 0 (length str) 'field 'cider-repl-prompt str)
           ;; remove font-locking
           (setq str (substring-no-properties str))

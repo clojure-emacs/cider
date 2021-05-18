@@ -129,13 +129,11 @@ buffer."
       (with-clojure-buffer ":abc/foo"
         (expect (cider-symbol-at-point) :to-equal ":abc/foo")))
 
-    (it "attempts to resolve namespaced keywords"
-      (spy-on 'cider-sync-request:macroexpand :and-return-value ":foo.bar/abc")
+    (it "does not attempt to resolve auto-resolved keywords"
       (with-clojure-buffer "(ns foo.bar) ::abc"
-        (expect (cider-symbol-at-point) :to-equal ":foo.bar/abc"))
-      (spy-on 'cider-sync-request:macroexpand :and-return-value ":clojure.string/abc")
+        (expect (cider-symbol-at-point) :to-equal "::abc"))
       (with-clojure-buffer "(ns foo.bar (:require [clojure.string :as str])) ::str/abc"
-        (expect (cider-symbol-at-point) :to-equal ":clojure.string/abc"))))
+        (expect (cider-symbol-at-point) :to-equal "::str/abc"))))
 
   (describe "when there's nothing at point"
     (it "returns nil"

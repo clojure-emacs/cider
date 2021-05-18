@@ -6,7 +6,7 @@
 
 * [#3014](https://github.com/clojure-emacs/cider/pull/3014): Update Krell repl initialization code to follow latest guidelines as found in Krell wiki.
 * [#3012](https://github.com/clojure-emacs/cider/issues/3012): Allow connecting sibling repls from any buffer.
-
+* [#3010](https://github.com/clojure-emacs/cider/issues/3010): Remove :: auto-resolved keyword expansion logic from cider-symbol-at-point, moving it to cider-browse-spec.
 
 ## 1.1.0 (2021-04-22)
 
