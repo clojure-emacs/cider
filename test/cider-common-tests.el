@@ -88,6 +88,9 @@
     (cider--translate-path-to-nrepl file)))
 
 (describe "cider--translate-container-vm"
+  ;; Unix absolute paths are not valid absolute paths on MS-Windows (they are
+  ;; missing the driver letter). We use `expand-file-name' so as to add the
+  ;; drive letter on windows.
   :var ((/docker/src (expand-file-name "/docker/src"))
         (/home/host/project/src (expand-file-name "/home/host/project/src"))
         (/docker/src/namespace.clj (expand-file-name "/docker/src/namespace.clj"))

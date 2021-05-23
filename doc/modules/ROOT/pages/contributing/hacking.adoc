@@ -166,6 +166,33 @@ Success!
 This may take a while to download the CircleCI build agent and the build containers
 the first time you run the tests locally.
 
+== MS-Windows compatibility
+
+In general, CIDER code should work as well on windows as it does on
+Unix.
+
+There are a few points to be aware of when contributing code or
+writing tests.
+
+. Absolute paths. It is a common practice to use dummy absolute paths,
+such as `/tmp/a-dir` or `/docker/src, in tests,` as test inputs. These
+are not valid absolute paths on windows though, since they are missing
+the initial driver letter (e.g.`c:/tmp/a-dir`), but we can wrap them
+around with `expand-file-name` to make them so e.g. in tests
+
+---
+(let ((a-dir (expand-file-name "/tmp/a-dir"))
+      (docker-src (expand-file-name "/docker/src")))
+  ;; ...
+  )
+---
+
+. Command line arguments. When calling external programs, it might be
+necessary to quote some long command line arguments, though quoting
+rules are different on windows that they are on Unix.  Use
+`shell-quote-argument` to achieve the desired compatibility across the
+different architectures.
+
 == Hacking on cider-nrepl (Clojure)
 
 === Obtaining the code
