@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.1.1 (2021-05-24)
+
 ### Bugs fixed
 
 * [#3014](https://github.com/clojure-emacs/cider/pull/3014): Update Krell repl initialization code to follow latest guidelines as found in Krell wiki.
