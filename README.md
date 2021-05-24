@@ -37,7 +37,7 @@ CIDER and the [numerous related projects](https://metaredux.com/posts/2018/11/09
 
 The instructions that follow are meant to get you from zero to a running CIDER
 REPL in under 5 minutes.  See the
-[user manual](https://docs.cider.mx) for (way) more
+[online documentation](https://docs.cider.mx) for (way) more
 details.
 
 ### Installation
