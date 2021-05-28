@@ -332,7 +332,7 @@ You can supply additional configuration to `cljfmt` via the configuration variab
 ----
 
 NOTE: CIDER doesn't shell out to `cljfmt` - it interacts with it via nREPL
-(there's `format` middleware in `cider-nrepl`), which is faster that
+(there's `format` middleware in `cider-nrepl`), which is faster than
 shelling out.
 
 == Formatting EDN
