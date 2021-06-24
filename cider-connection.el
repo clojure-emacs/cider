@@ -542,7 +542,8 @@ REPL defaults to the current REPL."
                                   (let ((cp (thread-last classpath
                                               (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
                                               (mapcar #'file-name-directory)
-                                              (seq-remove  #'null))))
+                                              (seq-remove  #'null)
+                                              (seq-uniq))))
                                     (process-put proc :cached-classpath-roots cp)
                                     cp))))
         (or (seq-find (lambda (path) (string-prefix-p path file))
