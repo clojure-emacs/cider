@@ -582,9 +582,10 @@ resolve those to absolute paths."
 
 (defun cider-classpath-entries ()
   "Return a list of classpath entries."
-  (if (cider-nrepl-op-supported-p "classpath")
-      (cider-sync-request:classpath)
-    (cider-fallback-eval:classpath)))
+  (seq-map #'expand-file-name ; normalize filenames for e.g. Windows
+           (if (cider-nrepl-op-supported-p "classpath")
+               (cider-sync-request:classpath)
+             (cider-fallback-eval:classpath))))
 
 (defun cider-sync-request:completion (prefix)
   "Return a list of completions for PREFIX using nREPL's \"completion\" op."
