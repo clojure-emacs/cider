@@ -371,7 +371,8 @@
       (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
-                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:cider/nrepl")
+                                     " \"[cider.nrepl/cider-middleware]\"] :jvm-opts [\"-XX:-OmitStackTraceInFastThrow\"]}}}' "
+                                     "-M:cider/nrepl")
                                    "")))
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
@@ -385,7 +386,8 @@
       (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
-                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:dev:test:cider/nrepl")
+                                     " \"[cider.nrepl/cider-middleware]\"] :jvm-opts [\"-XX:-OmitStackTraceInFastThrow\"]}}}' "
+                                     "-M:dev:test:cider/nrepl")
                                    "")))
         (setq-local cider-clojure-cli-aliases "-A:dev:test")
         (setq-local cider-allow-jack-in-without-project t)
@@ -399,7 +401,8 @@
       (let ((expected (string-join '("-Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
-                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:test:cider/nrepl")
+                                     " \"[cider.nrepl/cider-middleware]\"] :jvm-opts [\"-XX:-OmitStackTraceInFastThrow\"]}}}' "
+                                     "-M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.8.3"))))
         (let ((cider-clojure-cli-aliases "test"))
@@ -416,7 +419,8 @@
       (let ((expected (string-join '("-J-Djdk.attach.allowAttachSelf -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.25.7\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
-                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:test:cider/nrepl")
+                                     " \"[cider.nrepl/cider-middleware]\"] :jvm-opts [\"-XX:-OmitStackTraceInFastThrow\"]}}}' "
+                                     "-M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.8.3"))))
         (let ((cider-clojure-cli-aliases "test"))

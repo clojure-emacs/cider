@@ -575,7 +575,7 @@ one used."
                       (cider-jack-in-normalized-nrepl-middlewares)
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
-    (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl"
+    (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s] :jvm-opts [\"-XX:-OmitStackTraceInFastThrow\"]}}}' -M%s:cider/nrepl"
             (if global-options (format "%s " global-options) "")
             deps-string
             main-opts
