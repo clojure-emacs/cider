@@ -4,6 +4,7 @@
 
 ### Bugs fixed
 
+* [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
 * [#3020](https://github.com/clojure-emacs/cider/issues/3020): Fix session linking on Windows, e.g. when jumping into a library on the classpath.
 
 ## 1.1.1 (2021-05-24)
