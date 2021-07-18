@@ -40,6 +40,7 @@
 (require 'cider-profile) ; required only for the menu
 (require 'cider-completion)
 (require 'cider-inspector)
+(require 'cider-find)
 (require 'subr-x)
 (require 'cider-compat)
 
@@ -1053,6 +1054,8 @@ property."
         (when cider-dynamic-indentation
           (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
+        (when cider-enable-xref
+          (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
         (setq next-error-function #'cider-jump-to-compilation-error))
     ;; Mode cleanup
     (mapc #'kill-local-variable '(completion-at-point-functions

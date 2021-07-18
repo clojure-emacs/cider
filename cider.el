@@ -308,6 +308,12 @@ This variable is used by `cider-connect'."
   :safe #'booleanp
   :version '(cider . "0.15.0"))
 
+(defcustom cider-enable-xref t
+  "Enable xref integration."
+  :type 'boolean
+  :safe #'booleanp
+  :version '(cider . "1.2.0"))
+
 (defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 

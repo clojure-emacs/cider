@@ -226,5 +226,28 @@ thing at point."
     (cider--find-ns kw-ns arg)
     (search-forward-regexp kw-to-find nil 'noerror)))
 
+(defun cider--xref-backend ()
+  "Used for xref integration."
+  'cider)
+
+(cl-defmethod xref-backend-identifier-at-point ((_backend (eql cider)))
+  "Return the relevant identifier at point."
+  (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))
+
+(cl-defmethod xref-backend-definitions ((_backend (eql cider)) var)
+  "Find definitions of VAR."
+  (when-let* ((info (cider-var-info var))
+              (line (nrepl-dict-get info "line"))
+              (file (nrepl-dict-get info "file"))
+              (buf (cider--find-buffer-for-file file))
+              (loc (xref-make-buffer-location
+                    buf
+                    (with-current-buffer buf
+                      (goto-char 0)
+                      (forward-line (1- line))
+                      (back-to-indentation)
+                      (point)))))
+    (list (xref-make var loc))))
+
 (provide 'cider-find)
 ;;; cider-find.el ends here
