@@ -32,6 +32,13 @@
 
 (require 'thingatpt)
 
+(defcustom cider-enable-xref t
+  "Enable xref integration."
+  :type 'boolean
+  :safe #'booleanp
+  :group 'cider
+  :version '(cider . "1.2.0"))
+
 (defun cider--find-var-other-window (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE.
 
