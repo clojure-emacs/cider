@@ -1055,7 +1055,7 @@ property."
           (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
         (when cider-enable-xref
-          (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
+          (add-hook 'xref-backend-functions #'cider--xref-backend nil 'local))
         (setq next-error-function #'cider-jump-to-compilation-error))
     ;; Mode cleanup
     (mapc #'kill-local-variable '(completion-at-point-functions
@@ -1063,6 +1063,8 @@ property."
                                   x-gtk-use-system-tooltips
                                   font-lock-fontify-region-function
                                   clojure-get-indent-function))
+    (when cider-enable-xref
+      (remove-hook 'xref-backend-functions #'cider--xref-backend 'local))
     (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
     (font-lock-add-keywords nil cider--reader-conditionals-font-lock-keywords)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
