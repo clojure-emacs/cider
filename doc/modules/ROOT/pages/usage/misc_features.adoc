@@ -343,3 +343,7 @@ to format EDN using `clojure.tools.reader.edn`. The following commands are provi
 * `cider-format-edn-defun`
 * `cider-format-edn-region`
 * `cider-format-edn-buffer`
+
+== https://www.gnu.org/software/emacs/manual/html_node/emacs/Xref.html[Xref] integration
+
+Beginning with version 1.2.0, cider support Emacs built-in xref, which means `M-.` (xref-find-definitions) will just work as expected.

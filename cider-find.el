@@ -32,7 +32,7 @@
 
 (require 'thingatpt)
 
-(defcustom cider-enable-xref t
+(defcustom cider-use-xref t
   "Enable xref integration."
   :type 'boolean
   :safe #'booleanp
@@ -243,18 +243,21 @@ thing at point."
 
 (cl-defmethod xref-backend-definitions ((_backend (eql cider)) var)
   "Find definitions of VAR."
-  (when-let* ((info (cider-var-info var))
-              (line (nrepl-dict-get info "line"))
-              (file (nrepl-dict-get info "file"))
-              (buf (cider--find-buffer-for-file file))
-              (loc (xref-make-buffer-location
-                    buf
-                    (with-current-buffer buf
-                      (goto-char 0)
-                      (forward-line (1- line))
-                      (back-to-indentation)
-                      (point)))))
-    (list (xref-make var loc))))
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "ns-path")
+  (save-excursion
+    (when-let* ((info (cider-var-info var))
+                (line (nrepl-dict-get info "line"))
+                (file (nrepl-dict-get info "file"))
+                (buf (cider--find-buffer-for-file file))
+                (loc (xref-make-buffer-location
+                      buf
+                      (with-current-buffer buf
+                        (goto-char 0)
+                        (forward-line (1- line))
+                        (back-to-indentation)
+                        (point)))))
+      (list (xref-make var loc)))))
 
 (provide 'cider-find)
 ;;; cider-find.el ends here
