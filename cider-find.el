@@ -245,19 +245,40 @@ thing at point."
   "Find definitions of VAR."
   (cider-ensure-connected)
   (cider-ensure-op-supported "ns-path")
-  (save-excursion
-    (when-let* ((info (cider-var-info var))
-                (line (nrepl-dict-get info "line"))
-                (file (nrepl-dict-get info "file"))
-                (buf (cider--find-buffer-for-file file))
-                (loc (xref-make-buffer-location
-                      buf
-                      (with-current-buffer buf
+  (when-let* ((info (cider-var-info var))
+              (line (nrepl-dict-get info "line"))
+              (file (nrepl-dict-get info "file"))
+              (buf (cider--find-buffer-for-file file))
+              (loc (xref-make-buffer-location
+                    buf
+                    (with-current-buffer buf
+                      (save-excursion
                         (goto-char 0)
                         (forward-line (1- line))
                         (back-to-indentation)
-                        (point)))))
-      (list (xref-make var loc)))))
+                        (point))))))
+    (list (xref-make var loc))))
+
+(cl-defmethod xref-backend-identifier-completion-table ((_backend (eql cider)))
+  "Return the completion table for identifiers."
+  (cider-ensure-connected)
+  (when-let* ((ns (cider-current-ns))
+              (results (cider-sync-request:ns-vars ns)))
+    results))
+
+(cl-defmethod xref-backend-references ((_backend (eql cider)) var)
+  "Find references of VAR."
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "fn-refs")
+  (when-let* ((ns (cider-current-ns))
+              (results (cider-sync-request:fn-refs ns var)))
+    (mapcar (lambda (info)
+              (let* ((filename (nrepl-dict-get info "file"))
+                     (column (nrepl-dict-get info "column"))
+                     (line (nrepl-dict-get info "line"))
+                     (loc (xref-make-file-location filename line column)))
+                (xref-make filename loc)))
+            results)))
 
 (provide 'cider-find)
 ;;; cider-find.el ends here

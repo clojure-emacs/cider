@@ -346,4 +346,9 @@ to format EDN using `clojure.tools.reader.edn`. The following commands are provi
 
 == https://www.gnu.org/software/emacs/manual/html_node/emacs/Xref.html[Xref] integration
 
-Beginning with version 1.2.0, cider support Emacs built-in xref, which means `M-.` (xref-find-definitions) will just work as expected.
+Beginning with version 1.2.0, cider support Emacs built-in xref, which means `M-.` (xref-find-definitions) will just work as expected. You can disable it with:
+
+[source,lisp]
+----
+(setq cider-user-xref nil)
+----
