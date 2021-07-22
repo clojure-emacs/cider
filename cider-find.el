@@ -241,22 +241,26 @@ thing at point."
   "Return the relevant identifier at point."
   (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))
 
+(defun cider--var-to-xref-location (var)
+  "Get location of definition of VAR."
+  (when-let* ((info (cider-var-info var))
+              (line (nrepl-dict-get info "line"))
+              (file (nrepl-dict-get info "file"))
+              (buf (cider--find-buffer-for-file file)))
+    (xref-make-buffer-location
+     buf
+     (with-current-buffer buf
+       (save-excursion
+         (goto-char 0)
+         (forward-line (1- line))
+         (back-to-indentation)
+         (point))))))
+
 (cl-defmethod xref-backend-definitions ((_backend (eql cider)) var)
   "Find definitions of VAR."
   (cider-ensure-connected)
   (cider-ensure-op-supported "ns-path")
-  (when-let* ((info (cider-var-info var))
-              (line (nrepl-dict-get info "line"))
-              (file (nrepl-dict-get info "file"))
-              (buf (cider--find-buffer-for-file file))
-              (loc (xref-make-buffer-location
-                    buf
-                    (with-current-buffer buf
-                      (save-excursion
-                        (goto-char 0)
-                        (forward-line (1- line))
-                        (back-to-indentation)
-                        (point))))))
+  (when-let* ((loc (cider--var-to-xref-location var)))
     (list (xref-make var loc))))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql cider)))
@@ -278,6 +282,21 @@ thing at point."
                      (line (nrepl-dict-get info "line"))
                      (loc (xref-make-file-location filename line column)))
                 (xref-make filename loc)))
+            results)))
+
+(cl-defmethod xref-backend-apropos ((_backend (eql cider)) pattern)
+  "Find all symbols that match regexp PATTERN."
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "apropos")
+  (when-let* ((ns (cider-current-ns))
+              (results (cider-sync-request:apropos pattern ns t t completion-ignore-case)))
+    (mapcar (lambda (info)
+              (let* ((symbol (nrepl-dict-get info "name"))
+                     (loc (cider--var-to-xref-location symbol))
+                     (type (nrepl-dict-get info "type"))
+                     (doc (nrepl-dict-get info "doc")))
+                (xref-make (format "[%s] %s\n  %s" (propertize symbol 'face 'bold) (capitalize type) doc)
+                           loc)))
             results)))
 
 (provide 'cider-find)
