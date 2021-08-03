@@ -25,12 +25,13 @@ introduced in Clojure 1.8) down the road.
 == What's the relationship between CIDER and monroe?
 
 https://github.com/sanel/monroe[monroe] is basically a fork of an old CIDER
-version before the time we started relying on nREPL middleware.
+version before the time we started relying on nREPL middleware.  Monroe opted
+for a simpler UX, that's very REPL-centric, and uses only built-in nREPL ops (unlike CIDER, which relies on cider-nrepl heavily).
 
 == What's the relationship between CIDER and inf-clojure?
 
 There's pretty much no relationship, other than the fact they have the same
-author. https://github.com/clojure-emacs/inf-clojure[inf-clojure] provides a
+author (Bozhidar). https://github.com/clojure-emacs/inf-clojure[inf-clojure] provides a
 REPL based on the `comint` Emacs package - you're basically running an external
 REPL process inside of Emacs (there's no network connectivity involved).  The
 advantage of this is that you have no external dependencies what-so-ever - you
