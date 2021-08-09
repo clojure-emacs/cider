@@ -1038,35 +1038,6 @@ command `cider-debug-defun-at-point'."
                             (cider-defun-at-point 'bounds)
                             (cider--nrepl-pr-request-map))))
 
-(defun cider--calculate-opening-delimiters ()
-  "Walks up the list of expressions to collect all sexp opening delimiters.
-The result is a list of the delimiters.
-
-That function is used in `cider-eval-defun-up-to-point' so it can make an
-incomplete expression complete."
-  (interactive)
-  (let ((result nil))
-    (save-excursion
-      (condition-case nil
-          (while t
-            (backward-up-list)
-            (push (char-after) result))
-        (error result)))))
-
-(defun cider--matching-delimiter (delimiter)
-  "Get the matching (opening/closing) delimiter for DELIMITER."
-  (pcase delimiter
-    (?\( ?\))
-    (?\[ ?\])
-    (?\{ ?\})
-    (?\) ?\()
-    (?\] ?\[)
-    (?\} ?\{)))
-
-(defun cider--calculate-closing-delimiters ()
-  "Compute the list of closing delimiters to make the defun before point valid."
-  (mapcar #'cider--matching-delimiter (cider--calculate-opening-delimiters)))
-
 (defun cider--insert-closing-delimiters ()
   "Closes all open parenthesized or bracketed expressions."
   (interactive)
@@ -1099,6 +1070,16 @@ buffer.  It constructs an expression to eval in the following manner:
                               (cider-eval-print-handler))
                             nil
                             (cider--nrepl-pr-request-map))))
+
+(defun cider--matching-delimiter (delimiter)
+  "Get the matching (opening/closing) delimiter for DELIMITER."
+  (pcase delimiter
+    (?\( ?\))
+    (?\[ ?\])
+    (?\{ ?\})
+    (?\) ?\()
+    (?\] ?\[)
+    (?\} ?\{)))
 
 (defun cider-eval-sexp-up-to-point (&optional  output-to-current-buffer)
   "Evaluate the current sexp form up to point.
