@@ -1067,6 +1067,18 @@ incomplete expression complete."
   "Compute the list of closing delimiters to make the defun before point valid."
   (mapcar #'cider--matching-delimiter (cider--calculate-opening-delimiters)))
 
+(defun cider--insert-closing-delimiters ()
+  "Closes all open parenthesized or bracketed expressions."
+  (interactive)
+  (goto-char (point-max))
+  (let ((matching-delimiter nil))
+    (while (ignore-errors
+             (save-excursion
+               (backward-up-list 1)
+               (setq matching-delimiter (cdr (syntax-after (point)))))
+             t)
+      (insert-char matching-delimiter))))
+
 (defun cider-eval-defun-up-to-point (&optional output-to-current-buffer)
   "Evaluate the current toplevel form up to point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
@@ -1078,7 +1090,10 @@ buffer.  It constructs an expression to eval in the following manner:
   (interactive "P")
   (let* ((beg-of-defun (save-excursion (beginning-of-defun) (point)))
          (code (buffer-substring-no-properties beg-of-defun (point)))
-         (code (concat code (cider--calculate-closing-delimiters))))
+         (code (with-temp-buffer
+                 (insert code)
+                 (cider--insert-closing-delimiters)
+                 (buffer-string))))
     (cider-interactive-eval code
                             (when output-to-current-buffer
                               (cider-eval-print-handler))
