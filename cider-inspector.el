@@ -4,7 +4,7 @@
 ;; Copyright © 2014-2021  Bozhidar Batsov and CIDER contributors
 
 ;; Author: Ian Eslick <ian@vitalreactor.com>
-;;         Bozhidar Batsov <bozhidar@batsov.com>
+;;         Bozhidar Batsov <bozhidar@batsov.dev>
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

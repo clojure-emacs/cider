@@ -5,7 +5,7 @@
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
-;;         Bozhidar Batsov <bozhidar@batsov.com>
+;;         Bozhidar Batsov <bozhidar@batsov.dev>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>

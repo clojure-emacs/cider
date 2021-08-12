@@ -3,7 +3,7 @@
 ;; Copyright © 2019-2021 Artur Malabarba, Bozhidar Batsov, Vitalie Spinu and CIDER contributors
 ;;
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
-;;         Bozhidar Batsov <bozhidar@batsov.com>
+;;         Bozhidar Batsov <bozhidar@batsov.dev>
 ;;         Vitalie Spinu <spinuvit@gmail.com>
 ;;
 ;; Keywords: languages, clojure, cider

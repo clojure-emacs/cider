@@ -2,7 +2,7 @@
 
 ;; Copyright © 2013-2021 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
-;; Author: Bozhidar Batsov <bozhidar@batsov.com>
+;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>
 
 ;; This program is free software: you can redistribute it and/or modify
