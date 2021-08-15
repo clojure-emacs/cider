@@ -298,7 +298,7 @@ While CIDER has it's own code formatting (identation) engine, you can also
 use it together with `cljfmt` - that's useful if you're working on a team
 that uses different editors and IDEs.
 
-CIDER exposes several commands to interacted with `cljfmt`:
+CIDER provides several commands to interact with `cljfmt`:
 
 * `cider-format-defun`
 * `cider-format-region`
