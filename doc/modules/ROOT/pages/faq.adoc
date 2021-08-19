@@ -52,6 +52,10 @@ TIP: Bozhidar really loves Spain and the West Coast of the US, so he tends
 to name really special releases with codenames related to them (e.g.
 Seattle, California, Andalucia, etc).
 
+== Why is CIDER's website using a .mx domain?
+
+Because that's the https://emacsredux.com/blog/2018/11/17/the-perfect-domain-for-emacs-projects/[perfect domain for Emacs projects].
+
 == Is using CIDER a good idea if I'm new to both Emacs and Clojure?
 
 There's nothing particularly complex in CIDER itself, but getting to
