@@ -1216,6 +1216,20 @@ server buffer, in which case a new session for that server is created."
        (cider--update-cljs-init-function)
        (plist-put :session-name ses-name)
        (plist-put :repl-type 'pending-cljs)))))
+ 
+;;;###autoload
+(defun cider-connect-unix (&optional params)
+  "Initialize a Clojure connection to an nREPL server.
+PARAMS is a plist optionally containing :socket-file and :project-dir.  On
+prefix argument, prompt for all the parameters."
+  (interactive "P")
+  (cider-nrepl-connect
+   (thread-first params
+     (cider--update-project-dir)
+     (cider--check-existing-session)
+     (plist-put :repl-init-function nil)
+     (plist-put :session-name nil)
+     (plist-put :repl-type 'clj))))
 
 ;;;###autoload
 (defun cider-connect-clj (&optional params)

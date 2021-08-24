@@ -491,6 +491,24 @@ and kill the process buffer."
 
 ;;; Network
 
+(defun nrepl--unix-connect (socket-file &optional no-error)
+  (if (not socket-file)
+      (unless no-error
+        (error "[nREPL] Socket file not provided"))
+    (message "[nREPL] Establishing unix connection to %s ..." socket-file)
+    (condition-case nil
+        (prog1 (list :proc (make-network-process :name "nrepl-connection" :buffer nil
+			                         :family 'local :service socket-file)
+                     :host "unix:"
+                     :port socket-file
+                     :socket-file socket-file)
+          (message "[nREPL] Direct connection to %s established" socket-file))
+      (error (let ((msg (format "[nREPL] Direct connection to %s failed" socket-file)))
+               (if no-error
+                   (message msg)
+                 (error msg))
+               nil)))))
+
 (defun nrepl-connect (host port)
   "Connect to the nREPL server identified by HOST and PORT.
 For local hosts use a direct connection.  For remote hosts, if
@@ -629,14 +647,16 @@ Do not kill the server if there is a REPL connected to that server."
                            (buffer-list)))
         (nrepl-kill-server-buffer server-buf)))))
 
-(defun nrepl-start-client-process (&optional host port server-proc buffer-builder)
+(defun nrepl-start-client-process (&optional host port server-proc buffer-builder socket-file)
   "Create new client process identified by HOST and PORT.
 In remote buffers, HOST and PORT are taken from the current tramp
 connection.  SERVER-PROC must be a running nREPL server process within
 Emacs.  BUFFER-BUILDER is a function of one argument (endpoint returned by
 `nrepl-connect') which returns a client buffer.  Return the newly created
 client process."
-  (let* ((endpoint (nrepl-connect host port))
+  (let* ((endpoint (if socket-file
+                       (nrepl--unix-connect socket-file)
+                     (nrepl-connect host port)))
          (client-proc (plist-get endpoint :proc))
          (builder (or buffer-builder (error "`buffer-builder' must be provided")))
          (client-buf (funcall builder endpoint)))
