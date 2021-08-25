@@ -1038,17 +1038,19 @@ command `cider-debug-defun-at-point'."
                             (cider-defun-at-point 'bounds)
                             (cider--nrepl-pr-request-map))))
 
-(defun cider--insert-closing-delimiters ()
-  "Closes all open parenthesized or bracketed expressions."
-  (interactive)
-  (goto-char (point-max))
-  (let ((matching-delimiter nil))
-    (while (ignore-errors
-             (save-excursion
-               (backward-up-list 1)
-               (setq matching-delimiter (cdr (syntax-after (point)))))
-             t)
-      (insert-char matching-delimiter))))
+(defun cider--insert-closing-delimiters (code)
+  "Closes all open parenthesized or bracketed expressions of CODE."
+  (with-temp-buffer
+    (insert code)
+    (goto-char (point-max))
+    (let ((matching-delimiter nil))
+      (while (ignore-errors
+               (save-excursion
+                 (backward-up-list 1)
+                 (setq matching-delimiter (cdr (syntax-after (point)))))
+               t)
+        (insert-char matching-delimiter)))
+    (buffer-string)))
 
 (defun cider-eval-defun-up-to-point (&optional output-to-current-buffer)
   "Evaluate the current toplevel form up to point.
@@ -1061,10 +1063,7 @@ buffer.  It constructs an expression to eval in the following manner:
   (interactive "P")
   (let* ((beg-of-defun (save-excursion (beginning-of-defun) (point)))
          (code (buffer-substring-no-properties beg-of-defun (point)))
-         (code (with-temp-buffer
-                 (insert code)
-                 (cider--insert-closing-delimiters)
-                 (buffer-string))))
+         (code (cider--insert-closing-delimiters code)))
     (cider-interactive-eval code
                             (when output-to-current-buffer
                               (cider-eval-print-handler))
