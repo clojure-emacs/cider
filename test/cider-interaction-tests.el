@@ -115,9 +115,6 @@
     (expect (cider--matching-delimiter ?\]) :to-equal ?\[)))
 
 (describe "cider--insert-closing-delimiters"
-          (it "appends any matching closing delimiters"
-              (with-temp-buffer
-                (clojure-mode)
-                (insert "(let [a 1] (prn 1 [2 {3 4")
-                (cider--insert-closing-delimiters)
-                (expect (buffer-string) :to-equal "(let [a 1] (prn 1 [2 {3 4}]))"))))
+  (it "appends any matching closing delimiters"
+    (expect (cider--insert-closing-delimiters "(let [a 1] (prn 1 [2 {3 4")
+            :to-equal "(let [a 1] (prn 1 [2 {3 4}]))")))
