@@ -268,3 +268,23 @@ Emacs and Clojure differ in their indexing of column numbers -- Emacs starts
 counting from 0 while Clojure starts from 1. Accordingly, the `cider-nrepl`
 middleware uses 1-based indexing and all conversions to 0-based indexing should
 be handled client-side. See https://github.com/clojure-emacs/cider/issues/2852.
+
+=== Empty Java stacktraces resulting in `NullPointerException`
+
+Occasionally the JVM might remove some stack frames, which will break
+CIDER's stacktrace display functionality, resulting in error message like these:
+
+[source]
+----
+error in process filter: cider-stacktrace-render-frame: Format specifier doesn’t match argument type
+error in process filter: Format specifier doesn’t match argument type
+----
+
+That's caused by an JVM optimization (`OmitStackTraceInFastThrow`, enabled by
+default), which optimizes "built-in" exceptions that are thrown frequently enough
+to be cached and have no stacktrace.
+
+You can turn off the optimization by adding the JVM flag `-XX:-OmitStackTraceInFastThrow` to whatever
+command you're using to start nREPL.
+
+TIP: You can read more about this problem https://github.com/clojure-emacs/cider/issues/3022[here].
