@@ -68,7 +68,7 @@ between CIDER and nREPL. CIDER has a simple message log that looks like this:
     status     ("done")
   )
 
-That's CIDER's way of representing the request (marked with `-->`) and response maps (marked with `<--`).
+That's CIDER's way of representing the request (marked with `+-->+`) and response maps (marked with `+<--+`).
 
 nREPL message logging is not enabled by default. Set `nrepl-log-messages` to `t`
 to activate it. Alternatively you can use kbd:[M-x]
