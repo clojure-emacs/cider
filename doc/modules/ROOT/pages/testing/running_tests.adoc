@@ -148,6 +148,14 @@ passed or failed:
 (setq cider-test-show-report-on-success t)
 ----
 
+=== Running a callback on errors
+
+Sometimes, for fine-grained integrations or debugging, you might want
+to run an arbitrary callback whenever the tests fail due to an exception.
+
+For this, you can safely redefine `cider.nrepl.middleware.test/*test-error-handler*`
+using vanilla Clojure; please refer to its docstring for more details.
+
 == Running Tests Automatically (Test-Driven Development)
 
 CIDER provides a minor-mode that automatically runs all tests for a namespace
