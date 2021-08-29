@@ -32,6 +32,13 @@
 
 (require 'thingatpt)
 
+(defcustom cider-use-xref t
+  "Enable xref integration."
+  :type 'boolean
+  :safe #'booleanp
+  :group 'cider
+  :version '(cider . "1.2.0"))
+
 (defun cider--find-var-other-window (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE.
 
@@ -225,6 +232,72 @@ thing at point."
       (error "Could not resolve alias `%s' in `%s'" ns-qualifier (cider-current-ns)))
     (cider--find-ns kw-ns arg)
     (search-forward-regexp kw-to-find nil 'noerror)))
+
+(defun cider--xref-backend ()
+  "Used for xref integration."
+  'cider)
+
+(cl-defmethod xref-backend-identifier-at-point ((_backend (eql cider)))
+  "Return the relevant identifier at point."
+  (cider-symbol-at-point 'look-back))
+
+(defun cider--var-to-xref-location (var)
+  "Get location of definition of VAR."
+  (when-let* ((info (cider-var-info var))
+              (line (nrepl-dict-get info "line"))
+              (file (nrepl-dict-get info "file"))
+              (buf (cider--find-buffer-for-file file)))
+    (xref-make-buffer-location
+     buf
+     (with-current-buffer buf
+       (save-excursion
+         (goto-char 0)
+         (forward-line (1- line))
+         (back-to-indentation)
+         (point))))))
+
+(cl-defmethod xref-backend-definitions ((_backend (eql cider)) var)
+  "Find definitions of VAR."
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "ns-path")
+  (when-let* ((loc (cider--var-to-xref-location var)))
+    (list (xref-make var loc))))
+
+(cl-defmethod xref-backend-identifier-completion-table ((_backend (eql cider)))
+  "Return the completion table for identifiers."
+  (cider-ensure-connected)
+  (when-let* ((ns (cider-current-ns))
+              (results (cider-sync-request:ns-vars ns)))
+    results))
+
+(cl-defmethod xref-backend-references ((_backend (eql cider)) var)
+  "Find references of VAR."
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "fn-refs")
+  (when-let* ((ns (cider-current-ns))
+              (results (cider-sync-request:fn-refs ns var)))
+    (mapcar (lambda (info)
+              (let* ((filename (nrepl-dict-get info "file"))
+                     (column (nrepl-dict-get info "column"))
+                     (line (nrepl-dict-get info "line"))
+                     (loc (xref-make-file-location filename line column)))
+                (xref-make filename loc)))
+            results)))
+
+(cl-defmethod xref-backend-apropos ((_backend (eql cider)) pattern)
+  "Find all symbols that match regexp PATTERN."
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "apropos")
+  (when-let* ((ns (cider-current-ns))
+              (results (cider-sync-request:apropos pattern ns t t completion-ignore-case)))
+    (mapcar (lambda (info)
+              (let* ((symbol (nrepl-dict-get info "name"))
+                     (loc (cider--var-to-xref-location symbol))
+                     (type (nrepl-dict-get info "type"))
+                     (doc (nrepl-dict-get info "doc")))
+                (xref-make (format "[%s] %s\n  %s" (propertize symbol 'face 'bold) (capitalize type) doc)
+                           loc)))
+            results)))
 
 (provide 'cider-find)
 ;;; cider-find.el ends here

@@ -4,6 +4,7 @@
 
 ### New features
 
+* [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add xref integration.
 * [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
 
 ### Bugs fixed
