@@ -476,6 +476,13 @@ If invoked with a prefix ARG eval the expression after inserting it."
 As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
 'w32'systems while on macOS it presents them on <mouse-4> and <mouse-5>.")
 
+(defcustom cider-use-xref t
+  "Enable xref integration."
+  :type 'boolean
+  :safe #'booleanp
+  :group 'cider
+  :version '(cider . "1.2.0"))
+
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") 'cider-doc-map)
