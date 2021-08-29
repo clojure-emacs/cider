@@ -239,7 +239,7 @@ thing at point."
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql cider)))
   "Return the relevant identifier at point."
-  (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))
+  (cider-symbol-at-point 'look-back))
 
 (defun cider--var-to-xref-location (var)
   "Get location of definition of VAR."
