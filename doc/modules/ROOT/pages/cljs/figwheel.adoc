@@ -152,3 +152,4 @@ https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRe
 === Tutorials
 
 * https://cjohansen.no/tools-deps-figwheel-main-devcards-emacs/[tools.deps, figwheel-main, Devcards, and Emacs]
+* https://lambdaisland.com/episodes/figwheel-emacs-cider[Using Figwheel with CIDER]
