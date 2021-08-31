@@ -208,13 +208,16 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
           (when (member "sideloader-lookup" status)
             (cider-request:sideloader-provide id type name))))))
 
-(defun cider-request:sideloader-start (&optional connection)
+(defun cider-request:sideloader-start (&optional connection tooling)
   "Perform the nREPL \"sideloader-start\" op.
-If CONNECTION is nil, use `cider-current-repl'."
+If CONNECTION is nil, use `cider-current-repl'.
+If TOOLING is truthy then the operation is perfomed over the tooling
+session, rather than the regular session."
   (cider-ensure-op-supported "sideloader-start")
   (cider-nrepl-send-request `("op" "sideloader-start")
                             (cider-sideloader-lookup-handler)
-                            connection))
+                            connection
+                            tooling))
 
 (defun cider-request:sideloader-provide (id type file &optional connection)
   "Perform the nREPL \"sideloader-provide\" op for ID, TYPE and FILE.
