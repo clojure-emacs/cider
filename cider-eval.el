@@ -196,7 +196,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
   (let ((file (expand-file-name file cider-sideloader-dir)))
     (if (file-exists-p file)
         (with-current-buffer (find-file-noselect file)
-          (base64-encode-string (substring-no-properties (buffer-string))))
+          (base64-encode-string (substring-no-properties (buffer-string)) 'no-line-breaks))
       ;; if we can't find the file we should return an empty string
       (base64-encode-string ""))))
 
