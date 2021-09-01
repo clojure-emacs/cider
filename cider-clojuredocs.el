@@ -100,6 +100,8 @@ opposite of what that option dictates."
   "Create a new ClojureDocs buffer with CONTENT."
   (with-current-buffer (cider-popup-buffer cider-clojuredocs-buffer t)
     (read-only-mode -1)
+    (set-syntax-table clojure-mode-syntax-table)
+    (local-set-key (kbd "C-c C-d C-c") 'cider-clojuredocs)
     (insert content)
     (cider-popup-buffer-mode 1)
     (view-mode 1)
