@@ -37,6 +37,13 @@
           (filename (make-temp-file "abc.clj")))
       (with-temp-file filename
         (dotimes (_ 60) (insert "x")))
-      (expect (cider-provide-file filename) :not :to-match "\n"))))
+      (expect (cider-provide-file filename) :not :to-match "\n")))
+  (it "can handle multibyte characters"
+    (let ((cider-sideloader-dir "/tmp")
+          (default-directory "/tmp")
+          (filename (make-temp-file "abc.clj")))
+      (with-temp-file filename
+        (insert "🍻"))
+      (expect (cider-provide-file filename) :to-equal "8J+Nuw=="))))
 
 (provide 'cider-eval-tests)

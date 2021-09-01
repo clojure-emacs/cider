@@ -189,14 +189,29 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 ;;; Sideloader
 
-(defvar cider-sideloader-dir (file-name-directory load-file-name))
+(defvar cider-sideloader-dirs
+  (list (file-name-directory load-file-name))
+  "Directories where we look for resources requested by the sideloader")
+
+;; based on f-read-bytes
+(defun cider-read-bytes (path)
+  "Read binary data from PATH.
+Return the binary data as unibyte string."
+  (with-temp-buffer
+    (set-buffer-multibyte nil)
+    (setq buffer-file-coding-system 'binary)
+    (insert-file-contents-literally path nil)
+    (buffer-substring-no-properties (point-min) (point-max))))
 
 (defun cider-provide-file (file)
   "Provide FILE in a format suitable for sideloading."
-  (let ((file (expand-file-name file cider-sideloader-dir)))
-    (if (file-exists-p file)
-        (with-current-buffer (find-file-noselect file)
-          (base64-encode-string (substring-no-properties (buffer-string)) 'no-line-breaks))
+  (let ((file (seq-find
+               #'file-exists-p
+               (seq-map (lambda (dir)
+                          (expand-file-name file dir))
+                        cider-sideloader-dirs))))
+    (if file
+        (base64-encode-string (cider-read-bytes file) 'no-line-breaks)
       ;; if we can't find the file we should return an empty string
       (base64-encode-string ""))))
 
@@ -235,7 +250,8 @@ If CONNECTION is nil, use `cider-current-repl'."
 If CONNECTION is nil, use `cider-current-repl'."
   (interactive)
   (message "Starting nREPL's sideloader")
-  (cider-request:sideloader-start connection))
+  (cider-request:sideloader-start connection)
+  (cider-request:sideloader-start connection 'tooling))
 
 
 ;;; Dealing with compilation (evaluation) errors and warnings
