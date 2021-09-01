@@ -677,30 +677,37 @@ others."
   "Emit into BUFFER function call site info for the stack FRAME.
 This associates text properties to enable filtering and source navigation."
   (with-current-buffer buffer
-    (nrepl-dbind-response frame (file line flags class method name var ns fn)
-      (let ((flags (mapcar 'intern flags))) ; strings -> symbols
-        (insert-text-button (format "%26s:%5d  %s/%s"
-                                    (if (member 'repl flags) "REPL" file) line
-                                    (if (member 'clj flags) ns class)
-                                    (if (member 'clj flags) fn method))
-                            'var var 'class class 'method method
-                            'name name 'file file 'line line
-                            'flags flags 'follow-link t
-                            'action 'cider-stacktrace-navigate
-                            'help-echo (cider-stacktrace-tooltip
-                                        "View source at this location")
-                            'font-lock-face 'cider-stacktrace-face
-                            'type 'cider-plain-button)
-        (save-excursion
-          (let ((p4 (point))
-                (p1 (search-backward " "))
-                (p2 (search-forward "/"))
-                (p3 (search-forward-regexp "[^/$]+")))
-            (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
-            (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)
-            (put-text-property (line-beginning-position) (line-end-position)
-                               'cider-stacktrace-frame t)))
-        (insert "\n")))))
+    (if (null frame) ;; Probably caused by OmitStackTraceInFastThrow
+        (let ((url "https://docs.cider.mx/cider/troubleshooting.html#empty-java-stacktraces"))
+          (insert "  No stacktrace available!\n  Please see ")
+          (insert-text-button url
+                              'url url
+                              'follow-link t
+                              'action (lambda (x) (browse-url (button-get x 'url)))))
+      (nrepl-dbind-response frame (file line flags class method name var ns fn)
+        (let ((flags (mapcar 'intern flags))) ; strings -> symbols
+          (insert-text-button (format "%26s:%5d  %s/%s"
+                                      (if (member 'repl flags) "REPL" file) line
+                                      (if (member 'clj flags) ns class)
+                                      (if (member 'clj flags) fn method))
+                              'var var 'class class 'method method
+                              'name name 'file file 'line line
+                              'flags flags 'follow-link t
+                              'action 'cider-stacktrace-navigate
+                              'help-echo (cider-stacktrace-tooltip
+                                          "View source at this location")
+                              'font-lock-face 'cider-stacktrace-face
+                              'type 'cider-plain-button)
+          (save-excursion
+            (let ((p4 (point))
+                  (p1 (search-backward " "))
+                  (p2 (search-forward "/"))
+                  (p3 (search-forward-regexp "[^/$]+")))
+              (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
+              (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)
+              (put-text-property (line-beginning-position) (line-end-position)
+                                 'cider-stacktrace-frame t)))
+          (insert "\n"))))))
 
 (defun cider-stacktrace-render-compile-error (buffer cause)
   "Emit into BUFFER the compile error CAUSE, and enable jumping to it."
