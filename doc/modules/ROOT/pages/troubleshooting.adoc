@@ -269,16 +269,10 @@ counting from 0 while Clojure starts from 1. Accordingly, the `cider-nrepl`
 middleware uses 1-based indexing and all conversions to 0-based indexing should
 be handled client-side. See https://github.com/clojure-emacs/cider/issues/2852.
 
-=== Empty Java stacktraces resulting in `NullPointerException`
+=== Empty Java stacktraces
 
-Occasionally the JVM might remove some stack frames, which will break
-CIDER's stacktrace display functionality, resulting in error message like these:
-
-[source]
-----
-error in process filter: cider-stacktrace-render-frame: Format specifier doesn’t match argument type
-error in process filter: Format specifier doesn’t match argument type
-----
+Occasionally the JVM might remove some stack frames, resulting in no stacktrace
+information being displayed in CIDER's error buffer.
 
 That's caused by an JVM optimization (`OmitStackTraceInFastThrow`, enabled by
 default), which optimizes "built-in" exceptions that are thrown frequently enough
