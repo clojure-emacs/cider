@@ -9,6 +9,7 @@
 
 ### Bugs fixed
 
+* [#3022](https://github.com/clojure-emacs/cider/issues/3022): Handle empty stacktraces, pointing users to docs about the OmitStackTraceInFastThrow JVM optimization.
 * [#3020](https://github.com/clojure-emacs/cider/issues/3020): Fix session linking on Windows, e.g. when jumping into a library on the classpath.
 * [#3031](https://github.com/clojure-emacs/cider/pull/3031): Fix `cider-eval-defun-up-to-point` failing to match delimiters correctly in some cases, resulting in reader exceptions.
 * [#3039](https://github.com/clojure-emacs/cider/pull/3039): Allow starting the sideloader for the tooling session
