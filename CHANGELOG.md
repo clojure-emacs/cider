@@ -14,6 +14,7 @@
 * [#3020](https://github.com/clojure-emacs/cider/issues/3020): Fix session linking on Windows, e.g. when jumping into a library on the classpath.
 * [#3031](https://github.com/clojure-emacs/cider/pull/3031): Fix `cider-eval-defun-up-to-point` failing to match delimiters correctly in some cases, resulting in reader exceptions.
 * [#3039](https://github.com/clojure-emacs/cider/pull/3039): Allow starting the sideloader for the tooling session.
+* [#3041](https://github.com/clojure-emacs/cider/pull/3041): Sideloader: handle binary files, support multiple directories
 
 ## 1.1.1 (2021-05-24)
 
