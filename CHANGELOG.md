@@ -6,6 +6,7 @@
 
 * [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add xref integration.
 * [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
+* [#3040](https://github.com/clojure-emacs/cider/pull/3040): Support invoking `cider-clojuredocs` within the `*clojuredocs*` buffer.
 
 ### Bugs fixed
 
