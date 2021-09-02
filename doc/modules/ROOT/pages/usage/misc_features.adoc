@@ -350,5 +350,5 @@ Beginning with version 1.2.0, cider support Emacs built-in xref, which means `M-
 
 [source,lisp]
 ----
-(setq cider-user-xref nil)
+(setq cider-use-xref nil)
 ----
