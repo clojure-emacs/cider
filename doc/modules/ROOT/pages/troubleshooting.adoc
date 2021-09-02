@@ -281,7 +281,7 @@ to be cached and have no stacktrace.
 You can turn off the optimization by adding the JVM flag `-XX:-OmitStackTraceInFastThrow` to whatever
 command you're using to start nREPL.
 
-In particular, by adding it to a deps.edn file under an alias (eg. `:dev`)
+In particular, by adding it to a `deps.edn` file under an alias (eg. `:dev`)
 [source,lisp]
 ---
 {:aliases
@@ -296,5 +296,4 @@ Or by customising the jack-in options.
 (setq cider-clojure-cli-global-options "-J-XX:-OmitStackTraceInFastThrow")
 ---
 
-
-TIP: You can read more about this problem https://github.com/clojure-emacs/cider/issues/3022[here].
+NOTE: Leiningen disables `OmitStackTraceInFastThrow` by default.
