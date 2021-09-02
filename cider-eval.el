@@ -191,7 +191,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 (defvar cider-sideloader-dirs
   (list (file-name-directory load-file-name))
-  "Directories where we look for resources requested by the sideloader")
+  "Directories where we look for resources requested by the sideloader.")
 
 ;; based on f-read-bytes
 (defun cider-read-bytes (path)
