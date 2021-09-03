@@ -8,6 +8,14 @@ CIDER stands for **C**lojure **I**nteractive **D**evelopment **E**nvironment tha
 
 Yes.
 
+== Is "jack-in" a reference to "Neuromancer"?
+
+Yes.
+
+== Is "jack-in" a reference to "The Matrix"?
+
+Yes.
+
 == What are CIDER's installation prerequisites?
 
 CIDER officially supports Emacs 25.1+, Java 8+ and Clojure(Script) 1.8+.
