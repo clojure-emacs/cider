@@ -32,14 +32,14 @@
   (it "returns an empty string when the file is not found"
     (expect (cider-provide-file "abc.clj") :to-equal ""))
   (it "base64 encodes without newlines"
-    (let ((cider-sideloader-dir "/tmp")
+    (let ((cider-sideloader-path (list "/tmp"))
           (default-directory "/tmp")
           (filename (make-temp-file "abc.clj")))
       (with-temp-file filename
         (dotimes (_ 60) (insert "x")))
       (expect (cider-provide-file filename) :not :to-match "\n")))
   (it "can handle multibyte characters"
-    (let ((cider-sideloader-dir "/tmp")
+    (let ((cider-sideloader-path (list "/tmp"))
           (default-directory "/tmp")
           (filename (make-temp-file "abc.clj")))
       (with-temp-file filename

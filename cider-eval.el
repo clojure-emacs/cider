@@ -9,6 +9,7 @@
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>
 ;;         Hugo Duncan <hugo@hugoduncan.org>
 ;;         Steve Purcell <steve@sanityinc.com>
+;;         Arne Brasseur <arne@arnebraasseur.net>
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -52,6 +53,7 @@
 (require 'cider-client)
 (require 'cider-common)
 (require 'cider-compat)
+(require 'cider-jar)
 (require 'cider-overlays)
 (require 'cider-popup)
 (require 'cider-repl)
@@ -189,29 +191,50 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 ;;; Sideloader
 
-(defvar cider-sideloader-dirs
-  (list (file-name-directory load-file-name))
-  "Directories where we look for resources requested by the sideloader.")
+(defcustom cider-sideloader-path nil
+  "List of directories and jar files to scan for sideloader resources.
+When not set the cider-nrepl jar will be added automatically when upgrading
+an nREPL connection."
+  :type 'list
+  :group 'cider
+  :package-version '(cider . "0.27.0"))
 
-;; based on f-read-bytes
+(defcustom cider-dynload-cider-nrepl-version nil
+  "Version of the cider-nrepl jar used for dynamically upgrading a connection.
+Defaults to `cider-required-middleware-version'"
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "0.27.0"))
+
 (defun cider-read-bytes (path)
   "Read binary data from PATH.
 Return the binary data as unibyte string."
+  ;; based on f-read-bytes
   (with-temp-buffer
     (set-buffer-multibyte nil)
     (setq buffer-file-coding-system 'binary)
     (insert-file-contents-literally path nil)
     (buffer-substring-no-properties (point-min) (point-max))))
 
+(defun cider-retrieve-resource (dirs name)
+  "Find a resource NAME in a list DIRS of directories or jar files.
+Similar to a classpath lookup.  Returns the file contents as a string."
+  (seq-some
+   (lambda (path)
+     (cond
+      ((file-directory-p path)
+       (let ((expanded (expand-file-name name path)))
+         (when (file-exists-p expanded)
+           (cider-read-bytes expanded))))
+      ((and (file-exists-p path) (string-suffix-p ".jar" path))
+       (cider-jar-retrieve-resource path name))))
+   dirs))
+
 (defun cider-provide-file (file)
   "Provide FILE in a format suitable for sideloading."
-  (let ((file (seq-find
-               #'file-exists-p
-               (seq-map (lambda (dir)
-                          (expand-file-name file dir))
-                        cider-sideloader-dirs))))
-    (if file
-        (base64-encode-string (cider-read-bytes file) 'no-line-breaks)
+  (let ((contents (cider-retrieve-resource cider-sideloader-path file)))
+    (if contents
+        (base64-encode-string contents 'no-line-breaks)
       ;; if we can't find the file we should return an empty string
       (base64-encode-string ""))))
 
@@ -222,6 +245,20 @@ Return the binary data as unibyte string."
       (if status
           (when (member "sideloader-lookup" status)
             (cider-request:sideloader-provide id type name))))))
+
+(defun cider-add-middleware-handler (continue)
+  "Make a add-middleware handler.
+CONTINUE is an optional continuation function."
+  (lambda (response)
+    (nrepl-dbind-response response (status unresolved-middleware) ;; id middleware
+      (when unresolved-middleware
+        (seq-do
+         (lambda (mw)
+           (cider-repl-emit-interactive-stderr
+            (concat "WARNING: middleware " mw " was not found or failed to load.\n")))
+         unresolved-middleware))
+      (when (and status (member "done" status) continue)
+        (funcall continue)))))
 
 (defun cider-request:sideloader-start (&optional connection tooling)
   "Perform the nREPL \"sideloader-start\" op.
@@ -252,6 +289,76 @@ If CONNECTION is nil, use `cider-current-repl'."
   (message "Starting nREPL's sideloader")
   (cider-request:sideloader-start connection)
   (cider-request:sideloader-start connection 'tooling))
+
+(defvar cider-nrepl-middlewares
+  '("cider.nrepl/wrap-apropos"
+    "cider.nrepl/wrap-classpath"
+    "cider.nrepl/wrap-clojuredocs"
+    "cider.nrepl/wrap-complete"
+    "cider.nrepl/wrap-content-type"
+    "cider.nrepl/wrap-debug"
+    "cider.nrepl/wrap-enlighten"
+    "cider.nrepl/wrap-format"
+    "cider.nrepl/wrap-info"
+    "cider.nrepl/wrap-inspect"
+    "cider.nrepl/wrap-macroexpand"
+    "cider.nrepl/wrap-ns"
+    "cider.nrepl/wrap-out"
+    "cider.nrepl/wrap-slurp"
+    "cider.nrepl/wrap-profile"
+    "cider.nrepl/wrap-refresh"
+    "cider.nrepl/wrap-resource"
+    "cider.nrepl/wrap-spec"
+    "cider.nrepl/wrap-stacktrace"
+    "cider.nrepl/wrap-test"
+    "cider.nrepl/wrap-trace"
+    "cider.nrepl/wrap-tracker"
+    "cider.nrepl/wrap-undef"
+    "cider.nrepl/wrap-version"
+    "cider.nrepl/wrap-xref"))
+
+(defun cider-request:add-middleware (middlewares
+                                     &optional connection tooling continue)
+  "Use the nREPL dynamic loader to add MIDDLEWARES to the nREPL session.
+
+- If CONNECTION is nil, use `cider-current-repl'.
+- If TOOLING it truthy, use the tooling session instead of the main session.
+- CONTINUE is an optional continuation function, which will be called when the
+add-middleware op has finished succesfully."
+  (cider-nrepl-send-request `("op" "add-middleware"
+                              "middleware" ,middlewares)
+                            (cider-add-middleware-handler continue)
+                            connection
+                            tooling))
+
+(defun cider-add-cider-nrepl-middlewares (&optional connection)
+  "Use dynamic loading to add the cider-nrepl middlewares to nREPL.
+If CONNECTION is nil, use `cider-current-repl'."
+  (cider-request:add-middleware
+   cider-nrepl-middlewares connection nil
+   (lambda ()
+     ;; When the main session is done adding middleware, then do the tooling
+     ;; session. At this point all the namespaces have been sideloaded so this
+     ;; is faster, we don't want these to race to sideload resources.
+     (cider-request:add-middleware
+      cider-nrepl-middlewares connection 'tooling
+      (lambda ()
+        ;; Ask nREPL again what its capabilities are, so we know which new
+        ;; operations are supported.
+        (nrepl--init-capabilities (or connection (cider-current-repl))))))))
+
+(defvar cider-required-middleware-version)
+(defun cider-upgrade-nrepl-connection (&optional connection)
+  "Sideload cider-nrepl middleware.
+If CONNECTION is nil, use `cider-current-repl'."
+  (interactive)
+  (when (not cider-sideloader-path)
+    (setq cider-sideloader-path (list (cider-jar-find-or-fetch
+                                       "cider" "cider-nrepl"
+                                       (or cider-dynload-cider-nrepl-version
+                                           cider-required-middleware-version)))))
+  (cider-sideloader-start connection)
+  (cider-add-cider-nrepl-middlewares connection))
 
 
 ;;; Dealing with compilation (evaluation) errors and warnings
