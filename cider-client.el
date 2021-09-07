@@ -637,7 +637,7 @@ CONTEXT represents a completion context for compliment."
                     (cider-nrepl-send-sync-request (cider-current-repl)))))
     (if (member "lookup-error" (nrepl-dict-get var-info "status"))
         nil
-      var-info)))
+      (nrepl-dict-get var-info "info"))))
 
 (defun cider-sync-request:eldoc (symbol &optional class member)
   "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER."
