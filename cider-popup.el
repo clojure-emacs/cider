@@ -27,7 +27,7 @@
 (require 'cider-compat)
 
 (define-minor-mode cider-popup-buffer-mode
-  "Mode for CIDER popup buffers"
+  "Mode for CIDER popup buffers."
   nil
   (" cider-tmp")
   '(("q" .  cider-popup-buffer-quit-function)))
