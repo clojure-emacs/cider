@@ -407,7 +407,7 @@ In order to work properly, this mode must be activated by
   (cider--debug-mode-redisplay))
 
 (easy-menu-define cider-debug-mode-menu cider--debug-mode-map
-  "Menu for CIDER debug mode"
+  "Menu for CIDER debug mode."
   `("CIDER Debugger"
     ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
     ["Continue" (cider-debug-mode-send-reply ":continue") :keys "c"]

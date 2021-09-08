@@ -86,43 +86,43 @@ The error types are represented as strings."
 
 (defface cider-stacktrace-error-class-face
   '((t (:inherit font-lock-warning-face)))
-  "Face for exception class names"
+  "Face for exception class names."
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-error-message-face
   '((t (:inherit font-lock-doc-face)))
-  "Face for exception messages"
+  "Face for exception messages."
   :group 'cider-stacktrace
   :package-version '(cider . "0.7.0"))
 
 (defface cider-stacktrace-filter-active-face
   '((t (:inherit button :underline t :weight normal)))
-  "Face for filter buttons representing frames currently visible"
+  "Face for filter buttons representing frames currently visible."
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-filter-inactive-face
   '((t (:inherit button :underline nil :weight normal)))
-  "Face for filter buttons representing frames currently filtered out"
+  "Face for filter buttons representing frames currently filtered out."
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-face
   '((t (:inherit default)))
-  "Face for stack frame text"
+  "Face for stack frame text."
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-ns-face
   '((t (:inherit font-lock-comment-face)))
-  "Face for stack frame namespace name"
+  "Face for stack frame namespace name."
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-fn-face
   '((t (:inherit default :weight bold)))
-  "Face for stack frame function name"
+  "Face for stack frame function name."
   :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
