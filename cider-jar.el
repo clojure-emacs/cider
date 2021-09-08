@@ -63,6 +63,40 @@ Returns the path to the jar."
       (url-copy-file clojars-url cache-path)
       cache-path))))
 
+(defun cider-jar--archive-zip-summarize ()
+  "Forked version of `archive-zip-summarize'.
+Only read the information we need, and be version independent."
+  (goto-char (- (point-max) (- 22 18)))
+  (search-backward-regexp "[P]K\005\006")
+  (let ((p (archive-l-e (+ (point) 16) 4))
+        files)
+    (when (or (= p #xffffffff) (= p -1))
+      ;; If the offset of end-of-central-directory is 0xFFFFFFFF, this
+      ;; is a Zip64 extended ZIP file format, and we need to glean the
+      ;; info from Zip64 records instead.
+      ;;
+      ;; First, find the Zip64 end-of-central-directory locator.
+      (search-backward "PK\006\007")
+      (setq p (+ (point-min)
+                 (archive-l-e (+ (point) 8) 8)))
+      (goto-char p)
+      ;; We should be at Zip64 end-of-central-directory record now.
+      (or (string= "PK\006\006" (buffer-substring p (+ p 4)))
+          (error "Unrecognized ZIP file format"))
+      ;; Offset to central directory:
+      (setq p (archive-l-e (+ p 48) 8)))
+    (setq p (+ p (point-min)))
+    (while (string= "PK\001\002" (buffer-substring p (+ p 4)))
+      (let* ((fnlen   (archive-l-e (+ p 28) 2))
+             (exlen   (archive-l-e (+ p 30) 2))
+             (fclen   (archive-l-e (+ p 32) 2))
+             (efnname (let ((str (buffer-substring (+ p 46) (+ p 46 fnlen))))
+                        (decode-coding-string
+                         str archive-file-name-coding-system))))
+        (setq files (cons efnname files)
+              p (+ p 46 fnlen exlen fclen))))
+    files))
+
 (defun cider-jar-contents (jarfile)
   "Get the list of filenames in a jar (or zip) file.
 JARFILE is the location of the archive."
@@ -70,17 +104,7 @@ JARFILE is the location of the archive."
     (set-buffer-multibyte nil)
     (setq buffer-file-coding-system 'binary)
     (insert-file-contents-literally jarfile nil)
-    (seq-map
-     (lambda (v)
-       (if (vectorp v)
-           ;; Earlier emacsen, result is a vector, first slot is the name
-           (elt v 0)
-         ;; Emacs 28, result is a recordp / cl-defstruct. First slot contains the
-         ;; name.
-         ;; This should really be a (funcall #'archive--file-desc-ext-file-name v)
-         ;; but because of linting we can't have nice things.
-         (aref v 1)))
-     (archive-zip-summarize))))
+    (cider-jar--archive-zip-summarize)))
 
 (defun cider-jar-contents-cached (jarfile)
   "Like cider-jar-contents, but cached.
