@@ -384,7 +384,7 @@ Throws an error if PROJECT-TYPE is unknown."
 ;; We inject the newest known version of nREPL just in case
 ;; your version of Boot or Leiningen is bundling an older one.
 (cider-add-to-alist 'cider-jack-in-dependencies
-                    "nrepl/nrepl" "0.9.0-beta1")
+                    "nrepl/nrepl" "0.9.0-beta2")
 
 (defvar cider-jack-in-cljs-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.
