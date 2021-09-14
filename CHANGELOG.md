@@ -18,6 +18,7 @@
 * [#3044](https://github.com/clojure-emacs/cider/pull/3044): Dynamically upgrade nREPL connection
 * [#3047](https://github.com/clojure-emacs/cider/pull/3047): Fix info/lookup fallback: response has an extra level
 * [#2746](https://github.com/clojure-emacs/cider/issues/2746): Handle gracefully Clojure versions with non-standard qualifiers (e.g. `1.11.0-master-SNAPSHOT`).
+* [#3045] (https://github.com/clojure-emacs/cider/issues/3045): Add customizable variable cider-xref-fn-depth for specifying depth when adding to xref-backend-functions.
 
 ## 1.1.1 (2021-05-24)
 
