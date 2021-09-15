@@ -353,11 +353,13 @@ Beginning with version 1.2.0, cider support Emacs built-in xref, which means `M-
 (setq cider-use-xref nil)
 ----
 
-If you use other packags (e.g. lsp-mode) that also integrate with xref, you may with to customize the precedence of CIDER, e.g. to use CIDER rather than LSP (when available), you can set the following:
+If you use other packages (e.g. lsp-mode) that also integrate with xref, you may wish to customize the precedence of CIDER. The precedence is controlled by the
+order in which functions appear in the `xref-backend-functions` hook. By default, the CIDER xref function will be added with a depth of -90, so will come first.
+If you would prefer it to have a lower precedence, you can change cider-xref-fn-depth:
 
 [source,lisp]
 ----
-(setq cider-xref-fn-depth -90)
+(setq cider-xref-fn-depth 90)
 ----
 
 See https://www.gnu.org/software/emacs/manual/html_node/elisp/Setting-Hooks.html[Setting Hooks] for more information about depth.

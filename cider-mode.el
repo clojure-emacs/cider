@@ -483,7 +483,7 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
   :group 'cider
   :version '(cider . "1.2.0"))
 
-(defcustom cider-xref-fn-depth nil
+(defcustom cider-xref-fn-depth -90
   "The depth to use when adding the CIDER xref function to the relevant hook.
 By convention this is a number between -100 and 100, lower numbers indicating a
 higher precedence."
