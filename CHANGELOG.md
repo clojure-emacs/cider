@@ -4,7 +4,7 @@
 
 ### New features
 
-* [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add xref integration.
+* [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add xref integration, configured with customizable variables cider-use-xref and cider-xref-fn-depth.
 * [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
 * [#3040](https://github.com/clojure-emacs/cider/pull/3040): Support invoking `cider-clojuredocs` within the `*clojuredocs*` buffer.
 
@@ -18,7 +18,6 @@
 * [#3044](https://github.com/clojure-emacs/cider/pull/3044): Dynamically upgrade nREPL connection
 * [#3047](https://github.com/clojure-emacs/cider/pull/3047): Fix info/lookup fallback: response has an extra level
 * [#2746](https://github.com/clojure-emacs/cider/issues/2746): Handle gracefully Clojure versions with non-standard qualifiers (e.g. `1.11.0-master-SNAPSHOT`).
-* [#3045] (https://github.com/clojure-emacs/cider/issues/3045): Add customizable variable cider-xref-fn-depth for specifying depth when adding to xref-backend-functions.
 
 ## 1.1.1 (2021-05-24)
 
