@@ -29,6 +29,8 @@ maintained repos -
 http://stable.melpa.org[MELPA Stable]
 and http://melpa.org[MELPA].
 
+WARNING: Please read #using-stable-releases[using stable releases] before proceeding to installation.
+
 You can install CIDER with the following command:
 
 kbd:[M-x package-install <RET> cider <RET>]
@@ -45,6 +47,8 @@ or by adding this bit of Emacs Lisp code to your Emacs initialization file
 If the installation doesn't work try refreshing the package list:
 
 kbd:[M-x package-refresh-contents <RET>]
+
+== Using stable releases
 
 It's important to note that MELPA packages are built automatically
 from the `master` branch, and that means you'll be right on the
