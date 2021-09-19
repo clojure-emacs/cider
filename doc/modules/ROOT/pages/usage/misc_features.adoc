@@ -346,20 +346,24 @@ to format EDN using `clojure.tools.reader.edn`. The following commands are provi
 
 == https://www.gnu.org/software/emacs/manual/html_node/emacs/Xref.html[Xref] integration
 
-Beginning with version 1.2.0, cider support Emacs built-in xref, which means `M-.` (xref-find-definitions) will just work as expected. You can disable it with:
+Beginning with version 1.2.0, CIDER supports Emacs's built-in `xref`
+functionality, which means `M-.` will invoke `xref-find-definitions` instead of
+CIDER's own command `cider-find-var`. You can disable the use of CIDER's `xref` backend like this:
 
 [source,lisp]
 ----
 (setq cider-use-xref nil)
 ----
 
-If you use other packages (e.g. lsp-mode) that also integrate with xref, you may wish to customize the precedence of CIDER. The precedence is controlled by the
-order in which functions appear in the `xref-backend-functions` hook. By default, the CIDER xref function will be added with a depth of -90, so will come first.
-If you would prefer it to have a lower precedence, you can change cider-xref-fn-depth:
+NOTE: You'll have to disable and enable `cider-mode` for this setting to have effect.
+
+If you use other packages that also integrate with xref (e.g. `lsp-mode`), you may wish to customize the precedence of CIDER's xref backend. The precedence is controlled by the
+order in which backend functions appear in the `xref-backend-functions` hook. By default, the CIDER xref function will be added with a depth of -90, so it will (should?) come first.
+If you would prefer for it to have a lower precedence, you can change `cider-xref-fn-depth`:
 
 [source,lisp]
 ----
 (setq cider-xref-fn-depth 90)
 ----
 
-See https://www.gnu.org/software/emacs/manual/html_node/elisp/Setting-Hooks.html[Setting Hooks] for more information about depth.
+TIP: See https://www.gnu.org/software/emacs/manual/html_node/elisp/Setting-Hooks.html[Setting Hooks] for more information about depth.
