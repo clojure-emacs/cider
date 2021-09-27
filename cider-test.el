@@ -828,7 +828,7 @@ the results are received."
 When enabled this reruns tests every time a Clojure file is loaded.
 Only runs tests corresponding to the loaded file's namespace and does
 nothing if no tests are defined or if the file failed to load."
-  nil (cider-mode " Test") nil
+  :init-value nil :lighter (cider-mode " Test") :keymap nil
   :global t
   (if cider-auto-test-mode
       (add-hook 'cider-file-loaded-hook #'cider--test-silently)

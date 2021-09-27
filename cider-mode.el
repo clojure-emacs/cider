@@ -1048,9 +1048,9 @@ property."
   "Minor mode for REPL interaction from a Clojure buffer.
 
 \\{cider-mode-map}"
-  nil
-  cider-mode-line
-  cider-mode-map
+  :init-value nil
+  :lighter cider-mode-line
+  :keymap cider-mode-map
   (if cider-mode
       (progn
         (setq-local sesman-system 'CIDER)
