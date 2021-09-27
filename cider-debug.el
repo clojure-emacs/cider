@@ -340,7 +340,7 @@ of `cider-interactive-eval' in debug sessions."
   "Mode active during debug sessions.
 In order to work properly, this mode must be activated by
 `cider--turn-on-debug-mode'."
-  nil " DEBUG" '()
+  :init-value nil :lighter " DEBUG" :keymap '()
   (if cider--debug-mode
       (if cider--debug-mode-response
           (nrepl-dbind-response cider--debug-mode-response (input-type)
