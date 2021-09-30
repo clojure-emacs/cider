@@ -81,5 +81,5 @@ is set. There are several ways to address this:
 * Switch off injecting the dependencies with setting `cider-inject-dependencies-at-jack-in` to `nil` and
 provide the dependencies by editing your `~/.lein/profiles.clj` as described in
 the xref:basics/middleware_setup.adoc#setting-up-a-standalone-repl[standalone REPL] section.
-* Adjust the value of `cider-jack-in-dependencies`, so it includes the same nREPL value as the
+* Adjust the value of `cider-injected-nrepl-version` to the same nREPL version as the
 one that's bundled with Leiningen.
