@@ -2,7 +2,7 @@
 
 == Emacs
 
-CIDER supports Emacs 25.1+. More generally we try to support the last 3 major Emacs releases
+CIDER supports Emacs 26.1+. More generally we try to support the last 3 major Emacs releases
 when that's feasible and doesn't add a lot of maintenance overhead.
 
 NOTE: We pay special attention to supporting whatever Emacs is bundled with the current stable Debian
@@ -92,6 +92,20 @@ Below you can find the official compatibility matrix for CIDER.
 | 1.0
 | 25.1
 | 0.6
+| 0.25
+| 8
+| 1.8
+
+| 1.1
+| 25.1
+| 0.6
+| 0.25
+| 8
+| 1.8
+
+| 1.2
+| 26.1
+| 0.9
 | 0.25
 | 8
 | 1.8

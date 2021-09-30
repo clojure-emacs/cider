@@ -163,13 +163,11 @@ buffer."
       (with-clojure-buffer "(1 2 3|)"
         (expect (cider-list-at-point) :to-equal "(1 2 3)")))
 
-    ;; doesn't work on Emacs 25
-    (xit "handles leading @ reader macro properly"
+    (it "handles leading @ reader macro properly"
       (with-clojure-buffer "@(1 2 3|)"
         (expect (cider-list-at-point) :to-equal "@(1 2 3)")))
 
-    ;; doesn't work on Emacs 25
-    (xit "handles leading ' reader macro properly"
+    (it "handles leading ' reader macro properly"
       (with-clojure-buffer "'(1 2 3|)"
         (expect (cider-list-at-point) :to-equal "'(1 2 3)")))
 
