@@ -8,6 +8,7 @@
 * [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
 * [#3040](https://github.com/clojure-emacs/cider/pull/3040): Support invoking `cider-clojuredocs` within the `*clojuredocs*` buffer.
 * Make it possible to specify the version of `cider-nrepl` to use with `cider-jack-in`. See `cider-injected-middleware-version`.
+* Make it possible to specify the version of nREPL to use with `cider-jack-in`. See `cider-injected-nrepl-version`.
 
 ### Bugs fixed
 

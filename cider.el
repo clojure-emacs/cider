@@ -381,10 +381,18 @@ Throws an error if PROJECT-TYPE is unknown."
 (defvar cider-jack-in-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.")
 (put 'cider-jack-in-dependencies 'risky-local-variable t)
-;; We inject the newest known version of nREPL just in case
-;; your version of Boot or Leiningen is bundling an older one.
+
+(defcustom cider-injected-nrepl-version "0.9.0-beta3"
+  "The version of nREPL injected on jack-in.
+We inject the newest known version of nREPL just in case
+your version of Boot or Leiningen is bundling an older one."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "1.2.0")
+  :safe #'stringp)
+
 (cider-add-to-alist 'cider-jack-in-dependencies
-                    "nrepl/nrepl" "0.9.0-beta2")
+                    "nrepl/nrepl" cider-injected-nrepl-version)
 
 (defvar cider-jack-in-cljs-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.
