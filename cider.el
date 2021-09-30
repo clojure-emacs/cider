@@ -409,6 +409,14 @@ Elements of the list are artifact name and list of exclusions to apply for the a
 (defconst cider-required-middleware-version "0.26.0"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
+(defcustom cider-injected-middleware-version cider-required-middleware-version
+  "The version of cider-nrepl injected on jack-in.
+Should be newer than the required version for optimal results."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "1.2.0")
+  :safe #'stringp)
+
 (defcustom cider-jack-in-auto-inject-clojure nil
   "Version of clojure to auto-inject into REPL.
 If nil, do not inject Clojure into the REPL.  If `latest', inject
@@ -436,7 +444,7 @@ that extend CIDER, not for users.  For example, a refactoring package might
 want to inject some middleware only when within a project context.)")
 (put 'cider-jack-in-lein-plugins 'risky-local-variable t)
 (cider-add-to-alist 'cider-jack-in-lein-plugins
-                    "cider/cider-nrepl" cider-required-middleware-version)
+                    "cider/cider-nrepl" cider-injected-middleware-version)
 
 (defvar cider-jack-in-cljs-lein-plugins nil
   "List of Leiningen plugins to be injected at jack-in.
