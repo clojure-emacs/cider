@@ -41,7 +41,8 @@
   (it "can handle multibyte characters"
     (let ((cider-sideloader-path (list "/tmp"))
           (default-directory "/tmp")
-          (filename (make-temp-file "abc.clj")))
+          (filename (make-temp-file "abc.clj"))
+          (coding-system-for-write 'utf-8-unix))
       (with-temp-file filename
         (insert "🍻"))
       (expect (cider-provide-file filename) :to-equal "8J+Nuw=="))))
