@@ -79,10 +79,28 @@ add `piggieback` as well. The injection mechanism is configurable and
 you can easily add more libraries there. Some CIDER extensions would use
 this mechanism to auto-inject their own dependencies.
 
-CIDER would also inject the most recent version of nREPL that it supports. This is a simple
-trick to override the version of nREPL bundled with your build tool, so you can gain
+Here's how you can modify the injected dependencies for `cider-jack-in-clj`:
+
+[source,lisp]
+----
+;; auto-inject version 1.0 of the library foo/bar
+(cider-add-to-alist 'cider-jack-in-dependencies
+                    "foo/bar" "1.0")
+----
+
+CIDER will also inject the most recent version of nREPL that it supports. This is a simple
+trick to override the version of nREPL bundled with your build tool (e.g. Leiningen), so you can gain
 access to the newest nREPL features. Generally that's one aspect of CIDER's inner workings
 that end-users will rarely have to think about.
+
+You can override the injected versions of `cider-nrepl` and nREPL by customizing
+`cider-injected-middleware-version` and `cider-injected-nrepl-version`.
+Generally you should avoid doing this, but it may be useful if you want to try
+a newer version or you encounter some regression that forces you to temporarily use
+an older version.
+
+NOTE: You'll have to restart Emacs for such changes to take effect, if you've already loaded CIDER. Alternatively you can update
+manually the underlying dependencies list (e.g. `cider-jack-in-dependencies`).
 
 CIDER can also inject a Clojure dependency into your project, which is useful,
 for example, if your project defaults to an older version of Clojure than that
