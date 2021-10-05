@@ -245,7 +245,7 @@ message in the REPL area."
                                  "CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!"))
      ((not (cider--compatible-middleware-version-p cider-required-middleware-version middleware-version))
       (cider-emit-manual-warning "troubleshooting.html#cider-complains-of-the-cider-nrepl-version"
-                                 "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
+                                 "cider.el %s assumes cider-nrepl %s, but you're currently using cider-nrepl %s. That might be fine, however it is recommended that you ensure the versions are consistent, especially before reporting any issue."
                                  cider-version cider-required-middleware-version middleware-version)))))
 
 (declare-function cider-interactive-eval-handler "cider-eval")
