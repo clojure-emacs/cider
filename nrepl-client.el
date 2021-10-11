@@ -362,6 +362,11 @@ STACK is as in `nrepl--bdecode-1'.  Return a cons (INFO . STACK)."
             stack (cdr istack)))
     istack))
 
+(defun nrepl--ensure-fundamental-mode ()
+  "Enable `fundamental-mode' if it is not enabled already."
+  (when (not (eq 'fundamental-mode major-mode))
+    (fundamental-mode)))
+
 (defun nrepl-bdecode (string-q &optional response-q)
   "Decode STRING-Q and place the results into RESPONSE-Q.
 STRING-Q is either a queue of strings or a string.  RESPONSE-Q is a queue of
@@ -374,7 +379,10 @@ decoded.  RESPONSE-Q is the original queue with successfully decoded messages
 enqueued and with slot STUB containing a nested stack of an incompletely
 decoded message or nil if the strings were completely decoded."
   (with-current-buffer (get-buffer-create " *nrepl-decoding*")
-    (fundamental-mode)
+    ;; Don't needlessly call `fundamental-mode', to prevent needlessly firing
+    ;; hooks. This fixes an issue with evil-mode where the cursor loses its
+    ;; correct color.
+    (nrepl--ensure-fundamental-mode)
     (erase-buffer)
     (if (queue-p string-q)
         (while (queue-head string-q)
@@ -1352,7 +1360,7 @@ The default buffer name is *nrepl-error*."
       (let ((buffer (get-buffer-create nrepl-error-buffer-name)))
         (with-current-buffer buffer
           (buffer-disable-undo)
-          (fundamental-mode)
+          (nrepl--ensure-fundamental-mode)
           buffer))))
 
 (defun nrepl-log-error (msg)
