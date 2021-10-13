@@ -22,6 +22,7 @@
 * [#3047](https://github.com/clojure-emacs/cider/pull/3047): Fix info/lookup fallback: response has an extra level
 * [#2746](https://github.com/clojure-emacs/cider/issues/2746): Handle gracefully Clojure versions with non-standard qualifiers (e.g. `1.11.0-master-SNAPSHOT`).
 * [#3069](https://github.com/clojure-emacs/cider/pull/3069): Fix cursor color changing when it shouldn't in evil-mode
+* [#3071](https://github.com/clojure-emacs/cider/issues/3071): Use xref instead of etags to push point to marker stack
 
 ## 1.1.1 (2021-05-24)
 
