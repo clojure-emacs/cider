@@ -4,6 +4,9 @@
 
 ### New features
 
+* Integrate [enrich-classpath](https://github.com/clojure-emacs/enrich-classpath) by default for Leiningen projects.
+  * This enables functionality related to Java sources, javadocs or parsing thereof.
+  * This can slightly slow down jack-in for the _first_ time for a given project; later on the related work will be cached.
 * [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add xref integration, configured with customizable variables cider-use-xref and cider-xref-fn-depth.
 * [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
 * [#3040](https://github.com/clojure-emacs/cider/pull/3040): Support invoking `cider-clojuredocs` within the `*clojuredocs*` buffer.
@@ -11,6 +14,7 @@
 * Make it possible to specify the version of nREPL to use with `cider-jack-in`. See `cider-injected-nrepl-version`.
 * Upgrade `cider-nrepl`, `Orchard` and `clj-suitable` for pulling their latest bugfixes.
 * Add support for babaska projects to `cider-jack-in`.
+* Introduce `cider-jack-in-lein-middlewares` defcustom.
 
 ### Bugs fixed
 
