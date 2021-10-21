@@ -1315,7 +1315,8 @@ non-nil, don't start if ClojureScript requirements are not met."
                           (and (null project-dir)
                                (eq cider-allow-jack-in-without-project 'warn)
                                (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
-                  (let ((cmd (format "%s %s" command-resolved (if (string-equal command "powershell")
+                  (let ((cmd (format "%s %s" command-resolved (if (or (string-equal command "powershell")
+                                                                      (string-equal command "pwsh"))
                                                                   (cider--powershell-encode-command cmd-params)
                                                                 cmd-params))))
                     (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command

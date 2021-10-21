@@ -23,6 +23,7 @@
 * [#2746](https://github.com/clojure-emacs/cider/issues/2746): Handle gracefully Clojure versions with non-standard qualifiers (e.g. `1.11.0-master-SNAPSHOT`).
 * [#3069](https://github.com/clojure-emacs/cider/pull/3069): Fix cursor color changing when it shouldn't in evil-mode
 * [#3071](https://github.com/clojure-emacs/cider/issues/3071): Use xref instead of etags to push point to marker stack
+* [#3074](https://github.com/clojure-emacs/cider/issues/3074): Recognize pwsh as a powershell executable
 
 ## 1.1.1 (2021-05-24)
 
