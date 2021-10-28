@@ -226,6 +226,30 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-babashka-command
+  "bb"
+  "The command used to execute Babashka."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
+(defcustom cider-babashka-global-options
+  nil
+  "Command line options used to execute Babashka."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
+(defcustom cider-babashka-parameters
+  "nrepl-server"
+  "Params passed to babashka to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
 (defcustom cider-jack-in-default (if (executable-find "clojure") 'clojure-cli 'lein)
   "The default tool to use when doing `cider-jack-in' outside a project.
 This value will only be consulted when no identifying file types, i.e.
@@ -238,7 +262,8 @@ to Leiningen."
                  (const boot)
                  (const clojure-cli)
                  (const shadow-cljs)
-                 (const gradle))
+                 (const gradle)
+                 (const babashka))
   :group 'cider
   :safe #'symbolp
   :package-version '(cider . "0.9.0"))
@@ -257,6 +282,7 @@ command when there is no ambiguity."
                  (const clojure-cli)
                  (const shadow-cljs)
                  (const gradle)
+                 (const babashka)
                  (const :tag "Always ask" nil))
   :group 'cider
   :safe #'symbolp
@@ -333,6 +359,7 @@ Sub-match 1 must be the project path.")
     ('lein        cider-lein-command)
     ('boot        cider-boot-command)
     ('clojure-cli cider-clojure-cli-command)
+    ('babashka    cider-babashka-command)
     ('shadow-cljs cider-shadow-cljs-command)
     ('gradle      cider-gradle-command)
     (_            (user-error "Unsupported project type `%S'" project-type))))
@@ -344,6 +371,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('lein (cider--resolve-command cider-lein-command))
     ('boot (cider--resolve-command cider-boot-command))
     ('clojure-cli (cider--resolve-command cider-clojure-cli-command))
+    ('babashka (cider--resolve-command cider-babashka-command))
     ;; here we have to account for the possibility that the command is either
     ;; "npx shadow-cljs" or just "shadow-cljs"
     ('shadow-cljs (let ((parts (split-string cider-shadow-cljs-command)))
@@ -358,6 +386,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('lein        cider-lein-global-options)
     ('boot        cider-boot-global-options)
     ('clojure-cli cider-clojure-cli-global-options)
+    ('babashka    cider-babashka-global-options)
     ('shadow-cljs cider-shadow-cljs-global-options)
     ('gradle      cider-gradle-global-options)
     (_            (user-error "Unsupported project type `%S'" project-type))))
@@ -372,6 +401,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('lein        cider-lein-parameters)
     ('boot        cider-boot-parameters)
     ('clojure-cli nil)
+    ('babashka    cider-babashka-parameters)
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
     (_            (user-error "Unsupported project type `%S'" project-type))))
@@ -658,6 +688,10 @@ dependencies."
                    params
                    (cider-add-clojure-dependencies-maybe
                     cider-jack-in-dependencies)))
+    ('babashka (concat
+                global-opts
+                (unless (seq-empty-p global-opts) " ")
+                params))
     ('shadow-cljs (cider-shadow-cljs-jack-in-dependencies
                    global-opts
                    params
@@ -1522,6 +1556,7 @@ PROJECT-DIR defaults to current project."
          (build-files '((lein        . "project.clj")
                         (boot        . "build.boot")
                         (clojure-cli . "deps.edn")
+                        (babashka    . "bb.edn")
                         (shadow-cljs . "shadow-cljs.edn")
                         (gradle      . "build.gradle")
                         (gradle      . "build.gradle.kts"))))
