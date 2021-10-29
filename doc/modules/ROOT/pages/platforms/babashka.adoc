@@ -13,7 +13,7 @@ CIDER's basic functionality with it.
 NOTE: Depending on your CIDER version you might get some warnings about missing Clojure/nREPL versions. You can safely
 ignore those.
 
-Currently you can't use `cider-jack-in` with Babashka, but this may change down the road.
+Starting with CIDER 1.2, `cider-jack-in-clj` works with Babashka projects that are using `bb.edn`.
 
 == Differences with Clojure
 
