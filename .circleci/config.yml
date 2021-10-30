@@ -65,7 +65,12 @@ jobs:
     steps:
       - run:
           name: Install Emacs latest
-          command: choco install emacs
+          command: |
+            choco install emacs
+            # temporary workaround for
+            # https://debbugs.gnu.org/cgi/bugreport.cgi?bug=51038
+            # can be removed in versions newer than 27.2
+            emacs --batch --eval '(progn (require ''nsm) (make-directory (file-name-directory (directory-file-name nsm-settings-file)) t) (when (file-exists-p nsm-settings-file) (nsm-read-settings)) (setq nsm-permanent-host-settings (append nsm-permanent-host-settings ''(   (:id \"sha1:ccfd2cc2a08c89a9b10969be8c1e926954d53e28\" :fingerprints (\"sha1:0c:bd:68:cb:c0:01:e2:ad:93:0d:b9:3b:77:09:2e:47:9c:de:6b:28\") :host \"stable.melpa.org:443\" :conditions (:expired :invalid :verify-cert))   (:id \"sha1:85b31c268009209a8d3c5387033b219264f7e62b\" :fingerprints (\"sha1:0c:bd:68:cb:c0:01:e2:ad:93:0d:b9:3b:77:09:2e:47:9c:de:6b:28\") :host \"melpa.org:443\" :conditions (:expired :invalid :verify-cert))   (:id \"sha1:6d4eb958390599243ba9f5035cb671fa8dd6a93a\" :fingerprints (\"sha1:56:41:11:79:62:b9:85:66:f8:9e:e4:3b:39:2d:5f:a6:a5:c7:e9:2d\") :host \"elpa.gnu.org:443\" :conditions (:expired :invalid :verify-cert)))  )) (nsm-write-settings))'
       - setup-windows
       - test
 
@@ -81,7 +86,12 @@ jobs:
     steps:
       - run:
           name: Install Emacs latest
-          command: choco install emacs
+          command: |
+            choco install emacs
+            # temporary workaround for
+            # https://debbugs.gnu.org/cgi/bugreport.cgi?bug=51038
+            # can be removed in versions newer than 27.2
+            emacs --batch --eval '(progn (require ''nsm) (make-directory (file-name-directory (directory-file-name nsm-settings-file)) t) (when (file-exists-p nsm-settings-file) (nsm-read-settings)) (setq nsm-permanent-host-settings (append nsm-permanent-host-settings ''(   (:id \"sha1:ccfd2cc2a08c89a9b10969be8c1e926954d53e28\" :fingerprints (\"sha1:0c:bd:68:cb:c0:01:e2:ad:93:0d:b9:3b:77:09:2e:47:9c:de:6b:28\") :host \"stable.melpa.org:443\" :conditions (:expired :invalid :verify-cert))   (:id \"sha1:85b31c268009209a8d3c5387033b219264f7e62b\" :fingerprints (\"sha1:0c:bd:68:cb:c0:01:e2:ad:93:0d:b9:3b:77:09:2e:47:9c:de:6b:28\") :host \"melpa.org:443\" :conditions (:expired :invalid :verify-cert))   (:id \"sha1:6d4eb958390599243ba9f5035cb671fa8dd6a93a\" :fingerprints (\"sha1:56:41:11:79:62:b9:85:66:f8:9e:e4:3b:39:2d:5f:a6:a5:c7:e9:2d\") :host \"elpa.gnu.org:443\" :conditions (:expired :invalid :verify-cert)))  )) (nsm-write-settings))'
       - setup-windows
       - lint
 
