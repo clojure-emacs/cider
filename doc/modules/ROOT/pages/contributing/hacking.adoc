@@ -179,13 +179,14 @@ such as `/tmp/a-dir` or `/docker/src, in tests,` as test inputs. These
 are not valid absolute paths on Windows though, since they are missing
 the initial driver letter (e.g.`c:/tmp/a-dir`), but we can wrap them
 around with `expand-file-name` to make them so e.g. in tests
-
----
++
+[source,emacs-lisp]
+----
 (let ((a-dir (expand-file-name "/tmp/a-dir"))
       (docker-src (expand-file-name "/docker/src")))
   ;; ...
   )
----
+----
 
 . Command-line arguments. When calling external programs, it might be
 necessary to quote some long command line arguments, though quoting
