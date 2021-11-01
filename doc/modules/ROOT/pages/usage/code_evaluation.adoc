@@ -123,6 +123,12 @@ file has been evaluated.
 TIP: `cider-auto-test-mode` is implemented in terms of this hook -
 tests are re-run every time you evaluate a file.
 
+You can use `cider-before-eval-hook` to trigger some action before eval
+request is sent to nrepl server.
+
+You can use `cider-after-eval-done-hook` to trigger some action after the
+eval response was received from nrepl server with status "done".
+
 == Synchronous vs Asynchronous Evaluation
 
 nREPL has an asynchronous evaluation model, where eval requests
