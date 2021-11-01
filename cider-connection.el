@@ -83,10 +83,10 @@ PARAMS is a plist containing :host, :port, :server and other parameters for
    (nrepl-start-client-process
     (plist-get params :host)
     (plist-get params :port)
+    (plist-get params :socket-file)
     (plist-get params :server)
     (lambda (_)
-      (cider-repl-create params))
-    (plist-get params :socket-file))))
+      (cider-repl-create params)))))
 
 (defun cider-sessions ()
   "Return a list of all active CIDER sessions."
