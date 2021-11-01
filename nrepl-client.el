@@ -1062,10 +1062,13 @@ been determined."
               (set-window-point win (point)))))
         ;; detect the port the server is listening on from its output
         (when (and (null nrepl-endpoint)
-                   (string-match "nREPL server started on port \\([0-9]+\\)" output))
-          (let ((port (string-to-number (match-string 1 output))))
-            (setq nrepl-endpoint (list :host (or (file-remote-p default-directory 'host)
-                                                 "localhost")
+                   (string-match "\\(?:nREPL server started on port \\(?1:[0-9]+\\)\\|Started nREPL server at \\(?2:.*?\\):\\(?1:[0-9]+\\)\\)"
+                                 output))
+          (let ((host (or (match-string 2 output)
+                          (file-remote-p default-directory 'host)
+                          "localhost"))
+                (port (string-to-number (match-string 1 output))))
+            (setq nrepl-endpoint (list :host host
                                        :port port))
             (message "[nREPL] server started on %s" port)
             (when nrepl-on-port-callback
