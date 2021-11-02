@@ -655,7 +655,7 @@ Emacs.  BUFFER-BUILDER is a function of one argument (endpoint returned by
 `nrepl-connect') which returns a client buffer.  Return the newly created
 client process."
   (let* ((endpoint (if socket-file
-                       (nrepl--unix-connect socket-file)
+                       (nrepl--unix-connect (expand-file-name socket-file))
                      (nrepl-connect host port)))
          (client-proc (plist-get endpoint :proc))
          (builder (or buffer-builder (error "`buffer-builder' must be provided")))
