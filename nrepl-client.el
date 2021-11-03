@@ -1043,6 +1043,20 @@ been determined."
                (propertize cmd 'face 'font-lock-keyword-face))
       serv-proc)))
 
+(defconst nrepl-listening-address-regexp
+  (rx (or
+       ;; standard
+       (and "nREPL server started on port " (group-n 1 (+ (any "0-9"))))
+       ;; babashka
+       (and "Started nREPL server at "
+            (group-n 2 (+? any)) ":" (group-n 1 (+ (any "0-9"))))))
+  "A regexp to search an nREPL's stdout for the address it is listening on.
+
+If it matches, the address components can be extracted using the following
+match groups:
+1  for the port, and
+2  for the host (babashka only).")
+
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT."
   ;; In Windows this can be false:
@@ -1062,8 +1076,7 @@ been determined."
               (set-window-point win (point)))))
         ;; detect the port the server is listening on from its output
         (when (and (null nrepl-endpoint)
-                   (string-match "\\(?:nREPL server started on port \\(?1:[0-9]+\\)\\|Started nREPL server at \\(?2:.*?\\):\\(?1:[0-9]+\\)\\)"
-                                 output))
+                   (string-match nrepl-listening-address-regexp output))
           (let ((host (or (match-string 2 output)
                           (file-remote-p default-directory 'host)
                           "localhost"))
