@@ -207,14 +207,17 @@ If NS is non-nil, include it in the request.  LINE and COLUMN, if non-nil,
 define the position of INPUT in its buffer.  ADDITIONAL-PARAMS is a plist
 to be appended to the request message.  CONNECTION is the connection
 buffer, defaults to (cider-current-repl)."
-  (let ((connection (or connection (cider-current-repl nil 'ensure))))
+  (let ((connection (or connection (cider-current-repl nil 'ensure)))
+        (eval-buffer (current-buffer)))
     (run-hooks 'cider-before-eval-hook)
     (nrepl-request:eval input
                         (lambda (response)
                           (when cider-show-eval-spinner
                             (cider-eval-spinner connection response))
-                          (when (member "done" (nrepl-dict-get response "status"))
-                            (run-hooks 'cider-after-eval-done-hook))
+                          (when (and (buffer-live-p eval-buffer)
+                                     (member "done" (nrepl-dict-get response "status")))
+                            (with-current-buffer eval-buffer
+                              (run-hooks 'cider-after-eval-done-hook)))
                           (funcall callback response))
                         connection
                         ns line column additional-params)
