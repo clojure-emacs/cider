@@ -1216,7 +1216,7 @@ server buffer, in which case a new session for that server is created."
        (cider--update-cljs-init-function)
        (plist-put :session-name ses-name)
        (plist-put :repl-type 'pending-cljs)))))
- 
+
 ;;;###autoload
 (defun cider-connect-clj (&optional params)
   "Initialize a Clojure connection to an nREPL server.
@@ -1572,13 +1572,13 @@ of remote SSH hosts."
   "Interactively select unix domain socket file name."
   (read-file-name "Socket File: " nil nil t nil
                   (lambda (filename)
-                    (let ((file-type
-                           (string-to-char
-                            (file-attribute-modes
-                             (file-attributes
-                              filename)))))
-                      (or (eq ?s file-type)
-                          (eq ?d file-type))))))
+                    "Predicate: auto-complete only socket-files and directories"
+                    (let ((filetype (string-to-char
+                                     (file-attribute-modes
+                                      (file-attributes
+                                       filename)))))
+                      (or (eq ?s filetype)
+                          (eq ?d filetype))))))
 
 (defun cider-locate-running-nrepl-ports (&optional dir)
   "Locate ports of running nREPL servers.

@@ -492,18 +492,20 @@ and kill the process buffer."
 ;;; Network
 
 (defun nrepl--unix-connect (socket-file &optional no-error)
+  "If SOCKET-FILE is given, try to `make-network-process'.
+If NO-ERROR is non-nil, show messages instead of throwing an error."
   (if (not socket-file)
       (unless no-error
         (error "[nREPL] Socket file not provided"))
-    (message "[nREPL] Establishing unix connection to %s ..." socket-file)
+    (message "[nREPL] Establishing unix socket connection to %s ..." socket-file)
     (condition-case nil
         (prog1 (list :proc (make-network-process :name "nrepl-connection" :buffer nil
-			                         :family 'local :service socket-file)
-                     :host "unix:"
+                                                 :family 'local :service socket-file)
+                     :host "local-unix-domain-socket"
                      :port socket-file
                      :socket-file socket-file)
-          (message "[nREPL] Direct connection to %s established" socket-file))
-      (error (let ((msg (format "[nREPL] Direct connection to %s failed" socket-file)))
+          (message "[nREPL] Unix socket connection to %s established" socket-file))
+      (error (let ((msg (format "[nREPL] Unix socket connection to %s failed" socket-file)))
                (if no-error
                    (message msg)
                  (error msg))
@@ -648,12 +650,12 @@ Do not kill the server if there is a REPL connected to that server."
         (nrepl-kill-server-buffer server-buf)))))
 
 (defun nrepl-start-client-process (&optional host port socket-file server-proc buffer-builder)
-  "Create new client process identified by HOST and PORT.
-In remote buffers, HOST and PORT are taken from the current tramp
-connection.  SERVER-PROC must be a running nREPL server process within
-Emacs.  BUFFER-BUILDER is a function of one argument (endpoint returned by
-`nrepl-connect') which returns a client buffer.  Return the newly created
-client process."
+  "Create new client process identified by either HOST and PORT or SOCKET-FILE.
+If SOCKET-FILE is non-nil, it takes precedence.  In remote buffers, HOST
+and PORT are taken from the current tramp connection.  SERVER-PROC must be
+a running nREPL server process within Emacs.  BUFFER-BUILDER is a function
+of one argument (endpoint returned by `nrepl-connect') which returns a
+client buffer.  Return the newly created client process."
   (let* ((endpoint (if socket-file
                        (nrepl--unix-connect (expand-file-name socket-file))
                      (nrepl-connect host port)))
