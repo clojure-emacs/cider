@@ -649,7 +649,7 @@ Do not kill the server if there is a REPL connected to that server."
                            (buffer-list)))
         (nrepl-kill-server-buffer server-buf)))))
 
-(defun nrepl-start-client-process (&optional host port socket-file server-proc buffer-builder)
+(defun nrepl-start-client-process (&optional host port server-proc buffer-builder socket-file)
   "Create new client process identified by either HOST and PORT or SOCKET-FILE.
 If SOCKET-FILE is non-nil, it takes precedence.  In remote buffers, HOST
 and PORT are taken from the current tramp connection.  SERVER-PROC must be

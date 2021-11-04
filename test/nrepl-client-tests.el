@@ -166,10 +166,10 @@
                    (process-client (nrepl-start-client-process
                                     (plist-get server-endpoint :host)
                                     (plist-get server-endpoint :port)
-                                    (plist-get params :socket-file)
                                     server-process
                                     (lambda (client-endpoint)
-                                      client-buffer))))
+                                      client-buffer)
+                                    (plist-get params :socket-file))))
 
               ;; client connection is open
               (expect (process-status process-client)
