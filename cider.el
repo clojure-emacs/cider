@@ -455,6 +455,16 @@ Should be newer than the required version for optimal results."
   :package-version '(cider . "1.2.0")
   :safe #'stringp)
 
+(defcustom cider-enrich-classpath t
+  "Whether to use git.io/JiJVX for adding sources and javadocs to the classpath.
+
+This is done in a clean manner, without interfering with classloaders.
+
+Only available for Leiningen projects at the moment."
+  :type 'boolean
+  :group 'cider
+  :safe #'booleanp)
+
 (defcustom cider-jack-in-auto-inject-clojure nil
   "Version of clojure to auto-inject into REPL.
 If nil, do not inject Clojure into the REPL.  If `latest', inject
@@ -484,25 +494,41 @@ want to inject some middleware only when within a project context.)")
 (cider-add-to-alist 'cider-jack-in-lein-plugins
                     "cider/cider-nrepl" cider-injected-middleware-version)
 
+(defvar cider-jack-in-lein-middlewares nil
+  "List of Leiningen :middleware values to be injected at jack-in.
+
+Necessary for plugins which require an explicit middleware name to be specified.
+
+Can also facilitate using middleware in a specific order.")
+(put 'cider-jack-in-lein-middlewares 'risky-local-variable t)
+
 (defvar cider-jack-in-cljs-lein-plugins nil
   "List of Leiningen plugins to be injected at jack-in.
 Added to `cider-jack-in-lein-plugins' (which see) when doing
 `cider-jack-in-cljs'.")
 (put 'cider-jack-in-cljs-lein-plugins 'risky-local-variable t)
 
-(defun cider-jack-in-normalized-lein-plugins ()
+(defun cider-jack-in-normalized-lein-plugins (&optional project-type)
   "Return a normalized list of Leiningen plugins to be injected.
 See `cider-jack-in-lein-plugins' for the format, except that the list
-returned by this function does not include keyword arguments."
-  (thread-last cider-jack-in-lein-plugins
-    (seq-filter
-     (lambda (spec)
-       (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
-           (funcall pred spec)
-         t)))
-    (mapcar
-     (lambda (spec)
-       (seq-take spec 2)))))
+returned by this function does not include keyword arguments.
+
+PROJECT-TYPE will be observed, for avoiding injecting plugins
+where it doesn't make sense."
+  (let* ((corpus (if (and cider-enrich-classpath
+                          (eq project-type 'lein))
+                     (append cider-jack-in-lein-plugins
+                             '(("mx.cider/enrich-classpath" "1.4.1")))
+                   cider-jack-in-lein-plugins)))
+    (thread-last corpus
+      (seq-filter
+       (lambda (spec)
+         (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
+             (funcall pred spec)
+           t)))
+      (mapcar
+       (lambda (spec)
+         (seq-take spec 2))))))
 
 (defvar cider-jack-in-nrepl-middlewares nil
   "List of Clojure variable names.
@@ -584,10 +610,10 @@ of EXCLUSIONS can be provided as well.  The returned
 string is quoted for passing as argument to an inferior shell."
   (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
 
-(defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins)
+(defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins &optional lein-middlewares)
   "Create lein jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
-removed, LEIN-PLUGINS, and finally PARAMS."
+removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   (concat
    global-opts
    (unless (seq-empty-p global-opts) " ")
@@ -600,7 +626,11 @@ removed, LEIN-PLUGINS, and finally PARAMS."
                       (seq-map (lambda (plugin)
                                  (concat "update-in :plugins conj "
                                          (cider--list-as-lein-artifact plugin)))
-                               lein-plugins))
+                               lein-plugins)
+                      (seq-map (lambda (middleware)
+                                 (concat "update-in :middlewares conj "
+                                         middleware))
+                               lein-middlewares))
               " -- ")
    " -- "
    params))
@@ -614,6 +644,8 @@ one used."
   (let* ((deps-string (string-join
                        (seq-map (lambda (dep)
                                   (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))
+                                ;; NOTE: injecting Lein plugins for deps.edn projects
+                                ;; seems a bit dubious, worth revisiting at some point.
                                 (append dependencies cider-jack-in-lein-plugins))
                        " "))
          (middleware (mapconcat
@@ -675,13 +707,17 @@ dependencies."
             (cider-add-clojure-dependencies-maybe
              cider-jack-in-dependencies)
             cider-jack-in-dependencies-exclusions
-            (cider-jack-in-normalized-lein-plugins)))
+            (cider-jack-in-normalized-lein-plugins project-type)
+            (if cider-enrich-classpath
+                (append cider-jack-in-lein-middlewares
+                        '("cider.enrich-classpath/middleware"))
+              cider-jack-in-lein-middlewares)))
     ('boot (cider-boot-jack-in-dependencies
             global-opts
             params
             (cider-add-clojure-dependencies-maybe
              cider-jack-in-dependencies)
-            (cider-jack-in-normalized-lein-plugins)
+            (cider-jack-in-normalized-lein-plugins project-type)
             (cider-jack-in-normalized-nrepl-middlewares)))
     ('clojure-cli (cider-clojure-cli-jack-in-dependencies
                    global-opts
