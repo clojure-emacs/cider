@@ -463,6 +463,7 @@ This is done in a clean manner, without interfering with classloaders.
 Only available for Leiningen projects at the moment."
   :type 'boolean
   :group 'cider
+  :package-version '(cider . "1.2.0")
   :safe #'booleanp)
 
 (defcustom cider-jack-in-auto-inject-clojure nil
