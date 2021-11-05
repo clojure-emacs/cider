@@ -455,7 +455,7 @@ Should be newer than the required version for optimal results."
   :package-version '(cider . "1.2.0")
   :safe #'stringp)
 
-(defcustom cider-enrich-classpath-p t
+(defcustom cider-enrich-classpath t
   "Whether to use git.io/JiJVX for adding sources and javadocs to the classpath.
 
 This is done in a clean manner, without interfering with classloaders.
@@ -515,7 +515,7 @@ returned by this function does not include keyword arguments.
 
 PROJECT-TYPE will be observed, for avoiding injecting plugins
 where it doesn't make sense."
-  (let* ((corpus (if (and cider-enrich-classpath-p
+  (let* ((corpus (if (and cider-enrich-classpath
                           (eq project-type 'lein))
                      (append cider-jack-in-lein-plugins
                              '(("mx.cider/enrich-classpath" "1.4.1")))
@@ -708,7 +708,7 @@ dependencies."
              cider-jack-in-dependencies)
             cider-jack-in-dependencies-exclusions
             (cider-jack-in-normalized-lein-plugins project-type)
-            (if cider-enrich-classpath-p
+            (if cider-enrich-classpath
                 (append cider-jack-in-lein-middlewares
                         '("cider.enrich-classpath/middleware"))
               cider-jack-in-lein-middlewares)))
