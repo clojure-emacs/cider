@@ -80,6 +80,15 @@ TIP: The only ClojureScript REPL type that doesn't require any additional
 setup is the browser REPL. To use the Node.js REPL you'll need to install
 Node.js.
 
+CIDER will automatically try to check if the required dependencies (e.g. Clojure libraries and/or additional tools like Node.js) to start a certain
+ClojureScript REPL are present. If you happen to run into a faulty requirements
+check you can disable them like this:
+
+[source,lisp]
+----
+(setq cider-check-cljs-repl-requirements nil)
+----
+
 == Working with `.cljc` files
 
 Ordinarily, CIDER dispatches code from `clj` files to Clojure REPLs
