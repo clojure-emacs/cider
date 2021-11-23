@@ -49,9 +49,10 @@ Here's one example:
   (apply pp/write value (mapcat identity (assoc options :stream writer))))
 ----
 
-IMPORTANT: Due to a https://clojure.atlassian.net/browse/CLJ-1445[bug] in `clojure.pprint`
-it doesn't work properly with `+*print-meta*+`. If you need to print the metadata you'll
-have to change the print function or disable pretty-printing.
+IMPORTANT: Before Clojure 1.10.2, a
+https://clojure.atlassian.net/browse/CLJ-1445[bug] in `clojure.pprint` caused it
+to not work properly with `+*print-meta*+`. If you need to print the metadata
+you'll have to change the print function or disable pretty-printing.
 
 == Limiting printed output
 
