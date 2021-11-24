@@ -121,7 +121,11 @@ opposite of what that option dictates."
     (insert "\n== See Also\n\n")
     (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
         (dolist (see-also see-alsos)
-          (insert (format "* %s\n" see-also)))
+          (insert-text-button (format "* %s\n" see-also)
+			      'sym see-also
+                              'action (lambda (btn)
+                                        (cider-clojuredocs-lookup (button-get btn 'sym)))
+                              'help-echo (format "Middle click to jump to %s" see-also)))
       (insert "Not available\n"))
     (insert "\n== Examples\n\n")
     (if-let ((examples (nrepl-dict-get dict "examples")))
