@@ -1,4 +1,4 @@
-;;; cider-clojuredocs.el --- ClojureDocs integration -*- lexical-binding: t -*-
+;;; cider-clojuredocs.el --- ClojureDocs integration -*- lexical-binding: t -*-
 
 ;; Copyright © 2014-2021 Bozhidar Batsov and CIDER contributors
 ;;
@@ -122,7 +122,7 @@ opposite of what that option dictates."
     (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
         (dolist (see-also see-alsos)
           (insert-text-button (format "* %s\n" see-also)
-			      'sym see-also
+                              'sym see-also
                               'action (lambda (btn)
                                         (cider-clojuredocs-lookup (button-get btn 'sym)))
                               'help-echo (format "Middle click to jump to %s" see-also)))
