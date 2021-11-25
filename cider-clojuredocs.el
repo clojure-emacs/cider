@@ -1,4 +1,4 @@
-;;; cider-clojuredocs.el --- ClojureDocs integration -*- lexical-binding: t -*-
+;;; cider-clojuredocs.el --- ClojureDocs integration -*- lexical-binding: t -*-
 
 ;; Copyright © 2014-2021 Bozhidar Batsov and CIDER contributors
 ;;
