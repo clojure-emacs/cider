@@ -125,7 +125,7 @@ opposite of what that option dictates."
                               'sym see-also
                               'action (lambda (btn)
                                         (cider-clojuredocs-lookup (button-get btn 'sym)))
-                              'help-echo (format "Middle click to jump to %s" see-also)))
+                              'help-echo (format "Press Enter or middle click to jump to %s" see-also)))
       (insert "Not available\n"))
     (insert "\n== Examples\n\n")
     (if-let ((examples (nrepl-dict-get dict "examples")))
