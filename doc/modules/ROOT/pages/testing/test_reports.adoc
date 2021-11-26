@@ -1,7 +1,7 @@
 = Interacting with Test Result Reports
 :experimental:
 
-Shoud tests fail then CIDER displays a test result report in the
+Should tests fail then CIDER displays a test result report in the
 `+*cider-test-report*+` buffer. This buffer uses `cider-test-report-mode`,
 which makes it easy to review any failures that might have occurred
 and jump directly to the definition of failing tests.

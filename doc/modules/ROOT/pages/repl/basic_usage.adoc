@@ -38,7 +38,7 @@ On top of this the REPL is extremely configurable and you can tweak almost every
 == Interrupting Evaluations
 
 If you accidentally try to evaluate something that's going to take a lot of time (if it finishes at all), you
-can interrupt the rouge evaluation operation by pressing kbd:[C-c C-c].
+can interrupt the rogue evaluation operation by pressing kbd:[C-c C-c].
 
 TIP: Note that this is different from the keybinding for interrupting evaluations in source buffers,
 namely kbd:[C-c C-b].

@@ -294,7 +294,7 @@ image::spec_browser_gen_example.png[Spec Browser Example]
 
 == Formatting Code with cljfmt
 
-While CIDER has it's own code formatting (identation) engine, you can also
+While CIDER has it's own code formatting (indentation) engine, you can also
 use it together with `cljfmt` - that's useful if you're working on a team
 that uses different editors and IDEs.
 
