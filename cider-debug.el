@@ -93,7 +93,7 @@ If nil, don't list available keys at all."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-debug-use-overlays t
-  "Whether to higlight debugging information with overlays.
+  "Whether to highlight debugging information with overlays.
 Takes the same possible values as `cider-use-overlays', but only applies to
 values displayed during debugging sessions.
 To control the overlay that lists possible keys above the current function,

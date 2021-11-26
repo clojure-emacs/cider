@@ -375,7 +375,7 @@ MAX-COLL-SIZE if non nil."
     (when (eq cider-inspector-last-command 'cider-inspector-pop)
       (setq cider-inspector-last-command nil)
       ;; Prevents error message being displayed when we try to pop
-      ;; from the top-level of a data struture
+      ;; from the top-level of a data structure
       (when cider-inspector-location-stack
         (goto-char (pop cider-inspector-location-stack))))
 

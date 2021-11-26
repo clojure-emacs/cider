@@ -83,7 +83,7 @@ ARG is passed along to `undo-only'."
     (undo-only arg)))
 
 (defvar cider-last-macroexpand-expression nil
-  "Specify the last macroexpansion preformed.
+  "Specify the last macroexpansion performed.
 This variable specifies both what was expanded and the expander.")
 
 (defun cider-macroexpand-expr (expander expr)

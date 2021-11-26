@@ -270,7 +270,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
   (cider-insert-in-repl (cider-defun-at-point) arg))
 
 (defun cider-insert-region-in-repl (start end &optional arg)
-  "Insert the curent region in the REPL buffer.
+  "Insert the current region in the REPL buffer.
 START and END represent the region's boundaries.
 If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "rP")

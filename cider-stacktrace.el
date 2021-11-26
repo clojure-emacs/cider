@@ -415,7 +415,7 @@ grouped with a suppressed error type."
 
 (defun cider-stacktrace-cycle-cause (num &optional level)
   "Update element NUM of `cider-stacktrace-cause-visibility'.
-If LEVEL is specified, it is useed, otherwise its current value is incremented.
+If LEVEL is specified, it is used, otherwise its current value is incremented.
 When it reaches 3, it wraps to 0."
   (let ((level (or level (1+ (elt cider-stacktrace-cause-visibility num)))))
     (aset cider-stacktrace-cause-visibility num (mod level 3))

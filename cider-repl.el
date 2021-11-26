@@ -1027,7 +1027,7 @@ If NEWLINE is true then add a newline at the end of the input."
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
-Send the current input ony if a whole expression has been entered,
+Send the current input only if a whole expression has been entered,
 i.e. the parenthesis are matched.
 When END-OF-INPUT is non-nil, send the input even if the parentheses
 are not balanced."
@@ -1150,7 +1150,7 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
   (interactive)
   ;; TODO: Improve the boundaries detecting logic
   ;; probably it should be based on text properties
-  ;; the current implemetation will clear warnings as well
+  ;; the current implementation will clear warnings as well
   (let ((start (point-min))
         (end (save-excursion
                (goto-char (point-min))

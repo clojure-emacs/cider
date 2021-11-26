@@ -1109,7 +1109,7 @@ match groups:
     (emacs-bug-46284/when-27.1-windows-nt
      ;; There is a bug in emacs 27.1 (since fixed) that sets all EVENT
      ;; descriptions for signals to "unknown signal". We correct this by
-     ;; reseting it back to its canonical value.
+     ;; resetting it back to its canonical value.
      (when (eq (process-status process) 'signal)
        (cl-case (process-exit-status process)
          ;; SIGHUP==1 emacs nt/inc/ms-w32.h

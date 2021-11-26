@@ -348,7 +348,7 @@ it's turned on."
 (defun cider-repl-history-target-overlay-at (position &optional no-error)
   "Return overlay at POSITION that has property `cider-repl-history-target'.
 If no such overlay, raise an error unless NO-ERROR is true, in which
-case retun nil."
+case return nil."
   (let ((ovs  (overlays-at (point))))
     (catch 'cider-repl-history-target-overlay-at
       (dolist (ov ovs)

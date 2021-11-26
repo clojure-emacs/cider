@@ -124,7 +124,7 @@ any of the values is nil."
 (defun nrepl-dict-flat-map (function dict)
   "Map FUNCTION over DICT and flatten the result.
 FUNCTION follows the same restrictions as in `nrepl-dict-map', and it must
-also alway return a sequence (since the result will be flattened)."
+also always return a sequence (since the result will be flattened)."
   (when dict
     (apply #'append (nrepl-dict-map function dict))))
 

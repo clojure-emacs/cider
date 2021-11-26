@@ -263,7 +263,7 @@ CONTINUE is an optional continuation function."
 (defun cider-request:sideloader-start (&optional connection tooling)
   "Perform the nREPL \"sideloader-start\" op.
 If CONNECTION is nil, use `cider-current-repl'.
-If TOOLING is truthy then the operation is perfomed over the tooling
+If TOOLING is truthy then the operation is performed over the tooling
 session, rather than the regular session."
   (cider-ensure-op-supported "sideloader-start")
   (cider-nrepl-send-request `("op" "sideloader-start")
@@ -324,7 +324,7 @@ If CONNECTION is nil, use `cider-current-repl'."
 - If CONNECTION is nil, use `cider-current-repl'.
 - If TOOLING it truthy, use the tooling session instead of the main session.
 - CONTINUE is an optional continuation function, which will be called when the
-add-middleware op has finished succesfully."
+add-middleware op has finished successfully."
   (cider-nrepl-send-request `("op" "add-middleware"
                               "middleware" ,middlewares)
                             (cider-add-middleware-handler continue)
