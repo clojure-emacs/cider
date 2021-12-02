@@ -121,7 +121,11 @@ opposite of what that option dictates."
     (insert "\n== See Also\n\n")
     (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
         (dolist (see-also see-alsos)
-          (insert (format "* %s\n" see-also)))
+          (insert-text-button (format "* %s\n" see-also)
+                              'sym see-also
+                              'action (lambda (btn)
+                                        (cider-clojuredocs-lookup (button-get btn 'sym)))
+                              'help-echo (format "Press Enter or middle click to jump to %s" see-also)))
       (insert "Not available\n"))
     (insert "\n== Examples\n\n")
     (if-let ((examples (nrepl-dict-get dict "examples")))
@@ -140,7 +144,8 @@ opposite of what that option dictates."
 (defun cider-clojuredocs-lookup (sym)
   "Look up the ClojureDocs documentation for SYM."
   (let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
-    (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))))
+    (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
+    (highlight-regexp (car (last (split-string sym "/"))) 'bold)))
 
 ;;;###autoload
 (defun cider-clojuredocs (&optional arg)
