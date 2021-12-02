@@ -70,6 +70,48 @@ If you already have a running server watching a build (for instance
 you have already run `npx shadow-cljs watch :dev`), you can use the
 `shadow-select` CLJS REPL and specify `:dev` when prompted.
 
+=== Using shadow-cljs with deps.edn and custom repl initialization
+
+In case you want to manage your dependencies via https://clojure.org/guides/deps_and_cli[deps.edn], you can use a
+custom cljs-repl init form. This supposes you have shadow-cljs in your `deps.edn` dependencies.
+```clj
+{:paths ["src"]
+ :deps {...
+        thheller/shadow-cljs       {:mvn/version "2.15.6"}
+        ...
+        }
+ :aliases {:dev {:extra-paths ["dev"]}}}
+```
+
+Create a `:dev` alias with an extra source path of "dev" and add the following namespace
+```clj
+(ns user
+  (:require [shadow.cljs.devtools.api :as shadow]
+            [shadow.cljs.devtools.server :as server]))
+
+(defn cljs-repl
+  "Connects to a given build-id. Defaults to `:app`."
+  ([]
+   (cljs-repl :app))
+  ([build-id]
+   (server/start!)
+   (shadow/watch build-id)
+   (shadow/nrepl-select build-id)))
+```
+
+Supposing your build-id is `:app`, add the following to your `.dir-locals.el`
+```elisp
+((nil . ((cider-clojure-cli-global-options . "-A:dev")
+         (cider-preferred-build-tool       . clojure-cli)
+         (cider-default-cljs-repl          . custom)
+         (cider-custom-cljs-repl-init-form . "(do (user/cljs-repl))")
+         (eval . (progn
+                   (make-variable-buffer-local 'cider-jack-in-nrepl-middlewares)
+                   (add-to-list 'cider-jack-in-nrepl-middlewares "shadow.cljs.devtools.server.nrepl/middleware"))))))
+```
+
+`cider-jack-in-cljs` should then work out of the box.
+
 == Configuration
 
 You can tweak the command used by `cider-jack-in-cljs` to start the `shadow-cljs` server
