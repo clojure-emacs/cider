@@ -145,7 +145,7 @@ opposite of what that option dictates."
   "Look up the ClojureDocs documentation for SYM."
   (let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
     (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
-    (highlight-regexp (car (last (split-string sym "/"))) 'bold)))
+    (highlight-regexp (cadr (split-string sym "/")) 'bold)))
 
 ;;;###autoload
 (defun cider-clojuredocs (&optional arg)
