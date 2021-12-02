@@ -15,6 +15,7 @@
 * Upgrade `cider-nrepl`, `Orchard` and `clj-suitable` for pulling their latest bugfixes.
 * Add support for babaska projects to `cider-jack-in`.
 * Introduce `cider-jack-in-lein-middlewares` defcustom.
+* [#3093](https://github.com/clojure-emacs/cider/pull/3093): Make `see-also`s clickable in ClojureDocs buffers.
 
 ### Bugs fixed
 
