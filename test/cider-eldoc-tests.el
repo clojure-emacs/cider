@@ -79,7 +79,7 @@
       (expect (cider-eldoc-format-thing "clojure.core" "map" "map" 'function)
               :to-equal "clojure.core/map"))
 
-    (describe "when the given ns doesnt exist"
+    (describe "when the given ns doesn't exist"
       (it "returns eldoc formatted symbol"
         (let ((cider-eldoc-ns-function (lambda (ns) nil)))
           (expect (cider-eldoc-format-thing "non-existent-ns" "" "my-map" 'function)
@@ -240,7 +240,7 @@
   (before-each
     (spy-on 'window-width :and-return-value 177))
 
-  (it "returns the formated eldoc string"
+  (it "returns the formatted eldoc string"
     (expect (cider-eldoc-format-sym-doc "kubaru.core/plane" "kubaru.core" "Simple docstring.")
             :to-equal "kubaru.core/plane: Simple docstring."))
 

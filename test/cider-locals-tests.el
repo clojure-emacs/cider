@@ -126,7 +126,7 @@
         ("a" "b" "the-ns")
       (cider--read-locals-from-arglist)))
 
-  (it "understands clojure multi-arity functons"
+  (it "understands clojure multi-arity functions"
     (cider--test-with-content ("(defn| requires-ns-by-name (^Value [a & b] (+ a b)) ([the-ns] nil))"
                                ;; incomplete sexp
                                "(defn| requires-ns-by-name (^Value [a & b] (+ a b)) ([the-ns] nil")

@@ -274,7 +274,7 @@ If object is incomplete, return a decoded path."
                            "session" "6fc999d0-3795-4d51-85fc-ccca7537ee57"
                            "status" ("done"))))))
 
-  (describe "when bencode strings have deeply nested struture"
+  (describe "when bencode strings have deeply nested structure"
     :var (nrepl--toString-dicts nrepl--toString-strings)
 
     (it "decodes the structures"

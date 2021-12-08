@@ -570,7 +570,7 @@ within the scope of your current Emacs session.
 
 * [#1677](https://github.com/clojure-emacs/cider/issues/1677): Interpret `\r` as a newline.
 * [#1819](https://github.com/clojure-emacs/cider/issues/1819): Handle properly missing commands on `cider-jack-in`.
-* Add option to define exclusions for injected dependecies. Fixes [#1824](https://github.com/clojure-emacs/cider/issues/1824): Can no longer jack-in to an inherited clojure version.
+* Add option to define exclusions for injected dependencies. Fixes [#1824](https://github.com/clojure-emacs/cider/issues/1824): Can no longer jack-in to an inherited clojure version.
 * [#1820](https://github.com/clojure-emacs/cider/issues/1820): Don't try to display eldoc in EDN buffers.
 * [#1823](https://github.com/clojure-emacs/cider/issues/1823): Fix column location metadata set by interactive evaluation.
 * [#1859](https://github.com/clojure-emacs/cider/issues/1859): Make nREPL message log much faster. `nrepl-dict-max-message-size` custom variable was removed.
@@ -798,7 +798,7 @@ and try to associate the created connection with this project automatically.
 * [#1187](https://github.com/clojure-emacs/cider/pull/1187): The list of keys displayed by the debugger can be configured with `cider-debug-prompt`.
 * [#1187](https://github.com/clojure-emacs/cider/pull/1187): While debugging, there is a menu on the menu-bar listing available commands.
 * [#1184](https://github.com/clojure-emacs/cider/pull/1184): When the user kills the REPL buffer, CIDER will offer to kill the nrepl buffer and process too. Also, when the client (repl) process dies, the server (nrepl) process is killed too.
-* [#1182](https://github.com/clojure-emacs/cider/pull/1182): New command `cider-browse-instrumented-defs`, displays a buffer listing all defitions currently instrumented by the debugger.
+* [#1182](https://github.com/clojure-emacs/cider/pull/1182): New command `cider-browse-instrumented-defs`, displays a buffer listing all definitions currently instrumented by the debugger.
 * [#1182](https://github.com/clojure-emacs/cider/pull/1182): Definitions currently instrumented by the debugger are marked with a red box in the source buffer.
 * [#1174](https://github.com/clojure-emacs/cider/pull/1174): New command `cider-run`, runs the project's `-main` function.
 * [#1176](https://github.com/clojure-emacs/cider/pull/1176): While debugging, cider's usual eval commands will evaluate code in the current lexical context. Additionally, the <kbd>l</kbd> key now inspects local variables.
@@ -846,7 +846,7 @@ and try to associate the created connection with this project automatically.
 
 ### Bugs fixed
 
-* [#1142](https://github.com/clojure-emacs/cider/issues/1142): Don't retrive nrepl ports when `cider-known-endpoints` entry already contains the port.
+* [#1142](https://github.com/clojure-emacs/cider/issues/1142): Don't retrieve nrepl ports when `cider-known-endpoints` entry already contains the port.
 * [#1153](https://github.com/clojure-emacs/cider/pull/1153): Fix behavior of `cider-switch-to-current-repl-buffer`.
 * [#1139](https://github.com/clojure-emacs/cider/issues/1139): Fix evaluation of ns forms and of forms with unevaluated namespaces.
 * Replace `assert` with `cl-assert` (we don't use anything from `cl` now).
