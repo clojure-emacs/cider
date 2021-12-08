@@ -4,7 +4,7 @@
 
 Report issues and suggest features and improvements on the
 https://github.com/clojure-emacs/cider/issues[GitHub issue tracker]. Don't ask
-questions on the issue tracker - use the xref:support.adoc[support channels] instead.
+questions on the issue tracker - use the xref:about/support.adoc[support channels] instead.
 
 If you want to file a bug, please provide all the necessary info listed in
 our issue reporting template (it's loaded automatically when you create a
