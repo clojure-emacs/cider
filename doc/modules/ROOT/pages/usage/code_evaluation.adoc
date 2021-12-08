@@ -161,6 +161,22 @@ NOTE: CIDER internally increases the timeout to 30 seconds for the first sync ev
 
 == Configuration
 
+=== Display Spinner During Evaluation
+
+Some evaluation operations take a while to complete, so CIDER will display a
+visual indicator (a spinner) in the modeline to indicate this. The
+evaluation-in-progress spinner can be controlled by several variables:
+
+* `cider-eval-spinner-type` (default value `'progress-bar) -
+controls the appearance of the spinner. See `spinner-types`
+for all possible options.
+* `cider-eval-spinner-delay` controls the time (in seconds) after which to
+show the spinner. The default value is 1 second.
+* `cider-show-eval-spinner` controls whether to show the spinner at all.
+Set this variable to `nil` to disable it.
+
+NOTE: CIDER uses internally the excellent package https://github.com/Malabarba/spinner.el[spinner.el].
+
 === Overlays
 
 When you evaluate code in Clojure files, the result is displayed in the buffer
