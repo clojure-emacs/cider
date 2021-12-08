@@ -168,7 +168,8 @@
                                     (plist-get server-endpoint :port)
                                     server-process
                                     (lambda (client-endpoint)
-                                      client-buffer))))
+                                      client-buffer)
+                                    (plist-get params :socket-file))))
 
               ;; client connection is open
               (expect (process-status process-client)

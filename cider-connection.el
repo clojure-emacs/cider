@@ -85,7 +85,8 @@ PARAMS is a plist containing :host, :port, :server and other parameters for
     (plist-get params :port)
     (plist-get params :server)
     (lambda (_)
-      (cider-repl-create params)))))
+      (cider-repl-create params))
+    (plist-get params :socket-file))))
 
 (defun cider-sessions ()
   "Return a list of all active CIDER sessions."

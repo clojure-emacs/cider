@@ -1398,7 +1398,7 @@ non-nil, don't start if ClojureScript requirements are not met."
       (user-error "The %s executable isn't on your `exec-path'" command))))
 
 (defun cider--update-host-port (params)
-  "Update :host and :port in PARAMS."
+  "Update :host and :port; or :socket-file in PARAMS."
   (with-current-buffer (or (plist-get params :--context-buffer)
                            (current-buffer))
     (let* ((params (cider--update-do-prompt params))
@@ -1409,9 +1409,11 @@ non-nil, don't start if ClojureScript requirements are not met."
                        (if (and host port)
                            (cons host port)
                          (cider-select-endpoint)))))
-      (thread-first params
-        (plist-put :host (car endpoint))
-        (plist-put :port (cdr endpoint))))))
+      (if (equal "local-unix-domain-socket" (car endpoint))
+          (plist-put params :socket-file (cdr endpoint))
+        (thread-first params
+          (plist-put :host (car endpoint))
+          (plist-put :port (cdr endpoint)))))))
 
 (defun cider--update-cljs-init-function (params)
   "Update PARAMS :repl-init-function for cljs connections."
@@ -1491,11 +1493,14 @@ canceled the action, signal quit."
                                   cider-known-endpoints
                                   ssh-hosts
                                   ;; always add localhost
-                                  '(("localhost")))))
+                                  '(("localhost")
+                                    ("local-unix-domain-socket")))))
          (sel-host (cider--completing-read-host hosts))
          (host (car sel-host))
          (port (or (cadr sel-host)
-                   (cider--completing-read-port host (cider--infer-ports host ssh-hosts)))))
+                   (if (equal host "local-unix-domain-socket")
+                       (cider--completing-read-socket-file)
+                     (cider--completing-read-port host (cider--infer-ports host ssh-hosts))))))
     (cons host port)))
 
 (defun cider--ssh-hosts ()
@@ -1562,6 +1567,18 @@ of remote SSH hosts."
          (port (or (cdr (assoc sel-port ports)) sel-port))
          (port (if (listp port) (cadr port) port)))
     (if (stringp port) (string-to-number port) port)))
+
+(defun cider--completing-read-socket-file ()
+  "Interactively select unix domain socket file name."
+  (read-file-name "Socket File: " nil nil t nil
+                  (lambda (filename)
+                    "Predicate: auto-complete only socket-files and directories"
+                    (let ((filetype (string-to-char
+                                     (file-attribute-modes
+                                      (file-attributes
+                                       filename)))))
+                      (or (eq ?s filetype)
+                          (eq ?d filetype))))))
 
 (defun cider-locate-running-nrepl-ports (&optional dir)
   "Locate ports of running nREPL servers.

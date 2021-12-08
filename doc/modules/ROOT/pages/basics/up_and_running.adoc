@@ -269,6 +269,26 @@ cause problems with complex or nonstandard ssh configs.
 You can safely run `cider-jack-in-*` while working with remote files over TRAMP. CIDER
 will handle this use-case transparently for you.
 
+== Connecting via unix domain file socket
+
+When locally running nREPL servers, there is the option to listen on a
+socket file instead of opening a network port. This can have
+advantages in some use cases, e.g. when working with virtual networks
+(containers) where sharing a file socket can be vastly simpler than
+managing bridge networks and firewall setups.
+
+After having started an nREPL server on a file socket, e.g. with the
+`clj` command (see https://nrepl.org/nrepl/usage/server.html for other
+examples),
+
+[source,sh]
+----
+$ clj -R:nREPL -m nrepl.cmdline --socket nrepl.sock
+----
+
+you can then connect CIDER by using the `local-unix-domain-socket`
+special hostname with `cider-connect`: kbd:[M-x] `cider-connect` kbd:[RET] `local-unix-domain-socket` kbd:[RET] `nrepl.sock` kbd:[RET]
+
 == What's Next?
 
 So, what to do next now that CIDER's ready for action? Here are a few ideas:
