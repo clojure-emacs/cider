@@ -271,6 +271,10 @@ will handle this use-case transparently for you.
 
 == Connecting via unix domain file socket
 
+NOTE: Unix socket support was introduced in nREPL 0.9. Currently
+CIDER's support for Unix sockets is considered experimental and its
+interface might change in future CIDER releases.
+
 When locally running nREPL servers, there is the option to listen on a
 socket file instead of opening a network port. This can have
 advantages in some use cases, e.g. when working with virtual networks
@@ -287,7 +291,7 @@ $ clj -R:nREPL -m nrepl.cmdline --socket nrepl.sock
 ----
 
 you can then connect CIDER by using the `local-unix-domain-socket`
-special hostname with `cider-connect`: kbd:[M-x] `cider-connect` kbd:[RET] `local-unix-domain-socket` kbd:[RET] `nrepl.sock` kbd:[RET]
+special hostname with `cider-connect`: kbd:[M-x] `cider-connect` kbd:[RET] `local-unix-domain-socket` kbd:[RET] `nrepl.sock` kbd:[RET].
 
 == What's Next?
 
