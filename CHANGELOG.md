@@ -7,7 +7,7 @@
 * Integrate [enrich-classpath](https://github.com/clojure-emacs/enrich-classpath) by default for Leiningen projects.
   * This enables functionality related to Java sources, javadocs or parsing thereof.
   * This can slightly slow down jack-in for the _first_ time for a given project; later on the related work will be cached.
-* [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add xref integration, configured with customizable variables cider-use-xref and cider-xref-fn-depth.
+* [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add `xref` integration, configured with customizable variables `cider-use-xref` and `cider-xref-fn-depth`.
 * [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
 * [#3040](https://github.com/clojure-emacs/cider/pull/3040): Support invoking `cider-clojuredocs` within the `*clojuredocs*` buffer.
 * Make it possible to specify the version of `cider-nrepl` to use with `cider-jack-in`. See `cider-injected-middleware-version`.
@@ -16,20 +16,20 @@
 * Add support for babaska projects to `cider-jack-in`.
 * Introduce `cider-jack-in-lein-middlewares` defcustom.
 * [#3093](https://github.com/clojure-emacs/cider/pull/3093): Make `see-also`s clickable in ClojureDocs buffers.
+* [#3044](https://github.com/clojure-emacs/cider/pull/3044): Dynamically upgrade nREPL connection. See `cider-upgrade-nrepl-connection`.
 
 ### Bugs fixed
 
-* [#3022](https://github.com/clojure-emacs/cider/issues/3022): Handle empty stacktraces, pointing users to docs about the OmitStackTraceInFastThrow JVM optimization.
+* [#3022](https://github.com/clojure-emacs/cider/issues/3022): Handle empty stacktraces, pointing users to docs about the `OmitStackTraceInFastThrow` JVM optimization.
 * [#3020](https://github.com/clojure-emacs/cider/issues/3020): Fix session linking on Windows, e.g. when jumping into a library on the classpath.
 * [#3031](https://github.com/clojure-emacs/cider/pull/3031): Fix `cider-eval-defun-up-to-point` failing to match delimiters correctly in some cases, resulting in reader exceptions.
 * [#3039](https://github.com/clojure-emacs/cider/pull/3039): Allow starting the sideloader for the tooling session.
-* [#3041](https://github.com/clojure-emacs/cider/pull/3041): Sideloader: handle binary files, support multiple directories
-* [#3044](https://github.com/clojure-emacs/cider/pull/3044): Dynamically upgrade nREPL connection
-* [#3047](https://github.com/clojure-emacs/cider/pull/3047): Fix info/lookup fallback: response has an extra level
+* [#3041](https://github.com/clojure-emacs/cider/pull/3041): Sideloader: handle binary files, support multiple directories.
+* [#3047](https://github.com/clojure-emacs/cider/pull/3047): Fix info/lookup fallback: response has an extra level.
 * [#2746](https://github.com/clojure-emacs/cider/issues/2746): Handle gracefully Clojure versions with non-standard qualifiers (e.g. `1.11.0-master-SNAPSHOT`).
-* [#3069](https://github.com/clojure-emacs/cider/pull/3069): Fix cursor color changing when it shouldn't in evil-mode
-* [#3071](https://github.com/clojure-emacs/cider/issues/3071): Use xref instead of etags to push point to marker stack
-* [#3074](https://github.com/clojure-emacs/cider/issues/3074): Recognize pwsh as a powershell executable
+* [#3069](https://github.com/clojure-emacs/cider/pull/3069): Fix cursor color changing when it shouldn't in `evil-mode`.
+* [#3071](https://github.com/clojure-emacs/cider/issues/3071): Use `xref` instead of `etags` to push point to marker stack.
+* [#3074](https://github.com/clojure-emacs/cider/issues/3074): Recognize `pwsh` as a `powershell` executable.
 
 ## 1.1.1 (2021-05-24)
 
