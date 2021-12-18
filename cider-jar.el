@@ -32,7 +32,7 @@
 
 
 (defvar cider-jar-cache-dir (expand-file-name "cider-cache" user-emacs-directory)
-  "Location where we store dowloaded files for later use.")
+  "Location where we store downloaded files for later use.")
 
 (defvar cider-jar-content-cache (make-hash-table :test #'equal)
   "Nested hash table of jar-path -> file-path -> bool.

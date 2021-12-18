@@ -33,7 +33,7 @@ The minimum required Clojure version is currently derived using data
 from the
 https://clojure.org/news/2019/02/04/state-of-clojure-2020[State of
 Clojure] survey. In general we consider a Clojure release eligible for
-dropping once its usage drops bellow 5%, but we'd not drop support for
+dropping once its usage drops below 5%, but we'd not drop support for
 any release just for the sake of doing it. We'd do it only if
 this would lessen the maintenance burden or open up the possibility for
 big CIDER improvements.

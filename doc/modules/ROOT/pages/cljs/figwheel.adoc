@@ -1,7 +1,7 @@
 = Using Figwheel
 :experimental:
 
-Figwheel is one of the most popular ClojureScript REPLs today. Bellow you'll
+Figwheel is one of the most popular ClojureScript REPLs today. Below you'll
 instructions how to setup and use it with CIDER.
 
 NOTE: There are two versions of Figwheel out there - the legacy https://github.com/bhauman/lein-figwheel[figwheel] and

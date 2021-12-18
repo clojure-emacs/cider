@@ -35,7 +35,7 @@
   (it "handles nil input"
     (expect (cider-abbreviate-ns nil) :to-equal nil))
 
-  (it "handles empty string intput"
+  (it "handles empty string input"
     (expect (cider-abbreviate-ns "") :to-equal ""))
 
   (it "shortens all ns segments but the last"
@@ -48,7 +48,7 @@
   (it "handles nil input"
     (expect (cider-last-ns-segment nil) :to-equal nil))
 
-  (it "handles empty string intput"
+  (it "handles empty string input"
     (expect (cider-last-ns-segment "") :to-equal ""))
 
   (it "drops all ns segments but the last"

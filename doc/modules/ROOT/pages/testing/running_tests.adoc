@@ -120,7 +120,7 @@ This uses the convention of prepending 'test-' to the namespace name."
 If you have selectors you want
 automatically applied, you can set the variables
 `cider-test-default-include-selectors` and `cider-test-default-exclude-selectors`
-to a list of stings to use. The following is an example of setting the default exclude
+to a list of strings to use. The following is an example of setting the default exclude
 selectors so that tests tagged as "integration" or "flakey" don't run.
 
 [source,lisp]
