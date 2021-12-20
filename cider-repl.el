@@ -424,7 +424,7 @@ present."
 ;; In case you're seeing any warnings you should consult the manual's
 ;; \"Troubleshooting\" section.
 ;;
-;; Here are few tips to get you started:
+;; Here are a few tips to get you started:
 ;;
 ;; * Press <\\[describe-mode]> to see a list of the keybindings available (this
 ;;   will work in every Emacs buffer)
