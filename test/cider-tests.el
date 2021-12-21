@@ -124,7 +124,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.10.0-SNAPSHOT\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/enrich-classpath \"1.5.0\"]")
-                                " -- update-in :middlewares conj cider.enrich-classpath/middleware"
+                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with an exclusion"
@@ -137,7 +137,7 @@
                          (shell-quote-argument "[cider/cider-nrepl \"0.10.0-SNAPSHOT\"]")
                          " -- update-in :plugins conj "
                          (shell-quote-argument "[mx.cider/enrich-classpath \"1.5.0\"]")
-                         " -- update-in :middlewares conj cider.enrich-classpath/middleware"
+                         " -- update-in :middleware conj cider.enrich-classpath/middleware"
                          " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
@@ -149,7 +149,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.10.0-SNAPSHOT\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/enrich-classpath \"1.5.0\"]")
-                                " -- update-in :middlewares conj cider.enrich-classpath/middleware"
+                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
@@ -184,7 +184,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.11.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/enrich-classpath \"1.5.0\"]")
-                                " -- update-in :middlewares conj cider.enrich-classpath/middleware"
+                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
@@ -217,7 +217,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.11.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/enrich-classpath \"1.5.0\"]")
-                                " -- update-in :middlewares conj cider.enrich-classpath/middleware"
+                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
     (it "can concat in a boot project"
       (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" 'boot)
@@ -293,7 +293,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.11.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/enrich-classpath \"1.5.0\"]")
-                                " -- update-in :middlewares conj cider.enrich-classpath/middleware"
+                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless"))))
 
   (describe "when the middleware and plugin lists have been normalized (Boot)"
