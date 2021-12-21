@@ -629,7 +629,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
                                          (cider--list-as-lein-artifact plugin)))
                                lein-plugins)
                       (seq-map (lambda (middleware)
-                                 (concat "update-in :middlewares conj "
+                                 (concat "update-in :middleware conj "
                                          middleware))
                                lein-middlewares))
               " -- ")
