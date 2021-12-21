@@ -101,7 +101,9 @@ version from the CIDER package or library.")
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
-  "lein"
+  ;; bootclasspath is an optimization that makes the `clojure.instant' ns unreachable,
+  ;; and can be problematic for Lein plugins (like enrich-classpath, or any user-specified plugins)
+  "LEIN_USE_BOOTCLASSPATH=no lein"
   "The command used to execute Leiningen."
   :type 'string
   :group 'cider)
