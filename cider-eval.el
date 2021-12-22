@@ -197,14 +197,14 @@ When not set the cider-nrepl jar will be added automatically when upgrading
 an nREPL connection."
   :type 'list
   :group 'cider
-  :package-version '(cider . "0.27.0"))
+  :package-version '(cider . "1.2.0"))
 
 (defcustom cider-dynload-cider-nrepl-version nil
   "Version of the cider-nrepl jar used for dynamically upgrading a connection.
-Defaults to `cider-required-middleware-version'"
+Defaults to `cider-required-middleware-version'."
   :type 'string
   :group 'cider
-  :package-version '(cider . "0.27.0"))
+  :package-version '(cider . "1.2.0"))
 
 (defun cider-read-bytes (path)
   "Read binary data from PATH.
