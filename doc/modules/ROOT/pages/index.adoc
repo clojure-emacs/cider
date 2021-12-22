@@ -86,6 +86,8 @@ image::cider-overview.png[CIDER Screenshot]
 Here the user checked the documentation for `clojure.core/merge` straight from the source buffer
 and then jumped to a REPL buffer to try out something there.
 
+You can find several demo videos on the xref:additional_resources.adoc[Additional Resources] page.
+
 == What's Next?
 
 So, what to do next? While you can peruse the documentation in whatever way you’d like, here are a few recommendations:

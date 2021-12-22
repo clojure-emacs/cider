@@ -41,6 +41,12 @@ efficient Clojure programmer.
 
 == Demos
 
+[quote, Clorpheus]
+____
+Unfortunately, no one can be told what interactive programming is. You have
+to see it for yourself.
+____
+
 The above description might sound a bit too "meta", so probably checking out
 some demos illustrating the interactive programming workflow will help you
 understand the key concepts better. Here are a few ideas:
@@ -48,9 +54,6 @@ understand the key concepts better. Here are a few ideas:
 * https://www.youtube.com/watch?v=aYA4AAjLfT0[Deep Dive into CIDER] - an overview of CIDER's essential features
 * https://www.youtube.com/watch?v=O6g5C4jUCUc[Emacs & Clojure, A Lispy Love Affair] - an overview of all popular Emacs packages for Clojure development (including CIDER)
 * https://www.youtube.com/watch?v=4ecC3jqHooc[Clojure Development Workflow with Spacemacs and CIDER]
-* https://www.youtube.com/playlist?list=PLdKXxqwRv6_y7rHHjbrK38E59t9ost3o3[Productive Emacs (CIDER)] - a bunch of short videos showcasing different aspects of CIDER
-* https://www.youtube.com/watch?v=mSRxiYNk3bY[Learning CIDER - 1 - Jacking into the REPL]
-* https://www.youtube.com/watch?v=efPPh2jUrkg[Clojure in Emacs from absolute zero]
 
 NOTE: As CIDER is evolving rapidly, some of the information in those videos would likely be outdated by the time you get to watch them. Still,
 the core ideas of interactive programming are immutable, so whatever differences you come to observe and experience will likely be superficial.

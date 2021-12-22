@@ -12,6 +12,10 @@ https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.pdf[her
 * https://www.youtube.com/watch?v=O6g5C4jUCUc[Emacs & Clojure, A Lispy Love Affair] - an overview of all popular Emacs packages for Clojure development (including CIDER)
 * https://www.youtube.com/watch?v=IvTDzKVL58Y[Dark CIDER] - a talk featuring a demo of some less known features in CIDER (fast-forward to the 30th minute for the demo part)
 * https://cestlaz.github.io/post/using-emacs-63-clojurescript/[Using Emacs: ClojureScript] - an introduction to using CIDER for ClojureScript programming
+* https://www.youtube.com/playlist?list=PLdKXxqwRv6_y7rHHjbrK38E59t9ost3o3[Productive Emacs (CIDER)] - a bunch of short videos showcasing different aspects of CIDER
+* https://www.youtube.com/watch?v=mSRxiYNk3bY[Learning CIDER - 1 - Jacking into the REPL]
+* https://www.youtube.com/watch?v=efPPh2jUrkg[Clojure in Emacs from absolute zero]
+* https://www.youtube.com/watch?v=4ecC3jqHooc[Clojure Development Workflow with Spacemacs and CIDER]
 
 == Presentations
 
