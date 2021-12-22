@@ -114,7 +114,8 @@
       (setq-local cider-jack-in-dependencies '(("nrepl/nrepl" "0.5.3")))
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-lein-plugins '(("cider/cider-nrepl" "0.10.0-SNAPSHOT")))
-      (setq-local cider-jack-in-dependencies-exclusions '()))
+      (setq-local cider-jack-in-dependencies-exclusions '())
+      (setq-local cider-enrich-classpath t))
 
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
