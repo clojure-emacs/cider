@@ -297,3 +297,13 @@ Or by customising the jack-in options.
 ---
 
 NOTE: Leiningen disables `OmitStackTraceInFastThrow` by default.
+
+=== Errors Related to enrich-classpath
+
+If you get any errors related to `enrich-classpath` when doing `cider-jack-in`, you can disable
+the `enrich-classpath` integration like this:
+
+[source,lisp]
+----
+(setq cider-enrich-classpath nil)
+----

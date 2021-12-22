@@ -35,6 +35,12 @@ Use the convenient plugin for defaults, either in your project's
           [mx.cider/enrich-classpath "x.y.z"]]
 ----
 
+https://github.com/clojure-emacs/enrich-classpath[enrich-classpath] is a library (and Leiningen plugin) that, as its main feature, automatically downloads all available `.jars` with Java sources and javadocs for a given project, so that various tools (e.g. CIDER) can access it. Simply put - it allows you to navigate to Java sources and
+javadocs in your Clojure projects.
+
+NOTE: `enrich-classpath` has a bit of a startup cost associated with it, the first time Java sources and javadocs are fetched. It can be turned
+off by setting `cider-enrich-classpath` to `nil`.
+
 A minimal `profiles.clj` for CIDER would be:
 
 [source,clojure]
