@@ -1,5 +1,7 @@
 name: cider
 title: CIDER
-version: "master"
+# We always provide version without patch here (e.g. 1.1),
+# as patch versions should not appear in the docs.
+version: "1.2"
 nav:
 - modules/ROOT/nav.adoc

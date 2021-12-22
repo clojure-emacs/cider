@@ -2,11 +2,14 @@
 
 ## master (unreleased)
 
+## 1.2.0 (2021-12-22)
+
 ### New features
 
 * Integrate [enrich-classpath](https://github.com/clojure-emacs/enrich-classpath) by default for Leiningen projects.
   * This enables functionality related to Java sources, javadocs or parsing thereof.
   * This can slightly slow down jack-in for the _first_ time for a given project; later on the related work will be cached.
+  * The feature is experimental at this point and needs to be enabled with `(setq cider-enrich-classpath t)`.
 * [#2831](https://github.com/clojure-emacs/cider/issues/2831): Add `xref` integration, configured with customizable variables `cider-use-xref` and `cider-xref-fn-depth`.
 * [#3017](https://github.com/clojure-emacs/cider/issues/3017): Annotate company completion kinds.
 * [#3040](https://github.com/clojure-emacs/cider/pull/3040): Support invoking `cider-clojuredocs` within the `*clojuredocs*` buffer.
