@@ -190,6 +190,17 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 
 
 ;;; Sideloader
+;;
+;; nREPL includes sideloader middleware which provides a Java classloader that
+;; is able to dynamically load classes and resources at runtime by interacting
+;; with the nREPL client (as opposed to using the classpath of the JVM hosting
+;; nREPL server).
+;;
+;; This performs a similar functionality as the load-file
+;; operation, where we can load Clojure namespaces (as source files) or Java
+;; classes (as bytecode) by simply requiring or importing them.
+;;
+;; See https://nrepl.org/nrepl/design/middleware.html#sideloading
 
 (defcustom cider-sideloader-path nil
   "List of directories and jar files to scan for sideloader resources.
