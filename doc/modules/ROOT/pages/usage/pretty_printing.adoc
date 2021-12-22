@@ -83,17 +83,17 @@ options supported by every print engine.
 |===
 | `clojure.core/pr` | `clojure.pprint` | Fipp & Puget | zprint
 
-| `clojure.core/+*print-length*+`
+| `+clojure.core/*print-length*+`
 | `length`
 | `print-length`
 | `max-length`
 
-| `clojure.core/+*print-level*+`
+| `+clojure.core/*print-level*+`
 | `level`
 | `print-level`
 | `max-depth`
 
-| `clojure.pprint/+*print-right-margin*+`
+| `+clojure.pprint/*print-right-margin*+`
 | `right-margin`
 | `width`
 | `width`
