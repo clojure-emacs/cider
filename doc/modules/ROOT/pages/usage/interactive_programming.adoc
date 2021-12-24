@@ -57,3 +57,5 @@ understand the key concepts better. Here are a few ideas:
 
 NOTE: As CIDER is evolving rapidly, some of the information in those videos would likely be outdated by the time you get to watch them. Still,
 the core ideas of interactive programming are immutable, so whatever differences you come to observe and experience will likely be superficial.
+
+You can find more CIDER demos on the xref:additional_resources["Additional Resources"] page.

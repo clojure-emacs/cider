@@ -1,5 +1,11 @@
 = Additional Resources
 
+Here we're collecting external resources on CIDER that are complementary to the
+user's manual. Please, keep in mind that as CIDER is constantly evolving, some
+of those resources might be out-of-date by the time you get to them.
+
+NOTE: Feel free to submit any useful CIDER resources that you've come across.
+
 == Quick reference
 
 A single-page quick reference PDF for CIDER commands is available
