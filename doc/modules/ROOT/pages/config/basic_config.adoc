@@ -251,11 +251,15 @@ typical location is `+C:\Program Files\Java\{jdk-version}\src.zip+`
 and on macOS it's `+/Library/Java/JavaVirtualMachines/{jdk-version}/Contents/Home/src.zip+`.
 
 On Linux distributions usually the source code is distributed as a separate package.
-Here's how do get the JDK 8 source on Ubuntu:
+Here's how do get the JDK 8 source on Debian/Ubuntu:
 
- sudo apt install openjdk-8-source
+ $ sudo apt install openjdk-8-source
 
 The zip is installed to `/usr/lib/jvm/openjdk-8/src.zip`.
+
+Here's how to get the JDK 11 source on Red Hat/Fedora:
+
+ $ sudo dnf install java-11-openjdk-src
 
 You can download Clojure Java source code from
 https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/clojure-1.8.0-sources.jar[here].

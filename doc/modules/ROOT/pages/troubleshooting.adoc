@@ -307,3 +307,23 @@ the `enrich-classpath` integration like this:
 ----
 (setq cider-enrich-classpath nil)
 ----
+
+=== Navigation to JDK sources doesn't work
+
+If you can't navigate to the source of built-in methods like `.toUpperCase` you
+probably haven't installed the JDK sources. While you're at it - it's good to
+install the JDK's Javadocs as well. On Debian/Ubuntu:
+
+[source,shell]
+----
+$ sudo apt install openjdk-11-source openjdk-11-doc
+----
+
+On Red Hat/Fedora/CentOS:
+
+[source,shell]
+----
+$ sudo dnf install java-11-openjdk-src java-11-openjdk-javadoc
+----
+
+NOTE: On Windows and macOS the JDK source code is bundled with the JDK.
