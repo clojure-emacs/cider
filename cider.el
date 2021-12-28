@@ -524,7 +524,7 @@ where it doesn't make sense."
   (let* ((corpus (if (and cider-enrich-classpath
                           (eq project-type 'lein))
                      (append cider-jack-in-lein-plugins
-                             '(("mx.cider/enrich-classpath" "1.5.1")))
+                             '(("mx.cider/enrich-classpath" "1.6.2")))
                    cider-jack-in-lein-plugins)))
     (thread-last corpus
       (seq-filter
