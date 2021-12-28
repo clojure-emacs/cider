@@ -397,8 +397,10 @@ propertized (defaults to current buffer)."
 A codename is added to stable versions."
   (if (string-match-p "-snapshot" cider-version)
       (if cider-package-version
+          ;; snapshot versions include the MELPA package version
           (format "%s (package: %s)" cider-version cider-package-version)
         cider-version)
+    ;; stable versions include the codename of the release
     (format "%s (%s)" cider-version cider-codename)))
 
 
