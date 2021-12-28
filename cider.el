@@ -95,8 +95,7 @@
 (require 'package)
 
 (defconst cider-version
-  (eval-when-compile
-    (lm-version (or load-file-name buffer-file-name)))
+  (lm-version (or load-file-name buffer-file-name))
   "The current version of CIDER.")
 
 (defconst cider-package-version (package-get-version)
