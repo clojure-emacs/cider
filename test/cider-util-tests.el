@@ -57,6 +57,7 @@ buffer."
 
   (it "handles snapshot versions"
     (setq cider-version "0.11.0-snapshot"
+          cider-package-version "20160301.2217"
           cider-codename "Victory")
     (expect (cider--version) :to-equal "0.11.0snapshot (package: 20160301.2217)")))
 

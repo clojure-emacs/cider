@@ -395,7 +395,9 @@ propertized (defaults to current buffer)."
   "Retrieve CIDER's version.
 A codename is added to stable versions."
   (if (string-match-p "-snapshot" cider-version)
-      cider-version
+      (if cider-package-version
+          (format "%s (package: %s)" cider-version cider-package-version)
+        cider-version)
     (format "%s (%s)" cider-version cider-codename)))
 
 

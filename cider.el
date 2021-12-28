@@ -91,11 +91,16 @@
 (require 'subr-x)
 (require 'seq)
 (require 'sesman)
+(require 'lisp-mnt)
+(require 'package)
 
 (defconst cider-version
   (eval-when-compile
     (lm-version (or load-file-name buffer-file-name)))
   "The current version of CIDER.")
+
+(defconst cider-package-version (package-get-version)
+  "The version of the currently installed CIDER package")
 
 (defconst cider-codename "Nice"
   "Codename used to denote stable releases.")
