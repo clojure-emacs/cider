@@ -388,20 +388,15 @@ propertized (defaults to current buffer)."
     (unless (equal "unspecified-bg" color)
       (color-lighten-name color (if darkp 5 -5)))))
 
-(autoload 'pkg-info-version-info "pkg-info.el")
-
 (defvar cider-version)
 (defvar cider-codename)
 
 (defun cider--version ()
   "Retrieve CIDER's version.
 A codename is added to stable versions."
-  (let ((version (condition-case nil
-                     (pkg-info-version-info 'cider)
-                   (error cider-version))))
-    (if (string-match-p "-snapshot" cider-version)
-        version
-      (format "%s (%s)" version cider-codename))))
+  (if (string-match-p "-snapshot" cider-version)
+      cider-version
+    (format "%s (%s)" cider-version cider-codename)))
 
 
 ;;; Strings

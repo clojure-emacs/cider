@@ -50,20 +50,12 @@ buffer."
 (describe "cider--version"
   :var (cider-version cider-codename)
 
-  (it "handles version unavailable error"
-    (spy-on 'pkg-info-version-info :and-throw-error '(error "No version"))
-    (setq cider-version "0.11.0"
-          cider-codename "Victory")
-    (expect (cider--version) :to-equal "0.11.0 (Victory)"))
-
   (it "returns correct version number when available"
-    (spy-on 'pkg-info-version-info :and-return-value "0.11.0")
     (setq cider-version "0.11.0"
           cider-codename "Victory")
     (expect (cider--version) :to-equal "0.11.0 (Victory)"))
 
   (it "handles snapshot versions"
-    (spy-on 'pkg-info-version-info :and-return-value "0.11.0snapshot (package: 20160301.2217)")
     (setq cider-version "0.11.0-snapshot"
           cider-codename "Victory")
     (expect (cider--version) :to-equal "0.11.0snapshot (package: 20160301.2217)")))
