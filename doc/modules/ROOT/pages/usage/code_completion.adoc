@@ -122,3 +122,13 @@ dependencies that were loaded dynamically after the REPL was started (e.g. via
 Boot). Executing `M-x cider-completion-flush-caches` (or going through the menu
 `+CIDER Interaction->Misc->Flush completion cache+`) forces the completion backend
 to re-read all classes it can find on the classpath.
+
+== Implementation Details
+
+NOTE: You don't really need to know any of this if you're using only `cider-jack-in`.
+
+The bulk of the code completion logic resides in `cider-nrepl` https://github.com/clojure-emacs/cider-nrepl/blob/master/src/cider/nrepl/middleware/complete.clj[completion middleware]. Internally it delegates to `compliment` for the Clojure completion and `clj-suitable` for the ClojureScript completion.
+
+Starting with nREPL 0.8, there's also a built-in `completions` nREPL op that CIDER will fallback to, in the absence of `cider-nrepl`. Its API is similar to that of the `complete` op in `cider-nrepl` and it can be configured to use different completion functions. The built-in op currently supports only Clojure. See the https://nrepl.org/nrepl/usage/misc.html#code-completion[nREPL docs] for more details.
+
+Basically, you'll get great code completion in the presence of `cider-nrepl` and basic completion otherwise.
