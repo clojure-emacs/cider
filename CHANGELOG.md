@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+* Upgrade [enrich-classpath](https://github.com/clojure-emacs/enrich-classpath), which fixes various edge cases.
+  * Remember: at the moment the enrich-classpath is disabled by default. It will soon be enabled again. If you wish to try it out, you can customize `cider-enrich-classpath` to `t`.
+  * Also remember: for it to work, on Linux, you'll also have to do something like `sudo apt install openjdk-11-source` (depending on your package manager and JDK of choice).
+
 ## 1.2.0 (2021-12-22)
 
 ### New features
