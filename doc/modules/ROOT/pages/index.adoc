@@ -33,12 +33,12 @@ Programmers are expected to program in a very dynamic and incremental manner,
 constantly re-evaluating existing Clojure definitions and adding new ones to
 their running applications. You never stop/start a Clojure application while
 using CIDER - you're constantly interacting with it and changing it.
+Depending on who you're asking that approach is named either "interactive
+programming/development" or "REPL-driven programming". We prefer the former
+term and we'll be using it throughout CIDER's documentation.
 
-You can find more details about the typical CIDER workflow in the
-xref:usage/interactive_programming.adoc[Interactive Programming] section. While we're a bit
-short on video tutorials, you can check out this
-https://www.youtube.com/watch?v=aYA4AAjLfT0[introduction to CIDER] to get a
-feel about what do we mean by an "Interactive Development Environment".
+TIP: You can find more details about the typical CIDER workflow in the
+xref:usage/interactive_programming.adoc[Interactive Programming] section.
 
 CIDER's built on top of https://github.com/nrepl/nrepl[nREPL], the Clojure networked REPL server.
 
@@ -86,7 +86,11 @@ image::cider-overview.png[CIDER Screenshot]
 Here the user checked the documentation for `clojure.core/merge` straight from the source buffer
 and then jumped to a REPL buffer to try out something there.
 
-You can find several demo videos on the xref:additional_resources.adoc[Additional Resources] page.
+Here's also a video demo of CIDER's essential functionality:
+
+video::aYA4AAjLfT0[youtube]
+
+You can find several other demo videos on the xref:additional_resources.adoc[Additional Resources] page.
 
 == What's Next?
 
