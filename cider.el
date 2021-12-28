@@ -100,7 +100,7 @@
   "The current version of CIDER.")
 
 (defconst cider-package-version (package-get-version)
-  "The version of the currently installed CIDER package")
+  "The version of the currently installed CIDER package.")
 
 (defconst cider-codename "Nice"
   "Codename used to denote stable releases.")
