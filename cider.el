@@ -95,7 +95,10 @@
 (require 'package)
 
 (defconst cider-version
-  (lm-version (or load-file-name buffer-file-name))
+  (lm-version
+   (replace-regexp-in-string
+    "\\.elc$" ".el"
+    (or load-file-name buffer-file-name)))
   "The current version of CIDER.")
 
 (defconst cider-package-version (package-get-version)
