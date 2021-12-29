@@ -37,7 +37,6 @@
 
 (require 'cider-client)
 (require 'cider-popup)
-(require 'cider-compat)
 (require 'cider-util)
 (require 'nrepl-dict)
 

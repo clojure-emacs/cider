@@ -33,7 +33,6 @@
 (require 'subr-x)
 
 (require 'cider-common)
-(require 'cider-compat)
 (require 'cider-client)
 (require 'cider-popup)
 (require 'cider-util)

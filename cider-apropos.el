@@ -29,7 +29,6 @@
 (require 'cider-find) ; for cider--find-var
 (require 'cider-util)
 (require 'subr-x)
-(require 'cider-compat)
 (require 'cider-connection) ; for cider-ensure-connected
 
 (require 'cider-client)

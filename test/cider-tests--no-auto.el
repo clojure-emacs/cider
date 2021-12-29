@@ -33,7 +33,6 @@
 (require 'buttercup)
 (require 'cider)
 (require 'subr-x)
-(require 'cider-compat)
 
 ;;; Docs
 ;; Presenting docs erroneously would cause an ugly scene.

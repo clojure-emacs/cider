@@ -39,7 +39,6 @@
 (require 'cider-client)
 (require 'cider-popup)
 (require 'cider-stacktrace)
-(require 'cider-compat)
 (require 'cider-overlays)
 
 ;;; Variables

@@ -37,7 +37,6 @@
 (require 'cider-inspector)
 (require 'cider-util)
 (require 'cider-common)
-(require 'cider-compat)
 (require 'nrepl-client) ; `nrepl--mark-id-completed'
 (require 'nrepl-dict)
 

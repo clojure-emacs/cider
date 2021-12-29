@@ -32,7 +32,6 @@
 (require 'cider-find)
 (require 'cider-util)
 (require 'subr-x)
-(require 'cider-compat)
 
 (require 'cider-client)
 (require 'cider-popup)

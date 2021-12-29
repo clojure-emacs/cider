@@ -25,7 +25,6 @@
 ;;; Code:
 
 (require 'subr-x)
-(require 'cider-compat)
 (require 'nrepl-dict)
 (require 'cider-util)
 (require 'xref)

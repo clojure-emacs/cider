@@ -83,7 +83,6 @@
 (require 'cider-connection)
 (require 'cider-mode)
 (require 'cider-common)
-(require 'cider-compat)
 (require 'cider-debug)
 (require 'cider-util)
 

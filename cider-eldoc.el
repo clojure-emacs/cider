@@ -34,7 +34,6 @@
 (require 'cider-client)
 (require 'cider-common) ; for cider-symbol-at-point
 (require 'subr-x)
-(require 'cider-compat)
 (require 'cider-util)
 (require 'nrepl-dict)
 

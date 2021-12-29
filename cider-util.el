@@ -39,7 +39,6 @@
 (require 'thingatpt)
 
 ;; clojure-mode and CIDER
-(require 'cider-compat)
 (require 'clojure-mode)
 
 (defalias 'cider-pop-back 'pop-tag-mark)
