@@ -91,7 +91,6 @@
 (require 'subr-x)
 (require 'seq)
 (require 'sesman)
-(require 'lisp-mnt)
 (require 'package)
 
 (defconst cider-version "1.2.0"
