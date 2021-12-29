@@ -123,9 +123,7 @@ and non-nil."
           (goto-char cider-popup-output-marker)
           (let ((value-str (format "%s" value)))
             (when face
-              (if (fboundp 'add-face-text-property)
-                  (add-face-text-property 0 (length value-str) face nil value-str)
-                (add-text-properties 0 (length value-str) (list 'face face) value-str)))
+              (add-face-text-property 0 (length value-str) face nil value-str))
             (insert value-str))
           (unless inhibit-indent
             (indent-sexp))
