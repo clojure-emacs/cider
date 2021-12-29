@@ -1,0 +1,28 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+        emacs_version: ['26.3', '27.2']
+
+    steps:
+    - name: Set up Emacs
+      uses: purcell/setup-emacs@master
+      with:
+        version: ${{matrix.emacs_version}}
+
+    - name: Install Eldev
+      run: curl -fsSL https://raw.githubusercontent.com/doublep/eldev/0.10.3/webinstall/github-eldev | sh
+
+    - name: Check out the source code
+      uses: actions/checkout@v2
+
+    - name: Test the project
+      run: |
+        eldev -p -dtT test
