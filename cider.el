@@ -94,8 +94,7 @@
 (require 'lisp-mnt)
 (require 'package)
 
-(defconst cider-version
-  (lm-version (or load-file-name buffer-file-name))
+(defconst cider-version "1.2.0"
   "The current version of CIDER.")
 
 (defconst cider-package-version (package-get-version)
