@@ -275,22 +275,6 @@ return by the last called function."
 
 ;;; Font lock
 
-(defalias 'cider--font-lock-ensure
-  (if (fboundp 'font-lock-ensure)
-      #'font-lock-ensure
-    (with-no-warnings
-      (lambda (&optional _beg _end)
-        (when font-lock-mode
-          (font-lock-fontify-buffer))))))
-
-(defalias 'cider--font-lock-flush
-  (if (fboundp 'font-lock-flush)
-      #'font-lock-flush
-    (with-no-warnings
-      (lambda (&optional _beg _end)
-        (when font-lock-mode
-          (font-lock-fontify-buffer))))))
-
 (defvar cider--mode-buffers nil
   "A list of buffers for different major modes.")
 

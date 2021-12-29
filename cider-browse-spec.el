@@ -256,7 +256,7 @@ Return the result as a string."
     (clojure-mode)
     (insert (cider-browse-spec--pprint spec-form))
     (indent-region (point-min) (point-max))
-    (cider--font-lock-ensure)
+    (font-lock-ensure)
     (buffer-string)))
 
 (defun cider-browse-spec--draw-spec-buffer (buffer spec spec-form)

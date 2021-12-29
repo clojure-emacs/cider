@@ -249,7 +249,7 @@ If EVAL is non-nil the form will also be evaluated.  Use
         (let ((beg (point)))
           (insert form)
           (indent-region beg (point))
-          (cider--font-lock-ensure beg (point)))
+          (font-lock-ensure beg (point)))
         (when (if cider-invert-insert-eval-p
                   (not eval)
                 eval)
@@ -853,7 +853,7 @@ namespace itself."
                   (cider--compile-font-lock-keywords
                    symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
       (font-lock-add-keywords nil cider--dynamic-font-lock-keywords 'end))
-    (cider--font-lock-flush)))
+    (font-lock-flush)))
 
 
 ;;; Detecting local variables
@@ -1084,7 +1084,7 @@ property."
     (font-lock-add-keywords nil cider--reader-conditionals-font-lock-keywords)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
     (font-lock-remove-keywords nil cider--static-font-lock-keywords)
-    (cider--font-lock-flush)
+    (font-lock-flush)
     (remove-hook 'completion-at-point-functions #'cider-complete-at-point t)))
 
 (defun cider-set-buffer-ns (ns)

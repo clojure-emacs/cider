@@ -493,7 +493,7 @@ REASON is a keyword describing why this buffer was necessary."
                     reason
                     ".")
             (fill-paragraph))
-          (cider--font-lock-ensure)
+          (font-lock-ensure)
           (set-buffer-modified-p nil))))
     (switch-to-buffer buffer-name)
     (goto-char (point-min))))
