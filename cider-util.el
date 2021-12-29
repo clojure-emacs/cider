@@ -389,7 +389,6 @@ propertized (defaults to current buffer)."
       (color-lighten-name color (if darkp 5 -5)))))
 
 (defvar cider-version)
-(defvar cider-package-version)
 (defvar cider-codename)
 
 (defun cider--version ()

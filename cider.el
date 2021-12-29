@@ -96,11 +96,6 @@
 (defconst cider-version "1.2.0"
   "The current version of CIDER.")
 
-(defvar cider-package-version
-  ;; package-get-version was added in Emacs 27
-
-  "The version of the currently installed CIDER package.")
-
 (defconst cider-codename "Nice"
   "Codename used to denote stable releases.")
 
