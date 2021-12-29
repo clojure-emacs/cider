@@ -396,10 +396,13 @@ propertized (defaults to current buffer)."
   "Retrieve CIDER's version.
 A codename is added to stable versions."
   (if (string-match-p "-snapshot" cider-version)
-      (if cider-package-version
-          ;; snapshot versions include the MELPA package version
-          (format "%s (package: %s)" cider-version cider-package-version)
-        cider-version)
+      (let ((pkg-version (if (fboundp 'package-get-version)
+                             (package-get-version)
+                           nil)))
+        (if pkg-version
+            ;; snapshot versions include the MELPA package version
+            (format "%s (package: %s)" cider-version pkg-version)
+          cider-version))
     ;; stable versions include the codename of the release
     (format "%s (%s)" cider-version cider-codename)))
 
