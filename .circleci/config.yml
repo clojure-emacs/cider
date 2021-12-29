@@ -77,6 +77,17 @@ jobs:
       - test
 
   test-lint:
+    # There's issue with `package-get-version' that could fail to
+    # return the cider package version, if the parent directory where
+    # it is called from, is not named `cider', i.e. it does not have
+    # the same name as the file wherein the package version is defined
+    # at. In our case, the package version is defined in `cider.el',
+    # thus the parent directory of the checkout should be named
+    # `cider'. Otherwise it could cause compilation warnings, thus we
+    # fix the directory name here. See
+    # https://lists.gnu.org/archive/html/emacs-devel/2021-12/msg02963.html
+    # for a discussion.
+    working_directory: ~/cider
     docker:
       - image: silex/emacs:27-dev
     steps:
