@@ -29,6 +29,7 @@
 
 (require 'buttercup)
 (require 'cider-util)
+(require 'package)
 
 (defmacro with-clojure-buffer (contents &rest body)
   "Execute BODY in a clojure-mode buffer with CONTENTS
