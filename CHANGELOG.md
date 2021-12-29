@@ -40,6 +40,10 @@
 * [#3071](https://github.com/clojure-emacs/cider/issues/3071): Use `xref` instead of `etags` to push point to marker stack.
 * [#3074](https://github.com/clojure-emacs/cider/issues/3074): Recognize `pwsh` as a `powershell` executable.
 
+### Changes
+
+* Drop support for Emacs 25 (this tracks upstream deps like `parseedn` that no longer support Emacs 25 and is line with our compatibility policy for RHEL and Debian).
+
 ## 1.1.1 (2021-05-24)
 
 ### Bugs fixed
