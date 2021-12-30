@@ -99,7 +99,7 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
     (let* ((label (capitalize (if (string= type "variable") "var" type)))
            (help (concat "Display doc for this " (downcase label)))
            (props (list 'apropos-symbol name
-                        'action 'cider-apropos-doc))
+                        'action #'cider-apropos-doc))
            (props (if cider-use-tooltips
                       (append props (list 'help-echo help))
                     props)))

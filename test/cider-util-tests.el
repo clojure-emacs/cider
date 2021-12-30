@@ -1,4 +1,4 @@
-;;; cider-util-tests.el
+;;; cider-util-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 
@@ -43,7 +43,7 @@ buffer."
      (insert ,contents)
      (goto-char (point-min))
      (when (search-forward "|" nil 'noerror)
-       (delete-backward-char 1))
+       (delete-char -1))
      ,@body))
 
 ;;; cider-util tests
@@ -74,7 +74,7 @@ buffer."
 
   (it "exits on first nil"
     (let (here)
-      (setq some-cider-hook (list #'upcase (lambda (x) nil) (lambda (x) (setq here t))))
+      (setq some-cider-hook (list #'upcase (lambda (_x) nil) (lambda (_x) (setq here t))))
       (cider-run-chained-hook 'some-cider-hook "A")
       (expect here :to-be nil))))
 

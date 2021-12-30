@@ -1,4 +1,4 @@
-;;; cider-classpath.el --- Basic Java classpath browser
+;;; cider-classpath.el --- Basic Java classpath browser  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2014-2021 Bozhidar Batsov and CIDER contributors
 
@@ -80,7 +80,7 @@
          (line (buffer-substring-no-properties bol eol)))
     (find-file-other-window line)))
 
-(defun cider-classpath-handle-mouse (event)
+(defun cider-classpath-handle-mouse (event) ;FIXME: Unused arg!
   "Handle mouse click EVENT."
   (interactive "e")
   (cider-classpath-operate-on-point))

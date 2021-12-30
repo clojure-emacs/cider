@@ -1,4 +1,4 @@
-;;; cider-connection-test-utils.el
+;;; cider-connection-test-utils.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 
@@ -44,7 +44,8 @@ current buffer."
      ;; `with-current-buffer' doesn't bump the buffer up the list.
      (switch-to-buffer (current-buffer))
      (rename-buffer (format "*%s:%s:%s*(%s)"
-                            ,ses-name ,(symbol-name symbol) ,type (random 10000)) t)
+                            ,ses-name ,(symbol-name symbol) ,type (random 10000))
+                    t)
      (let ((,symbol (current-buffer)))
        ,@body
        (sesman-remove-object 'CIDER ,ses-name (current-buffer) t 'no-error))))

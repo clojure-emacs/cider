@@ -1,4 +1,4 @@
-;;; cider-stacktrace-tests.el
+;;; cider-stacktrace-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 

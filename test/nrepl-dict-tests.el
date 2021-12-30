@@ -1,4 +1,4 @@
-;;; nrepl-dict-tests.el
+;;; nrepl-dict-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 
@@ -156,8 +156,8 @@
             :to-equal '(dict "id" 1 "session" 1 "blah" (1 2 3 4) "x" "aaaAAA" "y" (dict "z" "AB"))))
 
   (it "dict1 is updated destructively"
-    (setq dict1 '(dict "id" 1 "session" 1 "blah" (1 2))
-          dict2 '(dict "id" 2 "session" 2 "blah" (3 4))
-          dict3 '(dict "id" 1 "session" 1 "blah" (1 2)))
-    (nrepl--merge dict1 dict2)
-    (expect dict1 :not :to-equal dict3)))
+    (let ((dict1 '(dict "id" 1 "session" 1 "blah" (1 2)))
+          (dict2 '(dict "id" 2 "session" 2 "blah" (3 4)))
+          (dict3 '(dict "id" 1 "session" 1 "blah" (1 2))))
+      (nrepl--merge dict1 dict2)
+      (expect dict1 :not :to-equal dict3))))

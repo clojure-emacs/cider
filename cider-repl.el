@@ -65,29 +65,24 @@
 
 (defface cider-repl-prompt-face
   '((t (:inherit font-lock-keyword-face)))
-  "Face for the prompt in the REPL buffer."
-  :group 'cider-repl)
+  "Face for the prompt in the REPL buffer.")
 
 (defface cider-repl-stdout-face
   '((t (:inherit font-lock-string-face)))
-  "Face for STDOUT output in the REPL buffer."
-  :group 'cider-repl)
+  "Face for STDOUT output in the REPL buffer.")
 
 (defface cider-repl-stderr-face
   '((t (:inherit font-lock-warning-face)))
   "Face for STDERR output in the REPL buffer."
-  :group 'cider-repl
   :package-version '(cider . "0.6.0"))
 
 (defface cider-repl-input-face
   '((t (:bold t)))
-  "Face for previous input in the REPL buffer."
-  :group 'cider-repl)
+  "Face for previous input in the REPL buffer.")
 
 (defface cider-repl-result-face
   '((t ()))
-  "Face for the result of an evaluation in the REPL buffer."
-  :group 'cider-repl)
+  "Face for the result of an evaluation in the REPL buffer.")
 
 (defcustom cider-repl-pop-to-buffer-on-connect t
   "Controls whether to pop to the REPL buffer on connect.
@@ -98,13 +93,11 @@ focused.  Otherwise the buffer is displayed and focused."
   :type '(choice (const :tag "Create the buffer, but don't display it" nil)
                  (const :tag "Create and display the buffer, but don't focus it"
                         display-only)
-                 (const :tag "Create, display, and focus the buffer" t))
-  :group 'cider-repl)
+                 (const :tag "Create, display, and focus the buffer" t)))
 
 (defcustom cider-repl-display-in-current-window nil
   "Controls whether the REPL buffer is displayed in the current window."
-  :type 'boolean
-  :group 'cider-repl)
+  :type 'boolean)
 
 (make-obsolete-variable 'cider-repl-scroll-on-output 'scroll-conservatively "0.21")
 
@@ -113,8 +106,7 @@ focused.  Otherwise the buffer is displayed and focused."
 The REPL will use the printer specified in `cider-print-fn'.
 The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
-  :type 'boolean
-  :group 'cider-repl)
+  :type 'boolean)
 
 (make-obsolete-variable 'cider-repl-pretty-print-width 'cider-print-options "0.21")
 
@@ -123,7 +115,6 @@ change the setting's value."
 The `cider-repl-toggle-content-types' command can be used to interactively
 change the setting's value."
   :type 'boolean
-  :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-repl-auto-detect-type t
@@ -132,7 +123,6 @@ If you disable this you'll have to manually change the REPL type between
 Clojure and ClojureScript when invoking REPL type changing forms.
 Use `cider-set-repl-type' to manually change the REPL type."
   :type 'boolean
-  :group 'cider-repl
   :safe #'booleanp
   :package-version '(cider . "0.18.0"))
 
@@ -141,13 +131,11 @@ Use `cider-set-repl-type' to manually change the REPL type."
 Nil means that `cider-repl-input-face' and `cider-repl-result-face'
 will be used."
   :type 'boolean
-  :group 'cider-repl
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-repl-require-ns-on-set nil
   "Controls whether to require the ns before setting it in the REPL."
   :type 'boolean
-  :group 'cider-repl
   :package-version '(cider . "0.22.0"))
 
 (defcustom cider-repl-result-prefix ""
@@ -163,8 +151,7 @@ like \"=>\" if want results to stand out more."
 The default option is `cider-repl-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
-  :type 'symbol
-  :group 'cider-repl)
+  :type 'symbol)
 
 (make-obsolete-variable 'cider-repl-print-length 'cider-print-options "0.21")
 (make-obsolete-variable 'cider-repl-print-level 'cider-print-options "0.21")
@@ -177,13 +164,11 @@ you'd like to use the default Emacs behavior use
   "Clojure code to evaluate when starting a REPL.
 Will be evaluated with bindings for set!-able vars in place."
   :type '(list string)
-  :group 'cider-repl
   :package-version '(cider . "0.21.0"))
 
 (defcustom cider-repl-display-help-banner t
   "When non-nil a bit of help text will be displayed on REPL start."
   :type 'boolean
-  :group 'cider-repl
   :package-version '(cider . "0.11.0"))
 
 
@@ -592,7 +577,6 @@ For convenience, three functions are already provided for this purpose:
                  (const :tag "Abbreviated namespace" cider-repl-prompt-abbreviated)
                  (const :tag "Last name in namespace" cider-repl-prompt-lastname)
                  (function :tag "Custom function"))
-  :group 'cider-repl
   :package-version '(cider . "0.9.0"))
 
 (defun cider-repl--insert-prompt (namespace)
@@ -733,7 +717,8 @@ See also `cider-repl-clear-buffer'."
     (user-error "The variable `cider-repl-buffer-size-limit' is not set")))
 
 (defun cider-repl-maybe-trim-buffer (buffer)
-  "Clears portion of printed output in BUFFER when `cider-repl-buffer-size-limit' is exceeded."
+  "Clear portion of printed output in BUFFER.
+Clear the part where `cider-repl-buffer-size-limit' is exceeded."
   (when (> (buffer-size) cider-repl-buffer-size-limit)
     (cider-repl-trim-top-of-buffer buffer)))
 
@@ -883,7 +868,6 @@ SHOW-PREFIX and BOL."
 Either a single number of pixels - interpreted as a symmetric margin, or
 pair of numbers `(x . y)' encoding an arbitrary margin."
   :type '(choice integer (vector integer integer))
-  :group 'cider-repl
   :package-version '(cider . "0.17.0"))
 
 (defun cider-repl--image (data type datap)
@@ -1065,7 +1049,8 @@ text property `cider-old-input'."
       (forward-char offset))))
 
 (defun cider-repl-closing-return ()
-  "Evaluate the current input string after closing all open parenthesized or bracketed expressions."
+  "Evaluate the current input string after closing input.
+Closes all open parentheses or bracketed expressions."
   (interactive)
   (goto-char (point-max))
   (save-restriction
@@ -1232,7 +1217,6 @@ mouse-over, VAR - sub-expression giving Clojure VAR to look up.  FILE is
 currently only used when VAR is nil and must be full resource path in that
 case."
   :type '(alist :key-type sexp)
-  :group 'cider-repl
   :package-version '(cider. "0.16.0"))
 
 (defun cider--locref-at-point-1 (reg-list)
@@ -1310,8 +1294,8 @@ regexes from `cider-locref-regexp-alist' to infer locations at point."
     (overlay-put o 'follow-link 'mouse)
     (overlay-put o 'keymap
                  (let ((map (make-sparse-keymap)))
-                   (define-key map [return]  'cider-jump-to-locref-at-point)
-                   (define-key map [mouse-2] 'cider-jump-to-locref-at-point)
+                   (define-key map [return]  #'cider-jump-to-locref-at-point)
+                   (define-key map [mouse-2] #'cider-jump-to-locref-at-point)
                    map))
     o)
   "Overlay used during hoovering on location references in REPL buffers.
@@ -1331,8 +1315,7 @@ WIN, BUFFER and POS are the window, buffer and point under mouse position."
 
 (defcustom cider-repl-wrap-history nil
   "T to wrap history around when the end is reached."
-  :type 'boolean
-  :group 'cider-repl)
+  :type 'boolean)
 
 ;; These two vars contain the state of the last history search.  We
 ;; only use them if `last-command' was `cider-repl--history-replace',
@@ -1466,14 +1449,12 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
 (defcustom cider-repl-history-size 500
   "The maximum number of items to keep in the REPL history."
   :type 'integer
-  :safe #'integerp
-  :group 'cider-repl)
+  :safe #'integerp)
 
 (defcustom cider-repl-history-file nil
   "File to save the persistent REPL history to."
   :type 'string
-  :safe #'stringp
-  :group 'cider-repl)
+  :safe #'stringp)
 
 (defun cider-repl--history-read-filename ()
   "Ask the user which file to use, defaulting `cider-repl-history-file'."
@@ -1550,8 +1531,7 @@ constructs."
 ;;; REPL shortcuts
 (defcustom cider-repl-shortcut-dispatch-char ?\,
   "Character used to distinguish REPL commands from Lisp forms."
-  :type '(character)
-  :group 'cider-repl)
+  :type '(character))
 
 (defvar cider-repl-shortcuts (make-hash-table :test 'equal))
 
@@ -1641,7 +1621,7 @@ constructs."
                 (call-interactively command-func)
               (error "Unknown command %S.  Available commands: %s"
                      command-func
-                     (mapconcat 'identity (cider-repl--available-shortcuts) ", "))))
+                     (mapconcat #'identity (cider-repl--available-shortcuts) ", "))))
         (error "No command selected")))))
 
 

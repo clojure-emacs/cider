@@ -1,4 +1,4 @@
-;; nrepl-server-mock.el
+;; nrepl-server-mock.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2021 Ioannis Kappas
 
@@ -29,7 +29,7 @@
 ;;; Code:
 
 (require 'nrepl-client)
-(require 'nrepl-tests-utils)
+(require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 (require 'queue)
 
 (defun nrepl-server-mock-filter (proc output)
@@ -84,9 +84,9 @@ the port and host it is started on. Exits after a 10 secs"
                           ;; listen to an unoccupied port
 			  :service 't
 			  :buffer "server-mock/buffer"
-			  :filter 'nrepl-server-mock-filter
+			  :filter #'nrepl-server-mock-filter
 			  :sentinel
-			  (lambda (proc status-change-descr)
+			  (lambda (_proc status-change-descr)
 			    (mock/log! ":mock/process-status %s" status-change-descr))))
 	 (contact (process-contact server-process 't))
          (mock-message (format "nREPL server started on port %d on host %s"

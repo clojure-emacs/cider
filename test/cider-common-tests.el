@@ -93,8 +93,6 @@
   ;; drive letter on windows.
   :var ((/docker/src (expand-file-name "/docker/src"))
         (/home/host/project/src (expand-file-name "/home/host/project/src"))
-        (/docker/src/namespace.clj (expand-file-name "/docker/src/namespace.clj"))
-        (/home/host/project/src/namespace.clj (expand-file-name "/home/host/project/src/namespace.clj"))
         (/home/host/random/file.clj (expand-file-name "/home/host/random/file.clj"))
         (/src (expand-file-name "/src"))
         (/host (expand-file-name "/host"))

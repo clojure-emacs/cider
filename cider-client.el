@@ -816,7 +816,7 @@ FORMAT-OPTIONS is an optional configuration map for cljfmt."
   (with-current-buffer buffer
     (let ((map (make-sparse-keymap)))
       (set-keymap-parent map minibuffer-local-map)
-      (define-key map (kbd "C-c C-c") 'abort-recursive-edit)
+      (define-key map (kbd "C-c C-c") #'abort-recursive-edit)
       (let ((stdin (condition-case nil
                        (concat (read-from-minibuffer "Stdin: " nil map) "\n")
                      (quit nil))))

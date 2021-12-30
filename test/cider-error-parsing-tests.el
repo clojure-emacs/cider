@@ -1,4 +1,4 @@
-;;; cider-error-parsing-tests.el
+;;; cider-error-parsing-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 
@@ -33,6 +33,8 @@
 (describe "cider-extract-error-info"
   :var (file-name line-num col-num face)
   (before-all
+   ;; FIXME: Don't mess with such global names, please!
+   ;; Maybe use `cl-flet' instead?
     (fset 'file-name (lambda (info) (nth 0 info)))
     (fset 'line-num (lambda (info) (nth 1 info)))
     (fset 'col-num (lambda (info) (nth 2 info)))

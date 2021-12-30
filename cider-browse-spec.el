@@ -1,4 +1,4 @@
-;;; cider-browse-spec.el --- CIDER spec browser
+;;; cider-browse-spec.el --- CIDER spec browser  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2017-2021 Juan Monetta, Bozhidar Batsov and CIDER contributors
 

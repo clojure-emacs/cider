@@ -148,15 +148,11 @@
   (cider-scale-background-color)
   "Background color for code blocks.")
 
-(defadvice enable-theme (after cider-docview-adapt-to-theme activate)
+(advice-add 'enable-theme  :after #'cider--docview-adapt-to-theme)
+(advice-add 'disable-theme :after #'cider--docview-adapt-to-theme)
+(defun cider--docview-adapt-to-theme (&rest _)
   "When theme is changed, update `cider-docview-code-background-color'."
   (setq cider-docview-code-background-color (cider-scale-background-color)))
-
-
-(defadvice disable-theme (after cider-docview-adapt-to-theme activate)
-  "When theme is disabled, update `cider-docview-code-background-color'."
-  (setq cider-docview-code-background-color (cider-scale-background-color)))
-
 
 ;; Mode & key bindings
 

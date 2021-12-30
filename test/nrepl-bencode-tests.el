@@ -1,4 +1,4 @@
-;;; nrepl-bencode-tests.el
+;;; nrepl-bencode-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 
@@ -43,7 +43,7 @@ If object is incomplete, return a decoded path."
   "Decode messages which were split across STRINGS."
   (let* ((sq (make-queue))
          (rq (nrepl-response-queue))
-         ipath)
+         ) ;; ipath
     (dolist (s strings)
       (queue-enqueue sq s)
       (nrepl-bdecode sq rq))
@@ -306,7 +306,7 @@ If object is incomplete, return a decoded path."
 
       (let ((max-lisp-eval-depth 100)
             (max-specpdl-size 100))
-        (expect (apply 'nrepl-bdecode-strings nrepl--toString-strings)
+        (expect (apply #'nrepl-bdecode-strings nrepl--toString-strings)
                 :to-equal nrepl--toString-dicts))))
 
   (describe "bencoding is idempotent"

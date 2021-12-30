@@ -1,4 +1,4 @@
-;;; cider-font-lock-tests.el
+;;; cider-font-lock-tests.el  -*- lexical-binding: t; -*-
 
 ;; Author: Alvin Francis Dumalus <alvin.francis.dumalus@gmail.com>
 
@@ -37,7 +37,7 @@
      (insert ,content)
      (clojure-mode)
      (cider-mode)
-     (font-lock-fontify-buffer)
+     (font-lock-ensure)
      ,@body))
 
 (defun cider--face-covers-range-p (start end face)

@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
  ;;; cider-connection-tests.el
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov, Vitalie Spinu
@@ -30,7 +31,7 @@
 (require 'buttercup)
 (require 'sesman)
 (require 'cider-connection)
-(require 'cider-connection-test-utils)
+(require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
 
 (describe "cider-ensure-connected"
   :var (sesman-sessions-hashmap sesman-links-alist ses-name ses-name2)
@@ -93,8 +94,8 @@
       (let ((default-directory (expand-file-name "/tmp/a-dir")))
         (with-repl-buffer ses-name 'clj bb1
           (with-repl-buffer ses-name 'cljs bb2
-            (with-repl-buffer ses-name 'clj b1
-              (with-repl-buffer ses-name 'cljs b2
+            (with-repl-buffer ses-name 'clj _b1
+              (with-repl-buffer ses-name 'cljs _b2
 
                 (switch-to-buffer bb2)
                 (switch-to-buffer bb1)
@@ -133,21 +134,21 @@
           (let ((default-directory (expand-file-name "/tmp/a-dir")))
             ;; for clj
             (with-repl-buffer ses-name 'clj b1
-              (with-repl-buffer ses-name 'cljs b2
+              (with-repl-buffer ses-name 'cljs _b2
                 (expect (cider-current-repl 'clj) :to-equal b1)))
             ;; for cljs
             (with-repl-buffer ses-name 'cljs b1
-              (with-repl-buffer ses-name 'clj b2
+              (with-repl-buffer ses-name 'clj _b2
                 (expect (cider-current-repl 'cljs) :to-equal b1))))))
 
       (describe "when connection of that type doesn't exists"
         (it "returns nil"
           ;; for clj
-          (with-repl-buffer ses-name 'cljs b1
+          (with-repl-buffer ses-name 'cljs _b1
             (expect (cider-current-repl 'clj) :to-equal nil))
 
           ;; for cljs
-          (with-repl-buffer ses-name 'clj b2
+          (with-repl-buffer ses-name 'clj _b2
             (expect (cider-current-repl 'cljs) :to-equal nil))))
 
       (describe "when type argument is not given"
@@ -172,13 +173,13 @@
         (describe "when a connection matching current file extension doesn't exist"
           (it "returns nil"
             ;; for clj
-            (with-repl-buffer ses-name 'clj b1
+            (with-repl-buffer ses-name 'clj _b1
               (with-temp-buffer
                 (setq major-mode 'clojurescript-mode)
                 (expect (cider-current-repl) :to-equal nil)))
 
             ;; for cljs
-            (with-repl-buffer ses-name 'cljs b2
+            (with-repl-buffer ses-name 'cljs _b2
               (with-temp-buffer
                 (setq major-mode 'clojure-mode)
                 (expect (cider-current-repl) :to-equal nil))))))))
@@ -186,7 +187,7 @@
   (describe "when multiple sessions exist"
     (it "always returns the most recently used connection"
       (let ((a-dir (expand-file-name "/tmp/a-dir"))
-            (b-dir (expand-file-name "/tmp/b-dir")))
+            ) ;; (b-dir (expand-file-name "/tmp/b-dir"))
         (let ((default-directory a-dir))
           (with-repl-buffer ses-name 'clj bb1
             (with-repl-buffer ses-name 'cljs bb2

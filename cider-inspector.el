@@ -49,7 +49,6 @@
   "Default page size in paginated inspector view.
 The page size can be also changed interactively within the inspector."
   :type '(integer :tag "Page size" 32)
-  :group 'cider-inspector
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-inspector-max-atom-length 150
@@ -57,20 +56,17 @@ The page size can be also changed interactively within the inspector."
 'Atom' here means any collection member that satisfies (complement coll?).
 The max length can be also changed interactively within the inspector."
   :type '(integer :tag "Max atom length" 150)
-  :group 'cider-inspector
   :package-version '(cider . "1.1.0"))
 
 (defcustom cider-inspector-max-coll-size 5
   "Default number of nested collection members to display before truncating.
 The max size can be also changed interactively within the inspector."
   :type '(integer :tag "Max collection size" 5)
-  :group 'cider-inspector
   :package-version '(cider . "1.1.0"))
 
 (defcustom cider-inspector-fill-frame nil
   "Controls whether the CIDER inspector window fills its frame."
   :type 'boolean
-  :group 'cider-inspector
   :package-version '(cider . "0.15.0"))
 
 (defcustom cider-inspector-skip-uninteresting t
@@ -79,20 +75,19 @@ Only applies to navigation with `cider-inspector-prev-inspectable-object'
 and `cider-inspector-next-inspectable-object', values are still inspectable
 by clicking or navigating to them by other means."
   :type 'boolean
-  :group 'cider-inspector
   :package-version '(cider . "0.25.0"))
 
 (defcustom cider-inspector-auto-select-buffer t
   "Determines if the inspector buffer should be auto selected."
   :type 'boolean
-  :group 'cider-inspector
   :package-version '(cider . "0.27.0"))
 
 (defvar cider-inspector-uninteresting-regexp
   (concat "nil"                      ; nils are not interesting
           "\\|:" clojure--sym-regexp ; nor keywords
+          ;; FIXME: This range also matches ",", is it on purpose?
           "\\|[+-.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
-  "Regexp matching values which are not interesting to inspect and can be skipped over.")
+  "Regexp of uninteresting and skippable values.")
 
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
@@ -269,7 +264,8 @@ Current page will be reset to zero."
     (cider-inspector--render-value value)))
 
 (defun cider-inspector-set-max-coll-size (max-size)
-  "Set the number of nested collection members to display before truncating to MAX-SIZE."
+  "Set the number of nested collection members to display before truncating.
+MAX-SIZE is the new value."
   (interactive (list (read-number "Max collection size: " cider-inspector-max-coll-size)))
   (when-let ((value (cider-sync-request:inspect-set-max-coll-size max-size)))
     (cider-inspector--render-value value)))
@@ -334,7 +330,8 @@ current-namespace."
     (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-set-max-coll-size (max-size)
-  "Set the number of nested collection members to display before truncating to MAX-SIZE."
+  "Set the number of nested collection members to display before truncating.
+MAX-SIZE is the new value."
   (thread-first `("op" "inspect-set-max-coll-size"
                   "max-coll-size" ,max-size)
     (cider-nrepl-send-sync-request cider-inspector--current-repl)

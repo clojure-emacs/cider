@@ -60,7 +60,7 @@ Optionally invert the value, if INVERT is truthy."
 Otherwise attempt to use the symbol at point for the command, and only
 prompt if that throws an error.
 
-INVERT is used to invert the semantics of the function `cider--should-prompt-for-symbol'."
+INVERT inverts the semantics of the function `cider--should-prompt-for-symbol'."
   (if (cider--should-prompt-for-symbol invert)
       #'cider-read-symbol-name
     #'cider-try-symbol-at-point))

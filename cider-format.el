@@ -147,7 +147,7 @@ START and END represent the region's boundaries."
 (defun cider-format-edn-last-sexp ()
   "Format the EDN data of the last sexp."
   (interactive)
-  (apply 'cider-format-edn-region (cider-sexp-at-point 'bounds)))
+  (apply #'cider-format-edn-region (cider-sexp-at-point 'bounds)))
 
 (provide 'cider-format)
 ;;; cider-format.el ends here

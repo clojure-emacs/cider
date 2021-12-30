@@ -41,7 +41,7 @@
 ;; clojure-mode and CIDER
 (require 'clojure-mode)
 
-(defalias 'cider-pop-back 'pop-tag-mark)
+(defalias 'cider-pop-back #'pop-tag-mark)
 
 (defcustom cider-font-lock-max-length 10000
   "The max length of strings to fontify in `cider-font-lock-as'.

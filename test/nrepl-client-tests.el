@@ -1,4 +1,4 @@
-;;; nrepl-client-tests.el
+;;; nrepl-client-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 
@@ -29,7 +29,7 @@
 
 (require 'buttercup)
 (require 'nrepl-client)
-(require 'nrepl-tests-utils)
+(require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 
 (describe "nrepl-server-buffer-name"
   :var (nrepl-hide-special-buffers params default-directory-backup

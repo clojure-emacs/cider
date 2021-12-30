@@ -296,7 +296,7 @@ focused."
   :group 'cider)
 
 (define-button-type 'cider-fragile
-  'action 'cider--overlay-destroy
+  'action #'cider--overlay-destroy
   'follow-link t
   'face nil
   'modification-hooks '(cider--overlay-destroy)

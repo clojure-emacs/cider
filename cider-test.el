@@ -51,13 +51,11 @@
 (defcustom cider-test-show-report-on-success nil
   "Whether to show the `*cider-test-report*` buffer on passing tests."
   :type 'boolean
-  :group 'cider-test
   :package-version '(cider . "0.8.0"))
 
 (defcustom cider-auto-select-test-report-buffer t
   "Determines if the test-report buffer should be auto-selected."
   :type 'boolean
-  :group 'cider-test
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-test-defining-forms '("deftest" "defspec")
@@ -66,7 +64,6 @@ CIDER considers the \"top-level\" form around point to define a test if
 the form starts with one of these forms.
 Add to this list to have CIDER recognize additional test defining macros."
   :type '(repeat string)
-  :group 'cider-test
   :package-version '(cider . "0.15.0"))
 
 (defvar cider-test-last-summary nil
@@ -86,7 +83,6 @@ Add to this list to have CIDER recognize additional test defining macros."
     (((class color) (background dark))
      :background "firebrick"))
   "Face for failed tests."
-  :group 'cider-test
   :package-version '(cider . "0.7.0"))
 
 (defface cider-test-error-face
@@ -95,7 +91,6 @@ Add to this list to have CIDER recognize additional test defining macros."
     (((class color) (background dark))
      :background "orange4"))
   "Face for erring tests."
-  :group 'cider-test
   :package-version '(cider . "0.7.0"))
 
 (defface cider-test-success-face
@@ -106,7 +101,6 @@ Add to this list to have CIDER recognize additional test defining macros."
      :foreground "black"
      :background "green"))
   "Face for passing tests."
-  :group 'cider-test
   :package-version '(cider . "0.7.0"))
 
 
@@ -116,13 +110,10 @@ Add to this list to have CIDER recognize additional test defining macros."
   (cider-scale-background-color)
   "Background color for test assertion items.")
 
-(defadvice enable-theme (after cider-test-adapt-to-theme activate)
+(advice-add 'enable-theme  :after #'cider--test-adapt-to-theme)
+(advice-add 'disable-theme :after #'cider--test-adapt-to-theme)
+(defun cider--test-adapt-to-theme (&rest _)
   "When theme is changed, update `cider-test-items-background-color'."
-  (setq cider-test-items-background-color (cider-scale-background-color)))
-
-
-(defadvice disable-theme (after cider-test-adapt-to-theme activate)
-  "When theme is disabled, update `cider-test-items-background-color'."
   (setq cider-test-items-background-color (cider-scale-background-color)))
 
 
@@ -601,7 +592,6 @@ Or nil if not found."
 The default implementation uses the simple Leiningen convention of appending
 '-test' to the namespace name."
   :type 'symbol
-  :group 'cider-test
   :package-version '(cider . "0.7.0"))
 
 (defun cider-test-default-test-ns-fn (ns)
@@ -619,13 +609,11 @@ This uses the Leiningen convention of appending '-test' to the namespace name."
 (defcustom cider-test-default-include-selectors '()
   "List of include selector strings to use when executing tests if none provided."
   :type '(repeat string)
-  :group 'cider-test
   :package-version '(cider . "1.1.0"))
 
 (defcustom cider-test-default-exclude-selectors '()
   "List of exclude selector strings to use when executing tests if none provided."
   :type '(repeat string)
-  :group 'cider-test
   :package-version '(cider . "1.1.0"))
 
 (declare-function cider-emit-interactive-eval-output "cider-eval")
@@ -728,14 +716,16 @@ running them."
 (defun cider-test-run-loaded-tests (prompt-for-filters)
   "Run all tests defined in currently loaded namespaces.
 
-If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selectors to filter the tests with."
+If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selectors to
+filter the tests with."
   (interactive "P")
   (cider-test-execute :loaded nil nil prompt-for-filters))
 
 (defun cider-test-run-project-tests (prompt-for-filters)
   "Run all tests defined in all project namespaces, loading these as needed.
 
-If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selectors to filter the tests with."
+If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selectors to
+filter the tests with."
   (interactive "P")
   (cider-test-execute :project nil nil prompt-for-filters))
 

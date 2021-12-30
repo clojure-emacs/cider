@@ -49,13 +49,11 @@
 If nil, messages will not be wrapped.  If truthy but non-numeric,
 `fill-column' will be used."
   :type 'list
-  :group 'cider-stacktrace
   :package-version '(cider . "0.7.0"))
 
 (defcustom cider-stacktrace-default-filters '(tooling dup)
   "Frame types to omit from initial stacktrace display."
   :type 'list
-  :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (make-obsolete 'cider-stacktrace-print-length 'cider-stacktrace-print-options "0.20")
@@ -78,7 +76,6 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   "Errors that won't make the stacktrace buffer 'pop-over' your active window.
 The error types are represented as strings."
   :type 'list
-  :group 'cider-stacktrace
   :package-version '(cider . "0.12.0"))
 
 ;; Faces
@@ -86,43 +83,36 @@ The error types are represented as strings."
 (defface cider-stacktrace-error-class-face
   '((t (:inherit font-lock-warning-face)))
   "Face for exception class names."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-error-message-face
   '((t (:inherit font-lock-doc-face)))
   "Face for exception messages."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.7.0"))
 
 (defface cider-stacktrace-filter-active-face
   '((t (:inherit button :underline t :weight normal)))
   "Face for filter buttons representing frames currently visible."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-filter-inactive-face
   '((t (:inherit button :underline nil :weight normal)))
   "Face for filter buttons representing frames currently filtered out."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-face
   '((t (:inherit default)))
   "Face for stack frame text."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-ns-face
   '((t (:inherit font-lock-comment-face)))
   "Face for stack frame namespace name."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-fn-face
   '((t (:inherit default :weight bold)))
   "Face for stack frame function name."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.6.0"))
 
 (defface cider-stacktrace-promoted-button-face
@@ -131,7 +121,6 @@ The error types are represented as strings."
      :inherit error)
     (t :inverse-video t))
   "A button with this face represents a promoted (non-suppressed) error type."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.12.0"))
 
 (defface cider-stacktrace-suppressed-button-face
@@ -140,7 +129,6 @@ The error types are represented as strings."
      :inherit widget-inactive)
     (t :inverse-video t))
   "A button with this face represents a suppressed error type."
-  :group 'cider-stacktrace
   :package-version '(cider . "0.12.0"))
 
 ;; Colors & Theme Support
@@ -149,14 +137,12 @@ The error types are represented as strings."
   (cider-scale-background-color)
   "Background color for stacktrace frames.")
 
-(defadvice enable-theme (after cider-stacktrace-adapt-to-theme activate)
+(advice-add 'enable-theme  :after #'cider--stacktrace-adapt-to-theme)
+(advice-add 'disable-theme :after #'cider--stacktrace-adapt-to-theme)
+(defun cider--stacktrace-adapt-to-theme (&rest _)
   "When theme is changed, update `cider-stacktrace-frames-background-color'."
-  (setq cider-stacktrace-frames-background-color (cider-scale-background-color)))
-
-
-(defadvice disable-theme (after cider-stacktrace-adapt-to-theme activate)
-  "When theme is disabled, update `cider-stacktrace-frames-background-color'."
-  (setq cider-stacktrace-frames-background-color (cider-scale-background-color)))
+  (setq cider-stacktrace-frames-background-color
+        (cider-scale-background-color)))
 
 
 ;; Mode & key bindings
@@ -383,17 +369,17 @@ grouped with a suppressed error type."
   (seq-intersection error-types cider-stacktrace-suppressed-errors))
 
 (defun cider-stacktrace-suppress-error (error-type)
-  "Destructively add element ERROR-TYPE to the `cider-stacktrace-suppressed-errors' set."
+  "Destructively add ERROR-TYPE to the `cider-stacktrace-suppressed-errors' set."
   (setq cider-stacktrace-suppressed-errors
         (cl-adjoin error-type cider-stacktrace-suppressed-errors :test 'equal)))
 
 (defun cider-stacktrace-promote-error (error-type)
-  "Destructively remove element ERROR-TYPE from the `cider-stacktrace-suppressed-errors' set."
+  "Destructively remove ERROR-TYPE from `cider-stacktrace-suppressed-errors'."
   (setq cider-stacktrace-suppressed-errors
         (remove error-type cider-stacktrace-suppressed-errors)))
 
 (defun cider-stacktrace-suppressed-error-p (error-type)
-  "Return non-nil if element ERROR-TYPE is a member of the `cider-stacktrace-suppressed-errors' set."
+  "Return non-nil if ERROR-TYPE is in `cider-stacktrace-suppressed-errors'."
   (member error-type cider-stacktrace-suppressed-errors))
 
 ;; Interactive functions
@@ -527,7 +513,7 @@ When it reaches 3, it wraps to 0."
 
 (defun cider-stacktrace-toggle-suppression (button)
   "Toggle stacktrace pop-over/pop-under behavior for the `error-type' in BUTTON.
-Achieved by destructively manipulating the `cider-stacktrace-suppressed-errors' set."
+Achieved by destructively manipulating `cider-stacktrace-suppressed-errors'."
   (with-current-buffer cider-error-buffer
     (let ((inhibit-read-only t)
           (suppressed (button-get button 'suppressed))
@@ -619,7 +605,7 @@ others."
       (insert-text-button (car filter)
                           'filter (cadr filter)
                           'follow-link t
-                          'action 'cider-stacktrace-filter
+                          'action #'cider-stacktrace-filter
                           'help-echo (cider-stacktrace-tooltip
                                       (format "Toggle %s stack frames"
                                               (car filter))))
@@ -630,7 +616,7 @@ others."
       (insert-text-button (car filter)
                           'filter (cadr filter)
                           'follow-link t
-                          'action 'cider-stacktrace-filter
+                          'action #'cider-stacktrace-filter
                           'help-echo (cider-stacktrace-tooltip
                                       (format "Toggle %s stack frames"
                                               (car filter))))
@@ -641,7 +627,7 @@ others."
       (insert " " hidden "\n"))))
 
 (defun cider-stacktrace-render-suppression-toggle (buffer error-types)
-  "Emit into BUFFER toggle buttons for each of the ERROR-TYPES leading this stacktrace buffer."
+  "Emit toggle buttons for each of the ERROR-TYPES leading this stacktrace buffer."
   (with-current-buffer buffer
     (when error-types
       (insert "  This is an unexpected CIDER middleware error.\n  Please submit a bug report via `")
@@ -662,7 +648,7 @@ others."
           (insert-text-button (format "%s %s" (if suppressed "Promote" "Suppress") error-type)
                               'follow-link t
                               'error-type error-type
-                              'action 'cider-stacktrace-toggle-suppression
+                              'action #'cider-stacktrace-toggle-suppression
                               'suppressed suppressed
                               'face (if suppressed
                                         'cider-stacktrace-suppressed-button-face
@@ -684,7 +670,7 @@ This associates text properties to enable filtering and source navigation."
                               'follow-link t
                               'action (lambda (x) (browse-url (button-get x 'url)))))
       (nrepl-dbind-response frame (file line flags class method name var ns fn)
-        (let ((flags (mapcar 'intern flags))) ; strings -> symbols
+        (let ((flags (mapcar #'intern flags))) ; strings -> symbols
           (insert-text-button (format "%26s:%5d  %s/%s"
                                       (if (member 'repl flags) "REPL" file) line
                                       (if (member 'clj flags) ns class)
@@ -692,7 +678,7 @@ This associates text properties to enable filtering and source navigation."
                               'var var 'class class 'method method
                               'name name 'file file 'line line
                               'flags flags 'follow-link t
-                              'action 'cider-stacktrace-navigate
+                              'action #'cider-stacktrace-navigate
                               'help-echo (cider-stacktrace-tooltip
                                           "View source at this location")
                               'font-lock-face 'cider-stacktrace-face

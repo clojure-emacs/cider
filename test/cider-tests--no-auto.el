@@ -51,7 +51,7 @@ from the latter. Remaining content is compared for string equality."
                         (replace-match ""))
                       (goto-line 2)
                       (buffer-substring (point) (point-max)))))
-        (cider-doc (if-let* ((doc-buffer (cider-doc-buffer-for sym))
+        (cider-doc (if-let* ((doc-buffer (cider-doc-buffer-for sym)))
                        (with-current-buffer doc-buffer
                          (let ((inhibit-read-only t))
                            (goto-char (point-min))

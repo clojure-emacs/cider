@@ -530,10 +530,12 @@ It delegates the actual error content to the eval or op handler."
                                   " - "))
 
 
-(defconst cider-clojure-compilation-regexp (eval
-                                            `(rx bol (or ,cider-clojure-1.9-error
-                                                         ,cider-clojure-warning
-                                                         ,cider-clojure-1.10-error))))
+(defconst cider-clojure-compilation-regexp
+  (eval
+   `(rx bol (or ,cider-clojure-1.9-error
+                ,cider-clojure-warning
+                ,cider-clojure-1.10-error))
+   t))
 
 
 (defvar cider-compilation-regexp
@@ -1401,13 +1403,13 @@ Useful when the running nREPL on remote host."
   (mapcar #'cider-load-file
           (directory-files-recursively directory "\\.clj[cs]?$")))
 
-(defalias 'cider-eval-file 'cider-load-file
+(defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
 
-(defalias 'cider-eval-all-files 'cider-load-all-files
+(defalias 'cider-eval-all-files #'cider-load-all-files
   "A convenience alias as some people are confused by the load-* names.")
 
-(defalias 'cider-eval-buffer 'cider-load-buffer
+(defalias 'cider-eval-buffer #'cider-load-buffer
   "A convenience alias as some people are confused by the load-* names.")
 
 (defun cider-load-all-project-ns ()

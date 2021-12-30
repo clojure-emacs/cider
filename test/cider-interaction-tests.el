@@ -1,4 +1,4 @@
-;;; cider-eval-tests.el
+;;; cider-eval-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
 
@@ -29,7 +29,7 @@
 
 (require 'buttercup)
 (require 'cider-eval)
-(require 'cider-connection-test-utils)
+(require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
 
 (describe "cider--var-namespace"
   (it "returns the namespace of a var"
@@ -89,7 +89,7 @@
   (it "works as expected in empty Clojure buffers"
     (spy-on 'cider-request:load-file :and-return-value nil)
     (let ((default-directory "/tmp/a-dir"))
-      (with-repl-buffer "load-file-session" 'clj b
+      (with-repl-buffer "load-file-session" 'clj _b
         (with-temp-buffer
           (clojure-mode)
           (setq buffer-file-name (make-temp-name "tmp.clj"))
@@ -99,7 +99,7 @@
   (it "works as expected in empty Clojure buffers"
     (spy-on 'cider-nrepl-request:eval :and-return-value nil)
     (let ((default-directory "/tmp/a-dir"))
-      (with-repl-buffer "interaction-session" 'clj b
+      (with-repl-buffer "interaction-session" 'clj _b
         (with-temp-buffer
           (clojure-mode)
           (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))

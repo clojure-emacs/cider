@@ -1,4 +1,4 @@
-;;; cider-find-tests.el
+;;; cider-find-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2021 Bozhidar Batsov
 

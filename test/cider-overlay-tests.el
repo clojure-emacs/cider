@@ -38,6 +38,9 @@
 
   (before-all
     (fset 'overlay-position (lambda ()
+                              ;; FIXME: Why map `overlay-start' (or anything
+                              ;; else) since the result is only ever compared
+                              ;; to nil?
                               (mapcar #'overlay-start
                                       (overlays-at (point-min))))))
 

@@ -100,35 +100,29 @@
 
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
-  :type 'hook
-  :group 'nrepl)
+  :type 'hook)
 
 (defcustom nrepl-disconnected-hook nil
   "List of functions to call when disconnected from the nREPL server."
-  :type 'hook
-  :group 'nrepl)
+  :type 'hook)
 
 (defcustom nrepl-force-ssh-for-remote-hosts nil
   "If non-nil, do not attempt a direct connection for remote hosts."
-  :type 'boolean
-  :group 'nrepl)
+  :type 'boolean)
 
 (defcustom nrepl-use-ssh-fallback-for-remote-hosts nil
   "If non-nil, attempt to connect via ssh to remote hosts when unable to connect directly."
-  :type 'boolean
-  :group 'nrepl)
+  :type 'boolean)
 
 (defcustom nrepl-sync-request-timeout 10
   "The number of seconds to wait for a sync response.
 Setting this to nil disables the timeout functionality."
-  :type 'integer
-  :group 'nrepl)
+  :type 'integer)
 
 (defcustom nrepl-hide-special-buffers nil
   "Control the display of some special buffers in buffer switching commands.
 When true some special buffers like the server buffer will be hidden."
-  :type 'boolean
-  :group 'nrepl)
+  :type 'boolean)
 
 
 ;;; Buffer Local Declarations
@@ -235,7 +229,7 @@ PARAMS is as in `nrepl-make-buffer-name'."
   (string-match-p tramp-local-host-regexp host))
 
 (defun nrepl-extract-port (dir)
-  "Read port from .nrepl-port, nrepl-port or target/repl-port files in directory DIR."
+  "Read port from applicable repl-port file in directory DIR."
   (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
       (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
       (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
@@ -664,8 +658,8 @@ client buffer.  Return the newly created client process."
 
     (set-process-buffer client-proc client-buf)
 
-    (set-process-filter client-proc 'nrepl-client-filter)
-    (set-process-sentinel client-proc 'nrepl-client-sentinel)
+    (set-process-filter client-proc #'nrepl-client-filter)
+    (set-process-sentinel client-proc #'nrepl-client-sentinel)
     (set-process-coding-system client-proc 'utf-8-unix 'utf-8-unix)
 
     (process-put client-proc :string-q (queue-create))
@@ -721,7 +715,8 @@ values of *1, *2, etc."
 
 (defun nrepl--clear-client-sessions (conn-buffer)
   "Clear information about nREPL sessions in CONN-BUFFER.
-CONN-BUFFER refers to a (presumably) dead connection, which we can eventually reuse."
+CONN-BUFFER refers to a (presumably) dead connection,
+which we can eventually reuse."
   (with-current-buffer conn-buffer
     (setq nrepl-session nil)
     (setq nrepl-tooling-session nil)))
@@ -860,7 +855,8 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 session already in it. This code will add it as appropriate to prevent
 connection/session drift.
 Return the ID of the sent message.
-Optional argument TOOLING Set to t if desiring the tooling session rather than the standard session."
+Optional argument TOOLING Set to t if desiring the tooling session rather than
+the standard session."
   (with-current-buffer connection
     (when-let* ((session (if tooling nrepl-tooling-session nrepl-session)))
       (setq request (append request `("session" ,session))))
@@ -941,7 +937,8 @@ Register CALLBACK as the response handler."
                       callback
                       connection))
 
-(define-minor-mode cider-enlighten-mode nil nil (cider-mode " light")
+(define-minor-mode cider-enlighten-mode nil
+  :lighter (cider-mode " light")
   :global t)
 
 (defun nrepl--eval-request (input &optional ns line column)
@@ -976,7 +973,8 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message."
 (defun nrepl-sync-request:clone (connection &optional tooling)
   "Sent a :clone request to create a new client session.
 The request is dispatched via CONNECTION.
-Optional argument TOOLING Tooling is set to t if wanting the tooling session from CONNECTION."
+Optional argument TOOLING Tooling is set to t if wanting the tooling session
+from CONNECTION."
   (nrepl-send-sync-request '("op" "clone")
                            connection
                            nil tooling))
@@ -1057,8 +1055,8 @@ been determined."
             nrepl-on-port-callback on-port-callback))
     (let ((serv-proc (start-file-process-shell-command
                       "nrepl-server" serv-buf cmd)))
-      (set-process-filter serv-proc 'nrepl-server-filter)
-      (set-process-sentinel serv-proc 'nrepl-server-sentinel)
+      (set-process-filter serv-proc #'nrepl-server-filter)
+      (set-process-sentinel serv-proc #'nrepl-server-sentinel)
       (set-process-coding-system serv-proc 'utf-8-unix 'utf-8-unix)
       (message "[nREPL] Starting server via %s"
                (propertize cmd 'face 'font-lock-keyword-face))
@@ -1161,7 +1159,6 @@ the communication between Emacs and an nREPL server.  Enabling the logging
 might have a negative impact on performance, so it's not recommended to
 keep it enabled unless you need to debug something."
   :type 'boolean
-  :group 'nrepl
   :safe #'booleanp)
 
 (defconst nrepl-message-buffer-max-size 1000000
@@ -1244,8 +1241,7 @@ This in effect enables or disables the logging of nREPL messages."
 (defcustom nrepl-message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
   "Colors used in the messages buffer."
-  :type '(repeat color)
-  :group 'nrepl)
+  :type '(repeat color))
 
 (defun nrepl-log-expand-button (&optional button)
   "Expand the objects hidden in BUTTON's :nrepl-object property.
@@ -1328,7 +1324,7 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
                (special-pairs (seq-filter specialq sorted-pairs))
                (not-special-pairs (seq-remove specialq sorted-pairs))
                (all-pairs (seq-concatenate 'list special-pairs not-special-pairs))
-               (sorted-object (apply 'seq-concatenate 'list all-pairs)))
+               (sorted-object (apply #'seq-concatenate 'list all-pairs)))
           (insert "\n")
           (cl-loop for l on sorted-object by #'cddr
                    do (let ((indent-str (make-string indent ?\s))
