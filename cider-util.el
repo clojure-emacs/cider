@@ -692,8 +692,10 @@ through a stack of help buffers.  Variables `help-back-label' and
 
 (defun cider-random-words-of-inspiration ()
   "Select a random entry from `cider-words-of-inspiration'."
+  ;; FIXME: Consider removing this eval.
   (eval (nth (random (length cider-words-of-inspiration))
-             cider-words-of-inspiration)))
+             cider-words-of-inspiration)
+        t))
 
 (defvar cider-tips
   '("Press <\\[cider-connect]> to connect to a running nREPL server."
