@@ -1,7 +1,7 @@
-;;; nrepl-test-utils.el  -*- lexical-binding: t; -*-
-
-;; Copyright © 2021 Ioannis Kappas
-
+;;; nrepl-test-utils.el  -*- lexical-binding: t; -*-
+
+;; Copyright © 2021 Ioannis Kappas
+
 ;; This file is NOT part of GNU Emacs.
 
 ;; This program is free software: you can redistribute it and/or
@@ -23,13 +23,13 @@
 
 ;; This file is part of CIDER
 
-;;; Code:
-
-(defmacro nrepl-tests-log/init! (enable? name log-filename &optional clean?)
-  "Create a NAME/log! elisp function to log messages to LOG-FILENAME,
-taking the same arguments as `message'. Messages are appended to
-LOG-FILENAME, beginning with a :timestamp and followed up with :NAME. When
-CLEAN? is true remove LOG-FILENAME.
+;;; Code:
+
+(defmacro nrepl-tests-log/init! (enable? name log-filename &optional clean?)
+  "Create a NAME/log! elisp function to log messages to LOG-FILENAME,
+taking the same arguments as `message'. Messages are appended to
+LOG-FILENAME, beginning with a :timestamp and followed up with :NAME. When
+CLEAN? is true remove LOG-FILENAME.
 If ENABLE? is nil, NAME/log! function is a nil macro discarding all
 arguments unevaluated.
 
