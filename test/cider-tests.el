@@ -432,14 +432,20 @@
                                      " \"[cider.nrepl/cider-middleware]\"]}}}' -M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.8.3"))))
-        (let ((cider-clojure-cli-aliases "test"))
+        (let ((cider-clojure-cli-aliases ":test"))
           (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                   :to-equal expected))
-        (describe "should strip out leading -A and -M's"
+        (describe "should strip out leading exec opts -A -M -T -X"
           (let ((cider-clojure-cli-aliases "-A:test"))
            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                    :to-equal expected))
           (let ((cider-clojure-cli-aliases "-M:test"))
+            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                    :to-equal expected))
+          (let ((cider-clojure-cli-aliases "-T:test"))
+            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                    :to-equal expected))
+          (let ((cider-clojure-cli-aliases "-T:test"))
             (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                     :to-equal expected)))))
     (it "allows for global options"
@@ -449,7 +455,7 @@
                                      " \"[cider.nrepl/cider-middleware]\"]}}}' -M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.8.3"))))
-        (let ((cider-clojure-cli-aliases "test"))
+        (let ((cider-clojure-cli-aliases ":test"))
           (expect (cider-clojure-cli-jack-in-dependencies "-J-Djdk.attach.allowAttachSelf" nil deps)
                   :to-equal expected))))))
 

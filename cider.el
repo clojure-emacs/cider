@@ -158,9 +158,9 @@ default to \"powershell\"."
 (defcustom cider-clojure-cli-aliases
   nil
   "A list of aliases to include when using the clojure cli.
-Should be of the form `foo:bar`.  Any leading \"-A\" or \"-M\" will be
-stripped as these are concatenated into the \"-M[your-deps]:cider/nrepl\"
-form."
+Alias names should be of the form `:foo:bar`.
+Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
+then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
   :type 'string
   :safe #'stringp
   :package-version '(cider . "1.1"))
@@ -631,9 +631,9 @@ one used."
             deps-string
             main-opts
             (if cider-clojure-cli-aliases
-                ;; replace -A or -M in the jack-in-aliases to be concatenated
-                ;; with cider/nrepl to ensure cider/nrepl comes last
-                (format ":%s" (replace-regexp-in-string "^-\\(A\\\|M\\):" "" cider-clojure-cli-aliases))
+                ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
+                ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
+                (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))
               ""))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)

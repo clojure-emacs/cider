@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+### New features
+* [#3127](https://github.com/clojure-emacs/cider/pull/3040): clojure cli aliases enhancement - exec-opts and duplicate colon #3127
+
 ### Bugs fixed
 
 * Upgrade [enrich-classpath](https://github.com/clojure-emacs/enrich-classpath), which fixes various edge cases.
