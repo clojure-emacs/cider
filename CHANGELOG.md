@@ -2,8 +2,9 @@
 
 ## master (unreleased)
 
-### New features
-* [#3127](https://github.com/clojure-emacs/cider/pull/3040): clojure cli aliases enhancement - exec-opts and duplicate colon #3127
+### Changes
+
+* [#3127](https://github.com/clojure-emacs/cider/pull/3040): Strip all exec-opts flags (`-A` `-M` `-T` `-X`) if they exist in `cider-clojure-cli-aliases`. Also addresses a duplicate `:` in the generated `clj` command.
 
 ### Bugs fixed
 
