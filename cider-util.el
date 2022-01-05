@@ -374,13 +374,18 @@ propertized (defaults to current buffer)."
 (defvar cider-version)
 (defvar cider-codename)
 
+(defun cider--pkg-version ()
+  "Extact CIDER's package version from its package metadata."
+  ;; FIXME: Inline the logic from package-get-version and adapt it
+  (if (fboundp 'package-get-version)
+      (package-get-version)
+    nil))
+
 (defun cider--version ()
   "Retrieve CIDER's version.
 A codename is added to stable versions."
   (if (string-match-p "-snapshot" cider-version)
-      (let ((pkg-version (if (fboundp 'package-get-version)
-                             (package-get-version)
-                           nil)))
+      (let ((pkg-version (cider--pkg-version)))
         (if pkg-version
             ;; snapshot versions include the MELPA package version
             (format "%s (package: %s)" cider-version pkg-version)

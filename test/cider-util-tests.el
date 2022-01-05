@@ -59,7 +59,7 @@ buffer."
   (it "handles snapshot versions"
     (setq cider-version "0.11.0-snapshot"
           cider-codename "Victory")
-    (spy-on 'package-get-version :and-return-value "20160301.2217")
+    (spy-on 'cider--pkg-version :and-return-value "20160301.2217")
     (expect (cider--version) :to-equal "0.11.0-snapshot (package: 20160301.2217)")))
 
 (defvar some-cider-hook)
