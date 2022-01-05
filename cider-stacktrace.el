@@ -627,7 +627,7 @@ others."
       (insert " " hidden "\n"))))
 
 (defun cider-stacktrace-render-suppression-toggle (buffer error-types)
-  "Emit toggle buttons for each of the ERROR-TYPES leading this stacktrace buffer."
+  "Emit toggle buttons for each of the ERROR-TYPES leading this stacktrace BUFFER."
   (with-current-buffer buffer
     (when error-types
       (insert "  This is an unexpected CIDER middleware error.\n  Please submit a bug report via `")
