@@ -1,6 +1,6 @@
 ;;; cider-jar.el --- Jar functionality for Clojure -*- lexical-binding: t -*-
 
-;; Copyright © 2021 Arne Brasseur
+;; Copyright © 2022 Arne Brasseur
 ;;
 ;; Author: Arne Brasseur <arne@arnebrasseur.net>
 

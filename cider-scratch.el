@@ -1,6 +1,6 @@
 ;;; cider-scratch.el --- *scratch* buffer for Clojure -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2021 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2022 Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>

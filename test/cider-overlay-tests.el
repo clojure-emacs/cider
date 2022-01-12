@@ -1,6 +1,6 @@
 ;;; cider-overlay-tests.el                       -*- lexical-binding: t; -*-
 
-;; Copyright © 2015-2021 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2015-2022 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 

@@ -1,6 +1,6 @@
 ;;; cider-browse-spec.el --- CIDER spec browser  -*- lexical-binding: t; -*-
 
-;; Copyright © 2017-2021 Juan Monetta, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2017-2022 Juan Monetta, Bozhidar Batsov and CIDER contributors
 
 ;; Author: Juan Monetta <jpmonettas@gmail.com>
 

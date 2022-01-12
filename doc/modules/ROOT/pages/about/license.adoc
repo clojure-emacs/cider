@@ -21,4 +21,4 @@ NOTE: Reach out to Bozhidar if you have any questions about licensing.
 
 == Copyright
 
-© 2012-2021 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelberg and CIDER contributors.
+© 2012-2022 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelberg and CIDER contributors.

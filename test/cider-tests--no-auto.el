@@ -1,6 +1,6 @@
 ;;; cider-tests--no-auto.el --- Non-automated tests -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2021 Jeff Valk, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2022 Jeff Valk, Bozhidar Batsov and CIDER contributors
 
 ;; Author: Jeff Valk <jv@jeffvalk.com>
 

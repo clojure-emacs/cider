@@ -1,6 +1,6 @@
 ;;; cider-classpath.el --- Basic Java classpath browser  -*- lexical-binding: t; -*-
 
-;; Copyright © 2014-2021 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2022 Bozhidar Batsov and CIDER contributors
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
 ;;; cider-eval-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2021 Arne Brasseur
+;; Copyright © 2012-2022 Arne Brasseur
 
 ;; Author: Arne Brasseur
 

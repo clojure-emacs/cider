@@ -1,6 +1,6 @@
 ;;; cider-cheatsheet.el --- Quick reference for Clojure        -*- lexical-binding: t -*-
 
-;; Copyright © 2019-2021 Kris Jenkins, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2019-2022 Kris Jenkins, Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Kris Jenkins <krisajenkins@gmail.com>
 

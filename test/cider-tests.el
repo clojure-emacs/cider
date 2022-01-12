@@ -1,6 +1,6 @@
 ;;; cider-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2021 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2022 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>

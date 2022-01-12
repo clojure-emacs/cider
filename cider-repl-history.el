@@ -1,6 +1,6 @@
 ;;; cider-repl-history.el --- REPL input history browser  -*- lexical-binding: t; -*-
 
-;; Copyright (c) 2017-2021 John Valente and browse-kill-ring authors
+;; Copyright (c) 2017-2022 John Valente and browse-kill-ring authors
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

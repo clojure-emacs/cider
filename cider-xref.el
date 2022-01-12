@@ -1,6 +1,6 @@
 ;;; cider-xref.el --- Xref functionality for Clojure -*- lexical-binding: t -*-
 
-;; Copyright © 2019-2021 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2019-2022 Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 

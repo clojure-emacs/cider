@@ -1,6 +1,6 @@
 ;;; cider-common.el --- Common use functions         -*- lexical-binding: t; -*-
 
-;; Copyright © 2015-2021  Artur Malabarba
+;; Copyright © 2015-2022  Artur Malabarba
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 

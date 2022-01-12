@@ -1,7 +1,7 @@
 ;;; cider-eldoc.el --- eldoc support for Clojure -*- lexical-binding: t -*-
 
 ;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2021 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2013-2022 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
