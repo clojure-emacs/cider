@@ -11,7 +11,7 @@ one as "dynamic indentation".
 
 == Static Indentation
 
-NOTE: Everything is this section will work as described even if CIDER is not present/active. Static indentation
+NOTE: Everything in this section will work as described even if CIDER is not present/active. Static indentation
 doesn't require a REPL to work.
 
 `clojure-mode` is smart enough to indent most Clojure code correctly out-of-the-box, but it can't know
@@ -21,7 +21,7 @@ if something is a macro and its body should be indented differently.
 
 === Indentation Modes
 
-There are few common ways to indent Clojure code and all of them are supported by `clojure-mode`.
+There are a few common ways to indent Clojure code and all of them are supported by `clojure-mode`.
 
 The indentation of function forms is configured by the variable
 `clojure-indent-style`. It takes three possible values:
@@ -71,7 +71,7 @@ TIP: You can read more about the indentation options in `clojure-mode` https://g
 
 As mentioned earlier, `clojure-mode` can't know if something in your code is a macro that has to be indented
 differently from a regular function invocation (most likely because the macro takes some forms as parameters).
-In such situation you need to
+In such a situation you need to
 teach `clojure-mode` how to indent the macro in question. Consider this simple example:
 
 [source,clojure]
