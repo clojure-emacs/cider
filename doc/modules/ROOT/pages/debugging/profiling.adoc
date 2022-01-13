@@ -18,7 +18,7 @@ namespace.
 Afterwards you can evaluate some code making use of those vars and their
 invocations will be automatically profiled.
 
-You can display a report of the collected profiling data with `M-x cider-profile-display-stats` (kbd:[C-c C-= S]). If you'd like to limit the displayed data to a particular var you should try
+You can display a report of the collected profiling data with `M-x cider-profile-summary` (kbd:[C-c C-= S]). If you'd like to limit the displayed data to a particular var you should try
 `M-x cider-profile-var-summary` (kbd:[C-c C-= s]).
 
 == Understanding the Report Format
