@@ -136,7 +136,7 @@ The default value means:
 - If the target file is already visible in a window, reuse it (switch to it).
 - Otherwise, open the target buffer in the current window.
 
-For further details, see https://docs.cider.mx/cider/repl/configuration.html#_control_what_window_to_use_when_jumping_to_a_definition"
+For further details, see https://docs.cider.mx/cider/config/basic_config.html#control-what-window-to-use-when-jumping-to-a-definition"
   :type 'sexp
   :group 'cider
   :package-version '(cider . "0.24.0"))
