@@ -771,6 +771,22 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                                  (cider-emit-interactive-eval-err-output err))
                                '()))
 
+(defun cider-eval-kill-ring-handler ()
+  "Make a handler for evaluating and storing the eval result in the kill ring."
+  (nrepl-make-response-handler (current-buffer)
+                               (lambda (_buffer value)
+                                 (with-temp-buffer
+                                   (insert
+                                    (if (derived-mode-p 'cider-clojure-interaction-mode)
+                                        (format "\n%s\n" value)
+                                      value))
+                                   (copy-region-as-kill (point-min) (point-max))))
+                               (lambda (_buffer out)
+                                 (cider-emit-interactive-eval-output out))
+                               (lambda (_buffer err)
+                                 (cider-emit-interactive-eval-err-output err))
+                               '()))
+
 (defun cider-eval-print-with-comment-handler (buffer location comment-prefix)
   "Make a handler for evaluating and printing commented results in BUFFER.
 LOCATION is the location marker at which to insert.  COMMENT-PREFIX is the
@@ -932,6 +948,17 @@ buffer."
                           (when output-to-current-buffer (cider-eval-print-handler))
                           (cider-last-sexp 'bounds)
                           (cider--nrepl-pr-request-map)))
+
+(defun cider-eval-last-sexp-to-kill-ring (&optional pretty)
+  "Evaluate the expression preceding point.
+Store the evaluation result in the kill ring.
+Pretty print the result if PRETTY is non-nil."
+  (interactive "P")
+  (cider-interactive-eval nil
+                          (cider-eval-kill-ring-handler)
+                          (cider-last-sexp 'bounds)
+                          ;; this says that it does NOT require pretty printing... add an option?
+                          (when pretty (cider--nrepl-pr-request-map))))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
