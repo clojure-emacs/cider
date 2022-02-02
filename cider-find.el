@@ -232,7 +232,10 @@ thing at point."
 ;; CIDER's xref backend was added in CIDER 1.2.
 (defun cider--xref-backend ()
   "Used for xref integration."
-  'cider)
+  ;; Check if `cider-nrepl` middleware is loaded. Allows fallback to other xref
+  ;; backends, if cider-nrepl is not loaded.
+  (when (cider-nrepl-op-supported-p "ns-path")
+    'cider))
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql cider)))
   "Return the relevant identifier at point."
