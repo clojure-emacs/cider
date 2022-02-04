@@ -5,7 +5,7 @@
 ### Changes
 
 * [#3127](https://github.com/clojure-emacs/cider/pull/3040): Strip all exec-opts flags (`-A` `-M` `-T` `-X`) if they exist in `cider-clojure-cli-aliases`. Also addresses a duplicate `:` in the generated `clj` command.
-* Enable `cider-enrich-classpath` by default again.
+* Enable `cider-enrich-classpath` by default.
 
 ### Bugs fixed
 
