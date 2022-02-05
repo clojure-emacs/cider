@@ -28,7 +28,7 @@
 * Make it possible to specify the version of `cider-nrepl` to use with `cider-jack-in`. See `cider-injected-middleware-version`.
 * Make it possible to specify the version of nREPL to use with `cider-jack-in`. See `cider-injected-nrepl-version`.
 * Upgrade `cider-nrepl`, `Orchard` and `clj-suitable` for pulling their latest bugfixes.
-* Add support for babaska projects to `cider-jack-in`.
+* Add support for babashka projects to `cider-jack-in`.
 * Introduce `cider-jack-in-lein-middlewares` defcustom.
 * [#3093](https://github.com/clojure-emacs/cider/pull/3093): Make `see-also`s clickable in ClojureDocs buffers.
 * [#3044](https://github.com/clojure-emacs/cider/pull/3044): Dynamically upgrade nREPL connection. See `cider-upgrade-nrepl-connection`.
