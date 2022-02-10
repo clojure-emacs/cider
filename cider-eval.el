@@ -167,6 +167,15 @@ If t, save the file without confirmation."
   :group 'cider
   :package-version '(cider . "0.16.0"))
 
+(defcustom cider-eval-register ?e
+  "The text register assigned to the most recent evaluation result.
+When non-nil, the return value of all CIDER eval commands are
+automatically written into this register."
+  :type '(choice character
+                 (const nil))
+  :group 'cider
+  :package-version '(cider . "1.4.0"))
+
 
 ;;; Utilities
 
@@ -651,7 +660,9 @@ The handler simply inserts the result value in BUFFER."
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (_buffer value)
                                    (with-current-buffer buffer
-                                     (insert value)))
+                                     (insert value))
+                                   (when cider-eval-register
+                                     (set-register cider-eval-register value))                                   )
                                  (lambda (_buffer out)
                                    (cider-repl-emit-interactive-stdout out))
                                  (lambda (_buffer err)
@@ -723,7 +734,9 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                          (cider--make-fringe-overlays-for-region beg end)
                                          (setq fringed t))
                                      (cider--make-fringe-overlay end))
-                                   (cider--display-interactive-eval-result value end))
+                                   (cider--display-interactive-eval-result value end)
+                                   (when cider-eval-register
+                                     (set-register cider-eval-register value)))
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
                                  (lambda (_buffer err)
@@ -768,7 +781,9 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                                    (insert
                                     (if (derived-mode-p 'cider-clojure-interaction-mode)
                                         (format "\n%s\n" value)
-                                      value))))
+                                      value)))
+                                 (when cider-eval-register
+                                   (set-register cider-eval-register value)))
                                (lambda (_buffer out)
                                  (cider-emit-interactive-eval-output out))
                                (lambda (_buffer err)
@@ -785,7 +800,9 @@ comment prefix to use."
                                    (save-excursion
                                      (goto-char (marker-position location))
                                      (insert (concat comment-prefix
-                                                     value "\n")))))
+                                                     value "\n"))))
+                                 (when cider-eval-register
+                                   (set-register cider-eval-register value)))
                                (lambda (_buffer out)
                                  (cider-emit-interactive-eval-output out))
                                (lambda (_buffer err)
