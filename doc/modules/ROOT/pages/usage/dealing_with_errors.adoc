@@ -15,7 +15,8 @@ TIP: Use kbd:[q] to quickly close an error buffer.
 
 By default, when an exception occurs, CIDER will display the exception
 in an error buffer using `cider-stacktrace-mode`. You can suppress
-this behavior, however:
+this behavior, which causes just the error message to be output as a
+temporary overlay or in the echo area:
 
 [source,lisp]
 ----
