@@ -902,7 +902,11 @@ arguments and only proceed with evaluation if it returns nil."
         (start (car-safe bounds))
         (end   (car-safe (cdr-safe bounds))))
     (when (and start end)
-      (remove-overlays start end 'cider-temporary t))
+      ;; NOTE: don't use `remove-overlays' as it splits and leaves behind
+      ;; partial overlays, leading to duplicate eval results in some situations.
+      (dolist (ov (overlays-in start end))
+        (when (eq (overlay-get ov 'cider-temporary) t)
+          (delete-overlay ov))))
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
                  (funcall cider-interactive-eval-override form callback bounds))

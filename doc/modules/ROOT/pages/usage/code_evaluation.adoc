@@ -207,6 +207,24 @@ Note that this also affects the position of debugger overlays.
 (setq cider-result-overlay-position 'at-point)
 ----
 
+
+You can also customize how overlays are persisted using the variable
+`cider-eval-result-duration`.
+
+By default, its value is `'command`, meaning that result overlays disappear
+after the next user-executed command, such as moving the point or scrolling.
+
+Setting the variable to a number represents the duration in seconds until
+overlays are removed, while setting it to `'change' persists overlays until the
+next change to the buffer contents.
+
+
+[source,lisp]
+----
+(setq cider-eval-result-duration 5.0)
+(setq cider-eval-result-duration 'change)
+----
+
 === Auto-Save Clojure Buffers on Load
 
 Normally, CIDER prompts you to save a modified Clojure buffer when you

@@ -44,9 +44,11 @@ applied with lower priority than the syntax highlighting."
 
 (defface cider-error-overlay-face
   '((((class color) (background light))
-     :background "orange red")
+     :background "orange red"
+     :extend t)
     (((class color) (background dark))
-     :background "firebrick"))
+     :background "firebrick"
+     :extend t))
   "Like `cider-result-overlay-face', but for evaluation errors."
   :group 'cider
   :package-version '(cider "0.25.0"))
@@ -98,9 +100,11 @@ If 'at-point, display at the end of the respective sexp."
   "Duration, in seconds, of CIDER's eval-result overlays.
 If nil, overlays last indefinitely.
 If the symbol `command', they're erased after the next command.
+If the symbol `change', they last until the next change to the buffer.
 Also see `cider-use-overlays'."
   :type '(choice (integer :tag "Duration in seconds")
                  (const :tag "Until next command" command)
+                 (const :tag "Until next buffer change" change)
                  (const :tag "Last indefinitely" nil))
   :group 'cider
   :package-version '(cider . "0.10.0"))
@@ -125,10 +129,14 @@ PROPS is a plist of properties and values to add to the overlay."
     (push #'cider--delete-overlay (overlay-get o 'modification-hooks))
     o))
 
-(defun cider--remove-result-overlay ()
+(defun cider--remove-result-overlay (&rest _)
   "Remove result overlay from current buffer.
-This function also removes itself from `post-command-hook'."
-  (remove-hook 'post-command-hook #'cider--remove-result-overlay 'local)
+This function also removes itself from `post-command-hook' and
+`after-change-functions'."
+  (let ((hook (pcase cider-eval-result-duration
+                (`command 'post-command-hook)
+                (`change 'after-change-functions))))
+    (remove-hook hook #'cider--remove-result-overlay 'local))
   (remove-overlays nil nil 'category 'result))
 
 (defun cider--remove-result-overlay-after-command ()
@@ -258,7 +266,11 @@ overlay."
                  (add-hook 'post-command-hook
                            #'cider--remove-result-overlay-after-command
                            nil 'local)
-               (cider--remove-result-overlay-after-command))))
+               (cider--remove-result-overlay-after-command)))
+            (`change
+             (add-hook 'after-change-functions
+                       #'cider--remove-result-overlay
+                       nil 'local)))
           (when-let* ((win (get-buffer-window buffer)))
             ;; Left edge is visible.
             (when (and (<= (window-start win) (point) (window-end win))
