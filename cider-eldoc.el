@@ -286,7 +286,7 @@ if the maximum number of sexps to skip is exceeded."
             (error))
           (while
               (let ((p (point)))
-                (forward-sexp -1)
+                (clojure-backward-logical-sexp 1)
                 (when (< (point) p)
                   (setq num-skipped-sexps
                         (unless (and cider-eldoc-max-num-sexps-to-skip
