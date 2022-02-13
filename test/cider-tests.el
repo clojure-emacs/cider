@@ -172,7 +172,7 @@
 
   (describe "when there are multiple dependencies"
     (before-each
-      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0") ("cider/cider-nrepl" "0.11.0")))
+      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0")))
       (setq-local cider-jack-in-nrepl-middlewares '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can inject dependencies in a lein project"
@@ -189,7 +189,7 @@
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
-      (setq-local cider-jack-in-dependencies ("refactor-nrepl" "2.0.0"))
+      (setq-local cider-jack-in-dependencies '(("nrepl/nrepl" "0.5.3") ("refactor-nrepl" "2.0.0")))
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
               :to-equal (concat "-i \"(require 'cider.tasks)\""
                                 " -d "
