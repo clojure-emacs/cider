@@ -479,21 +479,14 @@ Added to `cider-jack-in-lein-plugins' (which see) when doing
 `cider-jack-in-cljs'.")
 (put 'cider-jack-in-cljs-lein-plugins 'risky-local-variable t)
 
-(defun cider-jack-in-normalized-lein-plugins (&optional project-type)
+(defun cider-jack-in-normalized-lein-plugins ()
   "Return a normalized list of Leiningen plugins to be injected.
 See `cider-jack-in-lein-plugins' for the format, except that the list
-returned by this function does not include keyword arguments.
-
-PROJECT-TYPE will be observed, for avoiding injecting plugins
-where it doesn't make sense."
-  (let* ((corpus (if (and cider-enrich-classpath
-                          (eq project-type 'lein))
-                     (append cider-jack-in-lein-plugins
-                             '(("mx.cider/enrich-classpath" "1.8.0")))
-                   cider-jack-in-lein-plugins))
-         (corpus (append corpus
-                         `(("cider/cider-nrepl" ,cider-injected-middleware-version)))))
-    (thread-last corpus
+returned by this function does not include keyword arguments."
+  (let (plugins (append cider-jack-in-lein-plugins
+                     `(("mx.cider/enrich-classpath" "1.8.0")
+                       ("cider/cider-nrepl" ,cider-injected-middleware-version))))
+    (thread-last plugins
       (seq-filter
        (lambda (spec)
          (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
@@ -558,16 +551,16 @@ string is quoted for passing as argument to an inferior shell."
                      " ")
           " " params))
 
-(defun cider-boot-jack-in-dependencies (global-opts params dependencies plugins middlewares)
+(defun cider-boot-jack-in-dependencies (global-opts params dependencies middlewares)
   "Create boot jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES,
-PLUGINS and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
-`cider-boot-middleware-task` before concatenating and DEPENDENCIES and PLUGINS
+and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
+`cider-boot-middleware-task` before concatenating and DEPENDENCIES
  are passed on to `cider-boot-dependencies`."
   (concat global-opts
           (unless (seq-empty-p global-opts) " ")
           "-i \"(require 'cider.tasks)\" " ;; Note the space at the end here
-          (cider-boot-dependencies (append dependencies plugins))
+          (cider-boot-dependencies (append dependencies `(("cider/cider-nrepl" ,cider-injected-middleware-version))))
           (cider-boot-middleware-task params middlewares)))
 
 (defun cider--lein-artifact-exclusions (exclusions)
@@ -617,9 +610,7 @@ one used."
   (let* ((deps-string (string-join
                        (seq-map (lambda (dep)
                                   (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))
-                                ;; NOTE: injecting Lein plugins for deps.edn projects
-                                ;; seems a bit dubious, worth revisiting at some point.
-                                (append dependencies cider-jack-in-lein-plugins))
+                                (append dependencies `(("cider/cider-nrepl" ,cider-injected-middleware-version))))
                        " "))
          (middleware (mapconcat
                       (apply-partially #'format "%s")
@@ -639,7 +630,7 @@ one used."
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
-  (let ((dependencies (append dependencies cider-jack-in-lein-plugins)))
+  (let ((dependencies (append dependencies `(("cider/cider-nrepl" ,cider-injected-middleware-version)))))
     (concat
      global-opts
      (unless (seq-empty-p global-opts) " ")
@@ -680,7 +671,7 @@ dependencies."
             (cider-add-clojure-dependencies-maybe
              cider-jack-in-dependencies)
             cider-jack-in-dependencies-exclusions
-            (cider-jack-in-normalized-lein-plugins project-type)
+            (cider-jack-in-normalized-lein-plugins)
             (if cider-enrich-classpath
                 (append cider-jack-in-lein-middlewares
                         '("cider.enrich-classpath/middleware"))
@@ -690,7 +681,6 @@ dependencies."
             params
             (cider-add-clojure-dependencies-maybe
              cider-jack-in-dependencies)
-            (cider-jack-in-normalized-lein-plugins project-type)
             (cider-jack-in-normalized-nrepl-middlewares)))
     ('clojure-cli (cider-clojure-cli-jack-in-dependencies
                    global-opts
