@@ -120,7 +120,7 @@
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal (concat "update-in :dependencies conj "
-                                (shell-quote-argument "[nrepl/nrepl \"0.28.1\"]")
+                                (shell-quote-argument "[nrepl/nrepl \"0.5.3\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.28.1\"]")
                                 " -- update-in :plugins conj "
@@ -189,6 +189,7 @@
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
+      (setq-local cider-jack-in-dependencies ("refactor-nrepl" "2.0.0"))
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
               :to-equal (concat "-i \"(require 'cider.tasks)\""
                                 " -d "
