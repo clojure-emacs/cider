@@ -172,6 +172,7 @@
 
   (describe "when there are multiple dependencies"
     (before-each
+      ;; FIXME: Those locals affect tests that follow them
       (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0")))
       (setq-local cider-jack-in-nrepl-middlewares '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '()))
@@ -207,6 +208,8 @@
 
   (describe "when there are global options"
     (before-each
+      ;; FIXME: Needed because its set in an earlier test
+      (setq-local cider-jack-in-lein-plugins nil)
       (setq-local cider-jack-in-dependencies '(("nrepl/nrepl" "0.5.3")))
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '()))
@@ -241,6 +244,7 @@
     (before-each
       (fset 'plugins-predicate (lambda (&rest _) t))
       (fset 'middlewares-predicate (lambda (&rest _) t))
+      (setq-local cider-enrich-classpath nil)
       (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0" :predicate plugins-predicate)))
       (setq-local cider-jack-in-nrepl-middlewares '(("refactor-nrepl.middleware/wrap-refactor" :predicate middlewares-predicate) "cider.nrepl/cider-middleware" ("another/middleware"))))
     (it "includes plugins whose predicates return true"
@@ -283,7 +287,8 @@
               :and-return-value '(("refactor-nrepl" "2.0.0")
                                   ("cider/cider-nrepl" "0.28.1")
                                   ("mx.cider/enrich-classpath" "1.8.0")))
-      (setq-local cider-jack-in-dependencies-exclusions '()))
+      (setq-local cider-jack-in-dependencies-exclusions '())
+      (setq-local cider-enrich-classpath t))
     (it "uses them in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal (concat "update-in :dependencies conj "
@@ -301,7 +306,7 @@
     (before-each
       (spy-on 'cider-jack-in-normalized-nrepl-middlewares
               :and-return-value '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
-      (setq-local cider-jack-in-dependencies ("refactor-nrepl" "2.0.0"))
+      (setq-local cider-jack-in-dependencies '(("nrepl/nrepl" "0.5.3") ("refactor-nrepl" "2.0.0")))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "uses them in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
