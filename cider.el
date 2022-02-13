@@ -464,8 +464,6 @@ plugin should actually be injected.  (This is useful primarily for packages
 that extend CIDER, not for users.  For example, a refactoring package might
 want to inject some middleware only when within a project context.)")
 (put 'cider-jack-in-lein-plugins 'risky-local-variable t)
-(cider-add-to-alist 'cider-jack-in-lein-plugins
-                    "cider/cider-nrepl" cider-injected-middleware-version)
 
 (defvar cider-jack-in-lein-middlewares nil
   "List of Leiningen :middleware values to be injected at jack-in.
@@ -492,7 +490,9 @@ where it doesn't make sense."
                           (eq project-type 'lein))
                      (append cider-jack-in-lein-plugins
                              '(("mx.cider/enrich-classpath" "1.8.0")))
-                   cider-jack-in-lein-plugins)))
+                   cider-jack-in-lein-plugins))
+         (corpus (append corpus
+                         `(("cider/cider-nrepl" ,cider-injected-middleware-version)))))
     (thread-last corpus
       (seq-filter
        (lambda (spec)
