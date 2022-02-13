@@ -394,9 +394,6 @@ your version of Boot or Leiningen is bundling an older one."
   :package-version '(cider . "1.2.0")
   :safe #'stringp)
 
-(cider-add-to-alist 'cider-jack-in-dependencies
-                    "nrepl/nrepl" cider-injected-nrepl-version)
-
 (defvar cider-jack-in-cljs-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.
 Added to `cider-jack-in-dependencies' when doing `cider-jack-in-cljs'.")
@@ -540,6 +537,13 @@ LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
 string is quoted for passing as argument to an inferior shell."
   (concat "-d " (shell-quote-argument (format "%s:%s" (car list) (cadr list)))))
 
+(defun cider--jack-in-required-dependencies ()
+  "Returns the required CIDER deps.
+They are normally added to `cider-jack-in-dependencies',
+unless it's a Lein project."
+  `(("nrepl/nrepl" ,cider-injected-nrepl-version)
+    ("cider/cider-nrepl" ,cider-injected-middleware-version)))
+
 (defun cider-boot-dependencies (dependencies)
   "Return a list of boot artifact strings created from DEPENDENCIES."
   (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
@@ -563,7 +567,7 @@ and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
   (concat global-opts
           (unless (seq-empty-p global-opts) " ")
           "-i \"(require 'cider.tasks)\" " ;; Note the space at the end here
-          (cider-boot-dependencies (append dependencies `(("cider/cider-nrepl" ,cider-injected-middleware-version))))
+          (cider-boot-dependencies (append (cider--jack-in-required-dependencies) dependencies))
           (cider-boot-middleware-task params middlewares)))
 
 (defun cider--lein-artifact-exclusions (exclusions)
@@ -613,7 +617,7 @@ one used."
   (let* ((deps-string (string-join
                        (seq-map (lambda (dep)
                                   (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))
-                                (append dependencies `(("cider/cider-nrepl" ,cider-injected-middleware-version))))
+                                (append (cider--jack-in-required-dependencies) dependencies))
                        " "))
          (middleware (mapconcat
                       (apply-partially #'format "%s")
@@ -633,7 +637,7 @@ one used."
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
-  (let ((dependencies (append dependencies `(("cider/cider-nrepl" ,cider-injected-middleware-version)))))
+  (let ((dependencies (append (cider--jack-in-required-dependencies) dependencies)))
     (concat
      global-opts
      (unless (seq-empty-p global-opts) " ")
@@ -672,7 +676,7 @@ dependencies."
             global-opts
             params
             (cider-add-clojure-dependencies-maybe
-             cider-jack-in-dependencies)
+             (append `(("nrepl/nrepl" ,cider-injected-nrepl-version)) cider-jack-in-dependencies))
             cider-jack-in-dependencies-exclusions
             (cider-jack-in-normalized-lein-plugins)
             (if cider-enrich-classpath

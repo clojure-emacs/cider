@@ -99,9 +99,6 @@ Generally you should avoid doing this, but it may be useful if you want to try
 a newer version or you encounter some regression that forces you to temporarily use
 an older version.
 
-NOTE: You'll have to restart Emacs for such changes to take effect, if you've already loaded CIDER. Alternatively you can update
-manually the underlying dependencies list (e.g. `cider-jack-in-dependencies`).
-
 CIDER can also inject a Clojure dependency into your project, which is useful,
 for example, if your project defaults to an older version of Clojure than that
 supported by the CIDER middleware. Set `cider-jack-in-auto-inject-clojure`
