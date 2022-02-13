@@ -483,9 +483,9 @@ Added to `cider-jack-in-lein-plugins' (which see) when doing
   "Return a normalized list of Leiningen plugins to be injected.
 See `cider-jack-in-lein-plugins' for the format, except that the list
 returned by this function does not include keyword arguments."
-  (let (plugins (append cider-jack-in-lein-plugins
-                     `(("mx.cider/enrich-classpath" "1.8.0")
-                       ("cider/cider-nrepl" ,cider-injected-middleware-version))))
+  (let ((plugins (append cider-jack-in-lein-plugins
+                         `(("mx.cider/enrich-classpath" "1.8.0")
+                           ("cider/cider-nrepl" ,cider-injected-middleware-version)))))
     (thread-last plugins
       (seq-filter
        (lambda (spec)
