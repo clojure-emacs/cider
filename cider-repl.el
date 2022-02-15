@@ -593,13 +593,43 @@ Return the position of the prompt beginning."
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
 
-(defun cider-repl--flush-ansi-color-context ()
-  "Flush ansi color context after printing.
-When there is a possible unfinished ansi control sequence,
- `ansi-color-context` maintains this list."
-  (when (and ansi-color-context (stringp (cadr ansi-color-context)))
-    (insert-before-markers (cadr ansi-color-context))
-    (setq ansi-color-context nil)))
+(defun ansi-color-apply--emacs-bug-53808-workaround (string)
+  "Like `ansi-color-apply', but does not block on stray ESC in STRING.
+
+Workaround for Emacs bug#53808 to also include any non-SGR ANSI control
+sequence found at the end of STRING."
+  (let* ((result (ansi-color-apply string))
+
+         (context-flush?
+          (when-let (fragment (and ansi-color-context (cadr ansi-color-context)))
+            (save-match-data
+              ;; An SGR seq is defined as ESC [ (:digit:+;)* :digit:+ m
+              ;; e.g. "\e[1m" or "\e[3;30m"
+              (when (string-match
+                     (rx (sequence ?\e
+                                   (? (and (or ?\[ eol)
+                                           (or (+ (any (?0 . ?9))) eol)
+                                           (* (sequence ?\; (+ (any (?0 . ?9)))))
+                                           (or ?\; (? (group-n 1 ?m)))))))
+                     fragment)
+                (let* ((sgr-end-pos (match-end 0))
+                       (sgr-whole? (match-string 1))
+                       (fragment-matches-whole? (or (= sgr-end-pos 0)
+                                                    (= sgr-end-pos (length fragment)))))
+                  (when (and (not sgr-whole?)
+                             (not fragment-matches-whole?))
+                    ;; Definitely not an SGR seq.
+                    t)))))))
+
+    (if (not context-flush?)
+        result
+
+      (progn
+        ;; Temporarily replace ESC char to flush it out, and append to result.
+        (aset (cadr ansi-color-context) 0 ?\0)
+        (let ((result-context (ansi-color-apply "")))
+          (aset result-context 0 ?\e)
+          (concat result result-context))))))
 
 (defvar-local cider-repl--ns-forms-plist nil
   "Plist holding ns->ns-form mappings within each connection.")
@@ -672,7 +702,9 @@ namespaces.  STRING is REPL's output."
   (put-text-property 0 (length string) 'help-echo 'cider-locref-help-echo string)
   string)
 
-(defvar cider-repl-preoutput-hook '(ansi-color-apply
+(defvar cider-repl-preoutput-hook `(,(if (< emacs-major-version 29)
+                                       'ansi-color-apply--emacs-bug-53808-workaround
+                                      'ansi-color-apply)
                                     cider-repl-highlight-current-project
                                     cider-repl-highlight-spec-keywords
                                     cider-repl-add-locref-help-echo)
@@ -729,8 +761,7 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
                                  'font-lock-face face
                                  'rear-nonsticky '(font-lock-face)))
         (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
-        (insert-before-markers string)
-        (cider-repl--flush-ansi-color-context))
+        (insert-before-markers string))
       (when (and (= (point) cider-repl-prompt-start-mark)
                  (not (bolp)))
         (insert-before-markers "\n")

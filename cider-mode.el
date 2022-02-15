@@ -765,7 +765,7 @@ with the given LIMIT."
     value))
 
 (defun cider--compile-font-lock-keywords (symbols-plist core-plist)
-  "Return a list of font-lock rules for symbols."
+  "Return a list of font-lock rules for symbols in SYMBOLS-PLIST, CORE-PLIST."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
                                          '(function var macro core deprecated)
                                        cider-font-lock-dynamically))
