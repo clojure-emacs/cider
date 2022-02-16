@@ -17,12 +17,15 @@ and Boot releases.
 
 == Java
 
-CIDER officially targets Java 8, Java 11 and the most recent rapid
-release version (e.g. Java 15).  Generally speaking, we aim
+CIDER officially targets Java 8, Java 11, Java 17, and the most recent rapid
+release version (e.g. Java 18).  Generally speaking, we aim
 to support all Java releases that are currently officially supported
 by Oracle.
 
 NOTE: The requirements for Java are pretty much ``cider-nrepl``'s requirements.
+
+On Linux you are also strongly advised to make sure that JDK sources and javadocs are installed.
+You can find example commands in https://docs.cider.mx/cider/troubleshooting.html#navigation-to-jdk-sources-doesnt-work[Troubleshooting].
 
 == Clojure
 

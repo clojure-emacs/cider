@@ -211,67 +211,6 @@ different configurations.
 In this example, the path `/src` will be translated to the correct path of your
 Clojure project on the host machine. And `/root/.m2` to the host's `~/.m2` folder.
 
-== Use a Local Copy of the JDK API Documentation
-
-If you are targeting the JVM and prefer a local copy of the JDK API
-documentation over Oracle's official copy (e.g., for
-http://docs.oracle.com/javase/8/docs/api/[JavaSE 8]), per nREPL's
-http://docs.oracle.com/javase/8/docs/api/[`javadoc-info` logic (accurate as of 29 Dec 2014)],
-you can arrange your project to include the *root* path of the local API doc
-(i.e., where the `index.html` is located) to be included on your classpath
-(i.e., where the doc HTML files can be located by
-`clojure.java.io/resource`). For example, for Leiningen, with the local API
-path being `/usr/share/doc/java/api/`, put the following line in
-`project.clj`:
-
-[source,clojure]
-----
-:dev {:resource-paths ["/usr/share/doc/java/api/"]}
-----
-
-*or* the following line in `$HOME/.lein/profiles.clj`:
-
-[source,clojure]
-----
-:user {:resource-paths ["/usr/share/doc/java/api/"]}
-----
-
-More details can be found https://github.com/clojure-emacs/cider/issues/930[here].
-
-== Use a Local Copy of the Java Source Code
-
-When an exception is thrown, e.g. when eval-ing `(. clojure.lang.RT foo)`, a
-stack trace pops up. Some places of the stack trace link to Clojure files,
-others to Java files. By default, you can click the Clojure file links to
-navigate there. If you configure `cider-jdk-src-paths`, you can also click the
-Java file links to navigate there.
-
-On Windows and macOS the JDK source code is bundled with the JDK. On Windows its
-typical location is `+C:\Program Files\Java\{jdk-version}\src.zip+`
-and on macOS it's `+/Library/Java/JavaVirtualMachines/{jdk-version}/Contents/Home/src.zip+`.
-
-On Linux distributions usually the source code is distributed as a separate package.
-Here's how do get the JDK 8 source on Debian/Ubuntu:
-
- $ sudo apt install openjdk-8-source
-
-The zip is installed to `/usr/lib/jvm/openjdk-8/src.zip`.
-
-Here's how to get the JDK 11 source on Red Hat/Fedora:
-
- $ sudo dnf install java-11-openjdk-src
-
-You can download Clojure Java source code from
-https://repo1.maven.org/maven2/org/clojure/clojure/1.8.0/clojure-1.8.0-sources.jar[here].
-
-Extract both and configure e.g. like so:
-
- (setq cider-jdk-src-paths '("~/java/clojure-1.8.0-sources"
-                             "~/java/openjvm-8-src"))
-
-It's possible to point `cider-jdk-src-paths` to `jar` or `zip` files, but extracting
-them is better since you can use features like `ag` or `dired-jump`.
-
 == Filter out namespaces in certain namespace-related commands
 
 You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apropos*`
