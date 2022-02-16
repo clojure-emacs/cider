@@ -124,7 +124,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.28.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.8.0\"]")
+                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
 
@@ -137,7 +137,7 @@
                          " -- update-in :plugins conj "
                          (shell-quote-argument "[cider/cider-nrepl \"0.28.1\"]")
                          " -- update-in :plugins conj "
-                         (shell-quote-argument "[mx.cider/enrich-classpath \"1.8.0\"]")
+                         (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
                          " -- update-in :middleware conj cider.enrich-classpath/middleware"
                          " -- repl :headless")))
 
@@ -149,7 +149,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.28.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.8.0\"]")
+                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
 
@@ -185,7 +185,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.28.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.8.0\"]")
+                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
 
@@ -219,7 +219,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.28.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.8.0\"]")
+                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless")))
     (it "can concat in a boot project"
@@ -285,7 +285,7 @@
       (spy-on 'cider-jack-in-normalized-lein-plugins
               :and-return-value '(("refactor-nrepl" "2.0.0")
                                   ("cider/cider-nrepl" "0.28.1")
-                                  ("mx.cider/enrich-classpath" "1.8.0")))
+                                  ("mx.cider/enrich-classpath" "1.9.0")))
       (setq-local cider-jack-in-dependencies-exclusions '())
       (setq-local cider-enrich-classpath t))
     (it "uses them in a lein project"
@@ -297,7 +297,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.28.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.8.0\"]")
+                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath/middleware"
                                 " -- repl :headless"))))
 
