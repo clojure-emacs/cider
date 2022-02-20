@@ -799,10 +799,6 @@ KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
 
 (define-obsolete-variable-alias 'cider-jdk-src-paths nil "CIDER 1.3")
 
-(defun cider-resolve-java-class (class)
-  "Deprecated"
-  nil)
-
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
