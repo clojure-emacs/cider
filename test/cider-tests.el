@@ -435,6 +435,10 @@
         (let ((cider-clojure-cli-aliases ":test"))
           (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                   :to-equal expected))
+        (describe "should remove duplicates, yielding the same result"
+                  (expect (cider-clojure-cli-jack-in-dependencies nil nil '(("nrepl/nrepl" "0.9.0")
+                                                                            ("nrepl/nrepl" "0.9.0")))
+                          :to-equal expected))
         (describe "should strip out leading exec opts -A -M -T -X"
           (let ((cider-clojure-cli-aliases "-A:test"))
            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)

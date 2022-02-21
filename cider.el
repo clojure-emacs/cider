@@ -608,17 +608,22 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
    " -- "
    params))
 
+(defun cider--dedupe-deps (deps)
+  (cl-delete-duplicates deps :test 'equal))
+
 (defun cider-clojure-cli-jack-in-dependencies (global-options _params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES and GLOBAL-OPTIONS into a suitable
 `clojure` invocation.  The main is placed in an inline alias :cider/nrepl
 so that if your aliases contain any mains, the cider/nrepl one will be the
 one used."
-  (let* ((deps-string (string-join
-                       (seq-map (lambda (dep)
-                                  (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))
-                                (append (cider--jack-in-required-dependencies) dependencies))
-                       " "))
+  (let* ((all-deps (thread-last dependencies
+                     (append (cider--jack-in-required-dependencies))
+                     ;; Duplicates are never OK since they would result in
+                     ;; `java.lang.IllegalArgumentException: Duplicate key [...]`:
+                     (cider--dedupe-deps)
+                     (seq-map (lambda (dep)
+                                (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep))))))
          (middleware (mapconcat
                       (apply-partially #'format "%s")
                       (cider-jack-in-normalized-nrepl-middlewares)
@@ -626,7 +631,7 @@ one used."
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
     (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl"
             (if global-options (format "%s " global-options) "")
-            deps-string
+            (string-join all-deps " ")
             main-opts
             (if cider-clojure-cli-aliases
                 ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
