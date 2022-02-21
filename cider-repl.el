@@ -593,43 +593,51 @@ Return the position of the prompt beginning."
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
 
-(defun ansi-color-apply--emacs-bug-53808-workaround (string)
-  "Like `ansi-color-apply', but does not block on stray ESC in STRING.
+(defun cider-repl--ansi-color-apply (string)
+  "Like `ansi-color-apply', but does not withhold non-SGR seqs found in STRING.
 
-Workaround for Emacs bug#53808 to also include any non-SGR ANSI control
-sequence found at the end of STRING."
+Workaround for Emacs bug#53808 whereby partial ANSI control seqs present in
+the input stream may block the whole colorization process."
   (let* ((result (ansi-color-apply string))
 
-         (context-flush?
+         ;; The STRING may end with a possible incomplete ANSI control seq which
+         ;; the call to `ansi-color-apply' stores in the `ansi-color-context'
+         ;; fragment. If the fragment is not an incomplete ANSI color control
+         ;; sequence (aka SGR seq) though then flush it out and appended it to
+         ;; the result.
+         (fragment-flush?
           (when-let (fragment (and ansi-color-context (cadr ansi-color-context)))
             (save-match-data
-              ;; An SGR seq is defined as ESC [ (:digit:+;)* :digit:+ m
-              ;; e.g. "\e[1m" or "\e[3;30m"
+              ;; Check if fragment is indeed an SGR seq in the making. The SGR
+              ;; seq is defined as starting with ESC followed by [ followed by
+              ;; zero or more [:digit:]+; followed by one or more digits and
+              ;; ending with m.
               (when (string-match
                      (rx (sequence ?\e
                                    (? (and (or ?\[ eol)
                                            (or (+ (any (?0 . ?9))) eol)
                                            (* (sequence ?\; (+ (any (?0 . ?9)))))
-                                           (or ?\; (? (group-n 1 ?m)))))))
+                                           (or ?\; eol)))))
                      fragment)
                 (let* ((sgr-end-pos (match-end 0))
-                       (sgr-whole? (match-string 1))
                        (fragment-matches-whole? (or (= sgr-end-pos 0)
                                                     (= sgr-end-pos (length fragment)))))
-                  (when (and (not sgr-whole?)
-                             (not fragment-matches-whole?))
-                    ;; Definitely not an SGR seq.
+                  (when (not fragment-matches-whole?)
+                    ;; Definitely not an partial SGR seq, flush it out of
+                    ;; `ansi-color-context'.
                     t)))))))
 
-    (if (not context-flush?)
+    (if (not fragment-flush?)
         result
 
       (progn
-        ;; Temporarily replace ESC char to flush it out, and append to result.
+        ;; Temporarily replace the ESC char in the fragment so that is flushed
+        ;; out of `ansi-color-context' by `ansi-color-apply' and append it to
+        ;; the result.
         (aset (cadr ansi-color-context) 0 ?\0)
-        (let ((result-context (ansi-color-apply "")))
-          (aset result-context 0 ?\e)
-          (concat result result-context))))))
+        (let ((result-fragment (ansi-color-apply "")))
+          (aset result-fragment 0 ?\e)
+          (concat result result-fragment))))))
 
 (defvar-local cider-repl--ns-forms-plist nil
   "Plist holding ns->ns-form mappings within each connection.")
@@ -703,7 +711,7 @@ namespaces.  STRING is REPL's output."
   string)
 
 (defvar cider-repl-preoutput-hook `(,(if (< emacs-major-version 29)
-                                       'ansi-color-apply--emacs-bug-53808-workaround
+                                       'cider-repl--ansi-color-apply
                                       'ansi-color-apply)
                                     cider-repl-highlight-current-project
                                     cider-repl-highlight-spec-keywords
