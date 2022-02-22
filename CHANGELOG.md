@@ -10,6 +10,7 @@
 * [#3149](https://github.com/clojure-emacs/cider/pull/3149): Add option `'change` to `cider-eval-result-duration`, allowing multiple eval result overlays to persist until the next change to the buffer.
 * `cider-jack-in-lein-plugins` no longer affects non-Leiningen projects.
   * Third-party packages should rely on `cider-jack-in-dependencies` instead.
+* Upgrade cider-nrepl to [0.28.3](https://github.com/clojure-emacs/cider-nrepl/blob/v0.28.3/CHANGELOG.md#0283-2022-02-22).
 
 ### Bugs fixed
 
