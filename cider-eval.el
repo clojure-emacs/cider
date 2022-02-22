@@ -1310,6 +1310,12 @@ passing arguments."
          (form (format "(%s)" fn-name)))
     (cider-read-and-eval (cons form (length form)))))
 
+(defun cider-kill-last-result ()
+  "Save the last evaluated result into the kill ring."
+  (interactive)
+  (kill-new
+   (nrepl-dict-get (cider-nrepl-sync-request:eval "*1") "value")))
+
 ;; Eval keymaps
 (defvar cider-eval-pprint-commands-map
   (let ((map (define-prefix-command 'cider-eval-pprint-commands-map)))
