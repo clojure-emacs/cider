@@ -1349,6 +1349,7 @@ passing arguments."
     (define-key map (kbd "z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "k") #'cider-kill-last-result)
     (define-key map (kbd "f") 'cider-eval-pprint-commands-map)
 
     ;; duplicates with C- for convenience
@@ -1364,6 +1365,7 @@ passing arguments."
     (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "C-k") #'cider-kill-last-result)
     (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)
     map))
 
