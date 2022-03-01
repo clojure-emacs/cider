@@ -145,7 +145,11 @@ opposite of what that option dictates."
   (let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
     (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
     ;; highlight the symbol in question in the docs buffer
-    (highlight-regexp (cadr (split-string sym "/")) 'bold)))
+    (highlight-regexp
+     (regexp-quote
+      (or (cadr (split-string sym "/"))
+          sym))
+     'bold)))
 
 ;;;###autoload
 (defun cider-clojuredocs (&optional arg)
