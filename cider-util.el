@@ -797,8 +797,6 @@ KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
              (t x)))
           menu-list))
 
-(define-obsolete-variable-alias 'cider-jdk-src-paths nil "CIDER 1.3")
-
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
