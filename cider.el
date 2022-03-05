@@ -425,7 +425,7 @@ Should be newer than the required version for optimal results."
   :package-version '(cider . "1.2.0")
   :safe #'stringp)
 
-(defcustom cider-enrich-classpath t
+(defcustom cider-enrich-classpath nil
   "Whether to use git.io/JiJVX for adding sources and javadocs to the classpath.
 
 This is done in a clean manner, without interfering with classloaders.
