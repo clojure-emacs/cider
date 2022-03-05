@@ -425,15 +425,15 @@
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected)))
-    (let ((expected (string-join '("-Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
-                                   "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
-                                   ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
-                                   " \"[cider.nrepl/cider-middleware]\"]}}}' -M:cider/nrepl")
-                                 "")))
-      (describe "should remove duplicates, yielding the same result"
-                (expect (cider-clojure-cli-jack-in-dependencies nil nil '(("nrepl/nrepl" "0.9.0")
-                                                                          ("nrepl/nrepl" "0.9.0")))
-                        :to-equal expected)))
+    (it "should remove duplicates, yielding the same result"
+        (let ((expected (string-join '("-Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
+                                       "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
+                                       ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                       " \"[cider.nrepl/cider-middleware]\"]}}}' -M:cider/nrepl")
+                                     "")))
+          (expect (cider-clojure-cli-jack-in-dependencies nil nil '(("nrepl/nrepl" "0.9.0")
+                                                                    ("nrepl/nrepl" "0.9.0")))
+                  :to-equal expected)))
     (it "handles aliases correctly"
       (let ((expected (string-join '("-Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
