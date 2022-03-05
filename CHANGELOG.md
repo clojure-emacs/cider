@@ -10,6 +10,9 @@
 * `cider-jack-in-lein-plugins` no longer affects non-Leiningen projects.
   * Third-party packages should rely on `cider-jack-in-dependencies` instead.
 * Upgrade cider-nrepl to [0.28.3](https://github.com/clojure-emacs/cider-nrepl/blob/v0.28.3/CHANGELOG.md#0283-2022-02-22).
+* Enable `cider-enrich-classpath` by default.
+* Remove `cider-jdk-src-paths` defcustom since enrich-classpath makes it redundant.
+* Remove `cider-resolve-java-class` function since enrich-classpath makes it redundant.
 
 ### Bugs fixed
 

@@ -310,20 +310,30 @@ the `enrich-classpath` integration like this:
 
 === Navigation to JDK sources doesn't work
 
-If you can't navigate to the source of built-in methods like `.toUpperCase` you
+Firstly, make sure that you are using enrich-classpath. `cider-enrich-classpath` should be truthy.
+If you are launching your own repl process, it should have the enrich-classpath Leiningen plugin or `clojure` wrapper.
+
+If you are on Linux and still can't navigate to the source of built-in methods like `.toUpperCase` you
 probably haven't installed the JDK sources. While you're at it - it's good to
 install the JDK's Javadocs as well. On Debian/Ubuntu:
 
 [source,shell]
 ----
-$ sudo apt install openjdk-11-source openjdk-11-doc
+$ sudo apt install openjdk-17-source openjdk-17-doc
 ----
 
 On Red Hat/Fedora/CentOS:
 
 [source,shell]
 ----
-$ sudo dnf install java-11-openjdk-src java-11-openjdk-javadoc
+$ sudo dnf install java-17-openjdk-src java-17-openjdk-javadoc
+----
+
+On Guix:
+
+[source,shell]
+----
+$ guix package -i openjdk:jdk
 ----
 
 NOTE: On Windows and macOS the JDK source code is bundled with the JDK.

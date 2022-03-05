@@ -542,7 +542,6 @@ Achieved by destructively manipulating `cider-stacktrace-suppressed-errors'."
          (line-shift (- (or (button-get button 'line) 0)
                         (or (nrepl-dict-get info "line") 1)))
          (file (or
-                (and (null var) (cider-resolve-java-class class))
                 (nrepl-dict-get info "file")
                 (button-get button 'file)))
          ;; give priority to `info` files as `info` returns full paths.
