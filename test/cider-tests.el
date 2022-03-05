@@ -210,6 +210,7 @@
     (before-each
       ;; FIXME: Needed because its set in an earlier test
       (setq-local cider-jack-in-lein-plugins nil)
+      (setq-local cider-jack-in-dependencies nil)
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can concat in a lein project"
@@ -397,6 +398,7 @@
                                 "YwBsAG8AagB1AHIAZQAgACIAIgBjAG0AZAAtAHAAYQByAGEAbQBzACIAIgA="))))
   (describe "when 'clojure-cli project type"
     (it "uses main opts in an alias to prevent other mains from winning"
+      (setq-local cider-jack-in-dependencies nil)
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
@@ -411,12 +413,14 @@
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected)))
+    
     (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
       (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
                                      " \"[cider.nrepl/cider-middleware]\"]}}}' -M:dev:test:cider/nrepl")
                                    "")))
+        (setq-local cider-jack-in-dependencies nil)
         (setq-local cider-clojure-cli-aliases "-A:dev:test")
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
@@ -426,17 +430,17 @@
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected)))
     (it "should remove duplicates, yielding the same result"
-        (let ((expected (string-join '("-Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
-                                       "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
+        (let ((expected (string-join '("-Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.3\"} "
+                                       "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
                                        ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
-                                       " \"[cider.nrepl/cider-middleware]\"]}}}' -M:cider/nrepl")
+                                       " \"[cider.nrepl/cider-middleware]\"]}}}' -M:dev:test:cider/nrepl")
                                      "")))
           (expect (cider-clojure-cli-jack-in-dependencies nil nil '(("nrepl/nrepl" "0.9.0")
                                                                     ("nrepl/nrepl" "0.9.0")))
                   :to-equal expected)))
     (it "handles aliases correctly"
-      (let ((expected (string-join '("-Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
-                                     "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
+      (let ((expected (string-join '("-Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.3\"} "
+                                     "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
                                      " \"[cider.nrepl/cider-middleware]\"]}}}' -M:test:cider/nrepl")
                                    ""))
@@ -458,8 +462,8 @@
             (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                     :to-equal expected)))))
     (it "allows for global options"
-      (let ((expected (string-join '("-J-Djdk.attach.allowAttachSelf -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
-                                     "cider/cider-nrepl {:mvn/version \"0.28.3\"}} "
+      (let ((expected (string-join '("-J-Djdk.attach.allowAttachSelf -Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.3\"} "
+                                     "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
                                      ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
                                      " \"[cider.nrepl/cider-middleware]\"]}}}' -M:test:cider/nrepl")
                                    ""))
