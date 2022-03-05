@@ -711,8 +711,8 @@ namespaces.  STRING is REPL's output."
   string)
 
 (defvar cider-repl-preoutput-hook `(,(if (< emacs-major-version 29)
-                                       'cider-repl--ansi-color-apply
-                                      'ansi-color-apply)
+                                         'cider-repl--ansi-color-apply
+                                       'ansi-color-apply)
                                     cider-repl-highlight-current-project
                                     cider-repl-highlight-spec-keywords
                                     cider-repl-add-locref-help-echo)

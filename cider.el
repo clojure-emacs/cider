@@ -485,7 +485,7 @@ returned by this function does not include keyword arguments."
                              `(("cider/cider-nrepl" ,cider-injected-middleware-version)
                                ("mx.cider/enrich-classpath" "1.9.0")))
                    (append cider-jack-in-lein-plugins
-                             `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
+                           `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
     (thread-last plugins
       (seq-filter
        (lambda (spec)
@@ -609,6 +609,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
    params))
 
 (defun cider--dedupe-deps (deps)
+  "Removes the duplicates in DEPS."
   (cl-delete-duplicates deps :test 'equal))
 
 (defun cider-clojure-cli-jack-in-dependencies (global-options _params dependencies)
