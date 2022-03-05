@@ -22,6 +22,7 @@
 * [#3145](https://github.com/clojure-emacs/cider/pull/3145): Allow fallback to other `xref` backends if cider-nrepl is not loaded.
 * [#3148](https://github.com/clojure-emacs/cider/pull/3148): Fix eval result overlays at point inheriting the faces of following text.
 * [#3133](https://github.com/clojure-emacs/cider/issues/3133): Respect `cider-injected-middleware-version`.
+* [#3163](https://github.com/clojure-emacs/cider/pull/3163): `cider-clojuredocs`: prevent redundant prompt for a symbol.
 
 ## 1.2.0 (2021-12-22)
 
