@@ -593,13 +593,51 @@ Return the position of the prompt beginning."
         (set-marker cider-repl-prompt-start-mark prompt-start)
         prompt-start))))
 
-(defun cider-repl--flush-ansi-color-context ()
-  "Flush ansi color context after printing.
-When there is a possible unfinished ansi control sequence,
- `ansi-color-context` maintains this list."
-  (when (and ansi-color-context (stringp (cadr ansi-color-context)))
-    (insert-before-markers (cadr ansi-color-context))
-    (setq ansi-color-context nil)))
+(defun cider-repl--ansi-color-apply (string)
+  "Like `ansi-color-apply', but does not withhold non-SGR seqs found in STRING.
+
+Workaround for Emacs bug#53808 whereby partial ANSI control seqs present in
+the input stream may block the whole colorization process."
+  (let* ((result (ansi-color-apply string))
+
+         ;; The STRING may end with a possible incomplete ANSI control seq which
+         ;; the call to `ansi-color-apply' stores in the `ansi-color-context'
+         ;; fragment. If the fragment is not an incomplete ANSI color control
+         ;; sequence (aka SGR seq) though then flush it out and appended it to
+         ;; the result.
+         (fragment-flush?
+          (when-let (fragment (and ansi-color-context (cadr ansi-color-context)))
+            (save-match-data
+              ;; Check if fragment is indeed an SGR seq in the making. The SGR
+              ;; seq is defined as starting with ESC followed by [ followed by
+              ;; zero or more [:digit:]+; followed by one or more digits and
+              ;; ending with m.
+              (when (string-match
+                     (rx (sequence ?\e
+                                   (? (and (or ?\[ eol)
+                                           (or (+ (any (?0 . ?9))) eol)
+                                           (* (sequence ?\; (+ (any (?0 . ?9)))))
+                                           (or ?\; eol)))))
+                     fragment)
+                (let* ((sgr-end-pos (match-end 0))
+                       (fragment-matches-whole? (or (= sgr-end-pos 0)
+                                                    (= sgr-end-pos (length fragment)))))
+                  (when (not fragment-matches-whole?)
+                    ;; Definitely not an partial SGR seq, flush it out of
+                    ;; `ansi-color-context'.
+                    t)))))))
+
+    (if (not fragment-flush?)
+        result
+
+      (progn
+        ;; Temporarily replace the ESC char in the fragment so that is flushed
+        ;; out of `ansi-color-context' by `ansi-color-apply' and append it to
+        ;; the result.
+        (aset (cadr ansi-color-context) 0 ?\0)
+        (let ((result-fragment (ansi-color-apply "")))
+          (aset result-fragment 0 ?\e)
+          (concat result result-fragment))))))
 
 (defvar-local cider-repl--ns-forms-plist nil
   "Plist holding ns->ns-form mappings within each connection.")
@@ -672,7 +710,9 @@ namespaces.  STRING is REPL's output."
   (put-text-property 0 (length string) 'help-echo 'cider-locref-help-echo string)
   string)
 
-(defvar cider-repl-preoutput-hook '(ansi-color-apply
+(defvar cider-repl-preoutput-hook `(,(if (< emacs-major-version 29)
+                                       'cider-repl--ansi-color-apply
+                                      'ansi-color-apply)
                                     cider-repl-highlight-current-project
                                     cider-repl-highlight-spec-keywords
                                     cider-repl-add-locref-help-echo)
@@ -729,8 +769,7 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
                                  'font-lock-face face
                                  'rear-nonsticky '(font-lock-face)))
         (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
-        (insert-before-markers string)
-        (cider-repl--flush-ansi-color-context))
+        (insert-before-markers string))
       (when (and (= (point) cider-repl-prompt-start-mark)
                  (not (bolp)))
         (insert-before-markers "\n")

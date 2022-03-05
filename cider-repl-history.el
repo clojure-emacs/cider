@@ -344,7 +344,7 @@ case return nil."
         (error "No CIDER history item here")))))
 
 (defun cider-repl-history-current-string (pt &optional no-error)
-  "Find the string to insert into the REPL by looking for the overlay at PT
+  "Find the string to insert into the REPL by looking for the overlay at PT.
 Might error unless NO-ERROR set."
   (let ((o (cider-repl-history-target-overlay-at pt t)))
     (if o

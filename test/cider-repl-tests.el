@@ -106,9 +106,35 @@
         (cider-repl--emit-output (current-buffer) "[30ma[0m\n" 'cider-repl-stdout-face)
         (cider-repl--emit-output (current-buffer) "b\n" 'cider-repl-stdout-face)
         (cider-repl--emit-output (current-buffer) "[31mc\n" 'cider-repl-stdout-face)
-        (cider-repl--emit-output (current-buffer) "d[0m\n" 'cider-repl-stdout-face)
+        ;; split at ESC
+        (cider-repl--emit-output (current-buffer) "" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "[32md\n" 'cider-repl-stdout-face)
+        ;; split at ESC [
+        (cider-repl--emit-output (current-buffer) "[" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "33me\n" 'cider-repl-stdout-face)
 
-        (expect (buffer-string) :to-equal "a\nb\nc\nd\n")
+        ;; split at ESC [n
+        (cider-repl--emit-output (current-buffer) "[3" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "1mf\n" 'cider-repl-stdout-face)
+
+        ;; split at ESC [nm
+        (cider-repl--emit-output (current-buffer) "[32m" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "g\n" 'cider-repl-stdout-face)
+
+        ;; split at ESC [n;
+        (cider-repl--emit-output (current-buffer) "[1;" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "33mh\n" 'cider-repl-stdout-face)
+
+        ;; split at ESC [n;n
+        (cider-repl--emit-output (current-buffer) "[0;31" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "mi\n" 'cider-repl-stdout-face)
+
+        ;; split at ESC [n;nm
+        (cider-repl--emit-output (current-buffer) "[3;32m" 'cider-repl-stdout-face)
+        (cider-repl--emit-output (current-buffer) "j[0m\n" 'cider-repl-stdout-face)
+
+        (expect (buffer-substring-no-properties (point-min) (point-max))
+                :to-equal "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\n")
         (expect (get-text-property 1 'font-lock-face)
                 :to-equal '(foreground-color . "black"))
         (expect (get-text-property 3 'font-lock-face)
@@ -116,20 +142,35 @@
         (expect (get-text-property 5 'font-lock-face)
                 :to-equal '(foreground-color . "red3"))
         (expect (get-text-property 7 'font-lock-face)
-                :to-equal '(foreground-color . "red3"))))))
+                :to-equal '(foreground-color . "green3"))
+        (expect (get-text-property 9 'font-lock-face)
+                :to-equal '(foreground-color . "yellow3"))
+        (expect (get-text-property 11 'font-lock-face)
+                :to-equal '(foreground-color . "red3"))
+        (expect (get-text-property 13 'font-lock-face)
+                :to-equal '(foreground-color . "green3"))
+        (expect (get-text-property 15 'font-lock-face)
+                :to-equal '((foreground-color . "yellow3") bold))
+        (expect (get-text-property 17 'font-lock-face)
+                :to-equal '(foreground-color . "red3"))
+        (expect (get-text-property 19 'font-lock-face)
+                :to-equal '((foreground-color . "green3") italic))
+        ))))
 
 (defun simulate-cider-output (s property)
   "Return properties from `cider-repl--emit-output'.
 PROPERTY should be a symbol of either 'text, 'ansi-context or
 'properties."
-  (with-temp-buffer
-    (with-testing-ansi-table cider-testing-ansi-colors-vector
-      (cider-repl-reset-markers)
-      (cider-repl--emit-output (current-buffer) s nil))
-    (pcase property
-      (`text (substring-no-properties (buffer-string)))
-      (`ansi-context ansi-color-context)
-      (`properties (substring (buffer-string))))))
+  (let ((strings (if (listp s) s (list s))))
+    (with-temp-buffer
+      (with-testing-ansi-table cider-testing-ansi-colors-vector
+                               (cider-repl-reset-markers)
+                               (dolist (s strings)
+                                 (cider-repl--emit-output (current-buffer) s nil)))
+      (pcase property
+        (`text (substring-no-properties (buffer-string)))
+        (`ansi-context ansi-color-context)
+        (`properties (substring (buffer-string)))))))
 
 (describe "cider-repl--emit-output"
   (it "prints simple strings"
@@ -142,7 +183,21 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
       (expect (simulate-cider-output "\033hi" 'text)
               :to-equal "\033hi\n")
       (expect (simulate-cider-output "\033hi" 'ansi-context)
-              :to-equal nil)))
+              :to-equal nil)
+
+      ;; Informational: Ideally, we would have liked any non-SGR
+      ;; sequence to appear on the output verbatim, but as per the
+      ;; `ansi-color-apply' doc string, they are removed
+      ;;
+      ;; """Translates SGR control sequences into text properties.
+      ;;    Delete all other control sequences without processing them."""
+      ;;
+      ;; e.g.:
+      (expect (simulate-cider-output
+               "\033[hi" 'text) :to-equal "i\n")
+      (expect (simulate-cider-output
+               '("\033[" "hi") 'text) :to-equal "i\n")
+      ))
 
   (describe "when the escape code is valid"
     (it "preserves the context"
