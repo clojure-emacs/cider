@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.3.0 (2021-03-07)
+
 ### New features
 
 * [#3148](https://github.com/clojure-emacs/cider/pull/3148): Display error messages in multiline comment eval results, and in result overlays when `cider-show-error-buffer` is set to `nil`.
