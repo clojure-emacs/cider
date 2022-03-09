@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+* Use clojure-mode [5.14.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.14.0/CHANGELOG.md#5140-2022-03-07).
+
 ## 1.3.0 (2021-03-07)
 
 ### New features
