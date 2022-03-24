@@ -234,7 +234,7 @@ thing at point."
   "Used for xref integration."
   ;; Check if `cider-nrepl` middleware is loaded. Allows fallback to other xref
   ;; backends, if cider-nrepl is not loaded.
-  (when (cider-nrepl-op-supported-p "ns-path" 'skip-ensure)
+  (when (cider-nrepl-op-supported-p "ns-path" nil 'skip-ensure)
     'cider))
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql cider)))
