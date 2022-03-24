@@ -161,9 +161,12 @@ nREPL connection."
           (clojure-expected-ns path)))
     (clojure-expected-ns path)))
 
-(defun cider-nrepl-op-supported-p (op &optional connection)
-  "Check whether the CONNECTION supports the nREPL middleware OP."
-  (nrepl-op-supported-p op (or connection (cider-current-repl nil 'ensure))))
+(defun cider-nrepl-op-supported-p (op &optional connection skip-ensure)
+  "Check whether the CONNECTION supports the nREPL middleware OP.
+Skip check if repl is active if SKIP-ENSURE is non nil."
+  (nrepl-op-supported-p op (or connection (cider-current-repl nil (if skip-ensure
+                                                                      nil
+                                                                    'ensure)))))
 
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
