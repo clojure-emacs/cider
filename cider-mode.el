@@ -1073,11 +1073,11 @@ property."
           (add-hook 'xref-backend-functions #'cider--xref-backend cider-xref-fn-depth 'local))
         (setq next-error-function #'cider-jump-to-compilation-error))
     ;; Mode cleanup
-    (mapc #'kill-local-variable '(completion-at-point-functions
-                                  next-error-function
+    (mapc #'kill-local-variable '(next-error-function
                                   x-gtk-use-system-tooltips
                                   font-lock-fontify-region-function
                                   clojure-get-indent-function))
+    (remove-hook 'completion-at-point-functions #'cider-complete-at-point t)
     (when cider-use-xref
       (remove-hook 'xref-backend-functions #'cider--xref-backend 'local))
     (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
