@@ -4,6 +4,7 @@
 
 ### Changes
 
+* [#3177](https://github.com/clojure-emacs/cider/pull/3177) Apply ANSI colorization to test assertion output.
 * Use clojure-mode [5.14.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.14.0/CHANGELOG.md#5140-2022-03-07).
 * [#3170](https://github.com/clojure-emacs/cider/issues/3170) Skip ensure repl available on xref functions.
 * [#3173](https://github.com/clojure-emacs/cider/issues/3173) Locally remove `cider-complete-at-point` from `completion-at-point-functions` instead of killing it as a local variable.
