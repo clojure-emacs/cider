@@ -28,6 +28,7 @@
 
 ;;; Code:
 
+(require 'ansi-color)
 (require 'button)
 (require 'cl-lib)
 (require 'easymenu)
@@ -395,9 +396,11 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                 (insert-align-label (s)
                   (insert (format "%12s" s)))
                 (insert-rect (s)
-                  (insert-rectangle (thread-first s
-                                      cider-font-lock-as-clojure
-                                      (split-string "\n")))
+                  (let ((start (point)))
+                    (insert-rectangle (thread-first s
+                                        cider-font-lock-as-clojure
+                                        (split-string "\n")))
+                    (ansi-color-apply-on-region start (point)))
                   (beginning-of-line)))
         (cider-propertize-region (cider-intern-keys (cdr test))
           (let ((beg (point))
