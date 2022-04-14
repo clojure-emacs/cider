@@ -223,7 +223,7 @@ be displayed."
         (cider-find-ns nil value)
       (cider-find-var current-prefix-arg value))))
 
-(defun cider-browse-ns-handle-mouse (event) ;FIXME: Unused arg!
+(defun cider-browse-ns-handle-mouse (_event) ;FIXME: Unused arg!
   "Handle mouse click EVENT."
   (interactive "e")
   (cider-browse-ns-operate-at-point))
