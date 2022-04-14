@@ -80,7 +80,7 @@
          (line (buffer-substring-no-properties bol eol)))
     (find-file-other-window line)))
 
-(defun cider-classpath-handle-mouse (event) ;FIXME: Unused arg!
+(defun cider-classpath-handle-mouse (_event) ;FIXME: Unused arg!
   "Handle mouse click EVENT."
   (interactive "e")
   (cider-classpath-operate-on-point))

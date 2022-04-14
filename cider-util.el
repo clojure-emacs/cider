@@ -377,9 +377,8 @@ propertized (defaults to current buffer)."
 (defun cider--pkg-version ()
   "Extract CIDER's package version from its package metadata."
   ;; FIXME: Inline the logic from package-get-version and adapt it
-  (if (fboundp 'package-get-version)
-      (package-get-version)
-    nil))
+  (cond ((fboundp 'package-get-version)
+         (package-get-version))))
 
 (defun cider--version ()
   "Retrieve CIDER's version.
