@@ -334,7 +334,6 @@ it's turned on."
   "Return overlay at POSITION that has property `cider-repl-history-target'.
 If no such overlay, raise an error unless NO-ERROR is true, in which
 case return nil."
-  ;; FIXME: `position' is not used!
   (let ((ovs  (overlays-at (point))))
     (catch 'cider-repl-history-target-overlay-at
       (dolist (ov ovs)
@@ -364,7 +363,6 @@ Also kills *cider-repl-history*."
   ;; generic paste tool, but for inserting a previous command into an
   ;; interpreter, I felt the only useful option would be inserting it at the end
   ;; and quitting the history buffer, so that is all that's provided.
-  ;; FIXME: `buf' is not used!
   (let ((str (cider-repl-history-current-string pt)))
     (cider-repl-history-quit)
     (with-selected-window cider-repl-history-repl-window
