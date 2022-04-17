@@ -376,6 +376,8 @@ propertized (defaults to current buffer)."
 
 (defun cider--pkg-version ()
   "Extract CIDER's package version from its package metadata."
+  ;; Use `cond' below to avoid a compiler unused return value warning
+  ;; when `package-get-version' returns nil. See #3181.
   ;; FIXME: Inline the logic from package-get-version and adapt it
   (cond ((fboundp 'package-get-version)
          (package-get-version))))
