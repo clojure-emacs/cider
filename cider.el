@@ -1638,8 +1638,7 @@ assume the command is available."
     (shell-quote-argument command)))
 
 (defcustom cider-inspire-on-connect t
-  "The version of cider-nrepl injected on jack-in.
-Should be newer than the required version for optimal results."
+  "Controls whether to display an inspirational message on connect."
   :type 'boolean
   :package-version '(cider . "1.4.0")
   :safe #'booleanp)
