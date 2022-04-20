@@ -45,14 +45,6 @@ See `cider-format-connection-params' for available format characters."
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
-(defcustom cider-connection-message-fn #'cider-random-words-of-inspiration
-  "The function to use to generate the message displayed on connect.
-When set to nil no additional message will be displayed.  A good
-alternative to the default is `cider-random-tip'."
-  :type 'function
-  :group 'cider
-  :package-version '(cider . "0.11.0"))
-
 (defcustom cider-redirect-server-output-to-repl  t
   "Controls whether nREPL server output would be redirected to the REPL.
 When non-nil the output would end up in both the nrepl-server buffer (when

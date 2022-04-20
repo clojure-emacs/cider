@@ -1637,16 +1637,18 @@ assume the command is available."
                            (executable-find (concat command ".bat")))))
     (shell-quote-argument command)))
 
-(defcustom cider-inspire-on-connect t
-  "Controls whether to display an inspirational message on connect."
-  :type 'boolean
-  :package-version '(cider . "1.4.0")
-  :safe #'booleanp)
+(defcustom cider-connection-message-fn #'cider-random-words-of-inspiration
+  "The function to use to generate the message displayed on connect.
+When set to nil no additional message will be displayed.  A good
+alternative to the default is `cider-random-tip'."
+  :type 'function
+  :group 'cider
+  :package-version '(cider . "0.11.0"))
 
 (defun cider--maybe-inspire-on-connect ()
   "Display an inspiration connection message."
-  (when cider-inspire-on-connect
-    (message "Connected! %s" (cider-random-words-of-inspiration))))
+  (when cider-connection-message-fn
+    (message "Connected! %s" (funcall cider-connection-message-fn))))
 
 (add-hook 'cider-connected-hook #'cider--maybe-inspire-on-connect)
 

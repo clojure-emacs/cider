@@ -5,7 +5,6 @@
 ## New features
 
 * Add new interactive command `cider-inspire-me`. It does what you'd expect.
-* Add new defcustom `cider-inspire-on-connect`, which controls whether to display an inspiration message on connect.
 
 ### Changes
 
