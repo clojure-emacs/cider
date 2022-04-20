@@ -2,12 +2,18 @@
 
 ## master (unreleased)
 
+## New features
+
+* Add new interactive command `cider-inspire-me`. It does what you'd expect.
+* Add new defcustom `cider-inspire-on-connect`, which controls whether to display an inspiration message on connect.
+
 ### Changes
 
 * [#3177](https://github.com/clojure-emacs/cider/pull/3177) Apply ANSI colorization to test assertion output.
 * Use clojure-mode [5.14.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.14.0/CHANGELOG.md#5140-2022-03-07).
 * [#3170](https://github.com/clojure-emacs/cider/issues/3170) Skip ensure repl available on xref functions.
 * [#3173](https://github.com/clojure-emacs/cider/issues/3173) Locally remove `cider-complete-at-point` from `completion-at-point-functions` instead of killing it as a local variable.
+* Restore the long-lost (but critical) inspirational message on connect.
 
 ## 1.3.0 (2021-03-07)
 

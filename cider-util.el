@@ -703,6 +703,11 @@ through a stack of help buffers.  Variables `help-back-label' and
              cider-words-of-inspiration)
         t))
 
+(defun cider-inspire-me ()
+  "Display a random inspiration message."
+  (interactive)
+  (message (cider-random-words-of-inspiration)))
+
 (defvar cider-tips
   '("Press <\\[cider-connect]> to connect to a running nREPL server."
     "Press <\\[cider-quit]> to quit the current connection."

@@ -1637,6 +1637,20 @@ assume the command is available."
                            (executable-find (concat command ".bat")))))
     (shell-quote-argument command)))
 
+(defcustom cider-inspire-on-connect t
+  "The version of cider-nrepl injected on jack-in.
+Should be newer than the required version for optimal results."
+  :type 'boolean
+  :package-version '(cider . "1.4.0")
+  :safe #'booleanp)
+
+(defun cider--maybe-inspire-on-connect ()
+  "Display an inspiration connection message."
+  (when cider-inspire-on-connect
+    (message "Connected! %s" (cider-random-words-of-inspiration))))
+
+(add-hook 'cider-connected-hook #'cider--maybe-inspire-on-connect)
+
 ;;;###autoload
 (with-eval-after-load 'clojure-mode
   (define-key clojure-mode-map (kbd "C-c M-x") #'cider)
