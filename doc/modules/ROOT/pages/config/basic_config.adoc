@@ -131,6 +131,22 @@ If you're fine with installing a third-party package for enhanced minibuffer
 completion you can't go wrong with the modern and versatile
 http://oremacs.com/2015/04/16/ivy-mode/[ivy].
 
+== Message Displayed on Connect
+
+By default CIDER will display an inspirational message when a new connection is
+established. This behavior is configurable via `cider-connection-message-fn`:
+
+[source,lisp]
+----
+;; make the message more educational
+(setq cider-connection-message-fn #'cider-random-tip)
+;; disable this extra message altogether
+(setq cider-connection-message-fn nil)
+----
+
+IMPORTANT: This is probably one of the most important CIDER features. Disable
+those amazing messages at your own risk!
+
 == Log nREPL Communications
 
 If you want to see all communications between CIDER and the nREPL
