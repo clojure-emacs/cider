@@ -902,8 +902,9 @@ If TOOLING, use the tooling session rather than the standard session."
                  (setq time0 (current-time)))
         ;; break out in case we don't receive a response for a while
         (when (and nrepl-sync-request-timeout
-                   (> (cadr (time-subtract (current-time) time0))
-                      nrepl-sync-request-timeout))
+                   (time-less-p
+                    nrepl-sync-request-timeout
+                    (time-subtract nil time0)))
           (error "Sync nREPL request timed out %s" request)))
       ;; Clean up the response, otherwise we might repeatedly ask for input.
       (nrepl-dict-put response "status" (remove "need-input" status))
