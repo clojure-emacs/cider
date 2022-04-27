@@ -788,23 +788,20 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
 
 (defun cider-eval-print-handler (&optional buffer)
   "Make a handler for evaluating and printing result in BUFFER."
-  (let ((res ""))
-    (nrepl-make-response-handler (or buffer (current-buffer))
-                                 (lambda (buffer value)
-                                   (with-current-buffer buffer
-                                     (insert
-                                      (if (derived-mode-p 'cider-clojure-interaction-mode)
-                                          (format "\n%s\n" value)
-                                        value)))
-                                   (when cider-eval-register
-                                     (setq res (concat res value))))
-                                 (lambda (_buffer out)
-                                   (cider-emit-interactive-eval-output out))
-                                 (lambda (_buffer err)
-                                   (cider-emit-interactive-eval-err-output err))
-                                 (lambda (_buffer)
-                                   (when cider-eval-register
-                                     (set-register cider-eval-register res))))))
+  ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
+  ;; See https://github.com/clojure-emacs/cider/pull/3162
+  (nrepl-make-response-handler (or buffer (current-buffer))
+                               (lambda (buffer value)
+                                 (with-current-buffer buffer
+                                   (insert
+                                    (if (derived-mode-p 'cider-clojure-interaction-mode)
+                                        (format "\n%s\n" value)
+                                      value))))
+                               (lambda (_buffer out)
+                                 (cider-emit-interactive-eval-output out))
+                               (lambda (_buffer err)
+                                 (cider-emit-interactive-eval-err-output err))
+                               ()))
 
 (defun cider-eval-print-with-comment-handler (buffer location comment-prefix)
   "Make a handler for evaluating and printing commented results in BUFFER.
@@ -871,6 +868,8 @@ COMMENT-POSTFIX is the text to output after the last line."
 (defun cider-popup-eval-handler (&optional buffer)
   "Make a handler for printing evaluation results in popup BUFFER.
 This is used by pretty-printing commands."
+  ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
+  ;; See https://github.com/clojure-emacs/cider/pull/3162
   (nrepl-make-response-handler
    (or buffer (current-buffer))
    (lambda (buffer value)
