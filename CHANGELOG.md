@@ -5,6 +5,9 @@
 ## New features
 
 * Add new interactive command `cider-inspire-me`. It does what you'd expect.
+* [#3162](https://github.com/clojure-emacs/cider/pull/3162): Save eval results into kill ring and registers.
+  * Add new customization variable `cider-eval-register` to automatically store the last interactive eval result into the specified register.
+  * Add interactive command `cider-kill-last-result` to manually save the last eval result into kill ring. 
 
 ### Changes
 
