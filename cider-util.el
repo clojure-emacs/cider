@@ -698,10 +698,8 @@ through a stack of help buffers.  Variables `help-back-label' and
 
 (defun cider-random-words-of-inspiration ()
   "Select a random entry from `cider-words-of-inspiration'."
-  ;; FIXME: Consider removing this eval.
-  (eval (nth (random (length cider-words-of-inspiration))
-             cider-words-of-inspiration)
-        t))
+  (nth (random (length cider-words-of-inspiration))
+       cider-words-of-inspiration))
 
 (defun cider-inspire-me ()
   "Display a random inspiration message."
