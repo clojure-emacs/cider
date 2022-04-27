@@ -275,6 +275,34 @@ Additionally, there's the variable `cider-redirect-server-output-to-repl` that c
 
 NOTE: The redirection functionality is implemented in `cider-nrepl` as nREPL middleware. If you're using CIDER without `cider-nrepl` no output redirection is going to take place.
 
+
+
+=== Storing eval results
+
+By default CIDER stores the return value of the most recent evaluation command
+in the text register `e`. You can access these contents via `insert-register`
+(kbd:[C-x r i]).
+
+This is often useful for closer inspection or textual manipulation of a
+transiently displayed eval result, without having to re-evaluate the form with a
+specialized command like `cider-insert-last-sexp-in-repl`.
+
+You can customize which register is used with the variable `cider-eval-register`, or set
+it to `nil` to disable the feature.
+
+[source,lisp]
+----
+(setq cider-eval-register nil)
+----
+
+TIP: The built-in xref:debugging/inspector.adoc[inspector] can be used to view
+and navigate through complex nested results.
+
+You can also use the command `cider-kill-last-result`(kbd:[C-c C-v k]) after any
+eval command to store its result in the kill ring. This works even when the
+`cider-eval-register` feature is disabled.
+
+
 == Keybindings
 
 You might have noticed that CIDER typically has 2-3 different keybindings for
@@ -383,6 +411,10 @@ kbd:[C-u C-c C-c]
 | `cider-load-all-files`
 | kbd:[C-c C-M-l]
 | Load (eval) all Clojure files below a directory.
+
+| `cider-kill-last-result`
+| kbd:[C-c C-v k]
+| Save the last evaluated result into the kill ring.
 |===
 
 TIP: You'll find all evaluation commands and their keybindings in the `CIDER Eval` menu.
