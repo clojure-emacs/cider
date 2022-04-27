@@ -265,3 +265,24 @@ wrapping instead of line truncating.
 
 IMPORTANT: This variable should be set *before* loading CIDER (which means before
 `require`-ing it or autoloading it).
+
+== nREPL Connection Hooks
+
+CIDER provides the hooks `cider-connected-hook` and `cider-disconnected-hook`
+that get triggered when an nREPL connection is established or closed respectively.
+
+Here's how CIDER uses the first hook internally to display its famous inspirational
+messages on connect:
+
+[source,lisp]
+----
+(defun cider--maybe-inspire-on-connect ()
+  "Display an inspiration connection message."
+  (when cider-connection-message-fn
+    (message "Connected! %s" (funcall cider-connection-message-fn))))
+
+(add-hook 'cider-connected-hook #'cider--maybe-inspire-on-connect)
+----
+
+NOTE: There are also lower-level `nrepl-connected-hook` and `nrepl-disconnected-hook` that CIDER uses internally. Most of the time end-users would be better off using
+the CIDER-level hooks instead.
