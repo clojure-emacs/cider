@@ -823,7 +823,7 @@ comment prefix to use."
                                        (insert (concat comment-prefix
                                                        res "\n"))))
                                    (when cider-eval-register
-                                     (set-register cider-eval-register value))))))
+                                     (set-register cider-eval-register res))))))
 
 (defun cider-maybe-insert-multiline-comment (result comment-prefix continued-prefix comment-postfix)
   "Insert eval RESULT at current location if RESULT is not empty.
