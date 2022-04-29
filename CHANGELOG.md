@@ -8,7 +8,7 @@
 * Add new interactive command `cider-inspire-me`. It does what you'd expect.
 * [#3162](https://github.com/clojure-emacs/cider/pull/3162): Save eval results into kill ring and registers.
   * Add new customization variable `cider-eval-register` to automatically store the last interactive eval result into the specified register.
-  * Add interactive command `cider-kill-last-result` to manually save the last eval result into kill ring. 
+  * Add interactive command `cider-kill-last-result` to manually save the last eval result into kill ring.
 
 ### Changes
 
@@ -20,6 +20,7 @@
 * [#3170](https://github.com/clojure-emacs/cider/issues/3170): Skip ensure repl available checks on xref functions. (this improves the interop with `clojure-lsp`)
 * [#3173](https://github.com/clojure-emacs/cider/issues/3173): Locally remove `cider-complete-at-point` from `completion-at-point-functions` instead of killing it as a local variable.
 * [#3172](https://github.com/clojure-emacs/cider/issues/3172): Restore the long-lost (but critical) inspirational message on connect.
+* [#3186](https://github.com/clojure-emacs/cider/pull/3186): An assortment of small fixes.
 
 ## 1.3.0 (2021-03-07)
 
