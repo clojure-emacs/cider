@@ -994,7 +994,7 @@ buffer."
                             (cider--nrepl-pr-request-map))))
 
 (defun cider-eval-list-at-point (&optional output-to-current-buffer)
-  "Evaluate the list (eg. a function call, surrounded by parens) around point.
+  "Evaluate the list (eg.  a function call, surrounded by parens) around point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
@@ -1015,8 +1015,7 @@ That's set by commands like `cider-eval-last-sexp-in-context'.")
 
 
 (defun cider--guess-eval-context ()
-  "Return the context suitable for input to `cider--eval-in-context'
-by extracting all parent let bindings."
+  "Return context for `cider--eval-in-context' by extracting all parent let bindings."
   (save-excursion
     (let ((res ""))
       (condition-case er
@@ -1034,7 +1033,8 @@ by extracting all parent let bindings."
         (scan-error res)))))
 
 (defun cider--eval-in-context (bounds &optional guess)
-  "Evaluate code at BOUNDS in user-provided evaluation context."
+  "Evaluate code at BOUNDS in user-provided evaluation context.
+When GUESS is non-nil, attempt to extract the context from parent let-bindings."
   (let* ((code (string-trim-right
                 (buffer-substring-no-properties (car bounds) (cadr bounds))))
          (eval-context
@@ -1055,7 +1055,7 @@ The context is just a let binding vector (without the brackets).
 The context is remembered between command invocations.
 
 When GUESS is non-nil, or called interactively with \\[universal-argument],
-attempt to guess the context from parent let bindings."
+attempt to extract the context from parent let-bindings."
   (interactive "P")
   (cider--eval-in-context (cider-last-sexp 'bounds) guess))
 
@@ -1066,7 +1066,7 @@ The context is just a let binding vector (without the brackets).
 The context is remembered between command invocations.
 
 When GUESS is non-nil, or called interactively with \\[universal-argument],
-attempt to guess the context from parent let bindings."
+attempt to extract the context from parent let-bindings."
   (interactive "P")
   (cider--eval-in-context (cider-sexp-at-point 'bounds) guess))
 
