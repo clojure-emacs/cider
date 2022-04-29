@@ -1033,9 +1033,10 @@ by extracting all parent let bindings."
                 (setq res (concat (buffer-substring-no-properties beg end) ", " res)))))
         (scan-error res)))))
 
-(defun cider--eval-in-context (code &optional guess)
-  "Evaluate CODE in user-provided evaluation context."
-  (let* ((code (string-trim-right code))
+(defun cider--eval-in-context (bounds &optional guess)
+  "Evaluate code at BOUNDS in user-provided evaluation context."
+  (let* ((code (string-trim-right
+                (buffer-substring-no-properties (car bounds) (cadr bounds))))
          (eval-context
           (minibuffer-with-setup-hook (when guess #'beginning-of-buffer)
             (read-string "Evaluation context (let-style): "
@@ -1045,7 +1046,7 @@ by extracting all parent let bindings."
     (setq-local cider-previous-eval-context eval-context)
     (cider-interactive-eval code
                             nil
-                            nil
+                            bounds
                             (cider--nrepl-pr-request-map))))
 
 (defun cider-eval-last-sexp-in-context (guess)
@@ -1056,7 +1057,7 @@ The context is remembered between command invocations.
 When GUESS is non-nil, or called interactively with \\[universal-argument],
 attempt to guess the context from parent let bindings."
   (interactive "P")
-  (cider--eval-in-context (cider-last-sexp) guess))
+  (cider--eval-in-context (cider-last-sexp 'bounds) guess))
 
 (defun cider-eval-sexp-at-point-in-context (guess)
   "Evaluate the sexp around point in user-supplied context.
@@ -1067,7 +1068,7 @@ The context is remembered between command invocations.
 When GUESS is non-nil, or called interactively with \\[universal-argument],
 attempt to guess the context from parent let bindings."
   (interactive "P")
-  (cider--eval-in-context (cider-sexp-at-point) guess))
+  (cider--eval-in-context (cider-sexp-at-point 'bounds) guess))
 
 (defun cider-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
