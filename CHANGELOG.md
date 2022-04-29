@@ -4,6 +4,7 @@
 
 ## New features
 
+* [#3185](https://github.com/clojure-emacs/cider/pull/3185): Add feature to `cider-eval-in-context` for automatically extracting parent let bindings when called with `C-u` prefix argument.
 * Add new interactive command `cider-inspire-me`. It does what you'd expect.
 * [#3162](https://github.com/clojure-emacs/cider/pull/3162): Save eval results into kill ring and registers.
   * Add new customization variable `cider-eval-register` to automatically store the last interactive eval result into the specified register.
