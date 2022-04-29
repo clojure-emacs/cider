@@ -109,7 +109,7 @@ Show results in a different window if OTHER-WINDOW is true."
 (defun cider-find-dwim (symbol-file)
   "Find and display the SYMBOL-FILE at point.
 SYMBOL-FILE could be a var or a resource.  If thing at point is empty then
-show dired on project.  If var is not found, try to jump to resource of the
+show Dired on project.  If var is not found, try to jump to resource of the
 same name.  When called interactively, a prompt is given according to the
 variable `cider-prompt-for-symbol'.  A single or double prefix argument
 inverts the meaning.  A prefix of `-' or a double prefix argument causes
