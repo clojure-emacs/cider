@@ -1374,6 +1374,27 @@ passing arguments."
   (kill-new
    (nrepl-dict-get (cider-nrepl-sync-request:eval "*1") "value")))
 
+(defun cider-undef ()
+  "Undefine a symbol from the current ns."
+  (interactive)
+  (cider-ensure-op-supported "undef")
+  (cider-read-symbol-name
+   "Undefine symbol: "
+   (lambda (sym)
+     (cider-nrepl-send-request
+      `("op" "undef"
+        "ns" ,(cider-current-ns)
+        "sym" ,sym)
+      (cider-interactive-eval-handler (current-buffer))))))
+
+(defun cider-undef-all (&optional ns)
+  "Undefine all symbols and aliases from the namespace NS."
+  (interactive)
+  (cider-ensure-op-supported "undef-all")
+  (cider-nrepl-send-sync-request
+   `("op" "undef-all"
+     "ns" ,(or ns (cider-current-ns)))))
+
 ;; Eval keymaps
 (defvar cider-eval-pprint-commands-map
   (let ((map (define-prefix-command 'cider-eval-pprint-commands-map)))

@@ -1575,7 +1575,7 @@ constructs."
   (puthash name handler cider-repl-shortcuts))
 
 (declare-function cider-toggle-trace-ns "cider-tracing")
-(declare-function cider-undef "cider-mode")
+(declare-function cider-undef "cider-eval")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-classpath "cider-classpath")
 (declare-function cider-repl-history "cider-repl-history")
