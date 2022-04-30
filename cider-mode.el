@@ -502,6 +502,7 @@ higher precedence."
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
     (define-key map (kbd "C-c M-:") #'cider-read-and-eval)
     (define-key map (kbd "C-c C-u") #'cider-undef)
+    (define-key map (kbd "C-c C-M-u") #'cider-undef-all)
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)
     (define-key map (kbd "C-c M-m") #'cider-macroexpand-all)
     (define-key map (kbd "C-c M-n") 'cider-ns-map)
