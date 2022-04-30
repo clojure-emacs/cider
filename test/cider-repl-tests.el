@@ -97,6 +97,17 @@
           (ansi-color-map (ansi-color-make-color-map)))
      ,@body))
 
+(defmacro text-property-make (foreground-color &optional style)
+  "Return FOREGROUND-COLOR and STYLE as a text property list."
+  (if (< emacs-major-version 28)
+      (if style
+          `(quote ((foreground-color . ,foreground-color) ,style))
+        `(quote (foreground-color . ,foreground-color)))
+    (if style
+        `(quote  (,(intern (concat  "ansi-color-" (symbol-name style)))
+                  (:foreground ,foreground-color)))
+      `(quote  (:foreground ,foreground-color)))))
+
 (describe "multiple calls to cider-repl--emit-output"
   (it "Multiple emit output calls set properties and emit text"
     (with-temp-buffer
@@ -136,25 +147,25 @@
         (expect (buffer-substring-no-properties (point-min) (point-max))
                 :to-equal "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\n")
         (expect (get-text-property 1 'font-lock-face)
-                :to-equal '(foreground-color . "black"))
+                :to-equal (text-property-make "black"))
         (expect (get-text-property 3 'font-lock-face)
                 :to-equal 'cider-repl-stdout-face)
         (expect (get-text-property 5 'font-lock-face)
-                :to-equal '(foreground-color . "red3"))
+                :to-equal (text-property-make "red3"))
         (expect (get-text-property 7 'font-lock-face)
-                :to-equal '(foreground-color . "green3"))
+                :to-equal (text-property-make "green3"))
         (expect (get-text-property 9 'font-lock-face)
-                :to-equal '(foreground-color . "yellow3"))
+                :to-equal (text-property-make "yellow3"))
         (expect (get-text-property 11 'font-lock-face)
-                :to-equal '(foreground-color . "red3"))
+                :to-equal (text-property-make "red3"))
         (expect (get-text-property 13 'font-lock-face)
-                :to-equal '(foreground-color . "green3"))
+                :to-equal (text-property-make "green3"))
         (expect (get-text-property 15 'font-lock-face)
-                :to-equal '((foreground-color . "yellow3") bold))
+                :to-equal (text-property-make "yellow3" bold))
         (expect (get-text-property 17 'font-lock-face)
-                :to-equal '(foreground-color . "red3"))
+                :to-equal (text-property-make "red3"))
         (expect (get-text-property 19 'font-lock-face)
-                :to-equal '((foreground-color . "green3") italic))
+                :to-equal (text-property-make "green3" italic))
         ))))
 
 (defun simulate-cider-output (s property)

@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        emacs_version: ['26.3', '27.2']
+        emacs_version: ['26.3', '27.2', '28.1']
 
     steps:
     - name: Set up Emacs
@@ -18,7 +18,7 @@ jobs:
         version: ${{matrix.emacs_version}}
 
     - name: Install Eldev
-      run: curl -fsSL https://raw.githubusercontent.com/doublep/eldev/0.10.3/webinstall/github-eldev | sh
+      run: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
 
     - name: Check out the source code
       uses: actions/checkout@v2
