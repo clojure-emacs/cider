@@ -1025,7 +1025,7 @@ That's set by commands like `cider-eval-last-sexp-in-context'.")
   "Return context for `cider--eval-in-context' by extracting all parent let bindings."
   (save-excursion
     (let ((res ""))
-      (condition-case er
+      (condition-case nil
           (while t
             (backward-up-list)
             (when (looking-at (rx "(" (or "when-let" "if-let" "let") (opt "*")
@@ -1045,7 +1045,7 @@ When GUESS is non-nil, attempt to extract the context from parent let-bindings."
   (let* ((code (string-trim-right
                 (buffer-substring-no-properties (car bounds) (cadr bounds))))
          (eval-context
-          (minibuffer-with-setup-hook (when guess #'beginning-of-buffer)
+          (minibuffer-with-setup-hook (if guess #'beginning-of-buffer #'ignore)
             (read-string "Evaluation context (let-style): "
                          (if guess (cider--guess-eval-context)
                            cider-previous-eval-context))))
