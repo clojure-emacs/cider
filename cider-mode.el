@@ -171,6 +171,14 @@ the related commands `cider-repl-clear-buffer' and
         "sym" ,sym)
       (cider-interactive-eval-handler (current-buffer))))))
 
+(defun cider-undef-all (&optional ns)
+  "Undefine all symbols and aliases from the namespace NS."
+  (interactive)
+  (cider-ensure-op-supported "undef-all")
+  (cider-nrepl-send-sync-request
+   `("op" "undef-all"
+     "ns" ,(or ns (cider-current-ns)))))
+
 ;;; cider-run
 (defvar cider--namespace-history nil
   "History of user input for namespace prompts.")
