@@ -622,7 +622,8 @@ The value can also be t, which means to font-lock as much as possible."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-font-lock-reader-conditionals t
-  "Apply font-locking to unused reader conditional expressions depending on the buffer CIDER connection type."
+  "Apply font-locking to unused reader conditional expressions.
+The result depends on the buffer CIDER connection type."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "0.15.0"))
@@ -978,7 +979,8 @@ SYM and INFO is passed to `cider-docview-render'"
      (buffer-substring-no-properties (point-min) (1- (point))))))
 
 (defcustom cider-use-tooltips t
-  "If non-nil, CIDER displays mouse-over tooltips, as well as the `help-echo' mechanism."
+  "If non-nil, CIDER displays mouse-over tooltips.
+It does this as well as the `help-echo' mechanism."
   :group 'cider
   :type 'boolean
   :package-version '(cider "0.12.0"))

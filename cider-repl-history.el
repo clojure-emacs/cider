@@ -180,7 +180,8 @@ Setting this variable to nil means no limit."
   :package-version '(cider . "0.15.0"))
 
 (defcustom cider-repl-history-display-duplicate-highest t
-  "When `cider-repl-history-display-duplicates' is nil, then display highest (most recent) duplicate items in the command history."
+  "If non-nil, then display most recent duplicate items in the command history.
+Only takes effect when `cider-repl-history-display-duplicates' is nil."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 

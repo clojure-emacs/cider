@@ -45,7 +45,7 @@
   "Extra commands to be added to eldoc's safe commands list.")
 
 (defcustom cider-eldoc-max-num-sexps-to-skip 30
-  "The maximum number of sexps to skip while searching the beginning of current sexp."
+  "Max number of sexps to skip while searching the beginning of current sexp."
   :type 'integer
   :group 'cider
   :package-version '(cider . "0.10.1"))
