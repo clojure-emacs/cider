@@ -205,13 +205,15 @@ Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
     (?t "trace" "trace")
     (?q "quit" "quit"))
   "A list of debugger command specs.
-Specs are in the format (KEY COMMAND-NAME DISPLAY-NAME?)
-where KEY is a character which is mapped to the command
-COMMAND-NAME is a valid debug command to be passed to the cider-nrepl middleware
-DISPLAY-NAME is the string displayed in the debugger overlay
 
-If DISPLAY-NAME is nil, that command is hidden from the overlay but still callable.
-The rest of the commands are displayed in the same order as this list."
+Specs are in the format (KEY COMMAND-NAME DISPLAY-NAME?)  where KEY is a
+character which is mapped to the command COMMAND-NAME is a valid debug
+command to be passed to the cider-nrepl middleware DISPLAY-NAME is the
+string displayed in the debugger overlay
+
+If DISPLAY-NAME is nil, that command is hidden from the overlay but still
+callable.  The rest of the commands are displayed in the same order as this
+list."
   :type '(alist :key-type character
                 :value-type (list
                              (string :tag "command name")

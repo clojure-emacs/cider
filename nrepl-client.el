@@ -111,7 +111,9 @@
   :type 'boolean)
 
 (defcustom nrepl-use-ssh-fallback-for-remote-hosts nil
-  "If non-nil, attempt to connect via ssh to remote hosts when unable to connect directly."
+  "If non-nil, Use ssh as a fallback to connect to remote hosts.
+It will attempt to connect via ssh to remote hosts when unable to connect
+directly."
   :type 'boolean)
 
 (defcustom nrepl-sync-request-timeout 10

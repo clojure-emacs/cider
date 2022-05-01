@@ -297,7 +297,8 @@ This variable is used by `cider-connect'."
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-inject-dependencies-at-jack-in t
-  "When nil, do not inject repl dependencies (most likely nREPL middlewares) at `cider-jack-in' time."
+  "When nil, do not inject repl dependencies at `cider-jack-in' time.
+The repl dependendcies are most likely to be nREPL middlewares."
   :type 'boolean
   :safe #'booleanp
   :version '(cider . "0.11.0"))

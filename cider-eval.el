@@ -1022,7 +1022,8 @@ That's set by commands like `cider-eval-last-sexp-in-context'.")
 
 
 (defun cider--guess-eval-context ()
-  "Return context for `cider--eval-in-context' by extracting all parent let bindings."
+  "Return context for `cider--eval-in-context'.
+This is done by extracting all parent let bindings."
   (save-excursion
     (let ((res ""))
       (condition-case nil
