@@ -27,7 +27,7 @@
 * [#3172](https://github.com/clojure-emacs/cider/issues/3172): Restore the long-lost (but critical) inspirational message on connect.
 * [#3186](https://github.com/clojure-emacs/cider/pull/3186): An assortment of small fixes.
 
-## 1.3.0 (2021-03-07)
+## 1.3.0 (2022-03-07)
 
 ### New features
 
