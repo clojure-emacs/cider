@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.4.0 (2022-05-02)
+
 ## New features
 
 * [#3188](https://github.com/clojure-emacs/cider/pull/3188): Add support for `undef-all` op, for removing stale vars and conflicting aliases.
