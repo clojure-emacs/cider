@@ -122,6 +122,7 @@
 (describe "cider-eldoc-beginning-of-sexp"
   (it "moves to the beginning of the sexp"
     (with-temp-buffer
+      (clojure-mode)
       (save-excursion
         (insert "(a (b b) (c c) d)"))
       (search-forward "d")
@@ -131,6 +132,7 @@
 
   (it "returns the number sexp the point was over or after"
     (with-temp-buffer
+      (clojure-mode)
       (save-excursion
         (insert "(a (b b) (c c) d)"))
       (search-forward "d")
@@ -140,6 +142,7 @@
 
   (it "returns nil if the maximum number of sexps to skip is exceeded"
     (with-temp-buffer
+      (clojure-mode)
       (save-excursion
         (insert "(a (b b) (c c) d)"))
       (search-forward "d")
