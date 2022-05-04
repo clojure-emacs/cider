@@ -30,10 +30,9 @@ CIDER's REPL is launched. Here's an example:*
 ;; Clojure 1.8.0, Java 1.8.0_31
 ```
 
-### Lein/Boot version
+### Lein / Clojure CLI version
 
-*E.g. Lein 2.6.1* (skip this when you didn't start the nREPL server
-using Lein or Boot)
+*E.g. Lein 2.6.1* 
 
 ### Emacs version
 
