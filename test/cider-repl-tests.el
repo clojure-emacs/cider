@@ -169,7 +169,7 @@
         ))))
 
 (defun simulate-cider-output (s property)
-  "Return properties from `cider-repl--emit-output'.
+  "Return S's properties from `cider-repl--emit-output'.
 PROPERTY should be a symbol of either 'text, 'ansi-context or
 'properties."
   (let ((strings (if (listp s) s (list s))))
@@ -192,28 +192,7 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
   (describe "when the escape code is invalid"
     (it "doesn't hold the string looking for a close tag"
       (expect (simulate-cider-output "\033hi" 'text)
-              :to-equal "\033hi\n")
-      (expect (simulate-cider-output "\033hi" 'ansi-context)
-              :to-equal nil)
-
-      ;; Informational: Ideally, we would have liked any non-SGR
-      ;; sequence to appear on the output verbatim, but as per the
-      ;; `ansi-color-apply' doc string, they are removed
-      ;;
-      ;; """Translates SGR control sequences into text properties.
-      ;;    Delete all other control sequences without processing them."""
-      ;;
-      ;; e.g.:
-      (expect (simulate-cider-output
-               "\033[hi" 'text) :to-equal "i\n")
-      (expect (simulate-cider-output
-               '("\033[" "hi") 'text) :to-equal "i\n")
-      ))
-
-  (describe "when the escape code is valid"
-    (it "preserves the context"
-      (let ((context (simulate-cider-output "[30ma[0mb[31mcd" 'ansi-context)))
-        (expect context :to-equal '((31) nil))))))
+              :to-equal "\033hi\n"))))
 
 (describe "cider-locref-at-point"
   (it "works with stdout-stacktrace refs"
