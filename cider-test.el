@@ -188,6 +188,7 @@ Add to this list to have CIDER recognize additional test defining macros."
     ;; "run the test at point".  But it's not as nice as rerunning all tests in
     ;; this buffer.
     (define-key map "g" #'cider-test-run-test)
+    (define-key map "q" #'cider-popup-buffer-quit-function)
     (easy-menu-define cider-test-report-mode-menu map
       "Menu for CIDER's test result mode"
       '("Test-Report"
@@ -208,7 +209,7 @@ Add to this list to have CIDER recognize additional test defining macros."
         ["Display expected/actual diff" cider-test-ediff]))
     map))
 
-(define-derived-mode cider-test-report-mode cider-popup-buffer-mode "Test Report"
+(define-derived-mode cider-test-report-mode fundamental-mode "Test Report"
   "Major mode for presenting Clojure test results.
 
 \\{cider-test-report-mode-map}"
