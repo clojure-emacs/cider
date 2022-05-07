@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+* [#3195](https://github.com/clojure-emacs/cider/issues/3195): Revert the change that resulted in `(error "Cyclic keymap inheritance")` on `cider-test-run-test`.
+
 ## 1.4.0 (2022-05-02)
 
 ## New features
