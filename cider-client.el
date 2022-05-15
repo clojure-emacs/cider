@@ -480,6 +480,8 @@ contain a `candidates' key, it is returned as is."
           info)
       var-info)))
 
+;; FIXME: Now that nREPL supports a lookup op natively, we should
+;; remove this eval-based hack at some point.
 (defconst cider-info-form "
 (do
   (require 'clojure.java.io)
