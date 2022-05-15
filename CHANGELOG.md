@@ -5,6 +5,8 @@
 ### Bugs fixed
 
 * [#3195](https://github.com/clojure-emacs/cider/issues/3195): Revert the change that resulted in `(error "Cyclic keymap inheritance")` on `cider-test-run-test`.
+* [#3182](https://github.com/clojure-emacs/cider/issues/3182): Don't try to invoke
+JVM-specific code outside of JVM Clojure.
 
 ## 1.4.0 (2022-05-02)
 
