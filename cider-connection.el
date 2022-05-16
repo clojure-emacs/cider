@@ -61,6 +61,19 @@ available) and the matching REPL buffer."
   :safe #'booleanp
   :package-version '(cider . "0.9.0"))
 
+;;;###autoload
+(defcustom cider-merge-sessions nil
+  "Controls session combination behaviour.
+
+Symbol `host' combines all sessions of a project associated with the same host.
+Symbol `project' combines all sessions of a project.
+
+All other values do not combine any sessions."
+  :type 'symbol
+  :group 'cider
+  :safe #'symbolp
+  :package-version '(cider . "1.5"))
+
 (defconst cider-required-nrepl-version "0.6.0"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
@@ -874,6 +887,33 @@ no linked session or there is no REPL of TYPE within the current session."
           ((listp type) (member buffer-repl-type type))
           (t (string= type buffer-repl-type)))))
 
+(defun cider--get-host-from-session (session)
+  "Returns the host associated with SESSION."
+  (plist-get (cider--gather-session-params session)
+             :host))
+
+(defun cider--make-sessions-list-with-hosts (sessions)
+  "Makes a list of SESSIONS and their hosts.
+Returns a list of the form ((session1 host1) (session2 host2) ...)."
+  (mapcar (lambda (session)
+            (list session (cider--get-host-from-session session)))
+          sessions))
+
+(defun cider--get-sessions-with-same-host (session sessions)
+  "Returns a list of SESSIONS with the same host as SESSION."
+  (mapcar #'car
+          (seq-filter (lambda (x)
+                        (string-equal (cadr x)
+                                      (cider--get-host-from-session session)))
+                      (cider--make-sessions-list-with-hosts sessions))))
+
+(defun cider--extract-connections (sessions)
+  "Returns a flattened list of all session buffers in SESSIONS."
+  (cl-reduce (lambda (x y)
+               (append x (cdr y)))
+             sessions
+             :initial-value '()))
+
 (defun cider-repls (&optional type ensure)
   "Return cider REPLs of TYPE from the current session.
 If TYPE is nil or multi, return all REPLs.  If TYPE is a list of types,
@@ -883,9 +923,24 @@ throw an error if no linked session exists."
                ((listp type)
                 (mapcar #'cider-maybe-intern type))
                ((cider-maybe-intern type))))
-        (repls (cdr (if ensure
-                        (sesman-ensure-session 'CIDER)
-                      (sesman-current-session 'CIDER)))))
+        (repls (pcase cider-merge-sessions
+                 ('host
+                  (if ensure
+                      (or (cider--extract-connections (cider--get-sessions-with-same-host
+                                                       (sesman-current-session 'CIDER)
+                                                       (sesman-current-sessions 'CIDER)))
+                          (user-error "No linked %s sessions" 'CIDER))
+                    (cider--extract-connections (cider--get-sessions-with-same-host
+                                                 (sesman-current-session 'CIDER)
+                                                 (sesman-current-sessions 'CIDER)))))
+                 ('project
+                  (if ensure
+                      (or (cider--extract-connections (sesman-current-sessions 'CIDER))
+                          (user-error "No linked %s sessions" 'CIDER))
+                    (cider--extract-connections (sesman-current-sessions 'CIDER))))
+                 (_ (cdr (if ensure
+                             (sesman-ensure-session 'CIDER)
+                           (sesman-current-session 'CIDER)))))))
     (or (seq-filter (lambda (b)
                       (cider--match-repl-type type b))
                     repls)

@@ -71,10 +71,22 @@ You can add new REPLs to the current session with:
 
 A very common use-case would be to run `cider-jack-in-clj` for some project and then follow up with `cider-connect-sibling-cljs`.
 
-NOTE: Unless there are both Clojure and ClojureScript REPLs in the same session smart-dispatch commands (e.g. evaluate the code
-in the right Clojure/ClojureScript REPL, toggle between Clojure and ClojureScript REPL) won't work. A very common problem
-newcomers experience is to create a Clojure REPL and a ClojureScript REPL in separate sessions and wonder why those are not
+[NOTE]
+====
+Unless there are both Clojure and ClojureScript REPLs in the same
+session smart-dispatch commands (e.g. evaluate the code in the right
+Clojure/ClojureScript REPL, toggle between Clojure and ClojureScript REPL) won't
+work. A very common problem newcomers experience is to create a Clojure REPL and
+a ClojureScript REPL in separate sessions and wonder why those are not
 interacting properly with one another.
+
+In the case of using separate config files for the clj and cljs dependencies
+(e.g. clj dependencies in `deps.edn` and cljs dependencies in `shadow-cljs.edn`)
+it is currently impossible to group those two repls in the same session.
+However, this can be worked around with `cider-merge-sessions`. Setting it to
+`'host` will combine all sessions associated with the same host within a
+project. Setting it to `'project` will combine all sessions in the same project.
+====
 
 === Session Life-Cycle Management
 

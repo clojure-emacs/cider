@@ -272,6 +272,90 @@
                         (expect (cider-repls) :to-equal (list bb2 bb1))
                         (expect (cider-repls 'cljs) :to-equal (list bb2)))))))))))))
 
+  (describe "when multiple sessions exist and cider-merge-sessions is set to :project"
+    (it "always returns all connections associated with a project"
+      (let ((proj-dir (expand-file-name "/tmp/proj-dir"))
+            (cider-merge-sessions 'project))
+        (let ((default-directory proj-dir))
+          (with-repl-buffer ses-name 'clj bb1
+            (with-repl-buffer ses-name 'cljs bb2
+              (with-repl-buffer ses-name2 'clj b1
+                (with-repl-buffer ses-name2 'cljs b2
+
+                  (expect (cider-repls) :to-have-same-items-as (list b2 b1 bb2 bb1))
+
+                  (switch-to-buffer bb1)
+                  (expect (cider-repls) :to-have-same-items-as (list b2 b1 bb2 bb1))
+
+                  ;; follows type arguments
+                  (expect (cider-repls 'clj) :to-have-same-items-as (list b1 bb1))
+                  (expect (cider-repls 'cljs) :to-have-same-items-as (list b2 bb2))
+
+                  (switch-to-buffer bb2)
+                  ;; follows file type
+                  (with-temp-buffer
+                    (setq major-mode 'clojure-mode)
+                    (expect (cider-repls) :to-have-same-items-as (list b2 b1 bb2 bb1))
+                    (expect (cider-repls 'clj) :to-have-same-items-as (list b1 bb1)))
+
+                  (with-temp-buffer
+                    (setq major-mode 'clojurescript-mode)
+                    (expect (cider-repls) :to-have-same-items-as (list b2 b1 bb2 bb1))
+                    (expect (cider-repls 'cljs) :to-have-same-items-as (list b2 bb2))))))))))
+    (it "only returns the connections of the active project"
+      (let ((a-dir (expand-file-name "/tmp/a-dir"))
+            (b-dir (expand-file-name "/tmp/b-dir"))
+            (cider-merge-sessions 'project))
+        (let ((default-directory a-dir))
+          (with-repl-buffer ses-name 'clj bb1
+            (with-repl-buffer ses-name 'cljs bb2
+              (let ((default-directory b-dir))
+                (with-repl-buffer ses-name2 'clj b1
+                  (with-repl-buffer ses-name2 'cljs b2
+
+                    (expect (cider-repls) :to-have-same-items-as (list b2 b1))
+
+                    (switch-to-buffer bb1)
+                    (expect (cider-repls) :to-have-same-items-as (list bb2 bb1))
+
+                    ;; follows type arguments
+                    (expect (cider-repls 'clj) :to-have-same-items-as (list bb1))
+                    (expect (cider-repls 'cljs) :to-have-same-items-as (list bb2))
+
+                    (switch-to-buffer bb2)
+                    ;; follows file type
+                    (let ((default-directory b-dir))
+                      (with-temp-buffer
+                        (setq major-mode 'clojure-mode)
+                        (expect (cider-repls) :to-have-same-items-as (list b2 b1))
+                        (expect (cider-repls 'clj) :to-have-same-items-as (list b1))))
+
+                    (let ((default-directory a-dir))
+                      (with-temp-buffer
+                        (setq major-mode 'clojurescript-mode)
+                        (expect (cider-repls) :to-have-same-items-as (list bb2 bb1))
+                        (expect (cider-repls 'cljs) :to-have-same-items-as (list bb2)))))))))))))
+
+  (describe "when multiple sessions exist and cider-combine-merge-sessions is set to :host"
+    (before-each
+      (spy-on 'cider--gather-session-params :and-call-fake (lambda (session)
+                                                             (if (string-equal (car session) "local")
+                                                                  '(:host "localhost")
+                                                                '(:host "remotehost")))))
+    (it "returns only the sessions associated with the current session's host"
+      (let ((cider-merge-sessions 'host)
+            (local-session "local")
+            (remote-session "remote")
+            (proj-dir (expand-file-name "/tmp/proj-dir")))
+        (let ((default-directory proj-dir))
+          (with-repl-buffer local-session 'clj l1
+            (with-repl-buffer local-session 'clj l2
+              (with-repl-buffer remote-session 'clj r1
+                (switch-to-buffer r1)
+                (expect (cider-repls) :to-have-same-items-as (list r1))
+                (switch-to-buffer l1)
+                (expect (cider-repls) :to-have-same-items-as (list l1 l2)))))))))
+
   (describe "killed buffers"
     (it "do not show up in it"
       (let ((default-directory (expand-file-name "/tmp/some-dir")))
