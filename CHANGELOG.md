@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## Changes
+
+* Upgrade cider-nrepl to [0.28.4](https://github.com/clojure-emacs/cider-nrepl/blob/v0.28.4/CHANGELOG.md#0284-2022-05-18).
+
 ### Bugs fixed
 
 * [#3195](https://github.com/clojure-emacs/cider/issues/3195): Revert the change that resulted in `(error "Cyclic keymap inheritance")` on `cider-test-run-test`.

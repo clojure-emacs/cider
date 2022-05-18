@@ -45,7 +45,7 @@ A minimal `profiles.clj` for CIDER would be:
 
 [source,clojure]
 ----
-{:repl {:plugins [[cider/cider-nrepl "0.28.3"]
+{:repl {:plugins [[cider/cider-nrepl "0.28.4"]
                   [mx.cider/enrich-classpath "1.9.0"]]}}
 ----
 
