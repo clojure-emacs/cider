@@ -7,6 +7,9 @@
 * [#3195](https://github.com/clojure-emacs/cider/issues/3195): Revert the change that resulted in `(error "Cyclic keymap inheritance")` on `cider-test-run-test`.
 * [#3182](https://github.com/clojure-emacs/cider/issues/3182): Don't try to invoke
 JVM-specific code outside of JVM Clojure.
+* [#3202](https://github.com/clojure-emacs/cider/pull/3202): Fix `cider-eval-ns-form`
+  * Do not always perform `undef-all`. Undef only with `C-u` prefix.
+  * Fix extraction of namespace name.
 
 ## 1.4.0 (2022-05-02)
 
