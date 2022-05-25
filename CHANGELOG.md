@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.4.1 (2022-05-25)
+
 ## Changes
 
 * Upgrade cider-nrepl to [0.28.4](https://github.com/clojure-emacs/cider-nrepl/blob/v0.28.4/CHANGELOG.md#0284-2022-05-18).
