@@ -487,7 +487,8 @@ returned by this function does not include keyword arguments."
                                ("mx.cider/enrich-classpath" "1.9.0")))
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
-    (thread-last plugins
+    (thread-last
+      plugins
       (seq-filter
        (lambda (spec)
          (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
@@ -519,7 +520,8 @@ Added to `cider-jack-in-nrepl-middlewares' (which see) when doing
   "Return a normalized list of middleware variable names.
 See `cider-jack-in-nrepl-middlewares' for the format, except that the list
 returned by this function only contains strings."
-  (thread-last cider-jack-in-nrepl-middlewares
+  (thread-last
+    cider-jack-in-nrepl-middlewares
     (seq-filter
      (lambda (spec)
        (or (not (listp spec))
@@ -619,7 +621,8 @@ Does so by concatenating DEPENDENCIES and GLOBAL-OPTIONS into a suitable
 `clojure` invocation.  The main is placed in an inline alias :cider/nrepl
 so that if your aliases contain any mains, the cider/nrepl one will be the
 one used."
-  (let* ((all-deps (thread-last dependencies
+  (let* ((all-deps (thread-last
+                     dependencies
                      (append (cider--jack-in-required-dependencies))
                      ;; Duplicates are never OK since they would result in
                      ;; `java.lang.IllegalArgumentException: Duplicate key [...]`:
@@ -1087,7 +1090,8 @@ PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the jack in command; with a
 double prefix prompt for all these parameters."
   (interactive "P")
-  (let ((params (thread-first params
+  (let ((params (thread-first
+                  params
                   (cider--update-project-dir)
                   (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
@@ -1110,7 +1114,8 @@ these parameters."
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
         (orig-buffer (current-buffer)))
     ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
-    (let ((params (thread-first params
+    (let ((params (thread-first
+                    params
                     (cider--update-project-dir)
                     (cider--check-existing-session)
                     (cider--update-jack-in-cmd))))
@@ -1135,7 +1140,8 @@ only when the ClojureScript dependencies are met."
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
         (orig-buffer (current-buffer)))
     ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
-    (let ((params (thread-first params
+    (let ((params (thread-first
+                    params
                     (cider--update-project-dir)
                     (cider--check-existing-session)
                     (cider--update-jack-in-cmd)
@@ -1166,7 +1172,8 @@ server is created."
           (other-params (cider--gather-connect-params nil other-repl))
           (ses-name (unless (nrepl-server-p other-repl)
                       (sesman-session-name-for-object 'CIDER other-repl))))
-     (thread-first params
+     (thread-first
+       params
        (cider--update-do-prompt)
        (append other-params)
        (plist-put :repl-init-function nil)
@@ -1186,7 +1193,8 @@ server buffer, in which case a new session for that server is created."
          (ses-name (unless (nrepl-server-p other-repl)
                      (sesman-session-name-for-object 'CIDER other-repl))))
     (cider-nrepl-connect
-     (thread-first params
+     (thread-first
+       params
        (cider--update-do-prompt)
        (append other-params)
        (cider--update-cljs-type)
@@ -1201,7 +1209,8 @@ PARAMS is a plist optionally containing :host, :port and :project-dir.  On
 prefix argument, prompt for all the parameters."
   (interactive "P")
   (cider-nrepl-connect
-   (thread-first params
+   (thread-first
+     params
      (cider--update-project-dir)
      (cider--update-host-port)
      (cider--check-existing-session)
@@ -1217,7 +1226,8 @@ PARAMS is a plist optionally containing :host, :port, :project-dir and
 parameters regardless of their supplied or default values."
   (interactive "P")
   (cider-nrepl-connect
-   (thread-first params
+   (thread-first
+     params
      (cider--update-project-dir)
      (cider--update-host-port)
      (cider--check-existing-session)
@@ -1233,7 +1243,8 @@ PARAMS is a plist optionally containing :host, :port, :project-dir and
 :cljs-repl-type (e.g. Node, Figwheel, etc).  When SOFT-CLJS-START is
 non-nil, don't start if ClojureScript requirements are not met."
   (interactive "P")
-  (let* ((params (thread-first params
+  (let* ((params (thread-first
+                   params
                    (cider--update-project-dir)
                    (cider--update-host-port)
                    (cider--check-existing-session)
@@ -1301,7 +1312,8 @@ non-nil, don't start if ClojureScript requirements are not met."
             (setq-local buffer-file-name nil))
           (let ((default-directory proj-dir))
             (hack-dir-local-variables-non-file-buffer)
-            (thread-first params
+            (thread-first
+              params
               (plist-put :project-dir proj-dir)
               (plist-put :--context-buffer (current-buffer)))))))))
 
@@ -1388,7 +1400,8 @@ non-nil, don't start if ClojureScript requirements are not met."
                          (cider-select-endpoint)))))
       (if (equal "local-unix-domain-socket" (car endpoint))
           (plist-put params :socket-file (cdr endpoint))
-        (thread-first params
+        (thread-first
+          params
           (plist-put :host (car endpoint))
           (plist-put :port (cdr endpoint)))))))
 
@@ -1398,7 +1411,8 @@ non-nil, don't start if ClojureScript requirements are not met."
                            (current-buffer))
     (let* ((cljs-type (plist-get params :cljs-repl-type))
            (repl-init-form (cider-cljs-repl-form cljs-type)))
-      (thread-first params
+      (thread-first
+        params
         (plist-put :repl-init-function
                    (lambda ()
                      (cider--check-cljs cljs-type)

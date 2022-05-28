@@ -129,7 +129,8 @@ Display TITLE at the top and SPECS are indented underneath."
       (insert (cider-propertize title 'emph) "\n")
       (dolist (spec-name specs)
         (insert (propertize "  " 'spec-name spec-name))
-        (thread-first (cider-font-lock-as-clojure spec-name)
+        (thread-first
+          (cider-font-lock-as-clojure spec-name)
           (insert-text-button 'type 'cider-browse-spec--spec)
           (button-put 'spec-name spec-name))
         (insert (propertize "\n" 'spec-name spec-name)))
@@ -148,13 +149,15 @@ Display TITLE at the top and SPECS are indented underneath."
   (cond ((stringp form)
          (if (cider--qualified-keyword-p form)
              (with-temp-buffer
-               (thread-first form
+               (thread-first
+                 form
                  (insert-text-button 'type 'cider-browse-spec--spec)
                  (button-put 'spec-name form))
                (buffer-string))
            ;; to make it easier to read replace all clojure.spec ns with s/
            ;; and remove all clojure.core ns
-           (thread-last form
+           (thread-last
+             form
              (replace-regexp-in-string "^\\(clojure.spec\\|clojure.spec.alpha\\)/" "s/")
              (replace-regexp-in-string "^\\(clojure.core\\)/" ""))))
 
@@ -168,7 +171,8 @@ Display TITLE at the top and SPECS are indented underneath."
                (format "(fn [%%] %s)" (cl-reduce #'concat (mapcar #'cider-browse-spec--pprint (cl-rest (cl-rest form)))))))
             ;; prettier (s/and )
             ((cider--spec-fn-p form-tag "and")
-             (format "(s/and\n%s)" (string-join (thread-last (cl-rest form)
+             (format "(s/and\n%s)" (string-join (thread-last
+                                                  (cl-rest form)
                                                   (mapcar #'cider-browse-spec--pprint)
                                                   (mapcar (lambda (x) (format "%s" x))))
                                                 "\n")))
@@ -176,12 +180,14 @@ Display TITLE at the top and SPECS are indented underneath."
             ((cider--spec-fn-p form-tag "or")
              (let ((name-spec-pair (seq-partition (cl-rest form) 2)))
                (format "(s/or\n%s)" (string-join
-                                     (thread-last name-spec-pair
+                                     (thread-last
+                                       name-spec-pair
                                        (mapcar (lambda (s) (format "%s %s" (cl-first s) (cider-browse-spec--pprint (cl-second s))))))
                                      "\n"))))
             ;; prettier (s/merge )
             ((cider--spec-fn-p form-tag "merge")
-             (format "(s/merge\n%s)" (string-join (thread-last (cl-rest form)
+             (format "(s/merge\n%s)" (string-join (thread-last
+                                                    (cl-rest form)
                                                     (mapcar #'cider-browse-spec--pprint)
                                                     (mapcar (lambda (x) (format "%s" x))))
                                                   "\n")))
@@ -189,13 +195,14 @@ Display TITLE at the top and SPECS are indented underneath."
             ((cider--spec-fn-p form-tag "keys")
              (let ((keys-args (seq-partition (cl-rest form) 2)))
                (format "(s/keys%s)" (thread-last
-                                        keys-args
+                                      keys-args
                                       (mapcar (lambda (s)
                                                 (let ((key-type (cl-first s))
                                                       (specs-vec (cl-second s)))
                                                   (concat "\n" key-type
                                                           " ["
-                                                          (string-join (thread-last specs-vec
+                                                          (string-join (thread-last
+                                                                         specs-vec
                                                                          (mapcar #'cider-browse-spec--pprint)
                                                                          (mapcar (lambda (x) (format "%s" x))))
                                                                        "\n")
@@ -210,7 +217,8 @@ Display TITLE at the top and SPECS are indented underneath."
                        multi-method
                        retag
                        (string-join
-                        (thread-last sub-specs
+                        (thread-last
+                          sub-specs
                           (mapcar (lambda (s)
                                     (concat "\n\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s))))))
                         "\n"))))
@@ -218,7 +226,8 @@ Display TITLE at the top and SPECS are indented underneath."
             ((cider--spec-fn-p form-tag "cat")
              (let ((name-spec-pairs (seq-partition (cl-rest form) 2)))
                (format "(s/cat %s)"
-                       (thread-last name-spec-pairs
+                       (thread-last
+                         name-spec-pairs
                          (mapcar (lambda (s)
                                    (concat "\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s)))))
                          (cl-reduce #'concat)))))
@@ -226,13 +235,15 @@ Display TITLE at the top and SPECS are indented underneath."
             ((cider--spec-fn-p form-tag "alt")
              (let ((name-spec-pairs (seq-partition (cl-rest form) 2)))
                (format "(s/alt %s)"
-                       (thread-last name-spec-pairs
+                       (thread-last
+                         name-spec-pairs
                          (mapcar (lambda (s)
                                    (concat "\n" (cl-first s) " " (cider-browse-spec--pprint (cl-second s)))))
                          (cl-reduce #'concat)))))
             ;; prettier (s/fspec )
             ((cider--spec-fn-p form-tag "fspec")
-             (thread-last (seq-partition (cl-rest form) 2)
+             (thread-last
+               (seq-partition (cl-rest form) 2)
                (cl-remove-if (lambda (s) (and (stringp (cl-second s))
                                               (string-empty-p (cl-second s)))))
                (mapcar (lambda (s)

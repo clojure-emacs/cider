@@ -271,12 +271,12 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
   (let (causes)
     (cider-nrepl-send-request
      (thread-last
-         (map-merge 'list
-                    `(("op" "test-stacktrace")
-                      ("ns" ,ns)
-                      ("var" ,var)
-                      ("index" ,index))
-                    (cider--nrepl-print-request-map fill-column))
+       (map-merge 'list
+                  `(("op" "test-stacktrace")
+                    ("ns" ,ns)
+                    ("var" ,var)
+                    ("index" ,index))
+                  (cider--nrepl-print-request-map fill-column))
        (seq-mapcat #'identity))
      (lambda (response)
        (nrepl-dbind-response response (class status)
@@ -397,7 +397,8 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                   (insert (format "%12s" s)))
                 (insert-rect (s)
                   (let ((start (point)))
-                    (insert-rectangle (thread-first s
+                    (insert-rectangle (thread-first
+                                        s
                                         cider-font-lock-as-clojure
                                         (split-string "\n")))
                     (ansi-color-apply-on-region start (point)))

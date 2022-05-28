@@ -107,7 +107,7 @@ configure `cider-debug-prompt' instead."
   "List all instrumented definitions."
   (interactive)
   (if-let* ((all (thread-first (cider-nrepl-send-sync-request '("op" "debug-instrumented-defs"))
-                   (nrepl-dict-get "list"))))
+                               (nrepl-dict-get "list"))))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))
           (erase-buffer)
@@ -147,9 +147,9 @@ configure `cider-debug-prompt' instead."
   "Initialize a connection with the cider.debug middleware."
   (cider-nrepl-send-request
    (thread-last
-       (map-merge 'list
-                  '(("op" "init-debugger"))
-                  (cider--nrepl-print-request-map fill-column))
+     (map-merge 'list
+                '(("op" "init-debugger"))
+                (cider--nrepl-print-request-map fill-column))
      (seq-mapcat #'identity))
    #'cider--debug-response-handler))
 

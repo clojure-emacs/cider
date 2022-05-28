@@ -485,9 +485,9 @@ into a new error buffer."
   (let (causes)
     (cider-nrepl-send-request
      (thread-last
-         (map-merge 'list
-                    '(("op" "stacktrace"))
-                    (cider--nrepl-print-request-map fill-column))
+       (map-merge 'list
+                  '(("op" "stacktrace"))
+                  (cider--nrepl-print-request-map fill-column))
        (seq-mapcat #'identity))
      (lambda (response)
        ;; While the return value of `cider--handle-stacktrace-response' is not

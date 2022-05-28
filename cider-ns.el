@@ -256,13 +256,13 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
             (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
           (cider-nrepl-send-request
            (thread-last
-               (map-merge 'list
-                          `(("op" ,(if refresh-all? "refresh-all" "refresh")))
-                          (cider--nrepl-print-request-map fill-column)
-                          (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
-                            `(("before" ,cider-ns-refresh-before-fn)))
-                          (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
-                            `(("after" ,cider-ns-refresh-after-fn))))
+             (map-merge 'list
+                        `(("op" ,(if refresh-all? "refresh-all" "refresh")))
+                        (cider--nrepl-print-request-map fill-column)
+                        (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
+                          `(("before" ,cider-ns-refresh-before-fn)))
+                        (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
+                          `(("after" ,cider-ns-refresh-after-fn))))
              (seq-mapcat #'identity))
            (lambda (response)
              (cider-ns-refresh--handle-response response log-buffer))
