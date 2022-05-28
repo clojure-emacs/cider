@@ -272,12 +272,13 @@ Run CALLBACK once the evaluation is complete."
     (cider-nrepl-request:eval
      ;; Ensure we evaluate _something_ so the initial namespace is correctly set
      (thread-first (or cider-repl-init-code '("nil"))
-       (string-join "\n"))
+                   (string-join "\n"))
      (cider-repl-init-eval-handler callback)
      nil
      (line-number-at-pos (point))
      (cider-column-number-at-pos (point))
-     (thread-last request
+     (thread-last
+       request
        (map-pairs)
        (seq-mapcat #'identity)))))
 
@@ -1039,7 +1040,7 @@ If NEWLINE is true then add a newline at the end of the input."
          (line-number-at-pos input-start)
          (cider-column-number-at-pos input-start)
          (thread-last
-             (cider--repl-request-map fill-column)
+           (cider--repl-request-map fill-column)
            (map-pairs)
            (seq-mapcat #'identity)))))))
 

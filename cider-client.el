@@ -135,7 +135,8 @@ will return nil instead of \"user\"."
 (defun cider-path-to-ns (relpath)
   "Transform RELPATH to Clojure namespace.
 Remove extension and substitute \"/\" with \".\", \"_\" with \"-\"."
-  (thread-last relpath
+  (thread-last
+    relpath
     (file-name-sans-extension)
     (replace-regexp-in-string "/" ".")
     (replace-regexp-in-string "_" "-")))
@@ -147,7 +148,8 @@ command falls back to `clojure-expected-ns' in the absence of an active
 nREPL connection."
   (if (cider-connected-p)
       (let* ((path (file-truename (or path buffer-file-name)))
-             (relpath (thread-last (cider-classpath-entries)
+             (relpath (thread-last
+                        (cider-classpath-entries)
                         (seq-filter #'file-directory-p)
                         (seq-map (lambda (dir)
                                    (when (file-in-directory-p path dir)
@@ -251,22 +253,22 @@ the code.  See `cider-format-code-options` for details."
   (when format-options
     (let* ((indents-dict (when (assoc "indents" format-options)
                            (thread-last
-                               (cadr (assoc "indents" format-options))
+                             (cadr (assoc "indents" format-options))
                              (map-pairs)
                              (seq-mapcat #'identity)
                              (apply #'nrepl-dict))))
            (alias-map-dict (when (assoc "alias-map" format-options)
                              (thread-last
-                                 (cadr (assoc "alias-map" format-options))
+                               (cadr (assoc "alias-map" format-options))
                                (map-pairs)
                                (seq-mapcat #'identity)
                                (apply #'nrepl-dict)))))
       (thread-last
-          (map-merge 'list
-                     (when indents-dict
-                       `(("indents" ,indents-dict)))
-                     (when alias-map-dict
-                       `(("alias-map" ,alias-map-dict))))
+        (map-merge 'list
+                   (when indents-dict
+                     `(("indents" ,indents-dict)))
+                   (when alias-map-dict
+                     `(("alias-map" ,alias-map-dict))))
         (map-pairs)
         (seq-mapcat #'identity)
         (apply #'nrepl-dict)))))
@@ -373,9 +375,9 @@ RIGHT-MARGIN specifies the maximum column-width of the printed result, and
 is included in the request if non-nil."
   (let* ((width-option (cider--print-option "right-margin" cider-print-fn))
          (print-options (thread-last
-                            (map-merge 'hash-table
-                                       `((,width-option ,right-margin))
-                                       cider-print-options)
+                          (map-merge 'hash-table
+                                     `((,width-option ,right-margin))
+                                     cider-print-options)
                           (map-pairs)
                           (seq-mapcat #'identity)
                           (apply #'nrepl-dict))))
@@ -392,7 +394,8 @@ is included in the request if non-nil."
 
 (defun cider--nrepl-pr-request-map ()
   "Map to merge into requests that do not require pretty printing."
-  (let ((print-options (thread-last cider-print-options
+  (let ((print-options (thread-last
+                         cider-print-options
                          (map-pairs)
                          (seq-mapcat #'identity)
                          (apply #'nrepl-dict))))
@@ -579,7 +582,8 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
   (cider-ensure-op-supported "classpath")
-  (thread-first '("op" "classpath")
+  (thread-first
+    '("op" "classpath")
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "classpath")))
 
@@ -596,7 +600,8 @@ Do nothing if PATH is already absolute."
 Sometimes the classpath contains entries like src/main and we need to
 resolve those to absolute paths."
   (when (cider-runtime-clojure-p)
-    (let ((classpath (thread-first "(seq (.split (System/getProperty \"java.class.path\") \":\"))"
+    (let ((classpath (thread-first
+                       "(seq (.split (System/getProperty \"java.class.path\") \":\"))"
                        (cider-sync-tooling-eval)
                        (nrepl-dict-get "value")
                        read))
@@ -615,8 +620,8 @@ resolve those to absolute paths."
   (when-let* ((dict (thread-first `("op" "completions"
                                     "ns" ,(cider-current-ns)
                                     "prefix" ,prefix)
-                      (cider-nrepl-send-sync-request (cider-current-repl)
-                                                     'abort-on-input))))
+                                  (cider-nrepl-send-sync-request (cider-current-repl)
+                                                                 'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:complete (prefix context)
@@ -627,8 +632,8 @@ CONTEXT represents a completion context for compliment."
                                     "prefix" ,prefix
                                     "context" ,context
                                     ,@(when cider-enhanced-cljs-completion-p '("enhanced-cljs-completion?" "t")))
-                      (cider-nrepl-send-sync-request (cider-current-repl)
-                                                     'abort-on-input))))
+                                  (cider-nrepl-send-sync-request (cider-current-repl)
+                                                                 'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:complete-flush-caches ()
@@ -645,7 +650,7 @@ CONTEXT represents a completion context for compliment."
                                   ,@(when symbol `("sym" ,symbol))
                                   ,@(when class `("class" ,class))
                                   ,@(when member `("member" ,member)))
-                    (cider-nrepl-send-sync-request (cider-current-repl)))))
+                                (cider-nrepl-send-sync-request (cider-current-repl)))))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
       var-info)))
@@ -656,7 +661,7 @@ CONTEXT represents a completion context for compliment."
                                   "ns" ,(cider-current-ns)
                                   ,@(when symbol `("sym" ,symbol))
                                   ,@(when lookup-fn `("lookup-fn" ,lookup-fn)))
-                    (cider-nrepl-send-sync-request (cider-current-repl)))))
+                                (cider-nrepl-send-sync-request (cider-current-repl)))))
     (if (member "lookup-error" (nrepl-dict-get var-info "status"))
         nil
       (nrepl-dict-get var-info "info"))))
@@ -668,8 +673,8 @@ CONTEXT represents a completion context for compliment."
                                      ,@(when symbol `("sym" ,symbol))
                                      ,@(when class `("class" ,class))
                                      ,@(when member `("member" ,member)))
-                       (cider-nrepl-send-sync-request (cider-current-repl)
-                                                      'abort-on-input))))
+                                   (cider-nrepl-send-sync-request (cider-current-repl)
+                                                                  'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
@@ -679,7 +684,7 @@ CONTEXT represents a completion context for compliment."
   (when-let* ((eldoc (thread-first `("op" "eldoc-datomic-query"
                                      "ns" ,(cider-current-ns)
                                      ,@(when symbol `("sym" ,symbol)))
-                       (cider-nrepl-send-sync-request nil 'abort-on-input))))
+                                   (cider-nrepl-send-sync-request nil 'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
@@ -692,71 +697,71 @@ returned."
   (thread-first `("op" "spec-list"
                   "filter-regex" ,filter-regex
                   "ns" ,(cider-current-ns))
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "spec-list")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "spec-list")))
 
 (defun cider-sync-request:spec-form (spec)
   "Get SPEC's form from registry."
   (thread-first `("op" "spec-form"
                   "spec-name" ,spec
                   "ns" ,(cider-current-ns))
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "spec-form")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "spec-form")))
 
 (defun cider-sync-request:spec-example (spec)
   "Get an example for SPEC."
   (thread-first `("op" "spec-example"
                   "spec-name" ,spec)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "spec-example")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "spec-example")))
 
 (defun cider-sync-request:ns-list ()
   "Get a list of the available namespaces."
   (thread-first `("op" "ns-list"
                   "exclude-regexps" ,cider-filtered-namespaces-regexps)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "ns-list")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "ns-list")))
 
 (defun cider-sync-request:ns-vars (ns)
   "Get a list of the vars in NS."
   (thread-first `("op" "ns-vars"
                   "ns" ,ns)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "ns-vars")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "ns-vars")))
 
 (defun cider-sync-request:ns-path (ns)
   "Get the path to the file containing NS."
   (thread-first `("op" "ns-path"
                   "ns" ,ns)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "path")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "path")))
 
 (defun cider-sync-request:ns-vars-with-meta (ns)
   "Get a map of the vars in NS to its metadata information."
   (thread-first `("op" "ns-vars-with-meta"
                   "ns" ,ns)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "ns-vars-with-meta")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "ns-vars-with-meta")))
 
 (defun cider-sync-request:ns-load-all ()
   "Load all project namespaces."
   (thread-first '("op" "ns-load-all")
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "loaded-ns")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "loaded-ns")))
 
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
   (thread-first `("op" "resource"
                   "name" ,name)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "resource-path")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "resource-path")))
 
 (defun cider-sync-request:resources-list ()
   "Return a list of all resources on the classpath.
 The result entries are relative to the classpath."
   (when-let* ((resources (thread-first '("op" "resources-list")
-                           (cider-nrepl-send-sync-request)
-                           (nrepl-dict-get "resources-list"))))
+                                       (cider-nrepl-send-sync-request)
+                                       (nrepl-dict-get "resources-list"))))
     (seq-map (lambda (resource) (nrepl-dict-get resource "relpath")) resources)))
 
 (defun cider-sync-request:fn-refs (ns sym)
@@ -765,8 +770,8 @@ The result entries are relative to the classpath."
   (thread-first `("op" "fn-refs"
                   "ns" ,ns
                   "sym" ,sym)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "fn-refs")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "fn-refs")))
 
 (defun cider-sync-request:fn-deps (ns sym)
   "Return a list of function deps for the function identified by NS and SYM."
@@ -774,8 +779,8 @@ The result entries are relative to the classpath."
   (thread-first `("op" "fn-deps"
                   "ns" ,ns
                   "sym" ,sym)
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "fn-deps")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "fn-deps")))
 
 (defun cider-sync-request:format-code (code &optional format-options)
   "Perform nREPL \"format-code\" op with CODE.
@@ -794,10 +799,10 @@ FORMAT-OPTIONS is an optional configuration map for cljfmt."
 (defun cider-sync-request:format-edn (edn right-margin)
   "Perform \"format-edn\" op with EDN and RIGHT-MARGIN."
   (let* ((request (thread-last
-                      (map-merge 'list
-                                 `(("op" "format-edn")
-                                   ("edn" ,edn))
-                                 (cider--nrepl-print-request-map right-margin))
+                    (map-merge 'list
+                               `(("op" "format-edn")
+                                 ("edn" ,edn))
+                               (cider--nrepl-print-request-map right-margin))
                     (seq-mapcat #'identity)))
          (response (cider-nrepl-send-sync-request request))
          (err (nrepl-dict-get response "err")))

@@ -134,7 +134,8 @@ keywords."
           (if (member str '("." ".."))
               str
             ;; Remove prefix quotes, and trailing . from constructors like Record.
-            (thread-last str
+            (thread-last
+              str
               ;; constructors (Foo.)
               (string-remove-suffix ".")
               ;; quoted symbols ('sym)

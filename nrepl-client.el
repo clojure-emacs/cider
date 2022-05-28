@@ -576,7 +576,8 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
         (error "[nREPL] SSH port forwarding failed.  Check the '%s' buffer" tunnel-buf)
       (message "[nREPL] SSH port forwarding established to localhost:%s" port)
       (let ((endpoint (nrepl--direct-connect "localhost" port)))
-        (thread-first endpoint
+        (thread-first
+          endpoint
           (plist-put :tunnel tunnel)
           (plist-put :remote-host host))))))
 
@@ -1301,7 +1302,8 @@ EVENT gives the button position on window."
   "Return the color to use when pretty-printing the nREPL message with ID.
 If ID is nil, return nil."
   (when id
-    (thread-first (string-to-number id)
+    (thread-first
+      (string-to-number id)
       (mod (length nrepl-message-colors))
       (nth nrepl-message-colors))))
 

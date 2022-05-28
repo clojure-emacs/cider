@@ -37,7 +37,7 @@
   (thread-first `("op" "toggle-trace-var"
                   "ns" ,(cider-current-ns)
                   "sym" ,sym)
-    (cider-nrepl-send-sync-request)))
+                (cider-nrepl-send-sync-request)))
 
 (defun cider--toggle-trace-var (sym)
   "Toggle var tracing for SYM."
@@ -65,7 +65,7 @@ opposite of what that option dictates."
   "Toggle namespace tracing for NS."
   (thread-first `("op" "toggle-trace-ns"
                   "ns" ,ns)
-    (cider-nrepl-send-sync-request)))
+                (cider-nrepl-send-sync-request)))
 
 ;;;###autoload
 (defun cider-toggle-trace-ns (query)

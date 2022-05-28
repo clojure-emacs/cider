@@ -119,15 +119,18 @@ PROC-BUFFER is either server or client buffer, defaults to current buffer."
                           nrepl-server-buffer)))
         (cl-loop for l on nrepl-endpoint by #'cddr
                  do (setq params (plist-put params (car l) (cadr l))))
-        (setq params (thread-first params
+        (setq params (thread-first
+                       params
                        (plist-put :project-dir nrepl-project-dir)))
         (when (buffer-live-p server-buf)
-          (setq params (thread-first params
+          (setq params (thread-first
+                         params
                          (plist-put :server (get-buffer-process server-buf))
                          (plist-put :server-command nrepl-server-command))))
         ;; repl-specific parameters (do not pollute server params!)
         (unless (nrepl-server-p proc-buffer)
-          (setq params (thread-first params
+          (setq params (thread-first
+                         params
                          (plist-put :session-name cider-session-name)
                          (plist-put :repl-type cider-repl-type)
                          (plist-put :cljs-repl-type cider-cljs-repl-type)
@@ -154,7 +157,8 @@ buffer."
         (cider--close-buffer nrepl-tunnel-buffer))
       (when no-kill
         ;; inform sentinel not to kill the server, if any
-        (thread-first (get-buffer-process repl)
+        (thread-first
+          (get-buffer-process repl)
           (process-plist)
           (plist-put :keep-server t))))
     (let ((proc (get-buffer-process repl)))
@@ -343,7 +347,8 @@ process buffer."
   "Retrieve the underlying connection's Java version."
   (with-current-buffer (cider-current-repl)
     (when nrepl-versions
-      (thread-first nrepl-versions
+      (thread-first
+        nrepl-versions
         (nrepl-dict-get "java")
         (nrepl-dict-get "version-string")))))
 
@@ -351,7 +356,8 @@ process buffer."
   "Retrieve the underlying connection's Clojure version."
   (with-current-buffer (cider-current-repl)
     (when nrepl-versions
-      (thread-first nrepl-versions
+      (thread-first
+        nrepl-versions
         (nrepl-dict-get "clojure")
         (nrepl-dict-get "version-string")))))
 
@@ -359,7 +365,8 @@ process buffer."
   "Retrieve the underlying connection's nREPL version."
   (with-current-buffer (cider-current-repl)
     (when nrepl-versions
-      (thread-first nrepl-versions
+      (thread-first
+        nrepl-versions
         (nrepl-dict-get "nrepl")
         (nrepl-dict-get "version-string")))))
 
@@ -443,7 +450,8 @@ entire session."
   (let* ((repl (or repl
                    (sesman-browser-get 'object)
                    (cider-current-repl nil 'ensure)))
-         (params (thread-first ()
+         (params (thread-first
+                   ()
                    (cider--gather-connect-params repl)
                    (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
                    (plist-put :repl-buffer repl))))
@@ -535,7 +543,8 @@ REPL defaults to the current REPL."
                               (process-put proc :cached-classpath cp)
                               cp)))
              (classpath-roots (or (process-get proc :cached-classpath-roots)
-                                  (let ((cp (thread-last classpath
+                                  (let ((cp (thread-last
+                                              classpath
                                               (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
                                               (mapcar #'file-name-directory)
                                               (seq-remove  #'null)
@@ -604,7 +613,8 @@ Fallback on `cider' command."
              ;; 4) restart the repls reusing the buffer
              (dolist (r repls)
                (cider-nrepl-connect
-                (thread-first ()
+                (thread-first
+                  ()
                   (cider--gather-connect-params r)
                   ;; server params (:port, :project-dir etc) have precedence
                   (cider--gather-connect-params server-buf)
@@ -616,7 +626,8 @@ Fallback on `cider' command."
       (dolist (r repls)
         (cider--close-connection r 'no-kill)
         (cider-nrepl-connect
-         (thread-first ()
+         (thread-first
+           ()
            (cider--gather-connect-params r)
            (plist-put :session-name ses-name)
            (plist-put :repl-buffer r)))))))
@@ -673,7 +684,8 @@ removed."
          (ses-name (or (plist-get params :session-name)
                        (format-spec cider-session-name-template specs)))
          (specs (append `((?s . ,ses-name)) specs)))
-    (thread-last (format-spec template specs)
+    (thread-last
+      (format-spec template specs)
       ;; remove extraneous separators
       (replace-regexp-in-string "\\([:-]\\)[:-]+" "\\1")
       (replace-regexp-in-string "\\(^[:-]\\)\\|\\([:-]$\\)" "")

@@ -69,10 +69,10 @@ The default for DISPLAY-NAMESPACES is taken from
                   "ns" ,(cider-current-ns)
                   "display-namespaces" ,(or display-namespaces
                                             (symbol-name cider-macroexpansion-display-namespaces)))
-    (nconc (when cider-macroexpansion-print-metadata
-             '("print-meta" "true")))
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "expansion")))
+                (nconc (when cider-macroexpansion-print-metadata
+                         '("print-meta" "true")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "expansion")))
 
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
