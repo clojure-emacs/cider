@@ -34,15 +34,14 @@ A typical profiling report looks something like this:
 
 Let's demystify all the column names:
 
-* `:n` Number of samples.
-* `:sum` Aggregate time spent in fn.
-* `:q1` First quartile i.e. twenty-fifth percentile.
-* `:med` Median i.e. fiftieth percentile.
-* `:q3` Third quartile i.e. seventy-fifth percentile.
-* `:sd` Standard deviation i.e. the square root of the sum of squares
+* `:n`: Number of samples.
+* `:sum`: Aggregate time spent in fn.
+* `:q1`: First quartile i.e. twenty-fifth percentile.
+* `:med`: Median i.e. fiftieth percentile.
+* `:q3`: Third quartile i.e. seventy-fifth percentile.
+* `:sd`: Standard deviation i.e. the square root of the sum of squares
   of differences from the mean.
-* `:mad` Mean average deviation, I don't feel like looking up the
-  definition just now.
+* `:mad`: Mean absolute deviation. See https://en.wikipedia.org/wiki/Average_absolute_deviation[this article] for more details.
 
 == Keybindings
 
