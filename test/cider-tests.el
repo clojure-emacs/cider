@@ -413,7 +413,7 @@
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected)))
-    
+
     (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
       (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
                                      "cider/cider-nrepl {:mvn/version \"0.28.4\"}} "
@@ -471,6 +471,75 @@
         (let ((cider-clojure-cli-aliases ":test"))
           (expect (cider-clojure-cli-jack-in-dependencies "-J-Djdk.attach.allowAttachSelf" nil deps)
                   :to-equal expected))))))
+
+(defmacro with-temp-deps-edn-config (contents &rest body)
+  "Run BODY with a mocked deps.edn project file with the CONTENTS."
+  `(let* ((edn-file "deps.edn")
+          (file-path (concat temporary-file-directory edn-file)))
+     (with-temp-file file-path
+       (insert ,contents))
+     (spy-on 'clojure-project-dir :and-return-value temporary-file-directory)
+     ,@body
+     (delete-file file-path)))
+
+(describe "cider--clojure-cli-default-aliases"
+  (it "handles the presence of a `:cider/default-aliases` vector"
+    (with-temp-deps-edn-config
+     "{:cider/default-aliases [:foo :bar]}"
+     (let ((expected (string-join '("-Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.4\"} "
+                                     "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:foo:bar:cider/nrepl")
+                                   ""))
+            (deps '(("nrepl/nrepl" "0.9.0"))))
+       (expect (cider-clojure-cli-jack-in-dependencies nil nil deps) :to-equal expected))))
+
+  (it "handles the presence of an empty `:cider/default-aliases` vector"
+    (with-temp-deps-edn-config
+     "{:cider/default-aliases []}"
+     (let ((expected (string-join '("-Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.4\"} "
+                                     "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:cider/nrepl")
+                                   ""))
+            (deps '(("nrepl/nrepl" "0.9.0"))))
+       (expect (cider-clojure-cli-jack-in-dependencies nil nil deps) :to-equal expected))))
+
+  (it "handles the presence of a single-entry `:cider/default-aliases` vector"
+    (with-temp-deps-edn-config
+     "{:cider/default-aliases [:foo]}"
+     (let ((expected (string-join '("-Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.4\"} "
+                                     "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:foo:cider/nrepl")
+                                   ""))
+            (deps '(("nrepl/nrepl" "0.9.0"))))
+       (expect (cider-clojure-cli-jack-in-dependencies nil nil deps) :to-equal expected))))
+
+  (it "handles the presence of a `:cider/default-aliases` vector and overrides `cider-clojure-cli-aliases`"
+    (with-temp-deps-edn-config
+     "{:cider/default-aliases [:foo :bar]}"
+     (let ((expected (string-join '("-Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.4\"} "
+                                     "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:foo:bar:cider/nrepl")
+                                   ""))
+            (deps '(("nrepl/nrepl" "0.9.0"))))
+       (let ((cider-clojure-cli-aliases ":test"))
+         (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                 :to-equal expected)))))
+
+  (it "ensures that `:cider/default-aliases` is a sequence"
+    (with-temp-deps-edn-config
+     "{:cider/default-aliases :foo}"
+     (let ((expected (string-join '("-Sdeps '{:deps {cider/cider-nrepl {:mvn/version \"0.28.4\"} "
+                                     "nrepl/nrepl {:mvn/version \"0.9.0\"}} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\""
+                                     " \"[cider.nrepl/cider-middleware]\"]}}}' -M:cider/nrepl")
+                                   ""))
+           (deps '(("nrepl/nrepl" "0.9.0"))))
+       (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+               :to-equal expected)))))
 
 (defmacro with-temp-shadow-config (contents &rest body)
   "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."

@@ -615,6 +615,15 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   "Removes the duplicates in DEPS."
   (cl-delete-duplicates deps :test 'equal))
 
+(defun cider-clojure-cli-jack-in-user-supplied-aliases ()
+  "Load the current `deps.edn` to look for default aliases.
+In the file, if a `:cider/default-aliases` keyword is found, use the
+corresponding value to build an aliases list."
+  (thread-last
+    (with-temp-buffer (insert-file-contents "deps.edn") (buffer-string))
+    (parseedn-read-str)
+    (gethash :cider/default-aliases)))
+
 (defun cider-clojure-cli-jack-in-dependencies (global-options _params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES and GLOBAL-OPTIONS into a suitable
@@ -633,16 +642,30 @@ one used."
                       (apply-partially #'format "%s")
                       (cider-jack-in-normalized-nrepl-middlewares)
                       ","))
-         (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
+         (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware))
+         (user-supplied-aliases (cider-clojure-cli-jack-in-user-supplied-aliases)))
     (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl"
             (if global-options (format "%s " global-options) "")
             (string-join all-deps " ")
             main-opts
-            (if cider-clojure-cli-aliases
-                ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
-                ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
-                (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))
-              ""))))
+            (cond
+             ;; Aliases were found in deps.edn, use those
+             ((sequencep user-supplied-aliases)
+              (thread-last
+                user-supplied-aliases
+                (seq-filter 'symbolp)
+                (mapcar 'symbol-name)
+                (cl-reduce #'concat)))
+
+             ;; Configuration supplied aliases are present, use those
+             (cider-clojure-cli-aliases
+              ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
+              ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
+              (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases)))
+
+             ;; Nothing was supplied, no aliases
+             (t
+              "")))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
