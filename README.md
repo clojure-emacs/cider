@@ -43,7 +43,7 @@ details.
 
 [![MELPA](http://melpa.org/packages/cider-badge.svg)](http://melpa.org/#/cider)
 [![MELPA Stable](http://stable.melpa.org/packages/cider-badge.svg)](http://stable.melpa.org/#/cider)
-[![NonGNU ELPA](https://elpa.nongnu.org/nongnu/projectile.svg)](https://elpa.nongnu.org/nongnu/cider.html)
+[![NonGNU ELPA](https://elpa.nongnu.org/nongnu/cider.svg)](https://elpa.nongnu.org/nongnu/cider.html)
 
 The recommended way to install CIDER is via `package.el` - the built-in package
 manager in Emacs.
