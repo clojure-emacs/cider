@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## New features
+
+* Add `cider-eval-defun-up-to-point-in-comment` which when set to true makes `cider-eval-defun-up-to-point` ignore top-level comment blocks and treats the next-to-top-level form before point as top-level.
+
 ## 1.4.1 (2022-05-25)
 
 ## Changes

@@ -176,6 +176,13 @@ automatically written into this register."
   :group 'cider
   :package-version '(cider . "1.4.0"))
 
+(defcustom cider-eval-defun-up-to-point-in-comment nil
+  "Causes `cider-eval-defun-up-to-point' to ignore comment blocks.
+Treats the sexp before point as top-level."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.5.0"))
+
 
 ;;; Utilities
 
@@ -1272,23 +1279,56 @@ command `cider-debug-defun-at-point'."
         (insert-char matching-delimiter)))
     (buffer-string)))
 
+(defun cider--extract-sexp-from-comment (code)
+  "Same as `cider--insert-closing-delimiters' but removes top-level comment.
+
+Only extracts the sexp directly under comment at the end of CODE.  Other sexps
+ between the comment symbol and the last sexp are ignored."
+  (with-temp-buffer
+    (insert code)
+    (goto-char (point-max))
+    (let ((matching-delimiter nil))
+      (while (ignore-errors
+               (save-excursion
+                 (backward-up-list 1)
+                 (if (string-match
+                      "^(comment"
+                      (buffer-substring-no-properties
+                       (point)
+                       (point-max)))
+                     (error "top-level is comment")
+                   (setq matching-delimiter (cdr (syntax-after (point))))))
+               t)
+        (insert-char matching-delimiter))
+      (buffer-substring-no-properties (save-excursion (backward-sexp) (point))
+                                      (point)))))
+
 (defun cider-eval-defun-up-to-point (&optional output-to-current-buffer)
   "Evaluate the current toplevel form up to point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer.  It constructs an expression to eval in the following manner:
 
-- It find the code between the point and the start of the toplevel expression;
+- It finds the code between the point and the start of the toplevel expression;
 - It balances this bit of code by closing all open expressions;
-- It evaluates the resulting code using `cider-interactive-eval'."
+- It evaluates the resulting code using `cider-interactive-eval';
+- If `cider-eval-defun-up-to-point-in-comment' is t then a form inside a comment
+form is treated as top-level."
   (interactive "P")
   (let* ((beg-of-defun (save-excursion (beginning-of-defun) (point)))
          (code (buffer-substring-no-properties beg-of-defun (point)))
-         (code (cider--insert-closing-delimiters code)))
-    (cider-interactive-eval code
-                            (when output-to-current-buffer
-                              (cider-eval-print-handler))
-                            (list beg-of-defun (point))
-                            (cider--nrepl-pr-request-map))))
+         (in-comment-p (string-match "^(comment" code)))
+    (if (and in-comment-p cider-eval-defun-up-to-point-in-comment)
+        (cider-interactive-eval (cider--extract-sexp-from-comment code)
+                                (when output-to-current-buffer
+                                  (cider-eval-print-handler))
+                                (list beg-of-defun (point))
+                                (cider--nrepl-pr-request-map))
+      (let* ((code (cider--insert-closing-delimiters code)))
+        (cider-interactive-eval code
+                                (when output-to-current-buffer
+                                  (cider-eval-print-handler))
+                                (list beg-of-defun (point))
+                                (cider--nrepl-pr-request-map))))))
 
 (defun cider--matching-delimiter (delimiter)
   "Get the matching (opening/closing) delimiter for DELIMITER."
