@@ -24,10 +24,13 @@ WARNING: CIDER does not support ClojureCLR.
 
 == Installation via package.el
 
-CIDER is available on the two major `package.el` community
+CIDER is available on all major `package.el` community
 maintained repos -
+https://elpa.nongnu.org[NonGNU ELPA],
 http://stable.melpa.org[MELPA Stable]
 and http://melpa.org[MELPA].
+
+NOTE: NonGNU ELPA is one of Emacs's standard repositories and is enabled by default on Emacs 28+. You'll have to setup MELPA and MELPA Stable yourselves if you want to use them.
 
 You can install CIDER with the following command:
 
@@ -54,18 +57,22 @@ time to time. Nevertheless, installing from MELPA is a reasonable way
 to obtain CIDER. The `master` branch is normally quite stable
 and serious regressions there are usually fixed quickly.
 
-If you have concerns about living on the leading edge of CIDER
-deveopment, you can always pin CIDER to use MELPA Stable like this:
-
-[source,lisp]
-----
-(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
-----
-
 TIP: If you don't want to (or can't) wait for MELPA to rebuild CIDER,
 you can easily build and install an up-to-date MELPA package locally yourself. Check out
 http://emacsredux.com/blog/2015/05/10/building-melpa-packages-locally/[this article]
 for details on the subject.
+
+If you have concerns about living on the leading edge of CIDER
+development, you can always pin CIDER to use NonGNU ELPA or MELPA Stable like this:
+
+[source,lisp]
+----
+;; pin to NonGNU ELPA
+(add-to-list 'package-pinned-packages '(cider . "nongnu") t)
+
+;; pin to MELPA Stable
+(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+----
 
 NOTE: CIDER has dependencies (e.g. `queue` & `seq`) that are only available in the
 https://elpa.gnu.org/[GNU ELPA repository]. It's the only package repository
@@ -74,7 +81,7 @@ enabled by default in Emacs and you should not disable it!
 == Installation via use-package
 
 `use-package` can be used to install CIDER via the ``package.el``'s repositories
-http://stable.melpa.org[MELPA Stable] and http://melpa.org[MELPA].
+https://elpa.nongnu.org[NonGNU ELPA], http://stable.melpa.org[MELPA Stable] and http://melpa.org[MELPA].
 
 If you wanted to install the version of CIDER which is what is to be found in
 the `master` branch, declare the following in your Emacs initialization file

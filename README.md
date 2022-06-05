@@ -4,8 +4,6 @@
 
 -----------
 [![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
-[![MELPA](http://melpa.org/packages/cider-badge.svg)](http://melpa.org/#/cider)
-[![MELPA Stable](http://stable.melpa.org/packages/cider-badge.svg)](http://stable.melpa.org/#/cider)
 [![CircleCI](https://circleci.com/gh/clojure-emacs/cider.svg?style=svg)](https://circleci.com/gh/clojure-emacs/cider)
 [![Spell-check Status](https://github.com/clojure-emacs/cider/actions/workflows/spell_checking.yml/badge.svg)](https://github.com/clojure-emacs/cider/actions/workflows/spell_checking.yml)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://discord.com/invite/nFPpynQPME)
@@ -43,11 +41,15 @@ details.
 
 ### Installation
 
+[![MELPA](http://melpa.org/packages/cider-badge.svg)](http://melpa.org/#/cider)
+[![MELPA Stable](http://stable.melpa.org/packages/cider-badge.svg)](http://stable.melpa.org/#/cider)
+[![NonGNU ELPA](https://elpa.nongnu.org/nongnu/projectile.svg)](https://elpa.nongnu.org/nongnu/cider.html)
+
 The recommended way to install CIDER is via `package.el` - the built-in package
 manager in Emacs.
 
-CIDER is available on the two major `package.el` community
-maintained repos -
+CIDER is available on all major `package.el` community
+maintained repos - [NonGNU ELPA](https://elpa.nongnu.org),
 [MELPA Stable](http://stable.melpa.org)
 and [MELPA](http://melpa.org).
 
