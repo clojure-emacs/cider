@@ -231,6 +231,8 @@ overlay."
                ;; inherit the face of the following text.
                (display-string (format (propertize format 'face 'default) value))
                (o nil))
+          ;; Remove any overlay at the position we're creating a new one, if it
+          ;; exists.
           (remove-overlays beg end 'category type)
           (funcall (if cider-overlays-use-font-lock
                        #'font-lock-prepend-text-property
@@ -260,6 +262,11 @@ overlay."
           (pcase duration
             ((pred numberp) (run-at-time duration nil #'cider--delete-overlay o))
             (`command
+             ;; Since the previous overlay was already removed above, we should
+             ;; remove the hook to remove all overlays after this function
+             ;; ends. Otherwise, we would inadvertently remove the newly created
+             ;; overlay too.
+             (remove-hook 'post-command-hook 'cider--remove-result-overlay 'local)
              ;; If inside a command-loop, tell `cider--remove-result-overlay'
              ;; to only remove after the *next* command.
              (if this-command
