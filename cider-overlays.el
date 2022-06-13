@@ -129,7 +129,7 @@ PROPS is a plist of properties and values to add to the overlay."
     (push #'cider--delete-overlay (overlay-get o 'modification-hooks))
     o))
 
-(defun cider--remove-result-overlay (&rest _)
+(defun cider--remove-result-overlay (&optional beg end &rest _)
   "Remove result overlay from current buffer.
 This function also removes itself from `post-command-hook' and
 `after-change-functions'."
@@ -137,7 +137,7 @@ This function also removes itself from `post-command-hook' and
                 (`command 'post-command-hook)
                 (`change 'after-change-functions))))
     (remove-hook hook #'cider--remove-result-overlay 'local))
-  (remove-overlays nil nil 'category 'result))
+  (remove-overlays beg end 'category 'result))
 
 (defun cider--remove-result-overlay-after-command ()
   "Add `cider--remove-result-overlay' locally to `post-command-hook'.
@@ -231,7 +231,12 @@ overlay."
                ;; inherit the face of the following text.
                (display-string (format (propertize format 'face 'default) value))
                (o nil))
-          (remove-overlays beg end 'category type)
+          (if (not (eq type 'result))
+              (remove-overlays beg end 'category type)
+            ;; Run the #'cider--remove-result-overlay function early, so it gets
+            ;; removed from post-command-hook and doesn't also remove the newly
+            ;; created overlay.
+            (cider--remove-result-overlay beg end))
           (funcall (if cider-overlays-use-font-lock
                        #'font-lock-prepend-text-property
                      #'put-text-property)
