@@ -6,11 +6,15 @@
 
 - [#2946](https://github.com/clojure-emacs/cider/issues/2946): Add custom var `cider-merge-sessions` to allow combining sessions in two different ways: Setting `cider-merge-sessions` to `'host` will merge all sessions associated with the same host within a project. Setting it to `'project` will combine all sessions of a project irrespective of their host.
 
+## Changes
+
+* Upgrade injected `cider-nrepl` to [0.28.5](https://github.com/clojure-emacs/cider-nrepl/releases/tag/v0.28.5).
+
 ## 1.4.1 (2022-05-25)
 
 ## Changes
 
-* Upgrade cider-nrepl to [0.28.4](https://github.com/clojure-emacs/cider-nrepl/blob/v0.28.4/CHANGELOG.md#0284-2022-05-18).
+* Upgrade cider-nrepl to [0.28.4](https://github.com/clojure-emacs/cider-nrepl/releases/tag/v0.28.4).
 
 ### Bugs fixed
 
