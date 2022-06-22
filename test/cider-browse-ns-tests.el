@@ -50,6 +50,7 @@
             '(dict "blank?"
                    (dict "arglists" "fn arg list"
                          "doc" "\"True if s is nil, empty, or contains only whitespace.\"")))
+    (spy-on 'cider-sync-request:private-ns-vars-with-meta :and-return-value '(dict))
 
     (with-temp-buffer
       (setq cider-browse-ns-buffer (buffer-name (current-buffer)))
@@ -59,6 +60,31 @@
       (search-forward "blank")
       (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-function-name-face)
       (search-forward "True")
+      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-doc-face)
+      (expect (not (search-forward "Private" nil t)))))
+  (it "correctly displays private vars below regular vars"
+    (spy-on 'cider-sync-request:ns-vars-with-meta :and-return-value
+            '(dict "blank?"
+                   (dict "arglists" "fn arg list"
+                         "doc" "\"True if s is nil, empty, or contains only whitespace.\"")))
+    (spy-on 'cider-sync-request:private-ns-vars-with-meta :and-return-value
+            '(dict "secret-blank?"
+                   (dict "arglists" "fn arg list"
+                         "doc" "\"False if s is nil, empty, or contains only whitespace.\"")))
+
+    (with-temp-buffer
+      (setq cider-browse-ns-buffer (buffer-name (current-buffer)))
+      (cider-browse-ns "clojure.string")
+      (search-forward "clojure")
+      (expect (get-text-property (point) 'face) :to-equal 'font-lock-type-face)
+      (search-forward "blank")
+      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-function-name-face)
+      (search-forward "True")
+      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-doc-face)
+      (search-forward "Private")
+      (search-forward "secret-blank")
+      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-function-name-face)
+      (search-forward "False")
       (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-doc-face))))
 
 (describe "cider-browse-ns--first-doc-line"

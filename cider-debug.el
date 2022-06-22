@@ -121,8 +121,7 @@ configure `cider-debug-prompt' instead."
                                      (seq-mapn #'cider-browse-ns--properties
                                                (cdr list)
                                                instrumented-meta)
-
-                                     ns 'noerase)
+                                     nil ns 'noerase)
               (goto-char (point-max))
               (insert "\n"))))
         (goto-char (point-min)))

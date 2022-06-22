@@ -44,6 +44,17 @@
 (require 'easymenu)
 (require 'thingatpt)
 
+
+(defgroup cider-browse-ns nil
+  "Display contents of namespaces for CIDER."
+  :prefix "cider-browse-ns-"
+  :group 'cider)
+
+(defface cider-browse-ns-info-face
+  '((t (:inherit shadow)))
+  "Face for displaying headers for sections of browse-ns buffer."
+  :package-version '(cider . "1.4.0"))
+
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
 
 (defvar-local cider-browse-ns-current-ns nil)
@@ -106,9 +117,10 @@ VAR-META is used to decide a font-lock face."
                 'mouse-face 'highlight
                 'keymap cider-browse-ns-mouse-map)))
 
-(defun cider-browse-ns--list (buffer title items &optional ns noerase)
+(defun cider-browse-ns--list (buffer title items &optional private-items ns noerase)
   "Reset contents of BUFFER.
-Display TITLE at the top and ITEMS are indented underneath.
+Display TITLE at the top and ITEMS are indented underneath.  PRIVATE-ITEMS
+is displayed as a separate section under the public items.
 If NS is non-nil, it is added to each item as the
 `cider-browse-ns-current-ns' text property.  If NOERASE is non-nil, the
 contents of the buffer are not reset before inserting TITLE and ITEMS."
@@ -121,6 +133,11 @@ contents of the buffer are not reset before inserting TITLE and ITEMS."
       (dolist (item items)
         (insert (propertize (concat "  " item "\n")
                             'cider-browse-ns-current-ns ns)))
+      (when private-items
+        (insert (propertize "\n  Private:\n" 'face 'cider-browse-ns-info-face))
+        (dolist (item private-items)
+          (insert (propertize (concat "  " item "\n")
+                              'cider-browse-ns-current-ns ns))))
       (goto-char (point-min)))))
 
 (defun cider-browse-ns--first-doc-line (doc)
@@ -137,10 +154,13 @@ string is returned."
          (t (concat first-line "..."))))
     "Not documented."))
 
-(defun cider-browse-ns--items (namespace)
+(defun cider-browse-ns--items (namespace &optional private)
   "Return the items to show in the namespace browser of the given NAMESPACE.
-Each item consists of a ns-var and the first line of its docstring."
-  (let* ((ns-vars-with-meta (cider-sync-request:ns-vars-with-meta namespace))
+Each item consists of a ns-var and the first line of its docstring.  If
+PRIVATE is non-nil, return only the items with :private metadata."
+  (let* ((ns-vars-with-meta (if private
+                                (cider-sync-request:private-ns-vars-with-meta namespace)
+                              (cider-sync-request:ns-vars-with-meta namespace)))
          (propertized-ns-vars (nrepl-dict-map #'cider-browse-ns--properties ns-vars-with-meta)))
     (mapcar (lambda (ns-var)
               (let* ((doc (nrepl-dict-get-in ns-vars-with-meta (list ns-var "doc")))
@@ -160,7 +180,8 @@ Each item consists of a ns-var and the first line of its docstring."
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
     (cider-browse-ns--list (current-buffer)
                            namespace
-                           (cider-browse-ns--items namespace))
+                           (cider-browse-ns--items namespace)
+                           (cider-browse-ns--items namespace t))
     (setq-local cider-browse-ns-current-ns namespace)))
 
 ;;;###autoload

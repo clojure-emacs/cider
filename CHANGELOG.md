@@ -9,6 +9,7 @@
 ## Changes
 
 * Upgrade injected `cider-nrepl` to [0.28.5](https://github.com/clojure-emacs/cider-nrepl/releases/tag/v0.28.5).
+* [#3200](https://github.com/clojure-emacs/cider/issues/3200): cider-browse-ns additionally displays the list of private vars.
 
 ## 1.4.1 (2022-05-25)
 

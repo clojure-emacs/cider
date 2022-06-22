@@ -743,6 +743,15 @@ returned."
                 (cider-nrepl-send-sync-request)
                 (nrepl-dict-get "ns-vars-with-meta")))
 
+(defun cider-sync-request:private-ns-vars-with-meta (ns)
+  "Get a map of the vars in NS to its metadata information."
+  (thread-first `("op" "ns-vars-with-meta"
+                  "ns" ,ns
+                  "var-query" ,(nrepl-dict "private?" "t"
+                                           "include-meta-key" '("private")))
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "ns-vars-with-meta")))
+
 (defun cider-sync-request:ns-load-all ()
   "Load all project namespaces."
   (thread-first '("op" "ns-load-all")
