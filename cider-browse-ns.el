@@ -50,9 +50,9 @@
   :prefix "cider-browse-ns-"
   :group 'cider)
 
-(defface cider-browse-ns-info-face
+(defface cider-browse-ns-heading-face
   '((t (:inherit shadow)))
-  "Face for displaying headers for sections of browse-ns buffer."
+  "Face for displaying heading for sections of browse-ns buffer."
   :package-version '(cider . "1.4.0"))
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
