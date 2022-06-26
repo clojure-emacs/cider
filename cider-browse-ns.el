@@ -217,7 +217,7 @@ Available options inclued `private', `test', `macro', `function', and
          (ns-p (nrepl-dict-contains var-meta "ns")))
     (concat
      (propertize key
-                 'face face
+                 'font-lock-face face
                  'ns ns-p)
      " "
      (cond

@@ -120,7 +120,7 @@ configure `cider-debug-prompt' instead."
                                                          ns-vars-with-meta)))
               (cider-browse-ns--list (current-buffer) ns
                                      instrumented-meta
-                                     ns 'noerase)))))
+                                     ns)))))
     (message "No currently instrumented definitions")))
 
 (defun cider--debug-response-handler (response)
