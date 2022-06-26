@@ -57,6 +57,14 @@
   "Face for displaying extra info of namespace vars."
   :package-version '(cider . "1.4.0"))
 
+(defcustom cider-browse-ns-default-filters nil
+  "List of default hide filters to apply to browse-ns buffer.
+
+Available options include `private', `test', `macro', `function', and
+`var'."
+  :type 'list
+  :package-version '(cider . "1.4.0"))
+
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
 
 (defvar-local cider-browse-ns-current-ns nil)
@@ -147,22 +155,20 @@ to user settings."
   (let ((dict (nrepl-dict)))
     (dolist (ns nss)
       (nrepl-dict-put dict ns (nrepl-dict "ns" "true")))
-    (cider-browse-ns--render buffer title dict nil)))
+    (cider-browse-ns--list buffer title dict nil)))
 
 (defun cider-browse-ns--list (buffer title items ns)
-  "List ITEMS in BUFFER.
+  "Initialize rendering of browse-ns BUFFER.
 
-Buffer is rendered with TITLE at the top and lists ITEMS filtered according
-to user settings.  The buffer's `cider-browse-ns-current-ns' is set to NS."
-  (cider-browse-ns--render buffer title items ns))
-
-(defcustom cider-browse-ns-default-filters nil
-  "List of default hide filters to apply to browse-ns buffer.
-
-Available options inclued `private', `test', `macro', `function', and
-`var'."
-  :type 'list
-  :package-version '(cider . "1.4.0"))
+Initialize the buffer's TITLE, namespace NS, and the nrepl-dict ITEMS to be
+displayed."
+  (with-current-buffer buffer
+    (cider-browse-ns-mode)
+    (setq-local cider-browse-ns-items items)
+    (setq-local cider-browse-ns-title title)
+    (setq-local cider-browse-ns-filters cider-browse-ns-default-filters)
+    (setq-local cider-browse-ns-current-ns ns))
+  (cider-browse-ns--render-buffer))
 
 (defun cider-browse-ns--meta-macro-p (var-meta)
   "Return non-nil if VAR-META is the metadata of a macro."
@@ -391,19 +397,6 @@ for redisplaying the buffer when filters change."
         (cider-browse-ns--render-header filtered-item-ct))
       (cider-browse-ns--render-items filtered-items)
       (goto-char point))))
-
-(defun cider-browse-ns--render (buffer title items ns)
-  "Initialize rendering of browse-ns BUFFER.
-
-Initialize the buffer's TITLE, namespace NS, and the nrepl-dict ITEMS to be
-displayed."
-  (with-current-buffer buffer
-    (cider-browse-ns-mode)
-    (setq-local cider-browse-ns-items items
-                cider-browse-ns-title title
-                cider-browse-ns-filters cider-browse-ns-default-filters
-                cider-browse-ns-current-ns ns))
-  (cider-browse-ns--render-buffer))
 
 (defun cider-browse-ns--first-doc-line (doc)
   "Return the first line of the given DOC string.
