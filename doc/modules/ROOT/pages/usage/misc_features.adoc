@@ -224,6 +224,11 @@ image::ns_browser.png[Namespace Browser]
 You can also browse all available namespaces with kbd:[M-x]
 `cider-browse-ns-all`.
 
+The UI contains buttons in the header which allow you to control how
+the buffer is displayed (see below for keybindings).  You may also
+configure the `cider-browse-ns-default-filters` variable to a list of
+the element types you want to be hidden by default.
+
 There are a bunch of useful keybindings that are defined in browser buffers.
 
 |===
@@ -243,6 +248,27 @@ There are a bunch of useful keybindings that are defined in browser buffers.
 
 | kbd:[n]
 | Go to next line.
+
+| kbd:[h p]
+| Toggle visibility of private items.
+
+| kbd:[h t]
+| Toggle visibility of tests.
+
+| kbd:[h m]
+| Toggle visibility of macros.
+
+| kbd:[h f]
+| Toggle visibility of functions.
+
+| kbd:[h v]
+| Toggle visibility of vars.
+
+| kbd:[g t]
+| Group items by type (function, macro, var, etc.).
+
+| kbd:[g v]
+| Group items by visibility (public vs. private).
 
 | kbd:[p]
 | Go to previous line.

@@ -103,6 +103,8 @@ configure `cider-debug-prompt' instead."
 
 
 ;;; Implementation
+(declare-function cider-browse-ns--combined-vars-with-meta "cider-browse-ns")
+
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
@@ -110,22 +112,15 @@ configure `cider-debug-prompt' instead."
                                (nrepl-dict-get "list"))))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))
-          (erase-buffer)
           (dolist (list all)
             (let* ((ns (car list))
-                   (ns-vars-with-meta (cider-sync-request:ns-vars-with-meta ns))
-                   ;; seq of metadata maps of the instrumented vars
-                   (instrumented-meta (mapcar (apply-partially #'nrepl-dict-get ns-vars-with-meta)
-                                              (cdr list))))
+                   (ns-vars-with-meta (cider-browse-ns--combined-vars-with-meta ns))
+                   (instrumented-meta (nrepl-dict-filter (lambda (k _)
+                                                           (member k list))
+                                                         ns-vars-with-meta)))
               (cider-browse-ns--list (current-buffer) ns
-                                     (seq-mapn #'cider-browse-ns--properties
-                                               (cdr list)
-                                               instrumented-meta)
-
-                                     ns 'noerase)
-              (goto-char (point-max))
-              (insert "\n"))))
-        (goto-char (point-min)))
+                                     instrumented-meta
+                                     ns)))))
     (message "No currently instrumented definitions")))
 
 (defun cider--debug-response-handler (response)

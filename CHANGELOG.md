@@ -9,6 +9,7 @@
 ## Changes
 
 * Upgrade injected `cider-nrepl` to [0.28.5](https://github.com/clojure-emacs/cider-nrepl/releases/tag/v0.28.5).
+* [#3200](https://github.com/clojure-emacs/cider/issues/3200): Improve cider-browse-ns interface to allow selective hiding of var types as well as grouping options.  Include private vars in result list.
 
 ## 1.4.1 (2022-05-25)
 

@@ -50,6 +50,7 @@
             '(dict "blank?"
                    (dict "arglists" "fn arg list"
                          "doc" "\"True if s is nil, empty, or contains only whitespace.\"")))
+    (spy-on 'cider-sync-request:private-ns-vars-with-meta :and-return-value '(dict))
 
     (with-temp-buffer
       (setq cider-browse-ns-buffer (buffer-name (current-buffer)))
@@ -59,7 +60,11 @@
       (search-forward "blank")
       (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-function-name-face)
       (search-forward "True")
-      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-doc-face))))
+      (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-doc-face)
+      ;; filter out the functions and ensure that blank? doesn't show up
+      (cider-browse-ns-toggle-hide-function)
+      (goto-char (point-min))
+      (expect (not (search-forward "blank" nil t))))))
 
 (describe "cider-browse-ns--first-doc-line"
   (it "returns Not documented if the doc string is missing"
