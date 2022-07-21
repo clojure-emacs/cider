@@ -158,7 +158,7 @@ default to \"powershell\"."
 (defcustom cider-clojure-cli-aliases
   nil
   "A list of aliases to include when using the clojure cli.
-Alias names should be of the form `:foo:bar`.
+Alias names should be of the form `\":foo:bar\"`.
 Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
 then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
   :type 'string
