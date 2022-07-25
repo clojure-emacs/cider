@@ -238,9 +238,9 @@ performed by `cider-annotate-completion-function'."
                (not (or (cider-in-string-p) (cider-in-comment-p))))
       (list (car bounds) (cdr bounds)
             (lambda (string pred action)
-              (cond ((eq action 'metadata) `(metadata (category . cider)))
-                    ((eq (car-safe action) 'boundaries) nil)
-                    (t (with-current-buffer (current-buffer)
+              (cond ((eq action 'metadata) `(metadata (category . cider))) ; metadata
+                    ((eq (car-safe action) 'boundaries) nil) ; boundaries
+                    (t (with-current-buffer (current-buffer) ; t, nil, and lambda
                          (complete-with-action action
                                                (cider-complete string) string pred)))))
             :annotation-function #'cider-annotate-symbol
