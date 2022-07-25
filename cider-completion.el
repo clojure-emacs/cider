@@ -240,7 +240,7 @@ performed by `cider-annotate-completion-function'."
             (lambda (prefix pred action)
               ;; When the 'action is 'metadata, this lambda returns metadata about this
               ;; capf, when action is (boundaries . suffix), it returns nil. With every
-              ;; other value of 'action (t, nil, or lambda), 'action is forwaded to
+              ;; other value of 'action (t, nil, or lambda), 'action is forwarded to
               ;; (complete-with-action), together with (cider-complete), prefix and pred.
               ;; And that function performs the completion based on those arguments.
               ;;
