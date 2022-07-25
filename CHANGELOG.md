@@ -4,6 +4,8 @@
 
 ### New features
 
+- [#3226](https://github.com/clojure-emacs/cider/pull/3226): Populate completions metadata, making it possible to change the style of completion via `completion-category-override` or `completion-category-defaults`.
+
 - [#2946](https://github.com/clojure-emacs/cider/issues/2946): Add custom var `cider-merge-sessions` to allow combining sessions in two different ways: Setting `cider-merge-sessions` to `'host` will merge all sessions associated with the same host within a project. Setting it to `'project` will combine all sessions of a project irrespective of their host.
 
 ## Changes
