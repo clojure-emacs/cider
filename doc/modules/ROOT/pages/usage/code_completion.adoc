@@ -115,6 +115,19 @@ image::completion-annotations.png[Completion Annotations]
 TIP: Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to `nil`.
 
+=== Changing the completion style
+
+Sometimes there will be problems displaying completions when using a different value in
+`completion-styles` that does not include `basic`, like when using
+https://github.com/oantolin/orderless["orderless"]. That can be fixed by setting
+`completion-category-defaults`, overriting the completion style just for the cider
+complete at point function. The following snippet accomplish that:
+
+[source,lisp]
+----
+(add-to-list 'completion-category-defaults '(cider (styles basic)))
+----
+
 === Updating stale classes and methods cache
 
 Sometimes, the completion fails to recognize new classes that came with
