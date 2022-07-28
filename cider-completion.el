@@ -237,7 +237,20 @@ performed by `cider-annotate-completion-function'."
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
       (list (car bounds) (cdr bounds)
-            (completion-table-dynamic #'cider-complete)
+            (lambda (prefix pred action)
+              ;; When the 'action is 'metadata, this lambda returns metadata about this
+              ;; capf, when action is (boundaries . suffix), it returns nil. With every
+              ;; other value of 'action (t, nil, or lambda), 'action is forwarded to
+              ;; (complete-with-action), together with (cider-complete), prefix and pred.
+              ;; And that function performs the completion based on those arguments.
+              ;;
+              ;; This api is better described in the section
+              ;; '21.6.7 Programmed Completion' of the elisp manual.
+              (cond ((eq action 'metadata) `(metadata (category . cider)))
+                    ((eq (car-safe action) 'boundaries) nil)
+                    (t (with-current-buffer (current-buffer)
+                         (complete-with-action action
+                                               (cider-complete prefix) prefix pred)))))
             :annotation-function #'cider-annotate-symbol
             :company-kind #'cider-company-symbol-kind
             :company-doc-buffer #'cider-create-doc-buffer

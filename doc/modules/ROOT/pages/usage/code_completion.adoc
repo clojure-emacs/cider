@@ -115,6 +115,18 @@ image::completion-annotations.png[Completion Annotations]
 TIP: Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to `nil`.
 
+=== Changing the completion style
+
+Sometimes the user may want to use a different completion style just for the CIDER
+complete at point function. That can be achieved by setting
+`completion-category-defaults`, overriting the completion style of the CIDER
+complete at point function. The following snippet accomplishes that:
+
+[source,lisp]
+----
+(add-to-list 'completion-category-defaults '(cider (styles basic)))
+----
+
 === Updating stale classes and methods cache
 
 Sometimes, the completion fails to recognize new classes that came with
