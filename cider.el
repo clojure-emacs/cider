@@ -577,6 +577,49 @@ and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
           (cider-boot-dependencies (append (cider--jack-in-required-dependencies) dependencies))
           (cider-boot-middleware-task params middlewares)))
 
+(defun cider--gradle-dependency-notation (dependency)
+  "Returns Gradle's GAV dependency syntax.
+For a \"group/artifact\" \"version\") DEPENDENCY list
+return as group:artifact:version notation."
+  (let ((group-artifact (replace-regexp-in-string "/" ":" (car dependency)))
+        (version (cadr dependency)))
+    (format "%s:%s" group-artifact version)))
+
+(defun cider--gradle-jack-in-property (dependencies)
+  "Returns Clojurephant's dependency jack-in property.
+For DEPENDENCIES, translates to Gradle's dependency notation
+using `cider--gradle-dependency-notation`.''"
+  (if (seq-empty-p dependencies)
+      ""
+    (shell-quote-argument
+     (concat "-Pdev.clojurephant.jack-in.nrepl="
+             (mapconcat #'cider--gradle-dependency-notation dependencies ",")))))
+
+(defun cider--gradle-middleware-params (middlewares)
+  "Returns Gradle-formatted middleware params.
+Given a list of MIDDLEWARES symbols, this returns
+the Gradle parameters expected by Clojurephant's
+ClojureNRepl task."
+  (mapconcat (lambda (middleware)
+               (shell-quote-argument (concat "--middleware=" middleware)))
+             middlewares
+             " "))
+
+(defun cider-gradle-jack-in-dependencies (global-opts params dependencies middlewares)
+  "Create gradle jack in dependencies.
+Does so by concatenating GLOBAL-OPTS, DEPENDENCIES,
+and MIDDLEWARES.  GLOBAL-OPTS and PARAMS are taken as-is.
+DEPENDENCIES are translated into Gradle's typical
+group:artifact:version notation and MIDDLEWARES are
+prepared as arguments to Clojurephant's ClojureNRepl task."
+  (concat global-opts
+          (unless (seq-empty-p global-opts) " ")
+          (cider--gradle-jack-in-property (append (cider--jack-in-required-dependencies) dependencies))
+          " "
+          params
+          (unless (seq-empty-p params) " ")
+          (cider--gradle-middleware-params middlewares)))
+
 (defun cider--lein-artifact-exclusions (exclusions)
   "Return an exclusions vector described by the elements of EXCLUSIONS."
   (if exclusions
@@ -717,10 +760,12 @@ dependencies."
                    params
                    (cider-add-clojure-dependencies-maybe
                     cider-jack-in-dependencies)))
-    ('gradle (concat
+    ('gradle (cider-gradle-jack-in-dependencies
               global-opts
-              (unless (seq-empty-p global-opts) " ")
-              params))
+              params
+              (cider-add-clojure-dependencies-maybe
+               cider-jack-in-dependencies)
+              (cider-jack-in-normalized-nrepl-middlewares)))
     (_ (error "Unsupported project type `%S'" project-type))))
 
 

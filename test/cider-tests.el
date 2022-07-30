@@ -105,6 +105,34 @@
       (expect (cider-project-type) :to-equal cider-jack-in-default))))
 
 ;;; cider-jack-in tests
+(describe "cider--gradle-dependency-notation"
+  (it "returns a GAV when given a two-element list"
+    (expect (cider--gradle-dependency-notation '("cider/piggieback" "0.5.3"))
+            :to-equal "cider:piggieback:0.5.3")))
+
+(describe "cider--gradle-jack-in-property"
+  (it "returns an empty string if no dependencies passed"
+    (expect (cider--gradle-jack-in-property nil)
+            :to-equal ""))
+  (it "returns a Gradle property if one dependency passed"
+    (expect (cider--gradle-jack-in-property '(("abc/def" "1.2.3")))
+            :to-equal (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=abc:def:1.2.3")))
+  (it "returns a comma-separated Gradle property if multiple dependencies passed"
+    (expect (cider--gradle-jack-in-property '(("abc/def" "1.2.3")
+                                              ("ghi/jkl" "4.5.6")
+                                              ("mno/pqr" "7.8.9")))
+            :to-equal (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=abc:def:1.2.3,ghi:jkl:4.5.6,mno:pqr:7.8.9"))))
+
+(describe "cider--gradle-middleware-params"
+  (it "returns an empty string if no middlewares are passed"
+    (expect (cider--gradle-middleware-params nil)
+            :to-equal ""))
+  (it "returns a single middleware param if one passed"
+    (expect (cider--gradle-middleware-params '("my-ns/my-middleware"))
+            :to-equal  "--middleware\\=my-ns/my-middleware"))
+  (it "returrns multiple middleware params, space-separated, if multiple passed"
+    (expect (cider--gradle-middleware-params '("my-ns/my-middleware" "other-ns/other-middleware"))
+            :to-equal "--middleware\\=my-ns/my-middleware --middleware\\=other-ns/other-middleware")))
 
 (describe "cider-inject-jack-in-dependencies"
   :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares cider-jack-in-lein-plugins cider-jack-in-dependencies-exclusions)
@@ -167,8 +195,11 @@
                          " repl -s wait")))
 
     (it "can inject dependencies in a gradle project"
-      (expect (cider-inject-jack-in-dependencies "" "--no-daemon clojureRepl" 'gradle)
-              :to-equal "--no-daemon clojureRepl")))
+      (expect (cider-inject-jack-in-dependencies "--no-daemon" ":clojureRepl" 'gradle)
+              :to-equal (concat "--no-daemon "
+                                (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:0.9.0,cider:cider-nrepl:0.28.4")
+                                " :clojureRepl "
+                                (shell-quote-argument "--middleware=cider.nrepl/cider-middleware")))))
 
   (describe "when there are multiple dependencies"
     (before-each
@@ -235,8 +266,11 @@
                                 (shell-quote-argument "cider.nrepl/cider-middleware")
                                 " repl -s wait")))
     (it "can concat in a gradle project"
-      (expect (cider-inject-jack-in-dependencies "-m" "--no-daemon clojureRepl" 'gradle)
-              :to-equal "-m --no-daemon clojureRepl")))
+      (expect (cider-inject-jack-in-dependencies "--no-daemon" ":clojureRepl" 'gradle)
+              :to-equal (concat "--no-daemon "
+                                (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:0.9.0,cider:cider-nrepl:0.28.4")
+                                " :clojureRepl "
+                                (shell-quote-argument "--middleware=cider.nrepl/cider-middleware")))))
 
   (describe "when there are predicates"
     :var (plugins-predicate middlewares-predicate)
