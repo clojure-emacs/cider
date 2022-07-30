@@ -196,7 +196,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-gradle-global-options
-  "--no-daemon"
+  ""
   "Command line options used to execute Gradle (e.g.: -m for dry run)."
   :type 'string
   :safe #'stringp
