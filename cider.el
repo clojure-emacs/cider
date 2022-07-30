@@ -189,7 +189,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-gradle-command
-  "gradle"
+  "./gradlew"
   "The command used to execute Gradle."
   :type 'string
   :safe #'stringp
@@ -352,7 +352,11 @@ Throws an error if PROJECT-TYPE is unknown."
     ('shadow-cljs (let ((parts (split-string cider-shadow-cljs-command)))
                     (when-let* ((command (cider--resolve-command (car parts))))
                       (mapconcat #'identity (cons command (cdr parts)) " "))))
-    ('gradle (cider--resolve-command cider-gradle-command))
+    ;; here we have to account for use of the Gradle wrapper which is
+    ;; a shell script within their project, so if they have a clearly
+    ;; relative path like "./gradlew" use locate file instead of checking
+    ;; the exec-path
+    ('gradle (cider--resolve-project-command cider-gradle-command))
     (_ (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-global-options (project-type)
@@ -1651,6 +1655,14 @@ assume the command is available."
                            (executable-find command)
                            (executable-find (concat command ".bat")))))
     (shell-quote-argument command)))
+
+(defun cider--resolve-project-command (command)
+  "Find COMMAND in project dir or exec path (see variable `exec-path').
+If COMMAND starts with ./ or ../ resolve relative to `clojure-project-dir',
+otherwise resolve via `cider--resolve-command'."
+  (if (string-match-p "\\`\\.\\{1,2\\}/" command)
+      (locate-file command (list (clojure-project-dir)) '("" ".bat") 'executable)
+    (cider--resolve-command command)))
 
 (defcustom cider-connection-message-fn #'cider-random-words-of-inspiration
   "The function to use to generate the message displayed on connect.

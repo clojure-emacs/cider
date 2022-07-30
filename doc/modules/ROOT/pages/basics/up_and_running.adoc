@@ -175,9 +175,9 @@ wait`)
 
 ==== Gradle Options
 
-* `cider-gradle-command` - the name of the Gradle executable (`gradle` by default)
-* `cider-gradle-parameters`
-* `cider-gradle-global-options`
+* `cider-gradle-command` - the name of the Gradle executable (`./gradlew` by default)
+* `cider-gradle-parameters` - the Gradle arguments to invoke the repl task (`clojureRepl` by default)
+* `cider-gradle-global-options` - these are usually global options to gradle, such as `--no-daemon` or `--configuration-cache` (empty by default)
 
 ==== shadow-cljs
 
