@@ -129,10 +129,12 @@
             :to-equal ""))
   (it "returns a single middleware param if one passed"
     (expect (cider--gradle-middleware-params '("my-ns/my-middleware"))
-            :to-equal  "--middleware\\=my-ns/my-middleware"))
+            :to-equal  (shell-quote-argument "--middleware=my-ns/my-middleware")))
   (it "returrns multiple middleware params, space-separated, if multiple passed"
     (expect (cider--gradle-middleware-params '("my-ns/my-middleware" "other-ns/other-middleware"))
-            :to-equal "--middleware\\=my-ns/my-middleware --middleware\\=other-ns/other-middleware")))
+            :to-equal (concat (shell-quote-argument "--middleware=my-ns/my-middleware")
+                              " "
+                              (shell-quote-argument "--middleware=other-ns/other-middleware")))))
 
 (describe "cider-inject-jack-in-dependencies"
   :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares cider-jack-in-lein-plugins cider-jack-in-dependencies-exclusions)
@@ -574,7 +576,7 @@
     (spy-on 'locate-file :and-return-value "/project/command")
     (spy-on 'executable-find :and-return-value "/bin/command")
     (expect (cider--resolve-project-command "command")
-            :to-equal "/bin/command")))
+            :to-equal (shell-quote-argument "/bin/command"))))
 
 (provide 'cider-tests)
 
