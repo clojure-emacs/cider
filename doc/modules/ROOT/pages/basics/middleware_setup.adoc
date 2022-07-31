@@ -12,7 +12,8 @@ automatically injects this middleware and other dependencies as required.
 NOTE: In the past, if you were setting up CIDER, you might have had to
 modify `profiles.clj` or `profile.boot`. CIDER now handles
 everything automatically and you don't need to add anything
-special to these files. The same is true of your `deps.edn` file.
+special to these files. The same is true of your `deps.edn` file and
+your `build.gradle` (as of Clojurephant 0.7.0-alpha.6).
 
 If you prefer a standalone REPL, you will need to invoke
 `cider-connect` instead of `cider-jack-in` and manually add the
@@ -45,7 +46,7 @@ A minimal `profiles.clj` for CIDER would be:
 
 [source,clojure]
 ----
-{:repl {:plugins [[cider/cider-nrepl "0.28.4"]
+{:repl {:plugins [[cider/cider-nrepl "0.28.5"]
                   [mx.cider/enrich-classpath "1.9.0"]]}}
 ----
 
@@ -95,7 +96,24 @@ run `cider-connect` or `cider-connect-cljs`.
 
 === Using Gradle
 
-NOTE: This section is currently a stub. Contributions welcome!
+NOTE: Make sure you're using https://github.com/clojurephant/clojurephant[Clojurephant] 0.4.0 or newer.
+
+.build.gradle
+[source, groovy]
+----
+dependencies {
+  devImplementation 'nrepl:nrepl:0.9.0'
+  devImplementation 'cider:cider-nrepl:0.28.5'
+}
+
+tasks.named('clojureRepl') {
+  middleware = ['cider.nrepl/cider-middleware']
+}
+----
+
+You can then launch the nREPL server from the command line via: `./gradlew clojureRepl`.
+
+For more information, see the https://clojurephant.dev[Clojurephant docs].
 
 === Using Maven
 

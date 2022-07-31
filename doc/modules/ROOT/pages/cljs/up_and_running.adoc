@@ -55,6 +55,21 @@ or in `deps.edn`:
    "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}}}
 ----
 
+or in `build.gradle`:
+
+[source, groovy]
+----
+dependencies {
+  devImplementation 'nrepl:nrepl:0.9.0'
+  devImplementation 'cider:cider-nrepl:0.28.5'
+  devImplementation 'cider:cider-piggieback:0.5.3'
+}
+
+tasks.named('clojureRepl') {
+  middleware = ['cider.nrepl/cider-middleware', 'cider.piggieback/wrap-cljs-repl']
+}
+----
+
 == Starting a ClojureScript REPL
 
 Open a ClojureScript file in your project and type kbd:[M-x]
