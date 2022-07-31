@@ -525,6 +525,23 @@
               :to-equal
               "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :client-build) (shadow/watch :other-build) (shadow/nrepl-select :client-build))"))))
 
+(describe "cider--resolve-project-command"
+  (it "if command starts with ./ it resolves relative to clojure-project-dir"
+    (spy-on 'locate-file :and-return-value "/project/command")
+    (spy-on 'executable-find :and-return-value "/bin/command")
+    (expect (cider--resolve-project-command "./command")
+            :to-equal "/project/command"))
+  (it "if command starts with ../ it resolves relative to clojure-project-dir"
+    (spy-on 'locate-file :and-return-value "/project/command")
+    (spy-on 'executable-find :and-return-value "/bin/command")
+    (expect (cider--resolve-project-command "../command")
+            :to-equal "/project/command"))
+  (it "if command is bare it resolves against the exec-path"
+    (spy-on 'locate-file :and-return-value "/project/command")
+    (spy-on 'executable-find :and-return-value "/bin/command")
+    (expect (cider--resolve-project-command "command")
+            :to-equal "/bin/command")))
+
 (provide 'cider-tests)
 
 ;;; cider-tests.el ends here
