@@ -17,6 +17,8 @@ variable. Here's an example:
 (cider-add-to-alist 'cider-jack-in-cljs-dependencies "weasel/weasel" "0.7.1")
 ----
 
+IMPORTANT: Always use the fully qualified `group/artifact` (e.g. `re-frame/re-frame`) in these dependencies, since only Leiningen supports the bare `re-frame` syntax.
+
 Typically, modifying this variable is not needed, as ClojureScript dependencies are declared
 explicitly in your project configuration most of the time.
 

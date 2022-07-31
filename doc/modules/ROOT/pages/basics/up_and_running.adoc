@@ -88,6 +88,8 @@ Here's how you can modify the injected dependencies for `cider-jack-in-clj`:
                     "foo/bar" "1.0")
 ----
 
+IMPORTANT: Always use the fully qualified `group/artifact` (e.g. `re-frame/re-frame`) in these dependencies, since only Leiningen supports the bare `re-frame` syntax.
+
 CIDER will also inject the most recent version of nREPL that it supports. This is a simple
 trick to override the version of nREPL bundled with your build tool (e.g. Leiningen), so you can gain
 access to the newest nREPL features. Generally that's one aspect of CIDER's inner workings
@@ -103,10 +105,6 @@ CIDER can also inject a Clojure dependency into your project, which is useful,
 for example, if your project defaults to an older version of Clojure than that
 supported by the CIDER middleware. Set `cider-jack-in-auto-inject-clojure`
 appropriately to enable this.
-
-NOTE: CIDER does not currently support
-dependency auto-injection for Gradle projects. Unfortunately there's no
-way to pass extra dependencies to Gradle via its command-line interface.
 
 === Jacking-in without a Project
 

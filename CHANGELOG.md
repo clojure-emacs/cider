@@ -7,6 +7,7 @@
 - [#3226](https://github.com/clojure-emacs/cider/pull/3226): Populate completions metadata, making it possible to change the style of completion via `completion-category-override` or `completion-category-defaults`.
 - [#2946](https://github.com/clojure-emacs/cider/issues/2946): Add custom var `cider-merge-sessions` to allow combining sessions in two different ways: Setting `cider-merge-sessions` to `'host` will merge all sessions associated with the same host within a project. Setting it to `'project` will combine all sessions of a project irrespective of their host.
 - Support Gradle jack-in via the Gradle wrapper, instead of just a globally installed `gradle` on the `PATH`.
+- Gradle projects can now inject dependencies and middleware as with other build tools (dependency injection requires [Clojurephant](https://github.com/clojurephant/clojurephant) 0.7.0-alpha.6 or higher)
 
 ## Changes
 
