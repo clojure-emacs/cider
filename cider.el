@@ -1625,10 +1625,11 @@ of remote SSH hosts."
 When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
   (let* ((paths (cider--running-nrepl-paths))
-         (proj-ports (mapcar (lambda (d)
-                               (when-let* ((port (and d (nrepl-extract-port (cider--file-path d)))))
-                                 (list (file-name-nondirectory (directory-file-name d)) port)))
-                             (cons (clojure-project-dir dir) paths))))
+         (proj-ports (apply #'append
+                            (mapcar (lambda (d)
+                                      (mapcar (lambda (p) (list (file-name-nondirectory (directory-file-name d)) p))
+                                              (and d (nrepl-extract-ports (cider--file-path d)))))
+                                    (cons (clojure-project-dir dir) paths)))))
     (seq-uniq (delq nil proj-ports))))
 
 (defun cider--running-nrepl-paths ()
