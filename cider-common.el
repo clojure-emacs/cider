@@ -263,7 +263,8 @@ otherwise, nil."
   (let* ((buffer (or buffer (current-buffer)))
          (name (replace-regexp-in-string "^file:" "" name))
          (name (concat (cider-tramp-prefix buffer) name)))
-    (if (tramp-handle-file-exists-p name)
+    (if (and (tramp-tramp-file-p name)
+             (tramp-handle-file-exists-p name))
         name)))
 
 (defun cider--server-filename (name)

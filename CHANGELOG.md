@@ -17,6 +17,10 @@
 * Changed default `cider-gradle-command` to `./gradlew` to use the Gradle wrapper
 * Changed default `cider-gradle-global-options` to `""` (empty, formerly `--no-daemon`)
 
+### Bugs fixed
+
+* [#3235](https://github.com/clojure-emacs/cider/issues/3235): Check `name` is a TRAMP file in `cider--client-tramp-filename` via `tramp-tramp-file-p`.
+
 ## 1.4.1 (2022-05-25)
 
 ## Changes
