@@ -245,7 +245,7 @@ PARAMS is as in `nrepl-make-buffer-name'."
               (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
               (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir)))))
 
-(make-obsolete 'nrepl-extract-port 'nrepl-extract-ports "1.4.2")
+(make-obsolete 'nrepl-extract-port 'nrepl-extract-ports "1.5.0")
 
 (defun nrepl--port-from-file (file)
   "Attempts to read port from a file named by FILE."
