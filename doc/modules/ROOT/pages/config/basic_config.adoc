@@ -144,6 +144,16 @@ established. This behavior is configurable via `cider-connection-message-fn`:
 (setq cider-connection-message-fn nil)
 ----
 
+The default message are stored in the variable `cider-words-of-inspiration` that
+you can tweak easily yourselves:
+
+[source,lisp]
+----
+(add-to-list 'cider-words-of-inspiration "Moar inspiration!")
+----
+
+Of course, it goes without saying that you can do the same with `cider-tips`.
+
 IMPORTANT: This is probably one of the most important CIDER features. Disable
 those amazing messages at your own risk!
 
