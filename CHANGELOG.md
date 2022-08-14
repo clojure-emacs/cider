@@ -20,7 +20,7 @@
 ### Bugs fixed
 
 * [#3235](https://github.com/clojure-emacs/cider/issues/3235): Check `name` is a TRAMP file in `cider--client-tramp-filename` via `tramp-tramp-file-p`.
-- [#3234](https://github.com/clojure-emacs/cider/pull/3234) Autocomplete multiple available ports on nRepl connect.
+- [#3234](https://github.com/clojure-emacs/cider/pull/3234): Autocomplete multiple available ports on nREPL connect.
 
 ## 1.4.1 (2022-05-25)
 
