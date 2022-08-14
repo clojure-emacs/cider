@@ -6,16 +6,16 @@
 
 - [#3226](https://github.com/clojure-emacs/cider/pull/3226): Populate completions metadata, making it possible to change the style of completion via `completion-category-override` or `completion-category-defaults`.
 - [#2946](https://github.com/clojure-emacs/cider/issues/2946): Add custom var `cider-merge-sessions` to allow combining sessions in two different ways: Setting `cider-merge-sessions` to `'host` will merge all sessions associated with the same host within a project. Setting it to `'project` will combine all sessions of a project irrespective of their host.
-- Support Gradle jack-in via the Gradle wrapper, instead of just a globally installed `gradle` on the `PATH`.
-- Gradle projects can now inject dependencies and middleware as with other build tools (dependency injection requires [Clojurephant](https://github.com/clojurephant/clojurephant) 0.7.0-alpha.6 or higher)
+- Support Gradle jack-in via the Gradle wrapper (`gradlew`), instead of just a globally installed `gradle` on the `PATH`.
+- Gradle projects can now inject dependencies and middleware as with other build tools (dependency injection requires [Clojurephant](https://github.com/clojurephant/clojurephant) 0.7.0 or higher).
 
 ## Changes
 
 * Upgrade clojure-mode to [5.15.1](https://github.com/clojure-emacs/clojure-mode/blob/v5.15.1/CHANGELOG.md).
 * Upgrade injected `cider-nrepl` to [0.28.5](https://github.com/clojure-emacs/cider-nrepl/releases/tag/v0.28.5).
 * [#3200](https://github.com/clojure-emacs/cider/issues/3200): Improve cider-browse-ns interface to allow selective hiding of var types as well as grouping options.  Include private vars in result list.
-* Changed default `cider-gradle-command` to `./gradlew` to use the Gradle wrapper
-* Changed default `cider-gradle-global-options` to `""` (empty, formerly `--no-daemon`)
+* Changed default `cider-gradle-command` to `./gradlew` to use the Gradle wrapper.
+* Changed default `cider-gradle-global-options` to `""` (empty, formerly `--no-daemon`).
 
 ### Bugs fixed
 
