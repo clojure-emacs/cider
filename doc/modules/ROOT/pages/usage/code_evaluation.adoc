@@ -382,6 +382,11 @@ Below is a listing of most keybindings for evaluation commands:
 kbd:[C-c C-e]
 | Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
 
+| `cider-tap-last-sexp`
+| kbd:[C-c C-v q] +
+kbd:[C-c C-v C-q]
+| Like `cider-eval-last-sexp` but also taps the result.
+
 | `cider-eval-last-sexp-and-replace`
 | kbd:[C-c C-v w]
 | Evaluate the form preceding point and replace it with its result.
@@ -422,6 +427,11 @@ kbd:[C-c C-v C-v]
 | kbd:[C-u C-M-x] +
 kbd:[C-u C-c C-c]
 | Debug the top level form under point and walk through its evaluation
+
+| `cider-tap-sexp-at-point`
+| kbd:[C-c C-v t] +
+kbd:[C-c C-v C-t]
+| Evaluate and tap the form around point.
 
 | `cider-eval-defun-up-to-point`
 | kbd:[C-c C-v z]
