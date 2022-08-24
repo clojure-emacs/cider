@@ -8,7 +8,7 @@
 - [#2946](https://github.com/clojure-emacs/cider/issues/2946): Add custom var `cider-merge-sessions` to allow combining sessions in two different ways: Setting `cider-merge-sessions` to `'host` will merge all sessions associated with the same host within a project. Setting it to `'project` will combine all sessions of a project irrespective of their host.
 - Support Gradle jack-in via the Gradle wrapper (`gradlew`), instead of just a globally installed `gradle` on the `PATH`.
 - Gradle projects can now inject dependencies and middleware as with other build tools (dependency injection requires [Clojurephant](https://github.com/clojurephant/clojurephant) 0.7.0 or higher).
-- [#3239](https://github.com/clojure-emacs/cider/issues/3239): Added commands to evaluate and tap last sexp and sexp at point.
+- [#3239](https://github.com/clojure-emacs/cider/issues/3239): Added commands to evaluate and tap last sexp (`cider-tap-last-sexp`) and sexp at point (`cider-tap-sexp-at-point`).
 
 ## Changes
 
@@ -17,11 +17,11 @@
 - [#3200](https://github.com/clojure-emacs/cider/issues/3200): Improve cider-browse-ns interface to allow selective hiding of var types as well as grouping options.  Include private vars in result list.
 - Changed default `cider-gradle-command` to `./gradlew` to use the Gradle wrapper.
 - Changed default `cider-gradle-global-options` to `""` (empty, formerly `--no-daemon`).
+- [#3234](https://github.com/clojure-emacs/cider/pull/3234): Autocomplete multiple available ports on nREPL connect.
 
 ### Bugs fixed
 
 - [#3235](https://github.com/clojure-emacs/cider/issues/3235): Check `name` is a TRAMP file in `cider--client-tramp-filename` via `tramp-tramp-file-p`.
-- [#3234](https://github.com/clojure-emacs/cider/pull/3234): Autocomplete multiple available ports on nREPL connect.
 
 ## 1.4.1 (2022-05-25)
 
