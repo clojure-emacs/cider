@@ -11,7 +11,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.dev>
 ;; URL: http://www.github.com/clojure-emacs/cider
-;; Version: 1.5.0-snapshot
+;; Version: 1.5.0
 ;; Package-Requires: ((emacs "26") (clojure-mode "5.15.1") (parseedn "1.0.6") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2"))
 ;; Keywords: languages, clojure, cider
 
@@ -92,10 +92,10 @@
 (require 'sesman)
 (require 'package)
 
-(defconst cider-version "1.5.0-snapshot"
+(defconst cider-version "1.5.0"
   "The current version of CIDER.")
 
-(defconst cider-codename "Kyiv"
+(defconst cider-codename "Strasbourg"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command

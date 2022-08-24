@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.5.0 (2022-08-24)
+
 ### New features
 
 - [#3226](https://github.com/clojure-emacs/cider/pull/3226): Populate completions metadata, making it possible to change the style of completion via `completion-category-override` or `completion-category-defaults`.
