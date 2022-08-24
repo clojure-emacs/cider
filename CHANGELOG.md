@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- Bump the injected nREPL version to 1.0.
+
 ## 1.5.0 (2022-08-24)
 
 ### New features
