@@ -1016,6 +1016,25 @@ If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
     (goto-char (cadr (cider-sexp-at-point 'bounds)))
     (cider-eval-last-sexp output-to-current-buffer)))
 
+(defun cider-tap-last-sexp (&optional output-to-current-buffer)
+  "Evaluate and tap the expression preceding point.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
+buffer."
+  (interactive "P")
+  (let ((tapped-form (concat "(clojure.core/doto " (cider-last-sexp) " (clojure.core/tap>))")))
+    (cider-interactive-eval tapped-form
+                            (when output-to-current-buffer (cider-eval-print-handler))
+                            nil
+                            (cider--nrepl-pr-request-map))))
+
+(defun cider-tap-sexp-at-point (&optional output-to-current-buffer)
+  "Evaluate and tap the expression around point.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
+  (interactive "P")
+  (save-excursion
+    (goto-char (cadr (cider-sexp-at-point 'bounds)))
+    (cider-tap-last-sexp output-to-current-buffer)))
+
 (defvar-local cider-previous-eval-context nil
   "The previous evaluation context if any.
 That's set by commands like `cider-eval-last-sexp-in-context'.")
@@ -1422,8 +1441,10 @@ passing arguments."
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "d") #'cider-eval-defun-at-point)
     (define-key map (kbd "e") #'cider-eval-last-sexp)
+    (define-key map (kbd "q") #'cider-tap-last-sexp)
     (define-key map (kbd "l") #'cider-eval-list-at-point)
     (define-key map (kbd "v") #'cider-eval-sexp-at-point)
+    (define-key map (kbd "t") #'cider-tap-sexp-at-point)
     (define-key map (kbd "o") #'cider-eval-sexp-up-to-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "z") #'cider-eval-defun-up-to-point)
@@ -1438,8 +1459,10 @@ passing arguments."
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-d") #'cider-eval-defun-at-point)
     (define-key map (kbd "C-e") #'cider-eval-last-sexp)
+    (define-key map (kbd "C-q") #'cider-tap-last-sexp)
     (define-key map (kbd "C-l") #'cider-eval-list-at-point)
     (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
+    (define-key map (kbd "C-t") #'cider-tap-sexp-at-point)
     (define-key map (kbd "C-o") #'cider-eval-sexp-up-to-point)
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
     (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)

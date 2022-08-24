@@ -320,10 +320,12 @@ If invoked with a prefix ARG eval the expression after inserting it."
     "--"
     ["Eval current list" cider-eval-list-at-point]
     ["Eval current sexp" cider-eval-sexp-at-point]
+    ["Eval and tap current sexp" cider-tap-sexp-at-point]
     ["Eval current sexp to point" cider-eval-sexp-up-to-point]
     ["Eval current sexp in context" cider-eval-sexp-at-point-in-context]
     "--"
     ["Eval last sexp" cider-eval-last-sexp]
+    ["Eval and tap last sexp" cider-tap-last-sexp]
     ["Eval last sexp in context" cider-eval-last-sexp-in-context]
     ["Eval last sexp and insert" cider-eval-print-last-sexp
      :keys "\\[universal-argument] \\[cider-eval-last-sexp]"]
