@@ -6,6 +6,10 @@
 
 - Bump the injected nREPL version to 1.0.
 
+### Bugs fixed
+
+- Remove needless quotes from the choices of `cider-jack-in-auto-inject-clojure`
+
 ## 1.5.0 (2022-08-24)
 
 ### New features
