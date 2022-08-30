@@ -174,7 +174,7 @@
     (with-temp-buffer
       (clojure-mode)
       (save-excursion (insert "(map inc [1 2 3])"))
-      ;; whem cursor is on map, display its eldoc
+      ;; when cursor is on map, display its eldoc
       (search-forward "map")
       (expect (cider-eldoc-info-in-current-sexp) :to-equal
               '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))
@@ -195,7 +195,7 @@
       (with-temp-buffer
         (clojure-mode)
         (save-excursion (insert "(map inc [1 2 3])"))
-        ;; whem cursor is on map, display its eldoc
+        ;; when cursor is on map, display its eldoc
         (search-forward "map")
         (expect (cider-eldoc-info-in-current-sexp) :to-equal
                 '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))

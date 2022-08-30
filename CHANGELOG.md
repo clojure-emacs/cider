@@ -1307,7 +1307,7 @@ the option `cider-repl-use-clojure-font-lock`.
 
 * Added new interactive command `cider-read-and-eval` (bound to `C-c M-:` in `cider-mode`).
 * Added new interactive command `cider-eval-last-sexp-to-repl` (`C-c M-e`). The command will output the result
-of the evaluated code to the REPL buffer, so you can easily play with the output there afterwords.
+of the evaluated code to the REPL buffer, so you can easily play with the output there afterwards.
 * Added new interactive command `cider-insert-last-sexp-in-repl` (`C-c M-p`).
 * Added new interactive command `cider-eval-last-expression-and-replace` (`C-c C-w`).
 * Implemented REPL shortcuts, triggered by pressing `,` at the start of a REPL input line (similar to the ones in SLIME).
