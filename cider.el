@@ -449,8 +449,8 @@ which will be the lowest version CIDER supports.  If a string, use this as
 the version number.  If it is a list, the first element should be a string,
 specifying the artifact ID, and the second element the version number."
   :type '(choice (const :tag "None" nil)
-                 (const :tag "Latest" 'latest)
-                 (const :tag "Minimal" 'minimal)
+                 (const :tag "Latest" latest)
+                 (const :tag "Minimal" minimal)
                  (string :tag "Specific Version")
                  (list :tag "Artifact ID and Version"
                        (string :tag "Artifact ID")
