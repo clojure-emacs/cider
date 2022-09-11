@@ -318,6 +318,24 @@ meets the spec.
 
 image::spec_browser_gen_example.png[Spec Browser Example]
 
+== Clojure Spec Versions
+
+Clojure Spec has a bit of a history and is available in a couple of
+flavours:
+
+* `spec` (aka `clojure.spec`, the original release, never shipped with Clojure)
+* `spec-alpha` (aka `clojure.spec.alpha`, the original release under a different name, ships with Clojure)
+* `spec-alpha-2` (aka `clojure.alpha.spec`, the evolution, separate library, but still experimental)
+
+Cider supports the whole mix, but with a twist.
+
+* When Cider shows a list of specs, the keys from all registries are
+  shown. Registries are merged together from newest to oldest.
+
+* When Cider operates on a spec, like looking up a spec or generating
+  data for it, the operation is tried against all registries, from
+  newest to oldest, with the first successful operation winning.
+
 == Formatting Code with cljfmt
 
 While CIDER has it's own code formatting (indentation) engine, you can also

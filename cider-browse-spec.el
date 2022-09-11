@@ -142,7 +142,79 @@ Display TITLE at the top and SPECS are indented underneath."
 
 (defun cider--spec-fn-p (value fn-name)
   "Return non nil if VALUE is clojure.spec.[alpha]/FN-NAME."
-  (string-match-p (concat "^\\(clojure.spec\\|clojure.spec.alpha\\)/" fn-name "$") value))
+  (string-match-p (concat "^\\(clojure.spec\\|clojure.spec.alpha\\|clojure.alpha.spec\\)/" fn-name "$") value))
+
+(defun cider-browse-spec--render-schema-map (spec-form)
+  "Render the s/schema map declaration SPEC-FORM."
+  (let ((name-spec-pairs (seq-partition (cdaadr spec-form) 2)))
+    (format "(s/schema\n {%s})"
+            (string-join
+             (thread-last
+               (seq-sort-by #'car #'string< name-spec-pairs)
+               (mapcar (lambda (s) (concat (cl-first s) " " (cider-browse-spec--pprint (cl-second s))))))
+             "\n  "))))
+
+(defun cider-browse-spec--render-schema-vector (spec-form)
+  "Render the s/schema vector declaration SPEC-FORM."
+  (format "(s/schema\n [%s])"
+          (string-join
+           (thread-last
+             (cl-second spec-form)
+             (mapcar (lambda (s) (cider-browse-spec--pprint s))))
+           "\n  ")))
+
+(defun cider-browse-spec--render-schema (spec-form)
+  "Render the s/schema SPEC-FORM."
+  (let ((schema-args (cl-second spec-form)))
+    (if (and (listp schema-args)
+             (nrepl-dict-p (cl-first schema-args)))
+        (cider-browse-spec--render-schema-map spec-form)
+      (cider-browse-spec--render-schema-vector spec-form))))
+
+(defun cider-browse-spec--render-select (spec-form)
+  "Render the s/select SPEC-FORM."
+  (let ((keyset (cl-second spec-form))
+        (selection (cl-third spec-form)))
+    (format "(s/select\n %s\n [%s])"
+            (cider-browse-spec--pprint keyset)
+            (string-join
+             (thread-last
+               selection
+               (mapcar (lambda (s) (cider-browse-spec--pprint s))))
+             "\n  "))))
+
+(defun cider-browse-spec--render-union (spec-form)
+  "Render the s/union SPEC-FORM."
+  (let ((keyset (cl-second spec-form))
+        (selection (cl-third spec-form)))
+    (format "(s/union\n %s\n [%s])"
+            (cider-browse-spec--pprint keyset)
+            (string-join
+             (thread-last
+               selection
+               (mapcar (lambda (s) (cider-browse-spec--pprint s))))
+             "\n  "))))
+
+(defun cider-browse-spec--render-vector (spec-form)
+  "Render SPEC-FORM as a vector."
+  (format "[%s]" (string-join (mapcar #'cider-browse-spec--pprint spec-form))))
+
+(defun cider-browse-spec--render-map-entry (spec-form)
+  "Render SPEC-FORM as a map entry."
+  (let ((key (cl-first spec-form))
+        (value (cl-second spec-form)))
+    (format "%s %s" (cider-browse-spec--pprint key)
+            (if (listp value)
+                (cider-browse-spec--render-vector value)
+              (cider-browse-spec--pprint value)))))
+
+(defun cider-browse-spec--render-map (spec-form)
+  "Render SPEC-FORM as a map."
+  (let ((map-entries (cl-rest spec-form)))
+    (format "{%s}" (thread-last
+                     (seq-partition map-entries 2)
+                     (seq-map #'cider-browse-spec--render-map-entry)
+                     (string-join)))))
 
 (defun cider-browse-spec--pprint (form)
   "Given a spec FORM builds a multi line string with a pretty render of that FORM."
@@ -158,7 +230,7 @@ Display TITLE at the top and SPECS are indented underneath."
            ;; and remove all clojure.core ns
            (thread-last
              form
-             (replace-regexp-in-string "^\\(clojure.spec\\|clojure.spec.alpha\\)/" "s/")
+             (replace-regexp-in-string "^\\(clojure.spec\\|clojure.spec.alpha\\|clojure.alpha.spec\\)/" "s/")
              (replace-regexp-in-string "^\\(clojure.core\\)/" ""))))
 
         ((and (listp form) (stringp (cl-first form)))
@@ -254,10 +326,21 @@ Display TITLE at the top and SPECS are indented underneath."
                                  (cider-browse-spec--pprint (cl-second s)))))
                (cl-reduce #'concat)
                (format "%s")))
+            ;; prettier (s/schema )
+            ((cider--spec-fn-p form-tag "schema")
+             (cider-browse-spec--render-schema form))
+            ;; prettier (s/select )
+            ((cider--spec-fn-p form-tag "select")
+             (cider-browse-spec--render-select form))
+            ;; prettier (s/union )
+            ((cider--spec-fn-p form-tag "union")
+             (cider-browse-spec--render-union form))
             ;; every other with no special management
             (t (format "(%s %s)"
                        (cider-browse-spec--pprint form-tag)
                        (string-join (mapcar #'cider-browse-spec--pprint (cl-rest form)) " "))))))
+        ((nrepl-dict-p form)
+         (cider-browse-spec--render-map form))
         (t (format "%s" form))))
 
 (defun cider-browse-spec--pprint-indented (spec-form)
