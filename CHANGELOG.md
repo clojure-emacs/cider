@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3249](https://github.com/clojure-emacs/cider/pull/3249): Add support for Clojure Spec 2.
+
 ### Changes
 
 - Bump the injected nREPL version to 1.0.
