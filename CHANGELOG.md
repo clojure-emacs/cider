@@ -5,6 +5,7 @@
 ### New features
 
 - [#3249](https://github.com/clojure-emacs/cider/pull/3249): Add support for Clojure Spec 2.
+- [#3247](https://github.com/clojure-emacs/cider/pull/3247) Add the `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands to view printed exceptions in the stacktrace inspector.
 
 ### Changes
 
