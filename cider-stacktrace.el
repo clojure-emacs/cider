@@ -670,29 +670,30 @@ This associates text properties to enable filtering and source navigation."
                               'follow-link t
                               'action (lambda (x) (browse-url (button-get x 'url)))))
       (nrepl-dbind-response frame (file line flags class method name var ns fn)
-        (let ((flags (mapcar #'intern flags))) ; strings -> symbols
-          (insert-text-button (format "%26s:%5d  %s/%s"
-                                      (if (member 'repl flags) "REPL" file) line
-                                      (if (member 'clj flags) ns class)
-                                      (if (member 'clj flags) fn method))
-                              'var var 'class class 'method method
-                              'name name 'file file 'line line
-                              'flags flags 'follow-link t
-                              'action #'cider-stacktrace-navigate
-                              'help-echo (cider-stacktrace-tooltip
-                                          "View source at this location")
-                              'font-lock-face 'cider-stacktrace-face
-                              'type 'cider-plain-button)
-          (save-excursion
-            (let ((p4 (point))
-                  (p1 (search-backward " "))
-                  (p2 (search-forward "/"))
-                  (p3 (search-forward-regexp "[^/$]+")))
-              (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
-              (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)
-              (put-text-property (line-beginning-position) (line-end-position)
-                                 'cider-stacktrace-frame t)))
-          (insert "\n"))))))
+        (when (or class file fn method ns name)
+          (let ((flags (mapcar #'intern flags))) ; strings -> symbols
+            (insert-text-button (format "%26s:%5d  %s/%s"
+                                        (if (member 'repl flags) "REPL" file) (or line -1)
+                                        (if (member 'clj flags) ns class)
+                                        (if (member 'clj flags) fn method))
+                                'var var 'class class 'method method
+                                'name name 'file file 'line line
+                                'flags flags 'follow-link t
+                                'action #'cider-stacktrace-navigate
+                                'help-echo (cider-stacktrace-tooltip
+                                            "View source at this location")
+                                'font-lock-face 'cider-stacktrace-face
+                                'type 'cider-plain-button)
+            (save-excursion
+              (let ((p4 (point))
+                    (p1 (search-backward " "))
+                    (p2 (search-forward "/"))
+                    (p3 (search-forward-regexp "[^/$]+")))
+                (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
+                (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)
+                (put-text-property (line-beginning-position) (line-end-position)
+                                   'cider-stacktrace-frame t)))
+            (insert "\n")))))))
 
 (defun cider-stacktrace-render-compile-error (buffer cause)
   "Emit into BUFFER the compile error CAUSE, and enable jumping to it."
@@ -844,7 +845,8 @@ the NAME.  The whole group is prefixed by string INDENT."
               (goto-char (next-single-property-change (point) 'compile-error))
             (progn
               (while (cider-stacktrace-next-cause))
-              (goto-char (next-single-property-change (point) 'flags)))))))))
+              (when-let (position (next-single-property-change (point) 'flags))
+                (goto-char position)))))))))
 
 (defun cider-stacktrace-render (buffer causes &optional error-types)
   "Emit into BUFFER useful stacktrace information for the CAUSES.
@@ -875,6 +877,54 @@ through the `cider-stacktrace-suppressed-errors' variable."
             (setq num (1- num))))))
     (cider-stacktrace-initialize causes)
     (font-lock-refresh-defaults)))
+
+(defun cider-stacktrace--analyze-stacktrace-op (stacktrace)
+  "Return the Cider NREPL op to analyze STACKTRACE."
+  (list "op" "analyze-stacktrace" "stacktrace" stacktrace))
+
+(defun cider-stacktrace--stacktrace-request (stacktrace)
+  "Return the Cider NREPL request to analyze STACKTRACE."
+  (thread-last
+    (map-merge 'list
+               (list (cider-stacktrace--analyze-stacktrace-op stacktrace))
+               (cider--nrepl-print-request-map fill-column))
+    (seq-mapcat #'identity)))
+
+(defun cider-stacktrace--analyze-render (causes)
+  "Render the CAUSES of the stacktrace analysis result."
+  (let ((buffer (get-buffer-create cider-error-buffer)))
+    (with-current-buffer buffer
+      (cider-stacktrace-mode)
+      (cider-stacktrace-render buffer (reverse causes))
+      (display-buffer buffer cider-jump-to-pop-to-buffer-actions))))
+
+(defun cider-stacktrace-analyze-string (stacktrace)
+  "Analyze the STACKTRACE string and show the result."
+  (when (stringp stacktrace)
+    (set-text-properties 0 (length stacktrace) nil stacktrace))
+  (let (causes)
+    (cider-nrepl-send-request
+     (cider-stacktrace--stacktrace-request stacktrace)
+     (lambda (response)
+       (setq causes (nrepl-dbind-response response (class status)
+                      (cond (class (cons response causes))
+                            ((and (member "done" status) causes)
+                             (cider-stacktrace--analyze-render causes)))))))))
+
+(defun cider-stacktrace-analyze-at-point ()
+  "Analyze the stacktrace at point."
+  (interactive)
+  (cond ((thing-at-point 'sentence)
+         (cider-stacktrace-analyze-string (thing-at-point 'sentence)))
+        ((thing-at-point 'paragraph)
+         (cider-stacktrace-analyze-string (thing-at-point 'paragraph)))
+        (t (cider-stacktrace-analyze-in-region (region-beginning) (region-end)))))
+
+(defun cider-stacktrace-analyze-in-region (beg end)
+  "Analyze the stacktrace in the region between BEG and END."
+  (interactive (list (region-beginning) (region-end)))
+  (let ((stacktrace (buffer-substring beg end)))
+    (cider-stacktrace-analyze-string stacktrace)))
 
 (provide 'cider-stacktrace)
 

@@ -182,3 +182,95 @@ for instance:
 ----
 (setq cider-stacktrace-fill-column 80)
 ----
+
+=== Inspecting printed stacktraces
+
+Some of the errors you encounter as a Clojurists aren't necessarily
+evaluation errors that happened in your REPL. Many times, you see
+errors printed in a textual representation in other buffers as well,
+like log files or the REPL for example. Cider can parse and analyze
+some of those printed errors as well and show them in
+`cider-stacktrace-mode` with the following commands:
+
+* The `cider-stacktrace-analyze-at-point` command uses the `thingatpt`
+  library to extract the current stacktrace at point. It sends the
+  extracted stacktrace to the middleware in order to parse and analyze
+  it, and then shows the result in Cider's `cider-stacktrace-mode`.
+
+* The `cider-stacktrace-analyze-in-region` command does the same as
+  `cider-stacktrace-analyze-at-point`, but uses the current region to
+  extract the stacktrace.
+
+===== Examples
+
+Here is an example of a stacktrace printed with the Java
+`printStackTrace` method:
+
+[source,text]
+----
+clojure.lang.ExceptionInfo: BOOM-1 {:boom "1"}
+  at java.base/java.lang.Thread.run(Thread.java:829)
+----
+
+To open this stacktrace in the Cider stacktrace inspector, move point
+somewhere over the exception and run `M-x
+cider-stacktrace-analyze-at-point`.
+
+This also works to some extend for exceptions that are buried inside a
+string like the following exception:
+
+[source,text]
+----
+"clojure.lang.ExceptionInfo: BOOM-1 {:boom \"1\"}\n at java.base/java.lang.Thread.run(Thread.java:829)"
+----
+
+Those exceptions are often hard to read. The Cider stacktrace
+inspector can help you navigating exceptions even in those cases.
+
+===== Supported formats
+
+Cider recognizes stacktraces printed in the following formats:
+
+- `Aviso` - Exceptions printed with the
+  https://ioavisopretty.readthedocs.io/en/latest/exceptions.html[write-exception]
+  function of the https://github.com/AvisoNovate/pretty[Aviso]
+  library.
+
+- `clojure.repl` - Exceptions printed with the
+  https://clojure.github.io/clojure/branch-master/clojure.repl-api.html#clojure.repl/pst[clojure.repl/pst]
+  function.
+
+- `clojure.stacktrace` - Exceptions printed with the
+  https://clojure.github.io/clojure/branch-master/clojure.stacktrace-api.html#clojure.stacktrace/print-cause-trace[clojure.stacktrace/print-cause-trace]
+  function.
+
+- `Java` - Exceptions printed with the
+  https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html#printStackTrace--[Throwable/printStackTrace]
+  method.
+
+- `Tagged Literal` - Exceptions printed with the
+  https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/pr[clojure.core/pr]
+  function.
+
+===== Limitations
+
+- Cider only recognizes stacktraces that have been printed in one of
+  the supported formats.
+
+- The buffers in which `cider-stacktrace-analyze-at-point` or
+  `cider-stacktrace-analyze-in-region` are called in, must have a
+  Cider session associated with them. Tip: Use
+  `sesman-link-with-project` and friends in case the buffer containing
+  the exception is not linked to a Cider session.
+
+- Stacktraces are analyzed with the classpath of the Cider session the
+  buffer is associated with. If the stacktrace contains references to
+  classes not on this classpath, some information might be missing
+  from the analysis.
+
+- The `cider-stacktrace-analyze-at-point` function might not detect
+  the stacktrace at point in every situation. The thing at point might
+  be different depending on which major mode is active in a
+  buffer. When `cider-stacktrace-analyze-at-point` fails to detect the
+  stacktrace, `cider-stacktrace-analyze-in-region` can be used to
+  select the stacktrace manually.
