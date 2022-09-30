@@ -8,7 +8,7 @@
 
 ### Bugs fixed
 
-- Remove needless quotes from the choices of `cider-jack-in-auto-inject-clojure`
+- Remove needless quotes from the choices of `cider-jack-in-auto-inject-clojure`.
 - [#2561](https://github.com/clojure-emacs/cider/issues/2561): Disable undo in `*cider-test-report*` buffers.
 - [#3251](https://github.com/clojure-emacs/cider/pull/3251): Disable undo in `*cider-stacktrace*` buffers.
 
