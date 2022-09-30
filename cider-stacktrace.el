@@ -203,7 +203,8 @@ The error types are represented as strings."
   (setq-local electric-indent-chars nil)
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters)
-  (setq-local cider-stacktrace-cause-visibility (make-vector 10 0)))
+  (setq-local cider-stacktrace-cause-visibility (make-vector 10 0))
+  (buffer-disable-undo))
 
 
 ;; Stacktrace filtering
