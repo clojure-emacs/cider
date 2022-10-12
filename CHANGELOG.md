@@ -15,7 +15,8 @@
 - Remove needless quotes from the choices of `cider-jack-in-auto-inject-clojure`.
 - [#2561](https://github.com/clojure-emacs/cider/issues/2561): Disable undo in `*cider-test-report*` buffers.
 - [#3251](https://github.com/clojure-emacs/cider/pull/3251): Disable undo in `*cider-stacktrace*` buffers.
-- Consecutive overlays will not be spuriously deleted. 
+- Consecutive overlays will not be spuriously deleted.
+- [#3260](https://github.com/clojure-emacs/cider/pull/3260): Scroll REPL buffer in other frame.
 
 ## 1.5.0 (2022-08-24)
 

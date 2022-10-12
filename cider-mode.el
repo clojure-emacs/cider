@@ -229,7 +229,7 @@ If EVAL is non-nil the form will also be evaluated.  Use
   (when cider-switch-to-repl-on-insert
     (cider-switch-to-repl-buffer))
   (let ((repl (cider-current-repl)))
-    (with-selected-window (or (get-buffer-window repl)
+    (with-selected-window (or (get-buffer-window repl t)
                               (selected-window))
       (with-current-buffer repl
         (goto-char (point-max))
