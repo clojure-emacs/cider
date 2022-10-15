@@ -143,7 +143,14 @@ being set that way"
         (setq this-command nil)
         (cider--make-result-overlay "ok" :duration 'command)
         (run-hooks 'post-command-hook)
-        (expect (overlay-count) :to-equal 0))))
+        (expect (overlay-count) :to-equal 0)))
+
+    (it "will not erase overlays if they're created consecutively"
+      (cider--overlay-temp-buffer
+        (dotimes (i 2)
+          (cider--make-result-overlay "ok" :duration 'command)
+          (run-hooks 'post-command-hook)
+          (expect (overlay-count) :to-equal 1)))))
 
   (describe "when overlay duration is given in secs"
     (it "erases overlays after that duration"
