@@ -482,8 +482,10 @@ op/situation that originated this error."
 If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
 RESPONSE is the final message (i.e. it contains a status), render CAUSES
 into a new error buffer."
-  (nrepl-dbind-response response (class status)
-    (cond (class (cons response causes))
+  (nrepl-dbind-response response (class msg status type)
+    (cond ((and (member "notification" status) causes)
+           (nrepl-notify msg type))
+          (class (cons response causes))
           (status (cider--render-stacktrace-causes causes)))))
 
 (defun cider-default-err-op-handler ()
@@ -493,7 +495,7 @@ into a new error buffer."
     (cider-nrepl-send-request
      (thread-last
        (map-merge 'list
-                  '(("op" "stacktrace"))
+                  '(("op" "analyze-last-stacktrace"))
                   (cider--nrepl-print-request-map fill-column))
        (seq-mapcat #'identity))
      (lambda (response)
@@ -505,8 +507,10 @@ into a new error buffer."
 (defun cider-default-err-handler ()
   "This function determines how the error buffer is shown.
 It delegates the actual error content to the eval or op handler."
-  (cond ((cider-nrepl-op-supported-p "stacktrace") (cider-default-err-op-handler))
-        ((cider-library-present-p "clojure.stacktrace") (cider-default-err-eval-handler))
+  (cond ((cider-nrepl-op-supported-p "analyze-last-stacktrace")
+         (cider-default-err-op-handler))
+        ((cider-library-present-p "clojure.stacktrace")
+         (cider-default-err-eval-handler))
         (t (cider-default-err-eval-print-handler))))
 
 
