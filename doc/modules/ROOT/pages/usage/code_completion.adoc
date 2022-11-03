@@ -6,7 +6,8 @@ CIDER provides intelligent code completion for both source buffers (powered by
 
 NOTE: Internally CIDER leverages
 https://github.com/alexander-yakushev/compliment[compliment] for Clojure and
-https://github.com/rkms/clj-suitable[clj-suitable] for ClojureScript.
+https://github.com/clojure-emacs/clj-suitable[clj-suitable] for ClojureScript.
+
 Improvements to the two libraries automatically translate to improvements in CIDER.
 
 == Standard completion
