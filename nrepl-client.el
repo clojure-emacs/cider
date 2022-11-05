@@ -570,7 +570,18 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 (defun nrepl--ssh-tunnel-connect (host port)
   "Connect to a remote machine identified by HOST and PORT through SSH tunnel."
   (message "[nREPL] Establishing SSH tunneled connection to %s:%s ..." host port)
-  (let* ((remote-dir (if host (format "/ssh:%s:" host) default-directory))
+  (let* ((current-buf (buffer-file-name))
+         (tramp-file-regexp "/ssh:\\(.+@\\)?\\(.+?\\)\\(:\\|#\\).+")
+         (remote-dir (cond
+                      ;; If current buffer is a TRAMP buffer and its host is
+                      ;; the same as HOST, reuse its connection parameters for
+                      ;; SSH tunnel.
+                      ((and (string-match tramp-file-regexp current-buf)
+                            (string= host (match-string 2 current-buf))) current-buf)
+                      ;; Otherwise, if HOST was provided, use it for connection.
+                      (host (format "/ssh:%s:" host))
+                      ;; Use default directory as fallback.
+                      (t default-directory)))
          (ssh (or (executable-find "ssh")
                   (error "[nREPL] Cannot locate 'ssh' executable")))
          (cmd (nrepl--ssh-tunnel-command ssh remote-dir port))
@@ -598,11 +609,12 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
     ;; forwarding is set up, which is used to synchronise on, so that
     ;; the port forwarding is up when we try to connect.
     (format-spec
-     "%s -v -N -L %p:localhost:%p %u'%h'"
+     "%s -v -N -L %p:localhost:%p %u'%h' %n"
      `((?s . ,ssh)
        (?p . ,port)
        (?h . ,v-host)
-       (?u . ,(if v-user (format "-l '%s' " v-user) ""))))))
+       (?u . ,(if v-user (format "-l '%s' " v-user) ""))
+       (?n . ,(if v-port (format "-p '%s' " v-port) ""))))))
 
 (autoload 'comint-watch-for-password-prompt "comint"  "(autoload).")
 
