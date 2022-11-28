@@ -303,6 +303,7 @@ focused."
   (let* ((font-value (if cider-result-use-clojure-font-lock
                          (cider-font-lock-as-clojure value)
                        value))
+         (font-value (string-trim-right font-value))
          (used-overlay (when (and point cider-use-overlays)
                          (cider--make-result-overlay font-value
                            :where point

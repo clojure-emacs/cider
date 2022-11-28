@@ -370,6 +370,26 @@
            (expect (cider-repls) :to-equal (list a b))
            (kill-buffer b)
            (expect (cider-repls) :to-equal (list a))
+           (sesman-unregister 'CIDER session))))))
+
+  (describe "cljs capability"
+    (it "Upgraded clj repl counts as cljs"
+      (let ((default-directory (expand-file-name "/tmp/some-dir")))
+        (cider-test-with-buffers
+         (a b)
+         (let ((session (list "some-session" a b)))
+           (with-current-buffer a
+             (setq cider-repl-type 'clj))
+           (with-current-buffer b
+             (setq cider-repl-type 'cljs))
+           (sesman-register 'CIDER session)
+           (expect (cider-repls 'cljs) :to-equal (list b))
+
+           (with-current-buffer a
+             (setf cider-connection-capabilities
+                   (append cider-connection-capabilities '(cljs))))
+
+           (expect (cider-repls) :to-equal (list a b))
            (sesman-unregister 'CIDER session)))))))
 
 (describe "cider--connection-info"
