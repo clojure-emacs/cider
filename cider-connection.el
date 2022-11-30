@@ -180,6 +180,8 @@ buffer."
                      ;; Sync request will hang if the server is dead.
                      (process-live-p (get-buffer-process nrepl-server-buffer))))
         (nrepl-sync-request:close repl)
+        ;; give a chance to the REPL to respond to the closing of the connection
+        (sleep-for 0.5)
         (delete-process proc)))
     (when-let* ((messages-buffer (and nrepl-log-messages
                                       (nrepl-messages-buffer repl))))

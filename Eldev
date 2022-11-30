@@ -10,12 +10,36 @@
 
 (eldev-add-loading-roots 'test "test/utils")
 
-;; Otherwise `cider-test.el' will be considered a test file.
-(setf eldev-test-fileset "./test/")
-;; This file is _supposed_ to be excluded from automated testing.  Since Eldev
-;; uses everything inside `test/' subdirectory, tell it to leave this file alone
-;; explicitly.
-(setf eldev-standard-excludes `(:or ,eldev-standard-excludes "test/cider-tests--no-auto.el"))
+(defvar cider-test-type 'main)
+(setf eldev-standard-excludes `(:or ,eldev-standard-excludes
+                                    ;; Avoid including files in test "projects".
+                                    (eldev-pcase-exhaustive cider-test-type
+                                                            (`main        "./test/*/")
+                                                            (`integration '("./test/"   "!./test/integration"))
+                                                            (`all         '("./test/*/" "!./test/integration")))
+                                    "test/integration/projects"
+                                    ;; This file is _supposed_ to be excluded
+                                    ;; from automated testing.
+                                    "test/cider-tests--no-auto.el"))
+
+(eldev-defoption cider-test-selection (type)
+  "Select tests to run; type can be `main', `integration' or `all'"
+  :options        (-T --test-type)
+  :for-command    test
+  :value          TYPE
+  :default-value  cider-test-type
+  (unless (memq (intern type) '(main integration all))
+    (signal 'eldev-wrong-option-usage `("unknown test type `%s'" ,type)))
+  (setf cider-test-type (intern type)))
+
+(add-hook 'eldev-test-hook
+          (lambda ()
+            (eldev-verbose "Using cider tests of type `%s'" cider-test-type)))
+(add-hook 'eldev-executing-command-hook
+          (lambda (command)
+            (unless (eq command 'test)
+              ;; So that e.g. byte-compilation works on all tests.
+              (setf cider-test-type 'all))))
 
 ;; CIDER cannot be compiled otherwise.
 (setf eldev-build-load-before-byte-compiling t)

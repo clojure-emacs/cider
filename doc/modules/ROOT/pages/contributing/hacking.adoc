@@ -84,9 +84,20 @@ all the details.
 
 If you prefer running all tests outside Emacs that's also an option.
 
-Run all tests with:
+There are two test types, `main` (unit tests) and `integration`. By
+default only main tests are run.
 
- $ eldev test
+Run all unit tests with:
+
+ $ eldev[.bat] test
+
+Run integration tests with:
+
+ $ eldev[.bat] test --test-type integration
+
+or all tests with
+
+ $ eldev[.bat] test --test-type all
 
 NOTE: Tests may not run correctly inside Emacs' `shell-mode` buffers. Running
 them in a terminal is recommended.

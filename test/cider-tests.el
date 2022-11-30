@@ -555,11 +555,12 @@
               "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/browser-repl))")))
   (describe "can watch multiple builds"
     (it "watches 2 builds and selects user-defined builds"
-      (setq-local cider-shadow-default-options "client-build")
-      (setq-local cider-shadow-watched-builds '("client-build" "other-build"))
-      (expect (cider-shadow-cljs-init-form)
-              :to-equal
-              "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :client-build) (shadow/watch :other-build) (shadow/nrepl-select :client-build))"))))
+      (with-temp-buffer
+        (setq-local cider-shadow-default-options "client-build")
+        (setq-local cider-shadow-watched-builds '("client-build" "other-build"))
+        (expect (cider-shadow-cljs-init-form)
+                :to-equal
+                "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :client-build) (shadow/watch :other-build) (shadow/nrepl-select :client-build))")))))
 
 (describe "cider--resolve-project-command"
   (it "if command starts with ./ it resolves relative to clojure-project-dir"
