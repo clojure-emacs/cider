@@ -235,21 +235,21 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   "The command used to execute nbb."
   :type 'string
   :safe #'stringp
-  :package-version '(cider . "1.2.0"))
+  :package-version '(cider . "1.3.0"))
 
 (defcustom cider-nbb-global-options
   nil
   "Command line options used to execute nbb."
   :type 'string
   :safe #'stringp
-  :package-version '(cider . "1.2.0"))
+  :package-version '(cider . "1.3.0"))
 
 (defcustom cider-nbb-parameters
   "nrepl-server"
   "Params passed to nbb to start an nREPL server via `cider-jack-in'."
   :type 'string
   :safe #'stringp
-  :package-version '(cider . "1.2.0"))
+  :package-version '(cider . "1.3.0"))
 
 (defcustom cider-jack-in-default (if (executable-find "clojure") 'clojure-cli 'lein)
   "The default tool to use when doing `cider-jack-in' outside a project.

@@ -28,6 +28,7 @@ Right now CIDER the supports to some extent the following:
 * Babashka
 * ClojureCLR (via Arcadia's nREPL server)
 * Lumo (via https://github.com/djblue/nrepl-cljs)
+* Nbb
 
 All of them are derived from Clojure, so supporting them didn't really require much work.
 
