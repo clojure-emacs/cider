@@ -230,6 +230,27 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.2.0"))
 
+(defcustom cider-nbb-command
+  "nbb"
+  "The command used to execute nbb."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
+(defcustom cider-nbb-global-options
+  nil
+  "Command line options used to execute nbb."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
+(defcustom cider-nbb-parameters
+  "nrepl-server"
+  "Params passed to nbb to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
 (defcustom cider-jack-in-default (if (executable-find "clojure") 'clojure-cli 'lein)
   "The default tool to use when doing `cider-jack-in' outside a project.
 This value will only be consulted when no identifying file types, i.e.
@@ -243,7 +264,8 @@ to Leiningen."
                  (const clojure-cli)
                  (const shadow-cljs)
                  (const gradle)
-                 (const babashka))
+                 (const babashka)
+                 (const nbb))
   :safe #'symbolp
   :package-version '(cider . "0.9.0"))
 
@@ -262,6 +284,7 @@ command when there is no ambiguity."
                  (const shadow-cljs)
                  (const gradle)
                  (const babashka)
+                 (const nbb)
                  (const :tag "Always ask" nil))
   :safe #'symbolp
   :package-version '(cider . "0.13.0"))
@@ -337,6 +360,7 @@ Sub-match 1 must be the project path.")
     ('babashka    cider-babashka-command)
     ('shadow-cljs cider-shadow-cljs-command)
     ('gradle      cider-gradle-command)
+    ('nbb         cider-nbb-command)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-resolve-command (project-type)
@@ -357,6 +381,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ;; relative path like "./gradlew" use locate file instead of checking
     ;; the exec-path
     ('gradle (cider--resolve-project-command cider-gradle-command))
+    ('nbb (cider--resolve-command cider-nbb-command))
     (_ (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-global-options (project-type)
@@ -368,6 +393,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('babashka    cider-babashka-global-options)
     ('shadow-cljs cider-shadow-cljs-global-options)
     ('gradle      cider-gradle-global-options)
+    ('nbb         cider-nbb-global-options)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-params (project-type)
@@ -383,6 +409,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('babashka    cider-babashka-parameters)
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
+    ('nbb         cider-nbb-parameters)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 
@@ -766,6 +793,10 @@ dependencies."
               (cider-add-clojure-dependencies-maybe
                cider-jack-in-dependencies)
               (cider-jack-in-normalized-nrepl-middlewares)))
+    ('nbb (concat
+           global-opts
+           (unless (seq-empty-p global-opts) " ")
+           params))
     (_ (error "Unsupported project type `%S'" project-type))))
 
 
@@ -993,21 +1024,26 @@ The supplied string will be wrapped in a do form if needed."
 (def config (edn/read-string (slurp (io/file \"build.edn\"))))
 (apply cider.piggieback/cljs-repl (krell.repl/repl-env) (mapcat identity config))"
            cider-check-krell-requirements)
+    ;; native cljs repl, no form required.
+    (nbb)
     (custom cider-custom-cljs-repl-init-form nil))
   "A list of supported ClojureScript REPLs.
 
-For each one we have its name, the form we need to evaluate in a Clojure
-REPL to start the ClojureScript REPL and functions to verify their requirements.
+For each one we have its name, and then, if the repl is not a native
+ClojureScript REPL, the form we need to evaluate in a Clojure REPL to
+switch to the ClojureScript REPL and functions to verify their
+requirements.
 
-The form should be either a string or a function producing a string.")
+The form, if any, should be either a string or a function producing a
+string.")
 
-(defun cider-register-cljs-repl-type (type init-form &optional requirements-fn)
+(defun cider-register-cljs-repl-type (type &optional init-form requirements-fn)
   "Register a new ClojureScript REPL type.
 
 Types are defined by the following:
 
 - TYPE - symbol identifier that will be used to refer to the REPL type
-- INIT-FORM - string or function (symbol) producing string
+- INIT-FORM - (optional) string or function (symbol) producing string
 - REQUIREMENTS-FN - function to check whether the REPL can be started.
 This param is optional.
 
@@ -1015,8 +1051,8 @@ All this function does is modifying `cider-cljs-repl-types'.
 It's intended to be used in your Emacs config."
   (unless (symbolp type)
     (user-error "The REPL type must be a symbol"))
-  (unless (or (stringp init-form) (symbolp init-form))
-    (user-error "The init form must be a string or a symbol referring to a function"))
+  (unless (or (null init-form) (stringp init-form) (symbolp init-form))
+    (user-error "The init form must be a string or a symbol referring to a function or nil"))
   (unless (or (null requirements-fn) (symbolp requirements-fn))
     (user-error "The requirements-fn must be a symbol referring to a function"))
   (add-to-list 'cider-cljs-repl-types (list type init-form requirements-fn)))
@@ -1036,6 +1072,7 @@ you're working on."
                  (const :tag "Shadow"   shadow)
                  (const :tag "Shadow w/o Server" shadow-select)
                  (const :tag "Krell"    krell)
+                 (const :tag "Nbb"      nbb)
                  (const :tag "Custom"   custom))
   :safe #'symbolp
   :package-version '(cider . "0.17.0"))
@@ -1054,15 +1091,16 @@ DEFAULT is the default ClojureScript REPL to offer in completion."
                              (or default (car cider--select-cljs-repl-history))))))
 
 (defun cider-cljs-repl-form (repl-type)
-  "Get the cljs REPL form for REPL-TYPE."
-  (if-let* ((repl-form (cadr (seq-find
-                              (lambda (entry)
-                                (eq (car entry) repl-type))
-                              cider-cljs-repl-types))))
-      ;; repl-form can be either a string or a function producing a string
-      (if (symbolp repl-form)
-          (funcall repl-form)
-        repl-form)
+  "Get the cljs REPL form for REPL-TYPE, if any."
+  (if-let* ((repl-type-info (seq-find
+                             (lambda (entry)
+                               (eq (car entry) repl-type))
+                             cider-cljs-repl-types)))
+      (when-let ((repl-form (cadr repl-type-info)))
+        ;; repl-form can be either a string or a function producing a string
+        (if (symbolp repl-form)
+            (funcall repl-form)
+          repl-form))
     (user-error "No ClojureScript REPL type %s found.  Please make sure that `cider-cljs-repl-types' has an entry for it" repl-type)))
 
 (defun cider-verify-cljs-repl-requirements (&optional repl-type)
@@ -1258,7 +1296,6 @@ server buffer, in which case a new session for that server is created."
        (cider--update-cljs-type)
        (cider--update-cljs-init-function)
        (plist-put :session-name ses-name)
-       (plist-put :repl-type 'cljs)
        (plist-put :cider-repl-cljs-upgrade-pending t)))))
 
 ;;;###autoload
@@ -1293,7 +1330,6 @@ parameters regardless of their supplied or default values."
      (cider--update-cljs-type)
      (cider--update-cljs-init-function)
      (plist-put :session-name nil)
-     (plist-put :repl-type 'cljs)
      (plist-put :cider-repl-cljs-upgrade-pending t))))
 
 ;;;###autoload
@@ -1466,27 +1502,39 @@ non-nil, don't start if ClojureScript requirements are not met."
           (plist-put :port (cdr endpoint)))))))
 
 (defun cider--update-cljs-init-function (params)
-  "Update PARAMS :repl-init-function for cljs connections."
+  "Update repl type and any init PARAMS for cljs connections.
+
+The updated params are:
+
+:cljs-type 'cljs if it is a cljs REPL, or 'pending-cljs when the init form
+is required to be sent to the REPL to switch over to cljs.
+
+:repl-init-form The form that can switch the REPL over to cljs.
+
+:repl-init-function The fn that switches the REPL over to cljs."
   (with-current-buffer (or (plist-get params :--context-buffer)
                            (current-buffer))
     (let* ((cljs-type (plist-get params :cljs-repl-type))
            (repl-init-form (cider-cljs-repl-form cljs-type)))
-      (thread-first
-        params
-        (plist-put :repl-init-function
-                   (lambda ()
-                     (cider--check-cljs cljs-type)
-                     ;; FIXME: ideally this should be done in the state handler
-                     (setq-local cider-cljs-repl-type cljs-type)
-                     (cider-nrepl-send-request
-                      (list "op" "eval"
-                            "ns" (cider-current-ns)
-                            "code" repl-init-form)
-                      (cider-repl-handler (current-buffer)))
-                     (when (and (buffer-live-p nrepl-server-buffer)
-                                cider-offer-to-open-cljs-app-in-browser)
-                       (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
-        (plist-put :repl-init-form repl-init-form)))))
+      (if (null repl-init-form)
+          (plist-put params :repl-type 'cljs)
+        (thread-first
+          params
+          (plist-put :repl-init-function
+                     (lambda ()
+                       (cider--check-cljs cljs-type)
+                       ;; FIXME: ideally this should be done in the state handler
+                       (setq-local cider-cljs-repl-type cljs-type)
+                       (cider-nrepl-send-request
+                        (list "op" "eval"
+                              "ns" (cider-current-ns)
+                              "code" repl-init-form)
+                        (cider-repl-handler (current-buffer)))
+                       (when (and (buffer-live-p nrepl-server-buffer)
+                                  cider-offer-to-open-cljs-app-in-browser)
+                         (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
+          (plist-put :repl-init-form repl-init-form)
+          (plist-put :repl-type 'pending-cljs))))))
 
 (defun cider--check-existing-session (params)
   "Ask for confirmation if a session with similar PARAMS already exists.
@@ -1666,7 +1714,8 @@ PROJECT-DIR defaults to current project."
                         (babashka    . "bb.edn")
                         (shadow-cljs . "shadow-cljs.edn")
                         (gradle      . "build.gradle")
-                        (gradle      . "build.gradle.kts"))))
+                        (gradle      . "build.gradle.kts")
+                        (nbb         . "package.json"))))
     (delq nil
           (mapcar (lambda (candidate)
                     (when (file-exists-p (cdr candidate))
