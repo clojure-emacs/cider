@@ -25,6 +25,8 @@
 
 ;;; Code:
 
+(require 'nrepl-client)
+
 (defmacro nrepl-tests-log/init! (enable? name log-filename &optional clean?)
   "Create a NAME/log! elisp function to log messages to LOG-FILENAME,
 taking the same arguments as `message'. Messages are appended to
@@ -97,5 +99,19 @@ calling process."
           ;; invoke mock server
           " -l test/nrepl-server-mock.el -f nrepl-server-mock-start"))
 
+(defun nrepl-start-mock-server-process ()
+  "Start and return the mock nrepl server process."
+  (let* ((up? nil)
+         (server-process (nrepl-start-server-process
+                          default-directory
+                          (nrepl-server-mock-invocation-string)
+                          (lambda (server-buffer)
+                            (setq up? t)))))
+    ;; server has reported its endpoint
+    (nrepl-tests-sleep-until 2 up?)
+    server-process))
 
 (provide 'nrepl-tests-utils)
+
+;;; nrepl-tests-utils.el ends here
+

@@ -627,12 +627,33 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 ;;; Client: Process Handling
 
 (defun nrepl--kill-process (proc)
-  "Kill PROC using the appropriate, os specific way.
-Implement a workaround to clean up an orphaned JVM process left around
-after exiting the REPL on some windows machines."
-  (if (memq system-type '(cygwin windows-nt))
-      (interrupt-process proc)
-    (kill-process proc)))
+  "Attempt to kill PROC tree.
+On MS-Windows, using the standard API is highly likely to leave the child
+processes still running in the background as orphans.  As a workaround, an
+attempt is made to delegate the task to the `taskkill` program, which comes
+with windows since at least Windows XP, and fallback to the Emacs API if it
+can't be found.
+
+It is expected that the `(process-status PROC)` return value after PROC is
+killed is `exit` when `taskkill` is used and `signal` otherwise."
+  (cond
+   ((and (eq system-type 'windows-nt)
+         (process-live-p proc)
+         (executable-find "taskkill"))
+    ;; try to use `taskkill` if available
+    (with-temp-buffer
+      (call-process-shell-command (format "taskkill /PID %s /T /F" (process-id proc))
+                                  nil (buffer-name) )
+      ;; useful for debugging.
+      ;;(message ":PROCESS-KILL-OUPUT %s" (buffer-string))
+      ))
+
+   ((memq system-type '(cygwin windows-nt))
+    ;; fallback, this is considered to work better than `kill-process` on
+    ;; MS-Windows.
+    (interrupt-process proc))
+
+   (t (kill-process proc))))
 
 (defun nrepl-kill-server-buffer (server-buf)
   "Kill SERVER-BUF and its process."
@@ -1090,8 +1111,22 @@ match groups:
 1  for the port, and
 2  for the host (babashka only).")
 
+(defun cider--process-plist-put (proc prop val)
+  "Change value in PROC's plist of PROP to VAL.
+Value is changed using `plist-put`, of which see."
+  (thread-first
+    proc
+    (process-plist)
+    (plist-put prop val)
+    (thread-last (set-process-plist proc))))
+
 (defun nrepl-server-filter (process output)
-  "Process nREPL server output from PROCESS contained in OUTPUT."
+  "Process nREPL server output from PROCESS contained in OUTPUT.
+
+The PROCESS plist is updated as (non-exhaustive list):
+
+:cider--nrepl-server-ready set to t when the server is successfully brought
+up."
   ;; In Windows this can be false:
   (let ((server-buffer (process-buffer process)))
     (when (buffer-live-p server-buffer)
@@ -1117,6 +1152,7 @@ match groups:
             (setq nrepl-endpoint (list :host host
                                        :port port))
             (message "[nREPL] server started on %s" port)
+            (cider--process-plist-put process :cider--nrepl-server-ready t)
             (when nrepl-on-port-callback
               (funcall nrepl-on-port-callback (process-buffer process)))))))))
 
@@ -1129,16 +1165,11 @@ match groups:
 
 (declare-function cider--close-connection "cider-connection")
 (defun nrepl-server-sentinel (process event)
-  "Handle nREPL server PROCESS EVENT."
-  (let* ((server-buffer (process-buffer process))
-         (clients (seq-filter (lambda (b)
-                                (eq (buffer-local-value 'nrepl-server-buffer b)
-                                    server-buffer))
-                              (buffer-list)))
-         (problem (if (and server-buffer (buffer-live-p server-buffer))
-                      (with-current-buffer server-buffer
-                        (buffer-substring (point-min) (point-max)))
-                    "")))
+  "Handle nREPL server PROCESS EVENT.
+On a fatal EVENT, attempt to close any open client connections, and signal
+an `error' if the nREPL PROCESS exited because it couldn't start up."
+  ;; only interested on fatal signals.
+  (when (not (process-live-p process))
     (emacs-bug-46284/when-27.1-windows-nt
      ;; There is a bug in emacs 27.1 (since fixed) that sets all EVENT
      ;; descriptions for signals to "unknown signal". We correct this by
@@ -1151,17 +1182,22 @@ match groups:
          (2 (setq event "Interrupt"))
          ;; SIGKILL==9 emacs nt/inc/ms-w32.h
          (9 (setq event "Killed")))))
+    (let* ((server-buffer (process-buffer process))
+           (clients (seq-filter (lambda (b)
+                                  (eq (buffer-local-value 'nrepl-server-buffer b)
+                                      server-buffer))
+                                (buffer-list))))
+      ;; close any known open client connections
+      (when server-buffer
+        (kill-buffer server-buffer))
+      (mapc #'cider--close-connection clients)
 
-    (when server-buffer
-      (kill-buffer server-buffer))
-    (cond
-     ((string-match-p "^killed\\|^interrupt" event)
-      nil)
-     ((string-match-p "^hangup" event)
-      (mapc #'cider--close-connection clients))
-     ;; On Windows, a failed start sends the "finished" event. On Linux it sends
-     ;; "exited abnormally with code 1".
-     (t (error "Could not start nREPL server: %s" problem)))))
+      (if (process-get process :cider--nrepl-server-ready)
+          (message "nREPL server exited.")
+        (let ((problem (when (and server-buffer (buffer-live-p server-buffer))
+                         (with-current-buffer server-buffer
+                           (buffer-substring (point-min) (point-max))))))
+          (error "Could not start nREPL server: %s (%S)" problem (string-trim event)))))))
 
 
 ;;; Messages

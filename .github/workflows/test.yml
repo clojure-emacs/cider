@@ -3,26 +3,68 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  test:
+  integration:
+    # Run integration tests for all OSs and EMACS_VERSIONs.
     runs-on: ${{matrix.os}}
 
     strategy:
       matrix:
-        os: [macos-latest]
-        emacs_version: ['26.3', '27.2', '28.1']
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        emacs_version: ['26.3', '27.2', '28.2']
 
     steps:
     - name: Set up Emacs
+      if: "!startsWith (matrix.os, 'windows')"
       uses: purcell/setup-emacs@master
       with:
         version: ${{matrix.emacs_version}}
 
+    - name: Set up Emacs on Windows
+      if: startsWith (matrix.os, 'windows')
+      uses: jcs090218/setup-emacs-windows@master
+      with:
+        version: ${{matrix.emacs_version}}
+
     - name: Install Eldev
+      if: "!startsWith (matrix.os, 'windows')"
       run: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
+
+    - name: Install Eldev on MS-Windows
+      if: startsWith (matrix.os, 'windows')
+      run: |
+        # Remove expired DST Root CA X3 certificate. Workaround
+        # for https://debbugs.gnu.org/cgi/bugreport.cgi?bug=51038
+        # bug on Emacs 27.2.
+        gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13
+        gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13 | Remove-Item
+
+        curl.exe -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev.bat | cmd /Q
 
     - name: Check out the source code
       uses: actions/checkout@v2
 
-    - name: Test the project
+    - name: Prepare java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        # shadow requires java 11
+        java-version: 11
+
+    - name: Install Clojure Tools
+      # Use SHA until
+      # https://github.com/DeLaGuardo/setup-clojure/issues/78 is
+      # released
+      uses: DeLaGuardo/setup-clojure@1376ded6747c79645e82c856f16375af5f5de307
+      with:
+        bb: '1.0.165'
+        cli: '1.10.3.1013'
+        lein: '2.9.10'
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - run: npm install shadow-cljs@2.20.13 -g
+
+    - name: Test integration
       run: |
-        eldev -p -dtT test
+        eldev -p -dtTC test --test-type integration

@@ -15,6 +15,18 @@ commands:
           name: Install unzip
           command: apt-get update && apt-get install unzip
 
+  macos-setup:
+    steps:
+      - checkout
+      - run:
+          name: Install Emacs latest
+          command: |
+            echo "HOMEBREW_NO_AUTO_UPDATE=1" >> $BASH_ENV
+            brew install homebrew/cask/emacs
+      - run:
+          name: Install Eldev
+          command: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev > x.sh && source ./x.sh
+
   setup-windows:
     steps:
       - checkout
@@ -74,6 +86,13 @@ jobs:
       - setup
       - test
 
+  test-macos-emacs-latest:
+    macos:
+      xcode: "14.0.0"
+    steps:
+      - macos-setup
+      - test
+
   test-windows-emacs-latest:
     executor: win/default
     steps:
@@ -100,4 +119,5 @@ workflows:
       - test-emacs-28
       - test-emacs-master
       - test-lint
+      - test-macos-emacs-latest
       - test-windows-emacs-latest
