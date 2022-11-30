@@ -579,6 +579,49 @@
     (expect (cider--resolve-project-command "command")
             :to-equal (shell-quote-argument "/bin/command"))))
 
+(describe "cider-connect-sibling-cljs"
+  :var (-cider-cljs-repl-types bu-cider-shadow-default-options)
+  (before-all
+   (setq -cider-cljs-repl-types cider-cljs-repl-types
+         -cider-shadow-default-options cider-shadow-default-options))
+  (after-each
+   (setq cider-cljs-repl-types -cider-cljs-repl-types
+         cider-shadow-default-options -cider-shadow-default-options))
+
+  (describe "sets nrepl client local vars correctly"
+      (it "for nbb project"
+          (let* ((server-process (nrepl-start-mock-server-process))
+                 (server-buffer (process-buffer server-process))
+                 (client-buffer (cider-connect-sibling-cljs '(:cljs-repl-type nbb) server-buffer)))
+            (expect (buffer-local-value 'cider-repl-type client-buffer) :to-equal 'cljs)
+            (expect (buffer-local-value 'cider-repl-init-function client-buffer) :to-be nil)
+            (delete-process (get-buffer-process client-buffer))))
+      (it "for shadow project"
+          (setq cider-shadow-default-options "a-shadow-alias")
+          (let* ((server-process (nrepl-start-mock-server-process))
+                 (server-buffer (process-buffer server-process))
+                 (client-buffer (cider-connect-sibling-cljs '(:cljs-repl-type shadow) server-buffer)))
+            (expect (buffer-local-value 'cider-repl-type client-buffer) :to-equal 'pending-cljs)
+            (expect (buffer-local-value 'cider-repl-init-function client-buffer) :not :to-be nil)
+            (delete-process (get-buffer-process client-buffer))))
+      (it "for a custom cljs REPL type project"
+          (cider-register-cljs-repl-type 'native-cljs)
+          (let* ((server-process (nrepl-start-mock-server-process))
+                 (server-buffer (process-buffer server-process))
+                 (client-buffer (cider-connect-sibling-cljs '(:cljs-repl-type native-cljs)
+                                                            server-buffer)))
+            (expect (buffer-local-value 'cider-repl-type client-buffer) :to-equal 'cljs)
+            (delete-process (get-buffer-process client-buffer))))
+      (it "for a custom REPL type project that needs to switch to cljs"
+          (cider-register-cljs-repl-type 'not-cljs-initially "(form-to-switch-to-cljs-repl)")
+          (let* ((server-process (nrepl-start-mock-server-process))
+                 (server-buffer (process-buffer server-process))
+                 (client-buffer (cider-connect-sibling-cljs '(:cljs-repl-type not-cljs-initially)
+                                                            server-buffer)))
+            (expect (buffer-local-value 'cider-repl-type client-buffer) :to-equal 'pending-cljs)
+            (expect (buffer-local-value 'cider-repl-init-function client-buffer) :not :to-be nil)
+            (delete-process (get-buffer-process client-buffer))))))
+
 (provide 'cider-tests)
 
 ;;; cider-tests.el ends here
