@@ -1715,7 +1715,7 @@ PROJECT-DIR defaults to current project."
                         (shadow-cljs . "shadow-cljs.edn")
                         (gradle      . "build.gradle")
                         (gradle      . "build.gradle.kts")
-                        (nbb         . "package.json"))))
+                        (nbb         . "nbb.edn"))))
     (delq nil
           (mapcar (lambda (candidate)
                     (when (file-exists-p (cdr candidate))
