@@ -453,13 +453,13 @@ about this buffer (like variable `cider-repl-type')."
 (defvar-local cider-connection-capabilities '()
   "A list of some of the capabilites of this connection buffer.
 Aka what assumptions we make about the runtime.
-This is more genaral than
+This is more general than
 `cider-nrepl-op-supported-p' and `cider-library-present-p'.
 But does not need to replace them.")
 
-(defun cider-connection-has-capability-p (capability)
+(defun cider-connection-has-capability-p (connection-buffer capability)
   "Return non nil when the cider connection has CAPABILITY."
-  (with-current-buffer (cider-current-repl)
+  (with-current-buffer connection-buffer
     (member capability cider-connection-capabilities)))
 
 
