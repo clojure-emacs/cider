@@ -17,6 +17,8 @@
 - [#3251](https://github.com/clojure-emacs/cider/pull/3251): Disable undo in `*cider-stacktrace*` buffers.
 - Consecutive overlays will not be spuriously deleted.
 - [#3260](https://github.com/clojure-emacs/cider/pull/3260): Scroll REPL buffer in other frame.
+- [#3061](https://github.com/clojure-emacs/cider/issues/3061): Allow
+  connect-clj for plain cljs repls (nbb etc).
 
 ## 1.5.0 (2022-08-24)
 

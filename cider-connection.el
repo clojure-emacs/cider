@@ -343,6 +343,19 @@ buffer."
        (when cider-auto-mode
          (cider-enable-on-existing-clojure-buffers))
 
+       (setf cider-connection-capabilities
+             (append
+              (pcase (cider-runtime)
+                ('clojure '(clojure jvm-compilation-errors))
+                ('babashka '(babashka jvm-compilation-errors))
+                (_ '()))
+              (when
+                  ;; see `cider-sync-tooling-eval', but it is defined on a higher layer
+                  (nrepl-dict-get
+                   (nrepl-sync-request:eval "cljs.core/demunge" (current-buffer) nil 'tooling)
+                   "value")
+                '(cljs))))
+
        (run-hooks 'cider-connected-hook)))))
 
 (defun cider--disconnected-handler ()
@@ -436,6 +449,19 @@ about this buffer (like variable `cider-repl-type')."
               (or (cider--project-name nrepl-project-dir) "<no project>")
               (plist-get nrepl-endpoint :host)
               (plist-get nrepl-endpoint :port))))))
+
+(defvar-local cider-connection-capabilities '()
+  "A list of some of the capabilites of this connection buffer.
+Aka what assumptions we make about the runtime.
+This is more general than
+`cider-nrepl-op-supported-p' and `cider-library-present-p'.
+But does not need to replace them.")
+
+(defun cider-connection-has-capability-p (capability :optional connection-buffer)
+  "Return non nil when the cider connection has CAPABILITY.
+By default it assumes the connection buffer is current."
+  (with-current-buffer (or connection-buffer (current-buffer))
+    (member capability cider-connection-capabilities)))
 
 
 ;;; Connection Management Commands
@@ -885,7 +911,13 @@ no linked session or there is no REPL of TYPE within the current session."
     (cond ((null buffer-repl-type) nil)
           ((or (null type) (eq type 'multi) (eq type 'any)) t)
           ((listp type) (member buffer-repl-type type))
-          (t (string= type buffer-repl-type)))))
+          (t
+           (or (string= type buffer-repl-type)
+               (let ((capabilities
+                      (buffer-local-value 'cider-connection-capabilities buffer)))
+                 (cond ((listp type)
+                        (cl-some (lambda (it) (member it capabilities)) type))
+                       (t (member type capabilities)))))))))
 
 (defun cider--get-host-from-session (session)
   "Returns the host associated with SESSION."

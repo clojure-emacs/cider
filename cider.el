@@ -778,9 +778,13 @@ Generally you should not disable this unless you run into some faulty check."
   :safe #'booleanp
   :package-version '(cider . "0.17.0"))
 
+(defun cider-clojurescript-present-p ()
+  "Return non nil when ClojureScript is present."
+  (nrepl-dict-get (cider-sync-tooling-eval "cljs.core/demunge") "value"))
+
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
-  (unless (cider-library-present-p "cljs.core")
+  (unless (cider-clojurescript-present-p)
     (user-error "ClojureScript is not available.  See https://docs.cider.mx/cider/basics/clojurescript for details")))
 
 (defun cider-verify-piggieback-is-present ()

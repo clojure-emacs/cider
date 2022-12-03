@@ -462,6 +462,13 @@ Uses the value of the `out' slot in RESPONSE."
    (cider-nrepl-sync-request:eval
     "(clojure.stacktrace/print-cause-trace *e)")))
 
+(defun cider-default-err-eval-print-handler ()
+  "Display the last exception without middleware support.
+When clojure.stracktrace is not present."
+  (cider--handle-err-eval-response
+   (cider-nrepl-sync-request:eval
+    "(println (ex-data *e))")))
+
 (defun cider--render-stacktrace-causes (causes &optional error-types)
   "If CAUSES is non-nil, render its contents into a new error buffer.
 Optional argument ERROR-TYPES contains a list which should determine the
@@ -498,9 +505,10 @@ into a new error buffer."
 (defun cider-default-err-handler ()
   "This function determines how the error buffer is shown.
 It delegates the actual error content to the eval or op handler."
-  (if (cider-nrepl-op-supported-p "stacktrace")
-      (cider-default-err-op-handler)
-    (cider-default-err-eval-handler)))
+  (cond ((cider-nrepl-op-supported-p "stacktrace") (cider-default-err-op-handler))
+        ((cider-library-present-p "clojure.stacktrace") (cider-default-err-eval-handler))
+        (t (cider-default-err-eval-print-handler))))
+
 
 ;; The format of the error messages emitted by Clojure's compiler changed in
 ;; Clojure 1.10.  That's why we're trying to match error messages to both the
@@ -739,7 +747,10 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                    (cider-emit-interactive-eval-output out))
                                  (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
-                                   (unless cider-show-error-buffer
+
+                                   (when (or (not cider-show-error-buffer)
+                                             (not (cider-connection-has-capability-p 'jvm-compilation-errors)))
+
                                      ;; Display errors as temporary overlays
                                      (let ((cider-result-use-clojure-font-lock nil))
                                        (cider--display-interactive-eval-result

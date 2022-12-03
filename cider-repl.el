@@ -153,7 +153,8 @@ you'd like to use the default Emacs behavior use
 (make-obsolete-variable 'cider-repl-print-level 'cider-print-options "0.21")
 
 (defvar cider-repl-require-repl-utils-code
-  '((clj . "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
+  '((clj . "(when-let [requires (resolve 'clojure.main/repl-requires)]
+  (clojure.core/apply clojure.core/require @requires))")
     (cljs . "(require '[cljs.repl :refer [apropos dir doc find-doc print-doc pst source]])")))
 
 (defcustom cider-repl-init-code (list (cdr (assoc 'clj cider-repl-require-repl-utils-code)))
