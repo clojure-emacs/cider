@@ -457,9 +457,10 @@ This is more general than
 `cider-nrepl-op-supported-p' and `cider-library-present-p'.
 But does not need to replace them.")
 
-(defun cider-connection-has-capability-p (connection-buffer capability)
-  "Return non nil when the cider connection has CAPABILITY."
-  (with-current-buffer connection-buffer
+(defun cider-connection-has-capability-p (capability :optional connection-buffer)
+  "Return non nil when the cider connection has CAPABILITY.
+By default it assumes the connection buffer is current."
+  (with-current-buffer (or connection-buffer (current-buffer))
     (member capability cider-connection-capabilities)))
 
 
