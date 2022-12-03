@@ -17,7 +17,7 @@ make CIDER more runtime-agnostic.
 
 == The Solution
 
-As of CIDER 1.3, the default CIDER connection command `cider-connect-clj` is
+As of CIDER 1.6, the default CIDER connection command `cider-connect-clj` is
 capable of connecting to any nREPL server that provides minimal required
 functionality.
 
