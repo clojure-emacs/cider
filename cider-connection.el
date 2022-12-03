@@ -451,16 +451,16 @@ about this buffer (like variable `cider-repl-type')."
               (plist-get nrepl-endpoint :port))))))
 
 (defvar-local cider-connection-capabilities '()
-  "A list of some of the capabilites of this connection buffer.
-Aka what assumptions we make about the runtime.
+  "A list of some of the capabilities of this connection buffer.
+In other words - what assumptions we make about the runtime.
 This is more general than
 `cider-nrepl-op-supported-p' and `cider-library-present-p'.
 But does not need to replace them.")
 
-(defun cider-connection-has-capability-p (capability :optional connection-buffer)
-  "Return non nil when the cider connection has CAPABILITY.
+(defun cider-connection-has-capability-p (capability &optional conn-buf)
+  "Return non nil when the cider connection has CAPABILITY for CONN-BUF.
 By default it assumes the connection buffer is current."
-  (with-current-buffer (or connection-buffer (current-buffer))
+  (with-current-buffer (or conn-buf (current-buffer))
     (member capability cider-connection-capabilities)))
 
 
