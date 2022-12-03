@@ -1,0 +1,29 @@
+= Scittle, Nbb, Joyride, and future plain repls
+
+The default cider (clj-repl) should be capable of connecting to any
+nrepl server that provides minimal functionality.
+
+As such, all of these work:
+https://github.com/babashka/nbb[nbb],
+https://github.com/babashka/scittle[scittle], https://github.com/BetterThanTomorrow/joyride[joyride]
+
+First start an nrepl server (the project's Readme usually has a section
+on starting a nrepl server).
+
+You can use
+
+kbd:[M-x `cider-connect-clj` <RET>]
+
+to connect to any plain Clojure(Script) nrepl server.
+
+Features:
+
+* Eval, load file etc.
+* Errors as overlays. (The default cider error buffer is not implemented currently).
+* Other nrepl features the server provides; This might be rather minimal.
+
+Nbb, Scittle and Joyride all have quite cool completions already.
+
+== Note
+
+For nbb you can alternatively connect via cljs, see xref:platform/nbb.adoc[Nbb]
