@@ -43,6 +43,19 @@ Remove the temp directory at the end of evaluation."
         (error
          (message ":with-temp-dir-error :cannot-remove-temp-dir %S" err))))))
 
+(defun nrepl-client-connected?-ref-make! ()
+  "Return a reference to indicate when the client is connected to nREPL server.
+This is done by adding a hook to `cider-connected-hook` and is only active
+in the scope of the current buffer."
+  (let (connected?)
+    (add-hook 'cider-connected-hook
+              (lambda ()
+                (setq connected? t))
+              nil
+              ;; only set in the current buffer scope.
+              t)))
+
+
 (describe "jack in"
   ;; See "bb" case for basic commentary
   ;;
@@ -63,8 +76,15 @@ Remove the temp directory at the end of evaluation."
 
             (unwind-protect
                 ;; jack in and get repl buffer
-                (let* ((nrepl-proc (cider-jack-in-clj '()))
+                (let* ((client-connected?* (nrepl-client-connected?-ref-make!))
+                       (nrepl-proc (cider-jack-in-clj '()))
                        (nrepl-buf (process-buffer nrepl-proc)))
+
+                  ;; wait until the client has successfully connected to the
+                  ;; nREPL server.
+                  (nrepl-tests-sleep-until 5 client-connected?*)
+                  (expect client-connected?*)
+
                   ;; give it some time to setup the clj REPL
                   (nrepl-tests-sleep-until 5 (cider-repls 'clj nil))
 
@@ -113,8 +133,11 @@ Remove the temp directory at the end of evaluation."
           (with-temp-buffer
             (setq-local default-directory project-dir)
             (unwind-protect
-                (let* ((nrepl-proc (cider-jack-in-clj `()))
+                (let* ((client-connected?* (nrepl-client-connected?-ref-make!))
+                       (nrepl-proc (cider-jack-in-clj `()))
                        (nrepl-buf (process-buffer nrepl-proc)))
+                  (nrepl-tests-sleep-until 5 client-connected?*)
+                  (expect client-connected?*)
 
                   ;; high duration since on windows it takes a long time to startup
                   (nrepl-tests-sleep-until 90 (cider-repls 'clj nil))
@@ -150,8 +173,11 @@ Remove the temp directory at the end of evaluation."
           (with-temp-buffer
             (setq-local default-directory project-dir)
             (unwind-protect
-                (let* ((nrepl-proc (cider-jack-in-clj `()))
+                (let* ((client-connected?* (nrepl-client-connected?-ref-make!))
+                       (nrepl-proc (cider-jack-in-clj `()))
                        (nrepl-buf (process-buffer nrepl-proc)))
+                  (nrepl-tests-sleep-until 5 client-connected?*)
+                  (expect client-connected?*)
                   (nrepl-tests-sleep-until 90 (cider-repls 'clj nil))
                   (let ((repl-buffer (cider-current-repl))
                         (eval-err '())
@@ -197,8 +223,11 @@ Remove the temp directory at the end of evaluation."
             (with-temp-buffer
               (setq-local default-directory project-dir)
               (unwind-protect
-                  (let* ((nrepl-proc (cider-jack-in-cljs '(:cljs-repl-type shadow)))
+                  (let* ((client-connected?* (nrepl-client-connected?-ref-make!))
+                         (nrepl-proc (cider-jack-in-cljs '(:cljs-repl-type shadow)))
                          (nrepl-buf (process-buffer nrepl-proc)))
+                    (nrepl-tests-sleep-until 5 client-connected?*)
+                    (expect client-connected?*)
                     (nrepl-tests-sleep-until 120 (cider-repls 'cljs nil))
                     (expect (cider-repls 'cljs nil) :not :to-be nil)
                     (let ((repl-buffer (cider-current-repl))
