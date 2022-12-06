@@ -3,6 +3,10 @@
 ## master (unreleased)
 - Allow using `npx nbb` as `cider-nbb-command`.
 
+### Changes
+
+- [#3281](https://github.com/clojure-emacs/cider/pull/3281): Replace newline chars with actual newlines in `*cider-test-report*` buffer, for prettier error messages.
+
 ## 1.6.0 (2022-12-21)
 
 ### New features
