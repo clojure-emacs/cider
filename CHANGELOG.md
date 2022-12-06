@@ -5,7 +5,7 @@
 ### New features
 
 - [#3249](https://github.com/clojure-emacs/cider/pull/3249): Add support for Clojure Spec 2.
-- [#3247](https://github.com/clojure-emacs/cider/pull/3247) Add the `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands to view printed exceptions in the stacktrace inspector.
+- [#3247](https://github.com/clojure-emacs/cider/pull/3247): Add the `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands to view printed exceptions in the stacktrace inspector.
 
 ### Changes
 
@@ -19,7 +19,7 @@
 - Consecutive overlays will not be spuriously deleted.
 - [#3260](https://github.com/clojure-emacs/cider/pull/3260): Scroll REPL buffer in other frame.
 - [#3061](https://github.com/clojure-emacs/cider/issues/3061): Allow
-  connect-clj for plain cljs repls (nbb etc).
+  to use `cider-connect-clj` for self-hosted cljs repls (e.g. `nbb`).
 
 ## 1.5.0 (2022-08-24)
 
