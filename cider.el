@@ -780,7 +780,12 @@ Generally you should not disable this unless you run into some faulty check."
 
 (defun cider-clojurescript-present-p ()
   "Return non nil when ClojureScript is present."
-  (nrepl-dict-get (cider-sync-tooling-eval "cljs.core/demunge") "value"))
+  (or
+   ;; This is nil for example for nbb.
+   (cider-library-present-p "cljs.core")
+   ;; demunge is not defined currently for normal cljs repls.
+   ;; So we end up making the two checks
+   (nrepl-dict-get (cider-sync-tooling-eval "cljs.core/demunge") "value")))
 
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
