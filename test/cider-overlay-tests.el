@@ -67,7 +67,7 @@ being set that way"
 (defun cider-overlay--safe-to-speed-up-tests ()
   (and (<= 28 emacs-major-version)
        (not (member system-type
-                    '(ms-dos windows-nt cygwin)))))
+                    '(ms-dos windows-nt cygwin darwin)))))
 
 (describe "cider--make-result-overlay"
   :var (overlay-count this-command)
