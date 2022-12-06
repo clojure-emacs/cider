@@ -95,7 +95,7 @@ Run integration tests with:
 
  $ eldev[.bat] test --test-type integration
 
-or all tests with
+or all tests with:
 
  $ eldev[.bat] test --test-type all
 

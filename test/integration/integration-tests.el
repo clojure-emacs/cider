@@ -50,7 +50,7 @@ Remove the temp directory at the end of evaluation."
   ;; very long time to bring up/respond/shutdown, and thus sleep duration values
   ;; are set rather high.
 
-  (it "to bb"
+  (it "to babashka"
       (with-temp-dir temp-dir
         ;; set up a project directory in temp
         (let* ((project-dir temp-dir)
@@ -221,9 +221,9 @@ Remove the temp directory at the end of evaluation."
                       (nrepl-tests-sleep-until 15 (not (eq (process-status nrepl-proc) 'run)))
                       (expect (member (process-status nrepl-proc) '(exit signal)))))
                 (when-let ((nrepl-error-buffer (get-buffer "*nrepl-error*")))
-                (with-current-buffer nrepl-error-buffer
-                  (message ":*nrepl-error* %S"
-                           (substring-no-properties (buffer-string))))))))))))
+                  (with-current-buffer nrepl-error-buffer
+                    (message ":*nrepl-error* %S"
+                             (substring-no-properties (buffer-string))))))))))))
 
 (provide 'integration-tests)
 
