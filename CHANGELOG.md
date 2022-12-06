@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3278](https://github.com/clojure-emacs/cider/pull/3278) Introduce integration tests, which also fix a long standing issue with orphaned process on MS-Windows by contracting `taskkill`, if available, to properly kill the nREPL server process tree.
 - [#3249](https://github.com/clojure-emacs/cider/pull/3249): Add support for Clojure Spec 2.
 - [#3247](https://github.com/clojure-emacs/cider/pull/3247) Add the `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands to view printed exceptions in the stacktrace inspector.
 
