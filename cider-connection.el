@@ -303,6 +303,26 @@ See command `cider-mode'."
   (unless (cider-sessions)
     (cider-disable-on-existing-clojure-buffers)))
 
+(defun cider--set-connection-capabilities (&optional conn-buffer)
+  "Set `cider-connection-capabilities' for CONN-BUFFER during repl init.
+See `cider-connection-capabilities'."
+  (with-current-buffer (or conn-buf (current-buffer))
+    (setf cider-connection-capabilities
+          (append
+           (pcase (cider-runtime)
+             ('clojure '(clojure jvm-compilation-errors))
+             ('babashka '(babashka jvm-compilation-errors))
+             (_ '()))
+           (when
+               (or
+                (member cider-repl-type '(cljs pending-cljs))
+                ;; This check is currently basically for nbb.
+                ;; See `cider-sync-tooling-eval', but it is defined on a higher layer
+                (nrepl-dict-get
+                 (nrepl-sync-request:eval "cljs.core/demunge" (current-buffer) (cider-current-ns) 'tooling)
+                 "value"))
+             '(cljs))))))
+
 (declare-function cider--debug-init-connection "cider-debug")
 (declare-function cider-repl-init "cider-repl")
 (declare-function cider-nrepl-op-supported-p "cider-client")
@@ -339,24 +359,13 @@ buffer."
          ;; first.
          (cider--debug-init-connection))
 
+       (cider--set-connection-capabilities)
+
        (when cider-repl-init-function
          (funcall cider-repl-init-function))
 
        (when cider-auto-mode
          (cider-enable-on-existing-clojure-buffers))
-
-       (setf cider-connection-capabilities
-             (append
-              (pcase (cider-runtime)
-                ('clojure '(clojure jvm-compilation-errors))
-                ('babashka '(babashka jvm-compilation-errors))
-                (_ '()))
-              (when
-                  ;; see `cider-sync-tooling-eval', but it is defined on a higher layer
-                  (nrepl-dict-get
-                   (nrepl-sync-request:eval "cljs.core/demunge" (current-buffer) nil 'tooling)
-                   "value")
-                '(cljs))))
 
        (run-hooks 'cider-connected-hook)))))
 
