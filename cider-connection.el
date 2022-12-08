@@ -306,7 +306,7 @@ See command `cider-mode'."
 (defun cider--set-connection-capabilities (&optional conn-buffer)
   "Set `cider-connection-capabilities' for CONN-BUFFER during repl init.
 See `cider-connection-capabilities'."
-  (with-current-buffer (or conn-buf (current-buffer))
+  (with-current-buffer (or conn-buffer (current-buffer))
     (setf cider-connection-capabilities
           (append
            (pcase (cider-runtime)
