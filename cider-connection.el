@@ -301,7 +301,6 @@ See command `cider-mode'."
   (unless (cider-sessions)
     (cider-disable-on-existing-clojure-buffers)))
 
-
 (defun cider--set-connection-capabilities (&optional conn-buffer)
   "Set `cider-connection-capabilities' for CONN-BUFFER during repl init.
 See `cider-connection-capabilities'."
