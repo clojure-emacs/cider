@@ -301,6 +301,27 @@ See command `cider-mode'."
   (unless (cider-sessions)
     (cider-disable-on-existing-clojure-buffers)))
 
+
+(defun cider--set-connection-capabilities (&optional conn-buffer)
+  "Set `cider-connection-capabilities' for CONN-BUFFER during repl init.
+See `cider-connection-capabilities'."
+  (with-current-buffer (or conn-buf (current-buffer))
+    (setf cider-connection-capabilities
+          (append
+           (pcase (cider-runtime)
+             ('clojure '(clojure jvm-compilation-errors))
+             ('babashka '(babashka jvm-compilation-errors))
+             (_ '()))
+           (when
+               (or
+                (member cider-repl-type '(cljs pending-cljs))
+                ;; This check is currently basically for nbb.
+                ;; See `cider-sync-tooling-eval', but it is defined on a higher layer
+                (nrepl-dict-get
+                 (nrepl-sync-request:eval "cljs.core/demunge" (current-buffer) (cider-current-ns) 'tooling)
+                 "value"))
+             '(cljs))))))
+
 (declare-function cider--debug-init-connection "cider-debug")
 (declare-function cider-repl-init "cider-repl")
 (declare-function cider-nrepl-op-supported-p "cider-client")
@@ -311,8 +332,7 @@ buffer."
   ;; `nrepl-connected-hook' is run in the connection buffer
   ;; `cider-enlighten-mode' changes eval to include the debugger, so we inhibit
   ;; it here as the debugger isn't necessarily initialized yet
-  (let ((cider-enlighten-mode nil)
-        (cljsp (member cider-repl-type '(cljs pending-cljs))))
+  (let ((cider-enlighten-mode nil))
     ;; after initialization, set mode-line and buffer name.
     (cider-set-repl-type cider-repl-type)
     (cider-repl-init
@@ -338,27 +358,13 @@ buffer."
          ;; first.
          (cider--debug-init-connection))
 
-       (setf cider-connection-capabilities
-             (append
-              (pcase (cider-runtime)
-                ('clojure '(clojure jvm-compilation-errors))
-                ('babashka '(babashka jvm-compilation-errors))
-                (_ '()))
-              (when
-                  (or
-                   cljsp
-	           ;; This check is currently basically for nbb.
-	           ;; See `cider-sync-tooling-eval', but it is defined on a higher layer
-	           (nrepl-dict-get
-	            (nrepl-sync-request:eval "cljs.core/demunge" (current-buffer) (cider-current-ns) 'tooling)
-	            "value"))
-                '(cljs))))
+       (cider--set-connection-capabilities)
 
        (when cider-repl-init-function
-	 (funcall cider-repl-init-function))
+         (funcall cider-repl-init-function))
 
        (when cider-auto-mode
-	 (cider-enable-on-existing-clojure-buffers))
+         (cider-enable-on-existing-clojure-buffers))
 
        (run-hooks 'cider-connected-hook)))))
 
