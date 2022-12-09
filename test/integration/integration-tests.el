@@ -85,8 +85,8 @@
                          (when err (push err eval-err))
                          (when out (push out eval-out)))) )
 
-                    ;; wait for the response to come back.
-                    (cider-itu-poll-until eval-out 5)
+                    ;; wait for a response to come back.
+                    (cider-itu-poll-until (or eval-err eval-out) 5)
 
                     ;; ensure there are no errors and response is as expected.
                     (expect eval-err :to-equal '())
@@ -131,7 +131,7 @@
                            (out err)
                          (when err (push err eval-err))
                          (when out (push out eval-out)))) )
-                    (cider-itu-poll-until eval-out 10)
+                    (cider-itu-poll-until (or eval-err eval-out) 10)
                     (expect eval-err :to-equal '())
                     (expect eval-out :to-equal '(":clojure? true"))
                     (cider-quit repl-buffer)
@@ -169,7 +169,7 @@
                            (out err)
                          (when err (push err eval-err))
                          (when out (push out eval-out)))) )
-                    (cider-itu-poll-until eval-out 10)
+                    (cider-itu-poll-until (or eval-err eval-out) 10)
                     (expect eval-err :to-equal '())
                     (expect eval-out :to-equal '(":clojure? true"))
                     (cider-quit repl-buffer)
@@ -220,7 +220,7 @@
                                  (out err)
                                (when err (push err eval-err))
                                (when out (push out eval-out)))) )
-                          (cider-itu-poll-until eval-out 10)
+                          (cider-itu-poll-until (or eval-err eval-out) 10)
                           (expect eval-err :to-equal '())
                           (expect eval-out :to-equal '(":cljs? true\n"))
                           (cider-quit repl-buffer)

@@ -31,17 +31,37 @@
 (require 'cider)
 (require 'cl-lib)
 
+(defun cider-itu-dump-all-buffers-contents ()
+  "Print out the contents of all buffers."
+  (dolist (buff (buffer-list))
+    (message "\n:BUFFER %S" (buffer-name  buff))
+    (with-current-buffer buff
+      (message "%s\n" (buffer-substring-no-properties (point-min) (point-max))))))
+
 (defmacro with-cider-test-sandbox (&rest body)
   "Run BODY inside sandbox, with key cider global vars restored on exit.
+On error, it prints out all buffer contents including the nREPL messages
+buffer.
 
 Only the following variables are currently restored, please add more as the
 test coverage increases:
 
 `cider-connected-hook`."
   (declare (indent 0))
-  ;; for dynamic vars, just use a binding under the same name.
-  `(let ((cider-connected-hook cider-connected-hook))
-     ,@body))
+  `(let (;; for dynamic vars, just use a binding under the same name, so that
+         ;; the global value is not modified.
+         (cider-connected-hook cider-connected-hook)
+
+         ;; Helpful for post morterm investigations.
+         (nrepl-log-messages t))
+     (condition-case err
+         (progn
+           ,@body)
+       (error
+        (message ":DUMPING-BUFFERS-CONTENTS-ON-ERROR---")
+        (cider-itu-dump-all-buffers-contents)
+        ;; rethrow error
+        (signal (car err) (cdr err))))))
 
 ;; https://emacs.stackexchange.com/a/55031
 (defmacro with-temp-dir (temp-dir &rest body)
