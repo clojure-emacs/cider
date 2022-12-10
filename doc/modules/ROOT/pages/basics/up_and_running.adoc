@@ -262,7 +262,9 @@ config files such as `~/.ssh/config` and `~/.ssh/known_hosts`. This is known to
 cause problems with complex or nonstandard ssh configs.
 
 You can safely run `cider-jack-in-*` while working with remote files over TRAMP. CIDER
-will handle this use-case transparently for you.
+will reuse existing SSH connection's parameters (like port and username) for establishing SSH tunnel.
+The same will happen if you try to `cider-connect-*` to a host that matches the one you're currently
+connected to.
 
 == Connecting via unix domain file socket
 
