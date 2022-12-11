@@ -2,6 +2,9 @@ name: CI
 
 on: [push, pull_request]
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 jobs:
   integration:
     # Run integration tests for all OSs and EMACS_VERSIONs.
