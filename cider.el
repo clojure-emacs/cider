@@ -12,7 +12,7 @@
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.dev>
 ;; URL: http://www.github.com/clojure-emacs/cider
 ;; Version: 1.6.0-snapshot
-;; Package-Requires: ((emacs "26") (clojure-mode "5.15.1") (parseedn "1.0.6") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2"))
+;; Package-Requires: ((emacs "26") (clojure-mode "5.16.0") (parseedn "1.0.6") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2"))
 ;; Keywords: languages, clojure, cider
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -1296,7 +1296,7 @@ server buffer, in which case a new session for that server is created."
        (cider--update-cljs-type)
        (cider--update-cljs-init-function)
        (plist-put :session-name ses-name)
-       (plist-put :cider-repl-cljs-upgrade-pending t)))))
+       (plist-put :repl-type 'cljs)))))
 
 ;;;###autoload
 (defun cider-connect-clj (&optional params)
@@ -1330,7 +1330,7 @@ parameters regardless of their supplied or default values."
      (cider--update-cljs-type)
      (cider--update-cljs-init-function)
      (plist-put :session-name nil)
-     (plist-put :cider-repl-cljs-upgrade-pending t))))
+     (plist-put :repl-type 'cljs))))
 
 ;;;###autoload
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)
@@ -1506,8 +1506,9 @@ non-nil, don't start if ClojureScript requirements are not met."
 
 The updated params are:
 
-:cljs-type 'cljs if it is a cljs REPL, or 'pending-cljs when the init form
-is required to be sent to the REPL to switch over to cljs.
+:cider-repl-cljs-upgrade-pending nil if it is a cljs REPL, or t
+when the init form is required to be sent to the REPL to switch
+over to cljs.
 
 :repl-init-form The form that can switch the REPL over to cljs.
 
@@ -1517,9 +1518,11 @@ is required to be sent to the REPL to switch over to cljs.
     (let* ((cljs-type (plist-get params :cljs-repl-type))
            (repl-init-form (cider-cljs-repl-form cljs-type)))
       (if (null repl-init-form)
-          (plist-put params :repl-type 'cljs)
+          (plist-put params :cider-repl-cljs-upgrade-pending nil)
+
         (thread-first
           params
+          (plist-put :cider-repl-cljs-upgrade-pending t)
           (plist-put :repl-init-function
                      (lambda ()
                        (cider--check-cljs cljs-type)
@@ -1533,8 +1536,7 @@ is required to be sent to the REPL to switch over to cljs.
                        (when (and (buffer-live-p nrepl-server-buffer)
                                   cider-offer-to-open-cljs-app-in-browser)
                          (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
-          (plist-put :repl-init-form repl-init-form)
-          (plist-put :repl-type 'pending-cljs))))))
+          (plist-put :repl-init-form repl-init-form))))))
 
 (defun cider--check-existing-session (params)
   "Ask for confirmation if a session with similar PARAMS already exists.
