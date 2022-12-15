@@ -762,7 +762,7 @@ Session name can be customized with `cider-session-name-template'."
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either clj or cljs.")
 
-(defvar-local cider-cljs-repl-pending nil
+(defvar-local cider-repl-cljs-upgrade-pending nil
   "Is the cljs repl currently pending?")
 
 (defun cider-repl-type (repl-buffer)
@@ -771,7 +771,7 @@ Session name can be customized with `cider-session-name-template'."
 
 (defun cider-cljs-pending-p (repl-buffer)
   "Returns non nil when REPL-BUFFER is currently a pending cljs repl."
-  (buffer-local-value 'cider-cljs-repl-pending repl-buffer))
+  (buffer-local-value 'cider-repl-cljs-upgrade-pending repl-buffer))
 
 (defun cider-repl-type-for-buffer (&optional buffer)
   "Return the matching connection type (clj or cljs) for BUFFER.
@@ -875,7 +875,7 @@ function with the repl buffer set as current."
             nrepl-project-dir (plist-get params :project-dir)
             ;; Cljs repls are pending until they are upgraded. See cider-repl--state-handler
             cider-repl-type (plist-get params :repl-type)
-            cider-cljs-repl-pending (plist-get params :cider-cljs-repl-pending)
+            cider-repl-cljs-upgrade-pending (plist-get params :cider-repl-cljs-upgrade-pending)
             ;; ran at the end of cider--connected-handler
             cider-repl-init-function (plist-get params :repl-init-function)
             cider-launch-params params)

@@ -11,6 +11,8 @@
 ### Changes
 
 - Bump the injected nREPL version to 1.0.
+- [#3291](https://github.com/clojure-emacs/cider/pull/3291): Add
+  `cider-repl-cljs-upgrade-pending`. This replaces the `'cljs-pending` `repl-type`
 
 ### Bugs fixed
 
