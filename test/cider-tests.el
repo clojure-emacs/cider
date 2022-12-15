@@ -597,6 +597,8 @@
             ;; native cljs REPL
             (expect (buffer-local-value 'cider-repl-type client-buffer)
                     :to-equal 'cljs)
+            (expect (buffer-local-value 'cider-repl-cljs-upgrade-pending client-buffer)
+                    :to-equal nil)
             (expect (buffer-local-value 'cider-repl-init-function client-buffer)
                     :to-be nil)
             (delete-process (get-buffer-process client-buffer))))
@@ -608,7 +610,9 @@
                                  '(:cljs-repl-type shadow) server-buffer)))
             ;; starts as clj REPL and requires a form to switch over to cljs
             (expect (buffer-local-value 'cider-repl-type client-buffer)
-                    :to-equal 'pending-cljs)
+                    :to-equal 'cljs)
+            (expect (buffer-local-value 'cider-repl-cljs-upgrade-pending client-buffer)
+                    :to-equal t)
             (expect (buffer-local-value 'cider-repl-init-function client-buffer)
                     :not :to-be nil)
             (delete-process (get-buffer-process client-buffer))))
@@ -621,6 +625,8 @@
                                  server-buffer)))
             (expect (buffer-local-value 'cider-repl-type client-buffer)
                     :to-equal 'cljs)
+            (expect (buffer-local-value 'cider-repl-cljs-upgrade-pending client-buffer)
+                    :to-equal nil)
             (delete-process (get-buffer-process client-buffer))))
       (it "for a custom REPL type project that needs to switch to cljs"
           (cider-register-cljs-repl-type
@@ -631,7 +637,9 @@
                                  '(:cljs-repl-type not-cljs-initially)
                                  server-buffer)))
             (expect (buffer-local-value 'cider-repl-type client-buffer)
-                    :to-equal 'pending-cljs)
+                    :to-equal 'cljs)
+            (expect (buffer-local-value 'cider-repl-cljs-upgrade-pending client-buffer)
+                    :to-equal t)
             (expect (buffer-local-value 'cider-repl-init-function client-buffer)
                     :not :to-be nil)
             (delete-process (get-buffer-process client-buffer))))))
