@@ -224,7 +224,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :package-version '(cider . "1.2.0"))
 
 (defcustom cider-babashka-parameters
-  "nrepl-server"
+  "nrepl-server :0"
   "Params passed to babashka to start an nREPL server via `cider-jack-in'."
   :type 'string
   :safe #'stringp

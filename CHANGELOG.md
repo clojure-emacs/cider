@@ -24,6 +24,7 @@
 - [#3260](https://github.com/clojure-emacs/cider/pull/3260): Scroll REPL buffer in other frame.
 - [#3061](https://github.com/clojure-emacs/cider/issues/3061): Allow
   to use `cider-connect-clj` for self-hosted cljs repls (e.g. `nbb`).
+- [#3293](https://github.com/clojure-emacs/cider/issues/3293): Can't jack in to more than one bb projects.
 
 ## 1.5.0 (2022-08-24)
 
