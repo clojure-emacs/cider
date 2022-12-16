@@ -13,6 +13,7 @@
 
 - Bump the injected nREPL version to 1.0.
 - [#3291](https://github.com/clojure-emacs/cider/pull/3291): **Remove** the `'cljs-pending` `repl-type`. It is replaced by `cider-repl-cljs-upgrade-pending`.
+- [#3261](https://github.com/clojure-emacs/cider/issues/3261): If user is connecting to nREPL from a TRAMP buffer, use its connection parameters (port, username) for establishing SSH tunnel.
 
 ### Bugs fixed
 
