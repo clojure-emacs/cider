@@ -152,13 +152,10 @@
                                 server-buffer))))
 
         ;; server up and running
-        (nrepl-tests-sleep-until 2 (eq (process-status server-process) 'run))
-        (expect (process-status server-process)
-                :to-equal 'run)
+        (nrepl-tests-poll-until (eq (process-status server-process) 'run) 2)
 
         ;; server has reported its endpoint
-        (nrepl-tests-sleep-until 2 server-endpoint)
-        (expect server-endpoint :not :to-be nil)
+        (nrepl-tests-poll-until server-endpoint 2)
         (expect (plist-get (process-plist server-process) :cider--nrepl-server-ready)
                 :to-equal t)
         (condition-case error-details
@@ -183,8 +180,8 @@
               (delete-process process-client)
 
               ;; server process has been signalled
-              (nrepl-tests-sleep-until 4 (member (process-status server-process)
-                                                 '(exit signal)))
+              (nrepl-tests-poll-until (member (process-status server-process)
+                                                 '(exit signal)) 4)
               (expect (let ((status (process-status server-process)))
                         (if (eq system-type 'windows-nt)
                             (eq status 'exit)
