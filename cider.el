@@ -1460,10 +1460,17 @@ non-nil, don't start if ClojureScript requirements are not met."
     (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
 
 (defun cider--update-jack-in-cmd (params)
-  "Update :jack-in-cmd key in PARAMS."
+  "Update :jack-in-cmd key in PARAMS.
+
+PARAMS is a plist with the following keys (non-exhaustive list)
+
+:project-type optional, the project type to create the command for; see
+`cider-jack-in-command' for the list of valid types)."
   (let* ((params (cider--update-do-prompt params))
          (project-dir (plist-get params :project-dir))
-         (project-type (cider-project-type project-dir))
+         (params-project-type (plist-get params :project-type))
+         (project-type (or params-project-type
+                           (cider-project-type project-dir)))
          (command (cider-jack-in-command project-type))
          (command-resolved (cider-jack-in-resolve-command project-type))
          (command-global-opts (cider-jack-in-global-options project-type))
@@ -1484,7 +1491,8 @@ non-nil, don't start if ClojureScript requirements are not met."
                           (eq cider-allow-jack-in-without-project t)
                           (and (null project-dir)
                                (eq cider-allow-jack-in-without-project 'warn)
-                               (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? ")))
+                               (or params-project-type
+                                   (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? "))))
                   (let ((cmd (format "%s %s" command-resolved (if (or (string-equal command "powershell")
                                                                       (string-equal command "pwsh"))
                                                                   (cider--powershell-encode-command cmd-params)
@@ -1579,8 +1587,6 @@ canceled the action, signal quit."
 
 ;;; Aliases
 
-;;;###autoload
-(defalias 'cider-jack-in #'cider-jack-in-clj)
 ;;;###autoload
 (defalias 'cider-connect #'cider-connect-clj)
 
@@ -1766,6 +1772,66 @@ PROJECT-DIR defaults to the current project."
           ;; `cider-jack-in-default' used to be a string prior to CIDER
           ;; 0.18, therefore the need for `cider-maybe-intern'
           (t (cider-maybe-intern cider-jack-in-default)))))
+
+(defun cider--jack-in-to-project (project-type)
+  "Jack in to PROJECT-TYPE, even if there is no project in the current dir.
+
+PROJECT-TYPE can be one of babashka, clojure-cli, lein or nbb, otherwise an
+error is signalled."
+  (pcase project-type
+    ('babashka    (cider-jack-in-clj  '(:project-type babashka)))
+    ('clojure-cli (cider-jack-in-clj  '(:project-type clojure-cli)))
+    ('lein        (cider-jack-in-clj  '(:project-type lein)))
+    ('nbb         (cider-jack-in-cljs '(:project-type nbb :cljs-repl-type nbb)))
+    (_ (error ":cider--jack-in-to-project :unsupported-project-type %S" project-type))))
+
+;;;###autoload
+(defun cider-jack-in (arg)
+  "Start and connect to an nREPL server for the current project or ARG project id.
+
+If a project is found in current dir, call `cider-jack-in-clj' passing ARG
+as first parameter, of which see.  Otherwise, ask user which project type
+to start an nREPL server and connect to without a project.
+
+But if invoked with a numeric prefix ARG project id (see below), then start
+an nREPL server for the project type denoted by ARG and connect to it, even
+if there is no project for it in the current dir.
+
+If command is called with a numeric prefix ARG, it has to be one of the
+following values otherwise an error is signaled
+
+1 for clojure-cli.
+
+2 for lein.
+
+3 for babashka.
+
+4 for nbb.
+
+You can pass a numeric prefix argument n with `M-n` or `C-u n`.
+
+For example, to jack in to leiningen type
+
+M-2 \\[cider-jack-in]."
+  (interactive "P")
+  (let ((cpt (clojure-project-dir (cider-current-dir))))
+    (if (or (integerp arg) (null cpt))
+        (let ((project-type
+               (pcase arg
+                 ('nil (when-let (project-type (intern
+                                                (completing-read
+                                                 "No project found in current dir, select project type to jack in: "
+                                                 '(clojure-cli lein babashka nbb)
+                                                 nil t)))
+                         project-type))
+                 (1 'clojure-cli)
+                 (2 'lein)
+                 (3 'babashka)
+                 (4 'nbb)
+                 (_ (error ":cider-jack-in :no-project :unsupported-prefix-argument %S" arg)))))
+          (cider--jack-in-to-project project-type))
+
+      (cider-jack-in-clj arg))))
 
 
 ;; TODO: Implement a check for command presence over tramp
