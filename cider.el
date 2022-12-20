@@ -95,7 +95,7 @@
 (defconst cider-version "1.6.0-snapshot"
   "The current version of CIDER.")
 
-(defconst cider-codename "Strasbourg"
+(defconst cider-codename "Buenos Aires"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
