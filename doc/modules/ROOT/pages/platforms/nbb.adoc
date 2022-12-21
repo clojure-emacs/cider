@@ -17,3 +17,11 @@ or start its bundled nREPL server:
 and connect to it afterwards using `M-x cider-connect-cljs`.
 
 NOTE: `cider-jack-in-cljs` works with nbb projects that are using `nbb.edn`.
+
+== Configuration
+
+The jack-in command can be configured via several defcustoms:
+
+* `cider-nbb-command` (by default `nbb`)
+* `cider-nbb-global-options` (by default `nil`)
+* `cider-nbb-parameters` (by default `nrepl-server`)
