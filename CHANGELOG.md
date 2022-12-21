@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.6.0 (2022-12-21)
+
 ### New features
 
 - [#3278](https://github.com/clojure-emacs/cider/pull/3278) Introduce integration tests, which also fix a long standing issue with orphaned process on MS-Windows by contracting `taskkill`, if available, to properly kill the nREPL server process tree.
