@@ -46,6 +46,8 @@ All supported ClojureScript REPLs are stored in
 (cider-register-cljs-repl-type 'super-cljs "(do (...))" optional-requirements-function)
 ----
 
+NOTE: If you're registering a self-hosted (native) ClojureScript REPL (e.g. `scittle`), the "upgrade" form should be `nil`.
+
 You can also modify the known ClojureScript REPLs on a per-project basis using
 `.dir-locals.el`:
 
