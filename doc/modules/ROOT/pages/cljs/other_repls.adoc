@@ -86,3 +86,23 @@ and insert `dev`.
 . Connect to the running server with your browser. The address is printed on the terminal, but it's probably `+http://localhost:3000+`.
 
 For more information visit https://github.com/adzerk-oss/boot-cljs-repl[boot-cljs-repl].
+
+== nbb (node.js babashka)
+
+CIDER has built-in support for `nbb`. You can either jack in to an nbb project with `M-x clojure-jack-in-cljs`.
+
+or start its bundled nREPL server:
+
+  $ nbb nrepl-server
+
+and connect to it afterwards using `M-x cider-connect-cljs`.
+
+See the xref:platforms/nbb.adoc[dedicated page] for more details.
+
+== Other Self-hosted REPLs
+
+For all other self-hosted REPLs you can follow the instructions xref:platforms/other_platforms.adoc[here]. This will work fine with any well-behaved nREPL implementation, like those of:
+
+* https://github.com/babashka/nbb[nbb]
+* https://github.com/babashka/scittle[scittle]
+* https://github.com/BetterThanTomorrow/joyride[joyride]

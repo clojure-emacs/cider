@@ -1,4 +1,4 @@
-= Scittle, Nbb, Joyride, and future (n)REPLs
+= Other Platforms
 
 == The Problem
 
@@ -18,12 +18,14 @@ make CIDER more runtime-agnostic.
 == The Solution
 
 As of CIDER 1.6, the default CIDER connection command `cider-connect-clj` is
-capable of connecting to any nREPL server that provides minimal required
-functionality.
+capable of connecting to any nREPL server that implements the core nREPL
+protocol interface.
 
 As such, all of these work:
-https://github.com/babashka/nbb[nbb],
-https://github.com/babashka/scittle[scittle], https://github.com/BetterThanTomorrow/joyride[joyride]
+
+* https://github.com/babashka/nbb[nbb]
+* https://github.com/babashka/scittle[scittle]
+* https://github.com/BetterThanTomorrow/joyride[joyride]
 
 First start an nREPL server (the project's Readme usually has a section
 on starting a nREPL server).
@@ -37,9 +39,10 @@ to connect to any Clojure(Script) nREPL server.
 Features:
 
 * Eval, load file etc.
-* Errors as overlays. (The default cider error buffer is not implemented currently).
+* Code completion.
+* Errors as overlays. (The default CIDER error buffer is not implemented currently).
 * Other nREPL features the server provides; This might be rather minimal.
 
-Nbb, Scittle and Joyride all have quite cool completions already.
+Basically you'll get every feature that's implemented by the nREPL server you're using.
 
-NOTE: For nbb you can alternatively connect via cljs, see xref:platform/nbb.adoc[Nbb]
+NOTE: For nbb you can alternatively connect via `cider-connect-cljs`, see xref:platform/nbb.adoc[nbb].

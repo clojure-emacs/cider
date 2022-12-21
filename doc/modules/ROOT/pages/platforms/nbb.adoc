@@ -1,8 +1,12 @@
 = https://github.com/babashka/nbb[nbb]
 
-Nbb's main goal is to make it easy to get started with ad hoc CLJS scripting on Node.js.
+== Overview
+
+Nbb's main goal is to make it easy to get started with ad hoc ClojureScript scripting on Node.js.
 
 It is highly compatible with ClojureScript, so it works with CIDER out of the box.
+
+== Usage
 
 You can either jack in to an nbb project with `M-x clojure-jack-in-cljs`.
 
@@ -11,3 +15,5 @@ or start its bundled nREPL server:
   $ nbb nrepl-server
 
 and connect to it afterwards using `M-x cider-connect-cljs`.
+
+NOTE: `cider-jack-in-cljs` works with nbb projects that are using `nbb.edn`.

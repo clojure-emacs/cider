@@ -1,6 +1,12 @@
 = Babashka
 
-Babashka is highly compatible with Clojure, so it works with CIDER out of the box. All you need to do
+== Overview
+
+Babashka is highly compatible with Clojure, so it works with CIDER out of the box.
+
+== Usage
+
+All you need to do
 is start its bundled nREPL server:
 
   $ bb --nrepl-server
