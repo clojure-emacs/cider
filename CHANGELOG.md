@@ -7,7 +7,7 @@
 ### New features
 
 - [#3278](https://github.com/clojure-emacs/cider/pull/3278) Introduce integration tests, which also fix a long standing issue with orphaned process on MS-Windows by contracting `taskkill`, if available, to properly kill the nREPL server process tree.
-- [#3061](https://github.com/clojure-emacs/cider/issues/3061): Add support for nbb.
+- [#3061](https://github.com/clojure-emacs/cider/issues/3061): Add support for `nbb`.
 - [#3249](https://github.com/clojure-emacs/cider/pull/3249): Add support for Clojure Spec 2.
 - [#3247](https://github.com/clojure-emacs/cider/pull/3247): Add the `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands to view printed exceptions in the stacktrace inspector.
 
@@ -26,7 +26,7 @@
 - [#3260](https://github.com/clojure-emacs/cider/pull/3260): Scroll REPL buffer in other frame.
 - [#3061](https://github.com/clojure-emacs/cider/issues/3061): Allow
   to use `cider-connect-clj` for self-hosted cljs repls (e.g. `nbb`).
-- [#3293](https://github.com/clojure-emacs/cider/issues/3293): Can't jack in to more than one bb projects.
+- [#3293](https://github.com/clojure-emacs/cider/issues/3293): Can't jack in to more than one `bb` projects.
 
 ## 1.5.0 (2022-08-24)
 
