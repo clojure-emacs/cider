@@ -103,57 +103,60 @@
                (deps-edn (expand-file-name "deps.edn" project-dir)))
           (write-region "{}" nil deps-edn)
 
-          (with-temp-buffer
-            ;; set default directory to temp project
-            (setq-local default-directory project-dir)
+          (let (;; some times responses on GH CI slow runners might take more
+                ;; than the default timeout period to complete.
+                (nrepl-sync-request-timeout (+ nrepl-sync-request-timeout 10)))
 
-            (let* (;; Get a gv reference so as to poll if the client has
-                   ;; connected to the nREPL server.
-                   (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
+            (with-temp-buffer
+              ;; set default directory to temp project
+              (setq-local default-directory project-dir)
 
-                   ;; jack in and get repl buffer
-                   (nrepl-proc (cider-jack-in-clj `()))
-                   (nrepl-buf (process-buffer nrepl-proc)))
+              (let* (;; Get a gv reference so as to poll if the client has
+                     ;; connected to the nREPL server.
+                     (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
 
-              ;; wait until the client has successfully connected to the
-              ;; nREPL server. High duration since on windows it takes a
-              ;; long time to startup
-              (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 90)
+                     ;; jack in and get repl buffer
+                     (nrepl-proc (cider-jack-in-clj `()))
+                     (nrepl-buf (process-buffer nrepl-proc)))
 
-              ;; give it some time to setup the clj REPL
-              (cider-itu-poll-until (cider-repls 'clj nil) 90)
+                ;; wait until the client has successfully connected to the
+                ;; nREPL server. High duration since on windows it takes a
+                ;; long time to startup
+                (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 90)
 
-              ;; send command to the REPL, and push stdout/stderr to
-              ;; corresponding eval-xxx variables.
-              (let ((repl-buffer (cider-current-repl))
-                    (eval-err '())
-                    (eval-out '()))
-                (expect repl-buffer :not :to-be nil)
+                ;; give it some time to setup the clj REPL
+                (cider-itu-poll-until (cider-repls 'clj nil) 90)
 
-                ;; send command to the REPL
-                (cider-interactive-eval
-                 ;; ask REPL to return a string that uniquely identifies it.
-                 "(print :clojure? (some? (clojure-version)))"
-                 (lambda (return)
-                   (nrepl-dbind-response
-                       return
-                       (out err)
-                     (when err (push err eval-err))
-                     (when out (push out eval-out)))) )
+                ;; send command to the REPL, and push stdout/stderr to
+                ;; corresponding eval-xxx variables.
+                (let ((repl-buffer (cider-current-repl))
+                      (eval-err '())
+                      (eval-out '()))
+                  (expect repl-buffer :not :to-be nil)
 
-                ;; wait for a response to come back.
-                (cider-itu-poll-until (or eval-err eval-out) 10)
+                  ;; send command to the REPL
+                  (cider-interactive-eval
+                   ;; ask REPL to return a string that uniquely identifies it.
+                   "(print :clojure? (some? (clojure-version)))"
+                   (lambda (return)
+                     (nrepl-dbind-response
+                         return
+                         (out err)
+                       (when err (push err eval-err))
+                       (when out (push out eval-out)))) )
 
-                ;; ensure there are no errors and response is as expected.
-                (expect eval-err :to-equal '())
-                (expect eval-out :to-equal '(":clojure? true"))
+                  ;; wait for a response to come back.
+                  (cider-itu-poll-until (or eval-err eval-out) 10)
 
-                ;; exit the REPL.
-                (cider-quit repl-buffer)
+                  ;; ensure there are no errors and response is as expected.
+                  (expect eval-err :to-equal '())
+                  (expect eval-out :to-equal '(":clojure? true"))
 
-                ;; wait for the REPL to exit
-                (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 15)
-                (expect (member (process-status nrepl-proc) '(exit signal))))))))))
+                  ;; exit the REPL.
+                  (cider-quit repl-buffer)
+                  ;; wait for the REPL to exit
+                  (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 15)
+                  (expect (member (process-status nrepl-proc) '(exit signal)))))))))))
 
   (it "to leiningen"
     (with-cider-test-sandbox
@@ -292,7 +295,9 @@
             (shell-command "npm install")
             (message ":npm-install :done"))
 
-          (let ((cider-preferred-build-tool 'shadow-cljs)
+          (let (;; some times responses on GH CI slow runners might take more than the default
+                ;; timeout period to complete
+                (nrepl-sync-request-timeout (+ nrepl-sync-request-timeout 10))
                 ;; request for a node repl, so that shadow forks one.
                 (cider-shadow-default-options ":node-repl"))
 

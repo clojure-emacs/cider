@@ -30,13 +30,22 @@
 (require 'buttercup)
 (require 'cider)
 (require 'cl-lib)
+(require 'seq)
 
 (defun cider-itu-dump-all-buffers-contents ()
-  "Print out the contents of all buffers."
-  (dolist (buff (buffer-list))
-    (message "\n:BUFFER %S" (buffer-name  buff))
-    (with-current-buffer buff
-      (message "%s\n" (buffer-substring-no-properties (point-min) (point-max))))))
+  "Print out the contents of all live buffers.
+
+It excludes some unrelated noisy buffers:
+
+1. Tar data buffers created by `tar-mode`."
+  (let ((filtered (seq-remove (lambda (buf)
+                          ;; created when unpacking packages
+                          (string-prefix-p " *tar-data" (buffer-name buf)))
+                        (buffer-list))))
+    (dolist (buff filtered)
+      (message "\n:BUFFER %S" (buffer-name buff))
+      (with-current-buffer buff
+        (message "%s\n" (buffer-substring-no-properties (point-min) (point-max)))))))
 
 (defmacro with-cider-test-sandbox (&rest body)
   "Run BODY inside sandbox, with key cider global vars restored on exit.
@@ -46,7 +55,7 @@ buffer.
 Only the following variables are currently restored, please add more as the
 test coverage increases:
 
-`cider-connected-hook`."
+1. `cider-connected-hook`."
   (declare (indent 0))
   `(let (;; for dynamic vars, just use a binding under the same name, so that
          ;; the global value is not modified.
