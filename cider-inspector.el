@@ -108,7 +108,11 @@ by clicking or navigating to them by other means."
     (define-key map "d" #'cider-inspector-def-current-val)
     (define-key map [tab] #'cider-inspector-next-inspectable-object)
     (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
+    (define-key map "n" #'cider-inspector-next-inspectable-object)
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
+    (define-key map "p" #'cider-inspector-previous-inspectable-object)
+    (define-key map "f" #'forward-char)
+    (define-key map "b" #'backward-char)
     ;; Emacs translates S-TAB to BACKTAB on X.
     (define-key map [backtab] #'cider-inspector-previous-inspectable-object)
     (easy-menu-define cider-inspector-mode-menu map
