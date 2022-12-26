@@ -1,6 +1,7 @@
 # Changelog
 
 ## master (unreleased)
+- Allow using `npx nbb` as `cider-nbb-command`.
 
 ## 1.6.0 (2022-12-21)
 
