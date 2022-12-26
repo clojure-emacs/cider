@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3262](https://github.com/clojure-emacs/cider/issues/3262) Add navigation functionality to `npfb` keys inside inspect buffer.
+
 ## 1.6.0 (2022-12-21)
 
 ### New features
