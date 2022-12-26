@@ -377,12 +377,16 @@ Throws an error if PROJECT-TYPE is unknown."
     ('shadow-cljs (let ((parts (split-string cider-shadow-cljs-command)))
                     (when-let* ((command (cider--resolve-command (car parts))))
                       (mapconcat #'identity (cons command (cdr parts)) " "))))
+    ;; here we have to account for the possibility that the command is either
+    ;; "nbb" (default) or "npx nbb".
+    ('nbb (let ((parts (split-string cider-nbb-command)))
+            (when-let* ((command (cider--resolve-command (car parts))))
+              (mapconcat #'identity (cons command (cdr parts)) " "))))
     ;; here we have to account for use of the Gradle wrapper which is
     ;; a shell script within their project, so if they have a clearly
     ;; relative path like "./gradlew" use locate file instead of checking
     ;; the exec-path
     ('gradle (cider--resolve-project-command cider-gradle-command))
-    ('nbb (cider--resolve-command cider-nbb-command))
     (_ (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-global-options (project-type)
