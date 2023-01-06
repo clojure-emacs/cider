@@ -28,8 +28,11 @@ You'll have access to additional keybindings in the inspector buffer
 |===
 | Keyboard shortcut | Description
 
-| kbd:[Tab] and kbd:[Shift-Tab]
+| kbd:[Tab] and kbd:[Shift-Tab] / kdb:[n] and kbd:[p]
 | Navigate inspectable sub-objects
+
+| kbd:[f] and kbd:[b]
+| Navigate across characters on a line
 
 | kbd:[Return]
 | Inspect sub-objects

@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3262](https://github.com/clojure-emacs/cider/issues/3262) Add navigation functionality to `npfb` keys inside inspect buffer.
+
 ### Changes
 
 - Allow using `npx nbb` as `cider-nbb-command`.
