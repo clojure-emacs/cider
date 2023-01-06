@@ -478,6 +478,12 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                       (cider-test-render-assertion buffer test)))))
               vars))
            results)))
+      ;; Replace any newline chars with actual newlines to make long error
+      ;; messages more readable
+      (goto-char (point-min))
+      (while (search-forward "\\n" nil t)
+        (replace-match "
+"))
       (goto-char (point-min))
       (current-buffer))))
 

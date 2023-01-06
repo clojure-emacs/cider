@@ -951,7 +951,7 @@ If TOOLING, use the tooling session rather than the standard session."
                    (time-less-p
                     nrepl-sync-request-timeout
                     (time-subtract nil time0)))
-          (error "Sync nREPL request timed out %s" request)))
+          (error "Sync nREPL request timed out %s after %s secs" request nrepl-sync-request-timeout)))
       ;; Clean up the response, otherwise we might repeatedly ask for input.
       (nrepl-dict-put response "status" (remove "need-input" status))
       (accept-process-output nil 0.01))
