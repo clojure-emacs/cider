@@ -4,7 +4,7 @@
 
 ### New features
 
-- [#3262](https://github.com/clojure-emacs/cider/issues/3262) Add navigation functionality to `npfb` keys inside inspect buffer.
+- [#3262](https://github.com/clojure-emacs/cider/issues/3262): Add navigation functionality to `npfb` keys inside the data inspector's buffer.
 
 ### Changes
 
