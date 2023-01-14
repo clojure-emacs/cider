@@ -1200,12 +1200,12 @@ an `error' if the nREPL PROCESS exited because it couldn't start up."
                                       server-buffer))
                                 (buffer-list))))
       ;; close any known open client connections
-      (when server-buffer
-        (kill-buffer server-buffer))
       (mapc #'cider--close-connection clients)
 
       (if (process-get process :cider--nrepl-server-ready)
-          (message "nREPL server exited.")
+          (progn
+            (when server-buffer (kill-buffer server-buffer))
+            (message "nREPL server exited."))
         (let ((problem (when (and server-buffer (buffer-live-p server-buffer))
                          (with-current-buffer server-buffer
                            (buffer-substring (point-min) (point-max))))))
