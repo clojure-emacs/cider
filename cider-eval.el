@@ -602,8 +602,10 @@ until we find a delimiters that's not inside a string."
   (if (and (looking-back "[])}]" (line-beginning-position))
            (null (nth 3 (syntax-ppss))))
       (backward-sexp)
-    (while (or (not (looking-at-p "[({[]"))
-               (nth 3 (syntax-ppss)))
+    (while (and (not (bobp))
+                (or
+                 (not (looking-at-p "[({[]"))
+                 (nth 3 (syntax-ppss))))
       (backward-char))))
 
 (defun cider--find-last-error-location (message)
