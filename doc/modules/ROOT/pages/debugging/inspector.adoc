@@ -1,20 +1,20 @@
 = Inspector
 :experimental:
 
-The value inspector allows you inspect and navigate the structure of data. While you can use
+The value inspector allows you to inspect and navigate the structure of data. While you can use
 it for pretty much anything (e.g. primitive data types, var, ref types) it's most
 useful when you're dealing with (deeply) nested collection-like data types (e.g. a vector of maps).
 
 == Usage
 
 Typing kbd:[C-c M-i] (`cider-inspect`) after some form in a source
-buffer or the REPL will show you the structure for the result of the
-form in a new buffer. You can also use kbd:[C-u C-c M-i] to inspect
+buffer or the REPL will show you the structure of the form's result
+in a new buffer. You can also use kbd:[C-u C-c M-i] to inspect
 the result of the current top-level form and kbd:[C-u C-u C-c M-i] to
 read an expression from the minibuffer and inspect its result.
 
 Alternatively, after a regular eval command, you can inspect the last
-evaluated value using `cider-inspect-last-result`. When a inspector
+evaluated value using `cider-inspect-last-result`. When an inspector
 buffer is visible in the background, it is automatically updated with
 the last result. This behavior can be controlled with the variable
 `cider-auto-inspect-after-eval`.
