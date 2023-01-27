@@ -5,6 +5,7 @@
 ### New features
 
 - [#3262](https://github.com/clojure-emacs/cider/issues/3262): Add navigation functionality to `npfb` keys inside the data inspector's buffer.
+- [#3310](https://github.com/clojure-emacs/cider/issues/3310): Add ability to use custom coordinates in jack-in-dependecies
 
 ### Changes
 
