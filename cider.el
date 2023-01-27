@@ -708,7 +708,15 @@ one used."
                      ;; `java.lang.IllegalArgumentException: Duplicate key [...]`:
                      (cider--dedupe-deps)
                      (seq-map (lambda (dep)
-                                (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep))))))
+                                (if (listp (cadr dep))
+                                    (format "%s {%s}"
+                                            (car dep)
+                                            (seq-reduce
+                                             (lambda (acc v)
+                                               (concat acc (format " :%s \"%s\" " (car v) (cdr v))))
+                                             (cadr dep)
+                                             ""))
+                                  (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))))))
          (middleware (mapconcat
                       (apply-partially #'format "%s")
                       (cider-jack-in-normalized-nrepl-middlewares)

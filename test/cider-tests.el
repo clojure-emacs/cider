@@ -506,7 +506,24 @@
             (deps '(("nrepl/nrepl" "0.9.0"))))
         (let ((cider-clojure-cli-aliases ":test"))
           (expect (cider-clojure-cli-jack-in-dependencies "-J-Djdk.attach.allowAttachSelf" nil deps)
-                  :to-equal expected))))))
+                  :to-equal expected))))
+    (it "allows to specify git coordinate as cider-jack-in-dependency"
+      (setq-local cider-jack-in-dependencies '(("org.clojure/tools.deps" (("git/sha" . "6ae2b6f71773de7549d7f22759e8b09fec27f0d9")
+                                                                          ("git/url" . "https://github.com/clojure/tools.deps/")))))
+      (let ((expected (string-join '("clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} "
+                                     "cider/cider-nrepl {:mvn/version \"0.28.5\"} "
+                                     "org.clojure/tools.deps { :git/sha \"6ae2b6f71773de7549d7f22759e8b09fec27f0d9\"  :git/url \"https://github.com/clojure/tools.deps/\" }} "
+                                     ":aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" "
+                                     "\"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}' -M:cider/nrepl")
+                                   "")))
+        (setq-local cider-allow-jack-in-without-project t)
+        (setq-local cider-clojure-cli-command "clojure")
+        (setq-local cider-inject-dependencies-at-jack-in t)
+        (setq-local cider-clojure-cli-aliases nil)
+        (spy-on 'cider-project-type :and-return-value 'clojure-cli)
+        (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
+        (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
+                :to-equal expected)))))
 
 (defmacro with-temp-shadow-config (contents &rest body)
   "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."
