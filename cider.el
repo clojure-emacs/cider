@@ -86,6 +86,7 @@
 (require 'cider-debug)
 (require 'cider-util)
 
+(require 'cl-lib)
 (require 'tramp-sh)
 (require 'subr-x)
 (require 'seq)
@@ -345,6 +346,26 @@ Sub-match 1 must be the project path.")
 
 (defvar cider-host-history nil
   "Completion history for connection hosts.")
+
+(defvar cider-jack-in-universal-options
+  '((clojure-cli (:prefix-arg 1 :cmd (:jack-in-type clj  :project-type babashka :edit-project-dir t)))
+    (lein        (:prefix-arg 2 :cmd (:jack-in-type clj  :project-type clojure-cli :edit-project-dir t)))
+    (babashka    (:prefix-arg 3 :cmd (:jack-in-type clj  :project-type lein :edit-project-dir t)))
+    (nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t))))
+  "The list of project tools that are supported by the universal jack in command.
+
+Each item in the list consists of the tool name and its plist options.
+
+The plist supports the following keys
+
+- :prefix-arg the numerical prefix arg to use to jack in to the tool.
+
+- :cmd a plist of instructions how to invoke the jack in command, with keys
+
+  - :jack-in-type 'clj to start a clj repl and 'cljs for a cljs repl.
+
+  - &rest the same set of params supported by the `cider-jack-in-clj' and
+    `cider-jack-in-cljs' commands.")
 
 ;;;###autoload
 (defun cider-version ()
@@ -1393,9 +1414,15 @@ non-nil, don't start if ClojureScript requirements are not met."
         (t params)))
 
 (defun cider--update-project-dir (params)
-  "Update :project-dir in PARAMS."
+  "Update :project-dir in PARAMS.
+
+Params is a plist with the following keys (non-exhaustive)
+
+ :edit-project-dir prompt (optional) ask user to confirm the project root
+ directory."
   (let* ((params (cider--update-do-prompt params))
-         (proj-dir (if (plist-get params :do-prompt)
+         (proj-dir (if (or (plist-get params :do-prompt)
+                           (plist-get params :edit-project-dir))
                        (read-directory-name "Project: "
                                             (clojure-project-dir (cider-current-dir)))
                      (plist-get params :project-dir)))
@@ -1773,63 +1800,52 @@ PROJECT-DIR defaults to the current project."
           ;; 0.18, therefore the need for `cider-maybe-intern'
           (t (cider-maybe-intern cider-jack-in-default)))))
 
-(defun cider--jack-in-to-project (project-type)
-  "Jack in to PROJECT-TYPE, even if there is no project in the current dir.
-
-PROJECT-TYPE can be one of babashka, clojure-cli, lein or nbb, otherwise an
-error is signalled."
-  (pcase project-type
-    ('babashka    (cider-jack-in-clj  '(:project-type babashka)))
-    ('clojure-cli (cider-jack-in-clj  '(:project-type clojure-cli)))
-    ('lein        (cider-jack-in-clj  '(:project-type lein)))
-    ('nbb         (cider-jack-in-cljs '(:project-type nbb :cljs-repl-type nbb)))
-    (_ (error ":cider--jack-in-to-project :unsupported-project-type %S" project-type))))
-
 ;;;###autoload
-(defun cider-jack-in (arg)
+(defun cider-jack-in-universal (arg)
   "Start and connect to an nREPL server for the current project or ARG project id.
 
-If a project is found in current dir, call `cider-jack-in-clj' passing ARG
-as first parameter, of which see.  Otherwise, ask user which project type
-to start an nREPL server and connect to without a project.
+If a project is found in current dir, call `cider-jack-in' passing ARG as
+first parameter, of which see.  Otherwise, ask user which project type to
+start an nREPL server and connect to without a project.
 
-But if invoked with a numeric prefix ARG project id (see below), then start
-an nREPL server for the project type denoted by ARG and connect to it, even
-if there is no project for it in the current dir.
+But if invoked with a numeric prefix ARG, then start an nREPL server for
+the project type denoted by ARG number and connect to it, even if there is
+no project for it in the current dir.
 
-If command is called with a numeric prefix ARG, it has to be one of the
-following values otherwise an error is signaled
-
-1 for clojure-cli.
-
-2 for lein.
-
-3 for babashka.
-
-4 for nbb.
+The supported project tools and their assigned numeric prefix ids are
+sourced from `cider-jack-in-universal-options', of which see.
 
 You can pass a numeric prefix argument n with `M-n` or `C-u n`.
 
-For example, to jack in to leiningen type
+For example, to jack in to leiningen which is assigned to prefix arg 2 type
 
-M-2 \\[cider-jack-in]."
+M-2 \\[cider-jack-in-universal]."
   (interactive "P")
   (let ((cpt (clojure-project-dir (cider-current-dir))))
     (if (or (integerp arg) (null cpt))
-        (let ((project-type
-               (pcase arg
-                 ('nil (when-let (project-type (intern
-                                                (completing-read
-                                                 "No project found in current dir, select project type to jack in: "
-                                                 '(clojure-cli lein babashka nbb)
-                                                 nil t)))
-                         project-type))
-                 (1 'clojure-cli)
-                 (2 'lein)
-                 (3 'babashka)
-                 (4 'nbb)
-                 (_ (error ":cider-jack-in :no-project :unsupported-prefix-argument %S" arg)))))
-          (cider--jack-in-to-project project-type))
+        (let* ((project-types-available (mapcar #'car cider-jack-in-universal-options))
+               (project-type (if (null arg)
+                                 (intern (completing-read
+                                          "No project found in current dir, select project type to jack in: "
+                                          project-types-available
+                                          nil t))
+
+                               (or (seq-some (lambda (elt)
+                                               (cl-destructuring-bind
+                                                   (project-type (&key prefix-arg &allow-other-keys)) elt
+                                                 (when (= arg prefix-arg)
+                                                   project-type)))
+                                             cider-jack-in-universal-options)
+                                   (error ":cider-jack-in-universal :unsupported-prefix-argument %S :no-such-project"
+                                          arg))))
+               (project-options (cadr (seq-find (lambda (elt) (equal project-type (car elt)))
+                                                cider-jack-in-universal-options)))
+               (jack-in-opts (plist-get project-options :cmd))
+               (jack-in-type (plist-get jack-in-opts :jack-in-type)))
+          (pcase jack-in-type
+            ('clj (cider-jack-in-clj jack-in-opts))
+            ('cljs (cider-jack-in-cljs jack-in-opts))
+            (_ (error ":cider-jack-in-universal :jack-in-type-unsupported %S" jack-in-type))))
 
       (cider-jack-in-clj arg))))
 

@@ -53,7 +53,7 @@
                    (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
 
                    ;; jack in and get repl buffer
-                   (nrepl-proc (cider-jack-in '()))
+                   (nrepl-proc (cider-jack-in-clj '()))
                    (nrepl-buf (process-buffer nrepl-proc)))
 
               ;; wait until the client has successfully connected to the
@@ -402,8 +402,17 @@
       (with-temp-dir temp-dir
         ;; setup empty project dir
         (let* ((project-dir temp-dir))
-          ;; respond with nbb when asked which project to jack in to.
-          (spy-on 'completing-read :and-return-value "nbb")
+          ;; fake user input
+          (spy-on 'completing-read
+                  :and-call-fake (lambda (prompt _collection &optional _predicate _require-match
+                                                 initial-input _hist _def _inherit-input-method)
+                                   (pcase prompt
+                                     ;; select nbb
+                                     ("No project found in current dir, select project type to jack in: "
+                                      "nbb")
+                                     ;; project src directory, use suggested
+                                     ("Project: " initial-input)
+                                     (_ (error ":integration-test-unsupported-prompt-error %S" prompt)))))
 
           (with-temp-buffer
             ;; set default directory to temp project
@@ -414,7 +423,7 @@
                    (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
 
                    ;; jack in and get repl buffer
-                   (nrepl-proc (cider-jack-in '()))
+                   (nrepl-proc (cider-jack-in-universal '()))
                    (nrepl-buf (process-buffer nrepl-proc)))
 
               ;; wait until the client has successfully connected to the
@@ -461,6 +470,14 @@
       (with-temp-dir temp-dir
         ;; setup empty dir
         (let* ((project-dir temp-dir))
+          ;; fake user input
+          (spy-on 'completing-read
+                  :and-call-fake (lambda (prompt _collection &optional _predicate _require-match
+                                                 initial-input _hist _def _inherit-input-method)
+                                   (pcase prompt
+                                     ;; project src directory
+                                     ("Project: " initial-input)
+                                     (_ (error ":integration-test-unsupported-prompt-error %S" prompt)))))
           (with-temp-buffer
             ;; set default directory to temp project
             (setq-local default-directory project-dir)
@@ -469,8 +486,11 @@
                    ;; connected to the nREPL server.
                    (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
 
-                   ;; jack in and get repl buffer
-                   (nrepl-proc (cider-jack-in 2))
+                   ;; jack in and get repl buffer.
+                   ;;
+                   ;; The numerical prefix arg for `lein` in
+                   ;; `cider-jack-in-universal-options' is 2.
+                   (nrepl-proc (cider-jack-in-universal 2))
                    (nrepl-buf (process-buffer nrepl-proc)))
 
               ;; wait until the client has successfully connected to the
