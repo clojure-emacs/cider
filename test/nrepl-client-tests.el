@@ -114,7 +114,7 @@
 (describe "nrepl-parse-port"
   (it "standard"
       (let ((msg "nREPL server started on port 58882 on host kubernetes.docker.internal - nrepl://kubernetes.docker.internal:58882"))
-        (expect (string-match nrepl-listening-address-regexp msg)
+        (expect (string-match nrepl-listening-inet-address-regexp msg)
                 :not :to-be nil)
         (expect (match-string 1 msg)
                 :to-equal "58882")
@@ -122,7 +122,7 @@
                 :to-be nil)))
   (it "babashka"
       (let ((msg "Started nREPL server at 127.0.0.1:1667"))
-        (expect (string-match nrepl-listening-address-regexp msg)
+        (expect (string-match nrepl-listening-inet-address-regexp msg)
                 :not :to-be nil)
         (expect (match-string 1 msg)
                 :to-equal "1667")
@@ -130,12 +130,20 @@
                 :to-equal "127.0.0.1")))
     (it "shadow"
       (let ((msg "shadow-cljs - nREPL server started on port 50999"))
-        (expect (string-match nrepl-listening-address-regexp msg)
+        (expect (string-match nrepl-listening-inet-address-regexp msg)
                 :not :to-be nil)
         (expect (match-string 1 msg)
                 :to-equal "50999")
         (expect (match-string 2 msg)
                 :to-be nil))))
+
+(describe "nrepl-parse-sock"
+  (it "standard"
+      (let ((msg "nREPL server listening on  nrepl+unix:nrepl.sock"))
+        (expect (string-match nrepl-listening-unix-address-regexp msg)
+                :not :to-be nil)
+        (expect (match-string 1 msg)
+                :to-equal "nrepl.sock"))))
 
 (describe "nrepl-client-lifecycle"
   (it "start and stop nrepl client process"

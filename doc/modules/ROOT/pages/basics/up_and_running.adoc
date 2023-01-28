@@ -280,10 +280,13 @@ CIDER's support for Unix sockets is considered experimental and its
 interface might change in future CIDER releases.
 
 When locally running nREPL servers, there is the option to listen on a
-socket file instead of opening a network port. This can have
-advantages in some use cases, e.g. when working with virtual networks
-(containers) where sharing a file socket can be vastly simpler than
-managing bridge networks and firewall setups.
+socket file instead of opening a network port.  As long as access to
+the parent directory of the socket is sufficiently protected, this is
+much more secure than the network port, since any local user can
+access the port-provided REPL.  It can also be be helpful in other
+cases, e.g. when working with virtual networks (containers) where
+sharing a file socket can be vastly simpler than managing bridge
+networks and firewall setups.
 
 After having started an nREPL server on a file socket, e.g. with the
 `clj` command (see https://nrepl.org/nrepl/usage/server.html for other
@@ -296,6 +299,12 @@ $ clj -R:nREPL -m nrepl.cmdline --socket nrepl.sock
 
 you can then connect CIDER by using the `local-unix-domain-socket`
 special hostname with `cider-connect`: kbd:[M-x] `cider-connect` kbd:[RET] `local-unix-domain-socket` kbd:[RET] `nrepl.sock` kbd:[RET].
+
+At the moment only with `leiningen`, commands like `cider-jack-in`
+will detect and use the unix domain socket if one is requested via the
+`:socket` argument.  This can be arranged by specifying a prefix
+argument to `cider-jack-in`, e.g. kbd:[C-u] kbd:[M-x] `cider-jack-in`,
+or by adjusting `cider-lein-parameters`.
 
 == What's Next?
 
