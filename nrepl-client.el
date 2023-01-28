@@ -1109,7 +1109,12 @@ been determined."
                (propertize cmd 'face 'font-lock-keyword-face))
       serv-proc)))
 
-(defconst nrepl-listening-address-regexp
+(defconst nrepl-listening-unix-address-regexp
+  (rx
+   (and "nREPL server listening on" (+ " ")
+        "nrepl+unix:" (group-n 1 (+ not-newline)))))
+
+(defconst nrepl-listening-inet-address-regexp
   (rx (or
        ;; standard
        (and "nREPL server started on port " (group-n 1 (+ (any "0-9"))))
@@ -1155,18 +1160,26 @@ up."
             (when-let* ((win (get-buffer-window)))
               (set-window-point win (point)))))
         ;; detect the port the server is listening on from its output
-        (when (and (null nrepl-endpoint)
-                   (string-match nrepl-listening-address-regexp output))
-          (let ((host (or (match-string 2 output)
-                          (file-remote-p default-directory 'host)
-                          "localhost"))
-                (port (string-to-number (match-string 1 output))))
-            (setq nrepl-endpoint (list :host host
-                                       :port port))
-            (message "[nREPL] server started on %s" port)
-            (cider--process-plist-put process :cider--nrepl-server-ready t)
-            (when nrepl-on-port-callback
-              (funcall nrepl-on-port-callback (process-buffer process)))))))))
+        (when (null nrepl-endpoint)
+          (let ((end (cond
+                      ((string-match nrepl-listening-unix-address-regexp output)
+                       (let ((path (match-string 1 output)))
+                         (message "[nREPL] server started on nrepl+unix:%s" path)
+                         (list :host "local-unix-domain-socket"
+                               :port path
+                               :socket-file path)))
+                      ((string-match nrepl-listening-inet-address-regexp output)
+                       (let ((host (or (match-string 2 output)
+                                       (file-remote-p default-directory 'host)
+                                       "localhost"))
+                             (port (string-to-number (match-string 1 output))))
+                         (message "[nREPL] server started on %s" port)
+                         (list :host host :port port))))))
+            (when end
+              (setq nrepl-endpoint end)
+              (cider--process-plist-put process :cider--nrepl-server-ready t)
+              (when nrepl-on-port-callback
+                (funcall nrepl-on-port-callback (process-buffer process))))))))))
 
 (defmacro emacs-bug-46284/when-27.1-windows-nt (&rest body)
   "Only evaluate BODY when Emacs bug #46284 has been detected."
