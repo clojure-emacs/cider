@@ -45,4 +45,4 @@ Features:
 
 Basically you'll get every feature that's implemented by the nREPL server you're using.
 
-NOTE: For nbb you can alternatively connect via `cider-connect-cljs`, see xref:platform/nbb.adoc[nbb].
+NOTE: For nbb you can alternatively connect via `cider-connect-cljs`, see xref:platforms/nbb.adoc[nbb].
