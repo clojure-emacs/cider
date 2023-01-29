@@ -25,10 +25,11 @@ eventually with more generic versions that dispatch on the type of the nREPL con
 
 Right now CIDER the supports to some extent the following:
 
-* Babashka
+* xref:platforms/babashka.adoc[Babashka]
+* xref:platforms/nbb.adoc[nbb]
 * ClojureCLR (via Arcadia's nREPL server)
 * Lumo (via https://github.com/djblue/nrepl-cljs)
-* Nbb
+* xref:platforms/other_platforms.adoc[scittle, joyride & friends]
 
 All of them are derived from Clojure, so supporting them didn't really require much work.
 

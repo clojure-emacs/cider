@@ -60,7 +60,7 @@ from your Emacs config.
 
 == ClojureCLR Support
 
-CIDER currently doesn't support ClojureCLR. The reasons for this are the following:
+CIDER currently has very basic support ClojureCLR (via Arcadia's nREPL server). The reasons for this are the following:
 
 * nREPL itself runs only on the JVM (because it leverages Java APIs
 internally). There's an
