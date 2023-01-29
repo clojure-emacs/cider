@@ -86,6 +86,13 @@ Here's how you can modify the injected dependencies for `cider-jack-in-clj`:
 ;; auto-inject version 1.0 of the library foo/bar
 (cider-add-to-alist 'cider-jack-in-dependencies
                     "foo/bar" "1.0")
+;; if you want to have full control over the coordinate description set it as an alist
+;; auto-inject {:git/sha "6ae2b6f71773de7549d7f22759e8b09fec27f0d9" for library org.clojure/tools.deps
+;;              :git/url "https://github.com/clojure/tools.deps/"}
+(cider-add-to-alist 'cider-jack-in-dependencies
+                    "org.clojure/tools.deps"
+                    '(("git/sha" . "6ae2b6f71773de7549d7f22759e8b09fec27f0d9")
+                      ("git/url" . "https://github.com/clojure/tools.deps/")))
 ----
 
 IMPORTANT: Always use the fully qualified `group/artifact` (e.g. `re-frame/re-frame`) in these dependencies, since only Leiningen supports the bare `re-frame` syntax.
