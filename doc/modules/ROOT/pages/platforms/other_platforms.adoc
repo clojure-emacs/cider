@@ -3,8 +3,8 @@
 == The Problem
 
 CIDER was created in the early days of Clojure where there weren't any
-of the alternative implementation that exist today. This lead to a design
-that relied on knowledge of certain specifics of Clojure internal and
+of the alternative implementations that exist today. This lead to a design
+that relied on knowledge of certain specifics of Clojure and
 the Clojure nREPL server.
 
 Later, with the introduction of ClojureScript we made another set
@@ -45,4 +45,4 @@ Features:
 
 Basically you'll get every feature that's implemented by the nREPL server you're using.
 
-NOTE: For nbb you can alternatively connect via `cider-connect-cljs`, see xref:platforms/nbb.adoc[nbb].
+NOTE: For `nbb` you can alternatively connect via `cider-connect-cljs`, see xref:platforms/nbb.adoc[nbb].
