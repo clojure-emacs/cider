@@ -6,7 +6,7 @@
 
 - [#3314](https://github.com/clojure-emacs/cider/issues/3314): Detect `nrepl+unix` sockets (say via `lein nrepl :headless :socket nrepl.sock`).
 - [#3262](https://github.com/clojure-emacs/cider/issues/3262): Add navigation functionality to `npfb` keys inside the data inspector's buffer.
-- [#3310](https://github.com/clojure-emacs/cider/issues/3310): Add ability to use custom coordinates in jack-in-dependecies
+- [#3310](https://github.com/clojure-emacs/cider/issues/3310): Add ability to use custom coordinates in jack-in-dependencies.
 
 ### Changes
 
