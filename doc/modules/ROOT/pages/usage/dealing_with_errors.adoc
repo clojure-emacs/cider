@@ -201,7 +201,7 @@ some of those printed errors as well and show them in
   `cider-stacktrace-analyze-at-point`, but uses the current region to
   extract the stacktrace.
 
-===== Examples
+==== Examples
 
 Here is an example of a stacktrace printed with the Java
 `printStackTrace` method:
@@ -227,7 +227,7 @@ string like the following exception:
 Those exceptions are often hard to read. The Cider stacktrace
 inspector can help you navigating exceptions even in those cases.
 
-===== Supported formats
+==== Supported formats
 
 Cider recognizes stacktraces printed in the following formats:
 
@@ -252,7 +252,7 @@ Cider recognizes stacktraces printed in the following formats:
   https://clojure.github.io/clojure/clojure.core-api.html#clojure.core/pr[clojure.core/pr]
   function.
 
-===== Limitations
+==== Limitations
 
 - Cider only recognizes stacktraces that have been printed in one of
   the supported formats.
