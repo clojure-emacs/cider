@@ -1,7 +1,7 @@
 ;;; cider-inspector.el --- Object inspector -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2022 Vital Reactor, LLC
-;; Copyright © 2014-2022  Bozhidar Batsov and CIDER contributors
+;; Copyright © 2013-2014 Vital Reactor, LLC
+;; Copyright © 2014-2023  Bozhidar Batsov and CIDER contributors
 
 ;; Author: Ian Eslick <ian@vitalreactor.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>

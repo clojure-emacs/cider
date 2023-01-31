@@ -1,6 +1,6 @@
 ;;; nrepl-test-utils.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2021-2022 Ioannis Kappas
+;; Copyright © 2021-2023 Ioannis Kappas
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -116,4 +116,3 @@ calling process."
 (provide 'nrepl-tests-utils)
 
 ;;; nrepl-tests-utils.el ends here
-
