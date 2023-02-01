@@ -47,4 +47,23 @@
         (insert "🍻"))
       (expect (cider-provide-file filename) :to-equal "8J+Nuw=="))))
 
+(describe
+ "cider--goto-expression-start"
+ (it "Does not throw an error, when file does not contain a list"
+     (expect
+      (with-temp-buffer
+        (insert "foo")
+        ;; After evaling, message:
+        ;;   "Syntax error compiling at (foo.clj:0:0).
+        ;; Unable to resolve symbol: foo in this context
+        ;; "
+        ;; cider--find-last-error-location goes to location
+        ;; 0:0 and calls cider--goto-expression-start
+        (goto-char (point-min))
+        ;; no error
+        (cider--goto-expression-start)
+        'ok)
+      :to-equal 'ok)))
+
+
 (provide 'cider-eval-tests)
