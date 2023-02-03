@@ -47,12 +47,12 @@ You'd get some really weird error instead of something nice like "command X is n
 
 There's a bit of info on the subject [here](https://github.com/clojure-emacs/cider/issues/1416).
 
-## Implement new nREPl features
+## Implement new nREPL features
 
-* sideloading
+* sideloading (there's some experimental support for this)
 * dynamic middleware loading
-* completion
-* lookup
+* ~~completion~~
+* ~~lookup~~
 
 ## Make CIDER somewhat Clojure-agnostic
 
