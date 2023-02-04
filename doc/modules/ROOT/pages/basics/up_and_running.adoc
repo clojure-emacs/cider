@@ -129,15 +129,13 @@ disable the warning displayed when jacking-in outside a project.
 
 `cider-jack-in-universal` kbd:[C-c C-x j u] is another way to quickly
 jack in without a project choosing from a list of pre-configured
-Clojure build tools as setup in
-`cider-jack-in-universal-options`. When this command is called from
-outside of a project, the user is given the option to select to jack
-in with one of the pre-configured tools, as well as to confirm the
-root directory to use as a base. If the command is called from within
-a project directory, it behaves exactly the same as `cider-jack-in`
-does.
+Clojure build tools. When this command is called from outside of a
+project, the user is given the option to select to jack in with one of
+the pre-configured tools, as well as to confirm the root directory to
+use as a base. If the command is called from within a project
+directory, it behaves exactly the same as `cider-jack-in` does.
 
-It utilizes Emacs'
+It utilizes Emacs's
 https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html[numeric
 prefix arguments] to quickly jack in to a project type. Numeric prefix
 arguments can be set with the Meta key followed by a number.
@@ -150,7 +148,7 @@ The following clojure build tools are supported so far
 - kbd:[M-4 C-c C-x j u] jack-in using nbb.
 
 Here is an example of how to bind F12 for quickly bringing up a
-babashka REPL
+babashka REPL:
 
 [source,lisp]
 ----
@@ -158,6 +156,25 @@ babashka REPL
                                 (interactive)
                                 (cider-jack-in-universal 3)))
 ----
+
+The list of available build tools to consider is configured in
+`cider-jack-in-universal-options`. Each element of the list consists
+of the tool name and its setup options. Taking `nbb` as an example
+from the list:
+
+[source,lisp]
+----
+(nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t)))
+----
+
+with
+
+. `:prefix-arg` assigns the `nbb` tool name a numerical argument prefix of 4.
+. `:cmd` how to invoke the command.
+.. `:jack-in-type` use a `cljs` repl.
+.. `:project-type` use `nbb` (see `jack-in-command`) to bring up the nREPL server.
+.. `:cljs-repl-type` client uses the `nbb` cljs repl type (see `cider-cljs-repl-types`) to initialize server.
+.. `:edit-project-dir` ask the user to confirm root directory to use as base.
 
 === Customizing the Jack-in Command Behavior
 

@@ -1616,6 +1616,8 @@ canceled the action, signal quit."
 ;;; Aliases
 
 ;;;###autoload
+(defalias 'cider-jack-in #'cider-jack-in-clj)
+;;;###autoload
 (defalias 'cider-connect #'cider-connect-clj)
 
 
