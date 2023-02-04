@@ -56,7 +56,7 @@ commands:
 jobs:
   test-ubuntu-emacs-26:
     docker:
-      - image: silex/emacs:26-dev
+      - image: silex/emacs:26-ci
         entrypoint: bash
     steps:
       - setup
@@ -64,7 +64,7 @@ jobs:
 
   test-ubuntu-emacs-27:
     docker:
-      - image: silex/emacs:27-dev
+      - image: silex/emacs:27-ci
         entrypoint: bash
     steps:
       - setup
@@ -72,7 +72,7 @@ jobs:
 
   test-ubuntu-emacs-28:
     docker:
-      - image: silex/emacs:28-dev
+      - image: silex/emacs:28-ci
         entrypoint: bash
     steps:
       - setup
@@ -80,7 +80,7 @@ jobs:
 
   test-ubuntu-emacs-master:
     docker:
-      - image: silex/emacs:master-dev
+      - image: silex/emacs:master-ci
         entrypoint: bash
     steps:
       - setup
@@ -105,7 +105,7 @@ jobs:
 
   test-lint:
     docker:
-      - image: silex/emacs:28-dev
+      - image: silex/emacs:28-ci
     steps:
       - setup
       - lint
