@@ -523,7 +523,22 @@
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
-                :to-equal expected)))))
+                :to-equal expected))))
+  (describe "Override jack-in command"
+   (it "Uses the param, if provided"
+    (let* ((params '(:jack-in-cmd "Snowcrash"))
+           (params (cider--update-jack-in-cmd params)))
+      (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))
+   (it "Uses the `cider-jack-in-command', if provided"
+    (let* ((params '())
+           (cider-jack-in-command "Seveneves")
+           (params (cider--update-jack-in-cmd params)))
+      (expect params :to-equal '(:jack-in-cmd "Seveneves"))))
+   (it "Uses params over `cider-jack-in-command', if provided"
+    (let* ((params '(:jack-in-cmd "Snowcrash"))
+           (cider-jack-in-command "Seveneves")
+           (params (cider--update-jack-in-cmd params)))
+      (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))))
 
 (defmacro with-temp-shadow-config (contents &rest body)
   "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."
