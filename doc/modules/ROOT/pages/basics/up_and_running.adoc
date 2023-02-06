@@ -271,7 +271,7 @@ Here is an example Nbb Jack-In command, providing a custom `:jack-in-cmd`.
 (defun cider-jack-in-nbb-2 ()
   "Start a Cider nREPL server with the 'nbb nrepl-server' command."
   (interactive)
-  (cider-jack-in '(:jack-in-cmd "nbb nrepl-server")))
+  (cider-jack-in-clj '(:jack-in-cmd "nbb nrepl-server")))
 ----
 
 
