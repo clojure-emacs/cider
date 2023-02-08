@@ -15,6 +15,7 @@
 - Allow using `npx nbb` as `cider-nbb-command`.
 - [#3281](https://github.com/clojure-emacs/cider/pull/3281): Replace newline chars with actual newlines in `*cider-test-report*` buffer, for prettier error messages.
 - Bump the injected `cider-nrepl` to 0.30.
+- [#3307](https://github.com/clojure-emacs/cider/issues/3307): Make eldoc highlighting on emacs special forms better match the location of the point when latest `cider-nrepl` is used.
 
 ## 1.6.0 (2022-12-21)
 
