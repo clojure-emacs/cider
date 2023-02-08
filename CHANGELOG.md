@@ -33,6 +33,7 @@
 - Bump the injected `cider-nrepl` to 0.30.
 - [#3219](https://github.com/clojure-emacs/cider/issues/3219): Disable by default forcing the display of output when the REPL prompt is at the first line of the of the REPL window. This behavior is desirable, but very slow and rarely needed. It can be re-enabled by setting `cider-repl-display-output-before-window-boundaries` to `t`.
 - [#3335](https://github.com/clojure-emacs/cider/issues/3335): Disable the Paredit binding of RET in cider-repl-mode buffers, which can cause unexpected behaviour by appearing to hang instead of evaluating forms.
+- [#3307](https://github.com/clojure-emacs/cider/issues/3307): Make eldoc highlighting on emacs special forms better match the location of the point when latest `cider-nrepl` is used.
 
 ## 1.6.0 (2022-12-21)
 
