@@ -69,6 +69,37 @@
         (expect (cider--eldoc-format-class-names class-names)
                 :to-equal "(String StringBuffer CharSequence & 1 more)")))))
 
+(describe "cider-eldoc-thing-type"
+  (it "Identifies special forms correctly"
+    (let ((eldoc-info '("type" "special-form")))
+      (expect (cider-eldoc-thing-type eldoc-info) :to-equal 'special-form)))
+  (it "Identifies functions correctly"
+    (let ((eldoc-info '("type" "function")))
+      (expect (cider-eldoc-thing-type eldoc-info) :to-equal 'fn))))
+
+(describe "cider-eldoc-format-special-form"
+  (before-each
+    (spy-on 'cider-eldoc-format-thing :and-return-value "formatted thing!")
+    (spy-on 'cider-eldoc-format-arglist :and-return-value "formatted arglist!"))
+  (it "Should remove duplicates from special-form arglists that have duplicates"
+    (let ((eldoc-info '("ns" nil
+                        "symbol" "if"
+                        "arglists" (("if" "test" "then" "else?"))
+                        "type" "special-form")))
+      (cider-eldoc-format-special-form 'if 0 eldoc-info)
+      (expect 'cider-eldoc-format-arglist :to-have-been-called-with '(("test" "then" "else?")) 0)))
+  (it "Should not remove duplicates from special-form arglists that do not have duplicates"
+    (let ((eldoc-info '("ns" nil
+                        "symbol" "."
+                        "arglists" ((".instanceMember" "instance" "args*") (".instanceMember" "Classname" "args*") ("Classname/staticMethod" "args*") ("Classname/staticField"))
+                        "type" "special-form")))
+      (cider-eldoc-format-special-form 'if 0 eldoc-info)
+      (expect 'cider-eldoc-format-arglist :to-have-been-called-with '((".instanceMember" "instance" "args*")
+                                                                      (".instanceMember" "Classname" "args*")
+                                                                      ("Classname/staticMethod" "args*")
+                                                                      ("Classname/staticField"))
+              0))))
+
 (describe "cider-eldoc-format-thing"
   :var (class-names)
   (before-each
@@ -237,6 +268,31 @@
           (search-forward ".length")
           (expect (cider-eldoc-info-in-current-sexp) :to-equal
                   '("eldoc-info" (("java.lang.String") ".length" (("this"))) "thing" "java.lang.String/.length" "pos" 0)))))))
+
+(describe "cider-eldoc"
+  (before-each
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-eldoc--edn-file-p :and-return-value nil))
+  (it "Should call cider-eldoc-format-variable for vars"
+    (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value '("thing" "foo" "pos" 0 "eldoc-info" ("ns" "clojure.core" "symbol" "foo" "type" "variable" "docstring" "test docstring")))
+    (spy-on 'cider-eldoc-format-variable)
+    (cider-eldoc)
+    (expect 'cider-eldoc-format-variable :to-have-been-called-with "foo" '("ns" "clojure.core" "symbol" "foo" "type" "variable" "docstring" "test docstring")))
+  (it "Should call cider-eldoc-format-special-form for special forms"
+    (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value '("thing" "if" "pos" 0 "eldoc-info" ("ns" "clojure.core" "symbol" "if" "type" "special-form" "arglists" ("special form arglist"))))
+    (spy-on 'cider-eldoc-format-special-form)
+    (cider-eldoc)
+    (expect 'cider-eldoc-format-special-form :to-have-been-called-with "if" 0 '("ns" "clojure.core" "symbol" "if" "type" "special-form" "arglists" ("special form arglist"))))
+  (it "Should call cider-eldoc-format-function for functions"
+    (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value '("thing" "a-fn" "pos" 0 "eldoc-info" ("ns" "foo.bar" "symbol" "a-fn" "type" "function" "arglists" ("function arglist"))))
+    (spy-on 'cider-eldoc-format-function)
+    (cider-eldoc)
+    (expect 'cider-eldoc-format-function :to-have-been-called-with "a-fn" 0 '("ns" "foo.bar" "symbol" "a-fn" "type" "function" "arglists" ("function arglist"))))
+  (it "Should call cider-eldoc-format-function for macros"
+    (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value '("thing" "a-macro" "pos" 0 "eldoc-info" ("ns" "clojure.core" "symbol" "a-macro" "type" "macro" "arglists" ("macro arglist"))))
+    (spy-on 'cider-eldoc-format-function)
+    (cider-eldoc)
+    (expect 'cider-eldoc-format-function :to-have-been-called-with "a-macro" 0 '("ns" "clojure.core" "symbol" "a-macro" "type" "macro" "arglists" ("macro arglist")))))
 
 (describe "cider-eldoc-format-sym-doc"
   :var (eldoc-echo-area-use-multiline-p)
