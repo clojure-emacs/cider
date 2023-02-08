@@ -410,8 +410,13 @@
                                      ;; select nbb
                                      ("No project found in current dir, select project type to jack in: "
                                       "nbb")
-                                     ;; project src directory, use suggested
-                                     ("Project: " initial-input)
+                                     (_ (error ":integration-test-unsupported-prompt-error %S" prompt)))))
+          (spy-on 'read-file-name
+                  :and-call-fake (lambda (prompt &optional dir _default-filename _mustmatch
+                                                 _initial _predicate)
+                                   (pcase prompt
+                                     ;; project src directory
+                                     ("Project: " dir)
                                      (_ (error ":integration-test-unsupported-prompt-error %S" prompt)))))
 
           (with-temp-buffer
@@ -471,12 +476,12 @@
         ;; setup empty dir
         (let* ((project-dir temp-dir))
           ;; fake user input
-          (spy-on 'completing-read
-                  :and-call-fake (lambda (prompt _collection &optional _predicate _require-match
-                                                 initial-input _hist _def _inherit-input-method)
+          (spy-on 'read-file-name
+                  :and-call-fake (lambda (prompt &optional dir _default-filename _mustmatch
+                                                 _initial _predicate)
                                    (pcase prompt
                                      ;; project src directory
-                                     ("Project: " initial-input)
+                                     ("Project: " dir)
                                      (_ (error ":integration-test-unsupported-prompt-error %S" prompt)))))
           (with-temp-buffer
             ;; set default directory to temp project
