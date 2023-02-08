@@ -348,9 +348,9 @@ Sub-match 1 must be the project path.")
   "Completion history for connection hosts.")
 
 (defvar cider-jack-in-universal-options
-  '((clojure-cli (:prefix-arg 1 :cmd (:jack-in-type clj  :project-type babashka :edit-project-dir t)))
-    (lein        (:prefix-arg 2 :cmd (:jack-in-type clj  :project-type clojure-cli :edit-project-dir t)))
-    (babashka    (:prefix-arg 3 :cmd (:jack-in-type clj  :project-type lein :edit-project-dir t)))
+  '((clojure-cli (:prefix-arg 1 :cmd (:jack-in-type clj  :project-type clojure-cli :edit-project-dir t)))
+    (lein        (:prefix-arg 2 :cmd (:jack-in-type clj  :project-type lein :edit-project-dir t)))
+    (babashka    (:prefix-arg 3 :cmd (:jack-in-type clj  :project-type babashka :edit-project-dir t)))
     (nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t))))
   "The list of project tools that are supported by the universal jack in command.
 
