@@ -137,17 +137,17 @@ directory, it behaves exactly the same as `cider-jack-in` does.
 
 It utilizes Emacs's
 https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html[numeric
-prefix arguments] to quickly jack in to a project type. Numeric prefix
-arguments can be set with the Meta key followed by a number.
+prefix arguments] to quickly jack in with a specific build tool. Numeric prefix
+arguments can be set with the `Meta` key followed by a number.
 
-The following clojure build tools are supported so far
+The following Clojure build tools are supported so far
 
 - kbd:[M-1 C-c C-x j u] jack-in using clojure-cli.
 - kbd:[M-2 C-c C-x j u] jack-in using leiningen.
 - kbd:[M-3 C-c C-x j u] jack-in using babashka.
 - kbd:[M-4 C-c C-x j u] jack-in using nbb.
 
-Here is an example of how to bind F12 for quickly bringing up a
+Here is an example of how to bind kbd:[F12] for quickly bringing up a
 babashka REPL:
 
 [source,lisp]
