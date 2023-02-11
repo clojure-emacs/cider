@@ -1,48 +1,39 @@
 = Other Platforms
 
-== The Problem
+== Overview
 
-CIDER was created in the early days of Clojure where there weren't any
-of the alternative implementations that exist today. This lead to a design
-that relied on knowledge of certain specifics of Clojure and
-the Clojure nREPL server.
+Here "other platforms" essentially means any (Clojure) platforms that hasn't
+been mentioned specifically earlier in a dedicated section of the documentation.
 
-Later, with the introduction of ClojureScript we made another set
-of assumptions, related to the way hosted ClojureScript works. (e.g. that
-you start with an ordinary Clojure REPL that gets "upgraded" to a
-ClojureScript REPL by the invocation of a special form)
+As noted earlier in the documentation, down the road CIDER might support non-Clojure
+platforms as well. As things stand today, however, that's not particularly high on our
+list of priorities.
 
-Lately we've been working to address this and
-make CIDER more runtime-agnostic.
-
-== The Solution
+== Usage
 
 As of CIDER 1.6, the default CIDER connection command `cider-connect-clj` is
 capable of connecting to any nREPL server that implements the core nREPL
-protocol interface.
+protocol interface. So, all you need to do is the following:
 
-As such, all of these work:
+* Start an nREPL server (the project's README  usually has a section
+on starting a nREPL server).
+* kbd:[M-x `cider-connect-clj` <RET>]
+
+And that's it! You'll get every feature that's implemented by the nREPL server
+you're using.
+
+== Supported Platform
+
+Here's an incomplete list of Clojure platforms that you can use as described above.
 
 * https://github.com/babashka/nbb[nbb]
 * https://github.com/babashka/scittle[scittle]
 * https://github.com/BetterThanTomorrow/joyride[joyride]
 
-First start an nREPL server (the project's Readme usually has a section
-on starting a nREPL server).
-
-You can use
-
-kbd:[M-x `cider-connect-clj` <RET>]
-
-to connect to any Clojure(Script) nREPL server.
-
-Features:
-
-* Eval, load file etc.
-* Code completion.
-* Errors as overlays. (The default CIDER error buffer is not implemented currently).
-* Other nREPL features the server provides; This might be rather minimal.
-
-Basically you'll get every feature that's implemented by the nREPL server you're using.
-
 NOTE: For `nbb` you can alternatively connect via `cider-connect-cljs`, see xref:platforms/nbb.adoc[nbb].
+
+== Limitations & Caveats
+
+* Everything will be treated as a Clojure connection, regardless of the underlying platform.
+* Errors will be displayed only as overlays. (The default CIDER error buffer is not implemented currently).
+* The amount of functionality you'll get will be dependant on how well the nREPL server you're using implements the core nREPL protocol.
