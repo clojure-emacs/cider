@@ -241,7 +241,7 @@ wait`)
 * `cider-shadow-cljs-parameters` - the task to start a REPL server (`server` by default)
 * `cider-shadow-cljs-global-options`
 
-=== Override Jack-In Command
+=== Override the Jack-In Command
 
 Which Jack-In Command is used is based on the project type. You can override the Jack-In Command either project-wide or as an argument in Lisp.
 This allows for fine-grained control over how cider starts the nrepl-server.
@@ -251,7 +251,7 @@ The precedence order for determining the Jack-In Command is:
 2) `cider-jack-in-command` if set as a directory local variable, and
 3) inferred from the project type (the default).
 
-==== Project wide with .dir-locals.el
+==== Settign a project wide command
 
 You can set a local variable `cider-jack-in-command` to override the jack-in command.
 
@@ -261,7 +261,7 @@ You can set a local variable `cider-jack-in-command` to override the jack-in com
   (cider-jack-in-command . "nbb nrepl-server")))
 ----
 
-==== Parameter
+==== Passing the Command Programmatically as a Parameter
 
 You can provide an override Jack-In command as an argument to `cider-jack-in`.
 Here is an example Nbb Jack-In command, providing a custom `:jack-in-cmd`.

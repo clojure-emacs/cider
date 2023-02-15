@@ -510,11 +510,14 @@ specifying the artifact ID, and the second element the version number."
                        (string :tag "Artifact ID")
                        (string :tag "Version"))))
 
-(defvar-local cider-jack-in-command nil
-  "The custom command used to start a nrepl server when using `cider-jack-in`.
+(defvar-local cider-jack-in-cmd nil
+  "The custom command used to start a nrepl server.
+This is used by `cider-jack-in`.
 
-If this variable is set, its value will be used as the command to start
-the nrepl server instead of the default command inferred from the project type.
+If this variable is set, its value will be
+used as the command to start the nrepl server
+instead of the default command inferred from
+the project type.
 
 This allows for fine-grained control over the jack-in process.
 The value should be a string representing the command to start
@@ -1506,7 +1509,7 @@ PARAMS is a plist with the following keys (non-exhaustive list)
 `cider-jack-in-command' for the list of valid types)."
   (cond
    ((plist-get params :jack-in-cmd) params)
-   (cider-jack-in-command (plist-put params :jack-in-cmd cider-jack-in-command))
+   (cider-jack-in-cmd (plist-put params :jack-in-cmd cider-jack-in-cmd))
    (t (let* ((params (cider--update-do-prompt params))
            (project-dir (plist-get params :project-dir))
            (params-project-type (plist-get params :project-type))
