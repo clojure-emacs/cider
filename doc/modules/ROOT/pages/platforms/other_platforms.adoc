@@ -36,4 +36,4 @@ NOTE: For `nbb` you can alternatively connect via `cider-connect-cljs`, see xref
 
 * Everything will be treated as a Clojure connection, regardless of the underlying platform.
 * Errors will be displayed only as overlays. (The default CIDER error buffer is not implemented currently).
-* The amount of functionality you'll get will be dependant on how well the nREPL server you're using implements the core nREPL protocol.
+* The amount of functionality you'll get will be dependent on how well the nREPL server you're using implements the core nREPL protocol.
