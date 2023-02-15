@@ -529,14 +529,14 @@
     (let* ((params '(:jack-in-cmd "Snowcrash"))
            (params (cider--update-jack-in-cmd params)))
       (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))
-   (it "Uses the `cider-jack-in-command', if provided"
+   (it "Uses the `cider-jack-in-cmd', if provided"
     (let* ((params '())
-           (cider-jack-in-command "Seveneves")
+           (cider-jack-in-cmd "Seveneves")
            (params (cider--update-jack-in-cmd params)))
       (expect params :to-equal '(:jack-in-cmd "Seveneves"))))
-   (it "Uses params over `cider-jack-in-command', if provided"
+   (it "Uses params over `cider-jack-in-cmd', if provided"
     (let* ((params '(:jack-in-cmd "Snowcrash"))
-           (cider-jack-in-command "Seveneves")
+           (cider-jack-in-cmd "Seveneves")
            (params (cider--update-jack-in-cmd params)))
       (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))))
 
