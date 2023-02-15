@@ -258,7 +258,7 @@ You can set a local variable `cider-jack-in-command` to override the jack-in com
 [source,emacs-lisp]
 ----
 ((nil
-  (cider-jack-in-command . "nbb nrepl-server")))
+  (cider-jack-in-cmd . "nbb nrepl-server")))
 ----
 
 ==== Passing the Command Programmatically as a Parameter
