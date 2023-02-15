@@ -251,7 +251,7 @@ The precedence order for determining the Jack-In Command is:
 2) `cider-jack-in-command` if set as a directory local variable, and
 3) inferred from the project type (the default).
 
-==== Settign a project wide command
+==== Setting a project-wide command
 
 You can set a local variable `cider-jack-in-command` to override the jack-in command.
 
