@@ -1511,42 +1511,42 @@ PARAMS is a plist with the following keys (non-exhaustive list)
    ((plist-get params :jack-in-cmd) params)
    (cider-jack-in-cmd (plist-put params :jack-in-cmd cider-jack-in-cmd))
    (t (let* ((params (cider--update-do-prompt params))
-           (project-dir (plist-get params :project-dir))
-           (params-project-type (plist-get params :project-type))
-           (project-type (or params-project-type
-                             (cider-project-type project-dir)))
-           (command (cider-jack-in-command project-type))
-           (command-resolved (cider-jack-in-resolve-command project-type))
-           (command-global-opts (cider-jack-in-global-options project-type))
-           (command-params (cider-jack-in-params project-type)))
-      (if command-resolved
-          (with-current-buffer (or (plist-get params :--context-buffer)
-                                   (current-buffer))
-            (let* ((command-params (if (plist-get params :do-prompt)
-                                       (read-string "nREPL server command: "
-                                                    command-params
-                                                    'cider--jack-in-nrepl-params-history)
-                                     command-params))
-                   (cmd-params (if cider-inject-dependencies-at-jack-in
-                                   (cider-inject-jack-in-dependencies command-global-opts command-params project-type)
-                                 command-params)))
-              (if (or project-dir cider-allow-jack-in-without-project)
-                  (when (or project-dir
-                            (eq cider-allow-jack-in-without-project t)
-                            (and (null project-dir)
-                                 (eq cider-allow-jack-in-without-project 'warn)
-                                 (or params-project-type
-                                     (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? "))))
-                    (let ((cmd (format "%s %s" command-resolved (if (or (string-equal command "powershell")
-                                                                        (string-equal command "pwsh"))
-                                                                    (cider--powershell-encode-command cmd-params)
-                                                                  cmd-params))))
-                      (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command
-                                                             (plist-get params :edit-jack-in-command))
-                                                         (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
-                                                       cmd))))
-                (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
-        (user-error "The %s executable isn't on your `exec-path'" command))))))
+             (project-dir (plist-get params :project-dir))
+             (params-project-type (plist-get params :project-type))
+             (project-type (or params-project-type
+                               (cider-project-type project-dir)))
+             (command (cider-jack-in-command project-type))
+             (command-resolved (cider-jack-in-resolve-command project-type))
+             (command-global-opts (cider-jack-in-global-options project-type))
+             (command-params (cider-jack-in-params project-type)))
+        (if command-resolved
+            (with-current-buffer (or (plist-get params :--context-buffer)
+                                     (current-buffer))
+              (let* ((command-params (if (plist-get params :do-prompt)
+                                         (read-string "nREPL server command: "
+                                                      command-params
+                                                      'cider--jack-in-nrepl-params-history)
+                                       command-params))
+                     (cmd-params (if cider-inject-dependencies-at-jack-in
+                                     (cider-inject-jack-in-dependencies command-global-opts command-params project-type)
+                                   command-params)))
+                (if (or project-dir cider-allow-jack-in-without-project)
+                    (when (or project-dir
+                              (eq cider-allow-jack-in-without-project t)
+                              (and (null project-dir)
+                                   (eq cider-allow-jack-in-without-project 'warn)
+                                   (or params-project-type
+                                       (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? "))))
+                      (let ((cmd (format "%s %s" command-resolved (if (or (string-equal command "powershell")
+                                                                          (string-equal command "pwsh"))
+                                                                      (cider--powershell-encode-command cmd-params)
+                                                                    cmd-params))))
+                        (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command
+                                                               (plist-get params :edit-jack-in-command))
+                                                           (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
+                                                         cmd))))
+                  (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
+          (user-error "The %s executable isn't on your `exec-path'" command))))))
 
 (defun cider--update-host-port (params)
   "Update :host and :port; or :socket-file in PARAMS."
