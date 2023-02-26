@@ -15,6 +15,7 @@
 - Allow using `npx nbb` as `cider-nbb-command`.
 - [#3281](https://github.com/clojure-emacs/cider/pull/3281): Replace newline chars with actual newlines in `*cider-test-report*` buffer, for prettier error messages.
 - Bump the injected `cider-nrepl` to 0.30.
+- [#3219](https://github.com/clojure-emacs/cider/issues/3219): Disable by default forcing the display of output when the REPL prompt is at the first line of the of the REPL window. This behavior is desirable, but very slow and rarely needed. It can be re-enabled by setting `cider-repl-display-output-before-window-boundaries` to `t`.
 
 ## 1.6.0 (2022-12-21)
 

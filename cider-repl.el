@@ -168,6 +168,19 @@ Will be evaluated with bindings for set!-able vars in place."
   :type 'boolean
   :package-version '(cider . "0.11.0"))
 
+;; See https://github.com/clojure-emacs/cider/issues/3219 for more details
+(defcustom cider-repl-display-output-before-window-boundaries nil
+  "Controls whether to display output emitted before the REPL window boundaries.
+
+If the prompt is on the first line of the window, then scroll the window
+down by a single line to make the emitted output visible.
+
+That behavior is desirable, but rarely needed and it slows down printing
+output a lot (e.g. 10x) that's why it's disable by default starting with
+CIDER 1.7."
+  :type 'boolean
+  :package-version '(cider . "1.7.0"))
+
 
 ;;;; REPL buffer local variables
 (defvar-local cider-repl-input-start-mark nil)
@@ -778,14 +791,16 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
                  (not (bolp)))
         (insert-before-markers "\n")
         (set-marker cider-repl-output-end (1- (point))))))
-  (when-let* ((window (get-buffer-window buffer t)))
-    ;; If the prompt is on the first line of the window, then scroll the window
-    ;; down by a single line to make the emitted output visible.
-    (when (and (pos-visible-in-window-p cider-repl-prompt-start-mark window)
-               (< 1 cider-repl-prompt-start-mark)
-               (not (pos-visible-in-window-p (1- cider-repl-prompt-start-mark) window)))
-      (with-selected-window window
-        (scroll-down 1)))))
+  (when cider-repl-display-output-before-window-boundaries
+    ;; FIXME: The code below is super slow, that's why it's disabled by default.
+    (when-let* ((window (get-buffer-window buffer t)))
+      ;; If the prompt is on the first line of the window, then scroll the window
+      ;; down by a single line to make the emitted output visible.
+      (when (and (pos-visible-in-window-p cider-repl-prompt-start-mark window)
+                 (< 1 cider-repl-prompt-start-mark)
+                 (not (pos-visible-in-window-p (1- cider-repl-prompt-start-mark) window)))
+        (with-selected-window window
+          (scroll-down 1))))))
 
 (defun cider-repl--emit-interactive-output (string face)
   "Emit STRING as interactive output using FACE."
