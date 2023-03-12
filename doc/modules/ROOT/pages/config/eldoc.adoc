@@ -64,3 +64,12 @@ is non-nil:
 ----
 (setq cider-eldoc-display-context-dependent-info t)
 ----
+
+=== Disable CIDER's ElDoc Function
+
+If you're using CIDER alongside `clojure-lsp` you might prefer to use `clojure-lsp` for ElDoc. This means you'll have to remove CIDER's ElDoc function from the list of registered ElDoc functions:
+
+[source,lisp]
+----
+(remove-hook 'eldoc-documentation-functions #'cider-eldoc)
+----
