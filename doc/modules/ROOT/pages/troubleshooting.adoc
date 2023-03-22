@@ -293,7 +293,7 @@ In particular, by adding it to a `deps.edn` file under an alias (eg. `:dev`)
 Or by customising the jack-in options.
 [source,lisp]
 ---
-(setq cider-clojure-cli-global-options "-J-XX:-OmitStackTraceInFastThrow")
+(setq cider-clojure-cli-aliases "-J-XX:-OmitStackTraceInFastThrow")
 ---
 
 NOTE: Leiningen disables `OmitStackTraceInFastThrow` by default.
