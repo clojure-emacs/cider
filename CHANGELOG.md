@@ -2,11 +2,13 @@
 
 ## master (unreleased)
 
+## 1.7.0 (2023-03-23)
+
 ### New features
 
 - [#3314](https://github.com/clojure-emacs/cider/issues/3314): Detect `nrepl+unix` sockets (say via `lein nrepl :headless :socket nrepl.sock`).
-- [#3262](https://github.com/clojure-emacs/cider/issues/3262): Add navigation functionality to `npfb` keys inside the data inspector's buffer.
-- [#3310](https://github.com/clojure-emacs/cider/issues/3310): Add ability to use custom coordinates in jack-in-dependencies.
+- [#3262](https://github.com/clojure-emacs/cider/issues/3262): Add navigation functionality to `n/p/f/b` keys inside the data inspector's buffer.
+- [#3310](https://github.com/clojure-emacs/cider/issues/3310): Add ability to use custom coordinates in `cider-jack-in-dependencies`.
 - [cider-nrepl#766](https://github.com/clojure-emacs/cider-nrepl/issues/766): Complete local bindings for ClojureScript files.
 - [#3179](https://github.com/clojure-emacs/cider/issues/3179): Introduce `cider-jack-in-universal` to support jacking-in without a project from a set of pre-configured Clojure project tools.
 
