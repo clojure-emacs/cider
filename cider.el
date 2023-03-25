@@ -252,13 +252,13 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.6.0"))
 
-(make-obsolete-variable 'cider-lein-global-options 'cider-lein-parameters "1.6.0")
-(make-obsolete-variable 'cider-boot-global-options 'cider-boot-parameters "1.6.0")
-(make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-aliases "1.6.0")
-(make-obsolete-variable 'cider-shadow-cljs-global-options 'cider-shadow-cljs-parameters "1.6.0")
-(make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.6.0")
-(make-obsolete-variable 'cider-babashka-global-options 'cider-babashka-parameters "1.6.0")
-(make-obsolete-variable 'cider-shadow-nbb-options 'cider-nbb-parameters "1.6.0")
+(make-obsolete-variable 'cider-lein-global-options 'cider-lein-parameters "1.8.0")
+(make-obsolete-variable 'cider-boot-global-options 'cider-boot-parameters "1.8.0")
+(make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-aliases "1.8.0")
+(make-obsolete-variable 'cider-shadow-cljs-global-options 'cider-shadow-cljs-parameters "1.8.0")
+(make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.8.0")
+(make-obsolete-variable 'cider-babashka-global-options 'cider-babashka-parameters "1.8.0")
+(make-obsolete-variable 'cider-shadow-nbb-options 'cider-nbb-parameters "1.8.0")
 
 (defcustom cider-jack-in-default
   (if (executable-find "clojure") 'clojure-cli 'lein)
