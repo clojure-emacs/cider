@@ -200,17 +200,12 @@ so we'll examine them tool by tool.
 ==== Leiningen Options
 
 * `cider-lein-command` - the name of the Leiningen executable (`lein` by default)
-* `cider-lein-parameters` - the command-line params to start a REPL (e.g. `repl :headless`)
-* `cider-lein-global-options ` - these are passed to the command directly, in
-first position (e.g., `-o` to `lein` enables offline mode). (DEPRECATED)
-
-NOTE: Originally CIDER supported jacking in only for Leiningen, so its configuration
-options became the archetype for everything else.
+* `cider-lein-parameters` - the command-line params to start a REPL (e.g. `repl :headless` or -o to enable offline mode)
 
 ==== Clojure CLI Options
 
 * `cider-clojure-cli-command` - the name of the `clojure` executable (`clojure` by default)
-* `cider-clojure-cli-aliases` - a list of aliases to be used at jack-in time
+* `cider-clojure-cli-aliases` - a list of aliases (or other parameters) to be used at jack-in time
 
 To use `cider-jack-in` with `tools.deps` on Windows set the
 `cider-clojure-cli-command` to `"powershell"`. This happens by default
@@ -227,19 +222,16 @@ will likely result in a better overall development experience.
 * `cider-boot-parameters` - these are usually task names and their parameters
 (e.g., `dev` for launching boot's dev task instead of the standard `repl -s
 wait`)
-* `cider-boot-global-options` (DEPRECATED)
 
 ==== Gradle Options
 
 * `cider-gradle-command` - the name of the Gradle executable (`./gradlew` by default)
-* `cider-gradle-parameters` - the Gradle arguments to invoke the repl task (`clojureRepl` by default)
-* `cider-gradle-global-options` - these are usually global options to gradle, such as `--no-daemon` or `--configuration-cache` (empty by default) (DEPRECATED)
+* `cider-gradle-parameters` - the Gradle arguments to invoke the repl task (e.g. `--no-daemon` or `--configuration-cache`) (`clojureRepl` by default)
 
 ==== shadow-cljs
 
 * `cider-shadow-cljs-command` - the command to run `shadow-cljs` (`npx shadow-cljs` by default). By default we favor the project-specific shadow-cljs over the system-wide.
 * `cider-shadow-cljs-parameters` - the task to start a REPL server (`server` by default)
-* `cider-shadow-cljs-global-options` - (DEPRECATED)
 
 === Override the Jack-In Command
 

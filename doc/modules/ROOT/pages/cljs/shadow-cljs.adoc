@@ -118,7 +118,6 @@ You can tweak the command used by `cider-jack-in-cljs` to start the `shadow-cljs
 via the following configuration variables:
 
 * `cider-shadow-cljs-command` (its default value is `npx shadow-cljs`)
-* `cider-shadow-cljs-global-options` (its default value is blank) (DEPRECATED)
 * `cider-shadow-cljs-parameters` (its default value is `server`)
 
 All of this results in the following default command to start the shadow-cljs server:

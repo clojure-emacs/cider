@@ -23,5 +23,4 @@ NOTE: `cider-jack-in-cljs` works with nbb projects that are using `nbb.edn`.
 The jack-in command can be configured via several defcustoms:
 
 * `cider-nbb-command` (by default `nbb`)
-* `cider-nbb-global-options` (by default `nil`) (DEPRECATED)
 * `cider-nbb-parameters` (by default `nrepl-server`)
