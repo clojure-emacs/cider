@@ -205,7 +205,8 @@ so we'll examine them tool by tool.
 ==== Clojure CLI Options
 
 * `cider-clojure-cli-command` - the name of the `clojure` executable (`clojure` by default)
-* `cider-clojure-cli-aliases` - a list of aliases (or other parameters) to be used at jack-in time
+* `cider-clojure-cli-parameters` - the command-line parameters to start a REPL
+* `cider-clojure-cli-aliases` - a list of aliases to be used at jack-in time
 
 To use `cider-jack-in` with `tools.deps` on Windows set the
 `cider-clojure-cli-command` to `"powershell"`. This happens by default
