@@ -747,7 +747,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
 
 (defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
-Does so by concatenating DEPENDENCIES and GLOBAL-OPTIONS into a suitable
+Does so by concatenating DEPENDENCIES, PARAMS and GLOBAL-OPTIONS into a suitable
 `clojure` invocation.  The main is placed in an inline alias :cider/nrepl
 so that if your aliases contain any mains, the cider/nrepl one will be the
 one used."
@@ -773,6 +773,7 @@ one used."
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
     (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl%s"
+            ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
             (if global-options (format "%s " global-options) "")
             (string-join all-deps " ")
             main-opts
@@ -1534,6 +1535,7 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                (cider-project-type project-dir)))
              (command (cider-jack-in-command project-type))
              (command-resolved (cider-jack-in-resolve-command project-type))
+             ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
              (command-global-opts (cider-jack-in-global-options project-type))
              (command-params (cider-jack-in-params project-type)))
         (if command-resolved
