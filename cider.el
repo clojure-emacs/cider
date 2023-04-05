@@ -156,6 +156,13 @@ default to \"powershell\"."
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
+(defcustom cider-clojure-cli-parameters
+  nil
+  "Params passed to clojure cli to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.8.0"))
+
 (defcustom cider-clojure-cli-aliases
   nil
   "A list of aliases to include when using the clojure cli.
@@ -251,6 +258,15 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :type 'string
   :safe #'stringp
   :package-version '(cider . "1.6.0"))
+
+(make-obsolete-variable 'cider-lein-global-options 'cider-lein-parameters "1.8.0")
+(make-obsolete-variable 'cider-boot-global-options 'cider-boot-parameters "1.8.0")
+(make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-parameters "1.8.0")
+(make-obsolete-variable 'cider-clojure-cli-aliases 'cider-clojure-cli-parameters "1.8.0")
+(make-obsolete-variable 'cider-shadow-cljs-global-options 'cider-shadow-cljs-parameters "1.8.0")
+(make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.8.0")
+(make-obsolete-variable 'cider-babashka-global-options 'cider-babashka-parameters "1.8.0")
+(make-obsolete-variable 'cider-shadow-nbb-options 'cider-nbb-parameters "1.8.0")
 
 (defcustom cider-jack-in-default
   (if (executable-find "clojure") 'clojure-cli 'lein)
@@ -432,7 +448,7 @@ Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
     ('lein        cider-lein-parameters)
     ('boot        cider-boot-parameters)
-    ('clojure-cli nil)
+    ('clojure-cli cider-clojure-cli-parameters)
     ('babashka    cider-babashka-parameters)
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
@@ -729,7 +745,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   "Removes the duplicates in DEPS."
   (cl-delete-duplicates deps :test 'equal))
 
-(defun cider-clojure-cli-jack-in-dependencies (global-options _params dependencies)
+(defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES and GLOBAL-OPTIONS into a suitable
 `clojure` invocation.  The main is placed in an inline alias :cider/nrepl
@@ -756,7 +772,7 @@ one used."
                       (cider-jack-in-normalized-nrepl-middlewares)
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware)))
-    (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl"
+    (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl%s"
             (if global-options (format "%s " global-options) "")
             (string-join all-deps " ")
             main-opts
@@ -764,7 +780,8 @@ one used."
                 ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
                 ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
                 (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))
-              ""))))
+              "")
+            (if params (format " %s" params) ""))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
