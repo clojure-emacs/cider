@@ -159,7 +159,9 @@ you'd like to use the default Emacs behavior use
 
 (defcustom cider-repl-init-code (list (cdr (assoc 'clj cider-repl-require-repl-utils-code)))
   "Clojure code to evaluate when starting a REPL.
-Will be evaluated with bindings for set!-able vars in place."
+Will be evaluated with bindings for set!-able vars in place.
+
+See also `cider-repl-eval-init-code'."
   :type '(list string)
   :package-version '(cider . "0.21.0"))
 
