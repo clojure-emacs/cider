@@ -68,6 +68,10 @@ This initialization code is auto-loaded only in the first REPL namespace
 shortcut `require-repl-utils`. The functionality is also accessible via
 CIDER's menu ("REPL -> Require REPL utils").
 
+TIP: You'll rarely need the REPL utility functions when using CIDER, as it
+provides many Emacs commands that behave similarly (e.g. instead of doing
+something like `(doc str)` you'd probably use the `cider-doc` (kbd:[C-c C-d C-d]) command).
+
 == Known Limitations
 
 Performance can degrade when the REPL buffer grows very large. This is
