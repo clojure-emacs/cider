@@ -1212,8 +1212,9 @@ an `error' if the nREPL PROCESS exited because it couldn't start up."
                                   (eq (buffer-local-value 'nrepl-server-buffer b)
                                       server-buffer))
                                 (buffer-list))))
-      ;; close any known open client connections
-      (mapc #'cider--close-connection clients)
+
+      (when (string-match-p "^hangup" event)
+        (mapc #'cider--close-connection clients))
 
       (if (process-get process :cider--nrepl-server-ready)
           (progn

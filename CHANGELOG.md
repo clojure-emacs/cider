@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+- Keep repl buffers alive when restarting with sesman-restart
+
 ## 1.7.0 (2023-03-23)
 
 ### New features
