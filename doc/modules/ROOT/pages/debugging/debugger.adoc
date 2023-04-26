@@ -200,6 +200,19 @@ plus metadata annotation in your code. Note that you'll have to delete
 this annotation by hand; you cannot simply use kbd:[C-M-x] as you
 can to un-instrument kbd:[C-u C-M-x].
 
+== Debug on Exception
+
+There is basic experimental support for entering the debugger when an exception
+is thrown. When you instrument a function by passing a negative argument to
+`cider-eval-defun-at-point` kbd:[C-u - C-M-x] then you will enter the debugger
+whenever any form in that function throws an exception. You can also instrument
+a form manually by placing `#exn` in front to instrument just that form, or
+`#dbgexn` to instrument every form inside of it, the same difference as between
+`#break` and `#dbg`. This is mostly useful to see the values of local variables at
+the time of the exception. *locals*, *eval*, and *inject* all work as expected,
+while *continue* or *next* will simply rethrow the exception, exiting the
+debugger.
+
 == Caveats
 
 Due to the way the debugger is currently implemented there are some
