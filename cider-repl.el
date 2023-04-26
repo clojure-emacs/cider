@@ -1839,6 +1839,15 @@ constructs."
 (declare-function cider-complete-at-point "cider-completion")
 (defvar cider--static-font-lock-keywords)
 
+(defun cider-repl-setup-paredit ()
+  "Override the paredit-RET binding in cider-repl-mode."
+  (let ((oldmap (cdr (assoc 'paredit-mode minor-mode-map-alist)))
+        (newmap (make-sparse-keymap)))
+    (set-keymap-parent newmap oldmap)
+    (define-key newmap (kbd "RET") nil)
+    (make-local-variable 'minor-mode-overriding-map-alist)
+    (push `(paredit-mode . ,newmap) minor-mode-overriding-map-alist)))
+
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
   "Major mode for Clojure REPL interactions.
 
@@ -1866,12 +1875,8 @@ constructs."
     (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
     (add-hook 'kill-emacs-hook #'cider-repl-history-just-save))
   (add-hook 'completion-at-point-functions #'cider-complete-at-point nil t)
-  (add-hook 'paredit-mode-hook
-            (lambda ()
-              (clojure-paredit-setup cider-repl-mode-map)
-              ;; Disable paredit-RET, see https://github.com/clojure-emacs/cider/issues/3288
-              (make-local-variable 'paredit-mode-map)
-              (define-key paredit-mode-map "RET" nil))))
+  (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map)))
+  (cider-repl-setup-paredit))
 
 (provide 'cider-repl)
 
