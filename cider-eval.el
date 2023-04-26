@@ -1287,7 +1287,9 @@ command `cider-debug-defun-at-point'."
       (when inline-debug
         (cider--prompt-and-insert-inline-dbg)))
     (cider-interactive-eval (when (and debug-it (not inline-debug))
-                              (concat "#dbg\n" (cider-defun-at-point)))
+                              (if (eq '- debug-it)
+                                  (concat "#dbgexn\n" (cider-defun-at-point))
+                                (concat "#dbg\n" (cider-defun-at-point))))
                             nil
                             (cider-defun-at-point 'bounds)
                             (cider--nrepl-pr-request-map))))
