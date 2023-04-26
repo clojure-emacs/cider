@@ -64,3 +64,19 @@ is non-nil:
 ----
 (setq cider-eldoc-display-context-dependent-info t)
 ----
+
+=== Disable CIDER's ElDoc Function
+
+If you're using CIDER alongside `clojure-lsp` you might prefer to use `clojure-lsp` for ElDoc. This means you'll have to remove CIDER's ElDoc function from the list of registered ElDoc functions:
+
+[source,lisp]
+----
+(remove-hook 'eldoc-documentation-functions #'cider-eldoc)
+----
+
+TIP: If you're dealing with a lot of packages providing some ElDoc integration
+it's a good idea to learn about
+https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc[merging
+multiple documentation sources with ElDoc]. In brief - Emacs 28 added support
+for multiple documentation backends. Now you can read error messages from your
+linter or compiler *and* see code documentation at the same time. Cool stuff!

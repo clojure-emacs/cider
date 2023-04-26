@@ -50,6 +50,28 @@ When you're done with a REPL you can dispose of it with kbd:[C-c C-q].
 TIP: Avoid killing REPL buffers with kbd:[C-c C-k]. This will forgo
 some of the operations needed to properly dispose of a REPL buffer.
 
+== Loading REPL Utility Functions
+
+Normally Clojure REPLs load the following code in the first REPL that you start:
+
+[source,clojure]
+----
+(clojure.core/apply clojure.core/require clojure.main/repl-requires)
+----
+
+CIDER does this as well, but goes one step further and actually allows you
+to control what code to evaluate when a REPL is being initialized via
+the variable `cider-repl-init-code`.
+
+This initialization code is auto-loaded only in the first REPL namespace
+(normally `user`), but you can easily invoke it in any namespace using the REPL
+shortcut `require-repl-utils`. The functionality is also accessible via
+CIDER's menu ("REPL -> Require REPL utils").
+
+TIP: You'll rarely need the REPL utility functions when using CIDER, as it
+provides many Emacs commands that behave similarly (e.g. instead of doing
+something like `(doc str)` you'd probably use the `cider-doc` (kbd:[C-c C-d C-d]) command).
+
 == Known Limitations
 
 Performance can degrade when the REPL buffer grows very large. This is

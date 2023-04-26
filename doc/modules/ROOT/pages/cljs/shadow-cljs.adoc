@@ -101,7 +101,7 @@ Create a `:dev` alias with an extra source path of "dev" and add the following n
 
 Supposing your build-id is `:app`, add the following to your `.dir-locals.el`
 ```elisp
-((nil . ((cider-clojure-cli-global-options . "-A:dev")
+((nil . ((cider-clojure-cli-aliases        . "-M:dev")
          (cider-preferred-build-tool       . clojure-cli)
          (cider-default-cljs-repl          . custom)
          (cider-custom-cljs-repl-init-form . "(do (user/cljs-repl))")
@@ -118,7 +118,6 @@ You can tweak the command used by `cider-jack-in-cljs` to start the `shadow-cljs
 via the following configuration variables:
 
 * `cider-shadow-cljs-command` (its default value is `npx shadow-cljs`)
-* `cider-shadow-cljs-global-options` (its default value is blank)
 * `cider-shadow-cljs-parameters` (its default value is `server`)
 
 All of this results in the following default command to start the shadow-cljs server:

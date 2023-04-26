@@ -2,12 +2,14 @@
 
 ## master (unreleased)
 
+## 1.7.0 (2023-03-23)
+
 ### New features
 
 - [#3314](https://github.com/clojure-emacs/cider/issues/3314): Detect `nrepl+unix` sockets (say via `lein nrepl :headless :socket nrepl.sock`).
-- [#3262](https://github.com/clojure-emacs/cider/issues/3262): Add navigation functionality to `npfb` keys inside the data inspector's buffer.
-- [#3310](https://github.com/clojure-emacs/cider/issues/3310): Add ability to use custom coordinates in jack-in-dependencies.
-- [#766](https://github.com/clojure-emacs/cider-nrepl/issues/766): Complete local bindings for ClojureScript files.
+- [#3262](https://github.com/clojure-emacs/cider/issues/3262): Add navigation functionality to `n/p/f/b` keys inside the data inspector's buffer.
+- [#3310](https://github.com/clojure-emacs/cider/issues/3310): Add ability to use custom coordinates in `cider-jack-in-dependencies`.
+- [cider-nrepl#766](https://github.com/clojure-emacs/cider-nrepl/issues/766): Complete local bindings for ClojureScript files.
 - [#3179](https://github.com/clojure-emacs/cider/issues/3179): Introduce `cider-jack-in-universal` to support jacking-in without a project from a set of pre-configured Clojure project tools.
 
 ### Changes
@@ -15,6 +17,8 @@
 - Allow using `npx nbb` as `cider-nbb-command`.
 - [#3281](https://github.com/clojure-emacs/cider/pull/3281): Replace newline chars with actual newlines in `*cider-test-report*` buffer, for prettier error messages.
 - Bump the injected `cider-nrepl` to 0.30.
+- [#3219](https://github.com/clojure-emacs/cider/issues/3219): Disable by default forcing the display of output when the REPL prompt is at the first line of the of the REPL window. This behavior is desirable, but very slow and rarely needed. It can be re-enabled by setting `cider-repl-display-output-before-window-boundaries` to `t`.
+- [#3335](https://github.com/clojure-emacs/cider/issues/3335): Disable the Paredit binding of RET in cider-repl-mode buffers, which can cause unexpected behaviour by appearing to hang instead of evaluating forms.
 
 ## 1.6.0 (2022-12-21)
 

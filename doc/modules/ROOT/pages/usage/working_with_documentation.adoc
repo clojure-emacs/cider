@@ -74,6 +74,21 @@ example, if you want to want to use Latex-style references
 
 image::cider_see_also.gif[CIDER See Also]
 
+== Displaying Documentation as Tooltips
+
+By default CIDER will show the documentation for the symbol under the mouse in a
+tooltip (using an overlay) or your echo area. That's controlled by the
+configuration setting `cider-use-tooltips`. You can disable this behavior by
+setting the variable to `nil`.
+
+----
+(setq cider-use-tooltips nil)
+----
+
+The tooltips will also be disabled if `tooltip-mode` is disabled or `help-at-pt-display-when-idle` is set to `t`.
+
+TIP: Check out the documentation of `help-at-pt-display-when-idle` to understand better how the `help-echo` Emacs functionality works.
+
 == Keybindings
 
 |===

@@ -118,6 +118,23 @@ built-in option `scroll-conservatively`, for example:
 (add-hook 'cider-repl-mode-hook '(lambda () (setq scroll-conservatively 101)))
 ----
 
+== Display Output Preceding the REPL Window Boundaries
+
+If your REPL prompt is at the beginning of the REPL window (e.g. you pressed
+`C-l` a couple of times to recenter your REPL window) and some output is
+displayed there from an interactive evaluation in a Clojure buffer, this output
+won't automatically be scrolled into view. If you want to force such output to
+be displayed you'll need to add the following to your config:
+
+[source,lisp]
+----
+(setq cider-repl-display-output-before-window-boundaries t)
+----
+
+NOTE: This behaviour was changed in CIDER 1.7, as the auto-scrolling of output
+before the REPL prompt is rarely needed, but it's current implementation is very
+slow.
+
 == Auto-trimming the REPL buffer
 
 NOTE: This functionality is disabled by default.
