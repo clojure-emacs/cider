@@ -20,6 +20,9 @@ You'll also need a recent version of either the Clojure CLI tools or your
 favorite build tool (Leiningen, Boot, or Gradle) to be able to start CIDER via
 `cider-jack-in`. Generally it's a good idea to use the latest stable versions.
 
+Make sure you have a complete JDK installation. Many Linux distributions
+provide only the runtime support by default.
+
 == Installation via package.el
 
 CIDER is available on all major `package.el` community
