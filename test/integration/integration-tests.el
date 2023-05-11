@@ -31,72 +31,11 @@
 (require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 (require 'integration-test-utils)
 
-(describe "jack in"
-  ;; For each project tool, create a project in a temp directory,
-  ;; jack-in to it, send an eval command to the REPL server specific to the
-  ;; project to ensure it works, and finally exit the REPL.
+(defun jack-in-clojure-cli-test (cli-command)
+  "Run clojure cli jack in test using given CLI-COMMAND.
 
-  (it "to babashka"
-    (with-cider-test-sandbox
-      (with-temp-dir temp-dir
-        ;; Create a project in temp dir
-        (let* ((project-dir temp-dir)
-               (bb-edn (expand-file-name "bb.edn" project-dir)))
-          (write-region "{}" nil bb-edn)
-
-          (with-temp-buffer
-            ;; set default directory to temp project
-            (setq-local default-directory project-dir)
-
-            (let* (;; Get a gv reference so as to poll if the client has
-                   ;; connected to the nREPL server.
-                   (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
-
-                   ;; jack in and get repl buffer
-                   (nrepl-proc (cider-jack-in-clj '()))
-                   (nrepl-buf (process-buffer nrepl-proc)))
-
-              ;; wait until the client has successfully connected to the
-              ;; nREPL server.
-              (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 5)
-
-              ;; give it some time to setup the clj REPL
-              (cider-itu-poll-until (cider-repls 'clj nil) 5)
-
-              ;; send command to the REPL, and push stdout/stderr to
-              ;; corresponding eval-xxx variables.
-              (let ((repl-buffer (cider-current-repl))
-                    (eval-err '())
-                    (eval-out '()))
-                (expect repl-buffer :not :to-be nil)
-
-                ;; send command to the REPL
-                (cider-interactive-eval
-                 ;; ask REPL to return a string that uniquely identifies it.
-                 "(print :bb? (some? (System/getProperty \"babashka.version\")))"
-                 (lambda (return)
-                   (nrepl-dbind-response
-                       return
-                       (out err)
-                     (when err (push err eval-err))
-                     (when out (push out eval-out)))) )
-
-                ;; wait for a response to come back.
-                (cider-itu-poll-until (or eval-err eval-out) 5)
-
-                ;; ensure there are no errors and response is as expected.
-                (expect eval-err :to-equal '())
-                (expect eval-out :to-equal '(":bb? true"))
-
-                ;; exit the REPL.
-                (cider-quit repl-buffer)
-
-                ;; wait for the REPL to exit
-                (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
-                (expect (member (process-status nrepl-proc) '(exit signal))))))))))
-
-  (it "to clojure tools cli"
-    (with-cider-test-sandbox
+If CLI-COMMAND is nil, then use the default."
+  (with-cider-test-sandbox
       (with-temp-dir temp-dir
         ;; Create a project in temp dir
         (let* ((project-dir temp-dir)
@@ -109,6 +48,7 @@
                 ;; than the default timeout period to complete.
                 (nrepl-sync-request-timeout 30)
 
+                (cider-clojure-cli-command (or cli-command cider-clojure-cli-command))
                 (cider-jack-in-nrepl-middlewares
                  (append '("ikappaki.nrepl-mdlw-log/middleware") cider-jack-in-nrepl-middlewares)))
 
@@ -177,15 +117,18 @@
                       (message ":ikappaki/nrepl-mdlw-log-dump\n%s\n" (buffer-string)))
                   (message ":!nrepl-mdlw-log-found")))))))))
 
-  (it "to leiningen"
+(describe "jack in"
+  ;; For each project tool, create a project in a temp directory,
+  ;; jack-in to it, send an eval command to the REPL server specific to the
+  ;; project to ensure it works, and finally exit the REPL.
+
+  (it "to babashka"
     (with-cider-test-sandbox
       (with-temp-dir temp-dir
         ;; Create a project in temp dir
         (let* ((project-dir temp-dir)
-               (project-clj (expand-file-name "project.clj" project-dir)))
-          (write-region "(defproject cider/integration \"test\"
-                           :dependencies [[org.clojure/clojure \"1.10.3\"]])"
-                        nil project-clj)
+               (bb-edn (expand-file-name "bb.edn" project-dir)))
+          (write-region "{}" nil bb-edn)
 
           (with-temp-buffer
             ;; set default directory to temp project
@@ -196,15 +139,15 @@
                    (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
 
                    ;; jack in and get repl buffer
-                   (nrepl-proc (cider-jack-in-clj `()))
+                   (nrepl-proc (cider-jack-in-clj '()))
                    (nrepl-buf (process-buffer nrepl-proc)))
 
               ;; wait until the client has successfully connected to the
               ;; nREPL server.
-              (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 90)
+              (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 5)
 
               ;; give it some time to setup the clj REPL
-              (cider-itu-poll-until (cider-repls 'clj nil) 90)
+              (cider-itu-poll-until (cider-repls 'clj nil) 5)
 
               ;; send command to the REPL, and push stdout/stderr to
               ;; corresponding eval-xxx variables.
@@ -216,7 +159,7 @@
                 ;; send command to the REPL
                 (cider-interactive-eval
                  ;; ask REPL to return a string that uniquely identifies it.
-                 "(print :clojure? (some? (clojure-version)))"
+                 "(print :bb? (some? (System/getProperty \"babashka.version\")))"
                  (lambda (return)
                    (nrepl-dbind-response
                        return
@@ -225,18 +168,86 @@
                      (when out (push out eval-out)))) )
 
                 ;; wait for a response to come back.
-                (cider-itu-poll-until (or eval-err eval-out) 10)
+                (cider-itu-poll-until (or eval-err eval-out) 5)
 
                 ;; ensure there are no errors and response is as expected.
                 (expect eval-err :to-equal '())
-                (expect eval-out :to-equal '(":clojure? true"))
+                (expect eval-out :to-equal '(":bb? true"))
 
                 ;; exit the REPL.
                 (cider-quit repl-buffer)
 
                 ;; wait for the REPL to exit
-                (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 15)
+                (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
                 (expect (member (process-status nrepl-proc) '(exit signal))))))))))
+
+  (it "to clojure tools cli"
+    (jack-in-clojure-cli-test nil))
+
+  (when (eq system-type 'windows-nt)
+    (it "to clojure tools cli (alternative deps.exe)"
+      (jack-in-clojure-cli-test "deps.exe")))
+
+  (it "to leiningen"
+    (with-cider-test-sandbox
+     (with-temp-dir temp-dir
+                    ;; Create a project in temp dir
+                    (let* ((project-dir temp-dir)
+                           (project-clj (expand-file-name "project.clj" project-dir)))
+                      (write-region "(defproject cider/integration \"test\"
+                           :dependencies [[org.clojure/clojure \"1.10.3\"]])"
+                                    nil project-clj)
+
+                      (with-temp-buffer
+                        ;; set default directory to temp project
+                        (setq-local default-directory project-dir)
+
+                        (let* (;; Get a gv reference so as to poll if the client has
+                               ;; connected to the nREPL server.
+                               (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
+
+                               ;; jack in and get repl buffer
+                               (nrepl-proc (cider-jack-in-clj `()))
+                               (nrepl-buf (process-buffer nrepl-proc)))
+
+                          ;; wait until the client has successfully connected to the
+                          ;; nREPL server.
+                          (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 90)
+
+                          ;; give it some time to setup the clj REPL
+                          (cider-itu-poll-until (cider-repls 'clj nil) 90)
+
+                          ;; send command to the REPL, and push stdout/stderr to
+                          ;; corresponding eval-xxx variables.
+                          (let ((repl-buffer (cider-current-repl))
+                                (eval-err '())
+                                (eval-out '()))
+                            (expect repl-buffer :not :to-be nil)
+
+                            ;; send command to the REPL
+                            (cider-interactive-eval
+                             ;; ask REPL to return a string that uniquely identifies it.
+                             "(print :clojure? (some? (clojure-version)))"
+                             (lambda (return)
+                               (nrepl-dbind-response
+                                   return
+                                   (out err)
+                                 (when err (push err eval-err))
+                                 (when out (push out eval-out)))) )
+
+                            ;; wait for a response to come back.
+                            (cider-itu-poll-until (or eval-err eval-out) 10)
+
+                            ;; ensure there are no errors and response is as expected.
+                            (expect eval-err :to-equal '())
+                            (expect eval-out :to-equal '(":clojure? true"))
+
+                            ;; exit the REPL.
+                            (cider-quit repl-buffer)
+
+                            ;; wait for the REPL to exit
+                            (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 15)
+                            (expect (member (process-status nrepl-proc) '(exit signal))))))))))
 
   (it "to nbb"
     (with-cider-test-sandbox
