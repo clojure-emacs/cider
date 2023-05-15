@@ -744,9 +744,25 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   "Removes the duplicates in DEPS."
   (cl-delete-duplicates deps :test 'equal))
 
+(defun cider--jack-in-cmd-powershell-p (command)
+  "Returns whether COMMAND is PowerShell."
+  (or (string-equal command "powershell")
+      (string-equal command "pwsh")))
+
+(defun cider--shell-quote-argument (argument &optional command)
+  "Quotes ARGUMENT like `shell-quote-argument', suitable for use with COMMAND.
+
+Uses `shell-quote-argument' to quote the ARGUMENT, unless COMMAND is given
+and refers to PowerShell, in which case it uses (some limited) PowerShell
+rules to quote it."
+  (if (cider--jack-in-cmd-powershell-p command)
+      ;; please add more PowerShell quoting rules as necessary.
+      (format "'%s'" (replace-regexp-in-string "\"" "\"\"" argument))
+    (shell-quote-argument argument)))
+
 (defun cider--powershell-encode-command (cmd-params)
   "Base64 encode the powershell command and jack-in CMD-PARAMS for clojure-cli."
-  (let* ((quoted-params (replace-regexp-in-string "\"" "\"\"" cmd-params))
+  (let* ((quoted-params cmd-params)
          (command (format "clojure %s" quoted-params))
          (utf-16le-command (encode-coding-string command 'utf-16le)))
     (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
@@ -754,7 +770,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
 (defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies command)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES, PARAMS and GLOBAL-OPTIONS into a
-suitable `clojure` invocation and quoting it based on COMMAND if necessary.
+suitable `clojure` invocation and quoting suitable for COMMAND invocation.
 The main is placed in an inline alias :cider/nrepl so that if your aliases
 contain any mains, the cider/nrepl one will be the one used."
   (let* ((all-deps (thread-last
@@ -778,25 +794,19 @@ contain any mains, the cider/nrepl one will be the one used."
                       (cider-jack-in-normalized-nrepl-middlewares)
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware))
-         (deps (format "%s-Sdeps '{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}' -M%s:cider/nrepl%s"
-                       ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
-                       (if global-options (format "%s " global-options) "")
-                       (string-join all-deps " ")
-                       main-opts
-                       (if cider-clojure-cli-aliases
-                           ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
-                           ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
-                           (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))
-                         "")
-                       (if params (format " %s" params) "")))
-         (quoted (if (eq system-type 'windows-nt)
-                     (if (or (string-equal command "powershell")
-                             (string-equal command "pwsh"))
-                         (cider--powershell-encode-command deps)
-                       (thread-last (replace-regexp-in-string "\"" "\"\"" deps)
-                                    (replace-regexp-in-string "'" "\"")))
-                   deps)))
-    quoted))
+         (deps (format "{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}"
+                       (string-join all-deps " ") main-opts))
+         (deps-quoted (cider--shell-quote-argument deps command)))
+    (format "%s-Sdeps %s -M%s:cider/nrepl%s"
+            ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
+            (if global-options (format "%s " global-options) "")
+            deps-quoted
+            (if cider-clojure-cli-aliases
+                ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
+                ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
+                (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))
+              "")
+            (if params (format " %s" params) ""))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
   "Create shadow-cljs jack-in deps.
@@ -832,7 +842,7 @@ See also `cider-jack-in-auto-inject-clojure'."
   "Return GLOBAL-OPTS and PARAMS with injected REPL dependencies.
 These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins'
 and `cider-jack-in-nrepl-middlewares' are injected from the CLI according
-to the used PROJECT-TYPE and COMMAND. Eliminates the need for hacking
+to the used PROJECT-TYPE and COMMAND.  Eliminates the need for hacking
 profiles.clj or the boot script for supporting CIDER with its nREPL
 middleware and dependencies."
   (pcase project-type
@@ -1565,7 +1575,10 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                    (eq cider-allow-jack-in-without-project 'warn)
                                    (or params-project-type
                                        (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? "))))
-                      (let ((cmd (format "%s %s" command-resolved cmd-params)))
+                      (let ((cmd (format "%s %s" command-resolved
+                                         (if (cider--jack-in-cmd-powershell-p command)
+                                             (cider--powershell-encode-command cmd-params)
+                                           cmd-params))))
                         (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command
                                                                (plist-get params :edit-jack-in-command))
                                                            (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
