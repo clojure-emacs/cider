@@ -181,7 +181,7 @@ If CLI-COMMAND is nil, then use the default."
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
                 (expect (member (process-status nrepl-proc) '(exit signal))))))))))
 
-  (it "to clojure tools cli"
+  (it "to clojure tools cli (default)"
     (jack-in-clojure-cli-test nil))
 
   (when (eq system-type 'windows-nt)

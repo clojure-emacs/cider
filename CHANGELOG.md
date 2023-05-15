@@ -2,7 +2,7 @@
 
 ## master (unreleased)
 
-### Bugs
+### Bugs fixed
 
 - [#3341](https://github.com/clojure-emacs/cider/issues/3341): Escape clojure-cli args on MS-Windows on non powershell invocations.
 
