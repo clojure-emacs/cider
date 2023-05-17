@@ -767,12 +767,12 @@ rules to quote it."
          (utf-16le-command (encode-coding-string command 'utf-16le)))
     (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
 
-(defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies command)
+(defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies &optional command)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES, PARAMS and GLOBAL-OPTIONS into a
-suitable `clojure` invocation and quoting suitable for COMMAND invocation.
-The main is placed in an inline alias :cider/nrepl so that if your aliases
-contain any mains, the cider/nrepl one will be the one used."
+suitable `clojure` invocation and quoting, also accounting for COMMAND if
+provided.  The main is placed in an inline alias :cider/nrepl so that if
+your aliases contain any mains, the cider/nrepl one will be the one used."
   (let* ((all-deps (thread-last
                      dependencies
                      (append (cider--jack-in-required-dependencies))
@@ -838,12 +838,12 @@ See also `cider-jack-in-auto-inject-clojure'."
               dependencies))
     dependencies))
 
-(defun cider-inject-jack-in-dependencies (global-opts params project-type command)
+(defun cider-inject-jack-in-dependencies (global-opts params project-type &optional command)
   "Return GLOBAL-OPTS and PARAMS with injected REPL dependencies.
 These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins'
 and `cider-jack-in-nrepl-middlewares' are injected from the CLI according
-to the used PROJECT-TYPE and COMMAND.  Eliminates the need for hacking
-profiles.clj or the boot script for supporting CIDER with its nREPL
+to the used PROJECT-TYPE, and COMMAND if provided.  Eliminates the need for
+hacking profiles.clj or the boot script for supporting CIDER with its nREPL
 middleware and dependencies."
   (pcase project-type
     ('lein (cider-lein-jack-in-dependencies
