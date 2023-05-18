@@ -24,7 +24,7 @@ by Oracle.
 
 NOTE: The requirements for Java are pretty much ``cider-nrepl``'s requirements.
 
-On Linux you are also strongly advised to make sure that JDK sources and javadocs are installed.
+On Linux you are also required to make sure that JDK sources and javadocs are installed.
 You can find example commands in xref:troubleshooting.adoc#navigation-to-jdk-sources-doesnt-work[Troubleshooting].
 
 == Clojure
