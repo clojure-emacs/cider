@@ -5,6 +5,7 @@
 ### Bugs fixed
 
 - [#3341](https://github.com/clojure-emacs/cider/issues/3341): Escape clojure-cli args on MS-Windows on non powershell invocations.
+- [#3112](https://github.com/clojure-emacs/cider/issues/3112): Use cider--find-file-for-buffer mechanism to show references
 
 ## 1.7.0 (2023-03-23)
 

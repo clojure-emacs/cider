@@ -280,7 +280,19 @@ thing at point."
               (let* ((filename (nrepl-dict-get info "file"))
                      (column (nrepl-dict-get info "column"))
                      (line (nrepl-dict-get info "line"))
-                     (loc (xref-make-file-location filename line column)))
+                     (buf (cider--find-buffer-for-file filename))
+                     ;; This uses functionality similar to the implementation of
+                     ;; cider--var-to-xref-location, because currently, the
+                     ;; cider-nrepl backend returns inconsistent paths from
+                     ;; `fn-refs`.  If this is fixed on the backend or code to
+                     ;; translate paths is here, this should be reverted to an
+                     ;; xref-make-file-location again.
+                     (loc (xref-make-buffer-location buf (with-current-buffer buf
+                                                           (save-excursion
+                                                             (goto-char 0)
+                                                             (forward-line line)
+                                                             (move-to-column column)
+                                                             (point))))))
                 (xref-make filename loc)))
             results)))
 
