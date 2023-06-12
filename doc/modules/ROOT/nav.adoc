@@ -38,6 +38,7 @@
 ** xref:debugging/debugger.adoc[Debugger]
 ** xref:debugging/enlighten.adoc[Enlighten]
 ** xref:debugging/inspector.adoc[Inspector]
+** xref:debugging/logging.adoc[Logging]
 ** xref:debugging/macroexpansion.adoc[Macroexpansion]
 ** xref:debugging/profiling.adoc[Profiling]
 ** xref:debugging/tracing.adoc[Tracing]

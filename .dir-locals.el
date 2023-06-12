@@ -28,7 +28,9 @@
                               (cl-defun . 2)
                               (with-parsed-tramp-file-name . 2)
                               (thread-first . 0)
-                              (thread-last . 0)))))
+                              (thread-last . 0)
+                              (transient-define-prefix . defmacro)
+                              (transient-define-suffix . defmacro)))))
 
 ;; To use the bug-reference stuff, do:
 ;;     (add-hook 'text-mode-hook #'bug-reference-mode)

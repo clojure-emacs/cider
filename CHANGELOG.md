@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3352](https://github.com/clojure-emacs/cider/pull/3352) Add CIDER Log Mode, a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
 
 ### Bugs fixed
