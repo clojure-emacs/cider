@@ -61,7 +61,6 @@ available) and the matching REPL buffer."
   :safe #'booleanp
   :package-version '(cider . "0.9.0"))
 
-;;;###autoload
 (defcustom cider-merge-sessions nil
   "Controls session combination behaviour.
 
@@ -69,7 +68,9 @@ Symbol `host' combines all sessions of a project associated with the same host.
 Symbol `project' combines all sessions of a project.
 
 All other values do not combine any sessions."
-  :type 'symbol
+  :type '(choice (const :tag "Combine all sessions with the same host" host)
+                 (const :tag "Combine all sessions from the same project" project)
+                 (other :tag "Do not combine any sessions"))
   :group 'cider
   :safe #'symbolp
   :package-version '(cider . "1.5"))
