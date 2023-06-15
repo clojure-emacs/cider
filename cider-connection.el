@@ -824,9 +824,8 @@ PARAMS is a plist as received by `cider-repl-create'."
             (delq nil
                   (mapcar (lambda (b)
                             (let ((bparams (cider--gather-connect-params nil b)))
-                              (when (and cljsp
-                                         (eq (plist-get bparams :repl-type)
-                                             'cljs))
+                              (when (eq cljsp
+                                        (eq (plist-get bparams :repl-type) 'cljs))
                                 (cons (buffer-name b)
                                       (+
                                        (if (equal proj-dir (plist-get bparams :project-dir)) 8 0)
