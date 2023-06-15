@@ -839,29 +839,27 @@ PARAMS is a plist as received by `cider-repl-create'."
     (let* ((proj-dir (plist-get params :project-dir))
            (host (plist-get params :host))
            (port (plist-get params :port))
-           (cljsp (eq (plist-get params :repl-type) 'cljs))
+           (type (plist-get params :repl-type))
            (scored-repls
-            (delq nil
-                  (mapcar (lambda (b)
-                            (let ((bparams (cider--gather-connect-params nil b)))
-                              (when (eq cljsp
-                                        (eq (plist-get bparams :repl-type) 'cljs))
-                                (cons (buffer-name b)
-                                      (+
-                                       (if (equal proj-dir (plist-get bparams :project-dir)) 8 0)
-                                       (if (equal host (plist-get bparams :host)) 4 0)
-                                       (if (equal port (plist-get bparams :port)) 2 0))))))
-                          repls))))
-      (when scored-repls
+            (mapcar (lambda (b)
+                      (let ((bparams (cider--gather-connect-params nil b)))
+                        (when (eq type (plist-get bparams :repl-type))
+                          (cons b (+
+                                   (if (equal proj-dir (plist-get bparams :project-dir)) 8 0)
+                                   (if (equal host (plist-get bparams :host)) 4 0)
+                                   (if (equal port (plist-get bparams :port)) 2 0))))))
+                    repls))
+           (sorted-repls (mapcar #'car (seq-sort-by #'cdr #'> (delq nil scored-repls)))))
+      (when sorted-repls
         (cond ((eq 'any cider-reuse-dead-repls)
-               (get-buffer (caar scored-repls)))
-              ((= 1 (length scored-repls))
+               (car sorted-repls))
+              ((= 1 (length sorted-repls))
                (when (or (eq 'auto cider-reuse-dead-repls)
-                         (y-or-n-p (format "A dead REPL %s exists.  Reuse buffer? " (caar scored-repls))))
-                 (get-buffer (caar scored-repls))))
+                         (y-or-n-p (format "A dead REPL %s exists.  Reuse buffer? " (car sorted-repls))))
+                 (car sorted-repls)))
               ((y-or-n-p "Dead REPL buffers exist.  Select one to reuse? ")
-               (get-buffer (completing-read "REPL buffer to reuse: " (mapcar #'car scored-repls)
-                                            nil t nil nil (caar scored-repls)))))))))
+               (get-buffer (completing-read "REPL buffer to reuse: " (mapcar #'buffer-name sorted-repls)
+                                            nil t nil nil (car sorted-repls)))))))))
 
 (declare-function cider-default-err-handler "cider-eval")
 (declare-function cider-repl-mode "cider-repl")
