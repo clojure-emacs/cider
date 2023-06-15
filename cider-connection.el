@@ -857,10 +857,10 @@ PARAMS is a plist as received by `cider-repl-create'."
                (get-buffer (caar scored-repls)))
               ((= 1 (length scored-repls))
                (when (or (eq 'auto cider-reuse-dead-repls)
-                         (y-or-n-p (format "A dead REPL %s exists.  Reuse? " (caar scored-repls))))
+                         (y-or-n-p (format "A dead REPL %s exists.  Reuse buffer? " (caar scored-repls))))
                  (get-buffer (caar scored-repls))))
-              ((y-or-n-p "Dead REPLs exist.  Reuse? ")
-               (get-buffer (completing-read "REPL to reuse: " (mapcar #'car scored-repls)
+              ((y-or-n-p "Dead REPL buffers exist.  Select one to reuse? ")
+               (get-buffer (completing-read "REPL buffer to reuse: " (mapcar #'car scored-repls)
                                             nil t nil nil (caar scored-repls)))))))))
 
 (declare-function cider-default-err-handler "cider-eval")
