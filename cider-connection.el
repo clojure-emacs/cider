@@ -55,7 +55,14 @@ available) and the matching REPL buffer."
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-auto-mode t
-  "When non-nil, automatically enable cider mode for all Clojure buffers."
+  "When non-nil, automatically enable and disable CIDER in all Clojure buffers.
+
+After an initial connection, `cider-mode' is added to `clojure-mode-hook' and
+automatically enabled on all existing Clojure buffers.  After the last
+connection has been closed, `cider-mode' is disabled in all Clojure buffers, and
+has to be manually re-enabled via \\[cider-mode].
+
+Useful for switching between alternative minor modes like `inf-clojure-mode'."
   :type 'boolean
   :group 'cider
   :safe #'booleanp
@@ -395,7 +402,8 @@ buffer."
 This function is appended to `nrepl-disconnected-hook' in the client
 process buffer."
   ;; `nrepl-connected-hook' is run in the connection buffer
-  (cider-possibly-disable-on-existing-clojure-buffers)
+  (when cider-auto-mode
+    (cider-possibly-disable-on-existing-clojure-buffers))
   (run-hooks 'cider-disconnected-hook))
 
 
