@@ -192,3 +192,18 @@ name and the REPL type specification post-fix
 You can customize session names with `cider-session-name-template` and REPL
 names with `nrepl-repl-buffer-name-template`. See also
 `cider-format-connection-params` for available formats.
+
+== Reusing dead REPLs
+
+Under normal circumstances, CIDER automatically kills the REPL buffers and cleans up after itself when ending a session.
+However, when a session is terminated unexpectedly, e.g. when it crashes or is disconnected from an external server process, the REPL buffer is left without an active connection and outputs a log:
+
+[source]
+----
+*** Closed on < date/time > ***
+----
+
+Upon starting a new connection, CIDER can detect these "dead REPLs" and offer to reuse the buffer for the new connection.
+By default, it prompts for confirmation whenever a dead REPL buffer is available for reuse, but you can customize this behaviour via the variable `cider-reuse-dead-repls`.
+Setting it to `auto` reuses a dead REPL buffer automatically, and only displays a prompt when there are multiple options to choose from.
+To suppress the prompt entirely, set it to `nil` to always start a new REPL buffer, or `any` to reuse the most relevant dead REPL.
