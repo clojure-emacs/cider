@@ -2,9 +2,14 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
+
 ### Bugs fixed
 
 - [#3341](https://github.com/clojure-emacs/cider/issues/3341): Escape clojure-cli args on MS-Windows on non powershell invocations.
+- [#3353](https://github.com/clojure-emacs/cider/issues/3353): Fix regression which caused new connections to prompt for reusing dead REPLs.
 
 ## 1.7.0 (2023-03-23)
 
