@@ -74,6 +74,26 @@ All other values do not combine any sessions."
   :safe #'symbolp
   :package-version '(cider . "1.5"))
 
+(defcustom cider-reuse-dead-repls 'prompt
+  "Controls behaviour when initializing a connection with existing dead REPL buffers.
+
+Possible choices are `prompt', `auto', `any', and `nil'.
+- `prompt' means to always ask the user for a decision.
+- `auto' means to automatically reuse a dead REPL without prompting the user
+  if it is the only available option. When there are multiple buffers to
+  choose from, the user is is prompted for a choice.
+- `any' (or any other non-nil value) means to reuse any dead REPL buffer
+  available, by default the most relevant according to various heuristics,
+  and never prompt the user.
+- `nil' means to start a new REPL each time, ignoring existing buffers."
+  :type '(choice (const :tag "Always prompt for what to do with dead REPLs" prompt)
+                 (const :tag "Reuse dead REPL, prompting only for multiple choice" auto)
+                 (const :tag "Reuse any available dead REPL and never prompt" any)
+                 (const :tag "Never reuse dead REPLs" nil))
+  :group 'cider
+  :safe #'symbolp
+  :package-version '(cider . "1.8"))
+
 (defconst cider-required-nrepl-version "0.6.0"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
@@ -833,13 +853,15 @@ PARAMS is a plist as received by `cider-repl-create'."
                                        (if (equal port (plist-get bparams :port)) 2 0))))))
                           repls))))
       (when scored-repls
-        (if (> (length scored-repls) 1)
-            (when (y-or-n-p "Dead REPLs exist.  Reuse? ")
-              (let ((sorted-repls (seq-sort (lambda (a b) (> (cdr a) (cdr b))) scored-repls)))
-                (get-buffer (completing-read "REPL to reuse: "
-                                             (mapcar #'car sorted-repls) nil t nil nil (caar sorted-repls)))))
-          (when (y-or-n-p (format "A dead REPL %s exists.  Reuse? " (caar scored-repls)))
-            (get-buffer (caar scored-repls))))))))
+        (cond ((eq 'any cider-reuse-dead-repls)
+               (get-buffer (caar scored-repls)))
+              ((= 1 (length scored-repls))
+               (when (or (eq 'auto cider-reuse-dead-repls)
+                         (y-or-n-p (format "A dead REPL %s exists.  Reuse? " (caar scored-repls))))
+                 (get-buffer (caar scored-repls))))
+              ((y-or-n-p "Dead REPLs exist.  Reuse? ")
+               (get-buffer (completing-read "REPL to reuse: " (mapcar #'car scored-repls)
+                                            nil t nil nil (caar scored-repls)))))))))
 
 (declare-function cider-default-err-handler "cider-eval")
 (declare-function cider-repl-mode "cider-repl")
@@ -857,7 +879,8 @@ function with the repl buffer set as current."
   ;; Connection might not have been set as yet. Please don't send requests in
   ;; this function, but use cider--connected-handler instead.
   (let ((buffer (or (plist-get params :repl-buffer)
-                    (cider--choose-reusable-repl-buffer params)
+                    (and cider-reuse-dead-repls
+                         (cider--choose-reusable-repl-buffer params))
                     (get-buffer-create (generate-new-buffer-name "*cider-uninitialized-repl*"))))
         (ses-name (or (plist-get params :session-name)
                       (cider-make-session-name params))))
