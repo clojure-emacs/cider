@@ -76,17 +76,17 @@ All other values do not combine any sessions."
   :package-version '(cider . "1.5"))
 
 (defcustom cider-reuse-dead-repls 'prompt
-  "Controls behaviour when initializing a connection with existing dead REPL buffers.
+  "How to deal with existing dead REPL buffers when initializing a connection.
 
-Possible choices are `prompt', `auto', `any', and `nil'.
+Possible choices are `prompt', `auto', `any', and nil.
 - `prompt' means to always ask the user for a decision.
 - `auto' means to automatically reuse a dead REPL without prompting the user
-  if it is the only available option. When there are multiple buffers to
+  if it is the only available option.  When there are multiple buffers to
   choose from, the user is is prompted for a choice.
 - `any' (or any other non-nil value) means to reuse any dead REPL buffer
   available, by default the most relevant according to various heuristics,
   and never prompt the user.
-- `nil' means to start a new REPL each time, ignoring existing buffers."
+- nil means to start a new REPL each time, ignoring existing buffers."
   :type '(choice (const :tag "Always prompt for what to do with dead REPLs" prompt)
                  (const :tag "Reuse dead REPL, prompting only for multiple choice" auto)
                  (const :tag "Reuse any available dead REPL and never prompt" any)
