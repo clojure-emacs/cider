@@ -853,7 +853,7 @@ PARAMS is a plist as received by `cider-repl-create'."
            (type (plist-get params :repl-type))
            (scored-repls
             (mapcar (lambda (b)
-                      (let ((bparams (cider--gather-connect-params nil b)))
+                      (let ((bparams (ignore-errors (cider--gather-connect-params nil b))))
                         (when (eq type (plist-get bparams :repl-type))
                           (cons b (+
                                    (if (equal proj-dir (plist-get bparams :project-dir)) 8 0)
