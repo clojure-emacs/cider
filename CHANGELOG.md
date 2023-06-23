@@ -12,6 +12,10 @@
 - [#3353](https://github.com/clojure-emacs/cider/issues/3353): Fix regression which caused new connections to prompt for reusing dead REPLs.
 - [#3355](https://github.com/clojure-emacs/cider/pull/3355): Fix `cider-mode` disabling itself after a disconnect when `cider-auto-mode` is set to nil.
 
+### Changes
+
+- Bump the injected `cider-nrepl` to 0.31.
+
 ## 1.7.0 (2023-03-23)
 
 ### New features
