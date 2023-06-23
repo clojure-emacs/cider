@@ -236,14 +236,14 @@ THING is the special form's name.  POS is the argument index of the
 special-form's arglists.  ELDOC-INFO is a p-list containing the eldoc
 information."
   (let* ((ns (lax-plist-get eldoc-info "ns"))
-         (symbol (lax-plist-get eldoc-info "symbol"))
+         (special-form-symbol (lax-plist-get eldoc-info "symbol"))
          (arglists (mapcar (lambda (arglist)
-                             (if (equal (car arglist) symbol)
+                             (if (equal (car arglist) special-form-symbol)
                                  (cdr arglist)
                                arglist))
                            (lax-plist-get eldoc-info "arglists"))))
     (format "%s: %s"
-            (cider-eldoc-format-thing ns symbol thing 'fn)
+            (cider-eldoc-format-thing ns special-form-symbol thing 'fn)
             (cider-eldoc-format-arglist arglists pos))))
 
 (defun cider-highlight-args (arglist pos)
