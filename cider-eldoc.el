@@ -323,12 +323,13 @@ if the maximum number of sexps to skip is exceeded."
 (defun cider-eldoc-thing-type (eldoc-info)
   "Return the type of the ELDOC-INFO being displayed by eldoc.
 It can be a function or var now."
-  (pcase (lax-plist-get eldoc-info "type")
-    ("function" 'fn)
-    ("special-form" 'special-form)
-    ("macro" 'macro)
-    ("method" 'method)
-    ("variable" 'var)))
+  (or (pcase (lax-plist-get eldoc-info "type")
+        ("function" 'fn)
+        ("special-form" 'special-form)
+        ("macro" 'macro)
+        ("method" 'method)
+        ("variable" 'var))
+      'fn))
 
 (defun cider-eldoc-info-at-point ()
   "Return eldoc info at point.
