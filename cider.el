@@ -1443,14 +1443,21 @@ server buffer, in which case a new session for that server is created."
                    (plist-put :session-name ses-name)
                    (plist-put :repl-type 'cljs)))))
 
+(defvar-local cider-connect-default-params nil
+  "Default plist of params to pass to `cider-connect'.
+Recognized keys are :host, :port and :project-dir.")
+
 ;;;###autoload
 (defun cider-connect-clj (&optional params)
   "Initialize a Clojure connection to an nREPL server.
-PARAMS is a plist optionally containing :host, :port and :project-dir.  On
-prefix argument, prompt for all the parameters."
+PARAMS is a plist optionally containing :host, :port and :project-dir.
+If nil, use the default parameters in `cider-connect-default-params'.
+When called interactively with a prefix argument, prompt for all the
+parameters."
   (interactive "P")
   (cider-nrepl-connect
-   (thread-first params
+   ;; Make sure to copy the list, as the following steps will mutate it
+   (thread-first (or params (copy-sequence cider-connect-default-params))
                  (cider--update-project-dir)
                  (cider--update-host-port)
                  (cider--check-existing-session)
