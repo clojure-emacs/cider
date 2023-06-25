@@ -65,7 +65,7 @@ And connect to it with `cider-connect`.
  :dependencies [[cider/cider-nrepl "0.31.0"] ;; mandatory (unless it's inherited from deps.edn or otherwise present in the classpath of shadow-cljs's JVM process)
                 [refactor-nrepl/refactor-nrepl "3.6.0"]] ;; refactor-nrepl is optional
 
- :nrepl {:middleware [cider.nrepl/cider-middleware ;; it's advisable to explictly add this middleware. It's automatically added by shadow-cljs (if available in the classpath), unless `:nrepl {:cider false}`
+ :nrepl {:middleware [cider.nrepl/cider-middleware ;; it's advisable to explicitly add this middleware. It's automatically added by shadow-cljs (if available in the classpath), unless `:nrepl {:cider false}`
                       refactor-nrepl.middleware/wrap-refactor] ;; refactor-nrepl is optional
          :port 50655} ;; optional - if not specified, a random free port will be used
 ```
