@@ -17,7 +17,7 @@ and how to setup the most popular ClojureScript REPLs.
 == nREPL and ClojureScript
 
 nREPL doesn't natively support ClojureScript evaluation, that why an additional
-middleware is needed. For most REPLs (with the notable exception of `shadow-cljs`), CIDER relies on the popular Piggieback middleware for its
+middleware is needed. For most REPLs (with the notable exceptions of `shadow-cljs`, `nbb`), CIDER relies on the popular Piggieback middleware for its
 ClojureScript support.
 
 Piggieback works in the following manner:
@@ -32,7 +32,7 @@ On the bright side - this also means that you can host side by side Clojure and 
 REPLs in a single nREPL connection! This opens up all sorts of interesting possibilities
 that we'll discuss later on.
 
-NOTE: `shadow-cljs`'s REPL is implemented in a very similar fashion, but its mechanism is provided by its own nREPL middleware - not Piggieback's.
+NOTE: `shadow-cljs`'s REPL is implemented in a very similar fashion, but its mechanism is provided by its own nREPL middleware - not Piggieback.
 
 == Piggieback differences with the Standard ClojureScript REPL
 
