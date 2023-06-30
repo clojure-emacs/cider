@@ -31,15 +31,17 @@
 (require 'nrepl-client)
 (require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 (require 'queue)
+(require 'cl)
 
 (defun nrepl-server-mock-filter (proc output)
   "Handle the nREPL message found in OUTPUT sent by the client
 PROC. Minimal implementation, just enough for fulfilling clients' testing
 requirements."
-  (mock/log! ":mock.filter/output %s :msg %s" proc output)
+  ;; (mock/log! ":mock.filter/output %s :msg %s" proc output)
 
   (condition-case error-details
       (let* ((msg (queue-dequeue (cdr (nrepl-bdecode output))))
+             (_ (mock/log! ":mock.filter/msg :in %S" msg))
              (response (pcase msg
                          (`(dict "op" "clone" "id" ,id)
                           `(dict "id" ,id
@@ -49,9 +51,19 @@ requirements."
 
                          (`(dict "op" "describe" "session" ,session "id" ,id)
                           `(dict "id" ,id "session" ,session "status"
+			         ("done")))
+                         ;; Eval op can include other fields in addition to the
+                         ;; code, we only need the signature and the session and
+                         ;; id fields at the end.
+                         (`(dict "op" "eval" "code" ,_code . ,rest)
+                          (cl-destructuring-bind (_ session _ id) (seq-drop rest (- (seq-length rest) 4))
+                            `(dict "id" ,id "session" ,session "status"
+			           ("done"))))
+                         (`(dict "op" "close" "session" ,session "id" ,id)
+                          `(dict "id" ,id "session" ,session "status"
 			         ("done"))))))
 
-        (mock/log! ":mock.filter/msg :in %s :out %s" msg response)
+        (mock/log! ":mock.filter/msg :out %S" response)
         (if (not response)
             (progn
               (mock/log! ":mock.filter/unsupported-msg :in %s :msg %s"

@@ -11,6 +11,7 @@
 - [#3341](https://github.com/clojure-emacs/cider/issues/3341): Escape clojure-cli args on MS-Windows on non powershell invocations.
 - [#3353](https://github.com/clojure-emacs/cider/issues/3353): Fix regression which caused new connections to prompt for reusing dead REPLs.
 - [#3355](https://github.com/clojure-emacs/cider/pull/3355): Fix `cider-mode` disabling itself after a disconnect when `cider-auto-mode` is set to nil.
+- [#3362](https://github.com/clojure-emacs/cider/issues/3362): Fix `sesman-restart` regression issue.
 
 ### Changes
 
