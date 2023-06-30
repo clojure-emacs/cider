@@ -1191,8 +1191,9 @@ up."
 (declare-function cider--close-connection "cider-connection")
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT.
-On a fatal EVENT, attempt to close any open client connections, and signal
-an `error' if the nREPL PROCESS exited because it couldn't start up."
+If the nREPL PROCESS failed to initiate and encountered a fatal EVENT
+signal, raise an 'error'.  Additionally, if the EVENT signal is SIGHUP,
+close any existing client connections."
   ;; only interested on fatal signals.
   (when (not (process-live-p process))
     (emacs-bug-46284/when-27.1-windows-nt
@@ -1212,8 +1213,10 @@ an `error' if the nREPL PROCESS exited because it couldn't start up."
                                   (eq (buffer-local-value 'nrepl-server-buffer b)
                                       server-buffer))
                                 (buffer-list))))
-      ;; close any known open client connections
-      (mapc #'cider--close-connection clients)
+
+      ;; see https://github.com/clojure-emacs/cider/pull/3333
+      (when (string-match-p "^hangup" event)
+        (mapc #'cider--close-connection clients))
 
       (if (process-get process :cider--nrepl-server-ready)
           (progn
