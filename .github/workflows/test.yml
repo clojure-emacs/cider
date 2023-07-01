@@ -78,4 +78,7 @@ jobs:
 
     - name: Test integration
       run: |
-        eldev -p -dtTC test --test-type integration
+        # The tests occasionally fail on macos&win in what is seems to
+        # be GH connectivity runner issues. We attempt to address this
+        # problem by rerunning the tests more than once.
+        eldev -p -dtTC test --test-type integration || eldev -p -dtTC test --test-type integration
