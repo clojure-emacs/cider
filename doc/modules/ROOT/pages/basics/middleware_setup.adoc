@@ -89,7 +89,7 @@ run `cider-connect` or `cider-connect-cljs`.
 
   :cider-cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
                             cider/cider-nrepl {:mvn/version "0.22.4"}
-                            cider/piggieback {:mvn/version "0.5.1"}}
+                            cider/piggieback {:mvn/version "0.5.3"}}
                :main-opts ["-m" "nrepl.cmdline" "--middleware"
                            "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
 ----

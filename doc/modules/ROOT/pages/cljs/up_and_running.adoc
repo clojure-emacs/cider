@@ -25,7 +25,7 @@ project or `deps.edn`):
 [source,clojure]
 ----
 ;; use whatever are the most recent versions here
-[cider/piggieback "0.5.1"]
+[cider/piggieback "0.5.3"]
 [org.clojure/clojure "1.9.0"]
 ----
 
