@@ -1603,7 +1603,7 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                                cmd))
                              (final-command (if (and cider-enrich-classpath
                                                      (eq project-type 'lein)
-                                                     (eq system-type 'windows-nt))
+                                                     (not (eq system-type 'windows-nt)))
                                                 (progn
                                                   "mkdir -p $HOME/.emacs.d"
                                                   ;; -cp is the marker that indicates that we've found a `java -cp` invocation (as emitted by enrich-classpath)
