@@ -132,7 +132,10 @@ configure `cider-debug-prompt' instead."
               (member "stack" status))
       ;; TODO: Make the error buffer a bit friendlier when we're just printing
       ;; the stack.
-      (cider--render-stacktrace-causes causes))
+      (nrepl-dbind-response response (causes caught-msg)
+        (if cider-show-error-buffer
+            (cider--render-stacktrace-causes causes)
+          (cider--debug-display-result-overlay nil caught-msg))))
     (when (member "need-debug-input" status)
       (cider--handle-debug response))
     (when (member "done" status)
@@ -154,15 +157,17 @@ configure `cider-debug-prompt' instead."
   #("." 0 1 (display (left-fringe right-triangle)))
   "Used as an overlay's before-string prop to place a fringe arrow.")
 
-(defun cider--debug-display-result-overlay (value)
+(defun cider--debug-display-result-overlay (value caught)
   "Place an overlay at point displaying VALUE."
   (when cider-debug-use-overlays
     ;; This is cosmetic, let's ensure it doesn't break the session no matter what.
     (ignore-errors
       ;; Result
-      (cider--make-result-overlay (cider-font-lock-as-clojure value)
+      (cider--make-result-overlay (or caught (cider-font-lock-as-clojure value))
         :where (point-marker)
         :type 'debug-result
+        :prepend-face (if caught 'cider-error-overlay-face
+                        'cider-result-overlay-face)
         'before-string cider--fringe-arrow-string)
       ;; Code
       (cider--make-overlay (save-excursion (clojure-backward-logical-sexp 1) (point))
@@ -652,7 +657,7 @@ is a coordinate measure in sexps."
 RESPONSE is a message received from the nrepl describing the input
 needed.  It is expected to contain at least \"key\", \"input-type\", and
 \"prompt\", and possibly other entries depending on the input-type."
-  (nrepl-dbind-response response (debug-value key input-type prompt inspect)
+  (nrepl-dbind-response response (debug-value key input-type prompt inspect caught-msg)
     (condition-case-unless-debug e
         (progn
           (pcase input-type
@@ -674,7 +679,7 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
              ;; flicker even if we immediately recreate the overlays.
              (cider--debug-remove-overlays)
              (when cider-debug-use-overlays
-               (cider--debug-display-result-overlay debug-value))
+               (cider--debug-display-result-overlay debug-value caught-msg))
              (setq cider--debug-mode-response response)
              (cider--debug-mode 1)))
           (when inspect
@@ -766,7 +771,7 @@ The boolean value of FORCE will be sent in the reply."
       ;; Is HERE inside the sexp being debugged?
       (when (or (< here (point))
                 (save-excursion
-                  (forward-sexp 1)
+                  (clojure-forward-logical-sexp 1)
                   (> here (point))))
         (user-error "Point is outside the sexp being debugged"))
       ;; Move forward until start of sexp.
