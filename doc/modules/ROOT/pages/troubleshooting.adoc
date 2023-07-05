@@ -311,7 +311,7 @@ the `enrich-classpath` integration like this:
 === Navigation to JDK sources doesn't work
 
 Firstly, make sure that you are using enrich-classpath. `cider-enrich-classpath` should be truthy.
-If you are launching your own repl process, it should have the enrich-classpath Leiningen plugin or `clojure` wrapper.
+If you are launching your own repl process, it should run through enrich-classpath's `lein` wrapper, or `clojure` wrapper.
 
 If you are on Linux and still can't navigate to the source of built-in methods like `.toUpperCase` you
 probably haven't installed the JDK sources. While you're at it - it's good to
