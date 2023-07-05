@@ -570,7 +570,7 @@ returned by this function does not include keyword arguments."
   (let ((plugins (if cider-enrich-classpath
                      (append cider-jack-in-lein-plugins
                              `(("cider/cider-nrepl" ,cider-injected-middleware-version)
-                               ("mx.cider/enrich-classpath" "1.9.0")))
+                               ("mx.cider/lein-enrich-classpath" "1.11.2")))
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
     (thread-last
@@ -858,7 +858,7 @@ middleware and dependencies."
             (cider-jack-in-normalized-lein-plugins)
             (if cider-enrich-classpath
                 (append cider-jack-in-lein-middlewares
-                        '("cider.enrich-classpath/middleware"))
+                        '("cider.enrich-classpath.plugin-v2/middleware"))
               cider-jack-in-lein-middlewares)))
     ('boot (cider-boot-jack-in-dependencies
             global-opts
@@ -1593,14 +1593,26 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                    (eq cider-allow-jack-in-without-project 'warn)
                                    (or params-project-type
                                        (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? "))))
-                      (let ((cmd (format "%s %s" command-resolved
-                                         (if (cider--jack-in-cmd-powershell-p command)
-                                             (cider--powershell-encode-command cmd-params)
-                                           cmd-params))))
-                        (plist-put params :jack-in-cmd (if (or cider-edit-jack-in-command
-                                                               (plist-get params :edit-jack-in-command))
-                                                           (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
-                                                         cmd))))
+                      (let* ((cmd (format "%s %s" command-resolved
+                                          (if (cider--jack-in-cmd-powershell-p command)
+                                              (cider--powershell-encode-command cmd-params)
+                                            cmd-params)))
+                             (edited-command (if (or cider-edit-jack-in-command
+                                                     (plist-get params :edit-jack-in-command))
+                                                 (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
+                                               cmd))
+                             (final-command (if (and cider-enrich-classpath
+                                                     (eq project-type 'lein)
+                                                     (eq system-type 'windows-nt))
+                                                (progn
+                                                  "mkdir -p $HOME/.emacs.d"
+                                                  ;; -cp is the marker that indicates that we've found a `java -cp` invocation (as emitted by enrich-classpath)
+                                                  (shell-command-to-string (concat edited-command " 2>$HOME/.emacs.d/cider-error.log | grep \" -cp \" | tail -n 1")))
+                                              edited-command))
+                             (final-command (if (string-empty-p final-command)
+                                                edited-command
+                                              final-command)))
+                        (plist-put params :jack-in-cmd final-command)))
                   (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
           (user-error "The %s executable isn't on your `exec-path'" command))))))
 
