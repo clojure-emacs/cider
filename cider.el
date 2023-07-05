@@ -1555,16 +1555,17 @@ Params is a plist with the following keys (non-exhaustive)
   "History list for user-specified jack-in commands.")
 
 (defun cider--expand-command-with-enrich-classpath (command project-type)
-  "When possible, expands COMMAND (e.g. `lein ... repl :headless ...') into a newer command
-that is the result of applying enrich-classpath command.
-
-The new command will be a `java -cp ...' invocation."
+  "When possible for PROJECT-TYPE, expands COMMAND.
+For example, `lein ... repl :headless ...' will be turned into
+  `java -cp ...' invocation, which is the result of applying
+the enrich-classpath middleware."
   (if (and cider-enrich-classpath
            (eq project-type 'lein)
            (not (eq system-type 'windows-nt)))
       (let* ((_ (message (concat "CIDER enrich-classpath replacing: " (prin1-to-string command))))
              (_ (shell-command-to-string "mkdir -p $HOME/.emacs.d"))
-             (c (thread-first command
+             (c (thread-first
+                  command
                   (concat " 2>$HOME/.emacs.d/cider-error.log")
                   shell-command-to-string
                   (split-string "\n")
