@@ -1589,6 +1589,7 @@ the enrich-classpath middleware."
     command))
 
 (defun cider--format-cmd (command-resolved command cmd-params)
+  "Format COMMAND-RESOLVED or COMMAND followed by CMD-PARAMS."
   (format "%s %s" command-resolved
           (if (cider--jack-in-cmd-powershell-p command)
               (cider--powershell-encode-command cmd-params)
