@@ -1554,6 +1554,36 @@ Params is a plist with the following keys (non-exhaustive)
 (defvar cider--jack-in-cmd-history nil
   "History list for user-specified jack-in commands.")
 
+(defun cider--expand-command-with-enrich-classpath (command project-type)
+  "When possible, expands COMMAND (e.g. `lein ... repl :headless ...') into a newer command
+that is the result of applying enrich-classpath command.
+
+The new command will be a `java -cp ...' invocation."
+  (if (and cider-enrich-classpath
+           (eq project-type 'lein)
+           (not (eq system-type 'windows-nt)))
+      (let* ((_ (message (concat "CIDER enrich-classpath replacing: " (prin1-to-string command))))
+             (_ (shell-command-to-string "mkdir -p $HOME/.emacs.d"))
+             (c (thread-first command
+                  (concat " 2>$HOME/.emacs.d/cider-error.log")
+                  shell-command-to-string
+                  (split-string "\n")
+                  (thread-last (seq-filter (lambda (s)
+                                             ;; -cp is the marker that indicates that we've found a `java -cp` invocation (as emitted by enrich-classpath)
+                                             (string-match " -cp " s))))
+                  last
+                  car)))
+        (if (or (not c)
+                (string-empty-p c))
+            (progn
+              ;; message see .emacs.d/cider-error.log
+              (message "CIDER enrich-classpath failed. Falling back to the original command. `.emacs.d/cider-error.log' may contain debug information.")
+              command)
+          (progn
+            (message (concat "CIDER enrich-classpath replaced: " (prin1-to-string c)))
+            c)))
+    command))
+
 (defun cider--update-jack-in-cmd (params)
   "Update :jack-in-cmd key in PARAMS.
 
@@ -1601,18 +1631,8 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                                      (plist-get params :edit-jack-in-command))
                                                  (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
                                                cmd))
-                             (final-command (if (and cider-enrich-classpath
-                                                     (eq project-type 'lein)
-                                                     (not (eq system-type 'windows-nt)))
-                                                (progn
-                                                  "mkdir -p $HOME/.emacs.d"
-                                                  ;; -cp is the marker that indicates that we've found a `java -cp` invocation (as emitted by enrich-classpath)
-                                                  (shell-command-to-string (concat edited-command " 2>$HOME/.emacs.d/cider-error.log | grep \" -cp \" | tail -n 1")))
-                                              edited-command))
-                             (final-command (if (string-empty-p final-command)
-                                                edited-command
-                                              final-command)))
-                        (plist-put params :jack-in-cmd final-command)))
+                             (enriched-command (cider--expand-command-with-enrich-classpath edited-command project-type)))
+                        (plist-put params :jack-in-cmd enriched-command)))
                   (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
           (user-error "The %s executable isn't on your `exec-path'" command))))))
 
