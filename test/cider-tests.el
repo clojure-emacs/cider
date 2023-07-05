@@ -156,8 +156,8 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
-                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with an exclusion"
@@ -169,8 +169,8 @@
                          " -- update-in :plugins conj "
                          (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                          " -- update-in :plugins conj "
-                         (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
-                         " -- update-in :middleware conj cider.enrich-classpath/middleware"
+                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                         " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                          " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
@@ -181,8 +181,8 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
-                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
@@ -220,8 +220,8 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
-                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
@@ -255,8 +255,8 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
-                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
     (it "can concat in a boot project"
       (expect (cider-inject-jack-in-dependencies "-C -o" "repl -s wait" 'boot)
@@ -324,7 +324,7 @@
       (spy-on 'cider-jack-in-normalized-lein-plugins
               :and-return-value '(("refactor-nrepl" "2.0.0")
                                   ("cider/cider-nrepl" "0.36.0")
-                                  ("mx.cider/enrich-classpath" "1.9.0")))
+                                  ("mx.cider/lein-enrich-classpath" "1.11.2")))
       (setq-local cider-jack-in-dependencies-exclusions '())
       (setq-local cider-enrich-classpath t))
     (it "uses them in a lein project"
@@ -336,8 +336,8 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/enrich-classpath \"1.9.0\"]")
-                                " -- update-in :middleware conj cider.enrich-classpath/middleware"
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless"))))
 
   (describe "when the middleware lists have been normalized (Boot)"

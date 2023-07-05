@@ -1576,7 +1576,6 @@ The new command will be a `java -cp ...' invocation."
         (if (or (not c)
                 (string-empty-p c))
             (progn
-              ;; message see .emacs.d/cider-error.log
               (message "CIDER enrich-classpath failed. Falling back to the original command. `.emacs.d/cider-error.log' may contain debug information.")
               command)
           (progn
