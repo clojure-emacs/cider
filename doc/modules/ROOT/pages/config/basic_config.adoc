@@ -43,6 +43,7 @@ With it enable, `cider-jack-in` will activate enrich-classpath, given the follow
 
 * You are on macOS/Linux
 * You are on Leiningen
+* You are launching a vanilla JVM repl (and not a cljs, or clj+cljs one)
 
 ...those conditions will be progressively relaxed.
 
