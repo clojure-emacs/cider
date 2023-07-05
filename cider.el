@@ -1554,8 +1554,8 @@ Params is a plist with the following keys (non-exhaustive)
 (defvar cider--jack-in-cmd-history nil
   "History list for user-specified jack-in commands.")
 
-(defun cider--expand-command-with-enrich-classpath (command project-type)
-  "When possible for PROJECT-TYPE, expands COMMAND.
+(defun cider--expand-command-with-enrich-classpath (command fallback-cmd project-type)
+  "When possible for PROJECT-TYPE, expands COMMAND or fallback to FALLBACK-CMD.
 For example, `lein ... repl :headless ...' will be turned into a
   `java -cp ...' invocation, which is the result of applying
 the enrich-classpath middleware."
@@ -1582,11 +1582,17 @@ the enrich-classpath middleware."
               (write-region "\n\nFull enrich-classpath output:\n\n" logfile 'append)
               (write-region result logfile 'append)
               (message "CIDER enrich-classpath failed. Falling back to the original command. `~/.emacs.d/cider-error.log' may contain debug information.")
-              command)
+              fallback-cmd)
           (progn
             (message (concat "CIDER enrich-classpath replaced: " (prin1-to-string enriched-command)))
             enriched-command)))
     command))
+
+(defun cider--format-cmd (command-resolved command cmd-params)
+  (format "%s %s" command-resolved
+          (if (cider--jack-in-cmd-powershell-p command)
+              (cider--powershell-encode-command cmd-params)
+            cmd-params)))
 
 (defun cider--update-jack-in-cmd (params)
   "Update :jack-in-cmd key in PARAMS.
@@ -1616,6 +1622,12 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                                       command-params
                                                       'cider--jack-in-nrepl-params-history)
                                        command-params))
+                     ;; create a command without the Enrich plugin or middleware:
+                     (fallback-cmd-params (let ((cider-enrich-classpath nil))
+                                            (if cider-inject-dependencies-at-jack-in
+                                                (cider-inject-jack-in-dependencies command-global-opts command-params
+                                                                                   project-type command)
+                                              command-params)))
                      (cmd-params (if cider-inject-dependencies-at-jack-in
                                      (cider-inject-jack-in-dependencies command-global-opts command-params
                                                                         project-type command)
@@ -1627,15 +1639,13 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                    (eq cider-allow-jack-in-without-project 'warn)
                                    (or params-project-type
                                        (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? "))))
-                      (let* ((cmd (format "%s %s" command-resolved
-                                          (if (cider--jack-in-cmd-powershell-p command)
-                                              (cider--powershell-encode-command cmd-params)
-                                            cmd-params)))
+                      (let* ((cmd          (cider--format-cmd command-resolved command cmd-params))
+                             (fallback-cmd (cider--format-cmd command-resolved command fallback-cmd-params))
                              (edited-command (if (or cider-edit-jack-in-command
                                                      (plist-get params :edit-jack-in-command))
                                                  (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
                                                cmd))
-                             (enriched-command (cider--expand-command-with-enrich-classpath edited-command project-type)))
+                             (enriched-command (cider--expand-command-with-enrich-classpath edited-command fallback-cmd project-type)))
                         (plist-put params :jack-in-cmd enriched-command)))
                   (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
           (user-error "The %s executable isn't on your `exec-path'" command))))))
