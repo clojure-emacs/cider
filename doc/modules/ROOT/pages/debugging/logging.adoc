@@ -28,7 +28,7 @@ logging related actions.
 
 == Usage
 
-To use CIDER Log Mode, type kbd:[C-c l l] or kbd:[M-x cider-log] in
+To use CIDER Log Mode, type kbd:[C-c M-l l] or kbd:[M-x cider-log] in
 any buffer that has a CIDER https://github.com/vspinu/sesman[Sesman]
 session attached to it. The first time you run the command, it will
 prompt you to select a log framework to use, and then attach a log
@@ -56,23 +56,23 @@ the selected framework.
 | Command | Keyboard shortcut | Description
 
 | `cider-log`
-| kbd:[C-c l l]
+| kbd:[C-c M-l l]
 | Show the CIDER log menu.
 
 | `cider-log-framework`
-| kbd:[C-c l f]
+| kbd:[C-c M-l f]
 | Show the menu to manage a logging framework.
 
 | `cider-log-appender`
-| kbd:[C-c l a]
+| kbd:[C-c M-l a]
 | Show the menu to manage appenders of a logging framework.
 
 | `cider-log-consumer`
-| kbd:[C-c l c]
+| kbd:[C-c M-l c]
 | Show the menu to manage consumers listening to log events.
 
 | `cider-log-event`
-| kbd:[C-c l e]
+| kbd:[C-c M-l e]
 | Show the menu to manage log events.
 |===
 
@@ -100,19 +100,19 @@ Log4j2 reconfiguration mechanism.
 | Command | Keyboard shortcut | Description
 
 | `cider-log-set-framework`
-| kbd:[C-c l f s]
+| kbd:[C-c M-l f s]
 | Select the log framework to use.
 
 | `cider-log-set-buffer`
-| kbd:[C-c l f b]
+| kbd:[C-c M-l f b]
 | Select the log buffer to user. Default: `+*cider-log*+`
 
 | `cider-log-browse-javadocs`
-| kbd:[C-c l f j]
+| kbd:[C-c M-l f j]
 | Browse the Javadocs of the log framework.
 
 | `cider-log-browse-website`
-| kbd:[C-c l f w]
+| kbd:[C-c M-l f w]
 | Browse the website of the log framework.
 |===
 
@@ -135,23 +135,23 @@ The following keybindings can be used to interact with log appenders.
 | Command | Keyboard shortcut | Description
 
 | `cider-log-appender`
-| kbd:[C-c l a]
+| kbd:[C-c M-l a]
 | Show the transient menu to manage log appenders.
 
 | `cider-log-add-appender`
-| kbd:[C-c l a a]
+| kbd:[C-c M-l a a]
 | Add a log appender to a logger.
 
 | `cider-log-clear-appender`
-| kbd:[C-c l a c]
+| kbd:[C-c M-l a c]
 | Clear all captured events of a log appender.
 
 | `cider-log-kill-appender`
-| kbd:[C-c l a k]
+| kbd:[C-c M-l a k]
 | Kill a log appender by removing it from the logger.
 
 | `cider-log-update-appender`
-| kbd:[C-c l a u]
+| kbd:[C-c M-l a u]
 | Update the filters, size or threshold of a log appender.
 |===
 
@@ -172,22 +172,22 @@ The following keybindings can be used to interact with log consumers.
 
 | `cider-log-consumer`
 |
-| kbd:[C-c l c]
+| kbd:[C-c M-l c]
 | Show the transient menu to manage log consumers.
 
 | `cider-log-add-consumer`
 | kbd:[ca] / kbd:[a]
-| kbd:[C-c l c a]
+| kbd:[C-c M-l c a]
 | Add a log consumer to a log appender streaming event to the client.
 
 | `cider-log-kill-consumer`
 | kbd:[ck] / kbd:[k]
-| kbd:[C-c l c k]
+| kbd:[C-c M-l c k]
 | Kill a log consumer and stop streaming events to the client.
 
 | `cider-log-update-consumer`
 | kbd:[cu] / kbd:[u]
-| kbd:[C-c l c u]
+| kbd:[C-c M-l c u]
 | Update the filters of a log consumer to change which events are streamed to the client.
 |===
 
@@ -210,27 +210,27 @@ The following keybindings can be used to interact with log events.
 | Command | Keyboard shortcut | Description
 
 | `cider-log-event`
-| kbd:[C-c l e]
+| kbd:[C-c M-l e]
 | Show the transient menu to manage log events.
 
 | `cider-log-clear-event-buffer`
-| kbd:[C-c l e c]
+| kbd:[C-c M-l e c]
 | Clear all events from the log event buffer.
 
 | `cider-log-show-stacktrace`
-| kbd:[C-c l e e]
+| kbd:[C-c M-l e e]
 | Show the stacktrace of the log event at point in the CIDER Stacktrace Mode.
 
 | `cider-log-inspect-event`
-| kbd:[C-c l e i]
+| kbd:[C-c M-l e i]
 | Show the log event in the CIDER Inspector.
 
 | `cider-log-print-event`
-| kbd:[C-c l e p]
+| kbd:[C-c M-l e p]
 | Pretty print the log event in the `+*cider-log-event*+` buffer.
 
 | `cider-log-event-search`
-| kbd:[C-c l e s]
+| kbd:[C-c M-l e s]
 | Search log events and show them in the `+*cider-log*+` buffer.
 |===
 
