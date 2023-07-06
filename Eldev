@@ -9,6 +9,7 @@
 (eldev-use-plugin 'autoloads)
 
 (eldev-add-loading-roots 'test "test/utils")
+(eldev-add-extra-dependencies 'runtime '(:package logview :optional t))
 
 (defvar cider-test-type 'main)
 (setf eldev-standard-excludes `(:or ,eldev-standard-excludes

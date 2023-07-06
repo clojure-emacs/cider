@@ -28,7 +28,7 @@
 (require 'cider-inspector)
 (require 'cider-stacktrace)
 (require 'cl-lib)
-(require 'logview)
+(require 'logview nil t)
 (require 'org)
 (require 'seq)
 (require 'transient)
@@ -81,6 +81,18 @@
   :package-version '(cider . "1.8.0")
   :safe #'integerp
   :type 'integer)
+
+(defcustom cider-log-use-logview (fboundp 'logview-mode)
+  "Whether to use `logview-mode' or not."
+  :group 'cider
+  :package-version '(cider . "1.8.0")
+  :safe #'booleanp
+  :type 'boolean)
+
+(defvar logview-mode-map)
+(declare-function logview--guess-submode "logview" () t)
+(declare-function logview-initialized-p "logview" () t)
+(declare-function logview-mode "logview" () t)
 
 (defvar cider-log--initialized-once-p nil
   "Set to t if log framework and appender have been initialized once.")
@@ -565,7 +577,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
                 (seq-doseq (buffer buffers)
                   (with-current-buffer buffer
                     (cider-log--insert-events buffer (list cider/log-event))
-                    (when (not (logview-initialized-p))
+                    (when (and cider-log-use-logview (not (logview-initialized-p)))
                       (let ((framework cider-log-framework)
                             (appender cider-log-appender)
                             (consumer cider-log-consumer))
@@ -795,8 +807,9 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 ;; Major mode
 
 (defvar cider-log-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map logview-mode-map)
+  (let ((map (make-sparse-keymap))
+        (parent (if cider-log-use-logview logview-mode-map special-mode-map)))
+    (set-keymap-parent map parent)
     (define-key map (kbd "C-c M-l a") #'cider-log-appender)
     (define-key map (kbd "C-c M-l c") #'cider-log-consumer)
     (define-key map (kbd "C-c M-l e") #'cider-log-event)
@@ -812,15 +825,8 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
     map)
   "The Cider log stream mode key map.")
 
-(define-derived-mode cider-log-mode logview-mode "Cider Log"
-  "Major mode for inspecting Clojure log events.
-
-CIDER Log Mode allows you to capture, debug, inspect and view log events
-emitted by Java logging frameworks.  The captured log events can be
-searched, streamed to the client, pretty printed and are integrated with
-the CIDER Inspector and the CIDER stacktrace mode.
-
-\\{cider-log-mode-map}"
+(defun cider-log--setup-mode ()
+  "Setup CIDER log mode."
   (use-local-map cider-log-mode-map)
   (setq-local electric-indent-chars nil)
   (setq-local logview-show-ellipses nil)
@@ -828,6 +834,22 @@ the CIDER Inspector and the CIDER stacktrace mode.
   (setq-local truncate-lines t)
   (when (fboundp 'evil-set-initial-state)
     (evil-set-initial-state 'cider-log-mode 'emacs)))
+
+(defvar cider-log--mode-doc
+  "Major mode for inspecting Clojure log events.
+
+CIDER Log Mode allows you to capture, debug, inspect and view log events
+emitted by Java logging frameworks.  The captured log events can be
+searched, streamed to the client, pretty printed and are integrated with
+the CIDER Inspector and the CIDER stacktrace mode.
+
+\\{cider-log-mode-map}")
+
+(if cider-log-use-logview
+    (define-derived-mode cider-log-mode logview-mode "Cider Log" cider-log--mode-doc
+      (cider-log--setup-mode))
+  (define-derived-mode cider-log-mode special-mode "Cider Log" cider-log--mode-doc
+      (cider-log--setup-mode)))
 
 ;; Transient Lisp Variable
 
