@@ -22,6 +22,9 @@
 ;;; Commentary:
 
 ;; Log inspection functionality for Clojure.
+;;
+;; Please, refer to the online documentation for more details
+;; https://docs.cider.mx/cider/debugging/logging.html.
 
 ;;; Code:
 
