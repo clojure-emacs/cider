@@ -33,7 +33,7 @@ https://github.com/doublep/logview[Logview] is an optional dependency
 of CIDER Log Mode. We recommend using it, since it is responsible for
 coloring the log events and it provides other useful features, such as
 syntax highlighting, filtering and more. It is used automatically when
-available and its use can be customized via `+cider-log-use-logview+`.
+available and its use can be customized via `cider-log-use-logview`.
 
 == Usage
 
