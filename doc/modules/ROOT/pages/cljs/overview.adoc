@@ -87,7 +87,7 @@ TIP: You can learn more about this difference https://github.com/nrepl/piggiebac
 == Dealing with Dependencies
 
 CIDER doesn't handle automatically ClojureScript REPL dependencies when you're doing
-`cider-jack-in-clojurescript`. You'll have to configure those manually yourselves
+`cider-jack-in-cljs`. You'll have to configure those manually yourselves
 as documented in the subsequent sections of this manual.
 
 Actually, CIDER will handle automatically the most important dependency - namely Piggieback.
