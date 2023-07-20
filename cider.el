@@ -489,7 +489,7 @@ the artifact.")
 (defconst cider-latest-clojure-version "1.10.1"
   "Latest supported version of Clojure.")
 
-(defconst cider-required-middleware-version "0.32.0-alpha1"
+(defconst cider-required-middleware-version "0.32.0-alpha2"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-injected-middleware-version cider-required-middleware-version
