@@ -389,6 +389,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (cider-insert (format "%d errors" error) 'cider-test-error-face t))
       (when (zerop (+ fail error))
         (cider-insert (format "%d passed" pass) 'cider-test-success-face t))
+      (when cider-test-fail-fast
+        (cider-insert "cider-test-fail-fast: " 'font-lock-comment-face nil)
+        (cider-insert "t" 'cider-test-constant-face t))
       (insert "\n\n"))))
 
 (defun cider-test-render-assertion (buffer test)
@@ -466,7 +469,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (insert (cider-propertize ns 'ns)
                 (or (let ((ms (nrepl-dict-get (nrepl-dict-get ns-elapsed-time ns)
                                               "ms")))
-                      (format " (%s ms)" ms))
+                      (propertize (format " %s ms" ms) 'face 'font-lock-comment-face))
                     "")
                 "\n"))
       (cider-insert "\n")
@@ -654,8 +657,7 @@ The selectors can be either keywords or strings."
     (cider-read-from-minibuffer message))))
 
 (defcustom cider-test-fail-fast t
-  "If `t', test will be considered complete as soon as the first given test
-has failed or errored."
+  "Controls whether to stop a test run on failure/error."
   :type 'boolean
   :package-version '(cider . "1.8.0"))
 
