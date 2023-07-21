@@ -391,7 +391,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (cider-insert (format "%d passed" pass) 'cider-test-success-face t))
       (when cider-test-fail-fast
         (cider-insert "cider-test-fail-fast: " 'font-lock-comment-face nil)
-        (cider-insert "t" 'cider-test-constant-face t))
+        (cider-insert "t" 'font-lock-constant-face t))
       (insert "\n\n"))))
 
 (defun cider-test-render-assertion (buffer test)
