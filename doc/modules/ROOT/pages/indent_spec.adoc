@@ -156,3 +156,29 @@ so that it will be indented like this:
 The indent spec does this as well. It lets you specify that, for each argument
 beyond the 2nd, if it is a form, it should be internally indented as having 1
 special argument.
+
+== Indentation inference
+
+It's worth noting that starting from cider-nrepl 0.32, indentation can be inferred for you,
+so you wouldn't have to specify it.
+
+For that to happen, it's most recommended that you write idiomatic Clojure macros:
+
+* If your macro is analog to a clojure.core one, name it identically
+  * e.g. name your macro `defprotocol`, not `my-defprotocol`
+    * (this is intentful usage of Clojure's namespace system)
+* If your macro is analog to a clojure.core one, mirror all its arglists
+  * The exact names that you choose for your args do not matter
+  * It's the structure of the arglists that have to match.
+  * It doesn't matter if you express a given arg as a name, or as a destructured map/vector.
+* Name 'body' args like using clojure.core customs
+  * good: `[opts body]`
+  * bad: `[opts etc]`
+  * good: `[& body]`
+  * bad: `[& etc]`
+  * Other commonly accepted names include `forms`, `clauses`, etc.
+
+You certainly don't _have_ to follow these suggestions - it's only for your convenience,
+as the indentation produced by CIDER will be better.
+
+Other tools may eventually also use these very same inference rules.
