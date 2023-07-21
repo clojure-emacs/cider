@@ -414,9 +414,8 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
             (cider-insert (capitalize type) type-face nil " in ")
             (cider-insert var 'font-lock-function-name-face t)
             (when elapsed-time
-              (let ((humanized (nrepl-dict-get elapsed-time "humanized")))
-                (when humanized
-                  (cider-insert humanized))))
+              (when-let ((humanized (nrepl-dict-get elapsed-time "humanized")))
+                (cider-insert humanized)))
             (when context  (cider-insert context 'font-lock-doc-face t))
             (when message  (cider-insert message 'font-lock-string-face t))
             (when expected
@@ -524,12 +523,12 @@ The optional arg TEST denotes an individual test name."
     (if (nrepl-dict-empty-p results)
         (message (concat (propertize "No assertions (or no tests) were run." 'face 'cider-test-error-face)
                          "Did you forget to use `is' in your tests?"))
-      (let* ((humanized (nrepl-dict-get elapsed-time "humanized"))
-             (humanized (if humanized
-                            (propertize (concat " " humanized) 'face 'default)
-                          "")))
+      (let* ((ms (nrepl-dict-get elapsed-time "ms"))
+             (ms (if ms
+                     (propertize (concat " in " (prin1-to-string ms) "ms") 'face 'font-lock-comment-face)
+                   "")))
       (message (propertize
-                "%sRan %d assertions, in %d test functions. %d failures, %d errors.%s"
+                "%sRan %d assertions, in %d test functions. %d failures, %d errors%s"
                 'face (cond ((not (zerop error)) 'cider-test-error-face)
                             ((not (zerop fail))  'cider-test-failure-face)
                             (t                   'cider-test-success-face)))
@@ -537,7 +536,7 @@ The optional arg TEST denotes an individual test name."
                            (cider-propertize (car (nrepl-dict-keys results)) 'ns)
                          (propertize (format "%d namespaces" ns) 'face 'default))
                        (propertize ": " 'face 'default))
-               test var fail error humanized)))))
+               test var fail error ms)))))
 
 ;;; Test definition highlighting
 ;;
