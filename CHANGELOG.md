@@ -7,6 +7,9 @@
 - [#3352](https://github.com/clojure-emacs/cider/pull/3352) Add CIDER Log Mode, a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
 - `cider-test`: add timing information.
+- `cider-test`: only show diffs for collections.
+- `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom. 
+- Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
 
 ### Bugs fixed
 
@@ -17,7 +20,7 @@
 
 ### Changes
 
-- Bump the injected `cider-nrepl` to 0.31.
+- Bump the injected `cider-nrepl` to [0.32](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md).
 
 ## 1.7.0 (2023-03-23)
 
