@@ -525,7 +525,7 @@ The optional arg TEST denotes an individual test name."
                          "Did you forget to use `is' in your tests?"))
       (let* ((ms (nrepl-dict-get elapsed-time "ms"))
              (ms (if ms
-                     (propertize (concat " in " (prin1-to-string ms) "ms") 'face 'font-lock-comment-face)
+                     (propertize (format " in %s ms" ms ) 'face 'font-lock-comment-face)
                    ".")))
       (message (propertize
                 "%sRan %d assertions, in %d test functions. %d failures, %d errors%s"
