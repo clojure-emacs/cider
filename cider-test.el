@@ -426,8 +426,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
             (when message  (cider-insert message 'font-lock-string-face t))
             (when expected
               (insert-label "expected")
-              (insert-rect expected)
-              (insert "\n"))
+              (insert-rect expected))
             (if diffs
                 (dolist (d diffs)
                   (cl-destructuring-bind (actual (removed added)) d
