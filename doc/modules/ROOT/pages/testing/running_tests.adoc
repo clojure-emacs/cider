@@ -91,6 +91,15 @@ kbd:[C-c C-t t] or kbd:[C-c C-t C-t].
 
 You can configure CIDER's test execution behavior in multiple ways.
 
+=== Fail-fast
+
+Starting from 1.8.0, CIDER has standard fail-fast functionality,
+controlled by the `cider-test-fail-fast` defcustom (default `t`).
+
+NOTE: fail-fast will never be chosen for the "retest" functionality,
+since that would cause you to lose the majority of the tests
+that previously failed.
+
 === Test Namespace Naming Convention
 
 If your tests are not following the `some.ns-test` naming convention

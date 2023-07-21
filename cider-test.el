@@ -653,6 +653,12 @@ The selectors can be either keywords or strings."
    (split-string
     (cider-read-from-minibuffer message))))
 
+(defcustom cider-test-fail-fast t
+  "If `t', test will be considered complete as soon as the first given test
+has failed or errored."
+  :type 'boolean
+  :package-version '(cider . "1.8.0"))
+
 (defun cider-test-execute (ns &optional tests silent prompt-for-filters)
   "Run tests for NS, which may be a keyword, optionally specifying TESTS.
 This tests a single NS, or multiple namespaces when using keywords `:project',
@@ -682,10 +688,11 @@ running them."
               ;; we generate a different message when running individual tests
               (cider-test-echo-running ns (car tests))
             (cider-test-echo-running ns)))
-        (let ((request `("op" ,(cond ((stringp ns)         "test")
+        (let ((retest? (eq :non-passing ns))
+              (request `("op" ,(cond ((stringp ns)         "test")
                                      ((eq :project ns)     "test-all")
                                      ((eq :loaded ns)      "test-all")
-                                     ((eq :non-passing ns) "retest")))))
+                                     (retest?              "retest")))))
           ;; we add optional parts of the request only when relevant
           (when (and (listp include-selectors) include-selectors)
             (setq request (append request `("include" ,include-selectors))))
@@ -697,6 +704,9 @@ running them."
             (setq request (append request `("tests" ,tests))))
           (when (or (stringp ns) (eq :project ns))
             (setq request (append request `("load?" ,"true"))))
+          (when (and cider-test-fail-fast
+                     (not retest?))
+            (setq request (append request `("fail-fast" ,"true"))))
           (cider-nrepl-send-request
            request
            (lambda (response)
