@@ -526,7 +526,7 @@ The optional arg TEST denotes an individual test name."
       (let* ((ms (nrepl-dict-get elapsed-time "ms"))
              (ms (if ms
                      (propertize (concat " in " (prin1-to-string ms) "ms") 'face 'font-lock-comment-face)
-                   "")))
+                   ".")))
       (message (propertize
                 "%sRan %d assertions, in %d test functions. %d failures, %d errors%s"
                 'face (cond ((not (zerop error)) 'cider-test-error-face)
