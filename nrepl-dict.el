@@ -86,14 +86,14 @@ Return new dict.  Dict is modified by side effects."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (car l))
-    (error "Not an nREPL dict")))
+    (error "Not an nREPL dict object: %s" dict)))
 
 (defun nrepl-dict-vals (dict)
   "Return all the values in the nREPL DICT."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (cadr l))
-    (error "Not an nREPL dict")))
+    (error "Not an nREPL dict object: %s" dict)))
 
 (defun nrepl-dict-map (fn dict)
   "Map FN on nREPL DICT.
@@ -101,7 +101,7 @@ FN must accept two arguments key and value."
   (if (nrepl-dict-p dict)
       (cl-loop for l on (cdr dict) by #'cddr
                collect (funcall fn (car l) (cadr l)))
-    (error "Not an nREPL dict")))
+    (error "Not an nREPL dict object: %s" dict)))
 
 (defun nrepl-dict-merge (dict1 dict2)
   "Destructively merge DICT2 into DICT1.
