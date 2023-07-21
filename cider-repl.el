@@ -236,8 +236,11 @@ This cache is stored in the connection buffer.")
   "Handle server state contained in RESPONSE."
   (with-demoted-errors "Error in `cider-repl--state-handler': %s"
     (when (member "state" (nrepl-dict-get response "status"))
-      (nrepl-dbind-response response (repl-type changed-namespaces)
-        (when (and repl-type cider-repl-auto-detect-type)
+      (nrepl-dbind-response response (repl-type changed-namespaces session)
+        (when (and repl-type
+                   cider-repl-auto-detect-type
+                   ;; tooling sessions always run on the JVM so they are not a valid criterion:
+                   (not (equal session nrepl-tooling-session)))
           (cider-set-repl-type repl-type))
         (when (eq (cider-maybe-intern repl-type) 'cljs)
           (setq cider-repl-cljs-upgrade-pending nil))
