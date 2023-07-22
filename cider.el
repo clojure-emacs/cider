@@ -1385,6 +1385,7 @@ server buffer, in which case a new session for that server is created."
   (interactive "P")
   (let* ((other-repl (or other-repl (cider-current-repl 'any 'ensure)))
          (other-params (cider--gather-connect-params nil other-repl))
+         ;; type-related params from the JVM conn are undesired for a cljs conn:
          (other-params (thread-first other-params (map-delete :repl-type) (map-delete :cljs-repl-type)))
          (ses-name (unless (nrepl-server-p other-repl)
                      (sesman-session-name-for-object 'CIDER other-repl))))
