@@ -1293,7 +1293,7 @@ double prefix prompt for all these parameters."
 (defun cider-jack-in-cljs (params)
   "Start an nREPL server for the current project and connect to it.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
-:cljs-repl-type (e.g. Node, Figwheel, etc).  With the prefix argument,
+:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).  With the prefix argument,
 allow editing of the jack in command; with a double prefix prompt for all
 these parameters."
   (interactive "P")
@@ -1318,7 +1318,7 @@ these parameters."
 (defun cider-jack-in-clj&cljs (&optional params soft-cljs-start)
   "Start an nREPL server and connect with clj and cljs REPLs.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
-:cljs-repl-type (e.g. Node, Figwheel, etc).  With the prefix argument,
+:cljs-repl-type (e.g. 'shadow, 'node, 'fighweel, etc).  With the prefix argument,
 allow for editing of the jack in command; with a double prefix prompt for
 all these parameters.  When SOFT-CLJS-START is non-nil, start cljs REPL
 only when the ClojureScript dependencies are met."
@@ -1371,13 +1371,14 @@ server is created."
 ;;;###autoload
 (defun cider-connect-sibling-cljs (params &optional other-repl)
   "Create a ClojureScript REPL with the same server as OTHER-REPL.
-PARAMS is a plist optionally containing :cljs-repl-type (e.g. Node,
-Figwheel, etc).  All other parameters are inferred from the OTHER-REPL.
+PARAMS is a plist optionally containing :cljs-repl-type (e.g. 'node,
+'figwheel, 'shadow, etc).  All other parameters are inferred from the OTHER-REPL.
 OTHER-REPL defaults to `cider-current-repl' but in programs can also be a
 server buffer, in which case a new session for that server is created."
   (interactive "P")
   (let* ((other-repl (or other-repl (cider-current-repl 'any 'ensure)))
          (other-params (cider--gather-connect-params nil other-repl))
+         (other-params (thread-first other-params (map-delete :repl-type) (map-delete :cljs-repl-type)))
          (ses-name (unless (nrepl-server-p other-repl)
                      (sesman-session-name-for-object 'CIDER other-repl))))
     (cider-nrepl-connect
@@ -1410,7 +1411,9 @@ prefix argument, prompt for all the parameters."
 (defun cider-connect-cljs (&optional params)
   "Initialize a ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
-:cljs-repl-type (e.g. Node, Figwheel, etc).  On prefix, prompt for all the
+:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+
+On prefix, prompt for all the
 parameters regardless of their supplied or default values."
   (interactive "P")
   (cider-nrepl-connect
@@ -1428,7 +1431,7 @@ parameters regardless of their supplied or default values."
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)
   "Initialize a Clojure and ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
-:cljs-repl-type (e.g. Node, Figwheel, etc).  When SOFT-CLJS-START is
+:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).  When SOFT-CLJS-START is
 non-nil, don't start if ClojureScript requirements are not met."
   (interactive "P")
   (let* ((params (thread-first

@@ -788,7 +788,7 @@ Session name can be customized with `cider-session-name-template'."
 ;;; REPL Buffer Init
 
 (defvar-local cider-cljs-repl-type nil
-  "The type of the ClojureScript runtime (Browser, Node, Figwheel, etc.).")
+  "The type of the ClojureScript runtime ('browser, 'node, 'figwheel, etc.).")
 
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either clj or cljs.")
@@ -919,6 +919,8 @@ function with the repl buffer set as current."
             ;; ran at the end of cider--connected-handler
             cider-repl-init-function (plist-get params :repl-init-function)
             cider-launch-params params)
+      (when-let ((type (plist-get params :cljs-repl-type)))
+        (setq cider-cljs-repl-type type))
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
       (add-hook 'nrepl-connected-hook #'cider--connected-handler nil 'local)
