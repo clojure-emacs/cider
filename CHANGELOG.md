@@ -23,7 +23,7 @@
 
 ### Changes
 
-- Bump the injected `cider-nrepl` to [0.32](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md).
+- Bump the injected `cider-nrepl` to [0.34](https://github.com/clojure-emacs/cider-nrepl/blob/v0.34.0/CHANGELOG.md#0340-2023-08-03).
 - Improve `nrepl-dict` error reporting.
 - Preserve the `:cljs-repl-type` more reliably.
 
