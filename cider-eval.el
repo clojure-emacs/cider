@@ -626,7 +626,7 @@ If location could not be found, return nil."
                     (goto-char (point-min))
                     (forward-line (1- line))
                     (move-to-column col)
-                    ;; if this condition is true, it means that `col` was a spuriously large value,
+                    ;; if this condition is false, it means that `col` was a spuriously large value,
                     ;; therefore the whole calculation should be discarded:
                     (when (or (not col) ;; if there's no col info, we cannot judge if it's spurious/not
                               ;; (current-column) never goes past the last column in the actual file,
