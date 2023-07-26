@@ -625,12 +625,19 @@ If location could not be found, return nil."
                     (widen)
                     (goto-char (point-min))
                     (forward-line (1- line))
-                    (move-to-column (or col 0))
-                    (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
-                                        (point)))
-                          (end (progn (if col (forward-list) (move-end-of-line nil))
-                                      (point))))
-                      (list begin end buffer))))))))))))
+                    (move-to-column col)
+                    ;; if this condition is true, it means that `col` was a spuriously large value,
+                    ;; therefore the whole calculation should be discarded:
+                    (when (or (not col) ;; if there's no col info, we cannot judge if it's spurious/not
+                              ;; (current-column) never goes past the last column in the actual file,
+                              ;; so if it's <, then the message had spurious info:
+                              (= (+ 1 (current-column))
+                                 col))
+                      (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
+                                          (point)))
+                            (end (progn (if col (forward-list) (move-end-of-line nil))
+                                        (point))))
+                        (list begin end buffer)))))))))))))
 
 (defun cider-handle-compilation-errors (message eval-buffer)
   "Highlight and jump to compilation error extracted from MESSAGE.
