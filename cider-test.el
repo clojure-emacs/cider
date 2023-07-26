@@ -426,7 +426,12 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
             (when message  (cider-insert message 'font-lock-string-face t))
             (when expected
               (insert-label "expected")
-              (insert-rect expected))
+              (insert-rect expected)
+              ;; insert a newline between expected and actual only when both values are large enough
+              ;; to justify the readability improvement.
+              ;; our heuristic for a 'large enough' object is the presence of diffs:
+              (when diffs
+                (insert "\n")))
             (if diffs
                 (dolist (d diffs)
                   (cl-destructuring-bind (actual (removed added)) d
