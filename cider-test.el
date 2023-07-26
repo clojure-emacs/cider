@@ -437,6 +437,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                   (cl-destructuring-bind (actual (removed added)) d
                     (insert-label "actual")
                     (insert-rect actual)
+                    (insert "\n")
                     (insert-label "diff")
                     (insert "- ")
                     (insert-rect removed)
