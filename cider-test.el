@@ -397,7 +397,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
-    (nrepl-dbind-response test (var context type message expected actual diffs error gen-input elapsed-time)
+    (nrepl-dbind-response test (var context type message expected actual diffs error gen-input)
       (cl-flet ((insert-label (s)
                   (cider-insert (format "%8s: " s) 'font-lock-comment-face))
                 (insert-align-label (s)
@@ -416,9 +416,6 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                 (bg `(:background ,cider-test-items-background-color :extend t)))
             (cider-insert (capitalize type) type-face nil " in ")
             (cider-insert var 'font-lock-function-name-face t)
-            (when elapsed-time
-              (when-let ((humanized (nrepl-dict-get elapsed-time "humanized")))
-                (cider-insert humanized)))
             (when context  (cider-insert context 'font-lock-doc-face t))
             (when message  (cider-insert message 'font-lock-string-face t))
             (when expected
@@ -459,7 +456,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                   test))
               tests))
 
-(defun cider-test-render-report (buffer summary results &optional elapsed-time ns-elapsed-time)
+(defun cider-test-render-report (buffer summary results &optional elapsed-time ns-elapsed-time var-elapsed-time)
   "Emit into BUFFER the report for the SUMMARY, and test RESULTS."
   (with-current-buffer buffer
     (let ((inhibit-read-only t))
@@ -471,7 +468,18 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                                               "ms")))
                       (propertize (format " %s ms" ms) 'face 'font-lock-comment-face))
                     "")
+                "\n")
+        (when var-elapsed-time
+          (when-let ((pairs (nrepl-dict-get var-elapsed-time ns)))
+            (nrepl-dict-map (lambda (var meta)
+                              (insert "  " ;; indentation - we're showing a var within a ns
+                                      (cider-propertize var 'font-lock-function-name-face)
+                                      (or (when-let* ((elapsed (nrepl-dict-get meta "elapsed-time"))
+                                                      (ms (nrepl-dict-get elapsed "ms")))
+                                            (propertize (format " %s ms" ms) 'face 'font-lock-comment-face))
+                                          "")
                 "\n"))
+                            pairs))))
       (cider-insert "\n")
       (cider-test-render-summary buffer summary elapsed-time)
       (nrepl-dbind-response summary (fail error)
@@ -712,7 +720,7 @@ running them."
           (cider-nrepl-send-request
            request
            (lambda (response)
-             (nrepl-dbind-response response (summary results status out err elapsed-time ns-elapsed-time)
+             (nrepl-dbind-response response (summary results status out err elapsed-time ns-elapsed-time var-elapsed-time)
                (cond ((member "namespace-not-found" status)
                       (unless silent
                         (message "No test namespace: %s" (cider-propertize ns 'ns))))
@@ -733,7 +741,8 @@ running them."
                              summary
                              results
                              elapsed-time
-                             ns-elapsed-time)
+                             ns-elapsed-time
+                             var-elapsed-time)
                           (when (get-buffer cider-test-report-buffer)
                             (with-current-buffer cider-test-report-buffer
                               (let ((inhibit-read-only t))
