@@ -118,3 +118,12 @@ going to be evaluated twice, once in each of the REPLs.  In fact, you
 can create multiple clj and cljs sibling connections (kbd:[C-c C-x C-s C-s/j]) within a CIDER session and evaluation will be directed
 into all REPLs simultaneously. See xref:usage/managing_connections.adoc[Managing
 Connections] for more details.
+
+If you would prefer to evaluate `cljc` files in only one of the matching REPLs, you can customize the variable `cider-clojurec-eval-destination` to either `clj` or `cljs`.  For example, to evaluate `cljc` files in the ClojureScript REPL only, add the following to your Emacs configuration:
+
+[source,lisp]
+----
+(setq cider-clojurec-eval-destination 'cljs)
+----
+
+Note: This variable can also be set on a per-buffer basis using `setq-local`, or project-wide in `dir-locals.el`.

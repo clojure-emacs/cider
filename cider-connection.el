@@ -105,7 +105,14 @@ Possible choices are `prompt', `auto', `any', and nil.
 (defconst cider-required-nrepl-version "0.6.0"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
-
+(defcustom cider-clojurec-eval-destination 'multi
+  "The REPL type to be chosen in .cljc buffers."
+  :type '(choice (const :tag "Clojure" clj)
+                 (const :tag "ClojureScript" cljs)
+                 (const :tag "Multi (evaluate in Clojure and ClojureScript simultaneously)" multi))
+  :group 'cider
+  :package-version '(cider . "1.8"))
+
 ;;; Connect
 
 (defun cider-nrepl-connect (params)
@@ -812,7 +819,7 @@ For the REPL type use the function `cider-repl-type'."
   (with-current-buffer (or buffer (current-buffer))
     (cond
      ((derived-mode-p 'clojurescript-mode) 'cljs)
-     ((derived-mode-p 'clojurec-mode) 'multi)
+     ((derived-mode-p 'clojurec-mode) cider-clojurec-eval-destination)
      ((derived-mode-p 'clojure-mode) 'clj)
      (cider-repl-type))))
 
