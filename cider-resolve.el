@@ -108,7 +108,7 @@ function `cider-repl-type'."
   (when-let* ((repl (cider-current-repl)))
     (with-current-buffer repl
       (cider-resolve--get-in (if (or (eq cider-repl-type 'cljs)
-                                     (eq major-mode 'clojurescript-mode))
+                                     (derived-mode-p 'clojurescript-mode))
                                  "cljs.core"
                                "clojure.core")))))
 
