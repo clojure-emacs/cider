@@ -1448,10 +1448,13 @@ non-nil, don't start if ClojureScript requirements are not met."
                    (cider--update-host-port)
                    (cider--check-existing-session)
                    (cider--update-cljs-type)))
-         (clj-repl (cider-connect-clj params)))
-    (if soft-cljs-start
-        (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
-          (cider-connect-sibling-cljs params clj-repl))
+         (clj-params (thread-first
+                       params
+                       copy-sequence
+                       (map-delete :cljs-repl-type)))
+         (clj-repl (cider-connect-clj clj-params)))
+    (when (or (not soft-cljs-start)
+              (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error))
       (cider-connect-sibling-cljs params clj-repl))))
 
 (defvar cider-connection-init-commands
