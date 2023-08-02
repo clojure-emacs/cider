@@ -1453,8 +1453,9 @@ non-nil, don't start if ClojureScript requirements are not met."
                        copy-sequence
                        (map-delete :cljs-repl-type)))
          (clj-repl (cider-connect-clj clj-params)))
-    (when (or (not soft-cljs-start)
-              (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error))
+    (when (if soft-cljs-start
+              (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
+            t)
       (cider-connect-sibling-cljs params clj-repl))))
 
 (defvar cider-connection-init-commands
