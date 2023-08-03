@@ -1810,8 +1810,8 @@ of list of the form (project-dir port)."
                                     (cons (clojure-project-dir dir) paths)))))
     (seq-uniq (delq nil proj-ports))))
 
-(defun cider--running-nrepl-paths ()
-  "Retrieve project paths of running nREPL servers.
+(defun cider--running-lein-nrepl-paths ()
+  "Retrieve project paths of running lein nREPL servers.
 Use `cider-ps-running-nrepls-command' and
 `cider-ps-running-nrepl-path-regexp-list'."
   (let (paths)
@@ -1821,6 +1821,25 @@ Use `cider-ps-running-nrepls-command' and
         (goto-char 1)
         (while (re-search-forward regexp nil t)
           (setq paths (cons (match-string 1) paths)))))
+    paths))
+
+(defun cider--running-local-nrepl-paths ()
+  "Retrieve project paths of running nREPL servers.
+Do it by looping over the open REPL buffers."
+  (seq-map
+   (lambda (b)
+     (with-current-buffer b
+       (plist-get (cider--gather-connect-params) :project-dir)))
+   (seq-filter
+    (lambda (b) (string-prefix-p "*cider-repl" (buffer-name b)))
+    (buffer-list))))
+
+(defun cider--running-nrepl-paths ()
+  "Retrieve project paths of running nREPL servers.
+Search for lein or java processes including nrepl.command nREPL"
+  (let ((paths (append
+                (cider--running-lein-nrepl-paths)
+                (cider--running-local-nrepl-paths))))
     (seq-uniq paths)))
 
 (defun cider--identify-buildtools-present (&optional project-dir)
