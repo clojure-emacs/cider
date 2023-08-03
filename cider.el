@@ -1823,6 +1823,17 @@ Use `cider-ps-running-nrepls-command' and
           (setq paths (cons (match-string 1) paths)))))
     paths))
 
+(defun cider--running-other-nrepl-paths ()
+  "Retrieve project paths of other running nREPL servers."
+  (let* ((take-non-lein-nrepl-pids
+          "ps u | grep java | grep -v leiningen | grep nrepl.cmdline | awk '{print $2}' | tr '\012' ,")
+         (take-external-paths
+          (concat
+           "lsof -a -d cwd -p $("
+           take-non-lein-nrepl-pids
+           ") -n -Fn | awk '/^n/ {print substr($0,2)}'")) )
+    (string-split (shell-command-to-string take-external-paths))))
+
 (defun cider--running-local-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
 Do it by looping over the open REPL buffers."
@@ -1839,7 +1850,8 @@ Do it by looping over the open REPL buffers."
 Search for lein or java processes including nrepl.command nREPL"
   (let ((paths (append
                 (cider--running-lein-nrepl-paths)
-                (cider--running-local-nrepl-paths))))
+                (cider--running-local-nrepl-paths)
+                (cider--running-other-nrepl-paths))))
     (seq-uniq paths)))
 
 (defun cider--identify-buildtools-present (&optional project-dir)
