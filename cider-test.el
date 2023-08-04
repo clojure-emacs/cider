@@ -401,12 +401,10 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
       (insert "\n\n"))))
 
 (defun cider-test--string-contains-newline (input-string)
-  "Returns whether INPUT-STRING contains a newline.
-Ignores any newlines at the end of the string."
+  "Returns whether INPUT-STRING contains an escaped newline."
   (when (stringp input-string)
-    (let ((trimmed-string (replace-regexp-in-string "\n\\'" "" input-string)))
-      (and (string-match-p "\n" trimmed-string)
-           t))))
+    (and (string-match-p "\\n" input-string)
+         t)))
 
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
