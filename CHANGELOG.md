@@ -8,7 +8,7 @@
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
 - `cider-test`: add timing information.
 - `cider-test`: only show diffs for collections.
-- `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom.
+- `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom and `cider-test-toggle-fail-fast` keybinding.
 - Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
 - Add new customization variable `cider-clojurec-eval-destination` to allow specifying which REPL CLJC evals are sent to.
 
