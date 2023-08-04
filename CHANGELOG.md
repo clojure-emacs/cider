@@ -20,6 +20,7 @@
 - [#3362](https://github.com/clojure-emacs/cider/issues/3362): Fix `sesman-restart` regression issue.
 - [#3236](https://github.com/clojure-emacs/cider/issues/3236): `cider-repl-set-ns` no longer changes the repl session type from `cljs:shadow` to `clj`.
 - [#3383](https://github.com/clojure-emacs/cider/issues/3383): `cider-connect-clj&cljs`: don't render `"ClojureScript REPL type:" for JVM repls. 
+- [#3331](https://github.com/clojure-emacs/cider/issues/3331): `cider-eval`: never jump to spurious locations, as sometimes conveyed by nREPL.  
 
 ### Changes
 
