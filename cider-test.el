@@ -403,7 +403,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 (defun cider-test--string-contains-newline (input-string)
   "Returns whether INPUT-STRING contains an escaped newline."
   (when (stringp input-string)
-    (and (string-match-p "\\n" input-string)
+    (and (string-match-p "\\\\n" input-string)
          t)))
 
 (defun cider-test-render-assertion (buffer test)

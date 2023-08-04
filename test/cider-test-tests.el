@@ -29,6 +29,9 @@
 (require 'cider-test)
 
 (describe "cider-test--string-contains-newline"
+  (expect (cider-test--string-contains-newline "n")
+          :to-equal
+          nil)
   (expect (cider-test--string-contains-newline "Hello\nWorld")
           :to-equal
           nil)
