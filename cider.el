@@ -1826,7 +1826,7 @@ Use `cider-ps-running-nrepls-command' and
 (defun cider--running-other-nrepl-paths ()
   "Retrieve project paths of running nREPL servers other than Lein ones."
   (let* ((take-non-lein-nrepl-pids
-          "ps u | grep java | grep -v leiningen | grep nrepl.cmdline | awk '{print $2}' | tr '\012' ,")
+          "ps u | grep java | grep -v leiningen | grep nrepl.cmdline | awk '{print $2}' | paste -s -d,")
          (take-external-paths
           (concat
            "lsof -a -d cwd -p $("
