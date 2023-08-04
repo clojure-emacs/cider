@@ -400,6 +400,14 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (cider-insert "t" 'font-lock-constant-face t))
       (insert "\n\n"))))
 
+(defun cider-test--string-contains-newline (input-string)
+  "Returns whether INPUT-STRING contains a newline.
+Ignores any newlines at the end of the string."
+  (when (stringp input-string)
+    (let ((trimmed-string (replace-regexp-in-string "\n\\'" "" input-string)))
+      (and (string-match-p "\n" trimmed-string)
+           t))))
+
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
@@ -427,10 +435,10 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
             (when expected
               (insert-label "expected")
               (insert-rect expected)
-              ;; insert a newline between expected and actual only when both values are large enough
-              ;; to justify the readability improvement.
-              ;; our heuristic for a 'large enough' object is the presence of diffs:
-              (when diffs
+              ;; Only place a newline between expected and actual when the values are deemed 'dense',
+              ;; otherwise favor compact output:
+              (when (or (cider-test--string-contains-newline expected)
+                        (cider-test--string-contains-newline actual))
                 (insert "\n")))
             (if diffs
                 (dolist (d diffs)
