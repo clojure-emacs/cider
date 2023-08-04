@@ -400,6 +400,12 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
         (cider-insert "t" 'font-lock-constant-face t))
       (insert "\n\n"))))
 
+(defun cider-test--string-contains-newline (input-string)
+  "Returns whether INPUT-STRING contains an escaped newline."
+  (when (stringp input-string)
+    (and (string-match-p "\\n" input-string)
+         t)))
+
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
@@ -427,12 +433,17 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
             (when expected
               (insert-label "expected")
               (insert-rect expected)
-              (insert "\n"))
+              ;; Only place a newline between expected and actual when the values are deemed 'dense',
+              ;; otherwise favor compact output:
+              (when (or (cider-test--string-contains-newline expected)
+                        (cider-test--string-contains-newline actual))
+                (insert "\n")))
             (if diffs
                 (dolist (d diffs)
                   (cl-destructuring-bind (actual (removed added)) d
                     (insert-label "actual")
                     (insert-rect actual)
+                    (insert "\n")
                     (insert-label "diff")
                     (insert "- ")
                     (insert-rect removed)
