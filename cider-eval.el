@@ -625,14 +625,14 @@ If location could not be found, return nil."
                     (widen)
                     (goto-char (point-min))
                     (forward-line (1- line))
-                    (move-to-column col)
+                    (move-to-column (or col 0))
                     ;; if this condition is false, it means that `col` was a spuriously large value,
                     ;; therefore the whole calculation should be discarded:
                     (when (or (not col) ;; if there's no col info, we cannot judge if it's spurious/not
-                              ;; (current-column) never goes past the last column in the actual file,
+                              ;; (current-column) never goes past the last column in the actual line,
                               ;; so if it's <, then the message had spurious info:
-                              (= (+ 1 (current-column))
-                                 col))
+                              (>= (1+ (current-column))
+                                  col))
                       (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
                                           (point)))
                             (end (progn (if col (forward-list) (move-end-of-line nil))
