@@ -1844,7 +1844,8 @@ Do it by looping over the open REPL buffers."
     (seq-map
      (lambda (b)
        (with-current-buffer b
-         (plist-get (cider--gather-connect-params) :project-dir))))))
+         (plist-get (cider--gather-connect-params) :project-dir))))
+    (seq-filter #'identity)))
 
 (defun cider--running-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
