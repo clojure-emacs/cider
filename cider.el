@@ -1810,29 +1810,35 @@ of list of the form (project-dir port)."
                                     (cons (clojure-project-dir dir) paths)))))
     (seq-uniq (delq nil proj-ports))))
 
+(defun cider--windows-p ()
+  "Check if running on a Windows system."
+  (memq system-type '(cygwin windows-nt ms-dos)))
+
 (defun cider--running-lein-nrepl-paths ()
   "Retrieve project paths of running lein nREPL servers.
 Use `cider-ps-running-nrepls-command' and
 `cider-ps-running-nrepl-path-regexp-list'."
-  (let (paths)
-    (with-temp-buffer
-      (insert (shell-command-to-string cider-ps-running-nrepls-command))
-      (dolist (regexp cider-ps-running-nrepl-path-regexp-list)
-        (goto-char 1)
-        (while (re-search-forward regexp nil t)
-          (setq paths (cons (match-string 1) paths)))))
-    paths))
+  (unless (cider--windows-p)
+    (let (paths)
+      (with-temp-buffer
+        (insert (shell-command-to-string cider-ps-running-nrepls-command))
+        (dolist (regexp cider-ps-running-nrepl-path-regexp-list)
+          (goto-char 1)
+          (while (re-search-forward regexp nil t)
+            (setq paths (cons (match-string 1) paths)))))
+      paths)))
 
 (defun cider--running-other-nrepl-paths ()
   "Retrieve project paths of running nREPL servers other than Lein ones."
-  (let* ((take-non-lein-nrepl-pids
-          "ps u | grep java | grep -v leiningen | grep nrepl.cmdline | awk '{print $2}' | paste -s -d,")
-         (take-external-paths
-          (concat
-           "lsof -a -d cwd -p $("
-           take-non-lein-nrepl-pids
-           ") -n -Fn | awk '/^n/ {print substr($0,2)}'")) )
-    (string-split (shell-command-to-string take-external-paths))))
+  (unless (cider--windows-p)
+    (let* ((take-non-lein-nrepl-pids
+            "ps u | grep java | grep -v leiningen | grep nrepl.cmdline | awk '{print $2}' | paste -s -d, -")
+           (take-external-paths
+            (concat
+             "lsof -a -d cwd -p $("
+             take-non-lein-nrepl-pids
+             ") -n -Fn | awk '/^n/ {print substr($0,2)}'")) )
+      (string-split (shell-command-to-string take-external-paths)))))
 
 (defun cider--running-local-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
