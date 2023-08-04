@@ -117,6 +117,10 @@ Add to this list to have CIDER recognize additional test defining macros."
   "When theme is changed, update `cider-test-items-background-color'."
   (setq cider-test-items-background-color (cider-scale-background-color)))
 
+(defun cider-test-toggle-fail-fast ()
+  "Toggles `cider-test-fail-fast' t <-> nil for the current buffer."
+  (interactive)
+  (setq-local cider-test-fail-fast (not cider-test-fail-fast)))
 
 ;;; Report mode & key bindings
 ;;
@@ -135,6 +139,7 @@ Add to this list to have CIDER recognize additional test defining macros."
     (define-key map (kbd "C-l") #'cider-test-run-loaded-tests)
     (define-key map (kbd "C-p") #'cider-test-run-project-tests)
     (define-key map (kbd "C-b") #'cider-test-show-report)
+    (define-key map (kbd "C-f") #'cider-test-toggle-fail-fast)
     ;; Single-key bindings defined last for display in menu
     (define-key map (kbd "r")   #'cider-test-rerun-failed-tests)
     (define-key map (kbd "t")   #'cider-test-run-test)
@@ -144,6 +149,7 @@ Add to this list to have CIDER recognize additional test defining macros."
     (define-key map (kbd "l")   #'cider-test-run-loaded-tests)
     (define-key map (kbd "p")   #'cider-test-run-project-tests)
     (define-key map (kbd "b")   #'cider-test-show-report)
+    (define-key map (kbd "f")   #'cider-test-toggle-fail-fast)
     map))
 
 (defconst cider-test-menu

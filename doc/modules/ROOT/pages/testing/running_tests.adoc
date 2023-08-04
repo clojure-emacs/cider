@@ -96,6 +96,8 @@ You can configure CIDER's test execution behavior in multiple ways.
 Starting from 1.8.0, CIDER has standard fail-fast functionality,
 controlled by the `cider-test-fail-fast` defcustom (default `t`).
 
+You can toggle its value for the current buffer using `cider-test-toggle-fail-fast` (`C-c C-t f` or `C-c C-t C-f`)
+
 NOTE: fail-fast will never be chosen for the "retest" functionality,
 since that would cause you to lose the majority of the tests
 that previously failed.
