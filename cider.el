@@ -1837,13 +1837,14 @@ Use `cider-ps-running-nrepls-command' and
 (defun cider--running-local-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
 Do it by looping over the open REPL buffers."
-  (seq-map
-   (lambda (b)
-     (with-current-buffer b
-       (plist-get (cider--gather-connect-params) :project-dir)))
-   (seq-filter
-    (lambda (b) (string-prefix-p "*cider-repl" (buffer-name b)))
-    (buffer-list))))
+  (thread-last
+    (buffer-list)
+    (seq-filter
+     (lambda (b) (string-prefix-p "*cider-repl" (buffer-name b))))
+    (seq-map
+     (lambda (b)
+       (with-current-buffer b
+         (plist-get (cider--gather-connect-params) :project-dir))))))
 
 (defun cider--running-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
