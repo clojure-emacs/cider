@@ -30,6 +30,7 @@
 (require 'cider-common)
 (require 'cider-resolve)
 
+(require 'seq)
 (require 'thingatpt)
 
 (defun cider--find-var-other-window (var &optional line)
@@ -275,14 +276,42 @@ thing at point."
   (cider-ensure-connected)
   (cider-ensure-op-supported "fn-refs")
   (when-let* ((ns (cider-current-ns))
-              (results (cider-sync-request:fn-refs ns var)))
-    (mapcar (lambda (info)
-              (let* ((filename (nrepl-dict-get info "file"))
-                     (column (nrepl-dict-get info "column"))
-                     (line (nrepl-dict-get info "line"))
-                     (loc (xref-make-file-location filename line column)))
-                (xref-make filename loc)))
-            results)))
+              (results (cider-sync-request:fn-refs ns var))
+              (previously-existing-buffers (buffer-list)))
+    (thread-last results
+                 (mapcar (lambda (info)
+                           (let* ((filename (cider--xref-extract-file info))
+                                  (column (nrepl-dict-get info "column"))
+                                  (line (nrepl-dict-get info "line"))
+                                  (friendly-name (cider--xref-extract-friendly-file-name info))
+                                  ;; translate .jar urls and such:
+                                  (buf (cider--find-buffer-for-file filename))
+                                  (bfn (and buf (buffer-file-name buf)))
+                                  (loc (when buf
+                                         ;; favor `xref-make-file-location' when possible, since that way, we can close their buffers.
+                                         (if bfn
+                                             (xref-make-file-location bfn line (or column 0))
+                                           (xref-make-buffer-location buf (with-current-buffer buf
+                                                                            (save-excursion
+                                                                              (goto-char 0)
+                                                                              (forward-line line)
+                                                                              (move-to-column (or column 0))
+                                                                              (point)))))))
+                                  (should-be-closed? (and
+                                                      buf
+                                                      ;; if a buffer did not exist before,
+                                                      ;; then it is a side-effect of invoking `cider--find-buffer-for-file'.
+                                                      (not (member buf previously-existing-buffers))
+                                                      bfn
+                                                      ;; only buffers with a normally reachable filename are safe to close.
+                                                      ;; buffers not backed by such files may include .jars, TRAMP files, etc.
+                                                      ;; Sadly this means we will still 'leak' some open buffers, but it's what we can do atm.
+                                                      (file-exists-p bfn))))
+                             (when should-be-closed?
+                               (kill-buffer buf))
+                             (when loc
+                               (xref-make friendly-name loc)))))
+                 (seq-filter #'identity))))
 
 (cl-defmethod xref-backend-apropos ((_backend (eql cider)) pattern)
   "Find all symbols that match regexp PATTERN."
