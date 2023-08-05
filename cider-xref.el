@@ -73,26 +73,28 @@ the symbol found by the xref search as argument."
       (insert (nrepl-dict-get result "doc"))
       (fill-region beg (point)))
     (insert "\n")
-    (if-let* ((file (nrepl-dict-get result "file"))
+    (if-let* ((file-url (nrepl-dict-get result "file-url"))
+              (friendly-file (or (nrepl-dict-get result "file")
+                                 file-url))
               (line (nrepl-dict-get result "line")))
         (progn
           (insert (propertize var-name
                               'font-lock-face 'font-lock-function-name-face)
                   " is defined in ")
-          (insert-text-button (cider--abbreviate-file-protocol file)
+          (insert-text-button (cider--abbreviate-file-protocol friendly-file)
                               'follow-link t
                               'action (lambda (_x)
-                                        (cider-xref-source file line var-name)))
+                                        (cider-xref-source file-url line var-name)))
           (insert "."))
       (insert "Definition location unavailable."))
     (insert "\n")))
 
-(defun cider-xref-source (file line name)
-  "Find source for FILE, LINE and NAME."
+(defun cider-xref-source (file-url line name)
+  "Find source for FILE-URL, LINE and NAME."
   (interactive)
-  (if file
-      (if-let* ((buffer (and (not (cider--tooling-file-p file))
-                             (cider-find-file file))))
+  (if file-url
+      (if-let* ((buffer (and (not (cider--tooling-file-p file-url))
+                             (cider-find-file file-url))))
           (cider-jump-to buffer (if line
                                     (cons line nil)
                                   name)
