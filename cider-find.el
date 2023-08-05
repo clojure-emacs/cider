@@ -246,7 +246,8 @@ thing at point."
   "Get location of definition of VAR."
   (when-let* ((info (cider-var-info var))
               (line (nrepl-dict-get info "line"))
-              (file (nrepl-dict-get info "file"))
+              (file (or (nrepl-dict-get info "file-url")
+                        (nrepl-dict-get info "file")))
               (buf (cider--find-buffer-for-file file)))
     (xref-make-buffer-location
      buf
