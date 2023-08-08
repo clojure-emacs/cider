@@ -1828,7 +1828,7 @@ Use `cider-ps-running-nrepls-command' and
             (setq paths (cons (match-string 1) paths)))))
       paths)))
 
-(defun cider--running-other-nrepl-paths ()
+(defun cider--running-non-lein-nrepl-paths ()
   "Retrieve project paths of running nREPL servers other than Lein ones."
   (unless (cider--windows-p)
     (let* ((take-non-lein-nrepl-pids
@@ -1859,7 +1859,7 @@ Search for lein or java processes including nrepl.command nREPL"
   (let ((paths (append
                 (cider--running-lein-nrepl-paths)
                 (cider--running-local-nrepl-paths)
-                (cider--running-other-nrepl-paths))))
+                (cider--running-non-lein-nrepl-paths))))
     (seq-uniq paths)))
 
 (defun cider--identify-buildtools-present (&optional project-dir)
