@@ -11,6 +11,7 @@
 - `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom and `cider-test-toggle-fail-fast` keybinding.
 - Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
 - Add new customization variable `cider-clojurec-eval-destination` to allow specifying which REPL CLJC evals are sent to.
+- Improve the presentation of `xref` data.
 
 ### Bugs fixed
 

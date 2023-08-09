@@ -28,6 +28,7 @@
 
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-doc)
 (require 'cider-resolve)
 
 (require 'seq)
@@ -242,12 +243,35 @@ thing at point."
   "Return the relevant identifier at point."
   (cider-symbol-at-point 'look-back))
 
+(defun cider--xref-extract-file (dict)
+  "Extracts the best possible file path from DICT."
+  (or (nrepl-dict-get dict "file-url") ;; This is the primary choice, it has a protocol and indicates an absolute path
+      ;; fall back in case it was absent or we're running an older cider-nrepl:
+      (nrepl-dict-get dict "file")))
+
+(defun cider--xref-extract-friendly-file-name (dict)
+  "Extracts the best possible friendly file name from DICT.
+These are used for presentation purposes."
+  (let* ((s (or (nrepl-dict-get dict "file") ;; these are shorter and relative, which look better in UIs.
+                (nrepl-dict-get dict "file-url")))
+         (s (cider--abbreviate-file-protocol s))
+         (line (nrepl-dict-get dict "line"))
+         (column (nrepl-dict-get dict "column")))
+    (concat s
+            (when line
+              ":")
+            (when line
+              (prin1-to-string line))
+            (when (and line column)
+              ":")
+            (when column
+              (prin1-to-string column)))))
+
 (defun cider--var-to-xref-location (var)
   "Get location of definition of VAR."
   (when-let* ((info (cider-var-info var))
               (line (nrepl-dict-get info "line"))
-              (file (or (nrepl-dict-get info "file-url")
-                        (nrepl-dict-get info "file")))
+              (file (cider--xref-extract-file info))
               (buf (cider--find-buffer-for-file file)))
     (xref-make-buffer-location
      buf
