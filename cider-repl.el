@@ -1007,34 +1007,22 @@ This is particularly necessary for shadow-cljs because:
         (when (nrepl-op-supported-p "cider/get-state" conn)
           (nrepl-send-request '("op" "cider/get-state") nil conn))))))
 
-(defun cider--shadow-cljs-stderr-hook (buffer err)
+(defun cider--shadow-cljs-handle-stderr (buffer err)
   "Refresh the changed namespaces metadata given BUFFER and ERR."
   (cider--maybe-get-state-for-shadow-cljs buffer err))
 
-(defun cider--shadow-cljs-done-hook (buffer)
+(defun cider--shadow-cljs-handle-done (buffer)
   "Refresh the changed namespaces metadata given BUFFER."
   (cider--maybe-get-state-for-shadow-cljs buffer))
 
-(defcustom cider-repl-stdout-hooks nil
-  "Hooks to be invoked each time new stdout is received on a repl buffer.
+(defvar cider--repl-stderr-functions (list #'cider--shadow-cljs-handle-stderr)
+  "Functions to be invoked each time new stderr is received on a repl buffer.
 
 Good for, for instance, monitoring specific strings that may be logged,
-and responding to them."
-  :type '(repeat function)
-  :package-version '(cider . "1.8.0"))
+and responding to them.")
 
-(defcustom cider-repl-stderr-hooks (list #'cider--shadow-cljs-stderr-hook)
-  "Hooks to be invoked each time new stderr is received on a repl buffer.
-
-Good for, for instance, monitoring specific strings that may be logged,
-and responding to them."
-  :type '(repeat function)
-  :package-version '(cider . "1.8.0"))
-
-(defcustom cider-repl-done-hooks (list #'cider--shadow-cljs-done-hook)
-  "Hooks to be invoked each time a given REPL interaction is complete."
-  :type '(repeat function)
-  :package-version '(cider . "1.8.0"))
+(defvar cider--repl-done-functions (list #'cider--shadow-cljs-handle-done)
+  "Functions to be invoked each time a given REPL interaction is complete.")
 
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
@@ -1044,11 +1032,9 @@ and responding to them."
      (lambda (buffer value)
        (cider-repl-emit-result buffer value t))
      (lambda (buffer out)
-       (dolist (f cider-repl-stdout-hooks)
-         (funcall f buffer out))
        (cider-repl-emit-stdout buffer out))
      (lambda (buffer err)
-       (dolist (f cider-repl-stderr-hooks)
+       (dolist (f cider--repl-stderr-functions)
          (funcall f buffer err))
        (cider-repl-emit-stderr buffer err))
      (lambda (buffer)
@@ -1056,7 +1042,7 @@ and responding to them."
          (cider-repl-emit-prompt buffer))
        (when cider-repl-buffer-size-limit
          (cider-repl-maybe-trim-buffer buffer))
-       (dolist (f cider-repl-done-hooks)
+       (dolist (f cider--repl-done-functions)
          (funcall f buffer)))
      nrepl-err-handler
      (lambda (buffer value content-type)
