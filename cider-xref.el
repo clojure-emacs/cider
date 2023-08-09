@@ -66,22 +66,22 @@ the symbol found by the xref search as argument."
                                    'action #'cider-xref-doc
                                    'help-echo "Display doc")
       (insert-text-button var-name 'type 'apropos-symbol))
-    (insert "\n  ")
-    (insert-text-button "Function" 'type 'apropos-function)
-    (insert ": ")
-    (let ((beg (point)))
-      (insert (nrepl-dict-get result "doc"))
-      (fill-region beg (point)))
+    (when-let ((doc (nrepl-dict-get result "doc")))
+      (when (not (string-equal "(not documented)" doc))
+        (insert "\n  ")
+        (let ((beg (point)))
+          (insert (propertize doc 'font-lock-face 'font-lock-doc-face))
+          (fill-region beg (point)))))
     (insert "\n")
-    (if-let* ((file-url (nrepl-dict-get result "file-url"))
-              (friendly-file (or (nrepl-dict-get result "file")
-                                 file-url))
+    (if-let* ((file-url (cider--xref-extract-file result))
+              (friendly-file (cider--xref-extract-friendly-file-name result))
               (line (nrepl-dict-get result "line")))
         (progn
-          (insert (propertize var-name
+          (insert "  "
+                  (propertize var-name
                               'font-lock-face 'font-lock-function-name-face)
                   " is defined in ")
-          (insert-text-button (cider--abbreviate-file-protocol friendly-file)
+          (insert-text-button friendly-file
                               'follow-link t
                               'action (lambda (_x)
                                         (cider-xref-source file-url line var-name)))
