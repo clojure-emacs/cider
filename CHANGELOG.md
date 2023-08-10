@@ -24,10 +24,18 @@
 
 ### Changes
 
-- Bump the injected `cider-nrepl` to [0.35](https://github.com/clojure-emacs/cider-nrepl/blob/v0.35.0/CHANGELOG.md#0350-2023-08-09).
 - Improve `nrepl-dict` error reporting.
 - Preserve the `:cljs-repl-type` more reliably.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times. 
+- Bump the injected `cider-nrepl` to [0.35](https://github.com/clojure-emacs/cider-nrepl/blob/v0.35.0/CHANGELOG.md#0350-2023-08-09).
+  - Improves indentation, font-locking and other metadata support for ClojureScript.
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.14.2/CHANGELOG.md)
+    - introduces support for displaying the docstring and arglists of 'indirect' vars (e.g. `(def foo bar)`) for Clojure/Script.
+    - fixes xref support across deftest vars.
+  - Updates [Suitable](https://github.com/clojure-emacs/clj-suitable/blob/v0.5.0/CHANGELOG.md#050-2023-07-28)
+    - avoiding side-effecting `->` evaluation for pure-ClojureScript chains.
+  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/0.4.0/CHANGELOG.md#040-2023-07-05)
+    - Supports better completions for var-quote (`#'some/var`) .
 
 ## 1.7.0 (2023-03-23)
 
