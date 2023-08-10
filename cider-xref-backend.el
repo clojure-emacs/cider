@@ -128,17 +128,17 @@ These are used for presentation purposes."
                                                                               (forward-line line)
                                                                               (move-to-column (or column 0))
                                                                               (point)))))))
-                                  (should-be-closed? (and
-                                                      buf
-                                                      ;; if a buffer did not exist before,
-                                                      ;; then it is a side-effect of invoking `cider--find-buffer-for-file'.
-                                                      (not (member buf previously-existing-buffers))
-                                                      bfn
-                                                      ;; only buffers with a normally reachable filename are safe to close.
-                                                      ;; buffers not backed by such files may include .jars, TRAMP files, etc.
-                                                      ;; Sadly this means we will still 'leak' some open buffers, but it's what we can do atm.
-                                                      (file-exists-p bfn))))
-                             (when should-be-closed?
+                                  (should-be-closed (and
+                                                     buf
+                                                     ;; if a buffer did not exist before,
+                                                     ;; then it is a side-effect of invoking `cider--find-buffer-for-file'.
+                                                     (not (member buf previously-existing-buffers))
+                                                     bfn
+                                                     ;; only buffers with a normally reachable filename are safe to close.
+                                                     ;; buffers not backed by such files may include .jars, TRAMP files, etc.
+                                                     ;; Sadly this means we will still 'leak' some open buffers, but it's what we can do atm.
+                                                     (file-exists-p bfn))))
+                             (when should-be-closed
                                (kill-buffer buf))
                              (when loc
                                (xref-make friendly-name loc)))))
