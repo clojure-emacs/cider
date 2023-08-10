@@ -20,13 +20,14 @@
 - [#3355](https://github.com/clojure-emacs/cider/pull/3355): Fix `cider-mode` disabling itself after a disconnect when `cider-auto-mode` is set to nil.
 - [#3362](https://github.com/clojure-emacs/cider/issues/3362): Fix `sesman-restart` regression issue.
 - [#3236](https://github.com/clojure-emacs/cider/issues/3236): `cider-repl-set-ns` no longer changes the repl session type from `cljs:shadow` to `clj`.
-- [#3383](https://github.com/clojure-emacs/cider/issues/3383): `cider-connect-clj&cljs`: don't render `"ClojureScript REPL type:" for JVM repls. 
+- [#3383](https://github.com/clojure-emacs/cider/issues/3383): `cider-connect-clj&cljs`: don't render `"ClojureScript REPL type:"` for JVM repls. 
 - [#3331](https://github.com/clojure-emacs/cider/issues/3331): `cider-eval`: never jump to spurious locations, as sometimes conveyed by nREPL.  
 - [#3112](https://github.com/clojure-emacs/cider/issues/3112): Fix the CIDER `xref-find-references` backend to return correct filenames.
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
 
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): recompute namespace info on each shadow-cljs recompilation or evaluation.
+- [#3390](https://github.com/clojure-emacs/cider/issues/3390): Enhance `cider-connect` to show all nREPLs available ports, instead of only Leiningen ones.
 
 ### Changes
 
