@@ -28,10 +28,8 @@
 
 (require 'cider-client)
 (require 'cider-common)
-(require 'cider-doc)
 (require 'cider-resolve)
 
-(require 'seq)
 (require 'thingatpt)
 
 (defun cider--find-var-other-window (var &optional line)

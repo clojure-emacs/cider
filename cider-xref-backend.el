@@ -28,7 +28,7 @@
 
 (require 'cider-client)
 (require 'cider-common)
-(require 'cider-doc)
+(require 'cider-doc) ;; for cider--abbreviate-file-protocol
 (require 'cider-resolve)
 
 (require 'seq)
