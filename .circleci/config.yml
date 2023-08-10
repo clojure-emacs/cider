@@ -49,7 +49,7 @@ commands:
           name: Run Elisp-lint
           command: eldev lint
       - run:
-          name: Byte-compile `.el' files
+          name: Byte-compile .el files
           command: eldev -dtT compile --warnings-as-errors
 
 jobs:
@@ -110,13 +110,25 @@ jobs:
       - lint
 
 workflows:
-  version: 2
+  version: 2.1
   ci-test-matrix:
     jobs:
-      - test-ubuntu-emacs-26
-      - test-ubuntu-emacs-27
-      - test-ubuntu-emacs-28
-      - test-ubuntu-emacs-master
       - test-lint
-      - test-macos-emacs-latest
-      - test-windows-emacs-latest
+      - test-ubuntu-emacs-26:
+          requires:
+            - test-lint
+      - test-ubuntu-emacs-27:
+          requires:
+            - test-lint
+      - test-ubuntu-emacs-28:
+          requires:
+            - test-lint
+      - test-ubuntu-emacs-master:
+          requires:
+            - test-lint
+      - test-windows-emacs-latest:
+          requires:
+            - test-lint
+      - test-macos-emacs-latest:
+          requires:
+            - test-ubuntu-emacs-28
