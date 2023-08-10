@@ -42,6 +42,7 @@
 (require 'cider-completion)
 (require 'cider-inspector)
 (require 'cider-find)
+(require 'cider-xref-backend)
 (require 'subr-x)
 
 (defcustom cider-mode-line-show-connection t
