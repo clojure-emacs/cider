@@ -21,7 +21,6 @@ commands:
       - run:
           name: Install Emacs latest
           command: |
-            echo "HOMEBREW_NO_AUTO_UPDATE=1" >> $BASH_ENV
             brew install homebrew/cask/emacs
       - run:
           name: Install Eldev
