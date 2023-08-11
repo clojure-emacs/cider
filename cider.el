@@ -1798,7 +1798,7 @@ of remote SSH hosts."
                       (or (eq ?s filetype)
                           (eq ?d filetype))))))
 
-(defun cider--path->path-ports-pair (path)
+(defun cider--path->path-port-pairs (path)
   "Given PATH, returns all the possible <path, port> pairs."
   (mapcar (lambda (port)
             (list path port))
@@ -1824,7 +1824,7 @@ When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
   (let* ((pairs (cider--running-nrepl-paths))
          (pairs (if-let (c (and dir (clojure-project-dir dir)))
-                    (cons (cider--path->path-ports-pair c) pairs)
+                    (cons (cider--path->path-port-pairs c) pairs)
                   pairs)))
     (thread-last pairs
                  (delq nil)
@@ -1846,7 +1846,7 @@ Use `cider-ps-running-lein-nrepls-command' and
           (while (re-search-forward regexp nil t)
             (setq paths (cons (match-string 1) paths)))))
       (seq-mapcat (lambda (path)
-                    (cider--path->path-ports-pair path))
+                    (cider--path->path-port-pairs path))
                   paths))))
 
 (defun cider--running-non-lein-nrepl-paths ()
