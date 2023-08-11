@@ -1895,7 +1895,7 @@ Do it by looping over the open REPL buffers."
 
 (defun cider--running-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
-Search for lein or java processes including nrepl.command nREPL"
+Search for lein or java processes including nrepl.command nREPL."
   (append (cider--invoke-running-nrepl-path #'cider--running-lein-nrepl-paths)
           (cider--invoke-running-nrepl-path #'cider--running-local-nrepl-paths)
           (cider--invoke-running-nrepl-path #'cider--running-non-lein-nrepl-paths)))
