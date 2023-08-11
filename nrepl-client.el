@@ -232,18 +232,24 @@ PARAMS is as in `nrepl-make-buffer-name'."
 
 (defun nrepl-extract-port (dir)
   "Read port from applicable repl-port file in directory DIR."
-  (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
-      (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
-      (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
-      (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir))))
+  (condition-case nil
+      (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
+          (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
+          (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
+          (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir)))
+    ;; This operation can hit permission errors, particularly on macOS:
+    (error nil)))
 
 (defun nrepl-extract-ports (dir)
   "Read ports from applicable repl-port files in directory DIR."
-  (delq nil
-        (list (nrepl--port-from-file (expand-file-name "repl-port" dir))
-              (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
-              (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
-              (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir)))))
+  (condition-case nil
+      (delq nil
+            (list (nrepl--port-from-file (expand-file-name "repl-port" dir))
+                  (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
+                  (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
+                  (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir))))
+    ;; This operation can hit permission errors, particularly on macOS:
+    (error nil)))
 
 (make-obsolete 'nrepl-extract-port 'nrepl-extract-ports "1.5.0")
 

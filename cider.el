@@ -349,14 +349,14 @@ The repl dependendcies are most likely to be nREPL middlewares."
   :safe #'booleanp
   :version '(cider . "0.15.0"))
 
-(defvar cider-ps-running-nrepls-command "ps u | grep leiningen"
+(defvar cider-ps-running-lein-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
-(defvar cider-ps-running-nrepl-path-regexp-list
+(defvar cider-ps-running-lein-nrepl-path-regexp-list
   '("\\(?:leiningen.original.pwd=\\)\\(.+?\\) -D"
     "\\(?:-classpath +:?\\(.+?\\)/self-installs\\)")
   "Regexp list to get project paths.
-Extract project paths from output of `cider-ps-running-nrepls-command'.
+Extract project paths from output of `cider-ps-running-lein-nrepls-command'.
 Sub-match 1 must be the project path.")
 
 (defvar cider-host-history nil
@@ -1798,30 +1798,111 @@ of remote SSH hosts."
                       (or (eq ?s filetype)
                           (eq ?d filetype))))))
 
+(defun cider--path->path-port-pairs (path)
+  "Given PATH, returns all the possible <path, port> pairs."
+  (thread-last path
+               cider--file-path
+               nrepl-extract-ports
+               (mapcar (lambda (port)
+                         (list path port)))
+               ;; remove nils that may have been returned due to permission errors:
+               (seq-filter #'identity)))
+
+(defun cider--invoke-running-nrepl-path (f)
+  "Invokes F safely.
+
+Necessary since we run some OS-specific commands that may fail."
+  (condition-case nil
+      (let* ((x (funcall f)))
+        (mapcar (lambda (v)
+                  (if (and (listp v)
+                           (not (file-exists-p (car v))))
+                      nil
+                    v))
+                x))
+    (error nil)))
+
 (defun cider-locate-running-nrepl-ports (&optional dir)
   "Locate ports of running nREPL servers.
 When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
-  (let* ((paths (cider--running-nrepl-paths))
-         (proj-ports (apply #'append
-                            (mapcar (lambda (d)
-                                      (mapcar (lambda (p) (list (file-name-nondirectory (directory-file-name d)) p))
-                                              (and d (nrepl-extract-ports (cider--file-path d)))))
-                                    (cons (clojure-project-dir dir) paths)))))
-    (seq-uniq (delq nil proj-ports))))
+  (let* ((pairs (cider--running-nrepl-paths))
+         (pairs (if-let (c (and dir (clojure-project-dir dir)))
+                    (cons (cider--path->path-port-pairs c) pairs)
+                  pairs)))
+    (thread-last pairs
+                 (delq nil)
+                 (mapcar (lambda (x)
+                           (list (file-name-nondirectory (directory-file-name (car x)))
+                                 (nth 1 x))))
+                 (seq-uniq))))
+
+(defun cider--running-lein-nrepl-paths ()
+  "Retrieve project paths of running lein nREPL servers.
+Use `cider-ps-running-lein-nrepls-command' and
+`cider-ps-running-lein-nrepl-path-regexp-list'."
+  (unless (eq system-type 'windows-nt)
+    (let (paths)
+      (with-temp-buffer
+        (insert (shell-command-to-string cider-ps-running-lein-nrepls-command))
+        (dolist (regexp cider-ps-running-lein-nrepl-path-regexp-list)
+          (goto-char 1)
+          (while (re-search-forward regexp nil t)
+            (setq paths (cons (match-string 1) paths)))))
+      (seq-mapcat (lambda (path)
+                    (cider--path->path-port-pairs path))
+                  paths))))
+
+(defun cider--running-non-lein-nrepl-paths ()
+  "Retrieve (directory, port) pairs of running nREPL servers other than Lein ones."
+  (unless (eq system-type 'windows-nt)
+    (let ((non-lein-nrepl-pids
+           (thread-last (split-string
+                         (shell-command-to-string "ps u | grep java | grep -v leiningen | grep nrepl.cmdline")
+                         "\n")
+                        (mapcar (lambda (s)
+                                  (nth 1 (split-string s " "))))
+                        (seq-filter #'identity))))
+      (when non-lein-nrepl-pids
+        (mapcar (lambda (pid)
+                  (let* ((directory (thread-last (split-string (shell-command-to-string (concat "lsof -a -d cwd -n -Fn -p " pid))
+                                                               "\n")
+                                                 (seq-map (lambda (s)
+                                                            (when (string-prefix-p "n" s)
+                                                              (replace-regexp-in-string "^n" "" s))))
+                                                 (seq-filter #'identity)
+                                                 car))
+                         (port (thread-last (split-string (shell-command-to-string (concat "lsof -n -Fn -i -a -p " pid))
+                                                          "\n")
+                                            (seq-map (lambda (s)
+                                                       (when (string-prefix-p "n" s)
+                                                         (replace-regexp-in-string ".*:" "" s))))
+                                            (seq-filter #'identity)
+                                            car)))
+                    (list directory port)))
+                non-lein-nrepl-pids)))))
+
+(defun cider--running-local-nrepl-paths ()
+  "Retrieve project paths of running nREPL servers.
+Do it by looping over the open REPL buffers."
+  (thread-last (buffer-list)
+               (seq-filter
+                (lambda (b)
+                  (string-prefix-p "*cider-repl" (buffer-name b))))
+               (seq-map
+                (lambda (b)
+                  (with-current-buffer b
+                    (when-let ((dir (plist-get (cider--gather-connect-params) :project-dir))
+                               (port (plist-get (cider--gather-connect-params) :port)))
+                      (list dir (prin1-to-string port))))))
+               (seq-filter #'identity)))
 
 (defun cider--running-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
-Use `cider-ps-running-nrepls-command' and
-`cider-ps-running-nrepl-path-regexp-list'."
-  (let (paths)
-    (with-temp-buffer
-      (insert (shell-command-to-string cider-ps-running-nrepls-command))
-      (dolist (regexp cider-ps-running-nrepl-path-regexp-list)
-        (goto-char 1)
-        (while (re-search-forward regexp nil t)
-          (setq paths (cons (match-string 1) paths)))))
-    (seq-uniq paths)))
+Search for lein or java processes including nrepl.command nREPL."
+  (append (cider--invoke-running-nrepl-path #'cider--running-lein-nrepl-paths)
+          (cider--invoke-running-nrepl-path #'cider--running-local-nrepl-paths)
+          (cider--invoke-running-nrepl-path #'cider--running-non-lein-nrepl-paths)))
 
 (defun cider--identify-buildtools-present (&optional project-dir)
   "Identify build systems present by their build files in PROJECT-DIR.
