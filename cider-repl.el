@@ -986,6 +986,44 @@ t, as the content-type response is (currently) an alternative to the
 value response.  However for handlers which themselves issue subsequent
 nREPL ops, it may be convenient to prevent inserting a prompt.")
 
+(defun cider--maybe-get-state-for-shadow-cljs (buffer &optional err)
+  "Refresh the changed namespaces metadata given BUFFER and ERR (stderr string).
+
+This is particularly necessary for shadow-cljs because:
+
+* it has a particular nREPL implementation; and
+* one may have saved files (which triggers recompilation,
+  and therefore the need for recomputing changed namespaces)
+  without sending a nREPL message (this can particularly happen
+  if the file was edited outside Emacs)."
+  (with-current-buffer buffer
+    (when (and (eq cider-repl-type 'cljs)
+               (eq cider-cljs-repl-type 'shadow)
+               (not cider-repl-cljs-upgrade-pending)
+               (if err
+                   (string-match-p "Build completed\\." err)
+                 t))
+      (when-let ((conn (cider-current-repl 'cljs)))
+        (when (nrepl-op-supported-p "cider/get-state" conn)
+          (nrepl-send-request '("op" "cider/get-state") nil conn))))))
+
+(defun cider--shadow-cljs-handle-stderr (buffer err)
+  "Refresh the changed namespaces metadata given BUFFER and ERR."
+  (cider--maybe-get-state-for-shadow-cljs buffer err))
+
+(defun cider--shadow-cljs-handle-done (buffer)
+  "Refresh the changed namespaces metadata given BUFFER."
+  (cider--maybe-get-state-for-shadow-cljs buffer))
+
+(defvar cider--repl-stderr-functions (list #'cider--shadow-cljs-handle-stderr)
+  "Functions to be invoked each time new stderr is received on a repl buffer.
+
+Good for, for instance, monitoring specific strings that may be logged,
+and responding to them.")
+
+(defvar cider--repl-done-functions (list #'cider--shadow-cljs-handle-done)
+  "Functions to be invoked each time a given REPL interaction is complete.")
+
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (let ((show-prompt t))
@@ -996,12 +1034,16 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
      (lambda (buffer out)
        (cider-repl-emit-stdout buffer out))
      (lambda (buffer err)
+       (dolist (f cider--repl-stderr-functions)
+         (funcall f buffer err))
        (cider-repl-emit-stderr buffer err))
      (lambda (buffer)
        (when show-prompt
          (cider-repl-emit-prompt buffer))
        (when cider-repl-buffer-size-limit
-         (cider-repl-maybe-trim-buffer buffer)))
+         (cider-repl-maybe-trim-buffer buffer))
+       (dolist (f cider--repl-done-functions)
+         (funcall f buffer)))
      nrepl-err-handler
      (lambda (buffer value content-type)
        (if-let* ((content-attrs (cadr content-type))
