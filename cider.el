@@ -1800,9 +1800,13 @@ of remote SSH hosts."
 
 (defun cider--path->path-port-pairs (path)
   "Given PATH, returns all the possible <path, port> pairs."
-  (mapcar (lambda (port)
-            (list path port))
-          (nrepl-extract-ports (cider--file-path path))))
+  (thread-last path
+               cider--file-path
+               nrepl-extract-ports
+               (mapcar (lambda (port)
+                         (list path port)))
+               ;; remove nils that may have been returned due to permission errors:
+               (seq-filter #'identity)))
 
 (defun cider--invoke-running-nrepl-path (f)
   "Invokes F safely.
