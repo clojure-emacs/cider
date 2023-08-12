@@ -140,5 +140,4 @@
         ("a" "b" "the-ns")
       (cider--read-locals-from-arglist))))
 
-(provide 'cider-locals-tests)
 ;;; cider-locals-tests.el ends here

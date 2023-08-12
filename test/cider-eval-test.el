@@ -46,5 +46,3 @@
       (with-temp-file filename
         (insert "🍻"))
       (expect (cider-provide-file filename) :to-equal "8J+Nuw=="))))
-
-(provide 'cider-eval-tests)

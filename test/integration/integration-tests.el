@@ -548,7 +548,5 @@ If CLI-COMMAND is nil, then use the default."
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 15)
                 (expect (member (process-status nrepl-proc) '(exit signal)))))))))))
 
-(provide 'integration-tests)
-
 ;;; integration-tests.el ends here
 

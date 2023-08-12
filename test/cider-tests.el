@@ -699,6 +699,4 @@
           ;; kill server
           (delete-process (get-buffer-process client-buffer)))))))
 
-(provide 'cider-tests)
-
 ;;; cider-tests.el ends here
