@@ -76,6 +76,13 @@ jobs:
     steps:
       - setup
       - test
+  test-ubuntu-emacs-29:
+    docker:
+      - image: silex/emacs:29-ci
+        entrypoint: bash
+    steps:
+      - setup
+      - test
 
   test-ubuntu-emacs-master:
     docker:
@@ -121,6 +128,9 @@ workflows:
           requires:
             - test-lint
       - test-ubuntu-emacs-28:
+          requires:
+            - test-lint
+      - test-ubuntu-emacs-29:
           requires:
             - test-lint
       - test-ubuntu-emacs-master:
