@@ -30,43 +30,49 @@
 (require 'map)
 
 (describe "cider-jar--cider-nrepl-clojars-url"
-  (expect (cider-jar-clojars-url "cider" "cider-nrepl" "0.1.2")
-          :to-equal
-          "https://repo.clojars.org/cider/cider-nrepl/0.1.2/cider-nrepl-0.1.2.jar"))
+  (it "Builds a Clojars url"
+    (expect (cider-jar-clojars-url "cider" "cider-nrepl" "0.1.2")
+            :to-equal
+            "https://repo.clojars.org/cider/cider-nrepl/0.1.2/cider-nrepl-0.1.2.jar")))
 
 (describe "cider-jar-ensure-cider-nrepl-jar"
-  (expect (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
-          :to-match
-          (rx "cider-cache/repo.clojars.org/cider/cider-nrepl/0.20.0/cider-nrepl-0.20.0.jar")))
+  (it "Builds a path"
+    (expect (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
+            :to-match
+            (rx "cider-cache/repo.clojars.org/cider/cider-nrepl/0.20.0/cider-nrepl-0.20.0.jar"))))
 
 (describe "cider-jar-contents"
-  (expect
-   (cider-jar-contents (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0"))
-   :to-contain
-   "cider/nrepl.clj"))
+  (it "Has reasonable contents"
+    (expect
+     (cider-jar-contents (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0"))
+     :to-contain
+     "cider/nrepl.clj")))
 
 (describe "cider-jar-contents-cached"
-  (expect
-   (map-elt (cider-jar-contents-cached (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0"))
-            "cider/nrepl.clj")
-   :to-be t))
+  (it "Has reasonable contents"
+    (expect
+     (map-elt (cider-jar-contents-cached (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0"))
+              "cider/nrepl.clj")
+     :to-be t)))
 
 (describe "cider-jar-contains"
-  (expect
-   (cider-jar-contains-p (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
-                         "cider/nrepl.clj")
-   :to-be t)
-  (expect
-   (cider-jar-contains-p (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
-                         "foo/bar.clj")
-   :to-be nil))
+  (it "Returns t if and only if a given file is contained"
+    (expect
+     (cider-jar-contains-p (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
+                           "cider/nrepl.clj")
+     :to-be t)
+    (expect
+     (cider-jar-contains-p (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
+                           "foo/bar.clj")
+     :to-be nil)))
 
 (describe "cider-jar-retrieve-resource"
-  (expect
-   (cider-jar-retrieve-resource (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
-                                "data_readers.clj")
-   :to-equal
-   "{dbg cider.nrepl.middleware.debug/debug-reader
+  (it "Correctly extracts and slurps the given file"
+    (expect
+     (cider-jar-retrieve-resource (cider-jar-find-or-fetch "cider" "cider-nrepl" "0.20.0")
+                                  "data_readers.clj")
+     :to-equal
+     "{dbg cider.nrepl.middleware.debug/debug-reader
  break cider.nrepl.middleware.debug/breakpoint-reader
  light cider.nrepl.middleware.enlighten/light-reader}
 ")))
