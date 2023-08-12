@@ -488,15 +488,20 @@
     (expect (cider--compatible-middleware-version-p "1.25.3" "1.25.2-alpha2")
             :to-be t)))
 
+(defun cider-connection-tests-dummy-function (a b c d)
+  "A B C D."
+  ;; See https://github.com/clojure-emacs/cider/issues/3402
+  (error "I should never be invoked!"))
+
 (describe "cider-format-connection-params"
   (it "Generates a pretty string. `:repl-type' can be symbol." ;; https://github.com/clojure-emacs/cider/issues/3402
     (expect (cider-format-connection-params nrepl-repl-buffer-name-template nil)
             :to-equal "*cider-repl ~/project:localhost:(unknown)*")
-    (expect (cider-format-connection-params nrepl-repl-buffer-name-template  '(:host "localhost"
-                                                                                     :port 12345
-                                                                                     :project-dir "/Users/me/myproject"
-                                                                                     :repl-type clj
-                                                                                     :cljs-repl-type shadow))
+    (expect (cider-format-connection-params nrepl-repl-buffer-name-template '(:host "localhost"
+                                                                                    :port 12345
+                                                                                    :project-dir "/Users/me/myproject"
+                                                                                    :repl-type clj
+                                                                                    :cljs-repl-type shadow))
             :to-equal "*cider-repl me/myproject:localhost:12345(clj)*")
 
     (expect (cider-format-connection-params nrepl-repl-buffer-name-template '(:host "localhost"
@@ -504,4 +509,13 @@
                                                                                     :project-dir "/Users/me/myproject"
                                                                                     :repl-type cljs
                                                                                     :cljs-repl-type shadow))
-            :to-equal "*cider-repl me/myproject:localhost:12345(cljs:shadow)*")))
+            :to-equal "*cider-repl me/myproject:localhost:12345(cljs:shadow)*"))
+
+  (it "Never invokes symbols as functions (Emacs 29 feature)"
+    (expect (functionp 'cider-connection-tests-dummy-function)
+            :to-equal t)
+    (expect (cider-format-connection-params nrepl-repl-buffer-name-template '(:host "localhost"
+                                                                                    :port 12345
+                                                                                    :project-dir "/Users/me/myproject"
+                                                                                    :repl-type cider-connection-tests-dummy-function))
+            :to-equal "*cider-repl me/myproject:localhost:12345(cider-connection-tests-dummy-function)*")))

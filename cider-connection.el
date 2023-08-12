@@ -720,6 +720,19 @@ Fallback on `cider' command."
            (plist-put :session-name ses-name)
            (plist-put :repl-buffer r)))))))
 
+(defun cider--ensure-spec-is-not-invokable (spec)
+  "Ensures SPEC cannot be invoked as a function.
+
+Invokeable specs are an Emacs 29 feature
+that we don't intend to use in this context."
+  (let ((spec-char (car spec))
+        (spec-value (cdr spec)))
+    `(,spec-char
+      .
+      ,(if (symbolp spec-value)
+           (prin1-to-string spec-value)
+         spec-value))))
+
 (defun cider-format-connection-params (template params)
   "Format PARAMS with TEMPLATE string.
 The following formats can be used in TEMPLATE string:
@@ -771,7 +784,8 @@ removed."
                   (?S . ,cljs-repl-type)))
          (ses-name (or (plist-get params :session-name)
                        (format-spec cider-session-name-template specs)))
-         (specs (append `((?s . ,ses-name)) specs)))
+         (specs (append `((?s . ,ses-name)) specs))
+         (specs (mapcar #'cider--ensure-spec-is-not-invokable specs)))
     (thread-last
       (format-spec template specs)
       ;; remove extraneous separators
