@@ -34,6 +34,7 @@
 - `cider-test`: only show diffs for collections.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
 - Improve `nrepl-dict` error reporting.
+- Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
 - Bump the injected `cider-nrepl` to [0.35](https://github.com/clojure-emacs/cider-nrepl/blob/v0.35.0/CHANGELOG.md#0350-2023-08-09).
   - Improves indentation, font-locking and other metadata support for ClojureScript.
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.14.2/CHANGELOG.md)
