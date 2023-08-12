@@ -434,7 +434,7 @@
          (sesman-unregister 'CIDER session))))))
 
 (describe "cider-format-connection-params"
-  (describe "correctly abbreviates short directory names"
+  (it "correctly abbreviates short directory names"
     (expect (cider-format-connection-params "%J" '(:project-dir "~"))
             :to-equal "~")
     (expect (cider-format-connection-params "%j" '(:project-dir "~"))
@@ -470,7 +470,7 @@
     (expect 'y-or-n-p :to-have-been-called-times 3)))
 
 (describe "cider-compatible-middleware-version-p"
-  (describe "correctly check compatible required and middleware versions"
+  (it "correctly checks compatible required and middleware versions"
     (expect (cider--compatible-middleware-version-p "0.24.0" "0.24.1")
             :to-be t)
     (expect (cider--compatible-middleware-version-p "0.24.1" "0.23.2")
