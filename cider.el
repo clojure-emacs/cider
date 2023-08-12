@@ -472,7 +472,7 @@ your version of Boot or Leiningen is bundling an older one."
   "List of dependencies where elements are lists of artifact name and version.
 Added to `cider-jack-in-dependencies' when doing `cider-jack-in-cljs'.")
 (put 'cider-jack-in-cljs-dependencies 'risky-local-variable t)
-(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.5.2")
+(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.5.3")
 
 (defvar cider-jack-in-dependencies-exclusions nil
   "List of exclusions for jack in dependencies.
