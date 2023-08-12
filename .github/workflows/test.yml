@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        emacs_version: ['26.3', '27.2', '28.2']
+        emacs_version: ['26.3', '27.2', '28.2', '29.1']
 
     steps:
     - name: Set up Emacs
