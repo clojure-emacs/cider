@@ -23,6 +23,8 @@
 - [#3112](https://github.com/clojure-emacs/cider/issues/3112): Fix the CIDER `xref-find-references` backend to return correct filenames.
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): recompute namespace info on each shadow-cljs recompilation or evaluation.
 - [#3402](https://github.com/clojure-emacs/cider/issues/3402): fix `cider-format-connection-params` edge case for Emacs 29.
+- [#3393](https://github.com/clojure-emacs/cider/issues/3393): Recompute namespace info on each shadow-cljs recompilation or evaluation.
+- Recompute namespace info on each fighweel-main recompilation.
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
 

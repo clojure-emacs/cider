@@ -986,6 +986,12 @@ t, as the content-type response is (currently) an alternative to the
 value response.  However for handlers which themselves issue subsequent
 nREPL ops, it may be convenient to prevent inserting a prompt.")
 
+(defun cider--maybe-get-state-cljs ()
+  "Invokes `cider/get-state' when it's possible to do so."
+  (when-let ((conn (cider-current-repl 'cljs)))
+    (when (nrepl-op-supported-p "cider/get-state" conn)
+      (nrepl-send-request '("op" "cider/get-state") nil conn))))
+
 (defun cider--maybe-get-state-for-shadow-cljs (buffer &optional err)
   "Refresh the changed namespaces metadata given BUFFER and ERR (stderr string).
 
@@ -1003,9 +1009,16 @@ This is particularly necessary for shadow-cljs because:
                (if err
                    (string-match-p "Build completed\\." err)
                  t))
-      (when-let ((conn (cider-current-repl 'cljs)))
-        (when (nrepl-op-supported-p "cider/get-state" conn)
-          (nrepl-send-request '("op" "cider/get-state") nil conn))))))
+      (cider--maybe-get-state-cljs))))
+
+(defun cider--maybe-get-state-for-figwheel-main (buffer out)
+  "Refresh the changed namespaces metadata given BUFFER and OUT (stdout string)."
+  (with-current-buffer buffer
+    (when (and (eq cider-repl-type 'cljs)
+               (eq cider-cljs-repl-type 'figwheel-main)
+               (not cider-repl-cljs-upgrade-pending)
+               (string-match-p "Successfully compiled build" out))
+      (cider--maybe-get-state-cljs))))
 
 (defun cider--shadow-cljs-handle-stderr (buffer err)
   "Refresh the changed namespaces metadata given BUFFER and ERR."
@@ -1014,6 +1027,12 @@ This is particularly necessary for shadow-cljs because:
 (defun cider--shadow-cljs-handle-done (buffer)
   "Refresh the changed namespaces metadata given BUFFER."
   (cider--maybe-get-state-for-shadow-cljs buffer))
+
+(defvar cider--repl-stdout-functions (list #'cider--maybe-get-state-for-figwheel-main)
+  "Functions to be invoked each time new stdout is received on a repl buffer.
+
+Good for, for instance, monitoring specific strings that may be logged,
+and responding to them.")
 
 (defvar cider--repl-stderr-functions (list #'cider--shadow-cljs-handle-stderr)
   "Functions to be invoked each time new stderr is received on a repl buffer.
@@ -1032,6 +1051,8 @@ and responding to them.")
      (lambda (buffer value)
        (cider-repl-emit-result buffer value t))
      (lambda (buffer out)
+       (dolist (f cider--repl-stdout-functions)
+         (funcall f buffer out))
        (cider-repl-emit-stdout buffer out))
      (lambda (buffer err)
        (dolist (f cider--repl-stderr-functions)
