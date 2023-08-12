@@ -487,3 +487,21 @@
             :to-be t)
     (expect (cider--compatible-middleware-version-p "1.25.3" "1.25.2-alpha2")
             :to-be t)))
+
+(describe "cider-format-connection-params"
+  (it "Generates a pretty string. `:repl-type' can be symbol." ;; https://github.com/clojure-emacs/cider/issues/3402
+    (expect (cider-format-connection-params nrepl-repl-buffer-name-template nil)
+            :to-equal "*cider-repl ~/project:localhost:(unknown)*")
+    (expect (cider-format-connection-params nrepl-repl-buffer-name-template  '(:host "localhost"
+                                                                                     :port 12345
+                                                                                     :project-dir "/Users/me/myproject"
+                                                                                     :repl-type clj
+                                                                                     :cljs-repl-type shadow))
+            :to-equal "*cider-repl me/myproject:localhost:12345(clj)*")
+
+    (expect (cider-format-connection-params nrepl-repl-buffer-name-template '(:host "localhost"
+                                                                                    :port 12345
+                                                                                    :project-dir "/Users/me/myproject"
+                                                                                    :repl-type cljs
+                                                                                    :cljs-repl-type shadow))
+            :to-equal "*cider-repl me/myproject:localhost:12345(cljs:shadow)*")))
