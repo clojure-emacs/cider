@@ -30,6 +30,8 @@
 (require 'buttercup)
 (require 'cider-browse-ns)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-browse-ns--text-face"
   (it "identifies a function"
     (expect (cider-browse-ns--text-face '(dict "arglists" "fn arg list"))

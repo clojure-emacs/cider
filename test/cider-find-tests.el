@@ -28,6 +28,8 @@
 (require 'buttercup)
 (require 'cider-find)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-find-ns"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)

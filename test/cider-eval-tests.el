@@ -28,6 +28,8 @@
 (require 'buttercup)
 (require 'cider-eval)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-provide-file"
   (it "returns an empty string when the file is not found"
     (expect (cider-provide-file "abc.clj") :to-equal ""))

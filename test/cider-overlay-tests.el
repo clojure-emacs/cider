@@ -23,6 +23,8 @@
 
 (require 'cider-overlays)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (defmacro cider--overlay-temp-buffer (&rest body)
   "Run `body' in a temp buffer with some text. Also set `this-command' to
 true by default, as some parts of `cider--make-result-overlay rely on it

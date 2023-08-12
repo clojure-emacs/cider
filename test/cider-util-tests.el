@@ -31,6 +31,8 @@
 (require 'cider-util)
 (require 'package)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (defmacro with-clojure-buffer (contents &rest body)
   "Execute BODY in a clojure-mode buffer with CONTENTS
 

@@ -34,6 +34,8 @@
 (require 'cider)
 (require 'subr-x)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 ;;; Docs
 ;; Presenting docs erroneously would cause an ugly scene.
 

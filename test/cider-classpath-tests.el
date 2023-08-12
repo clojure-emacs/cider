@@ -30,6 +30,8 @@
 (require 'buttercup)
 (require 'cider-classpath)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-classpath"
   (it "raises user-error when cider is not connected."
     (spy-on 'cider-connected-p :and-return-value nil)

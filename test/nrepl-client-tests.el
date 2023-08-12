@@ -31,6 +31,8 @@
 (require 'nrepl-client)
 (require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "nrepl-server-buffer-name"
   :var (nrepl-hide-special-buffers params default-directory-backup
                                    cider-session-name-template)

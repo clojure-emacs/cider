@@ -31,6 +31,8 @@
 (require 'cider-eval)
 (require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider--var-namespace"
   (it "returns the namespace of a var"
     (expect (cider--var-namespace "#'a/var-two") :to-equal "a")

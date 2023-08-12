@@ -31,6 +31,8 @@
 (require 'clojure-mode)
 (require 'cider-debug)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider--debug-prompt"
   (it "changes the font face to `cider-debug-prompt-face' for the first char"
     (let ((cider-debug-prompt-commands '((?a "abc" "abc") (?x "xyz" "xyz"))))

@@ -28,6 +28,8 @@
 (require 'buttercup)
 (require 'cider-test)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-test--string-contains-newline"
   (it "Returns `t' only for escaped newlines"
     (expect (cider-test--string-contains-newline "n")

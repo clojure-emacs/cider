@@ -26,6 +26,7 @@
 (require 'buttercup)
 (require 'cider-mode)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
 ;; Utilities
 

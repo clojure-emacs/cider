@@ -30,6 +30,8 @@
 (require 'buttercup)
 (require 'cider-common)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 ;;; cider-common tests
 (describe "cider-abbreviate-ns"
   (it "handles nil input"
