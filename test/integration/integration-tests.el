@@ -31,6 +31,8 @@
 (require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 (require 'integration-test-utils)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (defun jack-in-clojure-cli-test (cli-command)
   "Run clojure cli jack in test using given CLI-COMMAND.
 
@@ -549,4 +551,3 @@ If CLI-COMMAND is nil, then use the default."
                 (expect (member (process-status nrepl-proc) '(exit signal)))))))))))
 
 ;;; integration-tests.el ends here
-

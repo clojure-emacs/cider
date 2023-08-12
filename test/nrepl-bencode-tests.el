@@ -31,6 +31,8 @@
 (require 'cl-lib)
 (require 'nrepl-client)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 ;; Workaround for silex/master-dev issue with buggy old snapshot.  To be removed
 ;; once new snapshot image is build.
 (when (= emacs-major-version 29)

@@ -33,6 +33,8 @@
 (require 'cider-connection)
 (require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-ensure-connected"
   :var (sesman-sessions-hashmap sesman-links-alist ses-name ses-name2)
 

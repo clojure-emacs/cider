@@ -30,6 +30,8 @@
 (require 'cider-eval)
 (require 'buttercup)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-extract-error-info"
   :var (file-name line-num col-num face)
   (before-all

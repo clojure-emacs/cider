@@ -28,6 +28,8 @@
 (require 'buttercup)
 (require 'cider-doc)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider--abbreviate-file-protocol"
   (it "Removes the file or jar part"
     (expect (cider--abbreviate-file-protocol "file:foo.clj")

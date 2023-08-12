@@ -29,6 +29,8 @@
 (require 'cider-jar)
 (require 'map)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-jar--cider-nrepl-clojars-url"
   (it "Builds a Clojars url"
     (expect (cider-jar-clojars-url "cider" "cider-nrepl" "0.1.2")

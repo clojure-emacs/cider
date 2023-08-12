@@ -30,6 +30,8 @@
 (require 'buttercup)
 (require 'cider-repl)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-repl--insert-param-values"
   (it "doesn't output anything when the params aren't present"
     (let ((output "")

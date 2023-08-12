@@ -30,6 +30,8 @@
 (require 'buttercup)
 (require 'cider)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "customize-menu"
   (it "opens without error"
     (let ((inhibit-message t)) (customize-group 'cider))))

@@ -30,6 +30,8 @@
 (require 'buttercup)
 (require 'cider-eldoc)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider--find-rest-args-position"
   (it "returns the position of & in the arglist vector"
     (expect (cider--find-rest-args-position ["fmt" "&" "arg"])

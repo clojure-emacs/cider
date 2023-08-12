@@ -28,6 +28,8 @@
 (require 'buttercup)
 (require 'cider-log)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (describe "cider-log"
   (let ((framework (nrepl-dict "id" "jul" "name" "Java Util Logging"))
         (appender (nrepl-dict "id" "cider-log")))

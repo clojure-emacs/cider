@@ -29,6 +29,8 @@
 (require 'buttercup)
 (require 'cider-browse-spec)
 
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
 (defvar cider-browse-spec-tests--schema-vector-response
   '("clojure.alpha.spec/schema"
     (":example.customer/id" ":example.customer/name"))
