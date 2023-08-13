@@ -258,7 +258,8 @@ PARAMS is as in `nrepl-make-buffer-name'."
   (when (file-exists-p file)
     (with-temp-buffer
       (insert-file-contents file)
-      (buffer-string))))
+      (replace-regexp-in-string "\n\\'" "" ;; remove any trailing newline, so that our UIs look better.
+                                (buffer-string)))))
 
 
 ;;; Bencode
