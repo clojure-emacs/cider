@@ -254,12 +254,18 @@ PARAMS is as in `nrepl-make-buffer-name'."
 (make-obsolete 'nrepl-extract-port 'nrepl-extract-ports "1.5.0")
 
 (defun nrepl--port-from-file (file)
-  "Attempts to read port from a file named by FILE."
+  "Attempts to read port from a file named by FILE.
+
+Discards it if it can be determined that the port is not active."
   (when (file-exists-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (replace-regexp-in-string "\n\\'" "" ;; remove any trailing newline, so that our UIs look better.
-                                (buffer-string)))))
+    (let ((port-string (with-temp-buffer
+                         (insert-file-contents file)
+                         (string-trim-right (buffer-string)))))
+      (if (eq system-type 'windows-nt)
+          port-string
+        (when (not (equal ""
+                          (shell-command-to-string (concat "lsof -i:" port-string))))
+          port-string)))))
 
 
 ;;; Bencode
