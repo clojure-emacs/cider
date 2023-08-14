@@ -720,4 +720,24 @@
     (expect (cider-locate-running-nrepl-ports "from-dir")
             :to-equal '(("from-dir" "4567") ("lein" "1234") ("local" "2345") ("non-lein" "3456")))))
 
+(describe "cider--extract-lein-profiles"
+  (it "Splits the command by `with-profile' call, if found"
+    (expect (cider--extract-lein-profiles "with-profile dev repl foo bar")
+            :to-equal '("with-profile dev " "repl foo bar"))
+
+    (expect (cider--extract-lein-profiles "with-profiles dev repl foo bar")
+            :to-equal '("with-profiles dev " "repl foo bar"))
+
+    (expect (cider--extract-lein-profiles "with-profile +dev,+test repl foo bar")
+            :to-equal '("with-profile +dev,+test " "repl foo bar"))
+
+    (expect (cider--extract-lein-profiles "with-profiles +dev,+test repl foo bar")
+            :to-equal '("with-profiles +dev,+test " "repl foo bar"))
+
+    (expect (cider--extract-lein-profiles "repl")
+            :to-equal '(" " "repl"))
+
+    (expect (cider--extract-lein-profiles "repl :connect 1234")
+            :to-equal '(" " "repl :connect 1234"))))
+
 ;;; cider-tests.el ends here

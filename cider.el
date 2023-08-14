@@ -715,6 +715,17 @@ of EXCLUSIONS can be provided as well.  The returned
 string is quoted for passing as argument to an inferior shell."
   (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
 
+(defun cider--extract-lein-profiles (lein-params)
+  "Extracts a list of ('with-profile ...' and a repl command from LEIN-PARAMS).
+
+If no `with-profile' call was found, returns an empty string as the first member."
+  (or (when-let* ((pattern "\\(with-profiles?\\s-+\\S-+\\)")
+                  (match-start (string-match pattern lein-params))
+                  (match-end (match-end 0)))
+        (list (concat (substring lein-params match-start match-end) " ")
+              (string-trim (substring lein-params match-end))))
+      (list " " lein-params)))
+
 (defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins &optional lein-middlewares)
   "Create lein jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
@@ -738,7 +749,16 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
                                lein-middlewares))
               " -- ")
    " -- "
-   params))
+   (if (not cider-enrich-classpath)
+       params
+     ;; enrich-classpath must be applied after the `with-profile` call, if present,
+     ;; so that it can also process the classpath that is typically expanded by the presence of a set of profiles:
+     (let* ((profiles-and-repl-call (cider--extract-lein-profiles params))
+            (profiles (car profiles-and-repl-call))
+            (repl-call (nth 1 profiles-and-repl-call)))
+       (concat profiles
+               "update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware -- "
+               repl-call)))))
 
 (defun cider--dedupe-deps (deps)
   "Removes the duplicates in DEPS."
@@ -856,10 +876,7 @@ middleware and dependencies."
              (append `(("nrepl/nrepl" ,cider-injected-nrepl-version)) cider-jack-in-dependencies))
             cider-jack-in-dependencies-exclusions
             (cider-jack-in-normalized-lein-plugins)
-            (if cider-enrich-classpath
-                (append cider-jack-in-lein-middlewares
-                        '("cider.enrich-classpath.plugin-v2/middleware"))
-              cider-jack-in-lein-middlewares)))
+            cider-jack-in-lein-middlewares))
     ('boot (cider-boot-jack-in-dependencies
             global-opts
             params
