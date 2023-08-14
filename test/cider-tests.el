@@ -701,4 +701,17 @@
           ;; kill server
           (delete-process (get-buffer-process client-buffer)))))))
 
+(describe "cider-locate-running-nrepl-ports"
+  (it "Concatenates values from different sources"
+    (spy-on 'file-exists-p :and-return-value t)
+    (spy-on 'cider--running-lein-nrepl-paths :and-return-value '(("lein" "1234")))
+    (spy-on 'cider--running-local-nrepl-paths :and-return-value '(("local" "2345")))
+    (spy-on 'cider--running-non-lein-nrepl-paths :and-return-value '(("non-lein" "3456")))
+    (spy-on 'clojure-project-dir :and-return-value #'identity)
+    (spy-on 'cider--path->path-port-pairs :and-return-value '(("from-dir" "4567")))
+    (spy-on 'directory-file-name :and-call-fake #'identity)
+    (spy-on 'file-name-nondirectory :and-call-fake #'identity)
+    (expect (cider-locate-running-nrepl-ports "from-dir")
+            :to-equal '(("from-dir" "4567") ("lein" "1234") ("local" "2345") ("non-lein" "3456")))))
+
 ;;; cider-tests.el ends here
