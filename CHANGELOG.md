@@ -31,6 +31,7 @@
 ### Changes
 
 - [#3390](https://github.com/clojure-emacs/cider/issues/3390): Enhance `cider-connect` to show all nREPLs available ports, instead of only Leiningen ones.
+- [#3408](https://github.com/clojure-emacs/cider/issues/3408): `cider-connect`: check `.nrepl-port`-like files for liveness, hiding them if they don't reflect an active port. 
 - Preserve the `:cljs-repl-type` more reliably.
 - Improve the presentation of `xref` data.
 - `cider-test`: only show diffs for collections.
