@@ -500,9 +500,12 @@ Should be newer than the required version for optimal results."
   :safe #'stringp)
 
 (defcustom cider-enrich-classpath nil
-  "Whether to use git.io/JiJVX for adding sources and javadocs to the classpath.
+  "If t, use enrich-classpath for adding sources/javadocs to the classpath.
 
-This is done in a clean manner, without interfering with classloaders.
+(enrich-classpath is a Clojure CLI shim or Leiningen plugin)
+
+This classpath expansion is done in a clean manner,
+without interfering with classloaders.
 
 Only available for Leiningen projects at the moment."
   :type 'boolean
@@ -570,7 +573,7 @@ returned by this function does not include keyword arguments."
   (let ((plugins (if cider-enrich-classpath
                      (append cider-jack-in-lein-plugins
                              `(("cider/cider-nrepl" ,cider-injected-middleware-version)
-                               ("mx.cider/lein-enrich-classpath" "1.11.2")))
+                               ("mx.cider/lein-enrich-classpath" "1.12.0")))
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
     (thread-last

@@ -156,7 +156,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.12.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -169,7 +169,7 @@
                          " -- update-in :plugins conj "
                          (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                          " -- update-in :plugins conj "
-                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.12.0\"]")
                          " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                          " -- repl :headless")))
 
@@ -181,7 +181,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.12.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -220,7 +220,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.12.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -255,7 +255,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.12.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
     (it "can concat in a boot project"
@@ -324,7 +324,7 @@
       (spy-on 'cider-jack-in-normalized-lein-plugins
               :and-return-value '(("refactor-nrepl" "2.0.0")
                                   ("cider/cider-nrepl" "0.36.0")
-                                  ("mx.cider/lein-enrich-classpath" "1.11.2")))
+                                  ("mx.cider/lein-enrich-classpath" "1.12.0")))
       (setq-local cider-jack-in-dependencies-exclusions '())
       (setq-local cider-enrich-classpath t))
     (it "uses them in a lein project"
@@ -336,7 +336,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.36.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.11.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.12.0\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless"))))
 
@@ -476,16 +476,16 @@
 
     (dolist (command '("clojure" "powershell"))
       (it (format "should remove duplicates, yielding the same result (for %S command invocation)" command)
-          ;; repeat the same test for PowerShell too
-          (let ((expected (string-join `("-Sdeps "
-                                         ,(cider--shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.36.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}"
-                                                                       command)
-                                         " -M:dev:test:cider/nrepl")
-                                       "")))
-            (expect (cider-clojure-cli-jack-in-dependencies nil nil '(("nrepl/nrepl" "0.9.0")
-                                                                      ("nrepl/nrepl" "0.9.0"))
-                                                            command)
-                    :to-equal expected))))
+        ;; repeat the same test for PowerShell too
+        (let ((expected (string-join `("-Sdeps "
+                                       ,(cider--shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.36.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}"
+                                                                     command)
+                                       " -M:dev:test:cider/nrepl")
+                                     "")))
+          (expect (cider-clojure-cli-jack-in-dependencies nil nil '(("nrepl/nrepl" "0.9.0")
+                                                                    ("nrepl/nrepl" "0.9.0"))
+                                                          command)
+                  :to-equal expected))))
     (it "handles aliases correctly"
       (let ((expected (string-join `("-Sdeps "
                                      ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.36.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
@@ -503,8 +503,8 @@
             (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                     :to-equal expected))
           (let ((cider-clojure-cli-aliases "-A:test"))
-           (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
-                   :to-equal expected))
+            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                    :to-equal expected))
           (let ((cider-clojure-cli-aliases "-M:test"))
             (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                     :to-equal expected))
@@ -539,20 +539,20 @@
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected))))
   (describe "Override jack-in command"
-   (it "Uses the param, if provided"
-    (let* ((params '(:jack-in-cmd "Snowcrash"))
-           (params (cider--update-jack-in-cmd params)))
-      (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))
-   (it "Uses the `cider-jack-in-cmd', if provided"
-    (let* ((params '())
-           (cider-jack-in-cmd "Seveneves")
-           (params (cider--update-jack-in-cmd params)))
-      (expect params :to-equal '(:jack-in-cmd "Seveneves"))))
-   (it "Uses params over `cider-jack-in-cmd', if provided"
-    (let* ((params '(:jack-in-cmd "Snowcrash"))
-           (cider-jack-in-cmd "Seveneves")
-           (params (cider--update-jack-in-cmd params)))
-      (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))))
+    (it "Uses the param, if provided"
+      (let* ((params '(:jack-in-cmd "Snowcrash"))
+             (params (cider--update-jack-in-cmd params)))
+        (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))
+    (it "Uses the `cider-jack-in-cmd', if provided"
+      (let* ((params '())
+             (cider-jack-in-cmd "Seveneves")
+             (params (cider--update-jack-in-cmd params)))
+        (expect params :to-equal '(:jack-in-cmd "Seveneves"))))
+    (it "Uses params over `cider-jack-in-cmd', if provided"
+      (let* ((params '(:jack-in-cmd "Snowcrash"))
+             (cider-jack-in-cmd "Seveneves")
+             (params (cider--update-jack-in-cmd params)))
+        (expect params :to-equal '(:jack-in-cmd "Snowcrash"))))))
 
 (defmacro with-temp-shadow-config (contents &rest body)
   "Run BODY with a mocked shadow-cljs.edn project file with the CONTENTS."
@@ -630,9 +630,9 @@
   ;; - `cider-cljs-repl-types` changed by `cider-register-cljs-repl-type`.
   :var (-cider-cljs-repl-types)
   (before-all
-   (setq -cider-cljs-repl-types cider-cljs-repl-types))
+    (setq -cider-cljs-repl-types cider-cljs-repl-types))
   (after-each
-   (setq cider-cljs-repl-types -cider-cljs-repl-types))
+    (setq cider-cljs-repl-types -cider-cljs-repl-types))
 
   (describe "sets nrepl client buffer local vars correctly"
     ;; we only care to test in the below that some well specified local vars are
@@ -665,7 +665,7 @@
           (nrepl-tests-poll-until (local-variable-p 'nrepl-endpoint server-buffer) 5)
           (let ((client-buffer (cider-connect-sibling-cljs
                                 `(:cljs-repl-type not-cljs-initially
-                                  :repl-buffer ,(current-buffer))
+                                                  :repl-buffer ,(current-buffer))
                                 server-buffer)))
             (expect (buffer-local-value 'cider-repl-type client-buffer)
                     :to-equal 'cljs)
