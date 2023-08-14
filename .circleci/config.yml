@@ -21,7 +21,7 @@ commands:
       - run:
           name: Install Emacs latest
           command: |
-            brew install homebrew/cask/emacs || brew install homebrew/cask/emacs || brew install homebrew/cask/emacs
+            brew install homebrew/cask/emacs
       - run:
           name: Install Eldev
           command: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev > x.sh && source ./x.sh
