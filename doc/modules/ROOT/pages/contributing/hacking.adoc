@@ -90,14 +90,20 @@ default only main tests are run.
 Run all unit tests with:
 
  $ eldev[.bat] test
+ # Or:
+ $ make test-unit
 
 Run integration tests with:
 
  $ eldev[.bat] test --test-type integration
+ # Or:
+ $ make test-integration
 
 or all tests with:
 
  $ eldev[.bat] test --test-type all
+ # Or:
+ $ make test-all
 
 NOTE: Tests may not run correctly inside Emacs' `shell-mode` buffers. Running
 them in a terminal is recommended.
@@ -105,10 +111,14 @@ them in a terminal is recommended.
 You can also check for compliance with a variety of coding standards in batch mode (including docstrings):
 
  $ eldev lint
+ # Or:
+ $ make lint
 
 To check for byte-compilation warnings you can just compile the project with Eldev:
 
- $ eldev compile
+ $ eldev -dtT compile --warnings-as-errors
+ # Or:
+ # make compile
 
 ==== Running the tests in CircleCI
 
