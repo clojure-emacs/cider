@@ -72,7 +72,7 @@
       (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9#22")
               :to-equal "/ssh:cider-devs@192.168.50.9#22:")
       (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9")
-              :to-equal "/ssh:cider-devs@192.168.50.9#22:")
+              :to-equal "/ssh:cider-devs@192.168.50.9:")
       (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9" "12345")
               :to-equal "/ssh:cider-devs@192.168.50.9#12345:")
       (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9#12345")

@@ -25,6 +25,7 @@
 - [#3402](https://github.com/clojure-emacs/cider/issues/3402): fix `cider-format-connection-params` edge case for Emacs 29.
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): Recompute namespace info on each shadow-cljs recompilation or evaluation.
 - Recompute namespace info on each fighweel-main recompilation.
+- [#3250](https://github.com/clojure-emacs/cider/issues/3250): don't lose the CIDER session over TRAMP files. 
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
 - Make TRAMP functionality work when using non-standard ports.

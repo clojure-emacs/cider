@@ -624,6 +624,8 @@ REPL defaults to the current REPL."
     (when (string-match-p "#uzip" file)
       (let ((avfs-path (directory-file-name (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/")))))
         (setq file (replace-regexp-in-string avfs-path "" file t t))))
+    (when-let ((tp (cider-tramp-prefix (current-buffer))))
+      (setq file (string-remove-prefix tp file)))
     (when (process-live-p proc)
       (let* ((classpath (or (process-get proc :cached-classpath)
                             (let ((cp (with-current-buffer repl
