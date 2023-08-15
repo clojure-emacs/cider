@@ -68,9 +68,15 @@
 
 (describe "cider-make-tramp-prefix"
   (it "returns tramp-prefix only"
-      ;;; The third parameter is a host. It must contains a port number.
+      ;;; The third parameter is a host.
       (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9#22")
               :to-equal "/ssh:cider-devs@192.168.50.9#22:")
+      (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9")
+              :to-equal "/ssh:cider-devs@192.168.50.9#22:")
+      (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9" "12345")
+              :to-equal "/ssh:cider-devs@192.168.50.9#12345:")
+      (expect (cider-make-tramp-prefix "ssh" "cider-devs" "192.168.50.9#12345")
+              :to-equal "/ssh:cider-devs@192.168.50.9#12345:")
       ;;; These two cases are for using ssh config alias.
       (expect (cider-make-tramp-prefix "ssh" nil "test.cider.com")
               :to-equal "/ssh:test.cider.com:")

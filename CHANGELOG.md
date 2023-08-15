@@ -27,6 +27,7 @@
 - Recompute namespace info on each fighweel-main recompilation.
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
+- Make TRAMP functionality work when using non-standard ports.
 
 ### Changes
 
