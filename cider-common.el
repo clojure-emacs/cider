@@ -226,8 +226,8 @@ create a valid path."
         (match-string 1 filename)
       filename)))
 
-(defun cider-make-tramp-prefix (method user host)
-  "Constructs a Tramp file prefix from METHOD, USER, HOST.
+(defun cider-make-tramp-prefix (method user host &optional port)
+  "Constructs a Tramp file prefix from METHOD, USER, HOST, PORT.
 It originated from Tramp's `tramp-make-tramp-file-name'.  The original be
 forced to make full file name with `with-parsed-tramp-file-name', not providing
 prefix only option."
@@ -240,6 +240,8 @@ prefix only option."
             (if (string-match tramp-ipv6-regexp host)
                 (concat tramp-prefix-ipv6-format host tramp-postfix-ipv6-format)
               host))
+          (when port
+            (concat "#" port))
           tramp-postfix-host-format))
 
 (defun cider-tramp-prefix (&optional buffer)
@@ -253,7 +255,7 @@ if BUFFER is local."
     (when (tramp-tramp-file-p name)
       (with-parsed-tramp-file-name name v
         (with-no-warnings
-          (cider-make-tramp-prefix v-method v-user v-host))))))
+          (cider-make-tramp-prefix v-method v-user v-host v-port))))))
 
 (defun cider--client-tramp-filename (name &optional buffer)
   "Return the tramp filename for path NAME relative to BUFFER.
