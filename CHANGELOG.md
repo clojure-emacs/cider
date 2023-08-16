@@ -26,6 +26,7 @@
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): Recompute namespace info on each shadow-cljs recompilation or evaluation.
 - Recompute namespace info on each fighweel-main recompilation.
 - [#3250](https://github.com/clojure-emacs/cider/issues/3250): don't lose the CIDER session over TRAMP files. 
+- [#3413](https://github.com/clojure-emacs/cider/issues/3413): Make jump-to-definition work in projects needing `cider-path-translations` (i.e. Dockerized projects). 
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
 - Make TRAMP functionality work when using non-standard ports.

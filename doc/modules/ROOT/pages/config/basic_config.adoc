@@ -201,9 +201,10 @@ To prefer local resources to remote resources (tramp) when both are available:
 
 == Translate File Paths
 
-If you wish to translate file paths from your running instance you may use the
-`cider-path-translations` defcustom to do so. For instance, suppose your app is
-running in a docker container with your source directories mounted there. The
+If you are running Clojure within a Docker image, or doing something similar (i.e. you're `cider-connect`ing to a process,
+and there's a directory mapping for your source paths), you typically need to set `cider-path-translations`
+for jump-to-definition to properly work. For instance, suppose your app is
+running in a docker container with your source directories mounted there as volumes. The
 navigation paths you'd get from nREPL will be relative to the source in the
 docker container rather than the correct path on your host machine. You can add
 translation mappings easily by setting the following (typically in `.dir-locals.el`):
