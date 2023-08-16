@@ -286,22 +286,38 @@ in the container, the alist would be `((\"/src\" \"~/projects/foo/src\"))."
   :group 'cider
   :package-version '(cider . "0.23.0"))
 
-(defun cider--translate-path (path direction)
-  "Attempt to translate the PATH in the given DIRECTION.
+(defun cider--translate-path (path direction &optional return-all)
+  "Attempt to translate the PATH in the given DIRECTION, optionally RETURN-ALL.
 Looks at `cider-path-translations' for (container . host) alist of path
 prefixes and translates PATH from container to host or vice-versa depending on
 whether DIRECTION is 'from-nrepl or 'to-nrepl."
   (seq-let [from-fn to-fn path-fn] (cond ((eq direction 'from-nrepl) '(car cdr identity))
                                          ((eq direction 'to-nrepl) '(cdr car expand-file-name)))
-    (let ((path (funcall path-fn path)))
-      (seq-some (lambda (translation)
-                  (let ((prefix (file-name-as-directory (expand-file-name (funcall from-fn translation)))))
-                    (when (string-prefix-p prefix path)
-                      (replace-regexp-in-string (format "^%s" (regexp-quote prefix))
-                                                (file-name-as-directory
-                                                 (expand-file-name (funcall to-fn translation)))
-                                                path))))
-                cider-path-translations))))
+    (let ((f (lambda (translation)
+               (let ((path (funcall path-fn path))
+                     (prefix (file-name-as-directory (expand-file-name (funcall from-fn translation)))))
+                 (when (string-prefix-p prefix path)
+                   (replace-regexp-in-string (format "^%s" (regexp-quote prefix))
+                                             (file-name-as-directory
+                                              (expand-file-name (funcall to-fn translation)))
+                                             path))))))
+      (if return-all
+          (seq-filter #'identity (mapcar f cider-path-translations))
+        (seq-some f cider-path-translations)))))
+
+(defun cider--all-path-translations ()
+  "Returns `cider-path-translations' if non-empty, else seeks a present value."
+  (or cider-path-translations
+      ;; cider-path-translations often is defined as a directory-local variable,
+      ;; so after jumping to a .jar file, its value can be lost,
+      ;; so we have to figure out a possible translation:
+      (thread-last (buffer-list)
+                   (seq-map (lambda (buffer)
+                              (buffer-local-value 'cider-path-translations buffer)))
+                   (seq-filter #'identity)
+                   (seq-uniq)
+                   (apply #'append)
+                   (seq-uniq))))
 
 (defun cider--translate-path-from-nrepl (path)
   "Attempt to translate the nREPL PATH to a local path."
@@ -336,7 +352,12 @@ If no local or remote file exists, return nil."
           ((and tramp-path (file-exists-p tramp-path))
            tramp-path)
           ((and local-path (file-exists-p local-path))
-           local-path))))
+           local-path)
+          (t
+           (when-let* ((cider-path-translations (cider--all-path-translations)))
+             (thread-last (cider--translate-path local-path 'from-nrepl :return-all)
+                          (seq-filter #'file-exists-p)
+                          car))))))
 
 (declare-function archive-extract "arc-mode")
 (declare-function archive-zip-extract "arc-mode")
