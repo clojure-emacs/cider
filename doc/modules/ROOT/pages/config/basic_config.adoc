@@ -239,7 +239,7 @@ In this example, the path `/src` will be translated to the correct path of your
 Clojure project on the host machine. And `/root/.m2` to the host's `~/.m2` folder.
 
 You need to run `lein deps` (or `clojure -P`, etc) in the host machine in order for
-navigation to fully work, at least once, and then, preferrably, every time your Maven dependencies change.
+navigation to fully work, at least once, and then, preferably, every time your Maven dependencies change.
 This allows the `.m2` part of `cider-path-translations` to be actually useful.
 
 If you can't or won't do that, you can use TRAMP capabilities (which CIDER supports) instead of
