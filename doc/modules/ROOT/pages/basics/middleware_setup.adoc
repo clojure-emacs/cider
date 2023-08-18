@@ -32,7 +32,7 @@ Use the convenient plugin for defaults, either in your project's
 
 [source,clojure]
 ----
-:plugins [[cider/cider-nrepl "0.35.0"]
+:plugins [[cider/cider-nrepl "0.35.1"]
           [mx.cider/enrich-classpath "x.y.z"]]
 ----
 
@@ -46,7 +46,7 @@ A minimal `profiles.clj` for CIDER would be:
 
 [source,clojure]
 ----
-{:repl {:plugins [[cider/cider-nrepl "0.35.0"]
+{:repl {:plugins [[cider/cider-nrepl "0.35.1"]
                   [mx.cider/enrich-classpath "1.9.0"]]}}
 ----
 
@@ -67,7 +67,7 @@ all of their projects using a `~/.boot/profile.boot` file like so:
 (require 'boot.repl)
 
 (swap! boot.repl/*default-dependencies*
-       concat '[[cider/cider-nrepl "0.35.0"]])
+       concat '[[cider/cider-nrepl "0.35.1"]])
 
 (swap! boot.repl/*default-middleware*
        conj 'cider.nrepl/cider-middleware)
@@ -84,11 +84,11 @@ run `cider-connect` or `cider-connect-cljs`.
 
 [source,clojure]
 ----
-  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.35.0"}}
+  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.35.1"}}
               :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}
 
   :cider-cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
-                            cider/cider-nrepl {:mvn/version "0.35.0"}
+                            cider/cider-nrepl {:mvn/version "0.35.1"}
                             cider/piggieback {:mvn/version "0.5.3"}}
                :main-opts ["-m" "nrepl.cmdline" "--middleware"
                            "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
