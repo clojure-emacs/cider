@@ -400,13 +400,40 @@ The plist supports the following keys
     ('nbb         cider-nbb-command)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
+(defcustom cider-enrich-classpath nil
+  "If t, use enrich-classpath for adding sources/javadocs to the classpath.
+
+enrich-classpath is a Clojure CLI shim, and Leiningen plugin.
+
+This classpath expansion is done in a clean manner,
+without interfering with classloaders.
+
+Only available for Leiningen projects at the moment."
+  :type 'boolean
+  :package-version '(cider . "1.2.0")
+  :safe #'booleanp)
+
+(defcustom cider-enrich-classpath-clojure-cli-script
+  (lambda ()
+    (concat (file-name-directory (symbol-file 'cider-jack-in-command))
+            "clojure.sh"))
+  "The location of enrich-classpath's clojure.sh wrapper script."
+  :package-version '(cider . "1.8.0")
+  :type 'function)
+
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
     ('lein (cider--resolve-command cider-lein-command))
     ('boot (cider--resolve-command cider-boot-command))
-    ('clojure-cli (cider--resolve-command cider-clojure-cli-command))
+    ('clojure-cli (if (and cider-enrich-classpath
+                           (not (eq system-type 'windows-nt))
+                           (executable-find (cider-enrich-classpath-clojure-cli-script)))
+                      (concat (executable-find (cider-enrich-classpath-clojure-cli-script))
+                              " "
+                              (cider--resolve-command cider-clojure-cli-command))
+                    (cider--resolve-command cider-clojure-cli-command)))
     ('babashka (cider--resolve-command cider-babashka-command))
     ;; here we have to account for the possibility that the command is either
     ;; "npx shadow-cljs" or just "shadow-cljs"
@@ -498,19 +525,6 @@ Should be newer than the required version for optimal results."
   :type 'string
   :package-version '(cider . "1.2.0")
   :safe #'stringp)
-
-(defcustom cider-enrich-classpath nil
-  "If t, use enrich-classpath for adding sources/javadocs to the classpath.
-
-(enrich-classpath is a Clojure CLI shim or Leiningen plugin)
-
-This classpath expansion is done in a clean manner,
-without interfering with classloaders.
-
-Only available for Leiningen projects at the moment."
-  :type 'boolean
-  :package-version '(cider . "1.2.0")
-  :safe #'booleanp)
 
 (defcustom cider-jack-in-auto-inject-clojure nil
   "Version of clojure to auto-inject into REPL.
@@ -721,7 +735,8 @@ string is quoted for passing as argument to an inferior shell."
 (defun cider--extract-lein-profiles (lein-params)
   "Extracts a list of ('with-profile ...' and a repl command from LEIN-PARAMS).
 
-If no `with-profile' call was found, returns an empty string as the first member."
+If no `with-profile' call was found,
+returns an empty string as the first member."
   (or (when-let* ((pattern "\\(with-profiles?\\s-+\\S-+\\)")
                   (match-start (string-match pattern lein-params))
                   (match-end (match-end 0)))
