@@ -430,8 +430,8 @@ Throws an error if PROJECT-TYPE is unknown."
     ('boot (cider--resolve-command cider-boot-command))
     ('clojure-cli (if (and cider-enrich-classpath
                            (not (eq system-type 'windows-nt))
-                           (executable-find (cider-enrich-classpath-clojure-cli-script)))
-                      (concat (executable-find (cider-enrich-classpath-clojure-cli-script))
+                           (executable-find (funcall cider-enrich-classpath-clojure-cli-script)))
+                      (concat (executable-find (funcall cider-enrich-classpath-clojure-cli-script))
                               " "
                               (cider--resolve-command cider-clojure-cli-command))
                     (cider--resolve-command cider-clojure-cli-command)))
