@@ -529,6 +529,12 @@ Achieved by destructively manipulating `cider-stacktrace-suppressed-errors'."
         (button-put button 'help-echo "Click to promote these stacktraces."))
       (button-put button 'suppressed (not suppressed)))))
 
+(defcustom cider-stacktrace-navigate-to-other-window t
+  "If truthy, navigating from a stack frame will use other window.
+Pick nil if you prefer the same window as *cider-error*."
+  :type 'boolean
+  :package-version '(cider . "1.8.0"))
+
 (defun cider-stacktrace-navigate (button)
   "Navigate to the stack frame source represented by the BUTTON."
   (let* ((var (button-get button 'var))
@@ -547,7 +553,7 @@ Achieved by destructively manipulating `cider-stacktrace-suppressed-errors'."
                 (button-get button 'file)))
          ;; give priority to `info` files as `info` returns full paths.
          (info (nrepl-dict-put info "file" file)))
-    (cider--jump-to-loc-from-info info t)
+    (cider--jump-to-loc-from-info info cider-stacktrace-navigate-to-other-window)
     (forward-line line-shift)
     (back-to-indentation)))
 

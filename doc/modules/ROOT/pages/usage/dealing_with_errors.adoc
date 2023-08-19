@@ -58,6 +58,15 @@ To disable auto-selection of the error buffer when it's displayed:
 (setq cider-auto-select-error-buffer nil)
 ----
 
+By default, when you jump to the source of a given stack frame,
+an Emacs window other than that of `*cider-error*` will be chosen.
+If you wish to resuse `*cider-error*`'s window instead, please configure:
+
+[source,lisp]
+----
+(setq cider-stacktrace-navigate-to-other-window nil)
+----
+
 == Navigating Stacktraces
 
 CIDER comes with a powerful solution for dealing with Clojure
