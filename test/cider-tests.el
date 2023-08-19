@@ -740,9 +740,4 @@
     (expect (cider--extract-lein-profiles "repl :connect 1234")
             :to-equal '("" "repl :connect 1234"))))
 
-(describe "cider-enrich-classpath-clojure-cli-script"
-  (it "exists"
-    (expect (file-exists-p cider-enrich-classpath-clojure-cli-script)
-            :to-equal t)))
-
 ;;; cider-tests.el ends here

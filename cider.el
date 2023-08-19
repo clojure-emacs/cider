@@ -415,8 +415,9 @@ Only available for Leiningen projects at the moment."
 
 (defcustom cider-enrich-classpath-clojure-cli-script
   (lambda ()
-    (concat (file-name-directory (symbol-file 'cider-jack-in-command))
-            "clojure.sh"))
+    (when (symbol-file 'cider-jack-in-command)
+      (concat (file-name-directory (symbol-file 'cider-jack-in-command))
+              "clojure.sh")))
   "The location of enrich-classpath's clojure.sh wrapper script."
   :package-version '(cider . "1.8.0")
   :type 'function)
