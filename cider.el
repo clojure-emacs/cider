@@ -742,7 +742,7 @@ returns an empty string as the first member."
                   (match-end (match-end 0)))
         (list (concat (substring lein-params match-start match-end) " ")
               (string-trim (substring lein-params match-end))))
-      (list " " lein-params)))
+      (list "" lein-params)))
 
 (defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins &optional lein-middlewares)
   "Create lein jack-in dependencies.

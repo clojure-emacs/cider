@@ -735,10 +735,10 @@
             :to-equal '("with-profiles +dev,+test " "repl foo bar"))
 
     (expect (cider--extract-lein-profiles "repl")
-            :to-equal '(" " "repl"))
+            :to-equal '("" "repl"))
 
     (expect (cider--extract-lein-profiles "repl :connect 1234")
-            :to-equal '(" " "repl :connect 1234"))))
+            :to-equal '("" "repl :connect 1234"))))
 
 (describe "cider-enrich-classpath-clojure-cli-script"
   (it "exists"
