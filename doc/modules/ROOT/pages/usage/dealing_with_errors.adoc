@@ -60,7 +60,7 @@ To disable auto-selection of the error buffer when it's displayed:
 
 By default, when you jump to the source of a given stack frame,
 an Emacs window other than that of `*cider-error*` will be chosen.
-If you wish to resuse `*cider-error*`'s window instead, please configure:
+If you wish to reuse `*cider-error*`'s window instead, please configure:
 
 [source,lisp]
 ----
