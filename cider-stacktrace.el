@@ -56,6 +56,12 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   :type 'list
   :package-version '(cider . "0.6.0"))
 
+(defcustom cider-stacktrace-navigate-to-other-window t
+  "If truthy, navigating from a stack frame will use other window.
+Pick nil if you prefer the same window as *cider-error*."
+  :type 'boolean
+  :package-version '(cider . "1.8.0"))
+
 (make-obsolete 'cider-stacktrace-print-length 'cider-stacktrace-print-options "0.20")
 (make-obsolete 'cider-stacktrace-print-level 'cider-stacktrace-print-options "0.20")
 (make-obsolete-variable 'cider-stacktrace-print-options 'cider-print-options "0.21")
@@ -547,7 +553,7 @@ Achieved by destructively manipulating `cider-stacktrace-suppressed-errors'."
                 (button-get button 'file)))
          ;; give priority to `info` files as `info` returns full paths.
          (info (nrepl-dict-put info "file" file)))
-    (cider--jump-to-loc-from-info info t)
+    (cider--jump-to-loc-from-info info cider-stacktrace-navigate-to-other-window)
     (forward-line line-shift)
     (back-to-indentation)))
 
