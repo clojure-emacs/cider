@@ -67,6 +67,9 @@ If you wish to reuse `*cider-error*`'s window instead, please configure:
 (setq cider-stacktrace-navigate-to-other-window nil)
 ----
 
+If you have customized this setting, when you have navigated to a given source file,
+you can navigate back to `*cider-error*` with `Ctrl-X <left>` or `M-x xref-pop-marker-stack`.
+
 == Navigating Stacktraces
 
 CIDER comes with a powerful solution for dealing with Clojure
