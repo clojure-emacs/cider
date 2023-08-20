@@ -59,16 +59,16 @@ To disable auto-selection of the error buffer when it's displayed:
 ----
 
 By default, when you jump to the source of a given stack frame,
-an Emacs window other than that of `*cider-error*` will be chosen.
-If you wish to reuse `*cider-error*`'s window instead, please configure:
+an Emacs window other than that of `+*cider-error*+` will be chosen.
+If you wish to reuse `+*cider-error*+`'s window instead, please configure:
 
 [source,lisp]
 ----
 (setq cider-stacktrace-navigate-to-other-window nil)
 ----
 
-If you have customized this setting, when you have navigated to a given source file,
-you can navigate back to `*cider-error*` with `Ctrl-X <left>` or `M-x xref-pop-marker-stack`.
+TIP: If you have customized this setting, when you have navigated to a given source file,
+you can navigate back to `+*cider-error*+` with kbd:[C-x <left>] (`previous-buffer`) or kbd:[M-,] (`xref-pop-marker-stack`).
 
 == Navigating Stacktraces
 
