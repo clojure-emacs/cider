@@ -113,6 +113,17 @@
         (expect (nrepl-make-buffer-name "*buff-name %r:%S*" params)
                 :to-equal "*buff-name cljs*")))))
 
+(describe "nrepl--port-string-to-number"
+  (it "Converts a string to number when adequate"
+    (expect (nrepl--port-string-to-number "1234\nfoobar")
+            :to-equal 1234)
+    (expect (nrepl--port-string-to-number "")
+            :to-equal nil)
+    (expect (nrepl--port-string-to-number "\n")
+            :to-equal nil)
+    (expect (nrepl--port-string-to-number "adas\n")
+            :to-equal nil)))
+
 (describe "nrepl-parse-port"
   (it "standard"
       (let ((msg "nREPL server started on port 58882 on host kubernetes.docker.internal - nrepl://kubernetes.docker.internal:58882"))
