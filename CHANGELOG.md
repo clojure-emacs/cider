@@ -8,6 +8,8 @@
 - `cider-test`: add timing information.
 - `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom and `cider-test-toggle-fail-fast` keybinding.
 - Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
+- [#3418](https://github.com/clojure-emacs/cider/issues/3418): Introduce `cider-clojure-compilation-error-phases`.
+  - This prevents stacktraces from showing up whenever the [:clojure.error/phase](https://clojure.org/reference/repl_and_main#_at_repl) indicates that it's a compilation error.
 - Add new customization variable `cider-clojurec-eval-destination` to allow specifying which REPL CLJC evals are sent to.
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
 
