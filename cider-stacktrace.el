@@ -496,7 +496,14 @@ When it reaches 3, it wraps to 0."
   (cider-stacktrace-toggle 'repl))
 
 (defun cider-stacktrace-toggle-tooling ()
-  "Toggle display of Tooling stack frames (compiler, nREPL middleware, etc)."
+  "Toggle display of tooling stack frames.
+
+These include:
+
+  * Clojure compiler and runtime internals
+     * may be `.clj' or `.java' files.
+  * nREPL internals
+  * CIDER internals."
   (interactive)
   (cider-stacktrace-toggle 'tooling))
 
