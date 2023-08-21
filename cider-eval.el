@@ -523,7 +523,8 @@ It delegates the actual error content to the eval or op handler."
 (defconst cider-clojure-1.10-error `(sequence
                                      "Syntax error "
                                      (minimal-match (zero-or-more anything))
-                                     "compiling "
+                                     (or "compiling "
+                                         "macroexpanding ")
                                      (minimal-match (zero-or-more anything))
                                      "at ("
                                      (group-n 2 (minimal-match (zero-or-more anything)))
