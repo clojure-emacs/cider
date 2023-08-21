@@ -70,7 +70,15 @@ not to be automatically shown.
 
 Irrespective of the value of this variable, the `cider-error-buffer' is
 always generated in the background.  Use `cider-selector' to
-navigate to this buffer."
+navigate to this buffer.
+
+Please note, if the error phase belongs to
+one of the `cider-clojure-compilation-error-phases',
+then no stacktrace showing will happen.
+That defcustom takes precedence over this one.
+
+See its doc for understanding its rationale.  You can also customize it to nil
+in order to void its effect."
   :type '(choice (const :tag "always" t)
                  (const except-in-repl)
                  (const only-in-repl)
@@ -478,8 +486,33 @@ op/situation that originated this error."
     (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode error-types)))
       (cider-stacktrace-render error-buffer (reverse causes) error-types))))
 
-(defun cider--handle-stacktrace-response (response causes)
-  "Handle stacktrace op RESPONSE, aggregating the result into CAUSES.
+(defcustom cider-clojure-compilation-error-phases '("read-source"
+                                                    "macro-syntax-check"
+                                                    "macroexpansion"
+                                                    "compile-syntax-check"
+                                                    "compilation"
+                                                    ;; "execution" is certainly not to be included here.
+                                                    ;; "read-eval-result" and "print-eval-result" are not to be included here,
+                                                    ;; because they mean that the code has been successfully executed.
+                                                    )
+  "Error phases which will not cause the `*cider-error*' buffer to pop up.
+
+The default value results in no stacktrace being shown for compile-time errors.
+
+Note that `*cider-error*' pop behavior is otherwise controlled
+by the `cider-show-error-buffer' defcustom.
+
+`cider-clojure-compilation-error-phases' takes precedence.
+If you wish phases to be ignored, set this variable to nil instead.
+
+You can learn more about Clojure's error phases at:
+https://clojure.org/reference/repl_and_main#_at_repl"
+  :type 'list
+  :group 'cider
+  :package-version '(cider . "0.18.0"))
+
+(defun cider--handle-stacktrace-response (response causes ex-phase)
+  "Handle stacktrace RESPONSE, aggregate the result into CAUSES, honor EX-PHASE.
 If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
 RESPONSE is the final message (i.e. it contains a status), render CAUSES
 into a new error buffer."
@@ -487,12 +520,14 @@ into a new error buffer."
     (cond ((and (member "notification" status) causes)
            (nrepl-notify msg type))
           (class (cons response causes))
-          (status (cider--render-stacktrace-causes causes)))))
+          (status
+           (unless (member ex-phase cider-clojure-compilation-error-phases)
+             (cider--render-stacktrace-causes causes))))))
 
 (defun cider-default-err-op-handler ()
   "Display the last exception, with middleware support."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
-  (let (causes)
+  (let (causes ex-phase)
     (cider-nrepl-send-request
      (thread-last
        (map-merge 'list
@@ -500,10 +535,13 @@ into a new error buffer."
                   (cider--nrepl-print-request-map fill-column))
        (seq-mapcat #'identity))
      (lambda (response)
+       (nrepl-dbind-response response (phase)
+         (when phase
+           (setq ex-phase phase)))
        ;; While the return value of `cider--handle-stacktrace-response' is not
        ;; meaningful for the last message, we do not need the value of `causes'
        ;; after it has been handled, so it's fine to set it unconditionally here
-       (setq causes (cider--handle-stacktrace-response response causes))))))
+       (setq causes (cider--handle-stacktrace-response response causes ex-phase))))))
 
 (defun cider-default-err-handler ()
   "This function determines how the error buffer is shown.
