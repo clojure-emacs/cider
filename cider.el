@@ -406,9 +406,7 @@ The plist supports the following keys
 enrich-classpath is a Clojure CLI shim, and Leiningen plugin.
 
 This classpath expansion is done in a clean manner,
-without interfering with classloaders.
-
-Only available for Leiningen projects at the moment."
+without interfering with classloaders."
   :type 'boolean
   :package-version '(cider . "1.2.0")
   :safe #'booleanp)
