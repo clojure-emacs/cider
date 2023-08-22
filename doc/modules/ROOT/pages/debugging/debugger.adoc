@@ -6,9 +6,8 @@ http://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html[Edebug]. Yo
 
 image::cider_debugger.gif[CIDER Debugger]
 
-WARNING: The debugger currently **does not** support ClojureScript. See
-https://github.com/clojure-emacs/cider/issues/1416[this issue]
-for more details.
+WARNING: The debugger **does not** support ClojureScript.
+You might want to use https://github.com/jpmonettas/cider-storm[Cider Storm] instead. 
 
 == Using the Debugger
 
