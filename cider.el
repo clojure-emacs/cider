@@ -1336,7 +1336,8 @@ With the prefix argument,
 allow editing of the jack in command; with a double prefix prompt for all
 these parameters."
   (interactive "P")
-  (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
+  (let ((cider-enrich-classpath nil) ;; ensure it's disabled for cljs projects, for now
+        (cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
         (orig-buffer (current-buffer)))
@@ -1365,7 +1366,8 @@ with a double prefix prompt for all these parameters.
 When SOFT-CLJS-START is non-nil, start cljs REPL
 only when the ClojureScript dependencies are met."
   (interactive "P")
-  (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
+  (let ((cider-enrich-classpath nil) ;; ensure it's disabled for cljs projects, for now
+        (cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
         (orig-buffer (current-buffer)))
