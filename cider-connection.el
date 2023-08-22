@@ -615,64 +615,6 @@ REPL defaults to the current REPL."
 
 (declare-function cider-classpath-entries "cider-client")
 
-(defun cider--sesman-friendly-session-p (session &optional debug)
-  "Check if SESSION is a friendly session, DEBUG optionally."
-  (setcdr session (seq-filter #'buffer-live-p (cdr session)))
-  (when-let* ((repl (cadr session))
-              (proc (get-buffer-process repl))
-              (file (file-truename (or (buffer-file-name) default-directory))))
-    ;; With avfs paths look like /path/to/.avfs/path/to/some.jar#uzip/path/to/file.clj
-    (when (string-match-p "#uzip" file)
-      (let ((avfs-path (directory-file-name (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/")))))
-        (setq file (replace-regexp-in-string avfs-path "" file t t))))
-    (when-let ((tp (cider-tramp-prefix (current-buffer))))
-      (setq file (string-remove-prefix tp file)))
-    (when (process-live-p proc)
-      (let* ((classpath (or (process-get proc :cached-classpath)
-                            (let ((cp (with-current-buffer repl
-                                        (cider-classpath-entries))))
-                              (process-put proc :cached-classpath cp)
-                              cp)))
-             (classpath-roots (or (process-get proc :cached-classpath-roots)
-                                  (let ((cp (thread-last
-                                              classpath
-                                              (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
-                                              (mapcar #'file-name-directory)
-                                              (seq-remove  #'null)
-                                              (seq-uniq))))
-                                    (process-put proc :cached-classpath-roots cp)
-                                    cp))))
-        (or (seq-find (lambda (path) (string-prefix-p path file))
-                      classpath)
-            (seq-find (lambda (path) (string-prefix-p path file))
-                      classpath-roots)
-            (when-let* ((cider-path-translations (cider--all-path-translations))
-                        (translated (cider--translate-path file 'to-nrepl :return-all)))
-              (seq-find (lambda (translated-path)
-                          (or (seq-find (lambda (path)
-                                          (string-prefix-p path translated-path))
-                                        classpath)
-                              (seq-find (lambda (path)
-                                          (string-prefix-p path translated-path))
-                                        classpath-roots)))
-                        translated))
-            (when debug
-              (list file "was not determined to belong to classpath:" classpath "or classpath-roots:" classpath-roots)))))))
-
-(defun cider-debug-sesman-friendly-session-p ()
-  "`message's debugging information relative to friendly sessions.
-
-This is useful for when one sees 'No linked CIDER sessions'
-in an unexpected place."
-  (interactive)
-  (message (prin1-to-string (mapcar (lambda (session)
-                                      (cider--sesman-friendly-session-p session t))
-                                    (sesman--all-system-sessions 'CIDER)))))
-
-(cl-defmethod sesman-friendly-session-p ((_system (eql CIDER)) session)
-  "Check if SESSION is a friendly session."
-  (cider--sesman-friendly-session-p session))
-
 (defvar cider-sesman-browser-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "j q") #'cider-quit)
