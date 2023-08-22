@@ -1748,7 +1748,15 @@ constructs."
 
 
 (defun cider--sesman-friendly-session-p (session &optional debug)
-  "Check if SESSION is a friendly session, DEBUG optionally."
+  "Check if SESSION is a friendly session, DEBUG optionally.
+
+The checking is done as follows:
+
+* Consider the buffer's filename, strip any Docker/TRAMP details from it
+* Check if that filename belongs to the classpath,
+  or to the classpath roots (e.g. the project root dir)
+* As a fallback, check if the buffer's ns form
+  matches any of the loaded namespaces."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let* ((repl (cadr session))
               (proc (get-buffer-process repl))
