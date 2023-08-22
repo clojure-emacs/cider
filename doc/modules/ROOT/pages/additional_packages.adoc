@@ -139,6 +139,16 @@ You can disable this Paredit behaviour by adding the following to your `init.el`
 (define-key paredit-mode-map (kbd "RET") nil)
 ----
 
+=== paren-face
+
+https://github.com/tarsius/paren-face[paren-face] defines a face named `parenthesis` used just for parentheses. The originally intended purpose of this face is to make parentheses less visible in Lisp code by dimming them.
+
+In the author's words:
+
+> We lispers probably don’t need to be constantly made aware of the existence of the parentheses. Dimming them might be even more useful for people new to lisp who have not yet learned to subconsciously blend out the parentheses.
+
+TIP: the following customization expands paren-face to dim even more delimiters from the Clojure language: `(setq paren-face-regexp "\\([( ]\\.-\\|[( ]\\.+\\|[][(){}#/]\\)")`.
+
 === Smartparens
 
 https://github.com/Fuco1/smartparens[smartparens] is an excellent alternative
