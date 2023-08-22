@@ -38,6 +38,7 @@
 - Introduce `cider-stacktrace-navigate-to-other-window` defcustom.
 - Preserve the `:cljs-repl-type` more reliably.
 - Improve the presentation of `xref` data.
+- [#3419](https://github.com/clojure-emacs/cider/issues/3419): Also match friendly sessions based on the buffer's ns form.
 - `cider-test`: only show diffs for collections.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
 - Improve `nrepl-dict` error reporting.
