@@ -495,7 +495,13 @@
         (let ((cider-clojure-cli-aliases ":test"))
           (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                   :to-equal expected))
-        (describe "should strip out leading exec opts -A -M -T -X"
+        (describe "should strip out leading exec opts -A -M -T -X, and ensure there's a leading :"
+          (let ((cider-clojure-cli-aliases ":test"))
+            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                    :to-equal expected))
+          (let ((cider-clojure-cli-aliases "test"))
+            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
+                    :to-equal expected))
           (let ((cider-clojure-cli-aliases "-A:test"))
            (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                    :to-equal expected))

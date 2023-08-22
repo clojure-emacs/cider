@@ -804,7 +804,10 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
             (if cider-clojure-cli-aliases
                 ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
                 ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
-                (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))
+                (let ((stripped (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))))
+                  (if (string-prefix-p ":" stripped)
+                      stripped
+                    (concat ":" stripped)))
               "")
             (if params (format " %s" params) ""))))
 
