@@ -1615,8 +1615,11 @@ the enrich-classpath middleware."
                                  car)))
         (if (not enriched-command)
             (progn
-              (write-region "\n\nFull enrich-classpath output:\n\n" logfile 'append)
-              (write-region result logfile 'append)
+              (condition-case nil
+                  (progn
+                    (write-region "\n\nFull enrich-classpath output:\n\n" nil logfile 'append)
+                    (write-region result nil logfile 'append))
+                (error nil))
               (message "CIDER enrich-classpath failed. Falling back to the original command. `~/.emacs.d/cider-error.log' may contain debug information.")
               fallback-cmd)
           (progn
