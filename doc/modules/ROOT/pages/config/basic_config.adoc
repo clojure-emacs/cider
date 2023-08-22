@@ -46,7 +46,7 @@ With it enabled, `cider-jack-in` will activate enrich-classpath, given the follo
 
 ...those conditions will be progressively relaxed.
 
-It's worth noting that cider-jack-in will fall back to the original command if enrich-classpath failed, for whatever reason.
+It's worth noting that `cider-jack-in` will fall back to the original command if enrich-classpath failed, for whatever reason.
 
 == Prompt for Symbol Confirmation
 
