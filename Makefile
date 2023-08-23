@@ -1,4 +1,5 @@
 .PHONY: clean compile lint test-all test-integration test-unit
+.DEFAULT_GOAL := test
 
 # Per our CircleCI, linting/compiling assumes Emacs 28.
 # If you primarily use a different version, you can download Emacs 28 to a separate directory and set up:

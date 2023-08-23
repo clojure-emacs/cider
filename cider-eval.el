@@ -1415,7 +1415,7 @@ buffer, else display in a popup buffer."
   "Evaluate the current buffer's namespace form.
 When UNDEF-ALL is non-nil, unmap all symbols and aliases first."
   (interactive "P")
-  (when-let ((ns (clojure-find-ns)))
+  (when-let ((ns (cider--clojure-find-ns)))
     (save-excursion
       (goto-char (match-beginning 0))
       (when undef-all

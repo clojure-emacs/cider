@@ -41,6 +41,7 @@
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'cider-overlays)
+(require 'cider-util)
 
 ;;; Variables
 
@@ -852,15 +853,16 @@ is searched."
           (cider-test-update-last-test ns var)
           (cider-test-execute ns (list var)))
       ;; we're in a `clojure-mode' buffer
-      (let* ((ns  (clojure-find-ns))
-             (def (clojure-find-def)) ; it's a list of the form (deftest something)
-             (deftype (car def))
-             (var (cadr def)))
-        (if (and ns (member deftype cider-test-defining-forms))
-            (progn
-              (cider-test-update-last-test ns (list var))
-              (cider-test-execute ns (list var)))
-          (message "No test at point"))))))
+      (or (when-let* ((ns  (cider--clojure-find-ns))
+                      (def (clojure-find-def)) ; it's a list of the form (deftest something)
+                      (deftype (car def))
+                      (var (cadr def)))
+            (if (and ns (member deftype cider-test-defining-forms))
+                (progn
+                  (cider-test-update-last-test ns (list var))
+                  (cider-test-execute ns (list var)))
+              (message "No test at point")))
+          (message "No test at point")))))
 
 (defun cider-test-rerun-test ()
   "Re-run the test that was previously ran."
