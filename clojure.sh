@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+# This wrapper script adds enrich-classpath's (https://github.com/clojure-emacs/enrich-classpath) functionalities to the `clojure` binary.
+# It works by accepting the `clojure` binary as the first argument, and whatever arguments you'd pass to `clojure` as the rest.
 # sample usage: clojure.sh clojure -Asome-alias <<< "(System/getProperty \"java.class.path\")"
 
 clojure="$1"
