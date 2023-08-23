@@ -411,14 +411,11 @@ without interfering with classloaders."
   :package-version '(cider . "1.2.0")
   :safe #'booleanp)
 
-(defcustom cider-enrich-classpath-clojure-cli-script
-  (lambda ()
-    (when-let ((cider-location (locate-library "cider.el" t)))
-      (concat (file-name-directory cider-location)
-              "clojure.sh")))
-  "The location of enrich-classpath's clojure.sh wrapper script."
-  :package-version '(cider . "1.8.0")
-  :type 'function)
+(defun cider--get-enrich-classpath-clojure-cli-script ()
+  "Returns he location of enrich-classpath's clojure.sh wrapper script."
+  (when-let ((cider-location (locate-library "cider.el" t)))
+    (concat (file-name-directory cider-location)
+            "clojure.sh")))
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
@@ -428,8 +425,8 @@ Throws an error if PROJECT-TYPE is unknown."
     ('boot (cider--resolve-command cider-boot-command))
     ('clojure-cli (if (and cider-enrich-classpath
                            (not (eq system-type 'windows-nt))
-                           (executable-find (funcall cider-enrich-classpath-clojure-cli-script)))
-                      (concat (executable-find (funcall cider-enrich-classpath-clojure-cli-script))
+                           (executable-find (cider--get-enrich-classpath-clojure-cli-script)))
+                      (concat (executable-find (cider--get-enrich-classpath-clojure-cli-script))
                               " "
                               (cider--resolve-command cider-clojure-cli-command))
                     (cider--resolve-command cider-clojure-cli-command)))
