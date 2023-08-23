@@ -413,8 +413,8 @@ without interfering with classloaders."
 
 (defcustom cider-enrich-classpath-clojure-cli-script
   (lambda ()
-    (when (symbol-file 'cider-jack-in-command)
-      (concat (file-name-directory (symbol-file 'cider-jack-in-command))
+    (when-let ((cider-location (locate-library "cider.el" t)))
+      (concat (file-name-directory cider-location)
               "clojure.sh")))
   "The location of enrich-classpath's clojure.sh wrapper script."
   :package-version '(cider . "1.8.0")
