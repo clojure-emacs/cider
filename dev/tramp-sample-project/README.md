@@ -7,7 +7,7 @@ This way, for development purposes, we can SSH into it with TRAMP and exercise C
 To get started:
 
 * In one terminal tab, run `make run` to run the Docker image
-* Once it's ready, from another tab, run `make ssh` 
+* Once it's ready, from another tab, run `make ssh` and start a repl manually from there
   * The password is `cider`
   * `cd /usr/src/app; lein repl :headless :host 0.0.0.0 :port 7888`
 

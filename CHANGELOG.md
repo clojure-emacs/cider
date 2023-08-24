@@ -43,6 +43,7 @@
 - [#3419](https://github.com/clojure-emacs/cider/issues/3419): Also match friendly sessions based on the buffer's ns form.
 - `cider-test`: only show diffs for collections.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
+- Ensure there's a leading `:` when using `cider-clojure-cli-aliases`.
 - Improve `nrepl-dict` error reporting.
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
 - Bump the injected `cider-nrepl` to [0.36.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.36.0/CHANGELOG.md#0360-2023-08-21).
