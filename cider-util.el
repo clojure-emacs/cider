@@ -115,7 +115,7 @@ instead."
         (cider--text-or-limits bounds (point) end)))))
 
 (defun cider--clojure-find-ns ()
-  "Calls `clojure-find-ns', supressing any errors.
+  "Calls `clojure-find-ns', suppressing any errors.
 Therefore, possibly returns nil,
 so please handle that value from any callsites."
   (clojure-find-ns :supress-errors))
