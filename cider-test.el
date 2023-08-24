@@ -853,7 +853,7 @@ is searched."
           (cider-test-update-last-test ns var)
           (cider-test-execute ns (list var)))
       ;; we're in a `clojure-mode' buffer
-      (or (when-let* ((ns  (cider--clojure-find-ns))
+      (or (when-let* ((ns  (cider-get-ns-name))
                       (def (clojure-find-def)) ; it's a list of the form (deftest something)
                       (deftype (car def))
                       (var (cadr def)))

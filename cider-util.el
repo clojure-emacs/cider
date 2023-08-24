@@ -114,7 +114,7 @@ instead."
         (clojure-backward-logical-sexp 1)
         (cider--text-or-limits bounds (point) end)))))
 
-(defun cider--clojure-find-ns ()
+(defun cider-get-ns-name ()
   "Calls `clojure-find-ns', suppressing any errors.
 Therefore, possibly returns nil,
 so please handle that value from any callsites."
@@ -122,7 +122,7 @@ so please handle that value from any callsites."
 
 (defun cider-ns-form ()
   "Retrieve the ns form."
-  (when (cider--clojure-find-ns)
+  (when (cider-get-ns-name)
     (save-excursion
       (goto-char (match-beginning 0))
       (cider-defun-at-point))))
