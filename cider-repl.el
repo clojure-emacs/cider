@@ -1760,7 +1760,16 @@ The checking is done as follows:
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let* ((repl (cadr session))
               (proc (get-buffer-process repl))
-              (file (file-truename (or (buffer-file-name) default-directory))))
+              (file (or
+                     ;; favor a built-in buffer-local variable if possible, for performance:
+                     (and buffer-file-truename
+                          (if (file-remote-p buffer-file-truename)
+                              buffer-file-truename
+                            ;; buffer-file-truename has symlinks resolved, but can be abbreviated,
+                            ;; except in remote files. Expand it:
+                            (expand-file-name buffer-file-truename)))
+                     ;; else, call file-truename, which is expensive:
+                     (file-truename (or (buffer-file-name) default-directory)))))
     ;; With avfs paths look like /path/to/.avfs/path/to/some.jar#uzip/path/to/file.clj
     (when (string-match-p "#uzip" file)
       (let ((avfs-path (directory-file-name (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/")))))
