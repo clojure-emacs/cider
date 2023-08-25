@@ -120,16 +120,19 @@ Useful for special buffers (e.g. REPL, doc buffers) that have to keep track
 of a namespace.  This should never be set in Clojure buffers, as there the
 namespace should be extracted from the buffer's ns form.")
 
-(defun cider-current-ns (&optional no-default)
+(defun cider-current-ns (&optional no-default no-repl-check)
   "Return the current ns.
 The ns is extracted from the ns form for Clojure buffers and from
 `cider-buffer-ns' for all other buffers.  If it's missing, use the current
-REPL's ns, otherwise fall back to \"user\".  When NO-DEFAULT is non-nil, it
-will return nil instead of \"user\"."
+REPL's ns, otherwise fall back to \"user\".
+When NO-DEFAULT is non-nil, it will return nil instead of \"user\".
+When NO-REPL-CHECK is non-nil, `cider-current-repl' will not be queried,
+improving performance (at the possible cost of accuracy)."
   (or cider-buffer-ns
       (cider-get-ns-name)
-      (when-let* ((repl (cider-current-repl)))
-        (buffer-local-value 'cider-buffer-ns repl))
+      (unless no-repl-check
+        (when-let* ((repl (cider-current-repl)))
+          (buffer-local-value 'cider-buffer-ns repl)))
       (if no-default nil "user")))
 
 (defun cider-path-to-ns (relpath)
