@@ -2018,7 +2018,10 @@ in an unexpected place."
   ;; apply dir-local variables to REPL buffers
   (hack-dir-local-variables-non-file-buffer)
   (when cider-repl-history-file
-    (cider-repl-history-load cider-repl-history-file)
+    (condition-case nil
+        (cider-repl-history-load cider-repl-history-file)
+      (error
+       (message "Malformed cider-repl-history-file: %s" cider-repl-history-file)))
     (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
     (add-hook 'kill-emacs-hook #'cider-repl-history-just-save))
   (add-hook 'completion-at-point-functions #'cider-complete-at-point nil t)
