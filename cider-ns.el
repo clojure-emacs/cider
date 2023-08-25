@@ -65,6 +65,7 @@
 (require 'cider-eval)
 (require 'cider-popup)
 (require 'cider-stacktrace)
+(require 'cider-util)
 
 (defcustom cider-ns-save-files-on-refresh 'prompt
   "Controls whether to prompt to save files before refreshing.
@@ -195,9 +196,9 @@ org.clojure/tools.namespace.  See Commentary of this file for a longer list
 of differences.  From the Clojure doc: \":reload forces loading of all the
 identified libs even if they are already loaded\"."
   (interactive "P")
-  (let ((ns (if prompt
-                (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (clojure-find-ns)))
-              (clojure-find-ns))))
+  (when-let ((ns (if prompt
+                     (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (cider-get-ns-name)))
+                   (cider-get-ns-name))))
     (cider-interactive-eval (format "(require '%s :reload)" ns))))
 
 ;;;###autoload
@@ -211,9 +212,9 @@ of differences.  From the Clojure doc: \":reload-all implies :reload and
 also forces loading of all libs that the identified libs directly or
 indirectly load via require\"."
   (interactive "P")
-  (let ((ns (if prompt
-                (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (clojure-find-ns)))
-              (clojure-find-ns))))
+  (when-let ((ns (if prompt
+                     (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (cider-get-ns-name)))
+                   (cider-get-ns-name))))
     (cider-interactive-eval (format "(require '%s :reload-all)" ns))))
 
 ;;;###autoload

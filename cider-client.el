@@ -127,7 +127,7 @@ The ns is extracted from the ns form for Clojure buffers and from
 REPL's ns, otherwise fall back to \"user\".  When NO-DEFAULT is non-nil, it
 will return nil instead of \"user\"."
   (or cider-buffer-ns
-      (clojure-find-ns)
+      (cider-get-ns-name)
       (when-let* ((repl (cider-current-repl)))
         (buffer-local-value 'cider-buffer-ns repl))
       (if no-default nil "user")))
