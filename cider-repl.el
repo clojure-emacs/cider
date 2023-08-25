@@ -1802,7 +1802,10 @@ The checking is done as follows:
                                         classpath-roots)))
                         translated))
             (when-let ((ns (condition-case nil
-                               (substring-no-properties (cider-current-ns :no-default))
+                               (substring-no-properties (cider-current-ns :no-default
+                                                                          ;; important - don't query the repl,
+                                                                          ;; avoiding a recursive invocation of `cider--sesman-friendly-session-p`:
+                                                                          :no-repl-check))
                              (error nil))))
               ;; if the ns form matches with a ns of all runtime namespaces, we can consider the buffer to match
               ;; (this is a bit lax, but also quite useful)
