@@ -27,6 +27,28 @@ buffers. You can override this behavior, however:
 (setq cider-auto-mode nil)
 ----
 
+== Use `enrich-classpath`
+
+`enrich-classpath` is a program/plugin/wrapper that allows CIDER to access to the sources and javadocs of a given project's Java files: your own files, those from your dependencies, and those from the JDK.
+
+With that, CIDER can show better completions, navigation, documentation, and stacktrace integration.
+
+For Lein users, it has the additional benefit of running a single JVM, instead of the two JVMs that Lein programs typically involve.
+
+NOTE: `enrich-classpath` is still in beta and defaults to being disabled.
+
+You can enable it by setting the `cider-enrich-classpath` defcustom to `t`.
+
+With it enabled, `cider-jack-in` will activate enrich-classpath, given the following conditions:
+
+* You are on macOS/Linux
+* You are launching a vanilla JVM repl (and not a cljs repl, or a clj+cljs repl)
+* You are using `cider-jack-in` / `cider-jack-in-clj` (and not `cider-connect`)
+
+...those conditions will be progressively relaxed.
+
+It's worth noting that `cider-jack-in` will fall back to the original command if enrich-classpath failed, for whatever reason.
+
 == Prompt for Symbol Confirmation
 
 NOTE: The default here was changed in CIDER 1.0.
