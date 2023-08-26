@@ -50,17 +50,20 @@
 - Improve `nrepl-dict` error reporting.
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
 - Bump the `clojure-mode` required version, and use `clojure-find-ns` more safely, which fixes issues such as #[2849](https://github.com/clojure-emacs/cider/issues/2849).
-- Bump the injected `cider-nrepl` to [0.36.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.36.0/CHANGELOG.md#0360-2023-08-21).
+- Bump the injected `cider-nrepl` to [0.36.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.36.1/CHANGELOG.md#0361-2023-08-22).
   - Improves indentation, font-locking and other metadata support for ClojureScript.
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.14.2/CHANGELOG.md)
     - introduces support for displaying the docstring and arglists of 'indirect' vars (e.g. `(def foo bar)`) for Clojure/Script.
     - fixes xref support across deftest vars.
-  - Updates [Suitable](https://github.com/clojure-emacs/clj-suitable/blob/v0.5.0/CHANGELOG.md#050-2023-07-28)
-    - avoiding side-effecting `->` evaluation for pure-ClojureScript chains.
-  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/0.4.0/CHANGELOG.md#040-2023-07-05)
+  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/0.4.1/CHANGELOG.md#041-2023-08-23)
+    - Improves type hint propagation.
+    - Supports better completions for `->`, `->>` and `doto`.
     - Supports better completions for var-quote (`#'some/var`).
+    - Supports better completions for deftype field names.
   - Updates [Haystack](https://github.com/clojure-emacs/haystack/blob/0077b5c49f4aef1c7f89d5430d6dda2f9e7d78d4/CHANGELOG.md#020-2023-08-20).
     - Now, in `*cider-error*`, more internal stackframes will be hidden under the `tooling` category.
+  - Updates [Suitable](https://github.com/clojure-emacs/clj-suitable/blob/v0.5.0/CHANGELOG.md#050-2023-07-28)
+    - avoiding side-effecting `->` evaluation for pure-ClojureScript chains.
 
 ## 1.7.0 (2023-03-23)
 
