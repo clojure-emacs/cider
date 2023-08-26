@@ -412,7 +412,7 @@ without interfering with classloaders."
   :safe #'booleanp)
 
 (defun cider--get-enrich-classpath-clojure-cli-script ()
-  "Returns he location of enrich-classpath's clojure.sh wrapper script."
+  "Returns the location of enrich-classpath's clojure.sh wrapper script."
   (when-let ((cider-location (locate-library "cider.el" t)))
     (concat (file-name-directory cider-location)
             "clojure.sh")))
