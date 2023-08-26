@@ -31,7 +31,7 @@ buffers. You can override this behavior, however:
 
 `enrich-classpath` is a program/plugin/wrapper that allows CIDER to access to the sources and javadocs of a given project's Java files: your own files, those from your dependencies, and those from the JDK.
 
-With that, CIDER can show better completions, jump-to-definition and documentation.
+With that, CIDER can show better completions, navigation, documentation, and stacktrace integration.
 
 For Lein users, it has the additional benefit of running a single JVM, instead of the two JVMs that Lein programs typically involve.
 
