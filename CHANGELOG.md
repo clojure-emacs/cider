@@ -51,7 +51,7 @@
 - Improve `nrepl-dict` error reporting.
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
 - Bump the `clojure-mode` required version, and use `clojure-find-ns` more safely, which fixes issues such as #[2849](https://github.com/clojure-emacs/cider/issues/2849).
-- Bump the injected `cider-nrepl` to [0.36.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.36.1/CHANGELOG.md#0361-2023-08-22).
+- Bump the injected `cider-nrepl` to [0.37.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.37.0/CHANGELOG.md#0370-2023-08-27).
   - Improves indentation, font-locking and other metadata support for ClojureScript.
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.14.2/CHANGELOG.md)
     - introduces support for displaying the docstring and arglists of 'indirect' vars (e.g. `(def foo bar)`) for Clojure/Script.
