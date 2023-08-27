@@ -732,12 +732,27 @@ returned."
                 (cider-nrepl-send-sync-request)
                 (nrepl-dict-get "ns-vars")))
 
-(defun cider-sync-request:ns-path (ns)
-  "Get the path to the file containing NS."
-  (thread-first `("op" "ns-path"
-                  "ns" ,ns)
-                (cider-nrepl-send-sync-request)
-                (nrepl-dict-get "path")))
+(defun cider-sync-request:ns-path (ns &optional favor-url)
+  "Get the path to the file containing NS, FAVOR-URL if specified.
+
+FAVOR-URL ensures a Java URL is returned.
+
+* This always is the case if the underlying runtime is JVM Clojure.
+* For ClojureScript, the default is a resource name.
+  * This often cannot be open by `cider-find-file'
+    (unless there was already a buffer opening that file)
+
+Generally, you always want to FAVOR-URL.
+The option is kept for backwards compatibility.
+
+Note that even when favoring a url, the url itself might be nil,
+in which case we'll fall back to the resource name."
+  (let ((response (cider-nrepl-send-sync-request `("op" "ns-path"
+                                                   "ns" ,ns))))
+    (nrepl-dbind-response response (path url)
+      (if (and favor-url url)
+          url
+        path))))
 
 (defun cider-sync-request:ns-vars-with-meta (ns)
   "Get a map of the vars in NS to its metadata information."

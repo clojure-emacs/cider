@@ -37,3 +37,56 @@
   (it "raises a user error if the op is not supported"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (expect (cider-find-ns) :to-throw 'user-error)))
+
+(describe "cider--find-keyword-loc"
+  (it "finds the given keyword, discarding false positives"
+    (with-clojure-buffer "(ns some.ns)
+;; ::foo
+\"::foo\"
+#_::foo
+::foobar
+\"
+::foo
+\"
+::foo
+more
+stuff"
+      (let* ((sample-buffer (current-buffer)))
+        (spy-on 'cider-ensure-connected :and-return-value t)
+        (spy-on 'cider-resolve--get-in :and-return-value nil)
+        (spy-on 'cider-current-ns :and-return-value nil)
+        (spy-on 'cider-sync-request:ns-path :and-call-fake (lambda (kw-ns _)
+                                                             kw-ns))
+        (spy-on 'cider-find-file :and-call-fake (lambda (kw-ns)
+                                                  (when (equal kw-ns "some.ns")
+                                                    sample-buffer)))
+
+        (nrepl-dbind-response (cider--find-keyword-loc "::some.ns/foo") (dest dest-point)
+          (expect dest-point :to-equal 63)
+          (with-current-buffer dest
+            (goto-char dest-point)
+            ;; important - ensure that we're looking at ::foo and not ::foobar:
+            (expect (cider-symbol-at-point 'look-back) :to-equal "::foo")))
+
+        (nrepl-dbind-response (cider--find-keyword-loc ":some.ns/foo") (dest dest-point)
+          (expect dest-point :to-equal 63)
+          (with-current-buffer dest
+            (goto-char dest-point)
+            ;; important - ensure that we're looking at ::foo and not ::foobar:
+            (expect (cider-symbol-at-point 'look-back) :to-equal "::foo")))
+
+        (nrepl-dbind-response (cider--find-keyword-loc "::some.ns/bar") (dest dest-point)
+          (expect dest-point :to-equal nil))
+
+        (nrepl-dbind-response (cider--find-keyword-loc ":some.ns/bar") (dest dest-point)
+          (expect dest-point :to-equal nil))
+
+        (nrepl-dbind-response (cider--find-keyword-loc ":foo") (dest dest-point)
+          (expect dest-point :to-equal nil))
+
+        (nrepl-dbind-response (cider--find-keyword-loc ":unrelated/foo") (dest dest-point)
+          (expect dest-point :to-equal nil))
+
+        (nrepl-dbind-response (cider--find-keyword-loc "::unrelated/foo") (dest dest-point)
+          (expect dest-point :to-equal nil))
+        ))))
