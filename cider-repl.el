@@ -992,7 +992,7 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
     (when (nrepl-op-supported-p "cider/get-state" conn)
       (nrepl-send-request '("op" "cider/get-state")
                           (lambda (_response)
-                            ;; No action is necessary
+                            ;; No action is necessary: this request results in `cider-repl--state-handler` being called.
                             )
                           conn))))
 
