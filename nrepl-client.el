@@ -480,7 +480,7 @@ older requests with \"done\" status."
                         (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
-        (error "[nREPL] No response handler with id %s found" id)))))
+        (error "[nREPL] No response handler with id %s found for %s" id (buffer-name))))))
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
