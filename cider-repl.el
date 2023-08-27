@@ -990,7 +990,11 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
   "Invokes `cider/get-state' when it's possible to do so."
   (when-let ((conn (cider-current-repl 'cljs)))
     (when (nrepl-op-supported-p "cider/get-state" conn)
-      (nrepl-send-request '("op" "cider/get-state") nil conn))))
+      (nrepl-send-request '("op" "cider/get-state")
+                          (lambda (_response)
+                            ;; No action is necessary
+                            )
+                          conn))))
 
 (defun cider--maybe-get-state-for-shadow-cljs (buffer &optional err)
   "Refresh the changed namespaces metadata given BUFFER and ERR (stderr string).
