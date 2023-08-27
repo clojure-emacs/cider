@@ -34,6 +34,7 @@
 - [#2436](https://github.com/clojure-emacs/cider/issues/2436): Prevent malformed `cider-repl-history-file`s from failing `cider-jack-in`.
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
+- Fix the `cider-find-keyword` overall reliability and correctness, particularly for ClojureScript.
 - Make TRAMP functionality work when using non-standard ports.
 
 ### Changes

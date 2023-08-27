@@ -192,6 +192,52 @@ the results to be displayed in a different window."
            (ns (completing-read "Find namespace: " namespaces)))
       (cider--find-ns ns (cider--open-other-window-p arg)))))
 
+(defun cider--find-keyword-in-buffer (buffer kw)
+  "Returns the point where `KW' is found in `BUFFER'.
+Returns nil of no matching keyword is found.
+Occurrences of `KW' as (or within) strings, comments, #_ forms, symbols, etc
+are disregarded."
+  (with-current-buffer buffer
+    (save-excursion
+      (goto-char (point-min))
+      (font-lock-ensure) ;; make the forthcoming `text-properties-at` call useful
+      (let ((found nil)
+            (continue t)
+            (current-point (point)))
+        (while continue
+          (setq found (and (search-forward-regexp kw nil 'noerror)
+                           (member 'clojure-keyword-face (text-properties-at (1- (point))))))
+          (setq continue (and (not found)
+                              ;; if we haven't moved, there's nothing left to search:
+                              (not (equal current-point (point)))))
+          (setq current-point (point)))
+        (when found
+          current-point)))))
+
+(defun cider--find-keyword-loc (kw)
+  "Given `KW', returns an nrepl-dict with url, dest, dest-point.
+
+Returns the dict in all cases.  `dest-point' indicates success:
+integer on successful finds, nil otherwise."
+  (let* ((ns-qualifier (and
+                        (string-match "^:+\\(.+\\)/.+$" kw)
+                        (match-string 1 kw)))
+         (kw-ns (or (cider-resolve--get-in (cider-current-ns) "aliases" ns-qualifier)
+                    ns-qualifier))
+         (kw-name (replace-regexp-in-string "^:+\\(.+/\\)?" "" kw))
+         (end-of-word "\\>") ;; important: if searching for foo, we don't want to match foobar (a larger word)
+         (kw-to-find (concat "\\("
+                             (concat "::" kw-name)
+                             "\\|"
+                             (concat ":" kw-ns "/" kw-name)
+                             "\\)"
+                             end-of-word)))
+    (let* ((url (cider-sync-request:ns-path kw-ns t))
+           (dest (cider-find-file url))
+           (dest-point (when dest
+                         (cider--find-keyword-in-buffer dest kw-to-find))))
+      (nrepl-dict "url" url "dest" dest "dest-point" dest-point))))
+
 ;;;###autoload
 (defun cider-find-keyword (&optional arg)
   "Find the namespace of the keyword at point and its first occurrence there.
@@ -213,18 +259,15 @@ thing at point."
                     (format "Keyword (default %s): " kw-at-point)
                     nil nil kw-at-point)
                  kw-at-point)))
-         (ns-qualifier (and
-                        (string-match "^:+\\(.+\\)/.+$" kw)
-                        (match-string 1 kw)))
-         (kw-ns (if ns-qualifier
-                    (cider-resolve-alias (cider-current-ns) ns-qualifier)
-                  (cider-current-ns)))
-         (kw-to-find (concat "::" (replace-regexp-in-string "^:+\\(.+/\\)?" "" kw))))
-
-    (when (and ns-qualifier (string= kw-ns (cider-current-ns)))
-      (error "Could not resolve alias `%s' in `%s'" ns-qualifier (cider-current-ns)))
-    (cider--find-ns kw-ns arg)
-    (search-forward-regexp kw-to-find nil 'noerror)))
+         (before (buffer-list))
+         (result (cider--find-keyword-loc kw)))
+    (nrepl-dbind-response result (dest dest-point)
+      (if dest-point
+          (cider-jump-to dest dest-point arg)
+        (progn
+          (unless (memq dest before)
+            (kill-buffer dest))
+          (user-error "Couldn't find a definition for %S" kw))))))
 
 (provide 'cider-find)
 ;;; cider-find.el ends here
