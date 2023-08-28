@@ -359,10 +359,10 @@ If any interactive feature is being shortcircuited for you with the message `No 
 that's due to one of the following reasons:
 
 * You're evaluating code in a buffer from a project that hasn't started a repl
-  * You can fix this by switching instead to a project that has.
-  * You can also, simply, start a repl in the current project.
+ ** You can fix this by switching instead to a project that has.
+ ** You can also, simply, start a repl in the current project.
 * There's a bug in the CIDER/Sesman integration
-  * Session linking generally works by determining whether the current buffer is related to the classpath of some REPL.
-  * You can obtain debug info echoed to the `*messages*` buffer by running `M-x cider-debug-sesman-friendly-session-p` on the problematic buffer.
-    * By reading it, you might be able to determine why CIDER failed to see the relationship between `(buffer-filename)` and the classpath.
-    * Feel free to created a detailed GitHub issue including this information.
+ ** Session linking generally works by determining whether the current buffer is related to the classpath of some REPL.
+ ** You can obtain debug info echoed to the `*messages*` buffer by running `M-x cider-debug-sesman-friendly-session-p` on the problematic buffer.
+  *** By reading it, you might be able to determine why CIDER failed to see the relationship between `(buffer-filename)` and the classpath.
+  *** Feel free to created a detailed GitHub issue including this information.

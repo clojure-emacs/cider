@@ -165,18 +165,18 @@ so you wouldn't have to specify it.
 For that to happen, it's most recommended that you write idiomatic Clojure macros:
 
 * If your macro is analog to a clojure.core one, name it identically
-  * e.g. name your macro `defprotocol`, not `my-defprotocol`
-    * (this is intentful usage of Clojure's namespace system)
+ ** e.g. name your macro `defprotocol`, not `my-defprotocol`
+  *** (this is intentful usage of Clojure's namespace system)
 * If your macro is analog to a clojure.core one, mirror all its arglists
-  * The exact names that you choose for your args do not matter
-  * It's the structure of the arglists that have to match.
-  * It doesn't matter if you express a given arg as a name, or as a destructured map/vector.
+ ** The exact names that you choose for your args do not matter
+ ** It's the structure of the arglists that have to match.
+ ** It doesn't matter if you express a given arg as a name, or as a destructured map/vector.
 * Name 'body' args like using clojure.core customs
-  * good: `[opts body]`
-  * bad: `[opts etc]`
-  * good: `[& body]`
-  * bad: `[& etc]`
-  * Other commonly accepted names include `forms`, `clauses`, etc.
+ ** good: `[opts body]`
+ ** bad: `[opts etc]`
+ ** good: `[& body]`
+ ** bad: `[& etc]`
+ ** Other commonly accepted names include `forms`, `clauses`, etc.
 
 You certainly don't _have_ to follow these suggestions - it's only for your convenience,
 as the indentation produced by CIDER will be better.
