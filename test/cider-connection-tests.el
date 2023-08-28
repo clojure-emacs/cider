@@ -60,6 +60,12 @@
   (before-each
     (setq sesman-sessions-hashmap (make-hash-table :test #'equal)
           sesman-links-alist nil
+          cider-ancillary-buffers (seq-filter (lambda (s)
+                                                ;; sometimes "*temp*" buffers can sneak into cider-ancillary-buffers.
+                                                ;; Those are the artifact of some other test, and can break these tests
+                                                ;; by affecting the logic in cider--sesman-friendly-session-p.
+                                                (string-prefix-p "*cider" s))
+                                              cider-ancillary-buffers)
           ses-name "a-session"
           ses-name2 "b-session"))
 

@@ -1750,23 +1750,21 @@ constructs."
                      (mapconcat #'identity (cider-repl--available-shortcuts) ", "))))
         (error "No command selected")))))
 
-(defvar cider--project-agnostic-buffer-names
-  '("*cider-error*" "*cider-result*")
-  "The buffer names known to be project- agnostic/reusable, and from CIDER.")
-
 (defun cider--sesman-friendly-session-p (session &optional debug)
   "Check if SESSION is a friendly session, DEBUG optionally.
 
 The checking is done as follows:
 
-* Consider if the buffer belongs to `cider--project-agnostic-buffer-names`
+* Consider if the buffer belongs to `cider-ancillary-buffers`
 * Consider the buffer's filename, strip any Docker/TRAMP details from it
 * Check if that filename belongs to the classpath,
   or to the classpath roots (e.g. the project root dir)
 * As a fallback, check if the buffer's ns form
   matches any of the loaded namespaces."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
-  (or (member (buffer-name) cider--project-agnostic-buffer-names)
+  (or (and (member (buffer-name) cider-ancillary-buffers)
+           (not (or (equal major-mode 'cider-repl-mode)
+                    (derived-mode-p 'cider-repl-mode))))
       (when-let* ((repl (cadr session))
                   (proc (get-buffer-process repl))
                   (file (file-truename (or (buffer-file-name) default-directory))))
