@@ -1762,9 +1762,7 @@ The checking is done as follows:
 * As a fallback, check if the buffer's ns form
   matches any of the loaded namespaces."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
-  (or (and (member (buffer-name) cider-ancillary-buffers)
-           (not (or (equal major-mode 'cider-repl-mode)
-                    (derived-mode-p 'cider-repl-mode))))
+  (or (member (buffer-name) cider-ancillary-buffers)
       (when-let* ((repl (cadr session))
                   (proc (get-buffer-process repl))
                   (file (file-truename (or (buffer-file-name) default-directory))))
