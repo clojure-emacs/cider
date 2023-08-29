@@ -747,6 +747,8 @@ The option is kept for backwards compatibility.
 
 Note that even when favoring a url, the url itself might be nil,
 in which case we'll fall back to the resource name."
+  (unless ns
+    (error "No ns provided"))
   (let ((response (cider-nrepl-send-sync-request `("op" "ns-path"
                                                    "ns" ,ns))))
     (nrepl-dbind-response response (path url)
