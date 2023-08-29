@@ -219,21 +219,33 @@ are disregarded."
 
 Returns the dict in all cases.  `dest-point' indicates success:
 integer on successful finds, nil otherwise."
-  (let* ((ns-qualifier (and
-                        (string-match "^:+\\(.+\\)/.+$" kw)
-                        (match-string 1 kw)))
-         (kw-ns (or (cider-resolve--get-in (cider-current-ns) "aliases" ns-qualifier)
-                    ns-qualifier))
+  (let* ((simple-ns-qualifier (and
+                               (string-match "^:\\(.+\\)/.+$" kw)
+                               (match-string 1 kw)))
+         (auto-resolved-ns-qualifier (and
+                                      (string-match "^::\\(.+\\)/.+$" kw)
+                                      (match-string 1 kw)))
+         (kw-ns (or (and auto-resolved-ns-qualifier
+                         (or (cider-resolve-alias (cider-current-ns) auto-resolved-ns-qualifier)
+                             (user-error "Could not resolve alias: %S" auto-resolved-ns-qualifier)))
+                    (and (string-match "^::" kw)
+                         (cider-current-ns :no-default))
+                    simple-ns-qualifier
+                    (user-error "Not a ns-qualified keyword: %S" kw)))
          (kw-name (replace-regexp-in-string "^:+\\(.+/\\)?" "" kw))
-         (end-of-word "\\>") ;; important: if searching for foo, we don't want to match foobar (a larger word)
-         (kw-to-find (concat "\\("
+         (beginning-of-symbol "\\_<")
+         (end-of-symbol "\\_>") ;; important: if searching for foo, we don't want to match foobar (a larger symbol)
+         (kw-to-find (concat beginning-of-symbol
+                             "\\("
                              (concat "::" kw-name)
                              "\\|"
                              (concat ":" kw-ns "/" kw-name)
                              "\\)"
-                             end-of-word)))
-    (let* ((url (cider-sync-request:ns-path kw-ns t))
-           (dest (cider-find-file url))
+                             end-of-symbol)))
+    (let* ((url (when kw-ns
+                  (cider-sync-request:ns-path kw-ns t)))
+           (dest (when url
+                   (cider-find-file url)))
            (dest-point (when dest
                          (cider--find-keyword-in-buffer dest kw-to-find))))
       (nrepl-dict "url" url "dest" dest "dest-point" dest-point))))
