@@ -411,6 +411,12 @@ without interfering with classloaders."
   :package-version '(cider . "1.2.0")
   :safe #'booleanp)
 
+(defun cider--get-enrich-classpath-lein-script ()
+  "Returns the location of enrich-classpath's lein.sh wrapper script."
+  (when-let ((cider-location (locate-library "cider.el" t)))
+    (concat (file-name-directory cider-location)
+            "lein.sh")))
+
 (defun cider--get-enrich-classpath-clojure-cli-script ()
   "Returns the location of enrich-classpath's clojure.sh wrapper script."
   (when-let ((cider-location (locate-library "cider.el" t)))
@@ -421,13 +427,21 @@ without interfering with classloaders."
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
-    ('lein (cider--resolve-command cider-lein-command))
+    ('lein (let ((r (cider--resolve-command cider-lein-command)))
+             (if (and cider-enrich-classpath
+                      (not (eq system-type 'windows-nt))
+                      (executable-find (cider--get-enrich-classpath-lein-script)))
+                 (concat "bash " ;; don't assume lein.sh is executable - MELPA might change that
+                         (cider--get-enrich-classpath-lein-script)
+                         " "
+                         r)
+               r)))
     ('boot (cider--resolve-command cider-boot-command))
     ('clojure-cli (if (and cider-enrich-classpath
                            (not (eq system-type 'windows-nt))
                            (executable-find (cider--get-enrich-classpath-clojure-cli-script)))
                       (concat "bash " ;; don't assume clojure.sh is executable - MELPA might change that
-                              (executable-find (cider--get-enrich-classpath-clojure-cli-script))
+                              (cider--get-enrich-classpath-clojure-cli-script)
                               " "
                               (cider--resolve-command cider-clojure-cli-command))
                     (cider--resolve-command cider-clojure-cli-command)))
@@ -584,7 +598,7 @@ returned by this function does not include keyword arguments."
   (let ((plugins (if cider-enrich-classpath
                      (append cider-jack-in-lein-plugins
                              `(("cider/cider-nrepl" ,cider-injected-middleware-version)
-                               ("mx.cider/lein-enrich-classpath" "1.15.4")))
+                               ("mx.cider/lein-enrich-classpath" "1.15.5")))
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
     (thread-last
@@ -1588,43 +1602,6 @@ Params is a plist with the following keys (non-exhaustive)
 (defvar cider--jack-in-cmd-history nil
   "History list for user-specified jack-in commands.")
 
-(defun cider--expand-command-with-enrich-classpath (command fallback-cmd project-type)
-  "When possible for PROJECT-TYPE, expands COMMAND or fallback to FALLBACK-CMD.
-For example, `lein ... repl :headless ...' will be turned into a
-  `java -cp ...' invocation, which is the result of applying
-the enrich-classpath middleware."
-  (if (and cider-enrich-classpath
-           (eq project-type 'lein)
-           (not (eq system-type 'windows-nt)))
-      (let* ((_ (message (concat "CIDER enrich-classpath replacing: " (prin1-to-string command))))
-             (_ (shell-command-to-string "mkdir -p $HOME/.emacs.d"))
-             (logfile (expand-file-name "~/.emacs.d/cider-error.log"))
-             (result (thread-first
-                       command
-                       (concat " 2>" logfile)
-                       shell-command-to-string))
-             (enriched-command (thread-first
-                                 result
-                                 (split-string "\n")
-                                 (thread-last (seq-filter (lambda (s)
-                                                            ;; -cp is the marker that indicates that we've found a `java -cp` invocation (as emitted by enrich-classpath)
-                                                            (string-match " -cp " s))))
-                                 last
-                                 car)))
-        (if (not enriched-command)
-            (progn
-              (condition-case nil
-                  (progn
-                    (write-region "\n\nFull enrich-classpath output:\n\n" nil logfile 'append)
-                    (write-region result nil logfile 'append))
-                (error nil))
-              (message "CIDER enrich-classpath failed. Falling back to the original command. `~/.emacs.d/cider-error.log' may contain debug information.")
-              fallback-cmd)
-          (progn
-            (message (concat "CIDER enrich-classpath replaced: " (prin1-to-string enriched-command)))
-            enriched-command)))
-    command))
-
 (defun cider--format-cmd (command-resolved command cmd-params)
   "Format COMMAND-RESOLVED or COMMAND followed by CMD-PARAMS."
   (format "%s %s" command-resolved
@@ -1660,12 +1637,6 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                                       command-params
                                                       'cider--jack-in-nrepl-params-history)
                                        command-params))
-                     ;; create a command without the Enrich plugin or middleware:
-                     (fallback-cmd-params (let ((cider-enrich-classpath nil))
-                                            (if cider-inject-dependencies-at-jack-in
-                                                (cider-inject-jack-in-dependencies command-global-opts command-params
-                                                                                   project-type command)
-                                              command-params)))
                      (cmd-params (if cider-inject-dependencies-at-jack-in
                                      (cider-inject-jack-in-dependencies command-global-opts command-params
                                                                         project-type command)
@@ -1678,13 +1649,11 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                    (or params-project-type
                                        (y-or-n-p "Are you sure you want to run `cider-jack-in' without a Clojure project? "))))
                       (let* ((cmd          (cider--format-cmd command-resolved command cmd-params))
-                             (fallback-cmd (cider--format-cmd command-resolved command fallback-cmd-params))
                              (edited-command (if (or cider-edit-jack-in-command
                                                      (plist-get params :edit-jack-in-command))
                                                  (read-string "jack-in command: " cmd 'cider--jack-in-cmd-history)
-                                               cmd))
-                             (enriched-command (cider--expand-command-with-enrich-classpath edited-command fallback-cmd project-type)))
-                        (plist-put params :jack-in-cmd enriched-command)))
+                                               cmd)))
+                        (plist-put params :jack-in-cmd edited-command)))
                   (user-error "`cider-jack-in' is not allowed without a Clojure project"))))
           (user-error "The %s executable isn't on your `exec-path'" command))))))
 
