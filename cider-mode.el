@@ -952,7 +952,7 @@ before point."
     ;; If the inside of a `ns' form changed, reparse it from the start.
     (when (and (not (bobp))
                (get-text-property (1- (point)) 'cider-block-dynamic-font-lock))
-      (ignore-errors (beginning-of-defun)))
+      (ignore-errors (beginning-of-defun-raw)))
     (save-excursion
       ;; Move up until we reach a sexp that encloses the entire region (or
       ;; a top-level sexp), and set that as the new BEG.

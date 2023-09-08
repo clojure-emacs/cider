@@ -71,12 +71,12 @@ Setting this to nil removes the fontification restriction."
 
 (defun cider-in-string-p ()
   "Return non-nil if point is in a string."
-  (let ((beg (save-excursion (beginning-of-defun) (point))))
+  (let ((beg (save-excursion (beginning-of-defun-raw) (point))))
     (nth 3 (parse-partial-sexp beg (point)))))
 
 (defun cider-in-comment-p ()
   "Return non-nil if point is in a comment."
-  (let ((beg (save-excursion (beginning-of-defun) (point))))
+  (let ((beg (save-excursion (beginning-of-defun-raw) (point))))
     (nth 4 (parse-partial-sexp beg (point)))))
 
 (defun cider--tooling-file-p (file-name)

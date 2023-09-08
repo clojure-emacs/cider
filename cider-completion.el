@@ -140,7 +140,7 @@ form, with symbol at point replaced by __prefix__."
       (let* ((pref-end (point))
              (pref-start (cider-completion-symbol-start-pos))
              (context (cider-defun-at-point))
-             (_ (beginning-of-defun))
+             (_ (beginning-of-defun-raw))
              (expr-start (point)))
         (concat (when pref-start (substring context 0 (- pref-start expr-start)))
                 "__prefix__"

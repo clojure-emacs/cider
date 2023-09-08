@@ -540,7 +540,7 @@ If given a negative value of ARG, move to the beginning of defun."
   (if (and (not (cider-repl--at-prompt-start-p))
            (cider-repl--in-input-area-p))
       (goto-char cider-repl-input-start-mark)
-    (beginning-of-defun)))
+    (beginning-of-defun-raw)))
 
 (defun cider-repl-end-of-defun ()
   "Move to end of defun."
