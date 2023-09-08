@@ -501,7 +501,7 @@
 
 (describe "cider-format-connection-params"
   (it "Generates a pretty string. `:repl-type' can be symbol." ;; https://github.com/clojure-emacs/cider/issues/3402
-    (expect (cider-format-connection-params nrepl-repl-buffer-name-template nil)
+    (expect (cider-format-connection-params nrepl-repl-buffer-name-template '(:project-dir "~/project"))
             :to-equal "*cider-repl ~/project:localhost:(unknown)*")
     (expect (cider-format-connection-params nrepl-repl-buffer-name-template '(:host "localhost"
                                                                                     :port 12345
