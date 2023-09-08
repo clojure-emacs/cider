@@ -1362,7 +1362,7 @@ buffer.  It constructs an expression to eval in the following manner:
 - It balances this bit of code by closing all open expressions;
 - It evaluates the resulting code using `cider-interactive-eval'."
   (interactive "P")
-  (let* ((beg-of-defun (save-excursion (beginning-of-defun) (point)))
+  (let* ((beg-of-defun (save-excursion (beginning-of-defun-raw) (point)))
          (code (buffer-substring-no-properties beg-of-defun (point)))
          (code (cider--insert-closing-delimiters code)))
     (cider-interactive-eval code

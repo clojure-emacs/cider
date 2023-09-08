@@ -762,7 +762,7 @@ The boolean value of FORCE will be sent in the reply."
           (progn ;; Get to the proper line & column in the file
             (forward-line (1- (- line (line-number-at-pos))))
             (move-to-column column))
-        (beginning-of-defun))
+        (beginning-of-defun-raw))
       ;; Is HERE inside the sexp being debugged?
       (when (or (< here (point))
                 (save-excursion

@@ -39,6 +39,7 @@
 
 ### Changes
 
+- Improve support for multiple forms in the same line by replacing `beginning-of-defun` fn.
 - [#3390](https://github.com/clojure-emacs/cider/issues/3390): Enhance `cider-connect` to show all nREPLs available ports, instead of only Leiningen ones.
 - [#3408](https://github.com/clojure-emacs/cider/issues/3408): `cider-connect`: check `.nrepl-port`-like files for liveness, hiding them if they don't reflect an active port.
 - Introduce `cider-stacktrace-navigate-to-other-window` defcustom.
