@@ -55,6 +55,7 @@
 - [#3352](https://github.com/clojure-emacs/cider/pull/3496): Introduce [`cider-eval-dwim`](https://docs.cider.mx/cider/usage/cider_mode.html#key-reference).
 - Add new customization variable [`cider-clojurec-eval-destination`](https://docs.cider.mx/cider/cljs/up_and_running.html#working-with-cljc-files) to allow specifying which REPL .cljc evals are sent to.
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable [`cider-reuse-dead-repls`](https://docs.cider.mx/cider/usage/managing_connections.html#reusing-dead-repls) to control how dead REPL buffers are reused on new connections.
+- Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode) 
 
 ### Bugs fixed
 

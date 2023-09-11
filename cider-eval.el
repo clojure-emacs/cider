@@ -1421,7 +1421,7 @@ command `cider-debug-defun-at-point'."
   (interactive "P")
   (let ((inline-debug (eq 16 (car-safe debug-it))))
     (when debug-it
-      (when (derived-mode-p 'clojurescript-mode)
+      (when (cider-clojurescript-major-mode-p)
         (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
                                 "  \nWould you like to read the Feature Request?"))
           (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
