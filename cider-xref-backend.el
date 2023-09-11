@@ -42,7 +42,11 @@
   "Used for xref integration."
   ;; Check if `cider-nrepl` middleware is loaded. Allows fallback to other xref
   ;; backends, if cider-nrepl is not loaded.
-  (when (cider-nrepl-op-supported-p "ns-path" nil 'skip-ensure)
+  (when (or
+         ;; the main requirement:
+         (cider-nrepl-op-supported-p "ns-path" nil 'skip-ensure)
+         ;; the fallback, used for bare nrepl or babashka integrations:
+         (cider-nrepl-op-supported-p "lookup" nil 'skip-ensure))
     'cider))
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql cider)))
@@ -91,7 +95,6 @@ These are used for presentation purposes."
 (cl-defmethod xref-backend-definitions ((_backend (eql cider)) var)
   "Find definitions of VAR."
   (cider-ensure-connected)
-  (cider-ensure-op-supported "ns-path")
   (when-let* ((loc (cider--var-to-xref-location var)))
     (list (xref-make var loc))))
 
