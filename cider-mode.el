@@ -550,14 +550,16 @@ higher precedence."
                            (cider--menu-add-help-strings (symbol-value variable))))
     map))
 
-;; This menu works as an easy entry-point into CIDER.  Even if cider.el isn't
-;; loaded yet, this will be shown in Clojure buffers next to the "Clojure"
-;; menu.
 ;;;###autoload
-(with-eval-after-load 'clojure-mode
-  (easy-menu-define cider-clojure-mode-menu-open clojure-mode-map
+(defun cider--setup-menu-for-clojure-major-mode (mode-map)
+  "Setup a Cider menu for a Clojure major mode's MODE-MAP.
+
+This menu works as an easy entry-point into CIDER.  Even if cider.el isn't
+loaded yet, this will be shown in Clojure buffers next to the Clojure menu."
+  (easy-menu-define cider-clojure-mode-menu-open mode-map
     "Menu for Clojure mode.
-  This is displayed in `clojure-mode' buffers, if `cider-mode' is not active."
+  This is displayed in `clojure-mode' and `clojure-ts-mode' buffers,
+  if `cider-mode' is not active."
     `("CIDER" :visible (not cider-mode)
       ["Start a Clojure REPL" cider-jack-in-clj
        :help "Starts an nREPL server and connects a Clojure REPL to it."]
@@ -571,6 +573,14 @@ higher precedence."
        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
       "--"
       ["View user manual" cider-view-manual])))
+
+;;;###autoload
+(with-eval-after-load 'clojure-mode
+  (cider--setup-menu-for-clojure-major-mode clojure-mode-map))
+
+;;;###autoload
+(with-eval-after-load 'clojure-ts-mode
+  (cider--setup-menu-for-clojure-major-mode clojure-ts-mode-map))
 
 ;;; Dynamic indentation
 (defcustom cider-dynamic-indentation t

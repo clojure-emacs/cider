@@ -29,6 +29,7 @@
 (require 'cider-common)
 (require 'subr-x)
 (require 'cider-popup)
+(require 'cider-util)
 
 (require 'nrepl-dict)
 
@@ -160,7 +161,7 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
-  (when (derived-mode-p 'clojurescript-mode)
+  (when (cider-clojurescript-major-mode-p)
     (user-error "`cider-clojuredocs' doesn't support ClojureScript"))
   (funcall (cider-prompt-for-symbol-function arg)
            "ClojureDocs doc for"
