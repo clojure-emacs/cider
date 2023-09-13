@@ -32,14 +32,18 @@ Use the convenient plugin for defaults, either in your project's
 
 [source,clojure]
 ----
-:plugins [[cider/cider-nrepl "0.37.0"]]
+:plugins [[cider/cider-nrepl "0.37.0"]
+          ;; optional:
+          [refactor-nrepl "3.9.0"]]
 ----
 
 A minimal `profiles.clj` for CIDER would be:
 
 [source,clojure]
 ----
-{:repl {:plugins [[cider/cider-nrepl "0.37.0"]]}}
+{:repl {:plugins [[cider/cider-nrepl "0.37.0"]
+                  ;; optional:
+                  [refactor-nrepl "3.9.0"]]}}
 ----
 
 WARNING: Be careful not to place this in the `:user` profile, as this way CIDER's
@@ -76,14 +80,19 @@ run `cider-connect` or `cider-connect-cljs`.
 
 [source,clojure]
 ----
-  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.37.0"}}
-              :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}
+  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.37.0"}
+                           ;; optional:
+                           refactor-nrepl/refactor-nrepl {:mvn/version "3.9.0"}}
+              ;; you may remove `,refactor-nrepl.middleware/wrap-refactor`:
+              :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware,refactor-nrepl.middleware/wrap-refactor]"]}
 
   :cider-cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
                             cider/cider-nrepl {:mvn/version "0.37.0"}
+                            refactor-nrepl/refactor-nrepl {:mvn/version "3.9.0"} ;; optional
                             cider/piggieback {:mvn/version "0.5.3"}}
                :main-opts ["-m" "nrepl.cmdline" "--middleware"
-                           "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
+                           ;; you may remove `,refactor-nrepl.middleware/wrap-refactor`:
+                           "[cider.nrepl/cider-middleware,refactor-nrepl.middleware/wrap-refactor,cider.piggieback/wrap-cljs-repl]"]}
 ----
 
 NOTE: the suggested ClojureScript setup is apt for e.g. library development, but not for frontend development.
