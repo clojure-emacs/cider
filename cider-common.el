@@ -306,8 +306,8 @@ whether DIRECTION is 'from-nrepl or 'to-nrepl."
         (seq-some f cider-path-translations)))))
 
 (defun cider--unix-time ()
-  "Returns the Unix time in seconds."
-  (floor (float-time)))
+  "Returns the Unix time."
+  (float-time))
 
 (defvar cider--all-path-translations-calculated-at nil)
 

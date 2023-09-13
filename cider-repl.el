@@ -230,7 +230,7 @@ Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 This cache is stored in the connection buffer.")
 
 (defvar-local cider-repl-ns-cached-at nil
-  "As Unix time in seconds.")
+  "As Unix time.")
 
 (defvar cider-mode)
 (declare-function cider-refresh-dynamic-font-lock "cider-mode")
