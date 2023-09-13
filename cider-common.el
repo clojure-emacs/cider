@@ -309,11 +309,8 @@ whether DIRECTION is 'from-nrepl or 'to-nrepl."
   "Returns the Unix time."
   (float-time))
 
-(defvar cider--all-path-translations-calculated-at nil)
-
 (defun cider--all-path-translations ()
   "Returns `cider-path-translations' if non-empty, else seeks a present value."
-  (setq cider--all-path-translations-calculated-at (cider--unix-time))
   (or cider-path-translations
       ;; cider-path-translations often is defined as a directory-local variable,
       ;; so after jumping to a .jar file, its value can be lost,

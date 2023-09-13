@@ -1762,6 +1762,11 @@ constructs."
   nil
   "A <repl buffer> -> <latest 'friendly' calculation unix time> hashmap.")
 
+(defvar-local cider--sesman-friendly-session-last-path-translations
+  nil
+  "The latest perceived value of (cider--all-path-translations)
+in this buffer.")
+
 (defun cider--sesman-friendly-session-p (session &optional debug)
   "Check if SESSION is a friendly session, DEBUG optionally.
 
@@ -1816,11 +1821,11 @@ The checking is done as follows:
               (setq cider--sesman-friendly-session-result (nrepl-dict)))
 
             (let ((calculated-at (nrepl-dict-get cider--sesman-friendly-session-calculated-at repl))
-                  (cider-path-translations (cider--all-path-translations)))
+                  (cider-path-translations (cider--all-path-translations))
+                  (cider-repl-ns-cached-at (buffer-local-value 'cider-repl-ns-cached-at repl)))
               (if (and calculated-at
-                       (or (not cider--all-path-translations-calculated-at)
-                           (> calculated-at
-                              cider--all-path-translations-calculated-at))
+                       (equal cider--sesman-friendly-session-last-path-translations
+                              cider-path-translations)
                        (or (not cider-repl-ns-cached-at)
                            (> calculated-at
                               cider-repl-ns-cached-at))
@@ -1859,6 +1864,8 @@ The checking is done as follows:
                                      (member ns ns-list))))
                              (when debug
                                (list file "was not determined to belong to classpath:" classpath "or classpath-roots:" classpath-roots)))))
+
+                  (setq cider--sesman-friendly-session-last-path-translations cider-path-translations)
 
                   (nrepl-dict-put cider--sesman-friendly-session-calculated-at repl (cider--unix-time))
 
