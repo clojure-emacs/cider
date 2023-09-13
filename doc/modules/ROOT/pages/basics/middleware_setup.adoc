@@ -86,6 +86,10 @@ run `cider-connect` or `cider-connect-cljs`.
                            "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
 ----
 
+NOTE: the suggested ClojureScript setup is apt for e.g. library development, but not for frontend development.
+For those cases, you may want to check out our xref:cljs/shadow-cljs.adoc#using-cider-connect-cljs[shadow-cljs]
+or xref:cljs/figwheel.adoc#clojure-cli-setup[figwheel] setups instead.
+
 === Using Gradle
 
 NOTE: Make sure you're using https://github.com/clojurephant/clojurephant[Clojurephant] 0.4.0 or newer.
