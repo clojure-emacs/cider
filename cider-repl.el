@@ -229,6 +229,9 @@ Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
   "A dict holding information about all currently loaded namespaces.
 This cache is stored in the connection buffer.")
 
+(defvar-local cider-repl-ns-cached-at nil
+  "As Unix time in seconds.")
+
 (defvar cider-mode)
 (declare-function cider-refresh-dynamic-font-lock "cider-mode")
 
@@ -246,6 +249,7 @@ This cache is stored in the connection buffer.")
           (setq cider-repl-cljs-upgrade-pending nil))
         (unless (nrepl-dict-empty-p changed-namespaces)
           (setq cider-repl-ns-cache (nrepl-dict-merge cider-repl-ns-cache changed-namespaces))
+          (setq cider-repl-ns-cached-at (cider--unix-time))
           (dolist (b (buffer-list))
             (with-current-buffer b
               ;; Metadata changed, so signatures may have changed too.
@@ -1750,6 +1754,14 @@ constructs."
                      (mapconcat #'identity (cider-repl--available-shortcuts) ", "))))
         (error "No command selected")))))
 
+(defvar-local cider--sesman-friendly-session-result
+  nil
+  "A <repl buffer> -> <is friendly> hashmap.")
+
+(defvar-local cider--sesman-friendly-session-calculated-at
+  nil
+  "A <repl buffer> -> <latest 'friendly' calculation unix time> hashmap.")
+
 (defun cider--sesman-friendly-session-p (session &optional debug)
   "Check if SESSION is a friendly session, DEBUG optionally.
 
@@ -1777,11 +1789,13 @@ The checking is done as follows:
                                 (let ((cp (with-current-buffer repl
                                             (cider-classpath-entries))))
                                   (process-put proc :cached-classpath cp)
+                                  (process-put proc :cached-classpath-at (cider--unix-time))
                                   cp)))
-                 (ns-list (or (process-get proc :all-namespaces)
+                 (ns-list (or (process-get proc :cached-all-namespaces)
                               (let ((ns-list (with-current-buffer repl
                                                (cider-sync-request:ns-list))))
-                                (process-put proc :all-namespaces ns-list)
+                                (process-put proc :cached-all-namespaces ns-list)
+                                (process-put proc :cached-all-namespaces-at (cider--unix-time))
                                 ns-list)))
                  (classpath-roots (or (process-get proc :cached-classpath-roots)
                                       (let ((cp (thread-last classpath
@@ -1790,35 +1804,67 @@ The checking is done as follows:
                                                              (seq-remove  #'null)
                                                              (seq-uniq))))
                                         (process-put proc :cached-classpath-roots cp)
+                                        (process-put proc :cached-classpath-roots-at (cider--unix-time))
                                         cp))))
-            (or (seq-find (lambda (path) (string-prefix-p path file))
-                          classpath)
-                (seq-find (lambda (path) (string-prefix-p path file))
-                          classpath-roots)
-                (when-let* ((cider-path-translations (cider--all-path-translations))
-                            (translated (cider--translate-path file 'to-nrepl :return-all)))
-                  (seq-find (lambda (translated-path)
-                              (or (seq-find (lambda (path)
-                                              (string-prefix-p path translated-path))
-                                            classpath)
-                                  (seq-find (lambda (path)
-                                              (string-prefix-p path translated-path))
-                                            classpath-roots)))
-                            translated))
-                (when-let ((ns (condition-case nil
-                                   (substring-no-properties (cider-current-ns :no-default
-                                                                              ;; important - don't query the repl,
-                                                                              ;; avoiding a recursive invocation of `cider--sesman-friendly-session-p`:
-                                                                              :no-repl-check))
-                                 (error nil))))
-                  ;; if the ns form matches with a ns of all runtime namespaces, we can consider the buffer to match
-                  ;; (this is a bit lax, but also quite useful)
-                  (with-current-buffer repl
-                    (or (when cider-repl-ns-cache ;; may be nil on repl startup
-                          (member ns (nrepl-dict-keys cider-repl-ns-cache)))
-                        (member ns ns-list))))
-                (when debug
-                  (list file "was not determined to belong to classpath:" classpath "or classpath-roots:" classpath-roots))))))))
+
+            ;; Initialize this buffer-local variable:
+            (unless cider--sesman-friendly-session-calculated-at
+              (setq cider--sesman-friendly-session-calculated-at (nrepl-dict)))
+
+            ;; Initialize this buffer-local variable:
+            (unless cider--sesman-friendly-session-result
+              (setq cider--sesman-friendly-session-result (nrepl-dict)))
+
+            (let ((calculated-at (nrepl-dict-get cider--sesman-friendly-session-calculated-at repl))
+                  (cider-path-translations (cider--all-path-translations)))
+              (if (and calculated-at
+                       (or (not cider--all-path-translations-calculated-at)
+                           (> calculated-at
+                              cider--all-path-translations-calculated-at))
+                       (or (not cider-repl-ns-cached-at)
+                           (> calculated-at
+                              cider-repl-ns-cached-at))
+                       (> calculated-at
+                          (process-get proc :cached-classpath-at))
+                       (> calculated-at
+                          (process-get proc :cached-all-namespaces-at))
+                       (> calculated-at
+                          (process-get proc :cached-classpath-roots-at)))
+                  (nrepl-dict-get cider--sesman-friendly-session-result repl)
+                (let ((v (or (seq-find (lambda (path) (string-prefix-p path file))
+                                       classpath)
+                             (seq-find (lambda (path) (string-prefix-p path file))
+                                       classpath-roots)
+                             (when-let* ((translated (and cider-path-translations
+                                                          (cider--translate-path file 'to-nrepl :return-all))))
+                               (seq-find (lambda (translated-path)
+                                           (or (seq-find (lambda (path)
+                                                           (string-prefix-p path translated-path))
+                                                         classpath)
+                                               (seq-find (lambda (path)
+                                                           (string-prefix-p path translated-path))
+                                                         classpath-roots)))
+                                         translated))
+                             (when-let ((ns (condition-case nil
+                                                (substring-no-properties (cider-current-ns :no-default
+                                                                                           ;; important - don't query the repl,
+                                                                                           ;; avoiding a recursive invocation of `cider--sesman-friendly-session-p`:
+                                                                                           :no-repl-check))
+                                              (error nil))))
+                               ;; if the ns form matches with a ns of all runtime namespaces, we can consider the buffer to match
+                               ;; (this is a bit lax, but also quite useful)
+                               (with-current-buffer repl
+                                 (or (when cider-repl-ns-cache ;; may be nil on repl startup
+                                       (member ns (nrepl-dict-keys cider-repl-ns-cache)))
+                                     (member ns ns-list))))
+                             (when debug
+                               (list file "was not determined to belong to classpath:" classpath "or classpath-roots:" classpath-roots)))))
+
+                  (nrepl-dict-put cider--sesman-friendly-session-calculated-at repl (cider--unix-time))
+
+                  (nrepl-dict-put cider--sesman-friendly-session-result repl v)
+
+                  v))))))))
 
 (defun cider-debug-sesman-friendly-session-p ()
   "`message's debugging information relative to friendly sessions.

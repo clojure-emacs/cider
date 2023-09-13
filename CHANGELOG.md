@@ -48,6 +48,7 @@
 - Improve the presentation of `xref` data.
 - [#3419](https://github.com/clojure-emacs/cider/issues/3419): Also match friendly sessions based on the buffer's ns form.
 - Always match friendly sessions for `cider-ancillary-buffers` (like `*cider-error*`, `*cider-result*`, etc).
+- Add buffer-local caching to friendly-session calculation.
 - `cider-test`: only show diffs for collections.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
 - Ensure there's a leading `:` when using `cider-clojure-cli-aliases`.
