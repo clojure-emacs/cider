@@ -208,7 +208,7 @@
   (describe "when there are multiple dependencies"
     (before-each
       ;; FIXME: Those locals affect tests that follow them
-      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0")))
+      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "3.9.0")))
       (setq-local cider-jack-in-nrepl-middlewares '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "can inject dependencies in a lein project"
@@ -216,7 +216,7 @@
               :to-equal (concat "update-in :dependencies conj "
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
+                                (shell-quote-argument "[refactor-nrepl \"3.9.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.37.0\"]")
                                 " -- update-in :plugins conj "
@@ -225,7 +225,7 @@
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a boot project"
-      (setq-local cider-jack-in-dependencies '(("refactor-nrepl" "2.0.0")))
+      (setq-local cider-jack-in-dependencies '(("refactor-nrepl" "3.9.0")))
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
               :to-equal (concat "-i \"(require 'cider.tasks)\""
                                 " -d "
@@ -233,7 +233,7 @@
                                 " -d "
                                 (shell-quote-argument "cider/cider-nrepl:0.37.0")
                                 " -d "
-                                (shell-quote-argument "refactor-nrepl:2.0.0")
+                                (shell-quote-argument "refactor-nrepl:3.9.0")
                                 " cider.tasks/add-middleware"
                                 " -m "
                                 (shell-quote-argument "refactor-nrepl.middleware/wrap-refactor")
@@ -283,11 +283,11 @@
       (fset 'plugins-predicate (lambda (&rest _) t))
       (fset 'middlewares-predicate (lambda (&rest _) t))
       (setq-local cider-enrich-classpath nil)
-      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0" :predicate plugins-predicate)))
+      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "3.9.0" :predicate plugins-predicate)))
       (setq-local cider-jack-in-nrepl-middlewares '(("refactor-nrepl.middleware/wrap-refactor" :predicate middlewares-predicate) "cider.nrepl/cider-middleware" ("another/middleware"))))
     (it "includes plugins whose predicates return true"
       (expect (cider-jack-in-normalized-lein-plugins)
-              :to-equal '(("refactor-nrepl" "2.0.0") ("cider/cider-nrepl" "0.37.0"))))
+              :to-equal '(("refactor-nrepl" "3.9.0") ("cider/cider-nrepl" "0.37.0"))))
     (it "includes middlewares whose predicates return true"
       (expect (cider-jack-in-normalized-nrepl-middlewares)
               :to-equal '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware" "another/middleware")))
@@ -302,7 +302,7 @@
       (spy-on 'plugins-predicate)
       (cider-jack-in-normalized-lein-plugins)
       (expect 'plugins-predicate
-              :to-have-been-called-with '("refactor-nrepl" "2.0.0" :predicate plugins-predicate)))
+              :to-have-been-called-with '("refactor-nrepl" "3.9.0" :predicate plugins-predicate)))
     (it "calls middleware predicates with the whole list entry"
       (spy-on 'middlewares-predicate)
       (cider-jack-in-normalized-nrepl-middlewares)
@@ -322,7 +322,7 @@
       (spy-on 'cider-jack-in-normalized-nrepl-middlewares
               :and-return-value '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
       (spy-on 'cider-jack-in-normalized-lein-plugins
-              :and-return-value '(("refactor-nrepl" "2.0.0")
+              :and-return-value '(("refactor-nrepl" "3.9.0")
                                   ("cider/cider-nrepl" "0.37.0")
                                   ("mx.cider/lein-enrich-classpath" "1.17.0")))
       (setq-local cider-jack-in-dependencies-exclusions '())
@@ -332,7 +332,7 @@
               :to-equal (concat "update-in :dependencies conj "
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
+                                (shell-quote-argument "[refactor-nrepl \"3.9.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.37.0\"]")
                                 " -- update-in :plugins conj "
@@ -344,7 +344,7 @@
     (before-each
       (spy-on 'cider-jack-in-normalized-nrepl-middlewares
               :and-return-value '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
-      (setq-local cider-jack-in-dependencies '(("refactor-nrepl" "2.0.0")))
+      (setq-local cider-jack-in-dependencies '(("refactor-nrepl" "3.9.0")))
       (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "uses them in a boot project"
       (expect (cider-inject-jack-in-dependencies "" "repl -s wait" 'boot)
@@ -354,7 +354,7 @@
                                 " -d "
                                 (shell-quote-argument "cider/cider-nrepl:0.37.0")
                                 " -d "
-                                (shell-quote-argument "refactor-nrepl:2.0.0")
+                                (shell-quote-argument "refactor-nrepl:3.9.0")
                                 " cider.tasks/add-middleware"
                                 " -m "
                                 (shell-quote-argument "refactor-nrepl.middleware/wrap-refactor")
