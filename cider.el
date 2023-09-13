@@ -2121,30 +2121,29 @@ alternative to the default is `cider-random-tip'."
 (add-hook 'cider-connected-hook #'cider--maybe-inspire-on-connect)
 
 ;;;###autoload
-(defun cider--setup-clojure-major-mode (mode)
-  "Setup Cider key bindings and hooks for a Clojure major MODE."
-  (cl-flet ((concat-symbol (symbol suffix)
-              (intern (concat (symbol-name mode) suffix))))
-    (let ((mode-map (eval (concat-symbol mode "-map"))))
-      (define-key mode-map (kbd "C-c M-x") #'cider)
-      (define-key mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
-      (define-key mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
-      (define-key mode-map (kbd "C-c M-c") #'cider-connect-clj)
-      (define-key mode-map (kbd "C-c M-C") #'cider-connect-cljs)
-      (define-key mode-map (kbd "C-c C-x") 'cider-start-map)
-      (define-key mode-map (kbd "C-c C-s") 'sesman-map)
-      (require 'sesman)
-      (sesman-install-menu mode-map)
-      (add-hook (concat-symbol mode "-hook")
-                (lambda () (setq-local sesman-system 'CIDER))))))
+(defun cider--setup-clojure-major-mode (mode-map mode-hook)
+  "Setup Cider key bindings on a Clojure mode's MODE-MAP and hooks in MODE-HOOK."
+  (define-key mode-map (kbd "C-c M-x") #'cider)
+  (define-key mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
+  (define-key mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
+  (define-key mode-map (kbd "C-c M-c") #'cider-connect-clj)
+  (define-key mode-map (kbd "C-c M-C") #'cider-connect-cljs)
+  (define-key mode-map (kbd "C-c C-x") 'cider-start-map)
+  (define-key mode-map (kbd "C-c C-s") 'sesman-map)
+  (require 'sesman)
+  (sesman-install-menu mode-map)
+  (add-hook mode-hook (lambda () (setq-local sesman-system 'CIDER))))
 
 ;;;###autoload
 (with-eval-after-load 'clojure-mode
-  (cider--setup-clojure-major-mode 'clojure-mode))
+  (cider--setup-clojure-major-mode clojure-mode-map 'clojure-mode-hook))
 
 ;;;###autoload
 (with-eval-after-load 'clojure-ts-mode
-  (cider--setup-clojure-major-mode 'clojure-ts-mode))
+  (cider--setup-clojure-major-mode
+   (with-suppressed-warnings ((free-vars clojure-ts-mode-map))
+     clojure-ts-mode-map)
+   'clojure-ts-mode-hook))
 
 (provide 'cider)
 

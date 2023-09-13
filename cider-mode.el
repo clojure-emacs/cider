@@ -579,7 +579,9 @@ loaded yet, this will be shown in Clojure buffers next to the Clojure menu."
 
 ;;;###autoload
 (with-eval-after-load 'clojure-ts-mode
-  (cider--setup-menu-for-clojure-major-mode clojure-ts-mode-map))
+  (cider--setup-menu-for-clojure-major-mode
+   (with-suppressed-warnings ((free-vars clojure-ts-mode-map))
+     clojure-ts-mode-map)))
 
 ;;; Dynamic indentation
 (defcustom cider-dynamic-indentation t

@@ -10,6 +10,7 @@
 
 (eldev-add-loading-roots 'test "test/utils")
 (eldev-add-extra-dependencies 'runtime '(:package logview :optional t))
+(eldev-add-extra-dependencies 'runtime '(:package clojure-ts-mode :optional t))
 
 ;; slightly increase the maximum (applies to checkdoc and the byte compiler alike)
 (setq byte-compile-docstring-max-column 100)

@@ -67,8 +67,8 @@ is visible, but not focused."
                          (null (get-buffer-window buffer 'visible))))
            return buffer
            finally (if consider-visible-p
-                       (error "Can't find unshown buffer in %S" mode)
-                     (cider-selector--recently-visited-buffer mode t))))
+                       (error "Can't find unshown buffer in %S" modes)
+                     (cider-selector--recently-visited-buffer modes t))))
 
 ;;;###autoload
 (defun cider-selector (&optional other-window)
