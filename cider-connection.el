@@ -349,15 +349,10 @@ See `cider-connection-capabilities'."
            (pcase (cider-runtime)
              ('clojure '(clojure jvm-compilation-errors))
              ('babashka '(babashka jvm-compilation-errors))
+             ('nbb '(cljs))
              (_ '()))
            (when
-               (or
-                (eq cider-repl-type 'cljs)
-                ;; This check is currently basically for nbb.
-                ;; See `cider-sync-tooling-eval', but it is defined on a higher layer
-                (nrepl-dict-get
-                 (nrepl-sync-request:eval "cljs.core/demunge" (current-buffer) nil 'tooling)
-                 "value"))
+               (eq cider-repl-type 'cljs)
              '(cljs))))))
 
 (declare-function cider--debug-init-connection "cider-debug")
@@ -457,11 +452,18 @@ process buffer."
     (when nrepl-versions
       (nrepl-dict-get nrepl-versions "babashka.nrepl"))))
 
+(defun cider--nbb-nrepl-version ()
+  "Retrieve the underlying connection's babashka.nrepl version."
+  (with-current-buffer (cider-current-repl)
+    (when nrepl-versions
+      (nrepl-dict-get nrepl-versions "nbb-nrepl"))))
+
 (defun cider-runtime ()
   "Return the runtime of the nREPl server."
   (cond
    ((cider--clojure-version) 'clojure)
    ((cider--babashka-version) 'babashka)
+   ((cider--nbb-nrepl-version) 'nbb)
    (t 'generic)))
 
 (defun cider-runtime-clojure-p ()
