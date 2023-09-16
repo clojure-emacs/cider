@@ -453,7 +453,10 @@ process buffer."
       (nrepl-dict-get nrepl-versions "babashka.nrepl"))))
 
 (defun cider--nbb-nrepl-version ()
-  "Retrieve the underlying connection's babashka.nrepl version."
+  "Retrieve the underlying connection's nbb version.
+
+Note that this is currently not a real version number.
+But helps us know if this is a nbb repl, or not."
   (with-current-buffer (cider-current-repl)
     (when nrepl-versions
       (nrepl-dict-get nrepl-versions "nbb-nrepl"))))
