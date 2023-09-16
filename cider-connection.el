@@ -399,6 +399,8 @@ buffer."
        (when cider-auto-mode
          (cider-enable-on-existing-clojure-buffers))
 
+       (cider-nrepl-request:eval "warm-up" #'ignore)
+
        (run-hooks 'cider-connected-hook)))))
 
 (defun cider--disconnected-handler ()
