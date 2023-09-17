@@ -358,6 +358,7 @@ See `cider-connection-capabilities'."
 (declare-function cider--debug-init-connection "cider-debug")
 (declare-function cider-repl-init "cider-repl")
 (declare-function cider-nrepl-op-supported-p "cider-client")
+(declare-function cider-nrepl-request:eval "cider-client")
 (defun cider--connected-handler ()
   "Handle CIDER initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
