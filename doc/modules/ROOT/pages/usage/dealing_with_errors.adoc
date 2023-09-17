@@ -282,12 +282,6 @@ Cider recognizes stacktraces printed in the following formats:
 - Cider only recognizes stacktraces that have been printed in one of
   the supported formats.
 
-- The buffers in which `cider-stacktrace-analyze-at-point` or
-  `cider-stacktrace-analyze-in-region` are called in, must have a
-  Cider session associated with them. Tip: Use
-  `sesman-link-with-project` and friends in case the buffer containing
-  the exception is not linked to a Cider session.
-
 - Stacktraces are analyzed with the classpath of the Cider session the
   buffer is associated with. If the stacktrace contains references to
   classes not on this classpath, some information might be missing
