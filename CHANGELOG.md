@@ -33,6 +33,7 @@
 - [#3413](https://github.com/clojure-emacs/cider/issues/3413): Make jump-to-definition work in projects needing `cider-path-translations` (i.e. Dockerized projects). 
 - [#2436](https://github.com/clojure-emacs/cider/issues/2436): Prevent malformed `cider-repl-history-file`s from failing `cider-jack-in`.
 - [#3456](https://github.com/clojure-emacs/cider/issues/3456): restore xref-based jump-to-definition in Babashka (and any nREPL clients not having cider-nrepl).
+- [#3466](https://github.com/clojure-emacs/cider/issues/3466): Restore usual `cider--connected-handler` performance for JVM Clojure repls.
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
 - Fix the `cider-find-keyword` overall reliability and correctness, particularly for ClojureScript.

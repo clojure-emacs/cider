@@ -167,22 +167,19 @@ PROC-BUFFER is either server or client buffer, defaults to current buffer."
                           nrepl-server-buffer)))
         (cl-loop for l on nrepl-endpoint by #'cddr
                  do (setq params (plist-put params (car l) (cadr l))))
-        (setq params (thread-first
-                       params
-                       (plist-put :project-dir nrepl-project-dir)))
+        (setq params (thread-first params
+                                   (plist-put :project-dir nrepl-project-dir)))
         (when (buffer-live-p server-buf)
-          (setq params (thread-first
-                         params
-                         (plist-put :server (get-buffer-process server-buf))
-                         (plist-put :server-command nrepl-server-command))))
+          (setq params (thread-first params
+                                     (plist-put :server (get-buffer-process server-buf))
+                                     (plist-put :server-command nrepl-server-command))))
         ;; repl-specific parameters (do not pollute server params!)
         (unless (nrepl-server-p proc-buffer)
-          (setq params (thread-first
-                         params
-                         (plist-put :session-name cider-session-name)
-                         (plist-put :repl-type cider-repl-type)
-                         (plist-put :cljs-repl-type cider-cljs-repl-type)
-                         (plist-put :repl-init-function cider-repl-init-function))))
+          (setq params (thread-first params
+                                     (plist-put :session-name cider-session-name)
+                                     (plist-put :repl-type cider-repl-type)
+                                     (plist-put :cljs-repl-type cider-cljs-repl-type)
+                                     (plist-put :repl-init-function cider-repl-init-function))))
         params))))
 
 (defun cider--close-buffer (buffer)
@@ -205,10 +202,9 @@ buffer."
         (cider--close-buffer nrepl-tunnel-buffer))
       (when no-kill
         ;; inform sentinel not to kill the server, if any
-        (thread-first
-          (get-buffer-process repl)
-          (process-plist)
-          (plist-put :keep-server t))))
+        (thread-first (get-buffer-process repl)
+                      (process-plist)
+                      (plist-put :keep-server t))))
     (let ((proc (get-buffer-process repl)))
       (when (and (process-live-p proc)
                  (or (not nrepl-server-buffer)
@@ -349,20 +345,17 @@ See `cider-connection-capabilities'."
            (pcase (cider-runtime)
              ('clojure '(clojure jvm-compilation-errors))
              ('babashka '(babashka jvm-compilation-errors))
+             ('nbb '(cljs))
              (_ '()))
            (when
-               (or
-                (eq cider-repl-type 'cljs)
-                ;; This check is currently basically for nbb.
-                ;; See `cider-sync-tooling-eval', but it is defined on a higher layer
-                (nrepl-dict-get
-                 (nrepl-sync-request:eval "cljs.core/demunge" (current-buffer) nil 'tooling)
-                 "value"))
+               (eq cider-repl-type 'cljs)
              '(cljs))))))
 
 (declare-function cider--debug-init-connection "cider-debug")
 (declare-function cider-repl-init "cider-repl")
 (declare-function cider-nrepl-op-supported-p "cider-client")
+(declare-function cider-nrepl-request:eval "cider-client")
+
 (defun cider--connected-handler ()
   "Handle CIDER initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
@@ -404,6 +397,10 @@ buffer."
        (when cider-auto-mode
          (cider-enable-on-existing-clojure-buffers))
 
+       ;; Perform an async request, so that the nrepl-middleware is required as soon as possible,
+       ;; making the user's first interaction quicker.
+       (cider-nrepl-request:eval "\"warm-up\"" #'ignore)
+
        (run-hooks 'cider-connected-hook)))))
 
 (defun cider--disconnected-handler ()
@@ -422,28 +419,25 @@ process buffer."
   "Retrieve the underlying connection's Java version."
   (with-current-buffer (cider-current-repl)
     (when nrepl-versions
-      (thread-first
-        nrepl-versions
-        (nrepl-dict-get "java")
-        (nrepl-dict-get "version-string")))))
+      (thread-first nrepl-versions
+                    (nrepl-dict-get "java")
+                    (nrepl-dict-get "version-string")))))
 
 (defun cider--clojure-version ()
   "Retrieve the underlying connection's Clojure version."
   (with-current-buffer (cider-current-repl)
     (when nrepl-versions
-      (thread-first
-        nrepl-versions
-        (nrepl-dict-get "clojure")
-        (nrepl-dict-get "version-string")))))
+      (thread-first nrepl-versions
+                    (nrepl-dict-get "clojure")
+                    (nrepl-dict-get "version-string")))))
 
 (defun cider--nrepl-version ()
   "Retrieve the underlying connection's nREPL version."
   (with-current-buffer (cider-current-repl)
     (when nrepl-versions
-      (thread-first
-        nrepl-versions
-        (nrepl-dict-get "nrepl")
-        (nrepl-dict-get "version-string")))))
+      (thread-first nrepl-versions
+                    (nrepl-dict-get "nrepl")
+                    (nrepl-dict-get "version-string")))))
 
 (defun cider--babashka-version ()
   "Retrieve the underlying connection's Babashka version."
@@ -457,11 +451,21 @@ process buffer."
     (when nrepl-versions
       (nrepl-dict-get nrepl-versions "babashka.nrepl"))))
 
+(defun cider--nbb-nrepl-version ()
+  "Retrieve the underlying connection's nbb version.
+
+Note that this is currently not a real version number.
+But helps us know if this is a nbb repl, or not."
+  (with-current-buffer (cider-current-repl)
+    (when nrepl-versions
+      (nrepl-dict-get nrepl-versions "nbb-nrepl"))))
+
 (defun cider-runtime ()
   "Return the runtime of the nREPl server."
   (cond
    ((cider--clojure-version) 'clojure)
    ((cider--babashka-version) 'babashka)
+   ((cider--nbb-nrepl-version) 'nbb)
    (t 'generic)))
 
 (defun cider-runtime-clojure-p ()
@@ -538,11 +542,10 @@ entire session."
   (let* ((repl (or repl
                    (sesman-browser-get 'object)
                    (cider-current-repl nil 'ensure)))
-         (params (thread-first
-                   ()
-                   (cider--gather-connect-params repl)
-                   (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
-                   (plist-put :repl-buffer repl))))
+         (params (thread-first ()
+                               (cider--gather-connect-params repl)
+                               (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
+                               (plist-put :repl-buffer repl))))
     (cider--close-connection repl 'no-kill)
     (cider-nrepl-connect params)
     ;; need this to refresh sesman browser
@@ -672,24 +675,22 @@ Fallback on `cider' command."
              ;; 4) restart the repls reusing the buffer
              (dolist (r repls)
                (cider-nrepl-connect
-                (thread-first
-                  ()
-                  (cider--gather-connect-params r)
-                  ;; server params (:port, :project-dir etc) have precedence
-                  (cider--gather-connect-params server-buf)
-                  (plist-put :session-name ses-name)
-                  (plist-put :repl-buffer r))))
+                (thread-first ()
+                              (cider--gather-connect-params r)
+                              ;; server params (:port, :project-dir etc) have precedence
+                              (cider--gather-connect-params server-buf)
+                              (plist-put :session-name ses-name)
+                              (plist-put :repl-buffer r))))
              (sesman-browser-revert-all 'CIDER)
              (message "Restarted CIDER %s session" ses-name))))
       ;; server-less session
       (dolist (r repls)
         (cider--close-connection r 'no-kill)
         (cider-nrepl-connect
-         (thread-first
-           ()
-           (cider--gather-connect-params r)
-           (plist-put :session-name ses-name)
-           (plist-put :repl-buffer r)))))))
+         (thread-first ()
+                       (cider--gather-connect-params r)
+                       (plist-put :session-name ses-name)
+                       (plist-put :repl-buffer r)))))))
 
 (defun cider--ensure-spec-is-not-invokable (spec)
   "Ensures SPEC cannot be invoked as a function.
@@ -726,7 +727,8 @@ removed."
                     default-directory))))
          (short-proj (file-name-nondirectory (directory-file-name dir)))
          (parent-dir (ignore-errors
-                       (thread-first dir file-name-directory
+                       (thread-first dir
+                                     file-name-directory
                                      directory-file-name file-name-nondirectory
                                      file-name-as-directory)))
          (long-proj (format "%s%s" (or parent-dir "") short-proj))
@@ -757,12 +759,11 @@ removed."
                        (format-spec cider-session-name-template specs)))
          (specs (append `((?s . ,ses-name)) specs))
          (specs (mapcar #'cider--ensure-spec-is-not-invokable specs)))
-    (thread-last
-      (format-spec template specs)
-      ;; remove extraneous separators
-      (replace-regexp-in-string "\\([:-]\\)[:-]+" "\\1")
-      (replace-regexp-in-string "\\(^[:-]\\)\\|\\([:-]$\\)" "")
-      (replace-regexp-in-string "[:-]\\([])*]\\)" "\\1"))))
+    (thread-last (format-spec template specs)
+                 ;; remove extraneous separators
+                 (replace-regexp-in-string "\\([:-]\\)[:-]+" "\\1")
+                 (replace-regexp-in-string "\\(^[:-]\\)\\|\\([:-]$\\)" "")
+                 (replace-regexp-in-string "[:-]\\([])*]\\)" "\\1"))))
 
 (defun cider-make-session-name (params)
   "Create new session name given plist of connection PARAMS.
