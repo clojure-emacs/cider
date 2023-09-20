@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'cider-common)
+(require 'cider-docstring)
 (require 'subr-x)
 (require 'cider-util)
 (require 'cider-popup)
@@ -265,10 +266,17 @@ opposite of what that option dictates."
 
 (defconst cider-doc-buffer "*cider-doc*")
 
-(defun cider-create-doc-buffer (symbol)
-  "Populates *cider-doc* with the documentation for SYMBOL."
+(defun cider-create-doc-buffer (symbol &optional shorter)
+  "Populates *cider-doc* with the documentation for SYMBOL,
+favoring a SHORTER format if specified."
   (when-let* ((info (cider-var-info symbol)))
-    (cider-docview-render (cider-make-popup-buffer cider-doc-buffer nil 'ancillary) symbol info)))
+    (cider-docview-render (cider-make-popup-buffer cider-doc-buffer nil 'ancillary) symbol info shorter)))
+
+(defun cider-create-shorter-doc-buffer (symbol)
+  "Populates *cider-doc* with the documentation for SYMBOL.
+
+Favors a shorter rendering of docstrings"
+  (cider-create-doc-buffer symbol :shorter))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
@@ -399,8 +407,9 @@ Same for `jar:file:...!/' segments."
             file))
       result)))
 
-(defun cider-docview-render-info (buffer info)
-  "Emit into BUFFER formatted INFO for the Clojure or Java symbol."
+(defun cider-docview-render-info (buffer info &optional shorter)
+  "Emit into BUFFER formatted INFO for the Clojure or Java symbol,
+in a SHORTER format is specified."
   (let* ((ns      (nrepl-dict-get info "ns"))
          (name    (nrepl-dict-get info "name"))
          (added   (nrepl-dict-get info "added"))
@@ -412,7 +421,11 @@ Same for `jar:file:...!/' segments."
                     (split-string str "\n")))
          (args    (when-let* ((str (nrepl-dict-get info "arglists-str")))
                     (split-string str "\n")))
-         (doc     (or (nrepl-dict-get info "doc")
+         (doc     (or (cider--render-docstring (list "doc-fragments" (unless shorter
+                                                                       (nrepl-dict-get info "doc-fragments"))
+                                                     "doc-block-tags-fragments" (nrepl-dict-get info "doc-block-tags-fragments")
+                                                     "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments")))
+                      (nrepl-dict-get info "doc") ;; xxx try rendering the docstring fragments
                       "Not documented."))
          (url     (nrepl-dict-get info "url"))
          (class   (nrepl-dict-get info "class"))
@@ -517,8 +530,9 @@ Same for `jar:file:...!/' segments."
       (current-buffer))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
-(defun cider-docview-render (buffer symbol info)
-  "Emit into BUFFER formatted documentation for SYMBOL's INFO."
+(defun cider-docview-render (buffer symbol info &optional shorter)
+  "Emit into BUFFER formatted documentation for SYMBOL's INFO,
+favoring a SHORTER format if specified."
   (with-current-buffer buffer
     (let ((javadoc (nrepl-dict-get info "javadoc"))
           (file (nrepl-dict-get info "file"))
@@ -534,7 +548,7 @@ Same for `jar:file:...!/' segments."
       (setq-local cider-docview-line line)
 
       (remove-overlays)
-      (cider-docview-render-info buffer info)
+      (cider-docview-render-info buffer info shorter)
 
       (goto-char (point-min))
       (current-buffer))))

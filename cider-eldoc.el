@@ -33,6 +33,8 @@
 
 (require 'cider-client)
 (require 'cider-common) ; for cider-symbol-at-point
+(require 'cider-context)
+(require 'cider-docstring)
 (require 'subr-x)
 (require 'cider-util)
 (require 'nrepl-dict)
@@ -214,8 +216,14 @@ THING is the variable name.  ELDOC-INFO is a p-list containing the eldoc
 information."
   (let* ((ns (lax-plist-get eldoc-info "ns"))
          (symbol (lax-plist-get eldoc-info "symbol"))
-         (docstring (lax-plist-get eldoc-info "docstring"))
-         (formatted-var (cider-eldoc-format-thing ns symbol thing 'var)))
+         (docstring (or (cider--render-docstring-first-sentence eldoc-info)
+                        (cider--render-docstring eldoc-info)
+                        (lax-plist-get eldoc-info "docstring")))
+         ;; if it's a single class (and not multiple class candidates), that's it
+         (maybe-class (car (lax-plist-get eldoc-info "class")))
+         (formatted-var (or (when maybe-class
+                              (cider-propertize maybe-class 'var))
+                            (cider-eldoc-format-thing ns symbol thing 'var))))
     (when docstring
       (cider-eldoc-format-sym-doc formatted-var ns docstring))))
 
@@ -382,7 +390,7 @@ Otherwise return the eldoc of the first symbol of the sexp."
     (_ thing)))
 
 (defun cider-eldoc-info (thing)
-  "Return the info for THING.
+  "Return the info for THING (as string).
 This includes the arglist and ns and symbol name (if available)."
   (let ((thing (cider-eldoc--convert-ns-keywords thing)))
     (when (and (cider-nrepl-op-supported-p "eldoc")
@@ -410,7 +418,7 @@ This includes the arglist and ns and symbol name (if available)."
        ;; generic case
        (t (if (equal thing (car cider-eldoc-last-symbol))
               (cadr cider-eldoc-last-symbol)
-            (when-let* ((eldoc-info (cider-sync-request:eldoc thing)))
+            (when-let* ((eldoc-info (cider-sync-request:eldoc thing nil nil (cider-completion-get-context))))
               (let* ((arglists (nrepl-dict-get eldoc-info "eldoc"))
                      (docstring (nrepl-dict-get eldoc-info "docstring"))
                      (type (nrepl-dict-get eldoc-info "type"))
@@ -425,9 +433,15 @@ This includes the arglist and ns and symbol name (if available)."
                                          name
                                        (format ".%s" member)))
                      (eldoc-plist (list "ns" ns-or-class
+                                        "class" class
                                         "symbol" name-or-member
                                         "arglists" arglists
                                         "docstring" docstring
+                                        "doc-fragments" (nrepl-dict-get eldoc-info "doc-fragments")
+                                        "doc-first-sentence-fragments" (nrepl-dict-get eldoc-info
+                                                                                       "doc-first-sentence-fragments")
+                                        "doc-block-tags-fragments" (nrepl-dict-get eldoc-info
+                                                                                   "doc-block-tags-fragments")
                                         "type" type)))
                 ;; add context dependent args if requested by defcustom
                 ;; do not cache this eldoc info to avoid showing info
