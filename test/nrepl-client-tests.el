@@ -209,7 +209,7 @@
                           (eq status 'signal)))))
           (error
            ;; there may be some useful information in the nrepl buffer on error
-           (when-let ((nrepl-error-buffer (get-buffer "*nrepl-error*")))
+           (when-let (nrepl-error-buffer (get-buffer "*nrepl-error*"))
              (with-current-buffer nrepl-error-buffer
                (message ":nrepl-lifecycle/error %s" (buffer-string))))
            (error error-details))))))

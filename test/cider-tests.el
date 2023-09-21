@@ -698,7 +698,7 @@
           ;; wait until a new server is brought up by continuously checking that
           ;; the port has changed. If it remains the same, an exception is
           ;; thrown, causing the test to fail.
-          (nrepl-tests-poll-until (when-let ((repl (cider-current-repl)))
+          (nrepl-tests-poll-until (when-let (repl (cider-current-repl))
                                     (with-current-buffer repl
                                       (setq endpoint-aft nrepl-endpoint)
                                       ;; (message ":endpoints %S %S" endpoint-bef endpoint-aft)

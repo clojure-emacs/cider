@@ -258,20 +258,20 @@ Does nothing if already on the first page."
 
 Current page will be reset to zero."
   (interactive (list (read-number "Page size: " cider-inspector-page-size)))
-  (when-let ((value (cider-sync-request:inspect-set-page-size page-size)))
+  (when-let (value (cider-sync-request:inspect-set-page-size page-size))
     (cider-inspector--render-value value)))
 
 (defun cider-inspector-set-max-atom-length (max-length)
   "Set the max length of nested atoms to MAX-LENGTH."
   (interactive (list (read-number "Max atom length: " cider-inspector-max-atom-length)))
-  (when-let ((value (cider-sync-request:inspect-set-max-atom-length max-length)))
+  (when-let (value (cider-sync-request:inspect-set-max-atom-length max-length))
     (cider-inspector--render-value value)))
 
 (defun cider-inspector-set-max-coll-size (max-size)
   "Set the number of nested collection members to display before truncating.
 MAX-SIZE is the new value."
   (interactive (list (read-number "Max collection size: " cider-inspector-max-coll-size)))
-  (when-let ((value (cider-sync-request:inspect-set-max-coll-size max-size)))
+  (when-let (value (cider-sync-request:inspect-set-max-coll-size max-size))
     (cider-inspector--render-value value)))
 
 (defun cider-inspector-def-current-val (var-name ns)

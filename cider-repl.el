@@ -988,7 +988,7 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
 
 (defun cider--maybe-get-state-cljs ()
   "Invokes `cider/get-state' when it's possible to do so."
-  (when-let ((conn (cider-current-repl 'cljs)))
+  (when-let (conn (cider-current-repl 'cljs))
     (when (nrepl-op-supported-p "cider/get-state" conn)
       (nrepl-send-request '("op" "cider/get-state")
                           (lambda (_response)
@@ -1770,7 +1770,7 @@ The checking is done as follows:
         (when (string-match-p "#uzip" file)
           (let ((avfs-path (directory-file-name (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/")))))
             (setq file (replace-regexp-in-string avfs-path "" file t t))))
-        (when-let ((tp (cider-tramp-prefix (current-buffer))))
+        (when-let (tp (cider-tramp-prefix (current-buffer)))
           (setq file (string-remove-prefix tp file)))
         (when (process-live-p proc)
           (let* ((classpath (or (process-get proc :cached-classpath)
@@ -1805,12 +1805,12 @@ The checking is done as follows:
                                               (string-prefix-p path translated-path))
                                             classpath-roots)))
                             translated))
-                (when-let ((ns (condition-case nil
-                                   (substring-no-properties (cider-current-ns :no-default
-                                                                              ;; important - don't query the repl,
-                                                                              ;; avoiding a recursive invocation of `cider--sesman-friendly-session-p`:
-                                                                              :no-repl-check))
-                                 (error nil))))
+                (when-let (ns (condition-case nil
+                                  (substring-no-properties (cider-current-ns :no-default
+                                                                             ;; important - don't query the repl,
+                                                                             ;; avoiding a recursive invocation of `cider--sesman-friendly-session-p`:
+                                                                             :no-repl-check))
+                                (error nil)))
                   ;; if the ns form matches with a ns of all runtime namespaces, we can consider the buffer to match
                   ;; (this is a bit lax, but also quite useful)
                   (with-current-buffer repl

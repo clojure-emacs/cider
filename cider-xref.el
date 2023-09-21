@@ -66,7 +66,7 @@ the symbol found by the xref search as argument."
                                    'action #'cider-xref-doc
                                    'help-echo "Display doc")
       (insert-text-button var-name 'type 'apropos-symbol))
-    (when-let ((doc (nrepl-dict-get result "doc")))
+    (when-let (doc (nrepl-dict-get result "doc"))
       (when (not (string-equal "(not documented)" doc))
         (insert "\n  ")
         (let ((beg (point)))

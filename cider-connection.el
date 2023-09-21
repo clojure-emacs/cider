@@ -912,7 +912,7 @@ function with the repl buffer set as current."
             ;; ran at the end of cider--connected-handler
             cider-repl-init-function (plist-get params :repl-init-function)
             cider-launch-params params)
-      (when-let ((type (plist-get params :cljs-repl-type)))
+      (when-let (type (plist-get params :cljs-repl-type))
         (setq cider-cljs-repl-type type))
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)

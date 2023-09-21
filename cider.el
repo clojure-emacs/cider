@@ -413,13 +413,13 @@ without interfering with classloaders."
 
 (defun cider--get-enrich-classpath-lein-script ()
   "Returns the location of enrich-classpath's lein.sh wrapper script."
-  (when-let ((cider-location (locate-library "cider.el" t)))
+  (when-let (cider-location (locate-library "cider.el" t))
     (concat (file-name-directory cider-location)
             "lein.sh")))
 
 (defun cider--get-enrich-classpath-clojure-cli-script ()
   "Returns the location of enrich-classpath's clojure.sh wrapper script."
-  (when-let ((cider-location (locate-library "cider.el" t)))
+  (when-let (cider-location (locate-library "cider.el" t))
     (concat (file-name-directory cider-location)
             "clojure.sh")))
 
@@ -1097,7 +1097,7 @@ Figwheel for details."
 (defun cider--figwheel-main-get-builds ()
   "Extract build names from the <build-id>.cljs.edn config files.
 Fetches them in the project root."
-  (when-let ((project-dir (clojure-project-dir)))
+  (when-let (project-dir (clojure-project-dir))
     (let ((builds (directory-files project-dir nil ".*\\.cljs\\.edn")))
       (mapcar (lambda (f) (string-match "^\\(.*\\)\\.cljs\\.edn" f)
                 (match-string 1 f))
@@ -1236,7 +1236,7 @@ DEFAULT is the default ClojureScript REPL to offer in completion."
                              (lambda (entry)
                                (eq (car entry) repl-type))
                              cider-cljs-repl-types)))
-      (when-let ((repl-form (cadr repl-type-info)))
+      (when-let (repl-form (cadr repl-type-info))
         ;; repl-form can be either a string or a function producing a string
         (if (symbolp repl-form)
             (funcall repl-form)

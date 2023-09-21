@@ -488,7 +488,7 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                     "")
                 "\n")
         (when var-elapsed-time
-          (when-let ((pairs (nrepl-dict-get var-elapsed-time ns)))
+          (when-let (pairs (nrepl-dict-get var-elapsed-time ns))
             (nrepl-dict-map (lambda (var meta)
                               (insert "  " ;; indentation - we're showing a var within a ns
                                       (cider-propertize var 'font-lock-function-name-face)
