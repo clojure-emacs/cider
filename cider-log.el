@@ -792,6 +792,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   "Return the log event at point."
   (get-text-property (point) :cider-log-event))
 
+;;;###autoload (autoload 'cider-log-info "cider-log-info" "Show the Cider log current log buffer, framework, appender and consumer." t)
 (defun cider-log-info ()
   "Show the current log buffer, framework, appender and consumer."
   (interactive)
