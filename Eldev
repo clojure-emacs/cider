@@ -33,6 +33,9 @@
     (signal 'eldev-wrong-option-usage `("unknown test type `%s'" ,type)))
   (setf cider-test-type (intern type)))
 
+(setq byte-compile-docstring-max-column 100) ;; slightly increase the maximum (applies to checkdoc and the byte compiler alike)
+(setq checkdoc-permit-comma-termination-flag t) ;; allow commas to indicate that the first sentence continues, which enables longer first sentences
+
 (add-hook 'eldev-test-hook
           (lambda ()
             (eldev-verbose "Using cider tests of type `%s'" cider-test-type)))
