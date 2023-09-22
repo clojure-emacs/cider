@@ -248,7 +248,7 @@ since the information displayed in both parts will be very similar."
                             ;; Typically only needed if the :doc-*-fragments attributes were missing,
                             ;; which currently is the case for vanilla Clojure code (non-Java interop),
                             ;; and Java interop when enrich-classpath isn't present:
-                            docstring))))
+                            (cider-docstring--dumb-trim docstring)))))
       (format "%s: %s%s"
               (cider-eldoc-format-thing ns symbol thing
                                         (cider-eldoc-thing-type eldoc-info))

@@ -425,8 +425,11 @@ in a SHORTER format is specified."
                                                                               (nrepl-dict-get info "doc-fragments"))
                                                             "doc-block-tags-fragments" (nrepl-dict-get info "doc-block-tags-fragments")
                                                             "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments"))))
+         (fetched-doc (nrepl-dict-get info "doc"))
          (doc     (or rendered-fragments
-                      (nrepl-dict-get info "doc")
+                      (if shorter
+                          (cider-docstring--dumb-trim fetched-doc)
+                        fetched-doc)
                       (unless shorter
                         "Not documented.")))
          (url     (nrepl-dict-get info "url"))
@@ -478,9 +481,10 @@ in a SHORTER format is specified."
           (emit (concat "Deprecated in " depr) 'font-lock-keyword-face))
         (if (and class (not rendered-fragments))
             (cider-docview-render-java-doc (current-buffer) doc)
-          (emit (if rendered-fragments
-                    doc
-                  (concat "  " doc))))
+          (when doc
+            (emit (if rendered-fragments
+                      doc
+                    (concat "  " doc)))))
         (when url
           (insert "\n  Please see ")
           (insert-text-button url

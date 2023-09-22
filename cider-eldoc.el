@@ -218,7 +218,7 @@ information."
          (symbol (lax-plist-get eldoc-info "symbol"))
          (docstring (or (cider--render-docstring-first-sentence eldoc-info)
                         (cider--render-docstring eldoc-info)
-                        (lax-plist-get eldoc-info "docstring")))
+                        (cider-docstring--dumb-trim (lax-plist-get eldoc-info "docstring"))))
          ;; if it's a single class (and not multiple class candidates), that's it
          (maybe-class (car (lax-plist-get eldoc-info "class")))
          (formatted-var (or (when maybe-class

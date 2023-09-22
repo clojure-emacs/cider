@@ -137,5 +137,15 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
         second-attempt
         first-attempt)))
 
+(defun cider-docstring--dumb-trim (s &optional n)
+  "Return up to the first N lines of string S.
+
+N defaults to `cider-docstring-max-lines'."
+  (when s
+    (let* ((n (or n cider-docstring-max-lines))
+           (lines (split-string s "\n"))
+           (selected-lines (cl-subseq lines 0 (min n (length lines)))))
+      (mapconcat 'identity selected-lines "\n"))))
+
 (provide 'cider-docstring)
 ;;; cider-docstring.el ends here
