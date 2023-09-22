@@ -983,7 +983,7 @@ before point."
   "Return a string of what would be displayed by `cider-docview-render'.
 SYM and INFO is passed to `cider-docview-render'"
   (with-temp-buffer
-    (cider-docview-render (current-buffer) sym info :shorter) ;; shorter because we don't want huge tooltips - especially for Java
+    (cider-docview-render (current-buffer) sym info :shorter :for-tooltip) ;; :shorter because we don't want huge tooltips - especially for Java
     (goto-char (point-max))
     (forward-line -1)
     (replace-regexp-in-string

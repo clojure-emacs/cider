@@ -407,9 +407,9 @@ Same for `jar:file:...!/' segments."
             file))
       result)))
 
-(defun cider-docview-render-info (buffer info &optional shorter)
+(defun cider-docview-render-info (buffer info &optional shorter for-tooltip)
   "Emit into BUFFER formatted INFO for the Clojure or Java symbol,
-in a SHORTER format is specified."
+in a SHORTER format is specified, FOR-TOOLTIP if specified."
   (let* ((ns      (nrepl-dict-get info "ns"))
          (name    (nrepl-dict-get info "name"))
          (added   (nrepl-dict-get info "added"))
@@ -454,8 +454,12 @@ in a SHORTER format is specified."
           (emit (concat "Extends: " (cider-font-lock-as 'java-mode super))))
         (when ifaces
           (emit (concat "Implements: " (cider-font-lock-as 'java-mode (car ifaces))))
-          (dolist (iface (cdr ifaces))
-            (emit (concat "            "(cider-font-lock-as 'java-mode iface)))))
+          ;; choose a separator that will produce correct alignment on monospace and regular fonts:
+          (let ((sep (if for-tooltip
+                         "                     "
+                       "            ")))
+            (dolist (iface (cdr ifaces))
+              (emit (concat sep (cider-font-lock-as 'java-mode iface))))))
         (when (or super ifaces)
           (insert "\n"))
         (when-let* ((forms (or forms args)))
@@ -547,9 +551,9 @@ in a SHORTER format is specified."
       (current-buffer))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
-(defun cider-docview-render (buffer symbol info &optional shorter)
+(defun cider-docview-render (buffer symbol info &optional shorter for-tooltip)
   "Emit into BUFFER formatted documentation for SYMBOL's INFO,
-favoring a SHORTER format if specified."
+favoring a SHORTER format if specified, FOR-TOOLTIP if specified."
   (with-current-buffer buffer
     (let ((javadoc (nrepl-dict-get info "javadoc"))
           (file (nrepl-dict-get info "file"))
@@ -565,7 +569,7 @@ favoring a SHORTER format if specified."
       (setq-local cider-docview-line line)
 
       (remove-overlays)
-      (cider-docview-render-info buffer info shorter)
+      (cider-docview-render-info buffer info shorter for-tooltip)
 
       (goto-char (point-min))
       (current-buffer))))
