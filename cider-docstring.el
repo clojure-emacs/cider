@@ -148,14 +148,19 @@ Prioritize rendering as much as possible while staying within `cider-docstring-m
         first-attempt)))
 
 (defun cider-docstring--dumb-trim (s &optional n)
-  "Returns up to the first N lines of string S.
+  "Returns up to the first N lines of string S,
+adding \"...\" if trimming was necessary.
 
 N defaults to `cider-docstring-max-lines'."
   (when s
     (let* ((n (or n cider-docstring-max-lines))
            (lines (split-string s "\n"))
-           (selected-lines (cl-subseq lines 0 (min n (length lines)))))
-      (mapconcat 'identity selected-lines "\n"))))
+           (lines-length (length lines))
+           (selected-lines (cl-subseq lines 0 (min n lines-length)))
+           (result (mapconcat 'identity selected-lines "\n")))
+      (if (> lines-length n)
+          (concat result "...")
+        result))))
 
 (provide 'cider-docstring)
 ;;; cider-docstring.el ends here
