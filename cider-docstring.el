@@ -30,6 +30,7 @@
 (require 'shr)
 
 (defun cider--to-java-string (s)
+  "Convert string S to a Java-formatted string with syntax highlighting."
   (with-temp-buffer
     (insert s)
     (java-mode)
@@ -37,12 +38,14 @@
     (buffer-string)))
 
 (defsubst cider--render-pre* (dom)
+  "Render DOM nodes, formatting them them as Java if they are strings."
   (dolist (sub (dom-children dom))
     (if (stringp sub)
         (shr-insert (cider--to-java-string sub))
       (shr-descend sub))))
 
 (defun cider--render-pre (dom)
+  "Render DOM nodes without folding, a monospaced font, and Java syntax coloring."
   (let ((shr-folding-mode 'none)
         (shr-current-font 'default))
     (cider--render-pre* dom)))
@@ -64,6 +67,9 @@
        (buffer-string)))))
 
 (defun cider--fragments-to-s (fragments)
+  "Convert FRAGMENTS into a concatenated string representation.
+If a given fragment is of html type, it's converted to a propertized string;
+otherwise, it's included as-is."
   (when (and fragments
              (> (length fragments)
                 0))
@@ -93,16 +99,20 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
   :package-version '(cider . "1.8.0"))
 
 (defun cider--attempt-invalid? (attempt)
+  "Check if ATTEMPT is either nil or exceeds `cider-docstring-max-lines' in line count."
   (or (not attempt)
       (and attempt
            (> (length (split-string attempt "\n"))
               cider-docstring-max-lines))))
 
 (defun cider--render-docstring-first-sentence (eldoc-info)
+  "Render the first sentence of the docstring extracted from ELDOC-INFO."
   (when-let ((first-sentence-fragments (lax-plist-get eldoc-info "doc-first-sentence-fragments")))
     (cider--fragments-to-s first-sentence-fragments)))
 
 (defun cider--render-docstring (eldoc-info)
+  "Renders the docstring from ELDOC-INFO based on its length and content.
+Prioritize rendering as much as possible while staying within `cider-docstring-max-lines'."
   (let* ((first-sentence-fragments (lax-plist-get eldoc-info "doc-first-sentence-fragments"))
          (body-fragments (lax-plist-get eldoc-info "doc-fragments"))
          (block-tags-fragments (lax-plist-get eldoc-info "doc-block-tags-fragments"))
@@ -138,7 +148,7 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
         first-attempt)))
 
 (defun cider-docstring--dumb-trim (s &optional n)
-  "Return up to the first N lines of string S.
+  "Returns up to the first N lines of string S.
 
 N defaults to `cider-docstring-max-lines'."
   (when s
