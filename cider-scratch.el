@@ -48,6 +48,7 @@
     (set-keymap-parent map clojure-mode-map)
     (define-key map (kbd "C-j") #'cider-eval-print-last-sexp)
     (define-key map [remap paredit-newline] #'cider-eval-print-last-sexp)
+    (define-key map [remap paredit-C-j] #'cider-eval-print-last-sexp)
     (easy-menu-define cider-clojure-interaction-mode-menu map
       "Menu for Clojure Interaction mode"
       '("Clojure Interaction"
