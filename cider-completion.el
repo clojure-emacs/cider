@@ -226,7 +226,10 @@ in the buffer."
         (forward-line (1- line))
         (cons buffer (point))))))
 
-(defcustom cider-company-docsig-render-docstring t
+(defcustom cider-company-docsig-render-docstring
+  (if (bound-and-true-p company-auto-update-doc)
+      nil ;; if the user enabled company-auto-update-doc, docstrings are redundant.
+    t)
   "When true, company-docsig output,
 as used by company-mode and corfu-mode alike, will include docstrings.
 
