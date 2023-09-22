@@ -39,8 +39,6 @@
     (signal 'eldev-wrong-option-usage `("unknown test type `%s'" ,type)))
   (setf cider-test-type (intern type)))
 
-(setq checkdoc-force-docstrings-flag nil) ;; temporary
-
 (add-hook 'eldev-test-hook
           (lambda ()
             (eldev-verbose "Using cider tests of type `%s'" cider-test-type)))
