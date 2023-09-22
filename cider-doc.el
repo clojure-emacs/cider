@@ -527,7 +527,8 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
                                               (cider-docview-source)))
                 (insert "."))
             (insert "Definition location unavailable.")))
-        (when see-also
+        (when (and (not shorter)
+                   see-also)
           (insert "\n\n Also see: ")
           (mapc (lambda (ns-sym)
                   (let* ((ns-sym-split (split-string ns-sym "/"))
