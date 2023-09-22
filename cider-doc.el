@@ -421,10 +421,11 @@ in a SHORTER format is specified."
                     (split-string str "\n")))
          (args    (when-let* ((str (nrepl-dict-get info "arglists-str")))
                     (split-string str "\n")))
-         (doc     (or (cider--render-docstring (list "doc-fragments" (unless shorter
-                                                                       (nrepl-dict-get info "doc-fragments"))
-                                                     "doc-block-tags-fragments" (nrepl-dict-get info "doc-block-tags-fragments")
-                                                     "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments")))
+         (rendered-fragments (cider--render-docstring (list "doc-fragments" (unless shorter
+                                                                              (nrepl-dict-get info "doc-fragments"))
+                                                            "doc-block-tags-fragments" (nrepl-dict-get info "doc-block-tags-fragments")
+                                                            "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments"))))
+         (doc     (or rendered-fragments
                       (nrepl-dict-get info "doc")
                       (unless shorter
                         "Not documented.")))
@@ -447,7 +448,7 @@ in a SHORTER format is specified."
                               (or sep "\n"))))
         (emit (if class java-name clj-name) 'font-lock-function-name-face)
         (when super
-          (emit (concat "   Extends: " (cider-font-lock-as 'java-mode super))))
+          (emit (concat "Extends: " (cider-font-lock-as 'java-mode super))))
         (when ifaces
           (emit (concat "Implements: " (cider-font-lock-as 'java-mode (car ifaces))))
           (dolist (iface (cdr ifaces))
@@ -475,9 +476,11 @@ in a SHORTER format is specified."
           (emit (concat "Added in " added) 'font-lock-comment-face))
         (when depr
           (emit (concat "Deprecated in " depr) 'font-lock-keyword-face))
-        (if class
+        (if (and class (not rendered-fragments))
             (cider-docview-render-java-doc (current-buffer) doc)
-          (emit (concat "  " doc)))
+          (emit (if rendered-fragments
+                    doc
+                  (concat "  " doc))))
         (when url
           (insert "\n  Please see ")
           (insert-text-button url
