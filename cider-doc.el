@@ -483,7 +483,7 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
           (emit (concat "Added in " added) 'font-lock-comment-face))
         (when depr
           (emit (concat "Deprecated in " depr) 'font-lock-keyword-face))
-        (if (and class (not rendered-fragments))
+        (if (and doc class (not rendered-fragments))
             (cider-docview-render-java-doc (current-buffer) doc)
           (when doc
             (emit (if rendered-fragments
