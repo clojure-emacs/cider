@@ -1,4 +1,4 @@
-;;; cider-context.el --- Context parsing -*- lexical-binding: t -*-
+;;; cider-completion-context.el --- Context parsing -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
@@ -118,5 +118,5 @@ Output depends on `cider-completion-use-context' and the current major mode."
       (setq cider-completion-last-context context)
       context)))
 
-(provide 'cider-context)
-;;; cider-context.el ends here
+(provide 'cider-completion-context)
+;;; cider-completion-context.el ends here

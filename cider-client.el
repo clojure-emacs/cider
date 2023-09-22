@@ -34,7 +34,7 @@
 (require 'spinner)
 
 (require 'cider-connection)
-(require 'cider-context)
+(require 'cider-completion-context)
 (require 'cider-common)
 (require 'cider-util)
 (require 'nrepl-client)

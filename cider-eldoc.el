@@ -33,7 +33,7 @@
 
 (require 'cider-client)
 (require 'cider-common) ; for cider-symbol-at-point
-(require 'cider-context)
+(require 'cider-completion-context)
 (require 'cider-docstring)
 (require 'subr-x)
 (require 'cider-util)

@@ -39,7 +39,7 @@
 (require 'cider-doc) ; required only for the menu
 (require 'cider-profile) ; required only for the menu
 (require 'cider-completion)
-(require 'cider-context)
+(require 'cider-completion-context)
 (require 'cider-inspector)
 (require 'cider-find)
 (require 'cider-xref-backend)

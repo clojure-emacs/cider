@@ -31,7 +31,7 @@
 
 (require 'cider-client)
 (require 'cider-common)
-(require 'cider-context)
+(require 'cider-completion-context)
 (require 'cider-doc)
 (require 'cider-docstring)
 (require 'cider-eldoc)
