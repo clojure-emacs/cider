@@ -32,17 +32,19 @@
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
-(defun cider-completion-symbol-start-pos ()
-  "Find the starting position of the symbol at point, unless inside a string."
+(defun cider-completion--bounds-of-non-string-symbol-at-point ()
+  "Returns the bounds of the symbol at point, unless it's inside a string."
   (let ((sap (symbol-at-point)))
     (when (and sap (not (nth 3 (syntax-ppss))))
-      (car (bounds-of-thing-at-point 'symbol)))))
+      (bounds-of-thing-at-point 'symbol))))
+
+(defun cider-completion-symbol-start-pos ()
+  "Find the starting position of the symbol at point, unless inside a string."
+  (car (cider-completion--bounds-of-non-string-symbol-at-point)))
 
 (defun cider-completion-symbol-end-pos ()
   "Find the end position of the symbol at point, unless inside a string."
-  (let ((sap (symbol-at-point)))
-    (when (and sap (not (nth 3 (syntax-ppss))))
-      (cdr (bounds-of-thing-at-point 'symbol)))))
+  (cdr (cider-completion--bounds-of-non-string-symbol-at-point)))
 
 (defun cider-completion-get-info-context-at-point ()
   "Extract a context at point that is suitable for eldoc and info ops.
