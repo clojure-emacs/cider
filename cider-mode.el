@@ -204,7 +204,8 @@ With a prefix argument, prompt for function to run instead of -main."
     (define-key map (kbd "C-e") #'cider-insert-last-sexp-in-repl)
     (define-key map (kbd "C-d") #'cider-insert-defun-in-repl)
     (define-key map (kbd "C-r") #'cider-insert-region-in-repl)
-    (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)))
+    (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)
+    map))
 
 (defcustom cider-switch-to-repl-on-insert t
   "Whether to switch to the REPL when inserting a form into the REPL."
