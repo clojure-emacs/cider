@@ -39,8 +39,32 @@ is already properly indented.
 
 While the standard Emacs tooling works just fine, we suggest that
 CIDER users consider using
-http://company-mode.github.io/[`company-mode`] instead. Company
-can be used for auto-completion in both source code and REPL buffers.
+http://company-mode.github.io/[`company-mode`] or https://github.com/minad/corfu[`corfu-mode`] instead. These
+can be used for auto-completion in both source code and REPL buffers, with the following advantages:
+
+* A nicer UI.
+* Integration with Clojure docstrings and Java doc comments.
+
+=== Configuration
+
+Both company-mode and corfu-mode are affected by the following CIDER configuration options:
+
+* `cider-company-docsig-render-docstring` (default `t` )controls whether the docstring will be rendered
+(in a popup or the echo area, depending on your setup) in addition to the arglists.
+This will not in overly large documentation being printed, because
+CIDER performs smart (semantic) trimming internally.
+
+* `cider-docstring-max-lines` (default `20`) controls how many lines, at most, of this docstring
+will be included (in a popup or the echo area, depending on your setup) while offering completions.
+It's worth noting, for Java documentation, CIDER doesn't simply trim lines,
+but it looks at the structure and tries to find the largest combination of these that fits into `cider-docstring-max-lines`:
+ ** The entire comment body, followed by its "block tags" (Returns/Throws/Params information)
+ ** The first sentence of the comment, followed by the block tags
+ ** The block tags
+ ** The first sentence of the comment.
+
+=== company-mode installation
+
 To install `company-mode`:
 
 kbd:[M-x] `package-install` kbd:[RET] `company` kbd:[RET]

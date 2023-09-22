@@ -18,6 +18,10 @@ via the command `cider-javadoc`.
 
 This requires `enrich-classpath` to be enabled.
 
+NOTE: if using `enrich-classpath`, Java doc comments are available and rendered in the same way that Clojure docstrings are.
+They're often much more handy than opening Javadoc in a browser. Starting from CIDER 1.8.0,
+the HTML-like language that they use is nicely rendered into syntax-colored strings, well-aligned tables, etc  
+
 == ClojureDocs
 
 CIDER provides integration with the popular https://clojuredocs.org/[ClojureDocs service].
