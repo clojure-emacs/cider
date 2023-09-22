@@ -462,14 +462,22 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
               (emit (concat sep (cider-font-lock-as 'java-mode iface))))))
         (when (or super ifaces)
           (insert "\n"))
-        (when-let* ((forms (or forms args)))
-          (dolist (form forms)
-            (insert " ")
-            (emit (cider-font-lock-as-clojure form)
-                  nil
-                  (when shorter
-                    ;; Use a space instead of a newline, since abundant arglists can bury the docstring otherwise:
-                    "")))
+        (when-let* ((forms (or forms args))
+                    (forms (delq nil (mapcar (lambda (f)
+                                               (unless (equal f "nil")
+                                                 f))
+                                             forms))))
+          (if shorter
+              (dolist (form forms)
+                (emit (cider-font-lock-as-clojure form)
+                      nil
+                      ;; Use a space instead of a newline, since abundant arglists can bury the docstring otherwise:
+                      "")
+                (insert " "))
+            (dolist (form forms)
+              (insert " ")
+              (emit (cider-font-lock-as-clojure form)
+                    nil)))
           (when shorter
             ;; Compensate for the newlines not `emit`ted in the previous call:
             (insert "\n")))
