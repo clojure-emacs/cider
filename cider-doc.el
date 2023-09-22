@@ -425,8 +425,9 @@ in a SHORTER format is specified."
                                                                        (nrepl-dict-get info "doc-fragments"))
                                                      "doc-block-tags-fragments" (nrepl-dict-get info "doc-block-tags-fragments")
                                                      "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments")))
-                      (nrepl-dict-get info "doc") ;; xxx try rendering the docstring fragments
-                      "Not documented."))
+                      (nrepl-dict-get info "doc")
+                      (unless shorter
+                        "Not documented.")))
          (url     (nrepl-dict-get info "url"))
          (class   (nrepl-dict-get info "class"))
          (member  (nrepl-dict-get info "member"))
@@ -439,11 +440,11 @@ in a SHORTER format is specified."
          (see-also (nrepl-dict-get info "see-also")))
     (cider--help-setup-xref (list #'cider-doc-lookup (format "%s/%s" ns name)) nil buffer)
     (with-current-buffer buffer
-      (cl-flet ((emit (text &optional face)
+      (cl-flet ((emit (text &optional face sep)
                       (insert (if face
                                   (propertize text 'font-lock-face face)
                                 text)
-                              "\n")))
+                              (or sep "\n"))))
         (emit (if class java-name clj-name) 'font-lock-function-name-face)
         (when super
           (emit (concat "   Extends: " (cider-font-lock-as 'java-mode super))))
@@ -456,7 +457,14 @@ in a SHORTER format is specified."
         (when-let* ((forms (or forms args)))
           (dolist (form forms)
             (insert " ")
-            (emit (cider-font-lock-as-clojure form))))
+            (emit (cider-font-lock-as-clojure form)
+                  nil
+                  (when shorter
+                    ;; Use a space instead of a newline, since abundant arglists can bury the docstring otherwise:
+                    "")))
+          (when shorter
+            ;; Compensate for the newlines not `emit`ted in the previous call:
+            (insert "\n")))
         (when special
           (emit "Special Form" 'font-lock-keyword-face))
         (when macro
@@ -478,7 +486,7 @@ in a SHORTER format is specified."
                               'action (lambda (x)
                                         (browse-url (button-get x 'url))))
           (insert "\n"))
-        (when javadoc
+        (when (and (not shorter) javadoc)
           (insert "\n\nFor additional documentation, see the ")
           (insert-text-button "Javadoc"
                               'url javadoc
@@ -496,17 +504,18 @@ in a SHORTER format is specified."
                               'action (lambda (_)
                                         (cider-browse-spec (format "%s/%s" ns name))))
           (insert "\n\n"))
-        (if (and cider-docview-file (not (string= cider-docview-file "")))
-            (progn
-              (insert (propertize (if class java-name clj-name)
-                                  'font-lock-face 'font-lock-function-name-face)
-                      " is defined in ")
-              (insert-text-button (cider--abbreviate-file-protocol cider-docview-file)
-                                  'follow-link t
-                                  'action (lambda (_x)
-                                            (cider-docview-source)))
-              (insert "."))
-          (insert "Definition location unavailable."))
+        (unless shorter
+          (if (and cider-docview-file (not (string= cider-docview-file "")))
+              (progn
+                (insert (propertize (if class java-name clj-name)
+                                    'font-lock-face 'font-lock-function-name-face)
+                        " is defined in ")
+                (insert-text-button (cider--abbreviate-file-protocol cider-docview-file)
+                                    'follow-link t
+                                    'action (lambda (_x)
+                                              (cider-docview-source)))
+                (insert "."))
+            (insert "Definition location unavailable.")))
         (when see-also
           (insert "\n\n Also see: ")
           (mapc (lambda (ns-sym)
@@ -521,7 +530,8 @@ in a SHORTER format is specified."
                                         'help-function (apply-partially #'cider-doc-lookup symbol)))
                   (insert " "))
                 see-also))
-        (cider--doc-make-xrefs)
+        (unless shorter
+          (cider--doc-make-xrefs))
         (let ((beg (point-min))
               (end (point-max)))
           (nrepl-dict-map (lambda (k v)

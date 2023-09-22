@@ -227,7 +227,11 @@ in the buffer."
         (cons buffer (point))))))
 
 (defcustom cider-company-docsig-render-docstring t
-  "When true, company-docsig output will include docstrings."
+  "When true, company-docsig output will include docstrings.
+
+You may want to disable this if you frequently use `company-show-doc-buffer'
+(default binding <f1> under `company-mode'),
+since the information displayed in both parts will be very similar."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "1.8.0"))
