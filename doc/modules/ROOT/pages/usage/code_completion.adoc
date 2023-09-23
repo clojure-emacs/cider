@@ -103,7 +103,7 @@ you can add this to your config:
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 ----
 
-Company's documention mechanism and CIDER's documentation facilities are integrated.
+Company's documentation mechanism and CIDER's documentation facilities are integrated.
 
 While a completion is being offered to you, you can hit (kbd:[F1])
 (the default `company-show-doc-buffer` key binding) for displaying documentation

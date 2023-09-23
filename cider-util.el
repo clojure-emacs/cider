@@ -110,7 +110,7 @@ instead."
   (save-excursion
     (save-match-data
       (if (derived-mode-p 'cider-repl-mode)
-          (end-of-buffer) ;; in repls, end-of-defun won't work, so we perform the closest reasonable thing
+          (goto-char (point-max)) ;; in repls, end-of-defun won't work, so we perform the closest reasonable thing
         (end-of-defun))
       (let ((end (point)))
         (clojure-backward-logical-sexp 1)

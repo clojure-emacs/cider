@@ -1,0 +1,560 @@
+[{:doc-fragments
+ [{:type "text", :content "Class "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content " is the root of the class hierarchy.\nEvery class has "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content
+   " as a superclass. All objects,\nincluding arrays, implement the methods of this class."}],
+ :doc-first-sentence-fragments
+ [{:type "text", :content "Class "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text", :content " is the root of the class hierarchy."}],
+ :doc-block-tags-fragments []}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Causes the current thread to wait until it is awakened, typically\nby being "}
+  {:type "html", :content "<em> notified </em>"}
+  {:type "text", :content " or "}
+  {:type "html", :content "<em> interrupted </em>"}
+  {:type "text",
+   :content
+   ", or until a\ncertain amount of real time has elapsed.\n\nThe current thread must own this object's monitor lock. See the\n"}
+  {:type "html", :content "<pre>#notify</pre> "}
+  {:type "text",
+   :content
+   " method for a description of the ways in which\na thread can become the owner of a monitor lock.\n\nThis method causes the current thread (referred to here as "}
+  {:type "html", :content "<var> T </var>"}
+  {:type "text",
+   :content
+   ") to\nplace itself in the wait set for this object and then to relinquish any\nand all synchronization claims on this object. Note that only the locks\non this object are relinquished; any other objects on which the current\nthread may be synchronized remain locked while the thread waits.\n\nThread "}
+  {:type "html", :content "<var> T </var>"}
+  {:type "text",
+   :content
+   " then becomes disabled for thread scheduling purposes\nand lies dormant until one of the following occurs:\n"}
+  {:type "html",
+   :content
+   "<ul> \n  <li> Some other thread invokes the  <pre>notify</pre>   method for this\n object and thread  <var> T </var>  happens to be arbitrarily chosen as\n the thread to be awakened.\n  <li> Some other thread invokes the  <pre>notifyAll</pre>   method for this\n object.\n  <li> Some other thread  <pre>Thread#interrupt()</pre>  \n thread  <var> T </var> .\n  <li> The specified amount of real time has elapsed, more or less.\n The amount of real time, in nanoseconds, is given by the expression\n  <pre>1000000 * timeoutMillis + nanos</pre>  . If  <pre>timeoutMillis</pre>   and  <pre>nanos</pre>  \n are both zero, then real time is not taken into consideration and the\n thread waits until awakened by one of the other causes.\n  <li> Thread  <var> T </var>  is awakened spuriously. (See below.)\n  </ul>"}
+  {:type "text", :content "\n\nThe thread "}
+  {:type "html", :content "<var> T </var>"}
+  {:type "text",
+   :content
+   " is then removed from the wait set for this\nobject and re-enabled for thread scheduling. It competes in the\nusual manner with other threads for the right to synchronize on the\nobject; once it has regained control of the object, all its\nsynchronization claims on the object are restored to the status quo\nante - that is, to the situation as of the time that the "}
+  {:type "html", :content "<pre>wait</pre> "}
+  {:type "text", :content "\nmethod was invoked. Thread "}
+  {:type "html", :content "<var> T </var>"}
+  {:type "text", :content " then returns from the\ninvocation of the "}
+  {:type "html", :content "<pre>wait</pre> "}
+  {:type "text", :content " method. Thus, on return from the\n"}
+  {:type "html", :content "<pre>wait</pre> "}
+  {:type "text",
+   :content
+   " method, the synchronization state of the object and of\nthread "}
+  {:type "html", :content "<pre>T</pre> "}
+  {:type "text", :content " is exactly as it was when the "}
+  {:type "html", :content "<pre>wait</pre> "}
+  {:type "text",
+   :content
+   " method\nwas invoked.\n\nA thread can wake up without being notified, interrupted, or timing out, a\nso-called "}
+  {:type "html", :content "<em> spurious wakeup </em>"}
+  {:type "text",
+   :content
+   ".  While this will rarely occur in practice,\napplications must guard against it by testing for the condition that should\nhave caused the thread to be awakened, and continuing to wait if the condition\nis not satisfied. See the example below.\n\nFor more information on this topic, see section 14.2,\n\"Condition Queues,\" in Brian Goetz and others' "}
+  {:type "html", :content "<em> Java Concurrency\n in Practice </em>"}
+  {:type "text",
+   :content " (Addison-Wesley, 2006) or Item 69 in Joshua\nBloch's "}
+  {:type "html", :content "<em> Effective Java, Second Edition </em>"}
+  {:type "text",
+   :content " (Addison-Wesley,\n2008).\n\nIf the current thread is "}
+  {:type "html", :content "<pre>java.lang.Thread#interrupt()</pre> "}
+  {:type "text",
+   :content "\nby any thread before or while it is waiting, then an "}
+  {:type "html", :content "<pre>InterruptedException</pre> "}
+  {:type "text", :content "\nis thrown.  The "}
+  {:type "html", :content "<em> interrupted status </em>"}
+  {:type "text",
+   :content
+   " of the current thread is cleared when\nthis exception is thrown. This exception is not thrown until the lock status of\nthis object has been restored as described above."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content
+   "Causes the current thread to wait until it is awakened, typically\nby being "}
+  {:type "html", :content "<em> notified </em>"}
+  {:type "text", :content " or "}
+  {:type "html", :content "<em> interrupted </em>"}
+  {:type "text",
+   :content ", or until a\ncertain amount of real time has elapsed."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html",
+   :content "<i>Param</i>&nbsp;<pre>timeoutMillis</pre>:&nbsp;"}
+  {:type "text",
+   :content "the maximum time to wait, in milliseconds\n\n"}
+  {:type "html", :content "<i>Param</i>&nbsp;<pre>nanos</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "additional time, in nanoseconds, in the range 0-999999 inclusive\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>IllegalArgumentException</pre>:&nbsp;"}
+  {:type "text", :content "if "}
+  {:type "html", :content "<pre>timeoutMillis</pre> "}
+  {:type "text", :content " is negative,\nor if the value of "}
+  {:type "html", :content "<pre>nanos</pre> "}
+  {:type "text", :content " is out of range\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>IllegalMonitorStateException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if the current thread is not\nthe owner of the object's monitor\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>InterruptedException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if any thread interrupted the current thread before or\nwhile the current thread was waiting. The "}
+  {:type "html", :content "<em> interrupted status </em>"}
+  {:type "text",
+   :content
+   " of the\ncurrent thread is cleared when this exception is thrown."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Causes the current thread to wait until it is awakened, typically\nby being "}
+  {:type "html", :content "<em> notified </em>"}
+  {:type "text", :content " or "}
+  {:type "html", :content "<em> interrupted </em>"}
+  {:type "text",
+   :content
+   ", or until a\ncertain amount of real time has elapsed.\n\nIn all respects, this method behaves as if "}
+  {:type "html", :content "<pre>wait(timeoutMillis, 0)</pre> "}
+  {:type "text",
+   :content "\nhad been called. See the specification of the "}
+  {:type "html", :content "<pre>#wait(long, int)</pre> "}
+  {:type "text", :content " method\nfor details."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content
+   "Causes the current thread to wait until it is awakened, typically\nby being "}
+  {:type "html", :content "<em> notified </em>"}
+  {:type "text", :content " or "}
+  {:type "html", :content "<em> interrupted </em>"}
+  {:type "text",
+   :content ", or until a\ncertain amount of real time has elapsed."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html",
+   :content "<i>Param</i>&nbsp;<pre>timeoutMillis</pre>:&nbsp;"}
+  {:type "text",
+   :content "the maximum time to wait, in milliseconds\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>IllegalArgumentException</pre>:&nbsp;"}
+  {:type "text", :content "if "}
+  {:type "html", :content "<pre>timeoutMillis</pre> "}
+  {:type "text", :content " is negative\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>IllegalMonitorStateException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if the current thread is not\nthe owner of the object's monitor\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>InterruptedException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if any thread interrupted the current thread before or\nwhile the current thread was waiting. The "}
+  {:type "html", :content "<em> interrupted status </em>"}
+  {:type "text",
+   :content
+   " of the\ncurrent thread is cleared when this exception is thrown."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Causes the current thread to wait until it is awakened, typically\nby being "}
+  {:type "html", :content "<em> notified </em>"}
+  {:type "text", :content " or "}
+  {:type "html", :content "<em> interrupted </em>"}
+  {:type "text",
+   :content ".\n\nIn all respects, this method behaves as if "}
+  {:type "html", :content "<pre>wait(0L, 0)</pre> "}
+  {:type "text",
+   :content "\nhad been called. See the specification of the "}
+  {:type "html", :content "<pre>#wait(long, int)</pre> "}
+  {:type "text", :content " method\nfor details."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content
+   "Causes the current thread to wait until it is awakened, typically\nby being "}
+  {:type "html", :content "<em> notified </em>"}
+  {:type "text", :content " or "}
+  {:type "html", :content "<em> interrupted </em>"}
+  {:type "text", :content "."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>IllegalMonitorStateException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if the current thread is not\nthe owner of the object's monitor\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>InterruptedException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if any thread interrupted the current thread before or\nwhile the current thread was waiting. The "}
+  {:type "html", :content "<em> interrupted status </em>"}
+  {:type "text",
+   :content
+   " of the\ncurrent thread is cleared when this exception is thrown."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Wakes up all threads that are waiting on this object's monitor. A\nthread waits on an object's monitor by calling one of the\n"}
+  {:type "html", :content "<pre>wait</pre> "}
+  {:type "text",
+   :content
+   " methods.\n\nThe awakened threads will not be able to proceed until the current\nthread relinquishes the lock on this object. The awakened threads\nwill compete in the usual manner with any other threads that might\nbe actively competing to synchronize on this object; for example,\nthe awakened threads enjoy no reliable privilege or disadvantage in\nbeing the next thread to lock this object.\n\nThis method should only be called by a thread that is the owner\nof this object's monitor. See the "}
+  {:type "html", :content "<pre>notify</pre> "}
+  {:type "text",
+   :content
+   " method for a\ndescription of the ways in which a thread can become the owner of\na monitor."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content
+   "Wakes up all threads that are waiting on this object's monitor."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>IllegalMonitorStateException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if the current thread is not\nthe owner of this object's monitor."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Creates and returns a copy of this object.  The precise meaning\nof \"copy\" may depend on the class of the object. The general\nintent is that, for any object "}
+  {:type "html", :content "<pre>x</pre> "}
+  {:type "text", :content ", the expression:\n"}
+  {:type "html",
+   :content
+   "<blockquote> \n  <pre> \n x.clone() != x </pre> </blockquote>"}
+  {:type "text", :content "\nwill be true, and that the expression:\n"}
+  {:type "html",
+   :content
+   "<blockquote> \n  <pre> \n x.clone().getClass() == x.getClass() </pre> </blockquote>"}
+  {:type "text", :content "\nwill be "}
+  {:type "html", :content "<pre>true</pre> "}
+  {:type "text",
+   :content
+   ", but these are not absolute requirements.\nWhile it is typically the case that:\n"}
+  {:type "html",
+   :content
+   "<blockquote> \n  <pre> \n x.clone().equals(x) </pre> </blockquote>"}
+  {:type "text", :content "\nwill be "}
+  {:type "html", :content "<pre>true</pre> "}
+  {:type "text",
+   :content
+   ", this is not an absolute requirement.\n\nBy convention, the returned object should be obtained by calling\n"}
+  {:type "html", :content "<pre>super.clone</pre> "}
+  {:type "text",
+   :content ".  If a class and all of its superclasses (except\n"}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content ") obey this convention, it will be the case that\n"}
+  {:type "html",
+   :content "<pre>x.clone().getClass() == x.getClass()</pre> "}
+  {:type "text",
+   :content
+   ".\n\nBy convention, the object returned by this method should be independent\nof this object (which is being cloned).  To achieve this independence,\nit may be necessary to modify one or more fields of the object returned\nby "}
+  {:type "html", :content "<pre>super.clone</pre> "}
+  {:type "text",
+   :content
+   " before returning it.  Typically, this means\ncopying any mutable objects that comprise the internal \"deep structure\"\nof the object being cloned and replacing the references to these\nobjects with references to the copies.  If a class contains only\nprimitive fields or references to immutable objects, then it is usually\nthe case that no fields in the object returned by "}
+  {:type "html", :content "<pre>super.clone</pre> "}
+  {:type "text", :content "\nneed to be modified.\n\nThe method "}
+  {:type "html", :content "<pre>clone</pre> "}
+  {:type "text", :content " for class "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content
+   " performs a\nspecific cloning operation. First, if the class of this object does\nnot implement the interface "}
+  {:type "html", :content "<pre>Cloneable</pre> "}
+  {:type "text", :content ", then a\n"}
+  {:type "html", :content "<pre>CloneNotSupportedException</pre> "}
+  {:type "text",
+   :content
+   " is thrown. Note that all arrays\nare considered to implement the interface "}
+  {:type "html", :content "<pre>Cloneable</pre> "}
+  {:type "text", :content " and that\nthe return type of the "}
+  {:type "html", :content "<pre>clone</pre> "}
+  {:type "text", :content " method of an array type "}
+  {:type "html", :content "<pre>T[]</pre> "}
+  {:type "text", :content "\nis "}
+  {:type "html", :content "<pre>T[]</pre> "}
+  {:type "text",
+   :content
+   " where T is any reference or primitive type.\nOtherwise, this method creates a new instance of the class of this\nobject and initializes all its fields with exactly the contents of\nthe corresponding fields of this object, as if by assignment; the\ncontents of the fields are not themselves cloned. Thus, this method\nperforms a \"shallow copy\" of this object, not a \"deep copy\" operation.\n\nThe class "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text", :content " does not itself implement the interface\n"}
+  {:type "html", :content "<pre>Cloneable</pre> "}
+  {:type "text", :content ", so calling the "}
+  {:type "html", :content "<pre>clone</pre> "}
+  {:type "text", :content " method on an object\nwhose class is "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content " will result in throwing an\nexception at run time."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content "Creates and returns a copy of this object."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html", :content "<i>Returns</i>:&nbsp;"}
+  {:type "text", :content "a clone of this instance.\n\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>CloneNotSupportedException</pre>:&nbsp;"}
+  {:type "text",
+   :content "if the object's class does not\nsupport the "}
+  {:type "html", :content "<pre>Cloneable</pre> "}
+  {:type "text", :content " interface. Subclasses\nthat override the "}
+  {:type "html", :content "<pre>clone</pre> "}
+  {:type "text",
+   :content
+   " method can also\nthrow this exception to indicate that an instance cannot\nbe cloned."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Returns a hash code value for the object. This method is\nsupported for the benefit of hash tables such as those provided by\n"}
+  {:type "html", :content "<pre>java.util.HashMap</pre> "}
+  {:type "text", :content ".\n\nThe general contract of "}
+  {:type "html", :content "<pre>hashCode</pre> "}
+  {:type "text", :content " is:\n"}
+  {:type "html",
+   :content
+   "<ul> \n  <li> Whenever it is invoked on the same object more than once during\n     an execution of a Java application, the  <pre>hashCode</pre>   method\n     must consistently return the same integer, provided no information\n     used in  <pre>equals</pre>   comparisons on the object is modified.\n     This integer need not remain consistent from one execution of an\n     application to another execution of the same application.\n  <li> If two objects are equal according to the  <pre>equals(Object)</pre>  \n     method, then calling the  <pre>hashCode</pre>   method on each of\n     the two objects must produce the same integer result.\n  <li> It is  <em> not </em>  required that if two objects are unequal\n     according to the  <pre>java.lang.Object#equals(java.lang.Object)</pre>  \n     method, then calling the  <pre>hashCode</pre>   method on each of the\n     two objects must produce distinct integer results.  However, the\n     programmer should be aware that producing distinct integer results\n     for unequal objects may improve the performance of hash tables.\n  </ul>"}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content "Returns a hash code value for the object."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html", :content "<i>Returns</i>:&nbsp;"}
+  {:type "text", :content "a hash code value for this object."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Indicates whether some other object is \"equal to\" this one.\n\nThe "}
+  {:type "html", :content "<pre>equals</pre> "}
+  {:type "text",
+   :content
+   " method implements an equivalence relation\non non-null object references:\n"}
+  {:type "html",
+   :content
+   "<ul> \n  <li> It is  <i> reflexive </i> : for any non-null reference value\n      <pre>x</pre>  ,  <pre>x.equals(x)</pre>   should return\n      <pre>true</pre>  .\n  <li> It is  <i> symmetric </i> : for any non-null reference values\n      <pre>x</pre>   and  <pre>y</pre>  ,  <pre>x.equals(y)</pre>  \n     should return  <pre>true</pre>   if and only if\n      <pre>y.equals(x)</pre>   returns  <pre>true</pre>  .\n  <li> It is  <i> transitive </i> : for any non-null reference values\n      <pre>x</pre>  ,  <pre>y</pre>  , and  <pre>z</pre>  , if\n      <pre>x.equals(y)</pre>   returns  <pre>true</pre>   and\n      <pre>y.equals(z)</pre>   returns  <pre>true</pre>  , then\n      <pre>x.equals(z)</pre>   should return  <pre>true</pre>  .\n  <li> It is  <i> consistent </i> : for any non-null reference values\n      <pre>x</pre>   and  <pre>y</pre>  , multiple invocations of\n      <pre>x.equals(y)</pre>   consistently return  <pre>true</pre>  \n     or consistently return  <pre>false</pre>  , provided no\n     information used in  <pre>equals</pre>   comparisons on the\n     objects is modified.\n  <li> For any non-null reference value  <pre>x</pre>  ,\n      <pre>x.equals(null)</pre>   should return  <pre>false</pre>  .\n  </ul>"}
+  {:type "text", :content "\n\nThe "}
+  {:type "html", :content "<pre>equals</pre> "}
+  {:type "text", :content " method for class "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content
+   " implements\nthe most discriminating possible equivalence relation on objects;\nthat is, for any non-null reference values "}
+  {:type "html", :content "<pre>x</pre> "}
+  {:type "text", :content " and\n"}
+  {:type "html", :content "<pre>y</pre> "}
+  {:type "text", :content ", this method returns "}
+  {:type "html", :content "<pre>true</pre> "}
+  {:type "text", :content " if and only\nif "}
+  {:type "html", :content "<pre>x</pre> "}
+  {:type "text", :content " and "}
+  {:type "html", :content "<pre>y</pre> "}
+  {:type "text", :content " refer to the same object\n("}
+  {:type "html", :content "<pre>x == y</pre> "}
+  {:type "text", :content " has the value "}
+  {:type "html", :content "<pre>true</pre> "}
+  {:type "text",
+   :content
+   ").\n\nNote that it is generally necessary to override the "}
+  {:type "html", :content "<pre>hashCode</pre> "}
+  {:type "text",
+   :content
+   "\nmethod whenever this method is overridden, so as to maintain the\ngeneral contract for the "}
+  {:type "html", :content "<pre>hashCode</pre> "}
+  {:type "text",
+   :content
+   " method, which states\nthat equal objects must have equal hash codes."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content
+   "Indicates whether some other object is \"equal to\" this one."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html", :content "<i>Param</i>&nbsp;<pre>obj</pre>:&nbsp;"}
+  {:type "text",
+   :content "the reference object with which to compare.\n\n"}
+  {:type "html", :content "<i>Returns</i>:&nbsp; <pre>true</pre> "}
+  {:type "text",
+   :content " if this object is the same as the obj\nargument; "}
+  {:type "html", :content "<pre>false</pre> "}
+  {:type "text", :content " otherwise."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Returns a string representation of the object. In general, the\n"}
+  {:type "html", :content "<pre>toString</pre> "}
+  {:type "text",
+   :content
+   " method returns a string that\n\"textually represents\" this object. The result should\nbe a concise but informative representation that is easy for a\nperson to read.\nIt is recommended that all subclasses override this method.\n\nThe "}
+  {:type "html", :content "<pre>toString</pre> "}
+  {:type "text", :content " method for class "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content
+   "\nreturns a string consisting of the name of the class of which the\nobject is an instance, the at-sign character `"}
+  {:type "html", :content "<pre>@</pre> "}
+  {:type "text",
+   :content
+   "', and\nthe unsigned hexadecimal representation of the hash code of the\nobject. In other words, this method returns a string equal to the\nvalue of:\n"}
+  {:type "html",
+   :content
+   "<blockquote> \n  <pre> \n getClass().getName() + '@' + Integer.toHexString(hashCode())\n  </pre> </blockquote>"}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content "Returns a string representation of the object."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html", :content "<i>Returns</i>:&nbsp;"}
+  {:type "text", :content "a string representation of the object."}]}
+
+{:doc-fragments
+ [{:type "text", :content "Returns the runtime class of this "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text", :content ". The returned\n"}
+  {:type "html", :content "<pre>Class</pre> "}
+  {:type "text", :content " object is the object that is locked by "}
+  {:type "html", :content "<pre>\n static synchronized</pre> "}
+  {:type "text", :content " methods of the represented class.\n\n"}
+  {:type "html",
+   :content
+   "<p> <b> The actual result type is  <pre>Class<? extends |X|></pre>  \n where  <pre>|X|</pre>   is the erasure of the static type of the\n expression on which  <pre>getClass</pre>   is called. </b>  For\n example, no cast is required in this code fragment: </p>"}
+  {:type "text", :content "\n\n"}
+  {:type "html",
+   :content
+   "<p> \n  <pre>Number n = 0;                             </pre>  <br> \n  <pre>Class<? extends Number> c = n.getClass(); </pre>  \n  </p>"}],
+ :doc-first-sentence-fragments
+ [{:type "text", :content "Returns the runtime class of this "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text", :content "."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html", :content "<i>Returns</i>:&nbsp;"}
+  {:type "text", :content "The "}
+  {:type "html", :content "<pre>Class</pre> "}
+  {:type "text",
+   :content
+   " object that represents the runtime\nclass of this object."}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Called by the garbage collector on an object when garbage collection\ndetermines that there are no more references to the object.\nA subclass overrides the "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   " method to dispose of\nsystem resources or to perform other cleanup.\n\nThe general contract of "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   " is that it is invoked\nif and when the Java virtual\nmachine has determined that there is no longer any\nmeans by which this object can be accessed by any thread that has\nnot yet died, except as a result of an action taken by the\nfinalization of some other object or class which is ready to be\nfinalized. The "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   " method may take any action, including\nmaking this object available again to other threads; the usual purpose\nof "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   ", however, is to perform cleanup actions before\nthe object is irrevocably discarded. For example, the finalize method\nfor an object that represents an input/output connection might perform\nexplicit I/O transactions to break the connection before the object is\npermanently discarded.\n\nThe "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text", :content " method of class "}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content
+   " performs no\nspecial action; it simply returns normally. Subclasses of\n"}
+  {:type "html", :content "<pre>Object</pre> "}
+  {:type "text",
+   :content
+   " may override this definition.\n\nThe Java programming language does not guarantee which thread will\ninvoke the "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   " method for any given object. It is\nguaranteed, however, that the thread that invokes finalize will not\nbe holding any user-visible synchronization locks when finalize is\ninvoked. If an uncaught exception is thrown by the finalize method,\nthe exception is ignored and finalization of that object terminates.\n\nAfter the "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   " method has been invoked for an object, no\nfurther action is taken until the Java virtual machine has again\ndetermined that there is no longer any means by which this object can\nbe accessed by any thread that has not yet died, including possible\nactions by other objects or classes which are ready to be finalized,\nat which point the object may be discarded.\n\nThe "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   " method is never invoked more than once by a Java\nvirtual machine for any given object.\n\nAny exception thrown by the "}
+  {:type "html", :content "<pre>finalize</pre> "}
+  {:type "text",
+   :content
+   " method causes\nthe finalization of this object to be halted, but is otherwise\nignored."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content
+   "Called by the garbage collector on an object when garbage collection\ndetermines that there are no more references to the object."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html",
+   :content "<i>Throws</i>:&nbsp;<pre>Throwable</pre>:&nbsp;"}
+  {:type "text", :content "the "}
+  {:type "html", :content "<pre>Exception</pre> "}
+  {:type "text", :content " raised by this method"}]}
+
+{:doc-fragments
+ [{:type "text",
+   :content
+   "Wakes up a single thread that is waiting on this object's\nmonitor. If any threads are waiting on this object, one of them\nis chosen to be awakened. The choice is arbitrary and occurs at\nthe discretion of the implementation. A thread waits on an object's\nmonitor by calling one of the "}
+  {:type "html", :content "<pre>wait</pre> "}
+  {:type "text",
+   :content
+   " methods.\n\nThe awakened thread will not be able to proceed until the current\nthread relinquishes the lock on this object. The awakened thread will\ncompete in the usual manner with any other threads that might be\nactively competing to synchronize on this object; for example, the\nawakened thread enjoys no reliable privilege or disadvantage in being\nthe next thread to lock this object.\n\nThis method should only be called by a thread that is the owner\nof this object's monitor. A thread becomes the owner of the\nobject's monitor in one of three ways:\n"}
+  {:type "html",
+   :content
+   "<ul> \n  <li> By executing a synchronized instance method of that object.\n  <li> By executing the body of a  <pre>synchronized</pre>   statement\n     that synchronizes on the object.\n  <li> For objects of type  <pre>Class,</pre>   by executing a\n     synchronized static method of that class.\n  </ul>"}
+  {:type "text",
+   :content
+   "\n\nOnly one thread at a time can own an object's monitor."}],
+ :doc-first-sentence-fragments
+ [{:type "text",
+   :content
+   "Wakes up a single thread that is waiting on this object's\nmonitor."}],
+ :doc-block-tags-fragments
+ [{:type "text", :content "\n"}
+  {:type "html",
+   :content
+   "<i>Throws</i>:&nbsp;<pre>IllegalMonitorStateException</pre>:&nbsp;"}
+  {:type "text",
+   :content
+   "if the current thread is not\nthe owner of this object's monitor."}]}
+
+{:doc-fragments [{:type "text", :content "Constructs a new object."}],
+ :doc-first-sentence-fragments
+ [{:type "text", :content "Constructs a new object."}],
+ :doc-block-tags-fragments []}
+
+]

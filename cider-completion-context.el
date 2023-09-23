@@ -66,7 +66,7 @@ the current symbol at point."
              (_ (beginning-of-defun-raw))
              (expr-start (point))
              (_ (if (derived-mode-p 'cider-repl-mode)
-                    (end-of-buffer)
+                    (goto-char (point-max))
                   (end-of-defun)))
              (expr-end (point)))
         (string-remove-suffix "\n"
