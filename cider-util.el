@@ -109,7 +109,9 @@ If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
   (save-excursion
     (save-match-data
-      (end-of-defun)
+      (if (derived-mode-p 'cider-repl-mode)
+          (end-of-buffer) ;; in repls, end-of-defun won't work, so we perform the closest reasonable thing
+        (end-of-defun))
       (let ((end (point)))
         (clojure-backward-logical-sexp 1)
         (cider--text-or-limits bounds (point) end)))))

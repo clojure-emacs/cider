@@ -65,7 +65,9 @@ the current symbol at point."
              (end (cider-completion-symbol-end-pos))
              (_ (beginning-of-defun-raw))
              (expr-start (point))
-             (_ (end-of-defun))
+             (_ (if (derived-mode-p 'cider-repl-mode)
+                    (end-of-buffer)
+                  (end-of-defun)))
              (expr-end (point)))
         (string-remove-suffix "\n"
                               (concat (when pref-start (substring context 0 (- pref-start expr-start)))
@@ -100,11 +102,7 @@ form, with symbol at point replaced by __prefix__."
   "Extract context depending (maybe of INFO type).
 
 Output depends on `cider-completion-use-context' and the current major mode."
-  (let ((context (if (and cider-completion-use-context
-                          ;; Important because `beginning-of-defun' and
-                          ;; `ending-of-defun' work incorrectly in the REPL
-                          ;; buffer, so context extraction fails there.
-                          (derived-mode-p 'clojure-mode))
+  (let ((context (if cider-completion-use-context
                      ;; We use ignore-errors here since grabbing the context
                      ;; might fail because of unbalanced parens, or other
                      ;; technical reasons, yet we don't want to lose all
