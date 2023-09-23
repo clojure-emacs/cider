@@ -38,6 +38,7 @@
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
 - Fix the `cider-find-keyword` overall reliability and correctness, particularly for ClojureScript.
 - Make TRAMP functionality work when using non-standard ports.
+- Fix the `cider-insert-commands-map` variable initialization.
 
 ### Changes
 
