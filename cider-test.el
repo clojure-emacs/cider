@@ -842,7 +842,7 @@ See `cider-test-rerun-test'."
   "Run the test at point.
 The test ns/var exist as text properties on report items and on highlighted
 failed/erred test definitions.  When not found, a test definition at point
-is searched."
+or in a corresponding test namespace is searched."
   (interactive)
   (let ((ns  (get-text-property (point) 'ns))
         (var (get-text-property (point) 'var)))
