@@ -853,16 +853,22 @@ is searched."
           (cider-test-update-last-test ns var)
           (cider-test-execute ns (list var)))
       ;; we're in a `clojure-mode' buffer
-      (or (when-let* ((ns  (cider-get-ns-name))
-                      (def (clojure-find-def)) ; it's a list of the form (deftest something)
-                      (deftype (car def))
-                      (var (cadr def)))
-            (if (and ns (member deftype cider-test-defining-forms))
-                (progn
-                  (cider-test-update-last-test ns (list var))
-                  (cider-test-execute ns (list var)))
-              (message "No test at point")))
-          (message "No test at point")))))
+      (when-let* ((ns  (cider-get-ns-name))
+                  (def (clojure-find-def)) ; it's a list of the form (deftest something)
+                  (deftype (car def))
+                  (var (cadr def)))
+        (cond
+         ;; the form under the point is a test
+         ((and ns (member deftype cider-test-defining-forms)) (progn
+                                                                (cider-test-update-last-test ns (list var))
+                                                                (cider-test-execute ns (list var))))
+         ;; the form under the point is a function, for which a logically named test exists
+         ;; in the corresponding test namespace
+         ((and ns (string= "defn" deftype)) (when-let ((test-var (concat var "-test"))
+                                                       (ns (funcall cider-test-infer-test-ns
+                                                                    (cider-current-ns t))))
+                                              (cider-test-execute ns (list test-var))))
+         (t (message "No test at point")))))))
 
 (defun cider-test-rerun-test ()
   "Re-run the test that was previously ran."
