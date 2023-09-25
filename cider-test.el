@@ -875,7 +875,7 @@ or in a corresponding test namespace is searched."
          (found-ns (car found))
          (found-var (cadr found)))
     (if (not found-var)
-        (message "No test found for the function at point")
+        (message "No test found at point")
       (cider-test-update-last-test found-ns (list found-var))
       (cider-test-execute found-ns (list found-var)))))
 
