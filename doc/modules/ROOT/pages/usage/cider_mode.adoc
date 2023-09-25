@@ -223,7 +223,7 @@ kbd:[C-c C-d C-e]
 | `cider-test-run-test`
 | kbd:[C-c C-t t] +
 kbd:[C-c C-t C-t]
-| Run test at point.
+| Run test at point. If the form under the point is a function, try to search and run a corresponding test.
 
 | `cider-test-rerun-test`
 | kbd:[C-c C-t a] +

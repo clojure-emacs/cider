@@ -60,13 +60,7 @@
   :type 'boolean
   :package-version '(cider . "0.9.0"))
 
-(defcustom cider-test-defining-forms '("deftest" "defspec")
-  "Forms that define individual tests.
-CIDER considers the \"top-level\" form around point to define a test if
-the form starts with one of these forms.
-Add to this list to have CIDER recognize additional test defining macros."
-  :type '(repeat string)
-  :package-version '(cider . "0.15.0"))
+(make-obsolete 'cider-test-defining-forms nil "1.8.0")
 
 (defvar cider-test-last-summary nil
   "The summary of the last run test.")
@@ -838,31 +832,52 @@ See `cider-test-rerun-test'."
   (setq cider-test-last-test-ns ns
         cider-test-last-test-var var))
 
+(defun cider--test-var-p (ns var)
+  "Determines if the VAR in NS is a test."
+  (if (cider-nrepl-op-supported-p "cider/get-state")
+      (cider-resolve--get-in ns "interns" var "test")
+    (equal "true"
+           (nrepl-dict-get (cider-sync-tooling-eval
+                            (format "(clojure.core/-> %s var clojure.core/meta (clojure.core/contains? :test))"
+                                    var)
+                            ns)
+                           "value"))))
+
 (defun cider-test-run-test ()
   "Run the test at point.
 The test ns/var exist as text properties on report items and on highlighted
-failed/erred test definitions.  When not found, a test definition at point
-is searched."
+failed/erred test definitions.
+
+When not found, a test definition at point
+or in a corresponding test namespace is searched."
   (interactive)
-  (let ((ns  (get-text-property (point) 'ns))
-        (var (get-text-property (point) 'var)))
-    (if (and ns var)
-        ;; we're in a `cider-test-report-mode' buffer
-        ;; or on a highlighted failed/erred test definition
-        (progn
-          (cider-test-update-last-test ns var)
-          (cider-test-execute ns (list var)))
-      ;; we're in a `clojure-mode' buffer
-      (or (when-let* ((ns  (cider-get-ns-name))
-                      (def (clojure-find-def)) ; it's a list of the form (deftest something)
-                      (deftype (car def))
-                      (var (cadr def)))
-            (if (and ns (member deftype cider-test-defining-forms))
-                (progn
-                  (cider-test-update-last-test ns (list var))
-                  (cider-test-execute ns (list var)))
-              (message "No test at point")))
-          (message "No test at point")))))
+  (let* ((ns-from-text-property (get-text-property (point) 'ns))
+         (var-from-text-property (when ns-from-text-property
+                                   ;; we're in a `cider-test-report-mode' buffer
+                                   ;; or on a highlighted failed/erred test definition
+                                   (get-text-property (point) 'var)))
+         (found (or (when (and var-from-text-property
+                               ;; Slightly redundant check. However querying `cider-resolve--get-in` is cheap:
+                               (cider--test-var-p ns-from-text-property var-from-text-property))
+                      (list ns-from-text-property var-from-text-property))
+                    (when-let* ((n (cider-get-ns-name))
+                                (v (cadr (clojure-find-def))))
+                      (or (when (cider--test-var-p n v)
+                            (list n v))
+                          (let ((derived-ns (funcall cider-test-infer-test-ns n))
+                                (derived-var (concat v "-test")))
+                            ;; deftest foo-test:
+                            (or (when (cider--test-var-p derived-ns derived-var)
+                                  (list derived-ns derived-var))
+                                ;; deftest foo (less usual, but quite frequent):
+                                (when (cider--test-var-p derived-ns v)
+                                  (list derived-ns v))))))))
+         (found-ns (car found))
+         (found-var (cadr found)))
+    (if (not found-var)
+        (message "No test found for the function at point")
+      (cider-test-update-last-test found-ns (list found-var))
+      (cider-test-execute found-ns (list found-var)))))
 
 (defun cider-test-rerun-test ()
   "Re-run the test that was previously ran."
