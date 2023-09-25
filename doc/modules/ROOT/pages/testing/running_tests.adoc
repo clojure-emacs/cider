@@ -141,13 +141,6 @@ selectors so that tests tagged as "integration" or "flakey" don't run.
 
 TIP: You'll generally want to place default selectors in xref:config/project_config.adoc[your project configuration], as opposed to your global configuration.
 
-=== Macros Used to Define Tests
-
-If your individual tests are not defined by `deftest` or `defspec`, CIDER will
-not recognize them when searching for a test at point in `cider-test-run-test`.
-You can customize the variable `cider-test-defining-forms` to add additional
-forms for CIDER to recognize as individual test definitions.
-
 === Display Test Report on Success
 
 By default the test report is displayed only when there are test failures or
