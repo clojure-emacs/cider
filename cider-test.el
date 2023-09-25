@@ -869,21 +869,19 @@ or in a corresponding test namespace is searched."
                   (def (clojure-find-def)) ; it's a list of the form (deftest something)
                   (deftype (car def))
                   (var (cadr def)))
-        (let ((is-a-test (cider--test-var-p ns var)))
-          (cond
-           ;; the form under the point is a test
-           ((and ns is-a-test) (progn
-                                 (cider-test-update-last-test ns (list var))
-                                 (cider-test-execute ns (list var))))
-           ;; the form under the point is a function, for which a logically named test exists
-           ;; in the corresponding test namespace
-           ((and ns (not is-a-test)) (when-let ((test-var (concat var "-test"))
-                                                (ns (funcall cider-test-infer-test-ns
-                                                             (cider-current-ns t))))
-                                       (if (cider--test-var-p ns test-var)
-                                           (cider-test-execute ns (list test-var))
-                                         (message "No test found for the function at point"))))
-           (t (message "No test at point"))))))))
+        (if (cider--test-var-p ns var)
+            ;; the form under the point is a test
+            (progn
+              (cider-test-update-last-test ns (list var))
+              (cider-test-execute ns (list var))))
+        ;; the form under the point is a function, for which a logically named test exists
+        ;; in the corresponding test namespace
+        (let ((test-var (concat var "-test"))
+              (ns (funcall cider-test-infer-test-ns
+                           (cider-current-ns t))))
+          (if (cider--test-var-p ns test-var)
+              (cider-test-execute ns (list test-var))
+            (message "No test found for the function at point")))))))
 
 (defun cider-test-rerun-test ()
   "Re-run the test that was previously ran."
