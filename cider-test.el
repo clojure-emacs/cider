@@ -869,9 +869,9 @@ or in a corresponding test namespace is searched."
                   (var (cadr def)))
         (cond
          ;; the form under the point is a test
-         ((and ns (member deftype cider-test-defining-forms)) (progn
-                                                                (cider-test-update-last-test ns (list var))
-                                                                (cider-test-execute ns (list var))))
+         ((and ns (is-a-test-p ns var)) (progn
+                                          (cider-test-update-last-test ns (list var))
+                                          (cider-test-execute ns (list var))))
          ;; the form under the point is a function, for which a logically named test exists
          ;; in the corresponding test namespace
          ((and ns (not (is-a-test-p ns var))) (when-let ((test-var (concat var "-test"))
