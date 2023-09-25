@@ -856,32 +856,23 @@ The test ns/var exist as text properties on report items and on highlighted
 failed/erred test definitions.  When not found, a test definition at point
 or in a corresponding test namespace is searched."
   (interactive)
-  (let ((ns  (get-text-property (point) 'ns))
-        (var (get-text-property (point) 'var)))
-    (if (and ns var)
-        ;; we're in a `cider-test-report-mode' buffer
-        ;; or on a highlighted failed/erred test definition
-        (progn
-          (cider-test-update-last-test ns var)
-          (cider-test-execute ns (list var)))
-      ;; we're in a `clojure-mode' buffer
-      (when-let* ((ns  (cider-get-ns-name))
-                  (def (clojure-find-def)) ; it's a list of the form (deftest something)
-                  (deftype (car def))
-                  (var (cadr def)))
-        (if (cider--test-var-p ns var)
-            ;; the form under the point is a test
-            (progn
-              (cider-test-update-last-test ns (list var))
-              (cider-test-execute ns (list var))))
-        ;; the form under the point is a function, for which a logically named test exists
-        ;; in the corresponding test namespace
-        (let ((test-var (concat var "-test"))
-              (ns (funcall cider-test-infer-test-ns
-                           (cider-current-ns t))))
-          (if (cider--test-var-p ns test-var)
-              (cider-test-execute ns (list test-var))
-            (message "No test found for the function at point")))))))
+  (let ((ns  (or (get-text-property (point) 'ns)
+                 (cider-get-ns-name)))
+        (var (or (get-text-property (point) 'var)
+                 (cadr (clojure-find-def)))))
+    (let* ((is-test (cider--test-var-p ns var))
+           (test-ns (if is-test
+                        ns
+                      (funcall cider-test-infer-test-ns
+                               (cider-current-ns t))))
+           (test-var (if is-test
+                         var
+                       (concat var "-test"))))
+      (if (cider--test-var-p test-ns test-var)
+          (progn
+            (cider-test-update-last-test test-ns (list test-var))
+            (cider-test-execute test-ns (list test-var)))
+        (message "No test found for the function at point")))))
 
 (defun cider-test-rerun-test ()
   "Re-run the test that was previously ran."
