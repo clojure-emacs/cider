@@ -68,6 +68,8 @@ Add to this list to have CIDER recognize additional test defining macros."
   :type '(repeat string)
   :package-version '(cider . "0.15.0"))
 
+(make-obsolete 'cider-test-defining-forms nil "1.8.0")
+
 (defvar cider-test-last-summary nil
   "The summary of the last run test.")
 
