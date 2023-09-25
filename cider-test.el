@@ -838,6 +838,16 @@ See `cider-test-rerun-test'."
   (setq cider-test-last-test-ns ns
         cider-test-last-test-var var))
 
+(defun is-a-test-p (ns var)
+  "Determine if the VAR in NS is a test."
+  (or (cider-resolve--get-in ns "interns" var "test")
+      (equal "true"
+             (nrepl-dict-get (cider-sync-tooling-eval
+                              (format "(clojure.core/-> %s var clojure.core/meta (clojure.core/contains? :test))"
+                                      var)
+                              ns)
+                             "value"))))
+
 (defun cider-test-run-test ()
   "Run the test at point.
 The test ns/var exist as text properties on report items and on highlighted
@@ -864,10 +874,12 @@ or in a corresponding test namespace is searched."
                                                                 (cider-test-execute ns (list var))))
          ;; the form under the point is a function, for which a logically named test exists
          ;; in the corresponding test namespace
-         ((and ns (string= "defn" deftype)) (when-let ((test-var (concat var "-test"))
-                                                       (ns (funcall cider-test-infer-test-ns
-                                                                    (cider-current-ns t))))
-                                              (cider-test-execute ns (list test-var))))
+         ((and ns (not (is-a-test-p ns var))) (when-let ((test-var (concat var "-test"))
+                                                         (ns (funcall cider-test-infer-test-ns
+                                                                      (cider-current-ns t))))
+                                                (if (is-a-test-p ns test-var)
+                                                    (cider-test-execute ns (list test-var))
+                                                  (message "No test found for the function at point"))))
          (t (message "No test at point")))))))
 
 (defun cider-test-rerun-test ()
