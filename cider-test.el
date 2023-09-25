@@ -840,7 +840,7 @@ See `cider-test-rerun-test'."
 
 (defun is-a-test-p (ns var)
   "Determine if the VAR in NS is a test."
-  (or (cider-resolve--get-in ns "interns" var "test")
+  (or (cider-resolve--get-in ns "interns" var "test") ;; Returns nil if cider-nrepl is unavailable (or for cljs: https://github.com/clojure-emacs/cider-nrepl/blob/24707/src/cider/nrepl/middleware/track_state.clj#L149)
       (equal "true"
              (nrepl-dict-get (cider-sync-tooling-eval
                               (format "(clojure.core/-> %s var clojure.core/meta (clojure.core/contains? :test))"
