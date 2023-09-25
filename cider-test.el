@@ -838,7 +838,7 @@ See `cider-test-rerun-test'."
   (setq cider-test-last-test-ns ns
         cider-test-last-test-var var))
 
-(defun is-a-test-p (ns var)
+(defun cider--test-var-p (ns var)
   "Determine if the VAR in NS is a test."
   (or (cider-resolve--get-in ns "interns" var "test") ;; Returns nil if cider-nrepl is unavailable (or for cljs: https://github.com/clojure-emacs/cider-nrepl/blob/24707/src/cider/nrepl/middleware/track_state.clj#L149)
       (equal "true"
@@ -867,20 +867,21 @@ or in a corresponding test namespace is searched."
                   (def (clojure-find-def)) ; it's a list of the form (deftest something)
                   (deftype (car def))
                   (var (cadr def)))
-        (cond
-         ;; the form under the point is a test
-         ((and ns (is-a-test-p ns var)) (progn
-                                          (cider-test-update-last-test ns (list var))
-                                          (cider-test-execute ns (list var))))
-         ;; the form under the point is a function, for which a logically named test exists
-         ;; in the corresponding test namespace
-         ((and ns (not (is-a-test-p ns var))) (when-let ((test-var (concat var "-test"))
-                                                         (ns (funcall cider-test-infer-test-ns
-                                                                      (cider-current-ns t))))
-                                                (if (is-a-test-p ns test-var)
-                                                    (cider-test-execute ns (list test-var))
-                                                  (message "No test found for the function at point"))))
-         (t (message "No test at point")))))))
+        (let ((is-a-test (cider--test-var-p ns var)))
+          (cond
+           ;; the form under the point is a test
+           ((and ns is-a-test) (progn
+                                 (cider-test-update-last-test ns (list var))
+                                 (cider-test-execute ns (list var))))
+           ;; the form under the point is a function, for which a logically named test exists
+           ;; in the corresponding test namespace
+           ((and ns (not is-a-test)) (when-let ((test-var (concat var "-test"))
+                                                (ns (funcall cider-test-infer-test-ns
+                                                             (cider-current-ns t))))
+                                       (if (cider--test-var-p ns test-var)
+                                           (cider-test-execute ns (list test-var))
+                                         (message "No test found for the function at point"))))
+           (t (message "No test at point"))))))))
 
 (defun cider-test-rerun-test ()
   "Re-run the test that was previously ran."
