@@ -843,6 +843,35 @@ See `cider-test-rerun-test'."
                             ns)
                            "value"))))
 
+(defun cider--extract-test-var-at-point ()
+  "Find ns and var for the test at point.
+The test ns/var exist as text properties on report items and on highlighted
+failed/erred test definitions.
+
+When not found, a test definition at point
+or in a corresponding test namespace is searched."
+  (let* ((ns-from-text-property (get-text-property (point) 'ns))
+         (var-from-text-property (when ns-from-text-property
+                                   ;; we're in a `cider-test-report-mode' buffer
+                                   ;; or on a highlighted failed/erred test definition
+                                   (get-text-property (point) 'var))))
+    (or (when (and var-from-text-property
+                   ;; Slightly redundant check. However querying `cider-resolve--get-in` is cheap:
+                   (cider--test-var-p ns-from-text-property var-from-text-property))
+          (list ns-from-text-property var-from-text-property))
+        (when-let* ((n (cider-get-ns-name))
+                    (v (cadr (clojure-find-def))))
+          (or (when (cider--test-var-p n v)
+                (list n v))
+              (let ((derived-ns (funcall cider-test-infer-test-ns n))
+                    (derived-var (concat v "-test")))
+                ;; deftest foo-test:
+                (or (when (cider--test-var-p derived-ns derived-var)
+                      (list derived-ns derived-var))
+                    ;; deftest foo (less usual, but quite frequent):
+                    (when (cider--test-var-p derived-ns v)
+                      (list derived-ns v)))))))))
+
 (defun cider-test-run-test ()
   "Run the test at point.
 The test ns/var exist as text properties on report items and on highlighted
@@ -851,27 +880,7 @@ failed/erred test definitions.
 When not found, a test definition at point
 or in a corresponding test namespace is searched."
   (interactive)
-  (let* ((ns-from-text-property (get-text-property (point) 'ns))
-         (var-from-text-property (when ns-from-text-property
-                                   ;; we're in a `cider-test-report-mode' buffer
-                                   ;; or on a highlighted failed/erred test definition
-                                   (get-text-property (point) 'var)))
-         (found (or (when (and var-from-text-property
-                               ;; Slightly redundant check. However querying `cider-resolve--get-in` is cheap:
-                               (cider--test-var-p ns-from-text-property var-from-text-property))
-                      (list ns-from-text-property var-from-text-property))
-                    (when-let* ((n (cider-get-ns-name))
-                                (v (cadr (clojure-find-def))))
-                      (or (when (cider--test-var-p n v)
-                            (list n v))
-                          (let ((derived-ns (funcall cider-test-infer-test-ns n))
-                                (derived-var (concat v "-test")))
-                            ;; deftest foo-test:
-                            (or (when (cider--test-var-p derived-ns derived-var)
-                                  (list derived-ns derived-var))
-                                ;; deftest foo (less usual, but quite frequent):
-                                (when (cider--test-var-p derived-ns v)
-                                  (list derived-ns v))))))))
+  (let* ((found (cider--extract-test-var-at-point))
          (found-ns (car found))
          (found-var (cadr found)))
     (if (not found-var)
