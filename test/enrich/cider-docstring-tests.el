@@ -39,21 +39,21 @@
 
 (describe "cider--render-docstring"
   (it "A large corpus of fragments (as produced by Orchard) can be rendered using `shr' without raising errors"
-    (dolist (class '("Thread" "Object" "File" "String"))
+    (dolist (class '("Thread" "Object" "File" "String" "Map"))
       (let* ((filename (concat default-directory
                                "test/"
                                class
                                ".edn"))
-             (_ (assert (file-exists-p filename) t))
+             (_ (cl-assert (file-exists-p filename) t))
              (class-contents (with-temp-buffer
                                (insert-file-contents filename)
                                (parseedn-read-str (buffer-string)))))
-        (assert (> (length class-contents) 0)
-                t)
+        (cl-assert (> (length class-contents) 0)
+                   t)
         (dotimes (i (length class-contents))
           (let* ((member (aref class-contents i)))
-            (assert (> (hash-table-count member) 0)
-                    t)
+            (cl-assert (> (hash-table-count member) 0)
+                       t)
             (gethash :doc-fragments member)
             (let* ((doc-first-sentence-fragments (cider-render-docstring-test--convert-fragments
                                                   (gethash :doc-first-sentence-fragments member)))
@@ -63,7 +63,7 @@
                                      "doc-block-tags-fragments" (cider-render-docstring-test--convert-fragments
                                                                  (gethash :doc-block-tags-fragments member))))
                    (result (cider--render-docstring eldoc-info)))
-              (assert (stringp result) t (prin1-to-string eldoc-info))
+              (cl-assert (stringp result) t (prin1-to-string eldoc-info))
               (expect (stringp result)
                       :to-be-truthy)
               (expect (> (length result) 0)
@@ -71,7 +71,7 @@
               (when (> (length doc-first-sentence-fragments)
                        0)
                 (let ((result (cider--render-docstring (list "doc-first-sentence-fragments" doc-first-sentence-fragments))))
-                  (assert (stringp result) t (prin1-to-string doc-first-sentence-fragments))
+                  (cl-assert (stringp result) t (prin1-to-string doc-first-sentence-fragments))
                   (expect (stringp result)
                           :to-be-truthy)
                   (expect (> (length result) 0)

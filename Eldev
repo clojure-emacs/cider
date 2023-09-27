@@ -23,6 +23,7 @@
                                     (eldev-pcase-exhaustive cider-test-type
                                                             (`main        "./test/*/")
                                                             (`integration '("./test/"   "!./test/integration"))
+                                                            (`enrich      '("./test/"   "!./test/enrich"))
                                                             (`all         '("./test/*/" "!./test/integration")))
                                     "test/integration/projects"
                                     ;; This file is _supposed_ to be excluded
@@ -30,12 +31,12 @@
                                     "test/cider-tests--no-auto.el"))
 
 (eldev-defoption cider-test-selection (type)
-  "Select tests to run; type can be `main', `integration' or `all'"
+  "Select tests to run; type can be `main', `integration', `enrich' or `all'"
   :options        (-T --test-type)
   :for-command    test
   :value          TYPE
   :default-value  cider-test-type
-  (unless (memq (intern type) '(main integration all))
+  (unless (memq (intern type) '(main integration enrich all))
     (signal 'eldev-wrong-option-usage `("unknown test type `%s'" ,type)))
   (setf cider-test-type (intern type)))
 
