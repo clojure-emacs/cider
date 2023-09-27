@@ -710,11 +710,11 @@ running them."
               ;; we generate a different message when running individual tests
               (cider-test-echo-running ns (car tests))
             (cider-test-echo-running ns)))
-        (let ((retest? (eq :non-passing ns))
-              (request `("op" ,(cond ((stringp ns)         "test")
-                                     ((eq :project ns)     "test-all")
-                                     ((eq :loaded ns)      "test-all")
-                                     (retest?              "retest")))))
+        (let* ((retest? (eq :non-passing ns))
+               (request `("op" ,(cond ((stringp ns)         "test")
+                                      ((eq :project ns)     "test-all")
+                                      ((eq :loaded ns)      "test-all")
+                                      (retest?              "retest")))))
           ;; we add optional parts of the request only when relevant
           (when (and (listp include-selectors) include-selectors)
             (setq request (append request `("include" ,include-selectors))))
