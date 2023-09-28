@@ -1778,11 +1778,12 @@ The checking is done as follows:
                                             (cider-classpath-entries))))
                                   (process-put proc :cached-classpath cp)
                                   cp)))
-                 (ns-list (or (process-get proc :all-namespaces)
-                              (let ((ns-list (with-current-buffer repl
-                                               (cider-sync-request:ns-list))))
-                                (process-put proc :all-namespaces ns-list)
-                                ns-list)))
+                 (ns-list (when (nrepl-op-supported-p "ns-list" repl)
+                            (or (process-get proc :all-namespaces)
+                                (let ((ns-list (with-current-buffer repl
+                                                 (cider-sync-request:ns-list))))
+                                  (process-put proc :all-namespaces ns-list)
+                                  ns-list))))
                  (classpath-roots (or (process-get proc :cached-classpath-roots)
                                       (let ((cp (thread-last classpath
                                                              (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
