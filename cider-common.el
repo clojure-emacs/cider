@@ -305,6 +305,10 @@ whether DIRECTION is 'from-nrepl or 'to-nrepl."
           (seq-filter #'identity (mapcar f cider-path-translations))
         (seq-some f cider-path-translations)))))
 
+(defun cider--unix-time ()
+  "Returns the Unix time."
+  (float-time))
+
 (defun cider--all-path-translations ()
   "Returns `cider-path-translations' if non-empty, else seeks a present value."
   (or cider-path-translations
