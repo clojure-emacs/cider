@@ -1043,11 +1043,17 @@ The default options of `browser-repl' and `node-repl' are also included."
 (defun cider--shadow-get-builds ()
   "Extract build names from the shadow-cljs.edn config file in the project root."
   (let ((shadow-edn (concat (clojure-project-dir) "shadow-cljs.edn")))
-    (when (file-exists-p shadow-edn)
+    (when (file-readable-p shadow-edn)
       (with-temp-buffer
         (insert-file-contents shadow-edn)
-        (let ((hash (car (parseedn-read '((shadow/env . identity))))))
-          (cider--shadow-parse-builds hash))))))
+        (condition-case err
+            (let ((hash (car (parseedn-read '((shadow/env . identity)
+                                              (env . identity))))))
+              (cider--shadow-parse-builds hash))
+          (error
+           (user-error "Found an error while reading %s with message: %s"
+                       shadow-edn
+                       (error-message-string err))))))))
 
 (defun cider-shadow-select-cljs-init-form ()
   "Generate the init form for a shadow-cljs select-only REPL.
