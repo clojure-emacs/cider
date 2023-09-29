@@ -678,8 +678,8 @@ If location could not be found, return nil."
                                         (point))))
                         (list begin end buffer)))))))))))))
 
-(defun cider-handle-compilation-errors (message eval-buffer)
-  "Highlight and jump to compilation error extracted from MESSAGE.
+(defun cider-handle-compilation-errors (message eval-buffer &optional no-jump)
+  "Highlight and jump to compilation error extracted from MESSAGE, honor NO-JUMP.
 EVAL-BUFFER is the buffer that was current during user's interactive
 evaluation command.  Honor `cider-auto-jump-to-error'."
   (when-let* ((loc (cider--find-last-error-location message))
@@ -687,10 +687,11 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
               (info (cider-extract-error-info cider-compilation-regexp message)))
     (let* ((face (nth 3 info))
            (note (nth 4 info))
-           (auto-jump (if (eq cider-auto-jump-to-error 'errors-only)
-                          (not (or (eq face 'cider-warning-highlight-face)
-                                   (string-match-p "warning" note)))
-                        cider-auto-jump-to-error)))
+           (auto-jump (unless no-jump
+                        (if (eq cider-auto-jump-to-error 'errors-only)
+                            (not (or (eq face 'cider-warning-highlight-face)
+                                     (string-match-p "warning" note)))
+                          cider-auto-jump-to-error))))
       (overlay-put overlay 'cider-note-p t)
       (overlay-put overlay 'font-lock-face face)
       (overlay-put overlay 'cider-note note)
@@ -774,6 +775,21 @@ REPL buffer.  This is controlled via
             (cider--make-fringe-overlay (point)))
         (scan-error nil)))))
 
+(defun cider--error-from-ignored-phase-p (buffer)
+  "Returns whether the latest exception associated to BUFFER should be ignored."
+  (when cider-clojure-compilation-error-phases
+    (when-let ((conn (with-current-buffer buffer
+                       (cider-current-repl))))
+      (when (cider-nrepl-op-supported-p "analyze-last-stacktrace" conn)
+        (when-let* ((result (nrepl-send-sync-request (thread-last (map-merge 'list
+                                                                             '(("op" "analyze-last-stacktrace"))
+                                                                             (cider--nrepl-print-request-map fill-column))
+                                                                  (seq-mapcat #'identity))
+                                                     conn))
+                    (phase (nrepl-dict-get result
+                                           "phase")))
+          (member phase cider-clojure-compilation-error-phases))))))
+
 (declare-function cider-inspect-last-result "cider-inspector")
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
@@ -796,17 +812,29 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                    (cider--display-interactive-eval-result res end))
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
-                                 (lambda (_buffer err)
+                                 (lambda (buffer err)
                                    (cider-emit-interactive-eval-err-output err)
 
-                                   (when (or (not cider-show-error-buffer)
-                                             (not (cider-connection-has-capability-p 'jvm-compilation-errors)))
+                                   (let ((from-ignored-phase (cider--error-from-ignored-phase-p buffer)))
+                                     (when (or
+                                            ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
+                                            (not cider-show-error-buffer)
+                                            (not (cider-connection-has-capability-p 'jvm-compilation-errors))
+                                            ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
+                                            (and cider-show-error-buffer from-ignored-phase))
+                                       ;; Display errors as temporary overlays
+                                       (let ((cider-result-use-clojure-font-lock nil))
+                                         (cider--display-interactive-eval-result
+                                          err end 'cider-error-overlay-face)))
 
-                                     ;; Display errors as temporary overlays
-                                     (let ((cider-result-use-clojure-font-lock nil))
-                                       (cider--display-interactive-eval-result
-                                        err end 'cider-error-overlay-face)))
-                                   (cider-handle-compilation-errors err eval-buffer))
+                                     (cider-handle-compilation-errors err
+                                                                      eval-buffer
+                                                                      ;; we prevent jumping behavior on compilation errors,
+                                                                      ;; because lines tend to be spurious (e.g. 0:0)
+                                                                      ;; and because on compilation errors, normally
+                                                                      ;; the error is 'right there' in the current line
+                                                                      ;; and needs no jumping:
+                                                                      from-ignored-phase)))
                                  (lambda (buffer)
                                    (if beg
                                        (unless fringed
