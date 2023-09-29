@@ -1912,31 +1912,55 @@ Use `cider-ps-running-lein-nrepls-command' and
 (defun cider--running-non-lein-nrepl-paths ()
   "Retrieve (directory, port) pairs of running nREPL servers other than Lein ones."
   (unless (eq system-type 'windows-nt)
-    (let ((non-lein-nrepl-pids
-           (thread-last (split-string
-                         (shell-command-to-string "ps u | grep java | grep -v leiningen | grep nrepl.cmdline")
-                         "\n")
-                        (mapcar (lambda (s)
-                                  (nth 1 (split-string s " "))))
-                        (seq-filter #'identity))))
+    (let* ((bb-indicator "--nrepl-server")
+           (non-lein-nrepl-pids
+            (thread-last (split-string
+                          (shell-command-to-string
+                           ;; some of the `ps u` lines we intend to catch:
+                           ;; <username> 15411 0.0  0.0 37915744  16084 s000  S+ 3:02PM 0:00.02 bb --nrepl-server
+                           ;; <username> 13835 0.1 11.2 37159036 7528432 s009 S+ 2:47PM 6:41.29 java -cp src -m nrepl.cmdline
+                           (format "ps u | grep -E 'java|%s' | grep -E 'nrepl.cmdline|%s' | grep -v -E 'leiningen|grep'"
+                                   bb-indicator
+                                   bb-indicator))
+                          "\n")
+                         (mapcar (lambda (s)
+                                   (nth 1 (split-string s " "))))
+                         (seq-filter #'identity))))
       (when non-lein-nrepl-pids
-        (mapcar (lambda (pid)
-                  (let* ((directory (thread-last (split-string (shell-command-to-string (concat "lsof -a -d cwd -n -Fn -p " pid))
-                                                               "\n")
-                                                 (seq-map (lambda (s)
-                                                            (when (string-prefix-p "n" s)
-                                                              (replace-regexp-in-string "^n" "" s))))
-                                                 (seq-filter #'identity)
-                                                 car))
-                         (port (thread-last (split-string (shell-command-to-string (concat "lsof -n -Fn -i -a -p " pid))
-                                                          "\n")
-                                            (seq-map (lambda (s)
-                                                       (when (string-prefix-p "n" s)
-                                                         (replace-regexp-in-string ".*:" "" s))))
-                                            (seq-filter #'identity)
-                                            car)))
-                    (list directory port)))
-                non-lein-nrepl-pids)))))
+        (thread-last non-lein-nrepl-pids
+                     (mapcar (lambda (pid)
+                               (let* (
+                                      ;; -a: This flag is used to combine conditions with AND instead of OR
+                                      ;; -d: Lists only the file descriptors that match the given <descriptor>
+                                      ;; -n: Inhibits the conversion of network numbers to host names.
+                                      ;; -Fn: output file entry information as separate lines, with 'n' designating network info.
+                                      ;; -p: specifies the <PID>.
+                                      (directory (thread-last (split-string (shell-command-to-string (concat "lsof -a -d cwd -n -Fn -p " pid))
+                                                                            "\n")
+                                                              (seq-map (lambda (s)
+                                                                         (when (string-prefix-p "n" s)
+                                                                           (replace-regexp-in-string "^n" "" s))))
+                                                              (seq-filter #'identity)
+                                                              car))
+                                      ;; -a: This flag is used to combine conditions with AND instead of OR
+                                      ;; -n: Inhibits the conversion of network numbers to host names.
+                                      ;; -P: (important!) Ensure ports are shown as numbers, even if they have a well-known name.
+                                      ;; -Fn: output file entry information as separate lines, with 'n' designating network info.
+                                      ;; -i: this option selects the listing of all network files.
+                                      ;; -p: specifies the <PID>.
+                                      (port (thread-last (split-string (shell-command-to-string (concat "lsof -n -P -Fn -i -a -p " pid))
+                                                                       "\n")
+                                                         (seq-map (lambda (s)
+                                                                    (when (string-prefix-p "n" s)
+                                                                      (replace-regexp-in-string ".*:" "" s))))
+                                                         (seq-filter #'identity)
+                                                         (seq-filter (lambda (s)
+                                                                       (condition-case nil
+                                                                           (numberp (read s))
+                                                                         (error nil))))
+                                                         car)))
+                                 (list directory port))))
+                     (seq-filter #'cadr))))))
 
 (defun cider--running-local-nrepl-paths ()
   "Retrieve project paths of running nREPL servers.
