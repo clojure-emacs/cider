@@ -22,24 +22,33 @@
 (setf eldev-standard-excludes `(:or ,eldev-standard-excludes
                                     ;; Avoid including files in test "projects".
                                     (eldev-pcase-exhaustive cider-test-type
-                                                            (`main        "./test/*/")
-                                                            (`integration '("./test/"   "!./test/integration"))
-                                                            (`enrich      '("./test/"   "!./test/enrich"))
-                                                            (`all         '("./test/*/" "!./test/integration")))
+                                                            (`main            "./test/*/")
+                                                            (`integration     '("./test/"   "!./test/integration"))
+                                                            (`enrich          '("./test/"   "!./test/enrich"))
+                                                            (`clojure-ts-mode '("./test/*/" "!./test/clojure-ts-mode"))
+                                                            (`all             '("./test/*/" "!./test/integration")))
                                     "test/integration/projects"
                                     ;; This file is _supposed_ to be excluded
                                     ;; from automated testing.
                                     "test/cider-tests--no-auto.el"))
 
 (eldev-defoption cider-test-selection (type)
-  "Select tests to run; type can be `main', `integration', `enrich' or `all'"
+  "Select tests to run; type can be `main', `integration', `enrich', `clojure-ts-mode' or `all'"
   :options        (-T --test-type)
   :for-command    test
   :value          TYPE
   :default-value  cider-test-type
-  (unless (memq (intern type) '(main integration enrich all))
+  (unless (memq (intern type) '(main integration enrich clojure-ts-mode all))
     (signal 'eldev-wrong-option-usage `("unknown test type `%s'" ,type)))
   (setf cider-test-type (intern type)))
+
+(add-hook 'eldev-load-dependencies-hook
+          (lambda (type additional-sets)
+            (when (and (eq cider-test-type 'clojure-ts-mode)
+                       (member 'runtime additional-sets))
+              (message "Installing tree-sitter grammars")
+              (require 'clojure-ts-mode)
+              (clojure-ts--ensure-grammars))))
 
 (add-hook 'eldev-test-hook
           (lambda ()

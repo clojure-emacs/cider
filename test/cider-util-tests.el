@@ -374,3 +374,21 @@ and some other vars (like clojure.core/filter).
       (expect (cider--find-symbol-xref) :to-equal "clojure.core/map")
       (expect (cider--find-symbol-xref) :to-equal "clojure.core/filter")
       (expect (cider--find-symbol-xref) :to-equal nil))))
+
+(describe "major-mode-predicates"
+  (with-temp-buffer
+    (it "matches clojure-mode"
+      (clojure-mode)
+      (expect (cider-clojure-major-mode-p) :to-be-truthy)
+      (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
+      (expect (cider-clojurec-major-mode-p) :not :to-be-truthy))
+    (it "matches clojurescript-mode"
+      (clojurescript-mode)
+      (expect (cider-clojure-major-mode-p) :to-be-truthy)
+      (expect (cider-clojurescript-major-mode-p) :to-be-truthy)
+      (expect (cider-clojurec-major-mode-p) :not :to-be-truthy))
+    (it "matches clojurec-mode"
+      (clojurec-mode)
+      (expect (cider-clojure-major-mode-p) :to-be-truthy)
+      (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
+      (expect (cider-clojurec-major-mode-p) :to-be-truthy))))
