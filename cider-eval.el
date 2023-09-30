@@ -775,7 +775,7 @@ REPL buffer.  This is controlled via
             (cider--make-fringe-overlay (point)))
         (scan-error nil)))))
 
-(defun cider--error-phase-of-latest-exception (buffer)
+(defun cider--error-phase-of-last-exception (buffer)
   "Returns the :phase of the latest exception associated to BUFFER, if any."
   (when cider-clojure-compilation-error-phases
     (when-let ((conn (with-current-buffer buffer
@@ -813,7 +813,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                  (lambda (buffer err)
                                    (cider-emit-interactive-eval-err-output err)
 
-                                   (let ((phase (cider--error-phase-of-latest-exception buffer)))
+                                   (let ((phase (cider--error-phase-of-last-exception buffer)))
                                      (when (or
                                             ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
                                             (not cider-show-error-buffer)
