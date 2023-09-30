@@ -274,13 +274,33 @@ MAX-SIZE is the new value."
   (when-let ((value (cider-sync-request:inspect-set-max-coll-size max-size)))
     (cider-inspector--render-value value)))
 
+(defcustom cider-inspector-preferred-var-names nil
+  "The preferred var names to be suggested by `cider-inspector-def-current-val'.
+
+If you choose a different one while completing interactively,
+it will be included (in the first position) the next time
+you use `cider-inspector-def-current-val'."
+  :type '(repeat string)
+  :group 'cider
+  :package-version '(cider . "1.8.0"))
+
+(defun cider-inspector--read-var-name-from-user (ns)
+  "Reads a var name from the user, to be defined within NS.
+Grows `cider-inspector-preferred-var-names' if the user chose a new name,
+making that new name take precedence for subsequent usages."
+  (let ((v (completing-read (format "Name of the var to be defined in ns %s: " ns)
+                            cider-inspector-preferred-var-names)))
+    (unless (member v cider-inspector-preferred-var-names)
+      (setq cider-inspector-preferred-var-names (cons v cider-inspector-preferred-var-names)))
+    v))
+
 (defun cider-inspector-def-current-val (var-name ns)
   "Defines a var with VAR-NAME in current namespace.
 
 Doesn't modify current page.  When called interactively NS defaults to
 current-namespace."
   (interactive (let ((ns (cider-current-ns)))
-                 (list (read-from-minibuffer (concat "Var name: " ns "/"))
+                 (list (cider-inspector--read-var-name-from-user ns)
                        ns)))
   (setq cider-inspector--current-repl (cider-current-repl))
   (when-let* ((value (cider-sync-request:inspect-def-current-val ns var-name)))
