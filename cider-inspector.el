@@ -274,7 +274,7 @@ MAX-SIZE is the new value."
   (when-let ((value (cider-sync-request:inspect-set-max-coll-size max-size)))
     (cider-inspector--render-value value)))
 
-(defcustom cider-inspector-preferred-var-names '("X")
+(defcustom cider-inspector-preferred-var-names nil
   "The preferred var names to be suggested by `cider-inspector-def-current-val'.
 
 If you choose a different one while completing interactively,
