@@ -822,9 +822,15 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                             (and cider-show-error-buffer
                                                  (member phase cider-clojure-compilation-error-phases)))
                                        ;; Display errors as temporary overlays
-                                       (let ((cider-result-use-clojure-font-lock nil))
+                                       (let ((cider-result-use-clojure-font-lock nil)
+                                             (trimmed-err (thread-last err
+                                                                       (replace-regexp-in-string cider-clojure-compilation-regexp
+                                                                                                 "")
+                                                                       (string-trim))))
                                          (cider--display-interactive-eval-result
-                                          err end 'cider-error-overlay-face)))
+                                          trimmed-err
+                                          end
+                                          'cider-error-overlay-face)))
 
                                      (cider-handle-compilation-errors err
                                                                       eval-buffer
