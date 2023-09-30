@@ -28,10 +28,10 @@
 - [#3331](https://github.com/clojure-emacs/cider/issues/3331): `cider-eval`: never jump to spurious locations, as sometimes conveyed by nREPL.  
 - [#3112](https://github.com/clojure-emacs/cider/issues/3112): Fix the CIDER `xref-find-references` backend to return correct filenames.
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): recompute namespace info on each shadow-cljs recompilation or evaluation.
-- [#3402](https://github.com/clojure-emacs/cider/issues/3402): fix `cider-format-connection-params` edge case for Emacs 29.
+- [#3402](https://github.com/clojure-emacs/cider/issues/3402): Fix `cider-format-connection-params` edge case for Emacs 29.
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): Recompute namespace info on each shadow-cljs recompilation or evaluation.
 - Recompute namespace info on each fighweel-main recompilation.
-- [#3250](https://github.com/clojure-emacs/cider/issues/3250): don't lose the CIDER session over TRAMP files. 
+- [#3250](https://github.com/clojure-emacs/cider/issues/3250): Don't lose the CIDER session over TRAMP files. 
 - [#3413](https://github.com/clojure-emacs/cider/issues/3413): Make jump-to-definition work in projects needing `cider-path-translations` (i.e. Dockerized projects). 
 - [#2436](https://github.com/clojure-emacs/cider/issues/2436): Prevent malformed `cider-repl-history-file`s from failing `cider-jack-in`.
 - [#3456](https://github.com/clojure-emacs/cider/issues/3456): restore xref-based jump-to-definition in Babashka (and any nREPL clients not having cider-nrepl).
