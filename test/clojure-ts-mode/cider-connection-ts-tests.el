@@ -56,5 +56,3 @@
       (expect (cider-repl-type-for-buffer) :to-be 'multi))))
 
 (provide 'cider-connection-ts-tests)
-
-;;; clojure-connection-ts-tests.el ends here

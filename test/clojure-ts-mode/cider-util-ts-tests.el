@@ -57,5 +57,3 @@
       (expect (cider-clojurec-major-mode-p) :to-be-truthy))))
 
 (provide 'cider-ts-util-tests)
-
-;;; cider-util-ts-tests.el ends here
