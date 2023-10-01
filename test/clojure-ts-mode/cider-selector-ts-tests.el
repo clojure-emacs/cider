@@ -36,5 +36,3 @@
     (cider-test-selector-method ?c 'clojure-ts-mode "*treesitter-test*.clj")))
 
 (provide 'cider-selector-ts-tests)
-
-;;; clojure-selector-ts-tests.el ends here
