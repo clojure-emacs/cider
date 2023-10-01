@@ -55,6 +55,8 @@
 - `cider-test`: only show diffs for collections.
 - `cider-inspector-def-current-val` now can suggest a var name (default none), which can be customized via `cider-inspector-preferred-var-names`.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
+- Interactive evaluation: show a shorter overlay when rendering compilation errors.
+  - e.g., the `Syntax error compiling clojure.core/let at (foo/bar.clj:10:1)` prefix is now removed. 
 - Ensure there's a leading `:` when using `cider-clojure-cli-aliases`.
 - Improve `nrepl-dict` error reporting.
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).

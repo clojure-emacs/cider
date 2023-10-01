@@ -596,7 +596,16 @@ It delegates the actual error content to the eval or op handler."
    `(rx bol (or ,cider-clojure-1.9-error
                 ,cider-clojure-warning
                 ,cider-clojure-1.10-error))
-   t))
+   t)
+  "A few example values that will match:
+\"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
+\"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
+lol in this context, compiling:(/foo/core.clj:10:1)\"
+\"Syntax error compiling at (src/workspace_service.clj:227:3).\"")
+
+(replace-regexp-in-string cider-clojure-compilation-regexp
+                          ""
+                          "Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - call to java.lang.Integer ctor can't be resolved.")
 
 
 (defvar cider-compilation-regexp
@@ -822,9 +831,15 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                             (and cider-show-error-buffer
                                                  (member phase cider-clojure-compilation-error-phases)))
                                        ;; Display errors as temporary overlays
-                                       (let ((cider-result-use-clojure-font-lock nil))
+                                       (let ((cider-result-use-clojure-font-lock nil)
+                                             (trimmed-err (thread-last err
+                                                                       (replace-regexp-in-string cider-clojure-compilation-regexp
+                                                                                                 "")
+                                                                       (string-trim))))
                                          (cider--display-interactive-eval-result
-                                          err end 'cider-error-overlay-face)))
+                                          trimmed-err
+                                          end
+                                          'cider-error-overlay-face)))
 
                                      (cider-handle-compilation-errors err
                                                                       eval-buffer
