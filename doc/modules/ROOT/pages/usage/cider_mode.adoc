@@ -18,7 +18,7 @@ it, so you can be productive.
 (add-hook 'clojure-mode-hook #'cider-mode)
 ----
 
-or if you are using `clojure-ts-mode`
+or if you are using `clojure-ts-mode`:
 
 [source,lisp]
 ----

@@ -157,6 +157,7 @@ but without connecting to the started nREPL server.
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable [`cider-reuse-dead-repls`](https://docs.cider.mx/cider/usage/managing_connections.html#reusing-dead-repls) to control how dead REPL buffers are reused on new connections.
 - Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode) 
 - [#3461](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode) 
+- [#3461](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER with [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode)
   - The clojure-mode dependency is still required for CIDER to function
   - some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with clojure-ts-mode (yet).
 
