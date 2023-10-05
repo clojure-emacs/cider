@@ -337,6 +337,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Eval last sexp and pretty-print to REPL" cider-pprint-eval-last-sexp-to-repl]
     ["Eval last sexp and pretty-print to comment" cider-pprint-eval-last-sexp-to-comment]
     "--"
+    ["Eval selected region if active, otherwise top-level sexp" cider-eval-dwim]
     ["Eval selected region" cider-eval-region]
     ["Eval ns form" cider-eval-ns-form]
     "--"
@@ -495,6 +496,7 @@ higher precedence."
     (define-key map (kbd "M-TAB") #'complete-symbol)
     (define-key map (kbd "C-M-x")   #'cider-eval-defun-at-point)
     (define-key map (kbd "C-c C-c") #'cider-eval-defun-at-point)
+    (define-key map (kbd "C-c C-d") #'cider-eval-dwim)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)

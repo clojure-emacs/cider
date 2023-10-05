@@ -1361,6 +1361,14 @@ buffer, else display in a popup buffer."
                    'help-echo "Breakpoint. Reevaluate this form to remove it."
                    :type 'cider-fragile))))
 
+(defun cider-eval-dwim (&optional debug-it)
+  "If no region is active, call `cider-eval-defun-at-point' with DEBUG-IT.
+If a region is active, run `cider-eval-region'"
+  (interactive "P")
+  (if (use-region-p)
+      (cider-eval-region (region-beginning) (region-end))
+    (cider-eval-defun-at-point debug-it)))
+
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
 With DEBUG-IT prefix argument, also debug the entire form as with the
