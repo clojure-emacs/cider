@@ -465,7 +465,7 @@
                                      " -M:dev:test:cider/nrepl")
                                    "")))
         (setq-local cider-jack-in-dependencies nil)
-        (setq-local cider-clojure-cli-aliases "-A:dev:test")
+        (setq-local cider-clojure-cli-aliases ":dev:test")
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
         (setq-local cider-inject-dependencies-at-jack-in t)
