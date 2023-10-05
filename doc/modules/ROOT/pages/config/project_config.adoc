@@ -22,7 +22,7 @@ Very simply put, all you need to do is to create in the root of your project a f
 [source,emacs-lisp]
 ----
 ((clojurescript-mode
-  (cider-clojure-cli-aliases . "-A:fig")
+  (cider-clojure-cli-aliases . ":fig")
   (eval . (cider-register-cljs-repl-type 'super-cljs "(do (foo) (bar))"))
   (cider-default-cljs-repl . super-cljs)))
 ----

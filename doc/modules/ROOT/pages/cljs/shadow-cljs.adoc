@@ -112,7 +112,7 @@ Create a `:dev` alias with an extra source path of "dev" and add the following n
 
 Supposing your build-id is `:app`, add the following to your `.dir-locals.el`
 ```elisp
-((nil . ((cider-clojure-cli-aliases        . "-M:dev")
+((nil . ((cider-clojure-cli-aliases        . ":dev")
          (cider-preferred-build-tool       . clojure-cli)
          (cider-default-cljs-repl          . custom)
          (cider-custom-cljs-repl-init-form . "(do (user/cljs-repl))")
