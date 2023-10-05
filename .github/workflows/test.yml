@@ -1,6 +1,15 @@
 name: CI
 
-on: [push, pull_request]
+# This `on:` configuration avoids double-triggered jobs (one for `push`, one for `pull_request`).
+# Pull requests will still get jobs on every commit.
+# However you won't get jobs on branch pushes that lack an associated pull requests.
+# On the other hand, CircleCI jobs will still be triggered, which give a useful form of feedback.
+# Lastly, remember that we have a Makefile for local development - you are encouraged to use it before pushing commits.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 permissions:
   contents: read #  to fetch code (actions/checkout)
