@@ -1365,9 +1365,10 @@ buffer, else display in a popup buffer."
   "If no region is active, call `cider-eval-defun-at-point' with DEBUG-IT.
 If a region is active, run `cider-eval-region'"
   (interactive "P")
-  (if (use-region-p)
-      (cider-eval-region (region-beginning) (region-end))
-    (cider-eval-defun-at-point debug-it)))
+  (let ((clojure-toplevel-inside-comment-form t))
+    (if (use-region-p)
+        (cider-eval-region (region-beginning) (region-end))
+      (cider-eval-defun-at-point debug-it))))
 
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
