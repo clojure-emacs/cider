@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 ### New features
+
 - [#3352](https://github.com/clojure-emacs/cider/pull/3496) Add `cider-eval-dwim`, If no region is active, eval the toplevel form with `cider-eval-defun-at-point`. If a region is active, run `cider-eval-region`
 - [#3352](https://github.com/clojure-emacs/cider/pull/3352) Add CIDER Log Mode, a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
 - `cider-test`: add timing information.
