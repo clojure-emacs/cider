@@ -150,6 +150,26 @@ image::completion-annotations.png[Completion Annotations]
 TIP: Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to `nil`.
 
+=== Notes on class disambiguation
+
+Sometimes, the completion user experience may be interrupted by a `completing-read`
+that asks for the `Member in class`. This is used for better Java completions and documentation.
+
+However, if you are not interested in the current candidate, disambiguating it is of no use,
+and the prompt can be a nuisance.
+
+If you are using Company for completions and IDO for `completing-read`, you can cause the `<up>` and `<down>`
+keys to cancel the prompt by customizing:
+
+[source,lisp]
+----
+(advice-add 'cider-class-choice-completing-read
+            :around
+            (lambda (f a b)
+              (cider--with-temporary-ido-keys "<up>" "<down>"
+                (funcall f a b))))
+----
+
 === Changing the completion style
 
 Sometimes the user may want to use a different completion style just for the CIDER

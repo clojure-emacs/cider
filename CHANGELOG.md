@@ -58,6 +58,7 @@
 - Always match friendly sessions for `cider-ancillary-buffers` (like `*cider-error*`, `*cider-result*`, etc).
 - `cider-test`: only show diffs for collections.
 - `cider-inspector-def-current-val` now can suggest a var name (default none), which can be customized via `cider-inspector-preferred-var-names`.
+- The "Member in class: " prompt can now be skipped in ido-mode by pressing `<up>` or `<down>`.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
 - Interactive evaluation: show a shorter overlay when rendering compilation errors.
   - e.g., the `Syntax error compiling clojure.core/let at (foo/bar.clj:10:1)` prefix is now removed.
