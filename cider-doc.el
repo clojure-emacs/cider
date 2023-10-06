@@ -266,17 +266,17 @@ opposite of what that option dictates."
 
 (defconst cider-doc-buffer "*cider-doc*")
 
-(defun cider-create-doc-buffer (symbol &optional shorter)
+(defun cider-create-doc-buffer (symbol &optional compact)
   "Populates *cider-doc* with the documentation for SYMBOL,
-favoring a SHORTER format if specified."
+favoring a COMPACT format if specified."
   (when-let* ((info (cider-var-info symbol)))
-    (cider-docview-render (cider-make-popup-buffer cider-doc-buffer nil 'ancillary) symbol info shorter)))
+    (cider-docview-render (cider-make-popup-buffer cider-doc-buffer nil 'ancillary) symbol info compact)))
 
-(defun cider-create-shorter-doc-buffer (symbol)
+(defun cider-create-compact-doc-buffer (symbol)
   "Populates *cider-doc* with the documentation for SYMBOL.
 
-Favors a shorter rendering of docstrings"
-  (cider-create-doc-buffer symbol :shorter))
+Favors a compact rendering of docstrings"
+  (cider-create-doc-buffer symbol :compact))
 
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
@@ -407,9 +407,9 @@ Same for `jar:file:...!/' segments."
             file))
       result)))
 
-(defun cider-docview-render-info (buffer info &optional shorter for-tooltip)
+(defun cider-docview-render-info (buffer info &optional compact for-tooltip)
   "Emit into BUFFER formatted INFO for the Clojure or Java symbol,
-in a SHORTER format is specified, FOR-TOOLTIP if specified."
+in a COMPACT format is specified, FOR-TOOLTIP if specified."
   (let* ((ns      (nrepl-dict-get info "ns"))
          (name    (nrepl-dict-get info "name"))
          (added   (nrepl-dict-get info "added"))
@@ -422,16 +422,16 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
          (args    (or (nrepl-dict-get info "annotated-arglists")
                       (when-let* ((str (nrepl-dict-get info "arglists-str")))
                         (split-string str "\n"))))
-         (rendered-fragments (cider--render-docstring (list "doc-fragments" (unless shorter
+         (rendered-fragments (cider--render-docstring (list "doc-fragments" (unless compact
                                                                               (nrepl-dict-get info "doc-fragments"))
                                                             "doc-block-tags-fragments" (nrepl-dict-get info "doc-block-tags-fragments")
                                                             "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments"))))
          (fetched-doc (nrepl-dict-get info "doc"))
          (doc     (or rendered-fragments
-                      (if shorter
+                      (if compact
                           (cider-docstring--dumb-trim fetched-doc)
                         fetched-doc)
-                      (unless shorter
+                      (unless compact
                         "Not documented.")))
          (url     (nrepl-dict-get info "url"))
          (class   (nrepl-dict-get info "class"))
@@ -471,7 +471,7 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
           (dolist (form forms)
             (emit (cider-font-lock-as-clojure form)
                   nil))
-          (when shorter
+          (when compact
             ;; Compensate for the newlines not `emit`ted in the previous call:
             (insert "\n")))
         (when special
@@ -498,7 +498,7 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
                               'action (lambda (x)
                                         (browse-url (button-get x 'url))))
           (insert "\n"))
-        (when (and (not shorter) javadoc)
+        (when (and (not compact) javadoc)
           (insert "\n\nFor additional documentation, see the ")
           (insert-text-button "Javadoc"
                               'url javadoc
@@ -516,7 +516,7 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
                               'action (lambda (_)
                                         (cider-browse-spec (format "%s/%s" ns name))))
           (insert "\n\n"))
-        (unless shorter
+        (unless compact
           (if (and cider-docview-file (not (string= cider-docview-file "")))
               (progn
                 (insert (propertize (if class java-name clj-name)
@@ -528,7 +528,7 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
                                               (cider-docview-source)))
                 (insert "."))
             (insert "Definition location unavailable.")))
-        (when (and (not shorter)
+        (when (and (not compact)
                    see-also)
           (insert "\n\n Also see: ")
           (mapc (lambda (ns-sym)
@@ -543,7 +543,7 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
                                         'help-function (apply-partially #'cider-doc-lookup symbol)))
                   (insert " "))
                 see-also))
-        (unless shorter
+        (unless compact
           (cider--doc-make-xrefs))
         (let ((beg (point-min))
               (end (point-max)))
@@ -553,9 +553,9 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
       (current-buffer))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
-(defun cider-docview-render (buffer symbol info &optional shorter for-tooltip)
+(defun cider-docview-render (buffer symbol info &optional compact for-tooltip)
   "Emit into BUFFER formatted documentation for SYMBOL's INFO,
-favoring a SHORTER format if specified, FOR-TOOLTIP if specified."
+favoring a COMPACT format if specified, FOR-TOOLTIP if specified."
   (with-current-buffer buffer
     (let ((javadoc (nrepl-dict-get info "javadoc"))
           (file (nrepl-dict-get info "file"))
@@ -571,7 +571,7 @@ favoring a SHORTER format if specified, FOR-TOOLTIP if specified."
       (setq-local cider-docview-line line)
 
       (remove-overlays)
-      (cider-docview-render-info buffer info shorter for-tooltip)
+      (cider-docview-render-info buffer info compact for-tooltip)
 
       (goto-char (point-min))
       (current-buffer))))

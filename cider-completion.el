@@ -200,7 +200,7 @@ performed by `cider-annotate-completion-function'."
                                                (cider-complete prefix) prefix pred)))))
             :annotation-function #'cider-annotate-symbol
             :company-kind #'cider-company-symbol-kind
-            :company-doc-buffer #'cider-create-shorter-doc-buffer
+            :company-doc-buffer #'cider-create-compact-doc-buffer
             :company-location #'cider-company-location
             :company-docsig #'cider-company-docsig))))
 
