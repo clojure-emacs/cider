@@ -39,8 +39,27 @@ is already properly indented.
 
 While the standard Emacs tooling works just fine, we suggest that
 CIDER users consider using
-http://company-mode.github.io/[`company-mode`] instead. Company
-can be used for auto-completion in both source code and REPL buffers.
+http://company-mode.github.io/[`company-mode`] or https://github.com/minad/corfu[`corfu-mode`] instead. These
+can be used for auto-completion in both source code and REPL buffers, with the following advantages:
+
+* A nicer UI.
+* Integration with Clojure docstrings and Java doc comments.
+
+=== Configuration
+
+Both company-mode and corfu-mode are affected by the following CIDER configuration options:
+
+* `cider-docstring-max-lines` (default `20`) controls how many lines, at most, of this docstring
+will be included (in a popup or the echo area, depending on your setup) while offering completions.
+It's worth noting, for Java documentation, CIDER doesn't simply trim lines,
+but it looks at the structure and tries to find the largest combination of these that fits into `cider-docstring-max-lines`:
+ ** The entire comment body, followed by its "block tags" (Returns/Throws/Params information)
+ ** The first sentence of the comment, followed by the block tags
+ ** The block tags
+ ** The first sentence of the comment.
+
+=== company-mode installation
+
 To install `company-mode`:
 
 kbd:[M-x] `package-install` kbd:[RET] `company` kbd:[RET]
@@ -77,6 +96,21 @@ you can add this to your config:
 [source,lisp]
 ----
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+----
+
+Company's documentation mechanism and CIDER's documentation facilities are integrated.
+
+While a completion is being offered to you, you can hit (kbd:[F1])
+(the default `company-show-doc-buffer` key binding) for displaying documentation
+and arglists under a temporary `*cider-doc*` buffer.
+
+In order for Company to always show docstrings and other metadata under a temporary `*cider-doc*` buffer,
+without needing to hit an extra key, please customize:
+
+[source,lisp]
+----
+;; (You may want to do this as a setq-local within a clojure-mode-hook instead)
+(custom-set-variables '(company-auto-update-doc t))
 ----
 
 === Fuzzy candidate matching

@@ -23,6 +23,7 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         emacs_version: ['26.3', '27.2', '28.2', '29.1']
+        java_version: ['11', '17']
 
     steps:
     - name: Set up Emacs
@@ -67,7 +68,7 @@ jobs:
       with:
         distribution: 'temurin'
         # shadow requires java 11
-        java-version: 11
+        java-version: ${{matrix.java_version}}
 
     - name: Install Clojure Tools
       # Use SHA until
@@ -91,3 +92,11 @@ jobs:
         # be GH connectivity runner issues. We attempt to address this
         # problem by rerunning the tests more than once.
         eldev -p -dtTC test --test-type integration || eldev -p -dtTC test --test-type integration
+        
+    - name: Run tests that need enrich-classpath
+      if: "!startsWith(matrix.os, 'windows')"
+      run: |
+        cd dev; ../clojure.sh clojure -M:gen; cd -
+        wc -l test/File.edn
+        eldev -p -dtTC test --test-type enrich || eldev -p -dtTC test --test-type enrich
+        

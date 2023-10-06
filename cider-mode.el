@@ -39,6 +39,7 @@
 (require 'cider-doc) ; required only for the menu
 (require 'cider-profile) ; required only for the menu
 (require 'cider-completion)
+(require 'cider-completion-context)
 (require 'cider-inspector)
 (require 'cider-find)
 (require 'cider-xref-backend)
@@ -982,7 +983,7 @@ before point."
   "Return a string of what would be displayed by `cider-docview-render'.
 SYM and INFO is passed to `cider-docview-render'"
   (with-temp-buffer
-    (cider-docview-render (current-buffer) sym info)
+    (cider-docview-render (current-buffer) sym info :compact :for-tooltip) ;; :compact because we don't want huge tooltips - especially for Java
     (goto-char (point-max))
     (forward-line -1)
     (replace-regexp-in-string
@@ -1018,7 +1019,7 @@ See \(info \"(elisp) Special Properties\")"
                             (let* ((locals (nrepl-dict-get cider--debug-mode-response "locals"))
                                    (local-val (cadr (assoc sym locals))))
                               (format " with value:\n%s" local-val))))
-                (let* ((info (cider-sync-request:info sym))
+                (let* ((info (cider-sync-request:info sym nil nil (cider-completion-get-context t)))
                        (candidates (nrepl-dict-get info "candidates")))
                   (if candidates
                       (concat "There were ambiguities resolving this symbol:\n\n"

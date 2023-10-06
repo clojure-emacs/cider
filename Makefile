@@ -19,8 +19,14 @@ lint: clean
 compile: clean
 	 eldev -dtT compile --warnings-as-errors
 
-test-all: clean
+test/File.edn:
+	cd dev; ../clojure.sh clojure -M:gen
+
+test-all: clean test/File.edn
 	eldev -dtT -p test --test-type all
+
+test-enrich: clean test/File.edn
+	eldev -dtT -p test --test-type enrich
 
 test-integration: clean
 	eldev -dtT -p test --test-type integration

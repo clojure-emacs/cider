@@ -31,15 +31,11 @@
 
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-completion-context)
 (require 'cider-doc)
+(require 'cider-docstring)
 (require 'cider-eldoc)
 (require 'nrepl-dict)
-
-(defcustom cider-completion-use-context t
-  "When true, uses context at point to improve completion suggestions."
-  :type 'boolean
-  :group 'cider
-  :package-version '(cider . "0.7.0"))
 
 (defcustom cider-annotate-completion-candidates t
   "When true, annotate completion candidates with some extra information."
@@ -115,55 +111,6 @@ if the candidate is not namespace-qualified."
                  (const :tag "never" nil))
   :group 'cider
   :package-version '(cider . "0.9.0"))
-
-(defvar cider-completion-last-context nil)
-
-(defun cider-completion-symbol-start-pos ()
-  "Find the starting position of the symbol at point, unless inside a string."
-  (let ((sap (symbol-at-point)))
-    (when (and sap (not (nth 3 (syntax-ppss))))
-      (car (bounds-of-thing-at-point 'symbol)))))
-
-(defun cider-completion-get-context-at-point ()
-  "Extract the context at point.
-If point is not inside the list, returns nil; otherwise return \"top-level\"
-form, with symbol at point replaced by __prefix__."
-  (when (save-excursion
-          (condition-case _
-              (progn
-                (up-list)
-                (check-parens)
-                t)
-            (scan-error nil)
-            (user-error nil)))
-    (save-excursion
-      (let* ((pref-end (point))
-             (pref-start (cider-completion-symbol-start-pos))
-             (context (cider-defun-at-point))
-             (_ (beginning-of-defun-raw))
-             (expr-start (point)))
-        (concat (when pref-start (substring context 0 (- pref-start expr-start)))
-                "__prefix__"
-                (substring context (- pref-end expr-start)))))))
-
-(defun cider-completion-get-context ()
-  "Extract context depending on `cider-completion-use-context' and major mode."
-  (let ((context (if (and cider-completion-use-context
-                          ;; Important because `beginning-of-defun' and
-                          ;; `ending-of-defun' work incorrectly in the REPL
-                          ;; buffer, so context extraction fails there.
-                          (derived-mode-p 'clojure-mode))
-                     ;; We use ignore-errors here since grabbing the context
-                     ;; might fail because of unbalanced parens, or other
-                     ;; technical reasons, yet we don't want to lose all
-                     ;; completions and throw error to user because of that.
-                     (or (ignore-errors (cider-completion-get-context-at-point))
-                         "nil")
-                   "nil")))
-    (if (string= cider-completion-last-context context)
-        ":same"
-      (setq cider-completion-last-context context)
-      context)))
 
 (defun cider-completion--parse-candidate-map (candidate-map)
   "Get \"candidate\" from CANDIDATE-MAP.
@@ -253,7 +200,7 @@ performed by `cider-annotate-completion-function'."
                                                (cider-complete prefix) prefix pred)))))
             :annotation-function #'cider-annotate-symbol
             :company-kind #'cider-company-symbol-kind
-            :company-doc-buffer #'cider-create-doc-buffer
+            :company-doc-buffer #'cider-create-compact-doc-buffer
             :company-location #'cider-company-location
             :company-docsig #'cider-company-docsig))))
 
@@ -281,11 +228,10 @@ in the buffer."
 
 (defun cider-company-docsig (thing)
   "Return signature for THING."
-  (let* ((eldoc-info (cider-eldoc-info thing))
-         (ns (lax-plist-get eldoc-info "ns"))
-         (symbol (lax-plist-get eldoc-info "symbol"))
-         (arglists (lax-plist-get eldoc-info "arglists")))
-    (when eldoc-info
+  (when-let ((eldoc-info (cider-eldoc-info thing)))
+    (let* ((ns (lax-plist-get eldoc-info "ns"))
+           (symbol (lax-plist-get eldoc-info "symbol"))
+           (arglists (lax-plist-get eldoc-info "arglists")))
       (format "%s: %s"
               (cider-eldoc-format-thing ns symbol thing
                                         (cider-eldoc-thing-type eldoc-info))

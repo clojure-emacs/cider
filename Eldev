@@ -11,12 +11,19 @@
 (eldev-add-loading-roots 'test "test/utils")
 (eldev-add-extra-dependencies 'runtime '(:package logview :optional t))
 
+;; slightly increase the maximum (applies to checkdoc and the byte compiler alike)
+(setq byte-compile-docstring-max-column 100)
+
+;; allow commas to indicate that the first sentence continues, which enables longer first sentences
+(setq checkdoc-permit-comma-termination-flag t)
+
 (defvar cider-test-type 'main)
 (setf eldev-standard-excludes `(:or ,eldev-standard-excludes
                                     ;; Avoid including files in test "projects".
                                     (eldev-pcase-exhaustive cider-test-type
                                                             (`main        "./test/*/")
                                                             (`integration '("./test/"   "!./test/integration"))
+                                                            (`enrich      '("./test/"   "!./test/enrich"))
                                                             (`all         '("./test/*/" "!./test/integration")))
                                     "test/integration/projects"
                                     ;; This file is _supposed_ to be excluded
@@ -24,12 +31,12 @@
                                     "test/cider-tests--no-auto.el"))
 
 (eldev-defoption cider-test-selection (type)
-  "Select tests to run; type can be `main', `integration' or `all'"
+  "Select tests to run; type can be `main', `integration', `enrich' or `all'"
   :options        (-T --test-type)
   :for-command    test
   :value          TYPE
   :default-value  cider-test-type
-  (unless (memq (intern type) '(main integration all))
+  (unless (memq (intern type) '(main integration enrich all))
     (signal 'eldev-wrong-option-usage `("unknown test type `%s'" ,type)))
   (setf cider-test-type (intern type)))
 

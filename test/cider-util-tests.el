@@ -33,6 +33,10 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
+(defun with-clojure-buffer--go-to-point ()
+  (when (search-forward "|" nil 'noerror)
+    (delete-char -1)))
+
 (defmacro with-clojure-buffer (contents &rest body)
   "Execute BODY in a clojure-mode buffer with CONTENTS
 
@@ -44,8 +48,7 @@ buffer."
      (delay-mode-hooks (clojure-mode))
      (insert ,contents)
      (goto-char (point-min))
-     (when (search-forward "|" nil 'noerror)
-       (delete-char -1))
+     (with-clojure-buffer--go-to-point)
      ,@body))
 
 ;;; cider-util tests
@@ -233,7 +236,17 @@ buffer."
   (describe "when the param 'bounds is given"
     (it "returns the bounds of starting and ending positions of the defun"
       (with-clojure-buffer "a\n\n(defn ...)|\n\nb"
-        (expect (cider-defun-at-point 'bounds) :to-equal '(4 15))))))
+        (expect (cider-defun-at-point 'bounds) :to-equal '(4 15)))))
+
+  (describe "within a repl"
+    (it "also works"
+      (with-temp-buffer
+        (insert "user> (.| \"\")")
+        (goto-char (point-min))
+        (with-clojure-buffer--go-to-point)
+        (delay-mode-hooks ;; we just want to mark the mode as cider-nrepl, without running other code.
+          (cider-repl-mode))
+        (expect (cider-defun-at-point) :to-equal "(. \"\")")))))
 
 (describe "cider-repl-prompt-function"
   (it "returns repl prompts"

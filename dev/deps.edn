@@ -1,0 +1,5 @@
+;; This file cannot live at CIDER's project root, because its presence can affect clojure-mode logic, making some tests fail.
+{:deps    {cider/orchard {:mvn/version "RELEASE"}}
+ :paths   ["."]
+ :aliases {:gen {:jvm-opts  ["-Dclojure.main.report=stderr"]
+                 :main-opts ["-m" "generate-html-fragments"]}}}

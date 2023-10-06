@@ -34,6 +34,7 @@
 (require 'spinner)
 
 (require 'cider-connection)
+(require 'cider-completion-context)
 (require 'cider-common)
 (require 'cider-util)
 (require 'nrepl-client)
@@ -520,7 +521,7 @@ When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
   (when (and var (not (string= var "")))
     (let ((var-info (cond
-                     ((cider-nrepl-op-supported-p "info") (cider-sync-request:info var))
+                     ((cider-nrepl-op-supported-p "info") (cider-sync-request:info var nil nil (cider-completion-get-context t)))
                      ((cider-nrepl-op-supported-p "lookup") (cider-sync-request:lookup var))
                      (t (cider-fallback-eval:info var)))))
       (if all var-info (cider--var-choice var-info)))))
@@ -528,7 +529,7 @@ unless ALL is truthy."
 (defun cider-member-info (class member)
   "Return the CLASS MEMBER's info as an alist with list cdrs."
   (when (and class member)
-    (cider-sync-request:info nil class member)))
+    (cider-sync-request:info nil class member (cider-completion-get-context t))))
 
 
 ;;; Requests
@@ -646,13 +647,14 @@ CONTEXT represents a completion context for compliment."
                                  nil
                                  'abort-on-input))
 
-(defun cider-sync-request:info (symbol &optional class member)
-  "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER."
+(defun cider-sync-request:info (symbol &optional class member context)
+  "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER, honor CONTEXT."
   (let ((var-info (thread-first `("op" "info"
                                   "ns" ,(cider-current-ns)
                                   ,@(when symbol `("sym" ,symbol))
                                   ,@(when class `("class" ,class))
-                                  ,@(when member `("member" ,member)))
+                                  ,@(when member `("member" ,member))
+                                  ,@(when context `("context" ,context)))
                                 (cider-nrepl-send-sync-request (cider-current-repl)))))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
@@ -669,13 +671,14 @@ CONTEXT represents a completion context for compliment."
         nil
       (nrepl-dict-get var-info "info"))))
 
-(defun cider-sync-request:eldoc (symbol &optional class member)
-  "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER."
+(defun cider-sync-request:eldoc (symbol &optional class member context)
+  "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER, honor CONTEXT."
   (when-let* ((eldoc (thread-first `("op" "eldoc"
                                      "ns" ,(cider-current-ns)
                                      ,@(when symbol `("sym" ,symbol))
                                      ,@(when class `("class" ,class))
-                                     ,@(when member `("member" ,member)))
+                                     ,@(when member `("member" ,member))
+                                     ,@(when context `("context" ,context)))
                                    (cider-nrepl-send-sync-request (cider-current-repl)
                                                                   'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
