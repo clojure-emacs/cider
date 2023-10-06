@@ -419,8 +419,9 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
          (builtin (nrepl-dict-get info "built-in")) ;; babashka specific
          (forms   (when-let* ((str (nrepl-dict-get info "forms-str")))
                     (split-string str "\n")))
-         (args    (when-let* ((str (nrepl-dict-get info "arglists-str")))
-                    (split-string str "\n")))
+         (args    (or (nrepl-dict-get info "annotated-arglists")
+                      (when-let* ((str (nrepl-dict-get info "arglists-str")))
+                        (split-string str "\n"))))
          (rendered-fragments (cider--render-docstring (list "doc-fragments" (unless shorter
                                                                               (nrepl-dict-get info "doc-fragments"))
                                                             "doc-block-tags-fragments" (nrepl-dict-get info "doc-block-tags-fragments")
@@ -467,17 +468,9 @@ in a SHORTER format is specified, FOR-TOOLTIP if specified."
                                                (unless (equal f "nil")
                                                  f))
                                              forms))))
-          (if shorter
-              (dolist (form forms)
-                (emit (cider-font-lock-as-clojure form)
-                      nil
-                      ;; Use a space instead of a newline, since abundant arglists can bury the docstring otherwise:
-                      "")
-                (insert " "))
-            (dolist (form forms)
-              (insert " ")
-              (emit (cider-font-lock-as-clojure form)
-                    nil)))
+          (dolist (form forms)
+            (emit (cider-font-lock-as-clojure form)
+                  nil))
           (when shorter
             ;; Compensate for the newlines not `emit`ted in the previous call:
             (insert "\n")))
