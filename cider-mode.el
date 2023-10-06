@@ -496,7 +496,7 @@ higher precedence."
     (define-key map (kbd "M-TAB") #'complete-symbol)
     (define-key map (kbd "C-M-x")   #'cider-eval-defun-at-point)
     (define-key map (kbd "C-c C-c") #'cider-eval-defun-at-point)
-    (define-key map (kbd "C-c C-d") #'cider-eval-dwim)
+    (define-key map (kbd "C-c C-v C-d") #'cider-eval-dwim)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
