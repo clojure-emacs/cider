@@ -418,7 +418,7 @@ This includes the arglist and ns and symbol name (if available)."
        ;; generic case
        (t (if (equal thing (car cider-eldoc-last-symbol))
               (cadr cider-eldoc-last-symbol)
-            (when-let* ((eldoc-info (cider-sync-request:eldoc thing nil nil (cider-completion-get-context))))
+            (when-let* ((eldoc-info (cider-sync-request:eldoc thing nil nil (cider-completion-get-context t))))
               (let* ((arglists (nrepl-dict-get eldoc-info "eldoc"))
                      (docstring (nrepl-dict-get eldoc-info "docstring"))
                      (type (nrepl-dict-get eldoc-info "type"))
