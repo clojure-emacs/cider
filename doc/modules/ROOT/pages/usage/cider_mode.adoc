@@ -87,9 +87,8 @@ kbd:[C-c C-c]
 | Evaluate the top level form under point and display the result in the echo area.
 
 | `cider-eval-dwim`
-| kbd:[C-c C-v C-d]
+| kbd:[C-c C-v s]
 | If no region is active, eval the toplevel form with cider-eval-defun-at-point. If a region is active, run cider-eval-region
-
 
 | `cider-eval-list-at-point`
 | kbd:[C-c C-v l] +
