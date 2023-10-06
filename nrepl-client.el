@@ -500,7 +500,9 @@ and kill the process buffer."
         (goto-char (point-max))
         (insert-before-markers
          (propertize
-          (format "\n*** Closed on %s ***\n" (current-time-string))
+          (format "\n*** Closed on %s ***\n" (replace-regexp-in-string "  +"
+                                                                       " "
+                                                                       (current-time-string)))
           'face 'cider-repl-stderr-face))
         (run-hooks 'nrepl-disconnected-hook)
         (let ((server-buffer nrepl-server-buffer))
