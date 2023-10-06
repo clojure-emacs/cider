@@ -103,14 +103,13 @@ Company's documentation mechanism and CIDER's documentation facilities are integ
 While a completion is being offered to you, you can hit (kbd:[F1])
 (the default `company-show-doc-buffer` key binding) for displaying documentation
 and arglists under a temporary `*cider-doc*` buffer.
-Note that the `cider-company-docsig-render-docstring` option makes this buffer mostly redundant.
-You may prefer either approach.
 
 In order for Company to always show docstrings and other metadata under a temporary `*cider-doc*` buffer,
 without needing to hit an extra key, please customize:
 
 [source,lisp]
 ----
+;; (You may want to do this as a setq-local within a clojure-mode-hook instead)
 (custom-set-variables '(company-auto-update-doc t))
 ----
 
