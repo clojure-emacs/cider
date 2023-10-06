@@ -49,11 +49,6 @@ can be used for auto-completion in both source code and REPL buffers, with the f
 
 Both company-mode and corfu-mode are affected by the following CIDER configuration options:
 
-* `cider-company-docsig-render-docstring` (default `t` )controls whether the docstring will be rendered
-(in a popup or the echo area, depending on your setup) in addition to the arglists.
-This will not in overly large documentation being printed, because
-CIDER performs smart (semantic) trimming internally.
-
 * `cider-docstring-max-lines` (default `20`) controls how many lines, at most, of this docstring
 will be included (in a popup or the echo area, depending on your setup) while offering completions.
 It's worth noting, for Java documentation, CIDER doesn't simply trim lines,

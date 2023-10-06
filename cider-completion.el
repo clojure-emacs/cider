@@ -226,40 +226,16 @@ in the buffer."
         (forward-line (1- line))
         (cons buffer (point))))))
 
-(defcustom cider-company-docsig-render-docstring
-  (if (bound-and-true-p company-auto-update-doc)
-      nil ;; if the user enabled company-auto-update-doc, docstrings are redundant.
-    t)
-  "When true, company-docsig output,
-as used by company-mode and corfu-mode alike, will include docstrings.
-
-You may want to disable this if you frequently use `company-show-doc-buffer'
-\(default binding <f1> under `company-mode'),
-since the information displayed in both parts will be very similar."
-  :type 'boolean
-  :group 'cider
-  :package-version '(cider . "1.8.0"))
-
 (defun cider-company-docsig (thing)
   "Return signature for THING."
   (when-let ((eldoc-info (cider-eldoc-info thing)))
     (let* ((ns (lax-plist-get eldoc-info "ns"))
            (symbol (lax-plist-get eldoc-info "symbol"))
-           (arglists (lax-plist-get eldoc-info "arglists"))
-           (docstring (lax-plist-get eldoc-info "docstring"))
-           (final-doc (when cider-company-docsig-render-docstring
-                        (or (cider--render-docstring eldoc-info)
-                            ;; Typically only needed if the :doc-*-fragments attributes were missing,
-                            ;; which currently is the case for vanilla Clojure code (non-Java interop),
-                            ;; and Java interop when enrich-classpath isn't present:
-                            (cider-docstring--dumb-trim docstring)))))
-      (format "%s: %s%s"
+           (arglists (lax-plist-get eldoc-info "arglists")))
+      (format "%s: %s"
               (cider-eldoc-format-thing ns symbol thing
                                         (cider-eldoc-thing-type eldoc-info))
-              (cider-eldoc-format-arglist arglists 0)
-              (if final-doc
-                  (concat "\n\n" final-doc)
-                "")))))
+              (cider-eldoc-format-arglist arglists 0)))))
 
 ;; Fuzzy completion for company-mode
 
