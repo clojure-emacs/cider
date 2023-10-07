@@ -8,7 +8,7 @@
   * It will be progressively refined and [documented](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath), please consider this alpha software.
 - [#3472](https://github.com/clojure-emacs/cider/pull/3472): render Java doc comments and arglists with an improved format, and improve Java interop type inference.
   * Requires enrich-classpath to be enabled (see previous bullet point).
-- [#3352](https://github.com/clojure-emacs/cider/pull/3352) Add CIDER Log Mode, a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
+- [#3352](https://github.com/clojure-emacs/cider/pull/3352): Add CIDER Log Mode, a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
 - [#3418](https://github.com/clojure-emacs/cider/issues/3418): Introduce `cider-clojure-compilation-error-phases`.
   - This prevents stacktraces from showing up whenever the [:clojure.error/phase](https://clojure.org/reference/repl_and_main#_at_repl) indicates that it's a compilation error.
 - Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
@@ -16,7 +16,7 @@
   - This also makes obsolete the `cider-test-defining-forms` customization variable.
 - `cider-test`: add timing information.
 - `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom and `cider-test-toggle-fail-fast` keybinding.
-- [#3352](https://github.com/clojure-emacs/cider/pull/3496) Introduce [`cider-eval-dwim`](https://docs.cider.mx/cider/usage/cider_mode.html#key-reference).
+- [#3352](https://github.com/clojure-emacs/cider/pull/3496): Introduce [`cider-eval-dwim`](https://docs.cider.mx/cider/usage/cider_mode.html#key-reference).
 - Add new customization variable `cider-clojurec-eval-destination` to allow specifying which REPL CLJC evals are sent to.
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
 
@@ -27,15 +27,15 @@
 - [#3355](https://github.com/clojure-emacs/cider/pull/3355): Fix `cider-mode` disabling itself after a disconnect when `cider-auto-mode` is set to nil.
 - [#3362](https://github.com/clojure-emacs/cider/issues/3362): Fix `sesman-restart` regression issue.
 - [#3236](https://github.com/clojure-emacs/cider/issues/3236): `cider-repl-set-ns` no longer changes the repl session type from `cljs:shadow` to `clj`.
-- [#3383](https://github.com/clojure-emacs/cider/issues/3383): `cider-connect-clj&cljs`: don't render `"ClojureScript REPL type:"` for JVM repls. 
-- [#3331](https://github.com/clojure-emacs/cider/issues/3331): `cider-eval`: never jump to spurious locations, as sometimes conveyed by nREPL.  
+- [#3383](https://github.com/clojure-emacs/cider/issues/3383): `cider-connect-clj&cljs`: don't render `"ClojureScript REPL type:"` for JVM repls.
+- [#3331](https://github.com/clojure-emacs/cider/issues/3331): `cider-eval`: never jump to spurious locations, as sometimes conveyed by nREPL.
 - [#3112](https://github.com/clojure-emacs/cider/issues/3112): Fix the CIDER `xref-find-references` backend to return correct filenames.
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): recompute namespace info on each shadow-cljs recompilation or evaluation.
 - [#3402](https://github.com/clojure-emacs/cider/issues/3402): Fix `cider-format-connection-params` edge case for Emacs 29.
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): Recompute namespace info on each shadow-cljs recompilation or evaluation.
 - Recompute namespace info on each fighweel-main recompilation.
-- [#3250](https://github.com/clojure-emacs/cider/issues/3250): Don't lose the CIDER session over TRAMP files. 
-- [#3413](https://github.com/clojure-emacs/cider/issues/3413): Make jump-to-definition work in projects needing `cider-path-translations` (i.e. Dockerized projects). 
+- [#3250](https://github.com/clojure-emacs/cider/issues/3250): Don't lose the CIDER session over TRAMP files.
+- [#3413](https://github.com/clojure-emacs/cider/issues/3413): Make jump-to-definition work in projects needing `cider-path-translations` (i.e. Dockerized projects).
 - [#2436](https://github.com/clojure-emacs/cider/issues/2436): Prevent malformed `cider-repl-history-file`s from failing `cider-jack-in`.
 - [#3456](https://github.com/clojure-emacs/cider/issues/3456): restore xref-based jump-to-definition in Babashka (and any nREPL clients not having cider-nrepl).
 - [#3466](https://github.com/clojure-emacs/cider/issues/3466): Restore usual `cider--connected-handler` performance for JVM Clojure repls.
@@ -59,7 +59,7 @@
 - `cider-inspector-def-current-val` now can suggest a var name (default none), which can be customized via `cider-inspector-preferred-var-names`.
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
 - Interactive evaluation: show a shorter overlay when rendering compilation errors.
-  - e.g., the `Syntax error compiling clojure.core/let at (foo/bar.clj:10:1)` prefix is now removed. 
+  - e.g., the `Syntax error compiling clojure.core/let at (foo/bar.clj:10:1)` prefix is now removed.
 - Ensure there's a leading `:` when using `cider-clojure-cli-aliases`.
 - Improve `nrepl-dict` error reporting.
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
