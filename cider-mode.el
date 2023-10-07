@@ -338,6 +338,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Eval last sexp and pretty-print to REPL" cider-pprint-eval-last-sexp-to-repl]
     ["Eval last sexp and pretty-print to comment" cider-pprint-eval-last-sexp-to-comment]
     "--"
+    ["Eval selected region if active, otherwise top-level sexp" cider-eval-dwim]
     ["Eval selected region" cider-eval-region]
     ["Eval ns form" cider-eval-ns-form]
     "--"

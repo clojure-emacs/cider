@@ -4,18 +4,21 @@
 
 ### New features
 
+- [#3364](https://github.com/clojure-emacs/cider/pull/3364): Update enrich-classpath, adding Clojure CLI compatibility, and reworking its integration into CIDER.
+  * It will be progressively refined and [documented](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath), please consider this alpha software.
+- [#3472](https://github.com/clojure-emacs/cider/pull/3472): render Java doc comments and arglists with an improved format, and improve Java interop type inference.
+  * Requires enrich-classpath to be enabled (see previous bullet point).
 - [#3352](https://github.com/clojure-emacs/cider/pull/3352) Add CIDER Log Mode, a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
-- `cider-test`: add timing information.
-- `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom and `cider-test-toggle-fail-fast` keybinding.
-- Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
 - [#3418](https://github.com/clojure-emacs/cider/issues/3418): Introduce `cider-clojure-compilation-error-phases`.
   - This prevents stacktraces from showing up whenever the [:clojure.error/phase](https://clojure.org/reference/repl_and_main#_at_repl) indicates that it's a compilation error.
-- Add new customization variable `cider-clojurec-eval-destination` to allow specifying which REPL CLJC evals are sent to.
-- [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
-- [#3364](https://github.com/clojure-emacs/cider/pull/3364): Update enrich-classpath, adding Clojure CLI compatibility, and reworking its integration into CIDER.
-  * It will be progressively refined and documented, please consider this alpha software.
+- Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
 - [#2958](https://github.com/clojure-emacs/cider/issues/2958), [#3279](https://github.com/clojure-emacs/cider/issues/3279): `cider-test-run-test`: support arbitrary deftest-like forms, defns with :test metadata, and search for a `-test` counterpart for a given defn (following `cider-test-infer-test-ns` logic).
   - This also makes obsolete the `cider-test-defining-forms` customization variable.
+- `cider-test`: add timing information.
+- `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom and `cider-test-toggle-fail-fast` keybinding.
+- [#3352](https://github.com/clojure-emacs/cider/pull/3496) Introduce [`cider-eval-dwim`](https://docs.cider.mx/cider/usage/cider_mode.html#key-reference).
+- Add new customization variable `cider-clojurec-eval-destination` to allow specifying which REPL CLJC evals are sent to.
+- [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
 
 ### Bugs fixed
 

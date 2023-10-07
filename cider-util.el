@@ -734,6 +734,7 @@ through a stack of help buffers.  Variables `help-back-label' and
     "Press <\\[cider-apropos]> to look for a symbol by some search string."
     "Press <\\[cider-apropos-documentation]> to look for a symbol that has some string in its docstring."
     "Press <\\[cider-eval-defun-at-point]> to eval the top-level form at point."
+    "Press <\\[cider-eval-dwim]> to eval to run cider-eval-region if a region is active, and cider-eval-defun-at-point otherwise."
     "Press <\\[cider-eval-defun-up-to-point]> to eval the top-level form up to the point."
     "Press <\\[cider-eval-sexp-up-to-point]> to eval the current form up to the point."
     "Press <\\[cider-eval-sexp-at-point]> to eval the current form around the point."

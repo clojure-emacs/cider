@@ -1361,6 +1361,17 @@ buffer, else display in a popup buffer."
                    'help-echo "Breakpoint. Reevaluate this form to remove it."
                    :type 'cider-fragile))))
 
+(defun cider-eval-dwim (&optional debug-it)
+  "If no region is active, call `cider-eval-defun-at-point' with DEBUG-IT.
+If a region is active, run `cider-eval-region'.
+
+Always binds `clojure-toplevel-inside-comment-form' to t."
+  (interactive "P")
+  (let ((clojure-toplevel-inside-comment-form t))
+    (if (use-region-p)
+        (cider-eval-region (region-beginning) (region-end))
+      (cider-eval-defun-at-point debug-it))))
+
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
 With DEBUG-IT prefix argument, also debug the entire form as with the
@@ -1543,6 +1554,7 @@ passing arguments."
     (define-key map (kbd "w") #'cider-eval-last-sexp-and-replace)
     (define-key map (kbd "r") #'cider-eval-region)
     (define-key map (kbd "n") #'cider-eval-ns-form)
+    (define-key map (kbd "s") #'cider-eval-dwim)
     (define-key map (kbd "d") #'cider-eval-defun-at-point)
     (define-key map (kbd "e") #'cider-eval-last-sexp)
     (define-key map (kbd "q") #'cider-tap-last-sexp)
@@ -1561,6 +1573,7 @@ passing arguments."
     (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
     (define-key map (kbd "C-r") #'cider-eval-region)
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
+    (define-key map (kbd "C-s") #'cider-eval-dwim)
     (define-key map (kbd "C-d") #'cider-eval-defun-at-point)
     (define-key map (kbd "C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-q") #'cider-tap-last-sexp)
