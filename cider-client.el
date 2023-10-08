@@ -500,10 +500,11 @@ without having to specify a Java class for the current candidate
      ,@body))
 
 (defun cider-class-choice-completing-read (prompt candidates)
-  "A completing read that can be customized with the `advice' mechanism.
+  "A completing read that can be customized with the `advice' mechanism,
+forwarding PROMPT and CANDIDATES as-is.
 
 See also: `cider--with-temporary-ido-keys'."
-  (completing-read "Member in class: " candidates))
+  (completing-read prompt candidates))
 
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
