@@ -37,8 +37,9 @@
 - [#3250](https://github.com/clojure-emacs/cider/issues/3250): Don't lose the CIDER session over TRAMP files.
 - [#3413](https://github.com/clojure-emacs/cider/issues/3413): Make jump-to-definition work in projects needing `cider-path-translations` (i.e. Dockerized projects).
 - [#2436](https://github.com/clojure-emacs/cider/issues/2436): Prevent malformed `cider-repl-history-file`s from failing `cider-jack-in`.
-- [#3456](https://github.com/clojure-emacs/cider/issues/3456): restore xref-based jump-to-definition in Babashka (and any nREPL clients not having cider-nrepl).
+- [#3456](https://github.com/clojure-emacs/cider/issues/3456): Restore xref-based jump-to-definition in Babashka (and any nREPL clients not having cider-nrepl).
 - [#3466](https://github.com/clojure-emacs/cider/issues/3466): Restore usual `cider--connected-handler` performance for JVM Clojure repls.
+- [#3503](https://github.com/clojure-emacs/cider/issues/3503): Make `cider-repl-set-ns` more reliable on Piggieback connections.
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
 - Fix the `cider-find-keyword` overall reliability and correctness, particularly for ClojureScript.
