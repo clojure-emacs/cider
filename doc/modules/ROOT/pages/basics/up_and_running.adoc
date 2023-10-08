@@ -318,7 +318,7 @@ reads for the host and port prompts when you invoke
     ("host-b" "7888")))
 ----
 
-== Working with Remote Hosts
+== Working with Remote Hosts 
 
 While most of the time you'd be connecting to a locally running nREPL
 server, that was started manually or via `cider-jack-in-*`, there's
@@ -350,6 +350,32 @@ You can safely run `cider-jack-in-*` while working with remote files over TRAMP.
 will reuse existing SSH connection's parameters (like port and username) for establishing SSH tunnel.
 The same will happen if you try to `cider-connect-*` to a host that matches the one you're currently
 connected to.
+
+== Working with Containers (Docker or others)
+Using containers means that the JVM in which the nrepl server process is runnings, runs inside a container.
+The files which we edit might / might not be edited using TRAMP. They could as well be mounted inside the container, so appear as local.
+
+So Cider can hardly detect if it deals with remote files, so it is better to not rely on `cider-jack-in` and its remote support described above, but to 
+start the nrepl server via command line from inside the container and `cider-connect` to it.
+This requires to first get a shell inside the running container and  start a nrepl server manualy or configure teh container to start an nrepl automatically when container starts.
+
+In order to connect Emacs to teh nrepl, we need to make sure that the port of nrepl is reachable to our local Emacs, so that we can `cider-connect` to it.
+There are several solutions for this depending on the concrete scenario.
+
+=== Working with Containers running on localhost
+The nrepl port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from 
+container to host. This requires as well that nrepl server listens on "0.0.0.0" and not only on "localhost".
+Docker has as well other ways to ensure the accessibility from containers ports on the host, not further detailed here.
+
+=== Working with Containers running on remote hosts
+In case we have the container runing on a remote machine, we need to to do the same setup as above and additionally use ssh to forward the already forwarded port again to our local machine. This can be done using a command such as "ssh -L  12345:localhost:12345 remote-server", asumming that 12345 was the port nrepl was exposed at by the container.
+
+=== Working with `devcontainers` local or remote
+`devcontainer` is a standard to describe container based development environments, comming with a command line tool.
+It uses Docker/Podman behind the scenes. So the principles of making sure that the nrepl port becomes available stays the same,
+but is has slighly different ways to configure this (given by the devcontainer standard)
+
+
 
 == Connecting via unix domain file socket
 
