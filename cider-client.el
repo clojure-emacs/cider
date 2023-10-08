@@ -474,6 +474,38 @@ itself is present."
   (with-current-buffer (cider-current-repl)
     nrepl-tooling-session))
 
+(declare-function ido-exit-minibuffer "ido" t)
+
+;; Not used anywhere, except in documentation as a suggestion for users.
+(defmacro cider--with-temporary-ido-keys (UP DOWN &rest body)
+  "Temporarily define UP, DOWN keys for ido and execute BODY.
+
+This makes the UX for auto-completion more streamlined,
+since one often wants to go to the next candidate (DOWN key)
+without having to specify a Java class for the current candidate
+\(because the current candidate may be irrelevant to the user)."
+  `(if (bound-and-true-p ido-common-completion-map)
+       (let ((original-up-binding (lookup-key ido-common-completion-map (kbd ,UP)))
+             (original-down-binding (lookup-key ido-common-completion-map (kbd ,DOWN))))
+         (define-key ido-common-completion-map (kbd ,UP) (lambda ()
+                                                           (interactive)
+                                                           (ido-exit-minibuffer)))
+         (define-key ido-common-completion-map (kbd ,DOWN) (lambda ()
+                                                             (interactive)
+                                                             (ido-exit-minibuffer)))
+         (unwind-protect
+             (progn ,@body)
+           (define-key ido-common-completion-map (kbd ,UP) original-up-binding)
+           (define-key ido-common-completion-map (kbd ,DOWN) original-down-binding)))
+     ,@body))
+
+(defun cider-class-choice-completing-read (prompt candidates)
+  "A completing read that can be customized with the `advice' mechanism,
+forwarding PROMPT and CANDIDATES as-is.
+
+See also: `cider--with-temporary-ido-keys'."
+  (completing-read prompt candidates))
+
 (defun cider--var-choice (var-info)
   "Prompt to choose from among multiple VAR-INFO candidates, if required.
 This is needed only when the symbol queried is an unqualified host platform
@@ -482,7 +514,7 @@ contain a `candidates' key, it is returned as is."
   (let ((candidates (nrepl-dict-get var-info "candidates")))
     (if candidates
         (let* ((classes (nrepl-dict-keys candidates))
-               (choice (completing-read "Member in class: " classes nil t))
+               (choice (cider-class-choice-completing-read "Member in class: " classes))
                (info (nrepl-dict-get candidates choice)))
           info)
       var-info)))
