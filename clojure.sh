@@ -24,6 +24,15 @@ else
   here="$PWD"
   there=$(mktemp -d -t mytempdir.XXXXXX)
 
+  # copy any relevant file to the temporary folder
+  files_to_copy=( ".tool-versions" # asdf runtime versions configuration
+                )
+  for file_to_copy in $files_to_copy; do
+    if [ -e "$file_to_copy" ]; then
+      cp "$file_to_copy" "$there"
+    fi
+  done
+
   # don't let local deps.edn files interfere:
   cd "$there"
 
