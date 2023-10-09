@@ -562,7 +562,8 @@ It delegates the actual error content to the eval or op handler."
                                      "Syntax error "
                                      (minimal-match (zero-or-more anything))
                                      (or "compiling "
-                                         "macroexpanding ")
+                                         "macroexpanding "
+                                         "reading source ")
                                      (minimal-match (zero-or-more anything))
                                      "at ("
                                      (group-n 2 (minimal-match (zero-or-more anything)))
