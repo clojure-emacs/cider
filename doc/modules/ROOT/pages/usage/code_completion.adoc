@@ -46,7 +46,7 @@ CIDER declares so in this fashion:
 [source,lisp]
 ----
 (add-to-list 'completion-category-overrides '(cider (styles basic flex)))
----
+----
 
 Note that `flex` will only work if you also enabled xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate matching].
 
