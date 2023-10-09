@@ -48,7 +48,7 @@
 
 ### Changes
 
-- Ensure that `cider` completion isn't used with completion styles that are currently unsupported (`flex` `initials` `partial-completion`, `orderless`, etc).
+- Ensure that `cider` completion isn't used with completion styles that are currently unsupported (`initials`, `partial-completion`, `orderless`, etc).
   - This restores completions for users that favor those styles - otherwise the would see bad or no completions.
 - Improve support for multiple forms in the same line by replacing `beginning-of-defun` fn.
 - [#3390](https://github.com/clojure-emacs/cider/issues/3390): Enhance `cider-connect` to show all nREPLs available ports, instead of only Leiningen ones.
