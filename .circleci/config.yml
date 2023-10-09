@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   win: circleci/windows@2.2.0
+  shellcheck: circleci/shellcheck@3.2.0
 
 # Default actions to perform on each Emacs version
 commands:
@@ -109,6 +110,14 @@ jobs:
       - setup-windows
       - test
 
+  test-shellcheck:
+    docker:
+      - image: circleci/clojure:openjdk-17-lein-2.9.5-buster
+    steps:
+      - checkout
+      - shellcheck/install
+      - shellcheck/check
+
   test-lint:
     docker:
       - image: silex/emacs:28-ci
@@ -120,25 +129,32 @@ workflows:
   version: 2.1
   ci-test-matrix:
     jobs:
+      - test-shellcheck
       - test-lint
       - test-ubuntu-emacs-26:
           requires:
             - test-lint
+            - test-shellcheck
       - test-ubuntu-emacs-27:
           requires:
             - test-lint
+            - test-shellcheck
       - test-ubuntu-emacs-28:
           requires:
             - test-lint
+            - test-shellcheck
       - test-ubuntu-emacs-29:
           requires:
             - test-lint
+            - test-shellcheck
       - test-ubuntu-emacs-master:
           requires:
             - test-lint
+            - test-shellcheck
       - test-windows-emacs-latest:
           requires:
             - test-lint
+            - test-shellcheck
       - test-macos-emacs-latest:
           requires:
             - test-ubuntu-emacs-28
