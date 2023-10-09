@@ -15,3 +15,5 @@ Now, from emacs you can `cider-connect` to localhost.
 
 * `M-:`, `(dired "/sshx:root@localhost#8022:/usr/src/app")`
 * `M-x cider-connect` (choose `localhost`, `7888`)
+
+NOTE: Do not visit `foo.clj` directly - do it from dired instead.
