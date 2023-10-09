@@ -249,6 +249,11 @@ in the buffer."
                cider-company-unfiltered-candidates
                "CIDER backend-driven completion style."))
 
+;; Currently CIDER completions only work for `basic`, and not `initials`, `partial-completion`, `orderless`, etc.
+;; So we ensure that those other styles aren't used with CIDER, otherwise one would see bad or no completions at all.
+;; This `add-to-list` call can be removed once we implement the other completion styles.
+(add-to-list 'completion-category-overrides '(cider (styles basic flex)))
+
 (defun cider-company-enable-fuzzy-completion ()
   "Enable backend-driven fuzzy completion in the current buffer."
   (setq-local completion-styles '(cider)))

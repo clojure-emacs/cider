@@ -35,6 +35,21 @@ Normally kbd:[TAB] only indents, but now it will also do completion if the code
 is already properly indented.
 ====
 
+== Completion styles
+
+CIDER defines (via the `completion-styles-alist` Elisp variable) a completion category named `cider`.
+
+The `cider` completion category currently only supports `basic` and `flex` completion styles (and not `partial-completion`, `orderless`, etc).
+
+CIDER declares so in this fashion:
+
+[source,lisp]
+----
+(add-to-list 'completion-category-overrides '(cider (styles basic flex)))
+---
+
+Note that `flex` will only work if you also enabled xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate matching].
+
 == Auto-completion
 
 While the standard Emacs tooling works just fine, we suggest that
