@@ -357,9 +357,9 @@ The files which we edit might / might not be edited using TRAMP. They could as w
 
 So Cider can hardly detect if it deals with remote files, so it is better to not rely on `cider-jack-in` and its remote support described above, but to 
 start the nrepl server via command line from inside the container and `cider-connect` to it.
-This requires to first get a shell inside the running container and  start a nrepl server manualy or configure teh container to start an nrepl automatically when container starts.
+This requires to first get a shell inside the running container and  then start a nrepl server manualy or configure the container to start an nrepl automatically when container starts.
 
-In order to connect Emacs to teh nrepl, we need to make sure that the port of nrepl is reachable to our local Emacs, so that we can `cider-connect` to it.
+In order to connect Emacs to the nrepl, we need to make sure that the port of nrepl is reachable to our local Emacs, so that we can `cider-connect` to it.
 There are several solutions for this depending on the concrete scenario.
 
 === Working with Containers running on localhost
@@ -374,6 +374,42 @@ In case we have the container runing on a remote machine, we need to to do the s
 `devcontainer` is a standard to describe container based development environments, comming with a command line tool.
 It uses Docker/Podman behind the scenes. So the principles of making sure that the nrepl port becomes available stays the same,
 but is has slighly different ways to configure this (given by the devcontainer standard)
+
+There are several cli tools to manager container, as there are several container technologies. I will show an example using 
+link:https://github.com/devcontainers/cli[devcontainer-cli], but their are others. (devpod,gitpod ...)
+
+=== Example: Working with containers (using devcontainer.cli) on a remote server ===
+In this scenario and assuming a folder `/home/me/my-clj-code` containing the relevant `devcontainer` related config files (devcontainer.json) we can first start remotely a devcontainer via 
+
+[source,sh]
+----
+devcontainer-cli up --workspace-folder /home/me/my-clj-code   # executed on MY_REMOTE_SERVER
+----
+
+Then we can start a nrepl server inside the container on the remote host like below (executed from local)
+The command tunnels as well the remote port 12345 to local machine on port 12345
+
+[source,sh]
+----
+ssh -t -L 12345:localhost:12345 MY_REMOTE_SERVER \
+    devcontainer exec  --workspace-folder /home/me/my-clj-code \
+    "clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} cider/cider-nrepl {:mvn/version \"0.25.5\"}}}' -m nrepl.cmdline -p 12345 -b 0.0.0.0 --middleware '[\"cider.nrepl/cider-middleware\"]' "
+----
+
+For this to work we need as well configure `devcontainer.json` with a snippet which exposes port 12345 from container to the (remote) host:
+
+[source,json]
+----
+"appPort": [
+		"12345:12345", // will make container port 12345 available as 12345 on remote host (which will be further tunneled to 12345 on local machine)
+	],
+----
+
+This results then in having port 12345 available localy and we can `cider-connect` to it. (using `localhost:12345`)
+Editing of the files can then happen via TRAMP. As the files are "on the remote machine" and as well mounted inside the container on the remote machine, we have 2 TRAMP file syntaxes to edit hem.
+
+Either: `/ssh:SERVER:/home/me/my-clj-code/...`
+or: `/ssh:SERVER|docker:DOCKER_CONTAINER_ID:/workspaces/my-clj-code/...`
 
 
 
