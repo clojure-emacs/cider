@@ -358,7 +358,7 @@ The files which we edit might / might not be edited using TRAMP. They could as w
 
 So CIDER can hardly detect if it's dealing with remote files, so it is better to not rely on `cider-jack-in` and its remote support described above, but to 
 start the nREPL server via command line from inside the container and `cider-connect` to it.
-This requires to first get a shell inside the running container and then start a nREPL server manualy or configure the container to start an nrepl automatically when container starts.
+This requires to first get a shell inside the running container and then start a nREPL server manualy or configure the container to start an nREPL automatically when the container starts.
 
 In order to connect Emacs to the nREPL, we need to make sure that the port of nREPL is reachable to our local Emacs, so that we can `cider-connect` to it.
 There are several solutions for this depending on the concrete scenario.
