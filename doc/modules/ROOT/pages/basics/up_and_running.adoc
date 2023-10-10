@@ -379,7 +379,7 @@ https://containers.dev[Development Containers] is a standard to describe contain
 It uses Docker/Podman behind the scenes. So the principles of making sure that the nREPL port becomes available stays the same,
 but is has slighly different ways to configure this (given by the devcontainer standard)
 
-There are several cli tools to manager container, as there are several container technologies. I will show an example using 
+There are several CL tools to manage dev container, as there are several container technologies. I will show an example using 
 link:https://github.com/devcontainers/cli[devcontainer-cli], but there are others (devpod, gitpod...).
 
 ==== Example: Working with containers (using devcontainer.cli) on a remote server
