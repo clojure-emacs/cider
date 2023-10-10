@@ -375,7 +375,7 @@ In case we have the container runing on a remote machine, we need to to do the s
 
 === Working with `devcontainers` local or remote
 
-`devcontainer` is a standard to describe container based development environments, comming with a command line tool.
+https://containers.dev[Development Containers] is a standard to describe container-based development environments. It includes a CLI.
 It uses Docker/Podman behind the scenes. So the principles of making sure that the nREPL port becomes available stays the same,
 but is has slighly different ways to configure this (given by the devcontainer standard)
 
