@@ -36,6 +36,7 @@
 (require 'cider-docstring)
 (require 'cider-eldoc)
 (require 'nrepl-dict)
+(require 'seq)
 
 (defcustom cider-annotate-completion-candidates t
   "When true, annotate completion candidates with some extra information."
@@ -193,7 +194,7 @@ performed by `cider-annotate-completion-function'."
               ;;
               ;; This api is better described in the section
               ;; '21.6.7 Programmed Completion' of the elisp manual.
-              (cond ((eq action 'metadata) `(metadata (category . cider)))
+              (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
                     ((eq (car-safe action) 'boundaries) nil)
                     (t (with-current-buffer (current-buffer)
                          (complete-with-action action
@@ -243,6 +244,11 @@ in the buffer."
   "Return CIDER completion candidates for STRING as is, unfiltered."
   (cider-complete string))
 
+;; defines a completion style named `cider' (which ideally would have been named `cider-fuzzy').
+;; note that there's already a completion category named `cider' (grep for `(metadata (category . cider))` in this file),
+;; which can be confusing given the identical name.
+;; The `cider' completion style should be removed because the `flex' style is essentially equivalent.
+;; (`flex' was introduced 3 years later, to be fair)
 (add-to-list 'completion-styles-alist
              '(cider
                cider-company-unfiltered-candidates
@@ -252,11 +258,33 @@ in the buffer."
 ;; Currently CIDER completions only work for `basic`, and not `initials`, `partial-completion`, `orderless`, etc.
 ;; So we ensure that those other styles aren't used with CIDER, otherwise one would see bad or no completions at all.
 ;; This `add-to-list` call can be removed once we implement the other completion styles.
-(add-to-list 'completion-category-overrides '(cider (styles basic flex)))
+;; (When doing that, please refactor `cider-company-enable-fuzzy-completion-globally' as well)
+(add-to-list 'completion-category-overrides '(cider (styles basic)))
 
 (defun cider-company-enable-fuzzy-completion ()
-  "Enable backend-driven fuzzy completion in the current buffer."
+  "Enable backend-driven fuzzy completion in the current buffer.
+
+DEPRECATED: please use `cider-company-enable-fuzzy-completion-globally' instead."
   (setq-local completion-styles '(cider)))
+
+(make-obsolete 'cider-company-enable-fuzzy-completion 'cider-company-enable-fuzzy-completion-globally "1.8.0")
+
+(defun cider-company-enable-fuzzy-completion-globally ()
+  "Enables `flex' (fuzzy) completion for CIDER in all buffers."
+  (interactive)
+  (when (< emacs-major-version 27)
+    (user-error "`cider-company-enable-fuzzy-completion-globally' requires Emacs 27 or later"))
+  (let ((found-styles (when-let ((cider (assq 'cider completion-category-overrides)))
+                        (assq 'styles cider)))
+        (found-cycle (when-let ((cider (assq 'cider completion-category-overrides)))
+                       (assq 'cycle cider))))
+    (setq completion-category-overrides (seq-remove (lambda (x)
+                                                      (equal 'cider (car x)))
+                                                    completion-category-overrides))
+    (unless (member 'flex found-styles)
+      (setq found-styles (append found-styles '(flex))))
+    (add-to-list 'completion-category-overrides (apply #'list 'cider found-styles (when found-cycle
+                                                                                    (list found-cycle))))))
 
 (provide 'cider-completion)
 ;;; cider-completion.el ends here

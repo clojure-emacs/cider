@@ -50,6 +50,7 @@
 
 - Ensure that `cider` completion isn't used with completion styles that are currently unsupported (`initials`, `partial-completion`, `orderless`, etc).
   - This restores completions for users that favor those styles - otherwise the would see bad or no completions.
+  - Relatedly `cider-company-enable-fuzzy-completion` is now deprecated in favor of `cider-company-enable-fuzzy-completion-globally` (which enables the `flex` completion style).
 - Improve support for multiple forms in the same line by replacing `beginning-of-defun` fn.
 - [#3390](https://github.com/clojure-emacs/cider/issues/3390): Enhance `cider-connect` to show all nREPLs available ports, instead of only Leiningen ones.
 - [#3408](https://github.com/clojure-emacs/cider/issues/3408): `cider-connect`: check `.nrepl-port`-like files for liveness, hiding them if they don't reflect an active port.
