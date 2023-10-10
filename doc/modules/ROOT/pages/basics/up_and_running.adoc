@@ -371,7 +371,7 @@ Docker has as well other ways to ensure the accessibility from containers ports 
 
 === Working with Containers running on remote hosts
 
-In case we have the container runing on a remote machine, we need to to do the same setup as above and additionally use ssh to forward the already forwarded port again to our local machine. This can be done using a command such as "ssh -L  12345:localhost:12345 remote-server", asumming that 12345 was the port nREPL was exposed at by the container.
+In case we have the container runing on a remote machine, we need to to do the same setup as above and additionally use ssh to forward the already forwarded port again to our local machine. This can be done using a command such as "ssh -L 12345:localhost:12345 remote-server", assuming that 12345 was the nREPL port  exposed by the container.
 
 === Working with `devcontainers` local or remote
 
