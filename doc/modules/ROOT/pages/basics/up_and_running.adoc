@@ -412,7 +412,7 @@ For this to work we need as well configure `devcontainer.json` with a snippet wh
 	],
 ----
 
-This results then in having port 12345 available localy and we can `cider-connect` to it. (using `localhost:12345`)
+This results then in having port 12345 available locally and we can `cider-connect` to it, using `localhost:12345`.
 Editing of the files can then happen via TRAMP. As the files are "on the remote machine" and as well mounted inside the container on the remote machine, we have 2 TRAMP file syntaxes to edit them.
 
 Either: `/ssh:MY_REMOTE_SERVER:/home/me/my-clj-code/...`
