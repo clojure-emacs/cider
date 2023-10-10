@@ -367,7 +367,7 @@ There are several solutions for this depending on the concrete scenario.
 
 The nREPL port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from 
 container to host. This requires as well that nREPL server listens on "0.0.0.0" and not only on "localhost".
-Docker has as well other ways to ensure the accessibility from containers ports on the host, which is not further detailed here.
+
 
 === Working with Containers running on remote hosts
 
@@ -391,7 +391,7 @@ In this scenario and assuming a folder `/home/me/my-clj-code` containing the rel
 devcontainer-cli up --workspace-folder /home/me/my-clj-code   # executed on MY_REMOTE_SERVER
 ----
 
-Then we can start a nREOK server inside the container on the remote host like below (executed from local)
+Then we can start a nREPL server inside the container on the remote host like below (executed from local)
 The command tunnels as well the remote port 12345 to local machine on port 12345
 
 [source,sh]
@@ -413,7 +413,7 @@ For this to work we need as well configure `devcontainer.json` with a snippet wh
 ----
 
 This results then in having port 12345 available locally and we can `cider-connect` to it, using `localhost:12345`.
-Editing of the files can then happen via TRAMP. As the files are "on the remote machine" and as well mounted inside the container on the remote machine, we have 2 TRAMP file syntaxes to edit them.
+Editing of the files can then happen via TRAMP. As the files are "on the remote machine" and as well mounted inside the container on the remote machine, we have two possible TRAMP file syntaxes to edit them.
 
 Either: `/ssh:MY_REMOTE_SERVER:/home/me/my-clj-code/...`
 or: `/ssh:MY_REMOTE_SERVER|docker:DOCKER_CONTAINER_ID:/workspaces/my-clj-code/...`
