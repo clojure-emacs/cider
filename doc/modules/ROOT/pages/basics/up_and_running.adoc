@@ -382,7 +382,7 @@ but is has slighly different ways to configure this (given by the devcontainer s
 There are several cli tools to manager container, as there are several container technologies. I will show an example using 
 link:https://github.com/devcontainers/cli[devcontainer-cli], but there are others (devpod, gitpod...).
 
-=== Example: Working with containers (using devcontainer.cli) on a remote server ===
+==== Example: Working with containers (using devcontainer.cli) on a remote server
 
 In this scenario and assuming a folder `/home/me/my-clj-code` containing the relevant `devcontainer` related config files (devcontainer.json) we can first start remotely a devcontainer via 
 
