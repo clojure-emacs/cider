@@ -356,7 +356,7 @@ connected to.
 Using containers means that the JVM in which the nREPL server process is running runs inside a container (Docker or otherwise).
 The files which we edit might / might not be edited using TRAMP. They could as well be mounted inside the container, so appear as local.
 
-So CIDER can hardly detect if it deals with remote files, so it is better to not rely on `cider-jack-in` and its remote support described above, but to 
+So CIDER can hardly detect if it's dealing with remote files, so it is better to not rely on `cider-jack-in` and its remote support described above, but to 
 start the nREPL server via command line from inside the container and `cider-connect` to it.
 This requires to first get a shell inside the running container and then start a nREPL server manualy or configure the container to start an nrepl automatically when container starts.
 
