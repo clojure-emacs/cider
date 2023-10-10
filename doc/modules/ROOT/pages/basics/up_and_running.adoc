@@ -318,7 +318,7 @@ reads for the host and port prompts when you invoke
     ("host-b" "7888")))
 ----
 
-== Working with Remote Hosts 
+== Working with Remote Hosts
 
 While most of the time you'd be connecting to a locally running nREPL
 server, that was started manually or via `cider-jack-in-*`, there's
