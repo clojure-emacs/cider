@@ -406,7 +406,9 @@ For this to work we need as well configure `devcontainer.json` with a snippet wh
 [source,json]
 ----
 "appPort": [
-		"12345:12345", // will make container port 12345 available as 12345 on remote host (which will be further tunneled to 12345 on local machine)
+  // will make container port 12345 available as 12345 on remote host
+  // (which will be further tunneled to 12345 on local machine)
+  "12345:12345"
 	],
 ----
 
