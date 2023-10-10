@@ -1324,10 +1324,10 @@ command will prompt for the name of the namespace to switch to."
       (let ((f (if (equal 'cljs
                           (with-current-buffer connection
                             cider-repl-type))
-                   ;; For cljs, don't use cider-sync-tooling-eval, because Piggieback will later change the ns (issue #3503):
+                   ;; For cljs, don't use cider-tooling-eval, because Piggieback will later change the ns (issue #3503):
                    #'cider-nrepl-request:eval
-                 ;; When possible, favor cider-sync-tooling-eval because it preserves *1, etc (commit 5f705b):
-                 #'cider-sync-tooling-eval)))
+                 ;; When possible, favor cider-tooling-eval because it preserves *1, etc (commit 5f705b):
+                 #'cider-tooling-eval)))
         (funcall f (format "(in-ns '%s)" ns)
                  (cider-repl-switch-ns-handler connection))))))
 
