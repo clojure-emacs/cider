@@ -397,10 +397,6 @@ buffer."
        (when cider-auto-mode
          (cider-enable-on-existing-clojure-buffers))
 
-       ;; Perform an async request, so that the nrepl-middleware is required as soon as possible,
-       ;; making the user's first interaction quicker.
-       (cider-nrepl-request:eval "\"warm-up\"" #'ignore)
-
        (run-hooks 'cider-connected-hook)))))
 
 (defun cider--disconnected-handler ()
