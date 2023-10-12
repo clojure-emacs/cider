@@ -271,7 +271,9 @@ DEPRECATED: please use `cider-enable-flex-completion' instead."
 (make-obsolete 'cider-company-enable-fuzzy-completion 'cider-enable-flex-completion "1.8.0")
 
 (defun cider-enable-flex-completion ()
-  "Enables `flex' (fuzzy) completion for CIDER in all buffers."
+  "Enables `flex' (fuzzy) completion for CIDER in all buffers.
+
+Only affects the `cider' comlpetion category.`"
   (interactive)
   (when (< emacs-major-version 27)
     (user-error "`cider-enable-flex-completion' requires Emacs 27 or later"))

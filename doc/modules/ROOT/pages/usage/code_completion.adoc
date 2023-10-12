@@ -137,12 +137,11 @@ you're really trying to type. For example, if you type `map-` then
 you'll only get completion candidates that have `map-` as the
 beginning of their names.  Sometimes, you don't know the exact prefix
 for the item you want to type. In this case, you can get
-CIDER-specific "fuzzy completion" by adding:
+CIDER-specific "fuzzy completion" by setting up in your Emacs init file:
 
 [source,lisp]
 ----
-(add-hook 'cider-repl-mode-hook #'cider-enable-flex-completion)
-(add-hook 'cider-mode-hook #'cider-enable-flex-completion)
+(cider-enable-flex-completion)
 ----
 
 This adds the `flex` completion style, as introduced in Emacs 27.
