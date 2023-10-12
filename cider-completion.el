@@ -248,7 +248,8 @@ in the buffer."
 ;; note that there's already a completion category named `cider' (grep for `(metadata (category . cider))` in this file),
 ;; which can be confusing given the identical name.
 ;; The `cider' completion style should be removed because the `flex' style is essentially equivalent.
-;; (`flex' was introduced 3 years later, to be fair)
+;; (`flex' was introduced in Emacs 27, 3 years in after our commit 04e428b
+;;   which introduced `cider-company-enable-fuzzy-completion', to be fair)
 (add-to-list 'completion-styles-alist
              '(cider
                cider-company-unfiltered-candidates
