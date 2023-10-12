@@ -39,16 +39,17 @@ is already properly indented.
 
 CIDER defines (via the `completion-styles-alist` Elisp variable) a completion category named `cider`.
 
-The `cider` completion category currently only supports `basic` and `flex` completion styles (and not `partial-completion`, `orderless`, etc).
+The `cider` completion category currently only supports `basic` completion styles (and not `partial-completion`, `orderless`, etc),
+and `flex`, optionally (read more below).
 
 CIDER declares so in this fashion:
 
 [source,lisp]
 ----
-(add-to-list 'completion-category-overrides '(cider (styles basic flex)))
+(add-to-list 'completion-category-overrides '(cider (styles basic)))
 ----
 
-Note that `flex` will only work if you also enabled xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate matching].
+You can also enable the `flex` completion style by activating xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate matching].
 
 == Auto-completion
 
@@ -130,19 +131,20 @@ without needing to hit an extra key, please customize:
 
 === Fuzzy candidate matching
 
-By default `company-mode` will provide completion candidates with the
+By default, CIDER will provide completion candidates with the
 assumption that whatever you've typed so far is a prefix of what
 you're really trying to type. For example, if you type `map-` then
 you'll only get completion candidates that have `map-` as the
 beginning of their names.  Sometimes, you don't know the exact prefix
 for the item you want to type. In this case, you can get
-CIDER-specific "fuzzy completion" by adding:
+CIDER-specific "fuzzy completion" by setting up in your Emacs init file:
 
 [source,lisp]
 ----
-(add-hook 'cider-repl-mode-hook #'cider-company-enable-fuzzy-completion)
-(add-hook 'cider-mode-hook #'cider-company-enable-fuzzy-completion)
+(cider-enable-flex-completion)
 ----
+
+This adds the `flex` completion style, as introduced in Emacs 27.
 
 Now, `company-mode` will accept certain fuzziness when matching
 candidates against the prefix. For example, typing `mi` will show you
@@ -150,6 +152,8 @@ candidates against the prefix. For example, typing `mi` will show you
 will complete to `clojure.java.io`. Different completion examples are
 shown
 https://github.com/alexander-yakushev/compliment/wiki/Examples[here].
+
+NOTE: `cider-company-enable-fuzzy-completion` (now deprecated) should be used for Emacs < 27. 
 
 === Completion annotations
 
