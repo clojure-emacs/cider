@@ -141,8 +141,8 @@ CIDER-specific "fuzzy completion" by adding:
 
 [source,lisp]
 ----
-(add-hook 'cider-repl-mode-hook #'cider-company-enable-fuzzy-completion-globally)
-(add-hook 'cider-mode-hook #'cider-company-enable-fuzzy-completion-globally)
+(add-hook 'cider-repl-mode-hook #'cider-enable-flex-completion)
+(add-hook 'cider-mode-hook #'cider-enable-flex-completion)
 ----
 
 This adds the `flex` completion style, as introduced in Emacs 27.

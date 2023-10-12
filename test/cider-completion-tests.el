@@ -30,14 +30,14 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
-(describe "cider-company-enable-fuzzy-completion-globally"
+(describe "cider-enable-flex-completion"
   (when (>= emacs-major-version 27)
     (cl-assert (not (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))))
     (let ((old-value completion-category-overrides))
       (unwind-protect
           (progn
             (it "adds `flex'"
-              (cider-company-enable-fuzzy-completion-globally)
+              (cider-enable-flex-completion)
               (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
                       :to-be-truthy))
 
@@ -49,7 +49,7 @@
               (let ((with-flex-and-cycle '((cider (styles basic flex)
                                                   (cycle t)))))
                 (setq completion-category-overrides with-flex-and-cycle)
-                (cider-company-enable-fuzzy-completion-globally)
+                (cider-enable-flex-completion)
                 (expect completion-category-overrides
                         :to-equal with-flex-and-cycle))))
         (setq completion-category-overrides old-value)))))
