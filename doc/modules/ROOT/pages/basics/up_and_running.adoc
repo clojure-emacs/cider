@@ -351,8 +351,8 @@ will reuse existing SSH connection's parameters (like port and username) for est
 The same will happen if you try to `cider-connect-\*` to a host that matches the one you're currently
 connected to.
 
-NOTE: For Docker containers, running `cider-jack-in-\*` over TRAMP may technically work but it may give mixed results.
-Please check out the following section for the recommended approaches.
+NOTE: For Docker containers,multihop ssh connections or across hosts mounted files running `cider-jack-in-\*` over TRAMP may technically work but it may give mixed results.
+Please check out the following section for the recommended approaches regarding Docker.
 
 == Working with Containers (Docker or others)
 
