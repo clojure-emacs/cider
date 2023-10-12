@@ -4,21 +4,21 @@
 
 ### New features
 
-- [#3364](https://github.com/clojure-emacs/cider/pull/3364): Update enrich-classpath, adding Clojure CLI compatibility, and reworking its integration into CIDER.
-  * It will be progressively refined and [documented](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath), please consider this alpha software.
+- [#3364](https://github.com/clojure-emacs/cider/pull/3364): Update [enrich-classpath](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath), adding Clojure CLI compatibility, and reworking its integration into CIDER.
 - [#3472](https://github.com/clojure-emacs/cider/pull/3472): render Java doc comments and arglists with an improved format, and improve Java interop type inference.
   * Requires enrich-classpath to be enabled (see previous bullet point).
-- [#3352](https://github.com/clojure-emacs/cider/pull/3352): Add CIDER Log Mode, a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
-- [#3418](https://github.com/clojure-emacs/cider/issues/3418): Introduce `cider-clojure-compilation-error-phases`.
+  * A related option has been introduced: [`cider-docstring-max-lines`](https://docs.cider.mx/cider/usage/code_completion.html#configuration).
+- [#3352](https://github.com/clojure-emacs/cider/pull/3352): Add [CIDER Log Mode](https://docs.cider.mx/cider/debugging/logging.html), a major mode that allows you to capture, debug, inspect and view log events emitted by Java logging frameworks.
+- [#3418](https://github.com/clojure-emacs/cider/issues/3418): Introduce `cider-clojure-compilation-error-phases` ([doc](https://docs.cider.mx/cider/usage/dealing_with_errors.html#configuration)).
   - This prevents stacktraces from showing up whenever the [:clojure.error/phase](https://clojure.org/reference/repl_and_main#_at_repl) indicates that it's a compilation error.
 - Infer indentation specs when possible ([doc](https://docs.cider.mx/cider/indent_spec.html#indentation-inference)).
 - [#2958](https://github.com/clojure-emacs/cider/issues/2958), [#3279](https://github.com/clojure-emacs/cider/issues/3279): `cider-test-run-test`: support arbitrary deftest-like forms, defns with :test metadata, and search for a `-test` counterpart for a given defn (following `cider-test-infer-test-ns` logic).
   - This also makes obsolete the `cider-test-defining-forms` customization variable.
 - `cider-test`: add timing information.
-- `cider-test`: fail-fast by default, as controlled by the new `cider-test-fail-fast` defcustom and `cider-test-toggle-fail-fast` keybinding.
+- `cider-test`: fail-fast by default, as controlled by the new [`cider-test-fail-fast`](https://docs.cider.mx/cider/testing/running_tests.html#fail-fast) defcustom and `cider-test-toggle-fail-fast` keybinding.
 - [#3352](https://github.com/clojure-emacs/cider/pull/3496): Introduce [`cider-eval-dwim`](https://docs.cider.mx/cider/usage/cider_mode.html#key-reference).
-- Add new customization variable `cider-clojurec-eval-destination` to allow specifying which REPL CLJC evals are sent to.
-- [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable `cider-reuse-dead-repls` to control how dead REPL buffers are reused on new connections.
+- Add new customization variable [`cider-clojurec-eval-destination`](https://docs.cider.mx/cider/cljs/up_and_running.html#working-with-cljc-files) to allow specifying which REPL .cljc evals are sent to.
+- [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable [`cider-reuse-dead-repls`](https://docs.cider.mx/cider/usage/managing_connections.html#reusing-dead-repls) to control how dead REPL buffers are reused on new connections.
 
 ### Bugs fixed
 
@@ -54,14 +54,14 @@
 - Improve support for multiple forms in the same line by replacing `beginning-of-defun` fn.
 - [#3390](https://github.com/clojure-emacs/cider/issues/3390): Enhance `cider-connect` to show all nREPLs available ports, instead of only Leiningen ones.
 - [#3408](https://github.com/clojure-emacs/cider/issues/3408): `cider-connect`: check `.nrepl-port`-like files for liveness, hiding them if they don't reflect an active port.
-- Introduce `cider-stacktrace-navigate-to-other-window` defcustom.
+- Introduce [`cider-stacktrace-navigate-to-other-window`](https://docs.cider.mx/cider/usage/dealing_with_errors.html#configuration) defcustom.
 - Preserve the `:cljs-repl-type` more reliably.
 - Improve the presentation of `xref` data.
 - [#3419](https://github.com/clojure-emacs/cider/issues/3419): Also match friendly sessions based on the buffer's ns form.
 - Always match friendly sessions for `cider-ancillary-buffers` (like `*cider-error*`, `*cider-result*`, etc).
 - `cider-test`: only show diffs for collections.
-- `cider-inspector-def-current-val` now can suggest a var name (default none), which can be customized via `cider-inspector-preferred-var-names`.
-- The "Member in class: " prompt can now be optionally skipped in ido-mode by pressing `<up>` or `<down>` ([doc](https://docs.cider.mx/cider/usage/code_completion.html)).
+- `cider-inspector-def-current-val` now can suggest a var name (default none), which can be customized via [`cider-inspector-preferred-var-names`](https://docs.cider.mx/cider/debugging/inspector.html#configuration).
+- The `"Member in class: "` prompt can now be optionally skipped in ido-mode by pressing `<up>` or `<down>` ([doc](https://docs.cider.mx/cider/usage/code_completion.html)).
 - [#3375](https://github.com/clojure-emacs/cider/pull/3375): `cider-test`: don't render a newline between expected and actual, most times.
 - Interactive evaluation: show a shorter overlay when rendering compilation errors.
   - e.g., the `Syntax error compiling clojure.core/let at (foo/bar.clj:10:1)` prefix is now removed.
