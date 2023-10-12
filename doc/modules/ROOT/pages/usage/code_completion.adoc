@@ -154,7 +154,7 @@ will complete to `clojure.java.io`. Different completion examples are
 shown
 https://github.com/alexander-yakushev/compliment/wiki/Examples[here].
 
-NOTE: `cider-company-enable-fuzzy-completion` (now depreecated) should be used for Emacs < 27. 
+NOTE: `cider-company-enable-fuzzy-completion` (now deprecated) should be used for Emacs < 27. 
 
 === Completion annotations
 
