@@ -69,17 +69,17 @@
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
 - Bump the `clojure-mode` required version to [5.17.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.17.0/CHANGELOG.md#5170-2023-09-11), and use `clojure-find-ns` more safely, which fixes issues such as #[2849](https://github.com/clojure-emacs/cider/issues/2849).
 - Bump the `parseedn` require version, and wrap its usage with a more informative `user-error`.
-- Bump the injected `cider-nrepl` to [0.39.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.39.0/CHANGELOG.md#0390-2023-10-05).
+- Bump the injected `cider-nrepl` to [0.39.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.39.1/CHANGELOG.md#0391-2023-10-12).
   - Improves indentation, font-locking and other metadata support for ClojureScript.
-  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.14.2/CHANGELOG.md)
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.16.1/CHANGELOG.md#0161-2023-10-05)
     - introduces support for displaying the docstring and arglists of 'indirect' vars (e.g. `(def foo bar)`) for Clojure/Script.
     - fixes xref support across deftest vars.
-  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/0.4.1/CHANGELOG.md#041-2023-08-23)
+  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/0.4.4/CHANGELOG.md#044-2023-10-10)
     - Improves type hint propagation.
-    - Supports better completions for `->`, `->>` and `doto`.
+    - Supports better completions for `doto`, `->`, `->>`, `some->`, and `some->>`.
     - Supports better completions for var-quote (`#'some/var`).
     - Supports better completions for deftype field names.
-  - Updates [Haystack](https://github.com/clojure-emacs/haystack/blob/0077b5c49f4aef1c7f89d5430d6dda2f9e7d78d4/CHANGELOG.md#020-2023-08-20).
+  - Updates [Haystack](https://github.com/clojure-emacs/haystack/blob/v0.3.1/CHANGELOG.md#031-2023-09-29).
     - Now, in `*cider-error*`, more internal stackframes will be hidden under the `tooling` category.
   - Updates [Suitable](https://github.com/clojure-emacs/clj-suitable/blob/v0.5.0/CHANGELOG.md#050-2023-07-28)
     - avoiding side-effecting `->` evaluation for pure-ClojureScript chains.
