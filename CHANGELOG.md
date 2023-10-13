@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.8.0 (2023-10-13)
+
 ### New features
 
 - [#3364](https://github.com/clojure-emacs/cider/pull/3364): Update [enrich-classpath](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath), adding Clojure CLI compatibility, and reworking its integration into CIDER.
