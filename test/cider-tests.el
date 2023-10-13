@@ -156,7 +156,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.39.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.1\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -169,7 +169,7 @@
                          " -- update-in :plugins conj "
                          (shell-quote-argument "[cider/cider-nrepl \"0.39.1\"]")
                          " -- update-in :plugins conj "
-                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.1\"]")
+                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
                          " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                          " -- repl :headless")))
 
@@ -181,7 +181,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.39.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.1\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -220,7 +220,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.39.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.1\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -255,7 +255,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.39.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.1\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
     (it "can concat in a boot project"
@@ -324,7 +324,7 @@
       (spy-on 'cider-jack-in-normalized-lein-plugins
               :and-return-value '(("refactor-nrepl" "2.0.0")
                                   ("cider/cider-nrepl" "0.39.1")
-                                  ("mx.cider/lein-enrich-classpath" "1.18.1")))
+                                  ("mx.cider/lein-enrich-classpath" "1.18.2")))
       (setq-local cider-jack-in-dependencies-exclusions '())
       (setq-local cider-enrich-classpath t))
     (it "uses them in a lein project"
@@ -336,7 +336,7 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.39.1\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.1\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless"))))
 
