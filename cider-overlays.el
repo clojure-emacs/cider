@@ -70,8 +70,10 @@ font-locking it."
 (defcustom cider-use-overlays 'both
   "Whether to display evaluation results with overlays.
 If t, use overlays determined by `cider-result-overlay-position'.
+If `errors-only', use overlays determined by `cider-result-overlay-position',
+but only for error messages - other messages will be displayed on the echo area.
 If nil, display on the echo area.
-If both, display on both places.
+If `both', display on both places.
 
 Only applies to evaluation commands.  To configure the debugger overlays,
 see `cider-debug-use-overlays'."
@@ -290,9 +292,10 @@ overlay."
 
 
 ;;; Displaying eval result
-(defun cider--display-interactive-eval-result (value &optional point overlay-face)
+(defun cider--display-interactive-eval-result (value &optional point overlay-face error-p)
   "Display the result VALUE of an interactive eval operation.
 VALUE is syntax-highlighted and displayed in the echo area.
+ERROR-P indicates whether VALUE represents an error.
 OVERLAY-FACE is the face applied to the overlay, which defaults to
 `cider-result-overlay-face' if nil.
 If POINT and `cider-use-overlays' are non-nil, it is also displayed in an
@@ -304,7 +307,11 @@ focused."
                          (cider-font-lock-as-clojure value)
                        value))
          (font-value (string-trim-right font-value))
-         (used-overlay (when (and point cider-use-overlays)
+         (used-overlay (when (and point
+                                  cider-use-overlays
+                                  (if error-p
+                                      t
+                                    (not (equal 'errors-only cider-use-overlays))))
                          (cider--make-result-overlay font-value
                            :where point
                            :duration cider-eval-result-duration

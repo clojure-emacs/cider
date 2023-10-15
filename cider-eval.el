@@ -865,7 +865,8 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                          (cider--display-interactive-eval-result
                                           trimmed-err
                                           end
-                                          'cider-error-overlay-face)))
+                                          'cider-error-overlay-face
+                                          :is-error)))
 
                                      (cider-handle-compilation-errors err
                                                                       eval-buffer
