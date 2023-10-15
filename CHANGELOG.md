@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+## 1.8.1 (2023-10-15)
+
+### Changes
+
+- Bump the injected `cider-nrepl` to [0.40.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.40.0/CHANGELOG.md#0400-2023-10-15).
+  - Improves the `:style/indent` `:arglist` and other key metadata propagation for ClojureScript macros. 
+
 ## 1.8.0 (2023-10-13)
 
 ### New features
