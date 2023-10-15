@@ -142,3 +142,14 @@
       (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
                      (match-string 2 clojure-1.10-compiler-error))
               :to-equal "src/haystack/parser.cljc"))))
+
+(describe "cider-module-info-regexp"
+  (it "Matches module info provided by Java"
+    (expect " (java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IObj is in unnamed module of loader 'app')"
+            :to-match cider-module-info-regexp)
+    (expect " (java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IObj is in module java.base of loader 'bootstrap')"
+            :to-match cider-module-info-regexp)
+    (expect " (java.lang.Long is in unnamed module of loader 'app'; clojure.lang.IObj is in module java.base of loader 'bootstrap')"
+            :to-match cider-module-info-regexp)
+    (expect " (java.lang.Long is in unnamed module of loader 'app'; clojure.lang.IObj is in unnamed module of loader 'app')"
+            :to-match cider-module-info-regexp)))
