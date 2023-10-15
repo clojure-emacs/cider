@@ -135,4 +135,10 @@
       (expect clojure-1.10-compiler-error :to-match cider-clojure-compilation-regexp)
       (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
                      (match-string 2 clojure-1.10-compiler-error))
-              :to-equal "src/ardoq/service/workspace_service.clj"))))
+              :to-equal "src/ardoq/service/workspace_service.clj")))
+  (it "Recognizes a clojure 'Unexpected error' message"
+    (let ((clojure-1.10-compiler-error "Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1)."))
+      (expect clojure-1.10-compiler-error :to-match cider-clojure-compilation-regexp)
+      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
+                     (match-string 2 clojure-1.10-compiler-error))
+              :to-equal "src/haystack/parser.cljc"))))
