@@ -617,6 +617,21 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
+(defconst cider-module-info-regexp
+  (rx " ("
+      (minimal-match (one-or-more anything))
+      " is in"
+      (minimal-match (one-or-more anything)) ;; module or unnamed module
+      " of loader "
+      (minimal-match (one-or-more anything))
+      "; "
+      (minimal-match (one-or-more anything))
+      " is in "
+      (minimal-match (one-or-more anything)) ;; module or unnamed module
+      " of loader "
+      (minimal-match (one-or-more anything))
+      ")"))
+
 (defvar cider-compilation-regexp
   (list cider-clojure-compilation-regexp  2 3 4 '(1))
   "Specifications for matching errors and warnings in Clojure stacktraces.
@@ -843,6 +858,8 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                        (let ((cider-result-use-clojure-font-lock nil)
                                              (trimmed-err (thread-last err
                                                                        (replace-regexp-in-string cider-clojure-compilation-regexp
+                                                                                                 "")
+                                                                       (replace-regexp-in-string cider-module-info-regexp
                                                                                                  "")
                                                                        (string-trim))))
                                          (cider--display-interactive-eval-result

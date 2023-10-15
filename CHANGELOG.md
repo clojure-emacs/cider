@@ -5,6 +5,8 @@
 ### Changes
 
 - [#3521](https://github.com/clojure-emacs/cider/issues/3521): Expand `cider-clojure-compilation-regexp` to also match e.g. `Unexpected error (ExceptionInfo) macroexpanding defmulti at (src/ns.clj:1:1).`.
+- Remove module info from the [CIDER error overlay](https://docs.cider.mx/cider/usage/dealing_with_errors.html#configuration).
+  - Example string that is now trimmed away: `(java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IObj is in unnamed module of loader 'app')`
 
 ## 1.8.2 (2023-10-15)
 
