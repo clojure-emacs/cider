@@ -558,19 +558,31 @@ It delegates the actual error content to the eval or op handler."
 ;; old and the new format, by utilizing a combination of two different regular
 ;; expressions.
 
-(defconst cider-clojure-1.10-error `(sequence
-                                     "Syntax error "
-                                     (minimal-match (zero-or-more anything))
-                                     (or "compiling "
-                                         "macroexpanding "
-                                         "reading source ")
-                                     (minimal-match (zero-or-more anything))
-                                     "at ("
-                                     (group-n 2 (minimal-match (zero-or-more anything)))
-                                     ":"
-                                     (group-n 3 (one-or-more digit))
-                                     (optional ":" (group-n 4 (one-or-more digit)))
-                                     ")."))
+(defconst cider-clojure-1.10--location `("at ("
+                                         (group-n 2 (minimal-match (zero-or-more anything)))
+                                         ":"
+                                         (group-n 3 (one-or-more digit))
+                                         (optional ":" (group-n 4 (one-or-more digit)))
+                                         ")."))
+
+(defconst cider-clojure-1.10-error (append `(sequence
+                                             "Syntax error "
+                                             (minimal-match (zero-or-more anything))
+                                             (or "compiling "
+                                                 "macroexpanding "
+                                                 "reading source ")
+                                             (minimal-match (zero-or-more anything)))
+                                           cider-clojure-1.10--location))
+
+(defconst cider-clojure-unexpected-error (append `(sequence
+                                                   "Unexpected error ("
+                                                   (minimal-match (one-or-more anything))
+                                                   ") "
+                                                   (or "compiling "
+                                                       "macroexpanding "
+                                                       "reading source ")
+                                                   (minimal-match (one-or-more anything)))
+                                                 cider-clojure-1.10--location))
 
 (defconst cider-clojure-1.9-error `(sequence
                                     (zero-or-more anything)
@@ -591,23 +603,19 @@ It delegates the actual error content to the eval or op handler."
                                   (optional ":" (group-n 4 (one-or-more digit)))
                                   " - "))
 
-
 (defconst cider-clojure-compilation-regexp
   (eval
    `(rx bol (or ,cider-clojure-1.9-error
                 ,cider-clojure-warning
-                ,cider-clojure-1.10-error))
+                ,cider-clojure-1.10-error
+                ,cider-clojure-unexpected-error))
    t)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
 \"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
 lol in this context, compiling:(/foo/core.clj:10:1)\"
-\"Syntax error compiling at (src/workspace_service.clj:227:3).\"")
-
-(replace-regexp-in-string cider-clojure-compilation-regexp
-                          ""
-                          "Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - call to java.lang.Integer ctor can't be resolved.")
-
+\"Syntax error compiling at (src/workspace_service.clj:227:3).\"
+\"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
 (defvar cider-compilation-regexp
   (list cider-clojure-compilation-regexp  2 3 4 '(1))

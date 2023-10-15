@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3521](https://github.com/clojure-emacs/cider/issues/3521): Expand `cider-clojure-compilation-regexp` to also match e.g. `Unexpected error (ExceptionInfo) macroexpanding defmulti at (src/ns.clj:1:1).`.
+
 ## 1.8.2 (2023-10-15)
 
 ### Changes

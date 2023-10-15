@@ -23,6 +23,8 @@ temporary overlay or in the echo area:
 (setq cider-show-error-buffer nil)
 ----
 
+NOTE: you will only see the overlay if `cider-use-overlays` is non-nil.
+
 Starting from CIDER 1.8.0, only runtime exceptions (and not compilation errors)
 will cause a stacktrace buffer to be shown. This better follows Clojure 1.10's
 https://clojure.org/reference/repl_and_main#_at_repl[intended semantics].
