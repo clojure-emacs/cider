@@ -10,6 +10,7 @@
 - [#3522](https://github.com/clojure-emacs/cider/issues/3522): Introduce a new possible value for [`cider-use-overlays`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays): `errors-only`.
   - If specified, only errors will result in an overlay being shown.
 - [#3527](https://github.com/clojure-emacs/cider/issues/3527): Preserve the font size as one navigates through the CIDER inspector.
+- [#3525](https://github.com/clojure-emacs/cider/issues/3525): Introduce [`cider-shorten-error-overlays`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays) customization option.
 
 ## 1.8.2 (2023-10-15)
 

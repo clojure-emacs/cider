@@ -821,6 +821,24 @@ REPL buffer.  This is controlled via
                                                      conn)))
           (nrepl-dict-get result "phase"))))))
 
+(defcustom cider-shorten-error-overlays t
+  "If t, overlays that reflect error messages will be more concise.
+Specifically, the prefix matched by `cider-clojure-compilation-regexp',
+and the suffix matched by `cider-module-info-regexp' will be removed."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "0.19.0"))
+
+(defun cider--shorten-error-message (err)
+  "Removes from ERR the prefix matched by `cider-clojure-compilation-regexp',
+and the suffix matched by `cider-module-info-regexp'."
+  (thread-last err
+               (replace-regexp-in-string cider-clojure-compilation-regexp
+                                         "")
+               (replace-regexp-in-string cider-module-info-regexp
+                                         "")
+               (string-trim)))
+
 (declare-function cider-inspect-last-result "cider-inspector")
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
@@ -856,12 +874,9 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                                  (member phase cider-clojure-compilation-error-phases)))
                                        ;; Display errors as temporary overlays
                                        (let ((cider-result-use-clojure-font-lock nil)
-                                             (trimmed-err (thread-last err
-                                                                       (replace-regexp-in-string cider-clojure-compilation-regexp
-                                                                                                 "")
-                                                                       (replace-regexp-in-string cider-module-info-regexp
-                                                                                                 "")
-                                                                       (string-trim))))
+                                             (trimmed-err (if cider-shorten-error-overlays
+                                                              (cider--shorten-error-message err)
+                                                            err)))
                                          (cider--display-interactive-eval-result
                                           trimmed-err
                                           'error
