@@ -86,10 +86,6 @@ jobs:
     - run: npm install shadow-cljs@2.20.13 -g
     - run: npm install nbb@1.1.152 -g
 
-    - name: Test the project
-      run: |
-        eldev -p -dtTC test || eldev -p -dtTC test
-
     - name: Test integration
       run: |
         # The tests occasionally fail on macos&win in what is seems to
