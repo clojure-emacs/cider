@@ -136,7 +136,7 @@
   (before-each
     (spy-on 'cider-connected-p :and-return-value t)
     (spy-on 'cider-classpath-entries :and-return-value
-            '("/a" "/b" "/c" "/c/inner" "/base/clj" "/base/clj-dev"))
+            '("/cider--a" "/cider--b" "/cider--c" "/cider--c/inner" "/cider--base/clj" "/cider--base/clj-dev"))
     (spy-on 'file-directory-p :and-return-value t)
     (spy-on 'file-in-directory-p :and-call-fake (lambda (file dir)
                                                   (string-prefix-p dir file)))
@@ -144,22 +144,22 @@
                                                  (substring file (+ 1 (length dir))))))
 
   (it "returns the namespace matching the given string path"
-    (expect (cider-expected-ns "/a/foo/bar/baz_utils.clj") :to-equal
+    (expect (cider-expected-ns "/cider--a/foo/bar/baz_utils.clj") :to-equal
             "foo.bar.baz-utils")
-    (expect (cider-expected-ns "/b/foo.clj") :to-equal
+    (expect (cider-expected-ns "/cider--b/foo.clj") :to-equal
             "foo")
-    (expect (cider-expected-ns "/c/inner/foo/bar.clj") :to-equal
+    (expect (cider-expected-ns "/cider--c/inner/foo/bar.clj") :to-equal
             ;; NOT inner.foo.bar
             "foo.bar")
-    (expect (cider-expected-ns "/c/foo/bar/baz") :to-equal
+    (expect (cider-expected-ns "/cider--c/foo/bar/baz") :to-equal
             "foo.bar.baz")
-    (expect (cider-expected-ns "/base/clj-dev/foo/bar.clj") :to-equal
+    (expect (cider-expected-ns "/cider--base/clj-dev/foo/bar.clj") :to-equal
             "foo.bar")
-    (expect (cider-expected-ns "/not/in/classpath.clj") :to-equal
-            (clojure-expected-ns "/not/in/classpath.clj")))
+    (expect (cider-expected-ns "/cider--not/in/classpath.clj") :to-equal
+            (clojure-expected-ns "/cider--not/in/classpath.clj")))
 
   (it "returns nil if it cannot find the namespace"
-    (expect (cider-expected-ns "/z/abc/def") :to-equal ""))
+    (expect (cider-expected-ns "/cider--z/abc/def") :to-equal ""))
 
   (it "falls back on `clojure-expected-ns' in the absence of an active nREPL connection"
     (spy-on 'cider-connected-p :and-return-value nil)
