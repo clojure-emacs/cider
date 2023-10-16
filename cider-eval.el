@@ -840,7 +840,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (_buffer value)
                                    (setq res (concat res value))
-                                   (cider--display-interactive-eval-result res end))
+                                   (cider--display-interactive-eval-result res 'value end))
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
                                  (lambda (buffer err)
@@ -864,6 +864,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                                                        (string-trim))))
                                          (cider--display-interactive-eval-result
                                           trimmed-err
+                                          'error
                                           end
                                           'cider-error-overlay-face)))
 
@@ -897,7 +898,7 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
         (res ""))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (buffer value)
-                                   (cider--display-interactive-eval-result value)
+                                   (cider--display-interactive-eval-result value 'value)
                                    (when cider-eval-register
                                      (setq res (concat res value)))
                                    (when (buffer-live-p buffer)

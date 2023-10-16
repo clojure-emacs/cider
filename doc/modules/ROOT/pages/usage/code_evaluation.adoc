@@ -189,8 +189,18 @@ variable.
 (setq cider-overlays-use-font-lock t)
 ----
 
-You can disable overlays entirely (and display results in the echo-area at the
-bottom) with the `cider-use-overlays` variable.
+If you don't like seeing overlays so often,
+you can restrict overlays to only be shown for errors
+(and display non-error results in the echo area at the bottom)
+by customizing the `cider-use-overlays` variable:
+
+[source,lisp]
+----
+(setq cider-use-overlays 'errors-only)
+----
+
+You can disable overlays entirely (and display results in the echo area at the
+bottom) with the `cider-use-overlays` variable:
 
 [source,lisp]
 ----

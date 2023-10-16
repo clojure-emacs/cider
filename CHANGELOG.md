@@ -7,6 +7,8 @@
 - [#3521](https://github.com/clojure-emacs/cider/issues/3521): Expand `cider-clojure-compilation-regexp` to also match e.g. `Unexpected error (ExceptionInfo) macroexpanding defmulti at (src/ns.clj:1:1).`.
 - Remove module info from the [CIDER error overlay](https://docs.cider.mx/cider/usage/dealing_with_errors.html#configuration).
   - Example string that is now trimmed away: `(java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IObj is in unnamed module of loader 'app')`
+- [#3522](https://github.com/clojure-emacs/cider/issues/3522): Introduce a new possible value for [`cider-use-overlays`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays): `errors-only`.
+  - If specified, only errors will result in an overlay being shown.
 
 ## 1.8.2 (2023-10-15)
 
@@ -45,7 +47,6 @@
 - [#3383](https://github.com/clojure-emacs/cider/issues/3383): `cider-connect-clj&cljs`: don't render `"ClojureScript REPL type:"` for JVM repls.
 - [#3331](https://github.com/clojure-emacs/cider/issues/3331): `cider-eval`: never jump to spurious locations, as sometimes conveyed by nREPL.
 - [#3112](https://github.com/clojure-emacs/cider/issues/3112): Fix the CIDER `xref-find-references` backend to return correct filenames.
-- [#3393](https://github.com/clojure-emacs/cider/issues/3393): recompute namespace info on each shadow-cljs recompilation or evaluation.
 - [#3402](https://github.com/clojure-emacs/cider/issues/3402): Fix `cider-format-connection-params` edge case for Emacs 29.
 - [#3393](https://github.com/clojure-emacs/cider/issues/3393): Recompute namespace info on each shadow-cljs recompilation or evaluation.
 - Recompute namespace info on each fighweel-main recompilation.
@@ -53,7 +54,7 @@
 - [#3413](https://github.com/clojure-emacs/cider/issues/3413): Make jump-to-definition work in projects needing `cider-path-translations` (i.e. Dockerized projects).
 - [#2436](https://github.com/clojure-emacs/cider/issues/2436): Prevent malformed `cider-repl-history-file`s from failing `cider-jack-in`.
 - [#3456](https://github.com/clojure-emacs/cider/issues/3456): Restore xref-based jump-to-definition in Babashka (and any nREPL clients not having cider-nrepl).
-- [#3466](https://github.com/clojure-emacs/cider/issues/3466): Restore usual `cider--connected-handler` performance for JVM Clojure repls.
+- [#3466](https://github.com/clojure-emacs/cider/issues/3466): Restore the usual `cider--connected-handler` performance for JVM Clojure repls.
 - [#3503](https://github.com/clojure-emacs/cider/issues/3503): Make `cider-repl-set-ns` more reliable on Piggieback connections.
 - Fix the `xref-find-definitions` CIDER backend to return correct filenames.
 - Fix the `cider-xref-fn-deps` buttons to direct to the right file.
