@@ -1761,16 +1761,29 @@ constructs."
 
 The checking is done as follows:
 
-* Consider if the buffer belongs to `cider-ancillary-buffers`
+* If the current buffer's name equals to the value of `cider-test-report-buffer',
+  only accept the given session's repl if it equals `cider-test--current-repl'
+* Consider if the buffer belongs to `cider-ancillary-buffers'
 * Consider the buffer's filename, strip any Docker/TRAMP details from it
 * Check if that filename belongs to the classpath,
   or to the classpath roots (e.g. the project root dir)
 * As a fallback, check if the buffer's ns form
   matches any of the loaded namespaces."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
-  (or (member (buffer-name) cider-ancillary-buffers)
-      (when-let* ((repl (cadr session))
-                  (proc (get-buffer-process repl))
+  (when-let ((repl (cadr session)))
+    (cond
+     ((equal (buffer-name)
+             cider-test-report-buffer)
+      (or (not cider-test--current-repl)
+          (not (buffer-live-p cider-test--current-repl))
+          (equal repl
+                 cider-test--current-repl)))
+
+     ((member (buffer-name) cider-ancillary-buffers)
+      t)
+
+     (t
+      (when-let* ((proc (get-buffer-process repl))
                   (file (file-truename (or (buffer-file-name) default-directory))))
         ;; With avfs paths look like /path/to/.avfs/path/to/some.jar#uzip/path/to/file.clj
         (when (string-match-p "#uzip" file)
@@ -1825,7 +1838,7 @@ The checking is done as follows:
                           (member ns (nrepl-dict-keys cider-repl-ns-cache)))
                         (member ns ns-list))))
                 (when debug
-                  (list file "was not determined to belong to classpath:" classpath "or classpath-roots:" classpath-roots))))))))
+                  (list file "was not determined to belong to classpath:" classpath "or classpath-roots:" classpath-roots))))))))))
 
 (defun cider-debug-sesman-friendly-session-p ()
   "`message's debugging information relative to friendly sessions.

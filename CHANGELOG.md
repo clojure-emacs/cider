@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+- [#3533](https://github.com/clojure-emacs/cider/issues/3533): Refine Sesman session linking to accurately work on `*cider-test-report*` buffers.
+
 ### Changes
 
 - [#3521](https://github.com/clojure-emacs/cider/issues/3521): Expand `cider-clojure-compilation-regexp` to also match e.g. `Unexpected error (ExceptionInfo) macroexpanding defmulti at (src/ns.clj:1:1).`.
