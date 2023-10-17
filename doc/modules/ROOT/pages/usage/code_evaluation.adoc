@@ -207,6 +207,17 @@ bottom) with the `cider-use-overlays` variable:
 (setq cider-use-overlays nil)
 ----
 
+Overlays that indicate errors are by default trimmed of file/line/phase information.
+
+(Example: the entire `Syntax error compiling at (src/ns.clj:227:3).` preamble)
+
+You can prevent any trimming by customizing instead:
+
+[source,lisp]
+----
+(setq cider-inline-error-message-function #'identity)
+----
+
 By default, result overlays are displayed at the end of the line. You can set
 the variable `cider-result-overlay-position` to display results at the end of
 their respective forms instead.
@@ -217,7 +228,6 @@ Note that this also affects the position of debugger overlays.
 (setq cider-result-overlay-position 'at-point)
 ----
 
-
 You can also customize how overlays are persisted using the variable
 `cider-eval-result-duration`.
 
@@ -227,7 +237,6 @@ after the next user-executed command, such as moving the point or scrolling.
 Setting the variable to a number represents the duration in seconds until
 overlays are removed, while setting it to `'change' persists overlays until the
 next change to the buffer contents.
-
 
 [source,lisp]
 ----
