@@ -821,13 +821,15 @@ REPL buffer.  This is controlled via
                                                      conn)))
           (nrepl-dict-get result "phase"))))))
 
-(defcustom cider-shorten-error-overlays t
-  "If t, overlays that reflect error messages will be more concise.
-Specifically, the prefix matched by `cider-clojure-compilation-regexp',
-and the suffix matched by `cider-module-info-regexp' will be removed."
+(defcustom cider-inline-error-message-function #'cider--shorten-error-message
+  "A function that will shorten a given error message,
+as shown in overlays / the minibuffer (per `cider-use-overlays').
+
+The function takes a single arg.  You may want to use `identity',
+for leaving the message as-is."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "0.19.0"))
+  :package-version '(cider . "1.19.0"))
 
 (defun cider--shorten-error-message (err)
   "Removes from ERR the prefix matched by `cider-clojure-compilation-regexp',
@@ -874,9 +876,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                                  (member phase cider-clojure-compilation-error-phases)))
                                        ;; Display errors as temporary overlays
                                        (let ((cider-result-use-clojure-font-lock nil)
-                                             (trimmed-err (if cider-shorten-error-overlays
-                                                              (cider--shorten-error-message err)
-                                                            err)))
+                                             (trimmed-err (funcall cider-inline-error-message-function err)))
                                          (cider--display-interactive-eval-result
                                           trimmed-err
                                           'error

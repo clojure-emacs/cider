@@ -208,12 +208,14 @@ bottom) with the `cider-use-overlays` variable:
 ----
 
 Overlays that indicate errors are by default trimmed of file/line/phase information.
-If you find it useful, you can customize:
 
+(Example: the entire `Syntax error compiling at (src/ns.clj:227:3).` preamble)
+
+You can prevent any trimming by customizing instead:
 
 [source,lisp]
 ----
-(setq cider-shorten-error-overlays nil)
+(setq cider-inline-error-message-function #'identity)
 ----
 
 By default, result overlays are displayed at the end of the line. You can set
