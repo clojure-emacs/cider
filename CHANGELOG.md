@@ -11,6 +11,8 @@
   - If specified, only errors will result in an overlay being shown.
 - [#3527](https://github.com/clojure-emacs/cider/issues/3527): Preserve the font size as one navigates through the CIDER inspector.
 - [#3525](https://github.com/clojure-emacs/cider/issues/3525): Introduce [`cider-inline-error-message-function`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays) customization option.
+- [#2903](https://github.com/clojure-emacs/cider/issues/2903): Avoid `No comment syntax is defined` prompts.
+- Bump the `clojure-mode` required version to [5.18.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.0/CHANGELOG.md#5180-2023-10-18)
 
 ## 1.8.2 (2023-10-15)
 
