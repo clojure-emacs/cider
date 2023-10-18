@@ -243,7 +243,7 @@ To open this stacktrace in the Cider stacktrace inspector, move point
 somewhere over the exception and run `M-x
 cider-stacktrace-analyze-at-point`.
 
-This also works to some extend for exceptions that are buried inside a
+This also works to some extent for exceptions that are buried inside a
 string like the following exception:
 
 [source,text]

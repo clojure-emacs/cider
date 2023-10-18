@@ -14,6 +14,10 @@
 - [#2903](https://github.com/clojure-emacs/cider/issues/2903): Avoid `No comment syntax is defined` prompts.
 - Bump the `clojure-mode` required version to [5.18.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.0/CHANGELOG.md#5180-2023-10-18)
 
+### Bugs fixed
+
+- [#3539](https://github.com/clojure-emacs/cider/issues/3539): `cider-jump-to-locref-at-point`: don't jump to non-existing files.
+
 ## 1.8.2 (2023-10-15)
 
 ### Changes
