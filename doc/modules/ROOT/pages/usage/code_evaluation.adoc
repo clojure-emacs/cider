@@ -191,7 +191,7 @@ variable.
 
 Overlays will be shown for errors,
 as long as they are not already displayed by `cider-stacktrace-mode`.
-In order to always favor error overlays over the `\*cider-error\*` buffer,
+In order to always favor error overlays over the `\*cider-error*` buffer,
 please customize:
 
 [source,lisp]
@@ -295,7 +295,7 @@ By default CIDER will display the output produced by some evaluation in the REPL
 (setq cider-interactive-eval-output-destination 'output-buffer)
 ----
 
-Additionally, there's the variable `cider-redirect-server-output-to-repl` that captures output that would normally end up in the `\*nrepl-server\*` buffer (provided it has been started via `cider-jack-in`) and redirects it to the REPL buffer. You can disable this redirection like this:
+Additionally, there's the variable `cider-redirect-server-output-to-repl` that captures output that would normally end up in the `\*nrepl-server*` buffer (provided it has been started via `cider-jack-in`) and redirects it to the REPL buffer. You can disable this redirection like this:
 
 [source,lisp]
 ----
