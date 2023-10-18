@@ -93,7 +93,7 @@
 (require 'sesman)
 (require 'package)
 
-(defconst cider-version "1.8.3"
+(defconst cider-version "1.8.4-snapshot"
   "The current version of CIDER.")
 
 (defconst cider-codename "Geneva"
