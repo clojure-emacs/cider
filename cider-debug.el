@@ -770,7 +770,7 @@ The boolean value of FORCE will be sent in the reply."
                   (> here (point))))
         (user-error "Point is outside the sexp being debugged"))
       ;; Move forward until start of sexp.
-      (comment-normalize-vars)
+      (comment-normalize-vars t)
       (comment-forward (point-max))
       ;; Find the coordinate and send it.
       (cider-debug-mode-send-reply
