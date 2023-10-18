@@ -753,15 +753,18 @@ running them."
                         (cider-test-echo-summary summary results elapsed-time)
                         (if (or (not (zerop (+ error fail)))
                                 cider-test-show-report-on-success)
-                            (cider-test-render-report
-                             (cider-popup-buffer
-                              cider-test-report-buffer
-                              cider-auto-select-test-report-buffer)
-                             summary
-                             results
-                             elapsed-time
-                             ns-elapsed-time
-                             var-elapsed-time)
+                            (let ((b (cider-popup-buffer
+                                      cider-test-report-buffer
+                                      cider-auto-select-test-report-buffer)))
+                              (with-current-buffer b
+                                (setq-local default-directory nil))
+                              (cider-test-render-report
+                               b
+                               summary
+                               results
+                               elapsed-time
+                               ns-elapsed-time
+                               var-elapsed-time))
                           (when (get-buffer cider-test-report-buffer)
                             (with-current-buffer cider-test-report-buffer
                               (let ((inhibit-read-only t))
