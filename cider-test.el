@@ -62,6 +62,11 @@
 
 (make-obsolete 'cider-test-defining-forms nil "1.8.0")
 
+(defvar cider-test--current-repl nil
+  "Contains the reference to the REPL where the tests were last invoked from.
+This is needed for *cider-test-report* navigation
+to work against the correct REPL session.")
+
 (defvar cider-test-last-summary nil
   "The summary of the last run test.")
 
@@ -289,7 +294,8 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
                                               cider-auto-select-error-buffer
                                               #'cider-stacktrace-mode
                                               'ancillary)
-                          (reverse causes))))))))))
+                          (reverse causes)))))))
+     cider-test--current-repl)))
 
 (defun cider-test-stacktrace ()
   "Display stacktrace for the erring test at point."
@@ -710,6 +716,7 @@ running them."
               ;; we generate a different message when running individual tests
               (cider-test-echo-running ns (car tests))
             (cider-test-echo-running ns)))
+        (setq cider-test--current-repl conn)
         (let* ((retest? (eq :non-passing ns))
                (request `("op" ,(cond ((stringp ns)         "test")
                                       ((eq :project ns)     "test-all")
@@ -746,15 +753,18 @@ running them."
                         (cider-test-echo-summary summary results elapsed-time)
                         (if (or (not (zerop (+ error fail)))
                                 cider-test-show-report-on-success)
-                            (cider-test-render-report
-                             (cider-popup-buffer
-                              cider-test-report-buffer
-                              cider-auto-select-test-report-buffer)
-                             summary
-                             results
-                             elapsed-time
-                             ns-elapsed-time
-                             var-elapsed-time)
+                            (let ((b (cider-popup-buffer
+                                      cider-test-report-buffer
+                                      cider-auto-select-test-report-buffer)))
+                              (with-current-buffer b
+                                (setq-local default-directory nil))
+                              (cider-test-render-report
+                               b
+                               summary
+                               results
+                               elapsed-time
+                               ns-elapsed-time
+                               var-elapsed-time))
                           (when (get-buffer cider-test-report-buffer)
                             (with-current-buffer cider-test-report-buffer
                               (let ((inhibit-read-only t))

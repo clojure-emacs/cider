@@ -16,6 +16,7 @@
 
 ### Bugs fixed
 
+- [#3533](https://github.com/clojure-emacs/cider/issues/3533): Refine Sesman session linking to accurately work on `*cider-test-report*` buffers.
 - [#3539](https://github.com/clojure-emacs/cider/issues/3539): `cider-jump-to-locref-at-point`: don't jump to non-existing files.
 
 ## 1.8.2 (2023-10-15)
