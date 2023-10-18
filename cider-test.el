@@ -757,7 +757,9 @@ running them."
                                       cider-test-report-buffer
                                       cider-auto-select-test-report-buffer)))
                               (with-current-buffer b
-                                (setq-local default-directory nil))
+                                ;; Change the default-directory so that it doesn't affect `sesman--linked-sessions` logic:
+                                (setq-local default-directory
+                                            (with-current-buffer "*Messages*" default-directory)))
                               (cider-test-render-report
                                b
                                summary
