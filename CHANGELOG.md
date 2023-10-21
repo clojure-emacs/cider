@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3546](https://github.com/clojure-emacs/cider/issues/3546): Inspector: render Java items using `java-mode` syntax coloring.
+
 ### Bugs fixed
 
 - Inspector: avoid `Symbol's value as variable is void: text-scale-mode-amount` under certain Emacs clients.
