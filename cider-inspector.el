@@ -388,11 +388,13 @@ MAX-COLL-SIZE if non nil."
 ;; Render Inspector from Structured Values
 (defun cider-inspector--render-value (value)
   "Render VALUE."
-  (let ((font-size (when-let ((b (get-buffer cider-inspector-buffer)))
+  (let ((font-size (when-let* ((b (get-buffer cider-inspector-buffer))
+                               (variable 'text-scale-mode-amount)
+                               (continue (local-variable-p variable b)))
                      ;; The font size is lost between inspector 'screens',
                      ;; because on each re-rendering, we wipe everything, including the mode.
                      ;; Enabling cider-inspector-mode is the specific step that loses the font size.
-                     (buffer-local-value 'text-scale-mode-amount b))))
+                     (buffer-local-value variable b))))
     (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode 'ancillary)
     (cider-inspector-render cider-inspector-buffer value font-size))
   (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)

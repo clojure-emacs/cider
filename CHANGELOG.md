@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+- Inspector: avoid `Symbol's value as variable is void: text-scale-mode-amount` under certain Emacs clients.
+
 ## 1.8.3 (2023-10-18)
 
 ### Changes
