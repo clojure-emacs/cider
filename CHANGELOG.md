@@ -5,6 +5,8 @@
 ### Changes
 
 - [#3546](https://github.com/clojure-emacs/cider/issues/3546): Inspector: render Java items using `java-mode` syntax coloring.
+- [#3548](https://github.com/clojure-emacs/cider/issues/3548)
+Inspector: add function to tap> the current inspector value
 
 ### Bugs fixed
 

@@ -60,6 +60,10 @@ You'll have access to additional keybindings in the inspector buffer
 
 | kbd:[d]
 | Defines a var in the REPL namespace with current inspector value. If you tend to always choose the same name(s), you may want to set the `cider-inspector-preferred-var-names` customization option.
+
+| kbd:[t]
+| Sends the current inspector value to Clojure's tap>.
+
 |===
 
 == Configuration
