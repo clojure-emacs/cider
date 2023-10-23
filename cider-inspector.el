@@ -427,20 +427,42 @@ MAX-COLL-SIZE if non nil."
         (error (insert "\nInspector error for: " str))))
     (goto-char (point-min))))
 
+(defvar cider-inspector-looking-at-java-p nil)
+
 (defun cider-inspector-render* (elements)
   "Render ELEMENTS."
+  (setq cider-inspector-looking-at-java-p nil)
   (dolist (el elements)
     (cider-inspector-render-el* el)))
 
+(defconst cider--inspector-java-headers
+  '("--- Interfaces:" "--- Constructors:" "--- Fields:" "--- Methods:" "--- Imports:"))
+
 (defun cider-inspector-render-el* (el)
   "Render EL."
-  (cond ((symbolp el) (insert (symbol-name el)))
-        ((stringp el) (insert (propertize el 'font-lock-face 'font-lock-keyword-face)))
-        ((and (consp el) (eq (car el) :newline))
-         (insert "\n"))
-        ((and (consp el) (eq (car el) :value))
-         (cider-inspector-render-value (cadr el) (cl-caddr el)))
-        (t (message "Unrecognized inspector object: %s" el))))
+  (let ((header-p (or (member el cider--inspector-java-headers)
+                      (and (stringp el)
+                           (string-prefix-p "--- " el)))))
+    ;; Headers reset the Java syntax coloring:
+    (when header-p
+      (setq cider-inspector-looking-at-java-p nil))
+
+    (cond ((symbolp el) (insert (symbol-name el)))
+          ((stringp el) (insert (if cider-inspector-looking-at-java-p
+                                    (cider-font-lock-as 'java-mode el)
+                                  (propertize el 'font-lock-face (if header-p
+                                                                     'font-lock-comment-face
+                                                                   'font-lock-keyword-face)))))
+          ((and (consp el) (eq (car el) :newline))
+           (insert "\n"))
+          ((and (consp el) (eq (car el) :value))
+           (cider-inspector-render-value (cadr el) (cl-caddr el)))
+          (t (message "Unrecognized inspector object: %s" el))))
+
+  ;; Java-related headers indicate that the next elements to be rendered
+  ;; should be syntax-colored as Java:
+  (when (member el cider--inspector-java-headers)
+    (setq cider-inspector-looking-at-java-p t)))
 
 (defun cider-inspector-render-value (value idx)
   "Render VALUE at IDX."

@@ -29,19 +29,11 @@
 (require 'cl-lib)
 (require 'shr)
 
-(defun cider--to-java-string (s)
-  "Convert string S to a Java-formatted string with syntax highlighting."
-  (with-temp-buffer
-    (insert s)
-    (java-mode)
-    (font-lock-ensure)
-    (buffer-string)))
-
 (defsubst cider--render-pre* (dom)
   "Render DOM nodes, formatting them them as Java if they are strings."
   (dolist (sub (dom-children dom))
     (if (stringp sub)
-        (shr-insert (cider--to-java-string sub))
+        (shr-insert (cider-font-lock-as 'java-mode sub))
       (shr-descend sub))))
 
 (defun cider--render-pre (dom)
