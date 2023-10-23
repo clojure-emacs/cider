@@ -466,7 +466,6 @@ MAX-COLL-SIZE if non nil."
 
 (defun cider-inspector-render-value (value idx)
   "Render VALUE at IDX."
-  (setq cider-inspector-looking-at-java-p nil)
   (cider-propertize-region
       (list 'cider-value-idx idx
             'mouse-face 'highlight)
