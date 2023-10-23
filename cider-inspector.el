@@ -307,6 +307,14 @@ current-namespace."
     (cider-inspector--render-value value)
     (message "%s#'%s/%s = %s" cider-eval-result-prefix ns var-name value)))
 
+(defun cider-inspector-tap-current-val ()
+  "Sends current value to tap>"
+  (interactive)
+  (setq cider-inspector--current-repl (cider-current-repl))
+  (when-let* ((value (cider-sync-request:inspect-tap-current-val)))
+    (cider-inspector--render-value value)
+    (message "%s# tapped %s" cider-eval-result-prefix value)))
+
 ;; nREPL interactions
 (defun cider-sync-request:inspect-pop ()
   "Move one level up in the inspector stack."
@@ -366,6 +374,12 @@ MAX-SIZE is the new value."
   (thread-first `("op" "inspect-def-current-value"
                   "ns" ,ns
                   "var-name" ,var-name)
+                (cider-nrepl-send-sync-request cider-inspector--current-repl)
+                (nrepl-dict-get "value")))
+
+(defun cider-sync-request:inspect-tap-current-val ()
+  "Sends current inspector value to tap>"
+  (thread-first `("op" "inspect-tap-current-value")
                 (cider-nrepl-send-sync-request cider-inspector--current-repl)
                 (nrepl-dict-get "value")))
 
