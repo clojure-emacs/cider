@@ -435,14 +435,6 @@ MAX-COLL-SIZE if non nil."
   (dolist (el elements)
     (cider-inspector-render-el* el)))
 
-(defun cider--to-java-string (s)
-  "Given `S`, returns a propertized string with Java syntax coloring."
-  (with-temp-buffer
-    (insert s)
-    (java-mode)
-    (font-lock-ensure)
-    (buffer-string)))
-
 (defconst cider--inspector-java-headers
   '("--- Interfaces:" "--- Constructors:" "--- Fields:" "--- Methods:" "--- Imports:"))
 
@@ -457,7 +449,7 @@ MAX-COLL-SIZE if non nil."
 
     (cond ((symbolp el) (insert (symbol-name el)))
           ((stringp el) (insert (if cider-inspector-looking-at-java-p
-                                    (cider--to-java-string el)
+                                    (cider-font-lock-as 'java-mode el)
                                   (propertize el 'font-lock-face (if header-p
                                                                      'font-lock-comment-face
                                                                    'font-lock-keyword-face)))))
