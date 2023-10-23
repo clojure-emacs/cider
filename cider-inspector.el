@@ -308,7 +308,7 @@ current-namespace."
     (message "%s#'%s/%s = %s" cider-eval-result-prefix ns var-name value)))
 
 (defun cider-inspector-tap-current-val ()
-  "Sends current value to tap>"
+  "Sends current value to tap>."
   (interactive)
   (setq cider-inspector--current-repl (cider-current-repl))
   (when-let* ((value (cider-sync-request:inspect-tap-current-val)))
@@ -378,7 +378,7 @@ MAX-SIZE is the new value."
                 (nrepl-dict-get "value")))
 
 (defun cider-sync-request:inspect-tap-current-val ()
-  "Sends current inspector value to tap>"
+  "Sends current inspector value to tap>."
   (thread-first `("op" "inspect-tap-current-value")
                 (cider-nrepl-send-sync-request cider-inspector--current-repl)
                 (nrepl-dict-get "value")))
