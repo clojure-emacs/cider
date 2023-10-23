@@ -106,6 +106,7 @@ by clicking or navigating to them by other means."
     (define-key map "a" #'cider-inspector-set-max-atom-length)
     (define-key map "c" #'cider-inspector-set-max-coll-size)
     (define-key map "d" #'cider-inspector-def-current-val)
+    (define-key map "t" #'cider-inspector-tap-current-val)
     (define-key map [tab] #'cider-inspector-next-inspectable-object)
     (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
     (define-key map "n" #'cider-inspector-next-inspectable-object)
