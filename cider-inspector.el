@@ -456,9 +456,12 @@ MAX-COLL-SIZE if non nil."
     (cond ((symbolp el) (insert (symbol-name el)))
           ((stringp el) (insert (if cider-inspector-looking-at-java-p
                                     (cider-font-lock-as 'java-mode el)
-                                  (propertize el 'font-lock-face (if header-p
-                                                                     'font-lock-comment-face
-                                                                   'font-lock-keyword-face)))))
+                                  (let ((trimmed-el (replace-regexp-in-string (regexp-quote "<non-inspectable value>")
+                                                                              ""
+                                                                              el)))
+                                    (propertize trimmed-el 'font-lock-face (if header-p
+                                                                               'font-lock-comment-face
+                                                                             'font-lock-keyword-face))))))
           ((and (consp el) (eq (car el) :newline))
            (insert "\n"))
           ((and (consp el) (eq (car el) :value))
