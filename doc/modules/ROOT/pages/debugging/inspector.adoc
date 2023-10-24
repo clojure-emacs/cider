@@ -22,7 +22,7 @@ the last result. This behavior can be controlled with the variable
 TIP: The inspector can also be invoked in the middle of a debugging
 session, see xref:debugging/debugger.adoc[here] for more details.
 
-TIP: The curent value of the debugger can be as send as well to Clojure's
+TIP: The current value of the debugger can be as send as well to Clojure's
 tap> facility. This can be used to integrate CIDER with various external
 tools which render tapped values in a Web Browser for example.
 
