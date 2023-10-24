@@ -113,6 +113,8 @@ by clicking or navigating to them by other means."
     (define-key map "p" #'cider-inspector-previous-inspectable-object)
     (define-key map "f" #'forward-char)
     (define-key map "b" #'backward-char)
+    (define-key map "9" #'cider-inspector-previous-sibling)
+    (define-key map "0" #'cider-inspector-next-sibling)
     ;; Emacs translates S-TAB to BACKTAB on X.
     (define-key map [backtab] #'cider-inspector-previous-inspectable-object)
     (easy-menu-define cider-inspector-mode-menu map
@@ -223,8 +225,27 @@ See `cider-sync-request:inspect-pop' and `cider-inspector--render-value'."
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it.
 See `cider-sync-request:inspect-push' and `cider-inspector--render-value'"
-  (push (point) cider-inspector-location-stack)
+  (interactive)
   (when-let* ((value (cider-sync-request:inspect-push idx)))
+    (push (point) cider-inspector-location-stack)
+    (cider-inspector--render-value value)
+    (cider-inspector-next-inspectable-object 1)))
+
+(defun cider-inspector-previous-sibling ()
+  "Inspect the previous sibling value within a sequential parent.
+See `cider-sync-request:inspect-previous-sibling' and `cider-inspector--render-value'"
+  (interactive)
+  (when-let* ((value (cider-sync-request:inspect-previous-sibling)))
+    (push (point) cider-inspector-location-stack)
+    (cider-inspector--render-value value)
+    (cider-inspector-next-inspectable-object 1)))
+
+(defun cider-inspector-next-sibling ()
+  "Inspect the next sibling value within a sequential parent.
+See `cider-sync-request:inspect-next-sibling' and `cider-inspector--render-value'"
+  (interactive)
+  (when-let* ((value (cider-sync-request:inspect-next-sibling)))
+    (push (point) cider-inspector-location-stack)
     (cider-inspector--render-value value)
     (cider-inspector-next-inspectable-object 1)))
 
@@ -318,6 +339,18 @@ current-namespace."
   "Inspect the inside value specified by IDX."
   (thread-first `("op" "inspect-push"
                   "idx" ,idx)
+                (cider-nrepl-send-sync-request cider-inspector--current-repl)
+                (nrepl-dict-get "value")))
+
+(defun cider-sync-request:inspect-previous-sibling ()
+  "Inspect the previous sibling value within a sequential parent."
+  (thread-first `("op" "inspect-previous-sibling")
+                (cider-nrepl-send-sync-request cider-inspector--current-repl)
+                (nrepl-dict-get "value")))
+
+(defun cider-sync-request:inspect-next-sibling ()
+  "Inspect the next sibling value within a sequential parent."
+  (thread-first `("op" "inspect-next-sibling")
                 (cider-nrepl-send-sync-request cider-inspector--current-repl)
                 (nrepl-dict-get "value")))
 

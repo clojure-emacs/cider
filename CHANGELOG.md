@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3529](https://github.com/clojure-emacs/cider/issues/3529): CIDER inspector: introduce `cider-inspector-previous-sibling`, `cider-inspector-next-sibling` commands ([doc](https://docs.cider.mx/cider/debugging/inspector.html#usage)).
+
 ### Changes
 
 - [#3546](https://github.com/clojure-emacs/cider/issues/3546): Inspector: render Java items using `java-mode` syntax coloring.
