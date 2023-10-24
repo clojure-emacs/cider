@@ -338,8 +338,8 @@ current-namespace."
       (let ((response (cider-sync-request:inspect-tap-current-val)))
         (nrepl-dbind-response response (value err)
           (if value
-              (message "Successully tapped the current Inspector value")
-            (error"Could not tap the current Inspector value: %s" err))))
+              (message "Successfully tapped the current Inspector value")
+            (error "Could not tap the current Inspector value: %s" err))))
     (user-error "No CIDER session found")))
 
 ;; nREPL interactions
