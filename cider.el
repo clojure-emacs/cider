@@ -1765,7 +1765,7 @@ canceled the action, signal quit."
                          (nth 1 endpoint)))
       (user-error "The port for %s in `cider-known-endpoints' should be a string"
                   (nth 0 endpoint))))
-  (let* ((ssh-hosts (cider--ssh-hosts))
+  (let* ((ssh-hosts (unless cider-skip-ssh-hosts-lookup (cider--ssh-hosts)))
          (hosts (seq-uniq (append (when cider-host-history
                                     ;; history elements are strings of the form "host:port"
                                     (list (split-string (car cider-host-history) ":")))
@@ -2119,6 +2119,12 @@ alternative to the default is `cider-random-tip'."
     (message "Connected! %s" (funcall cider-connection-message-fn))))
 
 (add-hook 'cider-connected-hook #'cider--maybe-inspire-on-connect)
+
+(defcustom cider-skip-ssh-hosts-lookup nil
+  "Skip looking up ssh hosts before connecting to a REPL."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.8.4"))
 
 ;;;###autoload
 (with-eval-after-load 'clojure-mode
