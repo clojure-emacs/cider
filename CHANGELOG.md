@@ -5,6 +5,8 @@
 ### Changes
 
 - [#3546](https://github.com/clojure-emacs/cider/issues/3546): Inspector: render Java items using `java-mode` syntax coloring.
+- [#3528](https://github.com/clojure-emacs/cider/issues/3528): Bump the injected `cider-nrepl` to [0.41.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.41.0/CHANGELOG.md#0410-2023-10-24).
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.17.0/CHANGELOG.md#0170-2023-10-24), providing misc presentational improvements for the CIDER Inspector.
 
 ### Bugs fixed
 
