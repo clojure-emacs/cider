@@ -436,7 +436,13 @@ MAX-COLL-SIZE if non nil."
     (cider-inspector-render-el* el)))
 
 (defconst cider--inspector-java-headers
-  '("--- Interfaces:" "--- Constructors:" "--- Fields:" "--- Methods:" "--- Imports:"))
+  ;; NOTE "--- Static fields:" "--- Instance fields:" are for objects,
+  ;; and don't deserve Java syntax highlighting (they can contain a Clojure value like `:foo/bar`, for instance)
+  '("--- Interfaces:"
+    "--- Fields:" ;; rendered only for Class objects (and not other objects) - see previous comment
+    "--- Constructors:"
+    "--- Methods:"
+    "--- Imports:"))
 
 (defun cider-inspector-render-el* (el)
   "Render EL."
