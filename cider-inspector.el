@@ -106,6 +106,7 @@ by clicking or navigating to them by other means."
     (define-key map "a" #'cider-inspector-set-max-atom-length)
     (define-key map "c" #'cider-inspector-set-max-coll-size)
     (define-key map "d" #'cider-inspector-def-current-val)
+    (define-key map "t" #'cider-inspector-tap-current-val)
     (define-key map [tab] #'cider-inspector-next-inspectable-object)
     (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
     (define-key map "n" #'cider-inspector-next-inspectable-object)
@@ -328,6 +329,19 @@ current-namespace."
     (cider-inspector--render-value value)
     (message "%s#'%s/%s = %s" cider-eval-result-prefix ns var-name value)))
 
+(defun cider-inspector-tap-current-val ()
+  "Sends the current Inspector current value to `tap>'."
+  (interactive)
+  ;; NOTE: we don't set `cider-inspector--current-repl', because we mean to tap the current value of an existing Inspector,
+  ;; so whatever repl was used for it, should be used here.
+  (if cider-inspector--current-repl
+      (let ((response (cider-sync-request:inspect-tap-current-val)))
+        (nrepl-dbind-response response (value err)
+          (if value
+              (message "Successully tapped the current Inspector value")
+            (error"Could not tap the current Inspector value: %s" err))))
+    (user-error "No CIDER session found")))
+
 ;; nREPL interactions
 (defun cider-sync-request:inspect-pop ()
   "Move one level up in the inspector stack."
@@ -401,6 +415,10 @@ MAX-SIZE is the new value."
                   "var-name" ,var-name)
                 (cider-nrepl-send-sync-request cider-inspector--current-repl)
                 (nrepl-dict-get "value")))
+
+(defun cider-sync-request:inspect-tap-current-val ()
+  "Sends current inspector value to tap>."
+  (cider-nrepl-send-sync-request '("op" "inspect-tap-current-value") cider-inspector--current-repl))
 
 (defun cider-sync-request:inspect-expr (expr ns page-size max-atom-length max-coll-size)
   "Evaluate EXPR in context of NS and inspect its result.

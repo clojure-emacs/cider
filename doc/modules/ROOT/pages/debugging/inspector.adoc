@@ -22,6 +22,10 @@ the last result. This behavior can be controlled with the variable
 TIP: The inspector can also be invoked in the middle of a debugging
 session, see xref:debugging/debugger.adoc[here] for more details.
 
+TIP: The current value of the debugger can be as sent as well to Clojure's
+`tap>` facility. This can be used to integrate CIDER with various external
+tools which render tapped values in a web browser, for example.
+
 You'll have access to additional keybindings in the inspector buffer
 (which is internally using `cider-inspector-mode`):
 
@@ -79,6 +83,11 @@ You'll have access to additional keybindings in the inspector buffer
 | kbd:[0]
 | `cider-inspector-next-sibling`
 | Navigates to the next sibling, within a sequential collection.
+
+| kbd:[t]
+| `cider-inspector-tap-current-val`
+| Performs `tap>` using the inspector's current value as it argument.
+
 |===
 
 == Configuration
