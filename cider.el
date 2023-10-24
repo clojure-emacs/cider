@@ -1758,6 +1758,12 @@ canceled the action, signal quit."
         (file-remote-p buffer-file-name 'host))
       "localhost"))
 
+(defcustom cider-skip-ssh-hosts-lookup nil
+  "Skip looking up ssh hosts before connecting to a REPL."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.8.4"))
+
 (defun cider-select-endpoint ()
   "Interactively select the host and port to connect to."
   (dolist (endpoint cider-known-endpoints)
@@ -2120,11 +2126,6 @@ alternative to the default is `cider-random-tip'."
 
 (add-hook 'cider-connected-hook #'cider--maybe-inspire-on-connect)
 
-(defcustom cider-skip-ssh-hosts-lookup nil
-  "Skip looking up ssh hosts before connecting to a REPL."
-  :type 'boolean
-  :group 'cider
-  :package-version '(cider . "1.8.4"))
 
 ;;;###autoload
 (with-eval-after-load 'clojure-mode
