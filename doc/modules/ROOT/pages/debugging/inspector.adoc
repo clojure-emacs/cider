@@ -26,40 +26,59 @@ You'll have access to additional keybindings in the inspector buffer
 (which is internally using `cider-inspector-mode`):
 
 |===
-| Keyboard shortcut | Description
+| Keyboard shortcut | Command | Description
 
-| kbd:[Tab] and kbd:[Shift-Tab] / kdb:[n] and kbd:[p]
+| kbd:[Tab] and kbd:[Shift-Tab] / kbd:[n] and kbd:[p]
+| `cider-inspector-next-inspectable-object`
 | Navigate inspectable sub-objects
 
 | kbd:[f] and kbd:[b]
+| `forward-char`, `backward-char`
 | Navigate across characters on a line
 
 | kbd:[Return]
+| `cider-inspector-operate-on-point`
 | Inspect sub-objects
 
 | kbd:[l]
+| `cider-inspector-pop`
 | Pop to the parent object
 
 | kbd:[g]
+| `cider-inspector-refresh`
 | Refresh the inspector (e.g. if viewing an atom/ref/agent)
 
 | kbd:[SPC]
+| `cider-inspector-next-page`
 | Jump to next page in paginated view
 
 | kbd:[M-SPC]
+| `cider-inspector-prev-page`
 | Jump to previous page in paginated view
 
 | kbd:[s]
+| `cider-inspector-set-page-size`
 | Set a new page size in paginated view
 
 | kbd:[c]
+| `cider-inspector-set-max-coll-size`
 | Set a new maximum size above which nested collections are truncated
 
 | kbd:[a]
+| `cider-inspector-set-max-atom-length`
 | Set a new maximum length above which nested atoms (non-collections) are truncated
 
 | kbd:[d]
+| `cider-inspector-def-current-val`
 | Defines a var in the REPL namespace with current inspector value. If you tend to always choose the same name(s), you may want to set the `cider-inspector-preferred-var-names` customization option.
+
+| kbd:[9]
+| `cider-inspector-previous-sibling`
+| Navigates to the previous sibling, within a sequential collection.
+
+| kbd:[0]
+| `cider-inspector-next-sibling`
+| Navigates to the next sibling, within a sequential collection.
 |===
 
 == Configuration
