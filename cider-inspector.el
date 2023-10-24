@@ -312,9 +312,16 @@ current-namespace."
   "Sends current value to tap>."
   (interactive)
   (setq cider-inspector--current-repl (cider-current-repl))
-  (when-let* ((value (cider-sync-request:inspect-tap-current-val)))
+
+  (let* ((value (cider-sync-request:inspect-tap-current-val))
+         (elements (car (read-from-string value)))
+         (path-present (equal "--- Path:" (nth  (- (length elements) 4) elements  )))
+         (path-str (if path-present
+                       (car (last elements))
+                     "TOP-LEVEL")))
     (cider-inspector--render-value value)
-    (message "%s# tapped %s" cider-eval-result-prefix value)))
+    (message "%s# tapped element '%s'" cider-eval-result-prefix path-str)))
+
 
 ;; nREPL interactions
 (defun cider-sync-request:inspect-pop ()
