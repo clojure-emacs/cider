@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3546](https://github.com/clojure-emacs/cider/issues/3546): Inspector: render Java items using `java-mode` syntax coloring.
+- [#3550](https://github.com/clojure-emacs/cider/pull/3550): Add option to skip ssh hosts lookup on cider-connect
 
 ### Bugs fixed
 
