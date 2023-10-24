@@ -10,6 +10,13 @@
 ### Changes
 
 - [#3546](https://github.com/clojure-emacs/cider/issues/3546): Inspector: render Java items using `java-mode` syntax coloring.
+- [#3521](https://github.com/clojure-emacs/cider/issues/3521): Expand `cider-clojure-compilation-regexp` to also match e.g. `Unexpected error (ExceptionInfo) macroexpanding defmulti at (src/ns.clj:1:1).`.
+- Remove module info from the [CIDER error overlay](https://docs.cider.mx/cider/usage/dealing_with_errors.html#configuration).
+  - Example string that is now trimmed away: `(java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IObj is in unnamed module of loader 'app')`
+- [#3522](https://github.com/clojure-emacs/cider/issues/3522): Introduce a new possible value for [`cider-use-overlays`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays): `errors-only`.
+  - If specified, only errors will result in an overlay being shown.
+- [#3527](https://github.com/clojure-emacs/cider/issues/3527): Preserve the font size as one navigates through the CIDER inspector.
+- [#3525](https://github.com/clojure-emacs/cider/issues/3525): Introduce [`cider-inline-error-message-function`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays) customization option.
 - [#3528](https://github.com/clojure-emacs/cider/issues/3528): Bump the injected `cider-nrepl` to [0.41.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.41.0/CHANGELOG.md#0410-2023-10-24).
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.17.0/CHANGELOG.md#0170-2023-10-24), providing misc presentational improvements for the CIDER Inspector.
 
@@ -21,13 +28,6 @@
 
 ### Changes
 
-- [#3521](https://github.com/clojure-emacs/cider/issues/3521): Expand `cider-clojure-compilation-regexp` to also match e.g. `Unexpected error (ExceptionInfo) macroexpanding defmulti at (src/ns.clj:1:1).`.
-- Remove module info from the [CIDER error overlay](https://docs.cider.mx/cider/usage/dealing_with_errors.html#configuration).
-  - Example string that is now trimmed away: `(java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IObj is in unnamed module of loader 'app')`
-- [#3522](https://github.com/clojure-emacs/cider/issues/3522): Introduce a new possible value for [`cider-use-overlays`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays): `errors-only`.
-  - If specified, only errors will result in an overlay being shown.
-- [#3527](https://github.com/clojure-emacs/cider/issues/3527): Preserve the font size as one navigates through the CIDER inspector.
-- [#3525](https://github.com/clojure-emacs/cider/issues/3525): Introduce [`cider-inline-error-message-function`](https://docs.cider.mx/cider/usage/code_evaluation.html#overlays) customization option.
 - [#2903](https://github.com/clojure-emacs/cider/issues/2903): Avoid `No comment syntax is defined` prompts.
 - Bump the `clojure-mode` required version to [5.18.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.0/CHANGELOG.md#5180-2023-10-18)
 
