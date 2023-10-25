@@ -31,7 +31,7 @@
 ### Changes
 
 - [#2903](https://github.com/clojure-emacs/cider/issues/2903): Avoid `No comment syntax is defined` prompts.
-- Bump the `clojure-mode` required version to [5.18.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.0/CHANGELOG.md#5180-2023-10-18)
+- Bump the `clojure-mode` required version to [5.18.0](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.0/CHANGELOG.md#5180-2023-10-18).
 
 ### Bugs fixed
 
@@ -43,7 +43,7 @@
 ### Changes
 
 - Bump the injected `cider-nrepl` to [0.40.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.40.0/CHANGELOG.md#0400-2023-10-15).
-  - Improves the `:style/indent` `:arglist` and other key metadata propagation for ClojureScript macros. 
+  - Improves the `:style/indent` `:arglist` and other key metadata propagation for ClojureScript macros.
 
 ## 1.8.0 (2023-10-13)
 
