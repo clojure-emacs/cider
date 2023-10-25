@@ -10,10 +10,9 @@ and RHEL GNU/Linux distributions.
 
 == nREPL
 
-CIDER supports nREPL 0.6+.
+CIDER supports nREPL 1.0+.
 
-NOTE: We pay special attention to supporting whatever nREPL is bundled with the current stable Leiningen
-and Boot releases.
+NOTE: We pay special attention to supporting whatever nREPL is bundled with the current stable Leiningen release.
 
 == Java
 
