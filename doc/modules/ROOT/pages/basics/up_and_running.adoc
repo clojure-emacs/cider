@@ -267,6 +267,18 @@ Here is an example Nbb Jack-In command, providing a custom `:jack-in-cmd`.
   (cider-jack-in-clj '(:jack-in-cmd "nbb nrepl-server")))
 ----
 
+==== Starting nREPL server without trying to connect to it ====
+
+In some situations it might be usefull to only start the nREPL server without
+CIDER trying to automaticaly connect to it. This can help for complex setups
+in which CIDER cannot reliably detect to which server:port to connect and
+would therefore fail.
+This assumes that the user executes a `cider-connect` command manualy afterwards
+and specifies host:port .
+
+For this there is the `cider-start-server` command, which optionally takes the same
+parameters then `cider-jack-in`.
+
 
 == Connect to a Running nREPL Server
 
