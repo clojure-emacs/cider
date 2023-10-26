@@ -1356,7 +1356,7 @@ double prefix prompt for all these parameters."
 
 
 (defun cider-start-server (params)
-   "Start an nREPL server for the current project, but don't connect to it.
+  "Start an nREPL server for the current project, but don't connect to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the start server in command; with a
 double prefix prompt for all these parameters.
