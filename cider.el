@@ -1351,8 +1351,8 @@ double prefix prompt for all these parameters."
                   (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
     (cider--do-start-server params
-                        (lambda (server-buffer)
-                          (cider-connect-sibling-clj params server-buffer)))))
+                            (lambda (server-buffer)
+                              (cider-connect-sibling-clj params server-buffer)))))
 
 
 (defun cider-start-server (params)
