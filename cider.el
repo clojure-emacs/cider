@@ -1332,9 +1332,7 @@ nil."
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 ON-PORT-CALLBACK is a function of one argument (server buffer)
 which is called by the process filter once the port of the connection has
-been determined.  Can be nil.
-
-See also: `cider-start-server'."
+been determined.  Can be nil."
   (nrepl-start-server-process
    (plist-get params :project-dir)
    (plist-get params :jack-in-cmd)
@@ -1345,7 +1343,9 @@ See also: `cider-start-server'."
   "Start an nREPL server for the current project and connect to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the jack in command; with a
-double prefix prompt for all these parameters."
+double prefix prompt for all these parameters.
+
+See also: `cider-start-server'."
   (interactive "P")
   (let ((params (thread-first
                   params
