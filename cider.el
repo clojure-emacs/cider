@@ -1352,9 +1352,10 @@ See also: `cider-start-server'."
                   (cider--update-project-dir)
                   (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
-    (cider--start-nrepl-server-with-callback params
-                            (lambda (server-buffer)
-                              (cider-connect-sibling-clj params server-buffer)))))
+    (cider--start-nrepl-server-with-callback
+     params
+     (lambda (server-buffer)
+       (cider-connect-sibling-clj params server-buffer)))))
 
 
 (defun cider-start-nrepl-server (params)
