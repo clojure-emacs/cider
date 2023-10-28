@@ -621,7 +621,9 @@ that should be font-locked:
    `var': Any non-local var gets the `font-lock-variable-name-face'.
    `deprecated' (default): Any deprecated var gets the `cider-deprecated-face'
    face.
-   `core' (default): Any symbol from clojure.core (face depends on type).
+   `core' (default): Any symbol from clojure.core/cljs.core.  The selected face will depend on type.
+   Note that while rendering `core', all types of vars (`macro', `function', `var', `deprecated')
+   will be honored, regardless of the user's customization value.
 
 The value can also be t, which means to font-lock as much as possible."
   :type '(choice (set :tag "Fine-tune font-locking"
@@ -775,6 +777,8 @@ with the given LIMIT."
         macros functions vars instrumented traced)
     (cl-labels ((handle-plist
                  (plist)
+                 ;; Note that (memq 'function cider-font-lock-dynamically) and similar statements are evaluated differently
+                 ;; for `core' - they're always truthy for `core' (see related core-handling code some lines below):
                  (let ((do-function (memq 'function cider-font-lock-dynamically))
                        (do-var (memq 'var cider-font-lock-dynamically))
                        (do-macro (memq 'macro cider-font-lock-dynamically))
@@ -806,6 +810,7 @@ with the given LIMIT."
                                 (push sym functions))
                                ((and do-var (not is-function) (not is-macro))
                                 (push sym vars)))))))))
+      ;; For core members, we override `cider-font-lock-dynamically', since all core members should get the same treatment:
       (when (memq 'core cider-font-lock-dynamically)
         (let ((cider-font-lock-dynamically '(function var macro core deprecated)))
           (handle-plist core-plist)))
