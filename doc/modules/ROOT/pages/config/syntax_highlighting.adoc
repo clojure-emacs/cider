@@ -3,7 +3,7 @@
 == Dynamic syntax highlighting
 
 CIDER can syntax highlight symbols that are known to be defined. By default,
-this is done on symbols from the `clojure.core` namespace, as well as macros
+this is done on symbols from the `clojure.core`/`cljs.core` namespaces, as well as macros
 from any namespace. If you'd like CIDER to also colorize usages of functions
 and variables from any namespace, do:
 
@@ -19,6 +19,8 @@ image::dynamic_font_lock_off.png[Dynamic Font-lock Off]
 And here's how the code looks when it's turned on.
 
 image::dynamic_font_lock_on.png[Dynamic Font-lock On]
+
+You can refer to the `cider-font-lock-dynamically` Elisp documentation for further details.
 
 == Syntax highlighting for reader conditionals
 
