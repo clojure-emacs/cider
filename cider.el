@@ -1327,7 +1327,7 @@ nil."
   "CIDER jack-in and connect keymap.")
 
 
-(defun cider--do-start-server (params on-port-callback)
+(defun cider--start-nrepl-server-with-callback (params on-port-callback)
   "Starts an nrepl server and passes the callback to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 ON-PORT-CALLBACK is a function of one argument (server buffer)
@@ -1352,12 +1352,12 @@ See also: `cider-start-server'."
                   (cider--update-project-dir)
                   (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
-    (cider--do-start-server params
+    (cider--start-nrepl-server-with-callback params
                             (lambda (server-buffer)
                               (cider-connect-sibling-clj params server-buffer)))))
 
 
-(defun cider-start-server (params)
+(defun cider-start-nrepl-server (params)
   "Start an nREPL server for the current project, but don't connect to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the start server in command; with a
@@ -1370,7 +1370,7 @@ See also: `cider-jack-in-clj'."
                   (cider--update-project-dir)
                   (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
-    (cider--do-start-server params nil)))
+    (cider--start-nrepl-server-with-callback params nil)))
 
 ;;;###autoload
 (defun cider-jack-in-cljs (params)
