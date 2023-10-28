@@ -1328,7 +1328,7 @@ nil."
 
 
 (defun cider--do-start-server (params on-port-callback)
-  "Starts nrepl server and passes the call-back to it.
+  "Starts an nrepl server and passes the callback to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 ON-PORT-CALLBACK is a function of one argument (server buffer)
 which is called by the process filter once the port of the connection has
