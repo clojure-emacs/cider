@@ -1,12 +1,16 @@
 # Changelog
 
 ## master (unreleased)
-- new command `cider-start-server` which does the same as `cider-jack-in` but without trying to connect to the started nREPL server
+
+### New Features
+- Introduce `cider-start-nrepl-server` which does the same as `cider-jack-in` but without trying to connect to the started 
+nREPL server.
 
 
 ## 1.9.0 (2023-10-24)
 
 ### New features
+
 - [#3529](https://github.com/clojure-emacs/cider/issues/3529): CIDER inspector: introduce `cider-inspector-previous-sibling`, `cider-inspector-next-sibling` commands ([doc](https://docs.cider.mx/cider/debugging/inspector.html#usage)).
 - [#3548](https://github.com/clojure-emacs/cider/issues/3548): CIDER inspector: introduce `cider-inspector-tap-current-val` command ([doc](https://docs.cider.mx/cider/debugging/inspector.html#usage)).
 
