@@ -271,6 +271,12 @@ Discards it if it can be determined that the port is not active."
                           (shell-command-to-string (format "lsof -i:%s" port-number))))
           port-string)))))
 
+(defun nrepl--ssh-file-name-matches-host-p (file-name host)
+  "Return t, if FILE-NAME is a tramp-file-name on HOST via ssh."
+  (when (tramp-tramp-file-p file-name)
+    (with-parsed-tramp-file-name file-name v
+      (and (member v-method '("ssh" "sshx" "sshfs"))
+           (member host (list v-host (concat v-host "#" v-port)))))))
 
 ;;; Bencode
 
@@ -587,14 +593,12 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
 (defun nrepl--ssh-tunnel-connect (host port)
   "Connect to a remote machine identified by HOST and PORT through SSH tunnel."
   (message "[nREPL] Establishing SSH tunneled connection to %s:%s ..." host port)
-  (let* ((current-buf (buffer-file-name))
-         (tramp-file-regexp "/ssh:\\(.+@\\)?\\(.+?\\)\\(:\\|#\\).+")
+  (let* ((file-name (or (buffer-file-name) nrepl-project-dir))
          (remote-dir (cond
                       ;; If current buffer is a TRAMP buffer and its host is
                       ;; the same as HOST, reuse its connection parameters for
                       ;; SSH tunnel.
-                      ((and (string-match tramp-file-regexp current-buf)
-                            (string= host (match-string 2 current-buf))) current-buf)
+                      ((nrepl--ssh-file-name-matches-host-p file-name host) file-name)
                       ;; Otherwise, if HOST was provided, use it for connection.
                       (host (format "/ssh:%s:" host))
                       ;; Use default directory as fallback.
