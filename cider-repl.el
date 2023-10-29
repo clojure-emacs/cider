@@ -250,9 +250,13 @@ This cache is stored in the connection buffer.")
             (dolist (b (buffer-list))
               (with-current-buffer b
                 (when (or cider-mode (derived-mode-p 'cider-repl-mode))
-                  ;; we only cider-refresh-dynamic-font-lock for Clojure buffers directly related to this repl
+                  ;; We only cider-refresh-dynamic-font-lock (and set `cider-eldoc-last-symbol')
+                  ;; for Clojure buffers directly related to this repl
                   ;; (specifically, we omit 'friendly' sessions because a given buffer may be friendly to multiple repls,
-                  ;;  so we don't want a buffer to mix up font locking rules from different repls)
+                  ;;  so we don't want a buffer to mix up font locking rules from different repls).
+                  ;; Note that `sesman--linked-sessions' only queries for the directly linked sessions.
+                  ;; That has the additional advantage of running very/predictably fast, since it won't run our
+                  ;; `cider--sesman-friendly-session-p' logic, which can be slow for its non-cached path.
                   (when (member this-repl (car (sesman--linked-sessions 'CIDER)))
                     ;; Metadata changed, so signatures may have changed too.
                     (setq cider-eldoc-last-symbol nil)
