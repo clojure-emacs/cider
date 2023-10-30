@@ -1080,7 +1080,8 @@ This is used by pretty-printing commands."
        (when (and (buffer-live-p chosen-buffer)
                   (member (buffer-name chosen-buffer)
                           cider-ancillary-buffers))
-         (kill-buffer chosen-buffer))
+         (with-selected-window (get-buffer-window chosen-buffer)
+           (cider-popup-buffer-quit-function t)))
        ;; also call the default nrepl-err-handler, so that our custom behavior doesn't void the base behavior:
        (when nrepl-err-handler
          (funcall nrepl-err-handler)))
