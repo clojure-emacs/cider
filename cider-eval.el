@@ -1378,35 +1378,31 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
 
 (declare-function cider-switch-to-repl-buffer "cider-mode")
 
-(defun cider-eval-last-sexp-to-repl (&optional prefix)
-  "Evaluate the expression preceding point and insert its result in the REPL.
-If invoked with a PREFIX argument, switch to the REPL buffer."
-  (interactive "P")
+(defun cider--eval-last-sexp-to-repl (switch-to-repl request-map)
+  "Evaluate the expression preceding point and insert its result in the REPL,
+honoring SWITCH-TO-REPL, REQUEST-MAP."
   (let ((bounds (cider-last-sexp 'bounds)))
     (cider-interactive-eval nil
                             (cider-insert-eval-handler (cider-current-repl)
                                                        bounds
                                                        (current-buffer)
                                                        (lambda ()
-                                                         (when prefix
+                                                         (when switch-to-repl
                                                            (cider-switch-to-repl-buffer))))
                             bounds
-                            (cider--nrepl-pr-request-map))))
+                            request-map)))
+
+(defun cider-eval-last-sexp-to-repl (&optional prefix)
+  "Evaluate the expression preceding point and insert its result in the REPL.
+If invoked with a PREFIX argument, switch to the REPL buffer."
+  (interactive "P")
+  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-pr-request-map)))
 
 (defun cider-pprint-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate expr before point and insert its pretty-printed result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (let ((bounds (cider-last-sexp 'bounds)))
-    (cider-interactive-eval nil
-                            (cider-insert-eval-handler (cider-current-repl)
-                                                       bounds
-                                                       (current-buffer)
-                                                       (lambda ()
-                                                         (when prefix
-                                                           (cider-switch-to-repl-buffer))))
-                            bounds
-                            (cider--nrepl-print-request-map fill-column))))
+  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-print-request-map fill-column)))
 
 (defun cider-eval-print-last-sexp (&optional pretty-print)
   "Evaluate the expression preceding point.
