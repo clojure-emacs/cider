@@ -643,7 +643,9 @@ others."
   "Emit toggle buttons for each of the ERROR-TYPES leading this stacktrace BUFFER."
   (with-current-buffer buffer
     (when error-types
-      (insert "  This is an unexpected CIDER middleware error.\n  Please submit a bug report via `")
+      (insert "  This is a CIDER middleware error.
+  It may be a due to a bug, or perhaps simply to bad user input.
+  If you believe it's a bug, please submit an issue report via `")
       (insert-text-button "M-x cider-report-bug"
                           'follow-link t
                           'action (lambda (_button) (cider-report-bug))

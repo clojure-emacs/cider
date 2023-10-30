@@ -63,16 +63,19 @@ Possible values are:
 The default for DISPLAY-NAMESPACES is taken from
 `cider-macroexpansion-display-namespaces'."
   (cider-ensure-op-supported "macroexpand")
-  (thread-first `("op" "macroexpand"
-                  "expander" ,expander
-                  "code" ,expr
-                  "ns" ,(cider-current-ns)
-                  "display-namespaces" ,(or display-namespaces
-                                            (symbol-name cider-macroexpansion-display-namespaces)))
-                (nconc (when cider-macroexpansion-print-metadata
-                         '("print-meta" "true")))
-                (cider-nrepl-send-sync-request)
-                (nrepl-dict-get "expansion")))
+  (let ((result (thread-first `("op" "macroexpand"
+                                "expander" ,expander
+                                "code" ,expr
+                                "ns" ,(cider-current-ns)
+                                "display-namespaces" ,(or display-namespaces
+                                                          (symbol-name cider-macroexpansion-display-namespaces)))
+                              (nconc (when cider-macroexpansion-print-metadata
+                                       '("print-meta" "true")))
+                              (cider-nrepl-send-sync-request))))
+    (nrepl-dbind-response result (expansion status)
+      (if (member "macroexpand-error" status)
+          (user-error "Macroexpansion failed.  Check *cider-error* for more details")
+        expansion))))
 
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
