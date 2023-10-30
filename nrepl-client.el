@@ -275,7 +275,7 @@ Discards it if it can be determined that the port is not active."
   "Return t, if FILE-NAME is a tramp-file-name on HOST via ssh."
   (when (tramp-tramp-file-p file-name)
     (with-parsed-tramp-file-name file-name v
-      (and (member v-method '("ssh" "sshx" "sshfs"))
+      (and (member v-method '("ssh" "sshx"))
            (member host (list v-host (concat v-host "#" v-port)))))))
 
 ;;; Bencode

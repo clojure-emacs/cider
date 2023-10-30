@@ -174,9 +174,6 @@
   (it "works with tramps other ssh methods"
     (expect (nrepl--ssh-file-name-matches-host-p
              "/sshx:tester@host:~/test/" "host")
-            :to-be-truthy)
-    (expect (nrepl--ssh-file-name-matches-host-p
-             "/sshfs:tester@host:~/test/" "host")
             :to-be-truthy))
   (it "can handle nil"
     (expect (nrepl--ssh-file-name-matches-host-p nil nil)
