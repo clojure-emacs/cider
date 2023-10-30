@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+### Changes
+
+- Bump the injected `cider-nrepl` to [0.42.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.42.0/CHANGELOG.md#0420-2023-10-30).
+  - Improves performance for completions- and info-related functionality.
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.18.0/CHANGELOG.md#0180-2023-10-30)
+    - Improves various Inspector presentational aspects.
+
 ### Bugs fixed
 
 - [#3559](https://github.com/clojure-emacs/cider/issues/3559): Don't apply [dynamic syntax highlighting](https://docs.cider.mx/cider/config/syntax_highlighting.html) over buffers belonging to unrelated Sesman sessions.
