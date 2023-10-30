@@ -3,9 +3,23 @@
 ## master (unreleased)
 
 ### New Features
+
 - Introduce `cider-start-nrepl-server` which does the same as `cider-jack-in` but without trying to connect to the started 
 nREPL server.
 
+### Changes
+
+- Bump the injected `cider-nrepl` to [0.42.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.42.0/CHANGELOG.md#0420-2023-10-30).
+  - Improves performance for completions- and info-related functionality.
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.18.0/CHANGELOG.md#0180-2023-10-30)
+    - Improves various Inspector presentational aspects.
+- [#3553](https://github.com/clojure-emacs/cider/issues/3553): `cider-pprint-eval-last-sexp`, `cider-eval-last-sexp-to-repl`, `cider-pprint-eval-last-sexp-to-repl`: use error overlays to indicate failure.
+  - this also avoids showing an empty `*cider-result*` buffer.
+- [#3554](https://github.com/clojure-emacs/cider/issues/3554): CIDER macroexpand: handle errors more gracefully. 
+
+### Bugs fixed
+
+- [#3559](https://github.com/clojure-emacs/cider/issues/3559): Don't apply [dynamic syntax highlighting](https://docs.cider.mx/cider/config/syntax_highlighting.html) over buffers belonging to unrelated Sesman sessions.
 
 ## 1.9.0 (2023-10-24)
 

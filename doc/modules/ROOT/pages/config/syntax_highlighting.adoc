@@ -1,11 +1,24 @@
 = Syntax highlighting
 
+`clojure-mode` provides basic syntax highlighting for Clojure(Script) code, but
+CIDER builds upon this in several ways. The biggest limitation of `clojure-mode`
+is that the syntax highlighting there is based on the usage of regular expressions
+to figure out what's the syntactic category of the various identifiers (e.g. constants,
+macros, types, etc). CIDER, however, has access to all the data about identifiers from
+code that has already been loaded into nREPL, so it can provide a richer and more accurate
+syntax highlighting. We call this functionality "dynamic syntax highlighting" (as opposed to
+the somewhat static syntax highlighting you'd get from `clojure-mode`).
+
 == Dynamic syntax highlighting
 
+NOTE: The Emacs term for "syntax highlighting" is "font-locking". That's why
+all configuration variables that have something to do with syntax highlighting have
+"font-locking" in their names.
+
 CIDER can syntax highlight symbols that are known to be defined. By default,
-this is done on symbols from the `clojure.core` namespace, as well as macros
-from any namespace. If you'd like CIDER to also colorize usages of functions
-and variables from any namespace, do:
+this is done from symbols from the `clojure.core` and `cljs.core` namespaces, as
+well as macros from any namespace. If you'd like CIDER to also colorize usages
+of functions and variables from any namespace, do:
 
 [source,lisp]
 ----
@@ -19,6 +32,8 @@ image::dynamic_font_lock_off.png[Dynamic Font-lock Off]
 And here's how the code looks when it's turned on.
 
 image::dynamic_font_lock_on.png[Dynamic Font-lock On]
+
+You can refer to the `cider-font-lock-dynamically` Elisp documentation for further details.
 
 == Syntax highlighting for reader conditionals
 
