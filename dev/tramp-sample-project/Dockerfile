@@ -36,6 +36,7 @@ COPY . /usr/src/app
 RUN lein deps
 
 RUN echo "export JAVA_HOME=${JAVA_HOME}" >> /root/.bashrc
+RUN echo "export JAVA_CMD=${JAVA_HOME}/bin/java" >> /root/.bashrc
 RUN echo "export LEIN_HOME=${LEIN_HOME}" >> /root/.bashrc
 RUN echo "export LEIN_JAVA_CMD=${LEIN_JAVA_CMD}" >> /root/.bashrc
 RUN echo "export LEIN_JVM_OPTS=${LEIN_JVM_OPTS}" >> /root/.bashrc
