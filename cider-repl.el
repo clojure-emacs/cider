@@ -246,17 +246,26 @@ This cache is stored in the connection buffer.")
           (setq cider-repl-cljs-upgrade-pending nil))
         (unless (nrepl-dict-empty-p changed-namespaces)
           (setq cider-repl-ns-cache (nrepl-dict-merge cider-repl-ns-cache changed-namespaces))
-          (dolist (b (buffer-list))
-            (with-current-buffer b
-              ;; Metadata changed, so signatures may have changed too.
-              (setq cider-eldoc-last-symbol nil)
-              (when (or cider-mode (derived-mode-p 'cider-repl-mode))
-                (when-let* ((ns-dict (or (nrepl-dict-get changed-namespaces (cider-current-ns))
-                                         (let ((ns-dict (cider-resolve--get-in (cider-current-ns))))
-                                           (when (seq-find (lambda (ns) (nrepl-dict-get changed-namespaces ns))
-                                                           (nrepl-dict-get ns-dict "aliases"))
-                                             ns-dict)))))
-                  (cider-refresh-dynamic-font-lock ns-dict))))))))))
+          (let ((this-repl (current-buffer)))
+            (dolist (b (buffer-list))
+              (with-current-buffer b
+                (when (or cider-mode (derived-mode-p 'cider-repl-mode))
+                  ;; We only cider-refresh-dynamic-font-lock (and set `cider-eldoc-last-symbol')
+                  ;; for Clojure buffers directly related to this repl
+                  ;; (specifically, we omit 'friendly' sessions because a given buffer may be friendly to multiple repls,
+                  ;;  so we don't want a buffer to mix up font locking rules from different repls).
+                  ;; Note that `sesman--linked-sessions' only queries for the directly linked sessions.
+                  ;; That has the additional advantage of running very/predictably fast, since it won't run our
+                  ;; `cider--sesman-friendly-session-p' logic, which can be slow for its non-cached path.
+                  (when (member this-repl (car (sesman--linked-sessions 'CIDER)))
+                    ;; Metadata changed, so signatures may have changed too.
+                    (setq cider-eldoc-last-symbol nil)
+                    (when-let* ((ns-dict (or (nrepl-dict-get changed-namespaces (cider-current-ns))
+                                             (let ((ns-dict (cider-resolve--get-in (cider-current-ns))))
+                                               (when (seq-find (lambda (ns) (nrepl-dict-get changed-namespaces ns))
+                                                               (nrepl-dict-get ns-dict "aliases"))
+                                                 ns-dict)))))
+                      (cider-refresh-dynamic-font-lock ns-dict))))))))))))
 
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."

@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+- [#3559](https://github.com/clojure-emacs/cider/issues/3559): don't apply [dynamic syntax highlighting](https://docs.cider.mx/cider/config/syntax_highlighting.html) over buffers belonging to unrelated Sesman sessions.
+
 ## 1.9.0 (2023-10-24)
 
 ### New features
