@@ -776,7 +776,7 @@ The handler simply inserts the result value in BUFFER."
                                               (end (or (car-safe (cdr-safe bounds)) bounds))
                                               (end (when end
                                                      (copy-marker end))))
-                                         (cider--display-error-as-overlay phase err end))))
+                                         (cider--maybe-display-error-as-overlay phase err end))))
 
                                    (cider-handle-compilation-errors err eval-buffer))
                                  ;; done handler:
@@ -863,7 +863,7 @@ and the suffix matched by `cider-module-info-regexp'."
                                          "")
                (string-trim)))
 
-(defun cider--display-error-as-overlay (phase err end)
+(defun cider--maybe-display-error-as-overlay (phase err end)
   "Possibly display ERR as an overlay honoring END,
 depending on the PHASE."
   (when (or
@@ -908,7 +908,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
 
                                    (let ((phase (cider--error-phase-of-last-exception buffer)))
 
-                                     (cider--display-error-as-overlay phase err end)
+                                     (cider--maybe-display-error-as-overlay phase err end)
 
                                      (cider-handle-compilation-errors err
                                                                       eval-buffer
@@ -1072,7 +1072,7 @@ This is used by pretty-printing commands."
                   (end (or (car-safe (cdr-safe bounds)) bounds))
                   (end (when end
                          (copy-marker end))))
-             (cider--display-error-as-overlay phase err end)))))
+             (cider--maybe-display-error-as-overlay phase err end)))))
      ;; done handler:
      nil
      ;; eval-error handler:
