@@ -8,6 +8,8 @@
   - Improves performance for completions- and info-related functionality.
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.18.0/CHANGELOG.md#0180-2023-10-30)
     - Improves various Inspector presentational aspects.
+- [#3553](https://github.com/clojure-emacs/cider/issues/3553): `cider-pprint-eval-last-sexp`, `cider-eval-last-sexp-to-repl`, `cider-pprint-eval-last-sexp-to-repl`: use error overlays to indicate failure.
+  - this also avoids showing an empty `*cider-result*` buffer.
 - [#3554](https://github.com/clojure-emacs/cider/issues/3554): CIDER macroexpand: handle errors more gracefully. 
 
 ### Bugs fixed

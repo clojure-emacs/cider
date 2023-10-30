@@ -746,24 +746,46 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
 
 
 ;;; Interactive evaluation handlers
-(defun cider-insert-eval-handler (&optional buffer)
-  "Make an nREPL evaluation handler for the BUFFER.
+(defun cider-insert-eval-handler (&optional buffer bounds source-buffer on-success-callback)
+  "Make an nREPL evaluation handler for the BUFFER,
+BOUNDS representing the buffer bounds of the evaled input,
+SOURCE-BUFFER the original buffer,
+and ON-SUCCESS-CALLBACK an optional callback.
+
 The handler simply inserts the result value in BUFFER."
   (let ((eval-buffer (current-buffer))
-        (res ""))
+        (res "")
+        (failed nil))
     (nrepl-make-response-handler (or buffer eval-buffer)
+                                 ;; value handler:
                                  (lambda (_buffer value)
                                    (with-current-buffer buffer
                                      (insert value))
                                    (when cider-eval-register
                                      (setq res (concat res value))))
+                                 ;; stdout handler:
                                  (lambda (_buffer out)
                                    (cider-repl-emit-interactive-stdout out))
+                                 ;; stderr handler:
                                  (lambda (_buffer err)
+                                   (setq failed t)
+                                   (when (and source-buffer
+                                              (listp bounds)) ;; if it's a list, it represents bounds, otherwise it's a string (code) and we can't display the overlay
+                                     (with-current-buffer source-buffer
+                                       (let* ((phase (cider--error-phase-of-last-exception buffer))
+                                              (end (or (car-safe (cdr-safe bounds)) bounds))
+                                              (end (when end
+                                                     (copy-marker end))))
+                                         (cider--maybe-display-error-as-overlay phase err end))))
+
                                    (cider-handle-compilation-errors err eval-buffer))
+                                 ;; done handler:
                                  (lambda (_buffer)
                                    (when cider-eval-register
-                                     (set-register cider-eval-register res))))))
+                                     (set-register cider-eval-register res))
+                                   (when (and (not failed)
+                                              on-success-callback)
+                                     (funcall on-success-callback))))))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
@@ -841,6 +863,24 @@ and the suffix matched by `cider-module-info-regexp'."
                                          "")
                (string-trim)))
 
+(defun cider--maybe-display-error-as-overlay (phase err end)
+  "Possibly display ERR as an overlay honoring END,
+depending on the PHASE."
+  (when (or
+         ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
+         (not cider-show-error-buffer)
+         (not (cider-connection-has-capability-p 'jvm-compilation-errors))
+         ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
+         (and cider-show-error-buffer
+              (member phase cider-clojure-compilation-error-phases)))
+    ;; Display errors as temporary overlays
+    (let ((cider-result-use-clojure-font-lock nil)
+          (trimmed-err (funcall cider-inline-error-message-function err)))
+      (cider--display-interactive-eval-result trimmed-err
+                                              'error
+                                              end
+                                              'cider-error-overlay-face))))
+
 (declare-function cider-inspect-last-result "cider-inspector")
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
@@ -867,21 +907,8 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                    (cider-emit-interactive-eval-err-output err)
 
                                    (let ((phase (cider--error-phase-of-last-exception buffer)))
-                                     (when (or
-                                            ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
-                                            (not cider-show-error-buffer)
-                                            (not (cider-connection-has-capability-p 'jvm-compilation-errors))
-                                            ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
-                                            (and cider-show-error-buffer
-                                                 (member phase cider-clojure-compilation-error-phases)))
-                                       ;; Display errors as temporary overlays
-                                       (let ((cider-result-use-clojure-font-lock nil)
-                                             (trimmed-err (funcall cider-inline-error-message-function err)))
-                                         (cider--display-interactive-eval-result
-                                          trimmed-err
-                                          'error
-                                          end
-                                          'cider-error-overlay-face)))
+
+                                     (cider--maybe-display-error-as-overlay phase err end)
 
                                      (cider-handle-compilation-errors err
                                                                       eval-buffer
@@ -1018,24 +1045,51 @@ COMMENT-POSTFIX is the text to output after the last line."
      (lambda (_buffer warning)
        (setq res (concat res warning))))))
 
-(defun cider-popup-eval-handler (&optional buffer)
-  "Make a handler for printing evaluation results in popup BUFFER.
+(defun cider-popup-eval-handler (&optional buffer bounds source-buffer)
+  "Make a handler for printing evaluation results in popup BUFFER,
+BOUNDS representing the buffer bounds of the evaled input,
+and SOURCE-BUFFER the original buffer
+
 This is used by pretty-printing commands."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
-  (nrepl-make-response-handler
-   (or buffer (current-buffer))
-   (lambda (buffer value)
-     (cider-emit-into-popup-buffer buffer (ansi-color-apply value) nil t))
-   (lambda (_buffer out)
-     (cider-emit-interactive-eval-output out))
-   (lambda (_buffer err)
-     (cider-emit-interactive-eval-err-output err))
-   nil
-   nil
-   nil
-   (lambda (buffer warning)
-     (cider-emit-into-popup-buffer buffer warning 'font-lock-warning-face t))))
+  (let ((chosen-buffer (or buffer (current-buffer))))
+    (nrepl-make-response-handler
+     chosen-buffer
+     ;; value handler:
+     (lambda (buffer value)
+       (cider-emit-into-popup-buffer buffer (ansi-color-apply value) nil t))
+     ;; stdout handler:
+     (lambda (_buffer out)
+       (cider-emit-interactive-eval-output out))
+     ;; stderr handler:
+     (lambda (buffer err)
+       (cider-emit-interactive-eval-err-output err)
+       (when (and source-buffer
+                  (listp bounds)) ;; if it's a list, it represents bounds, otherwise it's a string (code) and we can't display the overlay
+         (with-current-buffer source-buffer
+           (let* ((phase (cider--error-phase-of-last-exception buffer))
+                  (end (or (car-safe (cdr-safe bounds)) bounds))
+                  (end (when end
+                         (copy-marker end))))
+             (cider--maybe-display-error-as-overlay phase err end)))))
+     ;; done handler:
+     nil
+     ;; eval-error handler:
+     (lambda ()
+       (when (and (buffer-live-p chosen-buffer)
+                  (member (buffer-name chosen-buffer)
+                          cider-ancillary-buffers))
+         (with-selected-window (get-buffer-window chosen-buffer)
+           (cider-popup-buffer-quit-function t)))
+       ;; also call the default nrepl-err-handler, so that our custom behavior doesn't void the base behavior:
+       (when nrepl-err-handler
+         (funcall nrepl-err-handler)))
+     ;; content type handler:
+     nil
+     ;; truncated handler:
+     (lambda (buffer warning)
+       (cider-emit-into-popup-buffer buffer warning 'font-lock-warning-face t)))))
 
 
 ;;; Interactive valuation commands
@@ -1325,27 +1379,31 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
 
 (declare-function cider-switch-to-repl-buffer "cider-mode")
 
+(defun cider--eval-last-sexp-to-repl (switch-to-repl request-map)
+  "Evaluate the expression preceding point and insert its result in the REPL,
+honoring SWITCH-TO-REPL, REQUEST-MAP."
+  (let ((bounds (cider-last-sexp 'bounds)))
+    (cider-interactive-eval nil
+                            (cider-insert-eval-handler (cider-current-repl)
+                                                       bounds
+                                                       (current-buffer)
+                                                       (lambda ()
+                                                         (when switch-to-repl
+                                                           (cider-switch-to-repl-buffer))))
+                            bounds
+                            request-map)))
+
 (defun cider-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider-interactive-eval nil
-                          (cider-insert-eval-handler (cider-current-repl))
-                          (cider-last-sexp 'bounds)
-                          (cider--nrepl-pr-request-map))
-  (when prefix
-    (cider-switch-to-repl-buffer)))
+  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-pr-request-map)))
 
 (defun cider-pprint-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate expr before point and insert its pretty-printed result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider-interactive-eval nil
-                          (cider-insert-eval-handler (cider-current-repl))
-                          (cider-last-sexp 'bounds)
-                          (cider--nrepl-print-request-map fill-column))
-  (when prefix
-    (cider-switch-to-repl-buffer)))
+  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-print-request-map fill-column)))
 
 (defun cider-eval-print-last-sexp (&optional pretty-print)
   "Evaluate the expression preceding point.
@@ -1363,7 +1421,7 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
   "Pretty print FORM in popup buffer."
   (let* ((buffer (current-buffer))
          (result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary))
-         (handler (cider-popup-eval-handler result-buffer)))
+         (handler (cider-popup-eval-handler result-buffer form buffer)))
     (with-current-buffer buffer
       (cider-interactive-eval (when (stringp form) form)
                               handler
