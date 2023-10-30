@@ -1318,6 +1318,7 @@ nil."
     (define-key map (kbd "C-c C-s") #'cider-connect-cljs)
     (define-key map (kbd "C-c C-m") #'cider-connect-clj&cljs)
     (define-key map (kbd "s j") #'cider-connect-sibling-clj)
+    (define-key map (kbd "s n") #'cider-start-nrepl-server)
     (define-key map (kbd "s s") #'cider-connect-sibling-cljs)
     (define-key map (kbd "C-s j") #'cider-connect-sibling-clj)
     (define-key map (kbd "C-s s") #'cider-connect-sibling-cljs)
@@ -1326,8 +1327,7 @@ nil."
     map)
   "CIDER jack-in and connect keymap.")
 
-
-(defun cider--start-nrepl-server-with-callback (params on-port-callback)
+(defun cider--start-nrepl-server (params &optional on-port-callback)
   "Starts an nrepl server and passes the callback to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 ON-PORT-CALLBACK is a function of one argument (server buffer)
@@ -1343,16 +1343,14 @@ been determined.  Can be nil."
   "Start an nREPL server for the current project and connect to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the jack in command; with a
-double prefix prompt for all these parameters.
-
-See also: `cider-start-server'."
+double prefix prompt for all these parameters."
   (interactive "P")
   (let ((params (thread-first
                   params
                   (cider--update-project-dir)
                   (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
-    (cider--start-nrepl-server-with-callback
+    (cider--start-nrepl-server
      params
      (lambda (server-buffer)
        (cider-connect-sibling-clj params server-buffer)))))
@@ -1362,16 +1360,14 @@ See also: `cider-start-server'."
   "Start an nREPL server for the current project, but don't connect to it.
 PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the start server in command; with a
-double prefix prompt for all these parameters.
-
-See also: `cider-jack-in-clj'."
+double prefix prompt for all these parameters."
   (interactive "P")
   (let ((params (thread-first
                   params
                   (cider--update-project-dir)
                   (cider--check-existing-session)
                   (cider--update-jack-in-cmd))))
-    (cider--start-nrepl-server-with-callback params nil)))
+    (cider--start-nrepl-server params)))
 
 ;;;###autoload
 (defun cider-jack-in-cljs (params)
