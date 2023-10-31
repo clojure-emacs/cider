@@ -6,8 +6,9 @@
 
 ### New features
 
-- [#3555](https://github.com/clojure-emacs/cider/pull/3555): Introduce `cider-start-nrepl-server` function which does the same as `cider-jack-in`
+- [#3555](https://github.com/clojure-emacs/cider/pull/3555): Introduce [`cider-start-nrepl-server`](https://docs.cider.mx/cider/basics/up_and_running.html#starting-nrepl-server-without-trying-to-connect-to-it) function which does the same as `cider-jack-in`
 but without connecting to the started nREPL server.
+  - This can help setting up more complex workflows.
 
 ### Changes
 
