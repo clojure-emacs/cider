@@ -276,7 +276,7 @@ would therefore fail.
 This assumes that the user will execute a `cider-connect` command manually afterwards,
 specifying host/port.
 
-For this scenario, the `cider-start-nrepl-server` kbd:[C-c C-x s n]  command is offered, which optionally
+For this scenario, the `cider-start-nrepl-server` kbd:[j n]  command is offered, which optionally
 takes the same parameters as `cider-jack-in`.
 
 

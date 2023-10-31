@@ -1302,6 +1302,7 @@ nil."
     (define-key map (kbd "j s") #'cider-jack-in-cljs)
     (define-key map (kbd "j m") #'cider-jack-in-clj&cljs)
     (define-key map (kbd "j u") #'cider-jack-in-universal)
+    (define-key map (kbd "j n") #'cider-start-nrepl-server)
     (define-key map (kbd "C-j j") #'cider-jack-in-clj)
     (define-key map (kbd "C-j s") #'cider-jack-in-cljs)
     (define-key map (kbd "C-j n") #'cider-start-nrepl-server)
@@ -1320,7 +1321,6 @@ nil."
     (define-key map (kbd "C-c C-s") #'cider-connect-cljs)
     (define-key map (kbd "C-c C-m") #'cider-connect-clj&cljs)
     (define-key map (kbd "s j") #'cider-connect-sibling-clj)
-    (define-key map (kbd "j n") #'cider-start-nrepl-server)
     (define-key map (kbd "s s") #'cider-connect-sibling-cljs)
     (define-key map (kbd "C-s j") #'cider-connect-sibling-clj)
     (define-key map (kbd "C-s s") #'cider-connect-sibling-cljs)
@@ -1343,7 +1343,7 @@ been determined.  Can be nil."
 
 (defun cider--update-params (params)
   "Completes the passed in PARAMS from user input.
-Updates :project-dir, confirmation for existing seession and :jack-in-cmd."
+Updates :project-dir, confirmation for existing session and :jack-in-cmd."
   (thread-first
     params
     (cider--update-project-dir)
