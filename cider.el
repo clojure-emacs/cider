@@ -1340,6 +1340,16 @@ been determined.  Can be nil."
    (plist-get params :jack-in-cmd)
    on-port-callback))
 
+
+(defun cider--update-params (params)
+  "Completes the passed in PARAMS from user input.
+Updates :project-dir, confirmation for existing seession and :jack-in-cmd."
+  (thread-first
+    params
+    (cider--update-project-dir)
+    (cider--check-existing-session)
+    (cider--update-jack-in-cmd)))
+
 ;;;###autoload
 (defun cider-jack-in-clj (params)
   "Start an nREPL server for the current project and connect to it.
@@ -1347,11 +1357,7 @@ PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the jack in command; with a
 double prefix prompt for all these parameters."
   (interactive "P")
-  (let ((params (thread-first
-                  params
-                  (cider--update-project-dir)
-                  (cider--check-existing-session)
-                  (cider--update-jack-in-cmd))))
+  (let ((params (cider--update-params params)))
     (cider--start-nrepl-server
      params
      (lambda (server-buffer)
@@ -1364,11 +1370,7 @@ PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the start server in command; with a
 double prefix prompt for all these parameters."
   (interactive "P")
-  (let ((params (thread-first
-                  params
-                  (cider--update-project-dir)
-                  (cider--check-existing-session)
-                  (cider--update-jack-in-cmd))))
+  (let ((params (cider--update-params params)))
     (cider--start-nrepl-server params)))
 
 ;;;###autoload
