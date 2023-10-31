@@ -4,8 +4,8 @@
 
 ### New Features
 
-- Introduce `cider-start-nrepl-server` which does the same as `cider-jack-in` but without trying to connect to the started 
-nREPL server.
+- [#3555](https://github.com/clojure-emacs/cider/pull/3555): Introduce `cider-start-nrepl-server` which does the same as `cider-jack-in`
+but without trying to connect to the started nREPL server.
 
 ### Changes
 
@@ -17,7 +17,7 @@ nREPL server.
     - Improves keyword completion for ClojureScript.
 - [#3553](https://github.com/clojure-emacs/cider/issues/3553): `cider-pprint-eval-last-sexp`, `cider-eval-last-sexp-to-repl`, `cider-pprint-eval-last-sexp-to-repl`: use error overlays to indicate failure.
   - this also avoids showing an empty `*cider-result*` buffer.
-- [#3554](https://github.com/clojure-emacs/cider/issues/3554): CIDER macroexpand: handle errors more gracefully. 
+- [#3554](https://github.com/clojure-emacs/cider/issues/3554): CIDER macroexpand: handle errors more gracefully.
 
 ### Bugs fixed
 

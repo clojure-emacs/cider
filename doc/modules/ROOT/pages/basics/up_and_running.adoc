@@ -276,9 +276,8 @@ would therefore fail.
 This assumes that the user will execute a `cider-connect` command manually afterwards,
 specifying host/port.
 
-For this scenario, the `cider-start-nrepl-server` kbd:[j n]  command is offered, which optionally
+For this scenario, the `cider-start-nrepl-server` (kbd:[C-c C-x (C-)j (C-)n])  command is provided, which
 takes the same parameters as `cider-jack-in`.
-
 
 == Connect to a Running nREPL Server
 
@@ -372,7 +371,7 @@ By 'containers' we mean Docker containers, or similar technologies, for running 
 The files which we edit may / may not be edited using TRAMP. They could as well be mounted inside the container, so they appear as local.
 
 Because CIDER can't always detect if it's dealing with remote files, it's advisable to not rely on `cider-jack-in`
-and its remote support described above, but to 
+and its remote support described above, but to
 start the nREPL server via command line from inside the container, and `cider-connect` to it.
 
 This requires to first get a shell inside the running container and then start a nREPL server manually,
@@ -384,7 +383,7 @@ There are several solutions for this depending on the concrete scenario.
 
 === Working with Containers running on localhost
 
-The nREPL port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from 
+The nREPL port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from
 container to host. This requires as well that nREPL server listens to "0.0.0.0" and not only to "localhost".
 
 === Working with Containers running on remote hosts
@@ -401,7 +400,7 @@ https://containers.dev[Development Containers] is a standard to describe contain
 It uses Docker/Podman behind the scenes. So the principles of making sure that the nREPL port becomes available stay the same,
 but there are slightly different ways to configure this (given by the devcontainer standard).
 
-There are several CLI tools to manage devcontainers, as there are several container technologies. The following example uses 
+There are several CLI tools to manage devcontainers, as there are several container technologies. The following example uses
 link:https://github.com/devcontainers/cli[the devcontainers cli], but there are others (devpod, gitpod...).
 
 ==== Example: Working with containers (using `devcontainer`) on a remote server
