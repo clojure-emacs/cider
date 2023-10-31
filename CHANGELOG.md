@@ -4,10 +4,12 @@
 
 ### Changes
 
-- Bump the injected `cider-nrepl` to [0.42.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.42.0/CHANGELOG.md#0420-2023-10-30).
+- Bump the injected `cider-nrepl` to [0.42.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.42.1/CHANGELOG.md#0421-2023-10-31).
   - Improves performance for completions- and info-related functionality.
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.18.0/CHANGELOG.md#0180-2023-10-30)
     - Improves various Inspector presentational aspects.
+  - Updates [Suitable](https://github.com/clojure-emacs/clj-suitable/blob/v0.5.1/CHANGELOG.md#051-2023-10-31)
+    - Improves keyword completion for ClojureScript.
 - [#3553](https://github.com/clojure-emacs/cider/issues/3553): `cider-pprint-eval-last-sexp`, `cider-eval-last-sexp-to-repl`, `cider-pprint-eval-last-sexp-to-repl`: use error overlays to indicate failure.
   - this also avoids showing an empty `*cider-result*` buffer.
 - [#3554](https://github.com/clojure-emacs/cider/issues/3554): CIDER macroexpand: handle errors more gracefully. 
