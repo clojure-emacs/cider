@@ -1370,8 +1370,7 @@ PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
 With the prefix argument, allow editing of the start server in command; with a
 double prefix prompt for all these parameters."
   (interactive "P")
-  (let ((params (cider--update-params params)))
-    (cider--start-nrepl-server params)))
+  (cider--start-nrepl-server (cider--update-params params)))
 
 ;;;###autoload
 (defun cider-jack-in-cljs (params)
