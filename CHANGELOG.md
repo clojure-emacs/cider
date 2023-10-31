@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+### New Features
+
+- Introduce `cider-start-nrepl-server` which does the same as `cider-jack-in` but without trying to connect to the started 
+nREPL server.
+
 ### Changes
 
 - Bump the injected `cider-nrepl` to [0.42.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.42.1/CHANGELOG.md#0421-2023-10-31).
