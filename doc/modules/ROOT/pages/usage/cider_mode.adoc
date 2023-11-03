@@ -264,6 +264,10 @@ kbd:[C-c C-t C-b]
 | kbd:[M-.]
 | Jump to the definition of a symbol.  If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
 
+| `cider-find-keyword`
+| kbd:[C-c C-:]
+| Find the namespace of the keyword at point and its primary occurrence there.  If invoked with a prefix argument it inverts the value of `cider-prompt-for-symbol`.
+
 | `cider-find-dwim-at-mouse`
 | kbd:[mouse-5] or kbd:[mouse-9]
 | Jump to the definition of a symbol using mouse.
