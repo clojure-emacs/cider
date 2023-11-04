@@ -5,6 +5,8 @@
 ### Changes
 
 - `cider-popup-buffer-display`: honor `special-display-buffer-names` if customized for a given CIDER buffer name (e.g. `*cider-inspect*`), avoiding the double-rendering of the given buffer.
+- Bump the injected `cider-nrepl` to [0.43.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.0/CHANGELOG.md#0430-2023-11-04).
+  - Improves performance for exception handling and other use cases.
 
 ## 1.10.0 (2023-10-31)
 
