@@ -208,54 +208,61 @@ current buffer's namespace."
   (interactive (list (cider-read-from-minibuffer "Inspect expression: " (cider-sexp-at-point))
                      (cider-current-ns)))
   (setq cider-inspector--current-repl (cider-current-repl))
-  (when-let* ((value (cider-sync-request:inspect-expr
-                      expr ns
-                      cider-inspector-page-size
-                      cider-inspector-max-atom-length
-                      cider-inspector-max-coll-size)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-expr
+                 expr ns
+                 cider-inspector-page-size
+                 cider-inspector-max-atom-length
+                 cider-inspector-max-coll-size
+                 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defun cider-inspector-pop ()
   "Pop the last value off the inspector stack and render it.
 See `cider-sync-request:inspect-pop' and `cider-inspector--render-value'."
   (interactive)
   (setq cider-inspector-last-command 'cider-inspector-pop)
-  (when-let* ((value (cider-sync-request:inspect-pop)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-pop 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it.
 See `cider-sync-request:inspect-push' and `cider-inspector--render-value'"
   (interactive)
-  (when-let* ((value (cider-sync-request:inspect-push idx)))
-    (push (point) cider-inspector-location-stack)
-    (cider-inspector--render-value value)
-    (cider-inspector-next-inspectable-object 1)))
+  (let ((result (cider-sync-request:inspect-push idx 'v2)))
+    (when (nrepl-dict-get result "value")
+      (push (point) cider-inspector-location-stack)
+      (cider-inspector--render-value result 'v2)
+      (cider-inspector-next-inspectable-object 1))))
 
 (defun cider-inspector-previous-sibling ()
   "Inspect the previous sibling value within a sequential parent.
 See `cider-sync-request:inspect-previous-sibling' and `cider-inspector--render-value'"
   (interactive)
-  (when-let* ((value (cider-sync-request:inspect-previous-sibling)))
-    (push (point) cider-inspector-location-stack)
-    (cider-inspector--render-value value)
-    (cider-inspector-next-inspectable-object 1)))
+  (let ((result (cider-sync-request:inspect-previous-sibling 'v2)))
+    (when (nrepl-dict-get result "value")
+      (push (point) cider-inspector-location-stack)
+      (cider-inspector--render-value result 'v2)
+      (cider-inspector-next-inspectable-object 1))))
 
 (defun cider-inspector-next-sibling ()
   "Inspect the next sibling value within a sequential parent.
 See `cider-sync-request:inspect-next-sibling' and `cider-inspector--render-value'"
   (interactive)
-  (when-let* ((value (cider-sync-request:inspect-next-sibling)))
-    (push (point) cider-inspector-location-stack)
-    (cider-inspector--render-value value)
-    (cider-inspector-next-inspectable-object 1)))
+  (let ((result (cider-sync-request:inspect-next-sibling 'v2)))
+    (when (nrepl-dict-get result "value")
+      (push (point) cider-inspector-location-stack)
+      (cider-inspector--render-value result 'v2)
+      (cider-inspector-next-inspectable-object 1))))
 
 (defun cider-inspector-refresh ()
   "Re-render the currently inspected value.
 See `cider-sync-request:inspect-refresh' and `cider-inspector--render-value'"
   (interactive)
-  (when-let* ((value (cider-sync-request:inspect-refresh)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-refresh 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defun cider-inspector-next-page ()
   "Jump to the next page when inspecting a paginated sequence/map.
@@ -263,8 +270,9 @@ See `cider-sync-request:inspect-refresh' and `cider-inspector--render-value'"
 Does nothing if already on the last page."
   (interactive)
   (push (point) cider-inspector-page-location-stack)
-  (when-let* ((value (cider-sync-request:inspect-next-page)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-next-page 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defun cider-inspector-prev-page ()
   "Jump to the previous page when expecting a paginated sequence/map.
@@ -272,29 +280,33 @@ Does nothing if already on the last page."
 Does nothing if already on the first page."
   (interactive)
   (setq cider-inspector-last-command 'cider-inspector-prev-page)
-  (when-let* ((value (cider-sync-request:inspect-prev-page)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-prev-page 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defun cider-inspector-set-page-size (page-size)
   "Set the page size in pagination mode to the specified PAGE-SIZE.
 
 Current page will be reset to zero."
   (interactive (list (read-number "Page size: " cider-inspector-page-size)))
-  (when-let ((value (cider-sync-request:inspect-set-page-size page-size)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-set-page-size page-size 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defun cider-inspector-set-max-atom-length (max-length)
   "Set the max length of nested atoms to MAX-LENGTH."
   (interactive (list (read-number "Max atom length: " cider-inspector-max-atom-length)))
-  (when-let ((value (cider-sync-request:inspect-set-max-atom-length max-length)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-set-max-atom-length max-length 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defun cider-inspector-set-max-coll-size (max-size)
   "Set the number of nested collection members to display before truncating.
 MAX-SIZE is the new value."
   (interactive (list (read-number "Max collection size: " cider-inspector-max-coll-size)))
-  (when-let ((value (cider-sync-request:inspect-set-max-coll-size max-size)))
-    (cider-inspector--render-value value)))
+  (let ((result (cider-sync-request:inspect-set-max-coll-size max-size 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
 
 (defcustom cider-inspector-preferred-var-names nil
   "The preferred var names to be suggested by `cider-inspector-def-current-val'.
@@ -325,8 +337,9 @@ current-namespace."
                  (list (cider-inspector--read-var-name-from-user ns)
                        ns)))
   (setq cider-inspector--current-repl (cider-current-repl))
-  (when-let* ((value (cider-sync-request:inspect-def-current-val ns var-name)))
-    (cider-inspector--render-value value)
+  (when-let* ((result (cider-sync-request:inspect-def-current-val ns var-name 'v2))
+              (value (nrepl-dict-get result "value")))
+    (cider-inspector--render-value result 'v2)
     (message "%s#'%s/%s = %s" cider-eval-result-prefix ns var-name value)))
 
 (defun cider-inspector-tap-current-val ()
@@ -343,111 +356,163 @@ current-namespace."
     (user-error "No CIDER session found")))
 
 ;; nREPL interactions
-(defun cider-sync-request:inspect-pop ()
-  "Move one level up in the inspector stack."
-  (thread-first '("op" "inspect-pop")
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-pop (&optional v2)
+  "Move one level up in the inspector stack,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first '("op" "inspect-pop")
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-push (idx)
-  "Inspect the inside value specified by IDX."
-  (thread-first `("op" "inspect-push"
-                  "idx" ,idx)
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-push (idx &optional v2)
+  "Inspect the inside value specified by IDX,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first `("op" "inspect-push"
+                                "idx" ,idx)
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-previous-sibling ()
-  "Inspect the previous sibling value within a sequential parent."
-  (thread-first `("op" "inspect-previous-sibling")
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-previous-sibling (&optional v2)
+  "Inspect the previous sibling value within a sequential parent,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first `("op" "inspect-previous-sibling")
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-next-sibling ()
-  "Inspect the next sibling value within a sequential parent."
-  (thread-first `("op" "inspect-next-sibling")
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-next-sibling (&optional v2)
+  "Inspect the next sibling value within a sequential parent,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first `("op" "inspect-next-sibling")
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-refresh ()
-  "Re-render the currently inspected value."
-  (thread-first '("op" "inspect-refresh")
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-refresh (&optional v2)
+  "Re-render the currently inspected value,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first '("op" "inspect-refresh")
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-next-page ()
-  "Jump to the next page in paginated collection view."
-  (thread-first '("op" "inspect-next-page")
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-next-page (&optional v2)
+  "Jump to the next page in paginated collection view,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first '("op" "inspect-next-page")
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-prev-page ()
-  "Jump to the previous page in paginated collection view."
-  (thread-first '("op" "inspect-prev-page")
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-prev-page (&optional v2)
+  "Jump to the previous page in paginated collection view,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first '("op" "inspect-prev-page")
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-set-page-size (page-size)
-  "Set the page size in paginated view to PAGE-SIZE."
-  (thread-first `("op" "inspect-set-page-size"
-                  "page-size" ,page-size)
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-set-page-size (page-size &optional v2)
+  "Set the page size in paginated view to PAGE-SIZE,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first `("op" "inspect-set-page-size"
+                                "page-size" ,page-size)
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-set-max-atom-length (max-length)
-  "Set the max length of nested atoms to MAX-LENGTH."
-  (thread-first `("op" "inspect-set-max-atom-length"
-                  "max-atom-length" ,max-length)
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-set-max-atom-length (max-length &optional v2)
+  "Set the max length of nested atoms to MAX-LENGTH,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first `("op" "inspect-set-max-atom-length"
+                                "max-atom-length" ,max-length)
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-set-max-coll-size (max-size)
+(defun cider-sync-request:inspect-set-max-coll-size (max-size &optional v2)
   "Set the number of nested collection members to display before truncating.
-MAX-SIZE is the new value."
-  (thread-first `("op" "inspect-set-max-coll-size"
-                  "max-coll-size" ,max-size)
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+MAX-SIZE is the new value, V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first `("op" "inspect-set-max-coll-size"
+                                "max-coll-size" ,max-size)
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
-(defun cider-sync-request:inspect-def-current-val (ns var-name)
-  "Defines a var with VAR-NAME in NS with the current inspector value."
-  (thread-first `("op" "inspect-def-current-value"
-                  "ns" ,ns
-                  "var-name" ,var-name)
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+(defun cider-sync-request:inspect-def-current-val (ns var-name &optional v2)
+  "Defines a var with VAR-NAME in NS with the current inspector value,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first `("op" "inspect-def-current-value"
+                                "ns" ,ns
+                                "var-name" ,var-name)
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
 (defun cider-sync-request:inspect-tap-current-val ()
   "Sends current inspector value to tap>."
   (cider-nrepl-send-sync-request '("op" "inspect-tap-current-value") cider-inspector--current-repl))
 
-(defun cider-sync-request:inspect-expr (expr ns page-size max-atom-length max-coll-size)
+(defun cider-sync-request:inspect-expr (expr ns page-size max-atom-length max-coll-size &optional v2)
   "Evaluate EXPR in context of NS and inspect its result.
 Set the page size in paginated view to PAGE-SIZE, maximum length of atomic
 collection members to MAX-ATOM-LENGTH, and maximum size of nested collections to
-MAX-COLL-SIZE if non nil."
-  (thread-first (append (nrepl--eval-request expr ns)
-                        `("inspect" "true"
-                          ,@(when page-size
-                              `("page-size" ,page-size))
-                          ,@(when max-atom-length
-                              `("max-atom-length" ,max-atom-length))
-                          ,@(when max-coll-size
-                              `("max-coll-size" ,max-coll-size))))
-                (cider-nrepl-send-sync-request cider-inspector--current-repl)
-                (nrepl-dict-get "value")))
+MAX-COLL-SIZE if non nil,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (let ((result (thread-first (append (nrepl--eval-request expr ns)
+                                      `("inspect" "true"
+                                        ,@(when page-size
+                                            `("page-size" ,page-size))
+                                        ,@(when max-atom-length
+                                            `("max-atom-length" ,max-atom-length))
+                                        ,@(when max-coll-size
+                                            `("max-coll-size" ,max-coll-size))))
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
 
 ;; Render Inspector from Structured Values
-(defun cider-inspector--render-value (value)
-  "Render VALUE."
-  (let ((font-size (when-let* ((b (get-buffer cider-inspector-buffer))
-                               (variable 'text-scale-mode-amount)
-                               (continue (local-variable-p variable b)))
-                     ;; The font size is lost between inspector 'screens',
-                     ;; because on each re-rendering, we wipe everything, including the mode.
-                     ;; Enabling cider-inspector-mode is the specific step that loses the font size.
-                     (buffer-local-value variable b))))
+(defun cider-inspector--render-value (dict-or-value &optional v2)
+  "Render DICT-OR-VALUE, depending on V2."
+  (let* ((value (if v2
+                    (nrepl-dict-get dict-or-value "value")
+                  dict-or-value))
+         (fragments (when v2
+                      (nrepl-dict-get dict-or-value "doc-fragments")))
+         (font-size (when-let* ((b (get-buffer cider-inspector-buffer))
+                                (variable 'text-scale-mode-amount)
+                                (continue (local-variable-p variable b)))
+                      ;; The font size is lost between inspector 'screens',
+                      ;; because on each re-rendering, we wipe everything, including the mode.
+                      ;; Enabling cider-inspector-mode is the specific step that loses the font size.
+                      (buffer-local-value variable b))))
     (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode 'ancillary)
-    (cider-inspector-render cider-inspector-buffer value font-size))
+    (cider-inspector-render cider-inspector-buffer value font-size fragments))
   (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
   (when cider-inspector-fill-frame (delete-other-windows))
   (ignore-errors (cider-inspector-next-inspectable-object 1))
@@ -466,7 +531,7 @@ MAX-COLL-SIZE if non nil."
       (when cider-inspector-page-location-stack
         (goto-char (pop cider-inspector-page-location-stack))))))
 
-(defun cider-inspector-render (buffer str &optional font-size)
+(defun cider-inspector-render (buffer str &optional font-size fragments)
   "Render STR in BUFFER."
   (with-current-buffer buffer
     (cider-inspector-mode)
@@ -474,17 +539,21 @@ MAX-COLL-SIZE if non nil."
       (text-scale-set font-size))
     (let ((inhibit-read-only t))
       (condition-case nil
-          (cider-inspector-render* (car (read-from-string str)))
+          (cider-inspector-render* (car (read-from-string str))
+                                   fragments)
         (error (insert "\nInspector error for: " str))))
     (goto-char (point-min))))
 
 (defvar cider-inspector-looking-at-java-p nil)
 
-(defun cider-inspector-render* (elements)
-  "Render ELEMENTS."
+(defun cider-inspector-render* (elements &optional fragments)
+  "Render ELEMENTS, and FRAGMENTS if present."
   (setq cider-inspector-looking-at-java-p nil)
   (dolist (el elements)
-    (cider-inspector-render-el* el)))
+    (cider-inspector-render-el* el))
+  (when fragments
+    (insert "\n\n")
+    (insert (cider--render-docstring (list "doc-fragments" fragments)))))
 
 (defconst cider--inspector-java-headers
   ;; NOTE "--- Static fields:" "--- Instance fields:" are for objects,
