@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3565](https://github.com/clojure-emacs/cider/issues/3565): [`*cider-error*`](https://docs.cider.mx/cider/usage/dealing_with_errors.html#inspector-integration): open a given Exception in the [Inspector](https://docs.cider.mx/cider/debugging/inspector.html) by clicking it, or hitting <kbd>p</kbd>.
+
 ### Changes
 
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): display Java class/method/field info when available.
