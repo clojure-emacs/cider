@@ -92,7 +92,7 @@ by adding BUFFER-NAME to the `special-display-buffer-names' list."
                                         (reusable-frames .
                                                          ;; choose any visible frame
                                                          visible)))))))
-    buffer-name))
+    (get-buffer buffer-name)))
 
 (defun cider-popup-buffer-quit (&optional kill)
   "Quit the current (temp) window.
