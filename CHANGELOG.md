@@ -4,6 +4,8 @@
 
 ### Changes
 
+- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): display Java class/method/field info when available.
+  - This info is available when [enrich-classpath](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath) is active.
 - `cider-popup-buffer-display`: honor `special-display-buffer-names` if customized for a given CIDER buffer name (e.g. `*cider-inspect*`), avoiding the double-rendering of the given buffer.
 - Bump the injected `cider-nrepl` to [0.43.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.0/CHANGELOG.md#0430-2023-11-04).
   - Improves performance for exception handling and other use cases.

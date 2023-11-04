@@ -52,11 +52,11 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-refresh`
 | Refresh the inspector (e.g. if viewing an atom/ref/agent)
 
-| kbd:[SPC]
+| kbd:[SPC] or kbd:[Next] 
 | `cider-inspector-next-page`
 | Jump to next page in paginated view
 
-| kbd:[M-SPC]
+| kbd:[M-SPC] or kbd:[Prev]
 | `cider-inspector-prev-page`
 | Jump to previous page in paginated view
 
@@ -89,6 +89,11 @@ You'll have access to additional keybindings in the inspector buffer
 | Performs `tap>` using the inspector's current value as it argument.
 
 |===
+
+== Use `enrich-classpath` for best results
+
+If xref:config/basic_config.adoc#use-enrich-classpath[enrich-classpath] is activated, inspecting a Java class, method or field
+will richly display its Java doc comment documentation at the bottom of the inspector.  
 
 == Configuration
 
