@@ -236,6 +236,17 @@ See `cider-sync-request:inspect-push' and `cider-inspector--render-value'"
       (cider-inspector--render-value result 'v2)
       (cider-inspector-next-inspectable-object 1))))
 
+(defun cider-inspector-inspect-last-exception (index)
+  "Inspects the exception in the cause stack identified by INDEX."
+  (interactive)
+  (cl-assert (numberp index))
+  (setq cider-inspector--current-repl (cider-current-repl))
+  (let ((result (cider-sync-request:inspect-last-exception index 'v2)))
+    (when (nrepl-dict-get result "value")
+      (push (point) cider-inspector-location-stack)
+      (cider-inspector--render-value result 'v2)
+      (cider-inspector-next-inspectable-object 1))))
+
 (defun cider-inspector-previous-sibling ()
   "Inspect the previous sibling value within a sequential parent.
 See `cider-sync-request:inspect-previous-sibling' and `cider-inspector--render-value'"
@@ -382,6 +393,19 @@ instead of just its \"value\" entry."
 V2 indicates if the entire response should be returned
 instead of just its \"value\" entry."
   (let ((result (thread-first `("op" "inspect-previous-sibling")
+                              (cider-nrepl-send-sync-request cider-inspector--current-repl))))
+    (if v2
+        result
+      (nrepl-dict-get result "value"))))
+
+;;;###autoload
+(defun cider-sync-request:inspect-last-exception (index &optional v2)
+  "Inspects the exception in the cause stack identified by INDEX,
+V2 indicates if the entire response should be returned
+instead of just its \"value\" entry."
+  (cl-assert (numberp index))
+  (let ((result (thread-first `("op" "inspect-last-exception"
+                                "index" ,index)
                               (cider-nrepl-send-sync-request cider-inspector--current-repl))))
     (if v2
         result

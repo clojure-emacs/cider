@@ -295,3 +295,21 @@ Cider recognizes stacktraces printed in the following formats:
   buffer. When `cider-stacktrace-analyze-at-point` fails to detect the
   stacktrace, `cider-stacktrace-analyze-in-region` can be used to
   select the stacktrace manually.
+
+== Inspector integration
+
+Within `*cider-error*`, when clicking directly a top-level exception (any of them in the cause chain),
+that specific exception will be inspected with the CIDER xref:debugging/inspector.adoc[Inspector].
+
+This allows you to better understand intrincate `ex-data`.
+
+This clicking is defined and customizable in `cider-stacktrace-exception-map`, which has the following defaults:
+
+=== Keybindings
+
+|===
+| Action | Description
+
+| kbd:[click] or kbd:[i] or kbd:[p] 
+| Open the given exception in the Inspector.
+|===
