@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- `cider-popup-buffer-display`: honor `special-display-buffer-names` if customized for a given CIDER buffer name (e.g. `*cider-inspect*`), avoiding the double-rendering of the given buffer.
+
 ## 1.10.0 (2023-10-31)
 
 ### New features
