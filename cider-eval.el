@@ -951,7 +951,16 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                                    (cider-emit-interactive-eval-output value))
                                  (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
-                                   (cider-handle-compilation-errors err eval-buffer))
+                                   ;; 1.- Jump to the error line:
+                                   (cider-handle-compilation-errors err eval-buffer)
+                                   (with-current-buffer eval-buffer
+                                     (let* ((phase (cider--error-phase-of-last-exception buffer))
+                                            ;; 2.- Calculate the overlay position, which is the point (per the previous jump),
+                                            ;;     and then end-of-line (for ensuring the overlay will be rendered properly):
+                                            (end (save-excursion
+                                                   (end-of-line)
+                                                   (point))))
+                                       (cider--maybe-display-error-as-overlay phase err end))))
                                  (lambda (buffer)
                                    (when cider-eval-register
                                      (set-register cider-eval-register res))
