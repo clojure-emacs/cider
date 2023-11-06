@@ -958,7 +958,8 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                                             ;; 2.- Calculate the overlay position, which is the point (per the previous jump),
                                             ;;     and then end-of-line (for ensuring the overlay will be rendered properly):
                                             (end (save-excursion
-                                                   (end-of-line)
+                                                   (when (equal cider-result-overlay-position 'at-eol)
+                                                     (end-of-line))
                                                    (point))))
                                        (cider--maybe-display-error-as-overlay phase err end))))
                                  (lambda (buffer)
