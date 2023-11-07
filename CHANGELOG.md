@@ -13,8 +13,10 @@
 - [#3495](https://github.com/clojure-emacs/cider/issues/3495): possibly display error overlays on [`cider-load-buffer`](https://docs.cider.mx/cider/usage/code_evaluation.html#basic-evaluation).
 - `cider-popup-buffer-display`: honor `special-display-buffer-names` if customized for a given CIDER buffer name (e.g. `*cider-inspect*`), avoiding the double-rendering of the given buffer.
 - [#3572](https://github.com/clojure-emacs/cider/issues/3572): `lein.sh`: honor `XDG_CACHE_HOME`. 
-- Bump the injected `cider-nrepl` to [0.43.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.0/CHANGELOG.md#0430-2023-11-04).
+- Bump the injected `cider-nrepl` to [0.43.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.1/CHANGELOG.md#0431-2023-11-07).
   - Improves performance for exception handling and other use cases.
+  - Fixes [`cider-inspector-refresh`](https://docs.cider.mx/cider/debugging/inspector.html#usage)
+  - Offers better completions related to `:as-alias` under ClojureScript.
 
 ## 1.10.0 (2023-10-31)
 
