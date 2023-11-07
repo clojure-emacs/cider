@@ -194,9 +194,6 @@ CIDER 1.7."
 This property value must be unique to avoid having adjacent inputs be
 joined together.")
 
-(defvar-local cider-repl-input-history-items-added 0
-  "Variable counting the items added in the current session.")
-
 (defvar-local cider-repl-output-start nil
   "Marker for the start of output.
 Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
@@ -1473,8 +1470,7 @@ WIN, BUFFER and POS are the window, buffer and point under mouse position."
 Empty strings and duplicates are ignored."
   (unless (or (equal string "")
               (equal string (car cider-repl-input-history)))
-    (push string cider-repl-input-history)
-    (cl-incf cider-repl-input-history-items-added)))
+    (push string cider-repl-input-history)))
 
 (defun cider-repl-delete-current-input ()
   "Delete all text after the prompt."
@@ -1647,11 +1643,9 @@ The value of `cider-repl-input-history' is set by this function."
   "Write history to FILENAME.
 Currently coding system for writing the contents is hardwired to
 utf-8-unix."
-  (let* ((mhist (cider-repl--histories-merge cider-repl-input-history
-                                             cider-repl-input-history-items-added
-                                             (cider-repl--history-read filename)))
+  (let* ((end (min (length cider-repl-input-history) cider-repl-history-size))
          ;; newest items are at the beginning of the list, thus 0
-         (hist (cl-subseq mhist 0 (min (length mhist) cider-repl-history-size))))
+         (hist (cl-subseq cider-repl-input-history 0 end)))
     (unless (file-writable-p filename)
       (error (format "History file not writable: %s" filename)))
     (let ((print-length nil) (print-level nil))
@@ -1682,16 +1676,6 @@ constructs."
     (with-current-buffer buffer
       (when (equal major-mode 'cider-repl-mode)
         (cider-repl-history-just-save)))))
-
-;; SLIME has different semantics and will not save any duplicates.
-;; we keep track of how many items were added to the history in the
-;; current session in `cider-repl--add-to-input-history' and merge only the
-;; new items with the current history found in the file, which may
-;; have been changed in the meantime by another session.
-(defun cider-repl--histories-merge (session-hist n-added-items file-hist)
-  "Merge histories from SESSION-HIST adding N-ADDED-ITEMS into FILE-HIST."
-  (append (cl-subseq session-hist 0 n-added-items)
-          file-hist))
 
 
 ;;; REPL shortcuts
