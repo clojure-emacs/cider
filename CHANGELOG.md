@@ -5,6 +5,7 @@
 ### New features
 
 - CIDER [History](https://docs.cider.mx/cider/repl/history.html): if `cider-repl-history-file` is unset, the history is saved on a per-project basis.
+- CIDER [History](https://docs.cider.mx/cider/repl/history.html): Add a command to delete history item at point.
 
 ### Changes
 

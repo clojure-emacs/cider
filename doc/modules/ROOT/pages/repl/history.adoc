@@ -175,4 +175,7 @@ There are a number of important keybindings in history buffers.
 
 | kbd:[U]
 | Undo in the REPL buffer.
+
+| kbd:[D]
+| Delete history item (at point).
 |===
