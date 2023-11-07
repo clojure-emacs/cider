@@ -636,16 +636,17 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
                         #'cider-repl-history-update-highlighted-entry
                         nil t))
             (message
-             (let ((entry (if (= 1 (length cider-command-history))
-                              "entry"
-                            "entries")))
+             (let* ((history-length (length cider-command-history))
+                    (entry (if (= 1 history-length)
+                               "entry"
+                             "entries")))
                (concat
                 (if (and (not regexp)
                          cider-repl-history-display-duplicates)
                     (format "%s %s in the command history."
-                            (length cider-command-history) entry)
+                            history-length entry)
                   (format "%s (of %s) %s in the command history shown."
-                          (length items) (length cider-command-history) entry))
+                          (length items) history-length entry))
                 (substitute-command-keys
                  (concat "  Type \\[cider-repl-history-quit] to quit.  "
                          "\\[describe-mode] for help.")))))
