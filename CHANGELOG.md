@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+### New features
+- CIDER [History](https://docs.cider.mx/cider/repl/history.html): Add a command to delete history item at point.
+
 ### Changes
 
 - [#3574](https://github.com/clojure-emacs/cider/issues/3574): New value `per-project` for `cider-repl-history-file` to save the history on a per-project basis.

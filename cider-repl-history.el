@@ -575,6 +575,16 @@ text from the *cider-repl-history* buffer."
   (with-current-buffer cider-repl-history-repl-buffer
     (undo)))
 
+(defun cider-repl-history-delete-entry-at-point ()
+  "Delete history entry (at point)."
+  (interactive)
+  (let* ((orig (point))
+         (str (cider-repl-history-current-string orig)))
+    (with-current-buffer cider-repl-history-repl-buffer
+      (delete str cider-repl-input-history))
+    (cider-repl-history-update)
+    (goto-char orig)))
+
 (defun cider-repl-history-setup (repl-win repl-buf history-buf &optional regexp)
   "Setup.
 REPL-WIN and REPL-BUF are where to insert commands;
@@ -693,6 +703,7 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
     (define-key map (kbd "g")   #'cider-repl-history-update)
     (define-key map (kbd "q")   #'cider-repl-history-quit)
     (define-key map (kbd "U")   #'cider-repl-history-undo-other-window)
+    (define-key map (kbd "D")   #'cider-repl-history-delete-entry-at-point)
     (define-key map (kbd "?")   #'describe-mode)
     (define-key map (kbd "h")   #'describe-mode)
     map))
