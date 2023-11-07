@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+### New features
+- CIDER [History](https://docs.cider.mx/cider/repl/history.html): Add a command to delete history item at point.
+
 ### Changes
 - [#3754](https://github.com/clojure-emacs/cider/issues/3754): Fix regex in `cider-ns-from-p`.
 - [#3753](https://github.com/clojure-emacs/cider/pull/3753): Add `cider-log-show-frameworks` command to show available log frameworks in a buffer.
