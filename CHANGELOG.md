@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- Bump the injected `enrich-classpath` to [1.18.4](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.2...v1.18.4).
+
 ## 1.11.0 (2023-11-07)
 
 ### New features
