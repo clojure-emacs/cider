@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3574](https://github.com/clojure-emacs/cider/issues/3574): New value `per-project` for `cider-repl-history-file` to save the history on a per-project basis.
+
 ### Bugs fixed
 
 - [#3763](https://github.com/clojure-emacs/cider/issues/3763): Fix `cider-docview-render` completion popup error when symbol being completed does not have a docstring.

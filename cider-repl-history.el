@@ -220,7 +220,6 @@ call `cider-repl-history' again.")
 (defvar cider-repl-history-previous-overlay nil
   "Previous overlay within *cider-repl-history* buffer.")
 
-
 (defun cider-repl-history-get-history ()
   "Function to retrieve history from the REPL buffer."
   (if cider-repl-history-repl-buffer
